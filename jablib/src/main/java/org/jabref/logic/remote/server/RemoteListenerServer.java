@@ -11,11 +11,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import javafx.util.Pair;
-
 import org.jabref.logic.remote.Protocol;
 import org.jabref.logic.remote.RemoteMessage;
 import org.jabref.logic.remote.RemotePreferences;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,13 +70,14 @@ public class RemoteListenerServer implements Runnable {
         }
     }
 
-    /// Probing must not consume anything on a non-match: [Protocol] deserializes from the same
-    /// stream afterwards, so any partially matching prefix is un-read via mark/reset.
+    /// Probing must not consume anything on a non-match: [Protocol]
+    /// deserializes from the same stream afterwards, so any partially matching
+    /// prefix is un-read via mark/reset.
     ///
-    /// The full prefix is only read after the first byte matched. A serialized [Protocol] request
-    /// starts with the object-stream header (`0xAC`...), of which the client initially sends only
-    /// four bytes — blocking here for the full prefix length would deadlock both sides until the
-    /// socket timeout.
+    /// The full prefix is only read after the first byte matched. A serialized
+    /// [Protocol] request starts with the object-stream header (`0xAC`...), of
+    /// which the client initially sends only four bytes — blocking here for the
+    /// full prefix length would deadlock both sides until the socket timeout.
     private boolean isHealthCheck(BufferedInputStream input) throws IOException {
         input.mark(HEALTH_CHECK_PREFIX.length);
         int firstByte = input.read();

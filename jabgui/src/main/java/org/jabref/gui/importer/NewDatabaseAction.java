@@ -26,7 +26,8 @@ public class NewDatabaseAction extends SimpleCommand {
     @Override
     public void execute() {
         BibDatabaseContext bibDatabaseContext = new BibDatabaseContext();
-        bibDatabaseContext.setMode(preferences.getLibraryPreferences().getDefaultBibDatabaseMode());
+        bibDatabaseContext.setMode(preferences.getLibraryPreferences()
+                .getDefaultBibDatabaseMode());
         addGroupImportEntriesAction.addImportedEntriesGroupIfNeeded(bibDatabaseContext, preferences);
         tabContainer.addTab(bibDatabaseContext, true);
     }

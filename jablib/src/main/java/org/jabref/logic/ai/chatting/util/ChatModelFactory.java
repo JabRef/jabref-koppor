@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
+import dev.langchain4j.model.mistralai.MistralAiChatModel;
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.chatting.JvmOpenAiChatLanguageModel;
 import org.jabref.logic.ai.preferences.AiPreferences;
@@ -13,11 +17,6 @@ import org.jabref.logic.ai.tokenization.logic.TokenEstimator;
 import org.jabref.logic.ai.tokenization.util.TokenEstimatorFactory;
 import org.jabref.model.ai.llm.AiProvider;
 import org.jabref.model.ai.tokenization.TokenEstimatorKind;
-
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import dev.langchain4j.model.chat.response.ChatResponse;
-import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
-import dev.langchain4j.model.mistralai.MistralAiChatModel;
 
 /// Static factory for creating [ChatModel] instances.
 ///
@@ -33,8 +32,8 @@ public final class ChatModelFactory {
         throw new UnsupportedOperationException("cannot instantiate a utility class");
     }
 
-    /// Creates a [ChatModel] from explicit parameters.
-    /// All decisions about provider, model name, API key, etc. must be made by the caller.
+    /// Creates a [ChatModel] from explicit parameters. All decisions about
+    /// provider, model name, API key, etc. must be made by the caller.
     public static ChatModel create(
             AiProvider provider,
             String modelName,
@@ -44,42 +43,41 @@ public final class ChatModelFactory {
             // [impl->feat~ai.llms.custom~1]
             String baseUrl,
             int contextWindowSize,
-            TokenEstimatorKind tokenEstimatorKind
-    ) {
+            TokenEstimatorKind tokenEstimatorKind) {
         TokenEstimator tokenEstimator = TokenEstimatorFactory.create(tokenEstimatorKind);
 
-        ExecutorService executorService = Executors.newSingleThreadExecutor(
-                new ThreadFactoryBuilder().setNameFormat("ai-api-connection-pool-%d").build()
-        );
+        ExecutorService executorService = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
+                .setNameFormat("ai-api-connection-pool-%d")
+                .build());
         HttpClient httpClient = HttpClient.newBuilder()
-                                          .connectTimeout(CONNECTION_TIMEOUT)
-                                          .executor(executorService)
-                                          .build();
+                .connectTimeout(CONNECTION_TIMEOUT)
+                .executor(executorService)
+                .build();
 
         dev.langchain4j.model.chat.ChatModel langchainModel = switch (provider) {
-            case OPEN_AI ->
-                    new JvmOpenAiChatLanguageModel(apiKey, modelName, temperature, baseUrl, httpClient);
+            case OPEN_AI -> new JvmOpenAiChatLanguageModel(apiKey, modelName, temperature, baseUrl, httpClient);
             case HUGGING_FACE -> // NOTE: Hugging Face is implemented via OpenAI API.
                     new JvmOpenAiChatLanguageModel(apiKey, modelName, temperature, baseUrl, httpClient);
             case MISTRAL_AI ->
                     MistralAiChatModel.builder()
-                                      .apiKey(apiKey)
-                                      .modelName(modelName)
-                                      .temperature(temperature)
-                                      .baseUrl(baseUrl)
-                                      .logRequests(true)
-                                      .logResponses(true)
-                                      .build();
+                            .apiKey(apiKey)
+                            .modelName(modelName)
+                            .temperature(temperature)
+                            .baseUrl(baseUrl)
+                            .logRequests(true)
+                            .logResponses(true)
+                            .build();
             case GEMINI -> // NOTE: GoogleAiGeminiChatModel doesn't support API base URL.
                     GoogleAiGeminiChatModel.builder()
-                                           .apiKey(apiKey)
-                                           .modelName(modelName)
-                                           .temperature(temperature)
-                                           .logRequestsAndResponses(true)
-                                           .build();
+                            .apiKey(apiKey)
+                            .modelName(modelName)
+                            .temperature(temperature)
+                            .logRequestsAndResponses(true)
+                            .build();
         };
 
-        return new ChatModelImpl(langchainModel, tokenEstimator, provider, modelName, contextWindowSize, httpClient, executorService);
+        return new ChatModelImpl(langchainModel, tokenEstimator, provider, modelName, contextWindowSize, httpClient,
+                executorService);
     }
 
     public static ChatModel create(AiPreferences aiPreferences) {
@@ -90,8 +88,7 @@ public final class ChatModelFactory {
                 aiPreferences.getTemperature(),
                 aiPreferences.getSelectedApiBaseUrl(),
                 aiPreferences.getContextWindowSize(),
-                aiPreferences.getTokenEstimatorKind()
-        );
+                aiPreferences.getTokenEstimatorKind());
     }
 
     private static class ChatModelImpl implements ChatModel {
@@ -110,8 +107,7 @@ public final class ChatModelFactory {
                 String name,
                 int contextWindowSize,
                 HttpClient httpClient,
-                ExecutorService executorService
-        ) {
+                ExecutorService executorService) {
             this.delegate = delegate;
             this.tokenEstimator = tokenEstimator;
             this.provider = provider;

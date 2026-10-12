@@ -3,7 +3,6 @@ package org.jabref.logic.importer;
 import java.util.List;
 
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Searches web resources for bibliographic information based on a [BibEntry].

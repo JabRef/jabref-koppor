@@ -2,15 +2,17 @@ package org.jabref.logic.layout.format;
 
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.layout.LayoutFormatter;
-
 import org.jspecify.annotations.NonNull;
 
-/// JournalAbbreviator formats the given text in an abbreviated form according to the journal abbreviation lists.
+/// JournalAbbreviator formats the given text in an abbreviated form according
+/// to the journal abbreviation lists.
 ///
-/// The given input text is abbreviated according to the journal abbreviation lists. If no abbreviation for input is
-/// found (e.g. not in list or already abbreviated), the input will be returned unmodified.
+/// The given input text is abbreviated according to the journal abbreviation
+/// lists. If no abbreviation for input is found (e.g. not in list or already
+/// abbreviated), the input will be returned unmodified.
 ///
-/// Usage: \format[JournalAbbreviator]{\journal} Example result: "Phys. Rev. Lett." instead of "Physical Review Letters"
+/// Usage: \format[JournalAbbreviator]{\journal} Example result: "Phys. Rev.
+/// Lett." instead of "Physical Review Letters"
 public class JournalAbbreviator implements LayoutFormatter {
 
     private final JournalAbbreviationRepository repository;

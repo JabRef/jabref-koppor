@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.net.URL;
 
 import org.jabref.architecture.AllowedToUseClassGetResource;
-
 import org.kordamp.ikonli.AbstractIkonHandler;
 import org.kordamp.ikonli.Ikon;
 

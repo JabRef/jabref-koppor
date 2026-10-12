@@ -26,10 +26,8 @@ public class AttachFileFromURLAction extends SimpleCommand {
     private final GuiPreferences preferences;
     private final TaskExecutor taskExecutor;
 
-    public AttachFileFromURLAction(DialogService dialogService,
-                                   StateManager stateManager,
-                                   TaskExecutor taskExecutor,
-                                   GuiPreferences preferences) {
+    public AttachFileFromURLAction(DialogService dialogService, StateManager stateManager, TaskExecutor taskExecutor,
+            GuiPreferences preferences) {
         this.stateManager = stateManager;
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
@@ -62,12 +60,7 @@ public class AttachFileFromURLAction extends SimpleCommand {
 
         try {
             URL url = URLUtil.create(urlforDownload.get());
-            LinkedFileViewModel onlineFile = new LinkedFileViewModel(
-                    new LinkedFile(url, ""),
-                    entry,
-                    databaseContext,
-                    taskExecutor,
-                    dialogService,
+            LinkedFileViewModel onlineFile = new LinkedFileViewModel(new LinkedFile(url, ""), entry, databaseContext, taskExecutor, dialogService,
                     preferences);
             onlineFile.download(true, stateManager.getUndoManager(databaseContext));
         } catch (MalformedURLException exception) {
@@ -80,14 +73,11 @@ public class AttachFileFromURLAction extends SimpleCommand {
         Optional<String> urlText;
         String urlField = entry.getField(StandardField.URL).orElse("");
         if (clipText.startsWith("http://") || clipText.startsWith("https://") || clipText.startsWith("ftp://")) {
-            urlText = dialogService.showInputDialogWithDefaultAndWait(
-                    Localization.lang("Download file"), Localization.lang("Enter URL to download"), clipText);
+            urlText = dialogService.showInputDialogWithDefaultAndWait(Localization.lang("Download file"), Localization.lang("Enter URL to download"), clipText);
         } else if (urlField.startsWith("http://") || urlField.startsWith("https://") || urlField.startsWith("ftp://")) {
-            urlText = dialogService.showInputDialogWithDefaultAndWait(
-                    Localization.lang("Download file"), Localization.lang("Enter URL to download"), urlField);
+            urlText = dialogService.showInputDialogWithDefaultAndWait(Localization.lang("Download file"), Localization.lang("Enter URL to download"), urlField);
         } else {
-            urlText = dialogService.showInputDialogAndWait(
-                    Localization.lang("Download file"), Localization.lang("Enter URL to download"));
+            urlText = dialogService.showInputDialogAndWait(Localization.lang("Download file"), Localization.lang("Enter URL to download"));
         }
         return urlText;
     }

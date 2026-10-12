@@ -12,20 +12,18 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javafx.util.Pair;
-
-import org.jabref.logic.importer.FetcherException;
-import org.jabref.logic.importer.ImporterPreferences;
-import org.jabref.logic.importer.WebFetcher;
-import org.jabref.logic.journals.JournalInformation;
-import org.jabref.logic.l10n.Localization;
-import org.jabref.model.entry.identifier.ISSN;
-
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
 import kong.unirest.core.UnirestException;
 import kong.unirest.core.json.JSONArray;
 import kong.unirest.core.json.JSONObject;
+import org.jabref.logic.importer.FetcherException;
+import org.jabref.logic.importer.ImporterPreferences;
+import org.jabref.logic.importer.WebFetcher;
+import org.jabref.logic.journals.JournalInformation;
+import org.jabref.logic.l10n.Localization;
+import org.jabref.model.entry.identifier.ISSN;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +79,9 @@ public class JournalInformationFetcher implements WebFetcher {
         }
 
         if (crossrefInformation.isEmpty() && openAlexInformation.isEmpty()) {
-            throw providerFailures.stream().findFirst().orElseGet(JournalInformationFetcher::journalNotFoundException);
+            throw providerFailures.stream()
+                                  .findFirst()
+                                  .orElseGet(JournalInformationFetcher::journalNotFoundException);
         }
 
         return Optional.of(createJournalInformation(crossrefInformation, openAlexInformation));
@@ -126,21 +126,23 @@ public class JournalInformationFetcher implements WebFetcher {
     }
 
     String getOpenAlexUrl(String issn, String journalName) {
-        String url = issn.isBlank()
-                     ? OPENALEX_API_URL + "?search=" + URLEncoder.encode(journalName, StandardCharsets.UTF_8) + "&per-page=10"
-                     : OPENALEX_API_URL + "/issn:" + issn;
+        String url = issn.isBlank() ? OPENALEX_API_URL + "?search=" + URLEncoder.encode(journalName, StandardCharsets.UTF_8) + "&per-page=10" : OPENALEX_API_URL + "/issn:" + issn;
         return importerPreferences.getApiKey(OpenAlex.FETCHER_NAME)
-                                  .map(apiKey -> url + (issn.isBlank() ? "&" : "?") + "api_key=" + URLEncoder.encode(apiKey, StandardCharsets.UTF_8))
-                                  .orElse(url);
+                .map(apiKey -> url
+                        + (issn.isBlank() ? "&" : "?")
+                        + "api_key="
+                        + URLEncoder.encode(apiKey, StandardCharsets.UTF_8))
+                .orElse(url);
     }
 
     private Optional<JSONObject> getJson(String url, String provider) throws FetcherException {
         try {
             HttpResponse<JsonNode> response = Unirest.get(url)
-                                                     .header("Accept", "application/json")
-                                                     .asJson();
+                    .header("Accept", "application/json")
+                    .asJson();
             if (response.getStatus() == 404) {
-                LOGGER.debug("Journal information request to {} returned HTTP {}", provider, response.getStatus());
+                LOGGER.debug("Journal information request to {} returned HTTP {}",
+                        provider, response.getStatus());
                 return Optional.empty();
             }
             if ((response.getStatus() < 200) || (response.getStatus() >= 300)) {
@@ -161,19 +163,15 @@ public class JournalInformationFetcher implements WebFetcher {
             return Stream.of(response);
         }
         return IntStream.range(0, results.length())
-                        .mapToObj(index -> Optional.ofNullable(results.optJSONObject(index)))
-                        .flatMap(Optional::stream);
+                .mapToObj(index -> Optional.ofNullable(results.optJSONObject(index)))
+                .flatMap(Optional::stream);
     }
 
     private Optional<JournalIdentity> parseCrossrefInformation(JSONObject response) {
         if (response == null) {
             return Optional.empty();
         }
-        return Optional.of(new JournalIdentity(
-                response.optString("title"),
-                response.optString("publisher"),
-                getJoinedArray(response, "ISSN")
-        ));
+        return Optional.of(new JournalIdentity(response.optString("title"), response.optString("publisher"), getJoinedArray(response, "ISSN")));
     }
 
     private Optional<OpenAlexInformation> parseOpenAlexInformation(JSONObject response) {
@@ -181,14 +179,14 @@ public class JournalInformationFetcher implements WebFetcher {
             return Optional.empty();
         }
         JSONObject summaryStats = response.optJSONObject("summary_stats");
-        return Optional.of(new OpenAlexInformation(
-                response.optString("display_name"),
-                response.optString("host_organization_name"),
-                getJoinedArray(response, "issn"),
-                getHIndex(summaryStats),
-                getYearlyValues(response.optJSONArray("counts_by_year"), "works_count"),
-                getYearlyValues(response.optJSONArray("counts_by_year"), "cited_by_count")
-        ));
+        return Optional.of(
+                new OpenAlexInformation(
+                        response.optString("display_name"),
+                        response.optString("host_organization_name"),
+                        getJoinedArray(response, "issn"),
+                        getHIndex(summaryStats),
+                        getYearlyValues(response.optJSONArray("counts_by_year"), "works_count"),
+                        getYearlyValues(response.optJSONArray("counts_by_year"), "cited_by_count")));
     }
 
     private static String getHIndex(JSONObject summaryStats) {
@@ -199,19 +197,17 @@ public class JournalInformationFetcher implements WebFetcher {
         return hIndex instanceof Number number ? Integer.toString(number.intValue()) : "";
     }
 
-    private JournalInformation createJournalInformation(
-            Optional<JournalIdentity> crossrefInformation,
-            Optional<OpenAlexInformation> openAlexInformation) {
+    private JournalInformation createJournalInformation(Optional<JournalIdentity> crossrefInformation, Optional<OpenAlexInformation> openAlexInformation) {
         JournalIdentity crossref = crossrefInformation.orElse(new JournalIdentity("", "", ""));
-        OpenAlexInformation openAlex = openAlexInformation.orElse(new OpenAlexInformation("", "", "", "", List.of(), List.of()));
+        OpenAlexInformation openAlex = openAlexInformation.orElse(new OpenAlexInformation("", "", "", "", List.of(),
+                List.of()));
         return new JournalInformation(
                 chooseValue(crossref.title(), openAlex.title()),
                 chooseValue(crossref.publisher(), openAlex.publisher()),
                 openAlex.hIndex(),
                 chooseValue(crossref.issn(), openAlex.issn()),
                 openAlex.worksCount(),
-                openAlex.citedByCount()
-        );
+                openAlex.citedByCount());
     }
 
     private static String chooseValue(String preferredValue, String fallbackValue) {
@@ -224,8 +220,8 @@ public class JournalInformationFetcher implements WebFetcher {
 
     private static String normalizeJournalName(String journalName) {
         return JOURNAL_NAME_SEPARATOR_PATTERN.matcher(journalName)
-                                             .replaceAll("")
-                                             .toLowerCase(Locale.ROOT);
+                .replaceAll("")
+                .toLowerCase(Locale.ROOT);
     }
 
     private static String getJoinedArray(JSONObject response, String key) {
@@ -256,20 +252,15 @@ public class JournalInformationFetcher implements WebFetcher {
                 values.add(new Pair<>(yearNumber.intValue(), valueNumber.doubleValue()));
             }
         }
-        return values.stream().sorted(Comparator.comparing(Pair::getKey)).toList();
+        return values.stream()
+                     .sorted(Comparator.comparing(Pair::getKey))
+                     .toList();
     }
 
     @NullMarked
-    private record JournalIdentity(String title, String publisher, String issn) {
-    }
+    private record JournalIdentity(String title, String publisher, String issn) {}
 
     @NullMarked
-    private record OpenAlexInformation(
-            String title,
-            String publisher,
-            String issn,
-            String hIndex,
-            List<Pair<Integer, Double>> worksCount,
-            List<Pair<Integer, Double>> citedByCount) {
-    }
+    private record OpenAlexInformation(String title, String publisher, String issn,
+            String hIndex, List<Pair<Integer, Double>> worksCount, List<Pair<Integer, Double>> citedByCount) {}
 }

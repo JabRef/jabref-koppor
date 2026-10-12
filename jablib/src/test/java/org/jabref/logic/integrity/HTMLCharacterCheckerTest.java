@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,20 +47,21 @@ class HTMLCharacterCheckerTest {
     @Test
     void authorDoesNotAcceptHTMLEncodedCharacters() {
         entry.setField(StandardField.AUTHOR, "Lenhard, J&#227;rg");
-        assertEquals(List.of(new IntegrityMessage("HTML encoded character found", entry, StandardField.AUTHOR)), checker.check(entry));
+        assertEquals(
+                List.of(new IntegrityMessage("HTML encoded character found", entry, StandardField.AUTHOR)),
+                checker.check(entry));
     }
 
     @Test
     void journalDoesNotAcceptHTMLEncodedCharacters() {
         entry.setField(StandardField.JOURNAL, "&Auml;rling Str&ouml;m for &#8211; &#x2031;");
-        assertEquals(List.of(new IntegrityMessage("HTML encoded character found", entry, StandardField.JOURNAL)), checker.check(entry));
+        assertEquals(
+                List.of(new IntegrityMessage("HTML encoded character found", entry, StandardField.JOURNAL)),
+                checker.check(entry));
     }
 
     static Stream<Arguments> entryWithVerabitmFieldsNotCausingMessages() {
-        return Stream.of(
-                Arguments.of(StandardField.FILE, "one &amp; another.pdf"),
-                Arguments.of(StandardField.URL, "https://example.org?key=value&key2=value2")
-        );
+        return Stream.of(Arguments.of(StandardField.FILE, "one &amp; another.pdf"), Arguments.of(StandardField.URL, "https://example.org?key=value&key2=value2"));
     }
 
     @ParameterizedTest

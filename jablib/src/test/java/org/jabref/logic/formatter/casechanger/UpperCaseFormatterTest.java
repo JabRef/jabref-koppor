@@ -28,8 +28,7 @@ class UpperCaseFormatterTest {
                 Arguments.of("UPPER {lower}", "upper {lower}"),
                 Arguments.of("UPPER {l}OWER", "upper {l}ower"),
                 Arguments.of("1", "1"),
-                Arguments.of("!", "!")
-        );
+                Arguments.of("!", "!"));
     }
 
     @Test

@@ -14,6 +14,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import kong.unirest.core.UnirestException;
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FulltextFetcher;
@@ -32,18 +36,15 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import kong.unirest.core.UnirestException;
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Class for finding PDF URLs for entries on IEEE.
-/// Will first look for URLs of the type `https://ieeexplore.ieee.org/stamp/stamp.jsp?[tp=&amp;]arnumber=...`.
-/// If not found, will resolve the DOI, if it starts with 10.1109, and try to find a similar link on the HTML page.
+/// Class for finding PDF URLs for entries on IEEE. Will first look for URLs of
+/// the type
+/// `https://ieeexplore.ieee.org/stamp/stamp.jsp?[tp=&amp;]arnumber=...`. If not
+/// found, will resolve the DOI, if it starts with 10.1109, and try to find a
+/// similar link on the HTML page.
 ///
 /// @see <a href="https://developer.ieee.org/docs">API documentation</a>
 public class IEEE implements FulltextFetcher, PagedSearchBasedParserFetcher, CustomizableKeyFetcher {
@@ -66,8 +67,7 @@ public class IEEE implements FulltextFetcher, PagedSearchBasedParserFetcher, Cus
 
     private IEEEQueryTransformer transformer;
 
-    public IEEE(@NonNull ImportFormatPreferences importFormatPreferences,
-                @NonNull ImporterPreferences importerPreferences) {
+    public IEEE(@NonNull ImportFormatPreferences importFormatPreferences, @NonNull ImporterPreferences importerPreferences) {
         this.importFormatPreferences = importFormatPreferences;
         this.importerPreferences = importerPreferences;
     }
@@ -77,14 +77,10 @@ public class IEEE implements FulltextFetcher, PagedSearchBasedParserFetcher, Cus
         BibEntry entry = new BibEntry();
 
         switch (jsonEntry.optString("content_type")) {
-            case "Books" ->
-                    entry.setType(StandardEntryType.Book);
-            case "Conferences" ->
-                    entry.setType(StandardEntryType.InProceedings);
-            case "Courses" ->
-                    entry.setType(StandardEntryType.Misc);
-            default ->
-                    entry.setType(StandardEntryType.Article);
+            case "Books" -> entry.setType(StandardEntryType.Book);
+            case "Conferences" -> entry.setType(StandardEntryType.InProceedings);
+            case "Courses" -> entry.setType(StandardEntryType.Misc);
+            default -> entry.setType(StandardEntryType.Article);
         }
 
         entry.setField(StandardField.ABSTRACT, jsonEntry.optString("abstract"));
@@ -105,16 +101,20 @@ public class IEEE implements FulltextFetcher, PagedSearchBasedParserFetcher, Cus
         JSONObject keywordsContainer = jsonEntry.optJSONObject("index_terms");
         if (keywordsContainer != null) {
             if (keywordsContainer.has("ieee_terms")) {
-                keywordsContainer.getJSONObject("ieee_terms").getJSONArray("terms").forEach(data -> {
-                    String keyword = (String) data;
-                    entry.addKeyword(keyword, keywordSeparator);
-                });
+                keywordsContainer.getJSONObject("ieee_terms")
+                                 .getJSONArray("terms")
+                                 .forEach(data -> {
+                                     String keyword = (String) data;
+                                     entry.addKeyword(keyword, keywordSeparator);
+                                 });
             }
             if (keywordsContainer.has("author_terms")) {
-                keywordsContainer.getJSONObject("author_terms").getJSONArray("terms").forEach(data -> {
-                    String keyword = (String) data;
-                    entry.addKeyword(keyword, keywordSeparator);
-                });
+                keywordsContainer.getJSONObject("author_terms")
+                                 .getJSONArray("terms")
+                                 .forEach(data -> {
+                                     String keyword = (String) data;
+                                     entry.addKeyword(keyword, keywordSeparator);
+                                 });
             }
         }
 
@@ -160,11 +160,19 @@ public class IEEE implements FulltextFetcher, PagedSearchBasedParserFetcher, Cus
         // If not, try DOI
         if (stampString.isEmpty()) {
             Optional<DOI> doi = entry.getField(StandardField.DOI).flatMap(DOI::parse);
-            if (doi.isPresent() && doi.get().asString().startsWith(IEEE_DOI) && doi.get().getExternalURI().isPresent()) {
+            if (doi.isPresent() && doi.get()
+                    .asString()
+                    .startsWith(IEEE_DOI)
+                    && doi.get()
+                          .getExternalURI()
+                          .isPresent()) {
                 // Download the HTML page from IEEE
                 URLDownload urlDownload = null;
                 try {
-                    urlDownload = new URLDownload(doi.get().getExternalURI().get().toURL());
+                    urlDownload = new URLDownload(doi.get()
+                            .getExternalURI()
+                            .get()
+                            .toURL());
                 } catch (MalformedURLException e) {
                     throw new FetcherException("Malformed URL", e);
                 }
@@ -221,7 +229,9 @@ public class IEEE implements FulltextFetcher, PagedSearchBasedParserFetcher, Cus
     @Override
     public Parser getParser() {
         return inputStream -> {
-            String response = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining(OS.NEWLINE));
+            String response = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines()
+                    .collect(Collectors.joining(OS.NEWLINE));
             JSONObject jsonObject = new JSONObject(response);
 
             List<BibEntry> entries = new ArrayList<>();
@@ -229,18 +239,24 @@ public class IEEE implements FulltextFetcher, PagedSearchBasedParserFetcher, Cus
                 JSONArray results = jsonObject.getJSONArray("articles");
                 for (int i = 0; i < results.length(); i++) {
                     JSONObject jsonEntry = results.getJSONObject(i);
-                    BibEntry entry = parseJsonResponse(jsonEntry, importFormatPreferences.bibEntryPreferences().getKeywordSeparator());
+                    BibEntry entry = parseJsonResponse(jsonEntry, importFormatPreferences.bibEntryPreferences()
+                            .getKeywordSeparator());
                     boolean addEntry;
                     // In case entry has no year, add it
                     // In case an entry has a year, check if its in the year range
                     // The implementation uses some Java 8 Optional magic to implement that
                     if (entry.hasField(StandardField.YEAR)) {
-                        addEntry = entry.getField(StandardField.YEAR).filter(year -> {
-                            int yearAsInteger = Integer.parseInt(year);
-                            return
-                                    transformer.getStartYear().map(startYear -> yearAsInteger >= startYear).orElse(true) &&
-                                            transformer.getEndYear().map(endYear -> yearAsInteger <= endYear).orElse(true);
-                        }).isPresent();
+                        addEntry = entry.getField(StandardField.YEAR)
+                                        .filter(year -> {
+                                            int yearAsInteger = Integer.parseInt(year);
+                                            return transformer.getStartYear()
+                                                              .map(startYear -> yearAsInteger >= startYear)
+                                                              .orElse(true)
+                                                    && transformer.getEndYear()
+                                                                  .map(endYear -> yearAsInteger <= endYear)
+                                                                  .orElse(true);
+                                        })
+                                        .isPresent();
                     } else {
                         addEntry = true;
                     }
@@ -269,7 +285,8 @@ public class IEEE implements FulltextFetcher, PagedSearchBasedParserFetcher, Cus
         try {
             URL testUrl = getURLForQuery("JabRef API key test", apiKey);
             URLDownload urlDownload = new URLDownload(testUrl);
-            int statusCode = ((HttpURLConnection) urlDownload.getSource().openConnection()).getResponseCode();
+            int statusCode = ((HttpURLConnection) urlDownload.getSource().openConnection())
+                    .getResponseCode();
             return (statusCode >= 200) && (statusCode < 300);
         } catch (IOException | UnirestException | URISyntaxException _) {
             return false;
@@ -294,7 +311,8 @@ public class IEEE implements FulltextFetcher, PagedSearchBasedParserFetcher, Cus
         URIBuilder uriBuilder = new URIBuilder(baseUrl.toURI());
         // Currently not working as part of the query string
         if (transformer.getJournal().isPresent()) {
-            uriBuilder.addParameter("publication_title", transformer.getJournal().get());
+            uriBuilder.addParameter("publication_title", transformer.getJournal()
+                    .get());
         }
         if (transformer.getStartYear().isPresent()) {
             uriBuilder.addParameter("start_year", String.valueOf(transformer.getStartYear().get()));
@@ -303,24 +321,29 @@ public class IEEE implements FulltextFetcher, PagedSearchBasedParserFetcher, Cus
             uriBuilder.addParameter("end_year", String.valueOf(transformer.getEndYear().get()));
         }
         if (transformer.getArticleNumber().isPresent()) {
-            uriBuilder.addParameter("article_number", transformer.getArticleNumber().get());
+            uriBuilder.addParameter("article_number", transformer.getArticleNumber()
+                    .get());
         }
         return uriBuilder.build().toURL();
     }
 
-    /// Builds the IEEE search URL for a raw, catalog-native query, sent verbatim as the `querytext` parameter.
-    /// Resets `transformer` so [#getParser()] applies no year filtering to raw results.
+    /// Builds the IEEE search URL for a raw, catalog-native query, sent
+    /// verbatim as the `querytext` parameter. Resets `transformer` so
+    /// [#getParser()] applies no year filtering to raw results.
     @Override
     public URL getURLForRawQuery(String rawQuery, int pageNumber) throws URISyntaxException, MalformedURLException {
         transformer = new IEEEQueryTransformer();
         return buildSearchURL(rawQuery, pageNumber);
     }
 
-    /// Builds the IEEE search API URL for the given raw query string and page number.
-    /// The caller is responsible for setting `transformer` before invoking `getParser()`.
+    /// Builds the IEEE search API URL for the given raw query string and page
+    /// number. The caller is responsible for setting `transformer` before
+    /// invoking `getParser()`.
     ///
-    /// @param rawQuery   the query string to pass directly as the `querytext` parameter
-    /// @param pageNumber zero based page number; converted to a one based `start_record` value.
+    /// @param rawQuery the query string to pass directly as the `querytext`
+    ///   parameter
+    /// @param pageNumber zero based page number; converted to a one based
+    ///   `start_record` value.
     private URL buildSearchURL(String rawQuery, int pageNumber) throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder("https://ieeexploreapi.ieee.org/api/v1/search/articles");
         importerPreferences.getApiKey(FETCHER_NAME).ifPresent(apiKey -> uriBuilder.addParameter("apikey", apiKey));

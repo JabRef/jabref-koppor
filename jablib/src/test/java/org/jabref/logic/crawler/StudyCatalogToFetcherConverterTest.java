@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.exporter.SaveConfiguration;
 import org.jabref.logic.git.SlrGitHandler;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -18,7 +17,6 @@ import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -33,6 +31,7 @@ class StudyCatalogToFetcherConverterTest {
     CliPreferences preferences;
     BibEntryTypesManager entryTypesManager;
     SlrGitHandler gitHandler;
+
     @TempDir
     Path tempRepositoryDirectory;
 
@@ -53,22 +52,15 @@ class StudyCatalogToFetcherConverterTest {
         Path studyDefinition = tempRepositoryDirectory.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME);
         copyTestStudyDefinitionFileIntoDirectory(studyDefinition);
 
-        StudyRepository studyRepository = new StudyRepository(
-                tempRepositoryDirectory,
-                gitHandler,
-                preferences,
-                new DummyFileUpdateMonitor(),
-                entryTypesManager);
-        StudyCatalogToFetcherConverter converter = new StudyCatalogToFetcherConverter(
-                studyRepository.getActiveLibraryEntries(),
-                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
+        StudyRepository studyRepository = new StudyRepository(tempRepositoryDirectory, gitHandler, preferences, new DummyFileUpdateMonitor(), entryTypesManager);
+        StudyCatalogToFetcherConverter converter = new StudyCatalogToFetcherConverter(studyRepository.getActiveLibraryEntries(), mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
                 mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS));
         List<SearchBasedFetcher> result = converter.getActiveFetchers();
 
-        assertEquals(
-                List.of("Springer", "arXiv", "Medline/PubMed"),
-                result.stream().map(SearchBasedFetcher::getName).toList()
-        );
+        assertEquals(List.of("Springer", "arXiv", "Medline/PubMed"),
+                result.stream()
+                      .map(SearchBasedFetcher::getName)
+                      .toList());
     }
 
     private void copyTestStudyDefinitionFileIntoDirectory(Path destination) throws URISyntaxException {

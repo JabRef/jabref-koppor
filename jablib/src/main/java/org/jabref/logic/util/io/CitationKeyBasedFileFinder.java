@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 import org.jabref.logic.citationkeypattern.CitationKeyGenerator;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +34,7 @@ class CitationKeyBasedFileFinder implements FileFinder {
     }
 
     @Override
-    public List<Path> findAssociatedFiles(@NonNull BibEntry entry,
-                                          @NonNull List<Path> directories,
-                                          List<String> extensions) throws IOException {
+    public List<Path> findAssociatedFiles(@NonNull BibEntry entry, @NonNull List<Path> directories, List<String> extensions) throws IOException {
         Optional<String> citeKeyOptional = entry.getCitationKey();
         if (StringUtil.isBlank(citeKeyOptional)) {
             LOGGER.debug("No citation key found in entry {}", entry);
@@ -71,12 +68,13 @@ class CitationKeyBasedFileFinder implements FileFinder {
         return false;
     }
 
-    /// Returns a list of all files in the given directories which have one of the given extension.
-    private SortedSet<Path> findFilesByExtension(List<Path> directories,
-                                                 @NonNull Collection<String> extensions,
-                                                 Function<Path, Boolean> filteringFunction) throws IOException {
-        BiPredicate<Path, BasicFileAttributes> isFileWithCorrectExtension = (path, _) -> !Files.isDirectory(path)
-                && extensions.contains(FileUtil.getFileExtension(path).orElse("")) && filteringFunction.apply(path);
+    /// Returns a list of all files in the given directories which have one of
+    /// the given extension.
+    private SortedSet<Path> findFilesByExtension(List<Path> directories, @NonNull Collection<String> extensions, Function<Path, Boolean> filteringFunction) throws IOException {
+        BiPredicate<Path, BasicFileAttributes> isFileWithCorrectExtension = (path, _) ->
+                !Files.isDirectory(path) && extensions.contains(FileUtil.getFileExtension(path)
+                        .orElse(""))
+                        && filteringFunction.apply(path);
 
         SortedSet<Path> result = new TreeSet<>();
         for (Path directory : directories) {

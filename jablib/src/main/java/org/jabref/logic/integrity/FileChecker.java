@@ -11,7 +11,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.LinkedFile;
-
 import org.jspecify.annotations.Nullable;
 
 public class FileChecker implements ValueChecker {
@@ -30,8 +29,8 @@ public class FileChecker implements ValueChecker {
             return Optional.empty();
         }
 
-        List<LinkedFile> linkedFiles = FileFieldParser
-                .parse(value).stream()
+        List<LinkedFile> linkedFiles = FileFieldParser.parse(value)
+                .stream()
                 .filter(file -> !file.isOnlineLink())
                 .toList();
 

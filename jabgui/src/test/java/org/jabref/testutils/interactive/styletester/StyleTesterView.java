@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.Function;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import javafx.collections.FXCollections;
 import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
@@ -11,36 +12,58 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.WorkspacePreferences;
 import org.jabref.gui.theme.StyleSheet;
 import org.jabref.gui.theme.ThemeColorScheme;
 import org.jabref.gui.theme.ThemePreset;
 import org.jabref.gui.util.FileDialogConfiguration;
+import org.jabref.gui.util.FileDialogConfiguration.Builder;
 import org.jabref.logic.util.StandardFileType;
-
-import com.airhacks.afterburner.views.ViewLoader;
 
 public class StyleTesterView {
 
     private final WorkspacePreferences preferences;
     private final DialogService dialogService;
 
-    @FXML private ComboBox<ThemePreset> themeCbx;
-    @FXML private ComboBox<ThemeColorScheme> colorSchemeCbx;
-    @FXML private Button loadCustomThemeBtn;
-    @FXML private Button clearCustomThemeBtn;
+    @FXML
+    private ComboBox<ThemePreset> themeCbx;
 
-    @FXML private Button normalButtonHover;
-    @FXML private Button normalButtonPressed;
-    @FXML private Button normalButtonFocused;
-    @FXML private Button textButtonHover;
-    @FXML private Button textButtonPressed;
-    @FXML private Button textButtonFocused;
-    @FXML private Button containedButtonHover;
-    @FXML private Button containedButtonPressed;
-    @FXML private Button containedButtonFocused;
+    @FXML
+    private ComboBox<ThemeColorScheme> colorSchemeCbx;
+
+    @FXML
+    private Button loadCustomThemeBtn;
+
+    @FXML
+    private Button clearCustomThemeBtn;
+
+    @FXML
+    private Button normalButtonHover;
+
+    @FXML
+    private Button normalButtonPressed;
+
+    @FXML
+    private Button normalButtonFocused;
+
+    @FXML
+    private Button textButtonHover;
+
+    @FXML
+    private Button textButtonPressed;
+
+    @FXML
+    private Button textButtonFocused;
+
+    @FXML
+    private Button containedButtonHover;
+
+    @FXML
+    private Button containedButtonPressed;
+
+    @FXML
+    private Button containedButtonFocused;
 
     private final Parent content;
 
@@ -48,19 +71,17 @@ public class StyleTesterView {
         this.preferences = preferences;
         this.dialogService = dialogService;
         content = ViewLoader.view(this)
-                            .load()
-                            .getView();
+                .load()
+                .getView();
 
         themeCbx.setConverter(toStringConverter(ThemePreset::getLocalizedName));
         themeCbx.setItems(FXCollections.observableArrayList(ThemePreset.values()));
-        themeCbx.valueProperty().addListener((_, _,
-                                              themePreset) -> setThemePreset(themePreset));
+        themeCbx.valueProperty().addListener((_, _, themePreset) -> setThemePreset(themePreset));
         themeCbx.setValue(ThemePreset.JABREF);
 
         colorSchemeCbx.setConverter(toStringConverter(ThemeColorScheme::getLocalizedName));
         colorSchemeCbx.setItems(FXCollections.observableArrayList(ThemeColorScheme.values()));
-        colorSchemeCbx.valueProperty().addListener((_, _,
-                                                    themeColorScheme) -> setThemeColorScheme(themeColorScheme));
+        colorSchemeCbx.valueProperty().addListener((_, _, themeColorScheme) -> setThemeColorScheme(themeColorScheme));
         colorSchemeCbx.setValue(ThemeColorScheme.FOLLOW_SYSTEM);
 
         loadCustomThemeBtn.setOnAction(_ -> loadCustomTheme());
@@ -79,16 +100,20 @@ public class StyleTesterView {
     private void loadCustomTheme() {
         themeCbx.setValue(ThemePreset.JABREF);
 
-        FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
+        FileDialogConfiguration fileDialogConfiguration = new Builder()
                 .addExtensionFilter(StandardFileType.CSS)
                 .withDefaultExtension(StandardFileType.CSS)
-                .withInitialDirectory(preferences.getCustomTheme().map(StyleSheet::getName).orElse(null))
+                .withInitialDirectory(preferences.getCustomTheme()
+                        .map(StyleSheet::getName)
+                        .orElse(null))
                 .build();
 
         Optional<Path> pathOptional = dialogService.showFileOpenDialog(fileDialogConfiguration);
 
         if (pathOptional.isPresent()) {
-            preferences.setCustomTheme(StyleSheet.create(pathOptional.get().toAbsolutePath().toString()));
+            preferences.setCustomTheme(StyleSheet.create(pathOptional.get()
+                    .toAbsolutePath()
+                    .toString()));
             clearCustomThemeBtn.setDisable(false);
         }
     }

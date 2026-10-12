@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.fieldeditors.LinkedFileViewModel;
@@ -31,8 +31,6 @@ import org.jabref.model.database.FileDirectories;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,8 +72,7 @@ class ContextMenuFactoryTest {
         when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
         when(guiPreferences.getFieldPreferences()).thenReturn(fieldPreferences);
         when(filePreferences.getMainFileDirectory()).thenReturn(Optional.of(Path.of("/main")));
-        when(bibDatabaseContext.getAllFileDirectories(filePreferences))
-                .thenReturn(new FileDirectories(Path.of("/user"), Path.of("/library"), Path.of("/main")));
+        when(bibDatabaseContext.getAllFileDirectories(filePreferences)).thenReturn(new FileDirectories(Path.of("/user"), Path.of("/library"), Path.of("/main")));
         when(bibDatabaseContext.getDatabaseDirectory()).thenReturn(Optional.of(Path.of("/bib")));
 
         factory = new ContextMenuFactory(
@@ -87,14 +84,12 @@ class ContextMenuFactoryTest {
                 mock(TaskExecutor.class),
                 mock(FileUpdateMonitor.class),
                 mock(UndoManager.class),
-                mock(StateManager.class)
-        );
+                mock(StateManager.class));
     }
 
     @Test
     void createMenuForSelectionNull() {
-        assertThrows(NullPointerException.class, () -> factory.createMenuForSelection(null),
-                "Factory should reject null selection");
+        assertThrows(NullPointerException.class, () -> factory.createMenuForSelection(null), "Factory should reject null selection");
     }
 
     @Test
@@ -108,9 +103,7 @@ class ContextMenuFactoryTest {
 
     @Test
     void createMenuForSingleOfflineFile() {
-        LinkedFileViewModel offlineExistingFileViewModel = mockOfflineExistingFileViewModel(
-                bibDatabaseContext, filePreferences, ""
-        );
+        LinkedFileViewModel offlineExistingFileViewModel = mockOfflineExistingFileViewModel(bibDatabaseContext, filePreferences, "");
 
         ObservableList<LinkedFileViewModel> singleSelection = FXCollections.observableArrayList(offlineExistingFileViewModel);
 
@@ -127,43 +120,38 @@ class ContextMenuFactoryTest {
 
         ContextMenu contextMenu = factory.createMenuForSelection(FXCollections.observableArrayList(autoFoundFileViewModel));
 
-        List<String> texts = contextMenu.getItems().stream().map(MenuItem::getText).toList();
+        List<String> texts = contextMenu.getItems()
+                .stream()
+                .map(MenuItem::getText)
+                .toList();
         assertTrue(texts.contains(Localization.lang("Link file")));
         assertFalse(texts.contains(Localization.lang("Remove link")));
     }
 
     @Test
     void createMenuForOfflineAndOnlineFilesMixed() {
-        LinkedFileViewModel offlineExistingFileViewModel = mockOfflineExistingFileViewModel(
-                bibDatabaseContext, filePreferences, "https://example.com/file.pdf"
-        );
+        LinkedFileViewModel offlineExistingFileViewModel = mockOfflineExistingFileViewModel(bibDatabaseContext, filePreferences, "https://example.com/file.pdf");
         LinkedFileViewModel onlineFileViewModel = mockOnlineFileViewModel();
 
-        ObservableList<LinkedFileViewModel> multiSelection = FXCollections.observableArrayList(
-                List.of(offlineExistingFileViewModel, onlineFileViewModel)
-        );
+        ObservableList<LinkedFileViewModel> multiSelection = FXCollections.observableArrayList(List.of(offlineExistingFileViewModel, onlineFileViewModel));
 
         ContextMenu contextMenu = factory.createMenuForSelection(multiSelection);
 
         assertNotNull(contextMenu);
-        assertFalse(contextMenu.getItems().isEmpty(),
-                "Multi-selection menu should not be empty");
-        assertTrue(containsMenuItemWithText(contextMenu, "Remove link"),
-                "Menu should contain 'Remove link' in multi-selection");
-        assertTrue(containsMenuItemWithText(contextMenu, "Copy linked file"),
-                "Menu should contain 'Copy linked file' item");
+        assertFalse(contextMenu.getItems().isEmpty(), "Multi-selection menu should not be empty");
+        assertTrue(containsMenuItemWithText(contextMenu, "Remove link"), "Menu should contain 'Remove link' in multi-selection");
+        assertTrue(containsMenuItemWithText(contextMenu, "Copy linked file"), "Menu should contain 'Copy linked file' item");
     }
 
     private static boolean containsMenuItemWithText(ContextMenu contextMenu, String expectedFragment) {
-        return contextMenu.getItems().stream()
+        return contextMenu.getItems()
+                          .stream()
                           .map(MenuItem::getText)
                           .filter(Objects::nonNull)
                           .anyMatch(text -> text.contains(expectedFragment));
     }
 
-    private static LinkedFileViewModel mockOfflineExistingFileViewModel(BibDatabaseContext bibDatabaseContext,
-                                                                        FilePreferences filePreferences,
-                                                                        String sourceUrl) {
+    private static LinkedFileViewModel mockOfflineExistingFileViewModel(BibDatabaseContext bibDatabaseContext, FilePreferences filePreferences, String sourceUrl) {
         LinkedFile modelLinkedFile = mock(LinkedFile.class, Answers.RETURNS_DEEP_STUBS);
         when(modelLinkedFile.isOnlineLink()).thenReturn(false);
         when(modelLinkedFile.findIn(bibDatabaseContext, filePreferences)).thenReturn(Optional.of(Path.of("dummy.pdf")));

@@ -6,11 +6,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
-import org.jabref.gui.icon.IconTheme;
+import org.jabref.gui.icon.IconTheme.JabRefIcons;
 import org.jabref.model.entry.LinkedFile;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,32 +19,28 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class ExternalFileTypesTest {
-    private static final Set<ExternalFileType> TEST_LIST = Set.of(
-            StandardExternalFileType.MARKDOWN,
-            StandardExternalFileType.PDF,
-            StandardExternalFileType.URL,
-            StandardExternalFileType.JPG,
-            StandardExternalFileType.TXT);
+    private static final Set<ExternalFileType> TEST_LIST = Set.of(StandardExternalFileType.MARKDOWN, StandardExternalFileType.PDF,
+            StandardExternalFileType.URL, StandardExternalFileType.JPG, StandardExternalFileType.TXT);
 
-    private static final String TEST_STRINGLIST = "PostScript:REMOVED;" +
-            "Word:REMOVED;" +
-            "Word 2007+:REMOVED;" +
-            "OpenDocument text:REMOVED;" +
-            "Excel:REMOVED;" +
-            "Excel 2007+:REMOVED;" +
-            "OpenDocument spreadsheet:REMOVED;" +
-            "PowerPoint:REMOVED;" +
-            "PowerPoint 2007+:REMOVED;" +
-            "OpenDocument presentation:REMOVED;" +
-            "Rich Text Format:REMOVED;" +
-            "PNG image:REMOVED;" +
-            "GIF image:REMOVED;" +
-            "Djvu:REMOVED;" +
-            "LaTeX:REMOVED;" +
-            "CHM:REMOVED;" +
-            "TIFF image:REMOVED;" +
-            "MHT:REMOVED;" +
-            "ePUB:REMOVED";
+    private static final String TEST_STRINGLIST = "PostScript:REMOVED;"
+            + "Word:REMOVED;"
+            + "Word 2007+:REMOVED;"
+            + "OpenDocument text:REMOVED;"
+            + "Excel:REMOVED;"
+            + "Excel 2007+:REMOVED;"
+            + "OpenDocument spreadsheet:REMOVED;"
+            + "PowerPoint:REMOVED;"
+            + "PowerPoint 2007+:REMOVED;"
+            + "OpenDocument presentation:REMOVED;"
+            + "Rich Text Format:REMOVED;"
+            + "PNG image:REMOVED;"
+            + "GIF image:REMOVED;"
+            + "Djvu:REMOVED;"
+            + "LaTeX:REMOVED;"
+            + "CHM:REMOVED;"
+            + "TIFF image:REMOVED;"
+            + "MHT:REMOVED;"
+            + "ePUB:REMOVED";
 
     private final ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
 
@@ -109,13 +103,7 @@ class ExternalFileTypesTest {
 
     @Test
     void externalFileTypetoStringArray() {
-        ExternalFileType type = new CustomExternalFileType(
-                "testEntry",
-                "tst",
-                "text/plain",
-                "emacs",
-                "close",
-                IconTheme.JabRefIcons.CLOSE);
+        ExternalFileType type = new CustomExternalFileType("testEntry", "tst", "text/plain", "emacs", "close", JabRefIcons.CLOSE);
 
         assertEquals("[testEntry, tst, text/plain, emacs, CLOSE]", Arrays.toString(type.toStringArray()));
     }
@@ -124,15 +112,13 @@ class ExternalFileTypesTest {
     void getExternalFileTypeByLinkedFileWithUnknownTypeAndOnlineLink() {
         LinkedFile testfile = new LinkedFile("Springer Paper", "https://link.springer.com/content/pdf/10.1007%2F978-3-032-00652-3_11.pdf", "unknown");
 
-        assertEquals(Optional.of(StandardExternalFileType.PDF),
-                ExternalFileTypes.getExternalFileTypeByLinkedFile(testfile, true, externalApplicationsPreferences));
+        assertEquals(Optional.of(StandardExternalFileType.PDF), ExternalFileTypes.getExternalFileTypeByLinkedFile(testfile, true, externalApplicationsPreferences));
     }
 
     @Test
     void getExternalFileTypeByLinkedFileWithUrlContainingColonInPath() {
         LinkedFile testfile = new LinkedFile("Paper", "https://doi.org/10.1007/978-3-032-00652-3_11.pdf", "");
 
-        assertEquals(Optional.of(StandardExternalFileType.PDF),
-                ExternalFileTypes.getExternalFileTypeByLinkedFile(testfile, true, externalApplicationsPreferences));
+        assertEquals(Optional.of(StandardExternalFileType.PDF), ExternalFileTypes.getExternalFileTypeByLinkedFile(testfile, true, externalApplicationsPreferences));
     }
 }

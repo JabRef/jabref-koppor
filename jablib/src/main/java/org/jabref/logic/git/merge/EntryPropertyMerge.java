@@ -10,15 +10,15 @@ import org.jabref.logic.git.conflicts.ThreeWayEntryConflict;
 import org.jabref.logic.git.merge.planning.util.EntryTriples;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-/// Three-way merge of the entry properties the field-level merge does not look at: the rules of
-/// [org.jabref.logic.git.merge.planning.SemanticMergeAnalyzer] compare field maps, and a
-/// [org.jabref.logic.git.model.MergePlan] carries field values only. The entry type and the
-/// comment above an entry follow the same rules here: a value changed in `other` alone is taken
-/// over, a value changed differently on both sides is a conflict, and so is deleting an entry
+/// Three-way merge of the entry properties the field-level merge does not look
+/// at: the rules of [org.jabref.logic.git.merge.planning.SemanticMergeAnalyzer]
+/// compare field maps, and a [org.jabref.logic.git.model.MergePlan] carries
+/// field values only. The entry type and the comment above an entry follow the
+/// same rules here: a value changed in `other` alone is taken over, a value
+/// changed differently on both sides is a conflict, and so is deleting an entry
 /// on one side while changing a property on the other.
 @NullMarked
 final class EntryPropertyMerge {
@@ -27,14 +27,15 @@ final class EntryPropertyMerge {
             new EntryProperty<>(BibEntry::getType, BibEntry::setType),
             new EntryProperty<>(BibEntry::getUserComments, EntryPropertyMerge::setUserComments));
 
-    private EntryPropertyMerge() {
-    }
+    private EntryPropertyMerge() {}
 
     /// Applies the property changes of `other` to the entries of `current`.
     ///
-    /// @param keptAsIs citation keys of entries already known to be in conflict; they are left untouched
+    /// @param keptAsIs citation keys of entries already known to be in
+    ///   conflict; they are left untouched
     /// @return the conflicts found, none of them among `keptAsIs`
-    static List<ThreeWayEntryConflict> merge(BibDatabaseContext base, BibDatabaseContext current, BibDatabaseContext other, Set<String> keptAsIs) {
+    static List<ThreeWayEntryConflict> merge(BibDatabaseContext base, BibDatabaseContext current, BibDatabaseContext other,
+            Set<String> keptAsIs) {
         EntryTriples triples = EntryTriples.from(base, current, other);
         List<ThreeWayEntryConflict> conflicts = new ArrayList<>();
         for (String key : triples.allKeys()) {

@@ -4,21 +4,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.transform.TransformerException;
-
-import org.jabref.logic.l10n.Localization;
-import org.jabref.logic.util.StandardFileType;
-import org.jabref.logic.xmp.XmpPreferences;
-import org.jabref.logic.xmp.XmpUtilWriter;
-import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.entry.BibEntry;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.util.StandardFileType;
+import org.jabref.logic.xmp.XmpPreferences;
+import org.jabref.logic.xmp.XmpUtilWriter;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibEntry;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +34,7 @@ public class XmpPdfExporter extends Exporter {
     }
 
     @Override
-    public void export(@NonNull BibDatabaseContext databaseContext,
-                       @NonNull Path pdfFile,
-                       @NonNull List<BibEntry> entries)
-            throws IOException, TransformerException {
+    public void export(@NonNull BibDatabaseContext databaseContext, @NonNull Path pdfFile, @NonNull List<BibEntry> entries) throws IOException, TransformerException {
         Path filePath = pdfFile.toAbsolutePath();
 
         if (!Files.exists(filePath)) {

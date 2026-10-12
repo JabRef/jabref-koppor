@@ -10,7 +10,6 @@ import org.jabref.logic.git.preferences.GitPreferences;
 import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.util.CurrentThreadTaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -54,7 +53,8 @@ class GitPullSchedulerTest {
     }
 
     private void start(BibDatabaseContext databaseContext) {
-        GitPullScheduler.start(databaseContext,
+        GitPullScheduler.start(
+                databaseContext,
                 mock(DialogService.class),
                 mock(GuiPreferences.class, RETURNS_DEEP_STUBS),
                 mock(StateManager.class),

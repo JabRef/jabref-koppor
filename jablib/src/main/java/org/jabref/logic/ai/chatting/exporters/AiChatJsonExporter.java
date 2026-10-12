@@ -17,7 +17,6 @@ import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.Field;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.core.JacksonException;
@@ -26,15 +25,15 @@ import tools.jackson.databind.json.JsonMapper;
 
 /// Exports an AI chat conversation to JSON format.
 ///
-/// The JSON output includes export metadata (provider, model, timestamp), BibTeX entry data,
-/// and the conversation messages with role/content pairs.
+/// The JSON output includes export metadata (provider, model, timestamp),
+/// BibTeX entry data, and the conversation messages with role/content pairs.
 ///
-/// The JSON schema of the export is handcrafted because there is no well-established export format.
+/// The JSON schema of the export is handcrafted because there is no
+/// well-established export format.
 public class AiChatJsonExporter implements AiChatExporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AiChatJsonExporter.class);
 
-    private static final JsonMapper OBJECT_MAPPER = JsonMapper
-            .builder()
+    private static final JsonMapper OBJECT_MAPPER = JsonMapper.builder()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .build();
 
@@ -47,7 +46,8 @@ public class AiChatJsonExporter implements AiChatExporter {
     }
 
     @Override
-    public String export(AiMetadata metadata, List<BibEntry> entries, BibDatabaseMode mode, List<ChatMessage> messages) {
+    public String export(AiMetadata metadata, List<BibEntry> entries, BibDatabaseMode mode,
+                         List<ChatMessage> messages) {
         Map<String, Object> root = new LinkedHashMap<>();
         root.put("latest_provider", metadata.aiProvider().toString());
         root.put("latest_model", metadata.model());
@@ -59,7 +59,8 @@ public class AiChatJsonExporter implements AiChatExporter {
 
             Map<String, String> fields = new LinkedHashMap<>();
             for (Field field : entry.getFields()) {
-                fields.put(field.getName(), entry.getField(field).orElse(""));
+                fields.put(field.getName(),
+                        entry.getField(field).orElse(""));
             }
             entryData.put("fields", fields);
             entryData.put("bibtex", entryToBibtex(entry, mode));
@@ -71,14 +72,10 @@ public class AiChatJsonExporter implements AiChatExporter {
         List<Map<String, String>> conversationList = new ArrayList<>();
         for (ChatMessage msg : messages) {
             String role = switch (msg.role()) {
-                case USER ->
-                        "user";
-                case AI ->
-                        "assistant";
-                case ERROR ->
-                        "error";
-                case SYSTEM ->
-                        null; // System messages are not part of the conversation exchange
+                case USER -> "user";
+                case AI -> "assistant";
+                case ERROR -> "error";
+                case SYSTEM -> null; // System messages are not part of the conversation exchange
             };
 
             if (role == null) {

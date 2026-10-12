@@ -13,6 +13,5 @@ public class GsonFactory implements Factory<Gson> {
     }
 
     @Override
-    public void dispose(Gson instance) {
-    }
+    public void dispose(Gson instance) {}
 }

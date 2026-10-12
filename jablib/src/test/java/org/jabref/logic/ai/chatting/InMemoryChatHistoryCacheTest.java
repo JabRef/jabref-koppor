@@ -16,7 +16,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.groups.AllEntriesGroup;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -144,7 +143,11 @@ class InMemoryChatHistoryCacheTest {
         private final Map<String, List<ChatMessage>> store = new HashMap<>();
 
         private String key(ChatIdentifier id) {
-            return id.libraryId() + "/" + id.chatType() + "/" + id.chatName();
+            return id.libraryId()
+                    + "/"
+                    + id.chatType()
+                    + "/"
+                    + id.chatName();
         }
 
         @Override

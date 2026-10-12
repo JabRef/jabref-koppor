@@ -33,8 +33,7 @@ public class BibStringChecker implements EntryChecker {
                 }
                 if ((hashCount & 1) == 1) { // Check if odd
                     // # is FieldWriter.BIBTEX_STRING_START_END_SYMBOL
-                    results.add(new IntegrityMessage(Localization.lang("odd number of unescaped '#'"), entry,
-                            field.getKey()));
+                    results.add(new IntegrityMessage(Localization.lang("odd number of unescaped '#'"), entry, field.getKey()));
                 }
             }
         }

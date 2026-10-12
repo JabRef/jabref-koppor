@@ -2,11 +2,11 @@ package org.jabref.gui.walkthrough.utils;
 
 import java.util.Optional;
 
+import com.sun.javafx.scene.NodeHelper;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.Node;
 import javafx.stage.Window;
 import javafx.util.Duration;
-
 import org.jabref.gui.util.DelayedExecution;
 import org.jabref.gui.walkthrough.Walkthrough;
 import org.jabref.gui.walkthrough.declarative.WindowResolver;
@@ -15,8 +15,6 @@ import org.jabref.gui.walkthrough.declarative.sideeffect.WalkthroughSideEffect;
 import org.jabref.gui.walkthrough.declarative.step.SideEffect;
 import org.jabref.gui.walkthrough.declarative.step.VisibleComponent;
 import org.jabref.gui.walkthrough.declarative.step.WalkthroughStep;
-
-import com.sun.javafx.scene.NodeHelper;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -24,24 +22,28 @@ import org.slf4j.LoggerFactory;
 
 public class WalkthroughReverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(WalkthroughReverter.class);
-    /// The use of delay is related to the following error that can be reproduced as of
+
+    /// The use of delay is related to the following error that can be
+    /// reproduced as of
     /// [00fc407](https://github.com/JabRef/jabref/tree/00fc407620b3132c0cdea8c65750d0e5616bb597):
     ///
-    /// If the "Add Group" walkthrough is launched, the following action is performed:
+    /// If the "Add Group" walkthrough is launched, the following action is
+    /// performed:
     ///
     /// 1. Launch walkthrough
     /// 2. Create the new group "Research Papers"
-    /// 3. In step 8 (i.e., immediately after the new group is created), click on other
-    /// group
-    /// 4. The reversion occur because the first-entry that are present in the "All
-    /// Groups" is not visible
-    /// 5. [IndexOutOfBoundsException] is thrown by JavaFX and the walkthrough become
-    /// entirely non-responsive.
+    /// 3. In step 8 (i.e., immediately after the new group is created), click
+    ///    on other group
+    /// 4. The reversion occur because the first-entry that are present in the
+    ///    "All Groups" is not visible
+    /// 5. [IndexOutOfBoundsException] is thrown by JavaFX and the walkthrough
+    ///    become entirely non-responsive.
     ///
-    /// It's not clear why such delay fixes this issue, but it's necessary. A possible
-    /// hypothesis is that a re-render occurred during the change in the selection state,
-    /// which leads to restoration to the default event dispatcher and error due to the
-    /// monkey-patched dispatcher isn't perfectly compatible with JavaFX's inner work.
+    /// It's not clear why such delay fixes this issue, but it's necessary. A
+    /// possible hypothesis is that a re-render occurred during the change in
+    /// the selection state, which leads to restoration to the default event
+    /// dispatcher and error due to the monkey-patched dispatcher isn't
+    /// perfectly compatible with JavaFX's inner work.
     private static final Duration REVERSION_DELAY = Duration.millis(50);
 
     private final Walkthrough walkthrough;
@@ -55,9 +57,7 @@ public class WalkthroughReverter {
     private @Nullable Node resolvedNode;
     private @Nullable DelayedExecution reversion;
 
-    public WalkthroughReverter(@NonNull Walkthrough walkthrough,
-                               @NonNull Window fallbackWindow,
-                               @NonNull SideEffectExecutor sideEffectExecutor) {
+    public WalkthroughReverter(@NonNull Walkthrough walkthrough, @NonNull Window fallbackWindow, @NonNull SideEffectExecutor sideEffectExecutor) {
         this.walkthrough = walkthrough;
         this.fallbackWindow = fallbackWindow;
         this.sideEffectExecutor = sideEffectExecutor;
@@ -134,15 +134,16 @@ public class WalkthroughReverter {
                         continue;
                     }
                     Window activeWindow = window.orElse(fallbackWindow);
-                    if (activeWindow.getScene() != null &&
-                            (component.nodeResolver().isEmpty() || component.nodeResolver().get().resolve(activeWindow.getScene()).isPresent())) {
+                    if (activeWindow.getScene() != null && (component.nodeResolver().isEmpty() || component.nodeResolver()
+                            .get()
+                            .resolve(activeWindow.getScene())
+                            .isPresent())) {
                         LOGGER.info("Reverting to step {} from step {}", i, from);
                         walkthrough.goToStep(i);
                         return;
                     }
                 }
-                case SideEffect _ ->
-                        undo(i);
+                case SideEffect _ -> undo(i);
             }
         }
 
@@ -152,10 +153,7 @@ public class WalkthroughReverter {
 
     private void undo(int stepIndex) {
         WalkthroughStep step = walkthrough.getStepAtIndex(stepIndex);
-        if (step instanceof SideEffect(
-                String title,
-                WalkthroughSideEffect sideEffect
-        )) {
+        if (step instanceof SideEffect(String title, WalkthroughSideEffect sideEffect)) {
             if (!sideEffectExecutor.executeBackward(sideEffect, walkthrough)) {
                 LOGGER.warn("Failed to revert side effect {}: {}", title, sideEffect.description());
             }
@@ -164,7 +162,9 @@ public class WalkthroughReverter {
 
     public void revertAll() {
         LOGGER.debug("Reverting all executed side effects");
-        for (int i = walkthrough.currentStepProperty().get(); i >= 0; i--) {
+        for (int i = walkthrough.currentStepProperty().get();
+             i >= 0;
+             i--) {
             undo(i);
         }
     }

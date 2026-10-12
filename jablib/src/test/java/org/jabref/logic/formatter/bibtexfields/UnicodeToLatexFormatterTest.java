@@ -30,8 +30,7 @@ class UnicodeToLatexFormatterTest {
                 Arguments.of("{\\i}", "ı"),
                 Arguments.of("{\\i} {\\={\\i}}", "ı ī"),
                 Arguments.of("{\\={\\i}}{\\={\\i}}", "\u0069\u0304\u0069\u0304"),
-                Arguments.of("Pu{\\d{n}}ya-pattana-vidy{\\={a}}-p{\\={\\i}}{\\d{t}}h{\\={a}}dhi-k{\\d{r}}tai{\\d{h}} pr{\\={a}}-ka{\\'{s}}ya{\\d{m}} n{\\={\\i}}ta{\\d{h}}", "Puṇya-pattana-vidyā-pīṭhādhi-kṛtaiḥ prā-kaśyaṃ nītaḥ")
-        );
+                Arguments.of("Pu{\\d{n}}ya-pattana-vidy{\\={a}}-p{\\={\\i}}{\\d{t}}h{\\={a}}dhi-k{\\d{r}}tai{\\d{h}} pr{\\={a}}-ka{\\'{s}}ya{\\d{m}} n{\\={\\i}}ta{\\d{h}}", "Puṇya-pattana-vidyā-pīṭhādhi-kṛtaiḥ prā-kaśyaṃ nītaḥ"));
     }
 
     @ParameterizedTest()

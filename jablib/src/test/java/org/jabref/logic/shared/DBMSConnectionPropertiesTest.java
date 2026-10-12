@@ -60,14 +60,31 @@ class DBMSConnectionPropertiesTest {
     @Test
     void sameDatabaseRegardlessOfEntryMode() {
         DBMSConnectionProperties fields = new DBMSConnectionPropertiesBuilder()
-                .setType(DBMSType.POSTGRESQL).setHost("Db.Example.org").setPort(5432).setDatabase("jabref").setUser("alice").setPassword("x")
+                .setType(DBMSType.POSTGRESQL)
+                .setHost("Db.Example.org")
+                .setPort(5432)
+                .setDatabase("jabref")
+                .setUser("alice")
+                .setPassword("x")
                 .createDBMSConnectionProperties();
         DBMSConnectionProperties url = new DBMSConnectionPropertiesBuilder()
-                .setType(DBMSType.POSTGRESQL).setHost("").setPort(5432).setDatabase("").setUser("alice").setPassword("y").setUseSSL(true)
-                .setExpertMode(true).setJdbcUrl("jdbc:postgresql://db.example.org/jabref?sslmode=verify-full")
+                .setType(DBMSType.POSTGRESQL)
+                .setHost("")
+                .setPort(5432)
+                .setDatabase("")
+                .setUser("alice")
+                .setPassword("y")
+                .setUseSSL(true)
+                .setExpertMode(true)
+                .setJdbcUrl("jdbc:postgresql://db.example.org/jabref?sslmode=verify-full")
                 .createDBMSConnectionProperties();
         DBMSConnectionProperties otherDatabase = new DBMSConnectionPropertiesBuilder()
-                .setType(DBMSType.POSTGRESQL).setHost("db.example.org").setPort(5432).setDatabase("other").setUser("alice").setPassword("x")
+                .setType(DBMSType.POSTGRESQL)
+                .setHost("db.example.org")
+                .setPort(5432)
+                .setDatabase("other")
+                .setUser("alice")
+                .setPassword("x")
                 .createDBMSConnectionProperties();
 
         assertTrue(DBMSConnectionProperties.isSameDatabase(fields, url));

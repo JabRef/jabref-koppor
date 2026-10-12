@@ -32,17 +32,11 @@ class CitationTest {
     }
 
     private static Stream<Arguments> colStartColEndNotInBounds() {
-        return Stream.of(
-                arguments(-1, 2),
-                arguments(1, 9)
-        );
+        return Stream.of(arguments(-1, 2), arguments(1, 9));
     }
 
     private static Stream<Arguments> colStartColEndInBounds() {
-        return Stream.of(
-                arguments(0, 2),
-                arguments(1, 8)
-        );
+        return Stream.of(arguments(0, 2), arguments(1, 8));
     }
 
     @ParameterizedTest

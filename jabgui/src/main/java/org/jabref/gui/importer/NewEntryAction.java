@@ -13,7 +13,6 @@ import org.jabref.gui.newentry.NewEntryView;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.EntryType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +30,13 @@ public class NewEntryAction extends SimpleCommand {
     private boolean isImmediate;
     private Optional<EntryType> immediateType;
 
-    /// Launches a tool for creating new entries.
-    /// If `createImmediately` is `true`, a new entry will be immediately be created (using the last-selected entry type
-    /// from the tool dialog was last run with).
-    /// If `createImmediately` is `false`, a dialog will appear asking the user to specify inputs for the new entry.
-    public NewEntryAction(boolean createImmediately, Supplier<LibraryTab> tabSupplier, DialogService dialogService, GuiPreferences preferences, StateManager stateManager) {
+    /// Launches a tool for creating new entries. If `createImmediately` is
+    /// `true`, a new entry will be immediately be created (using the
+    /// last-selected entry type from the tool dialog was last run with). If
+    /// `createImmediately` is `false`, a dialog will appear asking the user to
+    /// specify inputs for the new entry.
+    public NewEntryAction(boolean createImmediately, Supplier<LibraryTab> tabSupplier, DialogService dialogService,
+                          GuiPreferences preferences, StateManager stateManager) {
         this.tabSupplier = tabSupplier;
         this.dialogService = dialogService;
         this.preferences = preferences;
@@ -47,20 +48,24 @@ public class NewEntryAction extends SimpleCommand {
         this.executable.bind(ActionHelper.needsDatabase(stateManager));
     }
 
-    /// Launches a dialog asking the user for inputs for the new entry to create.
-    /// This dialog initially opens to the tab specified by `approach`. If `approach` is `null`, then the last-used tab
-    /// from previous use of the tool is restored.
-    public NewEntryAction(NewEntryDialogTab approach, Supplier<LibraryTab> tabSupplier, DialogService dialogService, GuiPreferences preferences, StateManager stateManager) {
+    /// Launches a dialog asking the user for inputs for the new entry to
+    /// create. This dialog initially opens to the tab specified by `approach`.
+    /// If `approach` is `null`, then the last-used tab from previous use of the
+    /// tool is restored.
+    public NewEntryAction(NewEntryDialogTab approach, Supplier<LibraryTab> tabSupplier, DialogService dialogService,
+                          GuiPreferences preferences, StateManager stateManager) {
         this(false, tabSupplier, dialogService, preferences, stateManager);
 
         this.initialApproach = approach;
     }
 
-    /// Directly creates a new empty entry of the type `immediateType`, without opening a dialog for the user to provide
-    /// inputs.
-    /// If `immediateType` is `null`, the last-selected immediate type from the previous use of the tool to create an empty
-    /// instance of a particular type is used (the `Article` standard entry type by default).
-    public NewEntryAction(EntryType immediateType, Supplier<LibraryTab> tabSupplier, DialogService dialogService, GuiPreferences preferences, StateManager stateManager) {
+    /// Directly creates a new empty entry of the type `immediateType`, without
+    /// opening a dialog for the user to provide inputs. If `immediateType` is
+    /// `null`, the last-selected immediate type from the previous use of the
+    /// tool to create an empty instance of a particular type is used (the
+    /// `Article` standard entry type by default).
+    public NewEntryAction(EntryType immediateType, Supplier<LibraryTab> tabSupplier, DialogService dialogService,
+                          GuiPreferences preferences, StateManager stateManager) {
         this(true, tabSupplier, dialogService, preferences, stateManager);
 
         this.immediateType = Optional.ofNullable(immediateType);

@@ -15,6 +15,11 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.text.TextPosition;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
@@ -26,12 +31,6 @@ import org.jabref.model.entry.identifier.ArXivIdentifier;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Strings;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
-import org.apache.pdfbox.text.TextPosition;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -41,8 +40,8 @@ import static org.jabref.logic.util.strings.StringUtil.isNullOrEmpty;
 ///
 /// Currently, Springer, and IEEE formats are supported.
 ///
-/// In case one wants to have a list of [BibEntry] matching the bibliography of a PDF,
-/// please see [RuleBasedBibliographyPdfImporter].
+/// In case one wants to have a list of [BibEntry] matching the bibliography of
+/// a PDF, please see [RuleBasedBibliographyPdfImporter].
 ///
 /// If several PDF importers should be tried, use [PdfMergeMetadataImporter].
 public class PdfContentImporter extends PdfImporter {
@@ -65,9 +64,8 @@ public class PdfContentImporter extends PdfImporter {
     ///
     /// EXCEPTION: a closing bracket is NOT removed
     ///
-    ///
-    /// TODO: Additionally replace multiple subsequent spaces by one space, which will cause a rename of this method
-    ///
+    /// TODO: Additionally replace multiple subsequent spaces by one space,
+    /// which will cause a rename of this method
     private String removeNonLettersAtEnd(String input) {
         String result = input.trim();
         if (result.isEmpty()) {
@@ -86,14 +84,18 @@ public class PdfContentImporter extends PdfImporter {
         return result;
     }
 
-    /// Converts an author line as found in a PDF (a "byline") into a BibTeX author list, mapping a trailing `et al.` to `others`.
+    /// Converts an author line as found in a PDF (a "byline") into a BibTeX
+    /// author list, mapping a trailing `et al.` to `others`.
     ///
     /// Neither [org.jabref.logic.importer.AuthorListParser] nor
-    /// [org.jabref.logic.formatter.bibtexfields.NormalizeNamesFormatter] (which delegates to
-    /// [org.jabref.logic.importer.AuthorListParser#normalizeSimply]) can take the byline directly. Both keep BibTeX
-    /// semantics, where a comma separates family and given names: `Smith, John and Doe, Jane` has the same shape as
-    /// `Karen Cooper, Jennifer Donovan and Gary Williamson`. Only this importer knows that its input is a byline and
-    /// thus in "Given Family" order. Measured on the raw bylines of the importer's tests:
+    /// [org.jabref.logic.formatter.bibtexfields.NormalizeNamesFormatter] (which
+    /// delegates to
+    /// [org.jabref.logic.importer.AuthorListParser#normalizeSimply]) can take
+    /// the byline directly. Both keep BibTeX semantics, where a comma separates
+    /// family and given names: `Smith, John and Doe, Jane` has the same shape
+    /// as `Karen Cooper, Jennifer Donovan and Gary Williamson`. Only this
+    /// importer knows that its input is a byline and thus in "Given Family"
+    /// order. Measured on the raw bylines of the importer's tests:
     ///
     /// | Byline                                                                     | AuthorListParser result                                        |
     /// |----------------------------------------------------------------------------|----------------------------------------------------------------|
@@ -102,8 +104,9 @@ public class PdfContentImporter extends PdfImporter {
     /// | `Karen A. Cooper, Jennifer L. Donovan, et al.`                             | 1 garbled person plus `others` (the initials-first heuristic of `normalizeSimply` needs `K. A. Cooper`) |
     /// | `Anke Lüdeling Merja Kytö` (separated by spaces only)                      | 1 person                                                       |
     ///
-    /// Hence the byline is split heuristically here; the result is a plain BibTeX list that
-    /// [org.jabref.model.entry.AuthorList#parse] handles afterwards.
+    /// Hence the byline is split heuristically here; the result is a plain
+    /// BibTeX list that [org.jabref.model.entry.AuthorList#parse] handles
+    /// afterwards.
     private String streamlineNames(String names) {
         String res;
         // supported formats:
@@ -183,15 +186,14 @@ public class PdfContentImporter extends PdfImporter {
                         } else {
                             res = res.concat(" and ");
                         }
-                        if ("et".equalsIgnoreCase(splitNames[i]) && (splitNames.length > (i + 1))
-                                && "al.".equalsIgnoreCase(splitNames[i + 1])) {
+                        if ("et".equalsIgnoreCase(splitNames[i]) && (splitNames.length > (i + 1)) && "al.".equalsIgnoreCase(splitNames[i + 1])) {
                             res = res.concat("others");
                             break;
                         } else {
                             res = res.concat(splitNames[i]).concat(" ");
                             workedOnFirstOrMiddle = true;
                         }
-                    }  // do nothing, just increment i at the end of this iteration
+                    } // do nothing, just increment i at the end of this iteration
                 }
                 i++;
             } while (i < splitNames.length);
@@ -252,8 +254,8 @@ public class PdfContentImporter extends PdfImporter {
             return Math.abs(Xgap) > XspaceThreshold && Math.abs(Ygap) > YspaceThreshold;
         }
 
-        private boolean isUnwantedText(TextPosition previousTextPosition, TextPosition textPosition,
-                                       Map<Float, TextPosition> lastPositionMap, float fontSize) {
+        private boolean isUnwantedText(TextPosition previousTextPosition, TextPosition textPosition, Map<Float, TextPosition> lastPositionMap,
+                float fontSize) {
             // This indicates that the text is at the start of the line, so it is needed.
             if (textPosition == null || previousTextPosition == null) {
                 return false;
@@ -273,8 +275,7 @@ public class PdfContentImporter extends PdfImporter {
         }
 
         @NullMarked
-        private record TitleCandidate(float fontSize, int pageIndex, String text) {
-        }
+        private record TitleCandidate(float fontSize, int pageIndex, String text) {}
 
         private Optional<String> findLargestFontText() {
             List<TitleCandidate> candidates = new ArrayList<>();
@@ -286,12 +287,14 @@ public class PdfContentImporter extends PdfImporter {
             // happen to use the title's font size) go to the earlier page instead of being
             // concatenated across pages.
             candidates.sort(Comparator.comparing(TitleCandidate::fontSize, Comparator.reverseOrder())
-                                      .thenComparing(TitleCandidate::pageIndex));
+                    .thenComparing(TitleCandidate::pageIndex));
             return candidates.stream()
                              .map(TitleCandidate::text)
                              .filter(this::isLegalTitle)
                              .findFirst()
-                             .or(() -> candidates.stream().map(TitleCandidate::text).findFirst());
+                             .or(() -> candidates.stream()
+                                                 .map(TitleCandidate::text)
+                                                 .findFirst());
         }
 
         private void collectCandidates(List<TextPosition> textPositions, int pageIndex, List<TitleCandidate> candidates) {
@@ -313,7 +316,10 @@ public class PdfContentImporter extends PdfImporter {
                 previousTextPosition = textPosition;
             }
             for (Map.Entry<Float, StringBuilder> entry : fontSizeTextMap.entrySet()) {
-                candidates.add(new TitleCandidate(entry.getKey(), pageIndex, entry.getValue().toString().trim()));
+                candidates.add(new TitleCandidate(entry.getKey(), pageIndex,
+                        entry.getValue()
+                             .toString()
+                             .trim()));
             }
         }
 
@@ -331,8 +337,8 @@ public class PdfContentImporter extends PdfImporter {
             // font size is only a fallback basis, because text drawn at "Tf 1" and blown up via
             // the text matrix reports a bogus font size in pt.
             float xSpaceThreshold = Float.isFinite(widthOfSpace) && widthOfSpace > 0
-                                    ? 0.25F * widthOfSpace
-                                    : 0.15F * previous.getFontSizeInPt();
+                    ? 0.25F * widthOfSpace
+                    : 0.15F * previous.getFontSizeInPt();
             float ySpaceThreshold = previous.getFontSizeInPt();
             float xGap = current.getXDirAdj() - (previous.getXDirAdj() + previous.getWidthDirAdj());
             float yGap = current.getYDirAdj() - (previous.getYDirAdj() - previous.getHeightDir());
@@ -345,32 +351,46 @@ public class PdfContentImporter extends PdfImporter {
         }
     }
 
-    /// Parses the first page content of a PDF document and extracts bibliographic information such as title, author,
-    /// abstract, keywords, and other relevant metadata. This method processes the content line-by-line and uses
-    /// custom parsing logic to identify and assemble information blocks from academic papers.
+    /// Parses the first page content of a PDF document and extracts
+    /// bibliographic information such as title, author, abstract, keywords, and
+    /// other relevant metadata. This method processes the content line-by-line
+    /// and uses custom parsing logic to identify and assemble information
+    /// blocks from academic papers.
     ///
-    /// idea: split[] contains the different lines, blocks are separated by empty lines, treat each block
-    /// or do special treatment at authors (which are not broken).
-    /// Therefore, we do a line-based and not a block-based splitting i points to the current line
-    /// curString (mostly) contains the current block,
-    /// the different lines are joined into one and thereby separated by " "
+    /// idea: split[] contains the different lines, blocks are separated by
+    /// empty lines, treat each block or do special treatment at authors (which
+    /// are not broken). Therefore, we do a line-based and not a block-based
+    /// splitting i points to the current line curString (mostly) contains the
+    /// current block, the different lines are joined into one and thereby
+    /// separated by " "
     ///
-    /// This method follows the structure typically found in academic paper PDFs:
+    /// This method follows the structure typically found in academic paper
+    /// PDFs:
     ///
-    /// - First, it attempts to detect the title by font size, if available, or by text position.
-    /// - Authors are then processed line-by-line until reaching the next section.
-    /// - Abstract and keywords, if found, are extracted as they appear on the page.
-    /// - Finally, conference details, DOI, and publication information are parsed from the lower blocks.
+    /// - First, it attempts to detect the title by font size, if available, or
+    ///   by text position.
+    /// - Authors are then processed line-by-line until reaching the next
+    ///   section.
+    /// - Abstract and keywords, if found, are extracted as they appear on the
+    ///   page.
+    /// - Finally, conference details, DOI, and publication information are
+    ///   parsed from the lower blocks.
     ///
-    /// The parsing logic also identifies and categorizes entries based on keywords such as "Abstract" or "Keywords"
-    /// and specific terms that denote sections. Additionally, this method can handle
-    /// publisher-specific formats like Springer or IEEE, extracting data like series, volume, and conference titles.
+    /// The parsing logic also identifies and categorizes entries based on
+    /// keywords such as "Abstract" or "Keywords" and specific terms that denote
+    /// sections. Additionally, this method can handle publisher-specific
+    /// formats like Springer or IEEE, extracting data like series, volume, and
+    /// conference titles.
     ///
-    /// @param firstpageContents The raw content of the PDF's first page, which may contain metadata and main content.
-    /// @param lineSeparator     The line separator used to format and unify line breaks in the text content.
-    /// @param titleByFontSize   An optional title string determined by font size; if provided, this overrides the default title parsing.
-    /// @return An [Optional] containing a [BibEntry] with the parsed bibliographic data if extraction
-    /// is successful. Otherwise, an empty [Optional].
+    /// @param firstpageContents The raw content of the PDF's first page, which
+    ///   may contain metadata and main content.
+    /// @param lineSeparator The line separator used to format and unify line
+    ///   breaks in the text content.
+    /// @param titleByFontSize An optional title string determined by font size;
+    ///   if provided, this overrides the default title parsing.
+    /// @return An [Optional] containing a [BibEntry] with the parsed
+    ///   bibliographic data if extraction is successful. Otherwise, an empty
+    ///   [Optional].
     @VisibleForTesting
     Optional<BibEntry> getEntryFromPDFContent(String firstpageContents, String lineSeparator, Optional<String> titleByFontSize) {
         String firstpageContentsUnifiedLineBreaks = StringUtil.unifyLineBreaks(firstpageContents, lineSeparator);
@@ -449,7 +469,7 @@ public class PdfContentImporter extends PdfImporter {
             } else {
                 if (!"".equals(curString)) {
                     author = author.concat(" and ").concat(curString);
-                }  // if lines[i] is "and" then "" is returned by streamlineNames -> do nothing
+                } // if lines[i] is "and" then "" is returned by streamlineNames -> do nothing
             }
             lineIndex++;
         }
@@ -464,7 +484,9 @@ public class PdfContentImporter extends PdfImporter {
                     // only word "abstract" found -- skip line
                     curString = "";
                 } else {
-                    curString = curString.substring("Abstract".length() + 1).trim().concat(System.lineSeparator());
+                    curString = curString.substring("Abstract".length() + 1)
+                                         .trim()
+                                         .concat(System.lineSeparator());
                 }
                 lineIndex++;
                 // fillCurStringWithNonEmptyLines() cannot be used as that uses " " as line separator
@@ -633,7 +655,9 @@ public class PdfContentImporter extends PdfImporter {
             return currentDoi;
         }
 
-        return DOI.findInText(curString).map(DOI::asString).orElse(null);
+        return DOI.findInText(curString)
+                  .map(DOI::asString)
+                  .orElse(null);
     }
 
     private String getArXivId(String arXivId) {
@@ -642,7 +666,9 @@ public class PdfContentImporter extends PdfImporter {
         }
 
         String arXiv = curString.split(" ")[0];
-        arXivId = ArXivIdentifier.parse(arXiv).map(ArXivIdentifier::asString).orElse(null);
+        arXivId = ArXivIdentifier.parse(arXiv)
+                .map(ArXivIdentifier::asString)
+                .orElse(null);
 
         if (arXivId == null || curString.length() < arXivId.length() + ARXIV_PREFIX_LENGTH) {
             return arXivId;

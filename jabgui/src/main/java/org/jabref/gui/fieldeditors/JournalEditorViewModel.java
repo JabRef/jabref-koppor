@@ -1,7 +1,6 @@
 package org.jabref.gui.fieldeditors;
 
 import javafx.scene.control.Button;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.preferences.GuiPreferences;

@@ -3,12 +3,12 @@ package org.jabref.gui.libraryproperties;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -23,8 +23,6 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -35,11 +33,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/// The dialog end of [LibraryPropertiesViewModel#storeAllSettings]: that the dialog reaches the
-/// library's journal at all, and that accepting it puts one step on that journal.
+/// The dialog end of [LibraryPropertiesViewModel#storeAllSettings]: that the
+/// dialog reaches the library's journal at all, and that accepting it puts one
+/// step on that journal.
 ///
-/// The view model's own test drives it with stub tabs; this one builds the seven real ones and
-/// changes the settings through their controls.
+/// The view model's own test drives it with stub tabs; this one builds the
+/// seven real ones and changes the settings through their controls.
 class LibraryPropertiesViewTest extends JavaFxTest {
 
     private final BibDatabaseContext databaseContext = new BibDatabaseContext(new BibDatabase());
@@ -74,8 +73,8 @@ class LibraryPropertiesViewTest extends JavaFxTest {
         interact(() -> view.show());
     }
 
-    /// Two tabs' worth of settings, one step, and the library reports itself changed until it is
-    /// saved.
+    /// Two tabs' worth of settings, one step, and the library reports itself
+    /// changed until it is saved.
     @Test
     // [utest->req~logic.undo.library-settings-recorded~1]
     void acceptingTheDialogRecordsOneUndoableStep() {
@@ -88,33 +87,42 @@ class LibraryPropertiesViewTest extends JavaFxTest {
             accept();
         });
 
-        assertEquals(Optional.of(BibDatabaseMode.BIBLATEX), databaseContext.getMetaData().getMode());
-        assertEquals(Optional.of(';'), databaseContext.getMetaData().getKeywordSeparator());
+        assertEquals(Optional.of(BibDatabaseMode.BIBLATEX),
+                databaseContext.getMetaData().getMode());
+        assertEquals(Optional.of(';'),
+                databaseContext.getMetaData().getKeywordSeparator());
         assertTrue(journal.canUndo(), "accepting the dialog put a step on the stack");
         assertTrue(journal.hasChanged());
 
         interact(journal::undo);
 
-        assertEquals(Optional.of(BibDatabaseMode.BIBTEX), databaseContext.getMetaData().getMode());
-        assertEquals(Optional.empty(), databaseContext.getMetaData().getKeywordSeparator());
+        assertEquals(Optional.of(BibDatabaseMode.BIBTEX),
+                databaseContext.getMetaData().getMode());
+        assertEquals(Optional.empty(),
+                databaseContext.getMetaData().getKeywordSeparator());
         assertFalse(journal.canUndo(), "the whole dialog is one step");
     }
 
-    /// Accepting an untouched dialog is not a no-op: the tabs write back the defaults their
-    /// controls were filled with, so a library that had no encoding gains one. That was a change
-    /// nothing could take back before; it is one step now.
+    /// Accepting an untouched dialog is not a no-op: the tabs write back the
+    /// defaults their controls were filled with, so a library that had no
+    /// encoding gains one. That was a change nothing could take back before; it
+    /// is one step now.
     @Test
     void acceptingAnUntouchedDialogRecordsWhatTheTabsMaterialise() {
-        assertEquals(Optional.empty(), databaseContext.getMetaData().getEncoding());
+        assertEquals(Optional.empty(),
+                databaseContext.getMetaData().getEncoding());
 
         interact(this::accept);
 
-        assertEquals(Optional.of(StandardCharsets.UTF_8), databaseContext.getMetaData().getEncoding());
+        assertEquals(Optional.of(StandardCharsets.UTF_8),
+                databaseContext.getMetaData().getEncoding());
 
         interact(journal::undo);
 
-        assertEquals(Optional.empty(), databaseContext.getMetaData().getEncoding());
-        assertEquals(Optional.of(BibDatabaseMode.BIBTEX), databaseContext.getMetaData().getMode());
+        assertEquals(Optional.empty(),
+                databaseContext.getMetaData().getEncoding());
+        assertEquals(Optional.of(BibDatabaseMode.BIBTEX),
+                databaseContext.getMetaData().getMode());
         assertFalse(journal.canUndo(), "the whole dialog is one step");
     }
 
@@ -124,6 +132,7 @@ class LibraryPropertiesViewTest extends JavaFxTest {
             .stream()
             .filter(buttonType -> buttonType.getButtonData() == ButtonType.OK.getButtonData())
             .findFirst()
-            .ifPresent(buttonType -> ((Button) view.getDialogPane().lookupButton(buttonType)).fire());
+            .ifPresent(buttonType -> ((Button) view.getDialogPane().lookupButton(buttonType))
+                    .fire());
     }
 }

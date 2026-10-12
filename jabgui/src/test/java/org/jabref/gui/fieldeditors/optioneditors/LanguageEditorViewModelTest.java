@@ -14,7 +14,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.Langid;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,13 +33,8 @@ public class LanguageEditorViewModelTest {
         FieldCheckers fieldCheckers = new FieldCheckers(databaseContext, filePreferences, abbreviationRepository, false, CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS);
         SuggestionProvider<?> suggestionProvider = mock(SuggestionProvider.class);
 
-        languageEditorViewModel = new LanguageEditorViewModel(
-                StandardField.LANGUAGEID,
-                suggestionProvider,
-                BibDatabaseMode.BIBLATEX,
-                fieldCheckers,
-                new JabRefUndoManager()
-        );
+        languageEditorViewModel = new LanguageEditorViewModel(StandardField.LANGUAGEID, suggestionProvider, BibDatabaseMode.BIBLATEX,
+                fieldCheckers, new JabRefUndoManager());
     }
 
     @Test
@@ -85,4 +79,3 @@ public class LanguageEditorViewModelTest {
         assertNull(result, "Blank input should return null Langid");
     }
 }
-

@@ -3,7 +3,6 @@ package org.jabref.gui.fieldeditors.optioneditors;
 import java.util.Collection;
 
 import javafx.util.StringConverter;
-
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.fieldeditors.AbstractEditorViewModel;
 import org.jabref.logic.integrity.FieldCheckers;
@@ -12,7 +11,8 @@ import org.jabref.model.entry.field.Field;
 
 public abstract class OptionEditorViewModel<T> extends AbstractEditorViewModel {
 
-    public OptionEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers, UndoManager undoManager) {
+    public OptionEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
     }
 
@@ -22,6 +22,7 @@ public abstract class OptionEditorViewModel<T> extends AbstractEditorViewModel {
     /// Returns all available items
     public abstract Collection<T> getItems();
 
-    /// Used for filling the ComboBox for selecting a value. Needs to return something meaningful for each item in [#getItems()]
+    /// Used for filling the ComboBox for selecting a value. Needs to return
+    /// something meaningful for each item in [#getItems()]
     public abstract String convertToDisplayText(T object);
 }

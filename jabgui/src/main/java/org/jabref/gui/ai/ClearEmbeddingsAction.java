@@ -23,11 +23,8 @@ public class ClearEmbeddingsAction extends SimpleCommand {
     private final TaskExecutor taskExecutor;
     private final FilePreferences filePreferences;
 
-    public ClearEmbeddingsAction(StateManager stateManager,
-                                 DialogService dialogService,
-                                 AiService aiService,
-                                 TaskExecutor taskExecutor,
-                                 FilePreferences filePreferences) {
+    public ClearEmbeddingsAction(StateManager stateManager, DialogService dialogService, AiService aiService,
+            TaskExecutor taskExecutor, FilePreferences filePreferences) {
         this.stateManager = stateManager;
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
@@ -42,9 +39,7 @@ public class ClearEmbeddingsAction extends SimpleCommand {
             return;
         }
 
-        boolean confirmed = dialogService.showConfirmationDialogAndWait(
-                Localization.lang("Clear embeddings cache"),
-                Localization.lang("Clear embeddings cache for current library?"));
+        boolean confirmed = dialogService.showConfirmationDialogAndWait(Localization.lang("Clear embeddings cache"), Localization.lang("Clear embeddings cache for current library?"));
 
         if (!confirmed) {
             return;
@@ -54,17 +49,12 @@ public class ClearEmbeddingsAction extends SimpleCommand {
 
         BibDatabaseContext bibDatabaseContext = stateManager.getActiveDatabase().get();
 
-        List<LinkedFile> linkedFiles = bibDatabaseContext
-                .getDatabase()
+        List<LinkedFile> linkedFiles = bibDatabaseContext.getDatabase()
                 .getEntries()
                 .stream()
                 .flatMap(entry -> entry.getFiles().stream())
                 .toList();
 
-        BackgroundTask.wrap(() ->
-                              aiService
-                                      .getEmbeddingsCleaner()
-                                      .clearEmbeddingsFor(linkedFiles, bibDatabaseContext, filePreferences))
-                      .executeWith(taskExecutor);
+        BackgroundTask.wrap(() -> aiService.getEmbeddingsCleaner().clearEmbeddingsFor(linkedFiles, bibDatabaseContext, filePreferences)).executeWith(taskExecutor);
     }
 }

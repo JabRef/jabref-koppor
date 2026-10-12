@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import javafx.beans.property.BooleanProperty;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.CurrentThreadTaskExecutor;
@@ -15,7 +14,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.search.query.SearchQuery;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
@@ -69,7 +67,8 @@ public class SqlBasedLibrarySearcherTest {
         for (BibEntry entry : entries) {
             databaseContext.getDatabase().insertEntry(entry);
         }
-        List<BibEntry> matches = new SqlBasedLibrarySearcher(databaseContext, TASK_EXECUTOR, preferences, postgresServer).getMatches(query);
+        List<BibEntry> matches = new SqlBasedLibrarySearcher(databaseContext, TASK_EXECUTOR, preferences, postgresServer)
+                .getMatches(query);
         // Order-insensitive comparison: SQL-backed searcher does not guarantee result ordering.
         assertEquals(Set.copyOf(expectedMatches), Set.copyOf(matches));
     }

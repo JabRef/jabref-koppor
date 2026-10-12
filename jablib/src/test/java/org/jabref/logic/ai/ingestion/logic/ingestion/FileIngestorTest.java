@@ -3,9 +3,8 @@ package org.jabref.logic.ai.ingestion.logic.ingestion;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.jabref.logic.ai.ingestion.logic.parsing.UniversalContentParser;
-
 import dev.langchain4j.data.document.Metadata;
+import org.jabref.logic.ai.ingestion.logic.parsing.UniversalContentParser;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -27,7 +27,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.OrFields;
 import org.jabref.model.util.Range;
-
 import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,11 +60,14 @@ public class BibEntryWriter {
 
     /// Writes the given BibEntry using the given writer
     ///
-    /// @param entry           The entry to write
-    /// @param out             The writer to use
+    /// @param entry The entry to write
+    /// @param out The writer to use
     /// @param bibDatabaseMode The database mode (bibtex or biblatex)
-    /// @param reformat        Should the entry be in any case, even if no change occurred?
-    public void write(BibEntry entry, BibWriter out, BibDatabaseMode bibDatabaseMode, boolean reformat) throws IOException {
+    /// @param reformat Should the entry be in any case, even if no change
+    ///   occurred?
+    public void write(BibEntry entry, BibWriter out, BibDatabaseMode bibDatabaseMode,
+                      boolean reformat)
+            throws IOException {
         // if the entry has not been modified, write it as it was
         if (!reformat && !entry.hasChanged()) {
             out.write(entry.getParsedSerialization());
@@ -88,9 +90,9 @@ public class BibEntryWriter {
         }
     }
 
-    /// Writes fields in the order of requiredFields, optionalFields and other fields, but does not sort the fields.
-    private void writeRequiredFieldsFirstRemainingFieldsSecond(BibEntry entry, BibWriter out,
-                                                               BibDatabaseMode bibDatabaseMode) throws IOException {
+    /// Writes fields in the order of requiredFields, optionalFields and other
+    /// fields, but does not sort the fields.
+    private void writeRequiredFieldsFirstRemainingFieldsSecond(BibEntry entry, BibWriter out, BibDatabaseMode bibDatabaseMode) throws IOException {
         writeEntryType(entry, out, bibDatabaseMode);
         writeKeyField(entry, out);
 
@@ -102,12 +104,12 @@ public class BibEntryWriter {
         if (type.isPresent()) {
             // Write required fields first
             List<Field> requiredFields = type.get()
-                                             .getRequiredFields()
-                                             .stream()
-                                             .map(OrFields::getFields)
-                                             .flatMap(Collection::stream)
-                                             .sorted(Comparator.comparing(Field::getName))
-                                             .toList();
+                    .getRequiredFields()
+                    .stream()
+                    .map(OrFields::getFields)
+                    .flatMap(Collection::stream)
+                    .sorted(Comparator.comparing(Field::getName))
+                    .toList();
             for (Field field : requiredFields) {
                 writeField(entry, out, field, indent);
             }
@@ -115,11 +117,11 @@ public class BibEntryWriter {
 
             // Then optional fields
             List<Field> optionalFields = type.get()
-                                             .getOptionalFields()
-                                             .stream()
-                                             .map(BibField::field)
-                                             .sorted(Comparator.comparing(Field::getName))
-                                             .toList();
+                    .getOptionalFields()
+                    .stream()
+                    .map(BibField::field)
+                    .sorted(Comparator.comparing(Field::getName))
+                    .toList();
             for (Field field : optionalFields) {
                 writeField(entry, out, field, indent);
             }
@@ -128,9 +130,9 @@ public class BibEntryWriter {
 
         // Then write remaining fields in alphabetic order.
         SortedSet<Field> remainingFields = entry.getFields()
-                                                .stream()
-                                                .filter(key -> !written.contains(key))
-                                                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Field::getName))));
+                .stream()
+                .filter(key -> !written.contains(key))
+                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Field::getName))));
         for (Field field : remainingFields) {
             writeField(entry, out, field, indent);
         }
@@ -162,19 +164,22 @@ public class BibEntryWriter {
     /// @param out   the target of the write
     /// @param field the field
     /// @throws IOException In case of an IO error
-    private void writeField(BibEntry entry, BibWriter out, Field field, int indent) throws IOException {
+    private void writeField(BibEntry entry, BibWriter out, Field field,
+                            int indent)
+            throws IOException {
         try {
             entry.getField(field)
                  .filter(value -> !value.isBlank())
-                 .ifPresent(Unchecked.consumer(value -> {
-                     out.write("  ");
-                     out.write(getFormattedFieldName(field, indent));
-                     int start = out.getCurrentPosition();
-                     out.write(fieldWriter.write(field, value));
-                     int end = out.getCurrentPosition();
-                     fieldPositions.put(field, new Range(start, end));
-                     out.writeLine(",");
-                 }));
+                 .ifPresent(Unchecked.consumer(
+                         value -> {
+                             out.write("  ");
+                             out.write(getFormattedFieldName(field, indent));
+                             int start = out.getCurrentPosition();
+                             out.write(fieldWriter.write(field, value));
+                             int end = out.getCurrentPosition();
+                             fieldPositions.put(field, new Range(start, end));
+                             out.writeLine(",");
+                         }));
         } catch (RuntimeException e) {
             // Unchecked.consumer wraps a thrown IOException into a RuntimeException; unwrap and rethrow it
             if (e.getCause() instanceof IOException ioException) {

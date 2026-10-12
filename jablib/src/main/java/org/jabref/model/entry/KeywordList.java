@@ -15,7 +15,6 @@ import java.util.stream.Stream;
 
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.jspecify.annotations.NonNull;
 
 /// Represents a list of keyword chains.
@@ -40,21 +39,26 @@ public class KeywordList implements Iterable<Keyword> {
     }
 
     public KeywordList(List<String> keywordChains) {
-        this(keywordChains.stream().map(Keyword::new).collect(Collectors.toList()));
+        this(keywordChains.stream()
+                          .map(Keyword::new)
+                          .collect(Collectors.toList()));
     }
 
     public KeywordList(String... keywordChains) {
-        this(Arrays.stream(keywordChains).map(Keyword::new).collect(Collectors.toList()));
+        this(Arrays.stream(keywordChains)
+                .map(Keyword::new)
+                .collect(Collectors.toList()));
     }
 
     public KeywordList(Keyword... keywordChains) {
         this(Arrays.asList(keywordChains));
     }
 
-    /// Parses the keyword list and uses [Keyword#DEFAULT_HIERARCHICAL_DELIMITER] as hierarchical delimiter.
+    /// Parses the keyword list and uses
+    /// [Keyword#DEFAULT_HIERARCHICAL_DELIMITER] as hierarchical delimiter.
     ///
     /// @param keywordString a String of keywordChains
-    /// @param delimiter     The delimiter used for separating the keywords
+    /// @param delimiter The delimiter used for separating the keywords
     /// @return a parsed list containing the keywordChains
     public static KeywordList parse(@NonNull String keywordString, @NonNull Character delimiter) {
         if (StringUtil.isBlank(keywordString)) {
@@ -114,7 +118,8 @@ public class KeywordList implements Iterable<Keyword> {
         return keywordList;
     }
 
-    /// Parses the keyword list by inferring a single delimiter using the given priority order.
+    /// Parses the keyword list by inferring a single delimiter using the given
+    /// priority order.
     public static KeywordList parseWithPrioritizedDelimiters(@NonNull String keywordString, @NonNull List<Character> delimiters) {
         if (StringUtil.isBlank(keywordString)) {
             return new KeywordList();
@@ -133,27 +138,25 @@ public class KeywordList implements Iterable<Keyword> {
     private static List<String> splitByDelimiters(@NonNull String keywordString, @NonNull List<Character> delimiters) {
         List<String> keywordTokens = new ArrayList<>();
         StringBuilder currentToken = new StringBuilder();
-        scanTopLevel(keywordString, delimiters,
-                currentToken::append,
-                () -> addTokenIfNotBlank(keywordTokens, currentToken));
+        scanTopLevel(keywordString, delimiters, currentToken::append, () -> addTokenIfNotBlank(keywordTokens, currentToken));
         addTokenIfNotBlank(keywordTokens, currentToken);
         return keywordTokens;
     }
 
-    /// Counts how often the delimiter occurs as an effective delimiter, i.e., at top level: not escaped and not inside braces.
-    /// Uses the same recognition rules as [#parseWithMultipleDelimiters(String, List)].
+    /// Counts how often the delimiter occurs as an effective delimiter, i.e.,
+    /// at top level: not escaped and not inside braces. Uses the same
+    /// recognition rules as [#parseWithMultipleDelimiters(String, List)].
     public static long countEffectiveDelimiters(@NonNull String keywordString, @NonNull Character delimiter) {
         long[] count = {0};
-        scanTopLevel(keywordString, List.of(delimiter), _ -> {
-        }, () -> count[0]++);
+        scanTopLevel(keywordString, List.of(delimiter), _ -> {},
+                () -> count[0]++);
         return count[0];
     }
 
-    /// Walks the string, reporting each character either as content or as an effective (top-level, unescaped) delimiter.
-    private static void scanTopLevel(@NonNull String keywordString,
-                                     @NonNull List<Character> delimiters,
-                                     @NonNull Consumer<Character> onContent,
-                                     @NonNull Runnable onDelimiter) {
+    /// Walks the string, reporting each character either as content or as an
+    /// effective (top-level, unescaped) delimiter.
+    private static void scanTopLevel(@NonNull String keywordString, @NonNull List<Character> delimiters, @NonNull Consumer<Character> onContent,
+            @NonNull Runnable onDelimiter) {
         boolean isEscaping = false;
         int braceDepth = 0;
 
@@ -205,19 +208,23 @@ public class KeywordList implements Iterable<Keyword> {
         String hierarchicalSeparator = " " + hierarchicalDelimiterStr + " ";
 
         return keywords.stream()
-                       .map(keyword -> keyword.flatten().stream()
-                                              .map(Keyword::get)
-                                              .map(nodeKeyword -> nodeKeyword.replace(escapeSequenceStr, escapeSequenceStr + escapeSequenceStr))
-                                              .map(nodeKeyword -> nodeKeyword.replace(delimiterStr, escapedDelimiter))
-                                              .map(nodeKeyword -> nodeKeyword.replace(hierarchicalDelimiterStr, escapedHierarchicalDelimiter))
-                                              .collect(Collectors.joining(hierarchicalSeparator)))
+                       .map(
+                               keyword -> keyword.flatten()
+                                                 .stream()
+                                                 .map(Keyword::get)
+                                                 .map(nodeKeyword -> nodeKeyword.replace(escapeSequenceStr, escapeSequenceStr + escapeSequenceStr))
+                                                 .map(nodeKeyword -> nodeKeyword.replace(delimiterStr, escapedDelimiter))
+                                                 .map(nodeKeyword -> nodeKeyword.replace(hierarchicalDelimiterStr, escapedHierarchicalDelimiter))
+                                                 .collect(Collectors.joining(hierarchicalSeparator)))
                        .collect(Collectors.joining(keywordSeparator));
     }
 
     public static KeywordList merge(String keywordStringA, String keywordStringB, Character delimiter) {
         KeywordList keywordListA = parse(keywordStringA, delimiter);
         KeywordList keywordListB = parse(keywordStringB, delimiter);
-        List<Keyword> distinctKeywords = Stream.concat(keywordListA.stream(), keywordListB.stream()).distinct().toList();
+        List<Keyword> distinctKeywords = Stream.concat(keywordListA.stream(), keywordListB.stream())
+                .distinct()
+                .toList();
         return new KeywordList(distinctKeywords);
     }
 
@@ -255,9 +262,12 @@ public class KeywordList implements Iterable<Keyword> {
         return keywordChains.add(keyword);
     }
 
-    /// Keywords are separated by the given delimiter and an additional space, i.e. "one, two".
+    /// Keywords are separated by the given delimiter and an additional space,
+    /// i.e. "one, two".
     public String getAsString(Character delimiter) {
-        return keywordChains.stream().map(Keyword::toString).collect(Collectors.joining(delimiter + " "));
+        return keywordChains.stream()
+                            .map(Keyword::toString)
+                            .collect(Collectors.joining(delimiter + " "));
     }
 
     public void add(String keywordsString) {
@@ -319,7 +329,9 @@ public class KeywordList implements Iterable<Keyword> {
     }
 
     public Set<String> toStringList() {
-        return keywordChains.stream().map(Keyword::toString).collect(Collectors.toSet());
+        return keywordChains.stream()
+                            .map(Keyword::toString)
+                            .collect(Collectors.toSet());
     }
 
     @Override

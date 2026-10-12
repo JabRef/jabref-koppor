@@ -12,14 +12,14 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.openoffice.util.OOListUtil;
 import org.jabref.model.openoffice.util.OOPair;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /// CitationGroups : the set of citation groups in the document.
 ///
-/// This is the main input (as well as output) for creating citation markers and bibliography.
+/// This is the main input (as well as output) for creating citation markers and
+/// bibliography.
 public class CitationGroups {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CitationGroups.class);
@@ -45,9 +45,8 @@ public class CitationGroups {
     }
 
     /// For each citation in `where` call `fun.accept(new Pair(citation, value));`
-    public <T> void distributeToCitations(List<CitationPath> where,
-                                          Consumer<OOPair<Citation, T>> fun,
-                                          T value) {
+    public <T> void distributeToCitations(List<CitationPath> where, Consumer<OOPair<Citation, T>> fun,
+            T value) {
 
         for (CitationPath p : where) {
             CitationGroup group = citationGroupsUnordered.get(p.group);
@@ -103,7 +102,8 @@ public class CitationGroups {
         return OOListUtil.map(globalOrder.get(), citationGroupsUnordered::get);
     }
 
-    /// Impose an order of citation groups by providing the order of their citation group identifiers.
+    /// Impose an order of citation groups by providing the order of their
+    /// citation group identifiers.
     ///
     /// Also set indexInGlobalOrder for each citation group.
     public void setGlobalOrder(@NonNull List<CitationGroupId> globalOrder) {
@@ -130,7 +130,8 @@ public class CitationGroups {
         }
     }
 
-    /// Collect citations into a list of cited sources using neither CitationGroup.globalOrder or Citation.localOrder
+    /// Collect citations into a list of cited sources using neither
+    /// CitationGroup.globalOrder or Citation.localOrder
     public CitedReferences getCitedReferencesUnordered() {
         LinkedHashMap<String, CitedReference> citedReferenceByCitationKey = new LinkedHashMap<>();
         for (CitationGroup group : citationGroupsUnordered.values()) {
@@ -189,8 +190,7 @@ public class CitationGroups {
 
     public void createNumberedBibliographySortedInOrderOfAppearance() {
         if (bibliography.isPresent()) {
-            throw new IllegalStateException("createNumberedBibliographySortedInOrderOfAppearance:"
-                    + " already have a bibliography");
+            throw new IllegalStateException("createNumberedBibliographySortedInOrderOfAppearance:" + " already have a bibliography");
         }
         CitedReferences citedReferences = getCitedReferencesSortedInOrderOfAppearance();
         citedReferences.numberCitedReferencesInCurrentOrder();
@@ -198,7 +198,8 @@ public class CitationGroups {
         bibliography = Optional.of(citedReferences);
     }
 
-    /// precondition: database lookup already performed (otherwise we just sort citation keys)
+    /// precondition: database lookup already performed (otherwise we just sort
+    /// citation keys)
     public void createPlainBibliographySortedByComparator(Comparator<BibEntry> entryComparator) {
         if (bibliography.isPresent()) {
             throw new IllegalStateException("createPlainBibliographySortedByComparator: already have a bibliography");
@@ -208,7 +209,8 @@ public class CitationGroups {
         bibliography = Optional.of(citedReferences);
     }
 
-    /// precondition: database lookup already performed (otherwise we just sort citation keys)
+    /// precondition: database lookup already performed (otherwise we just sort
+    /// citation keys)
     public void createNumberedBibliographySortedByComparator(Comparator<BibEntry> entryComparator) {
         if (bibliography.isPresent()) {
             throw new IllegalStateException("createNumberedBibliographySortedByComparator: already have a bibliography");

@@ -2,18 +2,16 @@ package org.jabref.gui.edit;
 
 import java.util.List;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.actions.StandardActions;
 import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.KeywordList;
-
-import com.tobiasdiez.easybind.EasyBind;
 
 public class ManageKeywordsViewModel {
 
@@ -102,7 +100,6 @@ public class ManageKeywordsViewModel {
         }
 
         undoManager.addEdit(StandardActions.MANAGE_KEYWORDS.getText(), edit -> {
-
             for (BibEntry entry : entries) {
                 KeywordList entryKeywords = entry.getKeywords(keywordSeparator);
 

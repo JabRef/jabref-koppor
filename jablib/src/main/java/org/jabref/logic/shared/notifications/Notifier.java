@@ -6,11 +6,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.event.FieldChangedEvent;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +18,13 @@ import org.slf4j.LoggerFactory;
 @NullMarked
 public class Notifier {
 
-    /// Used as string argument to `pg_notify`, which - unlike the `LISTEN` command - does not
-    /// case-fold its channel argument. Both sides therefore use this constant verbatim
-    /// (the listener quotes it in `LISTEN`).
+    /// Used as string argument to `pg_notify`, which - unlike the `LISTEN`
+    /// command - does not case-fold its channel argument. Both sides therefore
+    /// use this constant verbatim (the listener quotes it in `LISTEN`).
     public static final String CHANNEL = "jabrefLiveUpdate";
 
-    /// Channel on which the database-side `upsert_metadata` function announces changed metadata values
+    /// Channel on which the database-side `upsert_metadata` function announces
+    /// changed metadata values
     public static final String METADATA_CHANNEL = "metadata_update";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Notifier.class);
@@ -45,9 +45,9 @@ public class Notifier {
         send(createPayload(event));
     }
 
-    /// Asks all other clients to pull. Used when changes reached the database without a single
-    /// field-change event describing them - e.g. flushed micro-edits, which are written as a
-    /// whole entry.
+    /// Asks all other clients to pull. Used when changes reached the database
+    /// without a single field-change event describing them - e.g. flushed
+    /// micro-edits, which are written as a whole entry.
     public void notifyClientsToPull() {
         send(withoutContent());
     }
@@ -83,7 +83,8 @@ public class Notifier {
         return payload;
     }
 
-    /// A payload without content makes receivers pull the changes from the database instead
+    /// A payload without content makes receivers pull the changes from the
+    /// database instead
     private FieldChange withoutContent() {
         return new FieldChange(processorId, null, null, null, null, 0);
     }

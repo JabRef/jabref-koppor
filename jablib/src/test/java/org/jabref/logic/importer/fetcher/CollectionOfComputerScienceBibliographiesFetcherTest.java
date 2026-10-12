@@ -16,7 +16,6 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -34,7 +33,9 @@ class CollectionOfComputerScienceBibliographiesFetcherTest {
     @BeforeEach
     void setUp() {
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
         fetcher = new CollectionOfComputerScienceBibliographiesFetcher(importFormatPreferences);
     }
 
@@ -64,28 +65,28 @@ class CollectionOfComputerScienceBibliographiesFetcherTest {
                 .withField(new UnknownField("Scopus"), "2-s2.0-85037741580")
                 .withField(new UnknownField("subject"), "Software Architecture; Code Churn; Open Source; Architecrual Erosion; Technical Debt; Software Engineering; Programvaruteknik")
                 .withField(new UnknownField("relation"), "ACM International Conference Proceeding Series; ECSA '17~Proceedings of the 11th European Conference on Software Architecture : Companion Proceedings, p. 152-158")
-                .withField(StandardField.ABSTRACT, "The open source application JabRef has existed since" +
-                        " 2003. In 2015, the developers decided to make an" +
-                        " architectural refactoring as continued development was" +
-                        " deemed too demanding. The developers also introduced" +
-                        " Static Architecture Conformance Checking (SACC) to" +
-                        " prevent violations to the intended architecture." +
-                        " Measurements mined from source code repositories such" +
-                        " as code churn and code ownership has been linked to" +
-                        " several problems, for example fault proneness, security" +
-                        " vulnerabilities, code smells, and degraded" +
-                        " maintainability. The root cause of such problems can be" +
-                        " architectural. To determine the impact of the" +
-                        " refactoring of JabRef, we measure the code churn and" +
-                        " code ownership before and after the refactoring and" +
-                        " find that large files with violations had a" +
-                        " significantly higher code churn than large files" +
-                        " without violations before the refactoring. After the" +
-                        " refactoring, the files that had violations show a more" +
-                        " normal code churn. We find no such effect on code" +
-                        " ownership. We conclude that files that contain" +
-                        " violations detectable by SACC methods are connected to" +
-                        " higher than normal code churn.")
+                .withField(StandardField.ABSTRACT, "The open source application JabRef has existed since"
+                        + " 2003. In 2015, the developers decided to make an"
+                        + " architectural refactoring as continued development was"
+                        + " deemed too demanding. The developers also introduced"
+                        + " Static Architecture Conformance Checking (SACC) to"
+                        + " prevent violations to the intended architecture."
+                        + " Measurements mined from source code repositories such"
+                        + " as code churn and code ownership has been linked to"
+                        + " several problems, for example fault proneness, security"
+                        + " vulnerabilities, code smells, and degraded"
+                        + " maintainability. The root cause of such problems can be"
+                        + " architectural. To determine the impact of the"
+                        + " refactoring of JabRef, we measure the code churn and"
+                        + " code ownership before and after the refactoring and"
+                        + " find that large files with violations had a"
+                        + " significantly higher code churn than large files"
+                        + " without violations before the refactoring. After the"
+                        + " refactoring, the files that had violations show a more"
+                        + " normal code churn. We find no such effect on code"
+                        + " ownership. We conclude that files that contain"
+                        + " violations detectable by SACC methods are connected to"
+                        + " higher than normal code churn.")
                 .withField(StandardField.TYPE, "info:eu-repo/semantics/conferenceObject")
                 .withField(new UnknownField("description"), "Information and Software Qualtiy")
                 .withField(StandardField.PAGES, "152--158")
@@ -100,10 +101,13 @@ class CollectionOfComputerScienceBibliographiesFetcherTest {
                 .withField(StandardField.YEAR, "2017");
 
         // Checking a subset, because the query "jabref" is generic and returns a changing result set
-        assertEquals(Set.of(secondBibEntry), searchResult.stream().filter(bibEntry -> {
-            String citeKey = bibEntry.getCitationKey().get();
-            return citeKey.equals(secondBibEntry.getCitationKey().get());
-        }).collect(Collectors.toSet()));
+        assertEquals(Set.of(secondBibEntry),
+                searchResult.stream()
+                            .filter(bibEntry -> {
+                                String citeKey = bibEntry.getCitationKey().get();
+                                return citeKey.equals(secondBibEntry.getCitationKey().get());
+                            })
+                            .collect(Collectors.toSet()));
     }
 
     @Test

@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FulltextFetcher;
@@ -28,8 +29,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.paging.Page;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import org.apache.hc.core5.net.URIBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -67,7 +66,8 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
             URIBuilder uriBuilder = new URIBuilder(BASIC_SEARCH_URL);
             uriBuilder.addParameter("as_q", "");
             // as_epq as exact phrase
-            uriBuilder.addParameter("as_epq", entry.getField(StandardField.TITLE).orElse(""));
+            uriBuilder.addParameter("as_epq", entry.getField(StandardField.TITLE)
+                    .orElse(""));
             // as_occt field to search in
             uriBuilder.addParameter("as_occt", "title");
 
@@ -85,7 +85,9 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
     private Optional<URL> search(String url) throws IOException {
         Optional<URL> pdfLink = Optional.empty();
 
-        Document doc = Jsoup.connect(url).userAgent(URLDownload.USER_AGENT).get();
+        Document doc = Jsoup.connect(url)
+                .userAgent(URLDownload.USER_AGENT)
+                .get();
 
         if (needsCaptcha(doc.body().html())) {
             LOGGER.warn("Hit Google traffic limitation. Captcha prevents automatic fetching.");
@@ -130,8 +132,8 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
 
         if (needsCaptcha(content)) {
             // TODO: Remove "null"
-            throw new FetcherException(queryURL, "Fetching from Google Scholar failed: Captcha hit." +
-                    Localization.lang("This might be caused by reaching the traffic limitation of Google Scholar (see 'Help' for details)."), null);
+            throw new FetcherException(queryURL, "Fetching from Google Scholar failed: Captcha hit." + Localization.lang("This might be caused by reaching the traffic limitation of Google Scholar (see 'Help' for details)."),
+                    null);
         }
 
         Matcher matcher = LINK_TO_BIB_PATTERN.matcher(content);
@@ -208,8 +210,8 @@ public class GoogleScholar implements FulltextFetcher, PagedSearchBasedFetcher {
             // The caught IOException looks for example like this:
             // java.io.IOException: Server returned HTTP response code: 503 for URL: https://ipv4.google.com/sorry/index?continue=https://scholar.google.com/scholar%3Fhl%3Den%26btnG%3DSearch%26q%3Dbpmn&hl=en&q=CGMSBI0NBDkYuqy9wAUiGQDxp4NLQCWbIEY1HjpH5zFJhv4ANPGdWj0
             if (e.getMessage().contains("Server returned HTTP response code: 503 for URL")) {
-                throw new FetcherException("Fetching from Google Scholar failed.",
-                        Localization.lang("This might be caused by reaching the traffic limitation of Google Scholar (see 'Help' for details)."), e);
+                throw new FetcherException("Fetching from Google Scholar failed.", Localization.lang("This might be caused by reaching the traffic limitation of Google Scholar (see 'Help' for details)."),
+                        e);
             } else {
                 URL url;
                 try {

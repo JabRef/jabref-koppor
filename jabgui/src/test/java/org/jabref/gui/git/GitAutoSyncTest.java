@@ -9,7 +9,6 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.util.CurrentThreadTaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,10 +31,7 @@ class GitAutoSyncTest {
         GitHandlerRegistry gitHandlerRegistry = mock(GitHandlerRegistry.class);
         when(gitHandlerRegistry.fromAnyPath(any())).thenReturn(Optional.empty());
 
-        gitAutoSync = new GitAutoSync(dialogService,
-                gitHandlerRegistry,
-                new CurrentThreadTaskExecutor(),
-                mock(GuiPreferences.class, RETURNS_DEEP_STUBS),
+        gitAutoSync = new GitAutoSync(dialogService, gitHandlerRegistry, new CurrentThreadTaskExecutor(), mock(GuiPreferences.class, RETURNS_DEEP_STUBS),
                 mock(StateManager.class));
     }
 

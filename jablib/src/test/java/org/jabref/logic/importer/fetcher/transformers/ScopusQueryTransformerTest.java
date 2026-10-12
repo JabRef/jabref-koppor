@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.search.query.SearchQueryNode;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

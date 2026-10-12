@@ -11,14 +11,16 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.ISBN;
 
 public class ISBNIdentifierEditorViewModel extends BaseIdentifierEditorViewModel<ISBN> {
-    public ISBNIdentifierEditorViewModel(SuggestionProvider<?> suggestionProvider,
-                                         FieldCheckers fieldCheckers,
-                                         DialogService dialogService,
-                                         TaskExecutor taskExecutor,
-                                         GuiPreferences preferences,
-                                         UndoManager undoManager,
-                                         StateManager stateManager) {
-        super(StandardField.ISBN, suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
+    public ISBNIdentifierEditorViewModel(
+            SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers,
+            DialogService dialogService,
+            TaskExecutor taskExecutor,
+            GuiPreferences preferences,
+            UndoManager undoManager,
+            StateManager stateManager) {
+        super(StandardField.ISBN, suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences,
+                undoManager, stateManager);
         configure(true, false, false);
     }
 }

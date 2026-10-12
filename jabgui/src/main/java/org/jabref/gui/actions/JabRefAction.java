@@ -1,18 +1,19 @@
 package org.jabref.gui.actions;
 
+import de.saxsys.mvvmfx.utils.commands.Command;
 import javafx.beans.binding.Bindings;
-
 import org.jabref.gui.keyboard.KeyBindingRepository;
 
-import de.saxsys.mvvmfx.utils.commands.Command;
-
-/// Wrapper around one of our actions from [Action] to convert them to controlsfx [org.controlsfx.control.action.Action].
+/// Wrapper around one of our actions from [Action] to convert them to
+/// controlsfx [org.controlsfx.control.action.Action].
 class JabRefAction extends org.controlsfx.control.action.Action {
 
     public JabRefAction(Action action, KeyBindingRepository keyBindingRepository) {
         super(action.getText());
         action.getIcon().ifPresent(icon -> setGraphic(icon.getGraphicNode()));
-        action.getKeyBinding().flatMap(keyBindingRepository::getKeyCombination).ifPresent(this::setAccelerator);
+        action.getKeyBinding()
+              .flatMap(keyBindingRepository::getKeyCombination)
+              .ifPresent(this::setAccelerator);
 
         setLongText(action.getDescription());
     }
@@ -22,7 +23,8 @@ class JabRefAction extends org.controlsfx.control.action.Action {
 
         setEventHandler(_ -> command.execute());
 
-        disabledProperty().bind(command.executableProperty().not());
+        disabledProperty().bind(command.executableProperty()
+                .not());
 
         if (command instanceof SimpleCommand simpleCommand) {
             longTextProperty().bind(Bindings.concat(action.getDescription(), simpleCommand.statusMessageProperty()));

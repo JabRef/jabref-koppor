@@ -22,8 +22,12 @@ class SlidingWindowDocumentSplitterTest {
 
         assertFalse(chunks.isEmpty());
         for (String chunk : chunks) {
-            assertTrue(chunk.length() <= chunkSize,
-                    "Expected chunk length <= " + chunkSize + " but was " + chunk.length() + ": " + chunk);
+            assertTrue(chunk.length() <= chunkSize, "Expected chunk length <= "
+                    + chunkSize
+                    + " but was "
+                    + chunk.length()
+                    + ": "
+                    + chunk);
         }
     }
 

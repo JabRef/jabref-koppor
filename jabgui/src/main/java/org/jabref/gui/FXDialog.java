@@ -7,22 +7,24 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.walkthrough.WalkthroughPane;
 
 /// This class provides a super class for all dialogs implemented in JavaFX.
 ///
-/// To create a custom JavaFX dialog one should create an instance of this class and set a dialog
-/// pane through the inherited [javafx.scene.control.Dialog#setDialogPane(javafx.scene.control.DialogPane)] method.
-/// The dialog can be shown via [javafx.scene.control.Dialog#show()] or [javafx.scene.control.Dialog#showAndWait()].
+/// To create a custom JavaFX dialog one should create an instance of this class
+/// and set a dialog pane through the inherited
+/// [javafx.scene.control.Dialog#setDialogPane(javafx.scene.control.DialogPane)]
+/// method. The dialog can be shown via [javafx.scene.control.Dialog#show()] or
+/// [javafx.scene.control.Dialog#showAndWait()].
 ///
-/// The layout of the pane should be defined in an external fxml file and loaded it via the
-/// [javafx.fxml.FXMLLoader].
+/// The layout of the pane should be defined in an external fxml file and loaded
+/// it via the [javafx.fxml.FXMLLoader].
 public class FXDialog extends Alert {
 
-    public FXDialog(AlertType type, String title, Image image, boolean isModal) {
+    public FXDialog(AlertType type, String title, Image image,
+                    boolean isModal) {
         this(type, title, isModal);
         setDialogIcon(image);
     }
@@ -69,7 +71,8 @@ public class FXDialog extends Alert {
         this(type, true);
     }
 
-    /// Same as [BaseDialog]: key bindings and the walkthrough pane belong to the dialog pane.
+    /// Same as [BaseDialog]: key bindings and the walkthrough pane belong to
+    /// the dialog pane.
     private void setUpDialogPane(DialogPane dialogPane) {
         dialogPane.addEventHandler(KeyEvent.KEY_PRESSED, event -> BaseDialog.closeOnKeyBindingMatch(event, this));
         dialogPane.getChildren().add(new WalkthroughPane());
@@ -80,6 +83,8 @@ public class FXDialog extends Alert {
     }
 
     private Stage getDialogWindow() {
-        return (Stage) getDialogPane().getScene().getWindow();
+        return (Stage) getDialogPane()
+                .getScene()
+                .getWindow();
     }
 }

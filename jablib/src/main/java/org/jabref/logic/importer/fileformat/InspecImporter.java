@@ -20,7 +20,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.EntryTypeFactory;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NonNull;
 
 /// INSPEC format importer.
@@ -90,17 +89,12 @@ public class InspecImporter extends Importer {
                 String f3 = s.substring(0, 2);
                 String frest = s.substring(5);
                 switch (f3) {
-                    case "TI" ->
-                            h.put(StandardField.TITLE, frest);
-                    case "PY" ->
-                            h.put(StandardField.YEAR, frest);
-                    case "AU" ->
-                            h.put(StandardField.AUTHOR,
-                                    AuthorList.fixAuthorLastNameFirst(frest.replace(",-", ", ").replace(";", " and ")));
-                    case "AB" ->
-                            h.put(StandardField.ABSTRACT, frest);
-                    case "ID" ->
-                            h.put(StandardField.KEYWORDS, frest);
+                    case "TI" -> h.put(StandardField.TITLE, frest);
+                    case "PY" -> h.put(StandardField.YEAR, frest);
+                    case "AU" -> h.put(StandardField.AUTHOR, AuthorList.fixAuthorLastNameFirst(frest.replace(",-", ", ")
+                            .replace(";", " and ")));
+                    case "AB" -> h.put(StandardField.ABSTRACT, frest);
+                    case "ID" -> h.put(StandardField.KEYWORDS, frest);
                     case "SO" -> {
                         int m = frest.indexOf('.');
                         if (m >= 0) {

@@ -12,7 +12,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -53,8 +52,12 @@ class CitationStyleGeneratorTest {
     @Test
     void aCMCitation() {
         testEntryContext.setMode(BibDatabaseMode.BIBLATEX);
-        CitationStyle style = STYLE_LIST.stream().filter(e -> "ACM SIGGRAPH".equals(e.getTitle())).findAny().get();
-        String citation = CitationStyleGenerator.generateCitation(List.of(testEntry), style.getSource(), HTML_OUTPUT_FORMAT, testEntryContext, ENTRY_TYPES_MANAGER);
+        CitationStyle style = STYLE_LIST.stream()
+                .filter(e -> "ACM SIGGRAPH".equals(e.getTitle()))
+                .findAny()
+                .get();
+        String citation = CitationStyleGenerator.generateCitation(List.of(testEntry), style.getSource(), HTML_OUTPUT_FORMAT, testEntryContext,
+                ENTRY_TYPES_MANAGER);
 
         String expected = "[Smith et al. 2016]";
 
@@ -64,8 +67,12 @@ class CitationStyleGeneratorTest {
     @Test
     void aPACitation() {
         testEntryContext.setMode(BibDatabaseMode.BIBLATEX);
-        CitationStyle style = STYLE_LIST.stream().filter(e -> "APA Style 7th edition".equals(e.getTitle())).findAny().get();
-        String citation = CitationStyleGenerator.generateCitation(List.of(testEntry), style.getSource(), HTML_OUTPUT_FORMAT, testEntryContext, ENTRY_TYPES_MANAGER);
+        CitationStyle style = STYLE_LIST.stream()
+                .filter(e -> "APA Style 7th edition".equals(e.getTitle()))
+                .findAny()
+                .get();
+        String citation = CitationStyleGenerator.generateCitation(List.of(testEntry), style.getSource(), HTML_OUTPUT_FORMAT, testEntryContext,
+                ENTRY_TYPES_MANAGER);
 
         String expected = "(Smith et al., 2016)";
 
@@ -76,8 +83,12 @@ class CitationStyleGeneratorTest {
     void aPACitation2AuthorsCombined() {
         BibDatabaseContext testEntryContextTwoAuthors = new BibDatabaseContext(new BibDatabase(List.of(testEntry, testEntry2)));
         testEntryContextTwoAuthors.setMode(BibDatabaseMode.BIBLATEX);
-        CitationStyle style = STYLE_LIST.stream().filter(e -> "APA Style 7th edition".equals(e.getTitle())).findAny().get();
-        String citation = CitationStyleGenerator.generateCitation(List.of(testEntry, testEntry2), style.getSource(), HTML_OUTPUT_FORMAT, testEntryContextTwoAuthors, ENTRY_TYPES_MANAGER);
+        CitationStyle style = STYLE_LIST.stream()
+                .filter(e -> "APA Style 7th edition".equals(e.getTitle()))
+                .findAny()
+                .get();
+        String citation = CitationStyleGenerator.generateCitation(List.of(testEntry, testEntry2), style.getSource(), HTML_OUTPUT_FORMAT, testEntryContextTwoAuthors,
+                ENTRY_TYPES_MANAGER);
 
         String expected = "(Harrer et al., 2018; Smith et al., 2016)";
 
@@ -88,8 +99,12 @@ class CitationStyleGeneratorTest {
     void clinicalEthicsNoteCitation() {
         testEntryContext.setMode(BibDatabaseMode.BIBLATEX);
         // Non-bibliographic citation style (citation-format="note")
-        CitationStyle style = STYLE_LIST.stream().filter(e -> "The Journal of Clinical Ethics".equals(e.getTitle())).findAny().get();
-        String citation = CitationStyleGenerator.generateCitation(List.of(testEntry), style.getSource(), HTML_OUTPUT_FORMAT, testEntryContext, ENTRY_TYPES_MANAGER);
+        CitationStyle style = STYLE_LIST.stream()
+                .filter(e -> "The Journal of Clinical Ethics".equals(e.getTitle()))
+                .findAny()
+                .get();
+        String citation = CitationStyleGenerator.generateCitation(List.of(testEntry), style.getSource(), HTML_OUTPUT_FORMAT, testEntryContext,
+                ENTRY_TYPES_MANAGER);
 
         String expected = "B. Smith, B. Jones and J. Williams, &ldquo;Title of the test entry,&rdquo; <span style=\"font-style: italic\">BibTeX Journal</span> 34, no. 3 (July 2016): 45&ndash;67.";
 
@@ -103,7 +118,8 @@ class CitationStyleGeneratorTest {
         String citation = CitationStyleGenerator.generateBibliography(List.of(testEntry), DEFAULT_STYLE, HTML_OUTPUT_FORMAT, testEntryContext, ENTRY_TYPES_MANAGER).getFirst();
 
         // if the default citation style (ieee.csl) changes this has to be modified
-        String expected = """
+        String expected =
+                """
                   <div class="csl-entry">
                     <div class="csl-left-margin">[1]</div><div class="csl-right-inline">B. Smith, B. Jones, and J. Williams, &ldquo;Title of the test entry,&rdquo; <span style="font-style: italic">BibTeX Journal</span>, vol. 34, no. 3, pp. 45&ndash;67, Jul. 2016, doi: 10.1001/bla.blubb.</div>
                   </div>
@@ -117,22 +133,19 @@ class CitationStyleGeneratorTest {
         BibDatabaseContext testEntryContextMultipleEntries = new BibDatabaseContext(new BibDatabase(List.of(testEntry2, testEntry)));
         testEntryContextMultipleEntries.setMode(BibDatabaseMode.BIBLATEX);
 
-        List<String> citations = CitationStyleGenerator.generateBibliography(
-                List.of(testEntry2, testEntry),
-                DEFAULT_STYLE,
-                TEXT_OUTPUT_FORMAT,
-                testEntryContextMultipleEntries,
-                ENTRY_TYPES_MANAGER);
+        List<String> citations = CitationStyleGenerator.generateBibliography(List.of(testEntry2, testEntry), DEFAULT_STYLE, TEXT_OUTPUT_FORMAT, testEntryContextMultipleEntries, ENTRY_TYPES_MANAGER);
 
-        assertEquals(List.of(
-                "[1]S. Harrer, J. Lenhard, and L. Dietz, Java by Comparison. Raleigh, NC: Pragmatic Bookshelf, 2018.\n",
-                "[2]B. Smith, B. Jones, and J. Williams, “Title of the test entry,” BibTeX Journal, vol. 34, no. 3, pp. 45–67, Jul. 2016, doi: 10.1001/bla.blubb.\n"
-        ), citations);
+        assertEquals(
+                List.of("[1]S. Harrer, J. Lenhard, and L. Dietz, Java by Comparison. Raleigh, NC: Pragmatic Bookshelf, 2018.\n", "[2]B. Smith, B. Jones, and J. Williams, “Title of the test entry,” BibTeX Journal, vol. 34, no. 3, pp. 45–67, Jul. 2016, doi: 10.1001/bla.blubb.\n"),
+                citations);
     }
 
     @Test
     void springerLncsAlphabeticalBibliographyEntryIdsFollowBibliographySortOrder() {
-        CitationStyle style = STYLE_LIST.stream().filter(e -> "Springer - Lecture Notes in Computer Science (sorted alphabetically)".equals(e.getTitle())).findAny().get();
+        CitationStyle style = STYLE_LIST.stream()
+                .filter(e -> "Springer - Lecture Notes in Computer Science (sorted alphabetically)".equals(e.getTitle()))
+                .findAny()
+                .get();
 
         BibEntry keen = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("keen2001")
@@ -157,22 +170,20 @@ class CitationStyleGeneratorTest {
         BibDatabaseContext bibDatabaseContext = new BibDatabaseContext(new BibDatabase(entries));
         bibDatabaseContext.setMode(BibDatabaseMode.BIBLATEX);
 
-        assertEquals(
-                List.of("cooper2007", "keen2001", "tokede2011"),
-                CitationStyleGenerator.generateBibliographyEntryIds(
-                                              entries,
-                                              style.getSource(),
-                                              HTML_OUTPUT_FORMAT,
-                                              bibDatabaseContext,
-                                              ENTRY_TYPES_MANAGER)
-                                      .orElseThrow());
+        assertEquals(List.of("cooper2007", "keen2001", "tokede2011"),
+                CitationStyleGenerator.generateBibliographyEntryIds(entries, style.getSource(), HTML_OUTPUT_FORMAT, bibDatabaseContext, ENTRY_TYPES_MANAGER).orElseThrow());
     }
 
     @Test
     void aCMBibliography() {
         testEntryContext.setMode(BibDatabaseMode.BIBLATEX);
-        CitationStyle style = STYLE_LIST.stream().filter(e -> "ACM SIGGRAPH".equals(e.getTitle())).findAny().get();
-        String citation = CitationStyleGenerator.generateBibliography(List.of(testEntry), style.getSource(), HTML_OUTPUT_FORMAT, testEntryContext, ENTRY_TYPES_MANAGER).getFirst();
+        CitationStyle style = STYLE_LIST.stream()
+                .filter(e -> "ACM SIGGRAPH".equals(e.getTitle()))
+                .findAny()
+                .get();
+        String citation = CitationStyleGenerator.generateBibliography(List.of(testEntry), style.getSource(), HTML_OUTPUT_FORMAT, testEntryContext,
+                ENTRY_TYPES_MANAGER)
+                .getFirst();
 
         // if the acm-siggraph.csl citation style changes this has to be modified
         String expected = "  <div class=\"csl-entry\"><span style=\"font-variant: small-caps\">Smith, B., Jones, B., and Williams, J.</span> 2016. Title of the test entry. <span style=\"font-style: italic\">BibTeX Journal</span> <span style=\"font-style: italic\">34</span>, 3, 45&ndash;67.</div>\n";
@@ -183,8 +194,13 @@ class CitationStyleGeneratorTest {
     @Test
     void aPABibliography() {
         testEntryContext.setMode(BibDatabaseMode.BIBLATEX);
-        CitationStyle style = STYLE_LIST.stream().filter(e -> "APA Style 7th edition".equals(e.getTitle())).findAny().get();
-        String citation = CitationStyleGenerator.generateBibliography(List.of(testEntry), style.getSource(), HTML_OUTPUT_FORMAT, testEntryContext, ENTRY_TYPES_MANAGER).getFirst();
+        CitationStyle style = STYLE_LIST.stream()
+                .filter(e -> "APA Style 7th edition".equals(e.getTitle()))
+                .findAny()
+                .get();
+        String citation = CitationStyleGenerator.generateBibliography(List.of(testEntry), style.getSource(), HTML_OUTPUT_FORMAT, testEntryContext,
+                ENTRY_TYPES_MANAGER)
+                .getFirst();
 
         // if the apa.csl citation style changes this has to be modified
         String expected = "  <div class=\"csl-entry\">Smith, B., Jones, B., &amp; Williams, J. (2016). Title of the test entry. <span style=\"font-style: italic\">BibTeX Journal</span>, <span style=\"font-style: italic\">34</span>(3), 45&ndash;67. https://doi.org/10.1001/bla.blubb</div>\n";
@@ -192,14 +208,23 @@ class CitationStyleGeneratorTest {
         assertEquals(expected, citation);
     }
 
-    /// Fails due to citeproc-java ([generateCitation][CitationStyleGenerator#generateCitation(List, String, CitationStyleOutputFormat, BibDatabaseContext, BibEntryTypesManager)]) returning an empty citation.
-    /// Alphanumeric citations are thus, currently manually generated by formatting (see [generateAlphaNumericCitation][org.jabref.logic.openoffice.oocsltext.CSLFormatUtils#generateAlphanumericCitation(List, BibDatabaseContext)]).
+    /// Fails due to citeproc-java
+    /// ([generateCitation][CitationStyleGenerator#generateCitation(List,
+    /// String, CitationStyleOutputFormat, BibDatabaseContext,
+    /// BibEntryTypesManager)]) returning an empty citation. Alphanumeric
+    /// citations are thus, currently manually generated by formatting (see
+    /// [generateAlphaNumericCitation][org.jabref.logic.openoffice.oocsltext.CSLFormatUtils#generateAlphanumericCitation(List,
+    /// BibDatabaseContext)]).
     @Test
     @Disabled("Till alphanumeric citations are supported by citeproc-java")
     void din1502AlphanumericInTextCitation() {
         testEntryContext.setMode(BibDatabaseMode.BIBLATEX);
-        CitationStyle style = STYLE_LIST.stream().filter(e -> "DIN 1505-2 (alphanumeric, Deutsch) - standard superseded by ISO-690".equals(e.getTitle())).findAny().get();
-        String inTextCitation = CitationStyleGenerator.generateCitation(List.of(testEntry), style.getSource(), HTML_OUTPUT_FORMAT, testEntryContext, ENTRY_TYPES_MANAGER);
+        CitationStyle style = STYLE_LIST.stream()
+                .filter(e -> "DIN 1505-2 (alphanumeric, Deutsch) - standard superseded by ISO-690".equals(e.getTitle()))
+                .findAny()
+                .get();
+        String inTextCitation = CitationStyleGenerator.generateCitation(List.of(testEntry), style.getSource(), HTML_OUTPUT_FORMAT, testEntryContext,
+                ENTRY_TYPES_MANAGER);
 
         assertEquals("[Smit2016]", inTextCitation);
     }
@@ -210,9 +235,7 @@ class CitationStyleGeneratorTest {
         entry.setField(StandardField.AUTHOR, "Last, First and\nDoe, Jane");
 
         // if the default citation style changes this has to be modified
-        String expected = "  <div class=\"csl-entry\">\n" +
-                "    <div class=\"csl-left-margin\">[1]</div><div class=\"csl-right-inline\">F. Last and J. Doe, </div>\n" +
-                "  </div>\n";
+        String expected = "  <div class=\"csl-entry\">\n" + "    <div class=\"csl-left-margin\">[1]</div><div class=\"csl-right-inline\">F. Last and J. Doe, </div>\n" + "  </div>\n";
         String citation = CitationStyleGenerator.generateBibliography(List.of(entry), DEFAULT_STYLE, ENTRY_TYPES_MANAGER);
         assertEquals(expected, citation);
     }
@@ -223,7 +246,8 @@ class CitationStyleGeneratorTest {
         entry.setField(StandardField.AUTHOR, "Last, First and\r\nDoe, Jane");
 
         // if the default citation style changes this has to be modified
-        String expected = """
+        String expected =
+                """
                   <div class="csl-entry">
                     <div class="csl-left-margin">[1]</div><div class="csl-right-inline">F. Last and J. Doe, </div>
                   </div>
@@ -243,7 +267,8 @@ class CitationStyleGeneratorTest {
 
     @Test
     void htmlFormat() {
-        String expectedCitation = """
+        String expectedCitation =
+                """
                   <div class="csl-entry">
                     <div class="csl-left-margin">[1]</div><div class="csl-right-inline">B. Smith, B. Jones, and J. Williams, &ldquo;Title of the test entry,&rdquo; <span style="font-style: italic">BibTeX Journal</span>, vol. 34, no. 3, pp. 45&ndash;67, Jul. 2016, doi: 10.1001/bla.blubb.</div>
                   </div>
@@ -277,7 +302,8 @@ class CitationStyleGeneratorTest {
 
         // if the default citation style changes this has to be modified.
         // in this case ä was added to check if it is formatted appropriately
-        String expected = """
+        String expected =
+                """
                   <div class="csl-entry">
                     <div class="csl-left-margin">[1]</div><div class="csl-right-inline">F. L&auml;st and J. Doe, </div>
                   </div>
@@ -553,11 +579,11 @@ class CitationStyleGeneratorTest {
                         "apa.csl"),
 
                 // 20.
-        /*
-        Not rendering the "eid" field here, is sufficient, but contested practice. This statement is based on the following reasoning: "eid" (in long: electronic identifier) is the field, which should be used to enter the "article number", when using the Biblatex standard. Both "eid" and "article number" do not exist in the older Bibtex standard. As a workaround, some Journals and publishers have opted to put the article number into the pages field. APA 7th Style recommends following procedure: "If the journal article has an article number instead of a page range, include the word "Article" and then the article number instead of the page range." - Source: https://apastyle.apa.org/style-grammar-guidelines/references/examples/journal-article-references#2. Additionally the APA style (7th edition) created by the CSL community "prints the issue [= the "number" field" in both Biblatex and Bibtex]  whenever it is in the data and the number [= the "eid" field in Biblatex] when no page range is present, entirely independent of the issue number" - Source: https://github.com/citation-style-language/styles/issues/5827#issuecomment-1006011280. I personally think the "eid" field SHOULD be rendered here SOMEWHERE, maybe even IN ADDITION to the page range, because we have the data, right? Why not show it? - But this is just my humble opinion and may not be coherent with the current APA Style 7th edition.
+                /*
+                Not rendering the "eid" field here, is sufficient, but contested practice. This statement is based on the following reasoning: "eid" (in long: electronic identifier) is the field, which should be used to enter the "article number", when using the Biblatex standard. Both "eid" and "article number" do not exist in the older Bibtex standard. As a workaround, some Journals and publishers have opted to put the article number into the pages field. APA 7th Style recommends following procedure: "If the journal article has an article number instead of a page range, include the word "Article" and then the article number instead of the page range." - Source: https://apastyle.apa.org/style-grammar-guidelines/references/examples/journal-article-references#2. Additionally the APA style (7th edition) created by the CSL community "prints the issue [= the "number" field" in both Biblatex and Bibtex]  whenever it is in the data and the number [= the "eid" field in Biblatex] when no page range is present, entirely independent of the issue number" - Source: https://github.com/citation-style-language/styles/issues/5827#issuecomment-1006011280. I personally think the "eid" field SHOULD be rendered here SOMEWHERE, maybe even IN ADDITION to the page range, because we have the data, right? Why not show it? - But this is just my humble opinion and may not be coherent with the current APA Style 7th edition.
 
-        Not rendering the "issue" field here is sufficient for APA 7th edition. Under current circumstances the "number" field takes priority over the "issue" field (see https://github.com/JabRef/jabref/issues/8372#issuecomment-1023768144). [Keyword: IS RENDERING BOTH VIABLE?]. Ideally, they would coexist: "Roughly speaking number subdivides volume and issue is much closer to subdividing year. I don't think I would want to say that issue is subordinate to number or vice versa. They sort of operate on a similar level." (Source: https://github.com/plk/biblatex/issues/726#issuecomment-1010264258)
-         */
+                Not rendering the "issue" field here is sufficient for APA 7th edition. Under current circumstances the "number" field takes priority over the "issue" field (see https://github.com/JabRef/jabref/issues/8372#issuecomment-1023768144). [Keyword: IS RENDERING BOTH VIABLE?]. Ideally, they would coexist: "Roughly speaking number subdivides volume and issue is much closer to subdividing year. I don't think I would want to say that issue is subordinate to number or vice versa. They sort of operate on a similar level." (Source: https://github.com/plk/biblatex/issues/726#issuecomment-1010264258)
+                 */
                 Arguments.of(
                         "Foo, B. (n.d.). volume + issue + number + pages + eid. Bib(La)TeX Journal, 1(3number), Article 6eid.\n",
                         BibDatabaseMode.BIBLATEX,
@@ -745,21 +771,24 @@ class CitationStyleGeneratorTest {
                                 .withField(StandardField.ISSUE, "9issue")
                                 .withField(StandardField.NUMBER, "3number")
                                 .withField(StandardField.PAGES, "45--67"),
-                        "apa.csl")
-        );
+                        "apa.csl"));
     }
 
     @ParameterizedTest
     @MethodSource
-    void cslMapping(String expected, BibDatabaseMode mode, BibEntry entry, String cslFileName) {
+    void cslMapping(String expected, BibDatabaseMode mode, BibEntry entry,
+                    String cslFileName) {
         testEntryContext.setMode(mode);
 
         String citation = CitationStyleGenerator.generateBibliography(
                 List.of(entry),
-                CSLStyleUtils.createCitationStyleFromFile(cslFileName).orElseThrow().getSource(),
+                CSLStyleUtils.createCitationStyleFromFile(cslFileName)
+                        .orElseThrow()
+                        .getSource(),
                 TEXT_OUTPUT_FORMAT,
                 testEntryContext,
-                ENTRY_TYPES_MANAGER).getFirst();
+                ENTRY_TYPES_MANAGER)
+                .getFirst();
         assertEquals(expected, citation, "Failed for " + cslFileName);
     }
 
@@ -784,8 +813,7 @@ class CitationStyleGeneratorTest {
                                 .withField(StandardField.VOLUME, "119")
                                 .withField(StandardField.PUBLISHER, "Ovid Technologies (Wolters Kluwer Health)"),
                         "apa.csl",
-                        CitationStyleOutputFormat.TEXT
-                ),
+                        CitationStyleOutputFormat.TEXT),
 
                 // Test 2: DOI with https://doi.org/ prefix (behavior: another https://doi.org/ prefix is added from APA style regardless)
                 Arguments.of(
@@ -803,8 +831,7 @@ class CitationStyleGeneratorTest {
                                 .withField(StandardField.VOLUME, "119")
                                 .withField(StandardField.PUBLISHER, "Ovid Technologies (Wolters Kluwer Health)"),
                         "apa.csl",
-                        CitationStyleOutputFormat.TEXT
-                ),
+                        CitationStyleOutputFormat.TEXT),
 
                 // Test 3: DOI with dx.doi.org prefix
                 Arguments.of(
@@ -822,8 +849,7 @@ class CitationStyleGeneratorTest {
                                 .withField(StandardField.VOLUME, "119")
                                 .withField(StandardField.PUBLISHER, "Ovid Technologies (Wolters Kluwer Health)"),
                         "apa.csl",
-                        CitationStyleOutputFormat.TEXT
-                ),
+                        CitationStyleOutputFormat.TEXT),
 
                 // Test 4: Missing DOI field
                 Arguments.of(
@@ -840,8 +866,7 @@ class CitationStyleGeneratorTest {
                                 .withField(StandardField.VOLUME, "119")
                                 .withField(StandardField.PUBLISHER, "Ovid Technologies (Wolters Kluwer Health)"),
                         "apa.csl",
-                        CitationStyleOutputFormat.TEXT
-                ),
+                        CitationStyleOutputFormat.TEXT),
 
                 // Test 5: Empty DOI field
                 Arguments.of(
@@ -859,8 +884,7 @@ class CitationStyleGeneratorTest {
                                 .withField(StandardField.VOLUME, "119")
                                 .withField(StandardField.PUBLISHER, "Ovid Technologies (Wolters Kluwer Health)"),
                         "apa.csl",
-                        CitationStyleOutputFormat.TEXT
-                ),
+                        CitationStyleOutputFormat.TEXT),
 
                 // Test 6: DOI with unusual characters
                 Arguments.of(
@@ -878,8 +902,7 @@ class CitationStyleGeneratorTest {
                                 .withField(StandardField.VOLUME, "119")
                                 .withField(StandardField.PUBLISHER, "Ovid Technologies (Wolters Kluwer Health)"),
                         "apa.csl",
-                        CitationStyleOutputFormat.TEXT
-                ),
+                        CitationStyleOutputFormat.TEXT),
 
                 // Test 7: Malformed DOI (invalid syntax)
                 Arguments.of(
@@ -897,8 +920,7 @@ class CitationStyleGeneratorTest {
                                 .withField(StandardField.VOLUME, "119")
                                 .withField(StandardField.PUBLISHER, "Ovid Technologies (Wolters Kluwer Health)"),
                         "apa.csl",
-                        CitationStyleOutputFormat.TEXT
-                ),
+                        CitationStyleOutputFormat.TEXT),
                 // endregion
 
                 // region: output format HTML
@@ -919,8 +941,7 @@ class CitationStyleGeneratorTest {
                                 .withField(StandardField.VOLUME, "119")
                                 .withField(StandardField.PUBLISHER, "Ovid Technologies (Wolters Kluwer Health)"),
                         "apa.csl",
-                        CitationStyleOutputFormat.HTML
-                ),
+                        CitationStyleOutputFormat.HTML),
 
                 // Test 2: DOI with https://doi.org/ prefix
                 Arguments.of(
@@ -938,8 +959,7 @@ class CitationStyleGeneratorTest {
                                 .withField(StandardField.VOLUME, "119")
                                 .withField(StandardField.PUBLISHER, "Ovid Technologies (Wolters Kluwer Health)"),
                         "apa.csl",
-                        CitationStyleOutputFormat.HTML
-                ),
+                        CitationStyleOutputFormat.HTML),
 
                 // Test 3: DOI with dx.doi.org prefix
                 Arguments.of(
@@ -957,8 +977,7 @@ class CitationStyleGeneratorTest {
                                 .withField(StandardField.VOLUME, "119")
                                 .withField(StandardField.PUBLISHER, "Ovid Technologies (Wolters Kluwer Health)"),
                         "apa.csl",
-                        CitationStyleOutputFormat.HTML
-                ),
+                        CitationStyleOutputFormat.HTML),
 
                 // Test 4: Missing DOI field
                 Arguments.of(
@@ -975,8 +994,7 @@ class CitationStyleGeneratorTest {
                                 .withField(StandardField.VOLUME, "119")
                                 .withField(StandardField.PUBLISHER, "Ovid Technologies (Wolters Kluwer Health)"),
                         "apa.csl",
-                        CitationStyleOutputFormat.HTML
-                ),
+                        CitationStyleOutputFormat.HTML),
 
                 // Test 5: Empty DOI field
                 Arguments.of(
@@ -994,24 +1012,27 @@ class CitationStyleGeneratorTest {
                                 .withField(StandardField.VOLUME, "119")
                                 .withField(StandardField.PUBLISHER, "Ovid Technologies (Wolters Kluwer Health)"),
                         "apa.csl",
-                        CitationStyleOutputFormat.HTML
-                )
-                // endregion
+                        CitationStyleOutputFormat.HTML)
+        // endregion
         );
     }
 
     @ParameterizedTest
     @MethodSource
-    void doiFieldMapping(String expected, BibDatabaseMode mode, BibEntry entry, String cslFileName, CitationStyleOutputFormat outputFormat) {
+    void doiFieldMapping(String expected, BibDatabaseMode mode, BibEntry entry,
+                         String cslFileName, CitationStyleOutputFormat outputFormat) {
         BibDatabaseContext context = new BibDatabaseContext(new BibDatabase(List.of(entry)));
         context.setMode(mode);
 
         String citation = CitationStyleGenerator.generateBibliography(
                 List.of(entry),
-                CSLStyleUtils.createCitationStyleFromFile(cslFileName).orElseThrow().getSource(),
+                CSLStyleUtils.createCitationStyleFromFile(cslFileName)
+                        .orElseThrow()
+                        .getSource(),
                 outputFormat,
                 context,
-                new BibEntryTypesManager()).getFirst();
+                new BibEntryTypesManager())
+                .getFirst();
         assertEquals(expected, citation);
     }
 }

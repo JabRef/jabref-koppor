@@ -27,7 +27,7 @@ import org.jabref.model.undo.UndoablePreambleChange;
 import org.jabref.model.undo.UndoableRemoveEntries;
 import org.jabref.model.undo.UndoableRemoveString;
 import org.jabref.model.undo.UndoableStringChange;
-
+import org.jabref.model.undo.UndoableStringChange.Part;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -54,13 +54,14 @@ class BibChangeDescriberTest {
                 Arguments.of("Insert entries", new UndoableInsertEntries(database, List.of(entry, entry()), EntriesEventSource.LOCAL)),
                 Arguments.of("Remove entry", new UndoableRemoveEntries(database, List.of(entry), EntriesEventSource.LOCAL)),
                 Arguments.of("Remove entries", new UndoableRemoveEntries(database, List.of(entry, entry()), EntriesEventSource.LOCAL)),
-                Arguments.of("Edit groups", new UndoableGroupTreeChange(
-                        new MetaData(),
-                        Optional.empty(),
-                        Optional.of(GroupTreeNode.fromGroup(new ExplicitGroup("Books", GroupHierarchyType.INDEPENDENT, ','))))),
-                Arguments.of("Change library settings", new UndoableMetaDataChange(new BibDatabaseContext(), new MetaData(), new MetaData())),
+                Arguments.of(
+                        "Edit groups",
+                        new UndoableGroupTreeChange(new MetaData(), Optional.empty(),
+                                Optional.of(GroupTreeNode.fromGroup(new ExplicitGroup("Books", GroupHierarchyType.INDEPENDENT, ','))))),
+                Arguments.of("Change library settings",
+                        new UndoableMetaDataChange(new BibDatabaseContext(), new MetaData(), new MetaData())),
                 Arguments.of("Change preamble", new UndoablePreambleChange(database, null, "preamble")),
-                Arguments.of("Change string name", new UndoableStringChange(string, UndoableStringChange.Part.CONTENT, "content", "other")),
+                Arguments.of("Change string name", new UndoableStringChange(string, Part.CONTENT, "content", "other")),
                 Arguments.of("Insert string name", new UndoableInsertString(database, string)),
                 Arguments.of("Remove string name", new UndoableRemoveString(database, string)));
     }
@@ -71,11 +72,11 @@ class BibChangeDescriberTest {
         assertEquals(expected, BibChangeDescriber.describe(change));
     }
 
-    /// The name of a set is the label of the control the user activated, so no derived text beats it.
+    /// The name of a set is the label of the control the user activated, so no
+    /// derived text beats it.
     @Test
     void changeSetIsDescribedByItsOwnName() {
-        ChangeSet changeSet = new ChangeSet("Generate citation keys", List.of(
-                new UndoableFieldChange(entry(), StandardField.AUTHOR, "Einstein", "Bohr")));
+        ChangeSet changeSet = new ChangeSet("Generate citation keys", List.of(new UndoableFieldChange(entry(), StandardField.AUTHOR, "Einstein", "Bohr")));
 
         assertEquals("Generate citation keys", BibChangeDescriber.describe(changeSet));
     }

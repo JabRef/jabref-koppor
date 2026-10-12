@@ -12,6 +12,12 @@ import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.sun.star.container.NoSuchElementException;
+import com.sun.star.lang.WrappedTargetException;
+import com.sun.star.text.XTextCursor;
+import com.sun.star.text.XTextDocument;
+import com.sun.star.uno.XComponentContext;
 import org.jabref.logic.bst.BstVM;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
 import org.jabref.logic.openoffice.bst.BSTFormatUtils;
@@ -28,24 +34,20 @@ import org.jabref.model.openoffice.ootext.OOFormat;
 import org.jabref.model.openoffice.ootext.OOText;
 import org.jabref.model.openoffice.ootext.OOTextIntoOO;
 import org.jabref.model.openoffice.uno.CreationException;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.sun.star.container.NoSuchElementException;
-import com.sun.star.lang.WrappedTargetException;
-import com.sun.star.text.XTextCursor;
-import com.sun.star.text.XTextDocument;
-import com.sun.star.uno.XComponentContext;
 import org.jspecify.annotations.NullMarked;
 
 /// Inserts BST-styled citations and bibliography into a LibreOffice document.
 ///
-/// In-text citation format is controlled by [OpenOfficePreferences#getBstCitationFormat]:
-/// numeric `[n]`, author-year `(Name, Year)`, or style-defined `\bibitem[label]{key}` markers.
-/// The bibliography is always rendered by the BST engine regardless of the citation format setting.
+/// In-text citation format is controlled by
+/// [OpenOfficePreferences#getBstCitationFormat]: numeric `[n]`, author-year
+/// `(Name, Year)`, or style-defined `\bibitem[label]{key}` markers. The
+/// bibliography is always rendered by the BST engine regardless of the citation
+/// format setting.
 @NullMarked
 public class BSTCitationOOAdapter {
 
-    /// Matches a rendered `\\bibitem`, capturing its optional display label and required key.
+    /// Matches a rendered `\\bibitem`, capturing its optional display label and
+    /// required key.
     ///
     /// Examples:
     ///
@@ -61,8 +63,7 @@ public class BSTCitationOOAdapter {
 
     private Map<String, String> identifierToLabelMap = Map.of();
 
-    public BSTCitationOOAdapter(XTextDocument document, XComponentContext componentContext, OpenOfficePreferences openOfficePreferences)
-            throws WrappedTargetException, NoSuchElementException {
+    public BSTCitationOOAdapter(XTextDocument document, XComponentContext componentContext, OpenOfficePreferences openOfficePreferences) throws WrappedTargetException, NoSuchElementException {
         this.componentContext = componentContext;
         this.document = document;
         this.openOfficePreferences = openOfficePreferences;
@@ -76,27 +77,25 @@ public class BSTCitationOOAdapter {
     /// - [BstCitationFormat#NUMERIC]: `[1]`, `[1, 3]`, ...
     /// - [BstCitationFormat#AUTHOR_YEAR]: `(Cooper et al., 2007)`, ...
     /// - [BstCitationFormat#STYLE_DEFINED]: `[ABC20]`, `[ABC20a]`, ...
-    public void insertCitation(XTextCursor cursor, List<BibEntry> entries, BibDatabaseContext ctx)
-            throws CreationException, com.sun.star.uno.Exception, MissingStyleDefinedCitationLabelException {
+    public void insertCitation(XTextCursor cursor, List<BibEntry> entries, BibDatabaseContext ctx) throws CreationException, com.sun.star.uno.Exception, MissingStyleDefinedCitationLabelException {
         String citationText = switch (openOfficePreferences.getBstCitationFormat()) {
-            case NUMERIC ->
-                    buildNumericCitation(entries);
-            case AUTHOR_YEAR ->
-                    buildAuthorYearCitation(entries, ctx);
-            case STYLE_DEFINED ->
-                    buildStyleDefinedCitation(entries, ctx);
+            case NUMERIC -> buildNumericCitation(entries);
+            case AUTHOR_YEAR -> buildAuthorYearCitation(entries, ctx);
+            case STYLE_DEFINED -> buildStyleDefinedCitation(entries, ctx);
         };
 
         OOText ooText = OOFormat.setLocaleNone(OOText.fromString(citationText));
         boolean precedingSpaceExists = CitationOOAdapterUtils.hasPrecedingSpace(cursor);
         boolean succeedingSpaceExists = CitationOOAdapterUtils.hasSucceedingSpace(cursor);
         markManager.insertReferenceIntoOO(
-                entries, document, cursor, ooText,
+                entries,
+                document,
+                cursor,
+                ooText,
                 !precedingSpaceExists && openOfficePreferences.getAddSpaceBefore(),
                 !succeedingSpaceExists && openOfficePreferences.getAddSpaceAfter(),
                 CSLCitationType.NORMAL);
-        boolean useStyleDefinedNumericOrder = openOfficePreferences.getBstCitationFormat() == BstCitationFormat.NUMERIC
-                && currentStyleUsesStyleDefinedNumericOrder();
+        boolean useStyleDefinedNumericOrder = openOfficePreferences.getBstCitationFormat() == BstCitationFormat.NUMERIC && currentStyleUsesStyleDefinedNumericOrder();
         markManager.setRealTimeNumberUpdateRequired(openOfficePreferences.getBstCitationFormat() == BstCitationFormat.NUMERIC && !useStyleDefinedNumericOrder);
         markManager.readAndUpdateExistingMarks();
         if (openOfficePreferences.getBstCitationFormat() == BstCitationFormat.STYLE_DEFINED) {
@@ -108,24 +107,19 @@ public class BSTCitationOOAdapter {
         }
     }
 
-    /// Inserts the bibliography by rendering each cited entry through BST → pandoc → OOText.
-    /// Entries are sorted by first-appearance (citation-number) order or BST style order.
+    /// Inserts the bibliography by rendering each cited entry through BST →
+    /// pandoc → OOText. Entries are sorted by first-appearance
+    /// (citation-number) order or BST style order.
     public void insertBibliography(XTextCursor cursor, BstStyle style, List<BibEntry> entries,
-                                   BibDatabaseContext ctx)
+            BibDatabaseContext ctx)
             throws IOException, InterruptedException, com.sun.star.uno.Exception, CreationException, MissingStyleDefinedCitationLabelException {
         if (!pandoc.isAvailable()) {
-            throw new IllegalStateException(
-                    "pandoc is not available at the configured path. "
-                            + "Please ensure pandoc is installed and configure its path in Preferences > OpenOffice/LibreOffice.");
+            throw new IllegalStateException("pandoc is not available at the configured path. " + "Please ensure pandoc is installed and configure its path in Preferences > OpenOffice/LibreOffice.");
         }
 
-        OOText title = OOFormat.paragraph(
-                OOText.fromString(openOfficePreferences.getCslBibliographyTitle()),
-                openOfficePreferences.getCslBibliographyHeaderFormat());
+        OOText title = OOFormat.paragraph(OOText.fromString(openOfficePreferences.getCslBibliographyTitle()), openOfficePreferences.getCslBibliographyHeaderFormat());
         OOTextIntoOO.write(document, cursor, OOText.fromString(title.toString()));
-        OOText titleBreak = OOFormat.paragraph(
-                OOText.fromString(""),
-                openOfficePreferences.getCslBibliographyBodyFormat());
+        OOText titleBreak = OOFormat.paragraph(OOText.fromString(""), openOfficePreferences.getCslBibliographyBodyFormat());
         OOTextIntoOO.write(document, cursor, titleBreak);
 
         BstVM bstVM = style.createBstVM();
@@ -168,9 +162,7 @@ public class BSTCitationOOAdapter {
 
             String finalLine;
             if (useNumericBibliography) {
-                int number = useStyleDefinedNumericOrder
-                             ? styleOrderAndLabels.identifierToNumberMap().getOrDefault(identifier, markManager.getCitationNumber(identifier))
-                             : markManager.getCitationNumber(identifier);
+                int number = useStyleDefinedNumericOrder ? styleOrderAndLabels.identifierToNumberMap().getOrDefault(identifier, markManager.getCitationNumber(identifier)) : markManager.getCitationNumber(identifier);
                 finalLine = "[" + number + "] " + body;
             } else if (useStyleDefinedBibliographyLabels) {
                 String label = getStyleDefinedLabelOrThrow(identifier, identifierToLabelMap);
@@ -182,9 +174,7 @@ public class BSTCitationOOAdapter {
             OOText ooText = OOFormat.setLocaleNone(OOText.fromString(finalLine));
             OOTextIntoOO.write(document, cursor, ooText);
 
-            OOText ooBreak = OOFormat.paragraph(
-                    OOText.fromString(""),
-                    openOfficePreferences.getCslBibliographyBodyFormat());
+            OOText ooBreak = OOFormat.paragraph(OOText.fromString(""), openOfficePreferences.getCslBibliographyBodyFormat());
             OOTextIntoOO.write(document, cursor, ooBreak);
         }
     }
@@ -217,7 +207,10 @@ public class BSTCitationOOAdapter {
         for (BibEntry entry : entries) {
             identifierToNumberMap.put(keyOrId(entry), markManager.getCitationNumber(keyOrId(entry)));
         }
-        return buildNumericCitationText(entries.stream().map(BSTCitationOOAdapter::keyOrId).toList(), identifierToNumberMap);
+        return buildNumericCitationText(entries.stream()
+                .map(BSTCitationOOAdapter::keyOrId)
+                .toList(),
+                identifierToNumberMap);
     }
 
     @VisibleForTesting
@@ -232,8 +225,7 @@ public class BSTCitationOOAdapter {
         return joiner.toString();
     }
 
-    private void updateNumericCitationTexts(BibDatabase database)
-            throws CreationException, com.sun.star.uno.Exception {
+    private void updateNumericCitationTexts(BibDatabase database) throws CreationException, com.sun.star.uno.Exception {
         if (!(openOfficePreferences.getCurrentStyle() instanceof BstStyle style)) {
             return;
         }
@@ -255,7 +247,10 @@ public class BSTCitationOOAdapter {
 
     private String buildStyleDefinedCitation(List<BibEntry> entries, BibDatabaseContext ctx) throws MissingStyleDefinedCitationLabelException {
         ensureStyleDefinedLabels(getCitedEntriesIncluding(entries, ctx.getDatabase()), ctx.getDatabase());
-        return buildStyleDefinedCitationText(entries.stream().map(BSTCitationOOAdapter::keyOrId).toList(), identifierToLabelMap);
+        return buildStyleDefinedCitationText(entries.stream()
+                .map(BSTCitationOOAdapter::keyOrId)
+                .toList(),
+                identifierToLabelMap);
     }
 
     @VisibleForTesting
@@ -304,8 +299,7 @@ public class BSTCitationOOAdapter {
         return citedEntries;
     }
 
-    private void updateStyleDefinedCitationTexts(BibDatabase database)
-            throws CreationException, com.sun.star.uno.Exception, MissingStyleDefinedCitationLabelException {
+    private void updateStyleDefinedCitationTexts(BibDatabase database) throws CreationException, com.sun.star.uno.Exception, MissingStyleDefinedCitationLabelException {
         ensureStyleDefinedLabels(getCitedEntriesIncluding(List.of(), database), database);
         markManager.updateAllStyleDefinedCitationTexts(identifierToLabelMap);
     }

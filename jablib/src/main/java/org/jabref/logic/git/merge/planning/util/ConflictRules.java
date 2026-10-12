@@ -22,9 +22,7 @@ public final class ConflictRules {
     /// @param local  the entry in the local version
     /// @param remote the entry in the remote version
     /// @return optional conflict (if detected)
-    public static Optional<ThreeWayEntryConflict> detectEntryConflict(BibEntry base,
-                                                                      BibEntry local,
-                                                                      BibEntry remote) {
+    public static Optional<ThreeWayEntryConflict> detectEntryConflict(BibEntry base, BibEntry local, BibEntry remote) {
         // Case 1: Both local and remote added same citation key -> compare their fields
         if (base == null && local != null && remote != null) {
             if (hasConflictingFields(new BibEntry(), local, remote)) {
@@ -66,8 +64,8 @@ public final class ConflictRules {
         }
 
         Set<Field> allFields = Stream.of(base, local, remote)
-                                     .flatMap(entry -> entry.getFields().stream())
-                                     .collect(Collectors.toSet());
+                .flatMap(entry -> entry.getFields().stream())
+                .collect(Collectors.toSet());
 
         for (Field field : allFields) {
             String baseVal = base.getField(field).orElse(null);
@@ -116,11 +114,14 @@ public final class ConflictRules {
 
         return (baseVal != null)
                 && ((localVal == null && notEqual(baseVal, remoteVal))
-                || (remoteVal == null && notEqual(baseVal, localVal)));
+                        || (remoteVal == null && notEqual(baseVal, localVal)));
     }
 
     public static boolean addedOnBothSidesWithDisagreement(String baseVal, String localVal, String remoteVal) {
-        return baseVal == null && localVal != null && remoteVal != null && notEqual(localVal, remoteVal);
+        return baseVal == null
+                && localVal != null
+                && remoteVal != null
+                && notEqual(localVal, remoteVal);
     }
 
     public static boolean notEqual(String a, String b) {

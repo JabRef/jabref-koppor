@@ -13,10 +13,6 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.jabref.logic.ai.util.MVStoreBase;
-import org.jabref.logic.l10n.Localization;
-import org.jabref.logic.util.NotificationService;
-
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
@@ -29,17 +25,20 @@ import dev.langchain4j.store.embedding.RelevanceScore;
 import dev.langchain4j.store.embedding.filter.Filter;
 import dev.langchain4j.store.embedding.filter.comparison.IsEqualTo;
 import dev.langchain4j.store.embedding.filter.comparison.IsIn;
+import org.jabref.logic.ai.util.MVStoreBase;
+import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.util.NotificationService;
 import org.jspecify.annotations.Nullable;
 
 import static java.util.Comparator.comparingDouble;
 import static org.jabref.logic.ai.ingestion.logic.EmbeddingsCleaner.FILE_HASH_METADATA_KEY;
 import static org.jabref.logic.ai.ingestion.logic.ingestion.FileIngestor.PAGE_NUMBER_METADATA_KEY;
 
-/// A custom implementation of langchain4j's [EmbeddingStore] that uses an MVStore as an embedded database.
+/// A custom implementation of langchain4j's [EmbeddingStore] that uses an
+/// MVStore as an embedded database.
 ///
-/// Every embedding has 3 fields: float array (the embedding itself), file hash where it was generated from, and the embedded
-/// string (the content).
-///
+/// Every embedding has 3 fields: float array (the embedding itself), file hash
+/// where it was generated from, and the embedded string (the content).
 public class MVStoreEmbeddingStore extends MVStoreBase implements EmbeddingStore<TextSegment> {
 
     private static final String FILE_HASH_MAP_NAME = "file-hashes";
@@ -73,7 +72,9 @@ public class MVStoreEmbeddingStore extends MVStoreBase implements EmbeddingStore
 
     @Override
     public List<String> addAll(List<Embedding> embeddings) {
-        return embeddings.stream().map(this::add).toList();
+        return embeddings.stream()
+                         .map(this::add)
+                         .toList();
     }
 
     @Override
@@ -104,7 +105,9 @@ public class MVStoreEmbeddingStore extends MVStoreBase implements EmbeddingStore
 
     @Override
     public List<String> addAll(List<Embedding> embeddings, List<TextSegment> embedded) {
-        return IntStream.range(0, embeddings.size()).mapToObj(i -> add(embeddings.get(i), embedded.get(i))).toList();
+        return IntStream.range(0, embeddings.size())
+                .mapToObj(i -> add(embeddings.get(i), embedded.get(i)))
+                .toList();
     }
 
     @Override
@@ -144,35 +147,31 @@ public class MVStoreEmbeddingStore extends MVStoreBase implements EmbeddingStore
         Comparator<EmbeddingMatch<TextSegment>> comparator = comparingDouble(EmbeddingMatch::score);
         PriorityQueue<EmbeddingMatch<TextSegment>> matches = new PriorityQueue<>(comparator);
 
-        applyFilter(request.filter()).forEach(id -> {
-            float[] embeddingVector = embeddingVectorMap.getOrDefault(id, new float[0]);
-            String content = contentMap.getOrDefault(id, "");
-            String fileHash = fileHashMap.get(id);
-            Integer pageNumber = pageNumberMap.get(id);
+        applyFilter(request.filter()).forEach(
+                id -> {
+                    float[] embeddingVector = embeddingVectorMap.getOrDefault(id, new float[0]);
+                    String content = contentMap.getOrDefault(id, "");
+                    String fileHash = fileHashMap.get(id);
+                    Integer pageNumber = pageNumberMap.get(id);
 
-            double cosineSimilarity = CosineSimilarity.between(Embedding.from(embeddingVector), request.queryEmbedding());
-            double score = RelevanceScore.fromCosineSimilarity(cosineSimilarity);
+                    double cosineSimilarity = CosineSimilarity.between(Embedding.from(embeddingVector), request.queryEmbedding());
+                    double score = RelevanceScore.fromCosineSimilarity(cosineSimilarity);
 
-            if (score >= request.minScore()) {
-                Metadata metadata = new Metadata();
-                if (fileHash != null) {
-                    metadata.put(FILE_HASH_METADATA_KEY, fileHash);
-                }
-                if (pageNumber != null) {
-                    metadata.put(PAGE_NUMBER_METADATA_KEY, pageNumber);
-                }
-                matches.add(
-                        new EmbeddingMatch<>(
-                                score,
-                                id,
-                                Embedding.from(embeddingVector),
-                                new TextSegment(content, metadata)));
+                    if (score >= request.minScore()) {
+                        Metadata metadata = new Metadata();
+                        if (fileHash != null) {
+                            metadata.put(FILE_HASH_METADATA_KEY, fileHash);
+                        }
+                        if (pageNumber != null) {
+                            metadata.put(PAGE_NUMBER_METADATA_KEY, pageNumber);
+                        }
+                        matches.add(new EmbeddingMatch<>(score, id, Embedding.from(embeddingVector), new TextSegment(content, metadata)));
 
-                if (matches.size() > request.maxResults()) {
-                    matches.poll();
-                }
-            }
-        });
+                        if (matches.size() > request.maxResults()) {
+                            matches.poll();
+                        }
+                    }
+                });
 
         List<EmbeddingMatch<TextSegment>> result = new ArrayList<>(matches);
         result.sort(comparator.reversed());
@@ -192,8 +191,7 @@ public class MVStoreEmbeddingStore extends MVStoreBase implements EmbeddingStore
 
     private Stream<String> applyFilter(@Nullable Filter filter) {
         return switch (filter) {
-            case null ->
-                    fileHashMap.keySet().stream();
+            case null -> fileHashMap.keySet().stream();
 
             case IsIn isInFilter when Objects.equals(isInFilter.key(), FILE_HASH_METADATA_KEY) ->
                     filterEntries(entry -> isInFilter.comparisonValues().contains(entry.getValue()));
@@ -201,13 +199,15 @@ public class MVStoreEmbeddingStore extends MVStoreBase implements EmbeddingStore
             case IsEqualTo isEqualToFilter when Objects.equals(isEqualToFilter.key(), FILE_HASH_METADATA_KEY) ->
                     filterEntries(entry -> isEqualToFilter.comparisonValue().equals(entry.getValue()));
 
-            default ->
-                    throw new IllegalArgumentException("Wrong filter passed to MVStoreEmbeddingStore");
+            default -> throw new IllegalArgumentException("Wrong filter passed to MVStoreEmbeddingStore");
         };
     }
 
     private Stream<String> filterEntries(Predicate<Map.Entry<String, String>> predicate) {
-        return fileHashMap.entrySet().stream().filter(predicate).map(Map.Entry::getKey);
+        return fileHashMap.entrySet()
+                          .stream()
+                          .filter(predicate)
+                          .map(Map.Entry::getKey);
     }
 
     @Override

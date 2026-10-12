@@ -18,7 +18,6 @@ import org.jabref.toolkit.exception.ExportServiceException;
 import org.jabref.toolkit.exception.ImportServiceException;
 import org.jabref.toolkit.service.ExportService;
 import org.jabref.toolkit.service.ImportService;
-
 import picocli.CommandLine;
 
 import static picocli.CommandLine.Command;
@@ -44,16 +43,15 @@ class GenerateBibFromAux implements Callable<Integer> {
     @Option(names = "--output")
     private Path outputFile;
 
-    @Option(names = {"--field-formatters"}, description = "Field Formatter")
+    @Option(
+            names = {"--field-formatters"},
+            description = "Field Formatter")
     private String fieldFormatters;
 
     @Override
     public Integer call() throws ImportServiceException, ExportServiceException {
         Path inputFile = inputOption.getInputFile(argumentProcessor.cliPreferences);
-        ParserResult pr = ImportService.importBibTexFile(
-                inputFile,
-                argumentProcessor.cliPreferences,
-                sharedOptions.porcelain);
+        ParserResult pr = ImportService.importBibTexFile(inputFile, argumentProcessor.cliPreferences, sharedOptions.porcelain);
 
         if (!Files.exists(auxFile)) {
             System.err.println(Localization.lang("Unable to open file '%0'.", auxFile));
@@ -68,7 +66,8 @@ class GenerateBibFromAux implements Callable<Integer> {
         AuxParserResult result = auxParser.parse(auxFile);
 
         if (!sharedOptions.porcelain) {
-            System.out.println(new AuxParserStatisticsProvider(result).getInformation(true));
+            System.out.println(new AuxParserStatisticsProvider(result)
+                    .getInformation(true));
         }
 
         BibDatabase subDatabase = result.getGeneratedBibDatabase();
@@ -80,9 +79,10 @@ class GenerateBibFromAux implements Callable<Integer> {
         FieldFormatterCleanupMapper.applyFormatters(fieldFormatters, subDatabase.getEntries());
 
         if (outputFile == null) {
-            System.out.println(subDatabase.getEntries().stream()
-                                          .map(BibEntry::toString)
-                                          .collect(Collectors.joining("\n\n")));
+            System.out.println(subDatabase.getEntries()
+                    .stream()
+                    .map(BibEntry::toString)
+                    .collect(Collectors.joining("\n\n")));
         } else {
             ExportService.create(argumentProcessor.cliPreferences, sharedOptions.porcelain).saveDatabase(subDatabase, outputFile);
             if (!sharedOptions.porcelain) {

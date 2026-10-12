@@ -24,24 +24,19 @@ import org.jabref.model.metadata.MetaData;
 /// Reading is done at [org.jabref.logic.importer.util.MetaDataParser]
 public class MetaDataSerializer {
 
-    private MetaDataSerializer() {
-    }
+    private MetaDataSerializer() {}
 
     /// Writes all data in the format `<key, serialized data>`.
     /// Also serializes user-defined .blg file paths (if present).
-    public static Map<String, String> getSerializedStringMap(MetaData metaData,
-                                                             GlobalCitationKeyPatterns globalCiteKeyPatterns) {
-
+    public static Map<String, String> getSerializedStringMap(MetaData metaData, GlobalCitationKeyPatterns globalCiteKeyPatterns) {
         // metadata-key, list of contents
         //  - contents to be separated by OS.NEWLINE
         //  - each meta data item is written as separate @Comment entry - see org.jabref.logic.exporter.BibtexDatabaseWriter.writeMetaDataItem
         Map<String, List<String>> stringyMetaData = new HashMap<>();
 
         // First write all meta data except groups
-        metaData.getSaveOrder().ifPresent(
-                saveOrderConfig -> stringyMetaData.put(MetaData.SAVE_ORDER_CONFIG, saveOrderConfig.getAsStringList()));
-        metaData.getSaveActions().ifPresent(
-                saveActions -> stringyMetaData.put(MetaData.SAVE_ACTIONS, getAsStringList(saveActions, OS.NEWLINE)));
+        metaData.getSaveOrder().ifPresent(saveOrderConfig -> stringyMetaData.put(MetaData.SAVE_ORDER_CONFIG, saveOrderConfig.getAsStringList()));
+        metaData.getSaveActions().ifPresent(saveActions -> stringyMetaData.put(MetaData.SAVE_ACTIONS, getAsStringList(saveActions, OS.NEWLINE)));
         if (metaData.isProtected()) {
             stringyMetaData.put(MetaData.PROTECTED_FLAG_META, List.of("true"));
         }
@@ -55,23 +50,17 @@ public class MetaDataSerializer {
             stringyMetaData.put(MetaData.GIT_AUTO_PUSH, List.of("true"));
         }
         stringyMetaData.putAll(serializeCiteKeyPatterns(metaData, globalCiteKeyPatterns));
-        metaData.getMode().ifPresent(
-                mode -> stringyMetaData.put(MetaData.DATABASE_TYPE, List.of(mode.getAsString())));
-        metaData.getLibraryAbbreviationType().ifPresent(
-                abbreviationType -> stringyMetaData.put(MetaData.LIBRARY_ABBREVIATION_TYPE, List.of(abbreviationType.name())));
-        metaData.getKeywordSeparator().ifPresent(
-                separator -> stringyMetaData.put(MetaData.KEYWORD_SEPARATOR, List.of(separator.toString())));
-        metaData.getLibrarySpecificFileDirectory().ifPresent(
-                path -> stringyMetaData.put(MetaData.FILE_DIRECTORY, List.of(path.trim())));
-        metaData.getUserFileDirectories().forEach((user, path) -> stringyMetaData
-                .put(MetaData.FILE_DIRECTORY + '-' + user, List.of(path.trim())));
-        metaData.getLatexFileDirectories().forEach((user, path) -> stringyMetaData
-                .put(MetaData.FILE_DIRECTORY_LATEX + '-' + user, List.of(path.trim())));
-        metaData.getVersionDBStructure().ifPresent(
-                versionDBStructure -> stringyMetaData.put(MetaData.VERSION_DB_STRUCT, List.of(versionDBStructure.trim())));
-        metaData.getBlgFilePaths().forEach((user, path) -> stringyMetaData.put(MetaData.BLG_FILE_PATH + "-" + user, List.of(path.toString().trim())));
-        metaData.getAiLibraryId().ifPresent(
-                id -> stringyMetaData.put(MetaData.AI_LIBRARY_ID, List.of(id)));
+        metaData.getMode().ifPresent(mode -> stringyMetaData.put(MetaData.DATABASE_TYPE, List.of(mode.getAsString())));
+        metaData.getLibraryAbbreviationType().ifPresent(abbreviationType -> stringyMetaData.put(MetaData.LIBRARY_ABBREVIATION_TYPE, List.of(abbreviationType.name())));
+        metaData.getKeywordSeparator().ifPresent(separator -> stringyMetaData.put(MetaData.KEYWORD_SEPARATOR, List.of(separator.toString())));
+        metaData.getLibrarySpecificFileDirectory().ifPresent(path -> stringyMetaData.put(MetaData.FILE_DIRECTORY, List.of(path.trim())));
+        metaData.getUserFileDirectories().forEach((user, path) -> stringyMetaData.put(MetaData.FILE_DIRECTORY + '-' + user, List.of(path.trim())));
+        metaData.getLatexFileDirectories().forEach((user, path) -> stringyMetaData.put(MetaData.FILE_DIRECTORY_LATEX + '-' + user, List.of(path.trim())));
+        metaData.getVersionDBStructure().ifPresent(versionDBStructure -> stringyMetaData.put(MetaData.VERSION_DB_STRUCT, List.of(versionDBStructure.trim())));
+        metaData.getBlgFilePaths().forEach(
+                (user, path) -> stringyMetaData.put(MetaData.BLG_FILE_PATH + "-" + user,
+                        List.of(path.toString().trim())));
+        metaData.getAiLibraryId().ifPresent(id -> stringyMetaData.put(MetaData.AI_LIBRARY_ID, List.of(id)));
 
         for (ContentSelector selector : metaData.getContentSelectorsSorted()) {
             stringyMetaData.put(MetaData.SELECTOR_META_PREFIX + selector.getField().getName(), selector.getValues());
@@ -81,11 +70,11 @@ public class MetaDataSerializer {
 
         // Write groups if present.
         // Skip this if only the root node exists (which is always the AllEntriesGroup).
-        metaData.getGroups().filter(root -> root.getNumberOfChildren() > 0).ifPresent(
-                root -> serializedMetaData.put(MetaData.GROUPSTREE, serializeGroups(root)));
+        metaData.getGroups()
+                .filter(root -> root.getNumberOfChildren() > 0)
+                .ifPresent(root -> serializedMetaData.put(MetaData.GROUPSTREE, serializeGroups(root)));
 
-        metaData.getGroupSearchSyntaxVersion().ifPresent(
-                version -> serializedMetaData.put(MetaData.GROUPS_SEARCH_SYNTAX_VERSION, version.toString()));
+        metaData.getGroupSearchSyntaxVersion().ifPresent(version -> serializedMetaData.put(MetaData.GROUPS_SEARCH_SYNTAX_VERSION, version.toString()));
 
         // finally add all unknown meta data items to the serialization map
         Map<String, List<String>> unknownMetaData = metaData.getUnknownMetaData();
@@ -123,9 +112,7 @@ public class MetaDataSerializer {
                 }
                 string += StringUtil.quote(dataItem, MetaData.SEPARATOR_STRING, MetaData.ESCAPE_CHARACTER);
                 // in case of save actions, add an additional newline after the enabled flag
-                lastWasSaveActionsEnablement = isSaveActions
-                        && (FieldFormatterCleanupActions.ENABLED.equals(dataItem)
-                        || FieldFormatterCleanupActions.DISABLED.equals(dataItem));
+                lastWasSaveActionsEnablement = isSaveActions && (FieldFormatterCleanupActions.ENABLED.equals(dataItem) || FieldFormatterCleanupActions.DISABLED.equals(dataItem));
                 joiner.add(string);
             }
             String serializedItem = joiner.toString();
@@ -169,29 +156,29 @@ public class MetaDataSerializer {
     }
 
     public static String serializeCustomEntryTypes(BibEntryType entryType) {
-        return MetaData.ENTRYTYPE_FLAG +
-                entryType.getType().getName() +
-                ": req[" +
-                FieldFactory.serializeOrFieldsList(entryType.getRequiredFields()) +
-                "] opt[" +
-                FieldFactory.serializeFieldsList(
-                        entryType.getOptionalFields()
-                                 .stream()
-                                 .map(BibField::field)
-                                 .toList()) +
-                "]";
+        return MetaData.ENTRYTYPE_FLAG
+                + entryType.getType().getName()
+                + ": req["
+                + FieldFactory.serializeOrFieldsList(entryType.getRequiredFields())
+                + "] opt["
+                + FieldFactory.serializeFieldsList(entryType.getOptionalFields()
+                        .stream()
+                        .map(BibField::field)
+                        .toList())
+                + "]";
     }
 
     public static String serializeCustomEntryTypesV2(BibEntryType entryType) {
-        return MetaData.ENTRYTYPE_FLAG_V2 +
-                entryType.getType().getName() +
-                ": req[" +
-                FieldFactory.serializeOrFieldsListV2(entryType.getRequiredFields()) +
-                "] opt[" +
-                FieldFactory.serializeFieldsListV2(entryType.getOptionalFields().stream()
-                                                            .map(BibField::field)
-                                                            .toList()) +
-                "]";
+        return MetaData.ENTRYTYPE_FLAG_V2
+                + entryType.getType().getName()
+                + ": req["
+                + FieldFactory.serializeOrFieldsListV2(entryType.getRequiredFields())
+                + "] opt["
+                + FieldFactory.serializeFieldsListV2(entryType.getOptionalFields()
+                        .stream()
+                        .map(BibField::field)
+                        .toList())
+                + "]";
     }
 
     public static List<String> getAsStringList(FieldFormatterCleanupActions fieldFormatterCleanupActions, String delimiter) {
@@ -203,8 +190,7 @@ public class MetaDataSerializer {
             stringRepresentation.add(FieldFormatterCleanupActions.DISABLED);
         }
 
-        String formatterString = FieldFormatterCleanupActions.getMetaDataString(
-                fieldFormatterCleanupActions.getConfiguredActions(), delimiter);
+        String formatterString = FieldFormatterCleanupActions.getMetaDataString(fieldFormatterCleanupActions.getConfiguredActions(), delimiter);
         stringRepresentation.add(formatterString);
         return stringRepresentation;
     }

@@ -13,9 +13,8 @@ public class CopyToPreferences {
     }
 
     private CopyToPreferences() {
-        this(
-                true, // shouldAskForIncludingCrossReferences
-                false // shouldIncludeCrossReferences
+        this(true, // shouldAskForIncludingCrossReferences
+        false // shouldIncludeCrossReferences
         );
     }
 

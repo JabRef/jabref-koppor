@@ -7,7 +7,6 @@ import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.util.BindingsHelper;
 import org.jabref.logic.integrity.FieldCheckers;
@@ -15,7 +14,6 @@ import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.KeywordList;
 import org.jabref.model.entry.field.Field;
-
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +26,8 @@ public class KeywordsEditorViewModel extends AbstractEditorViewModel {
     private final Character keywordSeparator;
     private final SuggestionProvider<?> suggestionProvider;
 
-    public KeywordsEditorViewModel(Field field,
-                                   SuggestionProvider<?> suggestionProvider,
-                                   FieldCheckers fieldCheckers,
-                                   Character keywordSeparator,
-                                   UndoManager undoManager) {
+    public KeywordsEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            Character keywordSeparator, UndoManager undoManager) {
 
         super(field, suggestionProvider, fieldCheckers, undoManager);
 
@@ -40,11 +35,7 @@ public class KeywordsEditorViewModel extends AbstractEditorViewModel {
         this.keywordSeparator = keywordSeparator;
         this.suggestionProvider = suggestionProvider;
 
-        BindingsHelper.bindContentBidirectional(
-                keywordListProperty,
-                text,
-                this::serializeKeywords,
-                this::parseKeywords);
+        BindingsHelper.bindContentBidirectional(keywordListProperty, text, this::serializeKeywords, this::parseKeywords);
     }
 
     private String serializeKeywords(List<Keyword> keywords) {
@@ -52,7 +43,9 @@ public class KeywordsEditorViewModel extends AbstractEditorViewModel {
     }
 
     private List<Keyword> parseKeywords(String newText) {
-        return KeywordList.parse(newText, keywordSeparator).stream().toList();
+        return KeywordList.parse(newText, keywordSeparator)
+                .stream()
+                .toList();
     }
 
     public ListProperty<Keyword> keywordListProperty() {
@@ -78,12 +71,13 @@ public class KeywordsEditorViewModel extends AbstractEditorViewModel {
     }
 
     public List<Keyword> getSuggestions(String request) {
-        List<Keyword> suggestions = suggestionProvider.getPossibleSuggestions().stream()
-                                                      .map(String.class::cast)
-                                                      .filter(keyword -> keyword.toLowerCase().contains(request.toLowerCase()))
-                                                      .map(Keyword::new)
-                                                      .distinct()
-                                                      .collect(Collectors.toList());
+        List<Keyword> suggestions = suggestionProvider.getPossibleSuggestions()
+                .stream()
+                .map(String.class::cast)
+                .filter(keyword -> keyword.toLowerCase().contains(request.toLowerCase()))
+                .map(Keyword::new)
+                .distinct()
+                .collect(Collectors.toList());
 
         Keyword requestedKeyword = parseKeyword(request);
         if (!suggestions.contains(requestedKeyword)) {
@@ -95,7 +89,10 @@ public class KeywordsEditorViewModel extends AbstractEditorViewModel {
 
     @Nullable
     public Keyword parseKeyword(String keyword) {
-        return KeywordList.parse(keyword, keywordSeparator).stream().findFirst().orElse(null);
+        return KeywordList.parse(keyword, keywordSeparator)
+                .stream()
+                .findFirst()
+                .orElse(null);
     }
 
     public Character getKeywordSeparator() {

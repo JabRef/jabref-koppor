@@ -12,7 +12,6 @@ import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.StandardField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +40,10 @@ public class BibDatabaseDiff {
     }
 
     private boolean isEmpty() {
-        return metaDataDiff.isEmpty() && preambleDiff.isEmpty() && bibStringDiffs.isEmpty() && entryDiffs.isEmpty();
+        return metaDataDiff.isEmpty()
+                && preambleDiff.isEmpty()
+                && bibStringDiffs.isEmpty()
+                && entryDiffs.isEmpty();
     }
 
     private List<BibEntryDiff> getBibEntryDiffs(BibDatabaseContext originalDatabase, BibDatabaseContext newDatabase) {

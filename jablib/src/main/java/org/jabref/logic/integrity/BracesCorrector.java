@@ -15,7 +15,12 @@ public class BracesCorrector {
             StringBuilder addedBraces = new StringBuilder(input);
             String c = matcher.replaceAll("");
 
-            long diff = c.chars().filter(ch -> ch == '{').count() - c.chars().filter(ch -> ch == '}').count();
+            long diff = c.chars()
+                         .filter(ch -> ch == '{')
+                         .count()
+                    - c.chars()
+                       .filter(ch -> ch == '}')
+                       .count();
             while (diff != 0) {
                 if (diff < 0) {
                     addedBraces.insert(0, "{");

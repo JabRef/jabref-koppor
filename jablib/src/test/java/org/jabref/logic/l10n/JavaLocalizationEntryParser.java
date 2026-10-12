@@ -21,7 +21,13 @@ class JavaLocalizationEntryParser {
 
     private static final String INFINITE_WHITESPACE = "\\s*";
     private static final String DOT = "\\.";
-    private static final Pattern LOCALIZATION_START_PATTERN = Pattern.compile("Localization" + INFINITE_WHITESPACE + DOT + INFINITE_WHITESPACE + "lang" + INFINITE_WHITESPACE + "\\(");
+    private static final Pattern LOCALIZATION_START_PATTERN = Pattern.compile("Localization"
+            + INFINITE_WHITESPACE
+            + DOT
+            + INFINITE_WHITESPACE
+            + "lang"
+            + INFINITE_WHITESPACE
+            + "\\(");
 
     private static final Pattern ESCAPED_QUOTATION_SYMBOL = Pattern.compile("\\\\\"");
 
@@ -114,10 +120,11 @@ class JavaLocalizationEntryParser {
         return result;
     }
 
-    /// Replaces the content of all Java comments (`//`, `///`, `/* */`, javadoc) by spaces.
-    /// Newlines are kept, so that the result has the same length as the input and the same
-    /// line structure. String literals, text blocks, and character literals are left untouched,
-    /// so a `//` inside a string (e.g. a URL) does not start a comment.
+    /// Replaces the content of all Java comments (`//`, `///`, `/* */`,
+    /// javadoc) by spaces. Newlines are kept, so that the result has the same
+    /// length as the input and the same line structure. String literals, text
+    /// blocks, and character literals are left untouched, so a `//` inside a
+    /// string (e.g. a URL) does not start a comment.
     static String blankOutComments(String source) {
         char[] chars = source.toCharArray();
 
@@ -168,8 +175,7 @@ class JavaLocalizationEntryParser {
                     }
                 }
 
-                case STRING,
-                     CHARACTER -> {
+                case STRING, CHARACTER -> {
                     if (chars[i] == '\\') {
                         i++; // skip escaped character
                     } else if (chars[i] == quote) {
@@ -191,10 +197,9 @@ class JavaLocalizationEntryParser {
         return new String(chars);
     }
 
-    private static boolean startsWith(char[] chars, int index, char first, char second) {
-        return index + 1 < chars.length
-                && chars[index] == first
-                && chars[index + 1] == second;
+    private static boolean startsWith(char[] chars, int index, char first,
+            char second) {
+        return index + 1 < chars.length && chars[index] == first && chars[index + 1] == second;
     }
 
     private static boolean startsTextBlock(char[] chars, int index) {

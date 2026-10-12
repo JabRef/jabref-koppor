@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProxyTest {
-    /// The test checks if ProxyPreference class is still able to store password and use it from memory,
-    /// even though it's no longer stored in register.
+    /// The test checks if ProxyPreference class is still able to store password
+    /// and use it from memory, even though it's no longer stored in register.
     @Test
     void proxyPreferencesStorePassword() {
         // mock data
@@ -20,13 +20,7 @@ class ProxyTest {
         boolean persist = false;
 
         // Creates proxy preference
-        ProxyPreferences proxyPref = new ProxyPreferences(
-                useProxy,
-                hostname,
-                port,
-                useAuthentication,
-                username,
-                password,
+        ProxyPreferences proxyPref = new ProxyPreferences(useProxy, hostname, port, useAuthentication, username, password,
                 persist);
 
         // Check if mock data is stored in object memory and can be extracted

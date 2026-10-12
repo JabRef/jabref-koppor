@@ -1,14 +1,14 @@
 package org.jabref.http.server;
 
-import org.jabref.http.server.resources.CitationsResource;
-import org.jabref.http.server.services.CitationCacheService;
-import org.jabref.logic.UiMessageHandler;
-
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.jabref.http.server.resources.CitationsResource;
+import org.jabref.http.server.services.CitationCacheService;
+import org.jabref.logic.UiMessageHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -61,14 +61,14 @@ class CitationsResourceTest extends ServerTest {
         // cache lookup, so an arbitrary cache key is fine here.
         Response response = postAddFromCache("demo", "any-cache-key");
 
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        assertEquals(Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
     @Test
     void addToUnknownLibraryReturns404() {
         Response response = postAddFromCache("does-not-exist", "any-cache-key");
 
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        assertEquals(Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
     @Test
@@ -77,7 +77,7 @@ class CitationsResourceTest extends ServerTest {
         // which misses (no key was issued) and reports 410 Gone.
         Response response = postAddFromCache(TestBibFile.GENERAL_SERVER_TEST.id, "expired-or-unknown");
 
-        assertEquals(Response.Status.GONE.getStatusCode(), response.getStatus());
+        assertEquals(Status.GONE.getStatusCode(), response.getStatus());
     }
 
     @Test
@@ -86,7 +86,7 @@ class CitationsResourceTest extends ServerTest {
                 .request()
                 .post(Entity.text("   "));
 
-        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
     @Test
@@ -95,7 +95,7 @@ class CitationsResourceTest extends ServerTest {
                 .request()
                 .post(Entity.text("Smith, J. (2020). Chocolate. J. Sweets, 12, 45."));
 
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        assertEquals(Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
     @Test
@@ -104,7 +104,7 @@ class CitationsResourceTest extends ServerTest {
                 .request()
                 .post(Entity.json("{\"citations\":[]}"));
 
-        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
     @Test
@@ -115,7 +115,7 @@ class CitationsResourceTest extends ServerTest {
                 .request()
                 .post(Entity.json("{\"citations\":[\"\",\"   \"]}"));
 
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(Status.OK.getStatusCode(), response.getStatus());
         String body = response.readEntity(String.class);
         assertTrue(body.contains("\"matchScope\": \"none\""), body);
     }

@@ -7,12 +7,11 @@ import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.stream.Stream;
 
+import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SqlQueryNode;
 import org.jabref.support.DatabaseTest;
-
-import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.parallel.Execution;
@@ -42,8 +41,7 @@ class SearchQuerySQLConversionTest {
 
     public static Stream<Arguments> searchConversion() {
         return Stream.of(
-                Arguments.of(
-                        "author CONTAINS smith",
+                Arguments.of("author CONTAINS smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -53,11 +51,8 @@ class SearchQuerySQLConversionTest {
                                         (main_table.field_name = 'author') AND ((main_table.field_value_literal ILIKE ('%smith%')) OR (main_table.field_value_transformed ILIKE ('%smith%')))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "author = smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("author = smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -67,11 +62,8 @@ class SearchQuerySQLConversionTest {
                                         (main_table.field_name = 'author') AND ((main_table.field_value_literal ILIKE ('%smith%')) OR (main_table.field_value_transformed ILIKE ('%smith%')))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "author =! smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("author =! smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -81,11 +73,8 @@ class SearchQuerySQLConversionTest {
                                         (main_table.field_name = 'author') AND ((main_table.field_value_literal LIKE ('%smith%')) OR (main_table.field_value_transformed LIKE ('%smith%')))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "author != smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("author != smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -99,11 +88,8 @@ class SearchQuerySQLConversionTest {
                                         )
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "author !=! smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("author !=! smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -117,11 +103,8 @@ class SearchQuerySQLConversionTest {
                                         )
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "author MATCHES smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("author MATCHES smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -135,11 +118,8 @@ class SearchQuerySQLConversionTest {
                                         ((split_table.field_name = 'author') AND ((split_table.field_value_literal ILIKE ('smith')) OR (split_table.field_value_transformed ILIKE ('smith'))))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "author == smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("author == smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -153,11 +133,8 @@ class SearchQuerySQLConversionTest {
                                         ((split_table.field_name = 'author') AND ((split_table.field_value_literal ILIKE ('smith')) OR (split_table.field_value_transformed ILIKE ('smith'))))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "author ==! smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("author ==! smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -171,11 +148,8 @@ class SearchQuerySQLConversionTest {
                                         ((split_table.field_name = 'author') AND ((split_table.field_value_literal LIKE ('smith')) OR (split_table.field_value_transformed LIKE ('smith'))))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "author !== smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("author !== smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -193,11 +167,8 @@ class SearchQuerySQLConversionTest {
                                         )
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "author !==! smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("author !==! smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -215,11 +186,8 @@ class SearchQuerySQLConversionTest {
                                         )
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "author =~ smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("author =~ smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -229,11 +197,8 @@ class SearchQuerySQLConversionTest {
                                         (main_table.field_name = 'author') AND ((main_table.field_value_literal ~* ('smith')) OR (main_table.field_value_transformed ~* ('smith')))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "author =~! smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("author =~! smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -243,11 +208,8 @@ class SearchQuerySQLConversionTest {
                                         (main_table.field_name = 'author') AND ((main_table.field_value_literal ~ ('smith')) OR (main_table.field_value_transformed ~ ('smith')))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "author !=~ smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("author !=~ smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -261,11 +223,8 @@ class SearchQuerySQLConversionTest {
                                         )
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "author !=~! smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("author !=~! smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -279,11 +238,8 @@ class SearchQuerySQLConversionTest {
                                         )
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -293,11 +249,8 @@ class SearchQuerySQLConversionTest {
                                         (main_table.field_name != 'groups') AND ((main_table.field_value_literal ILIKE ('%smith%')) OR (main_table.field_value_transformed ILIKE ('%smith%')))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "any == smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("any == smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -314,11 +267,8 @@ class SearchQuerySQLConversionTest {
                                         )
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "anyfield != smith",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("anyfield != smith",
                         """
                                 WITH
                                 cte0 AS (
@@ -332,11 +282,8 @@ class SearchQuerySQLConversionTest {
                                         )
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "title = \"computer science\"",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("title = \"computer science\"",
                         """
                                 WITH
                                 cte0 AS (
@@ -346,11 +293,8 @@ class SearchQuerySQLConversionTest {
                                         (main_table.field_name = 'title') AND ((main_table.field_value_literal ILIKE ('%computer science%')) OR (main_table.field_value_transformed ILIKE ('%computer science%')))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "term1 term2 term3",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("term1 term2 term3",
                         """
                                 WITH
                                 cte0 AS (
@@ -384,11 +328,8 @@ class SearchQuerySQLConversionTest {
                                     INTERSECT
                                     SELECT entryid FROM cte2
                                 )
-                                SELECT * FROM cte3 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "a OR b AND c",
+                                SELECT * FROM cte3 GROUP BY entryid"""),
+                Arguments.of("a OR b AND c",
                         """
                                 WITH
                                 cte0 AS (
@@ -430,11 +371,8 @@ class SearchQuerySQLConversionTest {
                                     SELECT entryid
                                     FROM cte3
                                 )
-                                SELECT * FROM cte4 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "a AND b OR c",
+                                SELECT * FROM cte4 GROUP BY entryid"""),
+                Arguments.of("a AND b OR c",
                         """
                                 WITH
                                 cte0 AS (
@@ -476,11 +414,8 @@ class SearchQuerySQLConversionTest {
                                     SELECT entryid
                                     FROM cte3
                                 )
-                                SELECT * FROM cte4 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "(a OR b) AND c",
+                                SELECT * FROM cte4 GROUP BY entryid"""),
+                Arguments.of("(a OR b) AND c",
                         """
                                 WITH
                                 cte0 AS (
@@ -522,11 +457,8 @@ class SearchQuerySQLConversionTest {
                                     SELECT entryid
                                     FROM cte3
                                 )
-                                SELECT * FROM cte4 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "a OR (b AND c)",
+                                SELECT * FROM cte4 GROUP BY entryid"""),
+                Arguments.of("a OR (b AND c)",
                         """
                                 WITH
                                 cte0 AS (
@@ -568,11 +500,8 @@ class SearchQuerySQLConversionTest {
                                     SELECT entryid
                                     FROM cte3
                                 )
-                                SELECT * FROM cte4 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "(a OR b) AND (c OR d)",
+                                SELECT * FROM cte4 GROUP BY entryid"""),
+                Arguments.of("(a OR b) AND (c OR d)",
                         """
                                 WITH
                                 cte0 AS (
@@ -630,11 +559,8 @@ class SearchQuerySQLConversionTest {
                                     SELECT entryid
                                     FROM cte5
                                 )
-                                SELECT * FROM cte6 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "a AND NOT (b OR c)",
+                                SELECT * FROM cte6 GROUP BY entryid"""),
+                Arguments.of("a AND NOT (b OR c)",
                         """
                                 WITH
                                 cte0 AS (
@@ -685,11 +611,8 @@ class SearchQuerySQLConversionTest {
                                     SELECT entryid
                                     FROM cte4
                                 )
-                                SELECT * FROM cte5 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "a'b",
+                                SELECT * FROM cte5 GROUP BY entryid"""),
+                Arguments.of("a'b",
                         """
                                 WITH
                                 cte0 AS (
@@ -699,11 +622,8 @@ class SearchQuerySQLConversionTest {
                                         (main_table.field_name != 'groups') AND ((main_table.field_value_literal ILIKE ('%a''b%')) OR (main_table.field_value_transformed ILIKE ('%a''b%')))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "file = \"\"",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("file = \"\"",
                         """
                                 WITH
                                 cte0 AS (
@@ -717,11 +637,8 @@ class SearchQuerySQLConversionTest {
                                         )
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "file != \"\"",
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("file != \"\"",
                         """
                                 WITH
                                 cte0 AS (
@@ -731,9 +648,7 @@ class SearchQuerySQLConversionTest {
                                         (main_table.field_name = 'file') AND ((main_table.field_value_literal ILIKE ('%%')) OR (main_table.field_value_transformed ILIKE ('%%')))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                )
-        );
+                                SELECT * FROM cte0 GROUP BY entryid"""));
     }
 
     @ParameterizedTest
@@ -743,7 +658,8 @@ class SearchQuerySQLConversionTest {
             SqlQueryNode sqlQueryNode = SearchQueryConversion.searchToSql("tableName", new SearchQuery(searchExpression));
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQueryNode.cte())) {
                 for (int i = 0; i < sqlQueryNode.params().size(); i++) {
-                    preparedStatement.setString(i + 1, sqlQueryNode.params().get(i));
+                    preparedStatement.setString(i + 1,
+                            sqlQueryNode.params().get(i));
                 }
                 String sql = preparedStatement.toString();
                 assertEquals(expected, sql);
@@ -753,9 +669,7 @@ class SearchQuerySQLConversionTest {
 
     public static Stream<Arguments> unFieldedTermsWithSearchBarFlags() {
         return Stream.of(
-                Arguments.of(
-                        "Test",
-                        EnumSet.noneOf(SearchFlags.class),
+                Arguments.of("Test", EnumSet.noneOf(SearchFlags.class),
                         """
                                 WITH
                                 cte0 AS (
@@ -765,12 +679,8 @@ class SearchQuerySQLConversionTest {
                                         (main_table.field_name != 'groups') AND ((main_table.field_value_literal ILIKE ('%Test%')) OR (main_table.field_value_transformed ILIKE ('%Test%')))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "Test",
-                        EnumSet.of(CASE_SENSITIVE),
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("Test", EnumSet.of(CASE_SENSITIVE),
                         """
                                 WITH
                                 cte0 AS (
@@ -780,12 +690,8 @@ class SearchQuerySQLConversionTest {
                                         (main_table.field_name != 'groups') AND ((main_table.field_value_literal LIKE ('%Test%')) OR (main_table.field_value_transformed LIKE ('%Test%')))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "Test",
-                        EnumSet.of(REGULAR_EXPRESSION),
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("Test", EnumSet.of(REGULAR_EXPRESSION),
                         """
                                 WITH
                                 cte0 AS (
@@ -795,12 +701,8 @@ class SearchQuerySQLConversionTest {
                                         (main_table.field_name != 'groups') AND ((main_table.field_value_literal ~* ('Test')) OR (main_table.field_value_transformed ~* ('Test')))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "Test",
-                        EnumSet.of(CASE_SENSITIVE, REGULAR_EXPRESSION),
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("Test", EnumSet.of(CASE_SENSITIVE, REGULAR_EXPRESSION),
                         """
                                 WITH
                                 cte0 AS (
@@ -810,12 +712,8 @@ class SearchQuerySQLConversionTest {
                                         (main_table.field_name != 'groups') AND ((main_table.field_value_literal ~ ('Test')) OR (main_table.field_value_transformed ~ ('Test')))
                                     )
                                 )
-                                SELECT * FROM cte0 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "Test AND author =! Smith",
-                        EnumSet.noneOf(SearchFlags.class),
+                                SELECT * FROM cte0 GROUP BY entryid"""),
+                Arguments.of("Test AND author =! Smith", EnumSet.noneOf(SearchFlags.class),
                         """
                                 WITH
                                 cte0 AS (
@@ -841,12 +739,8 @@ class SearchQuerySQLConversionTest {
                                     SELECT entryid
                                     FROM cte1
                                 )
-                                SELECT * FROM cte2 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "Test AND author =! Smith",
-                        EnumSet.of(CASE_SENSITIVE),
+                                SELECT * FROM cte2 GROUP BY entryid"""),
+                Arguments.of("Test AND author =! Smith", EnumSet.of(CASE_SENSITIVE),
                         """
                                 WITH
                                 cte0 AS (
@@ -872,12 +766,8 @@ class SearchQuerySQLConversionTest {
                                     SELECT entryid
                                     FROM cte1
                                 )
-                                SELECT * FROM cte2 GROUP BY entryid"""
-                ),
-
-                Arguments.of(
-                        "any =~ Test AND author =! Smith",
-                        EnumSet.of(CASE_SENSITIVE),
+                                SELECT * FROM cte2 GROUP BY entryid"""),
+                Arguments.of("any =~ Test AND author =! Smith", EnumSet.of(CASE_SENSITIVE),
                         """
                                 WITH
                                 cte0 AS (
@@ -903,9 +793,7 @@ class SearchQuerySQLConversionTest {
                                     SELECT entryid
                                     FROM cte1
                                 )
-                                SELECT * FROM cte2 GROUP BY entryid"""
-                )
-        );
+                                SELECT * FROM cte2 GROUP BY entryid"""));
     }
 
     @ParameterizedTest
@@ -915,7 +803,8 @@ class SearchQuerySQLConversionTest {
             SqlQueryNode sqlQueryNode = SearchQueryConversion.searchToSql("tableName", new SearchQuery(searchExpression, searchFlags));
             try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQueryNode.cte())) {
                 for (int i = 0; i < sqlQueryNode.params().size(); i++) {
-                    preparedStatement.setString(i + 1, sqlQueryNode.params().get(i));
+                    preparedStatement.setString(i + 1,
+                            sqlQueryNode.params().get(i));
                 }
                 String sql = preparedStatement.toString();
                 assertEquals(expected, sql);

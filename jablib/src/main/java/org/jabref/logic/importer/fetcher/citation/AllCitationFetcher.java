@@ -15,7 +15,6 @@ import org.jabref.logic.importer.util.GrobidPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +29,15 @@ public class AllCitationFetcher implements CitationFetcher {
     private final List<CitationFetcher> fetchers;
     private final char keywordSeparator;
 
-    public AllCitationFetcher(ImporterPreferences importerPreferences, ImportFormatPreferences importFormatPreferences, CitationKeyPatternPreferences citationKeyPatternPreferences, GrobidPreferences grobidPreferences, AiPreferences aiPreferences, ChatModel chatModel) {
+    public AllCitationFetcher(ImporterPreferences importerPreferences, ImportFormatPreferences importFormatPreferences, CitationKeyPatternPreferences citationKeyPatternPreferences,
+            GrobidPreferences grobidPreferences, AiPreferences aiPreferences, ChatModel chatModel) {
         List<CitationFetcher> providers = new ArrayList<>();
         for (CitationFetcherType type : CitationFetcherType.values()) {
             if (type == CitationFetcherType.ALL) {
                 continue;
             }
-            providers.add(CitationFetcherType.getCitationFetcher(type, importerPreferences, importFormatPreferences, citationKeyPatternPreferences, grobidPreferences, aiPreferences, chatModel));
+            providers.add(CitationFetcherType.getCitationFetcher(type, importerPreferences, importFormatPreferences, citationKeyPatternPreferences, grobidPreferences, aiPreferences,
+                    chatModel));
         }
         this.fetchers = List.copyOf(providers);
         this.keywordSeparator = importFormatPreferences.bibEntryPreferences().getKeywordSeparator();
@@ -103,10 +104,7 @@ public class AllCitationFetcher implements CitationFetcher {
         }
 
         if (!anySuccess && lastException != null) {
-            throw new FetcherException(
-                    "All citation providers failed",
-                    Localization.lang("No citation providers could return results for this request."),
-                    lastException);
+            throw new FetcherException("All citation providers failed", Localization.lang("No citation providers could return results for this request."), lastException);
         }
 
         if (lastException != null) {

@@ -2,6 +2,7 @@ package org.jabref.gui.commonfxcontrols;
 
 import java.util.List;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
@@ -16,7 +17,6 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIconView;
 import org.jabref.gui.theme.StyleClasses;
@@ -25,21 +25,28 @@ import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.Field;
 
-import com.airhacks.afterburner.views.ViewLoader;
-
 public class SaveOrderConfigPanel extends VBox {
-    @FXML private RadioButton exportInSpecifiedOrder;
-    @FXML private RadioButton exportInTableOrder;
-    @FXML private RadioButton exportInOriginalOrder;
-    @FXML private GridPane sortCriterionList;
-    @FXML private Button addButton;
+    @FXML
+    private RadioButton exportInSpecifiedOrder;
+
+    @FXML
+    private RadioButton exportInTableOrder;
+
+    @FXML
+    private RadioButton exportInOriginalOrder;
+
+    @FXML
+    private GridPane sortCriterionList;
+
+    @FXML
+    private Button addButton;
 
     private SaveOrderConfigPanelViewModel viewModel;
 
     public SaveOrderConfigPanel() {
         ViewLoader.view(this)
-                  .root(this)
-                  .load();
+                .root(this)
+                .load();
     }
 
     @FXML
@@ -54,7 +61,8 @@ public class SaveOrderConfigPanel extends VBox {
             while (change.next()) {
                 if (change.wasReplaced()) {
                     clearCriterionRow(change.getFrom());
-                    createCriterionRow(change.getAddedSubList().getFirst(), change.getFrom());
+                    createCriterionRow(change.getAddedSubList().getFirst(),
+                            change.getFrom());
                 } else if (change.wasAdded()) {
                     for (SortCriterionViewModel criterionViewModel : change.getAddedSubList()) {
                         int row = change.getFrom() + change.getAddedSubList().indexOf(criterionViewModel);
@@ -70,7 +78,8 @@ public class SaveOrderConfigPanel extends VBox {
     }
 
     private void createCriterionRow(SortCriterionViewModel criterionViewModel, int row) {
-        sortCriterionList.getChildren().stream()
+        sortCriterionList.getChildren()
+                         .stream()
                          .filter(item -> GridPane.getRowIndex(item) >= row)
                          .forEach(item -> {
                              GridPane.setRowIndex(item, GridPane.getRowIndex(item) + 1);
@@ -126,12 +135,14 @@ public class SaveOrderConfigPanel extends VBox {
     }
 
     private void clearCriterionRow(int row) {
-        List<Node> criterionRow = sortCriterionList.getChildren().stream()
-                                                   .filter(item -> GridPane.getRowIndex(item) == row)
-                                                   .toList();
+        List<Node> criterionRow = sortCriterionList.getChildren()
+                .stream()
+                .filter(item -> GridPane.getRowIndex(item) == row)
+                .toList();
         sortCriterionList.getChildren().removeAll(criterionRow);
 
-        sortCriterionList.getChildren().stream()
+        sortCriterionList.getChildren()
+                         .stream()
                          .filter(item -> GridPane.getRowIndex(item) > row)
                          .forEach(item -> {
                              GridPane.setRowIndex(item, GridPane.getRowIndex(item) - 1);

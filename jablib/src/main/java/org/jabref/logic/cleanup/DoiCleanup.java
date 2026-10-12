@@ -15,23 +15,16 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.identifier.DOI;
 
-/// Formats the DOI (e.g. removes http part) and also infers DOIs from the note, url, eprint, ee, article-doi, location-id or source fields.
+/// Formats the DOI (e.g. removes http part) and also infers DOIs from the note,
+/// url, eprint, ee, article-doi, location-id or source fields.
 public class DoiCleanup implements CleanupJob {
 
     /// Fields to check for DOIs.
-    private static final List<Field> FIELDS = List.of(
-            StandardField.NOTE,
-            StandardField.URL,
-            StandardField.EPRINT,
-            new UnknownField("ee"),
-            new UnknownField("article-doi")
-    );
+    private static final List<Field> FIELDS = List.of(StandardField.NOTE, StandardField.URL, StandardField.EPRINT, new UnknownField("ee"),
+            new UnknownField("article-doi"));
 
     /// Fields that may contain a DOI alongside bibliographic metadata.
-    private static final List<Field> EMBEDDED_DOI_FIELDS = List.of(
-            new UnknownField("location-id"),
-            new UnknownField("source")
-    );
+    private static final List<Field> EMBEDDED_DOI_FIELDS = List.of(new UnknownField("location-id"), new UnknownField("source"));
 
     @Override
     public List<FieldChange> cleanup(BibEntry entry) {
@@ -39,37 +32,36 @@ public class DoiCleanup implements CleanupJob {
 
         AtomicBoolean validDoiExistsInDoiField = new AtomicBoolean(false);
 
-        entry.getField(StandardField.DOI)
-             .ifPresent(currentlyStoredDoi -> {
-                 String decodedDoiFieldValue;
-                 try {
-                     decodedDoiFieldValue = URLDecoder.decode(currentlyStoredDoi, StandardCharsets.UTF_8);
-                 } catch (IllegalArgumentException _) {
-                     // If decoding fails, we keep the original value
-                     decodedDoiFieldValue = currentlyStoredDoi;
-                 }
+        entry.getField(StandardField.DOI).ifPresent(currentlyStoredDoi -> {
+            String decodedDoiFieldValue;
+            try {
+                decodedDoiFieldValue = URLDecoder.decode(currentlyStoredDoi, StandardCharsets.UTF_8);
+            } catch (IllegalArgumentException _) {
+                // If decoding fails, we keep the original value
+                decodedDoiFieldValue = currentlyStoredDoi;
+            }
 
-                 String cleanCurrentlyStoredDoi = decodedDoiFieldValue;
+            String cleanCurrentlyStoredDoi = decodedDoiFieldValue;
 
-                 DOI.parse(cleanCurrentlyStoredDoi)
-                    .map(DOI::asString)
-                    .ifPresent(parsedDoi -> {
-                        validDoiExistsInDoiField.set(true);
-                        if (!parsedDoi.equals(cleanCurrentlyStoredDoi)) {
-                            entry.setField(StandardField.DOI, parsedDoi);
+            DOI.parse(cleanCurrentlyStoredDoi)
+               .map(DOI::asString)
+               .ifPresent(parsedDoi -> {
+                   validDoiExistsInDoiField.set(true);
+                   if (!parsedDoi.equals(cleanCurrentlyStoredDoi)) {
+                       entry.setField(StandardField.DOI, parsedDoi);
 
-                            FieldChange change = new FieldChange(entry, StandardField.DOI, currentlyStoredDoi, parsedDoi);
-                            changes.add(change);
-                        }
+                       FieldChange change = new FieldChange(entry, StandardField.DOI, currentlyStoredDoi, parsedDoi);
+                       changes.add(change);
+                   }
 
-                        // Doi field seems to contain Doi -> cleanup note, url, eprint, ee, article-doi field
-                        for (Field field : FIELDS) {
-                            entry.getField(field)
-                                 .flatMap(DOI::parse) // only returns something if **complete** field is a DOI
-                                 .ifPresent(_ -> removeFieldValue(entry, field, changes));
-                        }
-                    });
-             });
+                   // Doi field seems to contain Doi -> cleanup note, url, eprint, ee, article-doi field
+                   for (Field field : FIELDS) {
+                       entry.getField(field)
+                            .flatMap(DOI::parse) // only returns something if **complete** field is a DOI
+                            .ifPresent(_ -> removeFieldValue(entry, field, changes));
+                   }
+               });
+        });
 
         // [impl->req~import.doi-from-other-fields~1]
         for (Field field : FIELDS) {

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.google.common.collect.MapMaker;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -22,9 +23,9 @@ import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 
-import com.google.common.collect.MapMaker;
-
-/// A container for rendering a list of items. it is not that smart as [javafx.scene.control.ListView], which can skip drawing components that are not visible, but it is flexible and supports custom spacing and auto-scroll.
+/// A container for rendering a list of items. it is not that smart as
+/// [javafx.scene.control.ListView], which can skip drawing components that are
+/// not visible, but it is flexible and supports custom spacing and auto-scroll.
 ///
 /// Mainly used in [org.jabref.gui.ai.chat.AiChatView].
 public class ListScrollPane<T> extends ScrollPane {
@@ -39,10 +40,13 @@ public class ListScrollPane<T> extends ScrollPane {
 
     private final ListChangeListener<T> listContentListener = this::handleListContentChange;
 
-    /// Scroll position per list instance, so switching back to a previously shown list restores where the user was.
-    /// Keyed by identity: the AI chat history cache hands out one list instance per entry.
-    /// Weak keys let a list dropped from that cache be garbage collected.
-    private final Map<ObservableList<T>, Double> scrollPositions = new MapMaker().weakKeys().makeMap();
+    /// Scroll position per list instance, so switching back to a previously
+    /// shown list restores where the user was. Keyed by identity: the AI chat
+    /// history cache hands out one list instance per entry. Weak keys let a
+    /// list dropped from that cache be garbage collected.
+    private final Map<ObservableList<T>, Double> scrollPositions = new MapMaker()
+            .weakKeys()
+            .makeMap();
 
     public ListScrollPane() {
         this.contentContainer = new VBox();
@@ -94,7 +98,9 @@ public class ListScrollPane<T> extends ScrollPane {
                 rebuildView();
                 return;
             } else if (change.wasUpdated()) {
-                for (int i = change.getFrom(); i < change.getTo(); i++) {
+                for (int i = change.getFrom();
+                     i < change.getTo();
+                     i++) {
                     T item = change.getList().get(i);
                     Node newNode = renderer.apply(item);
                     if (i < contentContainer.getChildren().size()) {

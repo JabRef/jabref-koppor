@@ -35,13 +35,15 @@ public class MergeTwoEntriesAction extends SimpleCommand {
         List<BibEntry> entriesToRemove = Arrays.asList(entriesMergeResult.originalLeftEntry(), entriesMergeResult.originalRightEntry());
         BibEntry mergedEntry = entriesMergeResult.mergedEntry();
 
-        undoManager.addEdit(StandardActions.MERGE_ENTRIES.getText(), edit -> {
-            edit.applyEdit(new UndoableInsertEntries(database, mergedEntry));
-            edit.applyEdit(new UndoableRemoveEntries(database, entriesToRemove));
-        });
+        undoManager.addEdit(StandardActions.MERGE_ENTRIES.getText(),
+                edit -> {
+                    edit.applyEdit(new UndoableInsertEntries(database, mergedEntry));
+                    edit.applyEdit(new UndoableRemoveEntries(database, entriesToRemove));
+                });
 
         stateManager.setSelectedEntries(List.of(mergedEntry));
-        stateManager.activeTabProperty().get()
+        stateManager.activeTabProperty()
+                    .get()
                     .filter(tab -> databaseContext.getUid().equals(tab.getBibDatabaseContext().getUid()))
                     .ifPresent(tab -> tab.clearAndSelect(mergedEntry));
     }

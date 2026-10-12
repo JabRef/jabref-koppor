@@ -7,18 +7,18 @@ import javafx.beans.InvalidationListener;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-
 import org.jabref.gui.maintable.columns.MainTableColumn;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /// Keep track of changes made to the columns (reordering, resorting, resizing).
 ///
-/// This is the table-to-preferences direction. The opposite direction is [ColumnPreferencesApplier].
+/// This is the table-to-preferences direction. The opposite direction is
+/// [ColumnPreferencesApplier].
 ///
-/// Resizing and changing the sort type need no listener here: the preferences receive the column models of the
-/// table itself, and [ColumnPreferences] reports changes of their properties.
+/// Resizing and changing the sort type need no listener here: the preferences
+/// receive the column models of the table itself, and [ColumnPreferences]
+/// reports changes of their properties.
 public class ColumnPreferencesRecorder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ColumnPreferencesRecorder.class);
@@ -44,10 +44,12 @@ public class ColumnPreferencesRecorder {
         table.getSortOrder().removeListener(sortOrderListener);
     }
 
-    /// Returns the models of the given columns as they are stored in the preferences.
+    /// Returns the models of the given columns as they are stored in the
+    /// preferences.
     ///
-    /// [ColumnPreferencesApplier] compares with the same projection. If both directions used different ones, a change
-    /// written by one direction would be reverted by the other.
+    /// [ColumnPreferencesApplier] compares with the same projection. If both
+    /// directions used different ones, a change written by one direction would
+    /// be reverted by the other.
     static List<MainTableColumnModel> toPersistedModels(List<? extends TableColumn<BibEntryTableViewModel, ?>> columns) {
         return columns.stream()
                       .filter(col -> col instanceof MainTableColumn<?>)
@@ -65,10 +67,11 @@ public class ColumnPreferencesRecorder {
         preferences.setColumns(list);
     }
 
-    /// Stores the SortOrder of the Table in the preferences. This includes [TableColumn.SortType].
+    /// Stores the SortOrder of the Table in the preferences. This includes
+    /// [TableColumn.SortType].
     ///
-    /// Cannot be combined with updateColumns, because JavaFX would provide just an empty list for the sort order
-    /// on other changes.
+    /// Cannot be combined with updateColumns, because JavaFX would provide just
+    /// an empty list for the sort order on other changes.
     private void updateSortOrder() {
         LOGGER.debug("Updating sort order");
         preferences.setColumnSortOrder(toPersistedModels(table.getSortOrder()));

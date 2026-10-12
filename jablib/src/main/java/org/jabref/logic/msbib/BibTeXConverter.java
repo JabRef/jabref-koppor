@@ -19,8 +19,7 @@ public class BibTeXConverter {
 
     private static final String MSBIB_PREFIX = "msbib-";
 
-    private BibTeXConverter() {
-    }
+    private BibTeXConverter() {}
 
     /// Converts an [MSBibEntry] to a [BibEntry] for import
     public static BibEntry convert(MSBibEntry entry) {
@@ -101,12 +100,15 @@ public class BibTeXConverter {
         if (authors == null) {
             return;
         }
-        String allAuthors = authors.stream().map(MsBibAuthor::getLastFirst).collect(Collectors.joining(" and "));
+        String allAuthors = authors.stream()
+                .map(MsBibAuthor::getLastFirst)
+                .collect(Collectors.joining(" and "));
 
         map.put(field, allAuthors);
     }
 
-    private static void parseSingleStandardNumber(String type, Field field, String standardNum, Map<Field, String> map) {
+    private static void parseSingleStandardNumber(String type, Field field, String standardNum,
+            Map<Field, String> map) {
         Pattern pattern = Pattern.compile(':' + type + ":(.[^:]+)");
         Matcher matcher = pattern.matcher(standardNum);
         if (matcher.matches()) {

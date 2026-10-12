@@ -3,14 +3,13 @@ package org.jabref.logic.pdf;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
-import org.jabref.architecture.AllowedToUseAwt;
-
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSFloat;
 import org.apache.pdfbox.cos.COSInteger;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
+import org.jabref.architecture.AllowedToUseAwt;
 import org.jspecify.annotations.NonNull;
 
 /// Extracts the text of marked annotations using bounding boxes.
@@ -27,7 +26,8 @@ public final class TextExtractor {
         this.boundingBoxes = boundingBoxes;
     }
 
-    /// Extracts the text of a marked annotation such as highlights, underlines, strikeouts etc.
+    /// Extracts the text of a marked annotation such as highlights, underlines,
+    /// strikeouts etc.
     ///
     /// @return The text of the annotation
     /// @throws IOException If the PDFTextStripperByArea fails to initialize.
@@ -38,7 +38,9 @@ public final class TextExtractor {
 
         // Iterates over the array of segments. Each segment consists of 8 points forming a bounding box.
         int totalSegments = boundingBoxes.size() / 8;
-        for (int currentSegment = 1, segmentPointer = 0; currentSegment <= totalSegments; currentSegment++, segmentPointer += 8) {
+        for (int currentSegment = 1, segmentPointer = 0;
+             currentSegment <= totalSegments;
+             currentSegment++, segmentPointer += 8) {
             try {
                 stripperByArea.addRegion("markedRegion", calculateSegmentBoundingBox(boundingBoxes, segmentPointer));
                 stripperByArea.extractRegions(page);

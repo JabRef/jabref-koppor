@@ -3,19 +3,17 @@ package org.jabref.gui.edit.automaticfieldeditor.clearcontent;
 import java.util.List;
 import java.util.Optional;
 
+import com.dlsc.gemsfx.infocenter.Notification;
+import com.dlsc.gemsfx.infocenter.NotificationGroup;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
-import org.jabref.gui.Notifications;
+import org.jabref.gui.Notifications.UiNotification;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.undo.CompoundEdit;
-
-import com.dlsc.gemsfx.infocenter.Notification;
-import com.dlsc.gemsfx.infocenter.NotificationGroup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,22 +39,24 @@ class ClearContentViewModelTest {
 
     @BeforeEach
     void setup() {
-        entryA = new BibEntry(BibEntry.DEFAULT_TYPE).withField(StandardField.YEAR, "2015").withField(StandardField.DATE, "2014");
-        entryB = new BibEntry(BibEntry.DEFAULT_TYPE).withField(StandardField.YEAR, "2020").withField(StandardField.AUTHOR, "Author");
+        entryA = new BibEntry(BibEntry.DEFAULT_TYPE)
+                .withField(StandardField.YEAR, "2015")
+                .withField(StandardField.DATE, "2014");
+        entryB = new BibEntry(BibEntry.DEFAULT_TYPE)
+                .withField(StandardField.YEAR, "2020")
+                .withField(StandardField.AUTHOR, "Author");
         when(stateManager.getSelectedEntries()).thenReturn(FXCollections.observableArrayList(entryA, entryB));
 
         when(dialogService.getNotificationGroups()).thenReturn(List.of(notificationGroup));
         doAnswer(invocation -> {
-            notificationGroup.getNotifications().add(invocation.getArgument(0));
-            return null;
-        }).when(dialogService).notify(any(Notifications.UiNotification.class));
+                    notificationGroup.getNotifications().add(invocation.getArgument(0));
+                    return null;
+                })
+                .when(dialogService)
+                .notify(any(UiNotification.class));
 
         bibDatabase = new BibDatabase();
-        clearContentViewModel = new ClearContentViewModel(
-                bibDatabase,
-                stateManager.getSelectedEntries(),
-                mock(CompoundEdit.class),
-                dialogService,
+        clearContentViewModel = new ClearContentViewModel(bibDatabase, stateManager.getSelectedEntries(), mock(CompoundEdit.class), dialogService,
                 stateManager);
     }
 

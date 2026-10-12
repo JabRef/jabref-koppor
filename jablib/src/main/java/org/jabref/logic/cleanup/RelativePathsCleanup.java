@@ -11,7 +11,6 @@ import org.jabref.model.FieldChange;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.jspecify.annotations.NonNull;
 
 public class RelativePathsCleanup implements CleanupJob {
@@ -38,9 +37,7 @@ public class RelativePathsCleanup implements CleanupJob {
                 newFileName = oldFileName;
             } else {
                 // only try to transform local file path to relative one
-                newFileName = FileUtil
-                        .relativize(Path.of(oldFileName), databaseContext, filePreferences)
-                        .toString();
+                newFileName = FileUtil.relativize(Path.of(oldFileName), databaseContext, filePreferences).toString();
             }
             LinkedFile newFileEntry = fileEntry;
             if (!oldFileName.equals(newFileName)) {

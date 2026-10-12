@@ -5,14 +5,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
 
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.importer.Parser;
 import org.jabref.logic.importer.SearchBasedParserFetcher;
 import org.jabref.logic.importer.fetcher.transformers.DefaultQueryTransformer;
 import org.jabref.logic.importer.fileformat.MarcXmlParser;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import org.apache.hc.core5.net.URIBuilder;
 
 /// Fetcher for [Bibliotheksverbund Bayern (BVB)](https://www.bib-bvb.de/)
 public class BvbFetcher implements SearchBasedParserFetcher {
@@ -35,7 +34,10 @@ public class BvbFetcher implements SearchBasedParserFetcher {
         uriBuilder.addParameter("version", "1.1");
         uriBuilder.addParameter("recordSchema", "marcxml");
         uriBuilder.addParameter("operation", "searchRetrieve");
-        uriBuilder.addParameter("query", new DefaultQueryTransformer().transformSearchQuery(query).orElse(""));
+        uriBuilder.addParameter("query",
+                new DefaultQueryTransformer()
+                        .transformSearchQuery(query)
+                        .orElse(""));
         uriBuilder.addParameter("maximumRecords", "30");
         return uriBuilder.build().toURL();
     }

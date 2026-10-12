@@ -12,18 +12,17 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.TableColumn;
-
 import org.jabref.gui.util.FieldsUtil;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Represents the full internal name of a column in the main table. Consists of two parts: The type of the column and a qualifier, like the
-/// field name to be displayed in the column.
+/// Represents the full internal name of a column in the main table. Consists of
+/// two parts: The type of the column and a qualifier, like the field name to be
+/// displayed in the column.
 @NullMarked
 public class MainTableColumnModel {
 
@@ -79,10 +78,14 @@ public class MainTableColumnModel {
 
         @Override
         public String toString() {
-            return "Type{" +
-                    "name='" + name + '\'' +
-                    ", displayName='" + displayName + '\'' +
-                    '}';
+            return "Type{"
+                    + "name='"
+                    + name
+                    + '\''
+                    + ", displayName='"
+                    + displayName
+                    + '\''
+                    + '}';
         }
     }
 
@@ -91,10 +94,13 @@ public class MainTableColumnModel {
     private final DoubleProperty widthProperty = new SimpleDoubleProperty();
     private final ObjectProperty<TableColumn.SortType> sortTypeProperty = new SimpleObjectProperty<>();
 
-    /// This is used by the preferences dialog, to initialize available columns the user can add to the table.
+    /// This is used by the preferences dialog, to initialize available columns
+    /// the user can add to the table.
     ///
-    /// @param type      the `MainTableColumnModel.Type` of the column, e.g. "NORMALFIELD" or "EXTRAFILE"
-    /// @param qualifier the stored qualifier of the column, e.g. "author/editor"
+    /// @param type the `MainTableColumnModel.Type` of the column, e.g.
+    ///   "NORMALFIELD" or "EXTRAFILE"
+    /// @param qualifier the stored qualifier of the column, e.g.
+    ///   "author/editor"
     public MainTableColumnModel(Type type, String qualifier) {
         this.typeProperty.setValue(type);
         this.qualifierProperty.setValue(qualifier);
@@ -107,18 +113,22 @@ public class MainTableColumnModel {
         }
     }
 
-    /// This is used by the preferences dialog, to initialize available basic icon columns, the user can add to the table.
+    /// This is used by the preferences dialog, to initialize available basic
+    /// icon columns, the user can add to the table.
     ///
-    /// @param type the `MainTableColumnModel.Type` of the column, e.g. "GROUPS" or "LINKED_IDENTIFIER"
+    /// @param type the `MainTableColumnModel.Type` of the column, e.g. "GROUPS"
+    ///   or "LINKED_IDENTIFIER"
     public MainTableColumnModel(Type type) {
         this(type, "");
     }
 
     /// This is used by the preference migrations.
     ///
-    /// @param type      the `MainTableColumnModel.Type` of the column, e.g. "NORMALFIELD" or "GROUPS"
-    /// @param qualifier the stored qualifier of the column, e.g. "author/editor"
-    /// @param width     the stored width of the column
+    /// @param type the `MainTableColumnModel.Type` of the column, e.g.
+    ///   "NORMALFIELD" or "GROUPS"
+    /// @param qualifier the stored qualifier of the column, e.g.
+    ///   "author/editor"
+    /// @param width the stored width of the column
     public MainTableColumnModel(Type type, String qualifier, double width) {
         this(type, qualifier);
 
@@ -142,8 +152,7 @@ public class MainTableColumnModel {
     }
 
     public String getDisplayName() {
-        if ((Type.ICON_COLUMNS.contains(typeProperty.getValue()) && qualifierProperty.getValue().isBlank())
-                || (typeProperty.getValue() == Type.INDEX)) {
+        if ((Type.ICON_COLUMNS.contains(typeProperty.getValue()) && qualifierProperty.getValue().isBlank()) || (typeProperty.getValue() == Type.INDEX)) {
             return typeProperty.getValue().getDisplayName();
         } else {
             // In case an OrField is used, `FieldFactory.parseField` returns UnknownField, which leads to
@@ -173,38 +182,33 @@ public class MainTableColumnModel {
         return sortTypeProperty;
     }
 
-    /// Returns a list of sort cirteria based on the fields the current column displays.
-    /// In case it is single field, a single SortCriterion is returned.
-    /// In case of multiple fields, for each field, there is a SortCriterion contained in the list.
+    /// Returns a list of sort cirteria based on the fields the current column
+    /// displays. In case it is single field, a single SortCriterion is
+    /// returned. In case of multiple fields, for each field, there is a
+    /// SortCriterion contained in the list.
     ///
-    /// Implementation reason: We want to have SortCriterion handle a single field, because the UI allows for handling
-    /// "plain" fields only.
+    /// Implementation reason: We want to have SortCriterion handle a single
+    /// field, because the UI allows for handling "plain" fields only.
     public List<SaveOrder.SortCriterion> getSortCriteria() {
         boolean descending = getSortType() == TableColumn.SortType.DESCENDING;
-        return FieldFactory.parseOrFields(getQualifier()).getFields().stream()
-                           .map(field -> new SaveOrder.SortCriterion(field, descending))
-                           .toList();
+        return FieldFactory.parseOrFields(getQualifier())
+                .getFields()
+                .stream()
+                .map(field -> new SaveOrder.SortCriterion(field, descending))
+                .toList();
     }
 
-    /// Returns whether this model may appear in the user-editable entry-table column preferences.
+    /// Returns whether this model may appear in the user-editable entry-table
+    /// column preferences.
     ///
-    /// Internal helper columns such as `MATCH_CATEGORY`, and typed columns missing their qualifier,
-    /// are valid implementation details but must not be persisted or reconstructed from user input.
+    /// Internal helper columns such as `MATCH_CATEGORY`, and typed columns
+    /// missing their qualifier, are valid implementation details but must not
+    /// be persisted or reconstructed from user input.
     public boolean isConfigurable() {
         return switch (getType()) {
-            case MATCH_CATEGORY,
-                 LIBRARY_NAME ->
-                    false;
-            case INDEX,
-                 FILES,
-                 GROUPS,
-                 GROUP_ICONS,
-                 LINKED_IDENTIFIER ->
-                    true;
-            case EXTRAFILE,
-                 NORMALFIELD,
-                 SPECIALFIELD ->
-                    !getQualifier().isBlank();
+            case MATCH_CATEGORY, LIBRARY_NAME -> false;
+            case INDEX, FILES, GROUPS, GROUP_ICONS, LINKED_IDENTIFIER -> true;
+            case EXTRAFILE, NORMALFIELD, SPECIALFIELD -> !getQualifier().isBlank();
         };
     }
 
@@ -233,10 +237,7 @@ public class MainTableColumnModel {
 
     @Override
     public String toString() {
-        return "MainTableColumnModel{" +
-                "qualifierProperty=" + qualifierProperty +
-                ", typeProperty=" + typeProperty +
-                '}';
+        return "MainTableColumnModel{" + "qualifierProperty=" + qualifierProperty + ", typeProperty=" + typeProperty + '}';
     }
 
     /// This creates a new `MainTableColumnModel` out of a given string
@@ -253,9 +254,7 @@ public class MainTableColumnModel {
         Type type = Type.fromString(splitName[0]);
         String qualifier = "";
 
-        if ((type == Type.NORMALFIELD)
-                || (type == Type.SPECIALFIELD)
-                || (type == Type.EXTRAFILE)) {
+        if ((type == Type.NORMALFIELD) || (type == Type.SPECIALFIELD) || (type == Type.EXTRAFILE)) {
             if (splitName.length == 1) {
                 qualifier = splitName[0]; // By default the rawColumnName is parsed as NORMALFIELD
             } else {

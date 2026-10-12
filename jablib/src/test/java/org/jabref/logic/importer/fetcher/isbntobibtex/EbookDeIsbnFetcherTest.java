@@ -11,7 +11,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -80,7 +79,8 @@ class EbookDeIsbnFetcherTest extends AbstractIsbnFetcherTest {
         assertEquals(Optional.of(bibEntry), fetchedEntry);
     }
 
-    /// This test searches for a valid ISBN. See https://www.amazon.de/dp/3728128155/?tag=jabref-21 However, this ISBN is
+    /// This test searches for a valid ISBN. See
+    /// https://www.amazon.de/dp/3728128155/?tag=jabref-21 However, this ISBN is
     /// not available on ebook.de.
     @Test
     void searchForValidButNotFoundISBN() {

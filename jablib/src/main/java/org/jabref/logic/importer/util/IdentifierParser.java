@@ -12,7 +12,6 @@ import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.identifier.ISBN;
 import org.jabref.model.entry.identifier.Identifier;
 import org.jabref.model.entry.identifier.MathSciNetId;
-
 import org.jspecify.annotations.NonNull;
 
 public class IdentifierParser {

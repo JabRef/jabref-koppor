@@ -53,7 +53,8 @@ class FileHasherTest {
         Optional<String> hash = FileHasher.computeHash(testFile);
 
         assertTrue(hash.isPresent(), "Hash should be present");
-        assertEquals(64, hash.get().length(), "SHA-256 hash should be 64 hex characters");
+        assertEquals(64, hash.get().length(),
+                "SHA-256 hash should be 64 hex characters");
 
         assertTrue(hash.get().matches("[0-9a-f]+"), "Hash should contain only hexadecimal characters");
     }

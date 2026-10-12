@@ -25,7 +25,9 @@ public class JabRefBaseDirectoryLocator {
     public static Path getBaseDirectoryPath() {
         String appPath = System.getProperty("jpackage.app-path");
 
-        Path cwdPath = Path.of("").toAbsolutePath().normalize();
+        Path cwdPath = Path.of("")
+                .toAbsolutePath()
+                .normalize();
         if (appPath == null) {
             // fallback: current working directory
             return cwdPath;

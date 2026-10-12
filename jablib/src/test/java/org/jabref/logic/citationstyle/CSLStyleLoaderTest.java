@@ -37,7 +37,7 @@ public class CSLStyleLoaderTest {
     }
 
     @Test
-        // [utest->req~ux.citation-styles.lazy-source-loading~1]
+    // [utest->req~ux.citation-styles.lazy-source-loading~1]
     void loadsCitationStyleSourceOnDemand() {
         AtomicInteger sourceLoadCount = new AtomicInteger();
         CitationStyle style = new CitationStyle(
@@ -102,17 +102,16 @@ public class CSLStyleLoaderTest {
 
     @Test
     void missingCatalogKeysAreDetectedFromFirstEntryStructure() {
-        Map<String, Object> incompleteEntry = new HashMap<>(Map.of(
-                "path", "ieee.csl",
-                "title", "IEEE",
-                "styleId", "id",
-                "styleClass", "in-text",
-                "shortTitle", "IEEE",
-                "isNumeric", true,
-                "hasBibliography", true));
+        Map<String, Object> incompleteEntry = new HashMap<>(
+                Map.of(
+                        "path", "ieee.csl",
+                        "title", "IEEE",
+                        "styleId", "id",
+                        "styleClass", "in-text",
+                        "shortTitle", "IEEE",
+                        "isNumeric", true,
+                        "hasBibliography", true));
 
-        assertEquals(
-                List.of("hasBibliographySortOrder", "usesHangingIndent"),
-                CSLStyleLoader.findMissingCatalogKeys(incompleteEntry));
+        assertEquals(List.of("hasBibliographySortOrder", "usesHangingIndent"), CSLStyleLoader.findMissingCatalogKeys(incompleteEntry));
     }
 }

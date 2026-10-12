@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.util.URLUtil;
-
 import org.jspecify.annotations.NonNull;
 
 /// Represents an SSRN article, identified by its abstract ID.

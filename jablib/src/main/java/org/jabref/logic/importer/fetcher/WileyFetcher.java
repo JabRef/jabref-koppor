@@ -13,14 +13,15 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
-
 import org.jspecify.annotations.NonNull;
 
-/// Fulltext fetcher that downloads PDFs from Wiley journals via the
-/// <a href="https://onlinelibrary.wiley.com/library-info/resources/text-and-datamining">Wiley TDM API</a>.
+/// Fulltext fetcher that downloads PDFs from Wiley journals via the <a
+/// href="https://onlinelibrary.wiley.com/library-info/resources/text-and-datamining">Wiley
+/// TDM API</a>.
 ///
-/// Each user must register for their own TDM token at Wiley portal (needs to have a Wiley account).
-/// The token is non-transferable and for personal use only per Wiley TDM license.
+/// Each user must register for their own TDM token at Wiley portal (needs to
+/// have a Wiley account). The token is non-transferable and for personal use
+/// only per Wiley TDM license.
 public class WileyFetcher implements FulltextFetcher, CustomizableKeyFetcher {
 
     public static final String FETCHER_NAME = "Wiley TDM";
@@ -70,9 +71,9 @@ public class WileyFetcher implements FulltextFetcher, CustomizableKeyFetcher {
     @Override
     public Map<String, String> getDownloadHeaders() {
         return importerPreferences.getApiKey(FETCHER_NAME)
-                                  .filter(key -> !key.isBlank())
-                                  .map(key -> Map.of(TDM_HEADER_NAME, key))
-                                  .orElse(Map.of());
+                .filter(key -> !key.isBlank())
+                .map(key -> Map.of(TDM_HEADER_NAME, key))
+                .orElse(Map.of());
     }
 
     @NonNull

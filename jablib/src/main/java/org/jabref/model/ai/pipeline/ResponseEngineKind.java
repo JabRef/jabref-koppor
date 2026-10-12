@@ -1,7 +1,6 @@
 package org.jabref.model.ai.pipeline;
 
 import org.jabref.model.ai.AiDefaultEnums;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -17,4 +16,3 @@ public enum ResponseEngineKind {
         }
     }
 }
-

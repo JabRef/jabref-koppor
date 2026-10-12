@@ -14,7 +14,9 @@ class RISImporterTest {
 
     @Test
     void ifNotRecognizedFormat() throws IOException, URISyntaxException {
-        Path file = Path.of(RISImporterTest.class.getResource("RisImporterCorrupted.ris").toURI());
+        Path file = Path.of(RISImporterTest.class
+                .getResource("RisImporterCorrupted.ris")
+                .toURI());
         assertFalse(importer.isRecognizedFormat(file));
     }
 }

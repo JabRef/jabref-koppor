@@ -7,7 +7,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoablePreambleChange;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

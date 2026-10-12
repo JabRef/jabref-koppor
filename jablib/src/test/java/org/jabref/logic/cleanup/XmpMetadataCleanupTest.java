@@ -3,9 +3,10 @@ package org.jabref.logic.cleanup;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.transform.TransformerException;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.xmp.XmpPreferences;
 import org.jabref.logic.xmp.XmpUtilReader;
@@ -19,9 +20,6 @@ import org.jabref.model.entry.Month;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -53,8 +51,7 @@ class XmpMetadataCleanupTest {
         FilePreferences filePreferences = mock(FilePreferences.class, Answers.RETURNS_DEEP_STUBS);
         XmpPreferences xmpPreferences = mock(XmpPreferences.class);
         bibDatabase = mock(BibDatabase.class);
-        when(bibDatabase.resolveForStrings(anyList(), eq(false)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(bibDatabase.resolveForStrings(anyList(), eq(false))).thenAnswer(invocation -> invocation.getArgument(0));
         cleanupJob = new XmpMetadataCleanup(databaseContext, filePreferences);
         xmpWriter = new XmpUtilWriter(xmpPreferences);
         xmpReader = new XmpUtilReader();
@@ -94,17 +91,16 @@ class XmpMetadataCleanupTest {
 
         LinkedFile linkedFile = new LinkedFile("Test PDF", pdfFile, "PDF");
         olly2018.addFile(linkedFile);
-        when(databaseContext.getFileDirectories(any(FilePreferences.class)))
-                .thenReturn(List.of(tempDir));
+        when(databaseContext.getFileDirectories(any(FilePreferences.class))).thenReturn(List.of(tempDir));
 
         List<FieldChange> changes = cleanupJob.cleanup(olly2018);
-        List<FieldChange> expectedChanges = List.of(new FieldChange(
-                olly2018,
-                StandardField.FILE,
-                // File field is present with entry, IntelliJ warning can be safely ignored
-                olly2018.getField(StandardField.FILE).get(),
-                olly2018.getField(StandardField.FILE).get()
-        ));
+        List<FieldChange> expectedChanges = List.of(
+                new FieldChange(
+                        olly2018,
+                        StandardField.FILE,
+                        // File field is present with entry, IntelliJ warning can be safely ignored
+                        olly2018.getField(StandardField.FILE).get(),
+                        olly2018.getField(StandardField.FILE).get()));
         assertNotEquals(List.of(), changes);
         assertEquals(expectedChanges, changes);
         assertEquals(List.of(), xmpReader.readRawXmp(pdfFile));

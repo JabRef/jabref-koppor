@@ -18,14 +18,14 @@ public final class ChatHistoryUtils {
         chatHistory.removeIf(message -> Objects.equals(message.id(), id));
     }
 
-    /// Rewinds history to the point before the specified message and returns the user content to be re-sent.
+    /// Rewinds history to the point before the specified message and returns
+    /// the user content to be re-sent.
     ///
     /// Modifies the chat history in-place.
     ///
     /// @return the content to regenerate or empty if the message was not found
     public static Optional<String> regenerate(List<ChatMessage> chatHistory, String id) {
-        Optional<ChatMessage> recordOpt = chatHistory
-                .stream()
+        Optional<ChatMessage> recordOpt = chatHistory.stream()
                 .filter(message -> Objects.equals(message.id(), id))
                 .findFirst();
 
@@ -49,17 +49,16 @@ public final class ChatHistoryUtils {
         }
 
         final Instant finalCutoffTime = cutoffTime;
-        chatHistory.removeIf(historyMessage ->
-                !historyMessage.timestamp().isBefore(finalCutoffTime)
-        );
+        chatHistory.removeIf(historyMessage -> !historyMessage.timestamp().isBefore(finalCutoffTime));
 
         return Optional.of(contentToRegenerate);
     }
 
-    /// Updates the system message in the chat history.
-    /// If a system message already exists, it is replaced. Otherwise, a new system message is added at the beginning.
+    /// Updates the system message in the chat history. If a system message
+    /// already exists, it is replaced. Otherwise, a new system message is added
+    /// at the beginning.
     ///
-    /// @param chatHistory      the chat history to update
+    /// @param chatHistory the chat history to update
     /// @param newSystemMessage the new system message content
     public static void updateSystemMessage(List<ChatMessage> chatHistory, String newSystemMessage) {
         // Remove existing system message if present

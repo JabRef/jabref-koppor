@@ -28,11 +28,13 @@ public enum BibDatabaseMode {
         }
     }
 
-    /// Returns the [BibDatabaseMode] that equals the given string. The use of capital and small letters
-    /// in the string doesn't matter.If neither "bibtex" nor "biblatex" is the given string, then an
+    /// Returns the [BibDatabaseMode] that equals the given string. The use of
+    /// capital and small letters in the string doesn't matter.If neither
+    /// "bibtex" nor "biblatex" is the given string, then an
     /// [IllegalArgumentException] will be thrown.
     ///
-    /// @return BIBTEX, if the string is bibtex; BIBLATEX, if the string is biblatex
+    /// @return BIBTEX, if the string is bibtex; BIBLATEX, if the string is
+    ///   biblatex
     public static BibDatabaseMode parse(String data) {
         return BibDatabaseMode.valueOf(data.toUpperCase(Locale.ENGLISH));
     }

@@ -21,7 +21,8 @@ class MarkdownFormatterTest {
     private static Stream<Arguments> provideMarkdownAndHtml() {
         return Stream.of(
                 Arguments.of("Hello World", "<p>Hello World</p>"),
-                Arguments.of("""
+                Arguments
+                        .of("""
                                 Markup
 
                                 * list item one
@@ -29,16 +30,16 @@ class MarkdownFormatterTest {
 
                                  rest
                                 """,
-                        "<p>Markup</p> <ul> <li>list item one</li> <li>list item two</li> </ul> <p>rest</p>"
-                ),
-                Arguments.of("""
+                                "<p>Markup</p> <ul> <li>list item one</li> <li>list item two</li> </ul> <p>rest</p>"),
+                Arguments
+                        .of("""
                                 ```
                                 Hello World
                                 ```
                                 """,
-                        "<pre><code>Hello World </code></pre>"
-                ),
-                Arguments.of("""
+                                "<pre><code>Hello World </code></pre>"),
+                Arguments
+                        .of("""
                                    First line
 
                                    Second line
@@ -47,9 +48,9 @@ class MarkdownFormatterTest {
                                    String test;
                                    ```
                                 """,
-                        "<p>First line</p> <p>Second line</p> <pre><code class=\"language-java\">String test; </code></pre>"
-                ),
-                Arguments.of("""
+                                "<p>First line</p> <p>Second line</p> <pre><code class=\"language-java\">String test; </code></pre>"),
+                Arguments
+                        .of("""
                                    Some text.
                                    ```javascript
                                    let test = "Hello World";
@@ -60,11 +61,9 @@ class MarkdownFormatterTest {
                                    ```
                                    Some more text.
                                 """,
-                        "<p>Some text.</p> <pre><code class=\"language-javascript\">let test = &quot;Hello World&quot;; " +
-                                "</code></pre> <pre><code class=\"language-java\">String test = &quot;Hello World&quot;; " +
-                                "</code></pre> <p>Some more text.</p>"
-                ),
-                Arguments.of("""
+                                "<p>Some text.</p> <pre><code class=\"language-javascript\">let test = &quot;Hello World&quot;; " + "</code></pre> <pre><code class=\"language-java\">String test = &quot;Hello World&quot;; " + "</code></pre> <p>Some more text.</p>"),
+                Arguments
+                        .of("""
                                 Some text.
 
                                 ```java
@@ -73,9 +72,7 @@ class MarkdownFormatterTest {
 
                                 ```
                                 """,
-                        "<p>Some text.</p> <pre><code class=\"language-java\">int foo = 0; foo = 1;  </code></pre>"
-                )
-        );
+                                "<p>Some text.</p> <pre><code class=\"language-java\">int foo = 0; foo = 1;  </code></pre>"));
     }
 
     @ParameterizedTest

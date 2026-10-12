@@ -9,8 +9,10 @@ import org.slf4j.LoggerFactory;
 
 /// A collection of default AI templates loaded from resource files.
 ///
-/// This collection is made into a separate class (instead of putting into defaults at [org.jabref.logic.preferences.JabRefCliPreferences]),
-/// because they are too big. Templates are stored in src/main/resources/ai/templates/ and loaded at startup.
+/// This collection is made into a separate class (instead of putting into
+/// defaults at [org.jabref.logic.preferences.JabRefCliPreferences]), because
+/// they are too big. Templates are stored in src/main/resources/ai/templates/
+/// and loaded at startup.
 public final class AiDefaultTemplates {
     public static final String CHATTING_SYSTEM_MESSAGE_TEMPLATE;
     public static final String CHATTING_USER_MESSAGE_TEMPLATE;

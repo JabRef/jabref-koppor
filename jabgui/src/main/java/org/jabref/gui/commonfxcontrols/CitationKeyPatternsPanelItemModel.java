@@ -4,9 +4,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.model.entry.types.EntryType;
-
 import org.jspecify.annotations.NonNull;
 
 public class CitationKeyPatternsPanelItemModel {
@@ -40,6 +38,10 @@ public class CitationKeyPatternsPanelItemModel {
 
     @Override
     public String toString() {
-        return "[" + entryType.getValue().getName() + "," + pattern.getValue() + "]";
+        return "["
+                + entryType.getValue().getName()
+                + ","
+                + pattern.getValue()
+                + "]";
     }
 }

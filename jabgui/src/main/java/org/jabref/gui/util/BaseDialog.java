@@ -2,6 +2,7 @@ package org.jabref.gui.util;
 
 import java.util.Optional;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -17,13 +18,10 @@ import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.gui.walkthrough.WalkthroughPane;
-
-import com.airhacks.afterburner.injection.Injector;
 
 public class BaseDialog<T> extends Dialog<T> {
 
@@ -55,15 +53,17 @@ public class BaseDialog<T> extends Dialog<T> {
         return false;
     }
 
-    /// Key bindings and the pane a walkthrough draws into both belong to the dialog pane, so a dialog that
-    /// swaps in a new one gets them again.
+    /// Key bindings and the pane a walkthrough draws into both belong to the
+    /// dialog pane, so a dialog that swaps in a new one gets them again.
     private void setUpDialogPane(DialogPane dialogPane) {
         setupKeyBindings(dialogPane);
         dialogPane.getChildren().add(new WalkthroughPane());
     }
 
     private Stage getDialogWindow() {
-        return (Stage) getDialogPane().getScene().getWindow();
+        return (Stage) getDialogPane()
+                .getScene()
+                .getWindow();
     }
 
     private void setupKeyBindings(DialogPane dialogPane) {
@@ -96,10 +96,12 @@ public class BaseDialog<T> extends Dialog<T> {
     }
 
     private ButtonType getDefaultButtonType() {
-        return getDialogPane().getButtonTypes().stream()
-                              .filter(buttonType -> buttonType.getButtonData().isDefaultButton())
-                              .findFirst()
-                              .orElse(ButtonType.OK);
+        return getDialogPane()
+                .getButtonTypes()
+                .stream()
+                .filter(buttonType -> buttonType.getButtonData().isDefaultButton())
+                .findFirst()
+                .orElse(ButtonType.OK);
     }
 
     private void setDialogIcon(Image image) {
@@ -146,7 +148,9 @@ public class BaseDialog<T> extends Dialog<T> {
 
     public static void bringToFront(Dialog<?> dialog) {
         // Using answers from: <https://stackoverflow.com/a/43007782> and <https://stackoverflow.com/a/48798192>.
-        Window window = dialog.getDialogPane().getScene().getWindow();
+        Window window = dialog.getDialogPane()
+                              .getScene()
+                              .getWindow();
         if (window instanceof Stage stage) {
             stage.setAlwaysOnTop(true);
             stage.setAlwaysOnTop(false);

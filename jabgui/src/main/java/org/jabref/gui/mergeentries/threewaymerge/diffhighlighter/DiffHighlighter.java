@@ -3,9 +3,8 @@ package org.jabref.gui.mergeentries.threewaymerge.diffhighlighter;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jabref.gui.mergeentries.threewaymerge.DiffMethod;
-
 import org.fxmisc.richtext.StyleClassedTextArea;
+import org.jabref.gui.mergeentries.threewaymerge.DiffMethod;
 import org.jspecify.annotations.NonNull;
 
 public abstract sealed class DiffHighlighter permits SplitDiffHighlighter, UnifiedDiffHighlighter {
@@ -14,9 +13,7 @@ public abstract sealed class DiffHighlighter permits SplitDiffHighlighter, Unifi
 
     protected DiffMethod diffMethod;
 
-    public DiffHighlighter(@NonNull StyleClassedTextArea sourceTextview,
-                           @NonNull StyleClassedTextArea targetTextview,
-                           DiffMethod diffMethod) {
+    public DiffHighlighter(@NonNull StyleClassedTextArea sourceTextview, @NonNull StyleClassedTextArea targetTextview, DiffMethod diffMethod) {
         this.sourceTextview = sourceTextview;
         this.targetTextview = targetTextview;
         this.diffMethod = diffMethod;
@@ -41,7 +38,9 @@ public abstract sealed class DiffHighlighter permits SplitDiffHighlighter, Unifi
     }
 
     public enum BasicDiffMethod implements DiffMethod {
-        WORDS(" "), CHARS(""), COMMA(",");
+        WORDS(" "),
+        CHARS(""),
+        COMMA(",");
 
         private final String separator;
 
@@ -60,12 +59,10 @@ public abstract sealed class DiffHighlighter permits SplitDiffHighlighter, Unifi
     }
 
     enum ChangeType {
-        ADDITION, DELETION, CHANGE_DELETION
+        ADDITION,
+        DELETION,
+        CHANGE_DELETION
     }
 
-    record Change(
-            int position,
-            int spanSize,
-            ChangeType type) {
-    }
+    record Change(int position, int spanSize, ChangeType type) {}
 }

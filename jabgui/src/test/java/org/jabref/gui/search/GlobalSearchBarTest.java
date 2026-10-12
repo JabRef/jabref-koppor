@@ -14,7 +14,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefGuiStateManager;
 import org.jabref.gui.LibraryTabContainer;
@@ -28,7 +27,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.search.SearchDisplayMode;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,39 +48,34 @@ class GlobalSearchBarTest {
 
     @BeforeEach
     void setUp() {
-        invokeAndWait(() -> {
-            SearchPreferences searchPreferences = mock(SearchPreferences.class);
-            when(searchPreferences.getSearchFlags()).thenReturn(EnumSet.noneOf(SearchFlags.class));
-            when(searchPreferences.getObservableSearchFlags()).thenReturn(FXCollections.observableSet());
-            when(searchPreferences.keepSearchStringProperty()).thenReturn(new SimpleBooleanProperty(false));
-            when(searchPreferences.searchDisplayModeProperty()).thenReturn(new SimpleObjectProperty<>(SearchDisplayMode.FLOAT));
-            GuiPreferences preferences = mock(GuiPreferences.class, Answers.RETURNS_DEEP_STUBS);
-            when(preferences.getSearchPreferences()).thenReturn(searchPreferences);
+        invokeAndWait(
+                () -> {
+                    SearchPreferences searchPreferences = mock(SearchPreferences.class);
+                    when(searchPreferences.getSearchFlags()).thenReturn(EnumSet.noneOf(SearchFlags.class));
+                    when(searchPreferences.getObservableSearchFlags()).thenReturn(FXCollections.observableSet());
+                    when(searchPreferences.keepSearchStringProperty()).thenReturn(new SimpleBooleanProperty(false));
+                    when(searchPreferences.searchDisplayModeProperty()).thenReturn(new SimpleObjectProperty<>(SearchDisplayMode.FLOAT));
+                    GuiPreferences preferences = mock(GuiPreferences.class, Answers.RETURNS_DEEP_STUBS);
+                    when(preferences.getSearchPreferences()).thenReturn(searchPreferences);
 
-            KeyBindingRepository keyBindingRepository = mock(KeyBindingRepository.class);
-            when(keyBindingRepository.matches(any(), any())).thenReturn(false);
-            when(preferences.getKeyBindingRepository()).thenReturn(keyBindingRepository);
+                    KeyBindingRepository keyBindingRepository = mock(KeyBindingRepository.class);
+                    when(keyBindingRepository.matches(any(), any())).thenReturn(false);
+                    when(preferences.getKeyBindingRepository()).thenReturn(keyBindingRepository);
 
-            stateManager = new JabRefGuiStateManager();
-            // Need for active database, otherwise the searchField will be disabled
-            stateManager.setActiveDatabase(new BibDatabaseContext());
+                    stateManager = new JabRefGuiStateManager();
+                    // Need for active database, otherwise the searchField will be disabled
+                    stateManager.setActiveDatabase(new BibDatabaseContext());
 
-            // Instantiate GlobalSearchBar class, so the change listener is registered
-            GlobalSearchBar searchBar = new GlobalSearchBar(
-                    mock(LibraryTabContainer.class),
-                    stateManager,
-                    preferences,
+                    // Instantiate GlobalSearchBar class, so the change listener is registered
+                    GlobalSearchBar searchBar = new GlobalSearchBar(mock(LibraryTabContainer.class), stateManager, preferences, mock(DialogService.class),
+                            SearchType.NORMAL_SEARCH);
 
-                    mock(DialogService.class),
-                    SearchType.NORMAL_SEARCH
-            );
+                    hBox = new HBox(searchBar);
 
-            hBox = new HBox(searchBar);
-
-            Stage stage = new Stage();
-            stage.setScene(new Scene(hBox, 400, 400));
-            stage.show();
-        });
+                    Stage stage = new Stage();
+                    stage.setScene(new Scene(hBox, 400, 400));
+                    stage.show();
+                });
     }
 
     @Test
@@ -102,26 +95,36 @@ class GlobalSearchBarTest {
 
         // Set the focus to another node to trigger the listener and finally record the query.
         invokeAndWait(hBox::requestFocus);
-        List<String> lastSearchHistory = stateManager.getWholeSearchHistory().stream().toList();
+        List<String> lastSearchHistory = stateManager.getWholeSearchHistory()
+                .stream()
+                .toList();
 
         assertEquals(List.of("Smith"), lastSearchHistory);
     }
 
-    /// A MenuItem's accelerator is global: JavaFX keeps one entry per key combination for the whole
-    /// scene. An item here carrying Ctrl+Z would take it from the Edit menu and then do nothing at
-    /// all whenever this field has nothing to undo, which is how Ctrl+Z came to work only inside the
-    /// entry editor.
+    /// A MenuItem's accelerator is global: JavaFX keeps one entry per key
+    /// combination for the whole scene. An item here carrying Ctrl+Z would take
+    /// it from the Edit menu and then do nothing at all whenever this field has
+    /// nothing to undo, which is how Ctrl+Z came to work only inside the entry
+    /// editor.
     @Test
     void theContextMenuClaimsNoGlobalShortcut() {
         TextInputControl searchField = JavaFxExtension.lookup(hBox, "#" + WalkthroughNodeIds.GLOBAL_SEARCH_FIELD, TextInputControl.class);
         AtomicReference<List<Boolean>> accelerators = new AtomicReference<>();
 
-        invokeAndWait(() -> accelerators.set(searchField.getContextMenu().getItems().stream()
-                                                        .map(item -> item.getAccelerator() != null)
-                                                        .toList()));
+        invokeAndWait(
+                () -> accelerators.set(searchField.getContextMenu()
+                        .getItems()
+                        .stream()
+                        .map(item -> item.getAccelerator() != null)
+                        .toList()));
 
         assertFalse(accelerators.get().isEmpty(), "the context menu was not installed");
-        assertEquals(List.of(), accelerators.get().stream().filter(Boolean::booleanValue).toList());
+        assertEquals(List.of(),
+                accelerators.get()
+                            .stream()
+                            .filter(Boolean::booleanValue)
+                            .toList());
     }
 
     @Test
@@ -134,7 +137,9 @@ class GlobalSearchBarTest {
         invokeAndWait(() -> searchField.appendText(searchQuery));
 
         invokeAndWait(hBox::requestFocus);
-        List<String> lastSearchHistory = stateManager.getWholeSearchHistory().stream().toList();
+        List<String> lastSearchHistory = stateManager.getWholeSearchHistory()
+                .stream()
+                .toList();
 
         assertEquals(List.of(), lastSearchHistory);
     }
@@ -146,17 +151,20 @@ class GlobalSearchBarTest {
         invokeAndWait(searchField::requestFocus);
         invokeAndWait(() -> searchField.appendText("abc"));
         awaitActiveSearchQuery(Optional.of(new SearchQuery("abc")));
-        assertEquals(Optional.of(new SearchQuery("abc")), stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH).get());
+        assertEquals(Optional.of(new SearchQuery("abc")),
+                stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH).get());
 
         invokeAndWait(searchField::clear);
         invokeAndWait(() -> searchField.appendText("   "));
         awaitActiveSearchQuery(Optional.empty());
 
-        assertEquals(Optional.empty(), stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH).get());
+        assertEquals(Optional.empty(),
+                stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH).get());
     }
 
     private void awaitActiveSearchQuery(Optional<SearchQuery> expected) throws InterruptedException {
-        if (expected.equals(stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH).get())) {
+        if (expected.equals(stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH)
+                .get())) {
             return;
         }
 

@@ -1,16 +1,14 @@
 package org.jabref.gui.preferences.citationkeypattern;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
-
 import org.jabref.gui.commonfxcontrols.CitationKeyPatternsPanel;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import com.airhacks.afterburner.injection.Injector;
 
 public class CitationKeyPatternTab extends AbstractPreferenceTabView<CitationKeyPatternTabViewModel> {
 
@@ -20,9 +18,7 @@ public class CitationKeyPatternTab extends AbstractPreferenceTabView<CitationKey
     private final CitationKeyPatternsPanel keyPatternsPanel = new CitationKeyPatternsPanel();
 
     public CitationKeyPatternTab() {
-        this.viewModel = new CitationKeyPatternTabViewModel(
-                preferences.getCitationKeyPatternPreferences(),
-                preferences.getImporterPreferences());
+        this.viewModel = new CitationKeyPatternTabViewModel(preferences.getCitationKeyPatternPreferences(), preferences.getImporterPreferences());
         buildView();
     }
 
@@ -38,36 +34,33 @@ public class CitationKeyPatternTab extends AbstractPreferenceTabView<CitationKey
 
     private void buildView() {
         setContent(form()
+                .section(
+                        Localization.lang("General"),
+                        general -> general.checkbox(Localization.lang("Overwrite existing keys"), viewModel.overwriteAllowProperty())
+                                          .checkbox(Localization.lang("Warn before overwriting existing keys"), viewModel.overwriteWarningProperty(), warn -> warn.disableWhen(viewModel.overwriteAllowProperty().not()).styleClass("padding-left-12"))
+                                          .checkbox(Localization.lang("Generate keys before saving (only for entries without a key)"), viewModel.generateOnSaveProperty())
+                                          .checkbox(Localization.lang("Generate new keys for imported entries (overwriting their default)"), viewModel.generateKeyOnImportProperty())
+                                          .label(Localization.lang("Letters after duplicate generated keys"))
+                                          .group(
+                                                  letters -> letters.radioGroup(
+                                                          suffix -> suffix.radio(Localization.lang("Start on second duplicate key with letter A (a, b, ...)"), viewModel.letterStartAProperty())
+                                                                          .radio(Localization.lang("Start on second duplicate key with letter B (b, c, ...)"), viewModel.letterStartBProperty())
+                                                                          .radio(Localization.lang("Always add letter (a, b, ...) to generated keys"), viewModel.letterAlwaysAddProperty())),
+                                                  indent -> indent.styleClass("padding-left-12"))
 
-                .section(Localization.lang("General"), general -> general
-                        .checkbox(Localization.lang("Overwrite existing keys"), viewModel.overwriteAllowProperty())
-                        .checkbox(Localization.lang("Warn before overwriting existing keys"), viewModel.overwriteWarningProperty(),
-                                warn -> warn.disableWhen(viewModel.overwriteAllowProperty().not())
-                                            .styleClass("padding-left-12"))
-                        .checkbox(Localization.lang("Generate keys before saving (only for entries without a key)"), viewModel.generateOnSaveProperty())
-                        .checkbox(Localization.lang("Generate new keys for imported entries (overwriting their default)"), viewModel.generateKeyOnImportProperty())
-
-                        .label(Localization.lang("Letters after duplicate generated keys"))
-                        .group(letters -> letters
-                                        .radioGroup(suffix -> suffix
-                                                .radio(Localization.lang("Start on second duplicate key with letter A (a, b, ...)"), viewModel.letterStartAProperty())
-                                                .radio(Localization.lang("Start on second duplicate key with letter B (b, c, ...)"), viewModel.letterStartBProperty())
-                                                .radio(Localization.lang("Always add letter (a, b, ...) to generated keys"), viewModel.letterAlwaysAddProperty())),
-                                indent -> indent.styleClass("padding-left-12"))
-
-                        // `[regex] by [replacement]` — one labelled field, so the two stay adjacent.
-                        .stringField(Localization.lang("Replace (regular expression)"), viewModel.keyPatternRegexProperty(),
-                                regex -> regex.attach(new Label(Localization.lang("by")))
-                                              .attachField(viewModel.keyPatternReplacementProperty())
-                                              .help(REGEX_HELP_URL))
-                        .stringField(Localization.lang("Remove the following characters:"), viewModel.unwantedCharactersProperty())
-                        .checkbox(Localization.lang("Transliterate fields that are used for generating the citation key"), viewModel.transliterateFieldsForCitationKeyProperty()))
-
-                .section(Localization.lang("Key patterns"), patterns -> patterns
-                                .label(Localization.lang("( Note: Press return to commit changes in the table! )"))
-                                .custom(buildKeyPatternsRegion()),
+                                          // `[regex] by [replacement]` — one labelled field, so the two stay adjacent.
+                                          .stringField(
+                                                  Localization.lang("Replace (regular expression)"),
+                                                  viewModel.keyPatternRegexProperty(),
+                                                  regex -> regex.attach(new Label(Localization.lang("by")))
+                                                                .attachField(viewModel.keyPatternReplacementProperty())
+                                                                .help(REGEX_HELP_URL))
+                                          .stringField(Localization.lang("Remove the following characters:"), viewModel.unwantedCharactersProperty())
+                                          .checkbox(Localization.lang("Transliterate fields that are used for generating the citation key"), viewModel.transliterateFieldsForCitationKeyProperty()))
+                .section(
+                        Localization.lang("Key patterns"),
+                        patterns -> patterns.label(Localization.lang("( Note: Press return to commit changes in the table! )")).custom(buildKeyPatternsRegion()),
                         patternsSection -> patternsSection.help(KEY_PATTERNS_HELP_URL))
-
                 .build());
     }
 
@@ -91,8 +84,7 @@ public class CitationKeyPatternTab extends AbstractPreferenceTabView<CitationKey
     public void setValues() {
         viewModel.setValues();
         BibEntryTypesManager entryTypesManager = Injector.instantiateModelOrService(BibEntryTypesManager.class);
-        keyPatternsPanel.setValues(
-                entryTypesManager.getAllTypes(preferences.getLibraryPreferences().getDefaultBibDatabaseMode()),
+        keyPatternsPanel.setValues(entryTypesManager.getAllTypes(preferences.getLibraryPreferences().getDefaultBibDatabaseMode()),
                 preferences.getCitationKeyPatternPreferences().getKeyPatterns());
     }
 }

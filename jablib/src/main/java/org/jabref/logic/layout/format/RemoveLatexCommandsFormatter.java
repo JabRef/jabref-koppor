@@ -31,8 +31,7 @@ public class RemoveLatexCommandsFormatter implements LayoutFormatter {
                 escaped = false;
                 if (incommand) {
                     currentCommand.append(currentCharacter);
-                    if ((currentCommand.length() == 1)
-                            && StringUtil.SPECIAL_COMMAND_CHARS.contains(currentCommand.toString())) {
+                    if ((currentCommand.length() == 1) && StringUtil.SPECIAL_COMMAND_CHARS.contains(currentCommand.toString())) {
                         // This indicates that we are in a command of the type \^o or \~{n}
                         incommand = false;
                         escaped = false;

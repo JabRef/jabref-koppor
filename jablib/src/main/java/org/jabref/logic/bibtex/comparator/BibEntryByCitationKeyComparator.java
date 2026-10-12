@@ -24,6 +24,8 @@ public class BibEntryByCitationKeyComparator implements Comparator<BibEntry> {
 
         assert e1HasCitationKey && e2HasCitationKey;
 
-        return e1.getCitationKey().get().compareTo(e2.getCitationKey().get());
+        return e1.getCitationKey()
+                 .get()
+                 .compareTo(e2.getCitationKey().get());
     }
 }

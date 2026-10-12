@@ -3,14 +3,18 @@ package org.jabref.model.undo;
 import java.util.Objects;
 
 import org.jabref.model.entry.BibtexString;
-
 import org.jspecify.annotations.NullMarked;
 
 /// A change of a BibTeX string's name or content.
 @NullMarked
-public record UndoableStringChange(BibtexString string, Part part, String before, String after) implements BibChange {
+public record UndoableStringChange(BibtexString string, Part part, String before,
+        String after)
+        implements BibChange {
 
-    public enum Part { NAME, CONTENT }
+    public enum Part {
+        NAME,
+        CONTENT
+    }
 
     @Override
     public UndoableStringChange inverted() {
@@ -20,19 +24,15 @@ public record UndoableStringChange(BibtexString string, Part part, String before
     @Override
     public ApplyResult apply() {
         String current = switch (part) {
-            case NAME ->
-                    string.getName();
-            case CONTENT ->
-                    string.getContent();
+            case NAME -> string.getName();
+            case CONTENT -> string.getContent();
         };
         if (!Objects.equals(current, before)) {
             return ApplyResult.of(this, "the string's %s is '%s', not the recorded '%s'".formatted(part, current, before));
         }
         switch (part) {
-            case NAME ->
-                    string.setName(after);
-            case CONTENT ->
-                    string.setContent(after);
+            case NAME -> string.setName(after);
+            case CONTENT -> string.setContent(after);
         }
         return ApplyResult.SUCCESS;
     }

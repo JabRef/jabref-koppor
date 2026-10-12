@@ -1,10 +1,8 @@
 package org.jabref.gui.preferences.externalfiletypes;
 
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -41,16 +39,25 @@ public class ExternalFileTypesTabViewModelTest {
 
     public void viewModelClone(ExternalFileTypeItemViewModel updatedModel) {
         updatedModel.nameProperty().set(externalFileTypeItemViewModel.getName());
-        updatedModel.extensionProperty().set(externalFileTypeItemViewModel.extensionProperty().get());
-        updatedModel.mimetypeProperty().set(externalFileTypeItemViewModel.mimetypeProperty().get());
-        updatedModel.applicationProperty().set(externalFileTypeItemViewModel.applicationProperty().get());
+        updatedModel.extensionProperty().set(externalFileTypeItemViewModel.extensionProperty()
+                .get());
+        updatedModel.mimetypeProperty().set(externalFileTypeItemViewModel.mimetypeProperty()
+                .get());
+        updatedModel.applicationProperty().set(externalFileTypeItemViewModel.applicationProperty()
+                .get());
     }
 
     public boolean viewModelIsSameValue(ExternalFileTypeItemViewModel item) {
         return !(!item.getName().equals(externalFileTypeItemViewModel.getName())
-                || !item.extensionProperty().get().equals(externalFileTypeItemViewModel.extensionProperty().get())
-                || !item.mimetypeProperty().get().equals(externalFileTypeItemViewModel.mimetypeProperty().get())
-                || !item.applicationProperty().get().equals(externalFileTypeItemViewModel.applicationProperty().get()));
+                || !item.extensionProperty()
+                        .get()
+                        .equals(externalFileTypeItemViewModel.extensionProperty().get())
+                || !item.mimetypeProperty()
+                        .get()
+                        .equals(externalFileTypeItemViewModel.mimetypeProperty().get())
+                || !item.applicationProperty()
+                        .get()
+                        .equals(externalFileTypeItemViewModel.applicationProperty().get()));
     }
 
     @Test
@@ -68,10 +75,12 @@ public class ExternalFileTypesTabViewModelTest {
     void WhenExternalFileTypeItemViewModelIsValidThenAddNewTypeIsSuccessful() {
         ArgumentCaptor<ExternalFileTypeItemViewModel> itemCaptor = ArgumentCaptor.forClass(ExternalFileTypeItemViewModel.class);
         doAnswer(_ -> {
-            ExternalFileTypeItemViewModel capturedItem = itemCaptor.getValue();
-            this.viewModelClone(capturedItem);
-            return null;
-        }).when(externalFileTypesTabViewModel).showEditDialog(itemCaptor.capture(), any());
+                    ExternalFileTypeItemViewModel capturedItem = itemCaptor.getValue();
+                    this.viewModelClone(capturedItem);
+                    return null;
+                })
+                .when(externalFileTypesTabViewModel)
+                .showEditDialog(itemCaptor.capture(), any());
 
         externalFileTypesTabViewModel.addNewType();
 
@@ -85,10 +94,12 @@ public class ExternalFileTypesTabViewModelTest {
         setupViewModelWithoutName();
         ArgumentCaptor<ExternalFileTypeItemViewModel> itemCaptor = ArgumentCaptor.forClass(ExternalFileTypeItemViewModel.class);
         doAnswer(_ -> {
-            ExternalFileTypeItemViewModel capturedItem = itemCaptor.getValue();
-            viewModelClone(capturedItem);
-            return null;
-        }).when(externalFileTypesTabViewModel).showEditDialog(itemCaptor.capture(), any());
+                    ExternalFileTypeItemViewModel capturedItem = itemCaptor.getValue();
+                    viewModelClone(capturedItem);
+                    return null;
+                })
+                .when(externalFileTypesTabViewModel)
+                .showEditDialog(itemCaptor.capture(), any());
 
         externalFileTypesTabViewModel.addNewType();
 

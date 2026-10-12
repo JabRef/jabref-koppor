@@ -1,7 +1,6 @@
 package org.jabref.gui.sidepane;
 
 import javafx.scene.Node;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
@@ -31,17 +30,18 @@ public class SidePaneContentFactory {
     private final ClipBoardManager clipBoardManager;
     private final GitHandlerRegistry gitHandlerRegistry;
 
-    public SidePaneContentFactory(LibraryTabContainer tabContainer,
-                                  GuiPreferences preferences,
-                                  JournalAbbreviationRepository abbreviationRepository,
-                                  TaskExecutor taskExecutor,
-                                  DialogService dialogService,
-                                  AiService aiService,
-                                  StateManager stateManager,
-                                  FileUpdateMonitor fileUpdateMonitor,
-                                  BibEntryTypesManager entryTypesManager,
-                                  ClipBoardManager clipBoardManager,
-                                  GitHandlerRegistry gitHandlerRegistry) {
+    public SidePaneContentFactory(
+            LibraryTabContainer tabContainer,
+            GuiPreferences preferences,
+            JournalAbbreviationRepository abbreviationRepository,
+            TaskExecutor taskExecutor,
+            DialogService dialogService,
+            AiService aiService,
+            StateManager stateManager,
+            FileUpdateMonitor fileUpdateMonitor,
+            BibEntryTypesManager entryTypesManager,
+            ClipBoardManager clipBoardManager,
+            GitHandlerRegistry gitHandlerRegistry) {
         this.tabContainer = tabContainer;
         this.preferences = preferences;
         this.abbreviationRepository = abbreviationRepository;
@@ -57,33 +57,22 @@ public class SidePaneContentFactory {
 
     public Node create(SidePaneType sidePaneType) {
         return switch (sidePaneType) {
-            case GROUPS ->
-                    new GroupTreeView(
-                            stateManager,
-                            entryTypesManager,
-                            preferences,
-                            dialogService,
-                            aiService,
-                            fileUpdateMonitor,
-                            taskExecutor);
-            case OPEN_OFFICE ->
-                    new OpenOfficePanel(
-                            tabContainer,
-                            preferences,
-                            abbreviationRepository,
-                            (UiTaskExecutor) taskExecutor,
-                            dialogService,
-                            aiService,
-                            stateManager,
-                            fileUpdateMonitor,
-                            entryTypesManager,
-                            clipBoardManager,
-                            gitHandlerRegistry).getContent();
-            case WEB_SEARCH ->
-                    new WebSearchPaneView(
-                            preferences,
-                            dialogService,
-                            stateManager);
+            case GROUPS -> new GroupTreeView(stateManager, entryTypesManager, preferences, dialogService, aiService, fileUpdateMonitor,
+                    taskExecutor);
+            case OPEN_OFFICE -> new OpenOfficePanel(
+                    tabContainer,
+                    preferences,
+                    abbreviationRepository,
+                    (UiTaskExecutor) taskExecutor,
+                    dialogService,
+                    aiService,
+                    stateManager,
+                    fileUpdateMonitor,
+                    entryTypesManager,
+                    clipBoardManager,
+                    gitHandlerRegistry)
+                    .getContent();
+            case WEB_SEARCH -> new WebSearchPaneView(preferences, dialogService, stateManager);
         };
     }
 }

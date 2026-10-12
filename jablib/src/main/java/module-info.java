@@ -1,17 +1,20 @@
-/// Core library of JabRef: the data model (`org.jabref.model`), the business logic
-/// (`org.jabref.logic`) including importers, exporters, fetchers and search, and the
-/// preferences. Has no JavaFX UI; all other modules build on it.
+/// Core library of JabRef: the data model (`org.jabref.model`), the business
+/// logic (`org.jabref.logic`) including importers, exporters, fetchers and
+/// search, and the preferences. Has no JavaFX UI; all other modules build on
+/// it.
 ///
-/// Entry points: [org.jabref.model.database.BibDatabaseContext] (an open library),
-/// [org.jabref.model.entry.BibEntry], [org.jabref.logic.importer.ImportFormatReader],
+/// Entry points: [org.jabref.model.database.BibDatabaseContext] (an open
+/// library), [org.jabref.model.entry.BibEntry],
+/// [org.jabref.logic.importer.ImportFormatReader],
 /// [org.jabref.logic.exporter.ExporterFactory].
 ///
-/// @see <a href="https://devdocs.jabref.org/architecture-and-components.html">Architecture and components</a>
+/// @see <a
+///   href="https://devdocs.jabref.org/architecture-and-components.html">Architecture
+///   and components</a>
 open module org.jabref.jablib {
     exports org.jabref.model;
     exports org.jabref.model.undo;
     exports org.jabref.logic;
-
     exports org.jabref.search;
     exports org.jabref.logic.search;
     exports org.jabref.logic.search.inmemory;
@@ -173,10 +176,10 @@ open module org.jabref.jablib {
     exports org.jabref.logic.ocr.docling;
     exports org.jabref.model.ocr.docling;
     exports org.jabref.logic.undo;
+
     // endregion
 
     requires java.base;
-
     requires transitive javafx.base;
     requires afterburner.fx;
     requires transitive com.tobiasdiez.easybind;
@@ -234,7 +237,6 @@ open module org.jabref.jablib {
 
     // region: SQL databases
     requires embedded.postgres;
-
     requires /*runtime*/ org.tukaani.xz;
     requires org.postgresql.jdbc;
     // endregion
@@ -253,22 +255,16 @@ open module org.jabref.jablib {
     // endregion
 
     requires org.jabref.latexconv;
-
     requires jbibtex;
     requires transitive citeproc.java;
-
     requires transitive snuggletex.core;
-
     requires transitive org.apache.pdfbox;
     requires transitive org.apache.xmpbox;
     requires com.ibm.icu;
-
     requires flexmark;
     requires flexmark.util.ast;
     requires flexmark.util.data;
-
     requires transitive com.h2database.mvstore;
-
     requires java.keyring;
 
     // region AI
@@ -278,11 +274,14 @@ open module org.jabref.jablib {
     requires jvm.openai;
     requires langchain4j;
     requires transitive langchain4j.core;
+
     uses ai.djl.engine.EngineProvider;
     uses ai.djl.repository.RepositoryFactory;
     uses ai.djl.repository.zoo.ZooProvider;
     uses dev.langchain4j.spi.prompt.PromptTemplateFactory;
+
     requires velocity.engine.core;
+
     // endregion
 
     // region: Lucene
@@ -290,6 +289,7 @@ open module org.jabref.jablib {
      * In case the version is updated, please also increment {@link org.jabref.model.search.LinkedFilesConstants.VERSION} to trigger reindexing.
      */
     uses org.apache.lucene.codecs.lucene104.Lucene104Codec;
+
     requires org.apache.lucene.analysis.common;
     requires transitive org.apache.lucene.core;
     requires org.apache.lucene.highlighter;
@@ -305,8 +305,10 @@ open module org.jabref.jablib {
     requires transitive org.eclipse.jgit.ssh.apache;
     // ssh-agent / Pageant / Windows OpenSSH agent support, discovered by ssh.apache as a service
     requires /*runtime*/ org.eclipse.jgit.ssh.apache.agent;
+
     uses org.eclipse.jgit.transport.SshSessionFactory;
     uses org.eclipse.jgit.lib.Signer;
+
     // endregion
 
     // region: other libraries (alphabetically)
@@ -318,5 +320,5 @@ open module org.jabref.jablib {
     requires org.jooq.jool;
     requires transitive org.libreoffice.uno;
     requires transitive org.jspecify;
-    // endregion
+// endregion
 }

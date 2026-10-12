@@ -16,7 +16,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,11 +27,8 @@ public class SendAsStandardEmailAction extends SendAsEMailAction {
     private final StateManager stateManager;
     private final BibEntryTypesManager entryTypesManager;
 
-    public SendAsStandardEmailAction(DialogService dialogService,
-                                     GuiPreferences preferences,
-                                     StateManager stateManager,
-                                     BibEntryTypesManager entryTypesManager,
-                                     TaskExecutor taskExecutor) {
+    public SendAsStandardEmailAction(DialogService dialogService, GuiPreferences preferences, StateManager stateManager,
+            BibEntryTypesManager entryTypesManager, TaskExecutor taskExecutor) {
         super(dialogService, preferences, stateManager, taskExecutor);
         this.preferences = preferences;
         this.stateManager = stateManager;

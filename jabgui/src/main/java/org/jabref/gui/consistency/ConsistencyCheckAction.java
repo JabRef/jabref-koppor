@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import javafx.concurrent.Task;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -16,7 +15,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.quality.consistency.BibliographyConsistencyCheck;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,12 +30,8 @@ public class ConsistencyCheckAction extends SimpleCommand {
     private final BibEntryTypesManager entryTypesManager;
     private final UiTaskExecutor taskExecutor;
 
-    public ConsistencyCheckAction(Supplier<LibraryTab> tabSupplier,
-                                  DialogService dialogService,
-                                  StateManager stateManager,
-                                  GuiPreferences preferences,
-                                  BibEntryTypesManager entryTypesManager,
-                                  UiTaskExecutor taskExecutor) {
+    public ConsistencyCheckAction(Supplier<LibraryTab> tabSupplier, DialogService dialogService, StateManager stateManager,
+            GuiPreferences preferences, BibEntryTypesManager entryTypesManager, UiTaskExecutor taskExecutor) {
         this.tabSupplier = tabSupplier;
         this.dialogService = dialogService;
         this.stateManager = stateManager;
@@ -63,8 +57,8 @@ public class ConsistencyCheckAction extends SimpleCommand {
                 BibDatabaseContext bibContext = databaseContext.get();
 
                 BibliographyConsistencyCheck consistencyCheck = new BibliographyConsistencyCheck();
-                return consistencyCheck.check(bibContext, entryTypesManager, (count, total) ->
-                        UiTaskExecutor.runInJavaFXThread(() -> {
+                return consistencyCheck.check(bibContext, entryTypesManager,
+                        (count, total) -> UiTaskExecutor.runInJavaFXThread(() -> {
                             updateProgress(count, total);
                             updateMessage(Localization.lang("%0/%1 entry types", count + 1, total));
                         }));
@@ -73,18 +67,17 @@ public class ConsistencyCheckAction extends SimpleCommand {
 
         task.setOnFailed(_ -> dialogService.showErrorDialogAndWait(Localization.lang("Consistency check failed."), task.getException()));
         task.setOnSucceeded(_ -> {
-            if (task.getValue().entryTypeToResultMap().isEmpty()) {
+            if (task.getValue()
+                    .entryTypeToResultMap()
+                    .isEmpty()) {
                 dialogService.notify(Localization.lang("No problems found."));
             } else {
-                dialogService.showCustomDialogAndWait(
-                        new ConsistencyCheckDialog(tabSupplier.get(), dialogService, preferences, entryTypesManager, task.getValue()));
+                dialogService.showCustomDialogAndWait(new ConsistencyCheckDialog(tabSupplier.get(), dialogService, preferences, entryTypesManager,
+                        task.getValue()));
             }
         });
         taskExecutor.execute(task);
 
-        dialogService.showProgressDialog(
-                Localization.lang("Check consistency"),
-                Localization.lang("Checking consistency..."),
-                task);
+        dialogService.showProgressDialog(Localization.lang("Check consistency"), Localization.lang("Checking consistency..."), task);
     }
 }

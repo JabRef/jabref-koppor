@@ -49,30 +49,31 @@ public class GroupTreeNodeViewModel {
         String shortDescription = "";
         boolean showDynamic = true;
         shortDescription = switch (group) {
-            case ExplicitGroup explicitGroup ->
-                    GroupDescriptions.getShortDescriptionExplicitGroup(explicitGroup);
-            case KeywordGroup keywordGroup ->
-                    GroupDescriptions.getShortDescriptionKeywordGroup(keywordGroup, showDynamic);
-            case SearchGroup searchGroup ->
-                    GroupDescriptions.getShortDescription(searchGroup, showDynamic);
-            case null,
-                 default ->
-                    GroupDescriptions.getShortDescriptionAllEntriesGroup();
-        };
+                    case ExplicitGroup explicitGroup -> GroupDescriptions.getShortDescriptionExplicitGroup(explicitGroup);
+                    case KeywordGroup keywordGroup -> GroupDescriptions.getShortDescriptionKeywordGroup(keywordGroup, showDynamic);
+                    case SearchGroup searchGroup -> GroupDescriptions.getShortDescription(searchGroup, showDynamic);
+                    case null, default -> GroupDescriptions.getShortDescriptionAllEntriesGroup();
+                };
         return "<html>" + shortDescription + "</html>";
     }
 
     public boolean canAddEntries(List<BibEntry> entries) {
-        return (getNode().getGroup() instanceof GroupEntryChanger) && !getNode().getGroup().containsAll(entries);
+        return (getNode().getGroup() instanceof GroupEntryChanger) && !getNode()
+                .getGroup()
+                .containsAll(entries);
     }
 
     public boolean canRemoveEntries(List<BibEntry> entries) {
-        return (getNode().getGroup() instanceof GroupEntryChanger) && getNode().getGroup().containsAny(entries);
+        return (getNode().getGroup() instanceof GroupEntryChanger) && getNode()
+                .getGroup()
+                .containsAny(entries);
     }
 
     public void sortChildrenByName(boolean recursive) {
         getNode().sortChildren(
-                (node1, node2) -> node1.getGroup().getName().compareToIgnoreCase(node2.getGroup().getName()),
+                (node1, node2) -> node1.getGroup()
+                                       .getName()
+                                       .compareToIgnoreCase(node2.getGroup().getName()),
                 recursive);
     }
 
@@ -95,7 +96,9 @@ public class GroupTreeNodeViewModel {
     }
 
     public String getName() {
-        return getNode().getGroup().getName();
+        return getNode()
+                .getGroup()
+                .getName();
     }
 
     public boolean canBeEdited() {
@@ -103,23 +106,33 @@ public class GroupTreeNodeViewModel {
     }
 
     public boolean canMoveUp() {
-        return (getNode().getPreviousSibling().isPresent())
+        return (getNode()
+                .getPreviousSibling()
+                .isPresent())
                 && !(getNode().getGroup() instanceof AllEntriesGroup);
     }
 
     public boolean canMoveDown() {
-        return (getNode().getNextSibling().isPresent())
+        return (getNode()
+                .getNextSibling()
+                .isPresent())
                 && !(getNode().getGroup() instanceof AllEntriesGroup);
     }
 
     public boolean canMoveLeft() {
         return !(getNode().getGroup() instanceof AllEntriesGroup)
                 // TODO: Null!
-                && !(getNode().getParent().get().getGroup() instanceof AllEntriesGroup);
+                && !(getNode()
+                        .getParent()
+                        .get()
+                        .getGroup()
+                        instanceof AllEntriesGroup);
     }
 
     public boolean canMoveRight() {
-        return (getNode().getPreviousSibling().isPresent())
+        return (getNode()
+                .getPreviousSibling()
+                .isPresent())
                 && !(getNode().getGroup() instanceof AllEntriesGroup);
     }
 

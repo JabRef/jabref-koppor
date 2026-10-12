@@ -6,12 +6,11 @@ import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import com.github.javakeyring.Keyring;
+import com.github.javakeyring.PasswordAccessException;
 import org.jabref.logic.shared.DatabaseConnectionProperties;
 import org.jabref.logic.shared.security.Password;
 import org.jabref.logic.util.strings.StringUtil;
-
-import com.github.javakeyring.Keyring;
-import com.github.javakeyring.PasswordAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +26,11 @@ public class SharedDatabasePreferences {
     private static final String SHARED_DATABASE_PORT = "sharedDatabasePort";
     private static final String SHARED_DATABASE_NAME = "sharedDatabaseName";
     private static final String SHARED_DATABASE_USER = "sharedDatabaseUser";
-    /// Legacy key: the password used to be stored AES-encrypted in these preferences; it now lives in the system keyring
+
+    /// Legacy key: the password used to be stored AES-encrypted in these
+    /// preferences; it now lives in the system keyring
     private static final String SHARED_DATABASE_PASSWORD = "sharedDatabasePassword";
+
     private static final String KEYRING_SERVICE = "org.jabref.shareddatabase";
     private static final String SHARED_DATABASE_FOLDER = "sharedDatabaseFolder";
     private static final String SHARED_DATABASE_AUTOSAVE = "sharedDatabaseAutosave";
@@ -46,7 +48,9 @@ public class SharedDatabasePreferences {
     }
 
     public SharedDatabasePreferences(String sharedDatabaseID) {
-        internalPrefs = Preferences.userRoot().node(PREFERENCES_PATH_NAME).node(sharedDatabaseID);
+        internalPrefs = Preferences.userRoot()
+                .node(PREFERENCES_PATH_NAME)
+                .node(sharedDatabaseID);
         keyringAccount = sharedDatabaseID;
     }
 
@@ -70,7 +74,8 @@ public class SharedDatabasePreferences {
         return getOptionalValue(SHARED_DATABASE_USER);
     }
 
-    /// @return the plain password from the system keyring; empty if none is stored or the keyring is unavailable
+    /// @return the plain password from the system keyring; empty if none is
+    ///   stored or the keyring is unavailable
     public Optional<String> getPassword() {
         try (Keyring keyring = Keyring.create()) {
             return Optional.of(keyring.getPassword(KEYRING_SERVICE, keyringAccount)).filter(StringUtil::isNotBlank);
@@ -89,7 +94,8 @@ public class SharedDatabasePreferences {
             return Optional.empty();
         }
         try {
-            String password = new Password(legacy.get().toCharArray(), user.get()).decrypt();
+            String password = new Password(legacy.get().toCharArray(),
+                    user.get()).decrypt();
             setPassword(password);
             return Optional.of(password);
         } catch (GeneralSecurityException | UnsupportedEncodingException e) {
@@ -202,7 +208,9 @@ public class SharedDatabasePreferences {
     }
 
     public static void clearAll() throws BackingStoreException {
-        Preferences.userRoot().node(PREFERENCES_PATH_NAME).clear();
+        Preferences.userRoot()
+                .node(PREFERENCES_PATH_NAME)
+                .clear();
     }
 
     public void putAllDBMSConnectionProperties(DatabaseConnectionProperties properties) {

@@ -11,8 +11,8 @@ import org.jabref.model.entry.field.Field;
 
 public class CustomFieldEditorViewModel extends StringMapBasedEditorViewModel {
 
-    public CustomFieldEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider,
-                                      FieldCheckers fieldCheckers, UndoManager undoManager, List<String> selectorValues) {
+    public CustomFieldEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            UndoManager undoManager, List<String> selectorValues) {
         super(field, suggestionProvider, fieldCheckers, undoManager, getMap(selectorValues));
     }
 

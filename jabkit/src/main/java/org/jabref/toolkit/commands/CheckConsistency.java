@@ -17,7 +17,6 @@ import org.jabref.logic.quality.consistency.BibliographyConsistencyCheckResultWr
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.toolkit.exception.ImportServiceException;
 import org.jabref.toolkit.service.ImportService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine.Command;
@@ -38,12 +37,16 @@ class CheckConsistency implements Callable<Integer> {
     @Mixin
     private InputOption inputOption = new InputOption();
 
-    @Option(names = {"--output-format"}, description = "Output format: csv, errorformat, github-actions or txt", defaultValue = Check.FORMAT_ERRORFORMAT)
+    @Option(
+            names = {"--output-format"},
+            description = "Output format: csv, errorformat, github-actions or txt",
+            defaultValue = Check.FORMAT_ERRORFORMAT)
     private String outputFormat;
 
     @Override
     public Integer call() throws ImportServiceException {
-        return execute(inputOption.getInputFile(check.jabKit.cliPreferences), outputFormat, sharedOptions.porcelain, check.jabKit);
+        return execute(inputOption.getInputFile(check.jabKit.cliPreferences),
+                outputFormat, sharedOptions.porcelain, check.jabKit);
     }
 
     /// Runs the consistency check on `inputFile` and writes the findings to `System.out`.
@@ -51,7 +54,9 @@ class CheckConsistency implements Callable<Integer> {
     /// Shared with the parent `check` command, which runs both checks at once.
     ///
     /// @return the exit code (0 = consistent, 1 = inconsistencies found, 2/3 = error)
-    static int execute(Path inputFile, String outputFormat, boolean porcelain, JabKit jabKit) throws ImportServiceException {
+    static int execute(Path inputFile, String outputFormat, boolean porcelain,
+                       JabKit jabKit)
+            throws ImportServiceException {
 
         ParserResult parserResult = ImportService.importBibTexFile(inputFile, jabKit.cliPreferences, porcelain);
 
@@ -69,51 +74,31 @@ class CheckConsistency implements Callable<Integer> {
             }
         });
 
-        return writeCheckResult(result, databaseContext, parserResult, inputFile, outputFormat, porcelain, jabKit);
+        return writeCheckResult(result, databaseContext, parserResult, inputFile, outputFormat, porcelain,
+                jabKit);
     }
 
-    private static int writeCheckResult(BibliographyConsistencyCheck.Result result,
-                                        BibDatabaseContext databaseContext,
-                                        ParserResult parserResult,
-                                        Path inputFile,
-                                        String outputFormat,
-                                        boolean porcelain,
-                                        JabKit jabKit) {
+    private static int writeCheckResult(
+            BibliographyConsistencyCheck.Result result,
+            BibDatabaseContext databaseContext,
+            ParserResult parserResult,
+            Path inputFile,
+            String outputFormat,
+            boolean porcelain,
+            JabKit jabKit) {
         Writer writer = new OutputStreamWriter(System.out);
         BibliographyConsistencyCheckResultWriter checkResultWriter;
 
         if (Check.FORMAT_ERRORFORMAT.equalsIgnoreCase(outputFormat)) {
-            checkResultWriter = new BibliographyConsistencyCheckResultErrorFormatWriter(
-                    result,
-                    writer,
-                    porcelain,
-                    jabKit.entryTypesManager,
-                    databaseContext.getMode(),
-                    parserResult,
-                    inputFile);
+            checkResultWriter = new BibliographyConsistencyCheckResultErrorFormatWriter(result, writer, porcelain, jabKit.entryTypesManager, databaseContext.getMode(),
+                    parserResult, inputFile);
         } else if (Check.FORMAT_GITHUB_ACTIONS.equalsIgnoreCase(outputFormat)) {
-            checkResultWriter = new BibliographyConsistencyCheckResultGitHubActionsWriter(
-                    result,
-                    writer,
-                    porcelain,
-                    jabKit.entryTypesManager,
-                    databaseContext.getMode(),
-                    parserResult,
-                    inputFile);
+            checkResultWriter = new BibliographyConsistencyCheckResultGitHubActionsWriter(result, writer, porcelain, jabKit.entryTypesManager, databaseContext.getMode(),
+                    parserResult, inputFile);
         } else if (Check.FORMAT_TXT.equalsIgnoreCase(outputFormat)) {
-            checkResultWriter = new BibliographyConsistencyCheckResultTxtWriter(
-                    result,
-                    writer,
-                    porcelain,
-                    jabKit.entryTypesManager,
-                    databaseContext.getMode());
+            checkResultWriter = new BibliographyConsistencyCheckResultTxtWriter(result, writer, porcelain, jabKit.entryTypesManager, databaseContext.getMode());
         } else {
-            checkResultWriter = new BibliographyConsistencyCheckResultCsvWriter(
-                    result,
-                    writer,
-                    porcelain,
-                    jabKit.entryTypesManager,
-                    databaseContext.getMode());
+            checkResultWriter = new BibliographyConsistencyCheckResultCsvWriter(result, writer, porcelain, jabKit.entryTypesManager, databaseContext.getMode());
         }
 
         // System.out should not be closed, therefore no try-with-resources

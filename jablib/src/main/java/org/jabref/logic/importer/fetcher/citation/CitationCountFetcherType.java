@@ -27,7 +27,8 @@ public enum CitationCountFetcherType {
         return name;
     }
 
-    /// Parses a constant by name, falling back to [#SEMANTIC_SCHOLAR] for unknown/corrupted values.
+    /// Parses a constant by name, falling back to [#SEMANTIC_SCHOLAR] for
+    /// unknown/corrupted values.
     public static CitationCountFetcherType safeValueOf(String name) {
         try {
             return CitationCountFetcherType.valueOf(name);
@@ -38,14 +39,10 @@ public enum CitationCountFetcherType {
 
     public static CitationCountFetcher getCitationCountFetcher(CitationCountFetcherType type, ImporterPreferences importerPreferences) {
         return switch (type) {
-            case SEMANTIC_SCHOLAR ->
-                    new SemanticScholarCitationFetcher(importerPreferences);
-            case OPEN_ALEX ->
-                    new OpenAlex(importerPreferences);
-            case OPEN_CITATIONS ->
-                    new OpenCitationsFetcher(importerPreferences);
-            case SCITE_AI ->
-                    new SciteAiFetcher();
+            case SEMANTIC_SCHOLAR -> new SemanticScholarCitationFetcher(importerPreferences);
+            case OPEN_ALEX -> new OpenAlex(importerPreferences);
+            case OPEN_CITATIONS -> new OpenCitationsFetcher(importerPreferences);
+            case SCITE_AI -> new SciteAiFetcher();
         };
     }
 }

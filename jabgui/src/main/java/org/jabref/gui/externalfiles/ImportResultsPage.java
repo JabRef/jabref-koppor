@@ -13,13 +13,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
+import org.controlsfx.dialog.Wizard;
+import org.controlsfx.dialog.WizardPane;
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.gui.util.ValueTableCellFactory;
 import org.jabref.logic.l10n.Localization;
-
-import org.controlsfx.dialog.Wizard;
-import org.controlsfx.dialog.WizardPane;
 
 public class ImportResultsPage extends WizardPane {
 
@@ -86,18 +84,25 @@ public class ImportResultsPage extends WizardPane {
 
         colStatus = new TableColumn<>(Localization.lang("Status"));
         colStatus.setCellValueFactory(cellData -> cellData.getValue().icon());
-        colStatus.setCellFactory(new ValueTableCellFactory<ImportFilesResultItemViewModel, JabRefIcon>().withGraphic(JabRefIcon::getGraphicNode));
+        colStatus.setCellFactory(new ValueTableCellFactory<ImportFilesResultItemViewModel, JabRefIcon>()
+                .withGraphic(JabRefIcon::getGraphicNode));
         colStatus.setResizable(true);
         colStatus.setPrefWidth(60);
 
         colFile = new TableColumn<>(Localization.lang("File"));
         colFile.setCellValueFactory(cellData -> cellData.getValue().file());
-        new ValueTableCellFactory<ImportFilesResultItemViewModel, String>().withGraphic(this::createEllipsisLabel).withTooltip(item -> item).install(colFile);
+        new ValueTableCellFactory<ImportFilesResultItemViewModel, String>()
+                .withGraphic(this::createEllipsisLabel)
+                .withTooltip(item -> item)
+                .install(colFile);
         colFile.setResizable(true);
 
         colMessage = new TableColumn<>(Localization.lang("Message"));
         colMessage.setCellValueFactory(cellData -> cellData.getValue().message());
-        new ValueTableCellFactory<ImportFilesResultItemViewModel, String>().withGraphic(this::createEllipsisLabel).withTooltip(item -> item).install(colMessage);
+        new ValueTableCellFactory<ImportFilesResultItemViewModel, String>()
+                .withGraphic(this::createEllipsisLabel)
+                .withTooltip(item -> item)
+                .install(colMessage);
         colMessage.setResizable(true);
 
         resultsTable.getColumns().addAll(colStatus, colFile, colMessage);
@@ -126,15 +131,20 @@ public class ImportResultsPage extends WizardPane {
             }
         });
 
-        exportButton.disableProperty().bind(Bindings.isEmpty(viewModel.resultTableItems()).or(viewModel.taskActiveProperty()));
+        exportButton.disableProperty().bind(Bindings.isEmpty(viewModel.resultTableItems())
+                .or(viewModel.taskActiveProperty()));
     }
 
     private void updateSummary() {
         int totalCount = viewModel.resultTableItems().size();
-        long successCount = viewModel.resultTableItems().stream().filter(ImportFilesResultItemViewModel::isSuccess).count();
+        long successCount = viewModel.resultTableItems()
+                .stream()
+                .filter(ImportFilesResultItemViewModel::isSuccess)
+                .count();
         long failCount = totalCount - successCount;
 
-        String summaryText = Localization.lang("Import completed: %0 successful, %1 failed", String.valueOf(successCount), String.valueOf(failCount));
+        String summaryText = Localization.lang("Import completed: %0 successful, %1 failed",
+                String.valueOf(successCount), String.valueOf(failCount));
 
         summaryLabel.setText(summaryText);
     }

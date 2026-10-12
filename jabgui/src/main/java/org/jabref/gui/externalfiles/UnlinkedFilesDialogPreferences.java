@@ -4,7 +4,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.externalfiles.DateRange;
 import org.jabref.logic.externalfiles.ExternalFileSorter;
 import org.jabref.logic.util.StandardFileType;
@@ -15,16 +14,13 @@ public class UnlinkedFilesDialogPreferences {
     private final ObjectProperty<ExternalFileSorter> unlinkedFilesSelectedSort;
 
     private UnlinkedFilesDialogPreferences() {
-        this(
-                StandardFileType.ANY_FILE.getName(), // Default selected files extensions
-                DateRange.ALL_TIME,                  // Default selected date range
-                ExternalFileSorter.DEFAULT           // Default sort order
+        this(StandardFileType.ANY_FILE.getName(), // Default selected files extensions
+        DateRange.ALL_TIME, // Default selected date range
+        ExternalFileSorter.DEFAULT // Default sort order
         );
     }
 
-    public UnlinkedFilesDialogPreferences(String unlinkedFilesSelectedExtension,
-                                          DateRange unlinkedFilesSelectedDateRange,
-                                          ExternalFileSorter unlinkedFilesSelectedSort) {
+    public UnlinkedFilesDialogPreferences(String unlinkedFilesSelectedExtension, DateRange unlinkedFilesSelectedDateRange, ExternalFileSorter unlinkedFilesSelectedSort) {
         this.unlinkedFilesSelectedExtension = new SimpleStringProperty(unlinkedFilesSelectedExtension);
         this.unlinkedFilesSelectedDateRange = new SimpleObjectProperty<>(unlinkedFilesSelectedDateRange);
         this.unlinkedFilesSelectedSort = new SimpleObjectProperty<>(unlinkedFilesSelectedSort);

@@ -1,11 +1,11 @@
 package org.jabref.http.server.command;
 
-import org.jabref.http.server.ServerTest;
-
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.jabref.http.server.ServerTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -21,13 +21,16 @@ public class FocusCommandTest extends ServerTest {
 
     @Test
     void focusOnCliShouldReturnServerError() {
-        String json = """
+        String json =
+                """
                 {
                   "command": "focus"
                 }
                 """;
-        Response response = target("/commands").request().post(Entity.json(json));
-        Assertions.assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
+        Response response = target("/commands")
+                .request()
+                .post(Entity.json(json));
+        Assertions.assertEquals(Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
         Assertions.assertEquals("This command is not supported in CLI mode.", response.readEntity(String.class));
     }
 }

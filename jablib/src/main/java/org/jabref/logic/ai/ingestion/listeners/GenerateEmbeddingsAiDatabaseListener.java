@@ -1,9 +1,11 @@
 package org.jabref.logic.ai.ingestion.listeners;
 
+import com.google.common.eventbus.Subscribe;
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.store.embedding.EmbeddingStore;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.ai.AiDatabaseListener;
 import org.jabref.logic.ai.embedding.EmbeddingModelCache;
@@ -20,10 +22,6 @@ import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.util.ListUtil;
 
-import com.google.common.eventbus.Subscribe;
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.store.embedding.EmbeddingStore;
-
 public class GenerateEmbeddingsAiDatabaseListener implements AiDatabaseListener {
     private final AiPreferences aiPreferences;
     private final FilePreferences filePreferences;
@@ -34,14 +32,8 @@ public class GenerateEmbeddingsAiDatabaseListener implements AiDatabaseListener 
 
     private final ObjectProperty<DocumentSplitter> documentSplitter = new SimpleObjectProperty<>();
 
-    public GenerateEmbeddingsAiDatabaseListener(
-            AiPreferences aiPreferences,
-            FilePreferences filePreferences,
-            IngestedDocumentsRepository ingestedDocumentsRepository,
-            EmbeddingStore<TextSegment> embeddingStore,
-            EmbeddingModelCache embeddingModelCache,
-            IngestionTaskAggregator ingestionTaskAggregator
-    ) {
+    public GenerateEmbeddingsAiDatabaseListener(AiPreferences aiPreferences, FilePreferences filePreferences, IngestedDocumentsRepository ingestedDocumentsRepository,
+            EmbeddingStore<TextSegment> embeddingStore, EmbeddingModelCache embeddingModelCache, IngestionTaskAggregator ingestionTaskAggregator) {
         this.aiPreferences = aiPreferences;
         this.filePreferences = filePreferences;
         this.ingestedDocumentsRepository = ingestedDocumentsRepository;
@@ -53,13 +45,9 @@ public class GenerateEmbeddingsAiDatabaseListener implements AiDatabaseListener 
     }
 
     private void setupBindings() {
-        this.documentSplitter.bind(Bindings.createObjectBinding(
-                () -> DocumentSplitterFactory.create(aiPreferences),
-                aiPreferences.customizeExpertSettingsProperty(),
-                aiPreferences.documentSplitterKindProperty(),
-                aiPreferences.documentSplitterChunkSizeProperty(),
-                aiPreferences.documentSplitterOverlapSizeProperty()
-        ));
+        this.documentSplitter.bind(
+                Bindings.createObjectBinding(() -> DocumentSplitterFactory.create(aiPreferences), aiPreferences.customizeExpertSettingsProperty(), aiPreferences.documentSplitterKindProperty(),
+                        aiPreferences.documentSplitterChunkSizeProperty(), aiPreferences.documentSplitterOverlapSizeProperty()));
     }
 
     @Override
@@ -98,15 +86,10 @@ public class GenerateEmbeddingsAiDatabaseListener implements AiDatabaseListener 
         }
 
         private void ingest(LinkedFile linkedFile) {
-            ingestionTaskAggregator.start(new GenerateEmbeddingsTaskRequest(
-                    filePreferences,
-                    ingestedDocumentsRepository,
-                    embeddingStore,
-                    embeddingModelCache.getOrCreate(aiPreferences.getEmbeddingModel()),
-                    documentSplitter.get(),
-                    context,
-                    linkedFile
-            ), false);
+            ingestionTaskAggregator.start(
+                    new GenerateEmbeddingsTaskRequest(filePreferences, ingestedDocumentsRepository, embeddingStore, embeddingModelCache.getOrCreate(aiPreferences.getEmbeddingModel()),
+                            documentSplitter.get(), context, linkedFile),
+                    false);
         }
     }
 }

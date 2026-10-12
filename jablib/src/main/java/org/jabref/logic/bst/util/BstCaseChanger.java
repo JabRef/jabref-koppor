@@ -67,8 +67,7 @@ public final class BstCaseChanger {
         }
     }
 
-    private BstCaseChanger() {
-    }
+    private BstCaseChanger() {}
 
     /// Changes case of the given string s
     ///
@@ -95,7 +94,8 @@ public final class BstCaseChanger {
                     i++;
                     continue;
                 }
-                if ((format == FormatMode.TITLE_LOWERS) && ((i == 0) || (prevColon && Character.isWhitespace(c[i - 1])))) {
+                if ((format == FormatMode.TITLE_LOWERS)
+                        && ((i == 0) || (prevColon && Character.isWhitespace(c[i - 1])))) {
                     sb.append('{');
                     i++;
                     prevColon = false;
@@ -138,7 +138,8 @@ public final class BstCaseChanger {
     /// special with |colon|s.
     ///
     /// @param start the current position. It points to the opening brace
-    private int convertSpecialChar(StringBuilder sb, char[] c, int start, FormatMode format) {
+    private int convertSpecialChar(StringBuilder sb, char[] c, int start,
+            FormatMode format) {
         int i = start;
 
         sb.append(c[i]);
@@ -171,7 +172,8 @@ public final class BstCaseChanger {
     /// position.
     ///
     /// @return the new position
-    private int convertAccented(char[] c, int start, String s, StringBuilder sb, FormatMode format) {
+    private int convertAccented(char[] c, int start, String s,
+            StringBuilder sb, FormatMode format) {
         int pos = start;
         pos += s.length();
 
@@ -204,11 +206,11 @@ public final class BstCaseChanger {
         return pos;
     }
 
-    private int convertNonControl(char[] c, int start, StringBuilder sb, FormatMode format) {
+    private int convertNonControl(char[] c, int start, StringBuilder sb,
+            FormatMode format) {
         int pos = start;
         switch (format) {
-            case TITLE_LOWERS,
-                 ALL_LOWERS -> {
+            case TITLE_LOWERS, ALL_LOWERS -> {
                 sb.append(Character.toLowerCase(c[pos]));
                 pos++;
             }
@@ -216,13 +218,13 @@ public final class BstCaseChanger {
                 sb.append(Character.toUpperCase(c[pos]));
                 pos++;
             }
-            default ->
-                    LOGGER.info("convertNonControl - Unknown format: {}", format);
+            default -> LOGGER.info("convertNonControl - Unknown format: {}", format);
         }
         return pos;
     }
 
-    private int convertCharIfBraceLevelIsZero(char[] c, int start, StringBuilder sb, FormatMode format) {
+    private int convertCharIfBraceLevelIsZero(char[] c, int start, StringBuilder sb,
+            FormatMode format) {
         int i = start;
         switch (format) {
             case TITLE_LOWERS -> {
@@ -237,24 +239,20 @@ public final class BstCaseChanger {
                     prevColon = false;
                 }
             }
-            case ALL_LOWERS ->
-                    sb.append(Character.toLowerCase(c[i]));
-            case ALL_UPPERS ->
-                    sb.append(Character.toUpperCase(c[i]));
-            default ->
-                    LOGGER.info("convertCharIfBraceLevelIsZero - Unknown format: {}", format);
+            case ALL_LOWERS -> sb.append(Character.toLowerCase(c[i]));
+            case ALL_UPPERS -> sb.append(Character.toUpperCase(c[i]));
+            default -> LOGGER.info("convertCharIfBraceLevelIsZero - Unknown format: {}", format);
         }
         i++;
         return i;
     }
 
-    /// Determine whether there starts a special char at pos (e.g., oe, AE). Return it as string.
-    /// If nothing found, return Optional.empty()
-    ///
+    /// Determine whether there starts a special char at pos (e.g., oe, AE).
+    /// Return it as string. If nothing found, return Optional.empty()
     ///
     /// Also used by BibtexPurify
     ///
-    /// @param c   the current "String"
+    /// @param c the current "String"
     /// @param pos the position
     /// @return the special LaTeX character or null
     public static Optional<String> findSpecialChar(char[] c, int pos) {

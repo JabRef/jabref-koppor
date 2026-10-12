@@ -2,15 +2,18 @@ package org.jabref.gui.bibtexhighlighter;
 
 import org.jspecify.annotations.NullMarked;
 
-/// Maps a `BibTeXTokenCategory` (from the Veneer syntax highlighter) to the CSS style
-/// class used to render it in the JavaFX `CodeArea`.
+/// Maps a `BibTeXTokenCategory` (from the Veneer syntax highlighter) to the CSS
+/// style class used to render it in the JavaFX `CodeArea`.
 ///
 /// The enum constant names intentionally mirror
-/// `io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter.BibTeXTokenCategory` so that
-/// [BibTeXHighlighter] can resolve a category to its style class via [Enum#valueOf].
+/// `io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter.BibTeXTokenCategory`
+/// so that [BibTeXHighlighter] can resolve a category to its style class via
+/// [Enum#valueOf].
 ///
-/// The actual colors and font styles for each class (e.g. `.bibtex-keyword`) are defined
-/// in the theme stylesheets (`jabref-theme.css` on themes.jabref.org), not here, so that they can be customized per theme without touching Java code.
+/// The actual colors and font styles for each class (e.g. `.bibtex-keyword`)
+/// are defined in the theme stylesheets (`jabref-theme.css` on
+/// themes.jabref.org), not here, so that they can be customized per theme
+/// without touching Java code.
 @NullMarked
 public enum BibTeXStyleClass {
     KEYWORD("bibtex-keyword"),

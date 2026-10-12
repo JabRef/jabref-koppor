@@ -8,7 +8,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
@@ -31,14 +30,15 @@ public class JournalInfoViewModel extends AbstractViewModel {
     public void populateJournalInformation(String issn, String journalName) throws FetcherException {
         Optional<JournalInformation> journalInformationOptional = journalInformationFetcher.getJournalInformation(issn, journalName);
 
-        journalInformationOptional.ifPresent(journalInformation -> {
-            setTitle(journalInformation.title());
-            setPublisher(journalInformation.publisher());
-            sethIndex(journalInformation.hIndex());
-            setIssn(journalInformation.issn());
-            worksCountData.add(convertToSeries(journalInformation.worksCount()));
-            citedByCountData.add(convertToSeries(journalInformation.citedByCount()));
-        });
+        journalInformationOptional.ifPresent(
+                journalInformation -> {
+                    setTitle(journalInformation.title());
+                    setPublisher(journalInformation.publisher());
+                    sethIndex(journalInformation.hIndex());
+                    setIssn(journalInformation.issn());
+                    worksCountData.add(convertToSeries(journalInformation.worksCount()));
+                    citedByCountData.add(convertToSeries(journalInformation.citedByCount()));
+                });
     }
 
     public String getTitle() {

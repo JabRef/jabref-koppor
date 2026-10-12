@@ -9,7 +9,6 @@ import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.StreamGobbler;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +37,8 @@ public final class OcrUtils {
             }
             return process.exitValue() == 0;
         } catch (IOException e) {
-            LOGGER.error("OCR engine is not available at {}: IOException occurred", ocrPreferences.getOcrEnginePath(), e);
+            LOGGER.error("OCR engine is not available at {}: IOException occurred",
+                    ocrPreferences.getOcrEnginePath(), e);
             return false;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -47,7 +47,8 @@ public final class OcrUtils {
         }
     }
 
-    /// Helper method to abstract the common logic of running an OCR engine command and handling its output.
+    /// Helper method to abstract the common logic of running an OCR engine
+    /// command and handling its output.
     public static OcrResult performOcr(ArrayList<String> command, String engineName) {
         Process process = null;
         try {

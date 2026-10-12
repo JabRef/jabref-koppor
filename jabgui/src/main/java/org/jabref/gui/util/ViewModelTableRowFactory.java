@@ -19,12 +19,11 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
-
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.reactfx.util.TriConsumer;
 
-/// Constructs a [javafx.scene.control.TreeTableCell] based on the view model of the row and a bunch of specified converter methods.
+/// Constructs a [javafx.scene.control.TreeTableCell] based on the view model of
+/// the row and a bunch of specified converter methods.
 ///
 /// @param <S> view model
 public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, TableRow<S>> {
@@ -121,8 +120,8 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
                 if (empty || getItem() == null) {
                     pseudoClasses.forEach((pseudoClass, _) -> pseudoClassStateChanged(pseudoClass, false));
                 } else {
-                    pseudoClasses.forEach((pseudoClass, toCondition) ->
-                            pseudoClassStateChanged(pseudoClass, toCondition.call(getItem()).getValue()));
+                    pseudoClasses.forEach((pseudoClass, toCondition) -> pseudoClassStateChanged(pseudoClass, toCondition.call(getItem())
+                            .getValue()));
                 }
             }
         };
@@ -153,21 +152,22 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
             });
 
             // Activate context menu if user presses the "context menu" key
-            tableView.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
-                boolean rowFocused = !row.isEmpty() && tableView.getFocusModel().getFocusedIndex() == row.getIndex();
-                if (event.getCode() == KeyCode.CONTEXT_MENU && rowFocused) {
-                    // Get center of focused cell
-                    Bounds anchorBounds = row.getBoundsInParent();
-                    double x = anchorBounds.getMinX() + anchorBounds.getWidth() / 2;
-                    double y = anchorBounds.getMinY() + anchorBounds.getHeight() / 2;
-                    Point2D screenPosition = row.getParent().localToScreen(x, y);
+            tableView.addEventHandler(KeyEvent.KEY_RELEASED,
+                    event -> {
+                        boolean rowFocused = !row.isEmpty() && tableView.getFocusModel().getFocusedIndex() == row.getIndex();
+                        if (event.getCode() == KeyCode.CONTEXT_MENU && rowFocused) {
+                            // Get center of focused cell
+                            Bounds anchorBounds = row.getBoundsInParent();
+                            double x = anchorBounds.getMinX() + anchorBounds.getWidth() / 2;
+                            double y = anchorBounds.getMinY() + anchorBounds.getHeight() / 2;
+                            Point2D screenPosition = row.getParent().localToScreen(x, y);
 
-                    if (row.getContextMenu() == null) {
-                        row.setContextMenu(contextMenuFactory.apply(row.getItem()));
-                    }
-                    row.getContextMenu().show(row, screenPosition.getX(), screenPosition.getY());
-                }
-            });
+                            if (row.getContextMenu() == null) {
+                                row.setContextMenu(contextMenuFactory.apply(row.getItem()));
+                            }
+                            row.getContextMenu().show(row, screenPosition.getX(), screenPosition.getY());
+                        }
+                    });
         }
 
         if (toOnDragDetected != null) {

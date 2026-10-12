@@ -3,6 +3,10 @@ package org.jabref.logic.openoffice.frontend;
 import java.io.IOException;
 import java.util.Optional;
 
+import com.sun.star.lang.WrappedTargetException;
+import com.sun.star.text.XTextCursor;
+import com.sun.star.text.XTextDocument;
+import com.sun.star.text.XTextRange;
 import org.jabref.logic.openoffice.style.JStyle;
 import org.jabref.logic.openoffice.style.OOFormatBibliography;
 import org.jabref.model.openoffice.DocumentAnnotation;
@@ -14,52 +18,31 @@ import org.jabref.model.openoffice.uno.NoDocumentException;
 import org.jabref.model.openoffice.uno.UnoBookmark;
 import org.jabref.model.openoffice.uno.UnoTextSection;
 
-import com.sun.star.lang.WrappedTargetException;
-import com.sun.star.text.XTextCursor;
-import com.sun.star.text.XTextDocument;
-import com.sun.star.text.XTextRange;
-
 public class UpdateBibliography {
 
     private static final String BIB_SECTION_NAME = "JR_bib";
     private static final String BIB_SECTION_END_NAME = "JR_bib_end";
 
-    private UpdateBibliography() {
-    }
+    private UpdateBibliography() {}
 
-    public static Optional<XTextRange> getBibliographyRange(XTextDocument doc)
-            throws
-            NoDocumentException,
-            WrappedTargetException {
+    public static Optional<XTextRange> getBibliographyRange(XTextDocument doc) throws NoDocumentException, WrappedTargetException {
         return UnoTextSection.getAnchor(doc, BIB_SECTION_NAME);
     }
 
     /// Rebuilds the bibliography.
-    public static void rebuildBibTextSection(XTextDocument doc,
-                                             OOFrontend frontend,
-                                             CitedReferences bibliography,
-                                             JStyle style,
-                                             boolean alwaysAddCitedOnPages)
-            throws
-            WrappedTargetException,
-            CreationException,
-            NoDocumentException, IOException {
+    public static void rebuildBibTextSection(XTextDocument doc, OOFrontend frontend, CitedReferences bibliography,
+            JStyle style, boolean alwaysAddCitedOnPages)
+            throws WrappedTargetException, CreationException, NoDocumentException, IOException {
 
         clearBibTextSectionContent2(doc);
 
-        populateBibTextSection(doc,
-                frontend,
-                bibliography,
-                style,
-                alwaysAddCitedOnPages);
+        populateBibTextSection(doc, frontend, bibliography, style, alwaysAddCitedOnPages);
     }
 
     /// Insert a paragraph break and create a text section for the bibliography.
     ///
     /// Only called from `clearBibTextSectionContent2`
-    private static void createBibTextSection2(XTextDocument doc)
-            throws
-            CreationException {
+    private static void createBibTextSection2(XTextDocument doc) throws CreationException {
 
         // Always creating at the end of the document.
         // Alternatively, we could receive a cursor.
@@ -72,11 +55,7 @@ public class UpdateBibliography {
     /// Find and clear the text section BIB_SECTION_NAME to "", or create it.
     ///
     /// Only called from: `rebuildBibTextSection`
-    private static void clearBibTextSectionContent2(XTextDocument doc)
-            throws
-            CreationException,
-            NoDocumentException,
-            WrappedTargetException {
+    private static void clearBibTextSectionContent2(XTextDocument doc) throws CreationException, NoDocumentException, WrappedTargetException {
 
         // Optional<XTextRange> sectionRange = UnoTextSection.getAnchor(doc, BIB_SECTION_NAME);
         Optional<XTextRange> sectionRange = getBibliographyRange(doc);
@@ -92,16 +71,9 @@ public class UpdateBibliography {
     /// Only called from: `rebuildBibTextSection`
     ///
     /// Assumes the section named BIB_SECTION_NAME exists.
-    private static void populateBibTextSection(XTextDocument doc,
-                                               OOFrontend frontend,
-                                               CitedReferences citedReferences,
-                                               JStyle style,
-                                               boolean alwaysAddCitedOnPages)
-            throws
-            CreationException,
-            IllegalArgumentException,
-            NoDocumentException,
-            WrappedTargetException, IOException {
+    private static void populateBibTextSection(XTextDocument doc, OOFrontend frontend, CitedReferences citedReferences,
+            JStyle style, boolean alwaysAddCitedOnPages)
+            throws CreationException, IllegalArgumentException, NoDocumentException, WrappedTargetException, IOException {
 
         XTextRange sectionRange = getBibliographyRange(doc).orElseThrow(IllegalStateException::new);
 
@@ -109,10 +81,7 @@ public class UpdateBibliography {
 
         // emit the title of the bibliography
         OOTextIntoOO.removeDirectFormatting(cursor);
-        OOText bibliographyText = OOFormatBibliography.formatBibliography(frontend.citationGroups,
-                citedReferences,
-                style,
-                alwaysAddCitedOnPages);
+        OOText bibliographyText = OOFormatBibliography.formatBibliography(frontend.citationGroups, citedReferences, style, alwaysAddCitedOnPages);
         OOTextIntoOO.write(doc, cursor, bibliographyText);
         cursor.collapseToEnd();
 

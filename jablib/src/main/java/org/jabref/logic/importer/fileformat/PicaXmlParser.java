@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,7 +16,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -313,8 +311,9 @@ public class PicaXmlParser implements Parser {
             }
 
             // URLs behandeln
-            if ("009P".equals(tag) && ("03".equals(datafield.getAttribute("occurrence"))
-                    || "05".equals(datafield.getAttribute("occurrence"))) && (url == null)) {
+            if ("009P".equals(tag)
+                    && ("03".equals(datafield.getAttribute("occurrence")) || "05".equals(datafield.getAttribute("occurrence")))
+                    && (url == null)) {
                 url = getSubfield("a", datafield);
             }
         }
@@ -381,8 +380,7 @@ public class PicaXmlParser implements Parser {
             // ensure that first letter is an upper case letter
             // there could be the edge case that the string is only one character long, therefore, this special treatment
             // this is Apache commons lang StringUtils.capitalize (https://commons.apache.org/proper/commons-lang/javadocs/api-release/org/apache/commons/lang3/StringUtils.html#capitalize%28java.lang.String%29), but we don't want to add an additional dependency  ('org.apache.commons:commons-lang3:3.4')
-            StringBuilder newSubtitle = new StringBuilder(
-                    Character.toString(Character.toUpperCase(subtitle.charAt(0))));
+            StringBuilder newSubtitle = new StringBuilder(Character.toString(Character.toUpperCase(subtitle.charAt(0))));
             if (subtitle.length() > 1) {
                 newSubtitle.append(subtitle.substring(1));
             }

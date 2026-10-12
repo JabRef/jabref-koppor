@@ -8,7 +8,6 @@ import java.util.regex.PatternSyntaxException;
 
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,16 +20,17 @@ public class RegexFormatter extends Formatter {
     private static final Pattern ESCAPED_OPENING_CURLY_BRACE = Pattern.compile("\\\\\\{");
     private static final Pattern ESCAPED_CLOSING_CURLY_BRACE = Pattern.compile("\\\\\\}");
 
-    /// Matches text enclosed in curly brackets. The capturing group is used to prevent part of the input from being
-    /// replaced.
+    /// Matches text enclosed in curly brackets. The capturing group is used to
+    /// prevent part of the input from being replaced.
     private static final Pattern ENCLOSED_IN_CURLY_BRACES = Pattern.compile("\\{.*?}");
 
     private static final String REGEX_CAPTURING_GROUP = "regex";
     private static final String REPLACEMENT_CAPTURING_GROUP = "replacement";
 
-    /// Matches a valid argument to the constructor. Two capturing groups are used to parse the [RegexFormatter#regex] and [RegexFormatter#replacement] used in [RegexFormatter#format(String)]
-    private static final Pattern CONSTRUCTOR_ARGUMENT = Pattern.compile(
-            "^\\(\"(?<" + REGEX_CAPTURING_GROUP + ">.*?)\" *?, *?\"(?<" + REPLACEMENT_CAPTURING_GROUP + ">.*)\"\\)$");
+    /// Matches a valid argument to the constructor. Two capturing groups are
+    /// used to parse the [RegexFormatter#regex] and
+    /// [RegexFormatter#replacement] used in [RegexFormatter#format(String)]
+    private static final Pattern CONSTRUCTOR_ARGUMENT = Pattern.compile("^\\(\"(?<" + REGEX_CAPTURING_GROUP + ">.*?)\" *?, *?\"(?<" + REPLACEMENT_CAPTURING_GROUP + ">.*)\"\\)$");
 
     // Magic arbitrary unicode char, which will never appear in bibtex files
     private static final String PLACEHOLDER_FOR_PROTECTED_GROUP = Character.toString('\u0A14');
@@ -41,9 +41,11 @@ public class RegexFormatter extends Formatter {
     private final String regex;
     private final String replacement;
 
-    /// Constructs a new regular expression-based formatter with the given RegEx.
+    /// Constructs a new regular expression-based formatter with the given
+    /// RegEx.
     ///
-    /// @param input the regular expressions for matching and replacing given in the form `("<regex>", "<replace>")`.
+    /// @param input the regular expressions for matching and replacing given in
+    ///   the form `("<regex>", "<replace>")`.
     public RegexFormatter(@NonNull String input) {
         input = input.trim().replace("\\\"", PLACEHOLDER_FOR_QUOTE_SIGN);
         Matcher constructorArgument = CONSTRUCTOR_ARGUMENT.matcher(input);
@@ -78,7 +80,8 @@ public class RegexFormatter extends Formatter {
         try {
             workingString = workingString.replaceAll(regex, replacement);
         } catch (PatternSyntaxException e) {
-            LOGGER.warn("There is a syntax error in the regular expression \"{}\" used by the regex modifier", regex, e);
+            LOGGER.warn("There is a syntax error in the regular expression \"{}\" used by the regex modifier",
+                    regex, e);
             return input;
         }
 
@@ -102,9 +105,7 @@ public class RegexFormatter extends Formatter {
 
         final String regexMatchesReplaced = replaceHonoringProtectedGroups(inputWithPlaceholder);
 
-        return regexMatchesReplaced
-                .replaceAll(PLACEHOLDER_FOR_OPENING_CURLY_BRACE, "\\\\{")
-                .replaceAll(PLACEHOLDER_FOR_CLOSING_CURLY_BRACE, "\\\\}");
+        return regexMatchesReplaced.replaceAll(PLACEHOLDER_FOR_OPENING_CURLY_BRACE, "\\\\{").replaceAll(PLACEHOLDER_FOR_CLOSING_CURLY_BRACE, "\\\\}");
     }
 
     @Override

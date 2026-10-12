@@ -4,15 +4,13 @@ import java.nio.file.Path;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.logic.util.Directories;
 
 public class SSLPreferences {
     private final ObjectProperty<Path> truststorePath;
 
     private SSLPreferences() {
-        this(
-                Directories.getSslDirectory().resolve("truststore.jks")  // Truststore path
+        this(Directories.getSslDirectory().resolve("truststore.jks") // Truststore path
         );
     }
 

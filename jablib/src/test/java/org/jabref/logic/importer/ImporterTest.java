@@ -20,7 +20,6 @@ import org.jabref.logic.importer.fileformat.RepecNepImporter;
 import org.jabref.logic.importer.fileformat.RisImporter;
 import org.jabref.logic.importer.fileformat.pdf.PdfMergeMetadataImporter;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -67,7 +66,8 @@ public class ImporterTest {
     @ParameterizedTest
     @MethodSource("instancesToTest")
     void getIdDoesNotContainWhitespace(Importer format) {
-        assertFalse(WHITESPACE_PATTERN.matcher(format.getId()).find());
+        assertFalse(WHITESPACE_PATTERN.matcher(format.getId())
+                .find());
     }
 
     @ParameterizedTest
@@ -78,7 +78,9 @@ public class ImporterTest {
 
     public static Stream<Importer> instancesToTest() {
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
         CitationKeyPatternPreferences citationKeyPatternPreferences = mock(CitationKeyPatternPreferences.class);
         when(citationKeyPatternPreferences.getUnwantedCharacters()).thenReturn(CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS);
         return Stream.of(
@@ -98,7 +100,6 @@ public class ImporterTest {
                 new OvidImporter(),
                 new PdfMergeMetadataImporter(importFormatPreferences),
                 new RepecNepImporter(importFormatPreferences),
-                new RisImporter()
-        );
+                new RisImporter());
     }
 }

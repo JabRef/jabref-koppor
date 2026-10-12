@@ -10,7 +10,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
-
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.logic.l10n.Localization;
@@ -28,14 +27,15 @@ public class ExternalApplicationsPreferences {
     private final StringProperty kindleEmail;
     private final ObservableSet<ExternalFileType> externalFileTypes = FXCollections.observableSet(new TreeSet<>(Comparator.comparing(ExternalFileType::getName)));
 
-    public ExternalApplicationsPreferences(String eMailSubject,
-                                           boolean shouldAutoOpenEmailAttachmentsFolder,
-                                           Set<ExternalFileType> externalFileTypes,
-                                           boolean useCustomTerminal,
-                                           String customTerminalCommand,
-                                           boolean useCustomFileBrowser,
-                                           String customFileBrowserCommand,
-                                           String kindleEmail) {
+    public ExternalApplicationsPreferences(
+            String eMailSubject,
+            boolean shouldAutoOpenEmailAttachmentsFolder,
+            Set<ExternalFileType> externalFileTypes,
+            boolean useCustomTerminal,
+            String customTerminalCommand,
+            boolean useCustomFileBrowser,
+            String customFileBrowserCommand,
+            String kindleEmail) {
 
         this.eMailSubject = new SimpleStringProperty(eMailSubject);
         this.shouldAutoOpenEmailAttachmentsFolder = new SimpleBooleanProperty(shouldAutoOpenEmailAttachmentsFolder);
@@ -49,16 +49,14 @@ public class ExternalApplicationsPreferences {
 
     private ExternalApplicationsPreferences() {
         this(
-                Localization.lang("References"),                                             // eMailSubject
-                OS.WINDOWS,                                                                  // shouldAutoOpenEmailAttachmentsFolder
-                Set.copyOf(ExternalFileTypes.getDefaultExternalFileTypes()),                 // externalFileTypes
-                false,                                                                       // useCustomTerminal
-                OS.WINDOWS ? "C:\\Program Files\\ConEmu\\ConEmu64.exe /single /dir \"%DIR\""
-                           : "",                                                             // customTerminalCommand
-                false,                                                                       // useCustomFileBrowser
-                OS.WINDOWS ? "explorer.exe /select, \"%DIR\""
-                           : "",                                                             // customFileBrowserCommand
-                ""                                                                           // kindleEmail
+                Localization.lang("References"), // eMailSubject
+                OS.WINDOWS, // shouldAutoOpenEmailAttachmentsFolder
+                Set.copyOf(ExternalFileTypes.getDefaultExternalFileTypes()), // externalFileTypes
+                false, // useCustomTerminal
+                OS.WINDOWS ? "C:\\Program Files\\ConEmu\\ConEmu64.exe /single /dir \"%DIR\"" : "", // customTerminalCommand
+                false, // useCustomFileBrowser
+                OS.WINDOWS ? "explorer.exe /select, \"%DIR\"" : "", // customFileBrowserCommand
+                "" // kindleEmail
         );
     }
 

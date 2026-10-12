@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.entry.BibEntry;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,8 +33,12 @@ class CopacImporterTest {
 
     @Test
     void importEmptyEntries() throws URISyntaxException, IOException {
-        Path path = Path.of(CopacImporterTest.class.getResource("Empty.txt").toURI());
-        List<BibEntry> entries = importer.importDatabase(path).getDatabase().getEntries();
+        Path path = Path.of(CopacImporterTest.class
+                .getResource("Empty.txt")
+                .toURI());
+        List<BibEntry> entries = importer.importDatabase(path)
+                .getDatabase()
+                .getEntries();
         assertEquals(List.of(), entries);
     }
 }

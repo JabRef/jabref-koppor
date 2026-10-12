@@ -4,6 +4,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.internal.storage.file.WindowCache;
+import org.eclipse.jgit.lib.RepositoryCache;
+import org.eclipse.jgit.storage.file.WindowCacheConfig;
+import org.eclipse.jgit.util.SystemReader;
 import org.jabref.logic.git.GitHandler;
 import org.jabref.logic.git.preferences.GitPreferences;
 import org.jabref.logic.git.util.NoopGitSystemReader;
@@ -11,13 +17,6 @@ import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.internal.storage.file.WindowCache;
-import org.eclipse.jgit.lib.RepositoryCache;
-import org.eclipse.jgit.storage.file.WindowCacheConfig;
-import org.eclipse.jgit.util.SystemReader;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +39,7 @@ class GitDiffCheckerTest {
 
     @TempDir
     Path repositoryPath;
+
     @TempDir
     Path unbornHeadRepositoryPath;
 
@@ -57,7 +57,9 @@ class GitDiffCheckerTest {
         gitHandler.initIfNeeded();
 
         importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
     }
 
     @AfterEach
@@ -73,18 +75,19 @@ class GitDiffCheckerTest {
         gitHandler.createCommitOnCurrentBranch("Add library", false);
         Files.writeString(bibFile, "@article{key, title={New title}}\n");
 
-        BibDatabaseContext headDatabase = GitDiffChecker.checkDiffAgainstLastCommit(
-                gitHandler,
-                Path.of("library.bib"),
-                importFormatPreferences,
-                new DummyFileUpdateMonitor());
-        BibDatabaseContext workingTreeDatabase = GitDiffChecker.checkSavedWorkingTreeVersion(
-                bibFile,
-                importFormatPreferences,
-                new DummyFileUpdateMonitor());
+        BibDatabaseContext headDatabase = GitDiffChecker.checkDiffAgainstLastCommit(gitHandler, Path.of("library.bib"), importFormatPreferences, new DummyFileUpdateMonitor());
+        BibDatabaseContext workingTreeDatabase = GitDiffChecker.checkSavedWorkingTreeVersion(bibFile, importFormatPreferences, new DummyFileUpdateMonitor());
 
-        assertEquals("Old title", headDatabase.getEntries().getFirst().getField(StandardField.TITLE).orElseThrow());
-        assertEquals("New title", workingTreeDatabase.getEntries().getFirst().getField(StandardField.TITLE).orElseThrow());
+        assertEquals("Old title",
+                headDatabase.getEntries()
+                            .getFirst()
+                            .getField(StandardField.TITLE)
+                            .orElseThrow());
+        assertEquals("New title",
+                workingTreeDatabase.getEntries()
+                                   .getFirst()
+                                   .getField(StandardField.TITLE)
+                                   .orElseThrow());
     }
 
     @Test
@@ -92,11 +95,7 @@ class GitDiffCheckerTest {
         Path bibFile = repositoryPath.resolve("library.bib");
         Files.writeString(bibFile, "@article{key, title={New title}}\n");
 
-        BibDatabaseContext headDatabase = GitDiffChecker.checkDiffAgainstLastCommit(
-                gitHandler,
-                Path.of("library.bib"),
-                importFormatPreferences,
-                new DummyFileUpdateMonitor());
+        BibDatabaseContext headDatabase = GitDiffChecker.checkDiffAgainstLastCommit(gitHandler, Path.of("library.bib"), importFormatPreferences, new DummyFileUpdateMonitor());
 
         assertTrue(headDatabase.getEntries().isEmpty());
     }
@@ -105,10 +104,7 @@ class GitDiffCheckerTest {
     void checkSavedWorkingTreeVersionReturnsEmptyWhenFileMissing() throws IOException {
         Path bibFile = repositoryPath.resolve("library.bib");
 
-        BibDatabaseContext workingTreeDatabase = GitDiffChecker.checkSavedWorkingTreeVersion(
-                bibFile,
-                importFormatPreferences,
-                new DummyFileUpdateMonitor());
+        BibDatabaseContext workingTreeDatabase = GitDiffChecker.checkSavedWorkingTreeVersion(bibFile, importFormatPreferences, new DummyFileUpdateMonitor());
 
         assertTrue(workingTreeDatabase.getEntries().isEmpty());
     }
@@ -116,9 +112,9 @@ class GitDiffCheckerTest {
     @Test
     void checkDiffAgainstLastCommitReturnsEmptyWhenHeadDoesNotExist() throws IOException, GitAPIException {
         try (Git git = Git.init()
-                          .setDirectory(unbornHeadRepositoryPath.toFile())
-                          .setInitialBranch("main")
-                          .call()) {
+                .setDirectory(unbornHeadRepositoryPath.toFile())
+                .setInitialBranch("main")
+                .call()) {
             // initialize empty repository
         }
 
@@ -130,11 +126,7 @@ class GitDiffCheckerTest {
         Path bibFile = unbornHeadRepositoryPath.resolve("library.bib");
         Files.writeString(bibFile, "@article{key, title={Unborn head}}\n");
 
-        BibDatabaseContext headDatabase = GitDiffChecker.checkDiffAgainstLastCommit(
-                unbornHeadHandler,
-                Path.of("library.bib"),
-                importFormatPreferences,
-                new DummyFileUpdateMonitor());
+        BibDatabaseContext headDatabase = GitDiffChecker.checkDiffAgainstLastCommit(unbornHeadHandler, Path.of("library.bib"), importFormatPreferences, new DummyFileUpdateMonitor());
 
         assertTrue(headDatabase.getEntries().isEmpty());
     }

@@ -13,38 +13,38 @@ import org.jabref.model.entry.BibEntry;
 /// Deduplicates summarization tasks across the application lifetime.
 ///
 /// Exactly one [GenerateSummaryTask] is created per [BibEntry] object reference
-/// ([BibEntry#getId()] is the tree key). A second call for the same entry while a task is
-/// still running returns the existing task — no duplicate generation.
+/// ([BibEntry#getId()] is the tree key). A second call for the same entry while
+/// a task is still running returns the existing task — no duplicate generation.
 ///
-/// When a task completes successfully, the result is written to the [InMemorySummaryCache]
-/// so that callers who were not listening at that moment can still retrieve it. The task is then
-/// removed from the internal map.
+/// When a task completes successfully, the result is written to the
+/// [InMemorySummaryCache] so that callers who were not listening at that moment
+/// can still retrieve it. The task is then removed from the internal map.
 ///
-/// All public methods are `synchronized` to make them safe for concurrent access from
-/// both the JavaFX thread and background task threads.
+/// All public methods are `synchronized` to make them safe for concurrent
+/// access from both the JavaFX thread and background task threads.
 public class SummarizationTaskAggregator {
 
     private final TaskExecutor taskExecutor;
     private final InMemorySummaryCache inMemoryCache;
 
-    private final TreeMap<BibEntry, GenerateSummaryTask> tasks =
-            new TreeMap<>(Comparator.comparing(BibEntry::getId));
-    private final TreeMap<BibEntry, GenerateSummaryTask> latestTasks =
-            new TreeMap<>(Comparator.comparing(BibEntry::getId));
+    private final TreeMap<BibEntry, GenerateSummaryTask> tasks = new TreeMap<>(Comparator.comparing(BibEntry::getId));
+    private final TreeMap<BibEntry, GenerateSummaryTask> latestTasks = new TreeMap<>(Comparator.comparing(BibEntry::getId));
 
     public SummarizationTaskAggregator(TaskExecutor taskExecutor, InMemorySummaryCache inMemoryCache) {
         this.taskExecutor = taskExecutor;
         this.inMemoryCache = inMemoryCache;
     }
 
-    /// Starts a [GenerateSummaryTask] for the entry in `request`, or returns the
-    /// already-running task if one exists for that entry.
+    /// Starts a [GenerateSummaryTask] for the entry in `request`, or returns
+    /// the already-running task if one exists for that entry.
     ///
-    /// `computeIfAbsent` is the deduplication mechanism — only one task per entry at a time.
+    /// `computeIfAbsent` is the deduplication mechanism — only one task per
+    /// entry at a time.
     ///
-    /// **Important:** if you attach a status listener to the returned task, also check
-    /// [org.jabref.logic.ai.util.TrackedBackgroundTask#getStatus()] immediately after
-    /// attaching, in case the task already finished before the listener was registered.
+    /// **Important:** if you attach a status listener to the returned task,
+    /// also check [org.jabref.logic.ai.util.TrackedBackgroundTask#getStatus()]
+    /// immediately after attaching, in case the task already finished before
+    /// the listener was registered.
     public synchronized GenerateSummaryTask start(GenerateSummaryTaskRequest request) {
         return start(request, true);
     }
@@ -57,7 +57,10 @@ public class SummarizationTaskAggregator {
         }
 
         // A cancelled task ends as ERROR without running onFinished, so it stays in the map
-        if (task.get().getStatus().isFinished() && request.regenerate()) {
+        if (task.get()
+                .getStatus()
+                .isFinished()
+                && request.regenerate()) {
             tasks.remove(request.fullEntry().entry());
             return startNewTask(request, showToUser);
         }

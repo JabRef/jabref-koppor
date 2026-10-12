@@ -6,7 +6,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.undo.UndoableFieldChange;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,8 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/// A field editor records one change per keystroke, so without a rule Ctrl+Z takes back a letter
-/// rather than a word. These are the cases the rule has to get right.
+/// A field editor records one change per keystroke, so without a rule Ctrl+Z
+/// takes back a letter rather than a word. These are the cases the rule has to
+/// get right.
 class KeystrokeCoalescingTest {
 
     private final JabRefUndoManager journal = new JabRefUndoManager();
@@ -35,7 +35,9 @@ class KeystrokeCoalescingTest {
     private void type(StandardField field, String text) {
         for (int length = 1; length <= text.length(); length++) {
             String value = text.substring(0, length);
-            journal.applyEdit(new UndoableFieldChange(entry, field, entry.getField(field).orElse(null), value),
+            journal.applyEdit(
+                    new UndoableFieldChange(entry, field,
+                            entry.getField(field).orElse(null), value),
                     EditSource.TYPING);
         }
     }
@@ -57,7 +59,8 @@ class KeystrokeCoalescingTest {
         assertFalse(journal.canUndo(), "the run left more than one step behind");
     }
 
-    /// A finished word ends the run, so Ctrl+Z on a typo does not take back the paragraph before it.
+    /// A finished word ends the run, so Ctrl+Z on a typo does not take back the
+    /// paragraph before it.
     // [utest->req~logic.undo.typing-is-one-step~2]
     @Test
     void aFinishedWordEndsTheRun() {
@@ -96,8 +99,8 @@ class KeystrokeCoalescingTest {
         assertTrue(journal.canUndo());
     }
 
-    /// Editing something else ends the run without anyone saying so, because the step on top is no
-    /// longer the one being typed into.
+    /// Editing something else ends the run without anyone saying so, because
+    /// the step on top is no longer the one being typed into.
     @Test
     void anotherFieldEndsTheRun() {
         type("Rela");
@@ -109,8 +112,9 @@ class KeystrokeCoalescingTest {
         assertEquals(Optional.of("Rela"), title(), "the second run merged into the first");
     }
 
-    /// Saving mid-run is a position the user can ask to come back to, so the step it stands at is
-    /// not merged into. Undoing once has to land on what was saved.
+    /// Saving mid-run is a position the user can ask to come back to, so the
+    /// step it stands at is not merged into. Undoing once has to land on what
+    /// was saved.
     @Test
     void arunIsNotMergedIntoAcrossASave() {
         type("Rela");
@@ -127,30 +131,28 @@ class KeystrokeCoalescingTest {
         assertFalse(journal.hasChanged(), "undoing landed somewhere other than the saved position");
     }
 
-    /// Typing a word and deleting it again leaves the library where it was, so there is nothing to
-    /// undo — and, since the marker follows the position, nothing to save either.
+    /// Typing a word and deleting it again leaves the library where it was, so
+    /// there is nothing to undo — and, since the marker follows the position,
+    /// nothing to save either.
     @Test
     void aRunThatEndsWhereItStartedIsNoStepAtAll() {
         entry.setField(StandardField.TITLE, "Relativity");
         journal.markUnchanged();
 
-        journal.applyEdit(new UndoableFieldChange(entry, StandardField.TITLE, "Relativity", "Relativit"),
-                EditSource.TYPING);
-        journal.applyEdit(new UndoableFieldChange(entry, StandardField.TITLE, "Relativit", "Relativity"),
-                EditSource.TYPING);
+        journal.applyEdit(new UndoableFieldChange(entry, StandardField.TITLE, "Relativity", "Relativit"), EditSource.TYPING);
+        journal.applyEdit(new UndoableFieldChange(entry, StandardField.TITLE, "Relativit", "Relativity"), EditSource.TYPING);
 
         assertEquals(Optional.of("Relativity"), title());
         assertFalse(journal.canUndo(), "a step that does nothing is on the stack");
         assertFalse(journal.hasChanged(), "the library reports itself changed although it is not");
     }
 
-    /// A command's step is a whole user action: it neither continues what was being typed nor
-    /// invites the next keystroke to continue it.
+    /// A command's step is a whole user action: it neither continues what was
+    /// being typed nor invites the next keystroke to continue it.
     @Test
     void aRecordedBlockIsNeverContinued() {
         type("Rela");
-        journal.addEdit("Cleanup", edit ->
-                edit.applyEdit(new UndoableFieldChange(entry, StandardField.YEAR, null, "1905")));
+        journal.addEdit("Cleanup", edit -> edit.applyEdit(new UndoableFieldChange(entry, StandardField.YEAR, null, "1905")));
         type("tivity");
 
         journal.undo();
@@ -163,7 +165,8 @@ class KeystrokeCoalescingTest {
         assertEquals(Optional.empty(), title());
     }
 
-    /// Undoing ends the run, or typing after it would fold the redone-away text into the next step.
+    /// Undoing ends the run, or typing after it would fold the redone-away text
+    /// into the next step.
     @Test
     void undoEndsTheRun() {
         type("Rela");
@@ -177,9 +180,10 @@ class KeystrokeCoalescingTest {
         assertFalse(journal.canUndo());
     }
 
-    /// A command that writes the field the user was typing in is a user action of its own, even
-    /// though its change looks exactly like the next keystroke. Type a citation key, then generate
-    /// one: the first undo has to give back the typed key, not remove both.
+    /// A command that writes the field the user was typing in is a user action
+    /// of its own, even though its change looks exactly like the next
+    /// keystroke. Type a citation key, then generate one: the first undo has to
+    /// give back the typed key, not remove both.
     @Test
     void aCommandDoesNotContinueWhatWasBeingTyped() {
         type(StandardField.KEYWORDS, "phys");
@@ -189,15 +193,14 @@ class KeystrokeCoalescingTest {
         journal.applyEdit(new UndoableFieldChange(entry, StandardField.KEYWORDS, "phys", "physics"));
 
         journal.undo();
-        assertEquals(Optional.of("phys"), entry.getField(StandardField.KEYWORDS),
-                "the command's change was folded into what was typed");
+        assertEquals(Optional.of("phys"), entry.getField(StandardField.KEYWORDS), "the command's change was folded into what was typed");
 
         journal.undo();
         assertEquals(Optional.empty(), entry.getField(StandardField.KEYWORDS));
     }
 
-    /// And the run does not resume afterwards: what is typed next starts its own step rather than
-    /// continuing across the command.
+    /// And the run does not resume afterwards: what is typed next starts its
+    /// own step rather than continuing across the command.
     @Test
     void typingAfterACommandStartsANewStep() {
         type(StandardField.KEYWORDS, "phys");

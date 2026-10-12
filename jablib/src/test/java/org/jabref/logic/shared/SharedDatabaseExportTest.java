@@ -19,7 +19,6 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.support.DatabaseTest;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,8 +47,7 @@ class SharedDatabaseExportTest {
         dbmsProcessor = new DBMSProcessor(dbmsConnection);
         TestManager.clearTables(dbmsConnection);
 
-        connectionUrl = DBMSConnectionUrl.parse(
-                "postgresql://postgres:postgres@localhost:" + dbmsConnection.getProperties().getPort() + "/postgres").orElseThrow();
+        connectionUrl = DBMSConnectionUrl.parse("postgresql://postgres:postgres@localhost:" + dbmsConnection.getProperties().getPort() + "/postgres").orElseThrow();
 
         preferences = mock(CliPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(preferences.getBibEntryPreferences()).thenReturn(BibEntryPreferences.getDefault());
@@ -71,14 +69,15 @@ class SharedDatabaseExportTest {
     @Test
     void pulledFileContainsEntriesAndMetaData() throws Exception {
         dbmsProcessor.setupSharedDatabase();
-        dbmsProcessor.insertEntries(List.of(
-                new BibEntry(StandardEntryType.Article)
-                        .withCitationKey("first")
-                        .withField(StandardField.AUTHOR, "Alice")
-                        .withField(StandardField.TITLE, "First"),
-                new BibEntry(StandardEntryType.Book)
-                        .withCitationKey("second")
-                        .withField(StandardField.AUTHOR, "Bob")));
+        dbmsProcessor.insertEntries(
+                List.of(
+                        new BibEntry(StandardEntryType.Article)
+                                .withCitationKey("first")
+                                .withField(StandardField.AUTHOR, "Alice")
+                                .withField(StandardField.TITLE, "First"),
+                        new BibEntry(StandardEntryType.Book)
+                                .withCitationKey("second")
+                                .withField(StandardField.AUTHOR, "Bob")));
         Map<String, String> metaData = dbmsProcessor.getSharedMetaData();
         metaData.put(MetaData.DATABASE_TYPE, "biblatex;");
         dbmsProcessor.setSharedMetaData(metaData);
@@ -88,7 +87,8 @@ class SharedDatabaseExportTest {
         ParserResult parserResult = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor())
                 .importDatabase(pulled);
 
-        assertEquals(List.of(
+        assertEquals(
+                List.of(
                         new BibEntry(StandardEntryType.Article)
                                 .withCitationKey("first")
                                 .withField(StandardField.AUTHOR, "Alice")
@@ -97,6 +97,7 @@ class SharedDatabaseExportTest {
                                 .withCitationKey("second")
                                 .withField(StandardField.AUTHOR, "Bob")),
                 parserResult.getDatabase().getEntries());
-        assertEquals(Optional.of(BibDatabaseMode.BIBLATEX), parserResult.getMetaData().getMode());
+        assertEquals(Optional.of(BibDatabaseMode.BIBLATEX),
+                parserResult.getMetaData().getMode());
     }
 }

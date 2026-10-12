@@ -1,27 +1,38 @@
 package org.jabref.gui.exporter;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.preferences.CliPreferences;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 public class CreateModifyExporterDialogView extends BaseDialog<ExporterViewModel> {
 
     private final ExporterViewModel exporter;
-    @FXML private TextField name;
-    @FXML private TextField fileName;
-    @FXML private TextField extension;
-    @FXML private ButtonType saveExporter;
-    @Inject private DialogService dialogService;
-    @Inject private CliPreferences preferences;
+
+    @FXML
+    private TextField name;
+
+    @FXML
+    private TextField fileName;
+
+    @FXML
+    private TextField extension;
+
+    @FXML
+    private ButtonType saveExporter;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private CliPreferences preferences;
+
     private CreateModifyExporterDialogViewModel viewModel;
 
     public CreateModifyExporterDialogView(ExporterViewModel exporter) {
@@ -29,8 +40,8 @@ public class CreateModifyExporterDialogView extends BaseDialog<ExporterViewModel
         this.exporter = exporter;
 
         ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+                .load()
+                .setAsDialogPane(this);
 
         this.setResultConverter(button -> {
             if (button == saveExporter) {

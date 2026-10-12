@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.PatternSyntaxException;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.CharMatcher;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.logic.util.strings.Transliteration;
 import org.jabref.model.FieldChange;
@@ -14,9 +16,6 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.EntryType;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.CharMatcher;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,19 @@ public class CitationKeyGenerator extends BracketedPattern {
 
     /// Source of disallowed characters: <https://tex.stackexchange.com/a/408548/9075>
     /// These characters are disallowed in BibTeX keys.
-    public static final List<Character> DISALLOWED_CHARACTERS = Arrays.asList('{', '}', '(', ')', ',', '=', '\\', '"', '#', '%', '~', '\'');
+    public static final List<Character> DISALLOWED_CHARACTERS = Arrays.asList(
+            '{',
+            '}',
+            '(',
+            ')',
+            ',',
+            '=',
+            '\\',
+            '"',
+            '#',
+            '%',
+            '~',
+            '\'');
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CitationKeyGenerator.class);
 
@@ -40,21 +51,15 @@ public class CitationKeyGenerator extends BracketedPattern {
 
     public CitationKeyGenerator(BibDatabaseContext bibDatabaseContext, CitationKeyPatternPreferences citationKeyPatternPreferences) {
         this(bibDatabaseContext.getMetaData().getCiteKeyPatterns(citationKeyPatternPreferences.getKeyPatterns()),
-                bibDatabaseContext.getDatabase(),
-                citationKeyPatternPreferences,
-                bibDatabaseContext.getKeywordSeparator(citationKeyPatternPreferences.getKeywordSeparator()));
+                bibDatabaseContext.getDatabase(), citationKeyPatternPreferences, bibDatabaseContext.getKeywordSeparator(citationKeyPatternPreferences.getKeywordSeparator()));
     }
 
-    public CitationKeyGenerator(@NonNull AbstractCitationKeyPatterns citeKeyPattern,
-                                @NonNull BibDatabase database,
-                                @NonNull CitationKeyPatternPreferences citationKeyPatternPreferences) {
+    public CitationKeyGenerator(@NonNull AbstractCitationKeyPatterns citeKeyPattern, @NonNull BibDatabase database, @NonNull CitationKeyPatternPreferences citationKeyPatternPreferences) {
         this(citeKeyPattern, database, citationKeyPatternPreferences, citationKeyPatternPreferences.getKeywordSeparator());
     }
 
-    private CitationKeyGenerator(AbstractCitationKeyPatterns citeKeyPattern,
-                                 BibDatabase database,
-                                 CitationKeyPatternPreferences citationKeyPatternPreferences,
-                                 Character keywordSeparator) {
+    private CitationKeyGenerator(AbstractCitationKeyPatterns citeKeyPattern, BibDatabase database, CitationKeyPatternPreferences citationKeyPatternPreferences,
+            Character keywordSeparator) {
         this.citeKeyPattern = citeKeyPattern;
         this.database = database;
         this.citationKeyPatternPreferences = citationKeyPatternPreferences;
@@ -62,7 +67,8 @@ public class CitationKeyGenerator extends BracketedPattern {
         this.unwantedCharacters = citationKeyPatternPreferences.getUnwantedCharacters();
     }
 
-    /// Computes an appendix to a citation key that could make it unique. We use a-z for numbers 0-25, and then aa-az, ba-bz, etc.
+    /// Computes an appendix to a citation key that could make it unique. We use
+    /// a-z for numbers 0-25, and then aa-az, ba-bz, etc.
     ///
     /// @param number The appendix number.
     /// @return The String to append.
@@ -82,11 +88,7 @@ public class CitationKeyGenerator extends BracketedPattern {
                            .filter(c -> !DISALLOWED_CHARACTERS.contains((char) c))
                            .map(CitationKeyGenerator::normalizeSuperscriptOrSubscript)
                            .filter(c -> c != -1)
-                           .collect(
-                                   StringBuilder::new,
-                                   StringBuilder::appendCodePoint,
-                                   StringBuilder::append
-                           )
+                           .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                            .toString();
 
         // Replace non-English characters like umlauts etc. with a sensible
@@ -105,16 +107,13 @@ public class CitationKeyGenerator extends BracketedPattern {
                   .filter(c -> !Character.isWhitespace(c))
                   .filter(c -> unwantedCharacters.indexOf(c) == -1)
                   .filter(c -> !DISALLOWED_CHARACTERS.contains((char) c))
-                  .collect(
-                          StringBuilder::new,
-                          StringBuilder::appendCodePoint,
-                          StringBuilder::append
-                  )
+                  .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                   .toString();
     }
 
-    /// Maps Unicode superscript and subscript digits to their ASCII counterparts (e.g., ¹ → 1, ₂ → 2).
-    /// Other characters in the Superscripts and Subscripts block (e.g., ⁿ ⁱ ⁺ ⁻ ⁽ ⁾) are stripped by returning -1.
+    /// Maps Unicode superscript and subscript digits to their ASCII
+    /// counterparts (e.g., ¹ → 1, ₂ → 2). Other characters in the Superscripts
+    /// and Subscripts block (e.g., ⁿ ⁱ ⁺ ⁻ ⁽ ⁾) are stripped by returning -1.
     /// All other code points are returned unchanged.
     private static int normalizeSuperscriptOrSubscript(int codePoint) {
         // Latin-1 superscript digits ¹²³ live in the Latin-1 Supplement block at non-contiguous code points.
@@ -163,9 +162,10 @@ public class CitationKeyGenerator extends BracketedPattern {
         return transliterateIfNeeded(newKey);
     }
 
-    /// A letter will be appended to the key based on the user's preferences, either always or to prevent duplicated keys.
+    /// A letter will be appended to the key based on the user's preferences,
+    /// either always or to prevent duplicated keys.
     ///
-    /// @param key    the new key
+    /// @param key the new key
     /// @param oldKey the old key
     /// @return a key, if needed, with an appended letter
     private String appendLettersToKey(String key, String oldKey) {
@@ -175,15 +175,15 @@ public class CitationKeyGenerator extends BracketedPattern {
             occurrences--; // No change, so we can accept one dupe.
         }
 
-        boolean alwaysAddLetter = citationKeyPatternPreferences.getKeySuffix()
-                == CitationKeyPatternPreferences.KeySuffix.ALWAYS;
+        boolean alwaysAddLetter = citationKeyPatternPreferences.getKeySuffix() == CitationKeyPatternPreferences.KeySuffix.ALWAYS;
 
         if (alwaysAddLetter || occurrences != 0) {
             // The key is already in use, so we must modify it.
-            boolean firstLetterA = citationKeyPatternPreferences.getKeySuffix()
-                    == CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A;
+            boolean firstLetterA = citationKeyPatternPreferences.getKeySuffix() == CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A;
 
-            int number = !alwaysAddLetter && !firstLetterA ? 1 : 0;
+            int number = !alwaysAddLetter && !firstLetterA
+                    ? 1
+                    : 0;
             String moddedKey;
 
             // @formatter:off
@@ -225,7 +225,8 @@ public class CitationKeyGenerator extends BracketedPattern {
             try {
                 key = key.replaceAll(regex, replacement);
             } catch (PatternSyntaxException e) {
-                LOGGER.warn("There is a syntax error in the regular expression \"{}\" used to generate a citation key", regex, e);
+                LOGGER.warn("There is a syntax error in the regular expression \"{}\" used to generate a citation key",
+                        regex, e);
             }
         }
         return key;
@@ -241,7 +242,8 @@ public class CitationKeyGenerator extends BracketedPattern {
         return expandBrackets(citationKeyPattern.stringRepresentation(), expandBracketContent(entry));
     }
 
-    /// A helper method to create a [Function] that takes a single bracketed expression, expands it, and cleans the key.
+    /// A helper method to create a [Function] that takes a single bracketed
+    /// expression, expands it, and cleans the key.
     ///
     /// @param entry the [BibEntry] that a citation key is generated for
     /// @return a cleaned citation key for the given [BibEntry]

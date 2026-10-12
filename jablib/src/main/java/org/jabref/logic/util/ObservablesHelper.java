@@ -9,15 +9,15 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.Property;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Utility methods for working with JavaFX [Observable] objects in non-GUI logic code.
+/// Utility methods for working with JavaFX [Observable] objects in non-GUI
+/// logic code.
 ///
 /// GUI code should use `BindingsHelper` from `jabgui` instead.
 public final class ObservablesHelper {
-    private final static Logger LOGGER = LoggerFactory.getLogger(ObservablesHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ObservablesHelper.class);
 
     private ObservablesHelper() {
         throw new UnsupportedOperationException("cannot instantiate a utility class");
@@ -35,30 +35,35 @@ public final class ObservablesHelper {
         }));
     }
 
-    /// Creates an [ObjectBinding] that safely manages the lifecycle of [AutoCloseable] resources.
+    /// Creates an [ObjectBinding] that safely manages the lifecycle of
+    /// [AutoCloseable] resources.
     ///
-    /// Standard JavaFX bindings are lazy and stateless, which can lead to resource leaks when
-    /// binding to heavy or stateful objects (like file streams, external processes, or specialized
-    /// internal components). This utility creates a binding that retains a reference to its
-    /// previously calculated value and guarantees that [AutoCloseable#close()] is invoked
+    /// Standard JavaFX bindings are lazy and stateless, which can lead to
+    /// resource leaks when binding to heavy or stateful objects (like file
+    /// streams, external processes, or specialized internal components). This
+    /// utility creates a binding that retains a reference to its previously
+    /// calculated value and guarantees that [AutoCloseable#close()] is invoked
     /// on the old value immediately before a new value is computed.
-    ///
     ///
     /// **Lifecycle & Memory Management:**
     ///
-    /// - **Lazy Evaluation:** Old resources are closed *only* when a new value is explicitly requested via `.get()` after invalidation.
-    /// - **Disposal:** The active resource is automatically closed when [ObjectBinding#dispose()] is called.
+    /// - **Lazy Evaluation:** Old resources are closed *only* when a new value
+    ///   is explicitly requested via `.get()` after invalidation.
+    /// - **Disposal:** The active resource is automatically closed when
+    ///   [ObjectBinding#dispose()] is called.
     ///
+    /// *Note:* Exceptions thrown during the closing of old resources or the
+    /// computation of new ones are caught and logged to prevent crashing the
+    /// JavaFX application thread. If computation fails, the binding will
+    /// evaluate to `null`.
     ///
-    ///
-    /// *Note:* Exceptions thrown during the closing of old resources or the computation of
-    /// new ones are caught and logged to prevent crashing the JavaFX application thread.
-    /// If computation fails, the binding will evaluate to `null`.
-    ///
-    /// @param <T>          The type of the closable resource, which must implement [AutoCloseable].
-    /// @param func         The factory [Callable] used to compute the new resource.
-    /// @param dependencies The observables that this binding should listen to for invalidation.
-    /// @return An `ObjectBinding<T>` that automatically closes previous instances upon recalculation or disposal.
+    /// @param <T> The type of the closable resource, which must implement
+    ///   [AutoCloseable].
+    /// @param func The factory [Callable] used to compute the new resource.
+    /// @param dependencies The observables that this binding should listen to
+    ///   for invalidation.
+    /// @return An `ObjectBinding<T>` that automatically closes previous
+    ///   instances upon recalculation or disposal.
     public static <T extends AutoCloseable> ObjectBinding<T> createClosableObjectBinding(final Callable<T> func, final Observable... dependencies) {
         return new ObjectBinding<>() {
             private T currentValue;
@@ -107,16 +112,15 @@ public final class ObservablesHelper {
 
             @Override
             public ObservableList<?> getDependencies() {
-                return ((dependencies == null) || (dependencies.length == 0)) ?
-                       FXCollections.emptyObservableList()
-                                                                              : (dependencies.length == 1) ?
-                                                                                FXCollections.singletonObservableList(dependencies[0])
-                                                                                                           : FXCollections.unmodifiableObservableList(FXCollections.observableArrayList(dependencies));
+                return ((dependencies == null) || (dependencies.length == 0))
+                        ? FXCollections.emptyObservableList()
+                        : (dependencies.length == 1) ? FXCollections.singletonObservableList(dependencies[0]) : FXCollections.unmodifiableObservableList(FXCollections.observableArrayList(dependencies));
             }
         };
     }
 
-    public static <T extends AutoCloseable> ObjectBinding<T> createClosableObjectBinding(final Callable<T> func, final List<Property<?>> dependencies) {
+    public static <T extends AutoCloseable> ObjectBinding<T> createClosableObjectBinding(final Callable<T> func,
+            final List<Property<?>> dependencies) {
         return createClosableObjectBinding(func, dependencies.toArray(Observable[]::new));
     }
 }

@@ -12,7 +12,8 @@ import io.github.darvil.terminal.textformatter.TextFormatter;
 import io.github.darvil.terminal.textformatter.color.SimpleColor;
 
 public final class BuildInfo {
-    public static final String JABREF_BANNER = TextFormatter.of("""
+    public static final String JABREF_BANNER = TextFormatter.of(
+            """
 
                &&&    &&&&&    &&&&&&&&   &&&&&&&&   &&&&&&&&& &&&&&&&&&
                &&&    &&&&&    &&&   &&&  &&&   &&&  &&&       &&&
@@ -21,8 +22,11 @@ public final class BuildInfo {
                &&&  &&&&&&&&&  &&&   &&&  &&&   &&&  &&&       &&&
                &&&  &&&   &&&  &&&   &&&  &&&   &&&  &&&       &&&
             &&&&&   &&&   &&&  &&&&&&&&   &&&   &&&  &&&&&&&&& &&&
-            """, SimpleColor.MAGENTA).toString() +
-            TextFormatter.of("\nVersion: %s\n", SimpleColor.BRIGHT_WHITE).toString() + """
+            """,
+            SimpleColor.MAGENTA)
+            .toString()
+            + TextFormatter.of("\nVersion: %s\n", SimpleColor.BRIGHT_WHITE).toString()
+            + """
             Staying on top of your literature since 2003 - https://www.jabref.org/
             Please report issues at https://github.com/JabRef/jabref/issues
             """;
@@ -87,9 +91,9 @@ public final class BuildInfo {
 
     private static String getValue(Properties properties, String key, String defaultValue) {
         String result = Optional.ofNullable(properties.getProperty(key))
-                                // workaround unprocessed build.properties file --> just remove the reference to some variable used in build.gradle
-                                .map(value -> value.replaceAll("\\$\\{.*\\}", ""))
-                                .orElse("");
+                // workaround unprocessed build.properties file --> just remove the reference to some variable used in build.gradle
+                .map(value -> value.replaceAll("\\$\\{.*\\}", ""))
+                .orElse("");
         if (!result.isEmpty()) {
             return result;
         }

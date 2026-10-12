@@ -80,24 +80,19 @@ public class WebFetchers {
 
     private static SortedSet<SearchBasedFetcher> searchBasedFetchers;
 
-    private WebFetchers() {
-    }
+    private WebFetchers() {}
 
-    /// @implNote Needs to be consistent with [#getIdBasedFetcherFoIdentifier(Identifier, ImportFormatPreferences)]
+    /// @implNote Needs to be consistent with
+    ///   [#getIdBasedFetcherFoIdentifier(Identifier, ImportFormatPreferences)]
     public static Optional<IdBasedFetcher> getIdBasedFetcherForField(Field field, ImportFormatPreferences importFormatPreferences) {
         IdBasedFetcher fetcher;
 
         switch (field) {
-            case DOI ->
-                    fetcher = new DoiFetcher(importFormatPreferences);
-            case EPRINT ->
-                    fetcher = new ArXivFetcher(importFormatPreferences);
-            case ISBN ->
-                    fetcher = new IsbnFetcher(importFormatPreferences);
-            case ISSN ->
-                    fetcher = new IssnFetcher();
-            case null,
-                 default -> {
+            case DOI -> fetcher = new DoiFetcher(importFormatPreferences);
+            case EPRINT -> fetcher = new ArXivFetcher(importFormatPreferences);
+            case ISBN -> fetcher = new IsbnFetcher(importFormatPreferences);
+            case ISSN -> fetcher = new IssnFetcher();
+            case null, default -> {
                 return Optional.empty();
             }
         }
@@ -110,28 +105,18 @@ public class WebFetchers {
 
         // All identifiers listed here should also appear at {@link org.jabref.gui.mergeentries.FetchAndMergeEntry.SUPPORTED_FIELDS} and vice versa.
 
-        return Optional.ofNullable(
-                switch (identifier) {
-                    case ArXivIdentifier _ ->
-                            new ArXivFetcher(importFormatPreferences);
-                    case DOI _ ->
-                            new DoiFetcher(importFormatPreferences);
-                    case IacrEprint _ ->
-                            new IacrEprintFetcher(importFormatPreferences);
-                    case ISBN _ ->
-                            new IsbnFetcher(importFormatPreferences);
-                    case ISSN _ ->
-                            new IssnFetcher();
-                    case RFC _ ->
-                            new RfcFetcher(importFormatPreferences);
-                    case SSRN _ ->
-                            new SsrnFetcher(importFormatPreferences);
-                    case SWHID _ ->
-                            new SwhidFetcher(importFormatPreferences);
-                    // No fetcher for ARK and MathSciNet
-                    default ->
-                            null;
-                });
+        return Optional.ofNullable(switch (identifier) {
+            case ArXivIdentifier _ -> new ArXivFetcher(importFormatPreferences);
+            case DOI _ -> new DoiFetcher(importFormatPreferences);
+            case IacrEprint _ -> new IacrEprintFetcher(importFormatPreferences);
+            case ISBN _ -> new IsbnFetcher(importFormatPreferences);
+            case ISSN _ -> new IssnFetcher();
+            case RFC _ -> new RfcFetcher(importFormatPreferences);
+            case SSRN _ -> new SsrnFetcher(importFormatPreferences);
+            case SWHID _ -> new SwhidFetcher(importFormatPreferences);
+            // No fetcher for ARK and MathSciNet
+            default -> null;
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -199,8 +184,7 @@ public class WebFetchers {
     }
 
     /// @return sorted set containing id based fetchers
-    public static SortedSet<IdBasedFetcher> getIdBasedFetchers(ImportFormatPreferences importFormatPreferences,
-                                                               ImporterPreferences importerPreferences) {
+    public static SortedSet<IdBasedFetcher> getIdBasedFetchers(ImportFormatPreferences importFormatPreferences, ImporterPreferences importerPreferences) {
         SortedSet<IdBasedFetcher> set = new TreeSet<>(Comparator.comparing(WebFetcher::getName, String.CASE_INSENSITIVE_ORDER));
         set.add(new ArXivFetcher(importFormatPreferences));
         set.add(new AstrophysicsDataSystem(importFormatPreferences, importerPreferences));
@@ -226,10 +210,8 @@ public class WebFetchers {
         return set;
     }
 
-    public static SortedSet<EntryBasedFetcher> getEntryBasedFetchers(ImporterPreferences importerPreferences,
-                                                                     ImportFormatPreferences importFormatPreferences,
-                                                                     FilePreferences filePreferences,
-                                                                     BibDatabaseContext databaseContext) {
+    public static SortedSet<EntryBasedFetcher> getEntryBasedFetchers(ImporterPreferences importerPreferences, ImportFormatPreferences importFormatPreferences, FilePreferences filePreferences,
+            BibDatabaseContext databaseContext) {
         SortedSet<EntryBasedFetcher> set = new TreeSet<>(Comparator.comparing(WebFetcher::getName, String.CASE_INSENSITIVE_ORDER));
 
         set.add(new AstrophysicsDataSystem(importFormatPreferences, importerPreferences));
@@ -316,8 +298,7 @@ public class WebFetchers {
                 new Scopus(importerPreferences),
                 new SpringerNatureWebFetcher(importerPreferences),
                 new UnpaywallFetcher(importerPreferences),
-                new WileyFetcher(importerPreferences)
-        );
+                new WileyFetcher(importerPreferences));
 
         return fetchers;
     }

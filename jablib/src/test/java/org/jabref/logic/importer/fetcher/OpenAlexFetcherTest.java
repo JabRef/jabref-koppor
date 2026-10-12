@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.Parser;
@@ -23,7 +22,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -60,19 +58,19 @@ class OpenAlexFetcherTest {
     @Test
     void parserParsesResultsArray() throws Exception {
         Parser parser = fetcher.getParser();
-        String json = "{" +
-                "\"results\":[{" +
-                "\"type\":\"article\"," +
-                "\"title\":\"Sample Title\"," +
-                "\"publication_year\":2020," +
-                "\"id\":\"https://openalex.org/W12345\"," +
-                "\"ids\":{\"doi\":\"https://doi.org/10.1234/ABC.5678\"}," +
-                "\"authorships\":[{" +
-                "\"author\":{\"display_name\":\"Alice\"}}," +
-                "{\"author\":{\"display_name\":\"Bob\"}}]," +
-                "\"biblio\":{\"volume\":\"12\",\"issue\":\"3\",\"first_page\":\"45\",\"last_page\":\"67\"}," +
-                "\"concepts\":[{\"display_name\":\"Machine Learning\"},{\"display_name\":\"AI\"}]" +
-                "}]}";
+        String json = "{"
+                + "\"results\":[{"
+                + "\"type\":\"article\","
+                + "\"title\":\"Sample Title\","
+                + "\"publication_year\":2020,"
+                + "\"id\":\"https://openalex.org/W12345\","
+                + "\"ids\":{\"doi\":\"https://doi.org/10.1234/ABC.5678\"},"
+                + "\"authorships\":[{"
+                + "\"author\":{\"display_name\":\"Alice\"}},"
+                + "{\"author\":{\"display_name\":\"Bob\"}}],"
+                + "\"biblio\":{\"volume\":\"12\",\"issue\":\"3\",\"first_page\":\"45\",\"last_page\":\"67\"},"
+                + "\"concepts\":[{\"display_name\":\"Machine Learning\"},{\"display_name\":\"AI\"}]"
+                + "}]}";
         InputStream is = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
         List<BibEntry> entries = parser.parseEntries(is);
         assertEquals(1, entries.size());
@@ -86,14 +84,19 @@ class OpenAlexFetcherTest {
         assertEquals("12", e.getField(StandardField.VOLUME).orElse(""));
         assertEquals("3", e.getField(StandardField.NUMBER).orElse(""));
         assertEquals("45--67", e.getField(StandardField.PAGES).orElse(""));
-        assertTrue(e.getField(StandardField.KEYWORDS).orElse("").contains("Machine Learning"));
-        assertTrue(e.getField(StandardField.KEYWORDS).orElse("").contains("AI"));
+        assertTrue(e.getField(StandardField.KEYWORDS)
+                    .orElse("")
+                    .contains("Machine Learning"));
+        assertTrue(e.getField(StandardField.KEYWORDS)
+                    .orElse("")
+                    .contains("AI"));
     }
 
     @Test
     void parserParsesSingleWorkObject() throws Exception {
         Parser parser = fetcher.getParser();
-        String json = """
+        String json =
+                """
                 {
                     "type":"article",
                     "title":"Single Title",
@@ -119,18 +122,14 @@ class OpenAlexFetcherTest {
     @Test
     void fullTextFindByDOI() throws URISyntaxException, FetcherException, IOException {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1145/3503250");
-        assertEquals(
-                Optional.of(new URI("https://dl.acm.org/doi/pdf/10.1145/3503250").toURL()),
-                fetcher.findFullText(entry)
-        );
+        assertEquals(Optional.of(new URI("https://dl.acm.org/doi/pdf/10.1145/3503250").toURL()),
+                fetcher.findFullText(entry));
     }
 
     @Test
     void fullTextFindByDOIAlternate() throws FetcherException, IOException, URISyntaxException {
-        assertEquals(
-                Optional.of(new URI("https://www.mdpi.com/2227-9032/9/2/206/pdf?version=1614152367").toURL()),
-                fetcher.findFullText(new BibEntry()
-                        .withField(StandardField.DOI, "10.3390/healthcare9020206")));
+        assertEquals(Optional.of(new URI("https://www.mdpi.com/2227-9032/9/2/206/pdf?version=1614152367").toURL()),
+                fetcher.findFullText(new BibEntry().withField(StandardField.DOI, "10.3390/healthcare9020206")));
     }
 
     @Test
@@ -140,10 +139,8 @@ class OpenAlexFetcherTest {
 
     @Test
     void fullTextSearchByopenAlexURl() throws IOException, FetcherException, URISyntaxException {
-        assertEquals(
-                Optional.of(new URI("https://www.mdpi.com/2227-9032/9/2/206/pdf?version=1614152367").toURL()),
-                fetcher.findFullText(new BibEntry()
-                        .withField(StandardField.URL, "https://openalex.org/W3130362418")));
+        assertEquals(Optional.of(new URI("https://www.mdpi.com/2227-9032/9/2/206/pdf?version=1614152367").toURL()),
+                fetcher.findFullText(new BibEntry().withField(StandardField.URL, "https://openalex.org/W3130362418")));
     }
 
     @Test

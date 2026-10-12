@@ -1,7 +1,6 @@
 package org.jabref.logic.layout.format;
 
 import org.jabref.logic.layout.LayoutFormatter;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -10,7 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class AuthorFirstAbbrLastCommasTest {
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             # Empty case
             '', ''
             # Single Names

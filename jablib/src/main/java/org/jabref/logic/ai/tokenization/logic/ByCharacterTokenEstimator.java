@@ -16,8 +16,7 @@ public class ByCharacterTokenEstimator implements TokenEstimator {
 
     @Override
     public int estimate(List<ChatMessage> messages) {
-        String content = messages
-                .stream()
+        String content = messages.stream()
                 .map(ChatMessage::content)
                 .collect(Collectors.joining(" "));
 

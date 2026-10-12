@@ -12,7 +12,6 @@ import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +21,9 @@ public class PushToEmacs extends AbstractPushToApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PushToEmacs.class);
 
-    /// @param preferences getPushToApplicationPreferences(), getExternalApplicationsPreferences(), and getFilePreferences() are used
+    /// @param preferences getPushToApplicationPreferences(),
+    ///   getExternalApplicationsPreferences(), and getFilePreferences() are
+    ///   used
     public PushToEmacs(NotificationService notificationService, PushToApplicationPreferences preferences) {
         super(notificationService, preferences);
     }
@@ -63,11 +64,12 @@ public class PushToEmacs extends AbstractPushToApplication {
                 // so emacs receives: (insert "\cite{Blah2001}")
 
                 com[com.length - 1] = prefix.concat("\""
-                                                    + getCitePrefix().replace("\\", "\\\\")
-                                                    + keyString
-                                                    + getCiteSuffix().replace("\\", "\\\\")
-                                                    + "\"").concat(suffix)
-                                            .replace("\"", "\\\"");
+                                + getCitePrefix().replace("\\", "\\\\")
+                                + keyString
+                                + getCiteSuffix().replace("\\", "\\\\")
+                                + "\"")
+                        .concat(suffix)
+                        .replace("\"", "\\\"");
             } else {
                 // Linux gnuclient/emacslient escaping:
                 // java string: "(insert \"\\\\cite{Blah2001}\")"
@@ -77,7 +79,8 @@ public class PushToEmacs extends AbstractPushToApplication {
                         + getCitePrefix().replace("\\", "\\\\")
                         + keyString
                         + getCiteSuffix().replace("\\", "\\\\")
-                        + "\"").concat(suffix);
+                        + "\"")
+                        .concat(suffix);
             }
 
             LOGGER.atDebug()
@@ -105,11 +108,9 @@ public class PushToEmacs extends AbstractPushToApplication {
                         LOGGER.warn("Push to Emacs error: {}", error);
                         couldNotPush = true;
                         if (error.contains("can't find socket") || error.contains("No socket or alternate editor")) {
-                            sendErrorNotification(Localization.lang("Error pushing entries"),
-                                    Localization.lang("Could not connect to Emacs. Make sure the server is running. In Emacs, type %0 to start it.", "M-x server-start"));
+                            sendErrorNotification(Localization.lang("Error pushing entries"), Localization.lang("Could not connect to Emacs. Make sure the server is running. In Emacs, type %0 to start it.", "M-x server-start"));
                         } else {
-                            sendErrorNotification(Localization.lang("Error pushing entries"),
-                                    Localization.lang("Could not push to a running emacs daemon."));
+                            sendErrorNotification(Localization.lang("Error pushing entries"), Localization.lang("Could not push to a running emacs daemon."));
                         }
                     }
                 } catch (IOException e) {
@@ -119,10 +120,11 @@ public class PushToEmacs extends AbstractPushToApplication {
         } catch (IOException excep) {
             LOGGER.warn("Problem pushing to Emacs.", excep);
             couldNotCall = true;
-            sendErrorNotification(Localization.lang("Error pushing entries"),
-                    Localization.lang("Could not call executable '%0'.", commandPath) + "\n" +
-                            Localization.lang("Please check the path in the preferences.") + "\n" +
-                            (OS.OS_X ? Localization.lang("On macOS, you can use the command-line binary.") : ""));
+            sendErrorNotification(Localization.lang("Error pushing entries"), Localization.lang("Could not call executable '%0'.", commandPath)
+                    + "\n"
+                    + Localization.lang("Please check the path in the preferences.")
+                    + "\n"
+                    + (OS.OS_X ? Localization.lang("On macOS, you can use the command-line binary.") : ""));
         }
     }
 
@@ -132,8 +134,7 @@ public class PushToEmacs extends AbstractPushToApplication {
             // Detailed error notification might have been sent already in pushEntries
             // But we don't want to swallow the success message if there's no error.
         } else if (couldNotCall) {
-            this.sendErrorNotification(Localization.lang("Error pushing entries"),
-                    Localization.lang("Could not run the emacs client."));
+            this.sendErrorNotification(Localization.lang("Error pushing entries"), Localization.lang("Could not run the emacs client."));
         } else {
             super.onOperationCompleted();
         }

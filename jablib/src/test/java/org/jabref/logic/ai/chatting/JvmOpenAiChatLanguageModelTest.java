@@ -25,6 +25,8 @@ class JvmOpenAiChatLanguageModelTest {
 
         UncheckedIOException exception = assertThrows(UncheckedIOException.class, () -> model.chat(List.of(UserMessage.from("hi"))));
 
-        assertEquals("Could not connect to http://does-not-exist.invalid/v1/.\n\nUnresolvedAddressException", exception.getMessage());
+        assertEquals(
+                "Could not connect to http://does-not-exist.invalid/v1/.\n\nUnresolvedAddressException",
+                exception.getMessage());
     }
 }

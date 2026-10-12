@@ -9,8 +9,8 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 
 public record FullBibEntry(BibDatabaseContext databaseContext, BibEntry entry) {
-    /// Creates an [AiSummaryIdentifier] for this entry if it has both a valid AI library ID
-    /// and a present, unique citation key.
+    /// Creates an [AiSummaryIdentifier] for this entry if it has both a valid
+    /// AI library ID and a present, unique citation key.
     ///
     /// @return [Optional#empty()] if the preconditions are not met
     public Optional<AiSummaryIdentifier> toAiSummaryIdentifier() {
@@ -27,8 +27,12 @@ public record FullBibEntry(BibDatabaseContext databaseContext, BibEntry entry) {
 
     public static Optional<BibEntry> findEntryByLink(List<FullBibEntry> entries, String link) {
         return entries.stream()
-                      .flatMap(identifier -> identifier.databaseContext().getEntries().stream())
-                      .filter(entry -> entry.getFiles().stream().anyMatch(file -> file.getLink().equals(link)))
+                      .flatMap(identifier -> identifier.databaseContext()
+                              .getEntries()
+                              .stream())
+                      .filter(entry -> entry.getFiles()
+                                            .stream()
+                                            .anyMatch(file -> file.getLink().equals(link)))
                       .findFirst();
     }
 

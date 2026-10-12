@@ -24,18 +24,15 @@ public class AutoLinkPreferences {
     private final SimpleObjectProperty<Character> keywordSeparator;
 
     private AutoLinkPreferences() {
-        this(
-                CitationKeyDependency.START,            // Citation key dependency
-                "**/.*[citationkey].*\\\\.[extension]", // Regular expression
-                true,                                   // Ask auto naming PDFs
-                DEFAULT_KEYWORD_SEPARATOR               // Keyword separator
+        this(CitationKeyDependency.START, // Citation key dependency
+        "**/.*[citationkey].*\\\\.[extension]", // Regular expression
+        true, // Ask auto naming PDFs
+        DEFAULT_KEYWORD_SEPARATOR // Keyword separator
         );
     }
 
-    public AutoLinkPreferences(CitationKeyDependency citationKeyDependency,
-                               String regularExpression,
-                               boolean askAutoNamingPdfs,
-                               ReadOnlyObjectProperty<Character> keywordSeparatorProperty) {
+    public AutoLinkPreferences(CitationKeyDependency citationKeyDependency, String regularExpression, boolean askAutoNamingPdfs,
+            ReadOnlyObjectProperty<Character> keywordSeparatorProperty) {
         this.citationKeyDependency = new SimpleObjectProperty<>(citationKeyDependency);
         this.regularExpression = new SimpleStringProperty(regularExpression);
         this.askAutoNamingPdfs = new SimpleBooleanProperty(askAutoNamingPdfs);
@@ -45,10 +42,8 @@ public class AutoLinkPreferences {
     }
 
     /// For testing purpose
-    public AutoLinkPreferences(CitationKeyDependency citationKeyDependency,
-                               String regularExpression,
-                               boolean askAutoNamingPdfs,
-                               Character keywordSeparator) {
+    public AutoLinkPreferences(CitationKeyDependency citationKeyDependency, String regularExpression, boolean askAutoNamingPdfs,
+            Character keywordSeparator) {
         this.citationKeyDependency = new SimpleObjectProperty<>(citationKeyDependency);
         this.regularExpression = new SimpleStringProperty(regularExpression);
         this.askAutoNamingPdfs = new SimpleBooleanProperty(askAutoNamingPdfs);

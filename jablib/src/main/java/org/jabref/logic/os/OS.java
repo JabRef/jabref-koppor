@@ -10,14 +10,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import org.jabref.logic.util.strings.StringUtil;
-import org.jabref.model.metadata.UserHostInfo;
-
 import com.github.javakeyring.BackendNotSupportedException;
 import com.github.javakeyring.Keyring;
 import com.github.javakeyring.PasswordAccessException;
 import mslinks.ShellLink;
 import mslinks.ShellLinkException;
+import org.jabref.logic.util.strings.StringUtil;
+import org.jabref.model.metadata.UserHostInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +29,11 @@ public class OS {
     public static final String APP_DIR_APP_AUTHOR = "org.jabref";
 
     public static final String NEWLINE = System.lineSeparator();
-    public static final List<Charset> ENCODINGS = Charset.availableCharsets().values().stream().distinct().toList();
+    public static final List<Charset> ENCODINGS = Charset.availableCharsets()
+            .values()
+            .stream()
+            .distinct()
+            .toList();
 
     // https://commons.apache.org/proper/commons-lang/javadocs/api-2.6/org/apache/commons/lang/SystemUtils.html
     private static final String OS_NAME = System.getProperty("os.name", "unknown").toLowerCase(Locale.ROOT);
@@ -97,8 +100,7 @@ public class OS {
                 try {
                     ShellLink link = new ShellLink(texworksLinkPath);
                     return link.resolveTarget();
-                } catch (IOException |
-                         ShellLinkException e) {
+                } catch (IOException | ShellLinkException e) {
                     // Static logger instance cannot be used. See the class comment.
                     Logger logger = LoggerFactory.getLogger(OS.class);
                     logger.warn("Error while reading .lnk file for TeXworks", e);

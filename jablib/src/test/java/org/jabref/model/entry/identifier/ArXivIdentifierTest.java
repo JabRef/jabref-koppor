@@ -171,11 +171,15 @@ class ArXivIdentifierTest {
     @Test
     void constructCorrectURLForEprint() throws URISyntaxException {
         Optional<ArXivIdentifier> parsed = ArXivIdentifier.parse("0706.0001v1");
-        assertEquals(Optional.of(new URI("https://arxiv.org/abs/0706.0001v1")), parsed.get().getExternalURI());
+        assertEquals(Optional.of(new URI("https://arxiv.org/abs/0706.0001v1")),
+                parsed.get().getExternalURI());
     }
 
     @ParameterizedTest
-    @CsvSource(emptyValue = "", textBlock = """
+    @CsvSource(
+            emptyValue = "",
+            textBlock =
+                    """
             # url                                    , id         , version
             https://arxiv.org/html/2511.01348v2      , 2511.01348 , 2
             https://arxiv.org/html/2511.01348        , 2511.01348 , ''
@@ -194,34 +198,21 @@ class ArXivIdentifierTest {
 
     @Test
     void findInTextFindsArxivFromHtmlUrlWithFragment() {
-        Optional<ArXivIdentifier> parsed =
-                ArXivIdentifier.findInText(
-                        "https://arxiv.org/html/2503.08641v1#bib.bib5"
-                );
+        Optional<ArXivIdentifier> parsed = ArXivIdentifier.findInText("https://arxiv.org/html/2503.08641v1#bib.bib5");
 
-        assertEquals(
-                Optional.of(new ArXivIdentifier("2503.08641", "1", "")),
-                parsed
-        );
+        assertEquals(Optional.of(new ArXivIdentifier("2503.08641", "1", "")), parsed);
     }
 
     @Test
     void findInTextFindsArxivInsideText() {
-        Optional<ArXivIdentifier> parsed =
-                ArXivIdentifier.findInText(
-                        "https://arxiv.org/abs/1502.05795v1"
-                );
+        Optional<ArXivIdentifier> parsed = ArXivIdentifier.findInText("https://arxiv.org/abs/1502.05795v1");
 
-        assertEquals(
-                Optional.of(new ArXivIdentifier("1502.05795", "1", "")),
-                parsed
-        );
+        assertEquals(Optional.of(new ArXivIdentifier("1502.05795", "1", "")), parsed);
     }
 
     @Test
     void findInTextReturnsEmptyForNonArxivText() {
-        Optional<ArXivIdentifier> parsed =
-                ArXivIdentifier.findInText("this text has no identifiers");
+        Optional<ArXivIdentifier> parsed = ArXivIdentifier.findInText("this text has no identifiers");
 
         assertEquals(Optional.empty(), parsed);
     }

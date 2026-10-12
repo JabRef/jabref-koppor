@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
+import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences.KeySuffix;
 import org.jabref.logic.citationkeypattern.GlobalCitationKeyPatterns;
 import org.jabref.logic.exporter.ExportPreferences;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -23,7 +23,6 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.search.SearchDisplayMode;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.toolkit.util.CapturingCommandLine;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Answers;
 
@@ -52,26 +51,20 @@ public abstract class AbstractJabKitTest {
         when(preferences.getImportFormatPreferences()).thenReturn(importFormatPreferences);
         // The deep-stub mock returns nulls for citation-key generation, which the integrity
         // check and the database writers rely on; provide a real preferences object instead.
-        when(preferences.getCitationKeyPatternPreferences()).thenReturn(new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A,
-                "",
-                "",
-                CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS,
-                GlobalCitationKeyPatterns.fromPattern("[auth][year]"),
-                new SimpleObjectProperty<>(',')));
-        when(preferences.getSearchPreferences()).thenReturn(new SearchPreferences(
-                SearchDisplayMode.FILTER,
-                EnumSet.noneOf(SearchFlags.class),
-                false,
-                false,
-                false,
-                0,
-                0,
-                0));
+        when(preferences.getCitationKeyPatternPreferences()).thenReturn(
+                new CitationKeyPatternPreferences(
+                        false,
+                        false,
+                        false,
+                        false,
+                        KeySuffix.SECOND_WITH_A,
+                        "",
+                        "",
+                        CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS,
+                        GlobalCitationKeyPatterns.fromPattern("[auth][year]"),
+                        new SimpleObjectProperty<>(',')));
+        when(preferences.getSearchPreferences()).thenReturn(new SearchPreferences(SearchDisplayMode.FILTER, EnumSet.noneOf(SearchFlags.class), false, false, false,
+                0, 0, 0));
         when(preferences.getAiPreferences()).thenReturn(aiPreferences);
 
         JabKit jabKit = new JabKit(preferences, entryTypesManager);
@@ -86,7 +79,9 @@ public abstract class AbstractJabKitTest {
     /// @param resourceName the resource name
     /// @return the class resource as fully qualified string
     String getClassResourceAsFullyQualifiedString(String resourceName) {
-        return getClassResourceAsPath(resourceName).toAbsolutePath().toString();
+        return getClassResourceAsPath(resourceName)
+                .toAbsolutePath()
+                .toString();
     }
 
     /// Gets class resource as a path.
@@ -97,8 +92,9 @@ public abstract class AbstractJabKitTest {
     /// @return the class resource as path
     protected Path getClassResourceAsPath(String resourceName) {
         try {
-            return Path.of(Objects.requireNonNull(this.getClass().getResource(resourceName), "Could not find resource: " + resourceName).toURI())
-                       .toAbsolutePath();
+            return Path.of(Objects.requireNonNull(this.getClass().getResource(resourceName), "Could not find resource: " + resourceName)
+                    .toURI())
+                    .toAbsolutePath();
         } catch (URISyntaxException e) {
             throw new RuntimeException("Wrong resource name %s for class %s".formatted(resourceName, this.getClass()), e);
         }
@@ -106,8 +102,8 @@ public abstract class AbstractJabKitTest {
 
     protected static void assertFileExists(Path file) throws IOException {
         String listedFiles = Files.list(file.getParent())
-                                  .map(path -> "'" + path.getFileName().toString() + "'")
-                                  .collect(Collectors.joining(", "));
+                .map(path -> "'" + path.getFileName().toString() + "'")
+                .collect(Collectors.joining(", "));
 
         assertTrue(Files.exists(file), "file  '" + file.getFileName().toString() + "' doesn't exist, but found " + listedFiles);
     }

@@ -14,12 +14,11 @@ import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Objects;
 
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 import org.jabref.logic.util.FileType;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseModeDetection;
-
-import com.ibm.icu.text.CharsetDetector;
-import com.ibm.icu.text.CharsetMatch;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,13 +31,17 @@ public abstract class Importer implements Comparable<Importer> {
 
     /// Check whether the source is in the correct format for this importer.
     ///
-    /// All implementations need to reset the input stream to the beginning again - to enable importing at subsequent calls.
+    /// All implementations need to reset the input stream to the beginning
+    /// again - to enable importing at subsequent calls.
     ///
-    /// The effect of this method is primarily to avoid unnecessary processing of files when searching for a suitable
-    /// import format. If this method returns false, the import routine will move on to the next import format.
+    /// The effect of this method is primarily to avoid unnecessary processing
+    /// of files when searching for a suitable import format. If this method
+    /// returns false, the import routine will move on to the next import
+    /// format.
     ///
-    /// Thus, the correct behavior is to return false if it is certain that the file is not of the suitable type, and
-    /// true otherwise. Returning true is the safe choice if not certain.
+    /// Thus, the correct behavior is to return false if it is certain that the
+    /// file is not of the suitable type, and true otherwise. Returning true is
+    /// the safe choice if not certain.
     public boolean isRecognizedFormat(BufferedReader input) throws IOException {
         // sensible default - import will be tried
         return true;
@@ -77,25 +80,33 @@ public abstract class Importer implements Comparable<Importer> {
     ///
     /// @param extension the extension to check, without leading dot
     public boolean supportsFileExtension(String extension) {
-        return getFileType().getExtensions().stream().anyMatch(extension::equalsIgnoreCase);
+        return getFileType()
+                .getExtensions()
+                .stream()
+                .anyMatch(extension::equalsIgnoreCase);
     }
 
     /// Parse the database in the source.
     ///
-    /// This method can be called in two different contexts - either when importing in a specified format, or when
-    /// importing in unknown format. In the latter case, JabRef cycles through all available import formats. No error
-    /// messages or feedback is displayed from individual import formats in this case.
+    /// This method can be called in two different contexts - either when
+    /// importing in a specified format, or when importing in unknown format. In
+    /// the latter case, JabRef cycles through all available import formats. No
+    /// error messages or feedback is displayed from individual import formats
+    /// in this case.
     ///
-    /// If importing in a specified format and an empty library is returned, JabRef reports that no entries were found.
+    /// If importing in a specified format and an empty library is returned,
+    /// JabRef reports that no entries were found.
     ///
-    /// If your format is binary-based (PDF, ZIP-based, or others), then you should not solely override this method.
-    /// For binary formats do this:
+    /// If your format is binary-based (PDF, ZIP-based, or others), then you
+    /// should not solely override this method. For binary formats do this:
     ///
     /// 1. Throw [UnsupportedOperationException] in this method.
-    /// 2. Override the method [Importer#importDatabase(Path)].
-    /// Example of this workaround is in: [org.jabref.logic.importer.fileformat.pdf.PdfImporter].
+    /// 2. Override the method [Importer#importDatabase(Path)]. Example of this
+    ///    workaround is in:
+    ///    [org.jabref.logic.importer.fileformat.pdf.PdfImporter].
     ///
-    /// @param input the input to read from - there is no reset done. "BufferedReader" is only a convenience for the implementation
+    /// @param input the input to read from - there is no reset done.
+    ///   "BufferedReader" is only a convenience for the implementation
     public abstract ParserResult importDatabase(BufferedReader input) throws IOException;
 
     /// Parse the database in the specified file.
@@ -113,7 +124,9 @@ public abstract class Importer implements Comparable<Importer> {
             parserResult.setPath(filePath);
 
             // Make sure the mode is always set
-            if (parserResult.getMetaData().getMode().isEmpty()) {
+            if (parserResult.getMetaData()
+                            .getMode()
+                            .isEmpty()) {
                 parserResult.getMetaData().setMode(BibDatabaseModeDetection.inferMode(parserResult.getDatabase()));
             }
             return parserResult;
@@ -143,7 +156,8 @@ public abstract class Importer implements Comparable<Importer> {
                 }
 
                 // If we have UTF-8 with 100 confidence or any ASCII candidate, UTF-8 is the safer fallback.
-                if (Arrays.stream(matches).anyMatch(charset -> "ASCII".equals(charset.getName()) || ("UTF-8".equals(charset.getName()) && charset.getConfidence() == 100))) {
+                if (Arrays.stream(matches).anyMatch(charset ->
+                        "ASCII".equals(charset.getName()) || ("UTF-8".equals(charset.getName()) && charset.getConfidence() == 100))) {
                     return defaultCharSet;
                 }
                 return Charset.forName(topMatch);
@@ -156,8 +170,9 @@ public abstract class Importer implements Comparable<Importer> {
 
     /// Parse the database in the specified string.
     ///
-    /// Importer having the facilities to detect the correct encoding of a string should overwrite this method, determine
-    /// the encoding and then call [#importDatabase(BufferedReader)].
+    /// Importer having the facilities to detect the correct encoding of a
+    /// string should overwrite this method, determine the encoding and then
+    /// call [#importDatabase(BufferedReader)].
     ///
     /// @param data the string which should be imported
     /// @return the parsed result
@@ -186,16 +201,20 @@ public abstract class Importer implements Comparable<Importer> {
         return new BufferedReader(reader);
     }
 
-    /// Returns a <a href="https://developer.mozilla.org/en-US/docs/Glossary/Slug">slug</a>, which identifies this importer.
-    /// Used, for example, to identify the importer in CLI.
+    /// Returns a <a
+    /// href="https://developer.mozilla.org/en-US/docs/Glossary/Slug">slug</a>,
+    /// which identifies this importer. Used, for example, to identify the
+    /// importer in CLI.
     ///
-    /// Typically, this name should be short, in English, and should not contain special characters like #, %, etc.
+    /// Typically, this name should be short, in English, and should not contain
+    /// special characters like #, %, etc.
     ///
     /// @return ID, must be unique and not `null`
     public abstract String getId();
 
-    /// Returns the name of this import format. Typically, this is a string that denotes file type or format.
-    /// It can also be localized, like "XMP-annotated PDF".
+    /// Returns the name of this import format. Typically, this is a string that
+    /// denotes file type or format. It can also be localized, like
+    /// "XMP-annotated PDF".
     ///
     /// @return format name, must be unique and not `null`
     public abstract String getName();

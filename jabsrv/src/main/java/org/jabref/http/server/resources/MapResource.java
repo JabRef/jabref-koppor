@@ -3,9 +3,6 @@ package org.jabref.http.server.resources;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import org.jabref.http.SrvStateManager;
-import org.jabref.http.server.services.ServerUtils;
-
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -14,6 +11,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import org.jabref.http.SrvStateManager;
+import org.jabref.http.server.services.ServerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,10 +25,12 @@ public class MapResource {
 
     /// At <http://localhost:23119/libraries/{id}/map>
     ///
-    /// Looks for the `.jmp` file in the directory of the given library (`{id}.bib` file).
+    /// Looks for the `.jmp` file in the directory of the given library
+    /// (`{id}.bib` file).
     ///
     /// @param id The given library
-    /// @return A JSON String containing the mindmap data. If no `{id}.jmp` file was found, returns the standard mindmap
+    /// @return A JSON String containing the mindmap data. If no `{id}.jmp` file
+    ///   was found, returns the standard mindmap
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getJabMapJson(@PathParam("id") String id) throws IOException {
@@ -87,7 +88,9 @@ public class MapResource {
 
     private java.nio.file.Path getJabMapPath(String id) {
         java.nio.file.Path libraryPath = ServerUtils.getLibraryPath(id, srvStateManager);
-        String newName = libraryPath.getFileName().toString().replaceFirst("\\.bib$", ".jmp");
+        String newName = libraryPath.getFileName()
+                .toString()
+                .replaceFirst("\\.bib$", ".jmp");
         return libraryPath.getParent().resolve(newName);
     }
 

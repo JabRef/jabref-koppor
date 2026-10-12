@@ -2,7 +2,6 @@ package org.jabref.gui.collab.preamblechange;
 
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.collab.DatabaseChangeDetailsView;
 import org.jabref.gui.theme.StyleClasses;
 import org.jabref.logic.bibtex.comparator.PreambleDiff;

@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.Set;
 
 import javafx.beans.value.ObservableValue;
-
 import org.jabref.logic.citationkeypattern.CitationKeyPattern;
+import org.jabref.logic.citationkeypattern.CitationKeyPattern.Category;
 import org.jabref.logic.cleanup.FieldFormatterCleanupActions;
 import org.jabref.logic.journals.AbbreviationType;
 import org.jabref.logic.util.Version;
@@ -22,7 +22,6 @@ import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.metadata.SaveOrder.OrderType;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 
@@ -30,16 +29,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-/// Guards [MetaData#overwriteWith] against silently dropping a setting: an undone metadata change
-/// restores what the copy kept, so a field the copy misses is lost work, not a cosmetic slip.
+/// Guards [MetaData#overwriteWith] against silently dropping a setting: an
+/// undone metadata change restores what the copy kept, so a field the copy
+/// misses is lost work, not a cosmetic slip.
 ///
-/// The fields are enumerated reflectively, so adding one without extending `overwriteWith` - or
-/// without populating it here - fails.
+/// The fields are enumerated reflectively, so adding one without extending
+/// `overwriteWith` - or without populating it here - fails.
 @NullMarked
 class MetaDataOverwriteWithTest {
 
-    /// Not contents: the listeners registered on an instance, the binding derived from the group
-    /// root, and whether this instance posts at all.
+    /// Not contents: the listeners registered on an instance, the binding
+    /// derived from the group root, and whether this instance posts at all.
     private static final Set<String> NOT_COPIED = Set.of("eventBus", "groupsRootBinding", "isEventPropagationEnabled");
 
     @Test
@@ -50,13 +50,13 @@ class MetaDataOverwriteWithTest {
         target.overwriteWith(source);
 
         for (Field field : copiedFields()) {
-            assertEquals(valueOf(field, source), valueOf(field, target),
-                    "MetaData.overwriteWith does not copy '%s'; extend it when adding a field".formatted(field.getName()));
+            assertEquals(valueOf(field, source), valueOf(field, target), "MetaData.overwriteWith does not copy '%s'; extend it when adding a field".formatted(field.getName()));
         }
     }
 
-    /// Without this, a field added to [MetaData] but not to [#populated] would sit at its default
-    /// in both instances and pass the test above while never being copied at all.
+    /// Without this, a field added to [MetaData] but not to [#populated] would
+    /// sit at its default in both instances and pass the test above while never
+    /// being copied at all.
     @Test
     void everyCopiedFieldIsPopulated() throws IllegalAccessException {
         MetaData source = populated();
@@ -66,8 +66,7 @@ class MetaDataOverwriteWithTest {
         assertFalse(fields.isEmpty(), "reflection found no fields; the test no longer tests anything");
 
         for (Field field : fields) {
-            assertNotEquals(valueOf(field, untouched), valueOf(field, source),
-                    "'%s' is left at its default here, so the copy of it is never tested".formatted(field.getName()));
+            assertNotEquals(valueOf(field, untouched), valueOf(field, source), "'%s' is left at its default here, so the copy of it is never tested".formatted(field.getName()));
         }
     }
 
@@ -80,8 +79,7 @@ class MetaDataOverwriteWithTest {
         metaData.setGitAutoPull(true);
         metaData.setGitAutoCommit(true);
         metaData.setGitAutoPush(true);
-        metaData.setCiteKeyPattern(new CitationKeyPattern("[auth]", CitationKeyPattern.Category.AUTHOR_RELATED),
-                Map.of(StandardEntryType.Article, new CitationKeyPattern("[auth][year]", CitationKeyPattern.Category.AUTHOR_RELATED)));
+        metaData.setCiteKeyPattern(new CitationKeyPattern("[auth]", Category.AUTHOR_RELATED), Map.of(StandardEntryType.Article, new CitationKeyPattern("[auth][year]", Category.AUTHOR_RELATED)));
         metaData.setSaveActions(new FieldFormatterCleanupActions(true, List.of()));
         metaData.setMode(BibDatabaseMode.BIBLATEX);
         metaData.setLibraryAbbreviationType(AbbreviationType.DOTLESS);
@@ -110,7 +108,8 @@ class MetaDataOverwriteWithTest {
         return result;
     }
 
-    /// The value as the copy has to reproduce it: a property's content rather than the property.
+    /// The value as the copy has to reproduce it: a property's content rather
+    /// than the property.
     private static Object valueOf(Field field, MetaData metaData) throws IllegalAccessException {
         field.setAccessible(true);
         Object value = field.get(metaData);

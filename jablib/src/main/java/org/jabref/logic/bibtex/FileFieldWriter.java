@@ -9,8 +9,7 @@ import org.jabref.model.entry.LinkedFile;
 
 public class FileFieldWriter {
 
-    private FileFieldWriter() {
-    }
+    private FileFieldWriter() {}
 
     public static String getStringRepresentation(List<LinkedFile> fields) {
         String[][] array = new String[fields.size()][];
@@ -19,7 +18,8 @@ public class FileFieldWriter {
             if (StringUtil.isNullOrEmpty(entry.getSourceUrl())) {
                 array[i] = new String[] {entry.getDescription(), entry.getLink(), entry.getFileType()};
             } else {
-                array[i] = new String[] {entry.getDescription(), entry.getLink(), entry.getFileType(), entry.getSourceUrl()};
+                array[i] = new String[] {entry.getDescription(), entry.getLink(), entry.getFileType(),
+                        entry.getSourceUrl()};
             }
             i++;
         }
@@ -37,8 +37,8 @@ public class FileFieldWriter {
     /// @return The encoded String.
     public static String encodeStringArray(String[][] values) {
         return Arrays.stream(values)
-                     .map(FileFieldWriter::encodeStringArray)
-                     .collect(Collectors.joining(";"));
+                .map(FileFieldWriter::encodeStringArray)
+                .collect(Collectors.joining(";"));
     }
 
     /// Encodes a String array into a single string, using ':' as separator.
@@ -48,8 +48,8 @@ public class FileFieldWriter {
     /// @return The encoded String.
     private static String encodeStringArray(String[] entry) {
         return Arrays.stream(entry)
-                     .map(FileFieldWriter::quote)
-                     .collect(Collectors.joining(":"));
+                .map(FileFieldWriter::quote)
+                .collect(Collectors.joining(":"));
     }
 
     public static String quote(String s) {

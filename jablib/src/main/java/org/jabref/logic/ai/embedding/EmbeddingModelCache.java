@@ -7,18 +7,20 @@ import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.logic.util.TaskExecutor;
 
-/// Session-scoped cache for [AsyncEmbeddingModel] instances, keyed by embedding model name.
+/// Session-scoped cache for [AsyncEmbeddingModel] instances, keyed by embedding
+/// model name.
 ///
 /// When multiple components request an embedding model for the same model name,
-/// this cache ensures only *one* [AsyncEmbeddingModel] instance—and therefore only one
-/// background download/load task—is ever created for that model name.
+/// this cache ensures only *one* [AsyncEmbeddingModel] instance—and therefore
+/// only one background download/load task—is ever created for that model name.
 ///
-/// Without this cache, each caller that independently reacts to preference changes would
-/// instantiate its own [AsyncEmbeddingModel], spawning a duplicate
-/// [org.jabref.logic.ai.ingestion.tasks.UpdateEmbeddingModelTask] for every listener.
+/// Without this cache, each caller that independently reacts to preference
+/// changes would instantiate its own [AsyncEmbeddingModel], spawning a
+/// duplicate [org.jabref.logic.ai.ingestion.tasks.UpdateEmbeddingModelTask] for
+/// every listener.
 ///
-/// Implements [AutoCloseable]; call [#close()] (e.g. in `AiService.close()`)
-/// to release all cached model resources.
+/// Implements [AutoCloseable]; call [#close()] (e.g. in `AiService.close()`) to
+/// release all cached model resources.
 public class EmbeddingModelCache implements AutoCloseable {
 
     private final Map<String, AsyncEmbeddingModel> cache = new HashMap<>();
@@ -28,10 +30,7 @@ public class EmbeddingModelCache implements AutoCloseable {
     private final TaskExecutor taskExecutor;
     private final EmbeddingModelMetadataService metadataService;
 
-    public EmbeddingModelCache(
-            AiPreferences aiPreferences,
-            NotificationService notificationService,
-            TaskExecutor taskExecutor,
+    public EmbeddingModelCache(AiPreferences aiPreferences, NotificationService notificationService, TaskExecutor taskExecutor,
             EmbeddingModelMetadataService metadataService) {
         this.aiPreferences = aiPreferences;
         this.notificationService = notificationService;
@@ -39,10 +38,13 @@ public class EmbeddingModelCache implements AutoCloseable {
         this.metadataService = metadataService;
     }
 
-    /// Returns the cached [AsyncEmbeddingModel] for `modelName`, creating it on first access.
+    /// Returns the cached [AsyncEmbeddingModel] for `modelName`, creating it on
+    /// first access.
     ///
-    /// Consecutive calls with the same `modelName` return the *same* instance; no additional background tasks are launched.
-    /// Requesting another model name closes and evicts that instance, so a later request for `modelName` creates a new one.
+    /// Consecutive calls with the same `modelName` return the *same* instance;
+    /// no additional background tasks are launched. Requesting another model
+    /// name closes and evicts that instance, so a later request for `modelName`
+    /// creates a new one.
     ///
     /// @param modelName the requested embedding model name
     /// @return a (possibly still-loading) [AsyncEmbeddingModel] for `modelName`
@@ -55,8 +57,7 @@ public class EmbeddingModelCache implements AutoCloseable {
             entry.getValue().close();
             return true;
         });
-        return cache.computeIfAbsent(modelName,
-                name -> new AsyncEmbeddingModel(name, aiPreferences, notificationService, taskExecutor, metadataService));
+        return cache.computeIfAbsent(modelName, name -> new AsyncEmbeddingModel(name, aiPreferences, notificationService, taskExecutor, metadataService));
     }
 
     /// Closes all cached [AsyncEmbeddingModel] instances and clears the cache.

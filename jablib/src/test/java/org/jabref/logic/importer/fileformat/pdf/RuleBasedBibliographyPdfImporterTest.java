@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.jabref.logic.importer.ParserResult;
+import org.jabref.logic.importer.fileformat.pdf.RuleBasedBibliographyPdfImporter.IntermediateData;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -145,7 +145,9 @@ class RuleBasedBibliographyPdfImporterTest {
 
     @Test
     void tua3i2refpage() throws URISyntaxException {
-        Path file = Path.of(RuleBasedBibliographyPdfImporterTest.class.getResource("/pdfs/IEEE/tua3i2refpage.pdf").toURI());
+        Path file = Path.of(RuleBasedBibliographyPdfImporterTest.class
+                .getResource("/pdfs/IEEE/tua3i2refpage.pdf")
+                .toURI());
         ParserResult parserResult = ruleBasedBibliographyPdfImporter.importDatabase(file);
         BibEntry entry02 = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("2")
@@ -241,7 +243,8 @@ class RuleBasedBibliographyPdfImporterTest {
                 .withField(StandardField.URL, "https://indico.cern.ch/event/1027296/")
                 .withField(StandardField.YEAR, "2021");
 
-        assertEquals(List.of(
+        assertEquals(
+                List.of(
                         KNASTER_2017,
                         entry02,
                         SHIMOSAKI_2019,
@@ -264,9 +267,12 @@ class RuleBasedBibliographyPdfImporterTest {
 
     @Test
     void ieeePaper() throws URISyntaxException {
-        Path file = Path.of(RuleBasedBibliographyPdfImporterTest.class.getResource("/pdfs/IEEE/ieee-paper.pdf").toURI());
+        Path file = Path.of(RuleBasedBibliographyPdfImporterTest.class
+                .getResource("/pdfs/IEEE/ieee-paper.pdf")
+                .toURI());
         ParserResult parserResult = ruleBasedBibliographyPdfImporter.importDatabase(file);
-        assertEquals(List.of(ALVER2007, ALVER2007A, KOPP2012, KOPPP2018, KOENIG2023), parserResult.getDatabase().getEntries());
+        assertEquals(List.of(ALVER2007, ALVER2007A, KOPP2012, KOPPP2018, KOENIG2023),
+                parserResult.getDatabase().getEntries());
     }
 
     static Stream<BibEntry> references() {
@@ -287,16 +293,17 @@ class RuleBasedBibliographyPdfImporterTest {
                         .withField(StandardField.COMMENT, "[18] Z. Yao, D. S. Weld, W.-P. Chen, and H. Sun, “Staqc: A systematically mined question-code dataset from stack overflow,” in Proceedings of the 2018 World Wide Web Conference, 2018, pp. 1693–1703.")
                         .withField(StandardField.TITLE, "Staqc: A systematically mined question-code dataset from stack overflow")
                         .withField(StandardField.PAGES, "1693-1703")
-                        .withField(StandardField.YEAR, "2018")
-        );
+                        .withField(StandardField.YEAR, "2018"));
     }
 
     @ParameterizedTest
     @MethodSource
     void references(BibEntry expectedEntry) {
-        List<RuleBasedBibliographyPdfImporter.IntermediateData> intermediateDataList = RuleBasedBibliographyPdfImporter.getIntermediateData(expectedEntry.getField(StandardField.COMMENT).get());
+        List<IntermediateData> intermediateDataList = RuleBasedBibliographyPdfImporter.getIntermediateData(expectedEntry.getField(StandardField.COMMENT)
+                .get());
         assertEquals(1, intermediateDataList.size());
-        RuleBasedBibliographyPdfImporter.IntermediateData intermediateData = intermediateDataList.getFirst();
-        assertEquals(expectedEntry, ruleBasedBibliographyPdfImporter.parsePlainCitation(intermediateData.number(), intermediateData.reference()));
+        IntermediateData intermediateData = intermediateDataList.getFirst();
+        assertEquals(expectedEntry,
+                ruleBasedBibliographyPdfImporter.parsePlainCitation(intermediateData.number(), intermediateData.reference()));
     }
 }

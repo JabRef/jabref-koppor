@@ -16,12 +16,13 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.groups.AbstractGroup;
 import org.jabref.model.groups.GroupTreeNode;
-
 import org.jspecify.annotations.NullMarked;
 
-/// This class is used to anonymize a library. It is required to make private libraries available for public use.
+/// This class is used to anonymize a library. It is required to make private
+/// libraries available for public use.
 ///
-/// For "just" generating large .bib files, scripts/bib-file-generator.py can be used.
+/// For "just" generating large .bib files, scripts/bib-file-generator.py can be
+/// used.
 @NullMarked
 public class Pseudonymization {
 
@@ -32,8 +33,7 @@ public class Pseudonymization {
         this.keywordSeparator = keywordSeparator;
     }
 
-    public record Result(BibDatabaseContext bibDatabaseContext, Map<String, String> valueMapping) {
-    }
+    public record Result(BibDatabaseContext bibDatabaseContext, Map<String, String> valueMapping) {}
 
     public Result pseudonymizeLibrary(BibDatabaseContext bibDatabaseContext) {
         // TODO: Anonymize metadata
@@ -58,18 +58,19 @@ public class Pseudonymization {
         BibDatabase bibDatabase = new BibDatabase(newEntries);
         BibDatabaseContext result = new BibDatabaseContext(bibDatabase);
         result.setMode(bibDatabaseContext.getMode());
-        bibDatabaseContext.getMetaData().getKeywordSeparator().ifPresent(result.getMetaData()::setKeywordSeparator);
+        bibDatabaseContext.getMetaData()
+                          .getKeywordSeparator()
+                          .ifPresent(result.getMetaData()::setKeywordSeparator);
 
         pseudonymizedGroups.ifPresent(newGroups -> result.getMetaData().setGroups(newGroups));
 
         return new Result(result, valueMapping);
     }
 
-    /// @param fieldToValueToIdMap map containing the mapping from field to value to id, will be filled by this method
-    private List<BibEntry> pseudonymizeEntries(BibDatabaseContext bibDatabaseContext,
-                                               Map<Field, Map<String, Integer>> fieldToValueToIdMap,
-                                               Map<String, String> groupNameMapping,
-                                               Map<String, String> valueMapping) {
+    /// @param fieldToValueToIdMap map containing the mapping from field to
+    ///   value to id, will be filled by this method
+    private List<BibEntry> pseudonymizeEntries(BibDatabaseContext bibDatabaseContext, Map<Field, Map<String, Integer>> fieldToValueToIdMap, Map<String, String> groupNameMapping,
+            Map<String, String> valueMapping) {
         List<BibEntry> entries = bibDatabaseContext.getEntries();
         List<BibEntry> newEntries = new ArrayList<>(entries.size());
 
@@ -98,9 +99,7 @@ public class Pseudonymization {
 
     /// Pseudonymizes the [StandardField#GROUPS] field content.
     /// Groups not present in the group tree are also pseudonymized.
-    private String pseudonymizeGroupsField(String fieldContent,
-                                           Map<String, String> groupNameMapping,
-                                           Map<String, String> valueMapping) {
+    private String pseudonymizeGroupsField(String fieldContent, Map<String, String> groupNameMapping, Map<String, String> valueMapping) {
         KeywordList keywords = KeywordList.parse(fieldContent, keywordSeparator);
         KeywordList pseudonymizedKeywords = new KeywordList();
         for (Keyword keyword : keywords) {
@@ -116,13 +115,10 @@ public class Pseudonymization {
         return pseudonymizedKeywords.getAsString(keywordSeparator);
     }
 
-    private record GroupTreeResult(GroupTreeNode node, int counter) {
-    }
+    private record GroupTreeResult(GroupTreeNode node, int counter) {}
 
-    private static GroupTreeResult pseudonymizeGroupTree(GroupTreeNode node,
-                                                         Map<String, String> valueMapping,
-                                                         Map<String, String> groupNameMapping,
-                                                         int counter) {
+    private static GroupTreeResult pseudonymizeGroupTree(GroupTreeNode node, Map<String, String> valueMapping, Map<String, String> groupNameMapping,
+            int counter) {
         AbstractGroup originalGroup = node.getGroup();
         String originalName = originalGroup.getName();
         String pseudoName = GROUP_PREFIX + counter;

@@ -15,7 +15,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.http.SimpleHttpResponse;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -49,9 +48,7 @@ class IdParserFetcherTest {
     void returnsEmptyWhenIdentifierLookupReturnsNotFound() throws FetcherException, MalformedURLException, URISyntaxException {
         URL url = URLUtil.create("https://example.org");
         URLDownload urlDownload = mock(URLDownload.class);
-        when(urlDownload.asInputStream()).thenThrow(new FetcherClientException(
-                url,
-                new SimpleHttpResponse(HttpURLConnection.HTTP_NOT_FOUND, "Not Found", "")));
+        when(urlDownload.asInputStream()).thenThrow(new FetcherClientException(url, new SimpleHttpResponse(HttpURLConnection.HTTP_NOT_FOUND, "Not Found", "")));
         IdParserFetcher<DOI> fetcher = mockFetcher(url, urlDownload, mock(Parser.class));
 
         assertEquals(Optional.empty(), fetcher.findIdentifier(new BibEntry()));

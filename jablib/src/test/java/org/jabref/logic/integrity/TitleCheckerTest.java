@@ -5,7 +5,6 @@ import java.util.stream.Stream;
 
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.parallel.ResourceLock;
@@ -57,8 +56,7 @@ public class TitleCheckerTest {
                     Arguments.of("bibTexRemovesEverythingInBracketsAndAcceptsNoTitleInput ", "{This is a Title}"),
                     Arguments.of("bibTexRemovesEverythingInBrackets ", "This is a {Title}"),
                     Arguments.of("bibTexAcceptsTitleWithLowercaseFirstLetter ", "{C}urrent {C}hronicle"),
-                    Arguments.of("bibTexAcceptsOriginalAndTranslatedTitle ", "This is a title [This is translated title]")
-            );
+                    Arguments.of("bibTexAcceptsOriginalAndTranslatedTitle ", "This is a title [This is translated title]"));
         }
 
         static Stream<Arguments> invalidTitle() {
@@ -68,8 +66,7 @@ public class TitleCheckerTest {
                     Arguments.of("middleLetterAsOnlyCapitalLetterInSubTitle2AfterContinuousDelimiters ", "This is a sub title 1... this is a sub Title 2"),
                     Arguments.of("moreThanOneCapitalLetterInSubTitleWithoutCurlyBrackets ", "This!is!!A!TitlE??"),
                     Arguments.of("bibTexDoesNotAcceptCapitalLettersInsideTitle ", "This is a Title"),
-                    Arguments.of("bibTexDoesNotAcceptsLeadingTranslatedTitleWithOriginal ", "[This is translated title] This is a title")
-            );
+                    Arguments.of("bibTexDoesNotAcceptsLeadingTranslatedTitleWithOriginal ", "[This is translated title] This is a title"));
         }
     }
 
@@ -106,8 +103,7 @@ public class TitleCheckerTest {
                     Arguments.of("bibLaTexSplitsSubTitlesBasedOnDots", "This is a sub title 1...This is a sub title 2"),
                     Arguments.of("bibLaTexSplitsSubTitleBasedOnSpecialCharacters", "This is; A sub title 1.... This is a sub title 2"),
                     Arguments.of("bibLaTexAcceptsCapitalLetterAfterSpecialCharacter", "This!is!!A!Title??"),
-                    Arguments.of("bibLaTexAcceptsCapitalLetterNotOnlyAfterSpecialCharacter", "This!is!!A!TitlE??")
-            );
+                    Arguments.of("bibLaTexAcceptsCapitalLetterNotOnlyAfterSpecialCharacter", "This!is!!A!TitlE??"));
         }
     }
 

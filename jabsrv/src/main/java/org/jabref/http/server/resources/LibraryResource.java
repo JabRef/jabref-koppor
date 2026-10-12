@@ -6,16 +6,6 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
 
-import org.jabref.http.JabrefMediaType;
-import org.jabref.http.SrvStateManager;
-import org.jabref.http.dto.BibEntryDTO;
-import org.jabref.http.server.services.ServerUtils;
-import org.jabref.logic.citationstyle.JabRefItemDataProvider;
-import org.jabref.logic.preferences.CliPreferences;
-import org.jabref.model.database.BibDatabase;
-import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.entry.BibEntryTypesManager;
-
 import com.google.gson.Gson;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -26,6 +16,15 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
+import org.jabref.http.JabrefMediaType;
+import org.jabref.http.SrvStateManager;
+import org.jabref.http.dto.BibEntryDTO;
+import org.jabref.http.server.services.ServerUtils;
+import org.jabref.logic.citationstyle.JabRefItemDataProvider;
+import org.jabref.logic.preferences.CliPreferences;
+import org.jabref.model.database.BibDatabase;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibEntryTypesManager;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,10 +54,12 @@ public class LibraryResource {
     @Produces(MediaType.APPLICATION_JSON)
     public String getJson(@PathParam("id") String id) throws IOException {
         BibDatabaseContext databaseContext = getDatabaseContext(id);
-        List<BibEntryDTO> list = databaseContext.getDatabase().getEntries().stream()
-                                                .peek(bibEntry -> bibEntry.getSharedBibEntryData().setSharedId(Objects.hash(bibEntry)))
-                                                .map(entry -> new BibEntryDTO(entry, databaseContext.getMode(), preferences.getFieldPreferences(), entryTypesManager))
-                                                .toList();
+        List<BibEntryDTO> list = databaseContext.getDatabase()
+                .getEntries()
+                .stream()
+                .peek(bibEntry -> bibEntry.getSharedBibEntryData().setSharedId(Objects.hash(bibEntry)))
+                .map(entry -> new BibEntryDTO(entry, databaseContext.getMode(), preferences.getFieldPreferences(), entryTypesManager))
+                .toList();
         return gson.toJson(list);
     }
 
@@ -82,9 +83,9 @@ public class LibraryResource {
             };
 
             return Response.ok(stream)
-                           // org.glassfish.jersey.media would be required for a "nice" Java to create ContentDisposition; we avoid this
-                           .header("Content-Disposition", "attachment; filename=\"Chocolate.bib\"")
-                           .build();
+                    // org.glassfish.jersey.media would be required for a "nice" Java to create ContentDisposition; we avoid this
+                    .header("Content-Disposition", "attachment; filename=\"Chocolate.bib\"")
+                    .build();
         }
 
         java.nio.file.Path library = ServerUtils.getLibraryPath(id, srvStateManager);
@@ -96,12 +97,13 @@ public class LibraryResource {
             throw new InternalServerErrorException("Could not read library " + library, e);
         }
         return Response.ok()
-                       .header("Content-Disposition", "attachment; filename=\"" + library.getFileName() + "\"")
-                       .entity(libraryAsString)
-                       .build();
+                .header("Content-Disposition", "attachment; filename=\"" + library.getFileName() + "\"")
+                .entity(libraryAsString)
+                .build();
     }
 
-    /// @return a stream to the Chocolate.bib file in the classpath (is null only if the file was moved or there are issues with the classpath)
+    /// @return a stream to the Chocolate.bib file in the classpath (is null
+    ///   only if the file was moved or there are issues with the classpath)
     private @Nullable InputStream getChocolateBibAsStream() {
         return BibDatabase.class.getResourceAsStream("/Chocolate.bib");
     }

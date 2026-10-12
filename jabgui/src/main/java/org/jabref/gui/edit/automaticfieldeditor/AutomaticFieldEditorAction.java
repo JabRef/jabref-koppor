@@ -20,8 +20,6 @@ public class AutomaticFieldEditorAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        stateManager.getActiveDatabase().ifPresent(databaseContext ->
-                dialogService.showCustomDialogAndWait(
-                        new AutomaticFieldEditorDialog(stateManager, dialogService, stateManager.getUndoManager(databaseContext))));
+        stateManager.getActiveDatabase().ifPresent(databaseContext -> dialogService.showCustomDialogAndWait(new AutomaticFieldEditorDialog(stateManager, dialogService, stateManager.getUndoManager(databaseContext))));
     }
 }

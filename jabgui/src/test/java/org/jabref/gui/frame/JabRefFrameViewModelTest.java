@@ -3,8 +3,8 @@ package org.jabref.gui.frame;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.LibraryTabContainer;
@@ -20,8 +20,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -79,8 +77,7 @@ class JabRefFrameViewModelTest extends JavaFxTest {
                 entryTypesManager,
                 fileUpdateMonitor,
                 clipBoardManager,
-                taskExecutor
-        );
+                taskExecutor);
     }
 
     @Test
@@ -93,7 +90,7 @@ class JabRefFrameViewModelTest extends JavaFxTest {
         when(libraryTab.getBibDatabaseContext()).thenReturn(context);
 
         when(tabContainer.getCurrentLibraryTab())
-                .thenReturn(null)        // First call in addParserResult
+                .thenReturn(null) // First call in addParserResult
                 .thenReturn(libraryTab); // Second call after tabContainer.addTab
 
         when(stateManager.getOpenDatabases()).thenReturn(FXCollections.observableArrayList(context));

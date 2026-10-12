@@ -17,7 +17,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -95,11 +94,11 @@ class BibDatabaseContextTest {
         BibDatabaseContext database = new BibDatabaseContext();
         database.setDatabasePath(file);
         database.getMetaData().setLibrarySpecificFileDirectory("../Literature");
-        assertEquals(List.of(
-                        // first directory originates from the metadata
-                        Path.of("/absolute/Literature").toAbsolutePath(),
-                        Path.of("/absolute/subdir").toAbsolutePath()
-                ),
+        assertEquals(
+                List.of(
+                // first directory originates from the metadata
+                Path.of("/absolute/Literature").toAbsolutePath(),
+                        Path.of("/absolute/subdir").toAbsolutePath()),
                 database.getFileDirectories(fileDirPrefs));
     }
 
@@ -110,11 +109,11 @@ class BibDatabaseContextTest {
         BibDatabaseContext database = new BibDatabaseContext();
         database.setDatabasePath(file);
         database.getMetaData().setLibrarySpecificFileDirectory("Literature");
-        assertEquals(List.of(
-                        // first directory originates from the metadata
-                        Path.of("/absolute/subdir/Literature").toAbsolutePath(),
-                        Path.of("/absolute/subdir").toAbsolutePath()
-                ),
+        assertEquals(
+                List.of(
+                // first directory originates from the metadata
+                Path.of("/absolute/subdir/Literature").toAbsolutePath(),
+                        Path.of("/absolute/subdir").toAbsolutePath()),
                 database.getFileDirectories(fileDirPrefs));
     }
 
@@ -185,7 +184,8 @@ class BibDatabaseContextTest {
 
     @Test
     void ofParsesValidBibtexStringCorrectly() throws Exception {
-        String bibContent = """
+        String bibContent =
+                """
                 @article{Alice2023,
                     author = {Alice},
                     title = {Test Title},
@@ -200,12 +200,14 @@ class BibDatabaseContextTest {
                 .withField(StandardField.TITLE, "Test Title")
                 .withField(StandardField.YEAR, "2023");
 
-        assertEquals(List.of(expected), context.getDatabase().getEntries());
+        assertEquals(List.of(expected),
+                context.getDatabase().getEntries());
     }
 
     @Test
     void ofParsesValidBibtexStreamCorrectly() throws Exception {
-        String bibContent = """
+        String bibContent =
+                """
                 @article{Alice2023,
                     author = {Alice},
                     title = {Test Title},
@@ -221,7 +223,8 @@ class BibDatabaseContextTest {
                     .withField(StandardField.TITLE, "Test Title")
                     .withField(StandardField.YEAR, "2023");
 
-            assertEquals(List.of(expected), context.getDatabase().getEntries());
+            assertEquals(List.of(expected),
+                    context.getDatabase().getEntries());
         }
     }
 
@@ -237,7 +240,9 @@ class BibDatabaseContextTest {
         BibDatabaseContext context = BibDatabaseContext.empty();
 
         assertNotNull(context);
-        assertTrue(context.getDatabase().getEntries().isEmpty());
+        assertTrue(context.getDatabase()
+                          .getEntries()
+                          .isEmpty());
         assertNotNull(context.getMetaData());
     }
 }

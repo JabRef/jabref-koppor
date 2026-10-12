@@ -19,7 +19,6 @@ import org.jabref.logic.util.BackgroundTask;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,22 +38,15 @@ public class DownloadFullTextAction extends SimpleCommand {
     private final UiTaskExecutor taskExecutor;
     private final Function<BibEntry, Optional<FetcherResult>> fullTextFinder;
 
-    public DownloadFullTextAction(DialogService dialogService,
-                                  StateManager stateManager,
-                                  GuiPreferences preferences,
-                                  UiTaskExecutor taskExecutor) {
-        this(dialogService,
-                stateManager,
-                preferences,
-                taskExecutor,
-                entry -> new FulltextFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences()).findFullTextPDF(entry));
+    public DownloadFullTextAction(DialogService dialogService, StateManager stateManager, GuiPreferences preferences,
+            UiTaskExecutor taskExecutor) {
+        this(dialogService, stateManager, preferences, taskExecutor,
+                entry -> new FulltextFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences())
+                        .findFullTextPDF(entry));
     }
 
-    DownloadFullTextAction(DialogService dialogService,
-                           StateManager stateManager,
-                           GuiPreferences preferences,
-                           UiTaskExecutor taskExecutor,
-                           Function<BibEntry, Optional<FetcherResult>> fullTextFinder) {
+    DownloadFullTextAction(DialogService dialogService, StateManager stateManager, GuiPreferences preferences,
+                           UiTaskExecutor taskExecutor, Function<BibEntry, Optional<FetcherResult>> fullTextFinder) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.preferences = preferences;
@@ -79,9 +71,7 @@ public class DownloadFullTextAction extends SimpleCommand {
         if (entries.size() >= WARNING_LIMIT) {
             boolean confirmDownload = dialogService.showConfirmationDialogAndWait(
                     Localization.lang("Download full text documents"),
-                    Localization.lang(
-                            "You are attempting to download full text documents for %0 entries.\nJabRef will send at least one request per entry to a publisher.",
-                            String.valueOf(entries.size())),
+                    Localization.lang("You are attempting to download full text documents for %0 entries.\nJabRef will send at least one request per entry to a publisher.", String.valueOf(entries.size())),
                     // [impl->req~ui.dialogs.confirmation.naming~1]
                     Localization.lang("Download full text documents"),
                     Localization.lang("Cancel"));
@@ -126,7 +116,9 @@ public class DownloadFullTextAction extends SimpleCommand {
 
         for (EntryDownload download : downloads) {
             BibEntry entry = download.entry();
-            if (!databaseContext.getDatabase().getEntries().contains(entry)) {
+            if (!databaseContext.getDatabase()
+                                .getEntries()
+                                .contains(entry)) {
                 continue;
             }
             if (!entry.equals(download.lookupSnapshot())) {
@@ -136,38 +128,31 @@ public class DownloadFullTextAction extends SimpleCommand {
 
             download.result().ifPresentOrElse(
                     result -> addLinkedFileFromURL(databaseContext, result, entry),
-                    () -> dialogService.notify(Localization.lang("No full text document found for entry %0.",
-                            entry.getCitationKey().orElse(Localization.lang("undefined")))));
+                    () -> dialogService.notify(Localization.lang("No full text document found for entry %0.", entry.getCitationKey().orElse(Localization.lang("undefined")))));
         }
     }
 
-    /// This method attaches a linked file from a URL (if not already linked) to an entry using the key and value pair
-    /// from the findFullTexts map and then downloads the file into the given targetDirectory
+    /// This method attaches a linked file from a URL (if not already linked) to
+    /// an entry using the key and value pair from the findFullTexts map and
+    /// then downloads the file into the given targetDirectory
     ///
     /// @param databaseContext the active database
-    /// @param result          the fetcher result containing the URL and any required download headers
-    /// @param entry           the entry "value"
+    /// @param result the fetcher result containing the URL and any required
+    ///   download headers
+    /// @param entry the entry "value"
     void addLinkedFileFromURL(BibDatabaseContext databaseContext, FetcherResult result, BibEntry entry) {
         LinkedFile newLinkedFile = new LinkedFile(result.source(), "");
 
         if (!entry.getFiles().contains(newLinkedFile)) {
-            LinkedFileViewModel onlineFile = new LinkedFileViewModel(
-                    newLinkedFile,
-                    entry,
-                    databaseContext,
-                    taskExecutor,
-                    dialogService,
-                    preferences);
+            LinkedFileViewModel onlineFile = new LinkedFileViewModel(newLinkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
             // The URL is not linked on the entry, so there is no link to keep: a downloaded HTML page (paywall or
             // consent interstitial instead of the PDF) has to be deleted rather than left orphaned in the file directory.
             onlineFile.download(false, result.headers(), stateManager.getUndoManager(databaseContext));
         } else {
-            dialogService.notify(Localization.lang("Full text document for entry %0 already linked.",
-                    entry.getCitationKey().orElse(Localization.lang("undefined"))));
+            dialogService.notify(Localization.lang("Full text document for entry %0 already linked.", entry.getCitationKey().orElse(Localization.lang("undefined"))));
         }
     }
 
     @NullMarked
-    private record EntryDownload(BibEntry entry, BibEntry lookupSnapshot, Optional<FetcherResult> result) {
-    }
+    private record EntryDownload(BibEntry entry, BibEntry lookupSnapshot, Optional<FetcherResult> result) {}
 }

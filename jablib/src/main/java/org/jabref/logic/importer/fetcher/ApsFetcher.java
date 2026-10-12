@@ -6,19 +6,19 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Optional;
 
+import kong.unirest.core.Unirest;
 import org.jabref.logic.importer.FulltextFetcher;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
-
-import kong.unirest.core.Unirest;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// FulltextFetcher implementation that attempts to find a PDF URL at APS. Also see the <a
-/// href="https://harvest.aps.org/docs/harvest-api">API</a>, although it isn't currently used.
+/// FulltextFetcher implementation that attempts to find a PDF URL at APS. Also
+/// see the <a href="https://harvest.aps.org/docs/harvest-api">API</a>, although
+/// it isn't currently used.
 public class ApsFetcher implements FulltextFetcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApsFetcher.class);
@@ -39,7 +39,9 @@ public class ApsFetcher implements FulltextFetcher {
 
         if (id.isPresent()) {
             String pdfRequestUrl = PDF_URL + id.get();
-            int code = Unirest.head(pdfRequestUrl).asJson().getStatus();
+            int code = Unirest.head(pdfRequestUrl)
+                    .asJson()
+                    .getStatus();
 
             if (code == 200) {
                 LOGGER.info("Fulltext PDF found @ APS.");
@@ -74,7 +76,9 @@ public class ApsFetcher implements FulltextFetcher {
             con = URLUtil.create(doiRequest).openConnection();
             con.connect();
             con.getInputStream();
-            String[] urlParts = con.getURL().toString().split("abstract/");
+            String[] urlParts = con.getURL()
+                                   .toString()
+                                   .split("abstract/");
             if (urlParts.length == 2) {
                 return Optional.of(urlParts[1]);
             }

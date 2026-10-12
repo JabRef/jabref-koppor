@@ -1,9 +1,9 @@
 package org.jabref.gui.ai.chat;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
-
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.ingestion.tasks.generateembeddings.GenerateEmbeddingsTask;
@@ -12,20 +12,22 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 
-import com.airhacks.afterburner.views.ViewLoader;
-
 public class AiChatStatusWindow extends BaseDialog<Void> {
-    @FXML private AiChatStatusView aiChatStatusView;
+    @FXML
+    private AiChatStatusView aiChatStatusView;
 
     public AiChatStatusWindow() {
         super();
 
         this.setTitle(Localization.lang("AI Chat Status"));
-        this.getDialogPane().getScene().getWindow().setOnCloseRequest(_ -> this.hide());
+        this.getDialogPane()
+                .getScene()
+                .getWindow()
+                .setOnCloseRequest(_ -> this.hide());
 
         ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+                .load()
+                .setAsDialogPane(this);
     }
 
     public void setResponseEngine(ResponseEngine responseEngine) {

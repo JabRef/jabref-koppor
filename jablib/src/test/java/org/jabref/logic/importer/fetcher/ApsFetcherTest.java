@@ -7,7 +7,6 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -28,13 +27,17 @@ class ApsFetcherTest {
     @Test
     void findFullTextFromDoi() throws IOException {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1103/PhysRevLett.116.061102");
-        assertEquals(Optional.of(URLUtil.create("https://journals.aps.org/prl/pdf/10.1103/PhysRevLett.116.061102")), finder.findFullText(entry));
+        assertEquals(
+                Optional.of(URLUtil.create("https://journals.aps.org/prl/pdf/10.1103/PhysRevLett.116.061102")),
+                finder.findFullText(entry));
     }
 
     @Test
     void findFullTextFromLowercaseDoi() throws IOException {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1103/physrevlett.124.029002");
-        assertEquals(Optional.of(URLUtil.create("https://journals.aps.org/prl/pdf/10.1103/PhysRevLett.124.029002")), finder.findFullText(entry));
+        assertEquals(
+                Optional.of(URLUtil.create("https://journals.aps.org/prl/pdf/10.1103/PhysRevLett.124.029002")),
+                finder.findFullText(entry));
     }
 
     @Test

@@ -66,9 +66,9 @@ public enum Language {
 
     public static Language getLanguageFor(String languageString) {
         return Stream.of(Language.values())
-                     .filter(language -> language.getId().equalsIgnoreCase(languageString))
-                     .findFirst()
-                     .orElse(Language.ENGLISH);
+                .filter(language -> language.getId().equalsIgnoreCase(languageString))
+                .findFirst()
+                .orElse(Language.ENGLISH);
     }
 
     public String getDisplayName() {
@@ -81,8 +81,8 @@ public enum Language {
 
     public static List<Language> getSorted() {
         return Arrays.stream(values())
-                     .sorted(Comparator.comparing(language -> removeNonLatinCharacters(language.getDisplayName())))
-                     .toList();
+                .sorted(Comparator.comparing(language -> removeNonLatinCharacters(language.getDisplayName())))
+                .toList();
     }
 
     private static String removeNonLatinCharacters(String input) {

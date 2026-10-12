@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import com.sun.star.lang.WrappedTargetException;
+import com.sun.star.text.XTextCursor;
+import com.sun.star.text.XTextDocument;
+import com.sun.star.text.XTextRange;
 import org.jabref.logic.openoffice.style.BstStyle;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
@@ -11,11 +15,6 @@ import org.jabref.model.openoffice.DocumentAnnotation;
 import org.jabref.model.openoffice.uno.CreationException;
 import org.jabref.model.openoffice.uno.NoDocumentException;
 import org.jabref.model.openoffice.uno.UnoTextSection;
-
-import com.sun.star.lang.WrappedTargetException;
-import com.sun.star.text.XTextCursor;
-import com.sun.star.text.XTextDocument;
-import com.sun.star.text.XTextRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +29,10 @@ public class BstUpdateBibliography {
     private static final Logger LOGGER = LoggerFactory.getLogger(BstUpdateBibliography.class);
 
     /// Creates or clears the BST bibliography section, then populates it.
-    public void rebuildBstBibliography(XTextDocument doc,
-                                       BSTCitationOOAdapter bstCitationOOAdapter,
-                                       BstStyle style,
-                                       List<BibEntry> entries,
-                                       BibDatabaseContext ctx)
-            throws com.sun.star.uno.Exception, NoDocumentException, CreationException,
-            IOException, InterruptedException, WrappedTargetException, MissingStyleDefinedCitationLabelException {
+    public void rebuildBstBibliography(XTextDocument doc, BSTCitationOOAdapter bstCitationOOAdapter, BstStyle style,
+            List<BibEntry> entries, BibDatabaseContext ctx)
+            throws com.sun.star.uno.Exception, NoDocumentException, CreationException, IOException, InterruptedException, WrappedTargetException,
+                   MissingStyleDefinedCitationLabelException {
         LOGGER.debug("Starting BST bibliography rebuild");
 
         Optional<XTextRange> sectionRange = getBibliographyRange(doc);
@@ -52,8 +48,7 @@ public class BstUpdateBibliography {
         LOGGER.debug("BST bibliography rebuild complete");
     }
 
-    public Optional<XTextRange> getBibliographyRange(XTextDocument doc)
-            throws NoDocumentException, WrappedTargetException {
+    public Optional<XTextRange> getBibliographyRange(XTextDocument doc) throws NoDocumentException, WrappedTargetException {
         return UnoTextSection.getAnchor(doc, BST_BIBLIOGRAPHY_SECTION_NAME);
     }
 
@@ -65,8 +60,7 @@ public class BstUpdateBibliography {
         LOGGER.debug("BST bibliography section created");
     }
 
-    private void clearBstBibTextSectionContent(XTextDocument doc)
-            throws NoDocumentException, WrappedTargetException {
+    private void clearBstBibTextSectionContent(XTextDocument doc) throws NoDocumentException, WrappedTargetException {
         Optional<XTextRange> sectionRange = getBibliographyRange(doc);
         if (sectionRange.isPresent()) {
             XTextCursor cursor = doc.getText().createTextCursorByRange(sectionRange.get());
@@ -77,13 +71,10 @@ public class BstUpdateBibliography {
         }
     }
 
-    private void populateBstBibTextSection(XTextDocument doc,
-                                           BSTCitationOOAdapter bstCitationOOAdapter,
-                                           BstStyle style,
-                                           List<BibEntry> entries,
-                                           BibDatabaseContext ctx)
-            throws com.sun.star.uno.Exception, NoDocumentException, CreationException,
-            IOException, InterruptedException, WrappedTargetException, MissingStyleDefinedCitationLabelException {
+    private void populateBstBibTextSection(XTextDocument doc, BSTCitationOOAdapter bstCitationOOAdapter, BstStyle style,
+            List<BibEntry> entries, BibDatabaseContext ctx)
+            throws com.sun.star.uno.Exception, NoDocumentException, CreationException, IOException, InterruptedException, WrappedTargetException,
+                   MissingStyleDefinedCitationLabelException {
         Optional<XTextRange> sectionRange = getBibliographyRange(doc);
         if (sectionRange.isEmpty()) {
             throw new IllegalStateException("BST bibliography section not found when trying to populate");

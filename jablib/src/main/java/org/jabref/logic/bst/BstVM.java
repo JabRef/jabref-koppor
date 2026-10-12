@@ -5,9 +5,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.jabref.model.database.BibDatabase;
-import org.jabref.model.entry.BibEntry;
-
 import com.google.common.annotations.VisibleForTesting;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.BaseErrorListener;
@@ -18,15 +15,17 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.jabref.model.database.BibDatabase;
+import org.jabref.model.entry.BibEntry;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 /// Parsed executable program of one specific `.bst` file.
 ///
-/// [BstVM] cannot be used as a static, style-agnostic machine because each instance holds the
-/// parse tree of one concrete `.bst` program. It also keeps the latest execution context for
-/// testing/debugging, so callers should treat it as style-specific runtime state rather than a
-/// global utility.
+/// [BstVM] cannot be used as a static, style-agnostic machine because each
+/// instance holds the parse tree of one concrete `.bst` program. It also keeps
+/// the latest execution context for testing/debugging, so callers should treat
+/// it as style-specific runtime state rather than a global utility.
 @NullMarked
 public class BstVM {
 
@@ -34,9 +33,12 @@ public class BstVM {
     protected static final Integer TRUE = 1;
 
     protected final ParseTree tree;
-    @Nullable private BstVMContext latestContext; // for testing
 
-    @Nullable private Path path;
+    @Nullable
+    private BstVMContext latestContext; // for testing
+
+    @Nullable
+    private Path path;
 
     public BstVM(Path path) throws RecognitionException, IOException {
         this(CharStreams.fromPath(path));
@@ -66,19 +68,23 @@ public class BstVM {
         return parser.bstFile();
     }
 
-    /// Transforms the given list of BibEntries to a rendered list of references using the parsed bst program
+    /// Transforms the given list of BibEntries to a rendered list of references
+    /// using the parsed bst program
     ///
-    /// @param bibEntries  list of entries to convert
+    /// @param bibEntries list of entries to convert
     /// @param bibDatabase the bibDatabase used for resolving strings / crossref
     /// @return list of references in plain text form
     public String render(List<BibEntry> bibEntries, BibDatabase bibDatabase) {
         // needs to be modifiable due to sort operations later
-        List<BstEntry> entries = bibEntries.stream().map(BstEntry::new).collect(Collectors.toList());
+        List<BstEntry> entries = bibEntries.stream()
+                .map(BstEntry::new)
+                .collect(Collectors.toList());
 
         StringBuilder resultBuffer = new StringBuilder();
 
         BstVMContext bstVMContext = new BstVMContext(entries, bibDatabase, path);
-        bstVMContext.functions().putAll(new BstFunctions(bstVMContext, resultBuffer).getBuiltInFunctions());
+        bstVMContext.functions().putAll(new BstFunctions(bstVMContext, resultBuffer)
+                .getBuiltInFunctions());
         bstVMContext.integers().put("entry.max$", Integer.MAX_VALUE);
         bstVMContext.integers().put("global.max$", Integer.MAX_VALUE);
 
@@ -124,8 +130,13 @@ public class BstVM {
         public static final ThrowingErrorListener INSTANCE = new ThrowingErrorListener();
 
         @Override
-        public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
-                                int line, int charPositionInLine, String msg, RecognitionException e)
+        public void syntaxError(
+                Recognizer<?, ?> recognizer,
+                Object offendingSymbol,
+                int line,
+                int charPositionInLine,
+                String msg,
+                RecognitionException e)
                 throws ParseCancellationException {
             throw new ParseCancellationException("line " + line + ":" + charPositionInLine + " " + msg);
         }

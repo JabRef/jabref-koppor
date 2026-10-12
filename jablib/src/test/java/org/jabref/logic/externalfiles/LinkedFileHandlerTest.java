@@ -11,7 +11,6 @@ import org.jabref.logic.xmp.XmpPreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -44,7 +43,9 @@ class LinkedFileHandlerTest {
     }
 
     @ParameterizedTest(name = "{1} to {2} should be {0}")
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
                 newName.pdf, test.pdf, newName
                 newName.txt, test.pdf, newName.txt
                 newNameWithoutExtension, test, newNameWithoutExtension
@@ -59,13 +60,17 @@ class LinkedFileHandlerTest {
         LinkedFileHandler linkedFileHandler = new LinkedFileHandler(linkedFile, entryWithCitationKeyAsdf, databaseContext, filePreferences);
 
         linkedFileHandler.renameToName(newFileName, false);
-        final String result = Path.of(linkedFile.getLink()).getFileName().toString();
+        final String result = Path.of(linkedFile.getLink())
+                .getFileName()
+                .toString();
         assertEquals(expectedFileName, result);
     }
 
     @ParameterizedTest(name = "{1} with {2} should be {0} for citation key 'asdf'")
     // Empty extensions do not need to be tested - all calls provide a non-empty extension
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
                 asdf.pdf, '', pdf
                 asdf.pdf, file.pdf, pdf
                 asdf.txt, file.pdf, txt
@@ -88,7 +93,9 @@ class LinkedFileHandlerTest {
     }
 
     @ParameterizedTest(name = "{1} with {2} should be {0} for empty citation key")
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
                 file.pdf, '', pdf
                 file.txt, '', txt
                 file.pdf, file.pdf, pdf
@@ -121,7 +128,9 @@ class LinkedFileHandlerTest {
     }
 
     @ParameterizedTest(name = "{1} should be {0} for citation key 'asdf'")
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
                 asdf, ''
                 asdf.pdf, file.pdf
                 asdf.txt, file.txt
@@ -142,7 +151,9 @@ class LinkedFileHandlerTest {
     }
 
     @ParameterizedTest(name = "{1} should be {0} for empty citation key")
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
                 file, ''
                 file.pdf, file.pdf
                 file.txt, file.txt

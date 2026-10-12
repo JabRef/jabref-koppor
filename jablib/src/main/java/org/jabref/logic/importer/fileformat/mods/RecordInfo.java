@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public record RecordInfo(
-        List<String> recordContents,
-        List<String> languages) {
+public record RecordInfo(List<String> recordContents, List<String> languages) {
 
     public static Set<String> elementNameSet = Set.of(
             "recordContentSource",
@@ -15,8 +13,7 @@ public record RecordInfo(
             "recordIdentifier",
             "recordOrigin",
             "descriptionStandard",
-            "recordInfoNote"
-    );
+            "recordInfoNote");
 
     public RecordInfo() {
         this(new ArrayList<>(), new ArrayList<>());

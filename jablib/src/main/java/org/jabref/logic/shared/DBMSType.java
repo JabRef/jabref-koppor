@@ -12,7 +12,8 @@ public enum DBMSType {
     private final String urlPattern;
     private final int defaultPort;
 
-    DBMSType(String type, String driverPath, String urlPattern, int defaultPort) {
+    DBMSType(String type, String driverPath, String urlPattern,
+             int defaultPort) {
         this.type = type;
         this.driverPath = driverPath;
         this.urlPattern = urlPattern;
@@ -20,7 +21,9 @@ public enum DBMSType {
     }
 
     public static Optional<DBMSType> fromString(String typeName) {
-        return Arrays.stream(DBMSType.values()).filter(dbmsType -> dbmsType.type.equalsIgnoreCase(typeName)).findAny();
+        return Arrays.stream(DBMSType.values())
+                .filter(dbmsType -> dbmsType.type.equalsIgnoreCase(typeName))
+                .findAny();
     }
 
     @Override

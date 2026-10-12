@@ -9,11 +9,12 @@ import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.metadata.MetaData;
 
-/// Creates the group that imported entries are collected in, at position 0 under the root.
+/// Creates the group that imported entries are collected in, at position 0
+/// under the root.
 ///
-/// This runs when entries are imported, not when a library is opened: a library the user only
-/// looked at is not written to, and the write that does happen belongs to an import the user
-/// asked for.
+/// This runs when entries are imported, not when a library is opened: a library
+/// the user only looked at is not written to, and the write that does happen
+/// belongs to an import the user asked for.
 public class AddGroupImportEntriesAction {
 
     /// @return whether the group was added
@@ -25,16 +26,20 @@ public class AddGroupImportEntriesAction {
         String groupName = preferences.getLibraryPreferences().getAddImportedEntriesGroupName();
         MetaData metaData = databaseContext.getMetaData();
         boolean groupMissing = metaData.getGroups()
-                                       .map(root -> root.getChildren().stream()
-                                                        .map(GroupTreeNode::getGroup)
-                                                        .noneMatch(grp -> grp instanceof ExplicitGroup && grp.getName().equalsIgnoreCase(groupName)))
-                                       .orElse(true);
+                .map(
+                        root ->
+                        root.getChildren()
+                            .stream()
+                            .map(GroupTreeNode::getGroup)
+                            .noneMatch(grp -> grp instanceof ExplicitGroup && grp.getName().equalsIgnoreCase(groupName)))
+                .orElse(true);
 
         if (!groupMissing) {
             return false;
         }
 
-        char keywordSeparator = metaData.getKeywordSeparator().orElse(preferences.getBibEntryPreferences().getKeywordSeparator());
+        char keywordSeparator = metaData.getKeywordSeparator().orElse(preferences.getBibEntryPreferences()
+                .getKeywordSeparator());
         GroupTreeNode root = metaData.getGroups().orElseGet(() -> {
             GroupTreeNode newRoot = GroupTreeNode.fromGroup(GroupsFactory.createAllEntriesGroup());
             metaData.setGroups(newRoot);

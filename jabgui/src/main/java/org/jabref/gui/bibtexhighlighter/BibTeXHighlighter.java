@@ -6,37 +6,39 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.jabref.gui.StateManager;
-import org.jabref.gui.search.Highlighter;
-import org.jabref.gui.search.SearchType;
-import org.jabref.model.entry.field.Field;
-import org.jabref.model.search.query.SearchQuery;
-import org.jabref.model.util.Range;
-
 import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
 import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter.BibTeXHighlightRegion;
 import jfx.incubator.scene.control.richtext.SyntaxDecorator;
 import jfx.incubator.scene.control.richtext.TextPos;
 import jfx.incubator.scene.control.richtext.model.CodeTextModel;
 import jfx.incubator.scene.control.richtext.model.RichParagraph;
+import org.jabref.gui.StateManager;
+import org.jabref.gui.search.Highlighter;
+import org.jabref.gui.search.SearchType;
+import org.jabref.model.entry.field.Field;
+import org.jabref.model.search.query.SearchQuery;
+import org.jabref.model.util.Range;
 import org.jspecify.annotations.NullMarked;
 
-/// [SyntaxDecorator] that applies BibTeX syntax highlighting and search-term highlighting
-/// to the `CodeArea` used in [org.jabref.gui.entryeditor.SourceTab].
+/// [SyntaxDecorator] that applies BibTeX syntax highlighting and search-term
+/// highlighting to the `CodeArea` used in
+/// [org.jabref.gui.entryeditor.SourceTab].
 ///
-/// Highlighting itself is delegated to the Veneer [BibTeXSyntaxHighlighter], which
-/// computes highlight regions over the full source text. Since `CodeArea` builds one
-/// [RichParagraph] per line, this class:
+/// Highlighting itself is delegated to the Veneer [BibTeXSyntaxHighlighter],
+/// which computes highlight regions over the full source text. Since `CodeArea`
+/// builds one [RichParagraph] per line, this class:
 ///
 /// * reassembles the model's lines into a single string and caches the computed
-///   [BibTeXHighlightRegion]s so the (relatively expensive) lexing only happens when
-///   the text has actually changed;
-/// * maps each region back onto the requested line using cached line-start offsets;
-/// * overlays any active search-query matches as translucent highlights on top of the
-///   syntax styling.
+///   [BibTeXHighlightRegion]s so the (relatively expensive) lexing only happens
+///   when the text has actually changed;
+/// * maps each region back onto the requested line using cached line-start
+///   offsets;
+/// * overlays any active search-query matches as translucent highlights on top
+///   of the syntax styling.
 ///
-/// Instances are stateful (they hold the last computed text/region cache) and are intended to
-/// be long-lived, one per `CodeArea`, rather than recreated per paragraph.
+/// Instances are stateful (they hold the last computed text/region cache) and
+/// are intended to be long-lived, one per `CodeArea`, rather than recreated per
+/// paragraph.
 @NullMarked
 public class BibTeXHighlighter implements SyntaxDecorator {
 
@@ -52,8 +54,10 @@ public class BibTeXHighlighter implements SyntaxDecorator {
 
     /// Creates a new highlighter.
     ///
-    /// @param stateManager      used to retrieve the active search query for term highlighting
-    /// @param syntaxHighlighter the syntax highlighter used to compute highlight regions for BibTeX source code
+    /// @param stateManager used to retrieve the active search query for term
+    ///   highlighting
+    /// @param syntaxHighlighter the syntax highlighter used to compute
+    ///   highlight regions for BibTeX source code
     public BibTeXHighlighter(StateManager stateManager, BibTeXSyntaxHighlighter syntaxHighlighter) {
         this.stateManager = stateManager;
         this.syntaxHighlighter = syntaxHighlighter;
@@ -61,13 +65,15 @@ public class BibTeXHighlighter implements SyntaxDecorator {
 
     /// Sets the provider for BibTeX field ranges within the source text.
     ///
-    /// @param fieldPositionsProvider supplier providing a mapping of fields to their global ranges
+    /// @param fieldPositionsProvider supplier providing a mapping of fields to
+    ///   their global ranges
     public void setFieldPositionsProvider(Supplier<Map<Field, Range>> fieldPositionsProvider) {
         this.fieldPositionsProvider = fieldPositionsProvider;
     }
 
-    /// Builds the styled paragraph for a single line of the model, applying both BibTeX syntax
-    /// highlighting and (if a search query is active) search-match highlighting.
+    /// Builds the styled paragraph for a single line of the model, applying
+    /// both BibTeX syntax highlighting and (if a search query is active)
+    /// search-match highlighting.
     ///
     /// @param model the code text model backing the `CodeArea`
     /// @param index the paragraph (line) index to render
@@ -92,8 +98,9 @@ public class BibTeXHighlighter implements SyntaxDecorator {
         return builder.build();
     }
 
-    /// Recomputes the highlight-region cache if the model's full text has changed since the
-    /// last call or if the cache was invalidated by [#handleChange].
+    /// Recomputes the highlight-region cache if the model's full text has
+    /// changed since the last call or if the cache was invalidated by
+    /// [#handleChange].
     ///
     /// @param model the code text model backing the `CodeArea`
     private void refreshCacheIfNeeded(CodeTextModel model) {
@@ -125,15 +132,18 @@ public class BibTeXHighlighter implements SyntaxDecorator {
         cacheDirty = false;
     }
 
-    /// Adds the syntax-highlighted segments for the given line to the builder, translating each
-    /// cached [BibTeXHighlightRegion] (expressed in offsets over the full document) into
-    /// offsets local to this line, and splitting segments if they overlap with search matches.
+    /// Adds the syntax-highlighted segments for the given line to the builder,
+    /// translating each cached [BibTeXHighlightRegion] (expressed in offsets
+    /// over the full document) into offsets local to this line, and splitting
+    /// segments if they overlap with search matches.
     ///
-    /// @param builder   the paragraph builder to append segments to
-    /// @param text      the plain text of the current line
-    /// @param lineStart the offset of this line's first character within the full cached text
-    /// @param matches   list of active search match ranges within this line
-    private void addSyntaxSegments(RichParagraph.Builder builder, String text, int lineStart, List<Range> matches) {
+    /// @param builder the paragraph builder to append segments to
+    /// @param text the plain text of the current line
+    /// @param lineStart the offset of this line's first character within the
+    ///   full cached text
+    /// @param matches list of active search match ranges within this line
+    private void addSyntaxSegments(RichParagraph.Builder builder, String text, int lineStart,
+            List<Range> matches) {
         int lineEnd = lineStart + text.length();
         int cursor = 0;
 
@@ -164,7 +174,8 @@ public class BibTeXHighlighter implements SyntaxDecorator {
     }
 
     /// Helper to add a text segment, splitting it if it intersects with search matches.
-    private void addSegmentWithSearchCheck(RichParagraph.Builder builder, String segmentText, int segmentStart, @org.jspecify.annotations.Nullable String baseStyleClass, List<Range> matches) {
+    private void addSegmentWithSearchCheck(RichParagraph.Builder builder, String segmentText, int segmentStart,
+            @org.jspecify.annotations.Nullable String baseStyleClass, List<Range> matches) {
         int segmentEnd = segmentStart + segmentText.length();
         int cursor = segmentStart;
 
@@ -199,7 +210,8 @@ public class BibTeXHighlighter implements SyntaxDecorator {
         }
     }
 
-    private void appendSegment(RichParagraph.Builder builder, String text, @org.jspecify.annotations.Nullable String baseStyleClass, boolean isSearchMatch) {
+    private void appendSegment(RichParagraph.Builder builder, String text, @org.jspecify.annotations.Nullable String baseStyleClass,
+            boolean isSearchMatch) {
         if (text.isEmpty()) {
             return;
         }
@@ -230,24 +242,23 @@ public class BibTeXHighlighter implements SyntaxDecorator {
         Map<Field, Range> fieldPositions = fieldPositionsProvider.get();
 
         List<Range> matches = new ArrayList<>();
-        termsMap.forEach((fieldOpt, terms) ->
-                Highlighter.buildSearchPattern(terms).ifPresent(pattern -> {
-                    List<Range> localMatches = Highlighter.findMatchPositions(text, pattern);
-                    for (Range localMatch : localMatches) {
-                        int globalStart = lineStart + localMatch.start() - 1;
-                        int globalEnd = lineStart + localMatch.end() - 1;
+        termsMap.forEach((fieldOpt, terms) -> Highlighter.buildSearchPattern(terms).ifPresent(pattern -> {
+            List<Range> localMatches = Highlighter.findMatchPositions(text, pattern);
+            for (Range localMatch : localMatches) {
+                int globalStart = lineStart + localMatch.start() - 1;
+                int globalEnd = lineStart + localMatch.end() - 1;
 
-                        if (fieldOpt.isEmpty()) {
-                            matches.add(localMatch);
-                        } else {
-                            Field field = fieldOpt.get();
-                            Range fieldRange = fieldPositions.get(field);
-                            if (fieldRange != null && globalStart >= fieldRange.start() && globalEnd <= fieldRange.end()) {
-                                matches.add(localMatch);
-                            }
-                        }
+                if (fieldOpt.isEmpty()) {
+                    matches.add(localMatch);
+                } else {
+                    Field field = fieldOpt.get();
+                    Range fieldRange = fieldPositions.get(field);
+                    if (fieldRange != null && globalStart >= fieldRange.start() && globalEnd <= fieldRange.end()) {
+                        matches.add(localMatch);
                     }
-                }));
+                }
+            }
+        }));
         return matches;
     }
 
@@ -265,7 +276,8 @@ public class BibTeXHighlighter implements SyntaxDecorator {
     /// Marks the cache as dirty so that subsequent rendering calls will rebuild
     /// syntax highlight regions for the updated text model.
     @Override
-    public void handleChange(CodeTextModel m, TextPos start, TextPos end, int charsTop, int linesAdded, int charsBottom) {
+    public void handleChange(CodeTextModel m, TextPos start, TextPos end,
+            int charsTop, int linesAdded, int charsBottom) {
         cacheDirty = true;
     }
 }

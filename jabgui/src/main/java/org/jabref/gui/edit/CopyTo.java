@@ -16,7 +16,6 @@ import org.jabref.model.TransferMode;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,13 +36,14 @@ public class CopyTo extends SimpleCommand {
     private final BibDatabaseContext sourceDatabaseContext;
     private final BibDatabaseContext targetDatabaseContext;
 
-    public CopyTo(DialogService dialogService,
-                  StateManager stateManager,
-                  CopyToPreferences copyToPreferences,
-                  FilePreferences filePreferences,
-                  ImportHandler importHandler,
-                  BibDatabaseContext sourceDatabaseContext,
-                  BibDatabaseContext targetDatabaseContext) {
+    public CopyTo(
+            DialogService dialogService,
+            StateManager stateManager,
+            CopyToPreferences copyToPreferences,
+            FilePreferences filePreferences,
+            ImportHandler importHandler,
+            BibDatabaseContext sourceDatabaseContext,
+            BibDatabaseContext targetDatabaseContext) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.copyToPreferences = copyToPreferences;
@@ -58,7 +58,9 @@ public class CopyTo extends SimpleCommand {
     @Override
     public void execute() {
         // we need to operate on a copy otherwise we might get ConcurrentModification issues
-        List<BibEntry> selectedEntries = stateManager.getSelectedEntries().stream().toList();
+        List<BibEntry> selectedEntries = stateManager.getSelectedEntries()
+                .stream()
+                .toList();
 
         boolean includeCrossReferences = copyToPreferences.getShouldIncludeCrossReferences();
         boolean showDialogBox = copyToPreferences.getShouldAskForIncludingCrossReferences();
@@ -81,8 +83,10 @@ public class CopyTo extends SimpleCommand {
     public void copyEntriesWithCrossRef(List<BibEntry> selectedEntries, BibDatabaseContext targetDatabaseContext) {
         List<BibEntry> entriesToAdd = new ArrayList<>(selectedEntries);
 
-        List<BibEntry> entriesWithCrossRef = selectedEntries.stream().filter(bibEntry -> bibEntry.hasField(StandardField.CROSSREF))
-                                                            .flatMap(entry -> getCrossRefEntry(entry, sourceDatabaseContext).stream()).toList();
+        List<BibEntry> entriesWithCrossRef = selectedEntries.stream()
+                .filter(bibEntry -> bibEntry.hasField(StandardField.CROSSREF))
+                .flatMap(entry -> getCrossRefEntry(entry, sourceDatabaseContext).stream())
+                .toList();
         entriesToAdd.addAll(entriesWithCrossRef);
 
         addEntriesWithFeedback(
@@ -93,8 +97,7 @@ public class CopyTo extends SimpleCommand {
                 params -> Localization.lang("Copied %0 entry(s) to %1. %2 were skipped including cross-references", params),
                 dialogService,
                 importHandler,
-                stateManager
-        );
+                stateManager);
     }
 
     public void copyEntriesWithoutCrossRef(List<BibEntry> selectedEntries, BibDatabaseContext targetDatabaseContext) {
@@ -106,12 +109,14 @@ public class CopyTo extends SimpleCommand {
                 params -> Localization.lang("Copied %0 entry(s) to %1. %2 were skipped without cross-references", params),
                 dialogService,
                 importHandler,
-                stateManager
-        );
+                stateManager);
     }
 
     public Optional<BibEntry> getCrossRefEntry(BibEntry bibEntryToCheck, BibDatabaseContext sourceDatabaseContext) {
-        return sourceDatabaseContext.getEntries().stream().filter(entry -> bibEntryToCheck.getField(StandardField.CROSSREF).equals(entry.getCitationKey())).findFirst();
+        return sourceDatabaseContext.getEntries()
+                .stream()
+                .filter(entry -> bibEntryToCheck.getField(StandardField.CROSSREF).equals(entry.getCitationKey()))
+                .findFirst();
     }
 
     private boolean askForCrossReferencedEntries() {
@@ -122,8 +127,7 @@ public class CopyTo extends SimpleCommand {
                     Localization.lang("Include"),
                     Localization.lang("Exclude"),
                     Localization.lang("Do not ask again"),
-                    optOut -> copyToPreferences.setShouldAskForIncludingCrossReferences(!optOut)
-            );
+                    optOut -> copyToPreferences.setShouldAskForIncludingCrossReferences(!optOut));
         } else {
             return copyToPreferences.getShouldIncludeCrossReferences();
         }

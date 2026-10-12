@@ -10,18 +10,16 @@ import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public sealed interface UiCommand {
-    record BlankWorkspace() implements UiCommand {
-    }
+    record BlankWorkspace() implements UiCommand {}
 
-    record SelectEntryKeys(List<String> citationKey) implements UiCommand {
-    }
+    record SelectEntryKeys(List<String> citationKey) implements UiCommand {}
 
-    record OpenLibraries(List<Path> toImport) implements UiCommand {
-    }
+    record OpenLibraries(List<Path> toImport) implements UiCommand {}
 
     /// Supports both BibTeX and non-BibTeX.
     ///
-    /// @param library the target library; an empty Optional means the currently active library.
+    /// @param library the target library; an empty Optional means the currently
+    ///   active library.
     record AppendFilesToLibrary(Optional<Path> library, List<Path> toAppend) implements UiCommand {
         public AppendFilesToLibrary(List<Path> toAppend) {
             this(Optional.empty(), toAppend);
@@ -29,13 +27,16 @@ public sealed interface UiCommand {
     }
 
     /// Supports both BibTeX and non-BibTeX
-    record AppendStreamToCurrentLibrary(Reader toAppend) implements UiCommand {
-    }
+    record AppendStreamToCurrentLibrary(Reader toAppend) implements UiCommand {}
 
-    /// "Twin" to [#AppendFilesToLibrary]. Accepts BibTeX as text instead stored in a file.
+    /// "Twin" to [#AppendFilesToLibrary]. Accepts BibTeX as text instead stored
+    /// in a file.
     ///
-    /// @param library     the target library; an empty Optional means the currently active library.
-    /// @param targetGroup name of a group the imported entries are additionally assigned to. If the group does not exist, it is created as a top-level group. An empty Optional means no group assignment.
+    /// @param library the target library; an empty Optional means the currently
+    ///   active library.
+    /// @param targetGroup name of a group the imported entries are additionally
+    ///   assigned to. If the group does not exist, it is created as a top-level
+    ///   group. An empty Optional means no group assignment.
     record AppendBibTeXToLibrary(Optional<Path> library, String bibtex, Optional<String> targetGroup) implements UiCommand {
         public AppendBibTeXToLibrary(String bibtex) {
             this(Optional.empty(), bibtex, Optional.empty());
@@ -50,15 +51,15 @@ public sealed interface UiCommand {
         }
 
         private static Optional<String> toGroup(@Nullable String targetGroup) {
-            return targetGroup == null || targetGroup.isBlank() ? Optional.empty() : Optional.of(targetGroup);
+            return targetGroup == null || targetGroup.isBlank()
+                    ? Optional.empty()
+                    : Optional.of(targetGroup);
         }
     }
 
-    record Focus() implements UiCommand {
-    }
+    record Focus() implements UiCommand {}
 
     /// @deprecated used by the 2025 browser extension only
     @Deprecated
-    record AppendFileOrUrlToCurrentLibrary(String location) implements UiCommand {
-    }
+    record AppendFileOrUrlToCurrentLibrary(String location) implements UiCommand {}
 }

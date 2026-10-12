@@ -10,7 +10,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.model.ai.chatting.ChatIdentifier;
 import org.jabref.model.ai.chatting.ChatMessage;
-
 import org.jspecify.annotations.NonNull;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
@@ -60,15 +59,19 @@ public class MVStoreChatHistoryRepository extends MVStoreBase implements ChatHis
     public List<ChatMessage> getAllMessages(ChatIdentifier chatIdentifier) {
         Map<String, String> map = openMap(chatIdentifier);
 
-        return map.values().stream().map(s -> {
-            try {
-                return JSON_MAPPER.readValue(s, ChatMessage.class);
-            } catch (JacksonException e) {
-                // NOTE: This is a highly not probable exception, so wrapping in try/catch and turning to a
-                // RuntimeException to ignore it.
-                throw new RuntimeException(e);
-            }
-        }).sorted(Comparator.comparing(ChatMessage::timestamp)).toList();
+        return map.values()
+                  .stream()
+                  .map(s -> {
+                      try {
+                          return JSON_MAPPER.readValue(s, ChatMessage.class);
+                      } catch (JacksonException e) {
+                          // NOTE: This is a highly not probable exception, so wrapping in try/catch and turning to a
+                          // RuntimeException to ignore it.
+                          throw new RuntimeException(e);
+                      }
+                  })
+                  .sorted(Comparator.comparing(ChatMessage::timestamp))
+                  .toList();
     }
 
     @Override
@@ -84,7 +87,11 @@ public class MVStoreChatHistoryRepository extends MVStoreBase implements ChatHis
     }
 
     private Map<String, String> openMap(ChatIdentifier chatIdentifier) {
-        String id = chatIdentifier.libraryId() + "/" + chatIdentifier.chatType() + "/" + chatIdentifier.chatName();
+        String id = chatIdentifier.libraryId()
+                + "/"
+                + chatIdentifier.chatType()
+                + "/"
+                + chatIdentifier.chatName();
         return mvStore.openMap(id);
     }
 }

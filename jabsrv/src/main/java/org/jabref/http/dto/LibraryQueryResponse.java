@@ -8,5 +8,4 @@ import org.jspecify.annotations.NullMarked;
 ///
 /// `results` holds one [LibraryQueryResult] per input query, in the same order.
 @NullMarked
-public record LibraryQueryResponse(List<LibraryQueryResult> results) {
-}
+public record LibraryQueryResponse(List<LibraryQueryResult> results) {}

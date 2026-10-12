@@ -9,9 +9,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import javafx.util.Pair;
-
 import org.jabref.logic.os.OS;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -29,17 +27,16 @@ class StringUtilTest {
 
     @Test
     void StringUtilClassIsSmall() throws IOException {
-        Path path = Path.of("src", "main", "java",
-                StringUtil.class.getName().replace('.', '/') + ".java");
+        Path path = Path.of("src", "main", "java", StringUtil.class.getName().replace('.', '/') + ".java");
         int lineCount = Files.readAllLines(path, StandardCharsets.UTF_8).size();
 
-        assertTrue(lineCount <= 830, "StringUtil increased in size to " + lineCount + ". "
-                + "We try to keep this class as small as possible. "
-                + "Thus think twice if you add something to StringUtil.");
+        assertTrue(lineCount <= 830, "StringUtil increased in size to " + lineCount + ". " + "We try to keep this class as small as possible. " + "Thus think twice if you add something to StringUtil.");
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             false, 0
             true,  1
             """)
@@ -73,7 +70,9 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             # Mac < v9
             '\r',   newline
             # Windows
@@ -86,7 +85,9 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             aa,     bib, aa.bib
             .login, bib, .login.bib
             a.bib,  bib, a.bib
@@ -100,7 +101,9 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             &#33;,           !
             &#33;&#33;&#33;, !!!
             """)
@@ -109,18 +112,15 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "ABC,    {ABC}",
-            "ABC,    {{ABC}}",
-            "{abc},  {abc}",
-            "ABCDEF, {ABC}{DEF}"
-    })
+    @CsvSource({"ABC,    {ABC}", "ABC,    {{ABC}}", "{abc},  {abc}", "ABCDEF, {ABC}{DEF}"})
     void removeBracesAroundCapitals(String expected, String input) {
         assertEquals(expected, StringUtil.removeBracesAroundCapitals(input));
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             ABC,         {ABC}
             {ABC},       {ABC}
             abc,         abc
@@ -132,7 +132,9 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             '',               ''
             '   aaa\t\t\n\r', aaa
             '  {a}    ',      a
@@ -151,20 +153,26 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             'ab\\cd\\ed', 'ab;cd;ed', 0, 3
             'cd\\ed',     'ab;cd;ed', 1, 3
             'ed',         'ab;cd;ed', 2, 3
             '',           'ab;cd;ed', 3, 3
             '',           '',         0, 0
             """)
-    void join(String expected, String arrayStr, int from, int to) {
+    void join(String expected, String arrayStr, int from,
+              int to) {
         String[] array = arrayStr.split(";");
         assertEquals(expected, StringUtil.join(array, "\\", from, to));
     }
 
     @ParameterizedTest
-    @CsvSource(useHeadersInDisplayName = true, textBlock = """
+    @CsvSource(
+            useHeadersInDisplayName = true,
+            textBlock =
+                    """
             EXPECTED, INPUT
             foo,      '[foo]'
             '[foo]',  '[[foo]]'
@@ -179,7 +187,9 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             # Get word between braces
             {makes}, 'Practice {makes} perfect',              8,  false
             # When the string is empty and start Index equal zero
@@ -189,7 +199,8 @@ class StringUtilTest {
             # Get the word from the end of the sentence
             bite,    'Barking dogs seldom bite',              19, true
             """)
-    void getPart(String expected, String input, int startIndex, boolean forward) {
+    void getPart(String expected, String input, int startIndex,
+                 boolean forward) {
         assertEquals(expected, StringUtil.getPart(input, startIndex, forward));
     }
 
@@ -199,7 +210,9 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             'aaaaa bbbbb ccccc',          5,  'aaaaanewline\tbbbbbnewline\tccccc'
             'aaaaa bbbbb ccccc',          8,  'aaaaa bbbbbnewline\tccccc'
             'aaaaa bbbbb ccccc',          11, 'aaaaa bbbbbnewline\tccccc'
@@ -223,12 +236,13 @@ class StringUtilTest {
         return Stream.of(
                 Arguments.of("a:b;c:d", new String[][] {{"a", "b"}, {"c", "d"}}),
                 Arguments.of("a:;c:d", new String[][] {{"a", ""}, {"c", "d"}}),
-                Arguments.of("a:\\:b;c\\;:d", new String[][] {{"a", ":b"}, {"c;", "d"}})
-        );
+                Arguments.of("a:\\:b;c\\;:d", new String[][] {{"a", ":b"}, {"c;", "d"}}));
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             {}
             {a}
             '{a{a}}'
@@ -239,7 +253,9 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             ''
             {
             }
@@ -257,7 +273,9 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             ''
             [
             ]
@@ -268,7 +286,9 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             ""
             "a"
             """)
@@ -277,7 +297,9 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             ''
             "
             a""a
@@ -287,7 +309,9 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             1, 1
             2, 2
             8, 8
@@ -322,7 +346,9 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             1, 1
             2, 2
             8, 8
@@ -357,23 +383,21 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "'Test', 'Test', 20",
-            "'...', 'Test', 3",
-            "'TestTes...', 'TestTestTestTestTest', 10",
-            "'', , 10"
-    })
+    @CsvSource({"'Test', 'Test', 20", "'...', 'Test', 3", "'TestTes...', 'TestTestTestTestTest', 10", "'', , 10"})
     void limitStringLength(String expected, String input, int maxLength) {
         assertEquals(expected, StringUtil.limitStringLength(input, maxLength));
     }
 
     @Test
     void limitStringLengthLimiting() {
-        assertEquals(10, StringUtil.limitStringLength("TestTestTestTestTest", 10).length());
+        assertEquals(10, StringUtil.limitStringLength("TestTestTestTestTest", 10)
+                .length());
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             'Hallo Arger', 'Hallo Arger'
             aaAeoeeee,     'åÄöéèë'
             """)
@@ -402,7 +426,9 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             'a:',       'a::',        ':'
             'a:;',      'a:::;',      ':'
             'a:b%c;',   'a::b:%c:;',  ':'
@@ -412,7 +438,10 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(emptyValue = "", textBlock = """
+    @CsvSource(
+            emptyValue = "",
+            textBlock =
+                    """
             '',            ''
             'Hello world', 'Hello world'
             a,             A
@@ -423,12 +452,8 @@ class StringUtilTest {
     }
 
     private static Stream<Arguments> getQuoteStringIfSpaceIsContainedData() {
-        return Stream.of(
-                Arguments.of("", ""),
-                Arguments.of("\" \"", " "),
-                Arguments.of("world", "world"),
-                Arguments.of("\"hello world\"", "hello world")
-        );
+        return Stream.of(Arguments.of("", ""), Arguments.of("\" \"", " "), Arguments.of("world", "world"),
+                Arguments.of("\"hello world\"", "hello world"));
     }
 
     @ParameterizedTest
@@ -438,7 +463,9 @@ class StringUtilTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             aAoeee,    åÄöéèë
             Muhlbach,  Mühlbach
             """)
@@ -456,7 +483,6 @@ class StringUtilTest {
                 Arguments.of(true, "file_url "),
                 Arguments.of(true, "file url\n"),
                 Arguments.of(true, " "),
-
                 Arguments.of(false, "file_url"),
                 Arguments.of(false, "PascalCase"),
                 Arguments.of(false, ""));
@@ -470,18 +496,17 @@ class StringUtilTest {
 
     @Test
     void alignStringTable() {
-        List<Pair<String, String>> given = List.of(
-                new Pair<>("Apple", "Slice"),
-                new Pair<>("Bread", "Loaf"),
-                new Pair<>("Paper", "Sheet"),
+        List<Pair<String, String>> given = List.of(new Pair<>("Apple", "Slice"), new Pair<>("Bread", "Loaf"), new Pair<>("Paper", "Sheet"),
                 new Pair<>("Country", "County"));
 
-        String expected = """
+        String
+                expected = """
                 Apple   : Slice
                 Bread   : Loaf
                 Paper   : Sheet
                 Country : County
-                """.replace("\n", OS.NEWLINE);
+                """
+                                .replace("\n", OS.NEWLINE);
 
         assertEquals(expected, StringUtil.alignStringTable(given));
     }

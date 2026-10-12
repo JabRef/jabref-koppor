@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 import org.jabref.model.entry.field.BiblatexSoftwareField;
 import org.jabref.model.entry.field.Field;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -22,8 +21,7 @@ public class SWHID implements Identifier {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SWHID.class);
 
-    private static final String SWHID_REGEX =
-            "^(?:https?://archive\\.softwareheritage\\.org/)?(swh:1:(?:cnt|dir|rel|rev|snp):[0-9a-fA-F]{40}(?:;[a-zA-Z0-9_]+=[^;\\s]+)*)$";
+    private static final String SWHID_REGEX = "^(?:https?://archive\\.softwareheritage\\.org/)?(swh:1:(?:cnt|dir|rel|rev|snp):[0-9a-fA-F]{40}(?:;[a-zA-Z0-9_]+=[^;\\s]+)*)$";
 
     private static final Pattern SWHID_PATTERN = Pattern.compile(SWHID_REGEX);
 

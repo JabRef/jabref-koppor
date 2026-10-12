@@ -11,12 +11,12 @@ import java.util.Optional;
 
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.identifier.Identifier;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Provides a convenient interface for [IdFetcher], which follow the usual three-step procedure:
+/// Provides a convenient interface for [IdFetcher], which follow the usual
+/// three-step procedure:
 ///
 /// 1. Open a URL based on the search query
 /// 2. Parse the response to get a list of [BibEntry]
@@ -35,7 +35,8 @@ public interface IdParserFetcher<T extends Identifier> extends IdFetcher<T>, Par
 
     /// Extracts the identifier from the list of fetched entries.
     ///
-    /// @param inputEntry     the entry for which we are searching the identifier (can be used to find the closest match in the result)
+    /// @param inputEntry the entry for which we are searching the identifier
+    ///   (can be used to find the closest match in the result)
     /// @param fetchedEntries list of entries returned by the web service
     Optional<T> extractIdentifier(BibEntry inputEntry, List<BibEntry> fetchedEntries) throws FetcherException;
 

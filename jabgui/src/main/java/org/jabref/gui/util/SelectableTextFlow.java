@@ -2,6 +2,7 @@ package org.jabref.gui.util;
 
 import java.text.BreakIterator;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -13,21 +14,23 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-
 import org.jabref.gui.clipboard.ClipBoardManager;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.Nullable;
 
 public class SelectableTextFlow extends TextFlow {
-    /// Unicode "OBJECT REPLACEMENT CHARACTER". JavaFX's [TextFlow] puts it in place of every child that is not a [Text]
-    /// (e.g. a [Hyperlink]), so such a child counts as exactly one character in [TextFlow#getHitInfo(Point2D)] indices.
+    /// Unicode "OBJECT REPLACEMENT CHARACTER". JavaFX's [TextFlow] puts it in
+    /// place of every child that is not a [Text] (e.g. a [Hyperlink]), so such
+    /// a child counts as exactly one character in
+    /// [TextFlow#getHitInfo(Point2D)] indices.
     private static final char OBJECT_REPLACEMENT_CHARACTER = '\uFFFC';
 
     /// Insertion indices into [#getTextFlowContent()]; -1 when there is no selection.
     private int selectionStart = -1;
+
     private int selectionEnd = -1;
-    @Nullable private Path selectionPath;
+
+    @Nullable
+    private Path selectionPath;
 
     private final Pane parentPane;
     private boolean isDragging = false;
@@ -100,8 +103,9 @@ public class SelectableTextFlow extends TextFlow {
         return Math.max(selectionStart, selectionEnd);
     }
 
-    /// The text in the index space of [TextFlow#getHitInfo(Point2D)] and [TextFlow#getRangeShape(int, int, boolean)]:
-    /// every embedded non-[Text] child occupies one [#OBJECT_REPLACEMENT_CHARACTER] there.
+    /// The text in the index space of [TextFlow#getHitInfo(Point2D)] and
+    /// [TextFlow#getRangeShape(int, int, boolean)]: every embedded non-[Text]
+    /// child occupies one [#OBJECT_REPLACEMENT_CHARACTER] there.
     protected String getTextFlowContent() {
         StringBuilder sb = new StringBuilder();
         for (Node node : getChildren()) {
@@ -186,7 +190,8 @@ public class SelectableTextFlow extends TextFlow {
 
         event.consume();
         if (event.getClickCount() == 2) {
-            selectWordAt(getHitInfo(new Point2D(event.getX(), event.getY())).getCharIndex());
+            selectWordAt(getHitInfo(new Point2D(event.getX(), event.getY()))
+                    .getCharIndex());
             return;
         }
 

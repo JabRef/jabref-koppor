@@ -7,9 +7,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.util.io.FileHistory;
-
 import org.jspecify.annotations.Nullable;
 
 public class LastFilesOpenedPreferences {
@@ -26,24 +24,19 @@ public class LastFilesOpenedPreferences {
     private final FileHistory fileHistory;
 
     private LastFilesOpenedPreferences() {
-        this(
-                List.of(),                // No last files opened on startup
-                null,                     // No last focused file
-                List.of(),                // No shared databases connected
+        this(List.of(), // No last files opened on startup
+        null, // No last focused file
+        List.of(), // No shared databases connected
                 FileHistory.of(List.of()) // Empty file history
         );
     }
 
-    public LastFilesOpenedPreferences(List<Path> lastFilesOpened,
-                                      @Nullable Path lastFocusedFile,
-                                      FileHistory fileHistory) {
+    public LastFilesOpenedPreferences(List<Path> lastFilesOpened, @Nullable Path lastFocusedFile, FileHistory fileHistory) {
         this(lastFilesOpened, lastFocusedFile, List.of(), fileHistory);
     }
 
-    public LastFilesOpenedPreferences(List<Path> lastFilesOpened,
-                                      @Nullable Path lastFocusedFile,
-                                      List<String> lastSharedDatabasesOpened,
-                                      FileHistory fileHistory) {
+    public LastFilesOpenedPreferences(List<Path> lastFilesOpened, @Nullable Path lastFocusedFile, List<String> lastSharedDatabasesOpened,
+            FileHistory fileHistory) {
         this.lastFilesOpened = FXCollections.observableArrayList(lastFilesOpened);
         this.lastFocusedFile = new SimpleObjectProperty<>(lastFocusedFile);
         this.lastSharedDatabasesOpened = FXCollections.observableArrayList(lastSharedDatabasesOpened);

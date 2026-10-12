@@ -1,12 +1,11 @@
 package org.jabref.languageserver;
 
-import org.jabref.languageserver.util.LspDiagnosticHandler;
-
 import com.google.gson.JsonObject;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.jabref.languageserver.util.LspDiagnosticHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

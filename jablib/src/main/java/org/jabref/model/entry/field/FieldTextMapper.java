@@ -11,26 +11,16 @@ public class FieldTextMapper {
         if (field.isStandardField()) {
             StandardField standardField = (StandardField) field;
             return switch (standardField) {
-                case DOI ->
-                        "DOI";
-                case ISBN ->
-                        "ISBN";
-                case ISRN ->
-                        "ISRN";
-                case ISSN ->
-                        "ISSN";
-                case PDF ->
-                        "PDF";
-                case PMID ->
-                        "PMID";
-                case PS ->
-                        "PS";
-                case URI ->
-                        "URI";
-                case URL ->
-                        "URL";
-                default ->
-                        StringUtil.capitalizeFirst(field.getName());
+                case DOI -> "DOI";
+                case ISBN -> "ISBN";
+                case ISRN -> "ISRN";
+                case ISSN -> "ISSN";
+                case PDF -> "PDF";
+                case PMID -> "PMID";
+                case PS -> "PS";
+                case URI -> "URI";
+                case URL -> "URL";
+                default -> StringUtil.capitalizeFirst(field.getName());
             };
         } else if (field instanceof InternalField internalField) {
             // Display names are never parsed back into a field (persistence uses getName()), so they may contain spaces.
@@ -38,12 +28,9 @@ public class FieldTextMapper {
             // [impl->req~maintable.column-headers.user-friendly~1]
             // Other internal fields keep their exact name, e.g. the "JabRef" brand casing in INTERNAL_ID_FIELD.
             return switch (internalField) {
-                case KEY_FIELD ->
-                        "Citation Key";
-                case TYPE_HEADER ->
-                        "Entry Type";
-                default ->
-                        field.getName();
+                case KEY_FIELD -> "Citation Key";
+                case TYPE_HEADER -> "Entry Type";
+                default -> field.getName();
             };
         }
 

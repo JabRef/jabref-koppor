@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -14,9 +13,9 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-import org.jabref.model.metadata.SaveOrder;
+import org.jabref.model.metadata.SaveOrder.OrderType;
+import org.jabref.model.metadata.SaveOrder.SortCriterion;
 import org.jabref.model.metadata.SelfContainedSaveOrder;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -34,7 +33,7 @@ class MarkdownTitleExporterTest {
 
     private static Exporter htmlWebsiteExporter;
     private static BibDatabaseContext databaseContext;
-    private static final SelfContainedSaveOrder SAVE_MOST_RECENT_FIRST_SAVE_ORDER = new SelfContainedSaveOrder(SaveOrder.OrderType.SPECIFIED, List.of(new SaveOrder.SortCriterion(StandardField.YEAR, true)));
+    private static final SelfContainedSaveOrder SAVE_MOST_RECENT_FIRST_SAVE_ORDER = new SelfContainedSaveOrder(OrderType.SPECIFIED, List.of(new SortCriterion(StandardField.YEAR, true)));
 
     @BeforeAll
     static void setUp() {
@@ -73,8 +72,7 @@ class MarkdownTitleExporterTest {
         Files.createFile(file);
         htmlWebsiteExporter.export(databaseContext, file, List.of(entry));
 
-        List<String> expected = List.of(
-                "* Test Title. Journal of this &amp; that 2020");
+        List<String> expected = List.of("* Test Title. Journal of this &amp; that 2020");
 
         assertEquals(expected, Files.readAllLines(file));
     }
@@ -93,8 +91,7 @@ class MarkdownTitleExporterTest {
         Files.createFile(file);
         htmlWebsiteExporter.export(databaseContext, file, List.of(entry));
 
-        List<String> expected = List.of(
-                "* Test Title. Test book, PRESS 2020");
+        List<String> expected = List.of("* Test Title. Test book, PRESS 2020");
 
         assertEquals(expected, Files.readAllLines(file));
     }
@@ -113,8 +110,7 @@ class MarkdownTitleExporterTest {
         Files.createFile(file);
         htmlWebsiteExporter.export(databaseContext, file, List.of(entry));
 
-        List<String> expected = List.of(
-                "* Test Title. PRESS 2020");
+        List<String> expected = List.of("* Test Title. PRESS 2020");
 
         assertEquals(expected, Files.readAllLines(file));
     }
@@ -134,8 +130,7 @@ class MarkdownTitleExporterTest {
         Files.createFile(file);
         htmlWebsiteExporter.export(databaseContext, file, List.of(entry));
 
-        List<String> expected = List.of(
-                "* Test Title. ACM CONF'20");
+        List<String> expected = List.of("* Test Title. ACM CONF'20");
 
         assertEquals(expected, Files.readAllLines(file));
     }
@@ -154,8 +149,7 @@ class MarkdownTitleExporterTest {
         Files.createFile(file);
         htmlWebsiteExporter.export(databaseContext, file, List.of(entry));
 
-        List<String> expected = List.of(
-                "* Test Title. CONF'20");
+        List<String> expected = List.of("* Test Title. CONF'20");
 
         assertEquals(expected, Files.readAllLines(file));
     }
@@ -173,8 +167,7 @@ class MarkdownTitleExporterTest {
         Files.createFile(file);
         htmlWebsiteExporter.export(databaseContext, file, List.of(entry));
 
-        List<String> expected = List.of(
-                "* Test Title. Test Conference 2020");
+        List<String> expected = List.of("* Test Title. Test Conference 2020");
 
         assertEquals(expected, Files.readAllLines(file));
     }
@@ -192,8 +185,7 @@ class MarkdownTitleExporterTest {
         Files.createFile(file);
         htmlWebsiteExporter.export(databaseContext, file, List.of(entry));
 
-        List<String> expected = List.of(
-                "* This is JabRef. Journal of this &amp; that 2020");
+        List<String> expected = List.of("* This is JabRef. Journal of this &amp; that 2020");
 
         assertEquals(expected, Files.readAllLines(file));
     }

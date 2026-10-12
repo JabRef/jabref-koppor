@@ -2,13 +2,8 @@ package org.jabref.logic.importer.fileformat.medline;
 
 import java.util.List;
 
-public record MeshHeading(
-        String descriptorName,
-        boolean descriptorMajor,
-        List<QualifierName> qualifierNames
-) {
-    public record QualifierName(String name, boolean major) {
-    }
+public record MeshHeading(String descriptorName, boolean descriptorMajor, List<QualifierName> qualifierNames) {
+    public record QualifierName(String name, boolean major) {}
 
     /// Renders MeSH heading as keywords in `Heading[*]/qualifier[*]` format,
     /// one per qualifier or just the heading if there are no qualifiers.
@@ -18,7 +13,9 @@ public record MeshHeading(
             return List.of(descriptor);
         }
         return qualifierNames.stream()
-                             .map(q -> descriptor + "/" + (q.major() ? q.name() + "*" : q.name()))
+                             .map(q -> descriptor
+                                     + "/"
+                                     + (q.major() ? q.name() + "*" : q.name()))
                              .toList();
     }
 }

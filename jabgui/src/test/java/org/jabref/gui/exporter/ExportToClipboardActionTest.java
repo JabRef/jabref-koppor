@@ -7,7 +7,6 @@ import java.util.Optional;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.clipboard.ClipBoardManager;
@@ -27,7 +26,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -85,10 +83,7 @@ class ExportToClipboardActionTest {
     void executeOnSuccess() {
         Exporter selectedExporter = new Exporter("html", "HTML", StandardFileType.HTML) {
             @Override
-            public void export(@NonNull BibDatabaseContext databaseContext,
-                               Path file,
-                               @NonNull List<BibEntry> entries) {
-            }
+            public void export(@NonNull BibDatabaseContext databaseContext, Path file, @NonNull List<BibEntry> entries) {}
         };
 
         LibraryPreferences libraryPreferences = mock(LibraryPreferences.class, Answers.RETURNS_DEEP_STUBS);
@@ -102,18 +97,14 @@ class ExportToClipboardActionTest {
         // noinspection ConstantConditions since databaseContext is mocked
         when(databaseContext.getFileDirectories(preferences.getFilePreferences())).thenReturn(new ArrayList<>(List.of(Path.of("path"))));
         when(databaseContext.getMetaData()).thenReturn(new MetaData());
-        when(dialogService.showChoiceDialogAndWait(
-                eq(Localization.lang("Export")),
-                eq(Localization.lang("Select export format")),
-                eq(Localization.lang("Export")),
-                any(Exporter.class),
-                anyCollection())
-        ).thenReturn(Optional.of(selectedExporter));
+        when(
+                dialogService.showChoiceDialogAndWait(eq(Localization.lang("Export")), eq(Localization.lang("Select export format")), eq(Localization.lang("Export")),
+                        any(Exporter.class), anyCollection()))
+                .thenReturn(Optional.of(selectedExporter));
 
         exportToClipboardAction.execute();
-        verify(dialogService, times(1)).showChoiceDialogAndWait(
-                eq(Localization.lang("Export")), eq(Localization.lang("Select export format")),
-                eq(Localization.lang("Export")), any(Exporter.class), anyCollection());
+        verify(dialogService, times(1)).showChoiceDialogAndWait(eq(Localization.lang("Export")), eq(Localization.lang("Select export format")), eq(Localization.lang("Export")),
+                any(Exporter.class), anyCollection());
         verify(dialogService, times(1)).notify(Localization.lang("Entries exported to clipboard") + ": " + selectedEntries.size());
     }
 }

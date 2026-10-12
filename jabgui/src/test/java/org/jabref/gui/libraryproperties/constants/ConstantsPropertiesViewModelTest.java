@@ -4,14 +4,12 @@ import java.util.List;
 
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.gui.undo.HeadlessGuiUndoManager;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibtexString;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,10 +33,11 @@ class ConstantsPropertiesViewModelTest {
         ConstantsPropertiesViewModel model = new ConstantsPropertiesViewModel(context, service, externalApplicationsPreferences, new HeadlessGuiUndoManager());
         model.setValues(context.getMetaData());
 
-        List<String> actual = model.stringsListProperty().stream()
-                                   .map(ConstantsItemModel::labelProperty)
-                                   .map(StringProperty::getValue)
-                                   .toList();
+        List<String> actual = model.stringsListProperty()
+                .stream()
+                .map(ConstantsItemModel::labelProperty)
+                .map(StringProperty::getValue)
+                .toList();
 
         assertEquals(expected, actual);
     }
@@ -57,10 +56,11 @@ class ConstantsPropertiesViewModelTest {
 
         model.resortStrings();
 
-        List<String> actual = model.stringsListProperty().stream()
-                                   .map(ConstantsItemModel::labelProperty)
-                                   .map(StringProperty::getValue)
-                                   .toList();
+        List<String> actual = model.stringsListProperty()
+                .stream()
+                .map(ConstantsItemModel::labelProperty)
+                .map(StringProperty::getValue)
+                .toList();
 
         assertEquals(expected, actual);
     }
@@ -77,7 +77,10 @@ class ConstantsPropertiesViewModelTest {
 
         model.storeSettings(context.getMetaData());
 
-        List<BibtexString> actual = context.getDatabase().getStringValues().stream().toList();
+        List<BibtexString> actual = context.getDatabase()
+                .getStringValues()
+                .stream()
+                .toList();
         assertEquals(List.of(new BibtexString("KTH", "Royal Institute of Technology")), actual);
     }
 }

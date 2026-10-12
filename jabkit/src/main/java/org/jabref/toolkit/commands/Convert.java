@@ -11,7 +11,6 @@ import org.jabref.toolkit.exception.ExportServiceException;
 import org.jabref.toolkit.exception.ImportServiceException;
 import org.jabref.toolkit.service.ExportService;
 import org.jabref.toolkit.service.ImportService;
-
 import picocli.CommandLine;
 
 import static picocli.CommandLine.Command;
@@ -31,16 +30,25 @@ class Convert implements Callable<Integer> {
     @Mixin
     private InputOption inputOption = new InputOption();
 
-    @Option(names = {"--input-format"}, description = "Input format")
+    @Option(
+            names = {"--input-format"},
+            description = "Input format")
     private String inputFormat;
 
-    @Option(names = {"--output"}, converter = CygWinPathConverter.class, description = "Output file")
+    @Option(
+            names = {"--output"},
+            converter = CygWinPathConverter.class,
+            description = "Output file")
     private Path outputFile;
 
-    @Option(names = {"--output-format"}, description = "Output format")
+    @Option(
+            names = {"--output-format"},
+            description = "Output format")
     private String outputFormat = "bibtex";
 
-    @Option(names = {"--field-formatters"}, description = "Field Formatter")
+    @Option(
+            names = {"--field-formatters"},
+            description = "Field Formatter")
     private String fieldFormatters;
 
     @Override
@@ -49,7 +57,8 @@ class Convert implements Callable<Integer> {
         boolean writeToStdOut = outputFile == null;
         ParserResult parserResult = ImportService.importFile(inputFile, inputFormat, jabKit.cliPreferences, sharedOptions.porcelain || writeToStdOut);
 
-        FieldFormatterCleanupMapper.applyFormatters(fieldFormatters, parserResult.getDatabase().getEntries());
+        FieldFormatterCleanupMapper.applyFormatters(fieldFormatters, parserResult.getDatabase()
+                .getEntries());
 
         ExportService exportService = ExportService.create(jabKit.cliPreferences, sharedOptions.porcelain || writeToStdOut);
 

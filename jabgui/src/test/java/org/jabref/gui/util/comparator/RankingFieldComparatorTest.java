@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.jabref.gui.specialfields.SpecialFieldValueViewModel;
 import org.jabref.model.entry.field.SpecialFieldValue;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +43,8 @@ class RankingFieldComparatorTest {
 
     @Test
     void compareTwoEmptyInputs() {
-        assertEquals(0, comparator.compare(Optional.empty(), Optional.empty()));
+        assertEquals(0,
+                comparator.compare(Optional.empty(), Optional.empty()));
     }
 
     @Test

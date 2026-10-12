@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.jabref.gui.mergeentries.threewaymerge.DiffMethod;
-
 import com.github.difflib.DiffUtils;
 import com.github.difflib.patch.AbstractDelta;
 import org.fxmisc.richtext.StyleClassedTextArea;
+import org.jabref.gui.mergeentries.threewaymerge.DiffMethod;
 
-/// A diff highlighter in which differences of type [com.github.difflib.patch.DeltaType#CHANGE] are unified and represented by an insertion
-/// and deletion in the target text view. Normal addition and deletion are kept as they are.
+/// A diff highlighter in which differences of type
+/// [com.github.difflib.patch.DeltaType#CHANGE] are unified and represented by
+/// an insertion and deletion in the target text view. Normal addition and
+/// deletion are kept as they are.
 public final class UnifiedDiffHighlighter extends DiffHighlighter {
 
     public UnifiedDiffHighlighter(StyleClassedTextArea sourceTextview, StyleClassedTextArea targetTextview, DiffMethod diffMethod) {
@@ -59,7 +60,13 @@ public final class UnifiedDiffHighlighter extends DiffHighlighter {
                 }
                 case INSERT -> {
                     int insertionPoint = delta.getTarget().getPosition() + deletionCount;
-                    changeList.add(new Change(insertionPoint, delta.getTarget().getLines().size(), ChangeType.ADDITION));
+                    changeList.add(
+                            new Change(
+                                    insertionPoint,
+                                    delta.getTarget()
+                                         .getLines()
+                                         .size(),
+                                    ChangeType.ADDITION));
                 }
             }
         }
@@ -111,6 +118,8 @@ public final class UnifiedDiffHighlighter extends DiffHighlighter {
     }
 
     private Optional<Change> findChange(int position, List<Change> changeList) {
-        return changeList.stream().filter(change -> change.position() == position).findAny();
+        return changeList.stream()
+                         .filter(change -> change.position() == position)
+                         .findAny();
     }
 }

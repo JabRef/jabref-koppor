@@ -8,16 +8,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.StandardField;
-import org.jabref.model.entry.types.StandardEntryType;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.StandardField;
+import org.jabref.model.entry.types.StandardEntryType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,21 +31,30 @@ class PdfContentPartialImporterTest {
 
     @Test
     void doesNotHandleEncryptedPdfs() throws URISyntaxException {
-        Path file = Path.of(PdfContentImporter.class.getResource("/pdfs/encrypted.pdf").toURI());
-        List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
+        Path file = Path.of(PdfContentImporter.class
+                .getResource("/pdfs/encrypted.pdf")
+                .toURI());
+        List<BibEntry> result = importer.importDatabase(file)
+                .getDatabase()
+                .getEntries();
         assertEquals(List.of(), result);
     }
 
     @Test
     void importTwiceWorksAsExpected() throws URISyntaxException {
-        Path file = Path.of(PdfContentImporter.class.getResource("/pdfs/minimal.pdf").toURI());
-        List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
+        Path file = Path.of(PdfContentImporter.class
+                .getResource("/pdfs/minimal.pdf")
+                .toURI());
+        List<BibEntry> result = importer.importDatabase(file)
+                .getDatabase()
+                .getEntries();
 
-        BibEntry expected = new BibEntry(StandardEntryType.InProceedings)
-                .withField(StandardField.TITLE, "Hello World");
+        BibEntry expected = new BibEntry(StandardEntryType.InProceedings).withField(StandardField.TITLE, "Hello World");
         assertEquals(List.of(expected), result);
 
-        List<BibEntry> resultSecondImport = importer.importDatabase(file).getDatabase().getEntries();
+        List<BibEntry> resultSecondImport = importer.importDatabase(file)
+                .getDatabase()
+                .getEntries();
         assertEquals(List.of(expected), resultSecondImport);
     }
 
@@ -58,7 +66,8 @@ class PdfContentPartialImporterTest {
                 .withField(StandardField.PUBLISHER, "Springer")
                 .withField(StandardField.TITLE, "Corpus Linguistics – An International Handbook – Lüdeling, Anke, Kytö, Merja (Eds.)");
 
-        String firstPageContents = """
+        String firstPageContents =
+                """
                 Corpus Linguistics – An International Handbook – Lüdeling, Anke,
                 Kytö, Merja (Eds.)
 
@@ -86,7 +95,8 @@ class PdfContentPartialImporterTest {
                 .withField(StandardField.TITLE, "Kent Academic Repository Full text document (pdf) Citation for published version Smith, Lucy Anna (2014) Mortality in the Ornamental Fish Retail Sector: an Analysis of Stock Losses and Stakeholder Opinions. DOI")
                 .withField(StandardField.YEAR, "5104");
 
-        String firstPageContents = """
+        String firstPageContents =
+                """
                 Kent Academic Repository Full text document (pdf)
                 Citation for published version
                 Smith, Lucy Anna (2014) Mortality in the Ornamental Fish Retail Sector: an Analysis of Stock
@@ -110,7 +120,8 @@ class PdfContentPartialImporterTest {
                 .withField(StandardField.TITLE, "British Journal of Nutrition (2008), 99, 1–11 doi: 10.1017/S0007114507795296 q The Authors")
                 .withField(StandardField.YEAR, "2008");
 
-        String firstPageContent = """
+        String firstPageContent =
+                """
                 British Journal of Nutrition (2008), 99, 1–11 doi: 10.1017/S0007114507795296
                 q The Authors 2008
 
@@ -145,7 +156,8 @@ class PdfContentPartialImporterTest {
                 .withField(StandardField.KEYWORDS, "Test Automation Artificial Intelligence AI-assisted Test Automation Grey Literature Automated Test Generation Self-Healing Test Scripts");
 
         // This is from https://arxiv.org/abs/2408.06224
-        String firstPageContent = """
+        String firstPageContent =
+                """
                 A Multi-Year Grey Literature Review on AI-assisted Test Automation
 
                 Filippo Riccaa, Alessandro Marchettob and Andrea Stoccoc
@@ -176,9 +188,13 @@ class PdfContentPartialImporterTest {
     @ParameterizedTest
     @MethodSource("providePdfData")
     void pdfTitleExtraction(String expectedTitle, String filePath) throws URISyntaxException {
-        Path file = Path.of(Objects.requireNonNull(PdfContentImporter.class.getResource(filePath)).toURI());
-        List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
-        assertEquals(Optional.of(expectedTitle), result.getFirst().getTitle());
+        Path file = Path.of(Objects.requireNonNull(PdfContentImporter.class.getResource(filePath))
+                .toURI());
+        List<BibEntry> result = importer.importDatabase(file)
+                .getDatabase()
+                .getEntries();
+        assertEquals(Optional.of(expectedTitle),
+                result.getFirst().getTitle());
     }
 
     private static Stream<Arguments> providePdfData() {
@@ -195,29 +211,43 @@ class PdfContentPartialImporterTest {
                 Arguments.of("Pandemic programming", "/pdfs/PdfContentImporter/Ralph2020.pdf"),
                 Arguments.of("Do RESTful API design rules have an impact on the understandability of Web APIs?", "/pdfs/PdfContentImporter/Bogner2023.pdf"),
                 Arguments.of("Adopting microservices and DevOps in the cyber-physical systems domain: A rapid review and case study", "/pdfs/PdfContentImporter/Fritzsch2022.pdf"),
-                Arguments.of("OPIUM: Optimal Package Install/Uninstall Manager", "/pdfs/PdfContentImporter/Tucker2007.pdf")
-        );
+                Arguments.of("OPIUM: Optimal Package Install/Uninstall Manager", "/pdfs/PdfContentImporter/Tucker2007.pdf"));
     }
 
-    /// The generated PDF mimics pdfTeX output: no space glyphs at all — words are separated by
-    /// `TJ` advances (negative values move the pen right), and kerned pairs such as "To" are drawn
-    /// as separate strings pulled tighter (positive values move left). The kern must not be read as
-    /// a word boundary, and the same-font-size label on page two must not be glued onto the title.
+    /// The generated PDF mimics pdfTeX output: no space glyphs at all — words
+    /// are separated by `TJ` advances (negative values move the pen right), and
+    /// kerned pairs such as "To" are drawn as separate strings pulled tighter
+    /// (positive values move left). The kern must not be read as a word
+    /// boundary, and the same-font-size label on page two must not be glued
+    /// onto the title.
     @Test
     void pdfTitleExtractionIgnoresKerningAndTextOfFollowingPages(@TempDir Path tempDir) throws IOException {
         Path file = tempDir.resolve("kerned-title.pdf");
         try (PDDocument document = new PDDocument()) {
-            PDFont titleFont = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+            PDFont titleFont = new PDType1Font(FontName.HELVETICA_BOLD);
             PDPage firstPage = new PDPage();
             document.addPage(firstPage);
             try (PDPageContentStream contentStream = new PDPageContentStream(document, firstPage)) {
                 contentStream.beginText();
                 contentStream.setFont(titleFont, 13);
                 contentStream.newLineAtOffset(72, 750);
-                contentStream.showTextWithPositioning(new Object[] {"Method", -273f, "to", -273f, "Split", -273f, "T", 92f, "opology", -273f, "Models"});
+                contentStream.showTextWithPositioning(
+                        new Object[] {
+                            "Method",
+                            -273f,
+                            "to",
+                            -273f,
+                            "Split",
+                            -273f,
+                            "T",
+                            92f,
+                            "opology",
+                            -273f,
+                            "Models"
+                        });
                 contentStream.endText();
                 contentStream.beginText();
-                contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 10);
+                contentStream.setFont(new PDType1Font(FontName.HELVETICA), 10);
                 contentStream.newLineAtOffset(72, 720);
                 contentStream.showText("Ann Author");
                 contentStream.endText();
@@ -234,7 +264,10 @@ class PdfContentPartialImporterTest {
             document.save(file.toFile());
         }
 
-        List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
-        assertEquals(Optional.of("Method to Split Topology Models"), result.getFirst().getTitle());
+        List<BibEntry> result = importer.importDatabase(file)
+                .getDatabase()
+                .getEntries();
+        assertEquals(Optional.of("Method to Split Topology Models"),
+                result.getFirst().getTitle());
     }
 }

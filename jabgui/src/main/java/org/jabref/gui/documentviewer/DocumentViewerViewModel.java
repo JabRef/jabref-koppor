@@ -18,7 +18,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
@@ -27,7 +26,6 @@ import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,9 +43,7 @@ public class DocumentViewerViewModel extends AbstractViewModel {
     private final DialogService dialogService;
     private final ListChangeListener<BibEntry> selectedEntriesListener;
 
-    public DocumentViewerViewModel(@NonNull StateManager stateManager,
-                                   @NonNull CliPreferences preferences,
-                                   @NonNull DialogService dialogService) {
+    public DocumentViewerViewModel(@NonNull StateManager stateManager, @NonNull CliPreferences preferences, @NonNull DialogService dialogService) {
         this.stateManager = stateManager;
         this.preferences = preferences;
         this.dialogService = dialogService;
@@ -92,10 +88,10 @@ public class DocumentViewerViewModel extends AbstractViewModel {
             currentDocument.set(null);
         } else {
             Set<LinkedFile> pdfFiles = entries.stream()
-                                              .map(BibEntry::getFiles)
-                                              .flatMap(List::stream)
-                                              .filter(this::isPdfFile)
-                                              .collect(Collectors.toSet());
+                    .map(BibEntry::getFiles)
+                    .flatMap(List::stream)
+                    .filter(this::isPdfFile)
+                    .collect(Collectors.toSet());
 
             if (pdfFiles.isEmpty()) {
                 files.clear();
@@ -133,13 +129,11 @@ public class DocumentViewerViewModel extends AbstractViewModel {
             }
             stateManager.getActiveDatabase()
                         .flatMap(database -> file.findIn(database, preferences.getFilePreferences()))
-                        .ifPresentOrElse(
-                                this::setCurrentDocument,
+                        .ifPresentOrElse(this::setCurrentDocument,
                                 () -> {
                                     currentDocument.set(null);
                                     LOGGER.warn("Could not find or access file: {}", file.getLink());
-                                }
-                        );
+                                });
         } else {
             currentDocument.set(null);
         }

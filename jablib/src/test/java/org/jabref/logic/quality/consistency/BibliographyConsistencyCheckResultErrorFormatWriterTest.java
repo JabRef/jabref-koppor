@@ -10,10 +10,10 @@ import java.util.List;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.importer.fileformat.BibtexImporter;
+import org.jabref.logic.quality.consistency.BibliographyConsistencyCheck.Result;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.ResourceLock;
@@ -31,7 +31,8 @@ class BibliographyConsistencyCheckResultErrorFormatWriterTest {
     @Test
     void deviatingFieldsAreReportedOnePerLine(@TempDir Path tempDir) throws IOException {
         Path bibFile = tempDir.resolve("library.bib");
-        Files.writeString(bibFile, """
+        Files.writeString(bibFile,
+                """
                 @Article{first,
                   author = {Author One},
                   pages = {1--2},
@@ -44,26 +45,30 @@ class BibliographyConsistencyCheckResultErrorFormatWriterTest {
 
         ParserResult parserResult = importer.importDatabase(bibFile);
         BibDatabaseContext bibContext = parserResult.getDatabaseContext();
-        BibliographyConsistencyCheck.Result result = new BibliographyConsistencyCheck()
-                .check(bibContext, new BibEntryTypesManager(), (_, _) -> {
-                });
+        Result result = new BibliographyConsistencyCheck().check(bibContext, new BibEntryTypesManager(), (_, _) -> {});
 
         Path errorFormatFile = tempDir.resolve("result.txt");
         try (Writer writer = new OutputStreamWriter(Files.newOutputStream(errorFormatFile));
-             BibliographyConsistencyCheckResultErrorFormatWriter errorFormatWriter =
-                     new BibliographyConsistencyCheckResultErrorFormatWriter(result, writer, false,
-                             new BibEntryTypesManager(), bibContext.getMode(), parserResult, bibFile)) {
+             BibliographyConsistencyCheckResultErrorFormatWriter errorFormatWriter = new BibliographyConsistencyCheckResultErrorFormatWriter(result, writer, false, new BibEntryTypesManager(),
+                     bibContext.getMode(), parserResult, bibFile)) {
             errorFormatWriter.writeFindings();
         }
 
-        List<String> lines = Files.readString(errorFormatFile).replace("\r\n", "\n").lines().toList();
+        List<String> lines = Files.readString(errorFormatFile)
+                .replace("\r\n", "\n")
+                .lines()
+                .toList();
         assertEquals(3, lines.size(), "Expected one line per deviating field, but got: " + lines);
         // The `pages` field is present in `first` but absent in `second`; `publisher` is an
         // unknown field present in `second` and absent in `first`.
-        assertTrue(lines.stream().anyMatch(line -> line.endsWith(":first:publisher: field is absent but used by other entries of entry type Article")), lines.toString());
-        assertTrue(lines.stream().anyMatch(line -> line.endsWith(":second:pages: field is absent but used by other entries of entry type Article")), lines.toString());
-        assertTrue(lines.stream().anyMatch(line -> line.endsWith(":second:publisher: unknown field for entry type Article")), lines.toString());
+        assertTrue(lines.stream().anyMatch(line -> line.endsWith(":first:publisher: field is absent but used by other entries of entry type Article")),
+                lines.toString());
+        assertTrue(lines.stream().anyMatch(line -> line.endsWith(":second:pages: field is absent but used by other entries of entry type Article")),
+                lines.toString());
+        assertTrue(lines.stream().anyMatch(line -> line.endsWith(":second:publisher: unknown field for entry type Article")),
+                lines.toString());
         // Every line follows the `file:line:column:citationKey:field: message` shape.
-        assertTrue(lines.stream().allMatch(line -> line.contains(".bib:")), lines.toString());
+        assertTrue(lines.stream().allMatch(line -> line.contains(".bib:")),
+                lines.toString());
     }
 }

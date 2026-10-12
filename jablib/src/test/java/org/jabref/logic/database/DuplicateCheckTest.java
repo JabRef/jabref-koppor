@@ -11,7 +11,6 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -443,24 +442,19 @@ public class DuplicateCheckTest {
     public static Stream<Arguments> twoEntriesWithDifferentSpecificFieldsAreNotDuplicates() {
         return Stream.of(
                 // twoInbooksWithDifferentChaptersAreNotDuplicates
-                Arguments.of(getSimpleInBook(), StandardField.CHAPTER,
-                        "Chapter One – Down the Rabbit Hole",
-                        "Chapter Two – The Pool of Tears"),
+                Arguments.of(getSimpleInBook(), StandardField.CHAPTER, "Chapter One – Down the Rabbit Hole", "Chapter Two – The Pool of Tears"),
                 // twoInbooksWithDifferentPagesAreNotDuplicates
                 Arguments.of(getSimpleInBook(), StandardField.PAGES, "1-20", "21-40"),
                 // twoIncollectionsWithDifferentChaptersAreNotDuplicates
                 Arguments.of(getSimpleInCollection(), StandardField.CHAPTER, "10", "9"),
                 // twoEntriesWithDifferentSpecificFieldsAreNotDuplicates
-                Arguments.of(getSimpleInCollection(), StandardField.PAGES, "1-20", "21-40")
-        );
+                Arguments.of(getSimpleInCollection(), StandardField.PAGES, "1-20", "21-40"));
     }
 
     @ParameterizedTest
     @MethodSource
-    private void twoEntriesWithDifferentSpecificFieldsAreNotDuplicates(final BibEntry cloneable,
-                                                                       final Field field,
-                                                                       final String firstValue,
-                                                                       final String secondValue) {
+    private void twoEntriesWithDifferentSpecificFieldsAreNotDuplicates(final BibEntry cloneable, final Field field, final String firstValue,
+            final String secondValue) {
         final BibEntry entry1 = new BibEntry(cloneable).withField(field, firstValue);
         final BibEntry entry2 = new BibEntry(cloneable).withField(field, secondValue);
         assertFalse(duplicateChecker.isDuplicate(entry1, entry2, BibDatabaseMode.BIBTEX));
@@ -574,7 +568,8 @@ public class DuplicateCheckTest {
         assertTrue(duplicateChecker.isDuplicate(entryOne, entryTwo, BibDatabaseMode.BIBTEX));
     }
 
-    /// Journal articles can have the same ISBN due to the journal has one unique ISBN, but hundreds of different articles.
+    /// Journal articles can have the same ISBN due to the journal has one
+    /// unique ISBN, but hundreds of different articles.
     @Test
     void differentArticlesFromTheSameBookAreNotDuplicates() {
         BibEntry entryOne = new BibEntry(StandardEntryType.Article)
@@ -638,14 +633,12 @@ public class DuplicateCheckTest {
 
     @Test
     void containsDuplicateReturnsEmptyWhenCollectionHasNoDuplicate() {
-        assertEquals(Optional.empty(),
-                duplicateChecker.containsDuplicate(List.of(unrelatedArticle), simpleArticle, BibDatabaseMode.BIBTEX));
+        assertEquals(Optional.empty(), duplicateChecker.containsDuplicate(List.of(unrelatedArticle), simpleArticle, BibDatabaseMode.BIBTEX));
     }
 
     @Test
     void containsDuplicateReturnsEmptyForEmptyCollection() {
-        assertEquals(Optional.empty(),
-                duplicateChecker.containsDuplicate(List.of(), simpleArticle, BibDatabaseMode.BIBTEX));
+        assertEquals(Optional.empty(), duplicateChecker.containsDuplicate(List.of(), simpleArticle, BibDatabaseMode.BIBTEX));
     }
 
     @Test

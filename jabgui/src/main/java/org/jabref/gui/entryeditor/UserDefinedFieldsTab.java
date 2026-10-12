@@ -4,10 +4,11 @@ import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.google.common.eventbus.Subscribe;
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -20,9 +21,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.InternalField;
-
-import com.google.common.eventbus.Subscribe;
-import com.tobiasdiez.easybind.EasyBind;
 import org.jspecify.annotations.NullMarked;
 
 /// A user-defined tab showing the fields resolved from a [EntryEditorTabModel.CustomizedFieldsTab]
@@ -32,42 +30,41 @@ public class UserDefinedFieldsTab extends FieldsEditorTab {
 
     private final EntryEditorTabModel.CustomizedFieldsTab model;
 
-    /// Replaces the base class's content-driven visibility: a regex pattern's matches change when fields
-    /// are set or cleared on the *same* entry (e.g. from the Main or Source tab), which the base class's
-    /// entry-switch-only evaluation would miss.
+    /// Replaces the base class's content-driven visibility: a regex pattern's
+    /// matches change when fields are set or cleared on the *same* entry (e.g.
+    /// from the Main or Source tab), which the base class's entry-switch-only
+    /// evaluation would miss.
     private final BooleanProperty hasResolvedFields = new SimpleBooleanProperty();
 
-    /// The entry whose event bus this tab is subscribed to, for live refresh of regex-captured fields.
+    /// The entry whose event bus this tab is subscribed to, for live refresh of
+    /// regex-captured fields.
     private Optional<BibEntry> subscribedEntry = Optional.empty();
 
-    /// Set while a refresh is queued on the FX thread (events may arrive from background threads,
-    /// e.g. fetchers), so bursts of field changes coalesce into one refresh instead of one each.
+    /// Set while a refresh is queued on the FX thread (events may arrive from
+    /// background threads, e.g. fetchers), so bursts of field changes coalesce
+    /// into one refresh instead of one each.
     private final AtomicBoolean refreshQueued = new AtomicBoolean();
 
-    /// Set when a coalesced burst contains an entry-type change, which forces a rebuild (see [#listen]).
+    /// Set when a coalesced burst contains an entry-type change, which forces a
+    /// rebuild (see [#listen]).
     private final AtomicBoolean entryTypeChangeQueued = new AtomicBoolean();
 
-    public UserDefinedFieldsTab(EntryEditorTabModel.CustomizedFieldsTab model,
-                                UndoAction undoAction,
-                                RedoAction redoAction,
-                                GuiPreferences preferences,
-                                JournalAbbreviationRepository journalAbbreviationRepository,
-                                StateManager stateManager,
-                                PreviewPanel previewPanel) {
-        super(
-                false,
-                undoAction,
-                redoAction,
-                preferences,
-                journalAbbreviationRepository,
-                stateManager,
+    public UserDefinedFieldsTab(
+            EntryEditorTabModel.CustomizedFieldsTab model,
+            UndoAction undoAction,
+            RedoAction redoAction,
+            GuiPreferences preferences,
+            JournalAbbreviationRepository journalAbbreviationRepository,
+            StateManager stateManager,
+            PreviewPanel previewPanel) {
+        super(false, undoAction, redoAction, preferences, journalAbbreviationRepository, stateManager,
                 previewPanel);
 
         this.model = model;
 
         setContentDrivenVisibility(hasResolvedFields);
-        EasyBind.subscribe(currentEntryProperty(), entry ->
-                hasResolvedFields.set((entry != null) && !model.resolveFields(entry).isEmpty()));
+        EasyBind.subscribe(currentEntryProperty(),
+                entry -> hasResolvedFields.set((entry != null) && !model.resolveFields(entry).isEmpty()));
 
         setText(model.name());
         setGraphic(IconTheme.JabRefIcons.OPTIONAL.getGraphicNode());
@@ -97,12 +94,14 @@ public class UserDefinedFieldsTab extends FieldsEditorTab {
         super.dispose();
     }
 
-    /// Refreshes the tab when a field is set or cleared from outside (Main tab, Source tab, fetchers,
-    /// undo, …), since that can change which fields a regex pattern captures. Event bursts coalesce
-    /// into a single deferred refresh, and the refresh reads the entry's state at callback time (the
-    /// event's payload is deliberately ignored), so a queued callback can never apply stale state.
-    /// Rebuilds only when the resolved field set actually changes (or the entry type changed),
-    /// so typing inside this tab's editors never steals focus.
+    /// Refreshes the tab when a field is set or cleared from outside (Main tab,
+    /// Source tab, fetchers, undo, …), since that can change which fields a
+    /// regex pattern captures. Event bursts coalesce into a single deferred
+    /// refresh, and the refresh reads the entry's state at callback time (the
+    /// event's payload is deliberately ignored), so a queued callback can never
+    /// apply stale state. Rebuilds only when the resolved field set actually
+    /// changes (or the entry type changed), so typing inside this tab's editors
+    /// never steals focus.
     @Subscribe
     public void listen(FieldChangedEvent event) {
         // An entry-type change can leave the resolved field set unchanged while still changing
@@ -115,19 +114,21 @@ public class UserDefinedFieldsTab extends FieldsEditorTab {
         if (refreshQueued.getAndSet(true)) {
             return;
         }
-        Platform.runLater(() -> {
-            // Cleared before refreshing: an event arriving while we refresh must queue a new callback.
-            refreshQueued.set(false);
-            boolean entryTypeChanged = entryTypeChangeQueued.getAndSet(false);
-            BibEntry entry = getCurrentEntry();
-            if (entry == null) {
-                return;
-            }
-            SequencedSet<Field> target = determineFieldsToShow(entry);
-            hasResolvedFields.set(!target.isEmpty());
-            if ((gridPane != null) && (entryTypeChanged || !target.equals(editors.keySet()))) {
-                setupPanel(stateManager.getActiveDatabase().orElse(new BibDatabaseContext()), entry, false);
-            }
-        });
+        Platform.runLater(
+                () -> {
+                    // Cleared before refreshing: an event arriving while we refresh must queue a new callback.
+                    refreshQueued.set(false);
+                    boolean entryTypeChanged = entryTypeChangeQueued.getAndSet(false);
+                    BibEntry entry = getCurrentEntry();
+                    if (entry == null) {
+                        return;
+                    }
+                    SequencedSet<Field> target = determineFieldsToShow(entry);
+                    hasResolvedFields.set(!target.isEmpty());
+                    if ((gridPane != null) && (entryTypeChanged || !target.equals(editors.keySet()))) {
+                        setupPanel(stateManager.getActiveDatabase().orElse(new BibDatabaseContext()), entry,
+                                false);
+                    }
+                });
     }
 }

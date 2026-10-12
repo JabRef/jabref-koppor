@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.eclipse.lsp4j.DocumentLink;
+import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.jabref.languageserver.util.LspParserHandler;
 import org.jabref.languageserver.util.LspRangeUtil;
 import org.jabref.logic.FilePreferences;
@@ -14,11 +18,6 @@ import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
-
-import org.eclipse.lsp4j.DocumentLink;
-import org.eclipse.lsp4j.Location;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,9 +74,7 @@ public class BibDefinitionProvider extends DefinitionProvider {
                         if (LOGGER.isDebugEnabled() && filePath.isEmpty()) {
                             LOGGER.debug("filePath is empty");
                         }
-                        return filePath
-                                .map(p -> List.of(new Location(p.toUri().toString(), EMPTY_RANGE)))
-                                .orElse(List.of());
+                        return filePath.map(p -> List.of(new Location(p.toUri().toString(), EMPTY_RANGE))).orElse(List.of());
                     }
                 }
             }

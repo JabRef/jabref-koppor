@@ -7,13 +7,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
-
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-/// [Password] contains methods which are useful to encrypt and decrypt passwords using symmetric algorithms.
+/// [Password] contains methods which are useful to encrypt and decrypt
+/// passwords using symmetric algorithms.
 public class Password {
 
     private final byte[] phrase;

@@ -7,14 +7,12 @@ import java.util.concurrent.Future;
 
 import javafx.beans.property.StringProperty;
 import javafx.util.Pair;
-
 import org.jabref.logic.ai.ingestion.IngestionTaskAggregator;
 import org.jabref.logic.ai.ingestion.tasks.generateembeddings.GenerateEmbeddingsTask;
 import org.jabref.logic.ai.ingestion.tasks.generateembeddings.GenerateEmbeddingsTaskRequest;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.ProgressCounter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +28,7 @@ public class GenerateEmbeddingsForSeveralTask extends BackgroundTask<Void> {
     private final ProgressCounter progressCounter = new ProgressCounter();
     private String currentFile = "";
 
-    public GenerateEmbeddingsForSeveralTask(
-            IngestionTaskAggregator ingestionTaskAggregator,
-            GenerateEmbeddingsForSeveralTaskRequest request
-    ) {
+    public GenerateEmbeddingsForSeveralTask(IngestionTaskAggregator ingestionTaskAggregator, GenerateEmbeddingsForSeveralTaskRequest request) {
         this.ingestionTaskAggregator = ingestionTaskAggregator;
         this.request = request;
 
@@ -45,7 +40,8 @@ public class GenerateEmbeddingsForSeveralTask extends BackgroundTask<Void> {
         titleProperty().set(Localization.lang("Generating embeddings for %0", name.get()));
         name.addListener((_, _, newValue) -> titleProperty().set(Localization.lang("Generating embeddings for %0", newValue)));
 
-        progressCounter.increaseWorkMax(request.linkedFiles().size());
+        progressCounter.increaseWorkMax(request.linkedFiles()
+                .size());
         progressCounter.listenToAllProperties(this::updateProgress);
         updateProgress();
     }
@@ -56,30 +52,27 @@ public class GenerateEmbeddingsForSeveralTask extends BackgroundTask<Void> {
 
         List<Pair<Future<Void>, String>> futures = new ArrayList<>();
 
-        request
-                .linkedFiles()
-                .forEach(linkedFile -> {
-                    Pair<Future<Void>, GenerateEmbeddingsTask> pair =
-                            ingestionTaskAggregator.startWithFuture(new GenerateEmbeddingsTaskRequest(
-                                    request.filePreferences(),
-                                    request.ingestedDocumentsRepository(),
-                                    request.embeddingStore(),
-                                    request.embeddingModel(),
-                                    request.documentSplitter(),
-                                    request.bibDatabaseContext(),
-                                    linkedFile
-                            ));
+        request.linkedFiles().forEach(linkedFile -> {
+            Pair<Future<Void>, GenerateEmbeddingsTask> pair = ingestionTaskAggregator.startWithFuture(
+                    new GenerateEmbeddingsTaskRequest(
+                            request.filePreferences(),
+                            request.ingestedDocumentsRepository(),
+                            request.embeddingStore(),
+                            request.embeddingModel(),
+                            request.documentSplitter(),
+                            request.bibDatabaseContext(),
+                            linkedFile));
 
-                    pair.getValue()
-                        .statusProperty()
-                        .addListener((_, _, value) -> {
-                            if (value.isFinished()) {
-                                progressCounter.increaseWorkDone(1);
-                            }
-                        });
-
-                    futures.add(new Pair<>(pair.getKey(), linkedFile.getLink()));
+            pair.getValue()
+                .statusProperty()
+                .addListener((_, _, value) -> {
+                    if (value.isFinished()) {
+                        progressCounter.increaseWorkDone(1);
+                    }
                 });
+
+            futures.add(new Pair<>(pair.getKey(), linkedFile.getLink()));
+        });
 
         for (Pair<? extends Future<?>, String> pair : futures) {
             currentFile = pair.getValue();

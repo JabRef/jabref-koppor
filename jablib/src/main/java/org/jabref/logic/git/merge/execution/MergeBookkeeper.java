@@ -6,14 +6,6 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.jabref.logic.JabRefException;
-import org.jabref.logic.git.GitHandler;
-import org.jabref.logic.git.io.GitFileReader;
-import org.jabref.logic.git.io.GitRevisionLocator;
-import org.jabref.logic.git.model.BookkeepingResult;
-import org.jabref.logic.git.model.PullPlan;
-import org.jabref.logic.git.util.GitHandlerRegistry;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.dircache.DirCache;
@@ -25,6 +17,13 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.RefUpdate;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.jabref.logic.JabRefException;
+import org.jabref.logic.git.GitHandler;
+import org.jabref.logic.git.io.GitFileReader;
+import org.jabref.logic.git.io.GitRevisionLocator;
+import org.jabref.logic.git.model.BookkeepingResult;
+import org.jabref.logic.git.model.PullPlan;
+import org.jabref.logic.git.util.GitHandlerRegistry;
 
 /// Record the GUI-produced merge result into Git history.
 /// Creates the right commit shape based on the merge graph:
@@ -53,14 +52,22 @@ public final class MergeBookkeeper {
 
         try (Git git = gitHandler.open()) {
             Repository repo = git.getRepository();
-            Path workTree = repo.getWorkTree().toPath().toRealPath();
+            Path workTree = repo.getWorkTree()
+                                .toPath()
+                                .toRealPath();
             Path bibPath = bibFilePath.toRealPath();
             if (!bibPath.startsWith(workTree)) {
                 throw new JabRefException("Given .bib file is not inside repository");
             }
-            String relativePath = workTree.relativize(bibPath).toString().replace('\\', '/');
+            String relativePath = workTree.relativize(bibPath)
+                    .toString()
+                    .replace('\\', '/');
 
-            RevCommit head = git.log().setMaxCount(1).call().iterator().next();
+            RevCommit head = git.log()
+                                .setMaxCount(1)
+                                .call()
+                                .iterator()
+                                .next();
             RevCommit localHead = computation.localHead();
             RevCommit remote = computation.remote();
             if (!head.equals(localHead)) {
@@ -68,7 +75,9 @@ public final class MergeBookkeeper {
             }
 
             // Stage only the target file (GUI already wrote bytes)
-            git.add().addFilepattern(relativePath).call();
+            git.add()
+               .addFilepattern(relativePath)
+               .call();
 
             // Prepare current index tree for CommitBuilder
             ObjectId treeId;
@@ -88,19 +97,18 @@ public final class MergeBookkeeper {
                     return BookkeepingResult.fastForward();
                 }
                 // Local working tree != remote: The current index tree needs to be attached as a new commit on top of the remote (single parent).
-                return commitWithParents(repo, branchRef, treeId,
-                        "Semantic merge (GUI-applied) on top of remote",
-                        remote.getId());
+                return commitWithParents(repo, branchRef, treeId, "Semantic merge (GUI-applied) on top of remote", remote.getId());
             } else {
                 // DIVERGED or other -> merge commit with parents [localHead, remote]
-                return commitWithParents(repo, branchRef, treeId,
-                        "Semantic merge (GUI-applied)",
-                        localHead.getId(), remote.getId());
+                return commitWithParents(repo, branchRef, treeId, "Semantic merge (GUI-applied)", localHead.getId(),
+                        remote.getId());
             }
         }
     }
 
-    private static boolean blobEqualsCommitPath(Git git, RevCommit commit, String relativePath, Path file) throws JabRefException, IOException {
+    private static boolean blobEqualsCommitPath(Git git, RevCommit commit, String relativePath,
+            Path file)
+            throws JabRefException, IOException {
         Optional<String> content = GitFileReader.readFileFromCommit(git, commit, Path.of(relativePath));
         if (content.isEmpty()) {
             return false;
@@ -110,11 +118,9 @@ public final class MergeBookkeeper {
         return Objects.equals(remoteText, current);
     }
 
-    private BookkeepingResult commitWithParents(Repository repo,
-                                                String branchRef,
-                                                ObjectId treeId,
-                                                String message,
-                                                ObjectId... parents) throws IOException {
+    private BookkeepingResult commitWithParents(Repository repo, String branchRef, ObjectId treeId,
+            String message, ObjectId... parents)
+            throws IOException {
 
         try (ObjectInserter inserter = repo.newObjectInserter()) {
             CommitBuilder commitBuilder = new CommitBuilder();

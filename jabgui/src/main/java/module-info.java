@@ -27,39 +27,37 @@ open module org.jabref {
     requires javafx.graphics;
     requires org.jabref.htmltonode;
     requires jfx.incubator.richtext;
-
     requires com.tobiasdiez.easybind;
-
     requires afterburner.fx;
-    provides com.airhacks.afterburner.views.ResourceLocator
-            with org.jabref.gui.util.JabRefResourceLocator;
+
+    provides com.airhacks.afterburner.views.ResourceLocator with
+            org.jabref.gui.util.JabRefResourceLocator;
 
     requires com.dlsc.gemsfx;
+
     uses com.dlsc.gemsfx.TagsField;
+
     // Provides number input fields for parameters in AI expert settings
     requires com.dlsc.unitfx;
-
     requires de.saxsys.mvvmfx;
     requires de.saxsys.mvvmfx.validation;
-
     requires org.controlsfx.controls;
     requires org.fxmisc.flowless;
     requires org.fxmisc.richtext;
-
     requires org.kordamp.ikonli.core;
     requires org.kordamp.ikonli.javafx;
     requires /*runtime*/ org.kordamp.ikonli.material;
     requires org.kordamp.ikonli.materialdesign2;
+
     uses org.kordamp.ikonli.IkonHandler;
     uses org.kordamp.ikonli.IkonProvider;
 
-    provides org.kordamp.ikonli.IkonHandler
-            with org.jabref.gui.icon.JabRefIkonHandler;
-    provides org.kordamp.ikonli.IkonProvider
-            with JabRefIconProvider;
+    provides org.kordamp.ikonli.IkonHandler with
+            org.jabref.gui.icon.JabRefIkonHandler;
+    provides org.kordamp.ikonli.IkonProvider with
+            JabRefIconProvider;
 
     requires reactfx;
-
     requires tools.maran.svg;
     requires tools.maran.svg.materialdesign;
     requires tools.maran.svgnode;
@@ -72,10 +70,11 @@ open module org.jabref {
     requires org.tinylog.api;
     requires /*runtime*/ org.tinylog.api.slf4j;
     requires org.tinylog.impl;
+
     // endregion
 
-    provides org.tinylog.writers.Writer
-            with org.jabref.gui.logging.GuiWriter;
+    provides org.tinylog.writers.Writer with
+            org.jabref.gui.logging.GuiWriter;
 
     // Preferences and XML
     requires java.prefs;
@@ -172,7 +171,6 @@ open module org.jabref {
     // requires net.harawata.appdirs;
     // requires com.sun.jna;
     requires com.sun.jna.platform;
-
     requires org.eclipse.jgit;
     // uses org.eclipse.jgit.transport.SshSessionFactory;
     // uses org.eclipse.jgit.lib.Signer;
@@ -190,5 +188,5 @@ open module org.jabref {
     requires org.antlr.antlr4.runtime;
     requires org.libreoffice.uno;
     requires veneer;
-    // endregion
+// endregion
 }

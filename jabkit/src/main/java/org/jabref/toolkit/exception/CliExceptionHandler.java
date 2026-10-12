@@ -1,7 +1,6 @@
 package org.jabref.toolkit.exception;
 
 import org.jabref.logic.JabRefException;
-
 import org.jspecify.annotations.NullMarked;
 import picocli.CommandLine;
 
@@ -33,12 +32,16 @@ public class CliExceptionHandler implements CommandLine.IExecutionExceptionHandl
 
     private static void printErrorMessage(Exception ex, boolean withCauseIfPresent) {
         String errorMessage = (withCauseIfPresent && ex.getCause() != null)
-                              ? ex.getLocalizedMessage() + buildCauseSuffix(ex.getCause())
-                              : ex.getLocalizedMessage();
+                ? ex.getLocalizedMessage() + buildCauseSuffix(ex.getCause())
+                : ex.getLocalizedMessage();
         System.err.println(errorMessage);
     }
 
     private static String buildCauseSuffix(Throwable cause) {
-        return " (" + cause.getClass().getSimpleName() + ": " + cause.getLocalizedMessage() + ")";
+        return " ("
+                + cause.getClass().getSimpleName()
+                + ": "
+                + cause.getLocalizedMessage()
+                + ")";
     }
 }

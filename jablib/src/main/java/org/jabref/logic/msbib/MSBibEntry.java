@@ -13,7 +13,6 @@ import org.jabref.model.entry.Author;
 import org.jabref.model.entry.AuthorList;
 import org.jabref.model.entry.Date;
 import org.jabref.model.entry.Month;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -30,9 +29,11 @@ class MSBibEntry {
     ///
     /// **\b(\w+)\s?[,]?\s?(\w+)\s?[,]?\s?(\w*)\b**
     ///
-    /// WORD SPACE , SPACE WORD SPACE (Can be zero or more) , SPACE WORD (Can be zero or more)
+    /// WORD SPACE , SPACE WORD SPACE (Can be zero or more) , SPACE WORD (Can be
+    /// zero or more)
     ///
-    /// Matches both single locations (only city) like Berlin and full locations like Stroudsburg, PA, USA
+    /// Matches both single locations (only city) like Berlin and full locations
+    /// like Stroudsburg, PA, USA
     ///
     /// tested using http://www.regexpal.com/
     private static final Pattern ADDRESS_PATTERN = Pattern.compile("\\b(\\w+)\\s?[,]?\\s?(\\w*)\\s?[,]?\\s?(\\w*)\\b");
@@ -132,7 +133,8 @@ class MSBibEntry {
         if (city != null) {
             addressBuffer.append(city);
         }
-        if (((state != null) && !state.isEmpty()) && ((city != null) && !city.isEmpty())) {
+        if (((state != null) && !state.isEmpty())
+                && ((city != null) && !city.isEmpty())) {
             addressBuffer.append(",").append(' ');
             addressBuffer.append(state);
         }
@@ -156,9 +158,7 @@ class MSBibEntry {
         String dayAccessed = getXmlElementTextContent("DayAccessed", entry);
         String yearAccessed = getXmlElementTextContent("YearAccessed", entry);
 
-        Optional<Date> parsedDateAccessed = Date.parse(Optional.ofNullable(yearAccessed),
-                Optional.ofNullable(monthAccessed),
-                Optional.ofNullable(dayAccessed));
+        Optional<Date> parsedDateAccessed = Date.parse(Optional.ofNullable(yearAccessed), Optional.ofNullable(monthAccessed), Optional.ofNullable(dayAccessed));
 
         parsedDateAccessed.map(Date::getNormalized).ifPresent(date -> dateAccessed = date);
 
@@ -290,7 +290,8 @@ class MSBibEntry {
         return rootNode;
     }
 
-    private void addField(Document document, Element parent, String name, String value) {
+    private void addField(Document document, Element parent, String name,
+                          String value) {
         if (value == null) {
             return;
         }
@@ -300,19 +301,19 @@ class MSBibEntry {
     }
 
     // Add authors for export
-    private void addAuthor(Document document, Element allAuthors, String entryName, List<MsBibAuthor> authorsLst) {
+    private void addAuthor(Document document, Element allAuthors, String entryName,
+                           List<MsBibAuthor> authorsLst) {
         if (authorsLst == null) {
             return;
         }
         Element authorTop = document.createElementNS(MSBibDatabase.NAMESPACE, MSBibDatabase.PREFIX + entryName);
 
         Optional<MsBibAuthor> personName = authorsLst.stream()
-                                                     .filter(MsBibAuthor::isCorporate)
-                                                     .findFirst();
+                .filter(MsBibAuthor::isCorporate)
+                .findFirst();
         if (personName.isPresent()) {
             MsBibAuthor person = personName.get();
-            Element corporate = document.createElementNS(MSBibDatabase.NAMESPACE,
-                    MSBibDatabase.PREFIX + "Corporate");
+            Element corporate = document.createElementNS(MSBibDatabase.NAMESPACE, MSBibDatabase.PREFIX + "Corporate");
             corporate.setTextContent(person.getLastName());
             authorTop.appendChild(corporate);
         } else {

@@ -5,7 +5,8 @@ import java.io.PrintStream;
 
 import picocli.CommandLine;
 
-/// A CommandLine subclass to decorate the original CommandLine that captures test relevant information.
+/// A CommandLine subclass to decorate the original CommandLine that captures
+/// test relevant information.
 public class CapturingCommandLine extends CommandLine {
 
     private final ByteArrayOutputStream outWriter = new ByteArrayOutputStream();
@@ -19,14 +20,16 @@ public class CapturingCommandLine extends CommandLine {
         super(command, factory);
     }
 
-    /// Executes the configured [picocli.CommandLine] command while capturing its
-    /// standard output and error streams.
+    /// Executes the configured [picocli.CommandLine] command while capturing
+    /// its standard output and error streams.
     ///
     /// This method temporarily redirects `System.out` and `System.err` to
-    /// internal buffers during the command execution, allowing the captured output to be
-    /// retrieved later using [#getStandardOutput()] and [#getErrorOutput()].
+    /// internal buffers during the command execution, allowing the captured
+    /// output to be retrieved later using [#getStandardOutput()] and
+    /// [#getErrorOutput()].
     ///
-    /// NOTE: Running execute in parallel might lead to instructive and subtle false negatives.
+    /// NOTE: Running execute in parallel might lead to instructive and subtle
+    /// false negatives.
     ///
     /// @param args the command line arguments to parse
     /// @return the error code

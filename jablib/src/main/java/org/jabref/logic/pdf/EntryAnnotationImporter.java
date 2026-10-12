@@ -12,7 +12,8 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.pdf.FileAnnotation;
 
-/// Here all PDF files attached to a BibEntry are scanned for annotations using a PdfAnnotationImporter.
+/// Here all PDF files attached to a BibEntry are scanned for annotations using
+/// a PdfAnnotationImporter.
 public class EntryAnnotationImporter {
 
     private final BibEntry entry;
@@ -26,9 +27,11 @@ public class EntryAnnotationImporter {
     ///
     /// @return a list of file parsed files
     private List<LinkedFile> getFilteredFileList() {
-        return entry.getFiles().stream()
+        return entry.getFiles()
+                    .stream()
                     .filter(parsedFileField -> "pdf".equalsIgnoreCase(parsedFileField.getFileType()))
-                    .filter(parsedFileField -> !parsedFileField.isOnlineLink()).collect(Collectors.toList());
+                    .filter(parsedFileField -> !parsedFileField.isOnlineLink())
+                    .collect(Collectors.toList());
     }
 
     /// Reads the annotations from the files that are attached to a BibEntry.
@@ -41,8 +44,7 @@ public class EntryAnnotationImporter {
 
         // import annotationsOfFiles if the selected files are valid which is checked in getFilteredFileList()
         for (LinkedFile linkedFile : this.getFilteredFileList()) {
-            linkedFile.findIn(databaseContext, filePreferences)
-                      .ifPresent(file -> annotations.put(file, importer.importAnnotations(file)));
+            linkedFile.findIn(databaseContext, filePreferences).ifPresent(file -> annotations.put(file, importer.importAnnotations(file)));
         }
         return annotations;
     }

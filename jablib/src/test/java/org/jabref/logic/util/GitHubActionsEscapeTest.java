@@ -8,7 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class GitHubActionsEscapeTest {
 
     @ParameterizedTest
-    @CsvSource(delimiter = '|', textBlock = """
+    @CsvSource(
+            delimiter = '|',
+            textBlock =
+                    """
             # percent must be encoded
             100% done             | 100%25 done
             # newlines are encoded
@@ -25,7 +28,10 @@ class GitHubActionsEscapeTest {
     }
 
     @ParameterizedTest
-    @CsvSource(delimiter = '|', textBlock = """
+    @CsvSource(
+            delimiter = '|',
+            textBlock =
+                    """
             # Windows-style drive letter and backslash path
             C:\\foo\\bar.bib      | C%3A\\foo\\bar.bib
             # comma is encoded so it cannot terminate the property

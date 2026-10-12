@@ -12,15 +12,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-
 import org.jabref.gui.StateManager;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.DelayTaskThrottler;
 import org.jabref.logic.util.TaskExecutor;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +57,8 @@ public class UiTaskExecutor implements TaskExecutor {
         }
     }
 
-    /// Runs the specified [Runnable] on the JavaFX application thread and waits for completion.
+    /// Runs the specified [Runnable] on the JavaFX application thread and waits
+    /// for completion.
     ///
     /// @param action the [Runnable] to run
     /// @throws NullPointerException if `action` is `null`
@@ -87,10 +86,11 @@ public class UiTaskExecutor implements TaskExecutor {
         }
     }
 
-    /// Runs the specified [Runnable] on the JavaFX application thread and waits for completion.
+    /// Runs the specified [Runnable] on the JavaFX application thread and waits
+    /// for completion.
     ///
-    /// Unlike [#runAndWaitInJavaFXThread(Runnable)], this method propagates an exception raised
-    /// by the action to the waiting thread.
+    /// Unlike [#runAndWaitInJavaFXThread(Runnable)], this method propagates an
+    /// exception raised by the action to the waiting thread.
     ///
     /// @param action the [Runnable] to run
     /// @throws ExecutionException if the action fails
@@ -130,7 +130,8 @@ public class UiTaskExecutor implements TaskExecutor {
         Platform.runLater(runnable);
     }
 
-    /// Runs the runnable now, when we are already on the FX UI Thread, or later if we are not.
+    /// Runs the runnable now, when we are already on the FX UI Thread, or later
+    /// if we are not.
     ///
     /// @param runnable runnable BackgroundTask to run
     public static void runNowOrInJavaFXThread(Runnable runnable) {
@@ -141,12 +142,14 @@ public class UiTaskExecutor implements TaskExecutor {
         Platform.runLater(runnable);
     }
 
-    /// This will convert the given [BackgroundTask] to a JavaFX [Task]
-    /// The JavaFX task executes the call method a background thread and the onFailed onSucceed on the FX UI thread
+    /// This will convert the given [BackgroundTask] to a JavaFX [Task] The
+    /// JavaFX task executes the call method a background thread and the
+    /// onFailed onSucceed on the FX UI thread
     ///
     /// @param task the BackgroundTask to run
-    /// @param <V>  The background task type
-    /// @return Future of a JavaFX Task which will execute the call method a background thread
+    /// @param <V> The background task type
+    /// @return Future of a JavaFX Task which will execute the call method a
+    ///   background thread
     @Override
     public <V> Future<V> execute(BackgroundTask<V> task) {
         Task<V> javafxTask = getJavaFXTask(task);
@@ -164,9 +167,10 @@ public class UiTaskExecutor implements TaskExecutor {
         return execute(javafxTask);
     }
 
-    /// Runs the given task and returns a Future representing that task. Usually, you want to use the other method [#execute(BackgroundTask)].
+    /// Runs the given task and returns a Future representing that task.
+    /// Usually, you want to use the other method [#execute(BackgroundTask)].
     ///
-    /// @param <V>  type of return value of the task
+    /// @param <V> type of return value of the task
     /// @param task the task to run
     public <V> Future<V> execute(Task<V> task) {
         executor.submit(task);
@@ -174,7 +178,8 @@ public class UiTaskExecutor implements TaskExecutor {
     }
 
     @Override
-    public <V> Future<?> schedule(BackgroundTask<V> task, long delay, TimeUnit unit) {
+    public <V> Future<?> schedule(BackgroundTask<V> task, long delay,
+            TimeUnit unit) {
         return scheduledExecutor.schedule(getJavaFXTask(task), delay, unit);
     }
 
@@ -183,7 +188,10 @@ public class UiTaskExecutor implements TaskExecutor {
     public void shutdown() {
         StateManager stateManager = Injector.instantiateModelOrService(StateManager.class);
         if (stateManager != null) {
-            stateManager.getBackgroundTasks().stream().filter(task -> !task.isDone()).forEach(Task::cancel);
+            stateManager.getBackgroundTasks()
+                        .stream()
+                        .filter(task -> !task.isDone())
+                        .forEach(Task::cancel);
         }
         executor.shutdownNow();
         scheduledExecutor.shutdownNow();
@@ -197,8 +205,9 @@ public class UiTaskExecutor implements TaskExecutor {
         return throttler;
     }
 
-    /// Generates a wrapper with a JavaFX [Task] for our BackgroundTask monitoring the progress based on the data given from the task.
-    /// `call` is routed to the given task object.
+    /// Generates a wrapper with a JavaFX [Task] for our BackgroundTask
+    /// monitoring the progress based on the data given from the task. `call` is
+    /// routed to the given task object.
     ///
     /// @param task the BackgroundTask to wrap
     /// @return a new Javafx Task object
@@ -206,8 +215,11 @@ public class UiTaskExecutor implements TaskExecutor {
         Task<V> javaTask = new Task<>() {
             {
                 this.updateMessage(task.messageProperty().get());
-                this.updateTitle(java.util.Objects.toString(task.titleProperty().get(), ""));
-                BindingsHelper.subscribeFuture(task.progressProperty(), progress -> updateProgress(progress.workDone(), progress.max()));
+                this.updateTitle(java.util.Objects.toString(task.titleProperty()
+                        .get(),
+                        ""));
+                BindingsHelper.subscribeFuture(task.progressProperty(),
+                        progress -> updateProgress(progress.workDone(), progress.max()));
                 BindingsHelper.subscribeFuture(task.messageProperty(), this::updateMessage);
                 BindingsHelper.subscribeFuture(task.titleProperty(), this::updateTitle);
                 BindingsHelper.subscribeFuture(task.isCancelledProperty(), cancelled -> {

@@ -1,12 +1,11 @@
 package org.jabref.languageserver.util;
 
-import org.jabref.logic.importer.ParserResult;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.Field;
-
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Range;
+import org.jabref.logic.importer.ParserResult;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.Field;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -17,23 +16,28 @@ public final class LspDiagnosticBuilder {
 
     @Nullable
     private String message;
+
     private DiagnosticSeverity severity = DiagnosticSeverity.Warning;
     private String source = DEFAULT_SOURCE;
 
     @Nullable
     private BibEntry entry;
+
     @Nullable
     private ParserResult parserResult;
+
     @Nullable
     private Field field;
+
     @Nullable
     private Range explicitRange;
 
-    private LspDiagnosticBuilder() {
-    }
+    private LspDiagnosticBuilder() {}
 
     public static LspDiagnosticBuilder create(ParserResult parserResult, String message) {
-        return new LspDiagnosticBuilder().setMessage(message).setParserResult(parserResult);
+        return new LspDiagnosticBuilder()
+                .setMessage(message)
+                .setParserResult(parserResult);
     }
 
     public static LspDiagnosticBuilder create(String message) {

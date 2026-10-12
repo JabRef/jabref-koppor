@@ -1,5 +1,8 @@
 package org.jabref.gui.git;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
+import jakarta.inject.Inject;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -7,7 +10,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.desktop.os.NativeDesktop;
@@ -18,19 +20,26 @@ import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
-import jakarta.inject.Inject;
-
 public class GitShareToGitHubDialogView extends BaseDialog<Void> {
     private static final String GITHUB_NEW_REPO_URL = "https://github.com/new";
 
-    @FXML private Label credentialsHint;
-    @FXML private TextField repositoryUrl;
-    @FXML private ButtonType shareButton;
-    @FXML private Button checkGitHubAccessButton;
-    @FXML private Label repoHelpIcon;
-    @FXML private Tooltip repoHelpTooltip;
+    @FXML
+    private Label credentialsHint;
+
+    @FXML
+    private TextField repositoryUrl;
+
+    @FXML
+    private ButtonType shareButton;
+
+    @FXML
+    private Button checkGitHubAccessButton;
+
+    @FXML
+    private Label repoHelpIcon;
+
+    @FXML
+    private Tooltip repoHelpTooltip;
 
     private GitShareToGitHubDialogViewModel viewModel;
 
@@ -53,8 +62,8 @@ public class GitShareToGitHubDialogView extends BaseDialog<Void> {
 
     public GitShareToGitHubDialogView() {
         ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+                .load()
+                .setAsDialogPane(this);
     }
 
     @FXML
@@ -77,17 +86,9 @@ public class GitShareToGitHubDialogView extends BaseDialog<Void> {
             return null;
         });
 
-        repoHelpTooltip.setText(
-                Localization.lang("Create an empty repository on GitHub, then copy the HTTPS URL (ends with .git). Click to open GitHub.")
-        );
+        repoHelpTooltip.setText(Localization.lang("Create an empty repository on GitHub, then copy the HTTPS URL (ends with .git). Click to open GitHub."));
         Tooltip.install(repoHelpIcon, repoHelpTooltip);
-        repoHelpIcon.setOnMouseClicked(_ ->
-                NativeDesktop.openBrowserShowPopup(
-                        GITHUB_NEW_REPO_URL,
-                        dialogService,
-                        preferences.getExternalApplicationsPreferences()
-                )
-        );
+        repoHelpIcon.setOnMouseClicked(_ -> NativeDesktop.openBrowserShowPopup(GITHUB_NEW_REPO_URL, dialogService, preferences.getExternalApplicationsPreferences()));
 
         repositoryUrl.textProperty().bindBidirectional(viewModel.repositoryUrlProperty());
 
@@ -100,7 +101,9 @@ public class GitShareToGitHubDialogView extends BaseDialog<Void> {
 
             // The button is null in initialize, so it has to be looked up afterwards
             Button share = (Button) this.getDialogPane().lookupButton(shareButton);
-            share.disableProperty().bind(viewModel.repositoryUrlValidation().validProperty().not());
+            share.disableProperty().bind(viewModel.repositoryUrlValidation()
+                    .validProperty()
+                    .not());
         });
     }
 
@@ -109,17 +112,12 @@ public class GitShareToGitHubDialogView extends BaseDialog<Void> {
         viewModel.shareToGitHub(this::onShared);
     }
 
-    /// The library is inside a Git repository only after it has been shared, so the scheduler
-    /// cannot have been started when the library was opened
+    /// The library is inside a Git repository only after it has been shared, so
+    /// the scheduler cannot have been started when the library was opened
     private void onShared() {
-        stateManager.activeTabProperty().get().ifPresent(tab ->
-                GitPullScheduler.start(tab.getBibDatabaseContext(),
-                        dialogService,
-                        preferences,
-                        stateManager,
-                        taskExecutor,
-                        gitHandlerRegistry,
-                        tab::isModified));
+        stateManager.activeTabProperty()
+                    .get()
+                    .ifPresent(tab -> GitPullScheduler.start(tab.getBibDatabaseContext(), dialogService, preferences, stateManager, taskExecutor, gitHandlerRegistry, tab::isModified));
         close();
     }
 

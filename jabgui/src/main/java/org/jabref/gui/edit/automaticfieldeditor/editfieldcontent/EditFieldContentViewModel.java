@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
+import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
+import de.saxsys.mvvmfx.utils.validation.Validator;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -12,7 +16,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.edit.automaticfieldeditor.AbstractAutomaticFieldEditorTabViewModel;
@@ -26,11 +29,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableFieldChange;
 
-import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
-import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
-import de.saxsys.mvvmfx.utils.validation.Validator;
-
 public class EditFieldContentViewModel extends AbstractAutomaticFieldEditorTabViewModel {
     private final List<BibEntry> selectedEntries;
 
@@ -43,16 +41,15 @@ public class EditFieldContentViewModel extends AbstractAutomaticFieldEditorTabVi
     private final Validator fieldValidator;
     private final BooleanBinding canAppend;
 
-    public EditFieldContentViewModel(BibDatabase database,
-                                     List<BibEntry> selectedEntries,
-                                     CompoundEdit compoundEdit,
-                                     DialogService dialogService,
-                                     StateManager stateManager) {
+    public EditFieldContentViewModel(BibDatabase database, List<BibEntry> selectedEntries, CompoundEdit compoundEdit,
+            DialogService dialogService, StateManager stateManager) {
         super(database, compoundEdit, dialogService, stateManager);
         this.selectedEntries = new ArrayList<>(selectedEntries);
 
         FieldHelper.getSetFieldsOnly(selectedEntries, getAllFields())
-                   .stream().findFirst().ifPresent(selectedField::set);
+                .stream()
+                .findFirst()
+                .ifPresent(selectedField::set);
 
         fieldValidator = new FunctionBasedValidator<>(selectedField, field -> {
             if (StringUtil.isBlank(field.getName())) {
@@ -63,7 +60,8 @@ public class EditFieldContentViewModel extends AbstractAutomaticFieldEditorTabVi
             return null;
         });
 
-        canAppend = Bindings.and(overwriteFieldContentProperty(), fieldValidationStatus().validProperty());
+        canAppend = Bindings.and(overwriteFieldContentProperty(),
+                fieldValidationStatus().validProperty());
     }
 
     public ValidationStatus fieldValidationStatus() {
@@ -81,8 +79,7 @@ public class EditFieldContentViewModel extends AbstractAutomaticFieldEditorTabVi
         for (BibEntry entry : selectedEntries) {
             Optional<String> oldFieldValue = entry.getField(selectedField.get());
             if (oldFieldValue.isEmpty() || overwriteFieldContent.get()) {
-                entry.setField(selectedField.get(), toSetFieldValue)
-                     .ifPresent(fieldChange -> edits.addEdit(new UndoableFieldChange(fieldChange)));
+                entry.setField(selectedField.get(), toSetFieldValue).ifPresent(fieldChange -> edits.addEdit(new UndoableFieldChange(fieldChange)));
                 fieldValue.set("");
                 // TODO: increment affected entries only when the field change is present
                 affectedEntriesCount++;
@@ -102,8 +99,7 @@ public class EditFieldContentViewModel extends AbstractAutomaticFieldEditorTabVi
             if (overwriteFieldContent.get()) {
                 String newFieldValue = oldFieldValue.orElse("").concat(toAppendFieldValue);
 
-                entry.setField(selectedField.get(), newFieldValue)
-                     .ifPresent(fieldChange -> edits.addEdit(new UndoableFieldChange(fieldChange)));
+                entry.setField(selectedField.get(), newFieldValue).ifPresent(fieldChange -> edits.addEdit(new UndoableFieldChange(fieldChange)));
 
                 fieldValue.set("");
                 affectedEntriesCount++;

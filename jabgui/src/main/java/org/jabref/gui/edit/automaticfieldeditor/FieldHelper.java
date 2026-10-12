@@ -18,10 +18,9 @@ public class FieldHelper {
 
         return allFields.stream()
                         .filter(allowedFields::contains)
-                        .filter(field -> selectedEntries.stream()
-                                                        .anyMatch(entry -> entry.getField(field)
-                                                                                .filter(Predicate.not(String::isBlank))
-                                                                                .isPresent()))
+                        .filter(field -> selectedEntries.stream().anyMatch(entry -> entry.getField(field)
+                                .filter(Predicate.not(String::isBlank))
+                                .isPresent()))
                         .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 }

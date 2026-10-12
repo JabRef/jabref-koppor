@@ -5,7 +5,6 @@ import java.util.Arrays;
 
 import org.jabref.logic.importer.ImportException;
 import org.jabref.logic.importer.Importer;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,14 +37,16 @@ class CustomImporterTest {
 
     @Test
     void getBasePath() {
-        assertEquals(Path.of("src/main/java/org/jabref/logic/importer/fileformat/CopacImporter.java"),
+        assertEquals(
+                Path.of("src/main/java/org/jabref/logic/importer/fileformat/CopacImporter.java"),
                 importer.getBasePath());
     }
 
     @Test
     void getAsStringList() {
-        assertEquals(Arrays.asList("src/main/java/org/jabref/logic/importer/fileformat/CopacImporter.java",
-                "org.jabref.logic.importer.fileformat.CopacImporter"), importer.getAsStringList());
+        assertEquals(
+                Arrays.asList("src/main/java/org/jabref/logic/importer/fileformat/CopacImporter.java", "org.jabref.logic.importer.fileformat.CopacImporter"),
+                importer.getAsStringList());
     }
 
     @Test
@@ -78,16 +79,13 @@ class CustomImporterTest {
 
     @Test
     void classicConstructor() throws ImportException {
-        CustomImporter customImporter = new CustomImporter(
-                "src/main/java/org/jabref/logic/importer/fileformat/CopacImporter.java",
-                "org.jabref.logic.importer.fileformat.CopacImporter");
+        CustomImporter customImporter = new CustomImporter("src/main/java/org/jabref/logic/importer/fileformat/CopacImporter.java", "org.jabref.logic.importer.fileformat.CopacImporter");
 
         assertEquals(importer, customImporter);
     }
 
     private CustomImporter asCustomImporter(Importer importer) throws ImportException {
-        return new CustomImporter(
-                "src/main/java/org/jabref/logic/importer/fileformat/" + importer.getName() + "Importer.java",
+        return new CustomImporter("src/main/java/org/jabref/logic/importer/fileformat/" + importer.getName() + "Importer.java",
                 importer.getClass().getName());
     }
 }

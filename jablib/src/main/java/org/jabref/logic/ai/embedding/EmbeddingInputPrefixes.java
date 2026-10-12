@@ -3,12 +3,12 @@ package org.jabref.logic.ai.embedding;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import org.jspecify.annotations.NullMarked;
 
-/// E5 models are trained with `query: ` and `passage: ` prefixes and retrieve worse without them,
-/// see <https://huggingface.co/intfloat/e5-small-v2#faq>. Other models get the text unchanged.
+/// E5 models are trained with `query: ` and `passage: ` prefixes and retrieve
+/// worse without them, see <https://huggingface.co/intfloat/e5-small-v2#faq>.
+/// Other models get the text unchanged.
 @NullMarked
 public final class EmbeddingInputPrefixes {
-    private EmbeddingInputPrefixes() {
-    }
+    private EmbeddingInputPrefixes() {}
 
     public static String forQuery(EmbeddingModel embeddingModel, String text) {
         return isE5(embeddingModel) ? "query: " + text : text;

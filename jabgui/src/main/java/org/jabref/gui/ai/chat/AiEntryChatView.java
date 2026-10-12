@@ -1,39 +1,40 @@
 package org.jabref.gui.ai.chat;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.layout.StackPane;
-
 import org.jabref.gui.ai.AiPrivacyNoticeView;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.ai.AiService;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 // [impl->feat~ai.chatting.entries~1]
 public class AiEntryChatView extends StackPane {
-    @FXML private AiPrivacyNoticeView privacyNotice;
-    @FXML private AiChatView aiChatView;
+    @FXML
+    private AiPrivacyNoticeView privacyNotice;
 
-    @Inject private GuiPreferences preferences;
-    @Inject private AiService aiService;
+    @FXML
+    private AiChatView aiChatView;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private AiService aiService;
 
     private AiEntryChatViewModel viewModel;
 
     public AiEntryChatView() {
         ViewLoader.view(this)
-                  .root(this)
-                  .load();
+                .root(this)
+                .load();
     }
 
     @FXML
     private void initialize() {
-        viewModel = new AiEntryChatViewModel(
-                preferences.getAiPreferences(),
-                aiService.getChatHistoryCache()
-        );
+        viewModel = new AiEntryChatViewModel(preferences.getAiPreferences(), aiService.getChatHistoryCache());
 
         setupBindings();
     }
@@ -43,7 +44,8 @@ public class AiEntryChatView extends StackPane {
         privacyNotice.managedProperty().bind(privacyNotice.visibleProperty());
         aiChatView.managedProperty().bind(aiChatView.visibleProperty());
 
-        privacyNotice.visibleProperty().bind(viewModel.enabledProperty().not());
+        privacyNotice.visibleProperty().bind(viewModel.enabledProperty()
+                .not());
         aiChatView.visibleProperty().bind(viewModel.enabledProperty());
 
         aiChatView.chatHistoryProperty().bind(viewModel.chatHistoryProperty());

@@ -3,7 +3,6 @@ package org.jabref.model.undo;
 import java.util.Objects;
 
 import org.jabref.model.database.BibDatabase;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 

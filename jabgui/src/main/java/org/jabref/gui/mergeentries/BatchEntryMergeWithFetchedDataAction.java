@@ -24,10 +24,8 @@ public class BatchEntryMergeWithFetchedDataAction extends SimpleCommand {
     private final NotificationService notificationService;
     private final TaskExecutor taskExecutor;
 
-    public BatchEntryMergeWithFetchedDataAction(StateManager stateManager,
-                                                GuiPreferences preferences,
-                                                NotificationService notificationService,
-                                                TaskExecutor taskExecutor) {
+    public BatchEntryMergeWithFetchedDataAction(StateManager stateManager, GuiPreferences preferences, NotificationService notificationService,
+            TaskExecutor taskExecutor) {
         this.stateManager = stateManager;
         this.preferences = preferences;
         this.notificationService = notificationService;
@@ -43,7 +41,8 @@ public class BatchEntryMergeWithFetchedDataAction extends SimpleCommand {
 
     private void mergeEntriesOf(BibDatabaseContext databaseContext) {
         List<BibEntry> entries = databaseContext.getEntries();
-        Character keywordSeparator = databaseContext.getKeywordSeparator(preferences.getBibEntryPreferences().getKeywordSeparator());
+        Character keywordSeparator = databaseContext.getKeywordSeparator(preferences.getBibEntryPreferences()
+                .getKeywordSeparator());
 
         if (entries.isEmpty()) {
             notificationService.notify(Localization.lang("No entries available for merging"));
@@ -51,12 +50,7 @@ public class BatchEntryMergeWithFetchedDataAction extends SimpleCommand {
         }
 
         MergingIdBasedFetcher fetcher = new MergingIdBasedFetcher(preferences.getImportFormatPreferences());
-        BatchEntryMergeTask mergeTask = new BatchEntryMergeTask(
-                entries,
-                fetcher,
-                stateManager.getUndoManager(databaseContext),
-                notificationService,
-                keywordSeparator);
+        BatchEntryMergeTask mergeTask = new BatchEntryMergeTask(entries, fetcher, stateManager.getUndoManager(databaseContext), notificationService, keywordSeparator);
 
         mergeTask.executeWith(taskExecutor);
     }

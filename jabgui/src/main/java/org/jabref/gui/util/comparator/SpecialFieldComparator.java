@@ -11,7 +11,9 @@ public class SpecialFieldComparator implements Comparator<Optional<SpecialFieldV
     public int compare(Optional<SpecialFieldValueViewModel> val1, Optional<SpecialFieldValueViewModel> val2) {
         if (val1.isPresent()) {
             if (val2.isPresent()) {
-                return val1.get().getValue().compareTo(val2.get().getValue());
+                return val1.get()
+                           .getValue()
+                           .compareTo(val2.get().getValue());
             } else {
                 return -1;
             }

@@ -19,28 +19,30 @@ class AuthorTest {
                     AO., A. O.
                     A.O., A. O.
                     A-O, A.-O.
-                    """
-    )
+                    """)
     void addDotIfAbbreviationAddsDot(String input, String expected) {
         assertEquals(expected, Author.addDotIfAbbreviation(input));
     }
 
     @ParameterizedTest
-    @CsvSource("""
+    @CsvSource(
+            """
             A O, A. O.
             A-melia, A.-melia
             AmeliA, AmeliA
             Ameli A, Ameli A.
             Ameli , Ameli
             Ameli AA, Ameli A. A.
-            """
-    )
+            """)
     void addDotIfAbbreviationEdgeCases(String input, String expected) {
         assertEquals(expected, Author.addDotIfAbbreviation(input));
     }
 
     @ParameterizedTest
-    @CsvSource(delimiterString = "->", textBlock = """
+    @CsvSource(
+            delimiterString = "->",
+            textBlock =
+                    """
             O.
             A. O.
             A.-O.
@@ -65,13 +67,10 @@ class AuthorTest {
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {
-            // Lower-case letters
-            "asdf",
-            "a",
-            // Numbers
-            "1",
-            "1 23"
-    })
+        // Lower-case letters
+        "asdf", "a",
+        // Numbers
+        "1", "1 23"})
     void addDotIfAbbreviation(String input) {
         assertEquals(input, Author.addDotIfAbbreviation(input));
     }

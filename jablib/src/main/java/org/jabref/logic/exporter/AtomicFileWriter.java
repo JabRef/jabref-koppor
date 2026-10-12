@@ -10,14 +10,14 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.jabref.logic.util.io.FileSnapshot;
-
 import org.jspecify.annotations.Nullable;
 
-/// Writer that similar to the built-in [java.io.FileWriter] but uses the [AtomicFileOutputStream] as the
-/// underlying output stream. In this way, we make sure that the errors during the write process do not destroy the
-/// contents of the target file.
-/// Moreover, this writer checks if the chosen encoding supports all text that is written. Characters whose encoding
-/// was problematic can be retrieved by [#getEncodingProblems()].
+/// Writer that similar to the built-in [java.io.FileWriter] but uses the
+/// [AtomicFileOutputStream] as the underlying output stream. In this way, we
+/// make sure that the errors during the write process do not destroy the
+/// contents of the target file. Moreover, this writer checks if the chosen
+/// encoding supports all text that is written. Characters whose encoding was
+/// problematic can be retrieved by [#getEncodingProblems()].
 public class AtomicFileWriter extends OutputStreamWriter {
 
     private final AtomicFileOutputStream outputStream;
@@ -33,7 +33,9 @@ public class AtomicFileWriter extends OutputStreamWriter {
     }
 
     /// @param expectedState see [AtomicFileOutputStream#AtomicFileOutputStream(Path,boolean,FileSnapshot)]
-    public AtomicFileWriter(Path file, Charset encoding, boolean keepBackup, @Nullable FileSnapshot expectedState) throws IOException {
+    public AtomicFileWriter(Path file, Charset encoding, boolean keepBackup,
+                            @Nullable FileSnapshot expectedState)
+            throws IOException {
         this(new AtomicFileOutputStream(file, keepBackup, expectedState), encoding);
     }
 
@@ -43,7 +45,8 @@ public class AtomicFileWriter extends OutputStreamWriter {
         encoder = encoding.newEncoder();
     }
 
-    /// See [AtomicFileOutputStream#getCommittedTargetFileState()]; remains accessible after [#close()].
+    /// See [AtomicFileOutputStream#getCommittedTargetFileState()]; remains
+    /// accessible after [#close()].
     @Nullable
     public FileSnapshot getCommittedTargetFileState() {
         return outputStream.getCommittedTargetFileState();

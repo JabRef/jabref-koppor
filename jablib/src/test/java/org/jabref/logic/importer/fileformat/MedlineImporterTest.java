@@ -3,12 +3,10 @@ package org.jabref.logic.importer.fileformat;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-
 import javax.xml.stream.XMLInputFactory;
 
 import org.jabref.logic.importer.ImportException;
 import org.jabref.logic.util.StandardFileType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -54,12 +52,14 @@ class MedlineImporterTest {
 
     @Test
     void rejectsExternalEntities() throws IOException {
-        String xmlWithExternalEntity = """
+        String xmlWithExternalEntity =
+                """
                 <!DOCTYPE PubmedArticleSet [<!ENTITY entity SYSTEM "file:///not-accessed">]>
                 <PubmedArticleSet><PubmedArticle><PMID>&entity;</PMID></PubmedArticle></PubmedArticleSet>
                 """;
 
-        assertTrue(importer.importDatabase(new BufferedReader(Reader.of(xmlWithExternalEntity))).isInvalid());
+        assertTrue(importer.importDatabase(new BufferedReader(Reader.of(xmlWithExternalEntity)))
+                           .isInvalid());
     }
 
     @Test

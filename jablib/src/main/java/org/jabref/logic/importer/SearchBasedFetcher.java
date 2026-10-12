@@ -3,13 +3,12 @@ package org.jabref.logic.importer;
 import java.util.List;
 import java.util.Optional;
 
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.jabref.logic.search.query.SearchQueryVisitor;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.query.BaseQueryNode;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchQueryNode;
-
-import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +39,7 @@ public interface SearchBasedFetcher extends WebFetcher {
     }
 
     default List<BibEntry> performRawSearchQuery(String rawQuery) throws FetcherException {
-        throw new UnsupportedOperationException(
-                getName() + " has not yet been migrated to performRawSearchQuery");
+        throw new UnsupportedOperationException(getName() + " has not yet been migrated to performRawSearchQuery");
     }
 
     /// This method provides a BaseQueryNode for performSearch/performSearchPaged method

@@ -11,7 +11,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -19,7 +18,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -27,6 +25,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.xmlunit.builder.Input;
+import org.xmlunit.builder.Input.Builder;
 import org.xmlunit.diff.DefaultNodeMatcher;
 import org.xmlunit.diff.ElementSelectors;
 import org.xmlunit.matchers.CompareMatcher;
@@ -45,7 +44,9 @@ public class OpenOfficeDocumentCreatorTest {
 
     @BeforeEach
     void setUp() throws URISyntaxException {
-        xmlFile = Path.of(OpenOfficeDocumentCreatorTest.class.getResource("OldOpenOfficeCalcExportFormatContentSingleEntry.xml").toURI());
+        xmlFile = Path.of(OpenOfficeDocumentCreatorTest.class
+                .getResource("OldOpenOfficeCalcExportFormatContentSingleEntry.xml")
+                .toURI());
 
         exporter = new OpenOfficeDocumentCreator();
 
@@ -82,13 +83,13 @@ public class OpenOfficeDocumentCreatorTest {
         // Files.copy(contentXmlPath, xmlFile.resolveSibling("test.xml"), StandardCopyOption.REPLACE_EXISTING);
 
         try (InputStream xmlFileInputStream = Files.newInputStream(xmlFile);
-             InputStream contentXmlInputStream = Files.newInputStream(contentXmlPath)
-        ) {
-            Input.Builder control = Input.from(xmlFileInputStream);
-            Input.Builder test = Input.from(contentXmlInputStream);
-            assertThat(test, CompareMatcher.isSimilarTo(control)
-                                           .normalizeWhitespace()
-                                           .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText)));
+             InputStream contentXmlInputStream = Files.newInputStream(contentXmlPath)) {
+            Builder control = Input.from(xmlFileInputStream);
+            Builder test = Input.from(contentXmlInputStream);
+            assertThat(test,
+                    CompareMatcher.isSimilarTo(control)
+                            .normalizeWhitespace()
+                            .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText)));
         }
     }
 

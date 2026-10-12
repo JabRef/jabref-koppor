@@ -4,14 +4,13 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.PagedSearchBasedParserFetcher;
 import org.jabref.logic.importer.Parser;
 import org.jabref.logic.importer.fetcher.transformers.DnbQueryTransformer;
 import org.jabref.logic.importer.fileformat.MarcXmlParser;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,10 @@ public class DnbFetcher extends AbstractIsbnFetcher implements PagedSearchBasedP
 
     @Override
     public URL getURLForQuery(BaseQueryNode queryNode, int pageNumber) throws URISyntaxException, MalformedURLException {
-        String transformedQuery = new DnbQueryTransformer().transformSearchQuery(queryNode).orElse("").trim();
+        String transformedQuery = new DnbQueryTransformer()
+                .transformSearchQuery(queryNode)
+                .orElse("")
+                .trim();
         if (transformedQuery.isEmpty()) {
             throw new URISyntaxException("", "Query transformed to an empty DNB search expression");
         }

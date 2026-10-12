@@ -17,7 +17,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.monitor.FileAlterationListener;
+import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.apache.commons.io.monitor.FileEntry;
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
@@ -37,12 +41,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.texparser.Citation;
 import org.jabref.model.texparser.LatexParserResult;
 import org.jabref.model.texparser.LatexParserResults;
-
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.monitor.FileAlterationListener;
-import org.apache.commons.io.monitor.FileAlterationObserver;
-import org.apache.commons.io.monitor.FileEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,9 +75,7 @@ public class LatexCitationsTabViewModel extends AbstractViewModel {
     private BibEntry currentEntry;
     private BibDatabaseContext currentDatabaseContext;
 
-    public LatexCitationsTabViewModel(GuiPreferences preferences,
-                                      DialogService dialogService,
-                                      DirectoryMonitor directoryMonitor) {
+    public LatexCitationsTabViewModel(GuiPreferences preferences, DialogService dialogService, DirectoryMonitor directoryMonitor) {
         this.preferences = preferences;
         this.dialogService = dialogService;
         this.directoryMonitor = directoryMonitor;
@@ -89,20 +85,16 @@ public class LatexCitationsTabViewModel extends AbstractViewModel {
         this.listener = new CitationsAlterationListener();
 
         this.currentDatabaseContext = new BibDatabaseContext();
-        this.directory.set(FileUtil.getInitialDirectory(currentDatabaseContext, preferences.getFilePreferences().getWorkingDirectory()));
+        this.directory.set(FileUtil.getInitialDirectory(currentDatabaseContext, preferences.getFilePreferences()
+                .getWorkingDirectory()));
     }
 
     public void handleMouseClick(MouseEvent event, CitationsDisplay citationsDisplay) {
         Citation selectedItem = citationsDisplay.getSelectionModel().getSelectedItem();
 
         if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2 && selectedItem != null) {
-            String applicationName = preferences.getPushToApplicationPreferences()
-                                                .getActiveApplicationName();
-            GuiPushToApplication application = GuiPushToApplications.getGUIApplicationByName(
-                                                                            applicationName,
-                                                                            dialogService,
-                                                                            preferences.getPushToApplicationPreferences())
-                                                                    .orElseGet(() -> new GuiPushToTeXstudio(dialogService, preferences.getPushToApplicationPreferences()));
+            String applicationName = preferences.getPushToApplicationPreferences().getActiveApplicationName();
+            GuiPushToApplication application = GuiPushToApplications.getGUIApplicationByName(applicationName, dialogService, preferences.getPushToApplicationPreferences()).orElseGet(() -> new GuiPushToTeXstudio(dialogService, preferences.getPushToApplicationPreferences()));
             preferences.getPushToApplicationPreferences().setActiveApplicationName(application.getDisplayName());
             application.jumpToLine(selectedItem.path(), selectedItem.line(), selectedItem.colStart());
         }
@@ -129,17 +121,20 @@ public class LatexCitationsTabViewModel extends AbstractViewModel {
 
     public void setLatexDirectory() {
         DirectoryDialogConfiguration directoryDialogConfiguration = new DirectoryDialogConfiguration.Builder()
-                .withInitialDirectory(directory.get()).build();
+                .withInitialDirectory(directory.get())
+                .build();
 
-        dialogService.showDirectorySelectionDialog(directoryDialogConfiguration).ifPresent(selectedDirectory ->
-                currentDatabaseContext.getMetaData().setLatexFileDirectory(preferences.getFilePreferences().getUserAndHost(), selectedDirectory.toAbsolutePath().toString()));
+        dialogService.showDirectorySelectionDialog(directoryDialogConfiguration).ifPresent(
+                selectedDirectory -> currentDatabaseContext.getMetaData().setLatexFileDirectory(preferences.getFilePreferences().getUserAndHost(),
+                        selectedDirectory.toAbsolutePath().toString()));
 
         checkAndUpdateDirectory();
     }
 
     private void checkAndUpdateDirectory() {
-        Path newDirectory = currentDatabaseContext.getMetaData().getLatexFileDirectory(preferences.getFilePreferences().getUserAndHost())
-                                                  .orElse(FileUtil.getInitialDirectory(currentDatabaseContext, preferences.getFilePreferences().getWorkingDirectory()));
+        Path newDirectory = currentDatabaseContext.getMetaData()
+                .getLatexFileDirectory(preferences.getFilePreferences().getUserAndHost())
+                .orElse(FileUtil.getInitialDirectory(currentDatabaseContext, preferences.getFilePreferences().getWorkingDirectory()));
 
         if (!newDirectory.equals(directory.get()) || observer == null) {
             status.set(Status.IN_PROGRESS);
@@ -155,9 +150,9 @@ public class LatexCitationsTabViewModel extends AbstractViewModel {
 
     private void setAlterationObserver() {
         observer = FileAlterationObserver.builder()
-                                         .setRootEntry(new FileEntry(directory.get().toFile()))
-                                         .setFileFilter(FILE_FILTER)
-                                         .getUnchecked();
+                .setRootEntry(new FileEntry(directory.get().toFile()))
+                .setFileFilter(FILE_FILTER)
+                .getUnchecked();
         directoryMonitor.addObserver(observer, listener);
     }
 
@@ -243,15 +238,12 @@ public class LatexCitationsTabViewModel extends AbstractViewModel {
         }
 
         @Override
-        public void onDirectoryChange(File directory) {
-        }
+        public void onDirectoryChange(File directory) {}
 
         @Override
-        public void onDirectoryCreate(File directory) {
-        }
+        public void onDirectoryCreate(File directory) {}
 
         @Override
-        public void onDirectoryDelete(File directory) {
-        }
+        public void onDirectoryDelete(File directory) {}
     }
 }

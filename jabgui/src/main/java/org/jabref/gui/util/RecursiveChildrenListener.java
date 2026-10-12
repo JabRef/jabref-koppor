@@ -10,7 +10,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -21,19 +20,21 @@ public class RecursiveChildrenListener {
     private @Nullable Parent attachedRoot;
     private final @NonNull Map<Parent, ListChangeListener<Node>> childListeners = new HashMap<>();
 
-    /// Creates a new RecursiveChildrenListener that will recursively monitor changes in
-    /// the children of all parent nodes in a scene graph.
+    /// Creates a new RecursiveChildrenListener that will recursively monitor
+    /// changes in the children of all parent nodes in a scene graph.
     ///
     /// @param listener the listener to be called when children change
     public RecursiveChildrenListener(@NonNull InvalidationListener listener) {
         this.listener = listener;
     }
 
-    /// Attaches the listener to a scene, monitoring its root and all descendants. If
-    /// the scene's root changes, the listener will automatically detach from the old
-    /// root and attach to the new one.
+    /// Attaches the listener to a scene, monitoring its root and all
+    /// descendants. If the scene's root changes, the listener will
+    /// automatically detach from the old root and attach to the new one.
     ///
-    /// Dialogs and ControlsFX still replace scene roots, see [Where overlays are rendered](https://devdocs.jabref.org/code-howtos/walkthrough.html#where-overlays-are-rendered).
+    /// Dialogs and ControlsFX still replace scene roots, see [Where overlays
+    /// are
+    /// rendered](https://devdocs.jabref.org/code-howtos/walkthrough.html#where-overlays-are-rendered).
     ///
     /// @param scene the scene to attach to
     public void attachToScene(@NonNull Scene scene) {
@@ -58,8 +59,8 @@ public class RecursiveChildrenListener {
         }
     }
 
-    /// Attaches the listener directly to a node and all its descendants. If the node is
-    /// not a Parent, the listener will not be attached.
+    /// Attaches the listener directly to a node and all its descendants. If the
+    /// node is not a Parent, the listener will not be attached.
     ///
     /// @param node the node to attach to
     public void attachToNode(@NonNull Node node) {

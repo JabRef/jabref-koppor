@@ -6,14 +6,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
 
+import kong.unirest.core.json.JSONObject;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.fetcher.citation.CitationCountFetcher;
 import org.jabref.logic.net.URLDownload;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.sciteTallies.TalliesResponse;
-
-import kong.unirest.core.json.JSONObject;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +23,7 @@ public class SciteAiFetcher implements CitationCountFetcher {
     private static final String BASE_URL = "https://api.scite.ai/";
     private static final Logger LOGGER = LoggerFactory.getLogger(SciteAiFetcher.class);
 
-    public SciteAiFetcher() {
-    }
+    public SciteAiFetcher() {}
 
     public TalliesResponse fetchTallies(DOI doi) throws FetcherException {
         URL url;

@@ -5,16 +5,18 @@ import java.util.Objects;
 import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 /// A change of one field of one entry. A `null` value means the field is absent.
 @NullMarked
-public record UndoableFieldChange(BibEntry entry, Field field, @Nullable String before, @Nullable String after) implements BibChange {
+public record UndoableFieldChange(BibEntry entry, Field field, @Nullable String before,
+        @Nullable String after)
+        implements BibChange {
 
     public UndoableFieldChange(FieldChange change) {
-        this(change.entry(), change.field(), change.oldValue(), change.newValue());
+        this(change.entry(), change.field(), change.oldValue(),
+                change.newValue());
     }
 
     @Override

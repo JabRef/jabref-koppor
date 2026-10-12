@@ -10,7 +10,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.TransferInformation;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -19,8 +18,9 @@ public class InsertUtil {
 
     /// Renders a user feedback message for a given number of entries.
     ///
-    /// Implementations have to call [Localization#lang(String, Object...)] with a **literal** key,
-    /// because the localization consistency tests can only detect literal keys.
+    /// Implementations have to call [Localization#lang(String, Object...)] with
+    /// a **literal** key, because the localization consistency tests can only
+    /// detect literal keys.
     @FunctionalInterface
     @NullMarked
     public interface FeedbackMessage {
@@ -28,24 +28,25 @@ public class InsertUtil {
         String format(Object... params);
     }
 
-    /// @param jabRefClipboardTransferData - can be null if called via clipboard and clipboard content was NOT created by JabRef
-    public static void addEntriesWithFeedback(@Nullable TransferInformation jabRefClipboardTransferData,
-                                              List<BibEntry> entriesToAdd,
-                                              BibDatabaseContext targetDatabaseContext,
-                                              FeedbackMessage successMessage,
-                                              FeedbackMessage partialMessage,
-                                              DialogService dialogService,
-                                              ImportHandler importHandler,
-                                              StateManager stateManager
-    ) {
+    /// @param jabRefClipboardTransferData - can be null if called via clipboard
+    ///   and clipboard content was NOT created by JabRef
+    public static void addEntriesWithFeedback(
+            @Nullable TransferInformation jabRefClipboardTransferData,
+            List<BibEntry> entriesToAdd,
+            BibDatabaseContext targetDatabaseContext,
+            FeedbackMessage successMessage,
+            FeedbackMessage partialMessage,
+            DialogService dialogService,
+            ImportHandler importHandler,
+            StateManager stateManager) {
         EntryImportHandlerTracker tracker = new EntryImportHandlerTracker(stateManager, targetDatabaseContext, entriesToAdd.size());
         tracker.setOnFinish(() -> {
             int importedCount = tracker.getImportedCount();
             int skippedCount = tracker.getSkippedCount();
 
             String targetName = targetDatabaseContext.getDatabasePath()
-                                                     .map(path -> path.getFileName().toString())
-                                                     .orElse(Localization.lang("target library"));
+                    .map(path -> path.getFileName().toString())
+                    .orElse(Localization.lang("target library"));
 
             if (importedCount == entriesToAdd.size()) {
                 dialogService.notify(successMessage.format(importedCount, targetName));

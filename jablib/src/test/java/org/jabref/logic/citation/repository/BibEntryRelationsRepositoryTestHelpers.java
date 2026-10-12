@@ -7,13 +7,16 @@ import java.util.function.Function;
 
 import org.jabref.model.entry.BibEntry;
 
-/// Provide helpers methods and classes for tests to manage [BibEntryCitationsAndReferencesRepository] mocks.
+/// Provide helpers methods and classes for tests to manage
+/// [BibEntryCitationsAndReferencesRepository] mocks.
 public class BibEntryRelationsRepositoryTestHelpers {
 
-    /// Provide mocks factories for [BibEntryCitationsAndReferencesRepository] mocks.
+    /// Provide mocks factories for [BibEntryCitationsAndReferencesRepository]
+    /// mocks.
     ///
-    /// Those implementations should help to test the values passed to an injected repository instance
-    /// when it is called from [org.jabref.logic.citation.SearchCitationsRelationsService].
+    /// Those implementations should help to test the values passed to an
+    /// injected repository instance when it is called from
+    /// [org.jabref.logic.citation.SearchCitationsRelationsService].
     public static class Mocks {
         public static BibEntryCitationsAndReferencesRepository from(
                 Function<BibEntry, List<BibEntry>> retrieveCitations,
@@ -21,8 +24,7 @@ public class BibEntryRelationsRepositoryTestHelpers {
                 Function<BibEntry, List<BibEntry>> retrieveReferences,
                 BiConsumer<BibEntry, List<BibEntry>> insertReferences,
                 Function<BibEntry, Boolean> isCitationsUpdatable,
-                Function<BibEntry, Boolean> isReferencesUpdatable
-        ) {
+                Function<BibEntry, Boolean> isReferencesUpdatable) {
             return new BibEntryCitationsAndReferencesRepository() {
                 @Override
                 public void addCitations(BibEntry entry, List<BibEntry> citations) {
@@ -71,9 +73,8 @@ public class BibEntryRelationsRepositoryTestHelpers {
             };
         }
 
-        public static BibEntryCitationsAndReferencesRepository from(
-                Map<BibEntry, List<BibEntry>> citationsDB, Map<BibEntry, List<BibEntry>> referencesDB, boolean isCitationsUpdatable
-        ) {
+        public static BibEntryCitationsAndReferencesRepository from(Map<BibEntry, List<BibEntry>> citationsDB, Map<BibEntry, List<BibEntry>> referencesDB,
+                boolean isCitationsUpdatable) {
             return new BibEntryCitationsAndReferencesRepository() {
                 @Override
                 public void addCitations(BibEntry entry, List<BibEntry> citations) {

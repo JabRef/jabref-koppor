@@ -33,7 +33,6 @@ import org.jabref.model.groups.WordKeywordGroup;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,14 +47,10 @@ public class GroupsParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GroupsParser.class);
 
-    private GroupsParser() {
-    }
+    private GroupsParser() {}
 
-    public static GroupTreeNode importGroups(List<String> orderedData,
-                                             Character keywordSeparator,
-                                             FileUpdateMonitor fileMonitor,
-                                             MetaData metaData,
-                                             String userAndHost)
+    public static GroupTreeNode importGroups(List<String> orderedData, Character keywordSeparator, FileUpdateMonitor fileMonitor,
+            MetaData metaData, String userAndHost)
             throws ParseException {
         try {
             GroupTreeNode cursor = null;
@@ -72,7 +67,8 @@ public class GroupsParser {
                     throw new ParseException("Expected \"" + string + "\" to contain whitespace");
                 }
                 int level = Integer.parseInt(string.substring(0, spaceIndex));
-                AbstractGroup group = GroupsParser.fromString(string.substring(spaceIndex + 1), keywordSeparator, fileMonitor, metaData, userAndHost);
+                AbstractGroup group = GroupsParser.fromString(string.substring(spaceIndex + 1), keywordSeparator,
+                        fileMonitor, metaData, userAndHost);
                 if (group == null) {
                     continue;
                 }
@@ -92,9 +88,7 @@ public class GroupsParser {
             metaData.setContainsSearchGroups(containsSearchGroups);
             return root;
         } catch (ParseException e) {
-            throw new ParseException(Localization
-                    .lang("Group tree could not be parsed. If you save the BibTeX library, all groups will be lost."),
-                    e);
+            throw new ParseException(Localization.lang("Group tree could not be parsed. If you save the BibTeX library, all groups will be lost."), e);
         }
     }
 
@@ -102,8 +96,10 @@ public class GroupsParser {
     ///
     /// @param input The result from the group's toString() method.
     /// @return New instance of the encoded group.
-    /// @throws ParseException If an error occurred and a group could not be created, e.g. due to a malformed regular expression.
-    public static AbstractGroup fromString(String input, Character keywordSeparator, FileUpdateMonitor fileMonitor, MetaData metaData, String userAndHost)
+    /// @throws ParseException If an error occurred and a group could not be
+    ///   created, e.g. due to a malformed regular expression.
+    public static AbstractGroup fromString(String input, Character keywordSeparator, FileUpdateMonitor fileMonitor,
+            MetaData metaData, String userAndHost)
             throws ParseException {
         if (input.startsWith(MetadataSerializationConfiguration.KEYWORD_GROUP_ID)) {
             return keywordGroupFromString(input, keywordSeparator);
@@ -144,24 +140,28 @@ public class GroupsParser {
         return null;
     }
 
-    private static AbstractGroup texGroupFromString(String input, FileUpdateMonitor fileMonitor, MetaData metaData, String userAndHost) throws ParseException {
+    private static AbstractGroup texGroupFromString(String input, FileUpdateMonitor fileMonitor, MetaData metaData,
+            String userAndHost)
+            throws ParseException {
         assert input.startsWith(MetadataSerializationConfiguration.TEX_GROUP_ID);
 
-        QuotedStringTokenizer token = new QuotedStringTokenizer(input.substring(MetadataSerializationConfiguration.TEX_GROUP_ID
-                .length()), MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR, MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
+        QuotedStringTokenizer token = new QuotedStringTokenizer(input.substring(MetadataSerializationConfiguration.TEX_GROUP_ID.length()), MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR, MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
 
         String name = StringUtil.unquote(token.nextToken(), MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
         GroupHierarchyType context = GroupHierarchyType.getByNumberOrDefault(Integer.parseInt(token.nextToken()));
         try {
             Path path = Path.of(token.nextToken());
             try {
-                TexGroup newGroup = TexGroup.create(name, context, path, new DefaultAuxParser(new BibDatabase()), fileMonitor, metaData, userAndHost);
+                TexGroup newGroup = TexGroup.create(name, context, path, new DefaultAuxParser(new BibDatabase()), fileMonitor,
+                        metaData, userAndHost);
                 addGroupDetails(token, newGroup);
                 return newGroup;
             } catch (IOException ex) {
-                LOGGER.warn("Could not access file {}. The group {} will not reflect changes to the aux file.", path, name, ex);
+                LOGGER.warn("Could not access file {}. The group {} will not reflect changes to the aux file.",
+                        path, name, ex);
 
-                TexGroup newGroup = TexGroup.create(name, context, path, new DefaultAuxParser(new BibDatabase()), metaData, userAndHost);
+                TexGroup newGroup = TexGroup.create(name, context, path, new DefaultAuxParser(new BibDatabase()), metaData,
+                        userAndHost);
                 addGroupDetails(token, newGroup);
                 return newGroup;
             }
@@ -173,8 +173,8 @@ public class GroupsParser {
     private static AbstractGroup automaticPersonsGroupFromString(String input) {
         assert input.startsWith(MetadataSerializationConfiguration.AUTOMATIC_PERSONS_GROUP_ID);
 
-        QuotedStringTokenizer token = new QuotedStringTokenizer(input.substring(MetadataSerializationConfiguration.AUTOMATIC_PERSONS_GROUP_ID
-                .length()), MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR, MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
+        QuotedStringTokenizer token = new QuotedStringTokenizer(input.substring(MetadataSerializationConfiguration.AUTOMATIC_PERSONS_GROUP_ID.length()),
+                MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR, MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
 
         String name = StringUtil.unquote(token.nextToken(), MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
         GroupHierarchyType context = GroupHierarchyType.getByNumberOrDefault(Integer.parseInt(token.nextToken()));
@@ -187,8 +187,8 @@ public class GroupsParser {
     private static AbstractGroup automaticDateGroupFromString(String input) {
         assert input.startsWith(MetadataSerializationConfiguration.AUTOMATIC_DATE_GROUP_ID);
 
-        QuotedStringTokenizer token = new QuotedStringTokenizer(input.substring(MetadataSerializationConfiguration.AUTOMATIC_DATE_GROUP_ID
-                .length()), MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR, MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
+        QuotedStringTokenizer token = new QuotedStringTokenizer(input.substring(MetadataSerializationConfiguration.AUTOMATIC_DATE_GROUP_ID.length()),
+                MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR, MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
 
         String name = StringUtil.unquote(token.nextToken(), MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
         GroupHierarchyType context = GroupHierarchyType.getByNumberOrDefault(Integer.parseInt(token.nextToken()));
@@ -203,8 +203,8 @@ public class GroupsParser {
     private static AbstractGroup automaticEntryTypeGroupFromString(String input) {
         assert input.startsWith(MetadataSerializationConfiguration.AUTOMATIC_ENTRY_TYPE_GROUP_ID);
 
-        QuotedStringTokenizer token = new QuotedStringTokenizer(input.substring(MetadataSerializationConfiguration.AUTOMATIC_ENTRY_TYPE_GROUP_ID
-                .length()), MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR, MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
+        QuotedStringTokenizer token = new QuotedStringTokenizer(input.substring(MetadataSerializationConfiguration.AUTOMATIC_ENTRY_TYPE_GROUP_ID.length()),
+                MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR, MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
 
         String name = StringUtil.unquote(token.nextToken(), MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
         GroupHierarchyType context = GroupHierarchyType.getByNumberOrDefault(Integer.parseInt(token.nextToken()));
@@ -216,8 +216,8 @@ public class GroupsParser {
     private static AbstractGroup automaticKeywordGroupFromString(String input) {
         assert input.startsWith(MetadataSerializationConfiguration.AUTOMATIC_KEYWORD_GROUP_ID);
 
-        QuotedStringTokenizer token = new QuotedStringTokenizer(input.substring(MetadataSerializationConfiguration.AUTOMATIC_KEYWORD_GROUP_ID
-                .length()), MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR, MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
+        QuotedStringTokenizer token = new QuotedStringTokenizer(input.substring(MetadataSerializationConfiguration.AUTOMATIC_KEYWORD_GROUP_ID.length()),
+                MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR, MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
 
         String name = StringUtil.unquote(token.nextToken(), MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
         GroupHierarchyType context = GroupHierarchyType.getByNumberOrDefault(Integer.parseInt(token.nextToken()));
@@ -235,8 +235,8 @@ public class GroupsParser {
     private static KeywordGroup keywordGroupFromString(String input, Character keywordSeparator) {
         assert input.startsWith(MetadataSerializationConfiguration.KEYWORD_GROUP_ID);
 
-        QuotedStringTokenizer token = new QuotedStringTokenizer(input.substring(MetadataSerializationConfiguration.KEYWORD_GROUP_ID
-                .length()), MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR, MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
+        QuotedStringTokenizer token = new QuotedStringTokenizer(input.substring(MetadataSerializationConfiguration.KEYWORD_GROUP_ID.length()),
+                MetadataSerializationConfiguration.GROUP_UNIT_SEPARATOR, MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
 
         String name = StringUtil.unquote(token.nextToken(), MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
         GroupHierarchyType context = GroupHierarchyType.getByNumberOrDefault(Integer.parseInt(token.nextToken()));
@@ -248,7 +248,8 @@ public class GroupsParser {
         if (regExp) {
             newGroup = new RegexKeywordGroup(name, context, field, expression, caseSensitive);
         } else {
-            newGroup = new WordKeywordGroup(name, context, field, expression, caseSensitive, keywordSeparator, false);
+            newGroup = new WordKeywordGroup(name, context, field, expression, caseSensitive, keywordSeparator,
+                    false);
         }
         addGroupDetails(token, newGroup);
         return newGroup;
@@ -297,10 +298,10 @@ public class GroupsParser {
         }
     }
 
-    /// Called only when created fromString.
-    /// JabRef used to store the entries of an explicit group in the serialization, e.g.
-    /// ExplicitGroup:GroupName\;0\;Key1\;Key2\;;
-    /// This method exists for backwards compatibility.
+    /// Called only when created fromString. JabRef used to store the entries of
+    /// an explicit group in the serialization, e.g.
+    /// ExplicitGroup:GroupName\;0\;Key1\;Key2\;; This method exists for
+    /// backwards compatibility.
     private static void addLegacyEntryKeys(QuotedStringTokenizer tok, ExplicitGroup group) {
         while (tok.hasMoreTokens()) {
             String key = StringUtil.unquote(tok.nextToken(), MetadataSerializationConfiguration.GROUP_QUOTE_CHAR);
@@ -316,7 +317,8 @@ public class GroupsParser {
 
     /// Parses s and recreates the SearchGroup from it.
     ///
-    /// @param input The String representation obtained from SearchGroup.toString(), or null if incompatible
+    /// @param input The String representation obtained from
+    ///   SearchGroup.toString(), or null if incompatible
     private static AbstractGroup searchGroupFromString(String input) {
         assert input.startsWith(MetadataSerializationConfiguration.SEARCH_GROUP_ID);
         QuotedStringTokenizer token = new QuotedStringTokenizer(input.substring(MetadataSerializationConfiguration.SEARCH_GROUP_ID.length()),
@@ -334,9 +336,7 @@ public class GroupsParser {
         }
         // version 0 contained 4 additional booleans to specify search
         // fields; these are ignored now, all fields are always searched
-        SearchGroup searchGroup = new SearchGroup(name,
-                GroupHierarchyType.getByNumberOrDefault(context), expression, searchFlags
-        );
+        SearchGroup searchGroup = new SearchGroup(name, GroupHierarchyType.getByNumberOrDefault(context), expression, searchFlags);
         addGroupDetails(token, searchGroup);
         return searchGroup;
     }

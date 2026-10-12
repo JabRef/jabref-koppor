@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import org.jabref.logic.bst.BstVMException;
 import org.jabref.model.entry.Author;
 import org.jabref.model.entry.AuthorList;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +29,7 @@ import org.slf4j.LoggerFactory;
 public class BstNameFormatter {
     private static final Logger LOGGER = LoggerFactory.getLogger(BstNameFormatter.class);
 
-    private BstNameFormatter() {
-    }
+    private BstNameFormatter() {}
 
     /// Formats the nth author of the author name list by a given format string
     ///
@@ -78,7 +76,8 @@ public class BstNameFormatter {
                     }
                     if ((braceLevel == 1) && Character.isLetter(c[i])) {
                         if ("fvlj".indexOf(c[i]) == -1) {
-                            LOGGER.warn("Format string in format.name$ may only contain fvlj on brace level 1 in group {}: {}", group, format);
+                            LOGGER.warn("Format string in format.name$ may only contain fvlj on brace level 1 in group {}: {}",
+                                    group, format);
                         } else {
                             level1Chars.append(c[i]);
                         }
@@ -93,22 +92,18 @@ public class BstNameFormatter {
                 }
 
                 if (control.length() > 2) {
-                    LOGGER.warn("Format string in format.name$ may only be one or two character long on brace level 1 in group {}: {}", group, format);
+                    LOGGER.warn("Format string in format.name$ may only be one or two character long on brace level 1 in group {}: {}",
+                            group, format);
                 }
 
                 char type = control.charAt(0);
 
                 Optional<String> tokenS = switch (type) {
-                    case 'f' ->
-                            author.getGivenName();
-                    case 'v' ->
-                            author.getNamePrefix();
-                    case 'l' ->
-                            author.getFamilyName();
-                    case 'j' ->
-                            author.getNameSuffix();
-                    default ->
-                            throw new BstVMException("Internal error");
+                    case 'f' -> author.getGivenName();
+                    case 'v' -> author.getNamePrefix();
+                    case 'l' -> author.getFamilyName();
+                    case 'j' -> author.getNameSuffix();
+                    default -> throw new BstVMException("Internal error");
                 };
 
                 if (tokenS.isEmpty()) {
@@ -123,7 +118,8 @@ public class BstNameFormatter {
                     if (control.charAt(1) == control.charAt(0)) {
                         abbreviateThatIsSingleLetter = false;
                     } else {
-                        LOGGER.warn("Format string in format.name$ may only contain one type of vlfj on brace level 1 in group {}: {}", group, format);
+                        LOGGER.warn("Format string in format.name$ may only contain one type of vlfj on brace level 1 in group {}: {}",
+                                group, format);
                     }
                 }
 
@@ -157,8 +153,9 @@ public class BstNameFormatter {
                             if (abbreviateThatIsSingleLetter) {
                                 String[] dashes = token.split("-");
 
-                                token = Arrays.stream(dashes).map(BstNameFormatter::getFirstCharOfString)
-                                              .collect(Collectors.joining(".-"));
+                                token = Arrays.stream(dashes)
+                                        .map(BstNameFormatter::getFirstCharOfString)
+                                        .collect(Collectors.joining(".-"));
                             }
 
                             // Output token
@@ -197,9 +194,8 @@ public class BstNameFormatter {
                 }
                 if (!sb.isEmpty()) {
                     boolean noDisTie = false;
-                    if ((sb.charAt(sb.length() - 1) == '~') &&
-                            ((BstNameFormatter.numberOfChars(sb.substring(groupStart, sb.length()), 4) >= 4) ||
-                                    ((sb.length() > 1) && (noDisTie = sb.charAt(sb.length() - 2) == '~')))) {
+                    if ((sb.charAt(sb.length() - 1) == '~')
+                            && ((BstNameFormatter.numberOfChars(sb.substring(groupStart, sb.length()), 4) >= 4) || ((sb.length() > 1) && (noDisTie = sb.charAt(sb.length() - 2) == '~')))) {
                         sb.deleteCharAt(sb.length() - 1);
                         if (!noDisTie) {
                             sb.append(' ');

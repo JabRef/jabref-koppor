@@ -1,5 +1,6 @@
 package org.jabref.gui.util;
 
+import org.jabref.gui.util.ControlHelper.EllipsisPosition;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -14,7 +15,7 @@ class ControlHelperTest {
     private final int MAX_CHARACTERS = 5;
     private final int DEFAULT_MAX_CHARACTERS = -1;
     private final String ELLIPSIS_STRING = "***";
-    private final ControlHelper.EllipsisPosition ELLIPSIS_POSITION = ControlHelper.EllipsisPosition.ENDING;
+    private final EllipsisPosition ELLIPSIS_POSITION = EllipsisPosition.ENDING;
 
     @ParameterizedTest
     @NullAndEmptySource
@@ -31,29 +32,26 @@ class ControlHelperTest {
 
     @Test
     void truncateWithEllipsisPositionBeginningReturnsTruncatedText() {
-        String truncatedText = ControlHelper.truncateString(TEXT, MAX_CHARACTERS, ELLIPSIS_STRING, ControlHelper.EllipsisPosition.BEGINNING);
+        String truncatedText = ControlHelper.truncateString(TEXT, MAX_CHARACTERS, ELLIPSIS_STRING, EllipsisPosition.BEGINNING);
         assertEquals("***ef", truncatedText);
     }
 
     @Test
     void truncateWithEllipsisPositionCenterReturnsTruncatedText() {
-        String truncatedText = ControlHelper.truncateString(TEXT, MAX_CHARACTERS, ELLIPSIS_STRING, ControlHelper.EllipsisPosition.CENTER);
+        String truncatedText = ControlHelper.truncateString(TEXT, MAX_CHARACTERS, ELLIPSIS_STRING, EllipsisPosition.CENTER);
         assertEquals("a***f", truncatedText);
     }
 
     @Test
     void truncateWithDefaultMaxCharactersAndNullEllipsisAndPositionEndingReturnsTruncatedText() {
         String text = "a".repeat(75) + "b".repeat(25);
-        String truncatedText = ControlHelper.truncateString(text, DEFAULT_MAX_CHARACTERS, null, ControlHelper.EllipsisPosition.ENDING);
+        String truncatedText = ControlHelper.truncateString(text, DEFAULT_MAX_CHARACTERS, null, EllipsisPosition.ENDING);
         assertEquals("a".repeat(75), truncatedText);
     }
 
     @ParameterizedTest
     @NullSource
-    void truncateWithNullEllipsisPositionThrowsNullPointerException(ControlHelper.EllipsisPosition ellipsisPosition) {
-        assertThrows(
-                NullPointerException.class,
-                () -> ControlHelper.truncateString(TEXT, MAX_CHARACTERS, ELLIPSIS_STRING, ellipsisPosition)
-        );
+    void truncateWithNullEllipsisPositionThrowsNullPointerException(EllipsisPosition ellipsisPosition) {
+        assertThrows(NullPointerException.class, () -> ControlHelper.truncateString(TEXT, MAX_CHARACTERS, ELLIPSIS_STRING, ellipsisPosition));
     }
 }

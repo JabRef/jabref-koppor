@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javafx.scene.Node;
-
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
@@ -54,26 +53,38 @@ public class CellFactory {
             TABLE_ICONS.put(fileType.getField(), icon);
         }
 
-        icon = SpecialFieldViewModel.getAction(SpecialField.RELEVANCE).getIcon().orElseThrow();
+        icon = SpecialFieldViewModel.getAction(SpecialField.RELEVANCE)
+                .getIcon()
+                .orElseThrow();
         TABLE_ICONS.put(SpecialField.RELEVANCE, icon);
 
-        icon = SpecialFieldViewModel.getAction(SpecialField.QUALITY).getIcon().orElseThrow();
+        icon = SpecialFieldViewModel.getAction(SpecialField.QUALITY)
+                .getIcon()
+                .orElseThrow();
         TABLE_ICONS.put(SpecialField.QUALITY, icon);
 
         // Ranking item in the menu uses one star
-        icon = SpecialFieldViewModel.getAction(SpecialField.RANKING).getIcon().orElseThrow();
+        icon = SpecialFieldViewModel.getAction(SpecialField.RANKING)
+                .getIcon()
+                .orElseThrow();
         TABLE_ICONS.put(SpecialField.RANKING, icon);
 
         // Priority icon used for the menu
-        icon = SpecialFieldViewModel.getAction(SpecialField.PRIORITY).getIcon().orElseThrow();
+        icon = SpecialFieldViewModel.getAction(SpecialField.PRIORITY)
+                .getIcon()
+                .orElseThrow();
         TABLE_ICONS.put(SpecialField.PRIORITY, icon);
 
         // Read icon used for menu
-        icon = SpecialFieldViewModel.getAction(SpecialField.READ_STATUS).getIcon().orElseThrow();
+        icon = SpecialFieldViewModel.getAction(SpecialField.READ_STATUS)
+                .getIcon()
+                .orElseThrow();
         TABLE_ICONS.put(SpecialField.READ_STATUS, icon);
 
         // Print icon used for menu
-        icon = SpecialFieldViewModel.getAction(SpecialField.PRINTED).getIcon().orElseThrow();
+        icon = SpecialFieldViewModel.getAction(SpecialField.PRINTED)
+                .getIcon()
+                .orElseThrow();
         TABLE_ICONS.put(SpecialField.PRINTED, icon);
     }
 

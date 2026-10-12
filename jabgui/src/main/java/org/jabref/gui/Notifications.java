@@ -3,6 +3,9 @@ package org.jabref.gui;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import com.dlsc.gemsfx.infocenter.Notification;
+import com.dlsc.gemsfx.infocenter.NotificationAction;
+import com.dlsc.gemsfx.infocenter.NotificationView;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
@@ -10,21 +13,15 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.util.Duration;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.DelayedExecution;
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
-
-import com.dlsc.gemsfx.infocenter.Notification;
-import com.dlsc.gemsfx.infocenter.NotificationAction;
-import com.dlsc.gemsfx.infocenter.NotificationView;
 import org.jspecify.annotations.NullMarked;
 
 public class Notifications {
-    private Notifications() {
-    }
+    private Notifications() {}
 
     public static class UndefinedNotification extends Notification<Object> {
         public UndefinedNotification(String title, String description) {
@@ -86,10 +83,11 @@ public class Notifications {
                 undefinedTask = true;
             }
             setOnClick(_ -> OnClickBehaviour.NONE);
-            getActions().add(new NotificationAction<>(Localization.lang("Cancel"), _ -> {
-                task.cancel();
-                return OnClickBehaviour.REMOVE;
-            }));
+            getActions().add(new NotificationAction<>(Localization.lang("Cancel"),
+                    _ -> {
+                        task.cancel();
+                        return OnClickBehaviour.REMOVE;
+                    }));
 
             // Do not overwrite existing handlers
             Optional<EventHandler<WorkerStateEvent>> onSucceeded = Optional.ofNullable(task.getOnSucceeded());
@@ -123,7 +121,8 @@ public class Notifications {
 
         public TaskNotificationView(TaskNotification notification) {
             super(notification);
-            progressBar.progressProperty().bind(notification.getUserObject().progressProperty());
+            progressBar.progressProperty().bind(notification.getUserObject()
+                    .progressProperty());
             HBox.setHgrow(progressBar, Priority.ALWAYS);
             setContent(progressBar);
             setShowContent(true);

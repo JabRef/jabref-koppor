@@ -10,6 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.google.gson.Gson;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
 import org.jabref.http.SrvStateManager;
 import org.jabref.http.dto.LinkedPdfFileDTO;
 import org.jabref.http.server.services.ServerUtils;
@@ -28,19 +40,6 @@ import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.LinkedFile;
-
-import com.google.gson.Gson;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.NotFoundException;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.MediaType;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +68,10 @@ public class EntriesResource {
     ///
     /// [impl->req~jabsrv.import.group~1]
     ///
-    /// @param group optional name of a group the imported entries are additionally assigned to. If the group does not exist, it is created as a top-level group. JabRef merges the entries into the library (duplicate handling applies).
+    /// @param group optional name of a group the imported entries are
+    ///   additionally assigned to. If the group does not exist, it is created
+    ///   as a top-level group. JabRef merges the entries into the library
+    ///   (duplicate handling applies).
     @POST
     @Consumes(MediaTypes.APPLICATION_BIBTEX)
     public void addBibtex(@PathParam("id") String id, @QueryParam("group") @Nullable String group, String bibtex) {
@@ -80,21 +82,24 @@ public class EntriesResource {
             throw new BadRequestException("Only possible in GUI mode.");
         }
         Optional<java.nio.file.Path> targetLibrary = resolveTargetLibrary(id);
-        uiMessageHandler.handleUiCommands(List.of(targetLibrary
-                .map(library -> new UiCommand.AppendBibTeXToLibrary(library, bibtex, group))
+        uiMessageHandler.handleUiCommands(List.of(targetLibrary.map(library -> new UiCommand.AppendBibTeXToLibrary(library, bibtex, group))
                 .orElseGet(() -> new UiCommand.AppendBibTeXToLibrary(bibtex, group))));
     }
 
-    /// Parses CSL-JSON (a single CSL item or an array of them, as produced by a Zotero /
-    /// citation-js CSL-JSON export) into BibTeX entries and appends them to the selected library.
+    /// Parses CSL-JSON (a single CSL item or an array of them, as produced by a
+    /// Zotero / citation-js CSL-JSON export) into BibTeX entries and appends
+    /// them to the selected library.
     ///
-    /// The CSL item type and fields are mapped to Bib(La)TeX via the citation-js-based mapping
-    /// selected in [ADR 0064](docs/decisions/0064-use-citation-js-mapping.md), so a conference paper,
-    /// book chapter, thesis, report, etc. yields the correct entry type instead of a flat @article.
-    /// The produced entries carry no citation key; JabRef generates keys on import.
+    /// The CSL item type and fields are mapped to Bib(La)TeX via the
+    /// citation-js-based mapping selected in [ADR
+    /// 0064](docs/decisions/0064-use-citation-js-mapping.md), so a conference
+    /// paper, book chapter, thesis, report, etc. yields the correct entry type
+    /// instead of a flat @article. The produced entries carry no citation key;
+    /// JabRef generates keys on import.
     ///
-    /// The optional `group` query parameter additionally files the imported entries under a
-    /// top-level group of that name, creating it if it does not exist.
+    /// The optional `group` query parameter additionally files the imported
+    /// entries under a top-level group of that name, creating it if it does not
+    /// exist.
     @POST
     @Consumes(MediaTypes.CITATIONSTYLES_JSON)
     public void addCslJson(@PathParam("id") String id, @QueryParam("group") @Nullable String group, String cslJson) throws IOException {
@@ -113,28 +118,27 @@ public class EntriesResource {
 
         StringWriter rawEntries = new StringWriter();
         BibWriter bibWriter = new BibWriter(rawEntries, "\n");
-        BibEntryWriter entryWriter = new BibEntryWriter(
-                new FieldWriter(preferences.getFieldPreferences()),
-                entryTypesManager);
+        BibEntryWriter entryWriter = new BibEntryWriter(new FieldWriter(preferences.getFieldPreferences()), entryTypesManager);
         for (BibEntry entry : entries) {
             // Freshly built entries have no meaningful parsed serialization, so force a reformat
             // instead of writing the (empty) original source back out.
             entryWriter.write(entry, bibWriter, BibDatabaseMode.BIBTEX, true);
         }
 
-        uiMessageHandler.handleUiCommands(List.of(targetLibrary
-                .map(library -> new UiCommand.AppendBibTeXToLibrary(library, rawEntries.toString(), group))
+        uiMessageHandler.handleUiCommands(List.of(targetLibrary.map(library -> new UiCommand.AppendBibTeXToLibrary(library, rawEntries.toString(), group))
                 .orElseGet(() -> new UiCommand.AppendBibTeXToLibrary(rawEntries.toString(), group))));
     }
 
-    /// Parses a plain-text bibliography reference into a BibTeX entry and appends it to the
-    /// currently selected library.
+    /// Parses a plain-text bibliography reference into a BibTeX entry and
+    /// appends it to the currently selected library.
     ///
-    /// The reference is run through the plain-citation parser the user selected in JabRef's
-    /// preferences ([org.jabref.logic.importer.ImporterPreferences#getDefaultPlainCitationParser()]),
+    /// The reference is run through the plain-citation parser the user selected
+    /// in JabRef's preferences
+    /// ([org.jabref.logic.importer.ImporterPreferences#getDefaultPlainCitationParser()]),
     /// including the LLM parser.
     ///
-    /// @param group optional name of a group the imported entry is additionally assigned to.
+    /// @param group optional name of a group the imported entry is additionally
+    ///   assigned to.
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     public void addPlainCitation(@PathParam("id") String id, @QueryParam("group") @Nullable String group, String citationText) throws FetcherException, IOException {
@@ -146,18 +150,14 @@ public class EntriesResource {
         }
         Optional<java.nio.file.Path> targetLibrary = resolveTargetLibrary(id);
 
-        BibEntry parsed = ServerUtils.parsePlainCitation(preferences, citationText)
-                                     .orElseThrow(() -> new BadRequestException("Could not parse a bibliography entry from the given text."));
+        BibEntry parsed = ServerUtils.parsePlainCitation(preferences, citationText).orElseThrow(() -> new BadRequestException("Could not parse a bibliography entry from the given text."));
 
         StringWriter rawEntry = new StringWriter();
         BibWriter bibWriter = new BibWriter(rawEntry, "\n");
-        BibEntryWriter entryWriter = new BibEntryWriter(
-                new FieldWriter(preferences.getFieldPreferences()),
-                entryTypesManager);
+        BibEntryWriter entryWriter = new BibEntryWriter(new FieldWriter(preferences.getFieldPreferences()), entryTypesManager);
         entryWriter.write(parsed, bibWriter, BibDatabaseMode.BIBTEX);
 
-        uiMessageHandler.handleUiCommands(List.of(targetLibrary
-                .map(library -> new UiCommand.AppendBibTeXToLibrary(library, rawEntry.toString(), group))
+        uiMessageHandler.handleUiCommands(List.of(targetLibrary.map(library -> new UiCommand.AppendBibTeXToLibrary(library, rawEntry.toString(), group))
                 .orElseGet(() -> new UiCommand.AppendBibTeXToLibrary(rawEntry.toString(), group))));
     }
 
@@ -180,11 +180,12 @@ public class EntriesResource {
         uiMessageHandler.handleUiCommands(List.of(new UiCommand.AppendFilesToLibrary(targetLibrary, List.of(tempFile))));
     }
 
-    /// Resolves the path-segment library id into the on-disk path the append should target.
+    /// Resolves the path-segment library id into the on-disk path the append
+    /// should target.
     ///
-    /// "current" keeps the previous behaviour (empty Optional -> active library). Any other id
-    /// is looked up among the open libraries; an unknown or closed id yields 404 via
-    /// [ServerUtils#getLibraryPath].
+    /// "current" keeps the previous behaviour (empty Optional -> active
+    /// library). Any other id is looked up among the open libraries; an unknown
+    /// or closed id yields 404 via [ServerUtils#getLibraryPath].
     private Optional<java.nio.file.Path> resolveTargetLibrary(String id) {
         if ("current".equals(id)) {
             return Optional.empty();
@@ -192,9 +193,10 @@ public class EntriesResource {
         return Optional.of(ServerUtils.getLibraryPath(id, srvStateManager));
     }
 
-    /// Loops through all entries in the specified library and adds attached files of type "PDF" to
-    /// a list and JSON serialises it.
-    /// FIXME: JabMap should serve the files per BibEntry. See <https://github.com/JabRef/jabmap/issues/56> for details
+    /// Loops through all entries in the specified library and adds attached
+    /// files of type "PDF" to a list and JSON serialises it. FIXME: JabMap
+    /// should serve the files per BibEntry. See
+    /// <https://github.com/JabRef/jabmap/issues/56> for details
     @GET
     @Path("pdffiles")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")

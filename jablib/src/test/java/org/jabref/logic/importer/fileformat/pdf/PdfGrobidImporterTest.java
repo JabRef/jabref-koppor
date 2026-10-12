@@ -12,7 +12,6 @@ import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,9 @@ class PdfGrobidImporterTest {
         when(grobidPreferences.getGrobidURL()).thenReturn("http://grobid.jabref.org:8070");
 
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
         when(importFormatPreferences.grobidPreferences()).thenReturn(grobidPreferences);
 
         importer = new PdfGrobidImporter(importFormatPreferences);
@@ -50,8 +51,12 @@ class PdfGrobidImporterTest {
     @Test
     @Disabled("Currently does not return anything")
     void importEntries() throws URISyntaxException {
-        Path file = Path.of(PdfGrobidImporterTest.class.getResource("LNCS-minimal.pdf").toURI());
-        List<BibEntry> bibEntries = importer.importDatabase(file).getDatabase().getEntries();
+        Path file = Path.of(PdfGrobidImporterTest.class
+                .getResource("LNCS-minimal.pdf")
+                .toURI());
+        List<BibEntry> bibEntries = importer.importDatabase(file)
+                .getDatabase()
+                .getEntries();
 
         // TODO: Rewrite using our logic of full BibEntries
         assertEquals(1, bibEntries.size());
@@ -63,13 +68,17 @@ class PdfGrobidImporterTest {
 
     @Test
     void isRecognizedFormat() throws IOException, URISyntaxException {
-        Path file = Path.of(PdfGrobidImporterTest.class.getResource("annotated.pdf").toURI());
+        Path file = Path.of(PdfGrobidImporterTest.class
+                .getResource("annotated.pdf")
+                .toURI());
         assertTrue(importer.isRecognizedFormat(file));
     }
 
     @Test
     void isRecognizedFormatReject() throws IOException, URISyntaxException {
-        Path file = Path.of(PdfGrobidImporterTest.class.getResource("../BibtexImporter.examples.bib").toURI());
+        Path file = Path.of(PdfGrobidImporterTest.class
+                .getResource("../BibtexImporter.examples.bib")
+                .toURI());
         assertFalse(importer.isRecognizedFormat(file));
     }
 

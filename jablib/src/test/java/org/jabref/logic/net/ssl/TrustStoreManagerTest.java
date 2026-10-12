@@ -20,8 +20,7 @@ class TrustStoreManagerTest {
     private static final String STORE_PASSWORD = "changeit";
 
     @Test
-    void createTruststoreFileIfNotExistMergesMissingBundledCertificatesIntoExistingFile(@TempDir Path tempDir)
-            throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    void createTruststoreFileIfNotExistMergesMissingBundledCertificatesIntoExistingFile(@TempDir Path tempDir) throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         Path storePath = tempDir.resolve("truststore.jks");
 
         KeyStore existingStore = KeyStore.getInstance(KeyStore.getDefaultType());

@@ -10,7 +10,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.biblog.BibLogPathResolver;
@@ -39,21 +38,22 @@ public class BibLogSettingsViewModel extends AbstractViewModel {
         this.bibPath = bibPath;
         this.user = System.getProperty("user.name");
 
-        BibLogPathResolver.resolve(metaData, bibPath, user)
-                          .ifPresent(resolvedPath -> {
-                              this.path.set(resolvedPath.toString());
-                              if (metaData.getBlgFilePath(user).isEmpty()) {
-                                  metaData.setBlgFilePath(user, resolvedPath);
-                                  this.lastResolvedBlgPath = Optional.of(resolvedPath);
-                              }
-                          });
+        BibLogPathResolver.resolve(metaData, bibPath, user).ifPresent(resolvedPath -> {
+            this.path.set(resolvedPath.toString());
+            if (metaData.getBlgFilePath(user).isEmpty()) {
+                metaData.setBlgFilePath(user, resolvedPath);
+                this.lastResolvedBlgPath = Optional.of(resolvedPath);
+            }
+        });
     }
 
     /// Parses the .blg file (if it exists) into the observable list.
     ///
-    /// @param databaseContext the current database context used to resolve citation keys in warnings.
-    /// @return An Optional containing the list of integrity messages if the file exists and can be parsed,
-    /// or an empty Optional if the file does not exist.
+    /// @param databaseContext the current database context used to resolve
+    ///   citation keys in warnings.
+    /// @return An Optional containing the list of integrity messages if the
+    ///   file exists and can be parsed, or an empty Optional if the file does
+    ///   not exist.
     /// @throws JabRefException if the .blg file cannot be parsed or read
     public Optional<List<IntegrityMessage>> getBlgWarnings(BibDatabaseContext databaseContext) throws JabRefException {
         Optional<Path> resolved = getResolvedBlgPath();
@@ -73,11 +73,7 @@ public class BibLogSettingsViewModel extends AbstractViewModel {
             return Optional.of(newWarnings);
         } catch (IOException e) {
             blgWarnings.clear();
-            throw new JabRefException(
-                    "Failed to parse .blg file",
-                    Localization.lang("Could not read BibTeX log file. Please check the file path and try again."),
-                    e
-            );
+            throw new JabRefException("Failed to parse .blg file", Localization.lang("Could not read BibTeX log file. Please check the file path and try again."), e);
         }
     }
 
@@ -112,13 +108,11 @@ public class BibLogSettingsViewModel extends AbstractViewModel {
     }
 
     public Optional<Path> getResolvedBlgPath() {
-        return BibLogPathResolver.resolve(metaData, bibPath, user)
-                                 .filter(Files::exists);
+        return BibLogPathResolver.resolve(metaData, bibPath, user).filter(Files::exists);
     }
 
     public Path getInitialDirectory() {
-        return bibPath.flatMap(path -> Optional.ofNullable(path.getParent()))
-                      .orElse(Path.of(System.getProperty("user.home")));
+        return bibPath.flatMap(path -> Optional.ofNullable(path.getParent())).orElse(Path.of(System.getProperty("user.home")));
     }
 
     public boolean wasBlgFileManuallySelected() {

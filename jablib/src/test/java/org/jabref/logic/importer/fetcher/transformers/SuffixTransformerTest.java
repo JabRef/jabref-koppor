@@ -2,16 +2,16 @@ package org.jabref.logic.importer.fetcher.transformers;
 
 import java.util.Optional;
 
+import org.apache.lucene.queryparser.flexible.core.QueryNodeParseException;
 import org.jabref.logic.search.query.SearchQueryVisitor;
 import org.jabref.model.search.query.BaseQueryNode;
 import org.jabref.model.search.query.SearchQuery;
-
-import org.apache.lucene.queryparser.flexible.core.QueryNodeParseException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/// Test Interface for all transformers that use suffix notation for their logical binary operators
+/// Test Interface for all transformers that use suffix notation for their
+/// logical binary operators
 public abstract class SuffixTransformerTest<T extends AbstractQueryTransformer> {
 
     protected abstract T getTransformer();
@@ -76,7 +76,11 @@ public abstract class SuffixTransformerTest<T extends AbstractQueryTransformer> 
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
         Optional<String> query = getTransformer().transformSearchQuery(searchQueryList);
-        Optional<String> expected = Optional.of("\"Igor Steinmacher\"" + getAuthorSuffix() + getTransformer().getLogicalAndOperator() + "\"Christoph Treude\"" + getAuthorSuffix());
+        Optional<String> expected = Optional.of("\"Igor Steinmacher\""
+                + getAuthorSuffix()
+                + getTransformer().getLogicalAndOperator()
+                + "\"Christoph Treude\""
+                + getAuthorSuffix());
         assertEquals(expected, query);
     }
 
@@ -86,7 +90,20 @@ public abstract class SuffixTransformerTest<T extends AbstractQueryTransformer> 
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
         Optional<String> query = getTransformer().transformSearchQuery(searchQueryList);
-        Optional<String> expected = Optional.of("(" + "\"Igor Steinmacher\"" + getAuthorSuffix() + getTransformer().getLogicalOrOperator() + "(" + "\"Christoph Treude\"" + getAuthorSuffix() + getTransformer().getLogicalAndOperator() + "\"Christoph Freunde\"" + getAuthorSuffix() + "))" + getTransformer().getLogicalAndOperator() + "test" + getTitleSuffix());
+        Optional<String> expected = Optional.of("("
+                + "\"Igor Steinmacher\""
+                + getAuthorSuffix()
+                + getTransformer().getLogicalOrOperator()
+                + "("
+                + "\"Christoph Treude\""
+                + getAuthorSuffix()
+                + getTransformer().getLogicalAndOperator()
+                + "\"Christoph Freunde\""
+                + getAuthorSuffix()
+                + "))"
+                + getTransformer().getLogicalAndOperator()
+                + "test"
+                + getTitleSuffix());
         assertEquals(expected, query);
     }
 
@@ -96,7 +113,13 @@ public abstract class SuffixTransformerTest<T extends AbstractQueryTransformer> 
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
         Optional<String> query = getTransformer().transformSearchQuery(searchQueryList);
-        Optional<String> expected = Optional.of(getTransformer().getLogicalNotOperator() + "(" + "\"Igor Steinmacher\"" + getAuthorSuffix() + getTransformer().getLogicalOrOperator() + "\"Christoph Treude\")" + getAuthorSuffix());
+        Optional<String> expected = Optional.of(getTransformer().getLogicalNotOperator()
+                + "("
+                + "\"Igor Steinmacher\""
+                + getAuthorSuffix()
+                + getTransformer().getLogicalOrOperator()
+                + "\"Christoph Treude\")"
+                + getAuthorSuffix());
         assertEquals(expected, query);
     }
 }

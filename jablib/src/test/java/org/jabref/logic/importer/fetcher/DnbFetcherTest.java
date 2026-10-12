@@ -16,7 +16,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -72,8 +71,8 @@ public class DnbFetcherTest {
 
     private static Map<String, String> queryParams(URL url) {
         return Arrays.stream(url.getQuery().split("&"))
-                     .map(p -> p.split("=", 2))
-                     .collect(Collectors.toMap(p -> p[0], p -> URLDecoder.decode(p[1], StandardCharsets.UTF_8)));
+                .map(p -> p.split("=", 2))
+                .collect(Collectors.toMap(p -> p[0], p -> URLDecoder.decode(p[1], StandardCharsets.UTF_8)));
     }
 
     @Test

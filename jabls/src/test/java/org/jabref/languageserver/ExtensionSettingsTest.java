@@ -1,5 +1,6 @@
 package org.jabref.languageserver;
 
+import com.google.gson.JsonParser;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -10,7 +11,8 @@ class ExtensionSettingsTest {
     @Test
     void copyFromJsonObject() {
         ExtensionSettings settings = ExtensionSettings.getDefaultSettings();
-        settings.copyFromJsonObject(new com.google.gson.JsonParser().parse("""
+        settings.copyFromJsonObject(new JsonParser()
+                .parse("""
                 {
                   "jabref": {
                     "consistencyCheck": {
@@ -24,7 +26,8 @@ class ExtensionSettingsTest {
                     }
                   }
                 }
-                """).getAsJsonObject());
+                """)
+                .getAsJsonObject());
 
         assertFalse(settings.isConsistencyCheck());
         assertFalse(settings.isConsistencyCheckRequired());
@@ -36,7 +39,8 @@ class ExtensionSettingsTest {
     @Test
     void copyFromJsonObjectPartial() {
         ExtensionSettings settings = ExtensionSettings.getDefaultSettings();
-        settings.copyFromJsonObject(new com.google.gson.JsonParser().parse("""
+        settings.copyFromJsonObject(new JsonParser()
+                .parse("""
                 {
                   "jabref": {
                     "consistencyCheck": {
@@ -44,7 +48,8 @@ class ExtensionSettingsTest {
                     }
                   }
                 }
-                """).getAsJsonObject());
+                """)
+                .getAsJsonObject());
 
         assertFalse(settings.isConsistencyCheck());
         assertTrue(settings.isConsistencyCheckRequired());

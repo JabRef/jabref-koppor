@@ -17,7 +17,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
-
 import org.jabref.logic.importer.fetcher.ACMPortalFetcher;
 import org.jabref.logic.importer.fetcher.AstrophysicsDataSystem;
 import org.jabref.logic.importer.fetcher.BiodiversityLibrary;
@@ -51,35 +50,33 @@ public class ImporterPreferences {
 
     private ImporterPreferences() {
         this(
-                true,                                          // Importers enabled
-                true,                                          // Generate new key on import
-                Directories.getUserDirectory(),                // Import working directory
-                true,                                          // Warn about duplicates on import
-                Set.of(),                                      // Custom importers
-                Set.of(),                                      // API keys
-                false,                                         // Persist custom keys
-                List.of(ACMPortalFetcher.FETCHER_NAME,         // Alphabetically sorted list of Catalogs
-                        DBLPFetcher.FETCHER_NAME,
-                        IEEE.FETCHER_NAME,
-                        SpringerNatureWebFetcher.FETCHER_NAME),
-                PlainCitationParserChoice.RULE_BASED_GENERAL,  // Default plain citation parser
-                30,                                            // Citations relations store TTL
-                Map.of()                                       // Search engine URL templates
+                true, // Importers enabled
+                true, // Generate new key on import
+                Directories.getUserDirectory(), // Import working directory
+                true, // Warn about duplicates on import
+                Set.of(), // Custom importers
+                Set.of(), // API keys
+                false, // Persist custom keys
+                List.of(ACMPortalFetcher.FETCHER_NAME, // Alphabetically sorted list of Catalogs
+                DBLPFetcher.FETCHER_NAME, IEEE.FETCHER_NAME, SpringerNatureWebFetcher.FETCHER_NAME),
+                PlainCitationParserChoice.RULE_BASED_GENERAL, // Default plain citation parser
+                30, // Citations relations store TTL
+                Map.of() // Search engine URL templates
         );
     }
 
-    public ImporterPreferences(boolean importerEnabled,
-                               boolean generateNewKeyOnImport,
-                               Path importWorkingDirectory,
-                               boolean warnAboutDuplicatesOnImport,
-                               Set<CustomImporter> customImporters,
-                               Set<FetcherApiKey> apiKeys,
-                               boolean persistCustomKeys,
-                               List<String> catalogs,
-                               PlainCitationParserChoice defaultPlainCitationParser,
-                               int citationsRelationsStoreTTL,
-                               Map<String, String> searchEngineUrlTemplates
-    ) {
+    public ImporterPreferences(
+            boolean importerEnabled,
+            boolean generateNewKeyOnImport,
+            Path importWorkingDirectory,
+            boolean warnAboutDuplicatesOnImport,
+            Set<CustomImporter> customImporters,
+            Set<FetcherApiKey> apiKeys,
+            boolean persistCustomKeys,
+            List<String> catalogs,
+            PlainCitationParserChoice defaultPlainCitationParser,
+            int citationsRelationsStoreTTL,
+            Map<String, String> searchEngineUrlTemplates) {
         this.importerEnabled = new SimpleBooleanProperty(importerEnabled);
         this.generateNewKeyOnImport = new SimpleBooleanProperty(generateNewKeyOnImport);
         this.importWorkingDirectory = new SimpleObjectProperty<>(importWorkingDirectory);
@@ -96,7 +93,8 @@ public class ImporterPreferences {
     public static ImporterPreferences getDefault() {
         ImporterPreferences preferences = new ImporterPreferences();
         preferences.setApiKeys(new HashSet<>(getDefaultFetcherKeys()
-                .entrySet().stream()
+                .entrySet()
+                .stream()
                 .map(entry -> new FetcherApiKey(entry.getKey(), false, entry.getValue()))
                 .toList()));
         return preferences;
@@ -116,8 +114,7 @@ public class ImporterPreferences {
                 // SpringerLink uses the same key and fetcher name as SpringerFetcher
                 ScholarFetcher.FETCHER_NAME, buildInfo.scholarApiKey,
                 SpringerNatureWebFetcher.FETCHER_NAME, buildInfo.springerNatureAPIKey,
-                WileyFetcher.FETCHER_NAME, buildInfo.wileyTdmApiKey
-        );
+                WileyFetcher.FETCHER_NAME, buildInfo.wileyTdmApiKey);
     }
 
     public boolean areImporterEnabled() {

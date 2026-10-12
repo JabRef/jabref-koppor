@@ -15,19 +15,19 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiPredicate;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.jabref.logic.net.URLDownload;
 import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
-
-import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /// Utility class for trying to resolve URLs to full-text PDF for articles.
 ///
-/// Combines multiple [FulltextFetcher]s together. Each fetcher is invoked, the "best" result (sorted by the fetcher trust level) is returned.
+/// Combines multiple [FulltextFetcher]s together. Each fetcher is invoked, the
+/// "best" result (sorted by the fetcher trust level) is returned.
 public class FulltextFetchers {
     private static final Logger LOGGER = LoggerFactory.getLogger(FulltextFetchers.class);
 
@@ -88,8 +88,8 @@ public class FulltextFetchers {
     private void findDoiForEntry(BibEntry clonedEntry) {
         try {
             WebFetchers.getIdFetcherForIdentifier(DOI.class, importerPreferences)
-                       .findIdentifier(clonedEntry)
-                       .ifPresent(e -> clonedEntry.setField(StandardField.DOI, e.asString()));
+                    .findIdentifier(clonedEntry)
+                    .ifPresent(e -> clonedEntry.setField(StandardField.DOI, e.asString()));
         } catch (FetcherException e) {
             LOGGER.debug("Failed to find DOI", e);
         }

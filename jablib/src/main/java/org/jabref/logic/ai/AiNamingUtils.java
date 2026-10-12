@@ -10,80 +10,59 @@ import org.jabref.model.ai.summarization.SummarizatorKind;
 import org.jabref.model.ai.tokenization.TokenEstimatorKind;
 
 public final class AiNamingUtils {
-    private AiNamingUtils() {
-    }
+    private AiNamingUtils() {}
 
     public static String getDisplayName(AiProvider provider) {
         return switch (provider) {
-            case OPEN_AI ->
-                    Localization.lang("OpenAI (or API compatible)");
-            case MISTRAL_AI ->
-                    "Mistral AI";
-            case GEMINI ->
-                    "Gemini";
-            case HUGGING_FACE ->
-                    "Hugging Face";
+            case OPEN_AI -> Localization.lang("OpenAI (or API compatible)");
+            case MISTRAL_AI -> "Mistral AI";
+            case GEMINI -> "Gemini";
+            case HUGGING_FACE -> "Hugging Face";
         };
     }
 
     public static String getDisplayName(ResponseEngineKind kind) {
         return switch (kind) {
-            case EMBEDDINGS_SEARCH ->
-                    Localization.lang("Embeddings Search");
-            case FULL_DOCUMENT ->
-                    Localization.lang("Full Document");
+            case EMBEDDINGS_SEARCH -> Localization.lang("Embeddings Search");
+            case FULL_DOCUMENT -> Localization.lang("Full Document");
         };
     }
 
     public static String getDisplayName(DocumentSplitterKind kind) {
         return switch (kind) {
-            case SLIDING_WINDOW ->
-                    Localization.lang("Sliding Window");
+            case SLIDING_WINDOW -> Localization.lang("Sliding Window");
         };
     }
 
     public static String getDisplayName(SummarizatorKind kind) {
         return switch (kind) {
-            case CHUNKED ->
-                    Localization.lang("Chunked");
-            case FULL_DOCUMENT ->
-                    Localization.lang("Full Document");
+            case CHUNKED -> Localization.lang("Chunked");
+            case FULL_DOCUMENT -> Localization.lang("Full Document");
         };
     }
 
     public static String getDisplayName(TokenEstimatorKind kind) {
         return switch (kind) {
-            case AVERAGE ->
-                    Localization.lang("Average");
-            case WORDS ->
-                    Localization.lang("Words");
-            case CHARS ->
-                    Localization.lang("Characters");
-            case MAX ->
-                    Localization.lang("Max");
-            case MIN ->
-                    Localization.lang("Min");
+            case AVERAGE -> Localization.lang("Average");
+            case WORDS -> Localization.lang("Words");
+            case CHARS -> Localization.lang("Characters");
+            case MAX -> Localization.lang("Max");
+            case MIN -> Localization.lang("Min");
         };
     }
 
     public static String getDisplayName(EmbeddingSimilarityMetric metric) {
         return switch (metric) {
-            case COSINE_SIMILARITY ->
-                    Localization.lang("Cosine Similarity");
+            case COSINE_SIMILARITY -> Localization.lang("Cosine Similarity");
         };
     }
 
     public static String getDisplayName(ChatMessage.Role role) {
         return switch (role) {
-            case SYSTEM ->
-                    Localization.lang("System");
-            case USER ->
-                    Localization.lang("User");
-            case AI ->
-                    Localization.lang("AI");
-            case ERROR ->
-                    Localization.lang("Error");
+            case SYSTEM -> Localization.lang("System");
+            case USER -> Localization.lang("User");
+            case AI -> Localization.lang("AI");
+            case ERROR -> Localization.lang("Error");
         };
     }
 }
-

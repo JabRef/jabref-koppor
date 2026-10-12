@@ -89,7 +89,8 @@ class SshAgentConnectorFactoryTest {
         FakeConnector pipe = new FakeConnector(true, false);
         RecordingFactory jgit = new RecordingFactory(pageant, pipe);
 
-        Connector connector = new SshAgentConnectorFactory(jgit).create(null, Path.of(".").toFile());
+        Connector connector = new SshAgentConnectorFactory(jgit).create(null, Path.of(".")
+                .toFile());
 
         assertTrue(connector.connect());
         assertEquals(List.of("default"), jgit.requestedAgents);
@@ -102,7 +103,8 @@ class SshAgentConnectorFactoryTest {
         FakeConnector pipe = new FakeConnector(true, false);
         RecordingFactory jgit = new RecordingFactory(pageant, pipe);
 
-        Connector connector = new SshAgentConnectorFactory(jgit).create(null, Path.of(".").toFile());
+        Connector connector = new SshAgentConnectorFactory(jgit).create(null, Path.of(".")
+                .toFile());
 
         assertTrue(connector.connect());
         assertEquals(List.of("default", SshAgentConnectorFactory.OPENSSH_AGENT_PIPE), jgit.requestedAgents);
@@ -116,7 +118,8 @@ class SshAgentConnectorFactoryTest {
         FakeConnector pipe = new FakeConnector(true, false);
         RecordingFactory jgit = new RecordingFactory(pageant, pipe);
 
-        Connector connector = new SshAgentConnectorFactory(jgit).create(null, Path.of(".").toFile());
+        Connector connector = new SshAgentConnectorFactory(jgit).create(null, Path.of(".")
+                .toFile());
 
         assertTrue(connector.connect());
         assertTrue(pageant.closed);
@@ -126,7 +129,9 @@ class SshAgentConnectorFactoryTest {
     void reportsNoAgentWhenBothUnavailable() throws IOException {
         RecordingFactory jgit = new RecordingFactory(new FakeConnector(false, false), new FakeConnector(false, false));
 
-        assertFalse(new SshAgentConnectorFactory(jgit).create(null, Path.of(".").toFile()).connect());
+        assertFalse(new SshAgentConnectorFactory(jgit)
+                .create(null, Path.of(".").toFile())
+                .connect());
     }
 
     @Test
@@ -135,7 +140,8 @@ class SshAgentConnectorFactoryTest {
         FakeConnector pipe = new FakeConnector(true, false);
         RecordingFactory jgit = new RecordingFactory(pageant, pipe);
 
-        new SshAgentConnectorFactory(jgit).create("pageant", Path.of(".").toFile());
+        new SshAgentConnectorFactory(jgit).create("pageant", Path.of(".")
+                .toFile());
 
         assertEquals(List.of("pageant"), jgit.requestedAgents);
     }

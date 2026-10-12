@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jabref.model.entry.types.EntryType;
-
 import org.jspecify.annotations.NonNull;
 
 /// A small table, where an entry type is associated with a citation key pattern.
@@ -24,10 +23,14 @@ public abstract class AbstractCitationKeyPatterns {
 
     @Override
     public String toString() {
-        return "AbstractCitationKeyPattern{" +
-                "defaultPattern='" + defaultPattern + '\'' +
-                ", data='" + data + '\'' +
-                "}";
+        return "AbstractCitationKeyPattern{"
+                + "defaultPattern='"
+                + defaultPattern
+                + '\''
+                + ", data='"
+                + data
+                + '\''
+                + "}";
     }
 
     @Override
@@ -47,13 +50,16 @@ public abstract class AbstractCitationKeyPatterns {
         return Objects.hash(defaultPattern, data);
     }
 
-    /// Gets an object for a desired key from this CitationKeyPattern or one of it's parents (in the case of
-    /// DatabaseCitationKeyPattern). This method first tries to obtain the object from this CitationKeyPattern via the
-    /// `get` method of `Hashtable`. If this fails, we try the default. If that fails, we try
-    /// the parent. If that fails, we return the DEFAULT_LABELPATTERN
+    /// Gets an object for a desired key from this CitationKeyPattern or one of
+    /// it's parents (in the case of DatabaseCitationKeyPattern). This method
+    /// first tries to obtain the object from this CitationKeyPattern via the
+    /// `get` method of `Hashtable`. If this fails, we try the default. If that
+    /// fails, we try the parent. If that fails, we return the
+    /// DEFAULT_LABELPATTERN
     ///
     /// @param entryType a `String`
-    /// @return the list of Strings for the given key. First entry: the complete key
+    /// @return the list of Strings for the given key. First entry: the complete
+    ///   key
     public CitationKeyPattern getValue(EntryType entryType) {
         CitationKeyPattern result = data.get(entryType);
         //  Test to see if we found anything
@@ -93,7 +99,9 @@ public abstract class AbstractCitationKeyPatterns {
     }
 
     public Map<EntryType, CitationKeyPattern> getPatterns() {
-        return data.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return data.entrySet()
+                   .stream()
+                   .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public abstract CitationKeyPattern getLastLevelCitationKeyPattern(EntryType key);

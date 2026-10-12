@@ -3,13 +3,13 @@ package org.jabref.gui.frame;
 import java.util.List;
 
 import javafx.concurrent.Task;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.l10n.Localization;
 
-/// Dialog shown when *closing* of application needs to wait for a save operation to finish.
+/// Dialog shown when *closing* of application needs to wait for a save
+/// operation to finish.
 public class ProcessingLibraryDialog {
 
     private final DialogService dialogService;
@@ -35,11 +35,7 @@ public class ProcessingLibraryDialog {
             };
 
             UiTaskExecutor.runInJavaFXThread(waitForSaveFinished);
-            dialogService.showProgressDialogAndWait(
-                    Localization.lang("Please wait..."),
-                    Localization.lang("Waiting for save operation to finish..."),
-                    waitForSaveFinished
-            );
+            dialogService.showProgressDialogAndWait(Localization.lang("Please wait..."), Localization.lang("Waiting for save operation to finish..."), waitForSaveFinished);
         }
     }
 }

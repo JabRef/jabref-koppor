@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import io.github.thibaultmeyer.cuid.CUID;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.HeadlessExecutorService;
@@ -24,8 +25,6 @@ import org.jabref.model.entry.field.FieldProperty;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.search.PostgresConstants;
 import org.jabref.model.strings.LatexToUnicodeAdapter;
-
-import io.github.thibaultmeyer.cuid.CUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +54,9 @@ public class BibFieldsIndexer {
         this.databaseContext = databaseContext;
         this.connection = connection;
         this.keywordSeparator = databaseContext.getKeywordSeparator(bibEntryPreferences.getKeywordSeparator());
-        this.libraryName = databaseContext.getDatabasePath().map(path -> path.getFileName().toString()).orElse("unsaved");
+        this.libraryName = databaseContext.getDatabasePath()
+                .map(path -> path.getFileName().toString())
+                .orElse("unsaved");
 
         this.mainTable = CUID.randomCUID2(12).toString();
         this.splitValuesTable = mainTable + SPLIT_TABLE_SUFFIX;
@@ -69,7 +70,8 @@ public class BibFieldsIndexer {
     /// Creates a table for the library in the database, and sets up indexes on the columns.
     private void setup() {
         try {
-            connection.createStatement().executeUpdate("""
+            connection.createStatement()
+                      .executeUpdate("""
                     CREATE TABLE IF NOT EXISTS %s (
                         %s TEXT NOT NULL,
                         %s TEXT NOT NULL,
@@ -77,27 +79,19 @@ public class BibFieldsIndexer {
                         %s TEXT,
                         PRIMARY KEY (%s, %s)
                     )
-                    """.formatted(
-                    schemaMainTableReference,
-                    ENTRY_ID,
-                    FIELD_NAME,
-                    FIELD_VALUE_LITERAL,
-                    FIELD_VALUE_TRANSFORMED,
-                    ENTRY_ID, FIELD_NAME));
+                    """
+                              .formatted(schemaMainTableReference, ENTRY_ID, FIELD_NAME, FIELD_VALUE_LITERAL, FIELD_VALUE_TRANSFORMED, ENTRY_ID, FIELD_NAME));
 
-            connection.createStatement().executeUpdate("""
+            connection.createStatement()
+                      .executeUpdate("""
                     CREATE TABLE IF NOT EXISTS %s (
                         %s TEXT NOT NULL,
                         %s TEXT NOT NULL,
                         %s TEXT,
                         %s TEXT
                     )
-                    """.formatted(
-                    schemaSplitValuesTableReference,
-                    ENTRY_ID,
-                    FIELD_NAME,
-                    FIELD_VALUE_LITERAL,
-                    FIELD_VALUE_TRANSFORMED));
+                    """
+                              .formatted(schemaSplitValuesTableReference, ENTRY_ID, FIELD_NAME, FIELD_VALUE_LITERAL, FIELD_VALUE_TRANSFORMED));
 
             LOGGER.debug("Created tables for library: {}", libraryName);
         } catch (SQLException e) {
@@ -105,52 +99,46 @@ public class BibFieldsIndexer {
         }
         try {
             // region btree index on id column
-            connection.createStatement().executeUpdate("""
+            connection.createStatement()
+                      .executeUpdate("""
                     CREATE INDEX IF NOT EXISTS "%s_%s_index" ON %s ("%s")
-                    """.formatted(
-                    mainTable, ENTRY_ID,
-                    schemaMainTableReference,
-                    ENTRY_ID));
+                    """
+                              .formatted(mainTable, ENTRY_ID, schemaMainTableReference, ENTRY_ID));
 
-            connection.createStatement().executeUpdate("""
+            connection.createStatement()
+                      .executeUpdate("""
                     CREATE INDEX IF NOT EXISTS "%s_%s_index" ON %s ("%s")
-                    """.formatted(
-                    splitValuesTable, ENTRY_ID,
-                    schemaSplitValuesTableReference,
-                    ENTRY_ID));
+                    """
+                              .formatted(splitValuesTable, ENTRY_ID, schemaSplitValuesTableReference, ENTRY_ID));
             // endregion
 
             // region btree index on field name column
-            connection.createStatement().executeUpdate("""
+            connection.createStatement()
+                      .executeUpdate("""
                     CREATE INDEX IF NOT EXISTS "%s_%s_index" ON %s ("%s")
-                    """.formatted(
-                    mainTable, FIELD_NAME,
-                    schemaMainTableReference,
-                    FIELD_NAME));
+                    """
+                              .formatted(mainTable, FIELD_NAME, schemaMainTableReference, FIELD_NAME));
 
-            connection.createStatement().executeUpdate("""
+            connection.createStatement()
+                      .executeUpdate("""
                     CREATE INDEX IF NOT EXISTS "%s_%s_index" ON %s ("%s")
-                    """.formatted(
-                    splitValuesTable, FIELD_NAME,
-                    schemaSplitValuesTableReference,
-                    FIELD_NAME));
+                    """
+                              .formatted(splitValuesTable, FIELD_NAME, schemaSplitValuesTableReference, FIELD_NAME));
             // endregion
 
             // trigram index on field value column
-            connection.createStatement().executeUpdate("""
+            connection.createStatement()
+                      .executeUpdate("""
                     CREATE INDEX IF NOT EXISTS "%s_%s_index" ON %s USING gin ("%s" gin_trgm_ops, "%s" gin_trgm_ops)
-                    """.formatted(
-                    mainTable, FIELD_VALUE_LITERAL,
-                    schemaMainTableReference,
-                    FIELD_VALUE_LITERAL, FIELD_VALUE_TRANSFORMED));
+                    """
+                              .formatted(mainTable, FIELD_VALUE_LITERAL, schemaMainTableReference, FIELD_VALUE_LITERAL, FIELD_VALUE_TRANSFORMED));
 
             // region btree index on spilt table
-            connection.createStatement().executeUpdate("""
+            connection.createStatement()
+                      .executeUpdate("""
                     CREATE INDEX IF NOT EXISTS "%s_%s_index" ON %s ("%s", "%s")
-                    """.formatted(
-                    splitValuesTable, FIELD_VALUE_LITERAL,
-                    schemaSplitValuesTableReference,
-                    FIELD_VALUE_LITERAL, FIELD_VALUE_TRANSFORMED));
+                    """
+                              .formatted(splitValuesTable, FIELD_VALUE_LITERAL, schemaSplitValuesTableReference, FIELD_VALUE_LITERAL, FIELD_VALUE_TRANSFORMED));
             // endregion
 
             LOGGER.debug("Created indexes for library: {}", libraryName);
@@ -185,35 +173,29 @@ public class BibFieldsIndexer {
     }
 
     private void addToIndex(BibEntry bibEntry) {
-        String insertFieldQuery = """
+        String
+                insertFieldQuery = """
                 INSERT INTO %s ("%s", "%s", "%s", "%s")
                 VALUES (?, ?, ?, ?)
                 ON CONFLICT ("%s", "%s")
                 DO UPDATE SET "%s" = EXCLUDED."%s", "%s" = EXCLUDED."%s"
-                """.formatted(
-                schemaMainTableReference,
-                ENTRY_ID,
-                FIELD_NAME,
-                FIELD_VALUE_LITERAL,
-                FIELD_VALUE_TRANSFORMED,
-                ENTRY_ID, FIELD_NAME,
-                FIELD_VALUE_LITERAL, FIELD_VALUE_LITERAL,
-                FIELD_VALUE_TRANSFORMED, FIELD_VALUE_TRANSFORMED);
+                """
+                                .formatted(schemaMainTableReference, ENTRY_ID, FIELD_NAME, FIELD_VALUE_LITERAL, FIELD_VALUE_TRANSFORMED, ENTRY_ID, FIELD_NAME, FIELD_VALUE_LITERAL, FIELD_VALUE_LITERAL, FIELD_VALUE_TRANSFORMED, FIELD_VALUE_TRANSFORMED);
 
-        String insertIntoSplitTable = """
+        String
+                insertIntoSplitTable = """
                 INSERT INTO %s ("%s", "%s", "%s", "%s")
                 VALUES (?, ?, ?, ?)
-                """.formatted(
-                schemaSplitValuesTableReference,
-                ENTRY_ID,
-                FIELD_NAME,
-                FIELD_VALUE_LITERAL,
-                FIELD_VALUE_TRANSFORMED);
+                """
+                                .formatted(schemaSplitValuesTableReference, ENTRY_ID, FIELD_NAME, FIELD_VALUE_LITERAL, FIELD_VALUE_TRANSFORMED);
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertFieldQuery);
              PreparedStatement preparedStatementSplitValues = connection.prepareStatement(insertIntoSplitTable)) {
             String entryId = bibEntry.getId();
-            LOGGER.atTrace().setMessage("Adding entry {}").addArgument(bibEntry::getKeyAuthorTitleYear).log();
+            LOGGER.atTrace()
+                  .setMessage("Adding entry {}")
+                  .addArgument(bibEntry::getKeyAuthorTitleYear)
+                  .log();
             for (Map.Entry<Field, String> fieldPair : bibEntry.getFieldMap().entrySet()) {
                 Field field = fieldPair.getKey();
                 String value = fieldPair.getValue();
@@ -254,7 +236,8 @@ public class BibFieldsIndexer {
                 resolvedDateValue.ifPresent(dateValue -> addBatch(preparedStatement, entryId, dateField, dateValue));
             }
             // add entry type
-            addBatch(preparedStatement, entryId, TYPE_HEADER, bibEntry.getType().getName());
+            addBatch(preparedStatement, entryId, TYPE_HEADER,
+                    bibEntry.getType().getName());
 
             preparedStatement.executeBatch();
             preparedStatementSplitValues.executeBatch();
@@ -283,14 +266,18 @@ public class BibFieldsIndexer {
 
     private void removeFromIndex(BibEntry entry) {
         try {
-            connection.createStatement().executeUpdate("""
+            connection.createStatement()
+                      .executeUpdate("""
                     DELETE FROM %s
                     WHERE "%s" = '%s'
-                    """.formatted(schemaMainTableReference, ENTRY_ID, entry.getId()));
-            connection.createStatement().executeUpdate("""
+                    """
+                              .formatted(schemaMainTableReference, ENTRY_ID, entry.getId()));
+            connection.createStatement()
+                      .executeUpdate("""
                     DELETE FROM %s
                     WHERE "%s" = '%s'
-                    """.formatted(schemaSplitValuesTableReference, ENTRY_ID, entry.getId()));
+                    """
+                              .formatted(schemaSplitValuesTableReference, ENTRY_ID, entry.getId()));
             LOGGER.debug("Entry {} removed from index", entry.getId());
         } catch (SQLException e) {
             LOGGER.error("Error deleting entry from index", e);
@@ -306,7 +293,8 @@ public class BibFieldsIndexer {
 
     private void insertField(BibEntry entry, Field field) {
         if (!entry.hasField(field)) {
-            LOGGER.warn("Entry {} does not have field {}", entry.getCitationKey().orElseGet(() -> entry.getAuthorTitleYear()), field.getName());
+            LOGGER.warn("Entry {} does not have field {}", entry.getCitationKey().orElseGet(() -> entry.getAuthorTitleYear()),
+                    field.getName());
         }
 
         String entryId = entry.getId();
@@ -314,20 +302,14 @@ public class BibFieldsIndexer {
             // Inserts or updates date-related fields (e.g., date, year, month, day) into the index.
             // If a conflict occurs (e.g., the same ENTRY_ID and FIELD_NAME already exist),
             // the existing values are overwritten with the new ones to ensure the latest data is stored.
-            String insertDateFieldQuery = """
+            String
+                    insertDateFieldQuery = """
                     INSERT INTO %s ("%s", "%s", "%s", "%s")
                     VALUES (?, ?, ?, ?)
                     ON CONFLICT ("%s", "%s")
                     DO UPDATE SET "%s" = EXCLUDED."%s", "%s" = EXCLUDED."%s"
-                    """.formatted(
-                    schemaMainTableReference,
-                    ENTRY_ID,
-                    FIELD_NAME,
-                    FIELD_VALUE_LITERAL,
-                    FIELD_VALUE_TRANSFORMED,
-                    ENTRY_ID, FIELD_NAME,
-                    FIELD_VALUE_LITERAL, FIELD_VALUE_LITERAL,
-                    FIELD_VALUE_TRANSFORMED, FIELD_VALUE_TRANSFORMED);
+                    """
+                                    .formatted(schemaMainTableReference, ENTRY_ID, FIELD_NAME, FIELD_VALUE_LITERAL, FIELD_VALUE_TRANSFORMED, ENTRY_ID, FIELD_NAME, FIELD_VALUE_LITERAL, FIELD_VALUE_LITERAL, FIELD_VALUE_TRANSFORMED, FIELD_VALUE_TRANSFORMED);
             try (PreparedStatement preparedStatement = connection.prepareStatement(insertDateFieldQuery)) {
                 for (Field dateField : DATE_FIELDS) {
                     Optional<String> resolvedDateValue = entry.getResolvedFieldOrAlias(dateField, this.databaseContext.getDatabase());
@@ -339,26 +321,21 @@ public class BibFieldsIndexer {
             }
         } else {
             // Use upsert for all non-date fields to avoid duplicate key errors when the same field is inserted multiple times quickly
-            String upsertFieldQuery = """
+            String
+                    upsertFieldQuery = """
                     INSERT INTO %s ("%s", "%s", "%s", "%s")
                     VALUES (?, ?, ?, ?)
                     ON CONFLICT ("%s", "%s")
                     DO UPDATE SET "%s" = EXCLUDED."%s", "%s" = EXCLUDED."%s"
-                    """.formatted(
-                    schemaMainTableReference,
-                    ENTRY_ID,
-                    FIELD_NAME,
-                    FIELD_VALUE_LITERAL,
-                    FIELD_VALUE_TRANSFORMED,
-                    ENTRY_ID, FIELD_NAME,
-                    FIELD_VALUE_LITERAL, FIELD_VALUE_LITERAL,
-                    FIELD_VALUE_TRANSFORMED, FIELD_VALUE_TRANSFORMED);
+                    """
+                                    .formatted(schemaMainTableReference, ENTRY_ID, FIELD_NAME, FIELD_VALUE_LITERAL, FIELD_VALUE_TRANSFORMED, ENTRY_ID, FIELD_NAME, FIELD_VALUE_LITERAL, FIELD_VALUE_LITERAL, FIELD_VALUE_TRANSFORMED, FIELD_VALUE_TRANSFORMED);
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(upsertFieldQuery)) {
                 String value = entry.getField(field).orElse("");
                 Optional<String> resolvedFieldLatexFree = entry.getResolvedFieldOrAliasLatexFree(field, this.databaseContext.getDatabase());
                 if (resolvedFieldLatexFree.isEmpty()) {
-                    LOGGER.warn("Could not resolve field at entry {} for field {} - current value '{}'", entry.getCitationKey().orElseGet(() -> entry.getAuthorTitleYear()), field.getName(), value);
+                    LOGGER.warn("Could not resolve field at entry {} for field {} - current value '{}'", entry.getCitationKey().orElseGet(() -> entry.getAuthorTitleYear()),
+                            field.getName(), value);
                 }
                 addBatch(preparedStatement, entryId, field, value, resolvedFieldLatexFree.orElse(""));
                 preparedStatement.executeBatch();
@@ -367,15 +344,12 @@ public class BibFieldsIndexer {
             }
         }
 
-        String insertIntoSplitTable = """
+        String
+                insertIntoSplitTable = """
                 INSERT INTO %s ("%s", "%s", "%s", "%s")
                 VALUES (?, ?, ?, ?)
-                """.formatted(
-                schemaSplitValuesTableReference,
-                ENTRY_ID,
-                FIELD_NAME,
-                FIELD_VALUE_LITERAL,
-                FIELD_VALUE_TRANSFORMED);
+                """
+                                .formatted(schemaSplitValuesTableReference, ENTRY_ID, FIELD_NAME, FIELD_VALUE_LITERAL, FIELD_VALUE_TRANSFORMED);
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertIntoSplitTable)) {
             String value = entry.getField(field).orElse("");
@@ -399,15 +373,22 @@ public class BibFieldsIndexer {
 
     private void removeField(BibEntry entry, Field field) {
         try {
-            connection.createStatement().executeUpdate("""
+            connection.createStatement()
+                      .executeUpdate("""
                     DELETE FROM %s
                     WHERE "%s" = '%s' AND "%s" = '%s'
-                    """.formatted(schemaMainTableReference, ENTRY_ID, entry.getId(), FIELD_NAME, field.getName()));
-            connection.createStatement().executeUpdate("""
+                    """
+                              .formatted(schemaMainTableReference, ENTRY_ID, entry.getId(), FIELD_NAME,
+                                      field.getName()));
+            connection.createStatement()
+                      .executeUpdate("""
                     DELETE FROM %s
                     WHERE "%s" = '%s' AND "%s" = '%s'
-                    """.formatted(schemaSplitValuesTableReference, ENTRY_ID, entry.getId(), FIELD_NAME, field.getName()));
-            LOGGER.debug("Field {} removed from entry {} in index", field.getName(), entry.getId());
+                    """
+                              .formatted(schemaSplitValuesTableReference, ENTRY_ID, entry.getId(), FIELD_NAME,
+                                      field.getName()));
+            LOGGER.debug("Field {} removed from entry {} in index",
+                    field.getName(), entry.getId());
         } catch (SQLException e) {
             LOGGER.error("Error deleting field from entry in index", e);
         }
@@ -424,12 +405,16 @@ public class BibFieldsIndexer {
     private void closeIndex() {
         try {
             LOGGER.debug("Closing connection to Postgres server for library: {}", libraryName);
-            connection.createStatement().executeUpdate("""
+            connection.createStatement()
+                      .executeUpdate("""
                     DROP TABLE IF EXISTS %s
-                    """.formatted(schemaMainTableReference));
-            connection.createStatement().executeUpdate("""
+                    """
+                              .formatted(schemaMainTableReference));
+            connection.createStatement()
+                      .executeUpdate("""
                     DROP TABLE IF EXISTS %s
-                    """.formatted(schemaSplitValuesTableReference));
+                    """
+                              .formatted(schemaSplitValuesTableReference));
             connection.close();
         } catch (SQLException e) {
             LOGGER.error("Could not drop table for library: {}", libraryName, e);
@@ -440,43 +425,54 @@ public class BibFieldsIndexer {
         return mainTable;
     }
 
-    private void addEntryLinks(BibEntry bibEntry, Field field, PreparedStatement preparedStatementSplitValues, String entryId) {
-        bibEntry.getEntryLinkList(field, databaseContext.getDatabase()).stream()
+    private void addEntryLinks(BibEntry bibEntry, Field field, PreparedStatement preparedStatementSplitValues,
+            String entryId) {
+        bibEntry.getEntryLinkList(field, databaseContext.getDatabase())
+                .stream()
                 .distinct()
                 .forEach(link -> addBatch(preparedStatementSplitValues, entryId, field, link.getKey()));
     }
 
-    private static void addGroups(String value, PreparedStatement preparedStatementSplitValues, String entryId, Field field) {
+    private static void addGroups(String value, PreparedStatement preparedStatementSplitValues, String entryId,
+            Field field) {
         // We could use KeywordList, but we are afraid that group names could have ">" in their name, and then they would not be handled correctly
         Arrays.stream(GROUPS_SEPARATOR_REGEX.split(value))
-              .distinct()
-              .forEach(group -> addBatch(preparedStatementSplitValues, entryId, field, group));
+                .distinct()
+                .forEach(group -> addBatch(preparedStatementSplitValues, entryId, field, group));
     }
 
-    private static void addKeywords(String keywordsString, PreparedStatement preparedStatementSplitValues, String entryId, Field field, Character keywordSeparator) {
+    private static void addKeywords(String keywordsString, PreparedStatement preparedStatementSplitValues, String entryId,
+            Field field, Character keywordSeparator) {
         KeywordList keywordList = KeywordList.parse(keywordsString, keywordSeparator);
-        keywordList.stream().flatMap(keyword -> keyword.flatten().stream()).forEach(keyword -> {
-            String value = keyword.toString();
-            addBatch(preparedStatementSplitValues, entryId, field, value);
-        });
+        keywordList.stream()
+                   .flatMap(keyword -> keyword.flatten().stream())
+                   .forEach(keyword -> {
+                       String value = keyword.toString();
+                       addBatch(preparedStatementSplitValues, entryId, field, value);
+                   });
     }
 
-    private static void addAuthors(String value, PreparedStatement preparedStatementSplitValues, String entryId, Field field) {
-        AuthorList.parse(value).getAuthors().forEach(author -> {
-            // Author object does not support literal values
-            // We use the method giving us the most complete information for the literal value;
-            String literal = author.getGivenFamily(false);
-            String transformed = author.latexFree().getGivenFamily(false);
-            addBatch(preparedStatementSplitValues, entryId, field, literal, transformed);
-        });
+    private static void addAuthors(String value, PreparedStatement preparedStatementSplitValues, String entryId,
+            Field field) {
+        AuthorList.parse(value)
+                .getAuthors()
+                .forEach(author -> {
+                    // Author object does not support literal values
+                    // We use the method giving us the most complete information for the literal value;
+                    String literal = author.getGivenFamily(false);
+                    String transformed = author.latexFree().getGivenFamily(false);
+                    addBatch(preparedStatementSplitValues, entryId, field, literal, transformed);
+                });
     }
 
-    private static void addBatch(PreparedStatement preparedStatement, String entryId, Field field, String value) {
+    private static void addBatch(PreparedStatement preparedStatement, String entryId, Field field,
+            String value) {
         addBatch(preparedStatement, entryId, field, value, LatexToUnicodeAdapter.format(value));
     }
 
     /// The values are passed as they should be inserted into the database table
-    private static void addBatch(PreparedStatement preparedStatement, String entryId, Field field, String value, String normalized) {
+    private static void addBatch(PreparedStatement preparedStatement, String entryId, Field field,
+            String value, String normalized) {
         try {
             preparedStatement.setString(1, entryId);
             preparedStatement.setString(2, field.getName());
@@ -484,7 +480,8 @@ public class BibFieldsIndexer {
             preparedStatement.setString(4, normalized);
             preparedStatement.addBatch();
         } catch (SQLException e) {
-            LOGGER.error("Could not add field {} having value {} of entry {} to the index.", field.getName(), value, entryId, e);
+            LOGGER.error("Could not add field {} having value {} of entry {} to the index.",
+                    field.getName(), value, entryId, e);
         }
     }
 }

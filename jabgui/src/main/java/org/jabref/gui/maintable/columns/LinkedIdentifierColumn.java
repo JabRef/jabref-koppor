@@ -8,7 +8,6 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.desktop.os.NativeDesktop;
@@ -35,12 +34,8 @@ public class LinkedIdentifierColumn extends MainTableColumn<Map<Field, String>> 
     private final DialogService dialogService;
     private final GuiPreferences preferences;
 
-    public LinkedIdentifierColumn(MainTableColumnModel model,
-                                  CellFactory cellFactory,
-                                  BibDatabaseContext database,
-                                  DialogService dialogService,
-                                  GuiPreferences preferences,
-                                  StateManager stateManager) {
+    public LinkedIdentifierColumn(MainTableColumnModel model, CellFactory cellFactory, BibDatabaseContext database,
+            DialogService dialogService, GuiPreferences preferences, StateManager stateManager) {
         super(model);
         this.database = database;
         this.cellFactory = cellFactory;
@@ -79,7 +74,10 @@ public class LinkedIdentifierColumn extends MainTableColumn<Map<Field, String>> 
 
     private String createIdentifierTooltip(Map<Field, String> values) {
         StringBuilder identifiers = new StringBuilder();
-        values.keySet().forEach(field -> identifiers.append(FieldTextMapper.getDisplayName(field)).append(": ").append(values.get(field)).append("\n"));
+        values.keySet().forEach(field -> identifiers.append(FieldTextMapper.getDisplayName(field))
+                .append(": ")
+                .append(values.get(field))
+                .append("\n"));
         return identifiers.toString();
     }
 
@@ -91,12 +89,13 @@ public class LinkedIdentifierColumn extends MainTableColumn<Map<Field, String>> 
         }
 
         values.keySet().forEach(field -> {
-            MenuItem menuItem = new MenuItem(FieldTextMapper.getDisplayName(field) + ": " +
-                    ControlHelper.truncateString(values.get(field), -1, "...", ControlHelper.EllipsisPosition.CENTER),
+            MenuItem menuItem = new MenuItem(
+                    FieldTextMapper.getDisplayName(field) + ": " + ControlHelper.truncateString(values.get(field), -1, "...", ControlHelper.EllipsisPosition.CENTER),
                     cellFactory.getTableIcon(field));
             menuItem.setOnAction(event -> {
                 try {
-                    NativeDesktop.openExternalViewer(database, preferences, values.get(field), field, dialogService, entry.getEntry());
+                    NativeDesktop.openExternalViewer(database, preferences, values.get(field), field, dialogService,
+                            entry.getEntry());
                 } catch (IOException e) {
                     dialogService.showErrorDialogAndWait(Localization.lang("Unable to open link."), e);
                 }

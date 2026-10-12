@@ -7,7 +7,6 @@ import org.jabref.logic.msc.MscCodeEntry;
 import org.jabref.logic.msc.MscCodeRepository;
 import org.jabref.logic.preferences.JabRefCliPreferences;
 import org.jabref.model.entry.BibEntryPreferences;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,13 +29,9 @@ public class ConvertMSCCodesFormatterTest {
         when(cliPreferences.getBibEntryPreferences()).thenReturn(BibEntryPreferences.getDefault());
         formatter = new ConvertMSCCodesFormatter(cliPreferences);
 
-        MscCodeRepository repository = new MscCodeRepository(List.of(
-                new MscCodeEntry("34B60", "Applications of boundary value problems involving ordinary differential equations", "Applications of boundary value problems involving ordinary differential equations"),
-                new MscCodeEntry("53C70", "Direct methods (\\(G\\)-spaces of Busemann, etc.)", "Direct methods (\\(G\\)-spaces of Busemann, etc.)"),
-                new MscCodeEntry("53C99", "Global differential geometry", "None of the above, but in this section"),
-                new MscCodeEntry("76Z10", "Biopropulsion in water and in air", "Biopropulsion in water and in air"),
-                new MscCodeEntry("90B40", "Search theory", "Search theory")
-        ));
+        MscCodeRepository repository = new MscCodeRepository(
+                List.of(new MscCodeEntry("34B60", "Applications of boundary value problems involving ordinary differential equations", "Applications of boundary value problems involving ordinary differential equations"), new MscCodeEntry("53C70", "Direct methods (\\(G\\)-spaces of Busemann, etc.)", "Direct methods (\\(G\\)-spaces of Busemann, etc.)"),
+                        new MscCodeEntry("53C99", "Global differential geometry", "None of the above, but in this section"), new MscCodeEntry("76Z10", "Biopropulsion in water and in air", "Biopropulsion in water and in air"), new MscCodeEntry("90B40", "Search theory", "Search theory")));
         ConvertMSCCodesFormatter.setMscCodes(repository);
     }
 
@@ -52,7 +47,8 @@ public class ConvertMSCCodesFormatterTest {
 
     @Test
     void convertSingleMSCCode() {
-        assertEquals("Applications of boundary value problems involving ordinary differential equations",
+        assertEquals(
+                "Applications of boundary value problems involving ordinary differential equations",
                 formatter.format("34B60"));
     }
 
@@ -72,9 +68,7 @@ public class ConvertMSCCodesFormatterTest {
 
     @Test
     void noCodesPresentInKeywordsField() {
-        assertEquals(
-                "Jabref Here,Jabref There,Jabref Everywhere",
-                formatter.format("Jabref Here,Jabref There,Jabref Everywhere"));
+        assertEquals("Jabref Here,Jabref There,Jabref Everywhere", formatter.format("Jabref Here,Jabref There,Jabref Everywhere"));
     }
 
     @Test

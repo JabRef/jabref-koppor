@@ -6,8 +6,9 @@ import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Our representation of the type of the FileAnnotation. This is needed as some FileAnnotationTypes require special
-/// handling (e.g., Highlight or Underline), because of the linked FileAnnotations.
+/// Our representation of the type of the FileAnnotation. This is needed as some
+/// FileAnnotationTypes require special handling (e.g., Highlight or Underline),
+/// because of the linked FileAnnotations.
 
 public enum FileAnnotationType {
     TEXT("Text", false),
@@ -34,16 +35,20 @@ public enum FileAnnotationType {
         this.linkedFileAnnotationType = linkedFileAnnotationType;
     }
 
-    /// Determines the FileAnnotationType of a raw PDAnnotation. Returns 'UNKNOWN' if the type is currently not in our
-    /// list of FileAnnotationTypes.
+    /// Determines the FileAnnotationType of a raw PDAnnotation. Returns
+    /// 'UNKNOWN' if the type is currently not in our list of
+    /// FileAnnotationTypes.
     ///
     /// @param annotation the raw PDAnnotation
     /// @return The determined FileAnnotationType
     public static FileAnnotationType parse(PDAnnotation annotation) {
         try {
-            return FileAnnotationType.valueOf(annotation.getSubtype().toUpperCase(Locale.ROOT));
+            return FileAnnotationType.valueOf(annotation.getSubtype()
+                    .toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException _) {
-            LOGGER.info("FileAnnotationType {} is not supported and was converted into 'Unknown'!", annotation.getSubtype());
+            LOGGER.info(
+                    "FileAnnotationType {} is not supported and was converted into 'Unknown'!",
+                    annotation.getSubtype());
             return UNKNOWN;
         }
     }

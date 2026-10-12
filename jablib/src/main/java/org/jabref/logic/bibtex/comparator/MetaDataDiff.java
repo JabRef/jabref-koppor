@@ -30,8 +30,7 @@ public class MetaDataDiff {
         USER_FILE_DIRECTORY
     }
 
-    public record Difference(DifferenceType differenceType, Object originalObject, Object newObject) {
-    }
+    public record Difference(DifferenceType differenceType, Object originalObject, Object newObject) {}
 
     private final Optional<GroupDiff> groupDiff;
     private final MetaData originalMetaData;
@@ -65,7 +64,8 @@ public class MetaDataDiff {
         return ContentSelectors.isDefaultMap(fieldKeywordsMap);
     }
 
-    private void addToListIfDiff(List<Difference> changes, DifferenceType differenceType, Object originalObject, Object newObject) {
+    private void addToListIfDiff(List<Difference> changes, DifferenceType differenceType, Object originalObject,
+            Object newObject) {
         if (!Objects.equals(originalObject, newObject)) {
             if (differenceType == DifferenceType.CONTENT_SELECTOR) {
                 ContentSelectors originalContentSelectors = (ContentSelectors) originalObject;
@@ -101,17 +101,23 @@ public class MetaDataDiff {
         addToListIfDiff(changes, DifferenceType.PROTECTED, originalMetaData.isProtected(), newMetaData.isProtected());
         addToListIfDiff(changes, DifferenceType.GROUPS, originalMetaData.getGroups(), newMetaData.getGroups());
         addToListIfDiff(changes, DifferenceType.ENCODING, originalMetaData.getEncoding(), newMetaData.getEncoding());
-        addToListIfDiff(changes, DifferenceType.SAVE_SORT_ORDER, originalMetaData.getSaveOrder(), newMetaData.getSaveOrder());
-        addToListIfDiff(changes, DifferenceType.KEY_PATTERNS,
-                originalMetaData.getCiteKeyPatterns(globalCitationKeyPatterns),
+        addToListIfDiff(changes, DifferenceType.SAVE_SORT_ORDER,
+                originalMetaData.getSaveOrder(), newMetaData.getSaveOrder());
+        addToListIfDiff(changes, DifferenceType.KEY_PATTERNS, originalMetaData.getCiteKeyPatterns(globalCitationKeyPatterns),
                 newMetaData.getCiteKeyPatterns(globalCitationKeyPatterns));
-        addToListIfDiff(changes, DifferenceType.USER_FILE_DIRECTORY, originalMetaData.getUserFileDirectories(), newMetaData.getUserFileDirectories());
-        addToListIfDiff(changes, DifferenceType.LATEX_FILE_DIRECTORY, originalMetaData.getLatexFileDirectories(), newMetaData.getLatexFileDirectories());
-        addToListIfDiff(changes, DifferenceType.DEFAULT_KEY_PATTERN, originalMetaData.getDefaultCiteKeyPattern(), newMetaData.getDefaultCiteKeyPattern());
-        addToListIfDiff(changes, DifferenceType.SAVE_ACTIONS, originalMetaData.getSaveActions(), newMetaData.getSaveActions());
+        addToListIfDiff(changes, DifferenceType.USER_FILE_DIRECTORY,
+                originalMetaData.getUserFileDirectories(), newMetaData.getUserFileDirectories());
+        addToListIfDiff(changes, DifferenceType.LATEX_FILE_DIRECTORY,
+                originalMetaData.getLatexFileDirectories(), newMetaData.getLatexFileDirectories());
+        addToListIfDiff(changes, DifferenceType.DEFAULT_KEY_PATTERN,
+                originalMetaData.getDefaultCiteKeyPattern(), newMetaData.getDefaultCiteKeyPattern());
+        addToListIfDiff(changes, DifferenceType.SAVE_ACTIONS,
+                originalMetaData.getSaveActions(), newMetaData.getSaveActions());
         addToListIfDiff(changes, DifferenceType.MODE, originalMetaData.getMode(), newMetaData.getMode());
-        addToListIfDiff(changes, DifferenceType.LIBRARY_SPECIFIC_FILE_DIRECTORY, originalMetaData.getLibrarySpecificFileDirectory(), newMetaData.getLibrarySpecificFileDirectory());
-        addToListIfDiff(changes, DifferenceType.CONTENT_SELECTOR, originalMetaData.getContentSelectors(), newMetaData.getContentSelectors());
+        addToListIfDiff(changes, DifferenceType.LIBRARY_SPECIFIC_FILE_DIRECTORY,
+                originalMetaData.getLibrarySpecificFileDirectory(), newMetaData.getLibrarySpecificFileDirectory());
+        addToListIfDiff(changes, DifferenceType.CONTENT_SELECTOR,
+                originalMetaData.getContentSelectors(), newMetaData.getContentSelectors());
         return changes;
     }
 
@@ -130,11 +136,15 @@ public class MetaDataDiff {
 
     @Override
     public String toString() {
-        return "MetaDataDiff{" +
-                "groupDiff=" + groupDiff +
-                ", originalMetaData=" + originalMetaData +
-                ", newMetaData=" + getNewMetaData() +
-                ", getDifferences()=" + getDifferences(new GlobalCitationKeyPatterns(CitationKeyPattern.NULL_CITATION_KEY_PATTERN)) +
-                '}';
+        return "MetaDataDiff{"
+                + "groupDiff="
+                + groupDiff
+                + ", originalMetaData="
+                + originalMetaData
+                + ", newMetaData="
+                + getNewMetaData()
+                + ", getDifferences()="
+                + getDifferences(new GlobalCitationKeyPatterns(CitationKeyPattern.NULL_CITATION_KEY_PATTERN))
+                + '}';
     }
 }

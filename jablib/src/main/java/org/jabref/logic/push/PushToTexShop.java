@@ -9,7 +9,6 @@ import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.logic.util.StreamGobbler;
 import org.jabref.model.entry.BibEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,21 +46,18 @@ public class PushToTexShop extends AbstractPushToApplication {
 
             // We use osascript to send the citation to TeXShop.
             // Using separate arguments for ProcessBuilder avoids shell injection.
-            String script = "tell application \"TeXShop\"\n" +
-                    "activate\n" +
-                    "set TheString to item 1 of arguments\n" +
-                    "set content of selection of front document to TheString\n" +
-                    "end tell";
+            String script = "tell application \"TeXShop\"\n" + "activate\n" + "set TheString to item 1 of arguments\n" + "set content of selection of front document to TheString\n" + "end tell";
 
             ProcessBuilder processBuilder = new ProcessBuilder("osascript", "-e", script, "--", citeString);
             Process process = processBuilder.start();
 
             StreamGobbler streamGobblerInput = new StreamGobbler(process.getInputStream(), LOGGER::info);
             StringBuilder errorStringBuilder = new StringBuilder();
-            StreamGobbler streamGobblerError = new StreamGobbler(process.getErrorStream(), s -> {
-                LOGGER.warn("Push to TeXShop error: {}", s);
-                errorStringBuilder.append(s).append("\n");
-            });
+            StreamGobbler streamGobblerError = new StreamGobbler(process.getErrorStream(),
+                    s -> {
+                        LOGGER.warn("Push to TeXShop error: {}", s);
+                        errorStringBuilder.append(s).append("\n");
+                    });
 
             HeadlessExecutorService.INSTANCE.execute(streamGobblerInput);
             HeadlessExecutorService.INSTANCE.execute(streamGobblerError);
@@ -71,11 +67,9 @@ public class PushToTexShop extends AbstractPushToApplication {
             if (process.exitValue() != 0) {
                 couldNotPush = true;
                 if (!error.isEmpty()) {
-                    sendErrorNotification(Localization.lang("Error pushing entries"),
-                            Localization.lang("Could not push to %0. Error %1", getDisplayName(), error));
+                    sendErrorNotification(Localization.lang("Error pushing entries"), Localization.lang("Could not push to %0. Error %1", getDisplayName(), error));
                 } else {
-                    sendErrorNotification(Localization.lang("Error pushing entries"),
-                            Localization.lang("Could not push to %0.", getDisplayName()));
+                    sendErrorNotification(Localization.lang("Error pushing entries"), Localization.lang("Could not push to %0.", getDisplayName()));
                 }
             }
         } catch (IOException | InterruptedException excep) {
@@ -83,8 +77,7 @@ public class PushToTexShop extends AbstractPushToApplication {
             couldNotCall = true;
 
             if (excep instanceof IOException) {
-                sendErrorNotification(Localization.lang("Error pushing entries"),
-                        Localization.lang("Could not call executable '%0' Please check the path in the preferences.", "osascript"));
+                sendErrorNotification(Localization.lang("Error pushing entries"), Localization.lang("Could not call executable '%0' Please check the path in the preferences.", "osascript"));
             }
         }
     }

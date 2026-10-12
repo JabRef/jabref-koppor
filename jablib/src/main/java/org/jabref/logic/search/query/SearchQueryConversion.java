@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchQueryNode;
 import org.jabref.model.search.query.SqlQueryNode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +19,8 @@ public class SearchQueryConversion {
     }
 
     public static String flagsToSearchExpression(SearchQuery searchQuery) {
-        LOGGER.debug("Converting search flags to search expression: {}, flags {}", searchQuery.getSearchExpression(), searchQuery.getSearchFlags());
+        LOGGER.debug("Converting search flags to search expression: {}, flags {}",
+                searchQuery.getSearchExpression(), searchQuery.getSearchFlags());
         return new SearchFlagsToExpressionVisitor(searchQuery.getSearchFlags()).visit(searchQuery.getContext());
     }
 
@@ -34,7 +34,8 @@ public class SearchQueryConversion {
         return new SearchQueryExtractorVisitor(searchQuery.getSearchFlags()).visit(searchQuery.getContext());
     }
 
-    /// Escapes a literal term so it can be used as a regular expression in both Java and PostgreSQL.
+    /// Escapes a literal term so it can be used as a regular expression in both
+    /// Java and PostgreSQL.
     public static String escapeRegexLiteral(String term) {
         return REGEX_META_CHARACTERS.matcher(term).replaceAll("\\\\$1");
     }

@@ -8,16 +8,15 @@ import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
-
-import org.jabref.gui.icon.IconTheme;
-
 import org.controlsfx.control.decoration.Decoration;
 import org.controlsfx.control.decoration.GraphicDecoration;
 import org.controlsfx.validation.Severity;
 import org.controlsfx.validation.ValidationMessage;
 import org.controlsfx.validation.decoration.GraphicValidationDecoration;
+import org.jabref.gui.icon.IconTheme;
 
-/// This class is similar to [GraphicValidationDecoration] but with a different style and font-based icon.
+/// This class is similar to [GraphicValidationDecoration] but with a different
+/// style and font-based icon.
 public class IconValidationDecorator extends GraphicValidationDecoration {
 
     private final Pos position;
@@ -34,9 +33,7 @@ public class IconValidationDecorator extends GraphicValidationDecoration {
 
     @Override
     public Node createDecorationNode(ValidationMessage message) {
-        Node graphic = Severity.ERROR == message.getSeverity()
-                       ? IconTheme.JabRefIcons.ERROR.getGraphicNode()
-                       : IconTheme.JabRefIcons.WARNING.getGraphicNode();
+        Node graphic = Severity.ERROR == message.getSeverity() ? IconTheme.JabRefIcons.ERROR.getGraphicNode() : IconTheme.JabRefIcons.WARNING.getGraphicNode();
         graphic.getStyleClass().add(Severity.ERROR == message.getSeverity() ? "text-danger" : "text-warning");
         Label label = new Label();
         label.setGraphic(graphic);

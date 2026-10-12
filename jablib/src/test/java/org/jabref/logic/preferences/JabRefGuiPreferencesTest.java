@@ -11,10 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JabRefGuiPreferencesTest {
     private static Stream<Arguments> provideTestData() {
-        return Stream.of(
-                Arguments.of(List.of("A", "B", "C", "D"), "A;B;C;D"),
-                Arguments.of(List.of("A", "B", "C", ""), "A;B;C;")
-        );
+        return Stream.of(Arguments.of(List.of("A", "B", "C", "D"), "A;B;C;D"), Arguments.of(List.of("A", "B", "C", ""), "A;B;C;"));
     }
 
     @ParameterizedTest

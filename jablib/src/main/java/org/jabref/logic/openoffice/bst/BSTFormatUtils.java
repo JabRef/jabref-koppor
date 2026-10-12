@@ -25,8 +25,7 @@ public final class BSTFormatUtils {
     private static final Pattern LEADING_EMPTY_PARAGRAPH_MARKER = Pattern.compile("^\\s*<p>\\s*</p>");
     private static final Pattern TRAILING_EMPTY_PARAGRAPH_MARKERS = Pattern.compile("(?:<p>\\s*</p>\\s*){2,}$");
 
-    private BSTFormatUtils() {
-    }
+    private BSTFormatUtils() {}
 
     // ---- Pandoc HTML -> OOText full conversion (wrapper used by LO path) ----
     public static String convertPandocHtmlToOOText(String pandocHtml) {
@@ -71,12 +70,12 @@ public final class BSTFormatUtils {
         return s;
     }
 
-    /// Normalizes a BST `\\bibitem[...]` label by replacing supported label-only helper macros
-    /// with their plain-text equivalents.
+    /// Normalizes a BST `\\bibitem[...]` label by replacing supported
+    /// label-only helper macros with their plain-text equivalents.
     ///
     /// Currently this converts alpha-style `\\etalchar{...}` markers such as
-    /// `TLY{\\etalchar{+}}21` to `TLY+21` so the label can be shown directly in previews and
-    /// LibreOffice citations.
+    /// `TLY{\\etalchar{+}}21` to `TLY+21` so the label can be shown directly in
+    /// previews and LibreOffice citations.
     public static String normalizeBibItemLabel(String label) {
         String normalized = BRACED_ETALCHAR_PATTERN.matcher(label).replaceAll("$1");
         return ETALCHAR_PATTERN.matcher(normalized).replaceAll("$1");
@@ -110,7 +109,11 @@ public final class BSTFormatUtils {
                 } else if (c == '}') {
                     if (depth == 0) {
                         String content = input.substring(contentStart, pos);
-                        out.append('\\').append(modern).append('{').append(content).append('}');
+                        out.append('\\')
+                           .append(modern)
+                           .append('{')
+                           .append(content)
+                           .append('}');
                         i = pos + 1;
                         closed = true;
                         break;

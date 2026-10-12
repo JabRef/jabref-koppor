@@ -3,7 +3,6 @@ package org.jabref.logic.importer.fileformat;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -13,7 +12,6 @@ import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.msbib.MSBibDatabase;
 import org.jabref.logic.util.StandardFileType;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
@@ -62,7 +60,9 @@ public class MsBibImporter extends Importer {
         } catch (SAXException | ParserConfigurationException _) {
             return false;
         }
-        return (docin == null) || docin.getDocumentElement().getTagName().contains("Sources");
+        return (docin == null) || docin.getDocumentElement()
+                .getTagName()
+                .contains("Sources");
     }
 
     @Override
@@ -91,11 +91,13 @@ public class MsBibImporter extends Importer {
         return Localization.lang("Importer for the MS Office 2007 XML bibliography format.");
     }
 
-    /// DocumentBuilderFactory makes a XXE safe Builder factory from dBuild. If not supported by current
-    /// XML then returns original builder given and logs error.
+    /// DocumentBuilderFactory makes a XXE safe Builder factory from dBuild. If
+    /// not supported by current XML then returns original builder given and
+    /// logs error.
     ///
     /// @param dBuild | DocumentBuilderFactory to be made XXE safe.
-    /// @return If supported, XXE safe DocumentBuilderFactory. Else, returns original builder given
+    /// @return If supported, XXE safe DocumentBuilderFactory. Else, returns
+    ///   original builder given
     private static DocumentBuilderFactory makeSafeDocBuilderFactory(DocumentBuilderFactory dBuild) {
         String feature = null;
 
@@ -109,7 +111,8 @@ public class MsBibImporter extends Importer {
             dBuild.setXIncludeAware(false);
             dBuild.setExpandEntityReferences(false);
         } catch (ParserConfigurationException e) {
-            LOGGER.warn("Builder not fully configured. Feature:'{}' is probably not supported by current XML processor.", feature, e);
+            LOGGER.warn("Builder not fully configured. Feature:'{}' is probably not supported by current XML processor.",
+                    feature, e);
         }
 
         return dBuild;

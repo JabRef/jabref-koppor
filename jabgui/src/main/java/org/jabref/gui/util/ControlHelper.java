@@ -15,7 +15,6 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.DragEvent;
-
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.gui.theme.StyleClasses;
 
@@ -26,7 +25,11 @@ public class ControlHelper {
     private static final PseudoClass DRAG_OVER_CENTER = PseudoClass.getPseudoClass("drag-over-center");
     private static final PseudoClass DRAG_OVER_TOP = PseudoClass.getPseudoClass("drag-over-top");
 
-    public enum EllipsisPosition { BEGINNING, CENTER, ENDING }
+    public enum EllipsisPosition {
+        BEGINNING,
+        CENTER,
+        ENDING
+    }
 
     public static Button iconButton(JabRefIcon icon) {
         Button button = new Button();
@@ -35,8 +38,8 @@ public class ControlHelper {
         return button;
     }
 
-    /// An icon button that also carries its label, as used in the button rows under the editable
-    /// tables ("Add", "Modify", "Remove", ...).
+    /// An icon button that also carries its label, as used in the button rows
+    /// under the editable tables ("Add", "Modify", "Remove", ...).
     public static Button labelledIconButton(JabRefIcon icon, String text, Runnable action) {
         Button button = new Button(text);
         button.setGraphic(icon.getGraphicNode());
@@ -44,15 +47,18 @@ public class ControlHelper {
         return button;
     }
 
-    /// A [#labelledIconButton] forced to `prefWidth`, so that the buttons of one row come out
-    /// uniformly wide however long their individual captions are.
-    public static Button labelledIconButton(JabRefIcon icon, String text, double prefWidth, Runnable action) {
+    /// A [#labelledIconButton] forced to `prefWidth`, so that the buttons of
+    /// one row come out uniformly wide however long their individual captions
+    /// are.
+    public static Button labelledIconButton(JabRefIcon icon, String text, double prefWidth,
+            Runnable action) {
         Button button = labelledIconButton(icon, text, action);
         button.setPrefWidth(prefWidth);
         return button;
     }
 
-    /// The compact 20x20 icon button used next to fields and lists (browse, reset, reorder, ...).
+    /// The compact 20x20 icon button used next to fields and lists (browse,
+    /// reset, reorder, ...).
     public static Button narrowIconButton(JabRefIcon icon, String tooltip, Runnable action) {
         Button button = new Button();
         button.setGraphic(icon.getGraphicNode());
@@ -72,20 +78,23 @@ public class ControlHelper {
 
     public static void setAction(ButtonType buttonType, DialogPane dialogPane, Consumer<Event> consumer) {
         Button button = (Button) dialogPane.lookupButton(buttonType);
-        button.addEventFilter(ActionEvent.ACTION, event -> {
-            consumer.accept(event);
-            event.consume();
-        });
+        button.addEventFilter(ActionEvent.ACTION,
+                event -> {
+                    consumer.accept(event);
+                    event.consume();
+                });
     }
 
     public static boolean childIsFocused(Parent node) {
-        return node.isFocused() || node.getChildrenUnmodifiable().stream().anyMatch(child -> {
-            if (child instanceof Parent parent) {
-                return childIsFocused(parent);
-            } else {
-                return child.isFocused();
-            }
-        });
+        return node.isFocused() || node.getChildrenUnmodifiable()
+                .stream()
+                .anyMatch(child -> {
+                    if (child instanceof Parent parent) {
+                        return childIsFocused(parent);
+                    } else {
+                        return child.isFocused();
+                    }
+                });
     }
 
     /// Returns a text formatter that restricts input to integers
@@ -143,14 +152,20 @@ public class ControlHelper {
         removePseudoClasses(cell, DRAG_OVER_BOTTOM, DRAG_OVER_CENTER, DRAG_OVER_TOP);
     }
 
-    /// If needed, truncates a given string to `maxCharacters`, adding `ellipsisString` instead.
+    /// If needed, truncates a given string to `maxCharacters`, adding
+    /// `ellipsisString` instead.
     ///
-    /// @param text             text which should be truncated, if needed
-    /// @param maxCharacters    maximum amount of characters which the resulting text should have, including the `ellipsisString`; if set to -1, then the default length of 75 characters will be used
-    /// @param ellipsisString   string which should be used for indicating the truncation
-    /// @param ellipsisPosition location in the given text where the truncation should be performed
+    /// @param text text which should be truncated, if needed
+    /// @param maxCharacters maximum amount of characters which the resulting
+    ///   text should have, including the `ellipsisString`; if set to -1, then
+    ///   the default length of 75 characters will be used
+    /// @param ellipsisString string which should be used for indicating the
+    ///   truncation
+    /// @param ellipsisPosition location in the given text where the truncation
+    ///   should be performed
     /// @return the new, truncated string
-    public static String truncateString(String text, int maxCharacters, String ellipsisString, EllipsisPosition ellipsisPosition) {
+    public static String truncateString(String text, int maxCharacters, String ellipsisString,
+            EllipsisPosition ellipsisPosition) {
         if (text == null || text.isEmpty()) {
             return text; // return original
         }
@@ -168,14 +183,12 @@ public class ControlHelper {
         if (text.length() > maxCharacters) {
             // truncation necessary
             return switch (ellipsisPosition) {
-                case BEGINNING ->
-                        ellipsisString + text.substring(text.length() - (maxCharacters - ellipsisString.length()));
+                case BEGINNING -> ellipsisString + text.substring(text.length() - (maxCharacters - ellipsisString.length()));
                 case CENTER -> {
                     int partialLength = (int) Math.floor((maxCharacters - ellipsisString.length()) / 2f);
                     yield text.substring(0, partialLength) + ellipsisString + text.substring(text.length() - partialLength);
                 }
-                case ENDING ->
-                        text.substring(0, maxCharacters - ellipsisString.length()) + ellipsisString;
+                case ENDING -> text.substring(0, maxCharacters - ellipsisString.length()) + ellipsisString;
             };
         }
 

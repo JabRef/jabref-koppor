@@ -27,15 +27,17 @@ import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Util class for searching files on the file system which are not linked to a provided [org.jabref.model.database.BibDatabase].
+/// Util class for searching files on the file system which are not linked to a
+/// provided [org.jabref.model.database.BibDatabase].
 ///
-/// The result is used to determine whether to link the files to an existing related entry or to create a new entry, according to the user's choice.
+/// The result is used to determine whether to link the files to an existing
+/// related entry or to create a new entry, according to the user's choice.
 ///
-/// Related: [org.jabref.gui.externalfiles.AutoSetFileLinksUtil#findAssociatedNotLinkedFiles]
+/// Related:
+/// [org.jabref.gui.externalfiles.AutoSetFileLinksUtil#findAssociatedNotLinkedFiles]
 public class UnlinkedFilesCrawler extends BackgroundTask<UnlinkedFilesSearchResult> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UnlinkedFilesCrawler.class);
@@ -49,14 +51,15 @@ public class UnlinkedFilesCrawler extends BackgroundTask<UnlinkedFilesSearchResu
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
     private final AutoLinkPreferences autoLinkPreferences;
 
-    public UnlinkedFilesCrawler(Path directory,
-                                Filter<Path> fileFilter,
-                                DateRange dateFilter,
-                                ExternalFileSorter sorter,
-                                BibDatabaseContext databaseContext,
-                                FilePreferences filePreferences,
-                                ExternalApplicationsPreferences externalApplicationsPreferences,
-                                AutoLinkPreferences autoLinkPreferences) {
+    public UnlinkedFilesCrawler(
+            Path directory,
+            Filter<Path> fileFilter,
+            DateRange dateFilter,
+            ExternalFileSorter sorter,
+            BibDatabaseContext databaseContext,
+            FilePreferences filePreferences,
+            ExternalApplicationsPreferences externalApplicationsPreferences,
+            AutoLinkPreferences autoLinkPreferences) {
         this.directory = directory;
         this.fileFilter = fileFilter;
         this.dateFilter = dateFilter;
@@ -77,11 +80,7 @@ public class UnlinkedFilesCrawler extends BackgroundTask<UnlinkedFilesSearchResu
 
     private Map<Path, List<BibEntry>> findRelatedEntriesByFile() {
         Map<Path, List<BibEntry>> relatedEntriesByFile = new HashMap<>();
-        AutoSetFileLinksUtil autoSetFileLinksUtil = new AutoSetFileLinksUtil(
-                databaseContext,
-                externalApplicationsPreferences,
-                filePreferences,
-                autoLinkPreferences);
+        AutoSetFileLinksUtil autoSetFileLinksUtil = new AutoSetFileLinksUtil(databaseContext, externalApplicationsPreferences, filePreferences, autoLinkPreferences);
 
         List<Path> fileDirectories = databaseContext.getFileDirectories(filePreferences);
         for (BibEntry entry : databaseContext.getDatabase().getEntries()) {
@@ -93,7 +92,8 @@ public class UnlinkedFilesCrawler extends BackgroundTask<UnlinkedFilesSearchResu
                 Set<Path> associatedPaths = new HashSet<>();
                 for (LinkedFile associatedFile : associatedFiles) {
                     // The links are relative and deduplicated, so a name present in several file directories must be expanded again
-                    FileUtil.findListOfFiles(associatedFile.getLink(), fileDirectories).stream()
+                    FileUtil.findListOfFiles(associatedFile.getLink(), fileDirectories)
+                            .stream()
                             .map(UnlinkedFilesSearchResult::normalizePath)
                             .forEach(associatedPaths::add);
                 }
@@ -105,27 +105,34 @@ public class UnlinkedFilesCrawler extends BackgroundTask<UnlinkedFilesSearchResu
             }
         }
 
-        return relatedEntriesByFile.entrySet().stream()
-                                   .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, entry -> List.copyOf(entry.getValue())));
+        return relatedEntriesByFile.entrySet()
+                .stream()
+                .collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, entry -> List.copyOf(entry.getValue())));
     }
 
     /// Searches recursively all files in the specified directory.
     ///
-    /// All files matched by the given [UnlinkedPDFFileFilter] are taken into the resulting tree.
+    /// All files matched by the given [UnlinkedPDFFileFilter] are taken into
+    /// the resulting tree.
     ///
-    /// The result will be a tree structure of nodes of the type [javafx.scene.control.CheckBoxTreeItem].
+    /// The result will be a tree structure of nodes of the type
+    /// [javafx.scene.control.CheckBoxTreeItem].
     ///
-    /// The user objects that are attached to the nodes is the [FileNodeViewModel], which wraps the [java.io.File]-Object.
+    /// The user objects that are attached to the nodes is the
+    /// [FileNodeViewModel], which wraps the [java.io.File]-Object.
     ///
-    /// For ensuring the capability to cancel the work of this recursive method, the first position in the integer array
-    /// 'state' must be set to 1, to keep the recursion running. When the states value changes, the method will resolve
-    /// its recursion and return what it has saved so far.
+    /// For ensuring the capability to cancel the work of this recursive method,
+    /// the first position in the integer array 'state' must be set to 1, to
+    /// keep the recursion running. When the states value changes, the method
+    /// will resolve its recursion and return what it has saved so far.
     ///
-    /// The files are filtered according to the [DateRange] filter value
-    /// and then sorted according to the [ExternalFileSorter] value.
+    /// The files are filtered according to the [DateRange] filter value and
+    /// then sorted according to the [ExternalFileSorter] value.
     ///
-    /// @param unlinkedPDFFileFilter contains a BibDatabaseContext which is used to determine whether the file is linked
-    /// @return FileNodeViewModel containing the data of the current directory and all subdirectories
+    /// @param unlinkedPDFFileFilter contains a BibDatabaseContext which is used
+    ///   to determine whether the file is linked
+    /// @return FileNodeViewModel containing the data of the current directory
+    ///   and all subdirectories
     /// @throws IOException if directory is not a directory or empty
     FileNodeViewModel searchDirectory(Path directory, UnlinkedPDFFileFilter unlinkedPDFFileFilter) throws IOException {
         // Return null if the directory is not valid.
@@ -187,8 +194,8 @@ public class UnlinkedFilesCrawler extends BackgroundTask<UnlinkedFilesSearchResu
 
         // create and add FileNodeViewModel to the FileNodeViewModel for the current directory
         fileNodeViewModelForCurrentDirectory.getChildren().addAll(resultingFiles.stream()
-                                                                                .map(FileNodeViewModel::new)
-                                                                                .toList());
+                .map(FileNodeViewModel::new)
+                .toList());
 
         return fileNodeViewModelForCurrentDirectory;
     }

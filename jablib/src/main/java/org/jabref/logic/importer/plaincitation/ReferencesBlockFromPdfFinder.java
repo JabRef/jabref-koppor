@@ -4,9 +4,8 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jabref.logic.util.PdfUtils;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.jabref.logic.util.PdfUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +14,9 @@ public class ReferencesBlockFromPdfFinder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReferencesBlockFromPdfFinder.class);
     private static final Pattern REFERENCES = Pattern.compile("References", Pattern.CASE_INSENSITIVE);
 
-    /// Extracts the text from all pages containing references. It simply goes from the last page backwards until there is probably no reference anymore.
+    /// Extracts the text from all pages containing references. It simply goes
+    /// from the last page backwards until there is probably no reference
+    /// anymore.
     public static String getReferencesPagesText(PDDocument document) throws IOException {
         int lastPage = document.getNumberOfPages();
         String result = prependToResult("", document, lastPage);
@@ -32,7 +33,8 @@ public class ReferencesBlockFromPdfFinder {
         return result.substring(end);
     }
 
-    /// This simply goes from the given page backwards until there is probably no reference anymore.
+    /// This simply goes from the given page backwards until there is probably
+    /// no reference anymore.
     private static String prependToResult(String currentText, PDDocument document, int pageNumber) throws IOException {
         String pageContents = PdfUtils.getPageContents(document, pageNumber);
         String result = pageContents + currentText;

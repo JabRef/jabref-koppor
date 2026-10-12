@@ -1,5 +1,7 @@
 package org.jabref.gui.errorconsole;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -18,7 +20,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.util.Callback;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.icon.IconTheme;
@@ -30,32 +31,47 @@ import org.jabref.gui.util.ControlHelper;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BuildInfo;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 public class ErrorConsoleView extends BaseDialog<Void> {
 
     private ErrorConsoleViewModel viewModel;
 
-    @FXML private ButtonType copyLogButton;
-    @FXML private ButtonType clearLogButton;
-    @FXML private ButtonType createIssueButton;
-    @FXML private ListView<LogEventViewModel> messagesListView;
-    @FXML private Label descriptionLabel;
+    @FXML
+    private ButtonType copyLogButton;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private ClipBoardManager clipBoardManager;
-    @Inject private BuildInfo buildInfo;
-    @Inject private KeyBindingRepository keyBindingRepository;
+    @FXML
+    private ButtonType clearLogButton;
+
+    @FXML
+    private ButtonType createIssueButton;
+
+    @FXML
+    private ListView<LogEventViewModel> messagesListView;
+
+    @FXML
+    private Label descriptionLabel;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private ClipBoardManager clipBoardManager;
+
+    @Inject
+    private BuildInfo buildInfo;
+
+    @Inject
+    private KeyBindingRepository keyBindingRepository;
 
     public ErrorConsoleView() {
         this.setTitle(Localization.lang("Event log"));
         this.initModality(Modality.NONE);
 
         ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+                .load()
+                .setAsDialogPane(this);
 
         ControlHelper.setAction(copyLogButton, getDialogPane(), _ -> copyLog());
         ControlHelper.setAction(clearLogButton, getDialogPane(), _ -> clearLog());
@@ -109,14 +125,16 @@ public class ErrorConsoleView extends BaseDialog<Void> {
                     Node icon = event.getIcon().getGraphicNode();
                     heading.setText(event.getDisplayText());
                     heading.getStyleClass().setAll(event.getStyleClass());
-                    event.getStackTrace().ifPresentOrElse(text -> {
-                        stacktrace.setText(text);
-                        stacktrace.setVisible(true);
-                        stacktrace.setManaged(true);
-                    }, () -> {
-                        stacktrace.setVisible(false);
-                        stacktrace.setManaged(false);
-                    });
+                    event.getStackTrace().ifPresentOrElse(
+                            text -> {
+                                stacktrace.setText(text);
+                                stacktrace.setVisible(true);
+                                stacktrace.setManaged(true);
+                            },
+                            () -> {
+                                stacktrace.setVisible(false);
+                                stacktrace.setManaged(false);
+                            });
                     graphic.getStyleClass().setAll(event.getStyleClass());
                     graphic.getChildren().setAll(icon, message);
                     setGraphic(graphic);

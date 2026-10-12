@@ -3,8 +3,9 @@ package org.jabref.logic.importer.fetcher;
 import java.util.List;
 import java.util.Optional;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.collections.FXCollections;
-
+import kong.unirest.core.json.JSONObject;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
@@ -15,9 +16,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.paging.Page;
 import org.jabref.support.ExternalServicesTest;
-
-import com.airhacks.afterburner.injection.Injector;
-import kong.unirest.core.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -154,12 +152,16 @@ class SpringerNatureWebFetcherTest implements SearchBasedFetcherCapabilityTest, 
                 .withField(StandardField.ABSTRACT, "Several Open-Source Software (OSS) projects depend on the continuity of their development communities to remain sustainable. Understanding how developers become inactive or why they take breaks can help communities prevent abandonment and incentivize developers to come back. In this paper, we propose a novel method to identify developers’ inactive periods by analyzing the individual rhythm of contributions to the projects. Using this method, we quantitatively analyze the inactivity of core developers in 18 OSS organizations hosted on GitHub. We also survey core developers to receive their feedback about the identified breaks and transitions. Our results show that our method was effective for identifying developers’ breaks. About 94% of the surveyed core developers agreed with our state model of inactivity; 71% and 79% of them acknowledged their breaks and state transition, respectively. We also show that all core developers take breaks (at least once) and about a half of them (~45%) have completely disengaged from a project for at least one year. We also analyzed the probability of transitions to/from inactivity and found that developers who pause their activity have a ~35 to ~55% chance to return to an active state; yet, if the break lasts for a year or longer, then the probability of resuming activities drops to ~21–26%, with a ~54% chance of complete disengagement. These results may support the creation of policies and mechanisms to make OSS community managers aware of breaks and potential project abandonment.");
 
         List<BibEntry> fetchedEntries = fetcher.performSearch("JabRef Social Barriers Steinmacher");
-        assertEquals(List.of(articleGenerativeAISolutions, articleSupportingIdentification, articleTagThatIssue, fourthArticle, thirdArticle, firstArticle, secondArticle), fetchedEntries);
+        assertEquals(
+                List.of(articleGenerativeAISolutions, articleSupportingIdentification, articleTagThatIssue,
+                        fourthArticle, thirdArticle, firstArticle, secondArticle),
+                fetchedEntries);
     }
 
     @Test
     void springerJSONToBibtex() {
-        String jsonString = """
+        String jsonString =
+                """
                 {\r
                             "identifier":"doi:10.1007/BF01201962",\r
                             "title":"Book reviews",\r
@@ -194,26 +196,22 @@ class SpringerNatureWebFetcherTest implements SearchBasedFetcherCapabilityTest, 
     @Test
     @Disabled("Year search is currently broken, because the API returns multiple years.")
     @Override
-    public void supportsYearSearch() {
-    }
+    public void supportsYearSearch() {}
 
     @Test
     @Disabled("Year range search is not natively supported by the API, but can be emulated by multiple single year searches.")
     @Override
-    public void supportsYearRangeSearch() {
-    }
+    public void supportsYearRangeSearch() {}
 
     @Test
     @Disabled("401 as of 2024-08-18")
     @Override
-    public void supportsAuthorSearch() {
-    }
+    public void supportsAuthorSearch() {}
 
     @Test
     @Disabled("401 as of 2024-08-18")
     @Override
-    public void supportsJournalSearch() {
-    }
+    public void supportsJournalSearch() {}
 
     @Test
     @Disabled("401 as of 2024-08-18")
@@ -249,14 +247,13 @@ class SpringerNatureWebFetcherTest implements SearchBasedFetcherCapabilityTest, 
 
         assertTrue(resultJustByAuthor.containsAll(result));
         List<BibEntry> allEntriesFromCSCW = result.stream()
-                                                  .filter(bibEntry -> "Computer Supported Cooperative Work (CSCW)"
-                                                          .equals(bibEntry.getField(StandardField.JOURNAL)
-                                                                          .orElse("")))
-                                                  .toList();
+                .filter(bibEntry -> "Computer Supported Cooperative Work (CSCW)".equals(bibEntry.getField(StandardField.JOURNAL).orElse("")))
+                .toList();
         allEntriesFromCSCW.stream()
                           .map(bibEntry -> bibEntry.getField(StandardField.AUTHOR))
                           .filter(Optional::isPresent)
-                          .map(Optional::get).forEach(authorField -> assertTrue(authorField.contains("Redmiles")));
+                          .map(Optional::get)
+                          .forEach(authorField -> assertTrue(authorField.contains("Redmiles")));
     }
 
     @Test

@@ -9,10 +9,10 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
+import com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -26,8 +26,6 @@ import org.jabref.logic.undo.UndoManager;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.field.Field;
-
-import com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +35,17 @@ public class MarkdownEditor extends SimpleEditor {
     private final BibDatabaseContext databaseContext;
     private final FilePreferences filePreferences;
 
-    public MarkdownEditor(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers, GuiPreferences preferences, UndoManager undoManager, UndoAction undoAction, RedoAction redoAction, BibDatabaseContext bibDatabaseContext) {
-        super(field, suggestionProvider, fieldCheckers, preferences, true, undoManager, undoAction, redoAction);
+    public MarkdownEditor(
+            Field field,
+            SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers,
+            GuiPreferences preferences,
+            UndoManager undoManager,
+            UndoAction undoAction,
+            RedoAction redoAction,
+            BibDatabaseContext bibDatabaseContext) {
+        super(field, suggestionProvider, fieldCheckers, preferences, true, undoManager,
+                undoAction, redoAction);
         this.databaseContext = bibDatabaseContext;
         this.filePreferences = preferences.getFilePreferences();
         setUpDragDrop();
@@ -80,26 +87,28 @@ public class MarkdownEditor extends SimpleEditor {
     }
 
     private void enableDragDrop(EditorTextArea textArea) {
-        textArea.setOnDragDropped(event -> {
-            Dragboard dragboard = event.getDragboard();
-            boolean success = false;
-            if (dragboard.hasFiles()) {
-                for (File file : dragboard.getFiles()) {
-                    if (FileUtil.isImage(file.toPath())) {
-                        success |= insertFileToLibraryAndAppend(file, textArea);
+        textArea.setOnDragDropped(
+                event -> {
+                    Dragboard dragboard = event.getDragboard();
+                    boolean success = false;
+                    if (dragboard.hasFiles()) {
+                        for (File file : dragboard.getFiles()) {
+                            if (FileUtil.isImage(file.toPath())) {
+                                success |= insertFileToLibraryAndAppend(file, textArea);
+                            }
+                        }
+                    } else if (dragboard.hasImage()) {
+                        success |= insertImageToDbAndAppend(dragboard.getUrl(), textArea);
                     }
-                }
-            } else if (dragboard.hasImage()) {
-                success |= insertImageToDbAndAppend(dragboard.getUrl(), textArea);
-            }
-            event.setDropCompleted(success);
-            event.consume();
-        });
+                    event.setDropCompleted(success);
+                    event.consume();
+                });
     }
 
-    /// Inserts Markdown Link for a file dropped into the editor, copying file to the database file directory if necessary
+    /// Inserts Markdown Link for a file dropped into the editor, copying file
+    /// to the database file directory if necessary
     ///
-    /// @param file     is the file that is dropped into the editor
+    /// @param file is the file that is dropped into the editor
     /// @param textArea is the Editor text area
     /// @return true if the Markdown Text was inserted, false otherwise
     private boolean insertFileToLibraryAndAppend(File file, EditorTextArea textArea) {

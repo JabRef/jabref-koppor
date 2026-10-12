@@ -27,7 +27,8 @@ public record CitationCommandString(@NonNull String prefix, @NonNull String deli
         int indexKey1 = completeCiteCommand.indexOf(CITE_KEY1);
         int indexKey2 = completeCiteCommand.indexOf(CITE_KEY2);
         if (indexKey1 < 0 || indexKey2 < 0 || indexKey2 < (indexKey1 + CITE_KEY1.length())) {
-            LOGGER.warn("Wrong indexes {} {} for completeCiteCommand {}. Using default delimiter and suffix.", indexKey1, indexKey2, completeCiteCommand);
+            LOGGER.warn("Wrong indexes {} {} for completeCiteCommand {}. Using default delimiter and suffix.",
+                    indexKey1, indexKey2, completeCiteCommand);
             if (completeCiteCommand.isEmpty()) {
                 completeCiteCommand = "\\cite{";
             } else if (!completeCiteCommand.endsWith("{")) {

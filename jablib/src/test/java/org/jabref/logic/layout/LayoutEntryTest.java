@@ -13,7 +13,6 @@ import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,17 +23,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
-/// The test class LayoutEntryTest test the net.sf.jabref.export.layout.LayoutEntry. Indirectly the
+/// The test class LayoutEntryTest test the
+/// net.sf.jabref.export.layout.LayoutEntry. Indirectly the
 /// net.sf.jabref.export.layout.Layout is tested too.
 ///
-/// The LayoutEntry creates a human readable String assigned with HTML formatters. To test the Highlighting Feature, an
-/// instance of LayoutEntry will be instantiated via Layout and LayoutHelper. With these instance the doLayout() Method
-/// is called several times for each test case. To simulate a search, a BibEntry will be created, which will be used by
-/// LayoutEntry.
-/// There are five test cases: - The shown result text has no words which should be highlighted. - There is one word
-/// which will be highlighted ignoring case sensitivity. - There are two words which will be highlighted ignoring case
-/// sensitivity. - There is one word which will be highlighted case sensitivity. - There are more words which will be
-/// highlighted case sensitivity.
+/// The LayoutEntry creates a human readable String assigned with HTML
+/// formatters. To test the Highlighting Feature, an instance of LayoutEntry
+/// will be instantiated via Layout and LayoutHelper. With these instance the
+/// doLayout() Method is called several times for each test case. To simulate a
+/// search, a BibEntry will be created, which will be used by LayoutEntry. There
+/// are five test cases: - The shown result text has no words which should be
+/// highlighted. - There is one word which will be highlighted ignoring case
+/// sensitivity. - There are two words which will be highlighted ignoring case
+/// sensitivity. - There is one word which will be highlighted case sensitivity.
+/// - There are more words which will be highlighted case sensitivity.
 
 class LayoutEntryTest {
 
@@ -67,20 +69,26 @@ class LayoutEntryTest {
 
     public String layout(String layoutFile, BibEntry entry) throws IOException {
         Reader reader = Reader.of(layoutFile.replace("__NEWLINE__", "\n"));
-        Layout layout = new LayoutHelper(reader, mock(LayoutFormatterPreferences.class), mock(JournalAbbreviationRepository.class)).getLayoutFromText();
+        Layout layout = new LayoutHelper(reader, mock(LayoutFormatterPreferences.class), mock(JournalAbbreviationRepository.class))
+                .getLayoutFromText();
 
         return layout.doLayout(entry, null);
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             bla, bla
             bla, 'bla,'
             _bla.bla.blub, '_bla.bla.blub,'
             """)
     void parseSingleMethodWithoutArguments(String expected, String input) {
         assertEquals(1, LayoutEntry.parseMethodsCalls(input).size());
-        assertEquals(expected, LayoutEntry.parseMethodsCalls(input).getFirst().getFirst());
+        assertEquals(expected,
+                LayoutEntry.parseMethodsCalls(input)
+                        .getFirst()
+                        .getFirst());
     }
 
     @Test
@@ -93,40 +101,46 @@ class LayoutEntryTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             bla, test, foo, fark, 'bla("test"),foo("fark")'
             bla, test, foo, fark, 'bla(test),foo(fark)'
             """)
-    void parseTwoMethodsWithArguments(String expectedName1, String expectedArg1,
-                                      String expectedName2, String expectedArg2, String input) {
+    void parseTwoMethodsWithArguments(String expectedName1, String expectedArg1, String expectedName2,
+            String expectedArg2, String input) {
         assertEquals(2, LayoutEntry.parseMethodsCalls(input).size());
-        assertEquals(expectedName1, LayoutEntry.parseMethodsCalls(input).getFirst().getFirst());
-        assertEquals(expectedArg1, LayoutEntry.parseMethodsCalls(input).getFirst().get(1));
-        assertEquals(expectedName2, LayoutEntry.parseMethodsCalls(input).get(1).getFirst());
-        assertEquals(expectedArg2, LayoutEntry.parseMethodsCalls(input).get(1).get(1));
+        assertEquals(expectedName1,
+                LayoutEntry.parseMethodsCalls(input)
+                        .getFirst()
+                        .getFirst());
+        assertEquals(expectedArg1,
+                LayoutEntry.parseMethodsCalls(input)
+                        .getFirst()
+                        .get(1));
+        assertEquals(expectedName2,
+                LayoutEntry.parseMethodsCalls(input)
+                        .get(1)
+                        .getFirst());
+        assertEquals(expectedArg2,
+                LayoutEntry.parseMethodsCalls(input)
+                        .get(1)
+                        .get(1));
     }
 
     @ParameterizedTest
     @ValueSource(ints = {2, 3, 4, 6, 7})
     void unsupportedOperationTypes(int type) {
-        List<StringInt> parsedEntries = List.of(new StringInt("place_holder", 0),
-                new StringInt("testString", 0));
+        List<StringInt> parsedEntries = List.of(new StringInt("place_holder", 0), new StringInt("testString", 0));
         BibDatabaseContext bibDatabaseContext = new BibDatabaseContext(new BibDatabase(), new MetaData(), null);
         LayoutEntry layoutEntry = new LayoutEntry(parsedEntries, type, null, null, null);
         assertThrows(UnsupportedOperationException.class, () -> layoutEntry.doLayout(bibDatabaseContext, StandardCharsets.UTF_8));
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "1, testString",
-            "5, testString",
-            "8, UTF-8",
-            "9, ''",
-            "10, ''"
-    })
+    @CsvSource({"1, testString", "5, testString", "8, UTF-8", "9, ''", "10, ''"})
     void layoutResult(int type, String expectedValue) {
-        List<StringInt> parsedEntries = List.of(new StringInt("place_holder", 0),
-                new StringInt("testString", 0));
+        List<StringInt> parsedEntries = List.of(new StringInt("place_holder", 0), new StringInt("testString", 0));
         BibDatabaseContext bibDatabaseContext = new BibDatabaseContext(new BibDatabase(), new MetaData(), null);
         LayoutEntry layoutEntry = new LayoutEntry(parsedEntries, type, null, null, null);
         assertEquals(expectedValue, layoutEntry.doLayout(bibDatabaseContext, StandardCharsets.UTF_8));

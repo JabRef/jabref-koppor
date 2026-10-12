@@ -19,7 +19,9 @@ public class SsrnFetcher extends DoiFetcher {
 
     @Override
     public Optional<BibEntry> performSearchById(String identifier) throws FetcherException {
-        String doi = SSRN.parse(identifier).map(ssrn -> ssrn.toDoi().asString()).orElse(identifier);
+        String doi = SSRN.parse(identifier)
+                         .map(ssrn -> ssrn.toDoi().asString())
+                         .orElse(identifier);
         return super.performSearchById(doi);
     }
 }

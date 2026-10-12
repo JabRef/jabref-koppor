@@ -9,12 +9,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.random.RandomGenerator;
+import java.util.random.RandomGenerator.StreamableGenerator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javafx.beans.property.SimpleObjectProperty;
-
+import org.h2.mvstore.MVStore;
+import org.h2.mvstore.MVStore.Builder;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.fetcher.citation.CitationFetcherType;
@@ -24,8 +25,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.DisabledOnCIServer;
-
-import org.h2.mvstore.MVStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
@@ -45,8 +44,8 @@ import static org.mockito.Mockito.mock;
 @Execution(ExecutionMode.SAME_THREAD)
 class MVStoreBibEntryRelationRepositoryTest {
 
-    private final static String MV_STORE_NAME = "test-relations.mv";
-    private final static String MAP_NAME = "test-relations";
+    private static final String MV_STORE_NAME = "test-relations.mv";
+    private static final String MAP_NAME = "test-relations";
 
     @TempDir
     Path temporaryFolder;
@@ -58,18 +57,12 @@ class MVStoreBibEntryRelationRepositoryTest {
     void initStore() throws Exception {
         Path file = Files.createFile(temporaryFolder.resolve(MV_STORE_NAME));
 
-        this.store = new MVStore.Builder()
+        this.store = new Builder()
                 .fileName(file.toAbsolutePath().toString())
                 .open();
 
-        this.dao = new MVStoreBibEntryRelationRepository(
-                store,
-                MAP_NAME,
-                7,
-                new BibEntryTypesManager(),
-                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                mock(FieldPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                new SimpleObjectProperty<>(CitationFetcherType.SEMANTIC_SCHOLAR));
+        this.dao = new MVStoreBibEntryRelationRepository(store, MAP_NAME, 7, new BibEntryTypesManager(), mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
+                mock(FieldPreferences.class, Answers.RETURNS_DEEP_STUBS), new SimpleObjectProperty<>(CitationFetcherType.SEMANTIC_SCHOLAR));
     }
 
     @AfterEach
@@ -80,9 +73,7 @@ class MVStoreBibEntryRelationRepositoryTest {
     }
 
     private static Stream<BibEntry> createBibEntries() {
-        return IntStream
-                .range(0, 150)
-                .mapToObj(MVStoreBibEntryRelationRepositoryTest::createBibEntry);
+        return IntStream.range(0, 150).mapToObj(MVStoreBibEntryRelationRepositoryTest::createBibEntry);
     }
 
     private static BibEntry createBibEntry(int i) {
@@ -91,27 +82,31 @@ class MVStoreBibEntryRelationRepositoryTest {
                 .withField(StandardField.DOI, "10.1234/5678" + i);
     }
 
-    /// Create a fake list of relations for a bibEntry based on the [org.jabref.logic.importer.fetcher.citation.semanticscholar.PaperDetails#toBibEntry()] logic
-    /// that corresponds to this use case: we want to make sure that relations coming from SemanticScholar
-    /// and mapped as BibEntry will be serializable by the MVStore.
+    /// Create a fake list of relations for a bibEntry based on the
+    /// [org.jabref.logic.importer.fetcher.citation.semanticscholar.PaperDetails#toBibEntry()]
+    /// logic that corresponds to this use case: we want to make sure that
+    /// relations coming from SemanticScholar and mapped as BibEntry will be
+    /// serializable by the MVStore.
     ///
     /// @param entry should not be null
     /// @return never empty
     private List<BibEntry> createRelations(BibEntry entry) {
-        return entry
-                .getCitationKey()
-                .map(_ -> RandomGenerator.StreamableGenerator
-                        .of("L128X256MixRandom").ints(12) // 12 is arbitrary here. We just want some relations. We do not do any "load" testing.
-                        .mapToObj(i -> new BibEntry(StandardEntryType.Book)
-                                .withField(StandardField.TITLE, "A title: " + i)
-                                .withField(StandardField.YEAR, String.valueOf(2024))
-                                .withField(StandardField.AUTHOR, "{A list of authors: " + i + "}")
-                                .withField(StandardField.DOI, entry.getDOI().map(DOI::asString).orElse("") + ":" + i)
-                                .withField(StandardField.ABSTRACT, "The Universe is expanding: " + i)
-                        )
-                )
-                .orElseThrow()
-                .toList();
+        return entry.getCitationKey()
+                    .map(
+                            _ -> StreamableGenerator.of("L128X256MixRandom")
+                                    .ints(12) // 12 is arbitrary here. We just want some relations. We do not do any "load" testing.
+                                    .mapToObj(
+                                            i -> new BibEntry(StandardEntryType.Book)
+                                                    .withField(StandardField.TITLE, "A title: " + i)
+                                                    .withField(StandardField.YEAR, String.valueOf(2024))
+                                                    .withField(StandardField.AUTHOR, "{A list of authors: " + i + "}")
+                                                    .withField(StandardField.DOI, entry.getDOI()
+                                                            .map(DOI::asString)
+                                                            .orElse("")
+                                                            + ":" + i)
+                                                    .withField(StandardField.ABSTRACT, "The Universe is expanding: " + i)))
+                    .orElseThrow()
+                    .toList();
     }
 
     @ParameterizedTest
@@ -125,14 +120,12 @@ class MVStoreBibEntryRelationRepositoryTest {
         // WHEN
         dao.addRelations(bibEntry, firstRelations);
         dao.addRelations(bibEntry, secondRelations);
-        List<BibEntry> relationFromCache = dao
-                .getRelations(bibEntry)
+        List<BibEntry> relationFromCache = dao.getRelations(bibEntry)
                 .stream()
                 .toList();
 
         // THEN
-        List<BibEntry> uniqueRelations = Stream
-                .concat(firstRelations.stream(), secondRelations.stream())
+        List<BibEntry> uniqueRelations = Stream.concat(firstRelations.stream(), secondRelations.stream())
                 .distinct()
                 .toList();
         assertFalse(uniqueRelations.isEmpty());
@@ -186,10 +179,11 @@ class MVStoreBibEntryRelationRepositoryTest {
 
         // THEN
         assertFalse(dao.shouldUpdate(entry, clock));
-        Clock clockOneWeekAfter = Clock.fixed(
-                LocalDateTime.now(ZoneId.of("UTC")).plusWeeks(1).plusSeconds(1).toInstant(ZoneOffset.UTC),
-                ZoneId.of("UTC")
-        );
+        Clock clockOneWeekAfter = Clock.fixed(LocalDateTime.now(ZoneId.of("UTC"))
+                .plusWeeks(1)
+                .plusSeconds(1)
+                .toInstant(ZoneOffset.UTC),
+                ZoneId.of("UTC"));
         assertTrue(dao.shouldUpdate(entry, clockOneWeekAfter));
     }
 
@@ -200,17 +194,11 @@ class MVStoreBibEntryRelationRepositoryTest {
         List<BibEntry> relations = createRelations(entry);
         Clock clock = Clock.fixed(Instant.now(), ZoneId.of("UTC"));
         Path file = Files.createFile(temporaryFolder.resolve("update_test" + MV_STORE_NAME));
-        try (MVStore store = new MVStore.Builder()
+        try (MVStore store = new Builder()
                 .fileName(file.toAbsolutePath().toString())
                 .open()) {
-            MVStoreBibEntryRelationRepository daoUnderTest = new MVStoreBibEntryRelationRepository(
-                    store,
-                    MAP_NAME,
-                    30,
-                    mock(BibEntryTypesManager.class, Answers.RETURNS_DEEP_STUBS),
-                    mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                    mock(FieldPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                    new SimpleObjectProperty<>(CitationFetcherType.SEMANTIC_SCHOLAR));
+            MVStoreBibEntryRelationRepository daoUnderTest = new MVStoreBibEntryRelationRepository(store, MAP_NAME, 30, mock(BibEntryTypesManager.class, Answers.RETURNS_DEEP_STUBS),
+                    mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), mock(FieldPreferences.class, Answers.RETURNS_DEEP_STUBS), new SimpleObjectProperty<>(CitationFetcherType.SEMANTIC_SCHOLAR));
             assertTrue(daoUnderTest.shouldUpdate(entry, clock));
 
             // WHEN
@@ -218,10 +206,10 @@ class MVStoreBibEntryRelationRepositoryTest {
 
             // THEN
             assertFalse(daoUnderTest.shouldUpdate(entry, clock));
-            Clock clockOneWeekAfter = Clock.fixed(
-                    LocalDateTime.now(ZoneId.of("UTC")).plusWeeks(1).toInstant(ZoneOffset.UTC),
-                    ZoneId.of("UTC")
-            );
+            Clock clockOneWeekAfter = Clock.fixed(LocalDateTime.now(ZoneId.of("UTC"))
+                    .plusWeeks(1)
+                    .toInstant(ZoneOffset.UTC),
+                    ZoneId.of("UTC"));
             assertFalse(daoUnderTest.shouldUpdate(entry, clockOneWeekAfter));
         }
     }

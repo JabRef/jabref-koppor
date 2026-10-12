@@ -12,6 +12,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.google.common.annotations.VisibleForTesting;
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.clipboard.ClipBoardManager;
@@ -34,24 +36,26 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.identifier.Identifier;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.LoggerFactory;
 
 import static org.jabref.model.entry.field.StandardField.PDF;
 import static org.jabref.model.entry.field.StandardField.PS;
 import static org.jabref.model.entry.field.StandardField.URL;
 
-/// This class contains bundles OS specific implementations for file directories and file/application open handling methods.
-/// In case the default does not work, subclasses provide the correct behavior.
+/// This class contains bundles OS specific implementations for file directories
+/// and file/application open handling methods. In case the default does not
+/// work, subclasses provide the correct behavior.
 ///
-/// We cannot use a static logger instance here in this class as the Logger first needs to be configured in the [JabKit#initLogging].
-/// The configuration of tinylog will become immutable as soon as the first log entry is issued.
+/// We cannot use a static logger instance here in this class as the Logger
+/// first needs to be configured in the [JabKit#initLogging]. The configuration
+/// of tinylog will become immutable as soon as the first log entry is issued.
 /// https://tinylog.org/v2/configuration/
 ///
-/// See https://stackoverflow.com/questions/18004150/desktop-api-is-not-supported-on-the-current-platform for more implementation hints.
-/// https://docs.oracle.com/javase/7/docs/api/java/awt/Desktop.html cannot be used as we don't want to rely on AWT.
+/// See
+/// https://stackoverflow.com/questions/18004150/desktop-api-is-not-supported-on-the-current-platform
+/// for more implementation hints.
+/// https://docs.oracle.com/javase/7/docs/api/java/awt/Desktop.html cannot be
+/// used as we don't want to rely on AWT.
 ///
 /// For non-GUI things, see [org.jabref.logic.os.OS].
 @AllowedToUseAwt("Because of moveToTrash() is not available elsewhere.")
@@ -64,12 +68,8 @@ public abstract class NativeDesktop {
     /// Open a http/pdf/ps viewer for the given link string.
     ///
     /// Opening a PDF file at the file field is done at [org.jabref.gui.fieldeditors.LinkedFileViewModel#open]
-    public static void openExternalViewer(BibDatabaseContext databaseContext,
-                                          GuiPreferences preferences,
-                                          String initialLink,
-                                          Field initialField,
-                                          DialogService dialogService,
-                                          BibEntry entry)
+    public static void openExternalViewer(BibDatabaseContext databaseContext, GuiPreferences preferences, String initialLink,
+            Field initialField, DialogService dialogService, BibEntry entry)
             throws IOException {
         String link = initialLink;
         Field field = initialField;
@@ -83,15 +83,19 @@ public abstract class NativeDesktop {
             if (file.isEmpty() || !Files.exists(file.get())) {
                 throw new IOException("File not found (" + field + "): '" + link + "'.");
             }
-            link = file.get().toAbsolutePath().toString();
+            link = file.get()
+                       .toAbsolutePath()
+                       .toString();
 
             // Use the correct viewer even if pdf and ps are mixed up:
-            String[] split = file.get().getFileName().toString().split("\\.");
+            String[] split = file.get()
+                                 .getFileName()
+                                 .toString()
+                                 .split("\\.");
             if (split.length >= 2) {
                 if ("pdf".equalsIgnoreCase(split[split.length - 1])) {
                     field = PDF;
-                } else if ("ps".equalsIgnoreCase(split[split.length - 1])
-                        || ((split.length >= 3) && "ps".equalsIgnoreCase(split[split.length - 2]))) {
+                } else if ("ps".equalsIgnoreCase(split[split.length - 1]) || ((split.length >= 3) && "ps".equalsIgnoreCase(split[split.length - 2]))) {
                     field = PS;
                 }
             }
@@ -123,8 +127,7 @@ public abstract class NativeDesktop {
         }
 
         switch (field) {
-            case URL ->
-                    openBrowser(link, preferences.getExternalApplicationsPreferences());
+            case URL -> openBrowser(link, preferences.getExternalApplicationsPreferences());
             case PS -> {
                 try {
                     get().openFile(link, PS.getName(), preferences.getExternalApplicationsPreferences());
@@ -139,14 +142,14 @@ public abstract class NativeDesktop {
                     LoggerFactory.getLogger(NativeDesktop.class).error("An error occurred on the command: {}", link, e);
                 }
             }
-            case null,
-                 default ->
-                    LoggerFactory.getLogger(NativeDesktop.class).info("Message: currently only PDF, PS and HTML files can be opened by double clicking");
+            case null, default -> LoggerFactory.getLogger(NativeDesktop.class).info("Message: currently only PDF, PS and HTML files can be opened by double clicking");
         }
     }
 
     private static void openDoi(String doi, GuiPreferences preferences) throws IOException {
-        String link = DOI.parse(doi).map(DOI::getURIAsASCIIString).orElse(doi);
+        String link = DOI.parse(doi)
+                         .map(DOI::getURIAsASCIIString)
+                         .orElse(doi);
         openBrowser(link, preferences.getExternalApplicationsPreferences());
     }
 
@@ -173,11 +176,9 @@ public abstract class NativeDesktop {
     /// @param databaseContext The database this file belongs to.
     /// @param link            The filename.
     /// @return false if the link couldn't be resolved, true otherwise.
-    public static boolean openExternalFileAnyFormat(final BibDatabaseContext databaseContext,
-                                                    ExternalApplicationsPreferences externalApplicationsPreferences,
-                                                    FilePreferences filePreferences,
-                                                    String link,
-                                                    final Optional<ExternalFileType> type) throws IOException {
+    public static boolean openExternalFileAnyFormat(final BibDatabaseContext databaseContext, ExternalApplicationsPreferences externalApplicationsPreferences, FilePreferences filePreferences,
+            String link, final Optional<ExternalFileType> type)
+            throws IOException {
         if (REMOTE_LINK_PATTERN.matcher(link.toLowerCase(Locale.ROOT)).matches()) {
             openBrowser(link, externalApplicationsPreferences);
             return true;
@@ -192,15 +193,13 @@ public abstract class NativeDesktop {
         return true;
     }
 
-    private static void openExternalFilePlatformIndependent(Optional<ExternalFileType> fileType,
-                                                            String filePath,
-                                                            ExternalApplicationsPreferences externalApplicationsPreferences)
-            throws IOException {
+    private static void openExternalFilePlatformIndependent(Optional<ExternalFileType> fileType, String filePath, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException {
         if (fileType.isPresent()) {
             String application = fileType.get().getOpenWithApplication();
 
             if (application.isEmpty()) {
-                get().openFile(filePath, fileType.get().getExtension(), externalApplicationsPreferences);
+                get().openFile(filePath, fileType.get().getExtension(),
+                        externalApplicationsPreferences);
             } else {
                 get().openFileWithApplication(filePath, application);
             }
@@ -211,13 +210,12 @@ public abstract class NativeDesktop {
         }
     }
 
-    /// Opens a file browser of the folder of the given file. If possible, the file is selected
+    /// Opens a file browser of the folder of the given file. If possible, the
+    /// file is selected
     ///
     /// @param fileLink the location of the file
     /// @throws IOException if the default file browser cannot be opened
-    public static void openFolderAndSelectFile(Path fileLink,
-                                               ExternalApplicationsPreferences externalApplicationsPreferences,
-                                               DialogService dialogService) throws IOException {
+    public static void openFolderAndSelectFile(Path fileLink, ExternalApplicationsPreferences externalApplicationsPreferences, DialogService dialogService) throws IOException {
         if (fileLink == null) {
             return;
         }
@@ -227,7 +225,9 @@ public abstract class NativeDesktop {
             get().openFolderAndSelectFile(fileLink);
             return;
         }
-        String absolutePath = fileLink.toAbsolutePath().getParent().toString();
+        String absolutePath = fileLink.toAbsolutePath()
+                .getParent()
+                .toString();
         String command = externalApplicationsPreferences.getCustomFileBrowserCommand();
         if (command.isEmpty()) {
             LoggerFactory.getLogger(NativeDesktop.class).info("No custom file browser command defined");
@@ -245,7 +245,9 @@ public abstract class NativeDesktop {
             return;
         }
 
-        String absolutePath = file.toAbsolutePath().getParent().toString();
+        String absolutePath = file.toAbsolutePath()
+                .getParent()
+                .toString();
 
         boolean useCustomTerminal = preferences.getExternalApplicationsPreferences().useCustomTerminal();
         if (!useCustomTerminal) {
@@ -292,19 +294,25 @@ public abstract class NativeDesktop {
 
     /// Opens the given URL using the system browser
     ///
-    /// @param url            the URL to open
-    /// @param onAsyncFailure invoked (from a background thread) when opening fails after this
-    ///                                                                                         method has already returned; synchronous failures throw instead
+    /// @param url the URL to open
+    /// @param onAsyncFailure invoked (from a background thread) when opening
+    ///   fails after this method has already returned; synchronous failures
+    ///   throw instead
     public static void openBrowser(String url, ExternalApplicationsPreferences externalApplicationsPreferences, Consumer<IOException> onAsyncFailure) throws IOException {
         openBrowser(url, externalApplicationsPreferences, onAsyncFailure, get());
     }
 
     @VisibleForTesting
-    static void openBrowser(String url, ExternalApplicationsPreferences externalApplicationsPreferences, Consumer<IOException> onAsyncFailure, NativeDesktop desktop) throws IOException {
+    static void openBrowser(String url, ExternalApplicationsPreferences externalApplicationsPreferences, Consumer<IOException> onAsyncFailure,
+                            NativeDesktop desktop)
+            throws IOException {
         Optional<ExternalFileType> fileType = ExternalFileTypes.getExternalFileTypeByExt("html", externalApplicationsPreferences);
-        if (fileType.isPresent() && !fileType.get().getOpenWithApplication().isEmpty()) {
+        if (fileType.isPresent() && !fileType.get()
+                .getOpenWithApplication()
+                .isEmpty()) {
             // The user configured a custom browser; hand it the URL string unmodified
-            desktop.openFileWithApplication(url, fileType.get().getOpenWithApplication());
+            desktop.openFileWithApplication(url, fileType.get()
+                    .getOpenWithApplication());
             return;
         }
         // A URL must be opened via a URL-aware API: the file-open path runs it through
@@ -353,7 +361,9 @@ public abstract class NativeDesktop {
         openBrowser(url.toASCIIString(), externalApplicationsPreferences);
     }
 
-    /// Opens the url with the users standard Browser. If that fails a popup will be shown to instruct the user to open the link manually and the link gets copied to the clipboard
+    /// Opens the url with the users standard Browser. If that fails a popup
+    /// will be shown to instruct the user to open the link manually and the
+    /// link gets copied to the clipboard
     ///
     /// @param url the URL to open
     public static void openBrowserShowPopup(String url, DialogService dialogService, ExternalApplicationsPreferences externalApplicationsPreferences) {
@@ -423,7 +433,8 @@ public abstract class NativeDesktop {
 
     /// Moves the given file to the trash.
     ///
-    /// @throws UnsupportedOperationException if the current platform does not support the [Desktop.Action#MOVE_TO_TRASH] action
+    /// @throws UnsupportedOperationException if the current platform does not
+    ///   support the [Desktop.Action#MOVE_TO_TRASH] action
     /// @see Desktop#moveToTrash(java.io.File)
     public void moveToTrash(Path path) {
         boolean success = Desktop.getDesktop().moveToTrash(path.toFile());

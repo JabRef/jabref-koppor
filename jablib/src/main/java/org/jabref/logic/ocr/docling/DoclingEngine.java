@@ -8,6 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.apache.pdfbox.pdmodel.graphics.state.RenderingMode;
 import org.jabref.logic.ocr.OcrEngine;
 import org.jabref.logic.ocr.OcrFailureReason;
 import org.jabref.logic.ocr.OcrLanguage;
@@ -18,15 +26,6 @@ import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.ocr.docling.DoclingBBox;
 import org.jabref.model.ocr.docling.DoclingDocument;
 import org.jabref.model.ocr.docling.DoclingText;
-
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
-import org.apache.pdfbox.pdmodel.graphics.state.RenderingMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.databind.json.JsonMapper;
@@ -35,9 +34,9 @@ import tools.jackson.databind.json.JsonMapper;
 public class DoclingEngine implements OcrEngine {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(DoclingEngine.class);
-    private final static JsonMapper JSON_MAPPER = new JsonMapper();
-    private final static PDFont FONT = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
-    private final static float FONTSIZE = 12F;
+    private static final JsonMapper JSON_MAPPER = new JsonMapper();
+    private static final PDFont FONT = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+    private static final float FONTSIZE = 12F;
     private final OcrPreferences ocrPreferences;
 
     public DoclingEngine(OcrPreferences ocrPreferences) {
@@ -63,9 +62,10 @@ public class DoclingEngine implements OcrEngine {
         command.add("--image-export-mode");
         command.add("placeholder");
 
-        List<String> languages = ocrPreferences.getOcrLanguages().stream()
-                                               .map(OcrLanguage::getCode)
-                                               .toList();
+        List<String> languages = ocrPreferences.getOcrLanguages()
+                .stream()
+                .map(OcrLanguage::getCode)
+                .toList();
         if (!languages.isEmpty()) {
             command.add("--ocr-lang");
             command.add(String.join(",", languages));
@@ -92,7 +92,10 @@ public class DoclingEngine implements OcrEngine {
         Map<Integer, ArrayList<DoclingText>> pageTextMap = new HashMap<>();
         for (DoclingText doclingText : doclingDocument.texts()) {
             // Docling outputs the pages number 1 indexed, while PDFBox uses 0 indexed pages
-            int pageNo = doclingText.prov().getFirst().pageNo() - 1;
+            int pageNo = doclingText.prov()
+                                    .getFirst()
+                                    .pageNo()
+                    - 1;
             pageTextMap.computeIfAbsent(pageNo, _ -> new ArrayList<>()).add(doclingText);
         }
 
@@ -103,11 +106,11 @@ public class DoclingEngine implements OcrEngine {
                 int pageNo = entry.getKey();
                 PDPage pdPage = pdfWithText.getPage(pageNo);
 
-                try (PDPageContentStream contentStream = new PDPageContentStream(
-                        pdfWithText, pdPage, PDPageContentStream.AppendMode.APPEND, true)) {
-
+                try (PDPageContentStream contentStream = new PDPageContentStream(pdfWithText, pdPage, PDPageContentStream.AppendMode.APPEND, true)) {
                     for (DoclingText doclingText : entry.getValue()) {
-                        DoclingBBox bbox = doclingText.prov().getFirst().bbox();
+                        DoclingBBox bbox = doclingText.prov()
+                                .getFirst()
+                                .bbox();
                         String text = doclingText.text();
                         try {
                             contentStream.beginText();

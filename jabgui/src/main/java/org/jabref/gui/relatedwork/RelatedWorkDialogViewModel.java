@@ -8,7 +8,6 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.logic.database.DuplicateCheck;
@@ -39,33 +38,29 @@ public class RelatedWorkDialogViewModel extends AbstractViewModel {
     private final StringProperty relatedWorkText = new SimpleStringProperty("");
     private final BooleanExpression parseDisabled;
 
-    public RelatedWorkDialogViewModel(BibDatabaseContext databaseContext,
-                                      BibEntry sourceEntry,
-                                      LinkedFile linkedPDFFile,
-                                      String sourceEntryCitationKey,
-                                      DialogService dialogService,
-                                      CliPreferences preferences,
-                                      BibEntryTypesManager entryTypesManager) {
+    public RelatedWorkDialogViewModel(
+            BibDatabaseContext databaseContext,
+            BibEntry sourceEntry,
+            LinkedFile linkedPDFFile,
+            String sourceEntryCitationKey,
+            DialogService dialogService,
+            CliPreferences preferences,
+            BibEntryTypesManager entryTypesManager) {
         this.databaseContext = databaseContext;
         this.sourceEntry = sourceEntry;
         this.linkedPDFFile = linkedPDFFile;
         this.dialogService = dialogService;
         this.preferences = preferences;
-        this.relatedWorkMatcher = new RelatedWorkMatcher(
-                new RelatedWorkTextParser(),
-                new RelatedWorkReferenceResolver(),
-                new DuplicateCheck(entryTypesManager)
-        );
+        this.relatedWorkMatcher = new RelatedWorkMatcher(new RelatedWorkTextParser(), new RelatedWorkReferenceResolver(), new DuplicateCheck(entryTypesManager));
 
         this.sourceEntryCitationKey.set(sourceEntryCitationKey);
-        this.linkedPDFFileName.set(linkedPDFFile.getFileName().orElse(linkedPDFFile.getLink()));
-        this.userName.set(preferences.getOwnerPreferences().getDefaultOwner());
+        this.linkedPDFFileName.set(linkedPDFFile.getFileName()
+                .orElse(linkedPDFFile.getLink()));
+        this.userName.set(preferences.getOwnerPreferences()
+                .getDefaultOwner());
 
-        parseDisabled = Bindings.createBooleanBinding(
-                () -> StringUtil.isBlank(userName.get()) || StringUtil.isBlank(relatedWorkText.getValue()),
-                userName,
-                relatedWorkText
-        );
+        parseDisabled = Bindings.createBooleanBinding(() -> StringUtil.isBlank(userName.get()) || StringUtil.isBlank(relatedWorkText.getValue()), userName,
+                relatedWorkText);
     }
 
     public StringProperty sourceEntryCitationKeyProperty() {
@@ -92,30 +87,18 @@ public class RelatedWorkDialogViewModel extends AbstractViewModel {
         String text = relatedWorkText.get();
 
         try {
-            List<RelatedWorkMatchResult> matchResults = relatedWorkMatcher.matchRelatedWork(
-                    databaseContext,
-                    sourceEntry,
-                    linkedPDFFile,
-                    text,
-                    preferences.getFilePreferences()
-            );
+            List<RelatedWorkMatchResult> matchResults = relatedWorkMatcher.matchRelatedWork(databaseContext, sourceEntry, linkedPDFFile, text, preferences.getFilePreferences());
 
             if (matchResults.isEmpty()) {
-                dialogService.showInformationDialogAndWait(
-                        Localization.lang("Insert related work text"),
-                        Localization.lang("No citations were found in the related work text.")
-                );
+                dialogService.showInformationDialogAndWait(Localization.lang("Insert related work text"), Localization.lang("No citations were found in the related work text."));
                 return Optional.empty();
             }
 
             List<RelatedWorkMatchResult> matchedResults = matchResults.stream()
-                                                                      .filter(RelatedWorkMatchResult::hasMatchedLibraryEntry)
-                                                                      .toList();
+                    .filter(RelatedWorkMatchResult::hasMatchedLibraryEntry)
+                    .toList();
             if (matchedResults.isEmpty()) {
-                dialogService.showInformationDialogAndWait(
-                        Localization.lang("Insert related work text"),
-                        Localization.lang("No matching references were found.")
-                );
+                dialogService.showInformationDialogAndWait(Localization.lang("Insert related work text"), Localization.lang("No matching references were found."));
                 return Optional.empty();
             }
 

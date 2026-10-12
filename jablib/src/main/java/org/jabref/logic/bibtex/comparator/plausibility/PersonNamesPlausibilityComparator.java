@@ -2,7 +2,6 @@ package org.jabref.logic.bibtex.comparator.plausibility;
 
 import org.jabref.logic.bibtex.comparator.ComparisonResult;
 import org.jabref.model.entry.AuthorList;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked

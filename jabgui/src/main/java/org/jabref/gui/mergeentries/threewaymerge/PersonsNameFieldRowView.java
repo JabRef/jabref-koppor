@@ -15,8 +15,17 @@ public class PersonsNameFieldRowView extends FieldRowView {
     private final AuthorList leftEntryNames;
     private final AuthorList rightEntryNames;
 
-    public PersonsNameFieldRowView(Field field, BibEntry leftEntry, BibEntry rightEntry, BibEntry mergedEntry, FieldMergerFactory fieldMergerFactory, GuiPreferences preferences, StateManager stateManager, int rowIndex) {
-        super(field, leftEntry, rightEntry, mergedEntry, fieldMergerFactory, preferences, stateManager, rowIndex);
+    public PersonsNameFieldRowView(
+            Field field,
+            BibEntry leftEntry,
+            BibEntry rightEntry,
+            BibEntry mergedEntry,
+            FieldMergerFactory fieldMergerFactory,
+            GuiPreferences preferences,
+            StateManager stateManager,
+            int rowIndex) {
+        super(field, leftEntry, rightEntry, mergedEntry, fieldMergerFactory, preferences,
+                stateManager, rowIndex);
         assert field.getProperties().contains(FieldProperty.PERSON_NAMES);
 
         AuthorListParser authorsParser = new AuthorListParser();

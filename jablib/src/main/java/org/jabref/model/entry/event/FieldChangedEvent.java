@@ -5,13 +5,14 @@ import java.util.Objects;
 import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-/// `FieldChangedEvent` is fired when a field of `BibEntry` has been modified, removed or added.
+/// `FieldChangedEvent` is fired when a field of `BibEntry` has been modified,
+/// removed or added.
 ///
-/// A value is `null` when the field had none: before the field was added, or after it was removed.
+/// A value is `null` when the field had none: before the field was added, or
+/// after it was removed.
 @NullMarked
 public class FieldChangedEvent extends EntryChangedEvent {
 
@@ -25,7 +26,8 @@ public class FieldChangedEvent extends EntryChangedEvent {
     /// @param field    Name of field which has been changed
     /// @param oldValue old field value
     /// @param newValue new field value
-    public FieldChangedEvent(EntriesEventSource source, BibEntry bibEntry, Field field, @Nullable String oldValue, @Nullable String newValue) {
+    public FieldChangedEvent(EntriesEventSource source, BibEntry bibEntry, Field field,
+            @Nullable String oldValue, @Nullable String newValue) {
         super(bibEntry, source);
         this.field = field;
         this.oldValue = oldValue;
@@ -36,7 +38,8 @@ public class FieldChangedEvent extends EntryChangedEvent {
     /// @param bibEntry Affected BibEntry object
     /// @param field    Name of field which has been changed
     /// @param newValue new field value
-    public FieldChangedEvent(BibEntry bibEntry, Field field, @Nullable String oldValue, @Nullable String newValue) {
+    public FieldChangedEvent(BibEntry bibEntry, Field field, @Nullable String oldValue,
+            @Nullable String newValue) {
         super(bibEntry);
         this.field = field;
         this.newValue = newValue;
@@ -56,7 +59,8 @@ public class FieldChangedEvent extends EntryChangedEvent {
         this(EntriesEventSource.LOCAL, fieldChange);
     }
 
-    /// An absent value counts as empty: adding a value changes as many characters as it is long.
+    /// An absent value counts as empty: adding a value changes as many
+    /// characters as it is long.
     private static int computeMajorCharacterChange(@Nullable String oldValue, @Nullable String newValue) {
         String before = Objects.toString(oldValue, "");
         String after = Objects.toString(newValue, "");

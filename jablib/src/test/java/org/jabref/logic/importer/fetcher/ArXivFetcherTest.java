@@ -8,7 +8,6 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportCleanup;
@@ -24,7 +23,6 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.identifier.ArXivIdentifier;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -54,17 +52,14 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     @BeforeAll
     static void setUp() {
         importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
         // Used during DOI fetch process
-        when(importFormatPreferences.fieldPreferences().getNonWrappableFields()).thenReturn(
-                FXCollections.observableArrayList(List.of(
-                        StandardField.PDF,
-                        StandardField.PS,
-                        StandardField.URL,
-                        StandardField.DOI,
-                        StandardField.FILE,
-                        StandardField.ISBN,
-                        StandardField.ISSN)));
+        when(importFormatPreferences.fieldPreferences()
+                .getNonWrappableFields())
+                .thenReturn(FXCollections.observableArrayList(List.of(StandardField.PDF, StandardField.PS, StandardField.URL, StandardField.DOI, StandardField.FILE, StandardField.ISBN,
+                StandardField.ISSN)));
     }
 
     @BeforeEach
@@ -130,14 +125,20 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     public List<String> getInputTestAuthors() {
-        return Arrays.stream(mainOriginalPaper.getField(StandardField.AUTHOR).get()
-                                              .split("and")).map(String::trim).collect(Collectors.toList());
+        return Arrays.stream(mainOriginalPaper.getField(StandardField.AUTHOR)
+                        .get()
+                        .split("and"))
+                .map(String::trim)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<String> getTestAuthors() {
-        return Arrays.stream(mainResultPaper.getField(StandardField.AUTHOR).get()
-                                            .split("and")).map(String::trim).collect(Collectors.toList());
+        return Arrays.stream(mainResultPaper.getField(StandardField.AUTHOR)
+                        .get()
+                        .split("and"))
+                .map(String::trim)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -300,17 +301,14 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
 
     @Test
     void searchEntryByPartOfTitle() throws FetcherException {
-        assertEquals(List.of(mainResultPaper),
-                fetcher.performSearch("title=\"the architecture of mr. dLib's\""));
+        assertEquals(List.of(mainResultPaper), fetcher.performSearch("title=\"the architecture of mr. dLib's\""));
     }
 
     @Test
     void searchEntryByPartOfTitleWithAcuteAccent() throws FetcherException {
-        BibEntry expected = new BibEntry(sliceTheoremPaper)
-                .withCitationKey("https://doi.org/10.48550/arxiv.1405.2249");
+        BibEntry expected = new BibEntry(sliceTheoremPaper).withCitationKey("https://doi.org/10.48550/arxiv.1405.2249");
 
-        assertEquals(List.of(expected),
-                fetcher.performSearch("title=\"slice theorem for Fréchet\""));
+        assertEquals(List.of(expected), fetcher.performSearch("title=\"slice theorem for Fréchet\""));
     }
 
     @Test
@@ -380,8 +378,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
 
     @Test
     void searchEntryByIdWith5Digits() throws FetcherException {
-        assertEquals(Optional.of(
-                        "An Optimal Convergence Theorem for Mean Curvature Flow of Arbitrary Codimension in Hyperbolic Spaces"),
+        assertEquals(Optional.of("An Optimal Convergence Theorem for Mean Curvature Flow of Arbitrary Codimension in Hyperbolic Spaces"),
                 fetcher.performSearchById("1503.06747").flatMap(entry -> entry.getField(StandardField.TITLE)));
     }
 
@@ -428,14 +425,12 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     @Disabled("Is not supported by the current API")
     @Test
     @Override
-    public void supportsYearSearch() {
-    }
+    public void supportsYearSearch() {}
 
     @Disabled("Is not supported by the current API")
     @Test
     @Override
-    public void supportsYearRangeSearch() {
-    }
+    public void supportsYearRangeSearch() {}
 
     /// A phrase is a sequence of terms wrapped in quotes.
     /// Only documents that contain exactly this sequence are returned.
@@ -446,11 +441,11 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
 
         assertFalse(resultWithPhraseSearch.isEmpty());
         List<Optional<String>> broaderSearchIdentifiers = broaderSearchResult.stream()
-                                                                             .map(entry -> entry.getField(StandardField.EPRINT))
-                                                                             .toList();
+                .map(entry -> entry.getField(StandardField.EPRINT))
+                .toList();
         assertTrue(resultWithPhraseSearch.stream()
-                                         .map(entry -> entry.getField(StandardField.EPRINT))
-                                         .allMatch(broaderSearchIdentifiers::contains));
+                .map(entry -> entry.getField(StandardField.EPRINT))
+                .allMatch(broaderSearchIdentifiers::contains));
     }
 
     /// A phrase is a sequence of terms wrapped in quotes.
@@ -610,18 +605,23 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
 
     @Test
     void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws FetcherException {
-        assertTrue(fetcher.performRawSearchQueryPaged("", 0).getContent().isEmpty());
+        assertTrue(fetcher.performRawSearchQueryPaged("", 0)
+                          .getContent()
+                          .isEmpty());
     }
 
     @Test
     void performRawSearchQueryPagedReturnsResults() throws FetcherException {
-        assertFalse(fetcher.performRawSearchQueryPaged("machine learning", 0).getContent().isEmpty());
+        assertFalse(fetcher.performRawSearchQueryPaged("machine learning", 0)
+                           .getContent()
+                           .isEmpty());
     }
 
     @Test
     void abstractIsCleanedUp() throws FetcherException {
         Optional<BibEntry> entry = fetcher.performSearchById("2407.02238");
         String escaped = "{One of the primary areas of interest in High Performance Computing is the improvement of performance of parallel workloads. Nowadays, compilable source code-based optimization tasks that employ deep learning often exploit LLVM Intermediate Representations (IRs) for extracting features from source code. Most such works target specific tasks, or are designed with a pre-defined set of heuristics. So far, pre-trained models are rare in this domain, but the possibilities have been widely discussed. Especially approaches mimicking large-language models (LLMs) have been proposed. But these have prohibitively large training costs. In this paper, we propose MIREncoder, a M}ulti-modal IR-based Auto-Encoder that can be pre-trained to generate a learned embedding space to be used for downstream tasks by machine learning-based approaches. A multi-modal approach enables us to better extract features from compilable programs. It allows us to better model code syntax, semantics and structure. For code-based performance optimizations, these features are very important while making optimization decisions. A pre-trained model/embedding implicitly enables the usage of transfer learning, and helps move away from task-specific trained models. Additionally, a pre-trained model used for downstream performance optimization should itself have reduced overhead, and be easily usable. These considerations have led us to propose a modeling approach that i) understands code semantics and structure, ii) enables use of transfer learning, and iii) is small and simple enough to be easily re-purposed or reused even with low resource availability. Our evaluations will show that our proposed approach can outperform the state of the art while reducing overhead.";
-        assertEquals(Optional.of(escaped), entry.get().getField(StandardField.ABSTRACT));
+        assertEquals(Optional.of(escaped),
+                entry.get().getField(StandardField.ABSTRACT));
     }
 }

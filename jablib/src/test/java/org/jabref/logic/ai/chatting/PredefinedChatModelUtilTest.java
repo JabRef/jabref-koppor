@@ -1,7 +1,6 @@
 package org.jabref.logic.ai.chatting;
 
 import org.jabref.model.ai.llm.AiProvider;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

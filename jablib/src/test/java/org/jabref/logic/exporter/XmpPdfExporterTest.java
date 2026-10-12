@@ -5,13 +5,16 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.formatter.bibtexfields.NormalizeNamesFormatter;
@@ -27,12 +30,6 @@ import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.Month;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,7 +52,9 @@ import static org.mockito.Mockito.when;
 @ResourceLock("exporter")
 class XmpPdfExporterTest {
 
-    @TempDir static Path tempDir;
+    @TempDir
+    static Path tempDir;
+
     private static final BibEntry OLLY_2018 = new BibEntry(StandardEntryType.Article);
     private static final BibEntry TORAL_2006 = new BibEntry(StandardEntryType.Article);
     private static final BibEntry VAPNIK_2000 = new BibEntry(StandardEntryType.Article);
@@ -80,10 +79,14 @@ class XmpPdfExporterTest {
                  .withField(StandardField.ISSN, "978-123-123")
                  .withField(StandardField.NOTE, "NOTE")
                  .withField(StandardField.ABSTRACT, "ABSTRACT")
-                 .withField(StandardField.COMMENT, "COMMENT").withField(StandardField.DOI, "10/3212.3123").withField(StandardField.FILE, ":article_dublinCore.pdf:PDF")
+                 .withField(StandardField.COMMENT, "COMMENT")
+                 .withField(StandardField.DOI, "10/3212.3123")
+                 .withField(StandardField.FILE, ":article_dublinCore.pdf:PDF")
                  .withField(StandardField.GROUPS, "NO")
                  .withField(StandardField.HOWPUBLISHED, "online")
-                 .withField(StandardField.KEYWORDS, "k1, k2").withField(StandardField.OWNER, "me").withField(StandardField.REVIEW, "review")
+                 .withField(StandardField.KEYWORDS, "k1, k2")
+                 .withField(StandardField.OWNER, "me")
+                 .withField(StandardField.REVIEW, "review")
                  .withField(StandardField.URL, "https://www.olly2018.edu")
                  .withFiles(List.of(createDefaultLinkedFile("existing.pdf", tempDir)));
 
@@ -100,7 +103,8 @@ class XmpPdfExporterTest {
                    .withField(StandardField.TITLE, "The Nature of Statistical Learning Theory")
                    .withField(StandardField.PUBLISHER, "Springer Science + Business Media")
                    .withField(StandardField.AUTHOR, "Vapnik, Vladimir N.")
-                   .withField(StandardField.DOI, "10.1007/978-1-4757-3264-1").withField(StandardField.OWNER, "Ich");
+                   .withField(StandardField.DOI, "10.1007/978-1-4757-3264-1")
+                   .withField(StandardField.OWNER, "Ich");
     }
 
     /// Create a temporary PDF-file with a single empty page.
@@ -108,14 +112,17 @@ class XmpPdfExporterTest {
     void setUp() throws IOException {
         abbreviationRepository = mock(JournalAbbreviationRepository.class);
         filePreferences = mock(FilePreferences.class);
-        when(filePreferences.getUserAndHost()).thenReturn(tempDir.toAbsolutePath().toString());
+        when(filePreferences.getUserAndHost()).thenReturn(tempDir.toAbsolutePath()
+                .toString());
         when(filePreferences.shouldStoreFilesRelativeToBibFile()).thenReturn(false);
 
         xmpPreferences = new XmpPreferences(false, Set.of(), new SimpleObjectProperty<>(','));
         exporter = new XmpPdfExporter(xmpPreferences);
 
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.fieldPreferences().getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
+        when(importFormatPreferences.fieldPreferences()
+                .getNonWrappableFields())
+                .thenReturn(FXCollections.emptyObservableList());
         importer = new PdfXmpImporter(xmpPreferences);
 
         databaseContext = new BibDatabaseContext();
@@ -141,13 +148,15 @@ class XmpPdfExporterTest {
     @ParameterizedTest
     @MethodSource("provideBibEntriesWithValidPdfFileLinks")
     void successfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink) throws IOException, SaveException, ParserConfigurationException, TransformerException {
-        assertTrue(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink, List.of(OLLY_2018), abbreviationRepository));
+        assertTrue(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink,
+                List.of(OLLY_2018), abbreviationRepository));
     }
 
     @ParameterizedTest
     @MethodSource("provideBibEntriesWithInvalidPdfFileLinks")
     void unsuccessfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink) throws IOException, SaveException, ParserConfigurationException, TransformerException {
-        assertFalse(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink, List.of(OLLY_2018), abbreviationRepository));
+        assertFalse(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink,
+                List.of(OLLY_2018), abbreviationRepository));
     }
 
     public static Stream<Arguments> provideBibEntriesWithValidPdfFileLinks() {
@@ -180,7 +189,7 @@ class XmpPdfExporterTest {
             try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
                 contentStream.beginText();
                 contentStream.newLineAtOffset(25, 500);
-                contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
+                contentStream.setFont(new PDType1Font(FontName.HELVETICA), 12);
                 contentStream.showText("This PDF was created by JabRef. It demonstrates the embedding of XMP data in PDF files. Please open the file metadata view of your PDF viewer to see the attached files. Note that the normal usage is to embed the BibTeX data in an existing PDF.");
                 contentStream.endText();
             }
@@ -188,8 +197,11 @@ class XmpPdfExporterTest {
         }
         new XmpUtilWriter(xmpPreferences).writeXmp(path, databaseContext.getEntries(), databaseContext.getDatabase());
 
-        List<BibEntry> importedEntries = importer.importDatabase(path).getDatabase().getEntries();
-        importedEntries.forEach(bibEntry -> new FieldFormatterCleanup(StandardField.AUTHOR, new NormalizeNamesFormatter()).cleanup(bibEntry));
+        List<BibEntry> importedEntries = importer.importDatabase(path)
+                .getDatabase()
+                .getEntries();
+        importedEntries.forEach(bibEntry -> new FieldFormatterCleanup(StandardField.AUTHOR, new NormalizeNamesFormatter())
+                .cleanup(bibEntry));
 
         List<BibEntry> expectedEntries = databaseContext.getEntries();
         for (BibEntry entry : expectedEntries) {
@@ -221,4 +233,3 @@ class XmpPdfExporterTest {
         return new LinkedFile("", pdfFile, "PDF");
     }
 }
-

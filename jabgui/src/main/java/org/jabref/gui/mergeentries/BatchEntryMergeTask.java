@@ -13,7 +13,6 @@ import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.undo.CompoundEdit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +33,8 @@ public class BatchEntryMergeTask extends BackgroundTask<Void> {
     private int processedEntries;
     private int successfulUpdates;
 
-    public BatchEntryMergeTask(List<BibEntry> entries,
-                               MergingIdBasedFetcher fetcher,
-                               UndoManager undoManager,
-                               NotificationService notificationService,
-                               char keywordSeparator) {
+    public BatchEntryMergeTask(List<BibEntry> entries, MergingIdBasedFetcher fetcher, UndoManager undoManager,
+            NotificationService notificationService, char keywordSeparator) {
         this.entries = entries;
         this.fetcher = fetcher;
         this.undoManager = undoManager;
@@ -75,17 +71,14 @@ public class BatchEntryMergeTask extends BackgroundTask<Void> {
 
             updateUndoManager(updatedEntries);
         }
-        LOGGER.debug("Merge operation completed. Processed: {}, Successfully updated: {}",
-                processedEntries, successfulUpdates);
+        LOGGER.debug("Merge operation completed. Processed: {}, Successfully updated: {}", processedEntries, successfulUpdates);
         notifySuccess(successfulUpdates);
         return null;
     }
 
     private void notifyCancellation() {
-        LOGGER.debug("Merge operation was cancelled. Processed: {}, Successfully updated: {}",
-                processedEntries, successfulUpdates);
-        notificationService.notify(
-                Localization.lang("Merge operation cancelled after updating %0 entry(s)", successfulUpdates));
+        LOGGER.debug("Merge operation was cancelled. Processed: {}, Successfully updated: {}", processedEntries, successfulUpdates);
+        notificationService.notify(Localization.lang("Merge operation cancelled after updating %0 entry(s)", successfulUpdates));
     }
 
     private List<String> processMergeEntries() {
@@ -104,9 +97,7 @@ public class BatchEntryMergeTask extends BackgroundTask<Void> {
 
     private Optional<String> processSingleEntryWithProgress(BibEntry entry) {
         updateProgress(++processedEntries, entries.size());
-        updateMessage(Localization.lang("Processing entry %0 of %1",
-                processedEntries,
-                entries.size()));
+        updateMessage(Localization.lang("Processing entry %0 of %1", processedEntries, entries.size()));
         return processSingleEntry(entry);
     }
 
@@ -131,9 +122,7 @@ public class BatchEntryMergeTask extends BackgroundTask<Void> {
     }
 
     private void notifySuccess(int updateCount) {
-        String message = updateCount == 0
-                         ? Localization.lang("No updates found.")
-                         : Localization.lang("Batch update successful. %0 entry(s) updated.", updateCount);
+        String message = updateCount == 0 ? Localization.lang("No updates found.") : Localization.lang("Batch update successful. %0 entry(s) updated.", updateCount);
         notificationService.notify(message);
     }
 }

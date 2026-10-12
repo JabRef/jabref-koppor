@@ -11,7 +11,6 @@ import org.jabref.logic.xmp.XmpUtilWriter;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
-
 import org.jspecify.annotations.NonNull;
 
 /// A custom exporter to write bib entries to a .xmp file for further processing
@@ -29,19 +28,20 @@ public class XmpExporter extends Exporter {
     }
 
     /// @param databaseContext the database to export from
-    /// @param file            the file to write to. If it contains "split", then the output is split into different files
-    /// @param entries         a list containing all entries that should be exported
+    /// @param file the file to write to. If it contains "split", then the
+    ///   output is split into different files
+    /// @param entries a list containing all entries that should be exported
     @Override
-    public void export(@NonNull BibDatabaseContext databaseContext,
-                       @NonNull Path file,
-                       @NonNull List<BibEntry> entries) throws IOException {
+    public void export(@NonNull BibDatabaseContext databaseContext, @NonNull Path file, @NonNull List<BibEntry> entries) throws IOException {
         if (entries.isEmpty()) {
             return;
         }
 
         // This is a distinction between writing all entries from the supplied list to a single .xmp file,
         // or write every entry to a separate file.
-        if (XMP_SPLIT_DIRECTORY_INDICATOR.equals(file.getFileName().toString().trim())) {
+        if (XMP_SPLIT_DIRECTORY_INDICATOR.equals(file.getFileName()
+                .toString()
+                .trim())) {
             for (BibEntry entry : entries) {
                 // Avoid situations, where two citation keys are null
                 Path entryFile;

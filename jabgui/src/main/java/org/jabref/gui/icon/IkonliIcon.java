@@ -15,20 +15,20 @@ import java.util.stream.Collectors;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.IkonProvider;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-/// [JabRefIcon] backed by an <a href="https://kordamp.org/ikonli/">Ikonli</a> font glyph, rendered as a
-/// [FontIcon]. The font-backed counterpart to [SvgIcon]. Immutable: [#withColor] and
-/// [#withSize] return copies.
+/// [JabRefIcon] backed by an <a href="https://kordamp.org/ikonli/">Ikonli</a>
+/// font glyph, rendered as a [FontIcon]. The font-backed counterpart to
+/// [SvgIcon]. Immutable: [#withColor] and [#withSize] return copies.
 @NullMarked
 public final class IkonliIcon implements JabRefIcon {
 
-    /// Ikonli's own default, so an icon that was never given a size renders as it always has.
+    /// Ikonli's own default, so an icon that was never given a size renders as
+    /// it always has.
     private static final int DEFAULT_SIZE = 8;
 
     private final List<Ikon> icons;
@@ -59,22 +59,21 @@ public final class IkonliIcon implements JabRefIcon {
 
     /// Finds the Ikonli icon whose name matches `code` (case-insensitive).
     public static Optional<JabRefIcon> findIcon(String code) {
-        return Optional.ofNullable(IkonliIcons.BY_NAME.get(code.toUpperCase(Locale.ENGLISH)))
-                       .map(IkonliIcon::new);
+        return Optional.ofNullable(IkonliIcons.BY_NAME.get(code.toUpperCase(Locale.ENGLISH))).map(IkonliIcon::new);
     }
 
-    /// Finds the Ikonli icon whose pack-qualified description matches `description` (case-insensitive).
+    /// Finds the Ikonli icon whose pack-qualified description matches
+    /// `description` (case-insensitive).
     public static Optional<JabRefIcon> findIconByDescription(String description) {
-        return Optional.ofNullable(IkonliIcons.BY_DESCRIPTION.get(description.toUpperCase(Locale.ENGLISH)))
-                       .map(IkonliIcon::new);
+        return Optional.ofNullable(IkonliIcons.BY_DESCRIPTION.get(description.toUpperCase(Locale.ENGLISH))).map(IkonliIcon::new);
     }
 
     public static SequencedSet<Ikon> allIcons() {
         return IkonliIcons.ALL;
     }
 
-    /// Holds every [Ikon] discovered via the [IkonProvider] service loader. Initialization on first
-    /// access guaranteed by JVM.
+    /// Holds every [Ikon] discovered via the [IkonProvider] service loader.
+    /// Initialization on first access guaranteed by JVM.
     private static final class IkonliIcons {
         private static final SequencedSet<Ikon> ALL = load();
         private static final Map<String, Ikon> BY_NAME = loadMap(Ikon::toString);
@@ -89,12 +88,11 @@ public final class IkonliIcon implements JabRefIcon {
         }
 
         private static Map<String, Ikon> loadMap(Function<Ikon, String> keyMapper) {
-            return ALL.stream()
-                      .collect(Collectors.toUnmodifiableMap(
-                              ikon -> keyMapper.apply(ikon).toUpperCase(Locale.ENGLISH),
-                              ikon -> ikon,
-                              (existing, _) -> existing
-                      ));
+            return ALL.stream().collect(
+                    Collectors.toUnmodifiableMap(
+                            ikon -> keyMapper.apply(ikon).toUpperCase(Locale.ENGLISH),
+                            ikon -> ikon,
+                            (existing, _) -> existing));
         }
     }
 

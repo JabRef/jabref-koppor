@@ -9,7 +9,6 @@ import java.util.function.BiFunction;
 
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.util.DirectoryDialogConfiguration;
@@ -28,24 +27,19 @@ public class CopyLinkedFilesAction extends SimpleCommand {
 
     private final BiFunction<Path, Path, Path> resolvePathFilename = (dir, file) -> dir.resolve(file.getFileName());
 
-    public CopyLinkedFilesAction(LinkedFile linkedFile,
-                                 DialogService dialogService,
-                                 BibDatabaseContext databaseContext,
-                                 FilePreferences filePreferences) {
+    public CopyLinkedFilesAction(LinkedFile linkedFile, DialogService dialogService, BibDatabaseContext databaseContext,
+            FilePreferences filePreferences) {
         this(List.of(linkedFile), dialogService, databaseContext, filePreferences);
     }
 
-    public CopyLinkedFilesAction(Collection<LinkedFile> linkedFiles,
-                                 DialogService dialogService,
-                                 BibDatabaseContext databaseContext,
-                                 FilePreferences filePreferences) {
+    public CopyLinkedFilesAction(Collection<LinkedFile> linkedFiles, DialogService dialogService, BibDatabaseContext databaseContext,
+            FilePreferences filePreferences) {
         this.linkedFiles = new ArrayList<>(linkedFiles);
         this.dialogService = dialogService;
         this.databaseContext = databaseContext;
         this.filePreferences = filePreferences;
 
-        this.executable.bind(Bindings.createBooleanBinding(
-                () -> this.linkedFiles.stream().allMatch(this::isLocalExisting),
+        this.executable.bind(Bindings.createBooleanBinding(() -> this.linkedFiles.stream().allMatch(this::isLocalExisting),
                 dependencies(this.linkedFiles)));
     }
 
@@ -102,6 +96,8 @@ public class CopyLinkedFilesAction extends SimpleCommand {
     }
 
     private static Observable[] dependencies(Collection<LinkedFile> files) {
-        return files.stream().map(LinkedFile::linkProperty).toArray(Observable[]::new);
+        return files.stream()
+                    .map(LinkedFile::linkProperty)
+                    .toArray(Observable[]::new);
     }
 }

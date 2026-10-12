@@ -7,7 +7,6 @@ import java.util.List;
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringLengthComparator;
-
 import org.jspecify.annotations.NonNull;
 
 public class UnitsToLatexFormatter extends Formatter {
@@ -82,8 +81,7 @@ public class UnitsToLatexFormatter extends Formatter {
     private final List<String> prefixUnitCombinations;
 
     public UnitsToLatexFormatter() {
-        prefixUnitCombinations = new ArrayList<>(
-                UnitsToLatexFormatter.UNIT_LIST.size() * UnitsToLatexFormatter.UNIT_PREFIX_LIST.size());
+        prefixUnitCombinations = new ArrayList<>(UnitsToLatexFormatter.UNIT_LIST.size() * UnitsToLatexFormatter.UNIT_PREFIX_LIST.size());
         for (String unit : UnitsToLatexFormatter.UNIT_LIST) {
             for (String prefix : UnitsToLatexFormatter.UNIT_PREFIX_LIST) {
                 prefixUnitCombinations.add(prefix + unit);

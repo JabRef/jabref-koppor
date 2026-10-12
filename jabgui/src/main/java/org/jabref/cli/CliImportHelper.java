@@ -13,7 +13,6 @@ import org.jabref.logic.net.URLDownload;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +26,7 @@ public class CliImportHelper {
     /// Reads URIs as input
     ///
     /// @param location URL or file path to import
-    public static Optional<ParserResult> importFile(String location,
-                                                    CliPreferences cliPreferences,
-                                                    boolean porcelain) {
+    public static Optional<ParserResult> importFile(String location, CliPreferences cliPreferences, boolean porcelain) {
         LOGGER.debug("Importing file from location {}", location);
         String[] data = location.split(",");
 
@@ -39,8 +36,7 @@ public class CliImportHelper {
             // Download web resource to temporary file
             try {
                 file = new URLDownload(address).toTemporaryFile();
-            } catch (FetcherException |
-                     MalformedURLException e) {
+            } catch (FetcherException | MalformedURLException e) {
                 System.err.println(Localization.lang("Problem downloading from %0: %1", address, e.getLocalizedMessage()));
                 return Optional.empty();
             }
@@ -61,16 +57,10 @@ public class CliImportHelper {
         return importResult;
     }
 
-    public static Optional<ParserResult> importFile(Path file,
-                                                    CliPreferences cliPreferences,
-                                                    boolean porcelain) {
+    public static Optional<ParserResult> importFile(Path file, CliPreferences cliPreferences, boolean porcelain) {
         try {
-            ImportFormatReader importFormatReader = new ImportFormatReader(
-                    cliPreferences.getImporterPreferences(),
-                    cliPreferences.getImportFormatPreferences(),
-                    cliPreferences.getCitationKeyPatternPreferences(),
-                    new DummyFileUpdateMonitor()
-            );
+            ImportFormatReader importFormatReader = new ImportFormatReader(cliPreferences.getImporterPreferences(), cliPreferences.getImportFormatPreferences(), cliPreferences.getCitationKeyPatternPreferences(),
+                    new DummyFileUpdateMonitor());
 
             if (!porcelain) {
                 System.out.println(Localization.lang("Importing %0", file));

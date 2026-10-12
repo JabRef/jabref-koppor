@@ -50,8 +50,7 @@ class BstWidthCalculatorTest {
                 Arguments.of(444, "{\\'e}"),
                 Arguments.of(19762, "Ulrich {\\\"{U}}nderwood and Ned {\\~N}et and Paul {\\={P}}ot"),
                 Arguments.of(7861, "{\\'{E}}douard Masterly"),
-                Arguments.of(30514, "Jonathan Meyer and Charles Louis Xavier Joseph de la Vall{\\'e}e Poussin")
-        );
+                Arguments.of(30514, "Jonathan Meyer and Charles Louis Xavier Joseph de la Vall{\\'e}e Poussin"));
     }
 
     @ParameterizedTest
@@ -61,12 +60,7 @@ class BstWidthCalculatorTest {
     }
 
     private static Stream<Arguments> provideTestGetCharWidth() {
-        return Stream.of(
-                Arguments.of(500, '0'),
-                Arguments.of(361, 'I'),
-                Arguments.of(500, '~'),
-                Arguments.of(500, '}'),
-                Arguments.of(278, ' ')
-        );
+        return Stream.of(Arguments.of(500, '0'), Arguments.of(361, 'I'), Arguments.of(500, '~'),
+                Arguments.of(500, '}'), Arguments.of(278, ' '));
     }
 }

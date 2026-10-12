@@ -7,7 +7,6 @@ import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.util.BindingsHelper;
 import org.jabref.logic.integrity.FieldCheckers;
@@ -15,7 +14,6 @@ import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.KeywordList;
 import org.jabref.model.entry.field.Field;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,11 +25,8 @@ public class GroupsEditorViewModel extends AbstractEditorViewModel {
     private final Character groupSeparator;
     private final SuggestionProvider<?> suggestionProvider;
 
-    public GroupsEditorViewModel(Field field,
-                                 SuggestionProvider<?> suggestionProvider,
-                                 FieldCheckers fieldCheckers,
-                                 Character groupSeparator,
-                                 UndoManager undoManager) {
+    public GroupsEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            Character groupSeparator, UndoManager undoManager) {
 
         super(field, suggestionProvider, fieldCheckers, undoManager);
 
@@ -39,11 +34,7 @@ public class GroupsEditorViewModel extends AbstractEditorViewModel {
         this.groupSeparator = groupSeparator;
         this.suggestionProvider = suggestionProvider;
 
-        BindingsHelper.bindContentBidirectional(
-                groupListProperty,
-                text,
-                this::serializeGroups,
-                this::parseGroups);
+        BindingsHelper.bindContentBidirectional(groupListProperty, text, this::serializeGroups, this::parseGroups);
     }
 
     private String serializeGroups(List<Keyword> groups) {
@@ -51,7 +42,9 @@ public class GroupsEditorViewModel extends AbstractEditorViewModel {
     }
 
     private List<Keyword> parseGroups(String newText) {
-        return KeywordList.parse(newText, groupSeparator).stream().toList();
+        return KeywordList.parse(newText, groupSeparator)
+                .stream()
+                .toList();
     }
 
     public ListProperty<Keyword> groupListProperty() {
@@ -77,12 +70,14 @@ public class GroupsEditorViewModel extends AbstractEditorViewModel {
     }
 
     public List<Keyword> getSuggestions(String request) {
-        List<Keyword> suggestions = new ArrayList<>(suggestionProvider.getPossibleSuggestions().stream()
-                                                                      .map(String.class::cast)
-                                                                      .filter(group -> group.toLowerCase().contains(request.toLowerCase()))
-                                                                      .map(Keyword::new)
-                                                                      .distinct()
-                                                                      .toList());
+        List<Keyword> suggestions = new ArrayList<>(
+                suggestionProvider.getPossibleSuggestions()
+                                  .stream()
+                                  .map(String.class::cast)
+                                  .filter(group -> group.toLowerCase().contains(request.toLowerCase()))
+                                  .map(Keyword::new)
+                                  .distinct()
+                                  .toList());
 
         Keyword requestedGroup = new Keyword(request);
         if (!suggestions.contains(requestedGroup)) {

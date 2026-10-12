@@ -5,13 +5,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-
+import one.jpro.jmemorybuddy.JMemoryBuddy;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
@@ -39,9 +41,6 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.SearchDisplayMode;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.airhacks.afterburner.injection.Injector;
-import one.jpro.jmemorybuddy.JMemoryBuddy;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
@@ -57,9 +56,10 @@ import static org.mockito.Mockito.when;
 
 /// Closing a library has to release the tab that showed it.
 ///
-/// The [StateManager] outlives every library, so whatever it still points at after a close stays for
-/// the rest of the session - the tab, its table model, its [BibDatabaseContext] and all its entries.
-/// [LibraryTab#onClosed] is what has to prevent that.
+/// The [StateManager] outlives every library, so whatever it still points at
+/// after a close stays for the rest of the session - the tab, its table model,
+/// its [BibDatabaseContext] and all its entries. [LibraryTab#onClosed] is what
+/// has to prevent that.
 @NullMarked
 @ExtendWith(JavaFxExtension.class)
 class LibraryTabRetentionTest {
@@ -78,13 +78,18 @@ class LibraryTabRetentionTest {
         when(preferences.getSearchPreferences().isFulltext()).thenReturn(false);
         when(preferences.getFilePreferences().shouldCreateBackup()).thenReturn(false);
         ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
-        when(externalApplicationsPreferences.getExternalFileTypes())
-                .thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
+        when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
         when(preferences.getExternalApplicationsPreferences()).thenReturn(externalApplicationsPreferences);
         when(preferences.getKeyBindingRepository()).thenReturn(new KeyBindingRepository());
         when(preferences.getImporterPreferences().getCustomImporters()).thenReturn(FXCollections.observableSet());
-        when(preferences.getMainTablePreferences().getColumnPreferences().getColumnSortOrder()).thenReturn(FXCollections.observableArrayList());
-        when(preferences.getMainTablePreferences().getColumnPreferences().getColumns()).thenReturn(FXCollections.observableArrayList());
+        when(preferences.getMainTablePreferences()
+                        .getColumnPreferences()
+                        .getColumnSortOrder())
+                .thenReturn(FXCollections.observableArrayList());
+        when(preferences.getMainTablePreferences()
+                        .getColumnPreferences()
+                        .getColumns())
+                .thenReturn(FXCollections.observableArrayList());
 
         // Real properties wherever the code under test registers a listener: a mock remembers the
         // listener it was handed, and Mockito's bookkeeping would then root everything that listener
@@ -123,19 +128,20 @@ class LibraryTabRetentionTest {
             BindingsHelper.bindContentFiltered(tabPane.getTabs(), stateManager.getOpenDatabases(), LibraryTab.class::isInstance);
             // ... and the active library follows the selected tab, so closing one hands the state
             // manager the tab that takes over instead of leaving the closed one behind.
-            com.tobiasdiez.easybind.EasyBind.subscribe(tabPane.getSelectionModel().selectedItemProperty(), selected -> {
-                if (selected instanceof LibraryTab libraryTab) {
-                    stateManager.setActiveDatabase(libraryTab.getBibDatabaseContext());
-                    stateManager.activeTabProperty().set(Optional.of(libraryTab));
-                    // The frame also binds the normal search result count to the selected library's table.
-                    stateManager.searchResultSize(SearchType.NORMAL_SEARCH).bind(libraryTab.resultSizeProperty());
-                } else {
-                    stateManager.setActiveDatabase(null);
-                    stateManager.activeTabProperty().set(Optional.empty());
-                    stateManager.searchResultSize(SearchType.NORMAL_SEARCH).unbind();
-                    stateManager.searchResultSize(SearchType.NORMAL_SEARCH).set(0);
-                }
-            });
+            EasyBind.subscribe(tabPane.getSelectionModel().selectedItemProperty(),
+                    selected -> {
+                        if (selected instanceof LibraryTab libraryTab) {
+                            stateManager.setActiveDatabase(libraryTab.getBibDatabaseContext());
+                            stateManager.activeTabProperty().set(Optional.of(libraryTab));
+                            // The frame also binds the normal search result count to the selected library's table.
+                            stateManager.searchResultSize(SearchType.NORMAL_SEARCH).bind(libraryTab.resultSizeProperty());
+                        } else {
+                            stateManager.setActiveDatabase(null);
+                            stateManager.activeTabProperty().set(Optional.empty());
+                            stateManager.searchResultSize(SearchType.NORMAL_SEARCH).unbind();
+                            stateManager.searchResultSize(SearchType.NORMAL_SEARCH).set(0);
+                        }
+                    });
         });
     }
 
@@ -143,19 +149,19 @@ class LibraryTabRetentionTest {
         return openTab(false);
     }
 
-    /// @param closeImmediately closes the tab in the same JavaFX pulse that created it, before the
-    ///                         listener registrations it queued with `Platform.runLater` have run
+    /// @param closeImmediately closes the tab in the same JavaFX pulse that
+    ///   created it, before the listener registrations it queued with
+    ///   `Platform.runLater` have run
     private LibraryTab openTab(boolean closeImmediately) {
         LibraryTabContainer tabContainer = mock(LibraryTabContainer.class);
         when(tabContainer.getLibraryTabs()).thenReturn(FXCollections.observableArrayList());
 
-        BibDatabase database = new BibDatabase(List.of(
-                new BibEntry(StandardEntryType.Article)
-                        // Distinct content per library: BibDatabaseContext#equals compares content,
-                        // and the open-database list removes by equality when a tab closes.
-                        .withCitationKey("Author2021_" + libraryCount++)
-                        .withField(StandardField.AUTHOR, "Author, A.")
-                        .withField(StandardField.TITLE, "Title")));
+        BibDatabase database = new BibDatabase(List.of(new BibEntry(StandardEntryType.Article)
+                // Distinct content per library: BibDatabaseContext#equals compares content,
+                // and the open-database list removes by equality when a tab closes.
+                .withCitationKey("Author2021_" + libraryCount++)
+                .withField(StandardField.AUTHOR, "Author, A.")
+                .withField(StandardField.TITLE, "Title")));
         BibDatabaseContext context = new BibDatabaseContext(database);
 
         @Nullable LibraryTab[] created = new LibraryTab[1];
@@ -194,10 +200,11 @@ class LibraryTabRetentionTest {
         JavaFxExtension.awaitEvents();
     }
 
-    /// Mockito keeps the last invocation per mock plus a per-thread "ongoing stubbing", and both
-    /// hold on to the arguments they saw. Deep stubs record on whichever thread called them, so the
-    /// JavaFX thread has state of its own. Left in place, that roots the objects under test and the
-    /// assertions below would be measuring the harness instead of the code.
+    /// Mockito keeps the last invocation per mock plus a per-thread "ongoing
+    /// stubbing", and both hold on to the arguments they saw. Deep stubs record
+    /// on whichever thread called them, so the JavaFX thread has state of its
+    /// own. Left in place, that roots the objects under test and the assertions
+    /// below would be measuring the harness instead of the code.
     private static void releaseMocks() {
         JavaFxExtension.invokeAndWait(Mockito::validateMockitoUsage);
         Mockito.validateMockitoUsage();
@@ -228,7 +235,8 @@ class LibraryTabRetentionTest {
         closeTab(tab[0]);
         releaseMocks();
 
-        assertEquals(0, stateManager.searchResultSize(SearchType.NORMAL_SEARCH).get());
+        assertEquals(0, stateManager.searchResultSize(SearchType.NORMAL_SEARCH)
+                .get());
         JMemoryBuddy.memoryTest(checker -> {
             checker.assertCollectable(tab[0].getBibDatabaseContext());
             tab[0] = null;

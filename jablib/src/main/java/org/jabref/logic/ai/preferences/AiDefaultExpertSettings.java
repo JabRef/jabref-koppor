@@ -7,13 +7,15 @@ import org.jabref.model.ai.tokenization.TokenEstimatorKind;
 
 /// A collection of values for the default settings of AI in the expert section.
 ///
-/// This collection was made because "Expert settings" in the AI settings is resettable.
-/// There are facilities in JabRef codebase to reset either all settings or 1 section, but not a part of a section.
+/// This collection was made because "Expert settings" in the AI settings is
+/// resettable. There are facilities in JabRef codebase to reset either all
+/// settings or 1 section, but not a part of a section.
 public class AiDefaultExpertSettings {
     public static final SummarizatorKind SUMMARIZATOR_KIND = SummarizatorKind.CHUNKED;
     public static final TokenEstimatorKind TOKEN_ESTIMATOR_KIND = TokenEstimatorKind.MAX;
     public static final String EMBEDDING_MODEL = "intfloat/multilingual-e5-small";
     public static final float TEMPERATURE = 0.7F;
+
     /// Used for models JabRef does not know, e.g., local ones served by Ollama or Koboldcpp
     public static final int CONTEXT_WINDOW_SIZE = 64 * 1024;
 

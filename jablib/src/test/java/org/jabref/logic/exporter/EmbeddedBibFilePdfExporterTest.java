@@ -5,12 +5,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import javafx.collections.FXCollections;
-
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -25,10 +26,6 @@ import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.Month;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -52,7 +49,8 @@ import static org.mockito.Mockito.when;
 @ResourceLock("exporter")
 class EmbeddedBibFilePdfExporterTest {
 
-    @TempDir static Path tempDir;
+    @TempDir
+    static Path tempDir;
 
     private static BibEntry olly2018 = new BibEntry(StandardEntryType.Article);
     private static BibEntry toral2006 = new BibEntry(StandardEntryType.Article);
@@ -115,20 +113,20 @@ class EmbeddedBibFilePdfExporterTest {
         abbreviationRepository = mock(JournalAbbreviationRepository.class);
 
         filePreferences = mock(FilePreferences.class);
-        when(filePreferences.getUserAndHost()).thenReturn(tempDir.toAbsolutePath().toString());
+        when(filePreferences.getUserAndHost()).thenReturn(tempDir.toAbsolutePath()
+                .toString());
         when(filePreferences.shouldStoreFilesRelativeToBibFile()).thenReturn(false);
 
         BibDatabaseMode bibDatabaseMode = BibDatabaseMode.BIBTEX;
         BibEntryTypesManager bibEntryTypesManager = new BibEntryTypesManager();
-        FieldPreferences fieldPreferences = new FieldPreferences(
-                true,
-                List.of(StandardField.MONTH),
-                List.of());
+        FieldPreferences fieldPreferences = new FieldPreferences(true, List.of(StandardField.MONTH), List.of());
 
         exporter = new EmbeddedBibFilePdfExporter(bibDatabaseMode, bibEntryTypesManager, fieldPreferences);
 
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.fieldPreferences().getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
+        when(importFormatPreferences.fieldPreferences()
+                .getNonWrappableFields())
+                .thenReturn(FXCollections.emptyObservableList());
         importer = new PdfEmbeddedBibFileImporter(importFormatPreferences);
 
         databaseContext = new BibDatabaseContext();
@@ -143,13 +141,15 @@ class EmbeddedBibFilePdfExporterTest {
     @ParameterizedTest
     @MethodSource("provideBibEntriesWithValidPdfFileLinks")
     void successfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink) throws IOException, SaveException, ParserConfigurationException, TransformerException {
-        assertTrue(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink, List.of(olly2018), abbreviationRepository));
+        assertTrue(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink,
+                List.of(olly2018), abbreviationRepository));
     }
 
     @ParameterizedTest
     @MethodSource("provideBibEntriesWithInvalidPdfFileLinks")
     void unsuccessfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink) throws IOException, SaveException, ParserConfigurationException, TransformerException {
-        assertFalse(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink, List.of(olly2018), abbreviationRepository));
+        assertFalse(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink,
+                List.of(olly2018), abbreviationRepository));
     }
 
     public static Stream<Arguments> provideBibEntriesWithValidPdfFileLinks() {
@@ -213,7 +213,9 @@ class EmbeddedBibFilePdfExporterTest {
 
         exporter.export(databaseContext, path, expectedEntries);
 
-        List<BibEntry> importedEntries = importer.importDatabase(path).getDatabase().getEntries();
+        List<BibEntry> importedEntries = importer.importDatabase(path)
+                .getDatabase()
+                .getEntries();
 
         assertEquals(expectedEntries, importedEntries);
     }
@@ -228,7 +230,11 @@ class EmbeddedBibFilePdfExporterTest {
             assertEquals(1, document.getNumberOfPages());
         }
         try (Stream<Path> files = Files.list(tempDir)) {
-            assertEquals(List.of(), files.filter(file -> file.getFileName().toString().endsWith(".tmp")).toList());
+            assertEquals(List.of(),
+                    files.filter(file -> file.getFileName()
+                            .toString()
+                            .endsWith(".tmp"))
+                         .toList());
         }
     }
 
@@ -242,7 +248,11 @@ class EmbeddedBibFilePdfExporterTest {
 
         assertArrayEquals(originalBytes, Files.readAllBytes(corruptPdf));
         try (Stream<Path> files = Files.list(tempDir)) {
-            assertEquals(List.of(), files.filter(file -> file.getFileName().toString().endsWith(".tmp")).toList());
+            assertEquals(List.of(),
+                    files.filter(file -> file.getFileName()
+                            .toString()
+                            .endsWith(".tmp"))
+                         .toList());
         }
     }
 }

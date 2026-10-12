@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -20,7 +19,6 @@ import org.jabref.model.entry.Date;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -50,18 +48,14 @@ public class DocBook5ExporterTest {
 
     @BeforeEach
     void setUp() throws URISyntaxException {
-        exporter = new TemplateExporter(
-                "DocBook 5.1",
-                "docbook5",
-                "docbook5",
-                "",
-                StandardFileType.XML,
-                mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                SaveOrder.getDefaultSaveOrder());
+        exporter = new TemplateExporter("DocBook 5.1", "docbook5", "docbook5", "", StandardFileType.XML,
+                mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS), SaveOrder.getDefaultSaveOrder());
 
         LocalDate myDate = LocalDate.of(2018, 1, 1);
 
-        xmlFile = Path.of(DocBook5ExporterTest.class.getResource("Docbook5ExportFormat.xml").toURI());
+        xmlFile = Path.of(DocBook5ExporterTest.class
+                .getResource("Docbook5ExportFormat.xml")
+                .toURI());
         databaseContext = new BibDatabaseContext();
         charset = StandardCharsets.UTF_8;
         BibEntry entry = new BibEntry(StandardEntryType.Book)
@@ -82,8 +76,10 @@ public class DocBook5ExporterTest {
         Builder control = Input.from(Files.newInputStream(xmlFile));
         Builder test = Input.from(Files.newInputStream(path));
 
-        assertThat(test, CompareMatcher.isSimilarTo(control)
-                                       .normalizeWhitespace()
-                                       .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText)).throwComparisonFailure());
+        assertThat(test,
+                CompareMatcher.isSimilarTo(control)
+                        .normalizeWhitespace()
+                        .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText))
+                        .throwComparisonFailure());
     }
 }

@@ -10,7 +10,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.BiblatexSoftwareEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,8 +54,15 @@ public class SwhidFetcherTest {
         assertEquals(Optional.of("Di Cosmo, Roberto and Danelutto, Marco"), fetchedEntry.flatMap(entry -> entry.getField(StandardField.AUTHOR)));
         assertEquals(Optional.of(BiblatexSoftwareEntryType.SoftwareVersion), fetchedEntry.map(BibEntry::getType));
         assertEquals(Optional.of(PARMAP_SWHID), fetchedEntry.flatMap(entry -> entry.getField(BiblatexSoftwareField.SWHID)));
-        assertEquals(Optional.empty(), fetchedEntry.flatMap(entry -> entry.getField(new UnknownField("swhid"))));
-        assertEquals(1, fetchedEntry.get().getFields().stream().filter(_ -> "swhid".equalsIgnoreCase("swhid")).count());
+        assertEquals(Optional.empty(),
+                fetchedEntry.flatMap(entry -> entry.getField(new UnknownField("swhid"))));
+        assertEquals(
+                1,
+                fetchedEntry.get()
+                            .getFields()
+                            .stream()
+                            .filter(_ -> "swhid".equalsIgnoreCase("swhid"))
+                            .count());
     }
 
     @Test

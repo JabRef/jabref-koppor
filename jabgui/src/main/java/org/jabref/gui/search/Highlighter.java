@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.airhacks.afterburner.injection.Injector;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.search.query.SearchQueryConversion;
 import org.jabref.logic.search.sqlbased.PostgresServer;
@@ -19,8 +20,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchQueryNode;
 import org.jabref.model.util.Range;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -34,6 +33,7 @@ public class Highlighter {
 
     /// Functions defined in [org.jabref.model.search.PostgresConstants#POSTGRES_FUNCTIONS]
     private static final String REGEXP_MARK = "SELECT regexp_mark(?, ?)";
+
     private static final String REGEXP_POSITIONS = "SELECT * FROM regexp_positions(?, ?)";
     private static Connection connection;
     private static GuiPreferences guiPreferences;
@@ -67,10 +67,7 @@ public class Highlighter {
 
     private static String highlightNode(String text, String searchPattern) {
         if (!shouldUsePostgresSearch()) {
-            return text.replaceAll(
-                    "(?i)(" + searchPattern + ")",
-                    "<mark style=\"background: orange\">$1</mark>"
-            );
+            return text.replaceAll("(?i)(" + searchPattern + ")", "<mark style=\"background: orange\">$1</mark>");
         }
         if (connection == null) {
             connection = Injector.instantiateModelOrService(PostgresServer.class).getConnection();
@@ -139,9 +136,10 @@ public class Highlighter {
             return Optional.empty();
         }
 
-        List<String> terms = getSearchQueryNodes(searchQuery).stream()
-                                                             .map(SearchQueryNode::term)
-                                                             .toList();
+        List<String> terms = getSearchQueryNodes(searchQuery)
+                .stream()
+                .map(SearchQueryNode::term)
+                .toList();
         return buildSearchPattern(terms);
     }
 

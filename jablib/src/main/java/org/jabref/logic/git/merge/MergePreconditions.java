@@ -18,24 +18,22 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.types.EntryType;
-
 import org.jspecify.annotations.NullMarked;
 
-/// The checks a merge has to pass before `current` is rewritten. [Reason] documents what each
-/// check protects.
+/// The checks a merge has to pass before `current` is rewritten. [Reason]
+/// documents what each check protects.
 @NullMarked
 final class MergePreconditions {
 
-    private static final Pattern UNATTACHED_COMMENT = Pattern.compile(
-            "^\\h*%.*(\\R\\s*)*\\R\\s*@(comment|preamble)\\s*[{(]",
-            Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+    private static final Pattern UNATTACHED_COMMENT = Pattern.compile("^\\h*%.*(\\R\\s*)*\\R\\s*@(comment|preamble)\\s*[{(]", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
-    private MergePreconditions() {
-    }
+    private MergePreconditions() {}
 
     /// @param keyPatterns needed to serialize the metadata for comparison
     /// @return one refusal per violated check, empty if the files can be merged
-    static List<Refusal> check(ParserResult base, ParserResult current, ParserResult other, GlobalCitationKeyPatterns keyPatterns) throws IOException {
+    static List<Refusal> check(ParserResult base, ParserResult current, ParserResult other,
+            GlobalCitationKeyPatterns keyPatterns)
+            throws IOException {
         List<Refusal> refusals = new ArrayList<>();
         for (ParserResult version : List.of(base, current, other)) {
             refusals.addAll(lossOnWriting(version));
@@ -59,7 +57,9 @@ final class MergePreconditions {
         if (version.hasWarnings()) {
             refusals.add(new Refusal(file, Reason.PARSER_WARNINGS));
         }
-        if (database.getEntries().stream().anyMatch(BibEntry::isEmpty)) {
+        if (database.getEntries()
+                    .stream()
+                    .anyMatch(BibEntry::isEmpty)) {
             refusals.add(new Refusal(file, Reason.EMPTY_ENTRY));
         }
         if (hasUnusedCustomEntryTypes(version)) {
@@ -72,23 +72,30 @@ final class MergePreconditions {
     }
 
     private static boolean hasDuplicateCitationKeys(BibDatabase database) {
-        return database.getEntries().stream()
+        return database.getEntries()
+                       .stream()
                        .flatMap(entry -> entry.getCitationKey().stream())
                        .anyMatch(database::isDuplicateCitationKeyExisting);
     }
 
     private static boolean hasUnusedCustomEntryTypes(ParserResult version) {
-        Set<EntryType> usedTypes = version.getDatabase().getEntries().stream()
-                                          .map(BibEntry::getType)
-                                          .collect(Collectors.toSet());
-        return version.getEntryTypes().stream()
+        Set<EntryType> usedTypes = version.getDatabase()
+                .getEntries()
+                .stream()
+                .map(BibEntry::getType)
+                .collect(Collectors.toSet());
+        return version.getEntryTypes()
+                      .stream()
                       .map(BibEntryType::getType)
                       .anyMatch(type -> !usedTypes.contains(type));
     }
 
-    /// The parser does not keep the comment, so the raw file has to be searched for it.
+    /// The parser does not keep the comment, so the raw file has to be searched
+    /// for it.
     private static boolean hasUnattachedComment(Path file, ParserResult version) throws IOException {
-        Charset encoding = version.getMetaData().getEncoding().orElse(StandardCharsets.UTF_8);
+        Charset encoding = version.getMetaData()
+                .getEncoding()
+                .orElse(StandardCharsets.UTF_8);
         // Decoding through the constructor replaces unmappable bytes instead of throwing
         String content = new String(Files.readAllBytes(file), encoding);
         return UNATTACHED_COMMENT.matcher(content).find();

@@ -5,12 +5,10 @@ import java.util.List;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.undo.JabRefUndoManager;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -58,9 +56,20 @@ class ManageKeywordsViewModelTest {
     @Test
     void keywordsFilledInCorrectly() {
         ObservableList<String> addedKeywords = keywordsViewModel.getKeywords();
-        List<String> expectedKeywordsList = Arrays.asList("Human-machine interaction", "Chatbot", "Medical Chatbot",
-                "Natural Language Processing", "Machine Learning", "Bot", "Chatbot", "Medical services", "Internet",
-                "Data collection", "Medical diagnostic imaging", "Automation", "Vocabulary");
+        List<String> expectedKeywordsList = Arrays.asList(
+                "Human-machine interaction",
+                "Chatbot",
+                "Medical Chatbot",
+                "Natural Language Processing",
+                "Machine Learning",
+                "Bot",
+                "Chatbot",
+                "Medical services",
+                "Internet",
+                "Data collection",
+                "Medical diagnostic imaging",
+                "Automation",
+                "Vocabulary");
 
         assertEquals(FXCollections.observableList(expectedKeywordsList), addedKeywords);
     }
@@ -68,9 +77,20 @@ class ManageKeywordsViewModelTest {
     @Test
     void removedKeywordNotIncludedInKeywordsList() {
         ObservableList<String> modifiedKeywords = keywordsViewModel.getKeywords();
-        List<String> originalKeywordsList = Arrays.asList("Human-machine interaction", "Chatbot", "Medical Chatbot",
-                "Natural Language Processing", "Machine Learning", "Bot", "Chatbot", "Medical services", "Internet",
-                "Data collection", "Medical diagnostic imaging", "Automation", "Vocabulary");
+        List<String> originalKeywordsList = Arrays.asList(
+                "Human-machine interaction",
+                "Chatbot",
+                "Medical Chatbot",
+                "Natural Language Processing",
+                "Machine Learning",
+                "Bot",
+                "Chatbot",
+                "Medical services",
+                "Internet",
+                "Data collection",
+                "Medical diagnostic imaging",
+                "Automation",
+                "Vocabulary");
 
         assertEquals(FXCollections.observableList(originalKeywordsList), modifiedKeywords, "compared lists are not identical");
 
@@ -90,16 +110,16 @@ class ManageKeywordsViewModelTest {
     @Test
     void undoRestoresTheKeywordsOfEveryAffectedEntry() {
         List<String> keywordsBefore = entries.stream()
-                                             .map(entry -> entry.getField(StandardField.KEYWORDS).orElse(""))
-                                             .toList();
+                .map(entry -> entry.getField(StandardField.KEYWORDS).orElse(""))
+                .toList();
 
         keywordsViewModel.removeKeyword("Automation");
         keywordsViewModel.saveChanges();
         undoManager.undo();
 
         List<String> keywordsAfterUndo = entries.stream()
-                                                .map(entry -> entry.getField(StandardField.KEYWORDS).orElse(""))
-                                                .toList();
+                .map(entry -> entry.getField(StandardField.KEYWORDS).orElse(""))
+                .toList();
         assertEquals(keywordsBefore, keywordsAfterUndo);
     }
 

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Locale;
 
 import org.jabref.logic.journals.JournalAbbreviationRepository;
-
 import org.jspecify.annotations.NonNull;
 
 /// Helper class to get a Layout object.
@@ -40,9 +39,7 @@ public class LayoutHelper {
     private final JournalAbbreviationRepository abbreviationRepository;
     private boolean endOfFile;
 
-    public LayoutHelper(@NonNull Reader in,
-                        List<Path> fileDirForDatabase,
-                        @NonNull LayoutFormatterPreferences preferences,
+    public LayoutHelper(@NonNull Reader in, List<Path> fileDirForDatabase, @NonNull LayoutFormatterPreferences preferences,
                         JournalAbbreviationRepository abbreviationRepository) {
         this.in = new PushbackReader(in, 2);
         this.preferences = preferences;
@@ -50,9 +47,7 @@ public class LayoutHelper {
         this.fileDirForDatabase = fileDirForDatabase;
     }
 
-    public LayoutHelper(Reader in,
-                        LayoutFormatterPreferences preferences,
-                        JournalAbbreviationRepository abbreviationRepository) {
+    public LayoutHelper(Reader in, LayoutFormatterPreferences preferences, JournalAbbreviationRepository abbreviationRepository) {
         this(in, List.of(), preferences, abbreviationRepository);
     }
 
@@ -60,8 +55,10 @@ public class LayoutHelper {
         parse();
 
         for (StringInt parsedEntry : parsedEntries) {
-            if ((parsedEntry.i == LayoutHelper.IS_SIMPLE_COMMAND) || (parsedEntry.i == LayoutHelper.IS_FIELD_START)
-                    || (parsedEntry.i == LayoutHelper.IS_FIELD_END) || (parsedEntry.i == LayoutHelper.IS_GROUP_START)
+            if ((parsedEntry.i == LayoutHelper.IS_SIMPLE_COMMAND)
+                    || (parsedEntry.i == LayoutHelper.IS_FIELD_START)
+                    || (parsedEntry.i == LayoutHelper.IS_FIELD_END)
+                    || (parsedEntry.i == LayoutHelper.IS_GROUP_START)
                     || (parsedEntry.i == LayoutHelper.IS_GROUP_END)) {
                 parsedEntry.s = parsedEntry.s.trim().toLowerCase(Locale.ROOT);
             }
@@ -142,7 +139,10 @@ public class LayoutHelper {
 
                 return;
             }
-            if (!inQuotes && ((c == ']') || (c == '[') || (doneWithOptions && ((c == '{') || (c == '}'))))) {
+            if (!inQuotes
+                    && ((c == ']')
+                            || (c == '[')
+                            || (doneWithOptions && ((c == '{') || (c == '}'))))) {
                 if ((c == ']') || (doneWithOptions && (c == '}'))) {
                     // changed section start - arudert
                     // buffer may be null for parameters
@@ -268,13 +268,11 @@ public class LayoutHelper {
                     if (parsedEntries.isEmpty()) {
                         lastFive.append("unknown");
                     } else {
-                        for (StringInt entry : parsedEntries.subList(Math.max(0, parsedEntries.size() - 6),
-                                parsedEntries.size() - 1)) {
+                        for (StringInt entry : parsedEntries.subList(Math.max(0, parsedEntries.size() - 6), parsedEntries.size() - 1)) {
                             lastFive.append(entry.s);
                         }
                     }
-                    throw new IOException(
-                            "Backslash parsing error near \'" + lastFive.toString().replace("\n", " ") + '\'');
+                    throw new IOException("Backslash parsing error near \'" + lastFive.toString().replace("\n", " ") + '\'');
                 }
 
                 if ("begin".equalsIgnoreCase(name)) {

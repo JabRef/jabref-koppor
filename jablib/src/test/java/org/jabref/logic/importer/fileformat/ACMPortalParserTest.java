@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.net.URLDownload;
@@ -15,8 +16,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
-import org.apache.hc.core5.net.URIBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -38,7 +37,9 @@ class ACMPortalParserTest {
     void setUp() throws URISyntaxException, MalformedURLException {
         parser = new ACMPortalParser();
         searchUrl = new URIBuilder("https://dl.acm.org/action/doSearch")
-                .addParameter("AllField", searchQuery).build().toURL();
+                .addParameter("AllField", searchQuery)
+                .build()
+                .toURL();
         searchEntryList = List.of(
                 new BibEntry(StandardEntryType.Conference)
                         .withField(StandardField.AUTHOR, "Olsson, Tobias and Ericsson, Morgan and Wingkvist, Anna")
@@ -64,8 +65,7 @@ class ACMPortalParserTest {
                         .withField(StandardField.LOCATION, "Seattle, WA, USA")
                         .withField(StandardField.ISBN, "9781450342186")
                         .withField(StandardField.PUBLISHER, "Association for Computing Machinery")
-                        .withField(StandardField.ADDRESS, "New York, NY, USA")
-        );
+                        .withField(StandardField.ADDRESS, "New York, NY, USA"));
     }
 
     @Test
@@ -75,14 +75,16 @@ class ACMPortalParserTest {
         for (BibEntry bibEntry : bibEntries) {
             bibEntry.clearField(StandardField.ABSTRACT);
         }
-        assertEquals(Optional.of(searchEntryList.getFirst()), bibEntries.stream().findFirst());
+        assertEquals(Optional.of(searchEntryList.getFirst()),
+                bibEntries.stream().findFirst());
     }
 
     @Test
     void parseDoiSearchPage() throws FetcherException, ParseException {
         String testDoi = "10.1145/3129790.3129810";
         CookieHandler.setDefault(new CookieManager());
-        List<String> doiList = parser.parseDoiSearchPage(new URLDownload(searchUrl).asInputStream());
+        List<String> doiList = parser.parseDoiSearchPage(new URLDownload(searchUrl)
+                .asInputStream());
         assertFalse(doiList.isEmpty());
         assertEquals(testDoi, doiList.getFirst());
     }
@@ -141,7 +143,9 @@ class ACMPortalParserTest {
     @Test
     void noEntryFound() throws URISyntaxException, FetcherException, MalformedURLException, ParseException {
         CookieHandler.setDefault(new CookieManager());
-        URL url = new URIBuilder("https://dl.acm.org/action/doSearch?AllField=10.1145/3129790.31298").build().toURL();
+        URL url = new URIBuilder("https://dl.acm.org/action/doSearch?AllField=10.1145/3129790.31298")
+                .build()
+                .toURL();
         List<BibEntry> bibEntries = parser.parseEntries(new URLDownload(url).asInputStream());
         assertEquals(List.of(), bibEntries);
     }

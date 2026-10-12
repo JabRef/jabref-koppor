@@ -9,5 +9,6 @@ import org.jabref.model.entry.BibEntry;
 ///
 /// Implementations may produce different output formats (Markdown, JSON, etc.).
 public interface AiSummaryExporter {
-    String export(AiMetadata metadata, BibEntry entry, BibDatabaseMode mode, AiSummary summary);
+    String export(AiMetadata metadata, BibEntry entry, BibDatabaseMode mode,
+                  AiSummary summary);
 }

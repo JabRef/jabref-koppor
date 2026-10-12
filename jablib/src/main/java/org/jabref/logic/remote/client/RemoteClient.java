@@ -5,12 +5,10 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import javafx.util.Pair;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.remote.Protocol;
 import org.jabref.logic.remote.RemoteMessage;
 import org.jabref.logic.remote.RemotePreferences;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +54,8 @@ public class RemoteClient {
             Pair<RemoteMessage, Object> response = protocol.receiveMessage();
             return response.getKey() == RemoteMessage.OK;
         } catch (IOException e) {
-            LOGGER.debug("Could not send args {} to the server at port {}", String.join(", ", args), port, e);
+            LOGGER.debug("Could not send args {} to the server at port {}",
+                    String.join(", ", args), port, e);
             return false;
         }
     }

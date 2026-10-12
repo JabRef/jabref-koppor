@@ -14,16 +14,14 @@ class JavaFxCssLogFilterTest {
 
     @Test
     void filtersModenaCssConversionWarnings() {
-        String msg = "Caught 'java.lang.ClassCastException: class java.lang.String cannot be cast to class javafx.scene.paint.Paint' "
-                + "while converting value for '-fx-background-color' from rule '*.text-input' in stylesheet jar:file:///C:/.../javafx-controls-23.0.1-win.jar!/com/sun/javafx/scene/control/skin/modena/modena.bss";
+        String msg = "Caught 'java.lang.ClassCastException: class java.lang.String cannot be cast to class javafx.scene.paint.Paint' " + "while converting value for '-fx-background-color' from rule '*.text-input' in stylesheet jar:file:///C:/.../javafx-controls-23.0.1-win.jar!/com/sun/javafx/scene/control/skin/modena/modena.bss";
         LogRecord rec = new LogRecord(Level.WARNING, msg);
         assertFalse(filter.isLoggable(rec));
     }
 
     @Test
     void filtersBaseCssLookupWarnings() {
-        String msg = "Could not resolve '-color-fg-subtle' while resolving lookups for '-fx-prompt-text-fill' "
-                + "from rule '*.text-input' in stylesheet file:/D:/git-repositories/JabRef/build/resources/main/org/jabref/gui/theme/internal/jabref-base.css";
+        String msg = "Could not resolve '-color-fg-subtle' while resolving lookups for '-fx-prompt-text-fill' " + "from rule '*.text-input' in stylesheet file:/D:/git-repositories/JabRef/build/resources/main/org/jabref/gui/theme/internal/jabref-base.css";
         LogRecord rec = new LogRecord(Level.WARNING, msg);
         assertFalse(filter.isLoggable(rec));
     }

@@ -2,6 +2,7 @@ package org.jabref.logic.openoffice;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -11,7 +12,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -24,17 +24,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ZoteroCitationMarkParserTest {
 
-    private record CSLTestCase(
-            String itemData,
-            EntryType entryType,
-            Map<Field, String> fields,
+    private record CSLTestCase(String itemData, EntryType entryType, Map<Field, String> fields,
             List<Field> absentFields) {
         private CSLTestCase(String itemData, EntryType entryType, Map<Field, String> fields) {
             this(itemData, entryType, fields, List.of());
         }
     }
 
-    private static final String JOURNAL_ARTICLE_CSL_JSON = """
+    private static final String JOURNAL_ARTICLE_CSL_JSON =
+            """
             {
               "citationItems": [
                 {
@@ -83,7 +81,8 @@ class ZoteroCitationMarkParserTest {
 
     @Test
     void parsePrefersJabRefUriCitationKeyOverZoteroItemId() {
-        List<BibEntry> entries = ZoteroCitationMarkParser.parseCslCitationJson("""
+        List<BibEntry> entries = ZoteroCitationMarkParser
+                .parseCslCitationJson("""
                 {
                   "citationItems": [
                     {
@@ -123,20 +122,21 @@ class ZoteroCitationMarkParserTest {
                 Arguments.of(StandardField.NUMBER, "2"),
                 Arguments.of(StandardField.PAGES, "6-7"),
                 Arguments.of(StandardField.DOI, "1234567"),
-                Arguments.of(StandardField.YEAR, "2026")
-        );
+                Arguments.of(StandardField.YEAR, "2026"));
     }
 
     @ParameterizedTest
     @MethodSource
     void parseCSLJSON(CSLTestCase testCase) {
-        List<BibEntry> entries = ZoteroCitationMarkParser.parseCslCitationJson("""
+        List<BibEntry> entries = ZoteroCitationMarkParser
+                .parseCslCitationJson("""
                 {"citationItems":[{"id":600,"itemData":{%s}}]}
-                """.formatted(testCase.itemData()));
+                """
+                        .formatted(testCase.itemData()));
         BibEntry entry = entries.getFirst();
 
         assertEquals(testCase.entryType(), entry.getType());
-        for (Map.Entry<Field, String> expectedField : testCase.fields().entrySet()) {
+        for (Entry<Field, String> expectedField : testCase.fields().entrySet()) {
             assertEquals(Optional.of(expectedField.getValue()), entry.getField(expectedField.getKey()));
         }
         for (Field absentField : testCase.absentFields()) {
@@ -146,51 +146,33 @@ class ZoteroCitationMarkParserTest {
 
     private static Stream<CSLTestCase> parseCSLJSON() {
         return Stream.of(
-                new CSLTestCase(
-                        """
+                new CSLTestCase("""
                                 "type":"article-magazine",
                                 "title":"Magazine article"
                                 """,
-                        StandardEntryType.Article,
-                        Map.of(
-                                StandardField.TITLE, "Magazine article"
-                        )
-                ),
-                new CSLTestCase(
-                        """
+                        StandardEntryType.Article, Map.of(StandardField.TITLE, "Magazine article")),
+                new CSLTestCase("""
                                 "type":"article-newspaper",
                                 "title":"Newspaper article"
                                 """,
-                        StandardEntryType.Article,
-                        Map.of(
-                                StandardField.TITLE, "Newspaper article"
-                        )
-                ),
-                new CSLTestCase(
-                        """
+                        StandardEntryType.Article, Map.of(StandardField.TITLE, "Newspaper article")),
+                new CSLTestCase("""
                                 "type":"article-journal",
                                 "title":"Special issue article",
                                 "issue":"Special issue"
                                 """,
-                        StandardEntryType.Article,
-                        Map.of(
-                                StandardField.TITLE, "Special issue article",
-                                StandardField.ISSUE, "Special issue"
-                        )
-                ),
-                new CSLTestCase(
-                        """
+                        StandardEntryType.Article, Map.of(
+                        StandardField.TITLE, "Special issue article",
+                        StandardField.ISSUE, "Special issue")),
+                new CSLTestCase("""
                                 "type":"article-journal",
                                 "title":"Article with electronic id",
                                 "number":"e123"
                                 """,
-                        StandardEntryType.Article,
-                        Map.of(
-                                StandardField.TITLE, "Article with electronic id",
-                                StandardField.EID, "e123"
-                        ),
-                        List.of(StandardField.NUMBER)
-                ),
+                        StandardEntryType.Article, Map.of(
+                        StandardField.TITLE, "Article with electronic id",
+                        StandardField.EID, "e123"),
+                        List.of(StandardField.NUMBER)),
                 new CSLTestCase(
                         """
                                 "type":"book",
@@ -229,10 +211,8 @@ class ZoteroCitationMarkParserTest {
                                 Map.entry(StandardField.SERIES, "Book series"),
                                 Map.entry(StandardField.SHORTTITLE, "Short book"),
                                 Map.entry(StandardField.VERSION, "1.0"),
-                                Map.entry(StandardField.VOLUME, "4")
-                        ),
-                        List.of(StandardField.ISSUE, StandardField.NUMBER)
-                ),
+                                Map.entry(StandardField.VOLUME, "4")),
+                        List.of(StandardField.ISSUE, StandardField.NUMBER)),
                 new CSLTestCase(
                         """
                                 "type":"chapter",
@@ -253,10 +233,8 @@ class ZoteroCitationMarkParserTest {
                                 StandardField.PUBLISHER, "Chapter Press",
                                 StandardField.LOCATION, "London",
                                 StandardField.PAGES, "10-20",
-                                StandardField.ISBN, "978-4-56"
-                        ),
-                        List.of(StandardField.ISSUE, StandardField.NUMBER)
-                ),
+                                StandardField.ISBN, "978-4-56"),
+                        List.of(StandardField.ISSUE, StandardField.NUMBER)),
                 new CSLTestCase(
                         """
                                 "type":"paper-conference",
@@ -276,75 +254,51 @@ class ZoteroCitationMarkParserTest {
                                 StandardField.ORGANIZATION, "ACM",
                                 StandardField.NUMBER, "4",
                                 StandardField.PAGES, "1-8",
-                                StandardField.ISBN, "978-7-89"
-                        )
-                ),
-                new CSLTestCase(
-                        """
+                                StandardField.ISBN, "978-7-89")),
+                new CSLTestCase("""
                                 "type":"paper-conference",
                                 "title":"Conference paper",
                                 "issue":"Spring"
                                 """,
-                        StandardEntryType.InProceedings,
-                        Map.of(
-                                StandardField.TITLE, "Conference paper"
-                        ),
-                        List.of(StandardField.ISSUE, StandardField.NUMBER)
-                ),
-                new CSLTestCase(
-                        """
+                        StandardEntryType.InProceedings, Map.of(StandardField.TITLE, "Conference paper"), List.of(StandardField.ISSUE, StandardField.NUMBER)),
+                new CSLTestCase("""
                                 "type":"manuscript",
                                 "title":"Manuscript title",
                                 "publisher":"Archive note"
                                 """,
-                        StandardEntryType.Unpublished,
-                        Map.of(
-                                StandardField.TITLE, "Manuscript title",
-                                StandardField.HOWPUBLISHED, "Archive note"
-                        ),
-                        List.of(StandardField.PUBLISHER)
-                ),
-                new CSLTestCase(
-                        """
+                        StandardEntryType.Unpublished, Map.of(
+                        StandardField.TITLE, "Manuscript title",
+                        StandardField.HOWPUBLISHED, "Archive note"),
+                        List.of(StandardField.PUBLISHER)),
+                new CSLTestCase("""
                                 "type":"patent",
                                 "title":"Patent title",
                                 "number":"ISRN PATENT-123"
                                 """,
-                        IEEETranEntryType.Patent,
-                        Map.of(
-                                StandardField.TITLE, "Patent title",
-                                StandardField.NUMBER, "ISRN PATENT-123"
-                        ),
-                        List.of(StandardField.ISRN)
-                ),
-                new CSLTestCase(
-                        """
+                        IEEETranEntryType.Patent, Map.of(
+                        StandardField.TITLE, "Patent title",
+                        StandardField.NUMBER, "ISRN PATENT-123"),
+                        List.of(StandardField.ISRN)),
+                new CSLTestCase("""
                                 "type":"webpage",
                                 "title":"Web page",
                                 "URL":"https://example.org",
                                 "publisher":"Example Org"
                                 """,
-                        StandardEntryType.Online,
-                        Map.of(
-                                StandardField.TITLE, "Web page",
-                                StandardField.URL, "https://example.org",
-                                StandardField.ORGANIZATION, "Example Org"
-                        )
-                ),
-                new CSLTestCase(
-                        """
+                        StandardEntryType.Online, Map.of(
+                        StandardField.TITLE, "Web page",
+                        StandardField.URL, "https://example.org",
+                        StandardField.ORGANIZATION, "Example Org")),
+                new CSLTestCase("""
                                 "type":"thesis",
                                 "title":"Thesis title",
                                 "publisher":"Test University",
                                 "publisher-place":"Amsterdam"
                                 """,
-                        StandardEntryType.Thesis,
-                        Map.of(
-                                StandardField.TITLE, "Thesis title",
-                                StandardField.LOCATION, "Amsterdam",
-                                StandardField.INSTITUTION, "Test University"
-                        )
-                ),
+                        StandardEntryType.Thesis, Map.of(
+                        StandardField.TITLE, "Thesis title",
+                        StandardField.LOCATION, "Amsterdam",
+                        StandardField.INSTITUTION, "Test University")),
                 new CSLTestCase(
                         """
                                 "type":"report",
@@ -360,15 +314,13 @@ class ZoteroCitationMarkParserTest {
                                 StandardField.INSTITUTION, "Research Institute",
                                 StandardField.LOCATION, "Delft",
                                 StandardField.NUMBER, "R-1",
-                                StandardField.PAGES, "1-30"
-                        )
-                )
-        );
+                                StandardField.PAGES, "1-30")));
     }
 
     @Test
     void parseCslJsonItemsAcceptsBareItemObject() {
-        List<BibEntry> entries = ZoteroCitationMarkParser.parseCslJsonItems("""
+        List<BibEntry> entries = ZoteroCitationMarkParser
+                .parseCslJsonItems("""
                 {
                   "type": "paper-conference",
                   "title": "Conference paper",
@@ -385,16 +337,19 @@ class ZoteroCitationMarkParserTest {
 
     @Test
     void parseCslJsonItemsLeavesCitationKeyEmptyForImport() {
-        List<BibEntry> entries = ZoteroCitationMarkParser.parseCslJsonItems("""
+        List<BibEntry> entries = ZoteroCitationMarkParser
+                .parseCslJsonItems("""
                 {"type": "article-journal", "title": "T"}
                 """);
 
-        assertEquals(Optional.empty(), entries.getFirst().getCitationKey());
+        assertEquals(Optional.empty(),
+                entries.getFirst().getCitationKey());
     }
 
     @Test
     void parseCslJsonItemsAcceptsArrayOfItems() {
-        List<BibEntry> entries = ZoteroCitationMarkParser.parseCslJsonItems("""
+        List<BibEntry> entries = ZoteroCitationMarkParser
+                .parseCslJsonItems("""
                 [
                   {"type": "book", "title": "A book"},
                   {"type": "thesis", "title": "A thesis"}
@@ -408,7 +363,8 @@ class ZoteroCitationMarkParserTest {
 
     @Test
     void parseCslJsonItemsMapsFieldsPerType() {
-        List<BibEntry> entries = ZoteroCitationMarkParser.parseCslJsonItems("""
+        List<BibEntry> entries = ZoteroCitationMarkParser
+                .parseCslJsonItems("""
                 {
                   "type": "article-journal",
                   "title": "An article",
@@ -427,7 +383,8 @@ class ZoteroCitationMarkParserTest {
 
     @Test
     void parseCslJsonItemsMapsIssuedRaw() {
-        List<BibEntry> entries = ZoteroCitationMarkParser.parseCslJsonItems("""
+        List<BibEntry> entries = ZoteroCitationMarkParser
+                .parseCslJsonItems("""
                 {
                   "type": "article-journal",
                   "title": "An article",
@@ -435,21 +392,26 @@ class ZoteroCitationMarkParserTest {
                 }
                 """);
 
-        assertEquals(Optional.of("2021"), entries.getFirst().getField(StandardField.YEAR));
+        assertEquals(Optional.of("2021"),
+                entries.getFirst().getField(StandardField.YEAR));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"", "   ", "not json", "{ broken"})
     void parseCslJsonItemsReturnsEmptyForBlankOrInvalid(String input) {
-        assertTrue(ZoteroCitationMarkParser.parseCslJsonItems(input).isEmpty());
+        assertTrue(ZoteroCitationMarkParser.parseCslJsonItems(input)
+                .isEmpty());
     }
 
-    /// CSL-JSON that explicitly sets optional composite properties to null must not throw
-    /// (Gson overwrites the field defaults with null on explicit `"key": null`, and the immutable
-    /// CSL mapping tables reject a null key lookup). `|` is the column separator so the JSON commas
-    /// stay intact.
+    /// CSL-JSON that explicitly sets optional composite properties to null must
+    /// not throw (Gson overwrites the field defaults with null on explicit
+    /// `"key": null`, and the immutable CSL mapping tables reject a null key
+    /// lookup). `|` is the column separator so the JSON commas stay intact.
     @ParameterizedTest
-    @CsvSource(delimiter = '|', textBlock = """
+    @CsvSource(
+            delimiter = '|',
+            textBlock =
+                    """
             # CSL JSON                                                                | entry type
             {"type": "article-journal", "title": "T", "author": null}                | Article
             {"type": "article-journal", "title": "T", "issued": null}                | Article

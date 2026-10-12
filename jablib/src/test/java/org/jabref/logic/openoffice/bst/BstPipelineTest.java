@@ -9,7 +9,6 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-/// End-to-end pipeline tests: BST render → pandoc HTML → OOText.
-/// Tests that require pandoc are skipped automatically when pandoc is not on the PATH.
+/// End-to-end pipeline tests: BST render → pandoc HTML → OOText. Tests that
+/// require pandoc are skipped automatically when pandoc is not on the PATH.
 class BstPipelineTest {
 
     private PandocLatexConverter pandoc;
@@ -39,11 +38,15 @@ class BstPipelineTest {
     }
 
     private static Path ieeePath() throws URISyntaxException {
-        return Path.of(BstPipelineTest.class.getResource("/org/jabref/logic/bst/IEEEtran.bst").toURI());
+        return Path.of(BstPipelineTest.class
+                .getResource("/org/jabref/logic/bst/IEEEtran.bst")
+                .toURI());
     }
 
     private static Path abbrvPath() throws URISyntaxException {
-        return Path.of(BstPipelineTest.class.getResource("/org/jabref/logic/bst/abbrv.bst").toURI());
+        return Path.of(BstPipelineTest.class
+                .getResource("/org/jabref/logic/bst/abbrv.bst")
+                .toURI());
     }
 
     // --- pandoc availability ---
@@ -95,8 +98,7 @@ class BstPipelineTest {
         String ooText = BSTFormatUtils.convertPandocHtmlToOOText(html);
 
         // IEEEtran renders journal name in \emph{}  pandoc  <em>  OOText mapping  <i>
-        assertTrue(ooText.contains("<i>") && ooText.contains("</i>"),
-                "Journal title should be in italics in OOText output");
+        assertTrue(ooText.contains("<i>") && ooText.contains("</i>"), "Journal title should be in italics in OOText output");
     }
 
     @Test

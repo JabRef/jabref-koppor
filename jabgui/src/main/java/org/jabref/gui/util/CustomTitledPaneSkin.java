@@ -29,7 +29,8 @@ import static javafx.css.StyleConverter.getEnumConverter;
 public class CustomTitledPaneSkin extends TitledPaneSkin {
 
     public enum ArrowSide {
-        LEFT, RIGHT
+        LEFT,
+        RIGHT
     }
 
     /* ********************************************************
@@ -88,12 +89,13 @@ public class CustomTitledPaneSkin extends TitledPaneSkin {
 
         // based on https://stackoverflow.com/a/55156460/3450689
         Rotate rotate = new Rotate();
-        rotate.pivotXProperty().bind(arrow.widthProperty().divide(2.0));
-        rotate.pivotYProperty().bind(arrow.heightProperty().divide(2.0));
-        rotate.angleProperty().bind(
-                Bindings.when(control.expandedProperty())
-                        .then(-180.0)
-                        .otherwise(90.0));
+        rotate.pivotXProperty().bind(arrow.widthProperty()
+                .divide(2.0));
+        rotate.pivotYProperty().bind(arrow.heightProperty()
+                .divide(2.0));
+        rotate.angleProperty().bind(Bindings.when(control.expandedProperty())
+                .then(-180.0)
+                .otherwise(90.0));
 
         arrow.getTransforms().add(rotate);
 
@@ -113,22 +115,27 @@ public class CustomTitledPaneSkin extends TitledPaneSkin {
             return;
         }
 
-        arrowTranslateBinding = Bindings.createDoubleBinding(() -> {
-            double rightInset = title.getPadding().getRight();
-            return title.getWidth() - arrowButton.getLayoutX() - arrowButton.getWidth() - rightInset;
-        }, title.paddingProperty(), title.widthProperty(), arrowButton.widthProperty(), arrowButton.layoutXProperty());
+        arrowTranslateBinding = Bindings.createDoubleBinding(
+                () -> {
+                    double rightInset = title.getPadding().getRight();
+                    return title.getWidth()
+                            - arrowButton.getLayoutX()
+                            - arrowButton.getWidth()
+                            - rightInset;
+                },
+                title.paddingProperty(),
+                title.widthProperty(),
+                arrowButton.widthProperty(),
+                arrowButton.layoutXProperty());
         arrowButton.translateXProperty().bind(arrowTranslateBinding);
 
         textGraphicTranslateBinding = Bindings.createDoubleBinding(
                 () -> switch (getSkinnable().getAlignment()) {
-                    case TOP_CENTER,
-                         CENTER,
-                         BOTTOM_CENTER,
-                         BASELINE_CENTER ->
-                            0.0;
-                    default ->
-                            -arrowButton.getWidth();
-                }, getSkinnable().alignmentProperty(), arrowButton.widthProperty());
+                    case TOP_CENTER, CENTER, BOTTOM_CENTER, BASELINE_CENTER -> 0.0;
+                    default -> -arrowButton.getWidth();
+                },
+                getSkinnable().alignmentProperty(),
+                arrowButton.widthProperty());
         text.translateXProperty().bind(textGraphicTranslateBinding);
 
         graphic = getSkinnable().getGraphic();

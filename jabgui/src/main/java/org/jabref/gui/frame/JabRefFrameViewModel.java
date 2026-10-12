@@ -18,10 +18,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.google.common.annotations.VisibleForTesting;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.scene.control.ButtonType;
-
 import org.jabref.cli.CliImportHelper;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
@@ -56,8 +56,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.google.common.annotations.VisibleForTesting;
 import org.jooq.lambda.Unchecked;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -78,16 +76,17 @@ public class JabRefFrameViewModel {
     private final ClipBoardManager clipBoardManager;
     private final TaskExecutor taskExecutor;
 
-    public JabRefFrameViewModel(GuiPreferences preferences,
-                                AiService aiService,
-                                StateManager stateManager,
-                                DialogService dialogService,
-                                LibraryTabContainer tabContainer,
-                                Supplier<OpenDatabaseAction> openDatabaseAction,
-                                BibEntryTypesManager entryTypesManager,
-                                FileUpdateMonitor fileUpdateMonitor,
-                                ClipBoardManager clipBoardManager,
-                                TaskExecutor taskExecutor) {
+    public JabRefFrameViewModel(
+            GuiPreferences preferences,
+            AiService aiService,
+            StateManager stateManager,
+            DialogService dialogService,
+            LibraryTabContainer tabContainer,
+            Supplier<OpenDatabaseAction> openDatabaseAction,
+            BibEntryTypesManager entryTypesManager,
+            FileUpdateMonitor fileUpdateMonitor,
+            ClipBoardManager clipBoardManager,
+            TaskExecutor taskExecutor) {
         this.preferences = preferences;
         this.aiService = aiService;
         this.stateManager = stateManager;
@@ -105,7 +104,9 @@ public class JabRefFrameViewModel {
             // Here we store the names of all current files. If there is no current file, we remove any
             // previously stored filename.
             if (filenames.isEmpty()) {
-                preferences.getLastFilesOpenedPreferences().getLastFilesOpened().clear();
+                preferences.getLastFilesOpenedPreferences()
+                           .getLastFilesOpened()
+                           .clear();
             } else {
                 preferences.getLastFilesOpenedPreferences().setLastFilesOpened(filenames);
                 preferences.getLastFilesOpenedPreferences().setLastFocusedFile(focusedDatabase);
@@ -114,17 +115,21 @@ public class JabRefFrameViewModel {
         }
     }
 
-    /// Shared databases that are backed by a local file are reopened through that file (it carries the shared database id).
-    /// The others only live in the connection, so their connection properties are collected here, keyed by a generated id.
-    /// Nothing is written yet: the user may still cancel the quit, and a credential must not land in the keyring for a
-    /// database that then stays open.
+    /// Shared databases that are backed by a local file are reopened through
+    /// that file (it carries the shared database id). The others only live in
+    /// the connection, so their connection properties are collected here, keyed
+    /// by a generated id. Nothing is written yet: the user may still cancel the
+    /// quit, and a credential must not land in the keyring for a database that
+    /// then stays open.
     private static SequencedMap<String, DatabaseConnectionProperties> collectSharedDatabases(List<LibraryTab> tabs) {
         SequencedMap<String, DatabaseConnectionProperties> sharedDatabases = new LinkedHashMap<>();
         tabs.stream()
             .map(LibraryTab::getBibDatabaseContext)
             .filter(context -> context.getLocation() == DatabaseLocation.SHARED && context.getDatabasePath().isEmpty())
             .forEach(context -> {
-                String id = context.getDatabase().getSharedDatabaseID().orElseGet(() -> context.getDatabase().generateSharedDatabaseID());
+                String id = context.getDatabase()
+                                   .getSharedDatabaseID()
+                                   .orElseGet(() -> context.getDatabase().generateSharedDatabaseID());
                 sharedDatabases.put(id, context.getDBMSSynchronizer().getConnectionProperties());
             });
         return sharedDatabases;
@@ -137,27 +142,25 @@ public class JabRefFrameViewModel {
         // Ask if the user really wants to close, if there are still background tasks running
         // The background tasks may make changes themselves that need saving.
         if (stateManager.getAnyTasksThatWillNotBeRecoveredRunning().getValue()) {
-            Optional<ButtonType> shouldClose = dialogService.showBackgroundProgressDialogAndWait(
-                    Localization.lang("Please wait..."),
-                    Localization.lang("Waiting for background tasks to finish. Quit anyway?"),
-                    stateManager);
+            Optional<ButtonType> shouldClose = dialogService.showBackgroundProgressDialogAndWait(Localization.lang("Please wait..."), Localization.lang("Waiting for background tasks to finish. Quit anyway?"), stateManager);
             if (!(shouldClose.isPresent() && (shouldClose.get() == ButtonType.YES))) {
                 return false;
             }
         }
 
         // Read the opened and focused databases before closing them
-        List<Path> openedLibraries = tabContainer.getLibraryTabs().stream()
-                                                 .map(LibraryTab::getBibDatabaseContext)
-                                                 .map(BibDatabaseContext::getDatabasePath)
-                                                 .flatMap(Optional::stream)
-                                                 .map(Path::toAbsolutePath)
-                                                 .toList();
+        List<Path> openedLibraries = tabContainer.getLibraryTabs()
+                .stream()
+                .map(LibraryTab::getBibDatabaseContext)
+                .map(BibDatabaseContext::getDatabasePath)
+                .flatMap(Optional::stream)
+                .map(Path::toAbsolutePath)
+                .toList();
         Path focusedLibraries = Optional.ofNullable(tabContainer.getCurrentLibraryTab())
-                                        .map(LibraryTab::getBibDatabaseContext)
-                                        .flatMap(BibDatabaseContext::getDatabasePath)
-                                        .map(Path::toAbsolutePath)
-                                        .orElse(null);
+                .map(LibraryTab::getBibDatabaseContext)
+                .flatMap(BibDatabaseContext::getDatabasePath)
+                .map(Path::toAbsolutePath)
+                .orElse(null);
         SequencedMap<String, DatabaseConnectionProperties> sharedDatabases = collectSharedDatabases(tabContainer.getLibraryTabs());
 
         // Then ask if the user really wants to close, if the library has not been saved since last save.
@@ -174,8 +177,9 @@ public class JabRefFrameViewModel {
         return true;
     }
 
-    /// Handles commands submitted by the command line or by the remote host to be executed in the ui
-    /// Needs to run in a certain order. E.g. databases have to be loaded before selecting an entry.
+    /// Handles commands submitted by the command line or by the remote host to
+    /// be executed in the ui Needs to run in a certain order. E.g. databases
+    /// have to be loaded before selecting an entry.
     ///
     /// Does NOT handle focus - this is done in JabRefFrame
     ///
@@ -200,7 +204,8 @@ public class JabRefFrameViewModel {
             uiCommands.stream()
                       .filter(UiCommand.AppendFilesToLibrary.class::isInstance)
                       .map(UiCommand.AppendFilesToLibrary.class::cast)
-                      .findAny().ifPresent(command -> {
+                      .findAny()
+                      .ifPresent(command -> {
                           LOGGER.debug("Append to library {} requested", command.toAppend());
                           selectLibraryTab(command.library());
                           waitForLoadingFinished(() -> appendToCurrentLibrary(command.toAppend()));
@@ -211,25 +216,29 @@ public class JabRefFrameViewModel {
                       .map(UiCommand.AppendStreamToCurrentLibrary.class::cast)
                       .map(UiCommand.AppendStreamToCurrentLibrary::toAppend)
                       .filter(Objects::nonNull)
-                      .findAny().ifPresent(toAppend -> {
+                      .findAny()
+                      .ifPresent(toAppend -> {
                           LOGGER.debug("Append to current library {} requested", toAppend);
                           waitForLoadingFinished(() -> appendToCurrentLibrary(toAppend));
                       });
 
-            uiCommands.stream().filter(UiCommand.AppendFileOrUrlToCurrentLibrary.class::isInstance)
+            uiCommands.stream()
+                      .filter(UiCommand.AppendFileOrUrlToCurrentLibrary.class::isInstance)
                       .map(UiCommand.AppendFileOrUrlToCurrentLibrary.class::cast)
-                      .findAny().ifPresent(importFile -> importFromFileAndOpen(importFile.location()));
+                      .findAny()
+                      .ifPresent(importFile -> importFromFileAndOpen(importFile.location()));
 
-            uiCommands.stream().filter(UiCommand.AppendBibTeXToLibrary.class::isInstance)
+            uiCommands.stream()
+                      .filter(UiCommand.AppendBibTeXToLibrary.class::isInstance)
                       .map(UiCommand.AppendBibTeXToLibrary.class::cast)
-                      .findAny().ifPresent(importBibTex -> {
+                      .findAny()
+                      .ifPresent(importBibTex -> {
                           selectLibraryTab(importBibTex.library());
                           // selectLibraryTab may have just opened the target library, which loads in
                           // the background; wait for it so the import targets the loaded tab.
-                          waitForLoadingFinished(() -> importBibtexStringAndOpen(
-                                  importBibTex.bibtex(),
-                                  // importBibtexStringAndOpen accepts null targetGroup to indicate "no group assignment"
-                                  importBibTex.targetGroup().orElse(null)));
+                          waitForLoadingFinished(() -> importBibtexStringAndOpen(importBibTex.bibtex(),
+                          // importBibtexStringAndOpen accepts null targetGroup to indicate "no group assignment"
+                          importBibTex.targetGroup().orElse(null)));
                       });
         }
 
@@ -240,7 +249,8 @@ public class JabRefFrameViewModel {
                   .map(UiCommand.SelectEntryKeys.class::cast)
                   .map(UiCommand.SelectEntryKeys::citationKey)
                   .filter(Objects::nonNull)
-                  .findAny().ifPresent(entryKeys -> {
+                  .findAny()
+                  .ifPresent(entryKeys -> {
                       LOGGER.debug("Jump to entry(s) {} requested", entryKeys);
                       // tabs must be present and contents async loaded for an entry to be selected
                       waitForLoadingFinished(() -> selectEntries(entryKeys));
@@ -251,15 +261,15 @@ public class JabRefFrameViewModel {
     private void importBibtexStringAndOpen(String importStr, @Nullable String targetGroup) {
         LOGGER.debug("ImportBibtex {} requested", importStr);
         BackgroundTask.wrap(() -> parseBibtexEntries(importStr))
-                      .onSuccess(parserResult -> {
-                          if (preferences.getRemotePreferences().directHttpImport()) {
-                              directImportEntries(parserResult, targetGroup);
-                          } else {
-                              addParserResult(parserResult, targetGroup);
-                          }
-                      })
-                      .onFailure(e -> LOGGER.error("Unable to parse provided bibtex {}", importStr, e))
-                      .executeWith(taskExecutor);
+                .onSuccess(parserResult -> {
+                    if (preferences.getRemotePreferences().directHttpImport()) {
+                        directImportEntries(parserResult, targetGroup);
+                    } else {
+                        addParserResult(parserResult, targetGroup);
+                    }
+                })
+                .onFailure(e -> LOGGER.error("Unable to parse provided bibtex {}", importStr, e))
+                .executeWith(taskExecutor);
     }
 
     private ParserResult parseBibtexEntries(String importStr) throws ParseException {
@@ -272,32 +282,37 @@ public class JabRefFrameViewModel {
     private void importFromFileAndOpen(String location) {
         LOGGER.debug("Import file {} requested", location);
         BackgroundTask.wrap(() -> CliImportHelper.importFile(location, preferences, false))
-                      .onSuccess(result -> result.ifPresent(this::addParserResult))
-                      .onFailure(t -> LOGGER.error("Unable to import file {} ", location, t))
-                      .executeWith(taskExecutor);
+                .onSuccess(result -> result.ifPresent(this::addParserResult))
+                .onFailure(t -> LOGGER.error("Unable to import file {} ", location, t))
+                .executeWith(taskExecutor);
     }
 
-    /// Selects the tab whose library lives at `library` so that the subsequent append
-    /// targets it instead of the previously active tab. An empty Optional leaves the current tab
-    /// unchanged. If the library is not open yet, it is opened in a new (raised) tab; the actual
-    /// loading happens in the background, so callers must run the append via
-    /// [#waitForLoadingFinished(Runnable)] to let the new tab finish loading first. A path
-    /// that does not exist (or is not a .bib file) is silently ignored by
-    /// [OpenDatabaseAction#openFile(Path)] and the current tab is kept (the server side
-    /// already rejects unknown ids with 404, so this is only a defensive fallback).
+    /// Selects the tab whose library lives at `library` so that the subsequent
+    /// append targets it instead of the previously active tab. An empty
+    /// Optional leaves the current tab unchanged. If the library is not open
+    /// yet, it is opened in a new (raised) tab; the actual loading happens in
+    /// the background, so callers must run the append via
+    /// [#waitForLoadingFinished(Runnable)] to let the new tab finish loading
+    /// first. A path that does not exist (or is not a .bib file) is silently
+    /// ignored by [OpenDatabaseAction#openFile(Path)] and the current tab is
+    /// kept (the server side already rejects unknown ids with 404, so this is
+    /// only a defensive fallback).
     private void selectLibraryTab(Optional<Path> library) {
-        library.map(path -> path.toAbsolutePath().normalize()).ifPresent(normalized ->
-                tabContainer.getLibraryTabs().stream()
-                            .filter(tab -> tab.getBibDatabaseContext().getDatabasePath()
-                                              .map(path -> path.toAbsolutePath().normalize().equals(normalized))
-                                              .orElse(false))
-                            .findFirst()
-                            .ifPresentOrElse(
-                                    tabContainer::showLibraryTab,
-                                    () -> {
-                                        LOGGER.info("Requested library {} is not open; opening it", normalized);
-                                        openDatabaseAction.get().openFile(normalized);
-                                    }));
+        library.map(path -> path.toAbsolutePath().normalize()).ifPresent(
+                normalized -> tabContainer.getLibraryTabs()
+                        .stream()
+                        .filter(tab -> tab.getBibDatabaseContext()
+                                          .getDatabasePath()
+                                          .map(path -> path.toAbsolutePath()
+                                                           .normalize()
+                                                           .equals(normalized))
+                                          .orElse(false))
+                        .findFirst()
+                        .ifPresentOrElse(tabContainer::showLibraryTab,
+                                () -> {
+                                    LOGGER.info("Requested library {} is not open; opening it", normalized);
+                                    openDatabaseAction.get().openFile(normalized);
+                                }));
     }
 
     private void directImportEntries(ParserResult parserResult, @Nullable String targetGroup) {
@@ -308,19 +323,14 @@ public class JabRefFrameViewModel {
         if (StringUtil.isNotBlank(targetGroup)) {
             // TODO: if an existing group is not assignable (e.g. a search or automatic group),
             //       the assignment silently does nothing - no error is reported to the caller.
-            GroupsHelper.assignEntriesToGroup(databaseContext, entries, targetGroup, databaseContext.getKeywordSeparator(preferences.getBibEntryPreferences().getKeywordSeparator()));
+            GroupsHelper.assignEntriesToGroup(databaseContext, entries, targetGroup,
+                    databaseContext.getKeywordSeparator(preferences.getBibEntryPreferences().getKeywordSeparator()));
         }
     }
 
     private ImportHandler newImportHandler(BibDatabaseContext databaseContext) {
-        return new ImportHandler(
-                databaseContext,
-                preferences,
-                fileUpdateMonitor,
-                stateManager.getUndoManager(databaseContext),
-                stateManager,
-                dialogService,
-                taskExecutor);
+        return new ImportHandler(databaseContext, preferences, fileUpdateMonitor, stateManager.getUndoManager(databaseContext), stateManager,
+                dialogService, taskExecutor);
     }
 
     private void checkForBibInUpperDir() {
@@ -332,14 +342,15 @@ public class JabRefFrameViewModel {
         }
     }
 
-    /// Use case: User starts `JabRef.bat` or `JabRef.exe`. JabRef should open a "close by" bib file.
-    /// By "close by" a `.bib` file in the current folder or one level up of `JabRef.exe`is meant.
+    /// Use case: User starts `JabRef.bat` or `JabRef.exe`. JabRef should open a
+    /// "close by" bib file. By "close by" a `.bib` file in the current folder
+    /// or one level up of `JabRef.exe`is meant.
     ///
     /// Paths:
     ///
-    ///   - `...\{example-dir}\JabRef\JabRef.exe` (Windows)
-    ///   - `.../{example-dir}/JabRef/bin/JabRef` (Linux)
-    ///   - `...\{example-dir}\JabRef\runtime\bin\JabRef.bat` (Windows)
+    /// - `...\{example-dir}\JabRef\JabRef.exe` (Windows)
+    /// - `.../{example-dir}/JabRef/bin/JabRef` (Linux)
+    /// - `...\{example-dir}\JabRef\runtime\bin\JabRef.bat` (Windows)
     ///
     /// In the example, `...\{example-dir}\example.bib` should be found.
     ///
@@ -363,11 +374,11 @@ public class JabRefFrameViewModel {
         ArrayList<Path> dirsToCheck = new ArrayList<>(2);
         dirsToCheck.add(Path.of(""));
         if (isJabRefExe) {
-            dirsToCheck.add(Path.of("../"));       // directory above `JabRef.exe` directory
+            dirsToCheck.add(Path.of("../")); // directory above `JabRef.exe` directory
         } else if (isJabRefBat) {
             dirsToCheck.add(Path.of("../../../")); // directory above `runtime\bin\JabRef.bat`
         } else if (isJabRef) {
-            dirsToCheck.add(Path.of("../..(/"));   // directory above `bin/JabRef` directory
+            dirsToCheck.add(Path.of("../..(/")); // directory above `bin/JabRef` directory
         }
 
         // We want to check dirsToCheck only, not all subdirs (due to unnecessary disk i/o)
@@ -387,21 +398,14 @@ public class JabRefFrameViewModel {
 
     /// Supports both BibTeX and non-BibTeX
     private void appendToCurrentLibrary(List<Path> libraries) {
-        ImportFormatReader importFormatReader = new ImportFormatReader(
-                preferences.getImporterPreferences(),
-                preferences.getImportFormatPreferences(),
-                preferences.getCitationKeyPatternPreferences(),
-                fileUpdateMonitor
-        );
+        ImportFormatReader importFormatReader = new ImportFormatReader(preferences.getImporterPreferences(), preferences.getImportFormatPreferences(), preferences.getCitationKeyPatternPreferences(),
+                fileUpdateMonitor);
 
         List<ParserResult> parserResults = new ArrayList<>();
         for (Path file : libraries) {
             if (FileUtil.isBibFile(file)) {
                 try {
-                    parserResults.add(OpenDatabase.loadDatabase(
-                            file,
-                            preferences.getImportFormatPreferences(),
-                            fileUpdateMonitor));
+                    parserResults.add(OpenDatabase.loadDatabase(file, preferences.getImportFormatPreferences(), fileUpdateMonitor));
                 } catch (IOException e) {
                     LOGGER.error("Could not open bib file {}", libraries, e);
                     return;
@@ -418,8 +422,8 @@ public class JabRefFrameViewModel {
         }
 
         List<ParserResult> invalidDatabases = parserResults.stream()
-                                                           .filter(ParserResult::isInvalid)
-                                                           .toList();
+                .filter(ParserResult::isInvalid)
+                .toList();
         final List<ParserResult> failed = new ArrayList<>(invalidDatabases);
         parserResults.removeAll(invalidDatabases);
 
@@ -430,8 +434,10 @@ public class JabRefFrameViewModel {
 
         for (ParserResult parserResult : failed) {
             String message = Localization.lang("Error opening file '%0'",
-                    parserResult.getPath().map(Path::toString).orElse("(File name unknown)")) + "\n" +
-                    parserResult.getErrorMessage();
+                    parserResult.getPath()
+                                .map(Path::toString)
+                                .orElse("(File name unknown)"))
+                    + "\n" + parserResult.getErrorMessage();
             dialogService.showErrorDialogAndWait(Localization.lang("Error opening file"), message);
         }
     }
@@ -440,24 +446,15 @@ public class JabRefFrameViewModel {
     ///
     /// Similar code as [org.jabref.gui.importer.actions.ImportCommand]
     private void appendToCurrentLibrary(Reader library) {
-        ImportFormatReader importFormatReader = new ImportFormatReader(
-                preferences.getImporterPreferences(),
-                preferences.getImportFormatPreferences(),
-                preferences.getCitationKeyPatternPreferences(),
-                fileUpdateMonitor
-        );
+        ImportFormatReader importFormatReader = new ImportFormatReader(preferences.getImporterPreferences(), preferences.getImportFormatPreferences(), preferences.getCitationKeyPatternPreferences(),
+                fileUpdateMonitor);
         ImportFormatReader.ImportResult importResult;
         try {
             // TODO: Think of wrapping in BackgroundTask - similar to org.jabref.gui.importer.actions.ImportCommand.importMultipleFiles
             importResult = importFormatReader.importWithAutoDetection(library);
         } catch (Throwable ex) {
             LOGGER.warn("Could not import", ex);
-            UiTaskExecutor.runAndWaitInJavaFXThread(
-                    () -> dialogService.showWarningDialogAndWait(
-                            Localization.lang("Import error"),
-                            Localization.lang("Please check your library file for wrong syntax.")
-                                    + "\n\n"
-                                    + ex.getLocalizedMessage()));
+            UiTaskExecutor.runAndWaitInJavaFXThread(() -> dialogService.showWarningDialogAndWait(Localization.lang("Import error"), Localization.lang("Please check your library file for wrong syntax.") + "\n\n" + ex.getLocalizedMessage()));
             return;
         }
         addParserResult(importResult.parserResult());
@@ -468,13 +465,18 @@ public class JabRefFrameViewModel {
         addParserResult(parserResult, null);
     }
 
-    /// @param targetGroup optional group the imported entries are assigned to (e.g. the REST `?group=` parameter). It pre-selects/falls back to that group in the import dialog, which creates it (top-level) on confirm if missing. An explicit pick in the dialog overrides it; cancelling imports nothing.
+    /// @param targetGroup optional group the imported entries are assigned to
+    ///   (e.g. the REST `?group=` parameter). It pre-selects/falls back to that
+    ///   group in the import dialog, which creates it (top-level) on confirm if
+    ///   missing. An explicit pick in the dialog overrides it; cancelling
+    ///   imports nothing.
     void addParserResult(ParserResult parserResult, @Nullable String targetGroup) {
         LOGGER.trace("Adding the entries to the open tab.");
         LibraryTab libraryTab = tabContainer.getCurrentLibraryTab();
         if (libraryTab == null) {
             BibDatabaseContext databaseContext = new BibDatabaseContext();
-            databaseContext.setMode(preferences.getLibraryPreferences().getDefaultBibDatabaseMode());
+            databaseContext.setMode(preferences.getLibraryPreferences()
+                    .getDefaultBibDatabaseMode());
             tabContainer.addTab(databaseContext, true);
             libraryTab = tabContainer.getCurrentLibraryTab();
         }
@@ -486,8 +488,10 @@ public class JabRefFrameViewModel {
         }
 
         BackgroundTask<ParserResult> task = BackgroundTask.wrap(() -> parserResult);
-        ImportCleanup cleanup = ImportCleanup.targeting(libraryTab.getBibDatabaseContext().getMode(), preferences.getFieldPreferences());
-        cleanup.doPostCleanup(parserResult.getDatabase().getEntries());
+        ImportCleanup cleanup = ImportCleanup.targeting(libraryTab.getBibDatabaseContext().getMode(),
+                preferences.getFieldPreferences());
+        cleanup.doPostCleanup(parserResult.getDatabase()
+                .getEntries());
         ImportEntriesDialog dialog = new ImportEntriesDialog(libraryTab.getBibDatabaseContext(), task, targetGroup);
 
         dialog.setTitle(Localization.lang("Import"));
@@ -499,9 +503,10 @@ public class JabRefFrameViewModel {
 
         CompletableFuture<Void> future = new CompletableFuture<>();
 
-        List<ObservableBooleanValue> loadings = tabContainer.getLibraryTabs().stream()
-                                                            .map(LibraryTab::getLoading)
-                                                            .collect(Collectors.toList());
+        List<ObservableBooleanValue> loadings = tabContainer.getLibraryTabs()
+                .stream()
+                .map(LibraryTab::getLoading)
+                .collect(Collectors.toList());
 
         // Create a listener for each observable
         ChangeListener<Boolean> listener = (observable, _, _) -> {
@@ -511,7 +516,10 @@ public class JabRefFrameViewModel {
             }
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Count of loading tabs: {}", loadings.size());
-                LOGGER.trace("Count of loading tabs really true: {}", loadings.stream().filter(ObservableBooleanValue::get).count());
+                LOGGER.trace("Count of loading tabs really true: {}",
+                        loadings.stream()
+                                .filter(ObservableBooleanValue::get)
+                                .count());
             }
             for (ObservableBooleanValue obs : loadings) {
                 if (obs.get()) {
@@ -546,15 +554,15 @@ public class JabRefFrameViewModel {
     private void selectEntries(List<String> entryKeys) {
         // check current library tab first
         LibraryTab currentLibraryTab = tabContainer.getCurrentLibraryTab();
-        List<LibraryTab> sortedTabs = tabContainer.getLibraryTabs().stream()
-                                                  .sorted(Comparator.comparing(tab -> tab != currentLibraryTab))
-                                                  .toList();
+        List<LibraryTab> sortedTabs = tabContainer.getLibraryTabs()
+                .stream()
+                .sorted(Comparator.comparing(tab -> tab != currentLibraryTab))
+                .toList();
         Set<String> keysToSelect = new HashSet<>(entryKeys);
         LibraryTab firstFoundTab = null;
         for (LibraryTab libraryTab : sortedTabs) {
             List<BibEntry> entriesToSelectInCurrentTab = new ArrayList<>(keysToSelect.size());
-            for (BibEntry entry : libraryTab.getDatabase()
-                                            .getEntries()) {
+            for (BibEntry entry : libraryTab.getDatabase().getEntries()) {
                 Optional<String> citationKeyOptional = entry.getCitationKey();
                 if (citationKeyOptional.isEmpty()) {
                     continue;

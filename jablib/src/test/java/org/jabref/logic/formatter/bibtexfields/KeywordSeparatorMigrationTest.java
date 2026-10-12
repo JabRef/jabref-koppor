@@ -13,7 +13,6 @@ import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.groups.WordKeywordGroup;
 import org.jabref.model.undo.UndoableFieldChange;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,12 +27,12 @@ class KeywordSeparatorMigrationTest {
         BibDatabaseContext databaseContext = new BibDatabaseContext(new BibDatabase(List.of(entry)));
         GroupTreeNode root = GroupTreeNode.fromGroup(new AllEntriesGroup("All entries"));
         root.addSubgroup(new ExplicitGroup("selected", GroupHierarchyType.INDEPENDENT, ','));
-        root.addSubgroup(new WordKeywordGroup("topic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "topic", true, ',', true));
+        root.addSubgroup(new WordKeywordGroup("topic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS,
+                "topic", true, ',', true));
         root.addSubgroup(new AutomaticKeywordGroup("automatic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, ',', '/'));
         databaseContext.getMetaData().setGroups(root);
 
-        List<UndoableFieldChange> fieldChanges = KeywordSeparatorMigration
-                .migrateEntryFields(databaseContext, ',', ';')
+        List<UndoableFieldChange> fieldChanges = KeywordSeparatorMigration.migrateEntryFields(databaseContext, ',', ';')
                 .stream()
                 .map(UndoableFieldChange::new)
                 .toList();
@@ -41,17 +40,39 @@ class KeywordSeparatorMigrationTest {
 
         assertEquals("topic; subtopic", entry.getField(StandardField.KEYWORDS).orElseThrow());
         assertEquals("library; selected", entry.getField(StandardField.GROUPS).orElseThrow());
-        assertEquals(new ExplicitGroup("selected", GroupHierarchyType.INDEPENDENT, ';'), root.getChildren().getFirst().getGroup());
-        assertEquals(new WordKeywordGroup("topic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "topic", true, ';', true), root.getChildren().get(1).getGroup());
-        assertEquals(new AutomaticKeywordGroup("automatic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, ';', '/'), root.getChildren().get(2).getGroup());
+        assertEquals(new ExplicitGroup("selected", GroupHierarchyType.INDEPENDENT, ';'),
+                root.getChildren()
+                    .getFirst()
+                    .getGroup());
+        assertEquals(
+                new WordKeywordGroup("topic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS,
+                        "topic", true, ';', true),
+                root.getChildren()
+                    .get(1)
+                    .getGroup());
+        assertEquals(new AutomaticKeywordGroup("automatic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, ';', '/'),
+                root.getChildren()
+                    .get(2)
+                    .getGroup());
 
         fieldChanges.reversed().forEach(change -> change.inverted().apply());
         KeywordSeparatorMigration.migrateGroupSeparators(databaseContext.getMetaData(), ',');
 
         assertEquals("topic, subtopic", entry.getField(StandardField.KEYWORDS).orElseThrow());
         assertEquals("library, selected", entry.getField(StandardField.GROUPS).orElseThrow());
-        assertEquals(new ExplicitGroup("selected", GroupHierarchyType.INDEPENDENT, ','), root.getChildren().getFirst().getGroup());
-        assertEquals(new WordKeywordGroup("topic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "topic", true, ',', true), root.getChildren().get(1).getGroup());
-        assertEquals(new AutomaticKeywordGroup("automatic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, ',', '/'), root.getChildren().get(2).getGroup());
+        assertEquals(new ExplicitGroup("selected", GroupHierarchyType.INDEPENDENT, ','),
+                root.getChildren()
+                    .getFirst()
+                    .getGroup());
+        assertEquals(
+                new WordKeywordGroup("topic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS,
+                        "topic", true, ',', true),
+                root.getChildren()
+                    .get(1)
+                    .getGroup());
+        assertEquals(new AutomaticKeywordGroup("automatic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, ',', '/'),
+                root.getChildren()
+                    .get(2)
+                    .getGroup());
     }
 }

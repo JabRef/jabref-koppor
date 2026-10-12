@@ -16,9 +16,8 @@ public class DonationPreferences {
 
     ///  Creates object with default values
     private DonationPreferences() {
-        this(
-                false,                    // Donation never show again
-                -1);                      // Donation last shown epoch day
+        this(false, // Donation never show again
+        -1); // Donation last shown epoch day
     }
 
     public static DonationPreferences getDefault() {

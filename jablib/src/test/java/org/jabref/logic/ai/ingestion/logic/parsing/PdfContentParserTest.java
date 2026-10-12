@@ -10,7 +10,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -34,7 +34,7 @@ class PdfContentParserTest {
         Path pdfPath = tempDir.resolve("test.pdf");
 
         try (PDDocument document = new PDDocument()) {
-            PDFont font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+            PDFont font = new PDType1Font(FontName.HELVETICA);
 
             PDPage firstPage = new PDPage();
             document.addPage(firstPage);

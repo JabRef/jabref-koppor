@@ -4,12 +4,11 @@ import java.util.List;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.entryeditor.EntryEditorPreferences;
-import org.jabref.gui.entryeditor.EntryEditorTabModel;
+import org.jabref.gui.entryeditor.EntryEditorTabModel.CustomizedFieldsTab;
 import org.jabref.logic.importer.fetcher.MrDlibPreferences;
 import org.jabref.logic.journals.AbbreviationPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,11 +33,7 @@ class EntryEditorTabViewModelTest {
         dialogService = mock(DialogService.class);
         entryEditorPreferences = EntryEditorPreferences.getDefault();
 
-        viewModel = new EntryEditorTabViewModel(
-                dialogService,
-                entryEditorPreferences,
-                MrDlibPreferences.getDefault(),
-                AbbreviationPreferences.getDefault(),
+        viewModel = new EntryEditorTabViewModel(dialogService, entryEditorPreferences, MrDlibPreferences.getDefault(), AbbreviationPreferences.getDefault(),
                 mock(TaskExecutor.class));
     }
 
@@ -54,11 +49,12 @@ class EntryEditorTabViewModelTest {
 
         viewModel.storeSettings();
 
-        assertEquals(
-                new EntryEditorTabModel.CustomizedFieldsTab("General", List.of("keywords", "comment-.*")),
+        assertEquals(new CustomizedFieldsTab("General", List.of("keywords", "comment-.*")),
                 entryEditorPreferences.getTabModels().getLast());
         // Preview stays in front even though the working copy excludes it
-        assertTrue(entryEditorPreferences.getTabModels().getFirst().isPreview());
+        assertTrue(entryEditorPreferences.getTabModels()
+                .getFirst()
+                .isPreview());
     }
 
     @Test
@@ -92,7 +88,8 @@ class EntryEditorTabViewModelTest {
 
         viewModel.storeSettings();
 
-        assertEquals(first.toModel(), entryEditorPreferences.getTabModels().getLast());
+        assertEquals(first.toModel(),
+                entryEditorPreferences.getTabModels().getLast());
     }
 
     @Test
@@ -102,7 +99,9 @@ class EntryEditorTabViewModelTest {
 
         viewModel.resetToDefaults();
 
-        assertTrue(viewModel.getTabs().stream().noneMatch(EditorTabViewModel::isCustom));
+        assertTrue(viewModel.getTabs()
+                            .stream()
+                            .noneMatch(EditorTabViewModel::isCustom));
     }
 
     @Test
@@ -111,20 +110,15 @@ class EntryEditorTabViewModelTest {
 
         verifyNoInteractions(dialogService);
 
-        when(dialogService.showConfirmationDialogAndWait(
-                eq(Localization.lang("License agreement for MSC codes")),
-                anyString(),
-                eq(Localization.lang("Accept")),
+        when(dialogService.showConfirmationDialogAndWait(eq(Localization.lang("License agreement for MSC codes")), anyString(), eq(Localization.lang("Accept")),
                 eq(Localization.lang("Decline"))))
                 .thenReturn(false);
 
         viewModel.enableMscKeywordDescriptionsProperty().set(true);
 
-        verify(dialogService).showConfirmationDialogAndWait(
-                eq(Localization.lang("License agreement for MSC codes")),
-                anyString(),
-                eq(Localization.lang("Accept")),
+        verify(dialogService).showConfirmationDialogAndWait(eq(Localization.lang("License agreement for MSC codes")), anyString(), eq(Localization.lang("Accept")),
                 eq(Localization.lang("Decline")));
-        assertFalse(viewModel.enableMscKeywordDescriptionsProperty().get());
+        assertFalse(viewModel.enableMscKeywordDescriptionsProperty()
+                             .get());
     }
 }

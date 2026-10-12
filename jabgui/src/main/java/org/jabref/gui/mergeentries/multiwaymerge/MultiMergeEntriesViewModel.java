@@ -19,7 +19,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ButtonType;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.mergeentries.FetchAndMergeEntry;
 import org.jabref.logic.bibtex.comparator.ComparisonResult;
@@ -34,7 +33,6 @@ import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.identifier.ISBN;
 import org.jabref.model.entry.identifier.ISSN;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.Nullable;
 
 public class MultiMergeEntriesViewModel extends AbstractViewModel {
@@ -56,7 +54,8 @@ public class MultiMergeEntriesViewModel extends AbstractViewModel {
                 if (!newValue) {
                     updateFields(entrySource.entry.get());
                     if (entrySource.entryProperty().get() == null) {
-                        failedSuppliers.add(entrySource.titleProperty().get());
+                        failedSuppliers.add(entrySource.titleProperty()
+                                .get());
                     }
                 }
             });
@@ -69,8 +68,7 @@ public class MultiMergeEntriesViewModel extends AbstractViewModel {
             return;
         }
 
-        if (StandardEntryType.Misc == mergedEntry.get().getType()
-                && StandardEntryType.Misc != entry.getType()) {
+        if (StandardEntryType.Misc == mergedEntry.get().getType() && StandardEntryType.Misc != entry.getType()) {
             mergedEntry.get().setType(entry.getType());
         }
 
@@ -78,12 +76,16 @@ public class MultiMergeEntriesViewModel extends AbstractViewModel {
             Field field = fieldEntry.getKey();
             String newValue = fieldEntry.getValue();
 
-            if (!mergedEntry.get().getFieldsObservable().containsKey(field)) {
+            if (!mergedEntry.get()
+                            .getFieldsObservable()
+                            .containsKey(field)) {
                 if (!explicitlyClearedFields.contains(field)) {
                     mergedEntry.get().setField(field, newValue);
                 }
             } else {
-                String currentValue = mergedEntry.get().getField(field).orElse("");
+                String currentValue = mergedEntry.get()
+                        .getField(field)
+                        .orElse("");
                 PlausibilityComparatorFactory.INSTANCE
                         .getPlausibilityComparator(field)
                         .map(comparator -> comparator.compare(newValue, currentValue))
@@ -113,8 +115,7 @@ public class MultiMergeEntriesViewModel extends AbstractViewModel {
         for (Field field : FetchAndMergeEntry.SUPPORTED_FIELDS) {
             entry.getField(field)
                  .flatMap(rawValue -> normalizeIdentifier(field, rawValue))
-                 .filter(value -> autoFetchedIdentifiers.computeIfAbsent(field, _ -> new HashSet<>())
-                                                        .add(value.toLowerCase(Locale.ROOT)))
+                 .filter(value -> autoFetchedIdentifiers.computeIfAbsent(field, _ -> new HashSet<>()).add(value.toLowerCase(Locale.ROOT)))
                  .ifPresent(value -> result.put(field, value));
         }
         return result;
@@ -122,16 +123,11 @@ public class MultiMergeEntriesViewModel extends AbstractViewModel {
 
     private static Optional<String> normalizeIdentifier(Field field, String rawValue) {
         return switch (field) {
-            case StandardField.DOI ->
-                    DOI.parse(rawValue).map(DOI::asString);
-            case StandardField.ISBN ->
-                    ISBN.parse(rawValue).map(ISBN::asString);
-            case StandardField.EPRINT ->
-                    ArXivIdentifier.parse(rawValue).map(ArXivIdentifier::asString);
-            case StandardField.ISSN ->
-                    normalizeIssn(rawValue);
-            default ->
-                    Optional.empty();
+            case StandardField.DOI -> DOI.parse(rawValue).map(DOI::asString);
+            case StandardField.ISBN -> ISBN.parse(rawValue).map(ISBN::asString);
+            case StandardField.EPRINT -> ArXivIdentifier.parse(rawValue).map(ArXivIdentifier::asString);
+            case StandardField.ISSN -> normalizeIssn(rawValue);
+            default -> Optional.empty();
         };
     }
 
@@ -175,11 +171,11 @@ public class MultiMergeEntriesViewModel extends AbstractViewModel {
             isLoading.set(true);
 
             BackgroundTask.wrap(entrySupplier::get)
-                          .onSuccess(value -> {
-                              entry.set(value);
-                              isLoading.set(false);
-                          })
-                          .executeWith(taskExecutor);
+                    .onSuccess(value -> {
+                        entry.set(value);
+                        isLoading.set(false);
+                    })
+                    .executeWith(taskExecutor);
         }
 
         public EntrySource(String title, BibEntry entry) {

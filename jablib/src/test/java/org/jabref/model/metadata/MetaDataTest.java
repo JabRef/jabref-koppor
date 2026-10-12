@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.google.common.eventbus.Subscribe;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupHierarchyType;
@@ -12,8 +13,6 @@ import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.groups.event.GroupUpdatedEvent;
 import org.jabref.model.metadata.event.MetaDataChangeSource;
 import org.jabref.model.metadata.event.MetaDataChangedEvent;
-
-import com.google.common.eventbus.Subscribe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -47,9 +46,10 @@ class MetaDataTest {
         assertEquals(Optional.of("test-ai-library-id"), metaData.getAiLibraryId());
     }
 
-    /// The group panel writes its tree back after every operation, usually handing back the node
-    /// already installed. Subscribing again each time would make one later edit post an event per
-    /// operation performed - and the panel rebuild itself from inside its own rebuild.
+    /// The group panel writes its tree back after every operation, usually
+    /// handing back the node already installed. Subscribing again each time
+    /// would make one later edit post an event per operation performed - and
+    /// the panel rebuild itself from inside its own rebuild.
     @Test
     void installingTheSameGroupRootAgainDoesNotSubscribeTwice() {
         List<GroupUpdatedEvent> events = new ArrayList<>();
@@ -70,17 +70,24 @@ class MetaDataTest {
         assertEquals(1, events.size(), "one edit posted an event per write-back");
     }
 
-    /// Group operations mutate nodes in place, so a shared tree would let a later edit rewrite what
-    /// a recorded change is supposed to restore.
+    /// Group operations mutate nodes in place, so a shared tree would let a
+    /// later edit rewrite what a recorded change is supposed to restore.
     @Test
     void takingOverContentsCopiesTheGroupTreeRatherThanSharingIt() {
         MetaData other = new MetaData();
         other.setGroups(GroupTreeNode.fromGroup(new ExplicitGroup("All", GroupHierarchyType.INDEPENDENT, ',')));
 
         metaData.overwriteWith(other);
-        metaData.getGroups().orElseThrow().addSubgroup(new ExplicitGroup("Books", GroupHierarchyType.INDEPENDENT, ','));
+        metaData.getGroups()
+                .orElseThrow()
+                .addSubgroup(new ExplicitGroup("Books", GroupHierarchyType.INDEPENDENT, ','));
 
-        assertEquals(List.of(), other.getGroups().orElseThrow().getChildren(), "the source tree was edited too");
+        assertEquals(
+                List.of(),
+                other.getGroups()
+                     .orElseThrow()
+                     .getChildren(),
+                "the source tree was edited too");
     }
 
     @Test
@@ -133,35 +140,39 @@ class MetaDataTest {
         assertTrue(events.size() > afterOverwrite, "a later edit no longer reaches the listener");
     }
 
-    /// A setting written by anyone at all reports [MetaDataChangeSource#LOCAL]: saying nothing has
-    /// to mean "nobody recorded this", so that a writer that knows nothing about the journal still
-    /// makes the library ask to be saved.
+    /// A setting written by anyone at all reports [MetaDataChangeSource#LOCAL]:
+    /// saying nothing has to mean "nobody recorded this", so that a writer that
+    /// knows nothing about the journal still makes the library ask to be saved.
     @Test
     void anOrdinarySettingReportsThatNobodyRecordedIt() {
         List<MetaDataChangedEvent> events = collectMetaDataEvents();
 
         metaData.setEncoding(StandardCharsets.ISO_8859_1);
 
-        assertEquals(List.of(MetaDataChangeSource.LOCAL), events.stream().map(MetaDataChangedEvent::getSource).toList());
+        assertEquals(List.of(MetaDataChangeSource.LOCAL),
+                events.stream()
+                      .map(MetaDataChangedEvent::getSource)
+                      .toList());
     }
 
-    /// The two doors a recorded change goes through say so, which is what lets the modified marker
-    /// derive itself instead of being stamped for a change the journal can take back.
+    /// The two doors a recorded change goes through say so, which is what lets
+    /// the modified marker derive itself instead of being stamped for a change
+    /// the journal can take back.
     @Test
     void theDoorsARecordedChangeGoesThroughReportTheJournal() {
         List<MetaDataChangedEvent> events = collectMetaDataEvents();
 
-        metaData.setGroups(GroupTreeNode.fromGroup(new ExplicitGroup("All", GroupHierarchyType.INDEPENDENT, ',')),
-                MetaDataChangeSource.JOURNAL);
+        metaData.setGroups(GroupTreeNode.fromGroup(new ExplicitGroup("All", GroupHierarchyType.INDEPENDENT, ',')), MetaDataChangeSource.JOURNAL);
         MetaData other = new MetaData();
         other.setMode(BibDatabaseMode.BIBLATEX);
         metaData.overwriteWith(other, MetaDataChangeSource.JOURNAL);
         metaData.clearGroups(MetaDataChangeSource.JOURNAL);
 
-        assertEquals(List.of(), events.stream()
-                                      .map(MetaDataChangedEvent::getSource)
-                                      .filter(source -> source != MetaDataChangeSource.JOURNAL)
-                                      .toList());
+        assertEquals(List.of(),
+                events.stream()
+                      .map(MetaDataChangedEvent::getSource)
+                      .filter(source -> source != MetaDataChangeSource.JOURNAL)
+                      .toList());
         assertFalse(events.isEmpty(), "the doors were silent");
     }
 

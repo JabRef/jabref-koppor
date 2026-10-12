@@ -10,7 +10,6 @@ import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -79,12 +78,10 @@ class RfcFetcherTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            // syntactically valid identifier
-            "draft-test-draft-spec",
-            "RFC99999",
-            // invalid identifier
-            "banana"
-    })
+        // syntactically valid identifier
+        "draft-test-draft-spec", "RFC99999",
+        // invalid identifier
+        "banana"})
     void performSearchByIdFindsNothingWithValidDraftIdentifier(String identifier) {
         assertThrows(FetcherClientException.class, () -> fetcher.performSearchById(identifier));
     }

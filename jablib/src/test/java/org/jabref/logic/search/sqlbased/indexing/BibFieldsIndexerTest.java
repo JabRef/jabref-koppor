@@ -13,7 +13,6 @@ import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.PostgresConstants;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,7 +70,13 @@ public class BibFieldsIndexerTest {
 
         // Verify that there's exactly one row for (entryid, 'citationkey')
         String tableRef = PostgresConstants.getMainTableSchemaReference(indexer.getTable());
-        String sql = "SELECT COUNT(*) FROM " + tableRef + " WHERE \"" + PostgresConstants.ENTRY_ID + "\" = ? AND \"" + PostgresConstants.FIELD_NAME + "\" = ?";
+        String sql = "SELECT COUNT(*) FROM "
+                + tableRef
+                + " WHERE \""
+                + PostgresConstants.ENTRY_ID
+                + "\" = ? AND \""
+                + PostgresConstants.FIELD_NAME
+                + "\" = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, entry.getId());
             ps.setString(2, "citationkey");

@@ -14,25 +14,26 @@ public final class AutoPlan {
     ///
     /// Rules:
     ///
-    ///  - base == null:
-    ///      B0) only local added -> NO-OP (remote − base is empty)
-    ///      B1) both added & no overlapping-field disagreement -> add union entry
-    ///      B2) only remote added -> add remote entry
-    ///  - base != null:
-    ///      B3) remote deleted -> accept deletion if local kept base OR local also deleted
-    ///      B4) otherwise field-level patch: (remote − base) applied where local == base
+    /// - base == null: B0) only local added -> NO-OP (remote − base is empty)
+    ///   B1) both added & no overlapping-field disagreement -> add union entry
+    ///   B2) only remote added -> add remote entry
+    /// - base != null: B3) remote deleted -> accept deletion if local kept base
+    ///   OR local also deleted B4) otherwise field-level patch: (remote − base)
+    ///   applied where local == base
     ///
     /// Notes:
     ///
-    ///  - We mutate the supplied collections (fieldPatches/newEntries/deletedEntryKeys).
-    ///  - This method is side-effect free for all other state.
-    public static void generateAutoPlanForKey(String key,
-                                              BibEntry baseEntry,
-                                              BibEntry localEntry,
-                                              BibEntry remoteEntry,
-                                              Map<String, Map<Field, String>> fieldPatches,
-                                              List<BibEntry> newEntries,
-                                              List<String> deletedEntryKeys) {
+    /// - We mutate the supplied collections
+    ///   (fieldPatches/newEntries/deletedEntryKeys).
+    /// - This method is side-effect free for all other state.
+    public static void generateAutoPlanForKey(
+            String key,
+            BibEntry baseEntry,
+            BibEntry localEntry,
+            BibEntry remoteEntry,
+            Map<String, Map<Field, String>> fieldPatches,
+            List<BibEntry> newEntries,
+            List<String> deletedEntryKeys) {
 
         // base == null cases:
         if (baseEntry == null) {

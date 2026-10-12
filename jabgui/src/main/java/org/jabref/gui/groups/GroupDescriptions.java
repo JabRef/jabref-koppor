@@ -8,14 +8,15 @@ import org.jabref.model.groups.SearchGroup;
 
 public class GroupDescriptions {
 
-    private GroupDescriptions() {
-    }
+    private GroupDescriptions() {}
 
     public static String getShortDescriptionKeywordGroup(KeywordGroup keywordGroup, boolean showDynamic) {
         StringBuilder sb = new StringBuilder();
         sb.append("<b>");
         if (showDynamic) {
-            sb.append("<i>").append(StringUtil.quoteForHTML(keywordGroup.getName())).append("</i>");
+            sb.append("<i>")
+              .append(StringUtil.quoteForHTML(keywordGroup.getName()))
+              .append("</i>");
         } else {
             sb.append(StringUtil.quoteForHTML(keywordGroup.getName()));
         }
@@ -43,7 +44,10 @@ public class GroupDescriptions {
 
     public static String getShortDescriptionExplicitGroup(ExplicitGroup explicitGroup) {
         StringBuilder sb = new StringBuilder();
-        sb.append("<b>").append(explicitGroup.getName()).append("</b> - ").append(Localization.lang("static group"));
+        sb.append("<b>")
+          .append(explicitGroup.getName())
+          .append("</b> - ")
+          .append(Localization.lang("static group"));
         switch (explicitGroup.getHierarchicalContext()) {
             case INCLUDING:
                 sb.append(", ").append(Localization.lang("includes subgroups"));
@@ -65,7 +69,9 @@ public class GroupDescriptions {
         StringBuilder sb = new StringBuilder();
         sb.append("<b>");
         if (showDynamic) {
-            sb.append("<i>").append(StringUtil.quoteForHTML(searchGroup.getName())).append("</i>");
+            sb.append("<i>")
+              .append(StringUtil.quoteForHTML(searchGroup.getName()))
+              .append("</i>");
         } else {
             sb.append(StringUtil.quoteForHTML(searchGroup.getName()));
         }
@@ -73,7 +79,9 @@ public class GroupDescriptions {
         sb.append(Localization.lang("dynamic group"));
         sb.append(" (");
         sb.append(Localization.lang("search expression"));
-        sb.append(" <b>").append(StringUtil.quoteForHTML(searchGroup.getSearchExpression())).append("</b>)");
+        sb.append(" <b>")
+          .append(StringUtil.quoteForHTML(searchGroup.getSearchExpression()))
+          .append("</b>)");
         switch (searchGroup.getHierarchicalContext()) {
             case INCLUDING:
                 sb.append(", ").append(Localization.lang("includes subgroups"));

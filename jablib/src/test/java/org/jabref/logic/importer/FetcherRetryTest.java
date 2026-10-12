@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jabref.logic.util.URLUtil;
 import org.jabref.model.http.SimpleHttpResponse;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +30,8 @@ class FetcherRetryTest {
                 throw rateLimited;
             }
             return "success";
-        }, delays::add);
+        },
+                delays::add);
 
         assertEquals("success", result);
         assertEquals(2, attempts.get());
@@ -44,10 +44,12 @@ class FetcherRetryTest {
         List<Duration> delays = new ArrayList<>();
         FetcherClientException badRequest = fetcherClientException(HttpURLConnection.HTTP_BAD_REQUEST);
 
-        assertThrows(FetcherClientException.class, () -> FetcherRetry.executeWithRateLimitRetry(() -> {
-            attempts.incrementAndGet();
-            throw badRequest;
-        }, delays::add));
+        assertThrows(FetcherClientException.class,
+                () -> FetcherRetry.executeWithRateLimitRetry(() -> {
+                    attempts.incrementAndGet();
+                    throw badRequest;
+                },
+                        delays::add));
 
         assertEquals(1, attempts.get());
         assertEquals(List.of(), delays);
@@ -59,24 +61,27 @@ class FetcherRetryTest {
         List<Duration> delays = new ArrayList<>();
         FetcherClientException rateLimited = fetcherClientException(FetcherRetry.HTTP_TOO_MANY_REQUESTS);
 
-        assertThrows(FetcherClientException.class, () -> FetcherRetry.executeWithRateLimitRetry(() -> {
-            attempts.incrementAndGet();
-            throw rateLimited;
-        }, delays::add));
+        assertThrows(FetcherClientException.class,
+                () -> FetcherRetry.executeWithRateLimitRetry(() -> {
+                    attempts.incrementAndGet();
+                    throw rateLimited;
+                },
+                        delays::add));
 
         assertEquals(FetcherRetry.MAX_RATE_LIMIT_RETRIES + 1, attempts.get());
-        assertEquals(List.of(Duration.ofSeconds(1), Duration.ofSeconds(2)), delays);
+        assertEquals(List.of(Duration.ofSeconds(1), Duration.ofSeconds(2)),
+                delays);
     }
 
     @Test
     void restoresInterruptStatusWhenBackoffIsInterrupted() throws MalformedURLException {
         FetcherClientException rateLimited = fetcherClientException(FetcherRetry.HTTP_TOO_MANY_REQUESTS);
         try {
-            assertThrows(FetcherException.class, () -> FetcherRetry.executeWithRateLimitRetry(
-                    () -> {
+            assertThrows(FetcherException.class,
+                    () -> FetcherRetry.executeWithRateLimitRetry(() -> {
                         throw rateLimited;
                     },
-                    _ -> {
+                            _ -> {
                         throw new InterruptedException();
                     }));
 
@@ -87,8 +92,6 @@ class FetcherRetryTest {
     }
 
     private FetcherClientException fetcherClientException(int statusCode) throws MalformedURLException {
-        return new FetcherClientException(
-                URLUtil.create("https://example.org"),
-                new SimpleHttpResponse(statusCode, "Error", ""));
+        return new FetcherClientException(URLUtil.create("https://example.org"), new SimpleHttpResponse(statusCode, "Error", ""));
     }
 }

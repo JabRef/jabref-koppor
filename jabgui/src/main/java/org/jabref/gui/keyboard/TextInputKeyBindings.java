@@ -3,7 +3,6 @@ package org.jabref.gui.keyboard;
 import javafx.scene.Scene;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.KeyEvent;
-
 import org.jabref.logic.util.strings.StringManipulator;
 import org.jabref.model.util.ResultingStringState;
 
@@ -33,21 +32,18 @@ public class TextInputKeyBindings {
                         focusedTextField.nextWord();
                         event.consume();
                     }
-                    case EDITOR_BEGINNING,
-                         EDITOR_UP,
-                         EDITOR_BEGINNING_DOC -> {
+                    case EDITOR_BEGINNING, EDITOR_UP, EDITOR_BEGINNING_DOC -> {
                         focusedTextField.home();
                         event.consume();
                     }
-                    case EDITOR_END,
-                         EDITOR_DOWN,
-                         EDITOR_END_DOC -> {
+                    case EDITOR_END, EDITOR_DOWN, EDITOR_END_DOC -> {
                         focusedTextField.end();
                         event.consume();
                     }
                     case EDITOR_CAPITALIZE -> {
                         int pos = focusedTextField.getCaretPosition();
-                        String text = focusedTextField.getText(0, focusedTextField.getText().length());
+                        String text = focusedTextField.getText(0, focusedTextField.getText()
+                                .length());
                         ResultingStringState res = StringManipulator.capitalize(pos, text);
                         focusedTextField.setText(res.text);
                         focusedTextField.positionCaret(res.caretPosition);
@@ -55,7 +51,8 @@ public class TextInputKeyBindings {
                     }
                     case EDITOR_LOWERCASE -> {
                         int pos = focusedTextField.getCaretPosition();
-                        String text = focusedTextField.getText(0, focusedTextField.getText().length());
+                        String text = focusedTextField.getText(0, focusedTextField.getText()
+                                .length());
                         ResultingStringState res = StringManipulator.lowercase(pos, text);
                         focusedTextField.setText(res.text);
                         focusedTextField.positionCaret(res.caretPosition);
@@ -63,7 +60,8 @@ public class TextInputKeyBindings {
                     }
                     case EDITOR_UPPERCASE -> {
                         int pos = focusedTextField.getCaretPosition();
-                        String text = focusedTextField.getText(0, focusedTextField.getText().length());
+                        String text = focusedTextField.getText(0, focusedTextField.getText()
+                                .length());
                         ResultingStringState res = StringManipulator.uppercase(pos, text);
                         focusedTextField.setText(res.text);
                         focusedTextField.positionCaret(res.caretPosition);
@@ -77,7 +75,8 @@ public class TextInputKeyBindings {
                     }
                     case EDITOR_KILL_WORD -> {
                         int pos = focusedTextField.getCaretPosition();
-                        String text = focusedTextField.getText(0, focusedTextField.getText().length());
+                        String text = focusedTextField.getText(0, focusedTextField.getText()
+                                .length());
                         ResultingStringState res = StringManipulator.killWord(pos, text);
                         focusedTextField.setText(res.text);
                         focusedTextField.positionCaret(res.caretPosition);
@@ -85,13 +84,14 @@ public class TextInputKeyBindings {
                     }
                     case EDITOR_KILL_WORD_BACKWARD -> {
                         int pos = focusedTextField.getCaretPosition();
-                        String text = focusedTextField.getText(0, focusedTextField.getText().length());
+                        String text = focusedTextField.getText(0, focusedTextField.getText()
+                                .length());
                         ResultingStringState res = StringManipulator.backwardKillWord(pos, text);
                         focusedTextField.setText(res.text);
                         focusedTextField.positionCaret(res.caretPosition);
                         event.consume();
                     }
-                    // CLEAR_SEARCH is handled at org.jabref.gui.search.SearchTextField
+                        // CLEAR_SEARCH is handled at org.jabref.gui.search.SearchTextField
                 }
             });
         }

@@ -22,7 +22,8 @@ public final class EntryChangeResolver extends DatabaseChangeResolver {
     private final GuiPreferences preferences;
     private final StateManager stateManager;
 
-    public EntryChangeResolver(EntryChange entryChange, DialogService dialogService, BibDatabaseContext databaseContext, GuiPreferences preferences, StateManager stateManager) {
+    public EntryChangeResolver(EntryChange entryChange, DialogService dialogService, BibDatabaseContext databaseContext,
+            GuiPreferences preferences, StateManager stateManager) {
         super(dialogService);
         this.entryChange = entryChange;
         this.databaseContext = databaseContext;
@@ -37,15 +38,10 @@ public final class EntryChangeResolver extends DatabaseChangeResolver {
         mergeEntriesDialog.setRightHeaderText(Localization.lang("On disk"));
         mergeEntriesDialog.configureDiff(new ShowDiffConfig(ThreeWayMergeToolbar.DiffView.SPLIT, BasicDiffMethod.WORDS));
 
-        return dialogService.showCustomDialogAndWait(mergeEntriesDialog)
-                            .map(this::mapMergeResultToExternalChange);
+        return dialogService.showCustomDialogAndWait(mergeEntriesDialog).map(this::mapMergeResultToExternalChange);
     }
 
     private EntryChange mapMergeResultToExternalChange(EntriesMergeResult entriesMergeResult) {
-        return new EntryChange(
-                entryChange.getOldEntry(),
-                entriesMergeResult.mergedEntry(),
-                databaseContext
-        );
+        return new EntryChange(entryChange.getOldEntry(), entriesMergeResult.mergedEntry(), databaseContext);
     }
 }

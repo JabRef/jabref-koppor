@@ -13,10 +13,12 @@ import org.jabref.model.entry.Date;
 import org.jabref.model.entry.event.EntriesEventSource;
 import org.jabref.model.entry.field.Field;
 
-/// This class handles the migration from a legacy timestamp field to creationdate and modificationdate fields.
+/// This class handles the migration from a legacy timestamp field to
+/// creationdate and modificationdate fields.
 ///
-/// If the legacy pre-5.3 updateTimestamp setting is enabled, the timestamp field for each entry are migrated to the
-/// date-modified field. Otherwise, it is migrated to the date-added field.
+/// If the legacy pre-5.3 updateTimestamp setting is enabled, the timestamp
+/// field for each entry are migrated to the date-modified field. Otherwise, it
+/// is migrated to the date-added field.
 public class TimestampToDateField implements CleanupJob {
 
     private final Field sourceField;
@@ -27,8 +29,8 @@ public class TimestampToDateField implements CleanupJob {
         targetField = target;
     }
 
-    /// Formats the time stamp into the local date and time format.
-    /// If the existing timestamp could not be parsed, the day/month/year "1" is used.
+    /// Formats the time stamp into the local date and time format. If the
+    /// existing timestamp could not be parsed, the day/month/year "1" is used.
     /// For the time portion 00:00:00 is used.
     private Optional<String> formatTimeStamp(String timeStamp) {
         Optional<Date> parsedDate = Date.parse(timeStamp);
@@ -51,7 +53,9 @@ public class TimestampToDateField implements CleanupJob {
     /// Otherwise, returns the current month.
     private int getMonth(Date date) {
         if (date.getMonth().isPresent()) {
-            return date.getMonth().get().getNumber();
+            return date.getMonth()
+                       .get()
+                       .getNumber();
         }
         return 1;
     }
@@ -72,7 +76,11 @@ public class TimestampToDateField implements CleanupJob {
             // Add removal of timestamp field
             changeList.add(new FieldChange(entry, sourceField, formattedTimeStamp.get(), ""));
             entry.setField(targetField, formattedTimeStamp.get(), EntriesEventSource.CLEANUP_TIMESTAMP);
-            changeTo = new FieldChange(entry, targetField, entry.getField(targetField).orElse(""), formattedTimeStamp.get());
+            changeTo = new FieldChange(
+                    entry,
+                    targetField,
+                    entry.getField(targetField).orElse(""),
+                    formattedTimeStamp.get());
             changeList.add(changeTo);
             return changeList;
         }

@@ -1,5 +1,6 @@
 package org.jabref.gui.fieldeditors;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.jabref.gui.DialogService;
@@ -12,7 +13,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,11 +31,10 @@ class JournalEditorViewModelTest {
 
     @BeforeEach
     void setUp() {
-        entry = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.JOURNAL, "Journal of Foo");
+        entry = new BibEntry(StandardEntryType.Article).withField(StandardField.JOURNAL, "Journal of Foo");
 
         FieldCheckers fieldCheckers = mock(FieldCheckers.class);
-        when(fieldCheckers.getForField(StandardField.JOURNAL)).thenReturn(java.util.List.of());
+        when(fieldCheckers.getForField(StandardField.JOURNAL)).thenReturn(List.of());
 
         viewModel = new JournalEditorViewModel(
                 StandardField.JOURNAL,

@@ -26,7 +26,6 @@ import org.jabref.logic.util.Directories;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.identifier.ISBN;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,12 +107,13 @@ public class BookCoverFetcher {
             return;
         }
 
-        ExternalFileType inferredFileType = download
-                .getMimeType().flatMap(mime -> ExternalFileTypes.getExternalFileTypeByMimeType(mime, externalApplicationsPreferences))
+        ExternalFileType inferredFileType = download.getMimeType()
+                .flatMap(mime -> ExternalFileTypes.getExternalFileTypeByMimeType(mime, externalApplicationsPreferences))
                 .filter(fileType -> fileType.getMimeType().startsWith("image/"))
-                .or(() -> FileUtil.getFileNameFromUrl(url).flatMap(FileUtil::getFileExtension)
-                                  .flatMap(ext -> ExternalFileTypes.getExternalFileTypeByExt(ext, externalApplicationsPreferences))
-                                  .filter(fileType -> fileType.getMimeType().startsWith("image/")))
+                .or(() -> FileUtil.getFileNameFromUrl(url)
+                        .flatMap(FileUtil::getFileExtension)
+                        .flatMap(ext -> ExternalFileTypes.getExternalFileTypeByExt(ext, externalApplicationsPreferences))
+                        .filter(fileType -> fileType.getMimeType().startsWith("image/")))
                 .orElse(StandardExternalFileType.JPG);
 
         Optional<Path> destinationOptional = resolveNameWithType(directory, name, inferredFileType);
@@ -171,10 +171,12 @@ public class BookCoverFetcher {
     }
 
     private Optional<Path> findExistingImage(final String name, final Path directory) {
-        return externalApplicationsPreferences.getExternalFileTypes().stream()
-                                              .filter(fileType -> fileType.getMimeType().startsWith("image/"))
-                                              .flatMap(fileType -> resolveNameWithType(directory, name, fileType).stream())
-                                              .filter(Files::exists).findFirst();
+        return externalApplicationsPreferences.getExternalFileTypes()
+                .stream()
+                .filter(fileType -> fileType.getMimeType().startsWith("image/"))
+                .flatMap(fileType -> resolveNameWithType(directory, name, fileType).stream())
+                .filter(Files::exists)
+                .findFirst();
     }
 
     private static Optional<Path> resolveNameWithType(Path directory, String name, ExternalFileType fileType) {

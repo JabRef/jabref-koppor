@@ -30,8 +30,7 @@ class MVStoreEmbeddingStoreTest {
 
     @BeforeEach
     void setUp() {
-        store = new MVStoreEmbeddingStore(tempDir.resolve("embeddings-test.mv"), _ -> {
-        });
+        store = new MVStoreEmbeddingStore(tempDir.resolve("embeddings-test.mv"), _ -> {});
     }
 
     private static Embedding unitEmbedding(float... values) {
@@ -39,7 +38,7 @@ class MVStoreEmbeddingStoreTest {
     }
 
     private static TextSegment segmentWithHash(String text, String hash) {
-        return new TextSegment(text, new Metadata(java.util.Map.of(FILE_HASH_METADATA_KEY, hash)));
+        return new TextSegment(text, new Metadata(Map.of(FILE_HASH_METADATA_KEY, hash)));
     }
 
     @Test
@@ -49,37 +48,50 @@ class MVStoreEmbeddingStoreTest {
         store.add(embedding, segment);
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(embedding)
-                                                               .maxResults(5)
-                                                               .minScore(0.0)
-                                                               .build();
+                .queryEmbedding(embedding)
+                .maxResults(5)
+                .minScore(0.0)
+                .build();
 
         EmbeddingSearchResult<TextSegment> result = store.search(request);
 
         assertEquals(1, result.matches().size());
-        assertEquals("hello world", result.matches().getFirst().embedded().text());
+        assertEquals("hello world",
+                result.matches()
+                      .getFirst()
+                      .embedded()
+                      .text());
     }
 
     @Test
     void addAndSearchPreservesPageNumberMetadata() {
         Embedding embedding = unitEmbedding(1.0f, 0.0f, 0.0f);
-        TextSegment segment = new TextSegment("page text", new Metadata(Map.of(
-                FILE_HASH_METADATA_KEY, "hash-abc",
-                PAGE_NUMBER_METADATA_KEY, 5
-        )));
+        TextSegment segment = new TextSegment("page text", new Metadata(Map.of(FILE_HASH_METADATA_KEY, "hash-abc", PAGE_NUMBER_METADATA_KEY, 5)));
         store.add(embedding, segment);
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(embedding)
-                                                               .maxResults(5)
-                                                               .minScore(0.0)
-                                                               .build();
+                .queryEmbedding(embedding)
+                .maxResults(5)
+                .minScore(0.0)
+                .build();
 
         EmbeddingSearchResult<TextSegment> result = store.search(request);
 
         assertEquals(1, result.matches().size());
-        assertEquals(5, result.matches().getFirst().embedded().metadata().getInteger(PAGE_NUMBER_METADATA_KEY));
-        assertEquals("hash-abc", result.matches().getFirst().embedded().metadata().getString(FILE_HASH_METADATA_KEY));
+        assertEquals(
+                5,
+                result.matches()
+                      .getFirst()
+                      .embedded()
+                      .metadata()
+                      .getInteger(PAGE_NUMBER_METADATA_KEY));
+        assertEquals(
+                "hash-abc",
+                result.matches()
+                      .getFirst()
+                      .embedded()
+                      .metadata()
+                      .getString(FILE_HASH_METADATA_KEY));
     }
 
     @Test
@@ -89,15 +101,19 @@ class MVStoreEmbeddingStoreTest {
         store.add(embedding, segment);
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(embedding)
-                                                               .maxResults(5)
-                                                               .minScore(0.0)
-                                                               .build();
+                .queryEmbedding(embedding)
+                .maxResults(5)
+                .minScore(0.0)
+                .build();
 
         EmbeddingSearchResult<TextSegment> result = store.search(request);
 
         assertEquals(1, result.matches().size());
-        assertNull(result.matches().getFirst().embedded().metadata().getInteger(PAGE_NUMBER_METADATA_KEY));
+        assertNull(result.matches()
+                         .getFirst()
+                         .embedded()
+                         .metadata()
+                         .getInteger(PAGE_NUMBER_METADATA_KEY));
     }
 
     @Test
@@ -108,12 +124,14 @@ class MVStoreEmbeddingStoreTest {
         store.removeAll();
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(unitEmbedding(1.0f, 0.0f))
-                                                               .maxResults(10)
-                                                               .minScore(0.0)
-                                                               .build();
+                .queryEmbedding(unitEmbedding(1.0f, 0.0f))
+                .maxResults(10)
+                .minScore(0.0)
+                .build();
 
-        assertTrue(store.search(request).matches().isEmpty());
+        assertTrue(store.search(request)
+                        .matches()
+                        .isEmpty());
     }
 
     @Test
@@ -121,18 +139,22 @@ class MVStoreEmbeddingStoreTest {
         store.add(unitEmbedding(1.0f, 0.0f), segmentWithHash("keep", "hash-keep"));
         store.add(unitEmbedding(0.0f, 1.0f), segmentWithHash("remove", "hash-remove"));
 
-        store.removeAll(MetadataFilterBuilder.metadataKey(FILE_HASH_METADATA_KEY).isEqualTo("hash-remove"));
+        store.removeAll(MetadataFilterBuilder.metadataKey(FILE_HASH_METADATA_KEY)
+                .isEqualTo("hash-remove"));
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(unitEmbedding(1.0f, 0.0f))
-                                                               .maxResults(10)
-                                                               .minScore(0.0)
-                                                               .build();
+                .queryEmbedding(unitEmbedding(1.0f, 0.0f))
+                .maxResults(10)
+                .minScore(0.0)
+                .build();
 
         List<EmbeddingMatch<TextSegment>> matches = store.search(request).matches();
 
         assertEquals(1, matches.size());
-        assertEquals("keep", matches.getFirst().embedded().text());
+        assertEquals("keep",
+                matches.getFirst()
+                       .embedded()
+                       .text());
     }
 
     @Test
@@ -141,16 +163,19 @@ class MVStoreEmbeddingStoreTest {
         store.add(unitEmbedding(1.0f, 0.0f), segmentWithHash("doc-B", "hash-B"));
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(unitEmbedding(1.0f, 0.0f))
-                                                               .maxResults(10)
-                                                               .minScore(0.0)
-                                                               .filter(MetadataFilterBuilder.metadataKey(FILE_HASH_METADATA_KEY).isEqualTo("hash-A"))
-                                                               .build();
+                .queryEmbedding(unitEmbedding(1.0f, 0.0f))
+                .maxResults(10)
+                .minScore(0.0)
+                .filter(MetadataFilterBuilder.metadataKey(FILE_HASH_METADATA_KEY).isEqualTo("hash-A"))
+                .build();
 
         List<EmbeddingMatch<TextSegment>> matches = store.search(request).matches();
 
         assertEquals(1, matches.size());
-        assertEquals("doc-A", matches.getFirst().embedded().text());
+        assertEquals("doc-A",
+                matches.getFirst()
+                       .embedded()
+                       .text());
     }
 
     @Test
@@ -160,11 +185,11 @@ class MVStoreEmbeddingStoreTest {
         store.add(unitEmbedding(1.0f, 0.0f), segmentWithHash("doc-C", "hash-C"));
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(unitEmbedding(1.0f, 0.0f))
-                                                               .maxResults(10)
-                                                               .minScore(0.0)
-                                                               .filter(MetadataFilterBuilder.metadataKey(FILE_HASH_METADATA_KEY).isIn("hash-A", "hash-B"))
-                                                               .build();
+                .queryEmbedding(unitEmbedding(1.0f, 0.0f))
+                .maxResults(10)
+                .minScore(0.0)
+                .filter(MetadataFilterBuilder.metadataKey(FILE_HASH_METADATA_KEY).isIn("hash-A", "hash-B"))
+                .build();
 
         List<EmbeddingMatch<TextSegment>> matches = store.search(request).matches();
 
@@ -179,14 +204,17 @@ class MVStoreEmbeddingStoreTest {
         store.remove(id1);
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(unitEmbedding(0.0f, 1.0f))
-                                                               .maxResults(10)
-                                                               .minScore(0.0)
-                                                               .build();
+                .queryEmbedding(unitEmbedding(0.0f, 1.0f))
+                .maxResults(10)
+                .minScore(0.0)
+                .build();
 
         List<EmbeddingMatch<TextSegment>> matches = store.search(request).matches();
 
         assertEquals(1, matches.size());
-        assertEquals("remove", matches.getFirst().embedded().text());
+        assertEquals("remove",
+                matches.getFirst()
+                       .embedded()
+                       .text());
     }
 }

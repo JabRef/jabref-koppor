@@ -55,10 +55,8 @@ public class IEEEQueryTransformer extends YearRangeByFilteringQueryTransformer {
     @Override
     protected Optional<String> handleOtherField(String fieldAsString, String term) {
         return switch (fieldAsString) {
-            case "article_number" ->
-                    handleArticleNumber(term);
-            default ->
-                    super.handleOtherField(fieldAsString, term);
+            case "article_number" -> handleArticleNumber(term);
+            default -> super.handleOtherField(fieldAsString, term);
         };
     }
 

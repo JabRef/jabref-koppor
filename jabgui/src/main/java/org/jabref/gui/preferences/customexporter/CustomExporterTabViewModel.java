@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.exporter.CreateModifyExporterDialogView;
 import org.jabref.gui.exporter.ExporterViewModel;
@@ -40,8 +39,8 @@ public class CustomExporterTabViewModel implements PreferenceTabViewModel {
     @Override
     public void storeSettings() {
         List<TemplateExporter> exportersLogic = exporters.stream()
-                                                         .map(ExporterViewModel::getLogic)
-                                                         .collect(Collectors.toList());
+                .map(ExporterViewModel::getLogic)
+                .collect(Collectors.toList());
         exportPreferences.setCustomExporters(exportersLogic);
     }
 

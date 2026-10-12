@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
+import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -20,7 +21,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
+import org.controlsfx.dialog.Wizard;
+import org.controlsfx.dialog.WizardPane;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -31,10 +33,6 @@ import org.jabref.logic.externalfiles.ExternalFileSorter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
-
-import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
-import org.controlsfx.dialog.Wizard;
-import org.controlsfx.dialog.WizardPane;
 
 public class SearchConfigurationPage extends WizardPane {
 
@@ -49,9 +47,7 @@ public class SearchConfigurationPage extends WizardPane {
     private ComboBox<DateRange> fileDateCombo;
     private ComboBox<ExternalFileSorter> fileSortCombo;
 
-    public SearchConfigurationPage(UnlinkedFilesDialogViewModel viewModel,
-                                   BibDatabaseContext bibDatabaseContext,
-                                   GuiPreferences preferences) {
+    public SearchConfigurationPage(UnlinkedFilesDialogViewModel viewModel, BibDatabaseContext bibDatabaseContext, GuiPreferences preferences) {
         this.viewModel = viewModel;
         this.validationVisualizer = new ControlsFxVisualizer();
 
@@ -184,17 +180,11 @@ public class SearchConfigurationPage extends WizardPane {
         String name = fileExtension.getName().toLowerCase();
 
         return switch (name) {
-            case "pdf" ->
-                    IconTheme.JabRefIcons.PDF_FILE;
-            case "html" ->
-                    IconTheme.JabRefIcons.WWW;
-            case "markdown",
-                 "md" ->
-                    IconTheme.JabRefIcons.FILE_TEXT;
-            case "any file" ->
-                    null;
-            default ->
-                    null;
+            case "pdf" -> IconTheme.JabRefIcons.PDF_FILE;
+            case "html" -> IconTheme.JabRefIcons.WWW;
+            case "markdown", "md" -> IconTheme.JabRefIcons.FILE_TEXT;
+            case "any file" -> null;
+            default -> null;
         };
     }
 
@@ -202,30 +192,26 @@ public class SearchConfigurationPage extends WizardPane {
         validationVisualizer.setDecoration(new IconValidationDecorator());
 
         Platform.runLater(() -> {
-            validationVisualizer.initVisualization(
-                    viewModel.directoryPathValidationStatus(),
-                    directoryPathField);
+            validationVisualizer.initVisualization(viewModel.directoryPathValidationStatus(), directoryPathField);
         });
 
-        invalidProperty().bind(viewModel.directoryPathValidationStatus().validProperty().not());
+        invalidProperty().bind(viewModel.directoryPathValidationStatus()
+                .validProperty()
+                .not());
     }
 
     private void loadConfiguration(BibDatabaseContext bibDatabaseContext, GuiPreferences preferences) {
-        directoryPathField.setText(
-                bibDatabaseContext.getFirstExistingFileDir(preferences.getFilePreferences())
-                                  .map(Path::toString)
-                                  .orElse("")
-        );
+        directoryPathField.setText(bibDatabaseContext.getFirstExistingFileDir(preferences.getFilePreferences())
+                .map(Path::toString)
+                .orElse(""));
 
         UnlinkedFilesDialogPreferences savedPrefs = preferences.getUnlinkedFilesDialogPreferences();
 
         FileExtensionViewModel selectedExtension = fileTypeCombo.getItems()
-                                                                .stream()
-                                                                .filter(item -> Objects.equals(item.getName(), savedPrefs.getUnlinkedFilesSelectedExtension()))
-                                                                .findFirst()
-                                                                .orElseGet(() -> new FileExtensionViewModel(
-                                                                        StandardFileType.ANY_FILE,
-                                                                        preferences.getExternalApplicationsPreferences()));
+                .stream()
+                .filter(item -> Objects.equals(item.getName(), savedPrefs.getUnlinkedFilesSelectedExtension()))
+                .findFirst()
+                .orElseGet(() -> new FileExtensionViewModel(StandardFileType.ANY_FILE, preferences.getExternalApplicationsPreferences()));
         fileTypeCombo.getSelectionModel().select(selectedExtension);
         fileDateCombo.getSelectionModel().select(savedPrefs.getUnlinkedFilesSelectedDateRange());
         fileSortCombo.getSelectionModel().select(savedPrefs.getUnlinkedFilesSelectedSort());
@@ -241,7 +227,9 @@ public class SearchConfigurationPage extends WizardPane {
             }
             /// Force layout refresh
             if (getScene() != null && getScene().getWindow() != null) {
-                getScene().getWindow().sizeToScene();
+                getScene()
+                        .getWindow()
+                        .sizeToScene();
             }
         });
     }

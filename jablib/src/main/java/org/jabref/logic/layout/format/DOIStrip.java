@@ -10,6 +10,8 @@ public class DOIStrip implements LayoutFormatter {
         if (fieldText == null) {
             return null;
         }
-        return DOI.parse(fieldText).map(DOI::asString).orElse(fieldText);
+        return DOI.parse(fieldText)
+                  .map(DOI::asString)
+                  .orElse(fieldText);
     }
 }

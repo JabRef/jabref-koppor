@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -15,7 +14,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -36,15 +34,8 @@ class YamlExporterTest {
 
     @BeforeAll
     static void setUp() {
-        yamlExporter = new TemplateExporter(
-                "CSL YAML",
-                "yaml",
-                "yaml",
-                "",
-                StandardFileType.YAML,
-                mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                SaveOrder.getDefaultSaveOrder(),
-                BlankLineBehaviour.DELETE_BLANKS);
+        yamlExporter = new TemplateExporter("CSL YAML", "yaml", "yaml", "", StandardFileType.YAML,
+                mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS), SaveOrder.getDefaultSaveOrder(), BlankLineBehaviour.DELETE_BLANKS);
 
         databaseContext = new BibDatabaseContext();
     }

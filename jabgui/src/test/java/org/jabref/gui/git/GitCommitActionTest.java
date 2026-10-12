@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
-
+import org.eclipse.jgit.api.Git;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefGuiStateManager;
 import org.jabref.gui.LibraryTab;
@@ -30,8 +30,6 @@ import org.jabref.logic.util.CurrentThreadTaskExecutor;
 import org.jabref.logic.util.OptionalObjectProperty;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import org.eclipse.jgit.api.Git;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -114,7 +112,14 @@ class GitCommitActionTest {
     void cancellingLeavesTheLibraryUnsavedAndAbortsCommit() {
         when(libraryTab.isModified()).thenReturn(true);
         when(libraryPreferences.shouldAutoSave()).thenReturn(false);
-        when(dialogService.showCustomButtonDialogAndWait(any(), any(), any(), any(), any(), any()))
+        when(
+                dialogService.showCustomButtonDialogAndWait(
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any()))
                 .thenReturn(Optional.empty());
 
         try (MockedConstruction<SaveDatabaseAction> saveDatabaseAction = mockConstruction(SaveDatabaseAction.class)) {
@@ -172,7 +177,9 @@ class GitCommitActionTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = SaveResult.class, names = {"FAILURE", "ALREADY_SAVING"})
+    @EnumSource(
+            value = SaveResult.class,
+            names = {"FAILURE", "ALREADY_SAVING"})
     void unsuccessfulSaveAbortsCommit(SaveResult saveResult) {
         when(libraryTab.isModified()).thenReturn(true);
 
@@ -198,7 +205,10 @@ class GitCommitActionTest {
 
         assertEquals(Optional.of(libraryDirectory.toAbsolutePath()), GitHandler.findRepositoryRoot(libraryFile));
         try (Git git = Git.open(libraryDirectory.toFile())) {
-            assertEquals(Set.of("notes.txt"), git.status().call().getUntracked());
+            assertEquals(Set.of("notes.txt"),
+                    git.status()
+                       .call()
+                       .getUntracked());
         }
     }
 
@@ -220,11 +230,22 @@ class GitCommitActionTest {
     void brokenRepositoryStatusShowsAnErrorDialog() throws Exception {
         Path libraryFile = libraryDirectory.resolve("library.bib");
         Files.writeString(libraryFile, "@Article{test,}");
-        try (Git git = Git.init().setInitialBranch("main").setDirectory(libraryDirectory.toFile()).call()) {
-            git.add().addFilepattern("library.bib").call();
-            git.commit().setMessage("Initial commit").call();
+        try (Git git = Git.init()
+                .setInitialBranch("main")
+                .setDirectory(libraryDirectory.toFile())
+                .call()) {
+            git.add()
+               .addFilepattern("library.bib")
+               .call();
+            git.commit()
+               .setMessage("Initial commit")
+               .call();
         }
-        Files.writeString(libraryDirectory.resolve(".git").resolve("refs").resolve("heads").resolve("main"), "0000000000000000000000000000000000000000");
+        Files.writeString(libraryDirectory.resolve(".git")
+                .resolve("refs")
+                .resolve("heads")
+                .resolve("main"),
+                "0000000000000000000000000000000000000000");
 
         BibDatabaseContext databaseContext = mock(BibDatabaseContext.class);
         when(databaseContext.getLocation()).thenReturn(DatabaseLocation.LOCAL);
@@ -234,9 +255,7 @@ class GitCommitActionTest {
 
         gitCommitAction.execute();
 
-        verify(dialogService).showErrorDialogAndWait(
-                Localization.lang("Git commit failed"),
-                Localization.lang("The local Git repository is incomplete or corrupted. Remove the broken .git directory in that folder or choose another folder, then try again."));
+        verify(dialogService).showErrorDialogAndWait(Localization.lang("Git commit failed"), Localization.lang("The local Git repository is incomplete or corrupted. Remove the broken .git directory in that folder or choose another folder, then try again."));
     }
 
     private void executeCommitAction(Path libraryFile, boolean confirmInitialization) {
@@ -247,7 +266,9 @@ class GitCommitActionTest {
         initStateManager.activeDatabaseProperty().setValue(Optional.of(databaseContext));
 
         DialogService initDialogService = mock(DialogService.class);
-        when(initDialogService.showConfirmationDialogAndWait(anyString(), anyString(), anyString(), anyString())).thenReturn(confirmInitialization);
+        when(initDialogService.showConfirmationDialogAndWait(anyString(), anyString(), anyString(),
+                anyString()))
+                .thenReturn(confirmInitialization);
 
         // tabSupplier yields null: without an open tab there is nothing to save first
         new GitCommitAction(
@@ -258,15 +279,24 @@ class GitCommitActionTest {
                 mock(BibEntryTypesManager.class),
                 mock(JournalAbbreviationRepository.class),
                 new CurrentThreadTaskExecutor(),
-                new GitHandlerRegistry(mock(GitPreferences.class))).execute();
+                new GitHandlerRegistry(mock(GitPreferences.class)))
+                .execute();
     }
 
     private void clickButton(String label) {
-        when(dialogService.showCustomButtonDialogAndWait(any(), any(), any(), any(), any(), any()))
-                .thenAnswer(invocation -> Stream.of(invocation.getArguments())
-                                                .filter(ButtonType.class::isInstance)
-                                                .map(ButtonType.class::cast)
-                                                .filter(button -> label.equals(button.getText()))
-                                                .findFirst());
+        when(
+                dialogService.showCustomButtonDialogAndWait(
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
+                        any()))
+                .thenAnswer(
+                invocation -> Stream.of(invocation.getArguments())
+                        .filter(ButtonType.class::isInstance)
+                        .map(ButtonType.class::cast)
+                        .filter(button -> label.equals(button.getText()))
+                        .findFirst());
     }
 }

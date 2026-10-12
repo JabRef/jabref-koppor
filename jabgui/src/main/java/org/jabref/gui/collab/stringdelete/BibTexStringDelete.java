@@ -7,7 +7,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibtexString;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableRemoveString;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +26,8 @@ public final class BibTexStringDelete extends DatabaseChange {
         try {
             undoEdit.applyEdit(new UndoableRemoveString(databaseContext.getDatabase(), deletedString));
         } catch (Exception ex) {
-            LOGGER.warn("Error: could not remove string '{}': {}", deletedString.getName(), ex.getMessage(), ex);
+            LOGGER.warn("Error: could not remove string '{}': {}",
+                    deletedString.getName(), ex.getMessage(), ex);
         }
     }
 

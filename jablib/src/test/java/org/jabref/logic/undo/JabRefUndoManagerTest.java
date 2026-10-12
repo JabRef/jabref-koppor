@@ -23,11 +23,11 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.undo.ChangeSet;
 import org.jabref.model.undo.UndoableFieldChange;
 import org.jabref.model.undo.UndoableRemoveString;
-
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.Timeout.ThreadMode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -36,10 +36,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JabRefUndoManagerTest {
 
-    /// Without coalescing, so that each test here means what it says: this class is about the
-    /// journal's mechanics, and whether two changes are one step is [CoalescingPolicy]'s business,
-    /// covered by [KeystrokeCoalescingTest].
+    /// Without coalescing, so that each test here means what it says: this
+    /// class is about the journal's mechanics, and whether two changes are one
+    /// step is [CoalescingPolicy]'s business, covered by
+    /// [KeystrokeCoalescingTest].
     private final JabRefUndoManager undoRedoManager = new JabRefUndoManager(CoalescingPolicy.NONE);
+
     private BibEntry entry;
 
     @BeforeEach
@@ -67,7 +69,8 @@ class JabRefUndoManagerTest {
         }
     }
 
-    /// Whether the other thread got as far as finishing, which a deadlocked one never does.
+    /// Whether the other thread got as far as finishing, which a deadlocked one
+    /// never does.
     private static boolean completes(Future<?> work) {
         try {
             work.get(5, TimeUnit.SECONDS);
@@ -116,10 +119,11 @@ class JabRefUndoManagerTest {
 
     @Test
     void aRecordedBlockUndoesAsOneStep() {
-        undoRedoManager.addEdit("edit", edit -> {
-            edit.addEdit(entry.setField(StandardField.AUTHOR, "Bohr"));
-            edit.addEdit(entry.setField(StandardField.TITLE, "Relativity"));
-        });
+        undoRedoManager.addEdit("edit",
+                edit -> {
+                    edit.addEdit(entry.setField(StandardField.AUTHOR, "Bohr"));
+                    edit.addEdit(entry.setField(StandardField.TITLE, "Relativity"));
+                });
 
         undoRedoManager.undo();
 
@@ -131,18 +135,19 @@ class JabRefUndoManagerTest {
     @Test
     void aBlockThatChangesNothingIsNotPushed() {
         undoRedoManager.addEdit("no-op", edit ->
-                // Setting the value it already has reports no change.
-                edit.addEdit(entry.setField(StandardField.AUTHOR, "Einstein")));
+        // Setting the value it already has reports no change.
+        edit.addEdit(entry.setField(StandardField.AUTHOR, "Einstein")));
 
         assertFalse(undoRedoManager.canUndo());
     }
 
     @Test
     void nestedBlocksProduceASingleStep() {
-        undoRedoManager.addEdit("outer", outer -> {
-            outer.addEdit(entry.setField(StandardField.AUTHOR, "Bohr"));
-            undoRedoManager.addEdit("inner", inner -> inner.addEdit(entry.setField(StandardField.TITLE, "Relativity")));
-        });
+        undoRedoManager.addEdit("outer",
+                outer -> {
+                    outer.addEdit(entry.setField(StandardField.AUTHOR, "Bohr"));
+                    undoRedoManager.addEdit("inner", inner -> inner.addEdit(entry.setField(StandardField.TITLE, "Relativity")));
+                });
 
         undoRedoManager.undo();
 
@@ -151,16 +156,17 @@ class JabRefUndoManagerTest {
         assertFalse(undoRedoManager.canUndo());
     }
 
-    /// The twin of [#pushInsideABlockJoinsIt] for the applying entry point: called on the
-    /// manager rather than on the recorder, it still joins the step being collected instead of
-    /// becoming one of its own — and takes no lock on the way, since nothing reaches the stacks
-    /// until the block ends.
+    /// The twin of [#pushInsideABlockJoinsIt] for the applying entry point:
+    /// called on the manager rather than on the recorder, it still joins the
+    /// step being collected instead of becoming one of its own — and takes no
+    /// lock on the way, since nothing reaches the stacks until the block ends.
     @Test
     void applyingThroughTheManagerInsideABlockJoinsIt() {
-        undoRedoManager.addEdit("two fields", _ -> {
-            undoRedoManager.applyEdit(new UndoableFieldChange(entry, StandardField.AUTHOR, "Einstein", "Bohr"));
-            undoRedoManager.applyEdit(new UndoableFieldChange(entry, StandardField.TITLE, null, "On the quantum theory"));
-        });
+        undoRedoManager.addEdit("two fields",
+                _ -> {
+                    undoRedoManager.applyEdit(new UndoableFieldChange(entry, StandardField.AUTHOR, "Einstein", "Bohr"));
+                    undoRedoManager.applyEdit(new UndoableFieldChange(entry, StandardField.TITLE, null, "On the quantum theory"));
+                });
 
         assertEquals(Optional.of("Bohr"), entry.getField(StandardField.AUTHOR));
 
@@ -172,10 +178,11 @@ class JabRefUndoManagerTest {
 
     @Test
     void pushInsideABlockJoinsIt() {
-        undoRedoManager.addEdit("outer", outer -> {
-            outer.addEdit(entry.setField(StandardField.AUTHOR, "Bohr"));
-            undoRedoManager.addEdit(setAuthor("Planck"));
-        });
+        undoRedoManager.addEdit("outer",
+                outer -> {
+                    outer.addEdit(entry.setField(StandardField.AUTHOR, "Bohr"));
+                    undoRedoManager.addEdit(setAuthor("Planck"));
+                });
 
         undoRedoManager.undo();
 
@@ -194,10 +201,11 @@ class JabRefUndoManagerTest {
 
     @Test
     void applyInsideABlockJoinsIt() {
-        undoRedoManager.addEdit("both", edit -> {
-            edit.applyEdit(new UndoableFieldChange(entry, StandardField.AUTHOR, "Einstein", "Bohr"));
-            edit.applyEdit(new UndoableFieldChange(entry, StandardField.TITLE, null, "On the quantum theory"));
-        });
+        undoRedoManager.addEdit("both",
+                edit -> {
+                    edit.applyEdit(new UndoableFieldChange(entry, StandardField.AUTHOR, "Einstein", "Bohr"));
+                    edit.applyEdit(new UndoableFieldChange(entry, StandardField.TITLE, null, "On the quantum theory"));
+                });
         assertEquals(Optional.of("Bohr"), entry.getField(StandardField.AUTHOR));
         assertEquals(Optional.of("On the quantum theory"), entry.getField(StandardField.TITLE));
 
@@ -214,9 +222,10 @@ class JabRefUndoManagerTest {
         assertFalse(undoRedoManager.canUndo());
     }
 
-    /// A change that throws while being reverted must stay undoable rather than disappear from
-    /// both stacks. Re-inserting a removed string collides when its id has been taken since - a
-    /// name collision is refused rather than thrown, which the test below covers.
+    /// A change that throws while being reverted must stay undoable rather than
+    /// disappear from both stacks. Re-inserting a removed string collides when
+    /// its id has been taken since - a name collision is refused rather than
+    /// thrown, which the test below covers.
     @Test
     void aFailingUndoLeavesTheChangeOnTheStack() {
         BibDatabase database = new BibDatabase();
@@ -235,9 +244,10 @@ class JabRefUndoManagerTest {
         assertFalse(undoRedoManager.canRedo());
     }
 
-    /// The same situation the library can actually get into: the name is taken again, so putting
-    /// the string back would overwrite someone else's. That is reported, and the step is spent -
-    /// leaving it on the stack would make the next Ctrl+Z look broken.
+    /// The same situation the library can actually get into: the name is taken
+    /// again, so putting the string back would overwrite someone else's. That
+    /// is reported, and the step is spent - leaving it on the stack would make
+    /// the next Ctrl+Z look broken.
     @Test
     void anUndoThatCannotBeAppliedIsReportedAndSpent() {
         BibDatabase database = new BibDatabase();
@@ -252,7 +262,11 @@ class JabRefUndoManagerTest {
         UndoStep step = undoRedoManager.undo().orElseThrow();
 
         assertFalse(step.complete());
-        assertEquals("something else", database.getStringByName("label").orElseThrow().getContent(),
+        assertEquals(
+                "something else",
+                database.getStringByName("label")
+                        .orElseThrow()
+                        .getContent(),
                 "the undo overwrote the string that took the name");
         assertFalse(undoRedoManager.canUndo());
         assertTrue(undoRedoManager.canRedo());
@@ -272,20 +286,22 @@ class JabRefUndoManagerTest {
         assertFalse(undoRedoManager.canUndo());
     }
 
-    /// One manager serves the whole application and long commands record from background tasks.
-    /// An edit made meanwhile must become its own step, not join the background command's.
+    /// One manager serves the whole application and long commands record from
+    /// background tasks. An edit made meanwhile must become its own step, not
+    /// join the background command's.
     @Test
-    @Timeout(value = 10, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+    @Timeout(value = 10, threadMode = ThreadMode.SEPARATE_THREAD)
     void aBlockOnAnotherThreadDoesNotCaptureThisThreadsEdits() {
         CountDownLatch blockStarted = new CountDownLatch(1);
         CountDownLatch editMade = new CountDownLatch(1);
 
         try (ExecutorService background = Executors.newSingleThreadExecutor()) {
-            Future<?> block = background.submit(() -> undoRedoManager.addEdit("background", edit -> {
-                edit.addEdit(setAuthor("Bohr"));
-                blockStarted.countDown();
-                await(editMade, "the recording block was never released");
-            }));
+            Future<?> block = background.submit(() -> undoRedoManager.addEdit("background",
+                    edit -> {
+                        edit.addEdit(setAuthor("Bohr"));
+                        blockStarted.countDown();
+                        await(editMade, "the recording block was never released");
+                    }));
 
             await(blockStarted, "the recording block never started");
             undoRedoManager.addEdit(setAuthor("Planck"));
@@ -313,8 +329,9 @@ class JabRefUndoManagerTest {
         assertFalse(undoRedoManager.hasChanged());
     }
 
-    /// An edit balance returns to the saved value along a history that never passes through the
-    /// saved position, because pushing B discarded A. Counting edits cannot tell the two apart.
+    /// An edit balance returns to the saved value along a history that never
+    /// passes through the saved position, because pushing B discarded A.
+    /// Counting edits cannot tell the two apart.
     @Test
     void editingAfterUndoingTheSavedChangeReportsChanged() {
         // [utest->req~logic.undo.saved-position-identity~1]
@@ -328,8 +345,9 @@ class JabRefUndoManagerTest {
         assertTrue(undoRedoManager.hasChanged());
     }
 
-    /// Redoing forward again does not return to the saved position either: the change that was
-    /// saved is gone, and the one now on the stack was never saved.
+    /// Redoing forward again does not return to the saved position either: the
+    /// change that was saved is gone, and the one now on the stack was never
+    /// saved.
     @Test
     void redoingAnEditMadeAfterUndoingTheSavedChangeReportsChanged() {
         undoRedoManager.addEdit(setAuthor("Bohr"));
@@ -343,8 +361,9 @@ class JabRefUndoManagerTest {
         assertTrue(undoRedoManager.hasChanged());
     }
 
-    /// Positions are identified, not counted, so a stack that returns to the depth it was saved
-    /// at along a different history is not the saved position.
+    /// Positions are identified, not counted, so a stack that returns to the
+    /// depth it was saved at along a different history is not the saved
+    /// position.
     @Test
     void aDifferentHistoryOfTheSameLengthIsNotTheSavedPosition() {
         undoRedoManager.addEdit(setAuthor("Bohr"));
@@ -372,9 +391,10 @@ class JabRefUndoManagerTest {
         assertTrue(undoRedoManager.hasChanged());
     }
 
-    /// The boundary of the two trim tests around it: the saved change is the one the limit drops.
-    /// It stays applied, so undoing everything still on the stack leaves the library at exactly
-    /// the state that was saved, and it has to say so.
+    /// The boundary of the two trim tests around it: the saved change is the
+    /// one the limit drops. It stays applied, so undoing everything still on
+    /// the stack leaves the library at exactly the state that was saved, and it
+    /// has to say so.
     @Test
     void undoingBackToASavedPositionTheLimitDroppedReportsUnchanged() {
         undoRedoManager.addEdit(setAuthor("Bohr"));
@@ -419,8 +439,9 @@ class JabRefUndoManagerTest {
         assertFalse(undoRedoManager.hasChanged());
     }
 
-    /// The library is already modified by whatever the block managed to do before it failed, so
-    /// the half it recorded has to reach the stack — otherwise that half cannot be taken back.
+    /// The library is already modified by whatever the block managed to do
+    /// before it failed, so the half it recorded has to reach the stack —
+    /// otherwise that half cannot be taken back.
     @Test
     void aBlockThatFailsPartWayHandsOverWhatItAlreadyChanged() {
         assertThrows(IllegalStateException.class, () -> undoRedoManager.addEdit("half", edit -> {
@@ -433,8 +454,9 @@ class JabRefUndoManagerTest {
         assertEquals(Optional.of("Einstein"), entry.getField(StandardField.AUTHOR));
     }
 
-    /// Severity does not make the library less modified: an Error ends the block like anything
-    /// else, and what it wrote before dying still has to be takeable back.
+    /// Severity does not make the library less modified: an Error ends the
+    /// block like anything else, and what it wrote before dying still has to be
+    /// takeable back.
     @Test
     void aBlockKilledByAnErrorHandsOverWhatItAlreadyChanged() {
         assertThrows(AssertionError.class, () -> undoRedoManager.addEdit("half", edit -> {
@@ -447,8 +469,9 @@ class JabRefUndoManagerTest {
         assertEquals(Optional.of("Einstein"), entry.getField(StandardField.AUTHOR));
     }
 
-    /// Nothing recorded means nothing to hand over, failure or not: an empty step would enable
-    /// Undo and let the next Ctrl+Z consume a no-op instead of the user's previous edit.
+    /// Nothing recorded means nothing to hand over, failure or not: an empty
+    /// step would enable Undo and let the next Ctrl+Z consume a no-op instead
+    /// of the user's previous edit.
     @Test
     void aBlockThatFailsBeforeRecordingAnythingPushesNoStep() {
         assertThrows(IllegalStateException.class, () -> undoRedoManager.addEdit("nothing", _ -> {
@@ -458,17 +481,19 @@ class JabRefUndoManagerTest {
         assertFalse(undoRedoManager.canUndo());
     }
 
-    /// A failing nested block hands its changes to the enclosing one for the same reason, and
-    /// the enclosing block decides for itself whether the failure ends the whole step.
+    /// A failing nested block hands its changes to the enclosing one for the
+    /// same reason, and the enclosing block decides for itself whether the
+    /// failure ends the whole step.
     @Test
     void aNestedBlockThatFailsHandsOverToItsEnclosingBlock() {
-        undoRedoManager.addEdit("outer", outer -> {
-            outer.addEdit(setAuthor("Bohr"));
-            assertThrows(IllegalStateException.class, () -> undoRedoManager.addEdit("inner", inner -> {
-                inner.addEdit(setField(StandardField.TITLE, "On the quantum theory"));
-                throw new IllegalStateException("the nested command gave up here");
-            }));
-        });
+        undoRedoManager.addEdit("outer",
+                outer -> {
+                    outer.addEdit(setAuthor("Bohr"));
+                    assertThrows(IllegalStateException.class, () -> undoRedoManager.addEdit("inner", inner -> {
+                        inner.addEdit(setField(StandardField.TITLE, "On the quantum theory"));
+                        throw new IllegalStateException("the nested command gave up here");
+                    }));
+                });
 
         // One step for the whole thing, holding both the outer change and the nested one. The
         // nested change touches a different field, so losing it would survive undoing the outer.
@@ -509,11 +534,12 @@ class JabRefUndoManagerTest {
         assertEquals(1, reached.get());
     }
 
-    /// The defect suspending guards against: a background command applies its changes long before it
-    /// pushes them, and an undo arriving in that window takes back a change *underneath* those
-    /// writes - after which the command's push discards the undone change with the redo stack.
+    /// The defect suspending guards against: a background command applies its
+    /// changes long before it pushes them, and an undo arriving in that window
+    /// takes back a change *underneath* those writes - after which the
+    /// command's push discards the undone change with the redo stack.
     @Test
-    @Timeout(value = 10, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+    @Timeout(value = 10, threadMode = ThreadMode.SEPARATE_THREAD)
     // [utest->req~logic.undo.writes-reserved-against-undo~1]
     void anUndoCannotLandBetweenACommandsWritesAndItsPush() {
         undoRedoManager.addEdit(setAuthor("Bohr"));
@@ -521,16 +547,16 @@ class JabRefUndoManagerTest {
         CountDownLatch undoAttempted = new CountDownLatch(1);
 
         try (ExecutorService background = Executors.newSingleThreadExecutor()) {
-            Future<?> block = background.submit(() -> undoRedoManager.addEdit("Import entries", edit -> {
-                edit.addEdit(setAuthor("Planck"));
-                blockStarted.countDown();
-                await(undoAttempted, "the recording block was never released");
-            }));
+            Future<?> block = background.submit(() -> undoRedoManager.addEdit("Import entries",
+                    edit -> {
+                        edit.addEdit(setAuthor("Planck"));
+                        blockStarted.countDown();
+                        await(undoAttempted, "the recording block was never released");
+                    }));
 
             await(blockStarted, "the recording block never started");
             assertEquals(Optional.empty(), undoRedoManager.undo(), "undo ran while the library was being written");
-            assertEquals(Optional.of("Planck"), entry.getField(StandardField.AUTHOR),
-                    "the undo reverted a change underneath the command's writes");
+            assertEquals(Optional.of("Planck"), entry.getField(StandardField.AUTHOR), "the undo reverted a change underneath the command's writes");
 
             undoAttempted.countDown();
             assertTrue(completes(block), "the recording block never finished");
@@ -543,8 +569,9 @@ class JabRefUndoManagerTest {
         assertEquals(Optional.of("Einstein"), entry.getField(StandardField.AUTHOR));
     }
 
-    /// The library moved on under a recorded step - a background command wrote the same field - so
-    /// undoing it takes back what it can and says the rest did not apply.
+    /// The library moved on under a recorded step - a background command wrote
+    /// the same field - so undoing it takes back what it can and says the rest
+    /// did not apply.
     @Test
     void undoingAStepTheLibraryMovedOnFromReportsIt() {
         undoRedoManager.addEdit(setAuthor("Bohr"));
@@ -558,8 +585,9 @@ class JabRefUndoManagerTest {
         assertTrue(undoRedoManager.canRedo());
     }
 
-    /// A change the journal cannot take back is a saved position no position can reach: undoing
-    /// everything does not mean "back to what was saved", because that change is still there.
+    /// A change the journal cannot take back is a saved position no position
+    /// can reach: undoing everything does not mean "back to what was saved",
+    /// because that change is still there.
     @Test
     void aChangeTheJournalCannotTakeBackKeepsTheLibraryChanged() {
         undoRedoManager.addEdit(setAuthor("Bohr"));
@@ -587,7 +615,8 @@ class JabRefUndoManagerTest {
         assertEquals(1, notifications.get());
     }
 
-    /// A marker derived from the journal has to hear about the one moment the answer turns false.
+    /// A marker derived from the journal has to hear about the one moment the
+    /// answer turns false.
     @Test
     void markingTheCurrentPositionSavedNotifiesListeners() {
         undoRedoManager.addEdit(setAuthor("Bohr"));
@@ -625,8 +654,9 @@ class JabRefUndoManagerTest {
         assertEquals(Optional.empty(), undoRedoManager.suspendedBy());
     }
 
-    /// Enablement has to fall when a command takes the library and rise when it gives it back, so
-    /// both ends are stack changes as far as an observer is concerned.
+    /// Enablement has to fall when a command takes the library and rise when it
+    /// gives it back, so both ends are stack changes as far as an observer is
+    /// concerned.
     @Test
     void takingAndReleasingAReservationNotifiesListeners() {
         AtomicInteger notifications = new AtomicInteger();
@@ -653,15 +683,14 @@ class JabRefUndoManagerTest {
         first.close();
 
         assertEquals(Optional.empty(), undoRedoManager.undo(), "undo ran while a command was still writing");
-        assertEquals(Optional.of("Look up DOI"), undoRedoManager.suspendedBy(),
-                "named a command that had already finished");
+        assertEquals(Optional.of("Look up DOI"), undoRedoManager.suspendedBy(), "named a command that had already finished");
 
         second.close();
         assertTrue(undoRedoManager.undo().isPresent(), "undo still declined after both had handed over");
     }
 
-    /// Of several commands writing at once, the message names the one still running that the user
-    /// has been waiting on longest.
+    /// Of several commands writing at once, the message names the one still
+    /// running that the user has been waiting on longest.
     @Test
     void theCommandNamedIsTheOldestStillWriting() {
         UndoSuspension first = undoRedoManager.suspendUndo("Import entries");
@@ -680,25 +709,26 @@ class JabRefUndoManagerTest {
     void aBlockHoldsTheLibraryForItsWholeDurationAndReleasesItAfterThePush() {
         undoRedoManager.addEdit(setAuthor("Bohr"));
 
-        undoRedoManager.addEdit("Import entries", edit -> {
-            assertEquals(Optional.empty(), undoRedoManager.undo(), "the block did not hold the library");
-            assertEquals(Optional.of("Import entries"), undoRedoManager.suspendedBy());
-            edit.addEdit(setAuthor("Planck"));
-        });
+        undoRedoManager.addEdit("Import entries",
+                edit -> {
+                    assertEquals(Optional.empty(), undoRedoManager.undo(), "the block did not hold the library");
+                    assertEquals(Optional.of("Import entries"), undoRedoManager.suspendedBy());
+                    edit.addEdit(setAuthor("Planck"));
+                });
 
         assertTrue(undoRedoManager.undo().isPresent(), "the block did not release the library");
         assertEquals(Optional.empty(), undoRedoManager.suspendedBy());
     }
 
-    /// A nested block is inside its caller's window already; releasing at its end would reopen the
-    /// window while the outer block is still writing.
+    /// A nested block is inside its caller's window already; releasing at its
+    /// end would reopen the window while the outer block is still writing.
     @Test
     void aNestedBlockDoesNotReleaseTheLibraryWhenItEnds() {
-        undoRedoManager.addEdit("Import entries", _ -> {
-            undoRedoManager.addEdit("Merge entries", nested -> nested.addEdit(setAuthor("Planck")));
-            assertEquals(Optional.of("Import entries"), undoRedoManager.suspendedBy(),
-                    "the nested block released the library its caller was holding");
-        });
+        undoRedoManager.addEdit("Import entries",
+                _ -> {
+                    undoRedoManager.addEdit("Merge entries", nested -> nested.addEdit(setAuthor("Planck")));
+                    assertEquals(Optional.of("Import entries"), undoRedoManager.suspendedBy(), "the nested block released the library its caller was holding");
+                });
 
         assertEquals(Optional.empty(), undoRedoManager.suspendedBy());
     }
@@ -714,14 +744,16 @@ class JabRefUndoManagerTest {
         assertTrue(undoRedoManager.canUndo(), "what the failed block managed to change stayed undoable");
     }
 
-    /// A listener that waits for another thread to read the manager. Were listeners still run
-    /// while the stack monitor is held, that read would block until the listener returns and
-    /// the listener would block until the read completes.
+    /// A listener that waits for another thread to read the manager. Were
+    /// listeners still run while the stack monitor is held, that read would
+    /// block until the listener returns and the listener would block until the
+    /// read completes.
     ///
-    /// The listener records the outcome rather than asserting it, because it runs on whichever
-    /// thread pushed the edit and an assertion failing there would never reach the test.
+    /// The listener records the outcome rather than asserting it, because it
+    /// runs on whichever thread pushed the edit and an assertion failing there
+    /// would never reach the test.
     @Test
-    @Timeout(value = 10, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
+    @Timeout(value = 10, threadMode = ThreadMode.SEPARATE_THREAD)
     void listenersDoNotRunWhileTheStackLockIsHeld() {
         AtomicBoolean readCompleted = new AtomicBoolean();
 
@@ -735,10 +767,11 @@ class JabRefUndoManagerTest {
         assertTrue(undoRedoManager.canUndo());
     }
 
-    /// An entry that runs `probe` from inside `setField`, when the field is set to `value`. The
-    /// write happens on the thread making the change, so the probe runs at the one moment
-    /// [JabRefUndoManager#applyEdit] has written to the library and not yet recorded anything — the window
-    /// this test is about.
+    /// An entry that runs `probe` from inside `setField`, when the field is set
+    /// to `value`. The write happens on the thread making the change, so the
+    /// probe runs at the one moment [JabRefUndoManager#applyEdit] has written
+    /// to the library and not yet recorded anything — the window this test is
+    /// about.
     private static class ProbingEntry extends BibEntry {
 
         private final String value;
@@ -760,37 +793,38 @@ class JabRefUndoManagerTest {
         }
     }
 
-    /// Applying and recording are one operation, holding the journal's monitor throughout. Were
-    /// they two, an undo arriving in between would revert the *previous* change while this one
-    /// stayed applied but unrecorded, leaving a history that describes a library state that
-    /// never existed.
+    /// Applying and recording are one operation, holding the journal's monitor
+    /// throughout. Were they two, an undo arriving in between would revert the
+    /// *previous* change while this one stayed applied but unrecorded, leaving
+    /// a history that describes a library state that never existed.
     ///
-    /// Asked of the applying thread rather than staged between two threads. A second thread can
-    /// only ever show that it did not get in *within some interval*, which makes the assertion a
-    /// statement about a timeout; whether the lock is held is a fact available on the spot.
+    /// Asked of the applying thread rather than staged between two threads. A
+    /// second thread can only ever show that it did not get in *within some
+    /// interval*, which makes the assertion a statement about a timeout;
+    /// whether the lock is held is a fact available on the spot.
     @Test
     void applyingAChangeHappensWhileTheJournalIsLocked() {
         // [utest->req~logic.undo.apply-and-record-atomically~1]
         AtomicBoolean lockedWhileApplying = new AtomicBoolean();
-        BibEntry probingEntry = new ProbingEntry("Bohr",
-                () -> lockedWhileApplying.set(Thread.holdsLock(undoRedoManager)));
+        BibEntry probingEntry = new ProbingEntry("Bohr", () -> lockedWhileApplying.set(Thread.holdsLock(undoRedoManager)));
 
         undoRedoManager.applyEdit(new UndoableFieldChange(probingEntry, StandardField.AUTHOR, null, "Bohr"));
 
-        assertTrue(lockedWhileApplying.get(),
-                "the library was written before the journal was locked, so an undo could have run in between");
+        assertTrue(lockedWhileApplying.get(), "the library was written before the journal was locked, so an undo could have run in between");
         assertEquals(Optional.of("Bohr"), probingEntry.getField(StandardField.AUTHOR));
         assertTrue(undoRedoManager.canUndo());
     }
 
-    /// Inside a block there is no window to close, and taking the manager's monitor there would
-    /// hold it across the whole block. The change is applied and joins the step being collected.
+    /// Inside a block there is no window to close, and taking the manager's
+    /// monitor there would hold it across the whole block. The change is
+    /// applied and joins the step being collected.
     @Test
     void applyingInsideABlockRecordsIntoThatStep() {
-        undoRedoManager.addEdit("two fields", edit -> {
-            edit.applyEdit(new UndoableFieldChange(entry, StandardField.AUTHOR, "Einstein", "Bohr"));
-            edit.applyEdit(new UndoableFieldChange(entry, StandardField.TITLE, null, "On the constitution of atoms"));
-        });
+        undoRedoManager.addEdit("two fields",
+                edit -> {
+                    edit.applyEdit(new UndoableFieldChange(entry, StandardField.AUTHOR, "Einstein", "Bohr"));
+                    edit.applyEdit(new UndoableFieldChange(entry, StandardField.TITLE, null, "On the constitution of atoms"));
+                });
 
         assertEquals(Optional.of("Bohr"), entry.getField(StandardField.AUTHOR));
         undoRedoManager.undo();

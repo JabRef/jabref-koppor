@@ -8,7 +8,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UserSpecificCommentField;
-
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -133,8 +132,7 @@ class LatexIntegrityCheckerTest {
                 Arguments.of(StandardField.COMMENT, "\\\\\\& With multiple backslashes multiple times \\\\\\\\\\&"),
                 Arguments.of(StandardField.NOTE, "In the \\& middle of \\\\\\& something"),
                 Arguments.of(StandardField.DOI, "10.1007/0-387-22874-8_7"),
-                Arguments.of(new UserSpecificCommentField("test"), "_something_ which is triggers the integrity check ^^^ $")
-        );
+                Arguments.of(new UserSpecificCommentField("test"), "_something_ which is triggers the integrity check ^^^ $"));
     }
 
     @ParameterizedTest
@@ -144,9 +142,10 @@ class LatexIntegrityCheckerTest {
         assertEquals(List.of(new IntegrityMessage(expectedMessage, entry, field)), checker.check(entry));
     }
 
-    /// This method provides inputs containing invalid LaTeX syntax which no LaTeX parser should be able to parse
-    /// without errors. The inputs are bundled with the [uk.ac.ed.ph.snuggletex.ErrorCode] output by the internal
-    /// LaTeX parsers [uk.ac.ed.ph.snuggletex.SnuggleSession].
+    /// This method provides inputs containing invalid LaTeX syntax which no
+    /// LaTeX parser should be able to parse without errors. The inputs are
+    /// bundled with the [uk.ac.ed.ph.snuggletex.ErrorCode] output by the
+    /// internal LaTeX parsers [uk.ac.ed.ph.snuggletex.SnuggleSession].
     private static Stream<Arguments> provideUnacceptedInputs() {
         return Stream.of(
 
@@ -309,8 +308,7 @@ class LatexIntegrityCheckerTest {
                 Arguments.of(LatexIntegrityChecker.errorMessageFormatHelper(CoreErrorCode.TTEM03), StandardField.AUTHOR, "Author_Name"),
                 Arguments.of(LatexIntegrityChecker.errorMessageFormatHelper(CoreErrorCode.TTEM03), StandardField.JOURNAL, "Journal_Name"),
                 Arguments.of(LatexIntegrityChecker.errorMessageFormatHelper(CoreErrorCode.TTEM03), StandardField.BOOKTITLE, "Book^Title"),
-                Arguments.of(LatexIntegrityChecker.errorMessageFormatHelper(CoreErrorCode.TTEM03), StandardField.NOTE, "Note_with_subscript_and_superscript^_")
-        );
+                Arguments.of(LatexIntegrityChecker.errorMessageFormatHelper(CoreErrorCode.TTEM03), StandardField.NOTE, "Note_with_subscript_and_superscript^_"));
     }
 
     @ParameterizedTest
@@ -322,10 +320,8 @@ class LatexIntegrityCheckerTest {
 
     private static Stream<Arguments> provideCitationKeyInputs() {
         return Stream.of(
-                // Ensure TTEM03 error is not raised for citation key field
-                Arguments.of("", InternalField.KEY_FIELD, "Corti_2009"),
-                Arguments.of("", InternalField.KEY_FIELD, "Key_With^Superscript"),
-                Arguments.of("", InternalField.KEY_FIELD, "Key_With_Subscript")
-        );
+        // Ensure TTEM03 error is not raised for citation key field
+        Arguments.of("", InternalField.KEY_FIELD, "Corti_2009"), Arguments.of("", InternalField.KEY_FIELD, "Key_With^Superscript"),
+                Arguments.of("", InternalField.KEY_FIELD, "Key_With_Subscript"));
     }
 }

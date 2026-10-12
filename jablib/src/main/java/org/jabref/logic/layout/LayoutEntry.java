@@ -91,7 +91,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.UnknownField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,9 +110,7 @@ class LayoutEntry {
     private final LayoutFormatterPreferences preferences;
     private final JournalAbbreviationRepository abbreviationRepository;
 
-    public LayoutEntry(StringInt si,
-                       List<Path> fileDirForDatabase,
-                       LayoutFormatterPreferences preferences,
+    public LayoutEntry(StringInt si, List<Path> fileDirForDatabase, LayoutFormatterPreferences preferences,
                        JournalAbbreviationRepository abbreviationRepository) {
         this.preferences = preferences;
         this.abbreviationRepository = abbreviationRepository;
@@ -121,23 +118,17 @@ class LayoutEntry {
 
         type = si.i;
         switch (type) {
-            case LayoutHelper.IS_LAYOUT_TEXT ->
-                    text = si.s;
-            case LayoutHelper.IS_SIMPLE_COMMAND ->
-                    text = si.s.trim();
-            case LayoutHelper.IS_OPTION_FIELD ->
-                    doOptionField(si.s);
+            case LayoutHelper.IS_LAYOUT_TEXT -> text = si.s;
+            case LayoutHelper.IS_SIMPLE_COMMAND -> text = si.s.trim();
+            case LayoutHelper.IS_OPTION_FIELD -> doOptionField(si.s);
             default -> {
                 // IS_FIELD_START and IS_FIELD_END
             }
         }
     }
 
-    public LayoutEntry(List<StringInt> parsedEntries,
-                       int layoutType,
-                       List<Path> fileDirForDatabase,
-                       LayoutFormatterPreferences preferences,
-                       JournalAbbreviationRepository abbreviationRepository) {
+    public LayoutEntry(List<StringInt> parsedEntries, int layoutType, List<Path> fileDirForDatabase,
+                       LayoutFormatterPreferences preferences, JournalAbbreviationRepository abbreviationRepository) {
         this.preferences = preferences;
         this.abbreviationRepository = abbreviationRepository;
         this.fileDirForDatabase = Objects.requireNonNullElse(fileDirForDatabase, List.of());
@@ -164,8 +155,7 @@ class LayoutEntry {
                 case LayoutHelper.IS_GROUP_END:
                     if (blockStart.equals(parsedEntry.s)) {
                         blockEntries.add(parsedEntry);
-                        int groupType = parsedEntry.i == LayoutHelper.IS_GROUP_END ? LayoutHelper.IS_GROUP_START :
-                                        LayoutHelper.IS_FIELD_START;
+                        int groupType = parsedEntry.i == LayoutHelper.IS_GROUP_END ? LayoutHelper.IS_GROUP_START : LayoutHelper.IS_FIELD_START;
                         LayoutEntry le = new LayoutEntry(blockEntries, groupType, fileDirForDatabase, preferences, abbreviationRepository);
                         tmpEntries.add(le);
                         blockEntries = null;
@@ -229,8 +219,7 @@ class LayoutEntry {
     private String resolveFieldEntry(BibEntry bidEntry, BibDatabase database) {
         // resolve field (recognized by leading backslash) or text
         if (text.startsWith("\\")) {
-            return bidEntry.getResolvedFieldOrAlias(FieldFactory.parseField(text.substring(1)), database)
-                           .orElse("");
+            return bidEntry.getResolvedFieldOrAlias(FieldFactory.parseField(text.substring(1)), database).orElse("");
         }
         if (database == null) {
             return text;
@@ -244,7 +233,8 @@ class LayoutEntry {
         if (InternalField.TYPE_HEADER.getName().equals(text)) {
             fieldEntry = bibtex.getType().getDisplayName();
         } else if (InternalField.OBSOLETE_TYPE_HEADER.getName().equals(text)) {
-            LOGGER.warn("'{}' is an obsolete name for the entry type. Please update your layout to use '{}' instead.", InternalField.OBSOLETE_TYPE_HEADER, InternalField.TYPE_HEADER);
+            LOGGER.warn("'{}' is an obsolete name for the entry type. Please update your layout to use '{}' instead.",
+                    InternalField.OBSOLETE_TYPE_HEADER, InternalField.TYPE_HEADER);
             fieldEntry = bibtex.getType().getDisplayName();
         } else {
             fieldEntry = resolveFieldEntry(bibtex, database);
@@ -293,8 +283,7 @@ class LayoutEntry {
             }
         }
 
-        if ((field.isPresent() == negated) || ((type == LayoutHelper.IS_GROUP_START)
-                && field.get().equalsIgnoreCase(LayoutHelper.getCurrentGroup()))) {
+        if ((field.isPresent() == negated) || ((type == LayoutHelper.IS_GROUP_START) && field.get().equalsIgnoreCase(LayoutHelper.getCurrentGroup()))) {
             return null;
         } else {
             if (type == LayoutHelper.IS_GROUP_START) {
@@ -309,7 +298,9 @@ class LayoutEntry {
 
                 if (fieldText == null) {
                     if ((i + 1) < layoutEntries.size()) {
-                        if (layoutEntries.get(i + 1).doLayout(bibtex, database).isBlank()) {
+                        if (layoutEntries.get(i + 1)
+                                         .doLayout(bibtex, database)
+                                         .isBlank()) {
                             i++;
                             previousSkipped = true;
                             continue;
@@ -321,8 +312,7 @@ class LayoutEntry {
                     if (previousSkipped) {
                         int eol = 0;
 
-                        while ((eol < fieldText.length())
-                                && ((fieldText.charAt(eol) == '\n') || (fieldText.charAt(eol) == '\r'))) {
+                        while ((eol < fieldText.length()) && ((fieldText.charAt(eol) == '\n') || (fieldText.charAt(eol) == '\r'))) {
                             eol++;
                         }
 
@@ -362,8 +352,8 @@ class LayoutEntry {
 
             case LayoutHelper.IS_OPTION_FIELD:
                 String field = Optional.ofNullable(databaseContext.getDatabase())
-                                       .map(db -> db.resolveForStrings(text))
-                                       .orElse(text);
+                        .map(db -> db.resolveForStrings(text))
+                        .orElse(text);
                 if (option != null) {
                     for (LayoutFormatter anOption : option) {
                         field = anOption.format(field);
@@ -381,7 +371,10 @@ class LayoutEntry {
 
             case LayoutHelper.IS_FILENAME:
             case LayoutHelper.IS_FILEPATH:
-                return databaseContext.getDatabasePath().map(Path::toAbsolutePath).map(Path::toString).orElse("");
+                return databaseContext.getDatabasePath()
+                                      .map(Path::toAbsolutePath)
+                                      .map(Path::toString)
+                                      .orElse("");
 
             default:
                 break;
@@ -412,163 +405,87 @@ class LayoutEntry {
     private LayoutFormatter getLayoutFormatterByName(String name) {
         return switch (name) {
             // For backward compatibility
-            case "HTMLToLatexFormatter",
-                 "HtmlToLatex" ->
-                    new HtmlToLatexFormatter();
+            case "HTMLToLatexFormatter", "HtmlToLatex" -> new HtmlToLatexFormatter();
             // For backward compatibility
-            case "UnicodeToLatexFormatter",
-                 "UnicodeToLatex" ->
-                    new UnicodeToLatexFormatter();
-            case "OOPreFormatter" ->
-                    new OOPreFormatter();
-            case "AuthorAbbreviator" ->
-                    new AuthorAbbreviator();
-            case "AuthorAndToSemicolonReplacer" ->
-                    new AuthorAndToSemicolonReplacer();
-            case "AuthorAndsCommaReplacer" ->
-                    new AuthorAndsCommaReplacer();
-            case "AuthorAndsReplacer" ->
-                    new AuthorAndsReplacer();
-            case "AuthorFirstAbbrLastCommas" ->
-                    new AuthorFirstAbbrLastCommas();
-            case "AuthorFirstAbbrLastOxfordCommas" ->
-                    new AuthorFirstAbbrLastOxfordCommas();
-            case "AuthorFirstFirst" ->
-                    new AuthorFirstFirst();
-            case "AuthorFirstFirstCommas" ->
-                    new AuthorFirstFirstCommas();
-            case "AuthorFirstLastCommas" ->
-                    new AuthorFirstLastCommas();
-            case "AuthorFirstLastOxfordCommas" ->
-                    new AuthorFirstLastOxfordCommas();
-            case "AuthorLastFirst" ->
-                    new AuthorLastFirst();
-            case "AuthorLastFirstAbbrCommas" ->
-                    new AuthorLastFirstAbbrCommas();
-            case "AuthorLastFirstAbbreviator" ->
-                    new AuthorLastFirstAbbreviator();
-            case "AuthorLastFirstAbbrOxfordCommas" ->
-                    new AuthorLastFirstAbbrOxfordCommas();
-            case "AuthorLastFirstCommas" ->
-                    new AuthorLastFirstCommas();
-            case "AuthorLastFirstOxfordCommas" ->
-                    new AuthorLastFirstOxfordCommas();
-            case "AuthorLF_FF" ->
-                    new AuthorLF_FF();
-            case "AuthorLF_FFAbbr" ->
-                    new AuthorLF_FFAbbr();
-            case "AuthorNatBib" ->
-                    new AuthorNatBib();
-            case "AuthorOrgSci" ->
-                    new AuthorOrgSci();
-            case "CompositeFormat" ->
-                    new CompositeFormat();
-            case "CreateBibORDFAuthors" ->
-                    new CreateBibORDFAuthors();
-            case "CreateDocBook4Authors" ->
-                    new CreateDocBook4Authors();
-            case "CreateDocBook4Editors" ->
-                    new CreateDocBook4Editors();
-            case "CreateDocBook5Authors" ->
-                    new CreateDocBook5Authors();
-            case "CreateDocBook5Editors" ->
-                    new CreateDocBook5Editors();
-            case "CurrentDate" ->
-                    new CurrentDate();
-            case "DateFormatter" ->
-                    new DateFormatter();
-            case "DOICheck" ->
-                    new DOICheck(preferences.getDoiPreferences());
-            case "DOIStrip" ->
-                    new DOIStrip();
-            case "EntryTypeFormatter" ->
-                    new EntryTypeFormatter();
-            case "FirstPage" ->
-                    new FirstPage();
-            case "FormatPagesForHTML" ->
-                    new FormatPagesForHTML();
-            case "FormatPagesForXML" ->
-                    new FormatPagesForXML();
-            case "GetOpenOfficeType" ->
-                    new GetOpenOfficeType();
-            case "HTMLChars" ->
-                    new HTMLChars();
-            case "HTMLParagraphs" ->
-                    new HTMLParagraphs();
-            case "Iso690FormatDate" ->
-                    new Iso690FormatDate();
-            case "Iso690NamesAuthors" ->
-                    new Iso690NamesAuthors();
-            case "JournalAbbreviator" ->
-                    new JournalAbbreviator(abbreviationRepository);
-            case "LastPage" ->
-                    new LastPage();
+            case "UnicodeToLatexFormatter", "UnicodeToLatex" -> new UnicodeToLatexFormatter();
+            case "OOPreFormatter" -> new OOPreFormatter();
+            case "AuthorAbbreviator" -> new AuthorAbbreviator();
+            case "AuthorAndToSemicolonReplacer" -> new AuthorAndToSemicolonReplacer();
+            case "AuthorAndsCommaReplacer" -> new AuthorAndsCommaReplacer();
+            case "AuthorAndsReplacer" -> new AuthorAndsReplacer();
+            case "AuthorFirstAbbrLastCommas" -> new AuthorFirstAbbrLastCommas();
+            case "AuthorFirstAbbrLastOxfordCommas" -> new AuthorFirstAbbrLastOxfordCommas();
+            case "AuthorFirstFirst" -> new AuthorFirstFirst();
+            case "AuthorFirstFirstCommas" -> new AuthorFirstFirstCommas();
+            case "AuthorFirstLastCommas" -> new AuthorFirstLastCommas();
+            case "AuthorFirstLastOxfordCommas" -> new AuthorFirstLastOxfordCommas();
+            case "AuthorLastFirst" -> new AuthorLastFirst();
+            case "AuthorLastFirstAbbrCommas" -> new AuthorLastFirstAbbrCommas();
+            case "AuthorLastFirstAbbreviator" -> new AuthorLastFirstAbbreviator();
+            case "AuthorLastFirstAbbrOxfordCommas" -> new AuthorLastFirstAbbrOxfordCommas();
+            case "AuthorLastFirstCommas" -> new AuthorLastFirstCommas();
+            case "AuthorLastFirstOxfordCommas" -> new AuthorLastFirstOxfordCommas();
+            case "AuthorLF_FF" -> new AuthorLF_FF();
+            case "AuthorLF_FFAbbr" -> new AuthorLF_FFAbbr();
+            case "AuthorNatBib" -> new AuthorNatBib();
+            case "AuthorOrgSci" -> new AuthorOrgSci();
+            case "CompositeFormat" -> new CompositeFormat();
+            case "CreateBibORDFAuthors" -> new CreateBibORDFAuthors();
+            case "CreateDocBook4Authors" -> new CreateDocBook4Authors();
+            case "CreateDocBook4Editors" -> new CreateDocBook4Editors();
+            case "CreateDocBook5Authors" -> new CreateDocBook5Authors();
+            case "CreateDocBook5Editors" -> new CreateDocBook5Editors();
+            case "CurrentDate" -> new CurrentDate();
+            case "DateFormatter" -> new DateFormatter();
+            case "DOICheck" -> new DOICheck(preferences.getDoiPreferences());
+            case "DOIStrip" -> new DOIStrip();
+            case "EntryTypeFormatter" -> new EntryTypeFormatter();
+            case "FirstPage" -> new FirstPage();
+            case "FormatPagesForHTML" -> new FormatPagesForHTML();
+            case "FormatPagesForXML" -> new FormatPagesForXML();
+            case "GetOpenOfficeType" -> new GetOpenOfficeType();
+            case "HTMLChars" -> new HTMLChars();
+            case "HTMLParagraphs" -> new HTMLParagraphs();
+            case "Iso690FormatDate" -> new Iso690FormatDate();
+            case "Iso690NamesAuthors" -> new Iso690NamesAuthors();
+            case "JournalAbbreviator" -> new JournalAbbreviator(abbreviationRepository);
+            case "LastPage" -> new LastPage();
             // For backward compatibility
-            case "FormatChars",
-                 "LatexToUnicode" ->
-                    new LatexToUnicodeFormatter();
-            case "NameFormatter" ->
-                    new NameFormatter();
-            case "NoSpaceBetweenAbbreviations" ->
-                    new NoSpaceBetweenAbbreviations();
-            case "Ordinal" ->
-                    new Ordinal();
-            case "RemoveBrackets" ->
-                    new RemoveBrackets();
-            case "RemoveBracketsAddComma" ->
-                    new RemoveBracketsAddComma();
-            case "RemoveLatexCommands" ->
-                    new RemoveLatexCommandsFormatter();
-            case "RemoveTilde" ->
-                    new RemoveTilde();
-            case "RemoveWhitespace" ->
-                    new NonSpaceWhitespaceRemover();
-            case "RisKeywords" ->
-                    new RisKeywords();
-            case "RisMonth" ->
-                    new RisMonth();
-            case "RTFChars" ->
-                    new RTFChars();
-            case "ToLowerCase" ->
-                    new ToLowerCase();
-            case "ToUpperCase" ->
-                    new ToUpperCase();
-            case "XMLChars" ->
-                    new XMLChars();
-            case "Default" ->
-                    new Default();
-            case "FileLink" ->
-                    new FileLink(fileDirForDatabase, preferences.getMainFileDirectory());
-            case "Number" ->
-                    new Number();
-            case "RisAuthors" ->
-                    new RisAuthors();
-            case "Authors" ->
-                    new Authors();
-            case "IfPlural" ->
-                    new IfPlural();
-            case "Replace" ->
-                    new Replace();
-            case "WrapContent" ->
-                    new WrapContent();
-            case "WrapFileLinks" ->
-                    new WrapFileLinks(fileDirForDatabase, preferences.getMainFileDirectory());
-            case "Markdown" ->
-                    new MarkdownFormatter();
-            case "CSLType" ->
-                    new CSLType();
-            case "ShortMonth" ->
-                    new ShortMonthFormatter();
-            case "ReplaceWithEscapedDoubleQuotes" ->
-                    new ReplaceWithEscapedDoubleQuotes();
-            case "HayagrivaType" ->
-                    new HayagrivaType();
-            default ->
-                    null;
+            case "FormatChars", "LatexToUnicode" -> new LatexToUnicodeFormatter();
+            case "NameFormatter" -> new NameFormatter();
+            case "NoSpaceBetweenAbbreviations" -> new NoSpaceBetweenAbbreviations();
+            case "Ordinal" -> new Ordinal();
+            case "RemoveBrackets" -> new RemoveBrackets();
+            case "RemoveBracketsAddComma" -> new RemoveBracketsAddComma();
+            case "RemoveLatexCommands" -> new RemoveLatexCommandsFormatter();
+            case "RemoveTilde" -> new RemoveTilde();
+            case "RemoveWhitespace" -> new NonSpaceWhitespaceRemover();
+            case "RisKeywords" -> new RisKeywords();
+            case "RisMonth" -> new RisMonth();
+            case "RTFChars" -> new RTFChars();
+            case "ToLowerCase" -> new ToLowerCase();
+            case "ToUpperCase" -> new ToUpperCase();
+            case "XMLChars" -> new XMLChars();
+            case "Default" -> new Default();
+            case "FileLink" -> new FileLink(fileDirForDatabase, preferences.getMainFileDirectory());
+            case "Number" -> new Number();
+            case "RisAuthors" -> new RisAuthors();
+            case "Authors" -> new Authors();
+            case "IfPlural" -> new IfPlural();
+            case "Replace" -> new Replace();
+            case "WrapContent" -> new WrapContent();
+            case "WrapFileLinks" -> new WrapFileLinks(fileDirForDatabase, preferences.getMainFileDirectory());
+            case "Markdown" -> new MarkdownFormatter();
+            case "CSLType" -> new CSLType();
+            case "ShortMonth" -> new ShortMonthFormatter();
+            case "ReplaceWithEscapedDoubleQuotes" -> new ReplaceWithEscapedDoubleQuotes();
+            case "HayagrivaType" -> new HayagrivaType();
+            default -> null;
         };
     }
 
-    /// Return an array of LayoutFormatters found in the given formatterName string (in order of appearance).
+    /// Return an array of LayoutFormatters found in the given formatterName
+    /// string (in order of appearance).
     private List<LayoutFormatter> getOptionalLayout(String formatterName) {
         List<List<String>> formatterStrings = parseMethodsCalls(formatterName);
         List<LayoutFormatter> results = new ArrayList<>(formatterStrings.size());
@@ -645,8 +562,10 @@ class LayoutEntry {
                             int startParam = i;
                             i++;
                             boolean escaped = false;
-                            while (((i + 1) < c.length)
-                                    && !(!escaped && (c[i] == '"') && (c[i + 1] == ')') && (bracelevel == 0))) {
+                            while (((i + 1) < c.length) && !(!escaped
+                                    && (c[i] == '"')
+                                    && (c[i + 1] == ')')
+                                    && (bracelevel == 0))) {
                                 if (c[i] == '\\') {
                                     escaped = !escaped;
                                 } else if (c[i] == '(') {

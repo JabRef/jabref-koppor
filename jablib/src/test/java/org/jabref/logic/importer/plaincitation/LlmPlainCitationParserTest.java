@@ -3,15 +3,14 @@ package org.jabref.logic.importer.plaincitation;
 import java.util.List;
 import java.util.Optional;
 
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.model.chat.response.ChatResponse;
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import dev.langchain4j.data.message.AiMessage;
-import dev.langchain4j.model.chat.response.ChatResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 
@@ -33,7 +32,8 @@ class LlmPlainCitationParserTest {
         ChatResponse chatResponse = mock(ChatResponse.class);
         AiMessage aiMessage = mock(AiMessage.class);
 
-        String bibtex = """
+        String bibtex =
+                """
                 @article{Santana,
                   title={Which Prompting Technique Should I Use? An Empirical Investigation of Prompting Techniques for Software Engineering Tasks},
                   author={Santana Jr., E. G. and Benjamin, G. and Araujo, M. and Santos, H.},
@@ -67,7 +67,8 @@ class LlmPlainCitationParserTest {
     @Test
     void parseMultiplePlainCitations() throws FetcherException {
         // Given
-        String input = """
+        String input =
+                """
                 E. G. Santana Jr., G. Benjamin, M. Araujo, and H. Santos, "Which Prompting Technique Should I Use? An Empirical Investigation of Prompting Techniques for Software Engineering Tasks", arXiv:2506.05614, Jun. 2025.
 
                 Z. Rasheed, M. A. Sami, M. Waseem, K.-K. Kemell, X. Wang, A. Nguyen, K. Systä, and P. Abrahamsson, "AI-powered Code Review with LLMs: Early Results", arXiv:2404.18496, Apr. 2024.
@@ -79,7 +80,8 @@ class LlmPlainCitationParserTest {
         ChatResponse chatResponse = mock(ChatResponse.class);
         AiMessage aiMessage = mock(AiMessage.class);
 
-        String bibtex = """
+        String bibtex =
+                """
                 @article{Santana,
                   title={Which Prompting Technique Should I Use? An Empirical Investigation of Prompting Techniques for Software Engineering Tasks},
                   author={Santana Jr., E. G. and Benjamin, G. and Araujo, M. and Santos, H.},

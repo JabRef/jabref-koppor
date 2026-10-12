@@ -9,7 +9,6 @@ import org.jabref.model.FieldChange;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -31,20 +30,15 @@ class AbbreviateJournalOnSaveTest {
 
     @Test
     void ltwaAbbreviatesJournalOnSave() {
-        BibEntry entry = new BibEntry()
-                .withField(StandardField.JOURNAL, "Annals of Mathematics and Pure and Applied Sciences");
+        BibEntry entry = new BibEntry().withField(StandardField.JOURNAL, "Annals of Mathematics and Pure and Applied Sciences");
         AbbreviateJournalCleanup cleanup = new AbbreviateJournalCleanup(database, repository, AbbreviationType.LTWA, false);
 
         List<FieldChange> changes = cleanup.cleanup(entry);
 
-        List<FieldChange> expectedChanges = List.of(
-                new FieldChange(entry, StandardField.JOURNAL, "Annals of Mathematics and Pure and Applied Sciences", "Ann. Math. Pure Appl. Sci.")
-        );
+        List<FieldChange> expectedChanges = List.of(new FieldChange(entry, StandardField.JOURNAL, "Annals of Mathematics and Pure and Applied Sciences", "Ann. Math. Pure Appl. Sci."));
         assertEquals(expectedChanges, changes);
 
-        BibEntry expectedEntry = new BibEntry()
-                .withField(StandardField.JOURNAL, "Ann. Math. Pure Appl. Sci.");
+        BibEntry expectedEntry = new BibEntry().withField(StandardField.JOURNAL, "Ann. Math. Pure Appl. Sci.");
         assertEquals(expectedEntry, entry);
     }
 }
-

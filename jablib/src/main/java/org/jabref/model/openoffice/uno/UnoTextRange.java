@@ -9,10 +9,10 @@ import com.sun.star.text.XTextRangeCompare;
 
 public class UnoTextRange {
 
-    private UnoTextRange() {
-    }
+    private UnoTextRange() {}
 
-    /// If original is in a footnote, return a range containing the corresponding footnote marker.
+    /// If original is in a footnote, return a range containing the
+    /// corresponding footnote marker.
     ///
     /// Returns Optional.empty if not in a footnote.
     public static Optional<XTextRange> getFootnoteMarkRange(XTextRange original) {

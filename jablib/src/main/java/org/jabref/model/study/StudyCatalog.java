@@ -99,11 +99,17 @@ public class StudyCatalog {
 
     @Override
     public String toString() {
-        return "StudyCatalog{" +
-                "name='" + name + '\'' +
-                ", enabled=" + enabled +
-                ", reason='" + reason + '\'' +
-                ", maxResults=" + maxResults +
-                '}';
+        return "StudyCatalog{"
+                + "name='"
+                + name
+                + '\''
+                + ", enabled="
+                + enabled
+                + ", reason='"
+                + reason
+                + '\''
+                + ", maxResults="
+                + maxResults
+                + '}';
     }
 }

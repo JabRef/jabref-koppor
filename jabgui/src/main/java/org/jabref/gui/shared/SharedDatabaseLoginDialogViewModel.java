@@ -7,6 +7,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import com.google.common.base.Throwables;
+import com.tobiasdiez.easybind.EasyBind;
+import de.saxsys.mvvmfx.utils.validation.CompositeValidator;
+import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
+import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
+import de.saxsys.mvvmfx.utils.validation.Validator;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,7 +21,6 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
@@ -42,14 +48,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.google.common.base.Throwables;
-import com.tobiasdiez.easybind.EasyBind;
-import de.saxsys.mvvmfx.utils.validation.CompositeValidator;
-import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
-import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
-import de.saxsys.mvvmfx.utils.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,17 +91,18 @@ public class SharedDatabaseLoginDialogViewModel extends AbstractViewModel {
     private final Validator jdbcUrlValidator;
     private final CompositeValidator formValidator;
 
-    public SharedDatabaseLoginDialogViewModel(LibraryTabContainer tabContainer,
-                                              DialogService dialogService,
-                                              GuiPreferences preferences,
-                                              AiService aiService,
-                                              StateManager stateManager,
-                                              BibEntryTypesManager entryTypesManager,
-                                              FileUpdateMonitor fileUpdateMonitor,
-                                              ClipBoardManager clipBoardManager,
-                                              TaskExecutor taskExecutor,
-                                              JournalAbbreviationRepository journalAbbreviationRepository,
-                                              GitHandlerRegistry gitHandlerRegistry) {
+    public SharedDatabaseLoginDialogViewModel(
+            LibraryTabContainer tabContainer,
+            DialogService dialogService,
+            GuiPreferences preferences,
+            AiService aiService,
+            StateManager stateManager,
+            BibEntryTypesManager entryTypesManager,
+            FileUpdateMonitor fileUpdateMonitor,
+            ClipBoardManager clipBoardManager,
+            TaskExecutor taskExecutor,
+            JournalAbbreviationRepository journalAbbreviationRepository,
+            GitHandlerRegistry gitHandlerRegistry) {
         this.tabContainer = tabContainer;
         this.dialogService = dialogService;
         this.preferences = preferences;
@@ -124,11 +123,12 @@ public class SharedDatabaseLoginDialogViewModel extends AbstractViewModel {
                 property.setValue(current);
             }
         });
-        EasyBind.subscribe(autosave, _ -> {
-            String current = folder.getValue();
-            folder.setValue(null);
-            folder.setValue(current);
-        });
+        EasyBind.subscribe(autosave,
+                _ -> {
+                    String current = folder.getValue();
+                    folder.setValue(null);
+                    folder.setValue(current);
+                });
 
         Predicate<String> notEmpty = input -> (input != null) && !input.isBlank();
         Predicate<String> folderRule = input -> {
@@ -147,24 +147,29 @@ public class SharedDatabaseLoginDialogViewModel extends AbstractViewModel {
         };
 
         Predicate<String> notEmptyUnlessExpert = input -> expertMode.get() || notEmpty.test(input);
-        Predicate<String> portNumber = input -> expertMode.get() || (notEmpty.test(input) && input.chars().allMatch(Character::isDigit));
+        Predicate<String> portNumber = input ->
+                expertMode.get() || (notEmpty.test(input) && input.chars().allMatch(Character::isDigit));
         databaseValidator = new FunctionBasedValidator<>(database, notEmptyUnlessExpert, ValidationMessage.error(Localization.lang("Required field \"%0\" is empty.", Localization.lang("Library"))));
         hostValidator = new FunctionBasedValidator<>(host, notEmptyUnlessExpert, ValidationMessage.error(Localization.lang("Required field \"%0\" is empty.", Localization.lang("Host"))));
         portValidator = new FunctionBasedValidator<>(port, portNumber, ValidationMessage.error(Localization.lang("Port must be a number.")));
         userValidator = new FunctionBasedValidator<>(user, notEmpty, ValidationMessage.error(Localization.lang("Required field \"%0\" is empty.", Localization.lang("User"))));
         folderValidator = new FunctionBasedValidator<>(folder, folderRule, ValidationMessage.error(Localization.lang("Please enter a valid file path.")));
-        connectionUrlValidator = new FunctionBasedValidator<>(connectionUrl, input -> !notEmpty.test(input) || DBMSConnectionUrl.parse(input).isPresent(), ValidationMessage.error(Localization.lang("Not a PostgreSQL connection URL.")));
+        connectionUrlValidator = new FunctionBasedValidator<>(connectionUrl, input -> !notEmpty.test(input) || DBMSConnectionUrl.parse(input).isPresent(),
+                ValidationMessage.error(Localization.lang("Not a PostgreSQL connection URL.")));
         jdbcUrlValidator = new FunctionBasedValidator<>(jdbcUrl, this::isValidJdbcUrl, ValidationMessage.error(Localization.lang("Not a PostgreSQL connection URL.")));
 
         formValidator = new CompositeValidator();
-        formValidator.addValidators(databaseValidator, hostValidator, portValidator, userValidator, folderValidator, connectionUrlValidator, jdbcUrlValidator);
+        formValidator.addValidators(databaseValidator, hostValidator, portValidator, userValidator, folderValidator, connectionUrlValidator,
+                jdbcUrlValidator);
 
         applyPreferences();
 
-        EasyBind.subscribe(connectionUrl, text -> DBMSConnectionUrl.parse(text).ifPresent(this::applyConnectionUrl));
+        EasyBind.subscribe(connectionUrl,
+                text -> DBMSConnectionUrl.parse(text).ifPresent(this::applyConnectionUrl));
     }
 
-    /// Prefills the connection URL field from the clipboard, so a copied URL only has to be confirmed.
+    /// Prefills the connection URL field from the clipboard, so a copied URL
+    /// only has to be confirmed.
     public void applyClipboardConnectionUrl() {
         String contents = ClipBoardManager.getContents();
         DBMSConnectionUrl.parse(contents).ifPresent(_ -> connectionUrl.set(contents));
@@ -186,12 +191,12 @@ public class SharedDatabaseLoginDialogViewModel extends AbstractViewModel {
     }
 
     private boolean isValidJdbcUrl(String input) {
-        return !expertMode.get() || ((input != null)
-                && input.regionMatches(true, 0, "jdbc:postgresql://", 0, "jdbc:postgresql://".length())
-                && DBMSConnectionUrl.parse(input).isPresent());
+        return !expertMode.get()
+                || ((input != null) && input.regionMatches(true, 0, "jdbc:postgresql://", 0, "jdbc:postgresql://".length()) && DBMSConnectionUrl.parse(input).isPresent());
     }
 
-    /// Connects in the background after `onConnected` closes the dialog and reveals a loading tab.
+    /// Connects in the background after `onConnected` closes the dialog and
+    /// reveals a loading tab.
     public void openDatabase(Runnable onConnected) {
         DBMSConnectionProperties connectionProperties = new DBMSConnectionPropertiesBuilder()
                 .setType(DBMSType.POSTGRESQL)
@@ -207,10 +212,12 @@ public class SharedDatabaseLoginDialogViewModel extends AbstractViewModel {
                 .setJdbcUrl(jdbcUrl.getValue())
                 .createDBMSConnectionProperties();
 
-        openSharedDatabase(connectionProperties, rememberPassword.get(), autosave.get(), folder.getValue(), onConnected);
+        openSharedDatabase(connectionProperties, rememberPassword.get(), autosave.get(),
+                folder.getValue(), onConnected);
     }
 
-    private void openSharedDatabase(DBMSConnectionProperties connectionProperties, boolean shouldRememberPassword, boolean shouldAutosave, String autosavePath, Runnable onConnected) {
+    private void openSharedDatabase(DBMSConnectionProperties connectionProperties, boolean shouldRememberPassword, boolean shouldAutosave,
+            String autosavePath, Runnable onConnected) {
         SharedDatabaseUIManager manager = new SharedDatabaseUIManager(
                 tabContainer,
                 dialogService,
@@ -222,20 +229,23 @@ public class SharedDatabaseLoginDialogViewModel extends AbstractViewModel {
                 clipBoardManager,
                 taskExecutor,
                 gitHandlerRegistry);
-        SharedDatabaseUIManager.findOpenTab(tabContainer, connectionProperties).ifPresentOrElse(alreadyOpen -> {
-            dialogService.showWarningDialogAndWait(Localization.lang("Shared database connection"),
-                    Localization.lang("You are already connected to a database using entered connection details."));
-            tabContainer.showLibraryTab(alreadyOpen);
-            onConnected.run();
-        }, () -> connect(manager, connectionProperties, shouldRememberPassword, shouldAutosave, autosavePath, onConnected));
+        SharedDatabaseUIManager.findOpenTab(tabContainer, connectionProperties).ifPresentOrElse(
+                alreadyOpen -> {
+                    dialogService.showWarningDialogAndWait(Localization.lang("Shared database connection"), Localization.lang("You are already connected to a database using entered connection details."));
+                    tabContainer.showLibraryTab(alreadyOpen);
+                    onConnected.run();
+                },
+                () -> connect(manager, connectionProperties, shouldRememberPassword, shouldAutosave, autosavePath, onConnected));
     }
 
-    private void connect(SharedDatabaseUIManager manager, DBMSConnectionProperties connectionProperties, boolean shouldRememberPassword, boolean shouldAutosave, String autosavePath, Runnable onConnected) {
+    private void connect(SharedDatabaseUIManager manager, DBMSConnectionProperties connectionProperties, boolean shouldRememberPassword,
+                         boolean shouldAutosave, String autosavePath, Runnable onConnected) {
         if (shouldAutosave) {
             Path localFilePath = Path.of(autosavePath);
 
             if (Files.exists(localFilePath) && !Files.isDirectory(localFilePath)) {
-                boolean overwriteFilePressed = dialogService.showConfirmationDialogAndWait(Localization.lang("Existing file"),
+                boolean overwriteFilePressed = dialogService.showConfirmationDialogAndWait(
+                        Localization.lang("Existing file"),
                         Localization.lang("'%0' exists. Overwrite file?", localFilePath.getFileName().toString()),
                         Localization.lang("Overwrite file"),
                         Localization.lang("Cancel"));
@@ -266,8 +276,7 @@ public class SharedDatabaseLoginDialogViewModel extends AbstractViewModel {
                 exception -> showConnectionFailure(exception, connectionProperties, shouldRememberPassword, shouldAutosave, autosavePath, onConnected));
         Optional<LibraryTab> alreadyReserved = SharedDatabaseUIManager.reserveTab(tabContainer, connectionProperties, libraryTab);
         if (alreadyReserved.isPresent()) {
-            dialogService.showWarningDialogAndWait(Localization.lang("Shared database connection"),
-                    Localization.lang("You are already connected to a database using entered connection details."));
+            dialogService.showWarningDialogAndWait(Localization.lang("Shared database connection"), Localization.lang("You are already connected to a database using entered connection details."));
             tabContainer.showLibraryTab(alreadyReserved.get());
             return;
         }
@@ -275,52 +284,43 @@ public class SharedDatabaseLoginDialogViewModel extends AbstractViewModel {
         libraryTab.startDataLoadingTask();
     }
 
-    private void handleSharedDatabaseConnectionSuccess(LibraryTab libraryTab,
-                                                       DBMSConnectionProperties connectionProperties,
-                                                       boolean shouldRememberPassword,
-                                                       boolean shouldAutosave,
-                                                       String autosavePath) {
-        dialogService.notify(Localization.lang("Connection to %0 server established.", connectionProperties.getType().toString()));
+    private void handleSharedDatabaseConnectionSuccess(LibraryTab libraryTab, DBMSConnectionProperties connectionProperties, boolean shouldRememberPassword,
+            boolean shouldAutosave, String autosavePath) {
+        dialogService.notify(Localization.lang("Connection to %0 server established.", connectionProperties.getType()
+                .toString()));
         setPreferences(connectionProperties, shouldRememberPassword, shouldAutosave, autosavePath);
         if (!autosavePath.isEmpty() && shouldAutosave) {
             try {
-                new SaveDatabaseAction(
-                        libraryTab,
-                        dialogService,
-                        preferences,
-                        entryTypesManager,
-                        stateManager,
-                        journalAbbreviationRepository
-                ).saveAs(Path.of(autosavePath));
+                new SaveDatabaseAction(libraryTab, dialogService, preferences, entryTypesManager, stateManager, journalAbbreviationRepository)
+                        .saveAs(Path.of(autosavePath));
             } catch (Throwable e) {
                 LOGGER.error("Error while saving the database", e);
             }
         }
     }
 
-    private void showConnectionFailure(Exception exception, DBMSConnectionProperties connectionProperties, boolean shouldRememberPassword, boolean shouldAutosave, String autosavePath, Runnable onConnected) {
+    private void showConnectionFailure(Exception exception, DBMSConnectionProperties connectionProperties, boolean shouldRememberPassword,
+            boolean shouldAutosave, String autosavePath, Runnable onConnected) {
         if (exception instanceof DatabaseNotSupportedException) {
             ButtonType openHelp = new ButtonType(Localization.lang("Open help"), ButtonData.OTHER);
 
-            Optional<ButtonType> result = dialogService.showCustomButtonDialogAndWait(AlertType.INFORMATION,
-                    Localization.lang("Migration help information"),
-                    Localization.lang("Entered database has obsolete structure and is no longer supported.")
-                            + "\n" +
-                            Localization.lang("Click help to learn about the migration of pre-3.6 databases.")
-                            + "\n" +
-                            Localization.lang("However, a new database was created alongside the pre-3.6 one."),
+            Optional<ButtonType> result = dialogService.showCustomButtonDialogAndWait(AlertType.INFORMATION, Localization.lang("Migration help information"), Localization.lang("Entered database has obsolete structure and is no longer supported.")
+                    + "\n"
+                    + Localization.lang("Click help to learn about the migration of pre-3.6 databases.")
+                    + "\n"
+                    + Localization.lang("However, a new database was created alongside the pre-3.6 one."),
                     ButtonType.OK, openHelp);
 
-            result.filter(btn -> btn.equals(openHelp)).ifPresent(_ -> new HelpAction(HelpFile.SQL_DATABASE_MIGRATION, dialogService, preferences.getExternalApplicationsPreferences()).execute());
+            result.filter(btn -> btn.equals(openHelp)).ifPresent(_ -> new HelpAction(HelpFile.SQL_DATABASE_MIGRATION, dialogService, preferences.getExternalApplicationsPreferences())
+                    .execute());
             result.filter(ButtonType.OK::equals).ifPresent(_ -> openSharedDatabase(connectionProperties, shouldRememberPassword, shouldAutosave, autosavePath, onConnected));
             return;
         }
         // The driver's own message is generic ("The connection attempt failed."); the reason is at the end of the cause chain
-        String reason = Optional.ofNullable(Throwables.getRootCause(exception).getLocalizedMessage()).orElse(exception.toString());
-        dialogService.showErrorDialogAndWait(
-                Localization.lang("Connection error"),
-                Localization.lang("Could not connect to %0.\n\n%1", connectionEndpoint(connectionProperties), reason),
-                exception);
+        String reason = Optional.ofNullable(Throwables.getRootCause(exception)
+                .getLocalizedMessage())
+                .orElse(exception.toString());
+        dialogService.showErrorDialogAndWait(Localization.lang("Connection error"), Localization.lang("Could not connect to %0.\n\n%1", connectionEndpoint(connectionProperties), reason), exception);
     }
 
     private String connectionEndpoint(DBMSConnectionProperties connectionProperties) {
@@ -328,11 +328,12 @@ public class SharedDatabaseLoginDialogViewModel extends AbstractViewModel {
             return connectionProperties.getHost() + ":" + connectionProperties.getPort();
         }
         return DBMSConnectionUrl.parse(connectionProperties.getJdbcUrl())
-                                .map(url -> url.host() + ":" + url.port())
-                                .orElse(connectionProperties.getJdbcUrl());
+                .map(url -> url.host() + ":" + url.port())
+                .orElse(connectionProperties.getJdbcUrl());
     }
 
-    private void setPreferences(DBMSConnectionProperties connectionProperties, boolean shouldRememberPassword, boolean shouldAutosave, String autosavePath) {
+    private void setPreferences(DBMSConnectionProperties connectionProperties, boolean shouldRememberPassword, boolean shouldAutosave,
+            String autosavePath) {
         sharedDatabasePreferences.setType(DBMSType.POSTGRESQL.toString());
         sharedDatabasePreferences.setHost(connectionProperties.getHost());
         sharedDatabasePreferences.setPort(Integer.toString(connectionProperties.getPort()));

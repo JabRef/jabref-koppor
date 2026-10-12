@@ -3,12 +3,11 @@ package org.jabref.logic.importer.fileformat.pdf;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.xmp.XmpPreferences;
 import org.jabref.logic.xmp.XmpUtilReader;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
 
 /// Wraps the XMPUtility function to be used as an Importer.
 public class PdfXmpImporter extends PdfImporter {

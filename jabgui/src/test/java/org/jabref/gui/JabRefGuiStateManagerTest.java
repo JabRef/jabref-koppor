@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,7 +62,8 @@ class JabRefGuiStateManagerTest {
 
         stateManager.replaceActiveDatabase(loadedContext);
 
-        assertEquals(List.of(Optional.empty(), Optional.of(loadedContext)), changes);
+        assertEquals(List.of(Optional.empty(), Optional.of(loadedContext)),
+                changes);
     }
 
     @Test

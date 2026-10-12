@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.input.Clipboard;
-
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.testutils.JavaFxTest;
 import org.jabref.logic.bibtex.FieldPreferences;
@@ -21,8 +21,6 @@ import org.jabref.model.entry.BibtexString;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jooq.lambda.Unchecked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +58,8 @@ class ClipBoardManagerTest extends JavaFxTest {
 
     @Test
     void copyStringBibEntry() throws IOException {
-        String expected = """
+        String expected =
+                """
                 @Article{,
                   author  = {Claudepierre, S. G.},
                   journal = {IEEE},
@@ -74,12 +73,8 @@ class ClipBoardManagerTest extends JavaFxTest {
 
         AtomicReference<String> actual = new AtomicReference<>();
         interact(Unchecked.runnable(() -> {
-            clipBoardManager.setContent(
-                    TransferMode.NONE,
-                    new BibDatabaseContext(new BibDatabase(List.of(bibEntry))),
-                    List.of(bibEntry),
-                    entryTypesManager,
-                    List.of());
+            clipBoardManager.setContent(TransferMode.NONE, new BibDatabaseContext(new BibDatabase(List.of(bibEntry))), List.of(bibEntry),
+                    entryTypesManager, List.of());
 
             actual.set(ClipBoardManager.getContents());
         }));
@@ -88,7 +83,8 @@ class ClipBoardManagerTest extends JavaFxTest {
 
     @Test
     void copyStringBibEntryWithStringConstants() throws IOException {
-        String expected = """
+        String expected =
+                """
                 @String{grl = "Geophys. Res. Lett."}
 
                 @Article{,
@@ -106,12 +102,8 @@ class ClipBoardManagerTest extends JavaFxTest {
 
         AtomicReference<String> actual = new AtomicReference<>();
         interact(Unchecked.runnable(() -> {
-            clipBoardManager.setContent(
-                    TransferMode.NONE,
-                    new BibDatabaseContext(new BibDatabase(List.of(bibEntry))),
-                    List.of(bibEntry),
-                    entryTypesManager,
-                    List.of(bibtexString));
+            clipBoardManager.setContent(TransferMode.NONE, new BibDatabaseContext(new BibDatabase(List.of(bibEntry))), List.of(bibEntry),
+                    entryTypesManager, List.of(bibtexString));
 
             actual.set(ClipBoardManager.getContents());
         }));

@@ -5,6 +5,12 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import org.jabref.http.SrvStateManager;
 import org.jabref.http.dto.LibraryQueryMatch;
 import org.jabref.http.dto.LibraryQueryRequest;
@@ -18,13 +24,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResults;
-
-import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,10 +77,11 @@ public class LibrariesQueryResource {
     }
 
     /// Entries without a citation key are reported with the sentinel
-    /// [LibraryQueryMatch#UNSET_CITATION_KEY] instead of an empty string, which would
-    /// otherwise look indistinguishable from a present-but-empty key. Multiple
-    /// unkeyed entries still collide on that sentinel — the API identifies entries by
-    /// citation key, so disambiguation requires assigning keys.
+    /// [LibraryQueryMatch#UNSET_CITATION_KEY] instead of an empty string, which
+    /// would otherwise look indistinguishable from a present-but-empty key.
+    /// Multiple unkeyed entries still collide on that sentinel — the API
+    /// identifies entries by citation key, so disambiguation requires assigning
+    /// keys.
     private List<LibraryQueryMatch> runQuery(String rawQuery, List<String> libraryIds) {
         if (StringUtil.isBlank(rawQuery)) {
             return List.of();
@@ -102,12 +102,15 @@ public class LibrariesQueryResource {
         return matches;
     }
 
-    /// Delegate to whichever [org.jabref.logic.search.SearchContext] the state manager provides. In GUI
-    /// mode this is the live orchestrator that may use the Postgres backend; in
-    /// stand-alone mode this is a fresh in-memory context.
+    /// Delegate to whichever [org.jabref.logic.search.SearchContext] the state
+    /// manager provides. In GUI mode this is the live orchestrator that may use
+    /// the Postgres backend; in stand-alone mode this is a fresh in-memory
+    /// context.
     private List<BibEntry> runSearch(BibDatabaseContext context, SearchQuery query) {
         SearchResults results = srvStateManager.getSearchContext(context).search(query);
-        return context.getDatabase().getEntries().stream()
+        return context.getDatabase()
+                      .getEntries()
+                      .stream()
                       .filter(results::isMatched)
                       .toList();
     }

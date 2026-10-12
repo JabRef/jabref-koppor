@@ -4,15 +4,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.jabref.logic.exporter.BibDatabaseWriter;
+import org.jabref.logic.exporter.BibDatabaseWriter.SaveType;
 import org.jabref.logic.exporter.ExportPreferences;
 import org.jabref.logic.exporter.SelfContainedSaveConfiguration;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.model.metadata.SaveOrder;
+import org.jabref.model.metadata.SaveOrder.OrderType;
 import org.jabref.model.metadata.SelfContainedSaveOrder;
 import org.jabref.toolkit.commands.AbstractJabKitTest;
 import org.jabref.toolkit.exception.ExportServiceException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -27,13 +27,14 @@ class ExportServiceTest extends AbstractJabKitTest {
 
     @BeforeEach
     void setup() {
-        SelfContainedSaveOrder selfContainedSaveOrder = new SelfContainedSaveOrder(SaveOrder.OrderType.ORIGINAL, List.of());
-        SelfContainedSaveConfiguration selfContainedSaveConfiguration = new SelfContainedSaveConfiguration(selfContainedSaveOrder, false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false);
+        SelfContainedSaveOrder selfContainedSaveOrder = new SelfContainedSaveOrder(OrderType.ORIGINAL, List.of());
+        SelfContainedSaveConfiguration selfContainedSaveConfiguration = new SelfContainedSaveConfiguration(selfContainedSaveOrder, false, SaveType.WITH_JABREF_META_DATA, false);
         when(preferences.getSelfContainedExportConfiguration()).thenReturn(selfContainedSaveConfiguration);
     }
 
     @ParameterizedTest
-    @CsvSource({"bibtex", "html", "simplehtml", "tablerefs", "oocsv", "hayagrivayaml", "iso690rtf"})
+    @CsvSource({"bibtex", "html", "simplehtml", "tablerefs", "oocsv", "hayagrivayaml",
+                "iso690rtf"})
     void differentOutputFormatsExportFile(String format, @TempDir Path tempDir) throws Exception {
         Path source = getClassResourceAsPath("origin.bib").toAbsolutePath();
         ParserResult parserResult = ImportService.importBibTexFile(source, preferences, true);
@@ -64,8 +65,7 @@ class ExportServiceTest extends AbstractJabKitTest {
         String invalidFormat = "Klingon";
 
         assertThrows(ExportServiceException.class,
-                () -> new ExportService(preferences, false)
-                        .exportParserResultToFile(parserResult, output, invalidFormat));
+                () -> new ExportService(preferences, false).exportParserResultToFile(parserResult, output, invalidFormat));
     }
 
     @Test
@@ -74,7 +74,7 @@ class ExportServiceTest extends AbstractJabKitTest {
         ParserResult parserResult = ImportService.importBibTexFile(source, preferences, true);
         Path outputHtml = tempDir.resolve("output.html").toAbsolutePath();
 
-        SaveOrder saveOrder = new SaveOrder(SaveOrder.OrderType.TABLE, List.of());
+        SaveOrder saveOrder = new SaveOrder(OrderType.TABLE, List.of());
         ExportPreferences exportPreferences = new ExportPreferences(".html", tempDir, saveOrder, List.of());
         when(preferences.getExportPreferences()).thenReturn(exportPreferences);
 

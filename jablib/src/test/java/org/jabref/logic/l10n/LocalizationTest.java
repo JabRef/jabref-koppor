@@ -53,7 +53,9 @@ class LocalizationTest {
     @Test
     void newLineIsAvailableAndKeptUnescaped() {
         Localization.setLanguage(Language.ENGLISH);
-        assertEquals("Hint: To search specific fields only, enter for example:\n<tt>author=smith and title=electrical</tt>", Localization.lang("Hint: To search specific fields only, enter for example:\n<tt>author=smith and title=electrical</tt>"));
+        assertEquals(
+                "Hint: To search specific fields only, enter for example:\n<tt>author=smith and title=electrical</tt>",
+                Localization.lang("Hint: To search specific fields only, enter for example:\n<tt>author=smith and title=electrical</tt>"));
     }
 
     @Test

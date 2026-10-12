@@ -2,7 +2,6 @@ package org.jabref.logic.importer.util;
 
 import java.io.Reader;
 import java.util.stream.Stream;
-
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -85,7 +84,6 @@ class StaxParserTest {
                                     <Title>Journal of integrative bioinformatics</Title>
                                     <ISOAbbreviation>J Integr Bioinform</ISOAbbreviation>
                                 </Journal>
-                                """)
-        );
+                                """));
     }
 }

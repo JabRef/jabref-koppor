@@ -11,7 +11,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javafx.collections.FXCollections;
-
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.fetcher.transformers.BaseSearchQueryTransformer;
@@ -23,10 +24,8 @@ import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.OperatorNode;
+import org.jabref.model.search.query.OperatorNode.Operator;
 import org.jabref.model.search.query.SearchQueryNode;
-
-import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -106,9 +105,7 @@ class BaseSearchFetcherTest {
         SearchQueryNode yearRangeNode = new SearchQueryNode(Optional.of(new UnknownField("year-range")), "2020-2022");
         SearchQueryNode titleNode = new SearchQueryNode(Optional.of(StandardField.TITLE), "quantum");
 
-        OperatorNode andNode = new OperatorNode(
-                OperatorNode.Operator.AND,
-                List.of(yearRangeNode, titleNode));
+        OperatorNode andNode = new OperatorNode(Operator.AND, List.of(yearRangeNode, titleNode));
 
         assertEquals(
                 Optional.of("(dcyear:2020 OR dcyear:2021 OR dcyear:2022) AND dctitle:quantum"),
@@ -117,7 +114,8 @@ class BaseSearchFetcherTest {
 
     @Test
     void parserReturnsEmptyListOnErrorResponse() throws ParseException {
-        String json = """
+        String json =
+                """
                 {
                   "error": "invalid key"
                 }
@@ -143,7 +141,8 @@ class BaseSearchFetcherTest {
 
     @Test
     void parserParsesArticleEntryFromLiveResponseShape() throws ParseException {
-        String json = """
+        String json =
+                """
                 {
                   "response": {
                     "docs": [
@@ -177,7 +176,8 @@ class BaseSearchFetcherTest {
 
     @Test
     void parserParsesLegacyNestedResultShape() throws ParseException {
-        String json = """
+        String json =
+                """
                 {
                   "response": {
                     "result": {
@@ -195,12 +195,14 @@ class BaseSearchFetcherTest {
         List<BibEntry> entries = fetcher.getParser().parseEntries(inputStream);
 
         assertEquals(1, entries.size());
-        assertEquals(Optional.of("Nested response entry"), entries.getFirst().getField(StandardField.TITLE));
+        assertEquals(Optional.of("Nested response entry"),
+                entries.getFirst().getField(StandardField.TITLE));
     }
 
     @Test
     void parserDefaultsToMiscWhenNoTypeCode() throws ParseException {
-        String json = """
+        String json =
+                """
                 {
                   "response": {
                     "docs": [
@@ -248,14 +250,14 @@ class BaseSearchFetcherTest {
                 Arguments.of("6", StandardEntryType.Software),
                 Arguments.of("7", StandardEntryType.Dataset),
                 Arguments.of("F", StandardEntryType.Misc),
-                Arguments.of("f", StandardEntryType.Misc)
-        );
+                Arguments.of("f", StandardEntryType.Misc));
     }
 
     @ParameterizedTest
     @MethodSource("provideTypeCodes")
     void parserMapsTypeCodeToCorrectEntryType(String typeCode, EntryType expectedType) throws ParseException {
-        String json = """
+        String
+                json = """
                 {
                   "response": {
                     "docs": [
@@ -266,7 +268,8 @@ class BaseSearchFetcherTest {
                     ]
                   }
                 }
-                """.formatted(typeCode);
+                """
+                                .formatted(typeCode);
 
         InputStream inputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
         List<BibEntry> entries = fetcher.getParser().parseEntries(inputStream);
@@ -293,7 +296,8 @@ class BaseSearchFetcherTest {
 
     @Test
     void isValidKeyResponseReturnsFalseWhenErrorFieldPresent() {
-        assertFalse(fetcher.isValidKeyResponse("""
+        assertFalse(fetcher
+                        .isValidKeyResponse("""
                 {
                   "error": "invalid key"
                 }
@@ -302,7 +306,8 @@ class BaseSearchFetcherTest {
 
     @Test
     void isValidKeyResponseReturnsTrueForSuccessfulResponse() {
-        assertTrue(fetcher.isValidKeyResponse("""
+        assertTrue(fetcher
+                        .isValidKeyResponse("""
                 {
                   "response": {
                     "docs": []

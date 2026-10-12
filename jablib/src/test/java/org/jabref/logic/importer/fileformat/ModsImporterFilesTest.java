@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 
 import org.jabref.logic.importer.ImportException;
 import org.jabref.logic.importer.ImportFormatPreferences;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,7 +31,9 @@ class ModsImporterFilesTest {
     @BeforeEach
     void setUp() {
         importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
     }
 
     @ParameterizedTest
@@ -49,12 +50,14 @@ class ModsImporterFilesTest {
 
     @Test
     void rejectsExternalEntities() throws IOException {
-        String xmlWithExternalEntity = """
+        String xmlWithExternalEntity =
+                """
                 <!DOCTYPE modsCollection [<!ENTITY entity SYSTEM "file:///not-accessed">]>
                 <modsCollection><mods><titleInfo><title>&entity;</title></titleInfo></mods></modsCollection>
                 """;
         ModsImporter importer = new ModsImporter(importFormatPreferences);
 
-        assertTrue(importer.importDatabase(new BufferedReader(Reader.of(xmlWithExternalEntity))).isInvalid());
+        assertTrue(importer.importDatabase(new BufferedReader(Reader.of(xmlWithExternalEntity)))
+                           .isInvalid());
     }
 }

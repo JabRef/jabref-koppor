@@ -11,26 +11,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class UserHostInfoTest {
 
     @ParameterizedTest
-    @CsvSource({
-            "user, host, user-host",
-            "user, '', user",
-            "user-with-hyphen, host, user-with-hyphen-host",
-            "user, host-with-hyphen, user-host-with-hyphen",
-            "complex-user-name, complex-host-name, complex-user-name-complex-host-name"
-    })
+    @CsvSource({"user, host, user-host", "user, '', user", "user-with-hyphen, host, user-with-hyphen-host",
+                "user, host-with-hyphen, user-host-with-hyphen", "complex-user-name, complex-host-name, complex-user-name-complex-host-name"})
     void getUserHostString(String user, String host, String expected) {
         UserHostInfo userHostInfo = new UserHostInfo(user, host);
         assertEquals(expected, userHostInfo.getUserHostString());
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "user-host, user, host",
-            "user, user, ''",
-            "user-with-hyphen-host, user-with-hyphen, host",
-            "user-host-with-hyphen, user-host-with, hyphen",
-            "complex-user-name-complex-host-name, complex-user-name-complex-host, name"
-    })
+    @CsvSource({"user-host, user, host", "user, user, ''", "user-with-hyphen-host, user-with-hyphen, host",
+                "user-host-with-hyphen, user-host-with, hyphen", "complex-user-name-complex-host-name, complex-user-name-complex-host, name"})
     void parse(String userHostString, String expectedUser, String expectedHost) {
         UserHostInfo userHostInfo = UserHostInfo.parse(userHostString);
         assertEquals(expectedUser, userHostInfo.user());

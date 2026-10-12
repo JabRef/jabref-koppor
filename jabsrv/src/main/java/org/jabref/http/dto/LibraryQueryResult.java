@@ -10,5 +10,4 @@ import org.jspecify.annotations.NullMarked;
 /// across all open libraries. Results appear in the same order as the input
 /// queries.
 @NullMarked
-public record LibraryQueryResult(String query, List<LibraryQueryMatch> matches) {
-}
+public record LibraryQueryResult(String query, List<LibraryQueryMatch> matches) {}

@@ -8,6 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.StoredFields;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.SearcherManager;
+import org.apache.lucene.search.TopDocs;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.search.query.SearchQueryConversion;
 import org.jabref.logic.search.sqlbased.LuceneIndexer;
@@ -19,17 +29,6 @@ import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResult;
 import org.jabref.model.search.query.SearchResults;
-
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.StoredFields;
-import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.search.TopDocs;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,12 +120,8 @@ public final class LinkedFilesSearcher {
             if (!fileLink.isEmpty()) {
                 List<String> entriesWithFile = linkedFilesMap.get(fileLink);
                 if (entriesWithFile != null && !entriesWithFile.isEmpty()) {
-                    SearchResult searchResult = new SearchResult(
-                            fileLink,
-                            getFieldContents(document, LinkedFilesConstants.CONTENT),
-                            getFieldContents(document, LinkedFilesConstants.ANNOTATIONS),
-                            Integer.parseInt(getFieldContents(document, LinkedFilesConstants.PAGE_NUMBER)),
-                            searchQuery);
+                    SearchResult searchResult = new SearchResult(fileLink, getFieldContents(document, LinkedFilesConstants.CONTENT), getFieldContents(document, LinkedFilesConstants.ANNOTATIONS),
+                            Integer.parseInt(getFieldContents(document, LinkedFilesConstants.PAGE_NUMBER)), searchQuery);
                     searchResults.addSearchResult(entriesWithFile, searchResult);
                 }
             }

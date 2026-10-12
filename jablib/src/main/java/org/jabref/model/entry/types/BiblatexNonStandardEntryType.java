@@ -5,7 +5,6 @@ import java.util.Locale;
 import java.util.Optional;
 
 public enum BiblatexNonStandardEntryType implements EntryType {
-
     Artwork("Artwork"),
     Audio("Audio"),
     Bibnote("Bibnote"),
@@ -27,8 +26,8 @@ public enum BiblatexNonStandardEntryType implements EntryType {
 
     public static Optional<BiblatexNonStandardEntryType> fromName(String name) {
         return Arrays.stream(BiblatexNonStandardEntryType.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+                .filter(field -> field.getName().equalsIgnoreCase(name))
+                .findAny();
     }
 
     @Override
@@ -41,4 +40,3 @@ public enum BiblatexNonStandardEntryType implements EntryType {
         return displayName;
     }
 }
-

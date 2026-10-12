@@ -44,8 +44,6 @@ public class UserSpecificCommentField implements Field {
 
     @Override
     public String toString() {
-        return "UnknownCommentField{" +
-                "name='" + name + '\'' +
-                '}';
+        return "UnknownCommentField{" + "name='" + name + '\'' + '}';
     }
 }

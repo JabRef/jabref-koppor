@@ -30,8 +30,7 @@ public class DetectOpenOfficeInstallation {
     }
 
     public Optional<Path> selectInstallationPath() {
-        dialogService.showInformationDialogAndWait(Localization.lang("Could not find OpenOffice/LibreOffice installation"),
-                Localization.lang("Unable to autodetect OpenOffice/LibreOffice installation. Please choose the installation directory manually."));
+        dialogService.showInformationDialogAndWait(Localization.lang("Could not find OpenOffice/LibreOffice installation"), Localization.lang("Unable to autodetect OpenOffice/LibreOffice installation. Please choose the installation directory manually."));
         DirectoryDialogConfiguration dirDialogConfiguration = new DirectoryDialogConfiguration.Builder()
                 .withInitialDirectory(NativeDesktop.get().getApplicationDirectory())
                 .build();
@@ -60,7 +59,8 @@ public class DetectOpenOfficeInstallation {
         }
 
         if (execPath.isPresent()) {
-            openOfficePreferences.setExecutablePath(execPath.get().toString());
+            openOfficePreferences.setExecutablePath(execPath.get()
+                    .toString());
             return true;
         }
 
@@ -76,11 +76,7 @@ public class DetectOpenOfficeInstallation {
             return Optional.of(installDirs.getFirst().toAbsolutePath());
         }
 
-        return dialogService.showChoiceDialogAndWait(
-                Localization.lang("Choose OpenOffice/LibreOffice executable"),
-                Localization.lang("Found more than one OpenOffice/LibreOffice executable.") + "\n"
-                        + Localization.lang("Please choose which one to connect to:"),
-                Localization.lang("Use selected instance"),
-                installDirs);
+        return dialogService.showChoiceDialogAndWait(Localization.lang("Choose OpenOffice/LibreOffice executable"), Localization.lang("Found more than one OpenOffice/LibreOffice executable.") + "\n" + Localization.lang("Please choose which one to connect to:"),
+                Localization.lang("Use selected instance"), installDirs);
     }
 }

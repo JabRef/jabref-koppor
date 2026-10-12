@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
+import com.dlsc.gemsfx.infocenter.NotificationAction;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.Notifications;
 import org.jabref.gui.StateManager;
@@ -23,8 +24,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.dlsc.gemsfx.infocenter.NotificationAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,30 +38,24 @@ public class OcrLinkedFileAction extends SimpleCommand {
     private final List<BibEntry> linkedEntries;
     private final ImportHandler importHandler;
 
-    public OcrLinkedFileAction(LinkedFile linkedFile,
-                               List<BibEntry> bibEntries,
-                               BibDatabaseContext databaseContext,
-                               DialogService dialogService,
-                               GuiPreferences preferences,
-                               TaskExecutor taskExecutor,
-                               FileUpdateMonitor fileUpdateMonitor,
-                               UndoManager undoManager,
-                               StateManager stateManager) {
+    public OcrLinkedFileAction(
+            LinkedFile linkedFile,
+            List<BibEntry> bibEntries,
+            BibDatabaseContext databaseContext,
+            DialogService dialogService,
+            GuiPreferences preferences,
+            TaskExecutor taskExecutor,
+            FileUpdateMonitor fileUpdateMonitor,
+            UndoManager undoManager,
+            StateManager stateManager) {
         this.linkedFile = linkedFile;
         this.linkedEntries = bibEntries;
         this.databaseContext = databaseContext;
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.taskExecutor = taskExecutor;
-        this.importHandler = new ImportHandler(
-                databaseContext,
-                preferences,
-                fileUpdateMonitor,
-                undoManager,
-                stateManager,
-                dialogService,
-                taskExecutor
-        );
+        this.importHandler = new ImportHandler(databaseContext, preferences, fileUpdateMonitor, undoManager, stateManager, dialogService,
+                taskExecutor);
     }
 
     @Override

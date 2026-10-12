@@ -3,6 +3,9 @@ package org.jabref.logic.ai.ingestion.logic;
 import java.util.List;
 import java.util.Optional;
 
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.ai.ingestion.repositories.IngestedDocumentsRepository;
 import org.jabref.logic.ai.ingestion.util.FileHasher;
@@ -10,10 +13,6 @@ import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.util.ObservablesHelper;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.LinkedFile;
-
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.store.embedding.EmbeddingStore;
-import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
 
 public class EmbeddingsCleaner {
     public static final String FILE_HASH_METADATA_KEY = "fileHash";
@@ -23,11 +22,7 @@ public class EmbeddingsCleaner {
     private final EmbeddingStore<TextSegment> embeddingStore;
     private final IngestedDocumentsRepository ingestedDocumentsRepository;
 
-    public EmbeddingsCleaner(
-            AiPreferences aiPreferences,
-            EmbeddingStore<TextSegment> embeddingStore,
-            IngestedDocumentsRepository ingestedDocumentsRepository
-    ) {
+    public EmbeddingsCleaner(AiPreferences aiPreferences, EmbeddingStore<TextSegment> embeddingStore, IngestedDocumentsRepository ingestedDocumentsRepository) {
         this.aiPreferences = aiPreferences;
         this.embeddingStore = embeddingStore;
         this.ingestedDocumentsRepository = ingestedDocumentsRepository;
@@ -36,8 +31,9 @@ public class EmbeddingsCleaner {
         setupListeners();
     }
 
-    /// Embeddings of different models are not comparable. This catches model changes made while JabRef was not running,
-    /// e.g., a new default model in a JabRef update.
+    /// Embeddings of different models are not comparable. This catches model
+    /// changes made while JabRef was not running, e.g., a new default model in
+    /// a JabRef update.
     // [impl->req~ai.ingestion.model-change-invalidation~1]
     private void removeAllIfGeneratedWithOtherModel() {
         if (!ingestedDocumentsRepository.getEmbeddingModel().equals(Optional.of(aiPreferences.getEmbeddingModel()))) {
@@ -56,15 +52,14 @@ public class EmbeddingsCleaner {
     }
 
     public void removeDocument(String fileHash) {
-        embeddingStore.removeAll(MetadataFilterBuilder.metadataKey(FILE_HASH_METADATA_KEY).isEqualTo(fileHash));
+        embeddingStore.removeAll(MetadataFilterBuilder.metadataKey(FILE_HASH_METADATA_KEY)
+                .isEqualTo(fileHash));
         ingestedDocumentsRepository.unmarkDocumentAsFullyIngested(fileHash);
     }
 
     public void clearEmbeddingsFor(List<LinkedFile> linkedFiles, BibDatabaseContext bibDatabaseContext, FilePreferences filePreferences) {
         linkedFiles.stream()
                    .flatMap(linkedFile -> linkedFile.findIn(bibDatabaseContext, filePreferences).stream())
-                   .forEach(path ->
-                           FileHasher.computeHash(path).ifPresent(this::removeDocument)
-                   );
+                   .forEach(path -> FileHasher.computeHash(path).ifPresent(this::removeDocument));
     }
 }

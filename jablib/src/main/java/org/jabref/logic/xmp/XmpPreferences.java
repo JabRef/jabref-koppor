@@ -9,29 +9,22 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
-
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 
 public class XmpPreferences {
 
-    private static final Set<StandardField> DEFAULT_XMP_PRIVACY_FILTER = Set.of(
-            StandardField.PDF,
-            StandardField.TIMESTAMP,
-            StandardField.KEYWORDS,
-            StandardField.OWNER,
-            StandardField.NOTE,
-            StandardField.REVIEW);
+    private static final Set<StandardField> DEFAULT_XMP_PRIVACY_FILTER = Set.of(StandardField.PDF, StandardField.TIMESTAMP, StandardField.KEYWORDS,
+            StandardField.OWNER, StandardField.NOTE, StandardField.REVIEW);
 
     private final BooleanProperty useXmpPrivacyFilter;
     private final ObservableSet<Field> xmpPrivacyFilter;
     private final SimpleObjectProperty<Character> keywordSeparator;
 
     private XmpPreferences() {
-        this(
-                false,                                     // Don't use XMP privacy filter
-                new HashSet<>(DEFAULT_XMP_PRIVACY_FILTER), // Default XMP privacy filter fields (mutable copy)
-                new SimpleObjectProperty<>(',')            // Default keyword separator
+        this(false, // Don't use XMP privacy filter
+        new HashSet<>(DEFAULT_XMP_PRIVACY_FILTER), // Default XMP privacy filter fields (mutable copy)
+        new SimpleObjectProperty<>(',') // Default keyword separator
         );
     }
 

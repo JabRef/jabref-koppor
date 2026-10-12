@@ -6,7 +6,6 @@ import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.undo.UndoStep;
-
 import org.jspecify.annotations.NullMarked;
 
 import static org.jabref.gui.actions.ActionHelper.needsRedo;
@@ -29,11 +28,15 @@ public class RedoAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        if (stateManager.activeTabProperty().get().isEmpty()) {
+        if (stateManager.activeTabProperty()
+                        .get()
+                        .isEmpty()) {
             return;
         }
 
-        LibraryTab libraryTab = stateManager.activeTabProperty().get().get();
+        LibraryTab libraryTab = stateManager.activeTabProperty()
+                .get()
+                .get();
         GuiUndoManager undoManager = stateManager.getUndoManager(libraryTab.getBibDatabaseContext());
 
         // See UndoAction: a suspension makes canRedo() false without the stack being empty.
@@ -43,14 +46,11 @@ public class RedoAction extends SimpleCommand {
     }
 
     private void redo(GuiUndoManager undoManager) {
-        undoManager.redo().ifPresentOrElse(
-                step -> dialogService.notify(message(step)),
+        undoManager.redo().ifPresentOrElse(step -> dialogService.notify(message(step)),
                 () -> dialogService.notify(Localization.lang("Nothing to redo") + '.'));
     }
 
     private static String message(UndoStep step) {
-        return step.complete()
-               ? Localization.lang("Redone: %0", step.name())
-               : Localization.lang("Redone: %0 (some changes could not be applied)", step.name());
+        return step.complete() ? Localization.lang("Redone: %0", step.name()) : Localization.lang("Redone: %0 (some changes could not be applied)", step.name());
     }
 }

@@ -6,12 +6,10 @@ import java.util.Map;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-
 import org.jabref.gui.DialogService;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.push.PushToApplicationPreferences;
 import org.jabref.model.entry.BibEntry;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -37,7 +35,9 @@ class PushToEmacsTest {
 
         when(pushToApplicationPreferences.getEmacsArguments()).thenReturn("-n -e");
 
-        when(pushToApplicationPreferences.getCiteCommand().toString()).thenReturn("\\cite{key1,key2}");
+        when(pushToApplicationPreferences.getCiteCommand()
+                .toString())
+                .thenReturn("\\cite{key1,key2}");
 
         pushToEmacs = new GuiPushToEmacs(dialogService, pushToApplicationPreferences);
     }
@@ -45,9 +45,7 @@ class PushToEmacsTest {
     @Test
     void pushEntries() {
         pushToEmacs.pushEntries(
-                List.of(
-                        new BibEntry().withCitationKey("key1"),
-                        new BibEntry().withCitationKey("key2"))
-        );
+                List.of(new BibEntry().withCitationKey("key1"),
+                        new BibEntry().withCitationKey("key2")));
     }
 }

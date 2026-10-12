@@ -23,7 +23,8 @@ public class LtwaRepositoryTest {
     @ParameterizedTest
     @MethodSource("provideJournalTitlesAndAbbreviations")
     void ltwaAbbreviations(String fullTitle, String expectedAbbreviation) {
-        assertEquals(expectedAbbreviation, repository.getLtwaAbbreviation(fullTitle).get());
+        assertEquals(expectedAbbreviation, repository.getLtwaAbbreviation(fullTitle)
+                .get());
     }
 
     private static Stream<Arguments> provideJournalTitlesAndAbbreviations() {
@@ -69,7 +70,6 @@ public class LtwaRepositoryTest {
                 Arguments.of("Physical Review. A", "Phys. Rev., A"),
                 Arguments.of("Physical Review. D", "Phys. Rev., D"),
                 Arguments.of("Physical Review. E", "Phys. Rev., E"),
-                Arguments.of("Physical Review. I", "Phys. Rev., I")
-        );
+                Arguments.of("Physical Review. I", "Phys. Rev., I"));
     }
 }

@@ -3,6 +3,7 @@ package org.jabref.gui.mergeentries;
 import java.util.HashSet;
 import java.util.List;
 
+import com.google.common.collect.Comparators;
 import org.jabref.gui.mergeentries.threewaymerge.ThreeWayMergeViewModel;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
@@ -11,8 +12,6 @@ import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import com.google.common.collect.Comparators;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,13 +44,17 @@ class ThreeWayMergeViewModelTest {
 
     @Test
     void getVisibleFieldsShouldReturnASortedListOfFieldsWithEntryTypeAtTheHeadOfTheList() {
-        List<String> names = visibleFields.stream().map(Field::getName).skip(1).toList();
+        List<String> names = visibleFields.stream()
+                .map(Field::getName)
+                .skip(1)
+                .toList();
         Comparators.isInOrder(names, String::compareTo);
     }
 
     @Test
     void getVisibleFieldsShouldNotHaveDuplicates() {
-        assertEquals(new HashSet<>(visibleFields).size(), viewModel.numberOfVisibleFields());
+        assertEquals(new HashSet<>(visibleFields).size(),
+                viewModel.numberOfVisibleFields());
     }
 
     @Test
@@ -61,8 +64,14 @@ class ThreeWayMergeViewModelTest {
 
     @Test
     void getVisibleFieldsShouldContainAllNonInternalFieldsInRightAndLeftEntry() {
-        assertTrue(visibleFields.containsAll(leftEntry.getFields().stream().filter(this::isNotInternalField).toList()));
-        assertTrue(visibleFields.containsAll(rightEntry.getFields().stream().filter(this::isNotInternalField).toList()));
+        assertTrue(visibleFields.containsAll(leftEntry.getFields()
+                .stream()
+                .filter(this::isNotInternalField)
+                .toList()));
+        assertTrue(visibleFields.containsAll(rightEntry.getFields()
+                .stream()
+                .filter(this::isNotInternalField)
+                .toList()));
     }
 
     @Test

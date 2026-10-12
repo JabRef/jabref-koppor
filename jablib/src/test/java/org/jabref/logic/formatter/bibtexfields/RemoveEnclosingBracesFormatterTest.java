@@ -13,18 +13,18 @@ class RemoveEnclosingBracesFormatterTest {
 
     @ParameterizedTest
     @CsvSource({
-            "test, {test}", // formatRemovesSingleEnclosingBraces
-            "{test, {test", // formatKeepsUnmatchedBracesAtBeginning
-            "test}, test}", // formatKeepsUnmatchedBracesAtEnd
-            "t, t", // formatKeepsShortString
-            "'', {}", // formatRemovesBracesOnly
-            "test, {{test}}", // formatKeepsEmptyString
-            "test, {{{test}}}", // formatRemovesDoubleEnclosingBraces
-            "{A} and {B}, {A} and {B}", // formatRemovesTripleEnclosingBraces
-            "{A} and {B}, {{A} and {B}}", // formatKeepsNonMatchingBraces
-            "{A} and {B}}, {A} and {B}}", // formatRemovesOnlyMatchingBraces
-            "Vall{\\'e}e Poussin, {Vall{\\'e}e Poussin}", // formatDoesNotRemoveBracesInBrokenString
-            "Vall{\\'e}e Poussin, Vall{\\'e}e Poussin"
+        "test, {test}", // formatRemovesSingleEnclosingBraces
+        "{test, {test", // formatKeepsUnmatchedBracesAtBeginning
+        "test}, test}", // formatKeepsUnmatchedBracesAtEnd
+        "t, t", // formatKeepsShortString
+        "'', {}", // formatRemovesBracesOnly
+        "test, {{test}}", // formatKeepsEmptyString
+        "test, {{{test}}}", // formatRemovesDoubleEnclosingBraces
+        "{A} and {B}, {A} and {B}", // formatRemovesTripleEnclosingBraces
+        "{A} and {B}, {{A} and {B}}", // formatKeepsNonMatchingBraces
+        "{A} and {B}}, {A} and {B}}", // formatRemovesOnlyMatchingBraces
+        "Vall{\\'e}e Poussin, {Vall{\\'e}e Poussin}", // formatDoesNotRemoveBracesInBrokenString
+        "Vall{\\'e}e Poussin, Vall{\\'e}e Poussin"
     })
     void format(String expected, String input) {
         assertEquals(expected, formatter.format(input));

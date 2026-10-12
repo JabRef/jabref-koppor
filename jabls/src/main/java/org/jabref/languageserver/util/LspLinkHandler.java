@@ -4,16 +4,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import org.jabref.languageserver.LspClientHandler;
-import org.jabref.languageserver.util.definition.DefinitionProvider;
-import org.jabref.languageserver.util.definition.DefinitionProviderFactory;
-import org.jabref.logic.FilePreferences;
-
 import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.jabref.languageserver.LspClientHandler;
+import org.jabref.languageserver.util.definition.DefinitionProvider;
+import org.jabref.languageserver.util.definition.DefinitionProviderFactory;
+import org.jabref.logic.FilePreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +30,8 @@ public class LspLinkHandler {
         this.preferences = preferences;
     }
 
-    public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> provideDefinition(String languageId, String uri, String content, Position position) {
+    public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> provideDefinition(String languageId, String uri,
+            String content, Position position) {
         if (!clientHandler.isStandalone() && !"bibtex".equals(languageId)) {
             return CompletableFuture.completedFuture(Either.forLeft(List.of()));
         }

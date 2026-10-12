@@ -2,17 +2,15 @@ package org.jabref.gui.preferences.keybindings;
 
 import java.util.Optional;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.support.DisabledOnCIServer;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -40,8 +38,8 @@ class KeyBindingViewModelTest {
         KeyBindingViewModel viewModel = new KeyBindingViewModel(keyBindingRepository, binding, binding.getDefaultKeyBinding());
         keyBindingsTabViewModel.selectedKeyBindingProperty().set(Optional.of(viewModel));
 
-        KeyEvent shortcutKeyEvent = new KeyEvent(KeyEvent.KEY_PRESSED, "F1", "F1", KeyCode.F1, true, false, false,
-                false);
+        KeyEvent shortcutKeyEvent = new KeyEvent(KeyEvent.KEY_PRESSED, "F1", "F1", KeyCode.F1, true, false,
+                false, false);
 
         assertFalse(keyBindingRepository.checkKeyCombinationEquality(KeyBinding.MERGE_ENTRIES, shortcutKeyEvent));
 
@@ -61,29 +59,16 @@ class KeyBindingViewModelTest {
     void controlBackspaceIsRecordedAsBindingOnMacOS() {
         KeyBindingRepository liveRepo = new KeyBindingRepository();
 
-        KeyBindingsTabViewModel viewModel =
-                new KeyBindingsTabViewModel(liveRepo, mock(DialogService.class));
+        KeyBindingsTabViewModel viewModel = new KeyBindingsTabViewModel(liveRepo, mock(DialogService.class));
 
         KeyBinding binding = KeyBinding.EDITOR_KILL_WORD_BACKWARD;
 
-        KeyBindingViewModel selectedVM =
-                new KeyBindingViewModel(
-                        viewModel.getKeyBindingRepository(),
-                        binding,
-                        binding.getDefaultKeyBinding());
+        KeyBindingViewModel selectedVM = new KeyBindingViewModel(viewModel.getKeyBindingRepository(), binding, binding.getDefaultKeyBinding());
 
         viewModel.selectedKeyBindingProperty().set(Optional.of(selectedVM));
 
-        KeyEvent event = new KeyEvent(
-                KeyEvent.KEY_PRESSED,
-                "",
-                "",
-                KeyCode.BACK_SPACE,
-                false,
-                true,
-                false,
-                false
-        );
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.BACK_SPACE, false, true,
+                false, false);
 
         viewModel.setNewBindingForCurrent(event);
         viewModel.storeSettings();
@@ -98,24 +83,15 @@ class KeyBindingViewModelTest {
     void verifyStoreSettingsWritesChanges() {
         KeyBindingRepository liveRepo = new KeyBindingRepository();
 
-        KeyBindingsTabViewModel viewModel =
-                new KeyBindingsTabViewModel(liveRepo, mock(DialogService.class));
+        KeyBindingsTabViewModel viewModel = new KeyBindingsTabViewModel(liveRepo, mock(DialogService.class));
 
         KeyBinding binding = KeyBinding.CLOSE_DATABASE;
 
         KeyBindingViewModel selectedVM = new KeyBindingViewModel(viewModel.getKeyBindingRepository(), binding, binding.getDefaultKeyBinding());
         viewModel.selectedKeyBindingProperty().set(Optional.of(selectedVM));
 
-        KeyEvent event = new KeyEvent(
-                KeyEvent.KEY_PRESSED,
-                "L",
-                "L",
-                KeyCode.L,
-                true,
-                false,
-                false,
-                true
-        );
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "L", "L", KeyCode.L, true, false,
+                false, true);
 
         viewModel.setNewBindingForCurrent(event);
 
@@ -130,8 +106,7 @@ class KeyBindingViewModelTest {
     void controlKeyIsRecordedAsBindingOnMacOs() {
         KeyBindingRepository liveRepo = new KeyBindingRepository();
 
-        KeyBindingsTabViewModel viewModel =
-                new KeyBindingsTabViewModel(liveRepo, mock(DialogService.class));
+        KeyBindingsTabViewModel viewModel = new KeyBindingsTabViewModel(liveRepo, mock(DialogService.class));
 
         KeyBinding binding = KeyBinding.CLOSE_DATABASE;
 
@@ -139,16 +114,8 @@ class KeyBindingViewModelTest {
         viewModel.selectedKeyBindingProperty().set(Optional.of(selectedVM));
 
         // Control (distinct from Shortcut/Cmd on macOS) held with 'A', no other modifiers
-        KeyEvent event = new KeyEvent(
-                KeyEvent.KEY_PRESSED,
-                "A",
-                "A",
-                KeyCode.A,
-                false,
-                true,
-                false,
-                false
-        );
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "A", "A", KeyCode.A, false, true,
+                false, false);
 
         viewModel.setNewBindingForCurrent(event);
 
@@ -163,8 +130,7 @@ class KeyBindingViewModelTest {
     void controlKeyCombinedWithShiftIsRecordedAsBindingOnMacOs() {
         KeyBindingRepository liveRepo = new KeyBindingRepository();
 
-        KeyBindingsTabViewModel viewModel =
-                new KeyBindingsTabViewModel(liveRepo, mock(DialogService.class));
+        KeyBindingsTabViewModel viewModel = new KeyBindingsTabViewModel(liveRepo, mock(DialogService.class));
 
         KeyBinding binding = KeyBinding.CLOSE_DATABASE;
 
@@ -172,16 +138,8 @@ class KeyBindingViewModelTest {
         viewModel.selectedKeyBindingProperty().set(Optional.of(selectedVM));
 
         // Control and Shift held together with 'A'
-        KeyEvent event = new KeyEvent(
-                KeyEvent.KEY_PRESSED,
-                "A",
-                "A",
-                KeyCode.A,
-                true,
-                true,
-                false,
-                false
-        );
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "A", "A", KeyCode.A, true, true,
+                false, false);
 
         viewModel.setNewBindingForCurrent(event);
 

@@ -8,7 +8,6 @@ import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 
@@ -18,10 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-/// The editor normalises CRLF for its comparison, because the text control uses `\n` throughout.
-/// What it records has to be what the entry holds, or the change describes a state the library was
-/// never in — and a change that does not match the library refuses to apply, which showed up as
-/// typing doing nothing at all in a library loaded from a CRLF file.
+/// The editor normalises CRLF for its comparison, because the text control uses
+/// `\n` throughout. What it records has to be what the entry holds, or the
+/// change describes a state the library was never in — and a change that does
+/// not match the library refuses to apply, which showed up as typing doing
+/// nothing at all in a library loaded from a CRLF file.
 @NullMarked
 class AbstractEditorViewModelTest {
 
@@ -29,8 +29,8 @@ class AbstractEditorViewModelTest {
     void editingAFieldHoldingCrlfReachesTheEntry() {
         BibEntry entry = new BibEntry().withField(StandardField.ABSTRACT, "line one\r\nline two");
         HeadlessGuiUndoManager journal = new HeadlessGuiUndoManager();
-        AbstractEditorViewModel editor = new AbstractEditorViewModel(
-                StandardField.ABSTRACT, mock(SuggestionProvider.class), mock(FieldCheckers.class), journal);
+        AbstractEditorViewModel editor = new AbstractEditorViewModel(StandardField.ABSTRACT, mock(SuggestionProvider.class),
+                mock(FieldCheckers.class), journal);
         editor.bindToEntry(entry);
 
         editor.textProperty().set("line one\nline two!");
@@ -39,18 +39,18 @@ class AbstractEditorViewModelTest {
         assertTrue(journal.canUndo(), "the edit was not recorded");
 
         journal.undo();
-        assertEquals(Optional.of("line one\r\nline two"), entry.getField(StandardField.ABSTRACT),
-                "undo did not restore the value the entry actually held");
+        assertEquals(Optional.of("line one\r\nline two"), entry.getField(StandardField.ABSTRACT), "undo did not restore the value the entry actually held");
     }
 
-    /// The editor records one change per keystroke; the journal makes one step of the run.
+    /// The editor records one change per keystroke; the journal makes one step
+    /// of the run.
     @Test
     // [utest->req~logic.undo.typing-is-one-step~2]
     void typingAWordIsOneUndoStep() {
         BibEntry entry = new BibEntry();
         HeadlessGuiUndoManager journal = new HeadlessGuiUndoManager();
-        AbstractEditorViewModel editor = new AbstractEditorViewModel(
-                StandardField.TITLE, mock(SuggestionProvider.class), mock(FieldCheckers.class), journal);
+        AbstractEditorViewModel editor = new AbstractEditorViewModel(StandardField.TITLE, mock(SuggestionProvider.class),
+                mock(FieldCheckers.class), journal);
         editor.bindToEntry(entry);
 
         for (int length = 1; length <= "Relativity".length(); length++) {
@@ -65,13 +65,13 @@ class AbstractEditorViewModelTest {
         assertFalse(journal.canUndo(), "the run left more than one step behind");
     }
 
-    /// Binding to another entry ends the run: what was typed before belongs to the entry that was
-    /// open then, and the journal cannot see that by itself.
+    /// Binding to another entry ends the run: what was typed before belongs to
+    /// the entry that was open then, and the journal cannot see that by itself.
     @Test
     void bindingToAnEntryEndsTheRun() {
         UndoManager journal = mock(UndoManager.class);
-        AbstractEditorViewModel editor = new AbstractEditorViewModel(
-                StandardField.TITLE, mock(SuggestionProvider.class), mock(FieldCheckers.class), journal);
+        AbstractEditorViewModel editor = new AbstractEditorViewModel(StandardField.TITLE, mock(SuggestionProvider.class),
+                mock(FieldCheckers.class), journal);
 
         editor.bindToEntry(new BibEntry());
 

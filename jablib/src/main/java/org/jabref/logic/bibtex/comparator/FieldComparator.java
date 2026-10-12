@@ -24,7 +24,11 @@ public class FieldComparator implements Comparator<BibEntry> {
     private static final Collator COLLATOR = getCollator();
 
     enum FieldType {
-        NAME, TYPE, YEAR, MONTH, OTHER
+        NAME,
+        TYPE,
+        YEAR,
+        MONTH,
+        OTHER
     }
 
     private final OrFields fields;
@@ -49,8 +53,9 @@ public class FieldComparator implements Comparator<BibEntry> {
 
     private static Collator getCollator() {
         try {
-            return new RuleBasedCollator(
-                    ((RuleBasedCollator) Collator.getInstance()).getRules().replace("<'\u005f'", "<' '<'\u005f'"));
+            return new RuleBasedCollator(((RuleBasedCollator) Collator.getInstance())
+                    .getRules()
+                    .replace("<'\u005f'", "<' '<'\u005f'"));
         } catch (ParseException _) {
             return Collator.getInstance();
         }
@@ -59,7 +64,10 @@ public class FieldComparator implements Comparator<BibEntry> {
     private FieldType determineFieldType() {
         if (InternalField.TYPE_HEADER == this.fields.getPrimary()) {
             return FieldType.TYPE;
-        } else if (this.fields.getPrimary().getProperties().contains(FieldProperty.PERSON_NAMES)) {
+        } else if (this.fields
+                .getPrimary()
+                .getProperties()
+                .contains(FieldProperty.PERSON_NAMES)) {
             return FieldType.NAME;
         } else if (StandardField.YEAR == this.fields.getPrimary()) {
             return FieldType.YEAR;
@@ -71,7 +79,8 @@ public class FieldComparator implements Comparator<BibEntry> {
     }
 
     private Optional<String> getFieldValue(BibEntry entry) {
-        return fields.getFields().stream()
+        return fields.getFields()
+                     .stream()
                      .map(entry::getFieldOrAliasLatexFree)
                      .flatMap(Optional::stream)
                      .findFirst();
@@ -120,8 +129,12 @@ public class FieldComparator implements Comparator<BibEntry> {
             int comparisonResult = Integer.compare(f1year, f2year);
             return comparisonResult * multiplier;
         } else if (fieldType == FieldType.MONTH) {
-            int month1 = Month.parse(f1).map(Month::getNumber).orElse(-1);
-            int month2 = Month.parse(f2).map(Month::getNumber).orElse(-1);
+            int month1 = Month.parse(f1)
+                    .map(Month::getNumber)
+                    .orElse(-1);
+            int month2 = Month.parse(f2)
+                    .map(Month::getNumber)
+                    .orElse(-1);
             return Integer.compare(month1, month2) * multiplier;
         }
 

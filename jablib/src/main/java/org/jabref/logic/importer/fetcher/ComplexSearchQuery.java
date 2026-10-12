@@ -7,9 +7,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 
-import org.jabref.logic.util.strings.StringUtil;
-
 import org.apache.lucene.index.Term;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jspecify.annotations.NonNull;
 
 public class ComplexSearchQuery {
@@ -24,7 +23,16 @@ public class ComplexSearchQuery {
     private final String journal;
     private final String doi;
 
-    private ComplexSearchQuery(List<String> defaultField, List<String> authors, List<String> titlePhrases, List<String> abstractPhrases, Integer fromYear, Integer toYear, Integer singleYear, String journal, String doi) {
+    private ComplexSearchQuery(
+            List<String> defaultField,
+            List<String> authors,
+            List<String> titlePhrases,
+            List<String> abstractPhrases,
+            Integer fromYear,
+            Integer toYear,
+            Integer singleYear,
+            String journal,
+            String doi) {
         this.defaultField = defaultField;
         this.authors = authors;
         this.titlePhrases = titlePhrases;
@@ -42,25 +50,16 @@ public class ComplexSearchQuery {
         terms.forEach(term -> {
             String termText = term.text();
             switch (term.field().toLowerCase()) {
-                case "author" ->
-                        builder.author(termText);
-                case "title" ->
-                        builder.titlePhrase(termText);
-                case "abstract" ->
-                        builder.abstractPhrase(termText);
-                case "journal" ->
-                        builder.journal(termText);
-                case "year" ->
-                        builder.singleYear(Integer.valueOf(termText));
-                case "year-range" ->
-                        builder.parseYearRange(termText);
-                case "doi" ->
-                        builder.DOI(termText);
-                case "default" ->
-                        builder.defaultFieldPhrase(termText);
+                case "author" -> builder.author(termText);
+                case "title" -> builder.titlePhrase(termText);
+                case "abstract" -> builder.abstractPhrase(termText);
+                case "journal" -> builder.journal(termText);
+                case "year" -> builder.singleYear(Integer.valueOf(termText));
+                case "year-range" -> builder.parseYearRange(termText);
+                case "doi" -> builder.DOI(termText);
+                case "default" -> builder.defaultFieldPhrase(termText);
                 // add unknown field as default field
-                default ->
-                        builder.defaultFieldPhrase(termText);
+                default -> builder.defaultFieldPhrase(termText);
             }
         });
         return builder.build();
@@ -147,7 +146,16 @@ public class ComplexSearchQuery {
 
     @Override
     public int hashCode() {
-        return Objects.hash(defaultField, getAuthors(), getSingleYear(), getAbstractPhrases(), getFromYear(), getToYear(), getTitlePhrases(), getJournal(), getDOI());
+        return Objects.hash(
+                defaultField,
+                getAuthors(),
+                getSingleYear(),
+                getAbstractPhrases(),
+                getFromYear(),
+                getToYear(),
+                getTitlePhrases(),
+                getJournal(),
+                getDOI());
     }
 
     @Override
@@ -178,8 +186,7 @@ public class ComplexSearchQuery {
         private Integer toYear;
         private Integer singleYear;
 
-        private ComplexSearchQueryBuilder() {
-        }
+        private ComplexSearchQueryBuilder() {}
 
         public ComplexSearchQueryBuilder defaultFieldPhrase(@NonNull String defaultFieldPhrase) {
             if (defaultFieldPhrase.isBlank()) {
@@ -257,39 +264,36 @@ public class ComplexSearchQuery {
             terms.forEach(term -> {
                 String termText = term.text();
                 switch (term.field().toLowerCase()) {
-                    case "author" ->
-                            this.author(termText);
-                    case "title" ->
-                            this.titlePhrase(termText);
-                    case "abstract" ->
-                            this.abstractPhrase(termText);
-                    case "journal" ->
-                            this.journal(termText);
-                    case "doi" ->
-                            this.DOI(termText);
-                    case "year" ->
-                            this.singleYear(Integer.valueOf(termText));
-                    case "year-range" ->
-                            this.parseYearRange(termText);
-                    case "default" ->
-                            this.defaultFieldPhrase(termText);
+                    case "author" -> this.author(termText);
+                    case "title" -> this.titlePhrase(termText);
+                    case "abstract" -> this.abstractPhrase(termText);
+                    case "journal" -> this.journal(termText);
+                    case "doi" -> this.DOI(termText);
+                    case "year" -> this.singleYear(Integer.valueOf(termText));
+                    case "year-range" -> this.parseYearRange(termText);
+                    case "default" -> this.defaultFieldPhrase(termText);
                 }
             });
             return this;
         }
 
-        /// Instantiates the AdvancesSearchConfig from the provided Builder parameters
-        /// If all text fields are empty an empty optional is returned
+        /// Instantiates the AdvancesSearchConfig from the provided Builder
+        /// parameters If all text fields are empty an empty optional is
+        /// returned
         ///
-        /// See: https://softwareengineering.stackexchange.com/questions/241309/builder-pattern-when-to-fail/241320#241320
+        /// See:
+        /// https://softwareengineering.stackexchange.com/questions/241309/builder-pattern-when-to-fail/241320#241320
         ///
-        /// @return ComplexSearchQuery instance with the fields set to the values defined in the building instance.
-        /// @throws IllegalStateException An IllegalStateException is thrown in case all text search fields are empty.
+        /// @return ComplexSearchQuery instance with the fields set to the
+        ///   values defined in the building instance.
+        /// @throws IllegalStateException An IllegalStateException is thrown in
+        ///   case all text search fields are empty.
         public ComplexSearchQuery build() throws IllegalStateException {
             if (textSearchFieldsAndYearFieldsAreEmpty()) {
                 throw new IllegalStateException("At least one text field has to be set");
             }
-            return new ComplexSearchQuery(defaultFieldPhrases, authors, titlePhrases, abstractPhrases, fromYear, toYear, singleYear, journal, doi);
+            return new ComplexSearchQuery(defaultFieldPhrases, authors, titlePhrases, abstractPhrases, fromYear, toYear,
+                    singleYear, journal, doi);
         }
 
         void parseYearRange(String termText) {
@@ -312,8 +316,13 @@ public class ComplexSearchQuery {
         }
 
         private boolean textSearchFieldsAndYearFieldsAreEmpty() {
-            return this.stringListIsBlank(defaultFieldPhrases) && this.stringListIsBlank(titlePhrases) &&
-                    this.stringListIsBlank(authors) && this.stringListIsBlank(abstractPhrases) && StringUtil.isBlank(journal) && StringUtil.isBlank(doi) && yearFieldsAreEmpty();
+            return this.stringListIsBlank(defaultFieldPhrases)
+                    && this.stringListIsBlank(titlePhrases)
+                    && this.stringListIsBlank(authors)
+                    && this.stringListIsBlank(abstractPhrases)
+                    && StringUtil.isBlank(journal)
+                    && StringUtil.isBlank(doi)
+                    && yearFieldsAreEmpty();
         }
 
         private boolean yearFieldsAreEmpty() {

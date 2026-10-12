@@ -5,10 +5,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jabref.languageserver.util.LspDiagnosticHandler;
-import org.jabref.languageserver.util.LspLinkHandler;
-import org.jabref.logic.remote.server.RemoteMessageHandler;
-
 import com.google.gson.JsonArray;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
@@ -28,6 +24,9 @@ import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
+import org.jabref.languageserver.util.LspDiagnosticHandler;
+import org.jabref.languageserver.util.LspLinkHandler;
+import org.jabref.logic.remote.server.RemoteMessageHandler;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,8 @@ public class BibtexTextDocumentService implements TextDocumentService {
     private final Map<String, String> contentCache;
     private LanguageClient client;
 
-    public BibtexTextDocumentService(@NonNull RemoteMessageHandler messageHandler, @NonNull LspClientHandler clientHandler, @NonNull LspDiagnosticHandler diagnosticHandler, @NonNull LspLinkHandler linkHandler) {
+    public BibtexTextDocumentService(@NonNull RemoteMessageHandler messageHandler, @NonNull LspClientHandler clientHandler, @NonNull LspDiagnosticHandler diagnosticHandler,
+            @NonNull LspLinkHandler linkHandler) {
         this.clientHandler = clientHandler;
         this.diagnosticHandler = diagnosticHandler;
         this.linkHandler = linkHandler;
@@ -64,7 +64,8 @@ public class BibtexTextDocumentService implements TextDocumentService {
         fileUriToLanguageId.putIfAbsent(textDocument.getUri(), textDocument.getLanguageId());
 
         if ("bibtex".equals(textDocument.getLanguageId())) {
-            diagnosticHandler.computeAndPublishDiagnostics(client, textDocument.getUri(), textDocument.getText(), textDocument.getVersion());
+            diagnosticHandler.computeAndPublishDiagnostics(client, textDocument.getUri(), textDocument.getText(),
+                    textDocument.getVersion());
         }
         contentCache.put(textDocument.getUri(), textDocument.getText());
     }
@@ -77,26 +78,29 @@ public class BibtexTextDocumentService implements TextDocumentService {
         String languageId = fileUriToLanguageId.get(textDocument.getUri());
 
         if ("bibtex".equalsIgnoreCase(languageId)) {
-            diagnosticHandler.computeAndPublishDiagnostics(client, textDocument.getUri(), contentChange.getText(), textDocument.getVersion());
+            diagnosticHandler.computeAndPublishDiagnostics(client, textDocument.getUri(), contentChange.getText(),
+                    textDocument.getVersion());
         }
         contentCache.put(textDocument.getUri(), contentChange.getText());
     }
 
     @Override
     public void didClose(DidCloseTextDocumentParams params) {
-        fileUriToLanguageId.remove(params.getTextDocument().getUri());
+        fileUriToLanguageId.remove(params.getTextDocument()
+                .getUri());
         contentCache.remove(params.getTextDocument().getUri());
     }
 
     @Override
-    public void didSave(DidSaveTextDocumentParams params) {
-    }
+    public void didSave(DidSaveTextDocumentParams params) {}
 
     @Override
     public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(DefinitionParams params) {
-        if (fileUriToLanguageId.containsKey(params.getTextDocument().getUri())) {
+        if (fileUriToLanguageId.containsKey(params.getTextDocument()
+                .getUri())) {
             String fileUri = params.getTextDocument().getUri();
-            return linkHandler.provideDefinition(fileUriToLanguageId.get(fileUri), fileUri, contentCache.get(fileUri), params.getPosition());
+            return linkHandler.provideDefinition(fileUriToLanguageId.get(fileUri), fileUri, contentCache.get(fileUri),
+                    params.getPosition());
         }
         return CompletableFuture.completedFuture(Either.forLeft(List.of()));
     }
@@ -113,7 +117,13 @@ public class BibtexTextDocumentService implements TextDocumentService {
             return CompletableFuture.completedFuture(null);
         }
         if (params.getData() instanceof JsonArray data) {
-            messageHandler.handleCommandLineArguments(new String[] {data.asList().getFirst().getAsString(), data.asList().getLast().getAsString()});
+            messageHandler.handleCommandLineArguments(new String[] {data.asList()
+                    .getFirst()
+                    .getAsString(),
+                    data.asList()
+                        .getLast()
+                        .getAsString()
+                });
         }
         return CompletableFuture.completedFuture(null);
     }

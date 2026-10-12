@@ -3,14 +3,13 @@ package org.jabref.logic.ai.ingestion.logic.ingestion;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import org.jabref.logic.ai.ingestion.logic.documentsplitting.DocumentSplitter;
-import org.jabref.logic.ai.ingestion.repositories.IngestedDocumentsRepository;
-import org.jabref.logic.ai.ingestion.util.FileHasher;
-
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingStore;
+import org.jabref.logic.ai.ingestion.logic.documentsplitting.DocumentSplitter;
+import org.jabref.logic.ai.ingestion.repositories.IngestedDocumentsRepository;
+import org.jabref.logic.ai.ingestion.util.FileHasher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,18 +19,10 @@ public class PersistedFileIngestor {
     private final IngestedDocumentsRepository ingestedDocumentsRepository;
     private final FileIngestor fileIngestor;
 
-    public PersistedFileIngestor(
-            IngestedDocumentsRepository ingestedDocumentsRepository,
-            EmbeddingStore<TextSegment> embeddingStore,
-            EmbeddingModel embeddingModel,
-            DocumentSplitter documentSplitter
-    ) {
+    public PersistedFileIngestor(IngestedDocumentsRepository ingestedDocumentsRepository, EmbeddingStore<TextSegment> embeddingStore, EmbeddingModel embeddingModel,
+            DocumentSplitter documentSplitter) {
         this.ingestedDocumentsRepository = ingestedDocumentsRepository;
-        this.fileIngestor = new FileIngestor(
-                embeddingStore,
-                embeddingModel,
-                documentSplitter
-        );
+        this.fileIngestor = new FileIngestor(embeddingStore, embeddingModel, documentSplitter);
     }
 
     public void ingest(Metadata metadata, Path path) throws InterruptedException {

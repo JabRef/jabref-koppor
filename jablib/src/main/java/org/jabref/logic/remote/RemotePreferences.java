@@ -9,7 +9,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +29,14 @@ public class RemotePreferences {
 
     private final BooleanProperty directHttpImport;
 
-    public RemotePreferences(boolean enableRemoteServer,
-                             int remoteServerPort,
-                             boolean enableHttpServer,
-                             int httpServerPort,
-                             boolean enableLanguageServer,
-                             int languageServerPort,
-                             boolean directHttpImport) {
+    public RemotePreferences(
+            boolean enableRemoteServer,
+            int remoteServerPort,
+            boolean enableHttpServer,
+            int httpServerPort,
+            boolean enableLanguageServer,
+            int languageServerPort,
+            boolean directHttpImport) {
         this.enableRemoteServer = new SimpleBooleanProperty(enableRemoteServer);
         this.remoteServerPort = new SimpleIntegerProperty(remoteServerPort);
         this.enableHttpServer = new SimpleBooleanProperty(enableHttpServer);
@@ -47,14 +47,13 @@ public class RemotePreferences {
     }
 
     private RemotePreferences() {
-        this(
-                true,  // enableRemoteServer
-                6050,  // remoteServerPort
-                false, // enableHttpServer
-                23119, // httpServerPort
-                false, // enableLanguageServer
-                2087,  // languageServerPort
-                false  // directHttpImport
+        this(true, // enableRemoteServer
+        6050, // remoteServerPort
+        false, // enableHttpServer
+        23119, // httpServerPort
+        false, // enableLanguageServer
+        2087, // languageServerPort
+                false // directHttpImport
         );
     }
 
@@ -165,7 +164,14 @@ public class RemotePreferences {
 
     public @NonNull URI getHttpServerUri() {
         try {
-            return new URI("http", null, RemotePreferences.getIpAddress().getHostAddress(), getHttpServerPort(), null, null, null);
+            return new URI(
+                    "http",
+                    null,
+                    RemotePreferences.getIpAddress().getHostAddress(),
+                    getHttpServerPort(),
+                    null,
+                    null,
+                    null);
         } catch (UnknownHostException | URISyntaxException e) {
             LOGGER.error("Could not create HTTP server URI. Falling back to default.", e);
             try {

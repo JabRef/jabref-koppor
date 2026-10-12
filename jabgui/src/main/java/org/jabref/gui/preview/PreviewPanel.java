@@ -25,7 +25,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.Notifications;
 import org.jabref.gui.StateManager;
@@ -45,12 +44,12 @@ import org.jabref.logic.preview.PreviewLayout;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.Nullable;
 
 /// Displays the entry preview
 ///
-/// The instance is re-used at each tab. The code ensures that the panel is moved across tabs when the user switches the tab.
+/// The instance is re-used at each tab. The code ensures that the panel is
+/// moved across tabs when the user switches the tab.
 public class PreviewPanel extends VBox implements PreviewControls {
 
     private final ExternalFilesEntryLinker fileLinker;
@@ -62,15 +61,13 @@ public class PreviewPanel extends VBox implements PreviewControls {
 
     private BibEntry entry;
 
-    public PreviewPanel(DialogService dialogService,
-                        KeyBindingRepository keyBindingRepository,
-                        GuiPreferences preferences,
-                        TaskExecutor taskExecutor,
-                        StateManager stateManager) {
+    public PreviewPanel(DialogService dialogService, KeyBindingRepository keyBindingRepository, GuiPreferences preferences,
+                        TaskExecutor taskExecutor, StateManager stateManager) {
         this.keyBindingRepository = keyBindingRepository;
         this.dialogService = dialogService;
         this.previewPreferences = preferences.getPreviewPreferences();
-        this.fileLinker = new ExternalFilesEntryLinker(preferences.getExternalApplicationsPreferences(), preferences.getFilePreferences(), dialogService, stateManager);
+        this.fileLinker = new ExternalFilesEntryLinker(preferences.getExternalApplicationsPreferences(),
+                preferences.getFilePreferences(), dialogService, stateManager);
         this.stateManager = stateManager;
 
         PreviewPreferences previewPreferences = preferences.getPreviewPreferences();
@@ -124,8 +121,7 @@ public class PreviewPanel extends VBox implements PreviewControls {
                 position -> { // An expanded form of a lambda (with {} and a return statement) has to be used. Otherwise, it would mark the call as "ambiguous".
                     return previewPreferences.getLayoutCycle().get(position.intValue());
                 },
-                layout -> previewPreferences.getLayoutCycle().indexOf(layout)
-        );
+                layout -> previewPreferences.getLayoutCycle().indexOf(layout));
 
         previewSelectionBar.getChildren().addAll(previewLayoutLabel, previewLayoutComboBox);
         return previewSelectionBar;
@@ -157,7 +153,11 @@ public class PreviewPanel extends VBox implements PreviewControls {
         boolean success = false;
         if (event.getDragboard().hasContent(DataFormat.FILES)) {
             TransferMode transferMode = event.getTransferMode();
-            List<Path> files = event.getDragboard().getFiles().stream().map(File::toPath).collect(Collectors.toList());
+            List<Path> files = event.getDragboard()
+                                    .getFiles()
+                                    .stream()
+                                    .map(File::toPath)
+                                    .collect(Collectors.toList());
             DragDrop.handleDropOfFiles(files, transferMode, fileLinker, entry);
             success = true;
         }
@@ -167,15 +167,16 @@ public class PreviewPanel extends VBox implements PreviewControls {
     }
 
     private void createKeyBindings() {
-        previewView.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            Optional<KeyBinding> keyBinding = keyBindingRepository.mapToKeyBinding(event);
-            if (keyBinding.isPresent()) {
-                if (keyBinding.get() == KeyBinding.COPY_PREVIEW) {
-                    previewView.copyPreviewHtmlToClipBoard();
-                    event.consume();
-                }
-            }
-        });
+        previewView.addEventFilter(KeyEvent.KEY_PRESSED,
+                event -> {
+                    Optional<KeyBinding> keyBinding = keyBindingRepository.mapToKeyBinding(event);
+                    if (keyBinding.isPresent()) {
+                        if (keyBinding.get() == KeyBinding.COPY_PREVIEW) {
+                            previewView.copyPreviewHtmlToClipBoard();
+                            event.consume();
+                        }
+                    }
+                });
     }
 
     private ContextMenu createPopupMenu() {
@@ -240,8 +241,7 @@ public class PreviewPanel extends VBox implements PreviewControls {
     private void updatePreview() {
         PreviewLayout layout = previewPreferences.getSelectedPreviewLayout();
         previewView.setLayout(layout);
-        dialogService.notify(
-                new Notifications.UiNotification(Localization.lang("Preview style changed"), layout.getDisplayName())
-                        .withAutoClose(Duration.seconds(5)));
+        dialogService.notify(new Notifications.UiNotification(Localization.lang("Preview style changed"), layout.getDisplayName())
+                .withAutoClose(Duration.seconds(5)));
     }
 }

@@ -7,7 +7,6 @@ import org.jabref.model.util.OptionalUtil;
 
 /// @implNote Enter the extensions in lowercase without a dot! The dot is added implicitly.
 public enum StandardFileType implements FileType {
-
     ANY_FILE("Any", "*"),
 
     AUX("Aux file", "aux"),
@@ -27,7 +26,8 @@ public enum StandardFileType implements FileType {
     EPS("Encapsulated PostScript", "eps"),
     EXCEL("Microsoft Excel", "xls", "xlsx"),
     HTML("HTML", "html", "htm"),
-    IMAGE("Image", "png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp"),
+    IMAGE("Image", "png", "jpg", "jpeg", "gif", "bmp",
+            "tiff", "webp"),
     ISI("Isi", "isi", "txt"),
     JAR("JAR", "jar"),
     JSON("JSON", "json"),
@@ -76,8 +76,10 @@ public enum StandardFileType implements FileType {
         List<String> exts = Arrays.asList(extensions);
 
         return OptionalUtil.orElse(Arrays.stream(StandardFileType.values())
-                                         .filter(field -> field.getExtensions().stream().anyMatch(exts::contains))
-                                         .findAny(),
+                .filter(field -> field.getExtensions()
+                                      .stream()
+                                      .anyMatch(exts::contains))
+                .findAny(),
                 new UnknownFileType(extensions));
     }
 }

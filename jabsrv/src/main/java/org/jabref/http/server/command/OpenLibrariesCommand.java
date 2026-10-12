@@ -4,11 +4,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jabref.logic.UiCommand;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import jakarta.ws.rs.core.Response;
+import org.jabref.logic.UiCommand;
 
 @JsonTypeName("open")
 public class OpenLibrariesCommand extends Command {
@@ -19,8 +18,8 @@ public class OpenLibrariesCommand extends Command {
     @Override
     public Response execute() {
         List<Path> pathList = paths.stream()
-                                   .map(Path::of)
-                                   .toList();
+                .map(Path::of)
+                .toList();
         return execute(new UiCommand.OpenLibraries(pathList));
     }
 }

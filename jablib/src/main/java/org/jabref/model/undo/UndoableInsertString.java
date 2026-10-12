@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibtexString;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Insertion of a BibTeX string definition.
@@ -27,9 +26,7 @@ public record UndoableInsertString(BibDatabase database, BibtexString string) im
 
     @Override
     public boolean equals(Object object) {
-        return (object instanceof UndoableInsertString other)
-                && ChangeIdentity.same(database, other.database)
-                && ChangeIdentity.same(string, other.string);
+        return (object instanceof UndoableInsertString other) && ChangeIdentity.same(database, other.database) && ChangeIdentity.same(string, other.string);
     }
 
     @Override

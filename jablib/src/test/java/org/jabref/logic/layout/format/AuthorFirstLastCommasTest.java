@@ -3,7 +3,6 @@ package org.jabref.logic.layout.format;
 import java.util.stream.Stream;
 
 import org.jabref.logic.layout.LayoutFormatter;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -29,7 +28,6 @@ class AuthorFirstLastCommasTest {
                 Arguments.of("John von Neumann, John Smith and Peter Black Brown", "von Neumann, John and Smith, John and Black Brown, Peter"),
                 Arguments.of("John von Neumann, John Smith and Peter Black Brown", "John von Neumann and John Smith and Black Brown, Peter"),
                 Arguments.of("John von Neumann and Peter Black Brown", "John von Neumann and Peter Black Brown"),
-                Arguments.of("John von Neumann and Peter Black Brown", "John von Neumann and Peter Black Brown")
-        );
+                Arguments.of("John von Neumann and Peter Black Brown", "John von Neumann and Peter Black Brown"));
     }
 }

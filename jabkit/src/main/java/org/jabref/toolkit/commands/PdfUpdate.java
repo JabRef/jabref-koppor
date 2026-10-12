@@ -5,10 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import com.airhacks.afterburner.injection.Injector;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.exporter.EmbeddedBibFilePdfExporter;
@@ -25,8 +25,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.toolkit.exception.ImportServiceException;
 import org.jabref.toolkit.service.ImportService;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,10 +43,16 @@ class PdfUpdate implements Callable<Integer> {
     @Mixin
     private JabKit.SharedOptions sharedOptions;
 
-    @Option(names = "--format", description = "Format to update (xmp, bibtex-attachment)", split = ",")
+    @Option(
+            names = "--format",
+            description = "Format to update (xmp, bibtex-attachment)",
+            split = ",")
     private List<String> formats = List.of("xmp", "bibtex-attachment"); // ToDO: default value?
 
-    @Option(names = {"-k", "--citation-key"}, description = "Citation keys", required = true)
+    @Option(
+            names = {"-k", "--citation-key"},
+            description = "Citation keys",
+            required = true)
     private List<String> citationKeys = List.of(); // ToDo: check default value
 
     @Mixin
@@ -68,18 +72,15 @@ class PdfUpdate implements Callable<Integer> {
         }
 
         Path inputFile = inputOption.getInputFile(pdf.argumentProcessor.cliPreferences);
-        ParserResult parserResult = ImportService.importFile(
-                inputFile,
-                inputFormat,
-                pdf.argumentProcessor.cliPreferences,
-                sharedOptions.porcelain);
+        ParserResult parserResult = ImportService.importFile(inputFile, inputFormat, pdf.argumentProcessor.cliPreferences, sharedOptions.porcelain);
 
         if (!sharedOptions.porcelain) {
             System.out.println(Localization.lang("Updating PDF metadata."));
             System.out.flush();
         }
 
-        writeMetadataToPdf(List.of(parserResult),
+        writeMetadataToPdf(
+                List.of(parserResult),
                 List.of(inputFile),
                 citationKeys,
                 pdf.argumentProcessor.cliPreferences.getXmpPreferences(),
@@ -94,20 +95,23 @@ class PdfUpdate implements Callable<Integer> {
         return 0;
     }
 
-    private static void writeMetadataToPdf(List<ParserResult> loaded,
-                                           List<Path> files,
-                                           List<String> citationKeys,
-                                           XmpPreferences xmpPreferences,
-                                           FilePreferences filePreferences,
-                                           BibDatabaseMode databaseMode,
-                                           BibEntryTypesManager entryTypesManager,
-                                           FieldPreferences fieldPreferences,
-                                           JournalAbbreviationRepository abbreviationRepository,
-                                           boolean writeXMP,
-                                           boolean embedBibfile) {
+    private static void writeMetadataToPdf(
+            List<ParserResult> loaded,
+            List<Path> files,
+            List<String> citationKeys,
+            XmpPreferences xmpPreferences,
+            FilePreferences filePreferences,
+            BibDatabaseMode databaseMode,
+            BibEntryTypesManager entryTypesManager,
+            FieldPreferences fieldPreferences,
+            JournalAbbreviationRepository abbreviationRepository,
+            boolean writeXMP,
+            boolean embedBibfile) {
         ParserResult pr = loaded.getLast();
         BibDatabaseContext databaseContext = pr.getDatabaseContext();
-        pr.getPath().map(Path::toAbsolutePath).ifPresent(databaseContext::setDatabasePath);
+        pr.getPath()
+          .map(Path::toAbsolutePath)
+          .ifPresent(databaseContext::setDatabasePath);
 
         XmpPdfExporter xmpPdfExporter = new XmpPdfExporter(xmpPreferences);
         EmbeddedBibFilePdfExporter embeddedBibFilePdfExporter = new EmbeddedBibFilePdfExporter(databaseMode, entryTypesManager, fieldPreferences);
@@ -137,67 +141,49 @@ class PdfUpdate implements Callable<Integer> {
                 abbreviationRepository,
                 writeXMP,
                 embedBibfile);
-        writeMetadataToPdfByFileNames(
-                databaseContext,
-                files,
-                filePreferences,
-                xmpPdfExporter,
-                embeddedBibFilePdfExporter,
-                abbreviationRepository,
-                writeXMP,
-                embedBibfile);
+        writeMetadataToPdfByFileNames(databaseContext, files, filePreferences, xmpPdfExporter, embeddedBibFilePdfExporter, abbreviationRepository,
+                writeXMP, embedBibfile);
     }
 
-    private static void writeMetadataToPDFsOfEntry(BibDatabaseContext databaseContext,
-                                                   String citeKey,
-                                                   BibEntry entry,
-                                                   FilePreferences filePreferences,
-                                                   XmpPdfExporter xmpPdfExporter,
-                                                   EmbeddedBibFilePdfExporter embeddedBibFilePdfExporter,
-                                                   JournalAbbreviationRepository abbreviationRepository,
-                                                   boolean writeXMP,
-                                                   boolean embedBibfile) {
+    private static void writeMetadataToPDFsOfEntry(
+            BibDatabaseContext databaseContext,
+            String citeKey,
+            BibEntry entry,
+            FilePreferences filePreferences,
+            XmpPdfExporter xmpPdfExporter,
+            EmbeddedBibFilePdfExporter embeddedBibFilePdfExporter,
+            JournalAbbreviationRepository abbreviationRepository,
+            boolean writeXMP,
+            boolean embedBibfile) {
         try {
             if (writeXMP) {
-                if (xmpPdfExporter.exportToAllFilesOfEntry(
-                        databaseContext,
-                        filePreferences,
-                        entry,
-                        List.of(entry),
-                        abbreviationRepository)) {
+                if (xmpPdfExporter.exportToAllFilesOfEntry(databaseContext, filePreferences, entry, List.of(entry), abbreviationRepository)) {
                     System.out.println(Localization.lang("Successfully written XMP metadata on at least one linked file of %0.", citeKey));
                 } else {
                     System.out.println(Localization.lang("Cannot write XMP metadata on any linked files of %0. Make sure there is at least one linked file and the path is correct.", citeKey));
                 }
             }
             if (embedBibfile) {
-                if (embeddedBibFilePdfExporter.exportToAllFilesOfEntry(
-                        databaseContext,
-                        filePreferences,
-                        entry,
-                        List.of(entry),
-                        abbreviationRepository)) {
+                if (embeddedBibFilePdfExporter.exportToAllFilesOfEntry(databaseContext, filePreferences, entry, List.of(entry), abbreviationRepository)) {
                     System.out.println(Localization.lang("Successfully embedded metadata on at least one linked file of %0.", citeKey));
                 } else {
                     System.out.println(Localization.lang("Cannot embed metadata on any linked files of %s. Make sure there is at least one linked file and the path is correct.", citeKey));
                 }
             }
-        } catch (IOException
-                 | ParserConfigurationException
-                 | SaveException
-                 | TransformerException _) {
+        } catch (IOException | ParserConfigurationException | SaveException | TransformerException _) {
             LOGGER.error("Failed writing metadata on a linked file of {}.", citeKey);
         }
     }
 
-    private static void writeMetadataToPdfByCitekey(BibDatabaseContext databaseContext,
-                                                    List<String> citeKeys,
-                                                    FilePreferences filePreferences,
-                                                    XmpPdfExporter xmpPdfExporter,
-                                                    EmbeddedBibFilePdfExporter embeddedBibFilePdfExporter,
-                                                    JournalAbbreviationRepository abbreviationRepository,
-                                                    boolean writeXMP,
-                                                    boolean embedBibfile) {
+    private static void writeMetadataToPdfByCitekey(
+            BibDatabaseContext databaseContext,
+            List<String> citeKeys,
+            FilePreferences filePreferences,
+            XmpPdfExporter xmpPdfExporter,
+            EmbeddedBibFilePdfExporter embeddedBibFilePdfExporter,
+            JournalAbbreviationRepository abbreviationRepository,
+            boolean writeXMP,
+            boolean embedBibfile) {
         for (String citeKey : citeKeys) {
             List<BibEntry> bibEntryList = databaseContext.getDatabase().getEntriesByCitationKey(citeKey);
             if (bibEntryList.isEmpty()) {
@@ -219,18 +205,19 @@ class PdfUpdate implements Callable<Integer> {
         }
     }
 
-    private static void writeMetadataToPdfByFileNames(BibDatabaseContext databaseContext,
-                                                      List<Path> pdfs,
-                                                      FilePreferences filePreferences,
-                                                      XmpPdfExporter xmpPdfExporter,
-                                                      EmbeddedBibFilePdfExporter embeddedBibFilePdfExporter,
-                                                      JournalAbbreviationRepository abbreviationRepository,
-                                                      boolean writeXMP,
-                                                      boolean embedBibfile) {
+    private static void writeMetadataToPdfByFileNames(
+            BibDatabaseContext databaseContext,
+            List<Path> pdfs,
+            FilePreferences filePreferences,
+            XmpPdfExporter xmpPdfExporter,
+            EmbeddedBibFilePdfExporter embeddedBibFilePdfExporter,
+            JournalAbbreviationRepository abbreviationRepository,
+            boolean writeXMP,
+            boolean embedBibfile) {
         for (Path filePath : pdfs) {
             if (!filePath.isAbsolute()) {
-                filePath = FileUtil.find(filePath.toString(), databaseContext.getFileDirectories(filePreferences)).orElse(
-                        FileUtil.find(filePath.toString(), List.of(Path.of("").toAbsolutePath())).orElse(filePath));
+                filePath = FileUtil.find(filePath.toString(), databaseContext.getFileDirectories(filePreferences)).orElse(FileUtil.find(filePath.toString(), List.of(Path.of("").toAbsolutePath()))
+                        .orElse(filePath));
             }
 
             if (!Files.exists(filePath)) {
@@ -253,10 +240,7 @@ class PdfUpdate implements Callable<Integer> {
                         System.out.println(Localization.lang("File %0 is not linked to any entry in library.", filePath));
                     }
                 }
-            } catch (IOException
-                     | ParserConfigurationException
-                     | SaveException
-                     | TransformerException _) {
+            } catch (IOException | ParserConfigurationException | SaveException | TransformerException _) {
                 LOGGER.error("Error writing entry to {}.", filePath);
             }
         }

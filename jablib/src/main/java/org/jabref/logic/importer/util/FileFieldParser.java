@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.util.Range;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,27 +32,35 @@ public class FileFieldParser {
         }
     }
 
-    /// Converts the string representation of LinkedFileData to a List of LinkedFile
+    /// Converts the string representation of LinkedFileData to a List of
+    /// LinkedFile
     ///
-    /// The syntax of one element is description:path:type
-    /// Multiple elements are concatenated with ;
+    /// The syntax of one element is description:path:type Multiple elements are
+    /// concatenated with ;
     ///
     /// The main challenges of the implementation are:
     ///
-    ///
-    /// - that XML characters might be included (thus one cannot simply split on ";")
+    /// - that XML characters might be included (thus one cannot simply split on
+    ///   ";")
     /// - some characters might be escaped
     /// - Windows absolute paths might be included without escaping
-    ///
     public static List<LinkedFile> parse(String value) {
         // We need state to have a more clean code. Thus, we instantiate the class and then return the result
         FileFieldParser fileFieldParser = new FileFieldParser(value);
-        return fileFieldParser.parse().stream().map(LinkedFilePosition::linkedFile).collect(Collectors.toList());
+        return fileFieldParser.parse()
+                              .stream()
+                              .map(LinkedFilePosition::linkedFile)
+                              .collect(Collectors.toList());
     }
 
     public static Map<LinkedFile, Range> parseToPosition(String value) {
         FileFieldParser fileFieldParser = new FileFieldParser(value);
-        return fileFieldParser.parse().stream().collect(HashMap::new, (map, position) -> map.put(position.linkedFile(), position.range()), HashMap::putAll);
+        return fileFieldParser.parse()
+                              .stream()
+                              .collect(
+                                      HashMap::new,
+                                      (map, position) -> map.put(position.linkedFile(), position.range()),
+                                      HashMap::putAll);
     }
 
     private List<LinkedFilePosition> parse() {
@@ -150,10 +157,12 @@ public class FileFieldParser {
     ///
     /// SIDE EFFECT: The given entry list is cleared upon completion
     ///
-    /// Expected format is: description:link:fileType:sourceURL
-    /// fileType is an [org.jabref.gui.externalfiletype.ExternalFileType], which contains a name and a mime type
+    /// Expected format is: description:link:fileType:sourceURL fileType is an
+    /// [org.jabref.gui.externalfiletype.ExternalFileType], which contains a
+    /// name and a mime type
     ///
-    /// @param entry the list of elements in the linked file textual representation
+    /// @param entry the list of elements in the linked file textual
+    ///   representation
     /// @return a LinkedFile object
     static LinkedFile convert(List<String> entry) {
         // ensure list has at least 3 fields
@@ -201,6 +210,5 @@ public class FileFieldParser {
         return field;
     }
 
-    private record LinkedFilePosition(LinkedFile linkedFile, Range range) {
-    }
+    private record LinkedFilePosition(LinkedFile linkedFile, Range range) {}
 }

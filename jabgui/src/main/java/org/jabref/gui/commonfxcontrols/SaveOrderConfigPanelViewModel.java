@@ -7,7 +7,6 @@ import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.model.entry.field.Field;
 
 public class SaveOrderConfigPanelViewModel {
@@ -19,8 +18,7 @@ public class SaveOrderConfigPanelViewModel {
     private final ListProperty<Field> sortableFieldsProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
     private final ListProperty<SortCriterionViewModel> selectedSortCriteriaProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
 
-    public SaveOrderConfigPanelViewModel() {
-    }
+    public SaveOrderConfigPanelViewModel() {}
 
     public void addCriterion() {
         selectedSortCriteriaProperty.add(new SortCriterionViewModel());

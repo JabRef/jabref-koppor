@@ -14,6 +14,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.regex.Pattern;
 
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.formatter.bibtexfields.ClearFormatter;
 import org.jabref.logic.formatter.bibtexfields.HtmlToLatexFormatter;
@@ -36,10 +39,6 @@ import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.OptionalUtil;
-
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,8 +116,7 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
 
     @Override
     public Optional<BibEntry> performSearchById(String identifier) throws FetcherException {
-        DOI doi = DOI.parse(identifier)
-                     .orElseThrow(() -> new FetcherException(Localization.lang("Invalid DOI: '%0'.", identifier)));
+        DOI doi = DOI.parse(identifier).orElseThrow(() -> new FetcherException(Localization.lang("Invalid DOI: '%0'.", identifier)));
 
         URL doiURL;
         try {
@@ -147,7 +145,9 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
 
         BibtexParser bibtexParser = new BibtexParser(preferences, new DummyFileUpdateMonitor());
         try {
-            fetchedEntry = bibtexParser.parseEntries(inputStream).stream().findFirst();
+            fetchedEntry = bibtexParser.parseEntries(inputStream)
+                    .stream()
+                    .findFirst();
         } catch (ParseException e) {
             throw new FetcherException(doiURL, "Could not parse BibTeX entry", e);
         }
@@ -164,13 +164,12 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
             // difference in the http(s) prefix (or letter case) is not reported as a mismatch,
             // while still distinguishing a missing field from a present-but-unparsable value.
             entry.getField(StandardField.DOI).ifPresentOrElse(
-                    fetchedDoi -> DOI.parse(fetchedDoi).ifPresentOrElse(
-                            entryDoi -> {
-                                if (!entryDoi.equals(doi)) {
-                                    LOGGER.warn("Fetched entry's DOI {} is different from requested DOI {}", entryDoi.asString(), identifier);
-                                }
-                            },
-                            () -> LOGGER.warn("Fetched entry contains invalid DOI field value {} (requested {})", fetchedDoi, identifier)),
+                    fetchedDoi -> DOI.parse(fetchedDoi).ifPresentOrElse(entryDoi -> {
+                        if (!entryDoi.equals(doi)) {
+                            LOGGER.warn("Fetched entry's DOI {} is different from requested DOI {}", entryDoi.asString(), identifier);
+                        }
+                    },
+                                             () -> LOGGER.warn("Fetched entry contains invalid DOI field value {} (requested {})", fetchedDoi, identifier)),
                     () -> LOGGER.warn("Fetched entry does not contain doi field {}", identifier));
 
             if (isAPSJournal(entry, doi) && !entry.hasField(StandardField.PAGES)) {
@@ -225,9 +224,7 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
     public Optional<String> getAgency(DOI doi) throws FetcherException, MalformedURLException {
         Optional<String> agency = Optional.empty();
         try {
-            URLDownload download = getUrlDownload(
-                    URLUtil.create(DOI.AGENCY_RESOLVER + "/" + URLEncoder.encode(doi.asString(),
-                            StandardCharsets.UTF_8)));
+            URLDownload download = getUrlDownload(URLUtil.create(DOI.AGENCY_RESOLVER + "/" + URLEncoder.encode(doi.asString(), StandardCharsets.UTF_8)));
             JSONObject response = new JSONArray(download.asString()).getJSONObject(0);
             if (response != null) {
                 agency = Optional.ofNullable(response.optString("RA"));

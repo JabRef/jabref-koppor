@@ -8,6 +8,9 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.EasyBinding;
+import com.tobiasdiez.easybind.PreboundBinding;
 import javafx.beans.Observable;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
@@ -23,7 +26,6 @@ import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.util.Pair;
-
 import org.jabref.gui.ai.chat.AiGroupChatWindow;
 import org.jabref.gui.search.SearchType;
 import org.jabref.gui.sidepane.SidePaneType;
@@ -40,10 +42,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.search.query.SearchQuery;
-
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.EasyBinding;
-import com.tobiasdiez.easybind.PreboundBinding;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -65,11 +63,12 @@ public class JabRefGuiStateManager extends AbstractSrvStateManager implements St
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JabRefGuiStateManager.class);
 
-    /// Keyed by [BibDatabaseContext#getUid], as `selectedGroups` is: a context's `hashCode`
-    /// changes whenever an entry is added, so a map keyed by the context itself loses its entries.
-    /// Concurrent because changes are recorded from background tasks as well as from the JavaFX
-    /// thread.
+    /// Keyed by [BibDatabaseContext#getUid], as `selectedGroups` is: a
+    /// context's `hashCode` changes whenever an entry is added, so a map keyed
+    /// by the context itself loses its entries. Concurrent because changes are
+    /// recorded from background tasks as well as from the JavaFX thread.
     private final Map<String, JabRefGuiUndoManager> undoManagers = new ConcurrentHashMap<>();
+
     private final CustomLocalDragboard localDragboard = new CustomLocalDragboard();
     private final ObservableList<BibDatabaseContext> openDatabases = FXCollections.observableArrayList();
     private final OptionalObjectProperty<BibDatabaseContext> activeDatabase = OptionalObjectProperty.empty();
@@ -85,12 +84,19 @@ public class JabRefGuiStateManager extends AbstractSrvStateManager implements St
     private final ObservableList<Pair<BackgroundTask<?>, Task<?>>> backgroundTasksPairs = FXCollections.observableArrayList(task -> new Observable[] {task.getValue().progressProperty(), task.getValue().runningProperty()});
     private final ObservableList<Task<?>> backgroundTasks = EasyBind.map(backgroundTasksPairs, Pair::getValue);
     private final FilteredList<Task<?>> runningBackgroundTasks = new FilteredList<>(backgroundTasks, Task::isRunning);
-    private final EasyBinding<Boolean> anyTasksThatWillNotBeRecoveredRunning = EasyBind.reduce(backgroundTasksPairs, tasks -> tasks.anyMatch(task -> !task.getKey().willBeRecoveredAutomatically() && task.getValue().isRunning()));
+    private final EasyBinding<Boolean> anyTasksThatWillNotBeRecoveredRunning = EasyBind.reduce(backgroundTasksPairs,
+            tasks ->
+                    tasks.anyMatch(task -> !task.getKey().willBeRecoveredAutomatically() && task.getValue().isRunning()));
     private final ObservableMap<String, DialogWindowState> dialogWindowStates = FXCollections.observableHashMap();
     private final ObservableList<SidePaneType> visibleSidePanes = FXCollections.observableArrayList();
     private final ObservableList<String> searchHistory = FXCollections.observableArrayList();
-    /// Keyed by [BibDatabaseContext#getUid()] instead of [BibDatabaseContext], because [BibDatabaseContext#equals(Object)] (and the matching [BibDatabaseContext#hashCode()]) change with the library content and cannot be used as [HashMap] keys.
+
+    /// Keyed by [BibDatabaseContext#getUid()] instead of [BibDatabaseContext],
+    /// because [BibDatabaseContext#equals(Object)] (and the matching
+    /// [BibDatabaseContext#hashCode()]) change with the library content and
+    /// cannot be used as [HashMap] keys.
     private final Map<String, Map<String, AiGroupChatWindow>> groupAiChatWindows = new HashMap<>();
+
     private final BooleanProperty editorShowing = new SimpleBooleanProperty(false);
     private final OptionalObjectProperty<Walkthrough> activeWalkthrough = OptionalObjectProperty.empty();
     private final BooleanProperty canGoBack = new SimpleBooleanProperty(false);
@@ -121,10 +127,12 @@ public class JabRefGuiStateManager extends AbstractSrvStateManager implements St
         return activeTab;
     }
 
-    /// Creates the journal on first use, which for a library is while its tab is being built. A
-    /// caller that names a library after it closed therefore gets a fresh journal rather than the
-    /// one that was discarded; [org.jabref.gui.LibraryTab#getUndoManager] answers with the journal
-    /// the library had instead, so that path cannot put a new one back into this map.
+    /// Creates the journal on first use, which for a library is while its tab
+    /// is being built. A caller that names a library after it closed therefore
+    /// gets a fresh journal rather than the one that was discarded;
+    /// [org.jabref.gui.LibraryTab#getUndoManager] answers with the journal the
+    /// library had instead, so that path cannot put a new one back into this
+    /// map.
     // [impl->req~logic.undo.journal-per-library~1]
     @Override
     public GuiUndoManager getUndoManager(BibDatabaseContext context) {
@@ -153,12 +161,13 @@ public class JabRefGuiStateManager extends AbstractSrvStateManager implements St
 
     /// The live selection, not a snapshot of it.
     ///
-    /// [#setSelectedEntries] replaces the contents of this very list, which happens every time the
-    /// user selects different entries or switches to another library.
+    /// [#setSelectedEntries] replaces the contents of this very list, which
+    /// happens every time the user selects different entries or switches to
+    /// another library.
     ///
-    /// Copy it before handing it to anything that reads it later, such as a background task.
-    /// A task holding this list sees the selection as it is when it looks, not as it was when the
-    /// task started.
+    /// Copy it before handing it to anything that reads it later, such as a
+    /// background task. A task holding this list sees the selection as it is
+    /// when it looks, not as it was when the task started.
     @Override
     public ObservableList<BibEntry> getSelectedEntries() {
         return selectedEntries;
@@ -247,11 +256,10 @@ public class JabRefGuiStateManager extends AbstractSrvStateManager implements St
     @Override
     public List<String> getAllDatabasePaths() {
         List<String> list = new ArrayList<>();
-        getOpenDatabases().stream()
-                          .map(BibDatabaseContext::getDatabasePath)
-                          .forEachOrdered(pathOptional -> pathOptional.ifPresentOrElse(
-                                  path -> list.add(path.toAbsolutePath().toString()),
-                                  () -> list.add("")));
+        getOpenDatabases()
+                .stream()
+                .map(BibDatabaseContext::getDatabasePath)
+                .forEachOrdered(pathOptional -> pathOptional.ifPresentOrElse(path -> list.add(path.toAbsolutePath().toString()), () -> list.add("")));
         return list;
     }
 
@@ -292,14 +300,12 @@ public class JabRefGuiStateManager extends AbstractSrvStateManager implements St
 
     @Override
     public Optional<AiGroupChatWindow> getAiChatWindowForGroup(BibDatabaseContext context, String groupName) {
-        return Optional.ofNullable(groupAiChatWindows.get(context.getUid()))
-                       .flatMap(innerMap -> Optional.ofNullable(innerMap.get(groupName)));
+        return Optional.ofNullable(groupAiChatWindows.get(context.getUid())).flatMap(innerMap -> Optional.ofNullable(innerMap.get(groupName)));
     }
 
     @Override
     public void setAiChatWindowForGroup(BibDatabaseContext context, String groupName, AiGroupChatWindow aiGroupChatWindow) {
-        groupAiChatWindows.computeIfAbsent(context.getUid(), _ -> new HashMap<>())
-                          .put(groupName, aiGroupChatWindow);
+        groupAiChatWindows.computeIfAbsent(context.getUid(), _ -> new HashMap<>()).put(groupName, aiGroupChatWindow);
     }
 
     @Override

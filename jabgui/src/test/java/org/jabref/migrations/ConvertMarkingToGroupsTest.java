@@ -10,7 +10,6 @@ import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,8 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ConvertMarkingToGroupsTest {
     @Test
     void performMigrationForSingleEntry() {
-        BibEntry entry = new BibEntry()
-                .withField(InternalField.MARKED_INTERNAL, "[Nicolas:6]");
+        BibEntry entry = new BibEntry().withField(InternalField.MARKED_INTERNAL, "[Nicolas:6]");
         ParserResult parserResult = new ParserResult(Set.of(entry));
 
         new ConvertMarkingToGroups().performMigration(parserResult);
@@ -29,6 +27,7 @@ class ConvertMarkingToGroupsTest {
         markings.addSubgroup(new ExplicitGroup("Nicolas:6", GroupHierarchyType.INCLUDING, ','));
 
         assertEquals(Optional.empty(), entry.getField(InternalField.MARKED_INTERNAL));
-        assertEquals(Optional.of(rootExpected), parserResult.getMetaData().getGroups());
+        assertEquals(Optional.of(rootExpected),
+                parserResult.getMetaData().getGroups());
     }
 }

@@ -18,7 +18,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
@@ -42,7 +41,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.groups.AbstractGroup;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -62,12 +60,8 @@ public class MainTableColumnFactory {
     private final StateManager stateManager;
     private final MainTableTooltip tooltip;
 
-    public MainTableColumnFactory(@NonNull BibDatabaseContext database,
-                                  @NonNull GuiPreferences preferences,
-                                  ColumnPreferences abstractColumnPrefs,
-                                  DialogService dialogService,
-                                  StateManager stateManager,
-                                  TaskExecutor taskExecutor) {
+    public MainTableColumnFactory(@NonNull BibDatabaseContext database, @NonNull GuiPreferences preferences, ColumnPreferences abstractColumnPrefs,
+            DialogService dialogService, StateManager stateManager, TaskExecutor taskExecutor) {
         this.database = database;
         this.preferences = preferences;
         this.columnPreferences = abstractColumnPrefs;
@@ -136,7 +130,8 @@ public class MainTableColumnFactory {
         List<TableColumn<BibEntryTableViewModel, ?>> columns = new ArrayList<>();
 
         columns.add(createMatchCategoryColumn(new MainTableColumnModel(MainTableColumnModel.Type.MATCH_CATEGORY)));
-        columnPreferences.getColumns().stream()
+        columnPreferences.getColumns()
+                         .stream()
                          .filter(MainTableColumnModel::isConfigurable)
                          .map(this::createColumn)
                          .filter(Objects::nonNull)
@@ -171,8 +166,11 @@ public class MainTableColumnFactory {
         Tooltip.install(header, new Tooltip(MainTableColumnModel.Type.INDEX.getDisplayName()));
         column.setGraphic(header);
         column.getStyleClass().add("align-center-right");
-        column.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(
-                String.valueOf(cellData.getTableView().getItems().indexOf(cellData.getValue()) + 1)));
+        column.setCellValueFactory(cellData ->
+                new ReadOnlyObjectWrapper<>(String.valueOf(cellData.getTableView()
+                        .getItems()
+                        .indexOf(cellData.getValue())
+                        + 1)));
         new ValueTableCellFactory<BibEntryTableViewModel, String>()
                 .withText(text -> text)
                 .install(column);
@@ -217,8 +215,10 @@ public class MainTableColumnFactory {
 
     private Node createGroupColorRegion(BibEntryTableViewModel entry, List<AbstractGroup> matchedGroups) {
         List<Color> groupColors = matchedGroups.stream()
-                                               .flatMap(group -> group.getColor().map(Color::valueOf).stream())
-                                               .toList();
+                .flatMap(group -> group.getColor()
+                                       .map(Color::valueOf)
+                                       .stream())
+                .toList();
 
         if (!groupColors.isEmpty()) {
             HBox container = new HBox();
@@ -227,20 +227,23 @@ public class MainTableColumnFactory {
             container.setAlignment(Pos.CENTER_LEFT);
             container.setPadding(new Insets(0, 2, 0, 2));
 
-            groupColors.stream().distinct().forEach(groupColor -> {
-                Rectangle groupRectangle = new Rectangle();
-                groupRectangle.getStyleClass().add("groupColumnBackground");
-                groupRectangle.setWidth(3);
-                groupRectangle.setHeight(18);
-                groupRectangle.setFill(groupColor);
-                groupRectangle.setStrokeWidth(1);
-                container.getChildren().add(groupRectangle);
-            });
+            groupColors.stream()
+                       .distinct()
+                       .forEach(
+                               groupColor -> {
+                                   Rectangle groupRectangle = new Rectangle();
+                                   groupRectangle.getStyleClass().add("groupColumnBackground");
+                                   groupRectangle.setWidth(3);
+                                   groupRectangle.setHeight(18);
+                                   groupRectangle.setFill(groupColor);
+                                   groupRectangle.setStrokeWidth(1);
+                                   container.getChildren().add(groupRectangle);
+                               });
 
             String matchedGroupsString = matchedGroups.stream()
-                                                      .distinct()
-                                                      .map(AbstractGroup::getName)
-                                                      .collect(Collectors.joining(", "));
+                    .distinct()
+                    .map(AbstractGroup::getName)
+                    .collect(Collectors.joining(", "));
             Tooltip tooltip = new Tooltip(Localization.lang("Entry is contained in the following groups:") + "\n" + matchedGroupsString);
             Tooltip.install(container, tooltip);
             return container;
@@ -250,25 +253,27 @@ public class MainTableColumnFactory {
 
     private Node createGroupIconRegion(BibEntryTableViewModel entry, List<AbstractGroup> matchedGroups) {
         List<JabRefIcon> groupIcons = matchedGroups.stream()
-                                                   .filter(abstractGroup -> abstractGroup.getIconName().isPresent())
-                                                   .flatMap(group -> IconTheme.findGroupIcon(group.getIconName().get())
-                                                                              .map(icon -> icon.withColor(group.getColor()
-                                                                                                               .map(Color::valueOf)
-                                                                                                               .orElse(IconTheme.DEFAULT_GROUP_COLOR)))
-                                                                              .stream())
-                                                   .toList();
+                .filter(abstractGroup -> abstractGroup.getIconName().isPresent())
+                .flatMap(group -> IconTheme.findGroupIcon(group.getIconName().get())
+                        .map(icon -> icon.withColor(group.getColor()
+                                .map(Color::valueOf)
+                                .orElse(IconTheme.DEFAULT_GROUP_COLOR)))
+                        .stream())
+                .toList();
         if (!groupIcons.isEmpty()) {
             HBox container = new HBox(4);
             container.setMinWidth(10);
             container.setAlignment(Pos.CENTER_LEFT);
             container.setPadding(new Insets(0, 2, 0, 2));
 
-            groupIcons.stream().distinct().forEach(groupIcon -> container.getChildren().add(groupIcon.getGraphicNode()));
+            groupIcons.stream()
+                      .distinct()
+                      .forEach(groupIcon -> container.getChildren().add(groupIcon.getGraphicNode()));
 
             String matchedGroupsString = matchedGroups.stream()
-                                                      .distinct()
-                                                      .map(AbstractGroup::getName)
-                                                      .collect(Collectors.joining(", "));
+                    .distinct()
+                    .map(AbstractGroup::getName)
+                    .collect(Collectors.joining(", "));
             Tooltip tooltip = new Tooltip(Localization.lang("Entry is contained in the following groups:") + "\n" + matchedGroupsString);
             Tooltip.install(container, tooltip);
             return container;
@@ -292,27 +297,21 @@ public class MainTableColumnFactory {
     }
 
     /// Creates a column for fields with content selectors.
-    private TableColumn<BibEntryTableViewModel, ?> createContentSelectorColumn(MainTableColumnModel columnModel,
-                                                                               List<String> values) {
+    private TableColumn<BibEntryTableViewModel, ?> createContentSelectorColumn(MainTableColumnModel columnModel, List<String> values) {
         return new ContentSelectorColumn(columnModel, values, stateManager);
     }
 
-    /// Creates a column for all the linked files. Instead of creating a column for a single file type, like [createExtraFileColumn][#createExtraFileColumn(MainTableColumnModel)] does, this creates one single column collecting all file links.
+    /// Creates a column for all the linked files. Instead of creating a column
+    /// for a single file type, like
+    /// [createExtraFileColumn][#createExtraFileColumn(MainTableColumnModel)]
+    /// does, this creates one single column collecting all file links.
     private TableColumn<BibEntryTableViewModel, List<LinkedFile>> createFilesColumn(MainTableColumnModel columnModel) {
-        return new FileColumn(columnModel,
-                database,
-                dialogService,
-                preferences,
-                taskExecutor);
+        return new FileColumn(columnModel, database, dialogService, preferences, taskExecutor);
     }
 
     /// Creates a column for all the linked files of a single file type.
     private TableColumn<BibEntryTableViewModel, List<LinkedFile>> createExtraFileColumn(MainTableColumnModel columnModel) {
-        return new FileColumn(columnModel,
-                database,
-                dialogService,
-                preferences,
-                columnModel.getQualifier(),
+        return new FileColumn(columnModel, database, dialogService, preferences, columnModel.getQualifier(),
                 taskExecutor);
     }
 

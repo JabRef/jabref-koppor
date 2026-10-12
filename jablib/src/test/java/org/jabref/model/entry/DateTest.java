@@ -54,8 +54,7 @@ class DateTest {
                 Arguments.of(Year.of(2), "2 AD"),
                 Arguments.of(Year.of(2), "0002 AD"),
                 Arguments.of(YearMonth.of(-29, Month.JANUARY), "0030-01 BC"),
-                Arguments.of(YearMonth.of(5, Month.FEBRUARY), "0005-02 AD")
-        );
+                Arguments.of(YearMonth.of(5, Month.FEBRUARY), "0005-02 AD"));
     }
 
     @ParameterizedTest
@@ -80,8 +79,7 @@ class DateTest {
                 Arguments.of(YearMonth.of(-29, Month.JANUARY), YearMonth.of(5, Month.FEBRUARY), "0030-01 BC/0005-02 AD"),
                 Arguments.of(YearMonth.of(-29, Month.JANUARY), YearMonth.of(5, Month.FEBRUARY), "0030-01 BC / 0005-02 AD"),
                 Arguments.of(YearMonth.of(-29, Month.JANUARY), YearMonth.of(-9, Month.FEBRUARY), "0030-01 BC / 0010-02 BC"),
-                Arguments.of(YearMonth.of(5, Month.JANUARY), YearMonth.of(20, Month.FEBRUARY), "0005-01 AD / 0020-02 AD")
-        );
+                Arguments.of(YearMonth.of(5, Month.JANUARY), YearMonth.of(20, Month.FEBRUARY), "0005-01 AD / 0020-02 AD"));
     }
 
     @ParameterizedTest
@@ -91,13 +89,8 @@ class DateTest {
     }
 
     private static Stream<Arguments> invalidCornerCases() {
-        return Stream.of(
-                Arguments.of("", "input value not empty"),
-                Arguments.of("32-06-2014", "day of month exists [1]"),
-                Arguments.of("00-06-2014", "day of month exists [2]"),
-                Arguments.of("30-13-2014", "month exists [1]"),
-                Arguments.of("30-00-2014", "month exists [2]")
-        );
+        return Stream.of(Arguments.of("", "input value not empty"), Arguments.of("32-06-2014", "day of month exists [1]"), Arguments.of("00-06-2014", "day of month exists [2]"),
+                Arguments.of("30-13-2014", "month exists [1]"), Arguments.of("30-00-2014", "month exists [2]"));
     }
 
     @ParameterizedTest
@@ -108,12 +101,7 @@ class DateTest {
 
     @Test
     void parseZonedTime() {
-        Optional<Date> expected = Optional.of(
-                new Date(ZonedDateTime.of(
-                        LocalDateTime.of(2018, Month.OCTOBER, 3, 7, 24, 14),
-                        ZoneId.from(ZoneOffset.ofHours(3)))
-                )
-        );
+        Optional<Date> expected = Optional.of(new Date(ZonedDateTime.of(LocalDateTime.of(2018, Month.OCTOBER, 3, 7, 24, 14), ZoneId.from(ZoneOffset.ofHours(3)))));
 
         assertEquals(expected, Date.parse("2018-10-03T07:24:14+03:00"));
         assertNotEquals(expected, Date.parse("2018-10-03T07:24:14+02:00"));
@@ -127,14 +115,14 @@ class DateTest {
     // Date.parse() has been updated to defensively strip surrounding whitespace from input strings.
     @Test
     void parseShouldTrimValidDate() {
-        assertEquals(
-                Date.parse("2025-05-02"),
-                Date.parse(" 2025-05-02 ")
-        );
+        assertEquals(Date.parse("2025-05-02"), Date.parse(" 2025-05-02 "));
     }
 
     @Test
     void normalizedDateRangeKeepsBothDates() {
-        assertEquals("2020/2021", Date.parse("2020/2021").orElseThrow().getNormalized());
+        assertEquals("2020/2021",
+                Date.parse("2020/2021")
+                        .orElseThrow()
+                        .getNormalized());
     }
 }

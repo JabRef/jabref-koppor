@@ -7,16 +7,15 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jabref.languageserver.util.LspParserHandler;
-import org.jabref.languageserver.util.LspRangeUtil;
-import org.jabref.logic.importer.ParserResult;
-import org.jabref.model.entry.BibEntry;
-
 import com.google.gson.JsonArray;
 import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.jabref.languageserver.util.LspParserHandler;
+import org.jabref.languageserver.util.LspRangeUtil;
+import org.jabref.logic.importer.ParserResult;
+import org.jabref.model.entry.BibEntry;
 
 public abstract class DefinitionProvider {
 
@@ -34,9 +33,12 @@ public abstract class DefinitionProvider {
         if (citationKey.isPresent()) {
             Map<String, List<BibEntry>> entriesMap = parserHandler.searchForEntryByCitationKey(citationKey.get());
             if (!entriesMap.isEmpty()) {
-                return entriesMap.entrySet().stream()
-                                 .flatMap(listEntry -> listEntry.getValue().stream()
-                                                                .map(entry -> createLocation(getRangeFromEntry(listEntry.getKey(), entry), listEntry.getKey())))
+                return entriesMap.entrySet()
+                                 .stream()
+                                 .flatMap(listEntry ->
+                                         listEntry.getValue()
+                                                  .stream()
+                                                  .map(entry -> createLocation(getRangeFromEntry(listEntry.getKey(), entry), listEntry.getKey())))
                                  .toList();
             }
         }
@@ -75,7 +77,8 @@ public abstract class DefinitionProvider {
 
     Range getRangeFromEntry(String fileUri, BibEntry entry) {
         ParserResult parserResult = parserHandler.getParserResultForUri(fileUri).get(); // always present if we have an entry from provideDefinition
-        return LspRangeUtil.convertToLspRange(parserResult.getArticleRanges().get(entry));
+        return LspRangeUtil.convertToLspRange(parserResult.getArticleRanges()
+                .get(entry));
     }
 
     Optional<String> getCitationKeyAtPosition(String content, Position position) {
@@ -134,6 +137,5 @@ public abstract class DefinitionProvider {
         return result;
     }
 
-    private record KeyBounds(String key, int start, int end) {
-    }
+    private record KeyBounds(String key, int start, int end) {}
 }

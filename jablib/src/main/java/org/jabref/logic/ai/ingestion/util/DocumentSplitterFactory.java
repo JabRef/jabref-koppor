@@ -13,16 +13,12 @@ public final class DocumentSplitterFactory {
 
     public static DocumentSplitter create(DocumentSplitterKind kind, int chunkSize, int overlapSize) {
         return switch (kind) {
-            case SLIDING_WINDOW ->
-                    new SlidingWindowDocumentSplitter(chunkSize, overlapSize);
+            case SLIDING_WINDOW -> new SlidingWindowDocumentSplitter(chunkSize, overlapSize);
         };
     }
 
     public static DocumentSplitter create(AiPreferences aiPreferences) {
-        return create(
-                aiPreferences.getDocumentSplitterKind(),
-                aiPreferences.getDocumentSplitterChunkSize(),
-                aiPreferences.getDocumentSplitterOverlapSize()
-        );
+        return create(aiPreferences.getDocumentSplitterKind(), aiPreferences.getDocumentSplitterChunkSize(),
+                aiPreferences.getDocumentSplitterOverlapSize());
     }
 }

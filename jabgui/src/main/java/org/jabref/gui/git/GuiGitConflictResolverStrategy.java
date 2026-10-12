@@ -8,16 +8,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import javafx.application.Platform;
-
 import org.jabref.logic.git.conflicts.GitConflictResolverStrategy;
 import org.jabref.logic.git.conflicts.ThreeWayEntryConflict;
 import org.jabref.model.entry.BibEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GuiGitConflictResolverStrategy implements GitConflictResolverStrategy {
-    private final static Logger LOGGER = LoggerFactory.getLogger(GuiGitConflictResolverStrategy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GuiGitConflictResolverStrategy.class);
     private final GitConflictResolverDialog dialog;
 
     public GuiGitConflictResolverStrategy(GitConflictResolverDialog dialog) {
@@ -30,7 +28,10 @@ public class GuiGitConflictResolverStrategy implements GitConflictResolverStrate
         for (ThreeWayEntryConflict conflict : conflicts) {
             Optional<BibEntry> entryOpt = callOnFxAndWait(() -> dialog.resolveConflict(conflict));
             if (entryOpt.isEmpty()) {
-                LOGGER.debug("User cancelled conflict resolution for entry {}", conflict.local().getCitationKey().orElse("<unknown>"));
+                LOGGER.debug("User cancelled conflict resolution for entry {}",
+                        conflict.local()
+                                .getCitationKey()
+                                .orElse("<unknown>"));
                 return List.of();
             }
             resolved.add(entryOpt.get());

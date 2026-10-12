@@ -3,17 +3,16 @@ package org.jabref.logic.ai.summarization.logic.summarizationalgorithms;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jabref.logic.ai.chatting.ChatModel;
-import org.jabref.logic.ai.templates.AiTemplateRenderer;
-import org.jabref.model.ai.chatting.ChatMessage;
-import org.jabref.model.ai.summarization.SummarizatorKind;
-
 import dev.langchain4j.data.document.DefaultDocument;
 import dev.langchain4j.data.document.DocumentSplitter;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.data.segment.TextSegment;
+import org.jabref.logic.ai.chatting.ChatModel;
+import org.jabref.logic.ai.templates.AiTemplateRenderer;
+import org.jabref.model.ai.chatting.ChatMessage;
+import org.jabref.model.ai.summarization.SummarizatorKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +27,7 @@ public class ChunkedSummarizator implements Summarizator {
     private final String summarizationChunkSystemMessageTemplate;
     private final String summarizationCombineSystemMessageTemplate;
 
-    public ChunkedSummarizator(
-            String summarizationChunkSystemMessageTemplate,
-            String summarizationCombineSystemMessageTemplate
-    ) {
+    public ChunkedSummarizator(String summarizationChunkSystemMessageTemplate, String summarizationCombineSystemMessageTemplate) {
         this.summarizationChunkSystemMessageTemplate = summarizationChunkSystemMessageTemplate;
         this.summarizationCombineSystemMessageTemplate = summarizationCombineSystemMessageTemplate;
     }
@@ -58,29 +54,24 @@ public class ChunkedSummarizator implements Summarizator {
     }
 
     private List<String> splitTextIntoChunks(ChatModel chatModel, String text) {
-        int chunkSystemMessageTokens = chatModel.getTokenizer().estimate(
-                ChatMessage.Role.SYSTEM,
-                summarizationChunkSystemMessageTemplate
-        );
+        int chunkSystemMessageTokens = chatModel.getTokenizer().estimate(ChatMessage.Role.SYSTEM, summarizationChunkSystemMessageTemplate);
 
         int maxChunkSize = chatModel.getContextWindowSize() - MAX_OVERLAP_SIZE_IN_CHARS * 2 - chunkSystemMessageTokens;
 
         DocumentSplitter splitter = DocumentSplitters.recursive(maxChunkSize, MAX_OVERLAP_SIZE_IN_CHARS);
 
-        return splitter.split(new DefaultDocument(text)).stream()
+        return splitter.split(new DefaultDocument(text))
+                       .stream()
                        .map(TextSegment::text)
                        .toList();
     }
 
     private boolean needsAnotherPass(ChatModel chatModel, List<String> summaries) {
-        int combineSystemMessageTokens = chatModel.getTokenizer().estimate(
-                ChatMessage.Role.SYSTEM,
-                summarizationCombineSystemMessageTemplate
-        );
+        int combineSystemMessageTokens = chatModel.getTokenizer().estimate(ChatMessage.Role.SYSTEM, summarizationCombineSystemMessageTemplate);
 
-        int summariesTokens = chatModel.getTokenizer().estimate(
-                summaries.stream().map(ChatMessage::userMessage).toList()
-        );
+        int summariesTokens = chatModel.getTokenizer().estimate(summaries.stream()
+                .map(ChatMessage::userMessage)
+                .toList());
 
         return summariesTokens > chatModel.getContextWindowSize() - combineSystemMessageTokens;
     }
@@ -104,10 +95,9 @@ public class ChunkedSummarizator implements Summarizator {
         String systemMessage = AiTemplateRenderer.renderSummarizationChunkSystemMessage(summarizationChunkSystemMessageTemplate);
 
         LOGGER.debug("Sending request to AI provider to summarize a chunk");
-        return chatModel.chat(List.of(
-                new SystemMessage(systemMessage),
-                new UserMessage(chunk)
-        )).aiMessage().text();
+        return chatModel.chat(List.of(new SystemMessage(systemMessage), new UserMessage(chunk)))
+                        .aiMessage()
+                        .text();
     }
 
     private String combineFinalSummaries(ChatModel chatModel, List<String> summaries) throws InterruptedException {
@@ -121,10 +111,9 @@ public class ChunkedSummarizator implements Summarizator {
         String systemMessage = AiTemplateRenderer.renderSummarizationCombineSystemMessage(summarizationCombineSystemMessageTemplate);
 
         LOGGER.debug("Sending request to AI provider to combine summary chunks");
-        String result = chatModel.chat(List.of(
-                new SystemMessage(systemMessage),
-                new UserMessage(String.join("\n\n", summaries))
-        )).aiMessage().text();
+        String result = chatModel.chat(List.of(new SystemMessage(systemMessage), new UserMessage(String.join("\n\n", summaries))))
+                .aiMessage()
+                .text();
 
         LOGGER.debug("BibEntrySummary of the text was generated successfully");
         return result;

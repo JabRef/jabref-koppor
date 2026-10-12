@@ -10,7 +10,7 @@ public class CitationSplitter {
     @VisibleForTesting
     static Stream<String> splitCitations(String text) {
         return Arrays.stream(text.split("\\r\\r+|\\n\\n+|\\r\\n(\\r\\n)+"))
-                     .map(String::trim)
-                     .filter(str -> !str.isBlank());
+                .map(String::trim)
+                .filter(str -> !str.isBlank());
     }
 }

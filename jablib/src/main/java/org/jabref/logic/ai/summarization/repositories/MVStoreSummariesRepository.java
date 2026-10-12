@@ -9,7 +9,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.model.ai.summarization.AiSummary;
 import org.jabref.model.ai.summarization.AiSummaryIdentifier;
-
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 

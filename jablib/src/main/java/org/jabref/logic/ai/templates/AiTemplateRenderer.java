@@ -3,14 +3,13 @@ package org.jabref.logic.ai.templates;
 import java.io.StringWriter;
 import java.util.List;
 
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
 import org.jabref.model.ai.AiMetadata;
 import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.ai.pipeline.RelevantInformation;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.CanonicalBibEntry;
-
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
 
 public final class AiTemplateRenderer {
     private static final VelocityEngine VELOCITY_ENGINE = new VelocityEngine();
@@ -31,7 +30,8 @@ public final class AiTemplateRenderer {
         return render(templateSource, "CHATTING_SYSTEM_MESSAGE", context);
     }
 
-    public static String renderChattingUserMessage(String templateSource, List<BibEntry> entries, String message, List<RelevantInformation> excerpts) {
+    public static String renderChattingUserMessage(String templateSource, List<BibEntry> entries, String message,
+            List<RelevantInformation> excerpts) {
         VelocityContext context = new VelocityContext(BASE_CONTEXT);
         context.put("entries", entries);
         context.put("message", message);
@@ -59,7 +59,8 @@ public final class AiTemplateRenderer {
         return render(templateSource, "CITATION_PARSING_SYSTEM_MESSAGE", context);
     }
 
-    public static String renderMarkdownChatExport(String templateSource, AiMetadata metadata, String bibtex, List<ChatMessage> messages) {
+    public static String renderMarkdownChatExport(String templateSource, AiMetadata metadata, String bibtex,
+            List<ChatMessage> messages) {
         VelocityContext context = new VelocityContext(BASE_CONTEXT);
         context.put("metadata", metadata);
         context.put("bibtex", bibtex);
@@ -67,7 +68,8 @@ public final class AiTemplateRenderer {
         return render(templateSource, "MARKDOWN_CHAT_EXPORT", context);
     }
 
-    public static String renderFollowUpQuestionsPrompt(String templateSource, String userMessage, String aiResponse, int count) {
+    public static String renderFollowUpQuestionsPrompt(String templateSource, String userMessage, String aiResponse,
+            int count) {
         VelocityContext context = new VelocityContext(BASE_CONTEXT);
         context.put("userMessage", userMessage);
         context.put("aiResponse", aiResponse);

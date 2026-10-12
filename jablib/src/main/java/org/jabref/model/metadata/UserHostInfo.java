@@ -5,12 +5,11 @@ import org.jspecify.annotations.NullMarked;
 /// Record to represent user and host information.
 /// This is used to identify the user when retrieving file directories.
 @NullMarked
-public record UserHostInfo(
-        String user,
-        String host) {
-    /// Creates a new UserHostInfo from a user-host string.
-    /// The user-host string is expected to be in the format "user-host".
-    /// If the string does not contain a hyphen, the entire string is considered as the user and the host is empty.
+public record UserHostInfo(String user, String host) {
+    /// Creates a new UserHostInfo from a user-host string. The user-host string
+    /// is expected to be in the format "user-host". If the string does not
+    /// contain a hyphen, the entire string is considered as the user and the
+    /// host is empty.
     ///
     /// @param userHostString the user-host string
     /// @return a new UserHostInfo

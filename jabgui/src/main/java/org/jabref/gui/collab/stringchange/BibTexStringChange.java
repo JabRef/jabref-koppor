@@ -7,7 +7,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibtexString;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableStringChange;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +16,8 @@ public final class BibTexStringChange extends DatabaseChange {
     private final BibtexString oldString;
     private final BibtexString newString;
 
-    public BibTexStringChange(BibtexString oldString, BibtexString newString, BibDatabaseContext databaseContext, DatabaseChangeResolverFactory databaseChangeResolverFactory) {
+    public BibTexStringChange(BibtexString oldString, BibtexString newString, BibDatabaseContext databaseContext,
+            DatabaseChangeResolverFactory databaseChangeResolverFactory) {
         super(databaseContext, databaseChangeResolverFactory);
         this.oldString = oldString;
         this.newString = newString;
@@ -27,7 +27,8 @@ public final class BibTexStringChange extends DatabaseChange {
 
     @Override
     public void applyChange(CompoundEdit undoEdit) {
-        undoEdit.applyEdit(new UndoableStringChange(oldString, UndoableStringChange.Part.CONTENT, oldString.getContent(), newString.getContent()));
+        undoEdit.applyEdit(new UndoableStringChange(oldString, UndoableStringChange.Part.CONTENT,
+                oldString.getContent(), newString.getContent()));
     }
 
     public BibtexString getOldString() {

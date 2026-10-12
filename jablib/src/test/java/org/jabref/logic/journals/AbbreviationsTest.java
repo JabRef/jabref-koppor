@@ -1,5 +1,6 @@
 package org.jabref.logic.journals;
 
+import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -7,7 +8,6 @@ import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.CurrentThreadTaskExecutor;
 import org.jabref.logic.util.DelayTaskThrottler;
 import org.jabref.logic.util.TaskExecutor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,33 +26,30 @@ class AbbreviationsTest {
 
     @Test
     void getNextAbbreviationAbbreviatesJournalTitle() {
-        assertEquals("2D Mater.", repository.getNextAbbreviation("2D Materials").get());
+        assertEquals("2D Mater.", repository.getNextAbbreviation("2D Materials")
+                .get());
     }
 
     @Test
     void getNextAbbreviationConvertsAbbreviationToDotlessAbbreviation() {
-        assertEquals("2D Mater", repository.getNextAbbreviation("2D Mater.").get());
+        assertEquals("2D Mater", repository.getNextAbbreviation("2D Mater.")
+                .get());
     }
 
     @Test
     void backgroundLoadedRepositoryReturnsBuiltInAbbreviations() {
-        JournalAbbreviationRepository backgroundLoadedRepository = JournalAbbreviationLoader.loadRepositoryInBackground(
-                new AbbreviationPreferences(java.util.List.of(), true, false),
-                new CurrentThreadTaskExecutor()
-        );
+        JournalAbbreviationRepository backgroundLoadedRepository = JournalAbbreviationLoader.loadRepositoryInBackground(new AbbreviationPreferences(List.of(), true, false), new CurrentThreadTaskExecutor());
 
         assertNotNull(backgroundLoadedRepository);
-        assertEquals("2D Mater.", backgroundLoadedRepository.getNextAbbreviation("2D Materials").get());
+        assertEquals("2D Mater.", backgroundLoadedRepository.getNextAbbreviation("2D Materials")
+                .get());
     }
 
     @Test
     void backgroundLoadedRepositoryDoesNotStartLoadingBeforeFirstUse() {
         RecordingTaskExecutor taskExecutor = new RecordingTaskExecutor();
 
-        JournalAbbreviationRepository backgroundLoadedRepository = JournalAbbreviationLoader.loadRepositoryInBackground(
-                new AbbreviationPreferences(java.util.List.of(), true, false),
-                taskExecutor
-        );
+        JournalAbbreviationRepository backgroundLoadedRepository = JournalAbbreviationLoader.loadRepositoryInBackground(new AbbreviationPreferences(List.of(), true, false), taskExecutor);
 
         assertNotNull(backgroundLoadedRepository);
         assertEquals(0, taskExecutor.executionCount);
@@ -72,13 +69,13 @@ class AbbreviationsTest {
         }
 
         @Override
-        public <V> Future<?> schedule(BackgroundTask<V> task, long delay, TimeUnit unit) {
+        public <V> Future<?> schedule(BackgroundTask<V> task, long delay,
+                TimeUnit unit) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public void shutdown() {
-        }
+        public void shutdown() {}
 
         @Override
         public DelayTaskThrottler createThrottler(int delay) {

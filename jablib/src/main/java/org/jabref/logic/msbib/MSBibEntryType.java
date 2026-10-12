@@ -2,9 +2,10 @@ package org.jabref.logic.msbib;
 
 /// This class represents all supported MSBib entry types.
 ///
-/// Book, BookSection, JournalArticle, ArticleInAPeriodical, ConferenceProceedings, Report,
-/// InternetSite, DocumentFromInternetSite, ElectronicSource, Art, SoundRecording, Performance,
-/// Film, Interview, Patent, Case, Misc
+/// Book, BookSection, JournalArticle, ArticleInAPeriodical,
+/// ConferenceProceedings, Report, InternetSite, DocumentFromInternetSite,
+/// ElectronicSource, Art, SoundRecording, Performance, Film, Interview, Patent,
+/// Case, Misc
 ///
 /// See BIBFORM.XML, shared-bibliography.xsd (ECMA standard)
 public enum MSBibEntryType {

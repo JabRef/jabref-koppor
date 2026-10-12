@@ -7,7 +7,6 @@ import org.jabref.logic.os.OS;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,7 +23,8 @@ class FieldWriterTest {
     private FieldWriter writer;
 
     static Stream<Arguments> keepHashSignInComment() {
-        return Stream.of(Arguments.of("""
+        return Stream.of(Arguments
+                        .of("""
                         # Changelog
 
                         All notable changes to this project will be documented in this file.
@@ -35,19 +35,17 @@ class FieldWriterTest {
                         Note that this project **does not** adhere to [Semantic Versioning](http://semver.org/).
 
                         ## [Unreleased]"""),
-                // Source: https://github.com/JabRef/jabref/issues/7010#issue-720030293
-                Arguments.of(
-                        """
+                        // Source: https://github.com/JabRef/jabref/issues/7010#issue-720030293
+                        Arguments
+                                .of("""
                                 #### Goal
                                 Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                                 #### Achievement\s
                                 Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                                 #### Method
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit,"""
-                ),
-                // source: https://github.com/JabRef/jabref/issues/8303 --> bug2.txt
-                Arguments.of("Particularly, we equip SOVA &#x2013; a Semantic and Ontological Variability Analysis method")
-        );
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit,"""),
+                        // source: https://github.com/JabRef/jabref/issues/8303 --> bug2.txt
+                        Arguments.of("Particularly, we equip SOVA &#x2013; a Semantic and Ontological Variability Analysis method"));
     }
 
     @BeforeEach
@@ -122,34 +120,27 @@ class FieldWriterTest {
 
     @ParameterizedTest
     @CsvSource({
-            "'\\{', '{'",
-            "'\\}', '}'",
-            "'\\{\\{', '{{'",
-            "'\\{\\}', '{\\}'",
-            "'\\{\\}', '\\{}'",
-            "'Incorporating evolutionary {Measures into Conservation Prioritization}', 'Incorporating evolutionary {Measures into Conservation Prioritization}'",
-            "'Incorporating {\\O}evolutionary {Measures into Conservation Prioritization}', 'Incorporating {\\O}evolutionary {Measures into Conservation Prioritization}'",
+        "'\\{', '{'",
+        "'\\}', '}'",
+        "'\\{\\{', '{{'",
+        "'\\{\\}', '{\\}'",
+        "'\\{\\}', '\\{}'",
+        "'Incorporating evolutionary {Measures into Conservation Prioritization}', 'Incorporating evolutionary {Measures into Conservation Prioritization}'",
+        "'Incorporating {\\O}evolutionary {Measures into Conservation Prioritization}', 'Incorporating {\\O}evolutionary {Measures into Conservation Prioritization}'",
     })
     void unbalancedBracesSanitized(String expected, String input) {
         assertEquals("{" + expected + "}", writer.write(StandardField.COMMENT, input));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "{",
-            "}",
-            "{{",
-            "\\{}"})
+    @ValueSource(strings = {"{", "}", "{{", "\\{}"})
     void checkUnbalancedBraces(String input) {
         assertNotEquals(List.of(), FieldWriter.checkBalancedBraces(input));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "\\{\\}",
-            "Incorporating evolutionary {Measures into Conservation Prioritization}",
-            "Incorporating {\\O}evolutionary {Measures into Conservation Prioritization}",
-            "{Measures into Conservation Prioritization}"})
+    @ValueSource(strings = {"\\{\\}", "Incorporating evolutionary {Measures into Conservation Prioritization}",
+                "Incorporating {\\O}evolutionary {Measures into Conservation Prioritization}", "{Measures into Conservation Prioritization}"})
     void checkBalancedBraces(String input) {
         assertEquals(List.of(), FieldWriter.checkBalancedBraces(input));
     }

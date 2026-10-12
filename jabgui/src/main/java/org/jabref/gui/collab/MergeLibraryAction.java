@@ -18,7 +18,6 @@ import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +30,8 @@ public class MergeLibraryAction extends SimpleCommand {
     private final TaskExecutor taskExecutor;
     private final LibraryTabContainer libraryTabContainer;
 
-    public MergeLibraryAction(DialogService dialogService,
-                              StateManager stateManager,
-                              GuiPreferences preferences,
-                              TaskExecutor taskExecutor,
-                              LibraryTabContainer libraryTabContainer) {
+    public MergeLibraryAction(DialogService dialogService, StateManager stateManager, GuiPreferences preferences,
+            TaskExecutor taskExecutor, LibraryTabContainer libraryTabContainer) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.preferences = preferences;
@@ -49,8 +45,8 @@ public class MergeLibraryAction extends SimpleCommand {
     public void execute() {
         stateManager.getActiveDatabase().ifPresent(activeDatabase -> {
             Path initialDirectory = activeDatabase.getDatabasePath()
-                                                  .map(Path::getParent)
-                                                  .orElse(preferences.getImporterPreferences().getImportWorkingDirectory());
+                    .map(Path::getParent)
+                    .orElse(preferences.getImporterPreferences().getImportWorkingDirectory());
 
             FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
                     .addExtensionFilter(FileFilterConverter.toExtensionFilter("BibTeX", StandardFileType.BIBTEX_DB))
@@ -60,39 +56,33 @@ public class MergeLibraryAction extends SimpleCommand {
 
             dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(mergeFile -> {
                 if (!Files.exists(mergeFile)) {
-                    dialogService.showErrorDialogAndWait(
-                            Localization.lang("Merge"),
+                    dialogService.showErrorDialogAndWait(Localization.lang("Merge"),
                             Localization.lang("File %0 not found.", mergeFile.getFileName().toString()));
                     return;
                 }
 
                 ChangeScanner changeScanner = new ChangeScanner(activeDatabase, dialogService, preferences, stateManager);
                 BackgroundTask.wrap(() -> changeScanner.getDatabaseChanges(mergeFile))
-                              .onSuccess(changes -> showMergeDialog(activeDatabase, changes))
-                              .onFailure(exception -> {
-                                  LOGGER.warn("Error while reading merge file {}", mergeFile, exception);
-                                  dialogService.showErrorDialogAndWait(
-                                          Localization.lang("Merge"),
-                                          Localization.lang("Could not read merge file."));
-                              })
-                              .executeWith(taskExecutor);
+                        .onSuccess(changes -> showMergeDialog(activeDatabase, changes))
+                        .onFailure(exception -> {
+                            LOGGER.warn("Error while reading merge file {}", mergeFile, exception);
+                            dialogService.showErrorDialogAndWait(Localization.lang("Merge"), Localization.lang("Could not read merge file."));
+                        })
+                        .executeWith(taskExecutor);
             });
         });
     }
 
     private void showMergeDialog(BibDatabaseContext activeDatabase, List<DatabaseChange> changes) {
-        DatabaseChangesResolverDialog databaseChangesResolverDialog = new DatabaseChangesResolverDialog(
-                changes,
-                activeDatabase,
-                Localization.lang("External Changes Resolver"));
+        DatabaseChangesResolverDialog databaseChangesResolverDialog = new DatabaseChangesResolverDialog(changes, activeDatabase, Localization.lang("External Changes Resolver"));
         Optional<Boolean> areAllChangesResolved = dialogService.showCustomDialogAndWait(databaseChangesResolverDialog);
         if (areAllChangesResolved.orElse(false)) {
             List<DatabaseChange> resolvedChanges = databaseChangesResolverDialog.getResolvedChanges();
 
-            stateManager.getUndoManager(activeDatabase).addEdit(Localization.lang("Merged external changes"), edit ->
-                    resolvedChanges.stream()
-                                   .filter(DatabaseChange::isAccepted)
-                                   .forEach(change -> change.applyChange(edit)));
+            stateManager.getUndoManager(activeDatabase).addEdit(Localization.lang("Merged external changes"),
+                    edit -> resolvedChanges.stream()
+                                           .filter(DatabaseChange::isAccepted)
+                                           .forEach(change -> change.applyChange(edit)));
         }
     }
 }

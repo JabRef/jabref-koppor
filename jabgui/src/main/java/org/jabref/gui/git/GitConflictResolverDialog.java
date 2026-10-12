@@ -15,7 +15,9 @@ import org.jabref.model.entry.BibEntry;
 
 /// A wrapper around [MergeEntriesDialog] for Git feature
 ///
-/// Receives a semantic conflict (ThreeWayEntryConflict), pops up an interactive GUI (belonging to mergeentries), and returns a user-confirmed BibEntry merge result.
+/// Receives a semantic conflict (ThreeWayEntryConflict), pops up an interactive
+/// GUI (belonging to mergeentries), and returns a user-confirmed BibEntry merge
+/// result.
 public class GitConflictResolverDialog {
     private final DialogService dialogService;
     private final GuiPreferences preferences;
@@ -35,13 +37,9 @@ public class GitConflictResolverDialog {
         MergeEntriesDialog dialog = new MergeEntriesDialog(local, remote, preferences, stateManager);
         dialog.setLeftHeaderText(Localization.lang("Local"));
         dialog.setRightHeaderText(Localization.lang("Remote"));
-        ShowDiffConfig diffConfig = new ShowDiffConfig(
-                ThreeWayMergeToolbar.DiffView.SPLIT,
-                DiffHighlighter.BasicDiffMethod.WORDS
-        );
+        ShowDiffConfig diffConfig = new ShowDiffConfig(ThreeWayMergeToolbar.DiffView.SPLIT, DiffHighlighter.BasicDiffMethod.WORDS);
         dialog.configureDiff(diffConfig);
 
-        return dialogService.showCustomDialogAndWait(dialog)
-                            .map(result -> result.mergedEntry());
+        return dialogService.showCustomDialogAndWait(dialog).map(result -> result.mergedEntry());
     }
 }

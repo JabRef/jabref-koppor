@@ -5,11 +5,13 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
+import com.dlsc.gemsfx.infocenter.NotificationGroup;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
-import org.jabref.gui.Notifications;
+import org.jabref.gui.Notifications.FileNotification;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.autosaveandbackup.BackupManager;
+import org.jabref.gui.autosaveandbackup.BackupManager.RestoreResult.Restored;
 import org.jabref.gui.collab.entryadd.EntryAdd;
 import org.jabref.gui.collab.entrychange.EntryChange;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -24,8 +26,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.util.FileUpdateListener;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.dlsc.gemsfx.infocenter.NotificationGroup;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
@@ -159,7 +159,7 @@ class DatabaseChangeMonitorTest {
         Path backupFile = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(originalFile, BackupFileType.BACKUP, backupDirectory);
         Files.writeString(backupFile, "@misc{restored,}");
 
-        assertEquals(new BackupManager.RestoreResult.Restored(), BackupManager.restoreBackup(originalFile, backupDirectory));
+        assertEquals(new Restored(), BackupManager.restoreBackup(originalFile, backupDirectory));
 
         TaskExecutor taskExecutor = mock(TaskExecutor.class);
         DatabaseChangeMonitor monitor = createMonitor(originalFile, mock(FileUpdateMonitor.class), taskExecutor);
@@ -187,8 +187,9 @@ class DatabaseChangeMonitorTest {
 
     @Test
     void applyResolvedChangesAppliesMergedEntryAndMarksLibraryDirty() {
-        BibEntry oldEntry = new BibEntry().withCitationKey("Key")
-                                          .withField(StandardField.TITLE, "Old title");
+        BibEntry oldEntry = new BibEntry()
+                .withCitationKey("Key")
+                .withField(StandardField.TITLE, "Old title");
         BibDatabase database = new BibDatabase(List.of(oldEntry));
         BibDatabaseContext databaseContext = new BibDatabaseContext(database);
         BibEntry mergedEntry = new BibEntry(oldEntry).withField(StandardField.TITLE, "Merged title");
@@ -211,17 +212,23 @@ class DatabaseChangeMonitorTest {
         monitor.applyResolvedChanges(List.of(mergedChange), false);
 
         assertEquals(1, database.getEntryCount());
-        assertEquals("Merged title", database.getEntryByCitationKey("Key").orElseThrow().getField(StandardField.TITLE).orElseThrow());
+        assertEquals("Merged title",
+                database.getEntryByCitationKey("Key")
+                        .orElseThrow()
+                        .getField(StandardField.TITLE)
+                        .orElseThrow());
         assertTrue(undoManager.hasChanged());
         verify(libraryTab, never()).resetChangedProperties();
     }
 
-    /// Denying an external change records nothing, but the file on disk still holds what the user
-    /// rejected: the library has to say it needs saving, or closing it asks nothing and the denial
-    /// is lost.
+    /// Denying an external change records nothing, but the file on disk still
+    /// holds what the user rejected: the library has to say it needs saving, or
+    /// closing it asks nothing and the denial is lost.
     @Test
     void applyResolvedChangesMarksTheLibraryWhenAChangeWasDenied() {
-        BibEntry oldEntry = new BibEntry().withCitationKey("Key").withField(StandardField.TITLE, "Old title");
+        BibEntry oldEntry = new BibEntry()
+                .withCitationKey("Key")
+                .withField(StandardField.TITLE, "Old title");
         BibDatabase database = new BibDatabase(List.of(oldEntry));
         BibDatabaseContext databaseContext = new BibDatabaseContext(database);
         BibEntry diskEntry = new BibEntry(oldEntry).withField(StandardField.TITLE, "Disk title");
@@ -242,7 +249,11 @@ class DatabaseChangeMonitorTest {
 
         monitor.applyResolvedChanges(List.of(deniedChange), false);
 
-        assertEquals("Old title", database.getEntryByCitationKey("Key").orElseThrow().getField(StandardField.TITLE).orElseThrow());
+        assertEquals("Old title",
+                database.getEntryByCitationKey("Key")
+                        .orElseThrow()
+                        .getField(StandardField.TITLE)
+                        .orElseThrow());
         assertFalse(undoManager.canUndo(), "denying a change recorded a step");
         assertTrue(undoManager.hasChanged(), "the library looks saved although the file holds the denied change");
         verify(libraryTab, never()).resetChangedProperties();
@@ -250,8 +261,9 @@ class DatabaseChangeMonitorTest {
 
     @Test
     void applyResolvedChangesAppliesDiskVersionAndKeepsLibraryClean() {
-        BibEntry oldEntry = new BibEntry().withCitationKey("Key")
-                                          .withField(StandardField.TITLE, "Old title");
+        BibEntry oldEntry = new BibEntry()
+                .withCitationKey("Key")
+                .withField(StandardField.TITLE, "Old title");
         BibDatabase database = new BibDatabase(List.of(oldEntry));
         BibDatabaseContext databaseContext = new BibDatabaseContext(database);
         BibEntry diskEntry = new BibEntry(oldEntry).withField(StandardField.TITLE, "Disk title");
@@ -274,7 +286,11 @@ class DatabaseChangeMonitorTest {
         monitor.applyResolvedChanges(List.of(diskChange), true);
 
         assertEquals(1, database.getEntryCount());
-        assertEquals("Disk title", database.getEntryByCitationKey("Key").orElseThrow().getField(StandardField.TITLE).orElseThrow());
+        assertEquals("Disk title",
+                database.getEntryByCitationKey("Key")
+                        .orElseThrow()
+                        .getField(StandardField.TITLE)
+                        .orElseThrow());
         assertTrue(undoManager.hasChanged());
         verify(libraryTab).resetChangedProperties();
     }
@@ -285,13 +301,15 @@ class DatabaseChangeMonitorTest {
         Path monitoredPath = tempDir.resolve("library.bib");
         Files.writeString(monitoredPath, "@misc{a,}");
 
-        NotificationGroup<Path, Notifications.FileNotification> fileNotifications = new NotificationGroup<>("Files");
+        NotificationGroup<Path, FileNotification> fileNotifications = new NotificationGroup<>("Files");
         DialogService dialogService = mock(DialogService.class);
         doAnswer(invocation -> {
-            Notifications.FileNotification fileNotification = invocation.getArgument(0, Notifications.FileNotification.class);
-            fileNotifications.getNotifications().add(fileNotification);
-            return null;
-        }).when(dialogService).notify(any(Notifications.FileNotification.class));
+                    FileNotification fileNotification = invocation.getArgument(0, FileNotification.class);
+                    fileNotifications.getNotifications().add(fileNotification);
+                    return null;
+                })
+                .when(dialogService)
+                .notify(any(FileNotification.class));
 
         BibDatabaseContext databaseContext = mock(BibDatabaseContext.class);
         when(databaseContext.getDatabasePath()).thenReturn(Optional.of(monitoredPath));
@@ -306,12 +324,15 @@ class DatabaseChangeMonitorTest {
                 mock(StateManager.class),
                 mock(LibraryTab.class));
 
-        DatabaseChange firstChange = new EntryAdd(new BibEntry().withCitationKey("first"), new BibDatabaseContext(), null);
-        DatabaseChange secondChange = new EntryAdd(new BibEntry().withCitationKey("second"), new BibDatabaseContext(), null);
+        DatabaseChange firstChange = new EntryAdd(new BibEntry().withCitationKey("first"),
+                new BibDatabaseContext(), null);
+        DatabaseChange secondChange = new EntryAdd(new BibEntry().withCitationKey("second"),
+                new BibDatabaseContext(), null);
 
         monitor.notifyExternalChanges(List.of(firstChange));
         monitor.notifyExternalChanges(List.of(secondChange));
 
-        assertEquals(1, fileNotifications.getNotifications().size());
+        assertEquals(1, fileNotifications.getNotifications()
+                .size());
     }
 }

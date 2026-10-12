@@ -8,7 +8,6 @@ import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.commonfxcontrols.SortCriterionViewModel;
 import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.logic.exporter.ExportPreferences;
@@ -36,16 +35,14 @@ public class ExportTabViewModel implements PreferenceTabViewModel {
     public void setValues() {
         SaveOrder exportSaveOrder = exportPreferences.getExportSaveOrder();
         switch (exportSaveOrder.getOrderType()) {
-            case SPECIFIED ->
-                    exportInSpecifiedOrderProperty.setValue(true);
-            case ORIGINAL ->
-                    exportInOriginalProperty.setValue(true);
-            case TABLE ->
-                    exportInTableOrderProperty.setValue(true);
+            case SPECIFIED -> exportInSpecifiedOrderProperty.setValue(true);
+            case ORIGINAL -> exportInOriginalProperty.setValue(true);
+            case TABLE -> exportInTableOrderProperty.setValue(true);
         }
-        sortCriteriaProperty.setAll(exportSaveOrder.getSortCriteria().stream()
-                                                   .map(SortCriterionViewModel::new)
-                                                   .toList());
+        sortCriteriaProperty.setAll(exportSaveOrder.getSortCriteria()
+                .stream()
+                .map(SortCriterionViewModel::new)
+                .toList());
 
         Set<Field> fields = FieldFactory.getAllFieldsWithOutInternal();
         fields.add(InternalField.INTERNAL_ALL_FIELD);
@@ -59,7 +56,9 @@ public class ExportTabViewModel implements PreferenceTabViewModel {
     public void storeSettings() {
         SaveOrder newSaveOrder = new SaveOrder(
                 SaveOrder.OrderType.fromBooleans(exportInSpecifiedOrderProperty.getValue(), exportInOriginalProperty.getValue()),
-                sortCriteriaProperty.stream().map(SortCriterionViewModel::getCriterion).toList());
+                sortCriteriaProperty.stream()
+                                    .map(SortCriterionViewModel::getCriterion)
+                                    .toList());
         exportPreferences.setExportSaveOrder(newSaveOrder);
     }
 

@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 public class JabRefException extends Exception {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JabRefException.class);
-    @Nullable private String localizedMessage;
+
+    @Nullable
+    private String localizedMessage;
 
     public JabRefException(String message) {
         super(message);

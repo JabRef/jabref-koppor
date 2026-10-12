@@ -10,7 +10,6 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.groups.GroupNodeViewModel;
 import org.jabref.gui.util.BindingsHelper;
@@ -28,9 +27,7 @@ public class AiGroupChatViewModel extends AbstractViewModel {
     private final ObjectProperty<GroupNodeViewModel> groupNode = new SimpleObjectProperty<>();
     private final ObjectProperty<BibDatabaseContext> databaseContext = new SimpleObjectProperty<>();
 
-    private final ListProperty<FullBibEntry> entries = new SimpleListProperty<>(FXCollections.observableArrayList(
-            identifier -> identifier.entry().getObservables()
-    ));
+    private final ListProperty<FullBibEntry> entries = new SimpleListProperty<>(FXCollections.observableArrayList(identifier -> identifier.entry().getObservables()));
     private final ListProperty<ChatMessage> chatHistory = new SimpleListProperty<>(FXCollections.observableArrayList());
 
     private final AiPreferences aiPreferences;
@@ -53,21 +50,18 @@ public class AiGroupChatViewModel extends AbstractViewModel {
         BibDatabaseContext context = databaseContext.get();
         GroupNodeViewModel group = groupNode.get();
 
-        assert context.getMetaData().getAiLibraryId().isPresent();
+        assert context.getMetaData()
+                      .getAiLibraryId()
+                      .isPresent();
 
         List<BibEntry> matchedEntries = group.getGroupNode().findMatches(context.getDatabase());
         List<FullBibEntry> matchedEntryIdentifiers = FullBibEntry.fromSeveral(context, matchedEntries);
 
-        ObservableList<FullBibEntry> observableEntries = FXCollections.observableArrayList(
-                identifier -> identifier.entry().getObservables()
-        );
+        ObservableList<FullBibEntry> observableEntries = FXCollections.observableArrayList(identifier -> identifier.entry().getObservables());
         observableEntries.addAll(matchedEntryIdentifiers);
         entries.set(observableEntries);
 
-        chatHistory.set(chatHistoryCache.getForGroup(
-                context,
-                group.getGroupNode()
-        ));
+        chatHistory.set(chatHistoryCache.getForGroup(context, group.getGroupNode()));
     }
 
     public ObjectProperty<GroupNodeViewModel> groupNodeProperty() {

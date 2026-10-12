@@ -5,12 +5,11 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.antlr.v4.runtime.RecognitionException;
 import org.jabref.logic.util.TestEntry;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import org.antlr.v4.runtime.RecognitionException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -34,37 +33,39 @@ public class BstVMTest {
 
     @Test
     void abbrv() throws URISyntaxException, IOException {
-        BstVM vm = new BstVM(Path.of(BstVMTest.class.getResource("abbrv.bst").toURI()));
+        BstVM vm = new BstVM(Path.of(BstVMTest.class
+                .getResource("abbrv.bst")
+                .toURI()));
         assertTrue(vm.hasSortCommand());
         List<BibEntry> testEntries = List.of(defaultTestEntry());
 
         String expected = "\\begin{thebibliography}{1}\\bibitem{canh05}K.~Crowston, H.~Annabi, J.~Howison, and C.~Masango.\\newblock Effective work practices for floss development: A model and  propositions.\\newblock In {\\em Hawaii International Conference On System Sciences (HICSS)}, 2005.\\end{thebibliography}";
         String result = vm.render(testEntries);
 
-        assertEquals(
-                expected.replaceAll("\\s", ""),
-                result.replaceAll("\\s", ""));
+        assertEquals(expected.replaceAll("\\s", ""), result.replaceAll("\\s", ""));
     }
 
     @Test
     void ieeetran() throws URISyntaxException, IOException {
-        BstVM vm = new BstVM(Path.of(BstVMTest.class.getResource("IEEEtran.bst").toURI()));
+        BstVM vm = new BstVM(Path.of(BstVMTest.class
+                .getResource("IEEEtran.bst")
+                .toURI()));
         assertFalse(vm.hasSortCommand());
         List<BibEntry> testEntries = List.of(TestEntry.getTestEntry());
 
-        String expected = """
+        String expected =
+                """
                 %GeneratedbyIEEEtran.bst,version:1.14(2015/08/26)\\begin{thebibliography}{1}\\providecommand{\\url}[1]{#1}\\csnameurl@samestyle\\endcsname\\providecommand{\\newblock}{\\relax}\\providecommand{\\bibinfo}[2]{#2}\\providecommand{\\BIBentrySTDinterwordspacing}{\\spaceskip=0pt\\relax}\\providecommand{\\BIBentryALTinterwordstretchfactor}{4}\\providecommand{\\BIBentryALTinterwordspacing}{\\spaceskip=\\fontdimen2\\fontplus\\BIBentryALTinterwordstretchfactor\\fontdimen3\\fontminus\\fontdimen4\\font\\relax}\\providecommand{\\BIBforeignlanguage}[2]{{%\\expandafter\\ifx\\csnamel@#1\\endcsname\\relax\\typeout{**WARNING:IEEEtran.bst:Nohyphenationpatternhasbeen}%\\typeout{**loadedforthelanguage`#1'.Usingthepatternfor}%\\typeout{**thedefaultlanguageinstead.}%\\else\\language=\\csnamel@#1\\endcsname\\fi#2}}\\providecommand{\\BIBdecl}{\\relax}\\BIBdecl\\bibitem{Smith2016}\\BIBentryALTinterwordspacingB.~Smith,B.~Jones,andJ.~Williams,``Titleofthetestentry''\\emph{BibTeXJournal},vol.~34,no.~3,pp.45--67,July2016.[Online].Available:\\url{https://github.com/JabRef}\\BIBentrySTDinterwordspacing\\end{thebibliography}
                 """;
         String result = vm.render(testEntries);
 
-        assertEquals(
-                expected.replaceAll("\\s", ""),
-                result.replaceAll("\\s", ""));
+        assertEquals(expected.replaceAll("\\s", ""), result.replaceAll("\\s", ""));
     }
 
     @Test
     void simple() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 ENTRY { address author title type } { } { label }
                 INTEGERS { output.state before.all mid.sentence after.sentence after.block }
                 FUNCTION { init.state.consts }{
@@ -80,16 +81,34 @@ public class BstVMTest {
 
         vm.render(testEntries);
 
-        assertEquals(2, vm.getContext().strings().size());
-        assertEquals(7, vm.getContext().integers().size());
-        assertEquals(1, vm.getContext().entries().size());
-        assertEquals(5, vm.getContext().entries().getFirst().fields.size());
-        assertEquals(38, vm.getContext().functions().size());
+        assertEquals(2,
+                vm.getContext()
+                  .strings()
+                  .size());
+        assertEquals(7,
+                vm.getContext()
+                  .integers()
+                  .size());
+        assertEquals(1,
+                vm.getContext()
+                  .entries()
+                  .size());
+        assertEquals(5,
+                vm.getContext()
+                  .entries()
+                  .getFirst()
+                  .fields
+                  .size());
+        assertEquals(38,
+                vm.getContext()
+                  .functions()
+                  .size());
     }
 
     @Test
     void label() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 ENTRY { title } {} { label }
                 FUNCTION { test } {
                     label #0 =
@@ -102,9 +121,10 @@ public class BstVMTest {
 
         vm.render(testEntries);
 
-        assertEquals(
-                "Effective work practices for floss development: A model and propositions",
-                vm.getContext().stack().pop());
+        assertEquals("Effective work practices for floss development: A model and propositions",
+                vm.getContext()
+                  .stack()
+                  .pop());
     }
 
     @Test
@@ -112,7 +132,10 @@ public class BstVMTest {
         BstVM vm = new BstVM("FUNCTION { a }{ quote$ quote$ * } EXECUTE { a }");
 
         vm.render(List.of());
-        assertEquals("\"\"", vm.getContext().stack().pop());
+        assertEquals("\"\"",
+                vm.getContext()
+                  .stack()
+                  .pop());
     }
 
     @Test
@@ -121,13 +144,19 @@ public class BstVMTest {
 
         vm.render(List.of());
 
-        assertEquals(Integer.MAX_VALUE, vm.getContext().stack().pop());
-        assertTrue(vm.getContext().stack().isEmpty());
+        assertEquals(Integer.MAX_VALUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertTrue(vm.getContext()
+                     .stack()
+                     .isEmpty());
     }
 
     @Test
     void variables() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 STRINGS { t }
                 FUNCTION { not } {
                     { #0 } { #1 } if$
@@ -141,17 +170,20 @@ public class BstVMTest {
 
         vm.render(List.of());
 
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
     }
 
     @Test
     void hyphenatedName() throws URISyntaxException, IOException {
-        BstVM vm = new BstVM(Path.of(BstVMTest.class.getResource("abbrv.bst").toURI()));
-        List<BibEntry> testEntries = List.of(
-                new BibEntry(StandardEntryType.Article)
-                        .withCitationKey("canh05")
-                        .withField(StandardField.AUTHOR, "Jean-Paul Sartre")
-        );
+        BstVM vm = new BstVM(Path.of(BstVMTest.class
+                .getResource("abbrv.bst")
+                .toURI()));
+        List<BibEntry> testEntries = List.of(new BibEntry(StandardEntryType.Article)
+                .withCitationKey("canh05")
+                .withField(StandardField.AUTHOR, "Jean-Paul Sartre"));
 
         String result = vm.render(testEntries);
 
@@ -160,7 +192,8 @@ public class BstVMTest {
 
     @Test
     void abbrevStyleChopWord() {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 STRINGS { s }
                 INTEGERS { len }
 
@@ -189,14 +222,24 @@ public class BstVMTest {
 
         vm.render(List.of());
 
-        assertEquals("A Colorful Morning", vm.getContext().stack().pop());
-        assertEquals("Colorful Morning", vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals("A Colorful Morning",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("Colorful Morning",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void abbrevStyleSortFormatTitle() {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 STRINGS { s t }
                 INTEGERS { len }
                 FUNCTION { sortify } {
@@ -235,12 +278,16 @@ public class BstVMTest {
 
         vm.render(List.of());
 
-        assertEquals("colorful morning", vm.getContext().stack().pop());
+        assertEquals("colorful morning",
+                vm.getContext()
+                  .stack()
+                  .pop());
     }
 
     @Test
     void emptyStacksCanBeParsed() {
-        assertDoesNotThrow(() -> new BstVM("""
+        assertDoesNotThrow(() ->
+                new BstVM("""
                 FUNCTION {empty.block}
                 {
                     {

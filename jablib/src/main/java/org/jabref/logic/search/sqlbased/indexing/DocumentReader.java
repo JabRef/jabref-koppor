@@ -9,8 +9,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import org.jabref.logic.util.strings.StringUtil;
-
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -20,6 +18,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.jabref.logic.util.strings.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -94,7 +93,8 @@ public final class DocumentReader {
         addStringField(newDocument, PAGE_NUMBER.toString(), String.valueOf(pageNumber));
     }
 
-    private void addContentIfNotEmpty(PDDocument pdfDocument, Document newDocument, Path resolvedPath, int pageNumber) {
+    private void addContentIfNotEmpty(PDDocument pdfDocument, Document newDocument, Path resolvedPath,
+            int pageNumber) {
         PDFTextStripper pdfTextStripper = new PDFTextStripper();
         pdfTextStripper.setLineSeparator("\n");
         pdfTextStripper.setStartPage(pageNumber);
@@ -112,10 +112,10 @@ public final class DocumentReader {
             // Apache PDFTextStripper is 1-based. See {@link org.apache.pdfbox.text.PDFTextStripper.processPages}
             PDPage page = pdfDocument.getPage(pageNumber - 1);
             List<String> annotations = page.getAnnotations()
-                                           .stream()
-                                           .map(PDAnnotation::getContents)
-                                           .filter(Objects::nonNull)
-                                           .toList();
+                    .stream()
+                    .map(PDAnnotation::getContents)
+                    .filter(Objects::nonNull)
+                    .toList();
 
             if (!annotations.isEmpty()) {
                 String joinedAnnotations = String.join("\n", annotations);

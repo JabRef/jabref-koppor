@@ -15,8 +15,7 @@ final class FetcherRetry {
     private static final Logger LOGGER = LoggerFactory.getLogger(FetcherRetry.class);
     private static final Duration INITIAL_BACKOFF = Duration.ofSeconds(1);
 
-    private FetcherRetry() {
-    }
+    private FetcherRetry() {}
 
     // [impl->req~fetchers.identifier-rate-limit-retries~1]
     static <T> T executeWithRateLimitRetry(FetcherOperation<T> operation) throws FetcherException {

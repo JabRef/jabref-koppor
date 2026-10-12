@@ -17,7 +17,8 @@ public class MetadataSerializationConfiguration {
     /// Identifier for [org.jabref.model.groups.AllEntriesGroup].
     public static final String ALL_ENTRIES_GROUP_ID = "AllEntriesGroup:";
 
-    /// Old identifier for [org.jabref.model.groups.ExplicitGroup] (explicitly contained a list of [org.jabref.model.entry.BibEntry]).
+    /// Old identifier for [org.jabref.model.groups.ExplicitGroup] (explicitly
+    /// contained a list of [org.jabref.model.entry.BibEntry]).
     public static final String LEGACY_EXPLICIT_GROUP_ID = "ExplicitGroup:";
 
     /// Identifier for [org.jabref.model.groups.ExplicitGroup].
@@ -41,6 +42,5 @@ public class MetadataSerializationConfiguration {
     /// Identifier for [org.jabref.model.groups.AutomaticDateGroup].
     public static final String AUTOMATIC_DATE_GROUP_ID = "AutomaticDateGroup:";
 
-    private MetadataSerializationConfiguration() {
-    }
+    private MetadataSerializationConfiguration() {}
 }

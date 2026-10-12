@@ -1,7 +1,6 @@
 package org.jabref.logic.ocr;
 
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -28,5 +27,3 @@ public enum PagesWithTextHandling {
         }
     }
 }
-
-

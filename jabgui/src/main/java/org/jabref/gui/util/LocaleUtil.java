@@ -18,9 +18,7 @@ public final class LocaleUtil {
             return "";
         }
 
-        return instant
-                .atZone(ZoneId.systemDefault())
-                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-                                         .withLocale(Locale.getDefault()));
+        return instant.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+                .withLocale(Locale.getDefault()));
     }
 }

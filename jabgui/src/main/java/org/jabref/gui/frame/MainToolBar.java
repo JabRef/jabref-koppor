@@ -1,5 +1,8 @@
 package org.jabref.gui.frame;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.dlsc.gemsfx.infocenter.InfoCenterPane;
+import com.tobiasdiez.easybind.Subscription;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
@@ -7,7 +10,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-
+import org.controlsfx.control.PopOver;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
@@ -35,11 +38,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.injection.Injector;
-import com.dlsc.gemsfx.infocenter.InfoCenterPane;
-import com.tobiasdiez.easybind.Subscription;
-import org.controlsfx.control.PopOver;
-
 public class MainToolBar extends ToolBar {
     private final LibraryTabContainer frame;
     private final GuiPushToApplicationCommand pushToApplicationCommand;
@@ -61,19 +59,20 @@ public class MainToolBar extends ToolBar {
     private PopOver progressViewPopOver;
     private Subscription taskProgressSubscription;
 
-    public MainToolBar(LibraryTabContainer tabContainer,
-                       GuiPushToApplicationCommand pushToApplicationCommand,
-                       GlobalSearchBar globalSearchBar,
-                       DialogService dialogService,
-                       StateManager stateManager,
-                       GuiPreferences preferences,
-                       AiService aiService,
-                       FileUpdateMonitor fileUpdateMonitor,
-                       TaskExecutor taskExecutor,
-                       BibEntryTypesManager entryTypesManager,
-                       ClipBoardManager clipBoardManager,
-                       JournalAbbreviationRepository journalAbbreviationRepository,
-                       GitHandlerRegistry gitHandlerRegistry) {
+    public MainToolBar(
+            LibraryTabContainer tabContainer,
+            GuiPushToApplicationCommand pushToApplicationCommand,
+            GlobalSearchBar globalSearchBar,
+            DialogService dialogService,
+            StateManager stateManager,
+            GuiPreferences preferences,
+            AiService aiService,
+            FileUpdateMonitor fileUpdateMonitor,
+            TaskExecutor taskExecutor,
+            BibEntryTypesManager entryTypesManager,
+            ClipBoardManager clipBoardManager,
+            JournalAbbreviationRepository journalAbbreviationRepository,
+            GitHandlerRegistry gitHandlerRegistry) {
         this.frame = tabContainer;
         this.pushToApplicationCommand = pushToApplicationCommand;
         this.globalSearchBar = globalSearchBar;
@@ -106,58 +105,46 @@ public class MainToolBar extends ToolBar {
         getItems().addAll(
                 new HBox(
                         factory.createIconButton(StandardActions.NEW_LIBRARY, new NewDatabaseAction(frame, preferences)),
-                        factory.createIconButton(StandardActions.OPEN_LIBRARY, new OpenDatabaseAction(frame, preferences, aiService, dialogService, stateManager, fileUpdateMonitor, entryTypesManager, clipBoardManager, taskExecutor, gitHandlerRegistry)),
-                        factory.createIconButton(StandardActions.SAVE_LIBRARY, new SaveAction(SaveAction.SaveMethod.SAVE, frame::getCurrentLibraryTab, dialogService, preferences, stateManager, entryTypesManager, journalAbbreviationRepository))),
-
+                        factory.createIconButton(
+                                StandardActions.OPEN_LIBRARY,
+                                new OpenDatabaseAction(frame, preferences, aiService, dialogService, stateManager, fileUpdateMonitor,
+                                        entryTypesManager, clipBoardManager, taskExecutor, gitHandlerRegistry)),
+                        factory.createIconButton(
+                                StandardActions.SAVE_LIBRARY,
+                                new SaveAction(SaveAction.SaveMethod.SAVE, frame::getCurrentLibraryTab, dialogService, preferences, stateManager,
+                                        entryTypesManager, journalAbbreviationRepository))),
                 leftSpacer,
-
                 globalSearchBar,
-
                 rightSpacer,
-
-                new HBox(
-                        factory.createIconButton(StandardActions.ADD_ENTRY_IMMEDIATE, new NewEntryAction(true, frame::getCurrentLibraryTab, dialogService, preferences, stateManager)),
-                        factory.createIconButton(StandardActions.ADD_ENTRY, new NewEntryAction(false, frame::getCurrentLibraryTab, dialogService, preferences, stateManager)),
+                new HBox(factory.createIconButton(StandardActions.ADD_ENTRY_IMMEDIATE, new NewEntryAction(true, frame::getCurrentLibraryTab, dialogService, preferences, stateManager)), factory.createIconButton(StandardActions.ADD_ENTRY, new NewEntryAction(false, frame::getCurrentLibraryTab, dialogService, preferences, stateManager)),
                         factory.createIconButton(StandardActions.DELETE_ENTRY, new EditAction(StandardActions.DELETE_ENTRY, frame::getCurrentLibraryTab, stateManager))),
-
                 new Separator(Orientation.VERTICAL),
-
-                new HBox(
-                        factory.createIconButton(StandardActions.BACK, backCommand),
-                        factory.createIconButton(StandardActions.FORWARD, forwardCommand)),
-
+                new HBox(factory.createIconButton(StandardActions.BACK, backCommand), factory.createIconButton(StandardActions.FORWARD, forwardCommand)),
                 new Separator(Orientation.VERTICAL),
-
                 new HBox(
                         factory.createIconButton(StandardActions.UNDO, new UndoAction(dialogService, stateManager)),
                         factory.createIconButton(StandardActions.REDO, new RedoAction(dialogService, stateManager)),
                         factory.createIconButton(StandardActions.CUT, new EditAction(StandardActions.CUT, frame::getCurrentLibraryTab, stateManager)),
                         factory.createIconButton(StandardActions.COPY, new EditAction(StandardActions.COPY, frame::getCurrentLibraryTab, stateManager)),
                         factory.createIconButton(StandardActions.PASTE, new EditAction(StandardActions.PASTE, frame::getCurrentLibraryTab, stateManager))),
-
                 new Separator(Orientation.VERTICAL),
-
                 new HBox(
                         pushToApplicationButton,
                         factory.createIconButton(StandardActions.GENERATE_CITE_KEYS, new GenerateCitationKeyAction(frame::getCurrentLibraryTab, dialogService, stateManager, taskExecutor, preferences)),
-                        factory.createIconButton(StandardActions.CLEANUP_ENTRIES, new CleanupAction(frame::getCurrentLibraryTab, preferences, dialogService, stateManager, taskExecutor, journalAbbreviationRepository))),
-
+                        factory.createIconButton(
+                                StandardActions.CLEANUP_ENTRIES,
+                                new CleanupAction(frame::getCurrentLibraryTab, preferences, dialogService, stateManager, taskExecutor,
+                                        journalAbbreviationRepository))),
                 new Separator(Orientation.VERTICAL),
-
-                new HBox(
-                        factory.createIconButton(StandardActions.INFOCENTER, new SimpleCommand() {
-                            @Override
-                            public void execute() {
-                                InfoCenterPane infoCenterPane = Injector.instantiateModelOrService(InfoCenterPane.class);
-                                infoCenterPane.setShowInfoCenter(!infoCenterPane.isShowInfoCenter());
-                            }
-                        })
-                ),
-
+                new HBox(factory.createIconButton(StandardActions.INFOCENTER, new SimpleCommand() {
+                    @Override
+                    public void execute() {
+                        InfoCenterPane infoCenterPane = Injector.instantiateModelOrService(InfoCenterPane.class);
+                        infoCenterPane.setShowInfoCenter(!infoCenterPane.isShowInfoCenter());
+                    }
+                })),
                 new Separator(Orientation.VERTICAL),
-
-                new HBox(
-                        factory.createIconButton(StandardActions.OPEN_GITHUB, new OpenBrowserAction("https://github.com/JabRef/jabref", dialogService, preferences.getExternalApplicationsPreferences()))));
+                new HBox(factory.createIconButton(StandardActions.OPEN_GITHUB, new OpenBrowserAction("https://github.com/JabRef/jabref", dialogService, preferences.getExternalApplicationsPreferences()))));
 
         leftSpacer.setPrefWidth(50);
         leftSpacer.setMinWidth(Region.USE_PREF_SIZE);

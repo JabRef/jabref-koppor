@@ -29,8 +29,7 @@ public interface PagedSearchBasedFetcher extends SearchBasedFetcher {
     /// @param pageNumber requested site number indexed from 0
     /// @return Page with search results
     default Page<BibEntry> performRawSearchQueryPaged(String rawQuery, int pageNumber) throws FetcherException {
-        throw new UnsupportedOperationException(
-                getName() + " has not yet been migrated to performRawSearchQueryPaged");
+        throw new UnsupportedOperationException(getName() + " has not yet been migrated to performRawSearchQueryPaged");
     }
 
     /// @return default pageSize

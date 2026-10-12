@@ -29,19 +29,16 @@ class FetcherRateLimiterTest {
 
     @Test
     void rejectsNonPositiveRequestCount() {
-        assertThrows(IllegalArgumentException.class,
-                () -> FetcherRateLimiter.ofRequestsPerInterval("Test", 0, Duration.ofSeconds(1)));
+        assertThrows(IllegalArgumentException.class, () -> FetcherRateLimiter.ofRequestsPerInterval("Test", 0, Duration.ofSeconds(1)));
     }
 
     @Test
     void rejectsNonPositiveInterval() {
-        assertThrows(IllegalArgumentException.class,
-                () -> FetcherRateLimiter.ofRequestsPerInterval("Test", 1, Duration.ZERO));
+        assertThrows(IllegalArgumentException.class, () -> FetcherRateLimiter.ofRequestsPerInterval("Test", 1, Duration.ZERO));
     }
 
     @Test
     void rejectsNonFiniteRate() {
-        assertThrows(IllegalArgumentException.class,
-                () -> FetcherRateLimiter.ofRequestsPerSecond("Test", Double.POSITIVE_INFINITY));
+        assertThrows(IllegalArgumentException.class, () -> FetcherRateLimiter.ofRequestsPerSecond("Test", Double.POSITIVE_INFINITY));
     }
 }

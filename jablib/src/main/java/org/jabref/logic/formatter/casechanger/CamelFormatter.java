@@ -4,7 +4,6 @@ import java.util.stream.Collectors;
 
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 
 public class CamelFormatter extends Formatter {
@@ -23,7 +22,8 @@ public class CamelFormatter extends Formatter {
     public String format(@NonNull String input) {
         Title title = new Title(input);
 
-        return title.getWords().stream()
+        return title.getWords()
+                    .stream()
                     .map(Word -> {
                         Word.toUpperFirst();
                         return Word.toString();
@@ -33,8 +33,7 @@ public class CamelFormatter extends Formatter {
 
     @Override
     public String getDescription() {
-        return Localization.lang(
-                "Returns capitalized and concatenated title.");
+        return Localization.lang("Returns capitalized and concatenated title.");
     }
 
     @Override

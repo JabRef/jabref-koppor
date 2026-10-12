@@ -24,7 +24,6 @@ public record TalliesResponse(
                 jsonObject.getInt("contradicting"),
                 jsonObject.getInt("mentioning"),
                 jsonObject.getInt("unclassified"),
-                jsonObject.getInt("citingPublications")
-        );
+                jsonObject.getInt("citingPublications"));
     }
 }

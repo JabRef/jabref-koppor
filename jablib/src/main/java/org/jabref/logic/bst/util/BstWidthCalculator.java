@@ -134,8 +134,7 @@ public class BstWidthCalculator {
         }
     }
 
-    private BstWidthCalculator() {
-    }
+    private BstWidthCalculator() {}
 
     private static int getSpecialCharWidth(char[] c, int pos) {
         if ((pos + 1) < c.length) {

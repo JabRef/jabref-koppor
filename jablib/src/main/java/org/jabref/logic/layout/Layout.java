@@ -10,7 +10,6 @@ import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +21,7 @@ public class Layout {
 
     private final List<String> missingFormatters = new ArrayList<>();
 
-    public Layout(List<StringInt> parsedEntries,
-                  List<Path> fileDirForDatabase,
-                  LayoutFormatterPreferences layoutPreferences,
+    public Layout(List<StringInt> parsedEntries, List<Path> fileDirForDatabase, LayoutFormatterPreferences layoutPreferences,
                   JournalAbbreviationRepository abbreviationRepository) {
         List<LayoutEntry> tmpEntries = new ArrayList<>(parsedEntries.size());
 
@@ -49,11 +46,8 @@ public class Layout {
                     if ((blockStart != null) && (blockEntries != null)) {
                         if (blockStart.equals(parsedEntry.s)) {
                             blockEntries.add(parsedEntry);
-                            le = new LayoutEntry(blockEntries,
-                                    parsedEntry.i == LayoutHelper.IS_FIELD_END ? LayoutHelper.IS_FIELD_START : LayoutHelper.IS_GROUP_START,
-                                    fileDirForDatabase,
-                                    layoutPreferences,
-                                    abbreviationRepository);
+                            le = new LayoutEntry(blockEntries, parsedEntry.i == LayoutHelper.IS_FIELD_END ? LayoutHelper.IS_FIELD_START : LayoutHelper.IS_GROUP_START, fileDirForDatabase,
+                                    layoutPreferences, abbreviationRepository);
                             tmpEntries.add(le);
                             blockEntries = null;
                         } else {
@@ -88,7 +82,9 @@ public class Layout {
     }
 
     public String getText() {
-        return layoutEntries.stream().map(LayoutEntry::getText).collect(Collectors.joining("\n"));
+        return layoutEntries.stream()
+                            .map(LayoutEntry::getText)
+                            .collect(Collectors.joining("\n"));
     }
 
     /// Returns the processed bibtex entry. If the database argument is

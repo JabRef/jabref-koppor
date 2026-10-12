@@ -19,8 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/// Keeps [WalkthroughNodeIds] honest: a constant whose node lost its id resolves to nothing, and
-/// the walkthrough step then spots on nothing instead of failing.
+/// Keeps [WalkthroughNodeIds] honest: a constant whose node lost its id
+/// resolves to nothing, and the walkthrough step then spots on nothing instead
+/// of failing.
 @NullMarked
 class WalkthroughNodeIdsTest {
 
@@ -42,8 +43,8 @@ class WalkthroughNodeIdsTest {
             Map.entry("GROUP_DESCRIPTION", "resources/org/jabref/gui/groups/GroupDialog.fxml"),
             Map.entry("GROUP_EXPLICIT_RADIO", "resources/org/jabref/gui/groups/GroupDialog.fxml"));
 
-    /// Driven by the constants themselves, so a constant added without a declaring file shows up as
-    /// a case rather than as a silently missing one.
+    /// Driven by the constants themselves, so a constant added without a
+    /// declaring file shows up as a case rather than as a silently missing one.
     private static Stream<Arguments> declarations() throws IllegalAccessException {
         List<Arguments> cases = new ArrayList<>();
         for (Field constant : WalkthroughNodeIds.class.getFields()) {
@@ -52,17 +53,15 @@ class WalkthroughNodeIdsTest {
         return cases.stream();
     }
 
-    /// FXML repeats the literal, Java sets the id from the constant — so each declaration is
-    /// searched for the form it can take.
+    /// FXML repeats the literal, Java sets the id from the constant — so each
+    /// declaration is searched for the form it can take.
     @ParameterizedTest
     @MethodSource("declarations")
     void idIsDeclaredOnANode(String constantName, String id, @Nullable String declaringFile) throws IOException {
         assertNotNull(declaringFile, constantName + " names no declaring file in DECLARING_FILES");
 
         Path file = MAIN.resolve(declaringFile);
-        String declaration = declaringFile.endsWith(".fxml")
-                             ? "id=\"" + id + "\""
-                             : "setId(WalkthroughNodeIds." + constantName + ")";
+        String declaration = declaringFile.endsWith(".fxml") ? "id=\"" + id + "\"" : "setId(WalkthroughNodeIds." + constantName + ")";
         assertTrue(Files.readString(file).contains(declaration),
                 file + " does not contain " + declaration + ", so no node carries the walkthrough id \"" + id + "\"");
     }

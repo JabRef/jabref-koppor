@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.scene.layout.StackPane;
-
+import org.controlsfx.control.HyperlinkLabel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefGuiStateManager;
 import org.jabref.gui.StateManager;
@@ -37,9 +38,6 @@ import org.jabref.model.entry.BibtexString;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.airhacks.afterburner.injection.Injector;
-import org.controlsfx.control.HyperlinkLabel;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
@@ -81,8 +79,7 @@ class BackupUIManagerTest extends JavaFxTest {
     void failedRestoreShowsBackupPathAndCause(@TempDir Path tempDir) throws IOException {
         Path backupDir = tempDir.resolve("backups");
         when(preferences.getFilePreferences().getBackupDirectory()).thenReturn(backupDir);
-        when(dialogService.showCustomDialogAndWait(any(BackupResolverDialog.class)))
-                .thenReturn(Optional.of(BackupResolverDialog.RESTORE_FROM_BACKUP));
+        when(dialogService.showCustomDialogAndWait(any(BackupResolverDialog.class))).thenReturn(Optional.of(BackupResolverDialog.RESTORE_FROM_BACKUP));
 
         Path originalFile = tempDir.resolve("library.bib");
         Files.createDirectory(originalFile);
@@ -90,38 +87,33 @@ class BackupUIManagerTest extends JavaFxTest {
         Path backupFile = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(originalFile, BackupFileType.BACKUP, backupDir);
         Files.writeString(backupFile, "@article{backup}");
 
-        interact(() -> BackupUIManager.showRestoreBackupDialog(
-                dialogService,
-                originalFile,
-                preferences,
-                mock(FileUpdateMonitor.class),
+        interact(() -> BackupUIManager.showRestoreBackupDialog(dialogService, originalFile, preferences, mock(FileUpdateMonitor.class),
                 mock(StateManager.class)));
 
-        verify(dialogService).showErrorDialogAndWait(
-                eq(Localization.lang("Restore backup")),
-                eq(Localization.lang("Could not restore the backup file '%0'.", backupFile)),
+        verify(dialogService).showErrorDialogAndWait(eq(Localization.lang("Restore backup")), eq(Localization.lang("Could not restore the backup file '%0'.", backupFile)),
                 any(DirectoryNotEmptyException.class));
     }
 
-    /// The review runs while the library is still being opened, so no tab exists for it yet and the active tab may be
-    /// absent altogether (welcome tab, startup). The review must not depend on it. The backup adds groups to a library
-    /// without groups, which produces a metadata change and a group change; accepting both has to install the groups.
+    /// The review runs while the library is still being opened, so no tab
+    /// exists for it yet and the active tab may be absent altogether (welcome
+    /// tab, startup). The review must not depend on it. The backup adds groups
+    /// to a library without groups, which produces a metadata change and a
+    /// group change; accepting both has to install the groups.
     @Test
     void reviewBackupAcceptingAllChangesWorksWithoutAnActiveTab(@TempDir Path tempDir) throws IOException {
         Path backupDir = tempDir.resolve("backups");
         when(preferences.getFilePreferences().getBackupDirectory()).thenReturn(backupDir);
-        when(dialogService.showCustomDialogAndWait(any(BackupResolverDialog.class)))
-                .thenReturn(Optional.of(BackupResolverDialog.REVIEW_BACKUP));
-        when(dialogService.showCustomDialogAndWait(any(DatabaseChangesResolverDialog.class)))
-                .thenAnswer(invocation -> {
-                    DatabaseChangesResolverDialog dialog = invocation.getArgument(0);
-                    dialog.getResolvedChanges().forEach(DatabaseChange::accept);
-                    return Optional.of(true);
-                });
+        when(dialogService.showCustomDialogAndWait(any(BackupResolverDialog.class))).thenReturn(Optional.of(BackupResolverDialog.REVIEW_BACKUP));
+        when(dialogService.showCustomDialogAndWait(any(DatabaseChangesResolverDialog.class))).thenAnswer(invocation -> {
+            DatabaseChangesResolverDialog dialog = invocation.getArgument(0);
+            dialog.getResolvedChanges().forEach(DatabaseChange::accept);
+            return Optional.of(true);
+        });
         // Sealed, so deep stubs cannot mock it
         PreviewPreferences previewPreferences = preferences.getPreviewPreferences();
         doReturn(new TextBasedPreviewLayout("", mock(LayoutFormatterPreferences.class), mock(JournalAbbreviationRepository.class)))
-                .when(previewPreferences).getSelectedPreviewLayout();
+                .when(previewPreferences)
+                .getSelectedPreviewLayout();
         Injector.setModelOrService(DialogService.class, dialogService);
         Injector.setModelOrService(GuiPreferences.class, preferences);
         Injector.setModelOrService(BibEntryTypesManager.class, new BibEntryTypesManager());
@@ -131,7 +123,8 @@ class BackupUIManagerTest extends JavaFxTest {
         Path originalFile = tempDir.resolve("library.bib");
         Files.writeString(originalFile, "@Article{original, title = {Original}}");
         Path backupFile = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(originalFile, BackupFileType.BACKUP, backupDir);
-        Files.writeString(backupFile, """
+        Files.writeString(backupFile,
+                """
                 @Article{original,
                   title = {Original},
                 }
@@ -146,16 +139,20 @@ class BackupUIManagerTest extends JavaFxTest {
                 """);
 
         // Called off the JavaFX thread, as the library loading task does
-        Optional<ParserResult> result = BackupUIManager.showRestoreBackupDialog(
-                dialogService,
-                originalFile,
-                preferences,
-                mock(FileUpdateMonitor.class),
+        Optional<ParserResult> result = BackupUIManager.showRestoreBackupDialog(dialogService, originalFile, preferences, mock(FileUpdateMonitor.class),
                 new JabRefGuiStateManager());
 
         BibDatabaseContext restored = result.orElseThrow().getDatabaseContext();
         assertEquals(2, restored.getDatabase().getEntryCount());
-        assertEquals(List.of("TODO"), restored.getMetaData().getGroups().orElseThrow().getChildren().stream().map(GroupTreeNode::getName).toList());
+        assertEquals(
+                List.of("TODO"),
+                restored.getMetaData()
+                        .getGroups()
+                        .orElseThrow()
+                        .getChildren()
+                        .stream()
+                        .map(GroupTreeNode::getName)
+                        .toList());
     }
 
     @Test
@@ -166,39 +163,47 @@ class BackupUIManagerTest extends JavaFxTest {
         Files.write(backupFile, new byte[2048]);
 
         AtomicReference<@Nullable String> dialogContent = new AtomicReference<>();
-        interact(() -> {
-            BackupResolverDialog dialog = new BackupResolverDialog(originalFile, backupFile.getParent(), mock(ExternalApplicationsPreferences.class));
-            StackPane content = (StackPane) dialog.getDialogPane().getContent();
-            HyperlinkLabel hyperlink = (HyperlinkLabel) content.getChildren().getFirst();
-            dialogContent.set(hyperlink.getText());
-        });
+        interact(
+                () -> {
+                    BackupResolverDialog dialog = new BackupResolverDialog(originalFile, backupFile.getParent(), mock(ExternalApplicationsPreferences.class));
+                    StackPane content = (StackPane) dialog.getDialogPane().getContent();
+                    HyperlinkLabel hyperlink = (HyperlinkLabel) content.getChildren().getFirst();
+                    dialogContent.set(hyperlink.getText());
+                });
 
-        assertEquals("""
+        assertEquals(
+                """
                 A backup file for 'library.bib' was found at [%s]
                 Current library size: 1 KB
                 Backup size: 2 KB
                 This could indicate that JabRef did not shut down cleanly last time the file was used.
 
-                Do you want to recover the library from the backup file?""".formatted(backupFile.getFileName()), dialogContent.get());
+                Do you want to recover the library from the backup file?"""
+                        .formatted(backupFile.getFileName()),
+                dialogContent.get());
     }
 
-    /// A conflict-aborted original produces an invalid, empty result. Reviewing the backup merges content into that
-    /// same result, so it has to stop counting as invalid - otherwise the caller reports an open error and closes the
-    /// tab right after the user recovered the library.
+    /// A conflict-aborted original produces an invalid, empty result. Reviewing
+    /// the backup merges content into that same result, so it has to stop
+    /// counting as invalid - otherwise the caller reports an open error and
+    /// closes the tab right after the user recovered the library.
     // [utest->req~import.library.unreadable-reported~1]
     @Test
     void recoveredEntryMakesAnInvalidResultValid() {
         ParserResult parserResult = ParserResult.fromErrorMessage("aborted parse");
-        parserResult.getDatabase().insertEntry(new BibEntry(StandardEntryType.Article).withCitationKey("recovered"));
+        parserResult.getDatabase().insertEntry(new BibEntry(StandardEntryType.Article)
+                .withCitationKey("recovered"));
 
         BackupUIManager.markRecoveredIfContentRestored(parserResult);
 
         assertFalse(parserResult.isInvalid());
     }
 
-    /// Accepting a change is not on its own proof that anything came back: a backup differing only in its groups
-    /// yields a metadata change whose acceptance restores nothing. Such a result must stay invalid, so that an
-    /// unreadable original is still reported instead of opening as an empty library.
+    /// Accepting a change is not on its own proof that anything came back: a
+    /// backup differing only in its groups yields a metadata change whose
+    /// acceptance restores nothing. Such a result must stay invalid, so that an
+    /// unreadable original is still reported instead of opening as an empty
+    /// library.
     // [utest->req~import.library.unreadable-reported~1]
     @Test
     void resultWithoutRestoredContentStaysInvalid() {

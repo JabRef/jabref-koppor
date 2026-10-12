@@ -12,8 +12,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
-/// A custom JavaFX TextArea that provides shell-like history navigation, smart multiline handling,
-/// and auto-expanding height.
+/// A custom JavaFX TextArea that provides shell-like history navigation, smart
+/// multiline handling, and auto-expanding height.
 public class HistoryTextArea extends TextArea {
 
     private static final int NEW_MESSAGE_INDEX = -1;

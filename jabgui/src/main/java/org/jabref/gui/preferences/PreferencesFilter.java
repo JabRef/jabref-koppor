@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jabref.logic.preferences.CliPreferences;
-
 import org.jspecify.annotations.NonNull;
 
 public class PreferencesFilter {
@@ -24,20 +23,28 @@ public class PreferencesFilter {
         Map<String, Object> defaults = new HashMap<>(preferences.getDefaults());
         Map<String, Object> prefs = preferences.getPreferences();
 
-        return prefs.entrySet().stream()
+        return prefs.entrySet()
+                    .stream()
                     .map(entry -> new PreferenceOption(entry.getKey(), entry.getValue(), defaults.get(entry.getKey())))
                     .collect(Collectors.toList());
     }
 
     public List<PreferenceOption> getDeviatingPreferences() {
-        return getPreferenceOptions().stream()
-                                     .filter(PreferenceOption::isChanged)
-                                     .sorted()
-                                     .collect(Collectors.toList());
+        return getPreferenceOptions()
+                .stream()
+                .filter(PreferenceOption::isChanged)
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     public enum PreferenceType {
-        BOOLEAN, INTEGER, DOUBLE, STRING, LIST, SET, MAP
+        BOOLEAN,
+        INTEGER,
+        DOUBLE,
+        STRING,
+        LIST,
+        SET,
+        MAP
     }
 
     public static class PreferenceOption implements Comparable<PreferenceOption> {
@@ -47,9 +54,7 @@ public class PreferencesFilter {
         private final Optional<Object> defaultValue;
         private final PreferenceType type;
 
-        public PreferenceOption(@NonNull String key,
-                                @NonNull Object value,
-                                Object defaultValue) {
+        public PreferenceOption(@NonNull String key, @NonNull Object value, Object defaultValue) {
             this.key = key;
             this.value = value;
             this.defaultValue = Optional.ofNullable(defaultValue);
@@ -62,21 +67,13 @@ public class PreferencesFilter {
 
         private PreferenceType getType(Object value) {
             return switch (value) {
-                case Boolean _ ->
-                        PreferenceType.BOOLEAN;
-                case Integer _ ->
-                        PreferenceType.INTEGER;
-                case Double _ ->
-                        PreferenceType.DOUBLE;
-                case Map<?, ?> _ ->
-                        PreferenceType.MAP;
-                case Set<?> _ ->
-                        PreferenceType.SET;
-                case List<?> _ ->
-                        PreferenceType.LIST;
-                case null,
-                     default ->
-                        PreferenceType.STRING;
+                case Boolean _ -> PreferenceType.BOOLEAN;
+                case Integer _ -> PreferenceType.INTEGER;
+                case Double _ -> PreferenceType.DOUBLE;
+                case Map<?, ?> _ -> PreferenceType.MAP;
+                case Set<?> _ -> PreferenceType.SET;
+                case List<?> _ -> PreferenceType.LIST;
+                case null, default -> PreferenceType.STRING;
             };
         }
 

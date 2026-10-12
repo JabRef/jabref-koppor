@@ -12,5 +12,4 @@ import org.jspecify.annotations.NullMarked;
 /// this group; its last element therefore equals `name`. The root `AllEntriesGroup`
 /// is not part of the path.
 @NullMarked
-public record GroupDTO(String name, List<String> path) {
-}
+public record GroupDTO(String name, List<String> path) {}

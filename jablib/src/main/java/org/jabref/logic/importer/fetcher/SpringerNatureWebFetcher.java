@@ -12,6 +12,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Strings;
+import kong.unirest.core.UnirestException;
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.PagedSearchBasedParserFetcher;
@@ -27,19 +32,15 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import com.google.common.base.Strings;
-import kong.unirest.core.UnirestException;
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /// Fetches data from Springer Nature
 ///
-/// See <https://dev.springernature.com/docs/api-endpoints/meta-api/?source=jabref> for more information
+/// See
+/// <https://dev.springernature.com/docs/api-endpoints/meta-api/?source=jabref>
+/// for more information
 public class SpringerNatureWebFetcher implements PagedSearchBasedParserFetcher, CustomizableKeyFetcher {
     public static final String FETCHER_NAME = "Springer";
 
@@ -59,8 +60,15 @@ public class SpringerNatureWebFetcher implements PagedSearchBasedParserFetcher, 
     /// @return the converted BibEntry
     public static BibEntry parseSpringerJSONtoBibtex(JSONObject springerJsonEntry) {
         // Fields that are directly accessible at the top level Json object
-        Field[] singleFieldStrings = {StandardField.ISSN, StandardField.VOLUME, StandardField.ABSTRACT, StandardField.DOI, StandardField.TITLE, StandardField.NUMBER,
-                StandardField.PUBLISHER};
+        Field[] singleFieldStrings = {
+            StandardField.ISSN,
+            StandardField.VOLUME,
+            StandardField.ABSTRACT,
+            StandardField.DOI,
+            StandardField.TITLE,
+            StandardField.NUMBER,
+            StandardField.PUBLISHER
+        };
 
         BibEntry entry = new BibEntry();
         Field nametype;
@@ -107,8 +115,7 @@ public class SpringerNatureWebFetcher implements PagedSearchBasedParserFetcher, 
         // Page numbers
         if (springerJsonEntry.has("startingPage") && !springerJsonEntry.getString("startingPage").isEmpty()) {
             if (springerJsonEntry.has("endingPage") && !springerJsonEntry.getString("endingPage").isEmpty()) {
-                entry.setField(StandardField.PAGES,
-                        springerJsonEntry.getString("startingPage") + "--" + springerJsonEntry.getString("endingPage"));
+                entry.setField(StandardField.PAGES, springerJsonEntry.getString("startingPage") + "--" + springerJsonEntry.getString("endingPage"));
             } else {
                 entry.setField(StandardField.PAGES, springerJsonEntry.getString("startingPage"));
             }
@@ -172,7 +179,8 @@ public class SpringerNatureWebFetcher implements PagedSearchBasedParserFetcher, 
     public boolean isValidKey(@NonNull String apiKey) {
         try {
             URLDownload urlDownload = new URLDownload(getTestUrl(apiKey));
-            int statusCode = ((HttpURLConnection) urlDownload.getSource().openConnection()).getResponseCode();
+            int statusCode = ((HttpURLConnection) urlDownload.getSource().openConnection())
+                    .getResponseCode();
             return (statusCode >= 200) && (statusCode < 300);
         } catch (IOException | UnirestException _) {
             return false;
@@ -191,21 +199,26 @@ public class SpringerNatureWebFetcher implements PagedSearchBasedParserFetcher, 
     /// @return URL
     @Override
     public URL getURLForQuery(BaseQueryNode queryNode, int pageNumber) throws URISyntaxException, MalformedURLException {
-        String transformedQuery = new SpringerQueryTransformer().transformSearchQuery(queryNode).orElse("");
+        String transformedQuery = new SpringerQueryTransformer()
+                .transformSearchQuery(queryNode)
+                .orElse("");
         return buildSearchURL(transformedQuery, pageNumber);
     }
 
-    /// Builds the Springer search URL for a raw, catalog-native query, sent verbatim as the `q` parameter.
+    /// Builds the Springer search URL for a raw, catalog-native query, sent
+    /// verbatim as the `q` parameter.
     @Override
     public URL getURLForRawQuery(String rawQuery, int pageNumber) throws URISyntaxException, MalformedURLException {
         return buildSearchURL(rawQuery, pageNumber);
     }
 
-    /// Builds the Springer Nature search API URL for the given raw query string and page number.
-    /// The raw query is sent verbatim as the `q` parameter, bypassing [SpringerQueryTransformer].
+    /// Builds the Springer Nature search API URL for the given raw query string
+    /// and page number. The raw query is sent verbatim as the `q` parameter,
+    /// bypassing [SpringerQueryTransformer].
     ///
-    /// @param rawQuery   the query string to pass directly as the `q` parameter
-    /// @param pageNumber zero based page number; converted to a one based `s` start value.
+    /// @param rawQuery the query string to pass directly as the `q` parameter
+    /// @param pageNumber zero based page number; converted to a one based `s`
+    ///   start value.
     private URL buildSearchURL(String rawQuery, int pageNumber) throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(API_URL);
         uriBuilder.addParameter("q", rawQuery); // Search query
@@ -229,7 +242,9 @@ public class SpringerNatureWebFetcher implements PagedSearchBasedParserFetcher, 
     @Override
     public Parser getParser() {
         return inputStream -> {
-            String response = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining(OS.NEWLINE));
+            String response = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines()
+                    .collect(Collectors.joining(OS.NEWLINE));
             JSONObject jsonObject = new JSONObject(response);
 
             List<BibEntry> entries = new ArrayList<>();

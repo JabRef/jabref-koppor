@@ -9,20 +9,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Handles importing of recommended articles to be displayed in the Related Articles tab.
+/// Handles importing of recommended articles to be displayed in the Related
+/// Articles tab.
 public class MrDLibImporter extends Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MrDLibImporter.class);
@@ -34,7 +34,9 @@ public class MrDLibImporter extends Importer {
     @Override
     public boolean isRecognizedFormat(@NonNull Reader input) throws IOException {
         try {
-            String body = new BufferedReader(input).lines().collect(Collectors.joining("\n"));
+            String body = new BufferedReader(input)
+                    .lines()
+                    .collect(Collectors.joining("\n"));
             JSONObject jsonObject = new JSONObject(body);
             if (!jsonObject.has("recommendations")) {
                 return false;
@@ -72,12 +74,12 @@ public class MrDLibImporter extends Importer {
     }
 
     /// Small pair-class to ensure the right order of the recommendations.
-    private record RankedBibEntry(BibEntry entry, Integer rank) {
-    }
+    private record RankedBibEntry(BibEntry entry, Integer rank) {}
 
     /// Parses the input from the server to a ParserResult
     ///
-    /// @param input A BufferedReader with a reference to a string with the server's response
+    /// @param input A BufferedReader with a reference to a string with the
+    ///   server's response
     private void parse(BufferedReader input) {
         // The Bibdatabase that gets returned in the ParserResult.
         BibDatabase bibDatabase = new BibDatabase();
@@ -98,7 +100,9 @@ public class MrDLibImporter extends Importer {
 
         // Sort bib entries according to rank
         rankedBibEntries.sort(Comparator.comparing((RankedBibEntry rankedBibEntry) -> rankedBibEntry.rank));
-        List<BibEntry> bibEntries = rankedBibEntries.stream().map(e -> e.entry).collect(Collectors.toList());
+        List<BibEntry> bibEntries = rankedBibEntries.stream()
+                .map(e -> e.entry)
+                .collect(Collectors.toList());
 
         bibDatabase.insertEntries(bibEntries);
         parserResult = new ParserResult(bibDatabase);
@@ -111,7 +115,8 @@ public class MrDLibImporter extends Importer {
 
     /// Parses the JSON recommendations into bib entries
     ///
-    /// @param recommendation JSON object of a single recommendation returned by Mr. DLib
+    /// @param recommendation JSON object of a single recommendation returned by
+    ///   Mr. DLib
     /// @return A ranked bib entry created from the recommendation input
     private RankedBibEntry populateBibEntry(JSONObject recommendation) {
         BibEntry current = new BibEntry();
@@ -134,8 +139,7 @@ public class MrDLibImporter extends Importer {
         return new RankedBibEntry(current, rank);
     }
 
-    private Boolean isRecommendationFieldPresent(JSONObject recommendation, String
-            field) {
+    private Boolean isRecommendationFieldPresent(JSONObject recommendation, String field) {
         return recommendation.has(field) && !recommendation.isNull(field);
     }
 

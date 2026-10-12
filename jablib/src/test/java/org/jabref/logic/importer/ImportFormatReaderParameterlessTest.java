@@ -4,11 +4,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -34,7 +32,9 @@ class ImportFormatReaderParameterlessTest {
 
     @Test
     void importWithAutoDetectionThrowsExceptionIfNoMatchingImporterWasFound() throws URISyntaxException {
-        Path file = Path.of(ImportFormatReaderParameterlessTest.class.getResource("fileformat/emptyFile.xml").toURI());
+        Path file = Path.of(ImportFormatReaderParameterlessTest.class
+                .getResource("fileformat/emptyFile.xml")
+                .toURI());
         assertThrows(ImportException.class, () -> reader.importWithAutoDetection(file));
     }
 

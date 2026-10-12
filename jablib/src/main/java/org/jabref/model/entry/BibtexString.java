@@ -25,14 +25,13 @@ public class BibtexString implements Cloneable {
     ///
     /// Examples:
     ///
-    /// \@String { aKahle    = "Kahle, Brewster " } -> author
-    /// \@String { aStallman = "Stallman, Richard" } -> author
-    /// \@String { iMIT      = "{Massachusetts Institute of Technology ({MIT})}" } -> institution
-    /// \@String { pMIT      = "{Massachusetts Institute of Technology ({MIT}) press}" } -> publisher
-    /// \@String { anct      = "Anecdote" } -> other
-    /// \@String { eg        = "for example" } -> other
-    /// \@String { et        = " and " } -> other
-    /// \@String { lBigMac   = "Big Mac" } -> other
+    /// \@String { aKahle = "Kahle, Brewster " } -> author \@String { aStallman
+    /// = "Stallman, Richard" } -> author \@String { iMIT = "{Massachusetts
+    /// Institute of Technology ({MIT})}" } -> institution \@String { pMIT =
+    /// "{Massachusetts Institute of Technology ({MIT}) press}" } -> publisher
+    /// \@String { anct = "Anecdote" } -> other \@String { eg = "for example" }
+    /// -> other \@String { et = " and " } -> other \@String { lBigMac = "Big
+    /// Mac" } -> other
     ///
     /// Usage:
     ///
@@ -65,7 +64,9 @@ public class BibtexString implements Cloneable {
             // Second character is not upper case
             // aStallman -> AUTHOR
             // asdf -> OTHER
-            if (!String.valueOf(key.charAt(1)).toUpperCase(Locale.ROOT).equals(String.valueOf(key.charAt(1)))) {
+            if (!String.valueOf(key.charAt(1))
+                    .toUpperCase(Locale.ROOT)
+                    .equals(String.valueOf(key.charAt(1)))) {
                 return OTHER;
             }
             for (Type t : Type.values()) {
@@ -86,7 +87,9 @@ public class BibtexString implements Cloneable {
 
     /// Default constructor. Use this if in doubt.
     ///
-    /// In case this constructor is used - and the library is eventually written, the serialization is generated from scratch (and not some null from parsedSerialization)
+    /// In case this constructor is used - and the library is eventually
+    /// written, the serialization is generated from scratch (and not some null
+    /// from parsedSerialization)
     public BibtexString(String name, String content) {
         this.id = IdGenerator.next();
         this.name = name;
@@ -96,8 +99,9 @@ public class BibtexString implements Cloneable {
         type = Type.get(name);
     }
 
-    /// This is used to set the parsed serialization of the string. This is used when the string is read from a BibTeX file.
-    /// Do not use if not working with reading BibTeX files (or similar actions).     *
+    /// This is used to set the parsed serialization of the string. This is used
+    /// when the string is read from a BibTeX file. Do not use if not working
+    /// with reading BibTeX files (or similar actions). *
     ///
     /// @param parsedSerialization The serialization read during parsing
     public BibtexString(String name, String content, String parsedSerialization) {
@@ -189,11 +193,11 @@ public class BibtexString implements Cloneable {
             return false;
         }
         BibtexString that = (BibtexString) o;
-        return Objects.equals(hasChanged, that.hasChanged) &&
-                Objects.equals(name, that.name) &&
-                Objects.equals(content, that.content) &&
-                Objects.equals(type, that.type) &&
-                Objects.equals(parsedSerialization, that.parsedSerialization);
+        return Objects.equals(hasChanged, that.hasChanged)
+                && Objects.equals(name, that.name)
+                && Objects.equals(content, that.content)
+                && Objects.equals(type, that.type)
+                && Objects.equals(parsedSerialization, that.parsedSerialization);
     }
 
     @Override

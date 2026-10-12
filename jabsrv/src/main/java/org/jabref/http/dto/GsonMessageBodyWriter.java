@@ -16,8 +16,9 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.MessageBodyWriter;
 import jakarta.ws.rs.ext.Provider;
 
-/// Serializes resource return values into `application/json` via Gson so resources can return strongly-typed POJOs.
-/// Skips primitive types (`String`, `byte[]`, `InputStream`) so JAX-RS' built-in writers handle them.
+/// Serializes resource return values into `application/json` via Gson so
+/// resources can return strongly-typed POJOs. Skips primitive types (`String`,
+/// `byte[]`, `InputStream`) so JAX-RS' built-in writers handle them.
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 public class GsonMessageBodyWriter implements MessageBodyWriter<Object> {
@@ -26,20 +27,21 @@ public class GsonMessageBodyWriter implements MessageBodyWriter<Object> {
     private Gson gson;
 
     @Override
-    public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return !String.class.isAssignableFrom(type)
-                && !byte[].class.isAssignableFrom(type)
-                && !java.io.InputStream.class.isAssignableFrom(type);
+    public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations,
+            MediaType mediaType) {
+        return !String.class.isAssignableFrom(type) && !byte[].class.isAssignableFrom(type) && !java.io.InputStream.class.isAssignableFrom(type);
     }
 
     @Override
-    public void writeTo(Object o,
-                        Class<?> type,
-                        Type genericType,
-                        Annotation[] annotations,
-                        MediaType mediaType,
-                        MultivaluedMap<String, Object> httpHeaders,
-                        OutputStream entityStream) throws IOException {
+    public void writeTo(
+            Object o,
+            Class<?> type,
+            Type genericType,
+            Annotation[] annotations,
+            MediaType mediaType,
+            MultivaluedMap<String, Object> httpHeaders,
+            OutputStream entityStream)
+            throws IOException {
         try (Writer writer = new OutputStreamWriter(entityStream, StandardCharsets.UTF_8)) {
             gson.toJson(o, genericType, writer);
         }

@@ -29,7 +29,7 @@ public enum ConsistencySymbol {
 
     public static Optional<ConsistencySymbol> fromText(String text) {
         return Arrays.stream(ConsistencySymbol.values())
-                     .filter(symbol -> symbol.getText().equals(text))
-                     .findFirst();
+                .filter(symbol -> symbol.getText().equals(text))
+                .findFirst();
     }
 }

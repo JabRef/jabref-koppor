@@ -13,22 +13,24 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.Field;
 
-/// Outputs the findings in the
-/// [GitHub Actions workflow command format](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-error-message)
-/// (`::error file=...,line=...,col=...::message`), so that findings show up as annotations on
-/// pull requests when `jabkit` runs inside a GitHub Actions workflow.
+/// Outputs the findings in the [GitHub Actions workflow command
+/// format](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-error-message)
+/// (`::error file=...,line=...,col=...::message`), so that findings show up as
+/// annotations on pull requests when `jabkit` runs inside a GitHub Actions
+/// workflow.
 public class BibliographyConsistencyCheckResultGitHubActionsWriter extends BibliographyConsistencyCheckResultWriter {
 
     private final ParserResult parserResult;
     private final Path inputFile;
 
-    public BibliographyConsistencyCheckResultGitHubActionsWriter(BibliographyConsistencyCheck.Result result,
-                                                                 Writer writer,
-                                                                 boolean isPorcelain,
-                                                                 BibEntryTypesManager entryTypesManager,
-                                                                 BibDatabaseMode bibDatabaseMode,
-                                                                 ParserResult parserResult,
-                                                                 Path inputFile) {
+    public BibliographyConsistencyCheckResultGitHubActionsWriter(
+            BibliographyConsistencyCheck.Result result,
+            Writer writer,
+            boolean isPorcelain,
+            BibEntryTypesManager entryTypesManager,
+            BibDatabaseMode bibDatabaseMode,
+            ParserResult parserResult,
+            Path inputFile) {
         super(result, writer, isPorcelain, entryTypesManager, bibDatabaseMode);
         this.parserResult = parserResult;
         this.inputFile = inputFile;
@@ -36,7 +38,9 @@ public class BibliographyConsistencyCheckResultGitHubActionsWriter extends Bibli
 
     // [impl->req~jabkit.cli.check-github-actions-output~1]
     @Override
-    protected void writeBibEntry(BibEntry bibEntry, String entryType, Set<Field> requiredFields, Set<Field> optionalFields) throws IOException {
+    protected void writeBibEntry(BibEntry bibEntry, String entryType, Set<Field> requiredFields,
+            Set<Field> optionalFields)
+            throws IOException {
         String citationKey = bibEntry.getCitationKey().orElse("");
         // The citation key and field name go into the message itself (not just the annotation
         // title), so the plain GitHub Actions log line is self-describing.
@@ -45,27 +49,25 @@ public class BibliographyConsistencyCheckResultGitHubActionsWriter extends Bibli
             Optional<String> value = bibEntry.getField(field);
             if (value.isPresent()) {
                 if (!requiredFields.contains(field) && !optionalFields.contains(field)) {
-                    write(parserResult.getFieldRange(bibEntry, field), citationKey, field,
-                            "%sunknown field '%s' for entry type %s".formatted(keyPrefix, field.getName(), entryType));
+                    write(parserResult.getFieldRange(bibEntry, field),
+                            citationKey, field, "%sunknown field '%s' for entry type %s".formatted(keyPrefix, field.getName(), entryType));
                 }
             } else {
-                write(parserResult.getCompleteEntryIndicator(bibEntry), citationKey, field,
-                        "%sfield '%s' is absent but used by other entries of entry type %s".formatted(keyPrefix, field.getName(), entryType));
+                write(parserResult.getCompleteEntryIndicator(bibEntry),
+                        citationKey, field, "%sfield '%s' is absent but used by other entries of entry type %s".formatted(keyPrefix, field.getName(), entryType));
             }
         }
     }
 
-    private void write(ParserResult.Range range, String citationKey, Field field, String message) throws IOException {
+    private void write(ParserResult.Range range, String citationKey, Field field,
+                       String message)
+            throws IOException {
         String title = citationKey.isEmpty() ? field.getName() : citationKey + ":" + field.getName();
-        writer.append("::error file=%s,line=%d,col=%d,title=%s::%s%n".formatted(
-                GitHubActionsEscape.property(inputFile.toString()),
-                range.startLine(),
-                range.startColumn(),
-                GitHubActionsEscape.property(title),
-                GitHubActionsEscape.data(message)));
+        writer.append(
+                "::error file=%s,line=%d,col=%d,title=%s::%s%n".formatted(GitHubActionsEscape.property(inputFile.toString()), range.startLine(), range.startColumn(),
+                        GitHubActionsEscape.property(title), GitHubActionsEscape.data(message)));
     }
 
     @Override
-    public void close() throws IOException {
-    }
+    public void close() throws IOException {}
 }

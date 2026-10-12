@@ -17,7 +17,6 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
-
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
@@ -28,10 +27,12 @@ import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// FulltextFetcher implementation that follows the DOI resolution redirects and scans for a full-text PDF URL.
+/// FulltextFetcher implementation that follows the DOI resolution redirects and
+/// scans for a full-text PDF URL.
 ///
-/// Note that we also have custom fetchers in place.
-/// See [org.jabref.logic.importer.WebFetchers#getFullTextFetchers(org.jabref.logic.importer.ImportFormatPreferences, org.jabref.logic.importer.ImporterPreferences)].
+/// Note that we also have custom fetchers in place. See
+/// [org.jabref.logic.importer.WebFetchers#getFullTextFetchers(org.jabref.logic.importer.ImportFormatPreferences,
+/// org.jabref.logic.importer.ImporterPreferences)].
 public class DoiResolution implements FulltextFetcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DoiResolution.class);
@@ -125,7 +126,10 @@ public class DoiResolution implements FulltextFetcher {
             // ACM uses tokens without PDF inside the link
             // See https://github.com/lehner/LocalCopy for more scrape ideas
             // link with "PDF" in title tag
-            if (element.attr("title").toLowerCase(Locale.ENGLISH).contains("pdf") && new URLDownload(href).isPdf()) {
+            if (element.attr("title")
+                       .toLowerCase(Locale.ENGLISH)
+                       .contains("pdf")
+                    && new URLDownload(href).isPdf()) {
                 return Optional.of(URLUtil.create(href));
             }
 
@@ -145,7 +149,9 @@ public class DoiResolution implements FulltextFetcher {
     /// See https://scholar.google.com/intl/de/scholar/inclusion.html#indexing
     private Optional<URL> citationMetaTag(Document html) {
         Elements citationPdfUrlElement = html.head().select("meta[name='citation_pdf_url']");
-        Optional<String> citationPdfUrl = citationPdfUrlElement.stream().map(e -> e.attr("content")).findFirst();
+        Optional<String> citationPdfUrl = citationPdfUrlElement.stream()
+                .map(e -> e.attr("content"))
+                .findFirst();
 
         if (citationPdfUrl.isPresent()) {
             try {
@@ -159,13 +165,15 @@ public class DoiResolution implements FulltextFetcher {
 
     private Optional<URL> findEmbeddedLink(Document html, URL base) {
         Elements embedElement = html.body().select("embed[id='pdf']");
-        Optional<String> pdfUrl = embedElement
-                .stream()
-                .map(e -> e.attr("src")).findFirst();
+        Optional<String> pdfUrl = embedElement.stream()
+                .map(e -> e.attr("src"))
+                .findFirst();
 
         if (pdfUrl.isPresent()) {
             try {
-                URL url = base.toURI().resolve(pdfUrl.get()).toURL();
+                URL url = base.toURI()
+                              .resolve(pdfUrl.get())
+                              .toURL();
                 return Optional.of(url);
             } catch (MalformedURLException | URISyntaxException _) {
                 return Optional.empty();
@@ -175,7 +183,9 @@ public class DoiResolution implements FulltextFetcher {
     }
 
     private Optional<URL> findDistinctLinks(List<URL> urls) {
-        List<URL> distinctLinks = urls.stream().distinct().toList();
+        List<URL> distinctLinks = urls.stream()
+                .distinct()
+                .toList();
 
         if (distinctLinks.isEmpty()) {
             return Optional.empty();

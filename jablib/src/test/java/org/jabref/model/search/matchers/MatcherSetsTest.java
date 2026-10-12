@@ -1,8 +1,8 @@
 package org.jabref.model.search.matchers;
 
 import org.jabref.model.entry.BibEntry;
+import org.jabref.model.search.matchers.MatcherSets.MatcherType;
 import org.jabref.model.search.rules.MockSearchMatcher;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -12,7 +12,7 @@ class MatcherSetsTest {
 
     @Test
     void buildAnd() {
-        MatcherSet matcherSet = MatcherSets.build(MatcherSets.MatcherType.AND);
+        MatcherSet matcherSet = MatcherSets.build(MatcherType.AND);
         assertTrue(matcherSet.isMatch(new BibEntry()));
 
         matcherSet.addRule(new MockSearchMatcher(true));
@@ -24,7 +24,7 @@ class MatcherSetsTest {
 
     @Test
     void buildOr() {
-        MatcherSet matcherSet = MatcherSets.build(MatcherSets.MatcherType.OR);
+        MatcherSet matcherSet = MatcherSets.build(MatcherType.OR);
         assertFalse(matcherSet.isMatch(new BibEntry()));
 
         matcherSet.addRule(new MockSearchMatcher(true));

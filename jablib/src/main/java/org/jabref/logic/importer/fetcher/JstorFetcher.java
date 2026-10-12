@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FulltextFetcher;
 import org.jabref.logic.importer.IdBasedParserFetcher;
@@ -27,8 +28,6 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import org.apache.hc.core5.net.URIBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -54,7 +53,10 @@ public class JstorFetcher implements SearchBasedParserFetcher, FulltextFetcher, 
     @Override
     public URL getURLForQuery(BaseQueryNode queryNode) throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(SEARCH_HOST);
-        uriBuilder.addParameter("Query", new JstorQueryTransformer().transformSearchQuery(queryNode).orElse(""));
+        uriBuilder.addParameter("Query",
+                new JstorQueryTransformer()
+                        .transformSearchQuery(queryNode)
+                        .orElse(""));
         return uriBuilder.build().toURL();
     }
 
@@ -79,8 +81,9 @@ public class JstorFetcher implements SearchBasedParserFetcher, FulltextFetcher, 
     public Parser getParser() {
         return inputStream -> {
             BibtexParser parser = new BibtexParser(importFormatPreferences);
-            String text = new BufferedReader(
-                    new InputStreamReader(inputStream, StandardCharsets.UTF_8)).lines().collect(Collectors.joining());
+            String text = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+                    .lines()
+                    .collect(Collectors.joining());
 
             // does the input stream contain bibtex ?
             if (text.startsWith("@")) {

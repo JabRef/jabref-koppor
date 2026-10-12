@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 import javafx.collections.ModifiableObservableListBase;
-
 import org.jabref.logic.util.JabRefBaseDirectoryLocator;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +45,8 @@ public class FileHistory extends ModifiableObservableListBase<Path> {
         return history.remove(index);
     }
 
-    /// Adds the file to the top of the list. If it already is in the list, it is merely moved to the top.
+    /// Adds the file to the top of the list. If it already is in the list, it
+    /// is merely moved to the top.
     public void newFile(Path file) {
         removeItem(file);
         this.addFirst(file);
@@ -71,7 +70,8 @@ public class FileHistory extends ModifiableObservableListBase<Path> {
                 return;
             }
             try {
-                this.remove(baseDirectoryPath.relativize(file).normalize());
+                this.remove(baseDirectoryPath.relativize(file)
+                        .normalize());
             } catch (IllegalArgumentException e) {
                 LOGGER.warn("Could not relativize file path: {}", file, e);
                 return;

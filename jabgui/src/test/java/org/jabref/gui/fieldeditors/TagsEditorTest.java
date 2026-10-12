@@ -2,13 +2,13 @@ package org.jabref.gui.fieldeditors;
 
 import java.util.List;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.clipboard.ClipBoardManager;
@@ -19,8 +19,6 @@ import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.field.StandardField;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
@@ -74,15 +72,14 @@ class TagsEditorTest extends JavaFxTest {
         interact((Runnable) tags::get);
         interact((Runnable) tags::get);
 
-        assertEquals(List.of(new Keyword("Alpha"), new Keyword("Gamma")), editor.getTags());
+        assertEquals(List.of(new Keyword("Alpha"), new Keyword("Gamma")),
+                editor.getTags());
     }
 
     private static class TestTagsEditor extends TagsEditor {
 
         TestTagsEditor() {
-            super(StandardField.GROUPS,
-                    mock(SuggestionProvider.class),
-                    mock(FieldCheckers.class),
+            super(StandardField.GROUPS, mock(SuggestionProvider.class), mock(FieldCheckers.class),
                     mock(UndoManager.class));
         }
 
@@ -97,7 +94,9 @@ class TagsEditorTest extends JavaFxTest {
                 public Keyword fromString(String string) {
                     return new Keyword(string);
                 }
-            }, ',', tagListProperty, _ -> List.of());
+            },
+                    ',', tagListProperty,
+                    _ -> List.of());
         }
 
         List<Keyword> getTags() {
@@ -105,7 +104,6 @@ class TagsEditorTest extends JavaFxTest {
         }
 
         @Override
-        public void bindToEntry(BibEntry entry) {
-        }
+        public void bindToEntry(BibEntry entry) {}
     }
 }

@@ -4,7 +4,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.preview.CitationStylePreviewLayout;
 
@@ -22,7 +21,8 @@ public class CSLStyleSelectViewModel {
         } else {
             this.pathProperty.set(layout.getFilePath());
         }
-        this.internalStyleProperty.set(layout.citationStyle().isInternalStyle());
+        this.internalStyleProperty.set(layout.citationStyle()
+                .isInternalStyle());
     }
 
     public StringProperty nameProperty() {

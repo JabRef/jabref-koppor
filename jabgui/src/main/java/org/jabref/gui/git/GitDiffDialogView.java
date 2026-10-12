@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -14,7 +16,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
-
 import org.jabref.gui.collab.DatabaseChange;
 import org.jabref.gui.collab.entrychange.EntryChange;
 import org.jabref.gui.collab.entrychange.EntryWithPreviewAndSourceDetailsView;
@@ -40,26 +41,40 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class GitDiffDialogView extends BaseDialog<Void> {
 
-    @FXML private TableView<DatabaseChange> changesTableView;
-    @FXML private TableColumn<DatabaseChange, String> changeName;
-    @FXML private BorderPane changeInfoPane;
+    @FXML
+    private TableView<DatabaseChange> changesTableView;
 
-    @FXML private RadioButton highlightWordsRadioButton;
-    @FXML private RadioButton highlightCharactersRadioButton;
-    @FXML private ToggleGroup diffHighlightingMethodToggleGroup;
+    @FXML
+    private TableColumn<DatabaseChange, String> changeName;
 
-    @Inject private org.jabref.gui.DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private BibEntryTypesManager entryTypesManager;
-    @Inject private TaskExecutor taskExecutor;
+    @FXML
+    private BorderPane changeInfoPane;
+
+    @FXML
+    private RadioButton highlightWordsRadioButton;
+
+    @FXML
+    private RadioButton highlightCharactersRadioButton;
+
+    @FXML
+    private ToggleGroup diffHighlightingMethodToggleGroup;
+
+    @Inject
+    private org.jabref.gui.DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private BibEntryTypesManager entryTypesManager;
+
+    @Inject
+    private TaskExecutor taskExecutor;
 
     private final List<DatabaseChange> changes;
     private final BibDatabaseContext headDatabase;
@@ -68,15 +83,16 @@ public class GitDiffDialogView extends BaseDialog<Void> {
     private final String newVersionLabel;
     private final Map<DatabaseChange, Node> detailsViewCache = new HashMap<>();
 
-    /// Diff dialog labeled for the Git commit use case: committed version (left) vs. saved file (right).
+    /// Diff dialog labeled for the Git commit use case: committed version
+    /// (left) vs. saved file (right).
     ///
-    /// @param changes             the changes to list, as computed by `DatabaseChangeList.compareAndGetChanges`
-    /// @param headDatabase        the committed version (left side)
+    /// @param changes the changes to list, as computed by
+    ///   `DatabaseChangeList.compareAndGetChanges`
+    /// @param headDatabase the committed version (left side)
     /// @param workingTreeDatabase the saved file (right side)
-    public GitDiffDialogView(List<DatabaseChange> changes,
-                             BibDatabaseContext headDatabase,
-                             BibDatabaseContext workingTreeDatabase) {
-        this(changes, headDatabase, workingTreeDatabase, Localization.lang("Committed version"), Localization.lang("Saved file"));
+    public GitDiffDialogView(List<DatabaseChange> changes, BibDatabaseContext headDatabase, BibDatabaseContext workingTreeDatabase) {
+        this(changes, headDatabase, workingTreeDatabase, Localization.lang("Committed version"),
+                Localization.lang("Saved file"));
     }
 
     /// @param changes             the changes to list, as computed by `DatabaseChangeList.compareAndGetChanges`
@@ -84,11 +100,8 @@ public class GitDiffDialogView extends BaseDialog<Void> {
     /// @param workingTreeDatabase the newer version (right side)
     /// @param oldVersionLabel     heading shown above the older version
     /// @param newVersionLabel     heading shown above the newer version
-    public GitDiffDialogView(List<DatabaseChange> changes,
-                             BibDatabaseContext headDatabase,
-                             BibDatabaseContext workingTreeDatabase,
-                             String oldVersionLabel,
-                             String newVersionLabel) {
+    public GitDiffDialogView(List<DatabaseChange> changes, BibDatabaseContext headDatabase, BibDatabaseContext workingTreeDatabase,
+            String oldVersionLabel, String newVersionLabel) {
         this.changes = changes;
         this.headDatabase = headDatabase;
         this.workingTreeDatabase = workingTreeDatabase;
@@ -97,8 +110,8 @@ public class GitDiffDialogView extends BaseDialog<Void> {
 
         setTitle(Localization.lang("Diff view"));
         ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+                .load()
+                .setAsDialogPane(this);
     }
 
     @FXML
@@ -110,13 +123,15 @@ public class GitDiffDialogView extends BaseDialog<Void> {
 
         changesTableView.setItems(javafx.collections.FXCollections.observableArrayList(changes));
         changesTableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        changesTableView.getSelectionModel().selectedItemProperty().addListener((_, _, selectedChange) -> {
-            if (selectedChange != null) {
-                changeInfoPane.setCenter(detailsViewCache.computeIfAbsent(selectedChange, change -> createDetailsNode(change, previewViewer)));
-            } else {
-                changeInfoPane.setCenter(null);
-            }
-        });
+        changesTableView.getSelectionModel()
+                        .selectedItemProperty()
+                        .addListener((_, _, selectedChange) -> {
+                            if (selectedChange != null) {
+                                changeInfoPane.setCenter(detailsViewCache.computeIfAbsent(selectedChange, change -> createDetailsNode(change, previewViewer)));
+                            } else {
+                                changeInfoPane.setCenter(null);
+                            }
+                        });
 
         if (!changes.isEmpty()) {
             changesTableView.getSelectionModel().selectFirst();
@@ -133,54 +148,27 @@ public class GitDiffDialogView extends BaseDialog<Void> {
 
     private Node createDetailsNode(DatabaseChange change, PreviewViewer previewViewer) {
         return switch (change) {
-            case EntryChange entryChange ->
-                    new GitEntryChangeDetailsView(
-                            entryChange.getOldEntry(),
-                            entryChange.getNewEntry(),
-                            headDatabase,
-                            workingTreeDatabase,
-                            preferences,
-                            entryTypesManager,
-                            oldVersionLabel,
-                            newVersionLabel,
-                            getDiffMethod()
-                    );
-            case org.jabref.gui.collab.entryadd.EntryAdd entryAdd ->
-                    new EntryWithPreviewAndSourceDetailsView(
-                            entryAdd.getAddedEntry(),
-                            workingTreeDatabase,
-                            preferences,
-                            entryTypesManager,
-                            previewViewer
-                    );
-            case org.jabref.gui.collab.entrydelete.EntryDelete entryDelete ->
-                    new EntryWithPreviewAndSourceDetailsView(
-                            entryDelete.getDeletedEntry(),
-                            headDatabase,
-                            preferences,
-                            entryTypesManager,
-                            previewViewer
-                    );
-            case MetadataChange metadataChange ->
-                    new MetadataChangeDetailsView(
-                            metadataChange,
-                            preferences.getCitationKeyPatternPreferences().getKeyPatterns(),
-                            oldVersionLabel,
-                            newVersionLabel,
-                            getDiffMethod()
-                    );
-            case GroupChange groupChange ->
-                    new GroupChangeDetailsView(groupChange, groupChange.getName() + '.', oldVersionLabel, newVersionLabel, getDiffMethod());
-            case PreambleChange preambleChange ->
-                    new PreambleChangeDetailsView(preambleChange);
-            case BibTexStringAdd stringAdd ->
-                    new BibTexStringAddDetailsView(stringAdd);
-            case BibTexStringDelete stringDelete ->
-                    new BibTexStringDeleteDetailsView(stringDelete);
-            case BibTexStringChange stringChange ->
-                    new BibTexStringChangeDetailsView(stringChange);
-            case BibTexStringRename stringRename ->
-                    new BibTexStringRenameDetailsView(stringRename);
+            case EntryChange entryChange -> new GitEntryChangeDetailsView(
+                    entryChange.getOldEntry(),
+                    entryChange.getNewEntry(),
+                    headDatabase,
+                    workingTreeDatabase,
+                    preferences,
+                    entryTypesManager,
+                    oldVersionLabel,
+                    newVersionLabel,
+                    getDiffMethod());
+            case org.jabref.gui.collab.entryadd.EntryAdd entryAdd -> new EntryWithPreviewAndSourceDetailsView(entryAdd.getAddedEntry(), workingTreeDatabase, preferences, entryTypesManager, previewViewer);
+            case org.jabref.gui.collab.entrydelete.EntryDelete entryDelete -> new EntryWithPreviewAndSourceDetailsView(entryDelete.getDeletedEntry(), headDatabase, preferences, entryTypesManager, previewViewer);
+            case MetadataChange metadataChange -> new MetadataChangeDetailsView(metadataChange, preferences.getCitationKeyPatternPreferences().getKeyPatterns(),
+                    oldVersionLabel, newVersionLabel, getDiffMethod());
+            case GroupChange groupChange -> new GroupChangeDetailsView(groupChange, groupChange.getName() + '.', oldVersionLabel, newVersionLabel,
+                    getDiffMethod());
+            case PreambleChange preambleChange -> new PreambleChangeDetailsView(preambleChange);
+            case BibTexStringAdd stringAdd -> new BibTexStringAddDetailsView(stringAdd);
+            case BibTexStringDelete stringDelete -> new BibTexStringDeleteDetailsView(stringDelete);
+            case BibTexStringChange stringChange -> new BibTexStringChangeDetailsView(stringChange);
+            case BibTexStringRename stringRename -> new BibTexStringRenameDetailsView(stringRename);
             default -> {
                 Label label = new Label(change.getName());
                 label.setWrapText(true);
@@ -190,8 +178,6 @@ public class GitDiffDialogView extends BaseDialog<Void> {
     }
 
     private DiffHighlighter.BasicDiffMethod getDiffMethod() {
-        return highlightWordsRadioButton.isSelected()
-               ? DiffHighlighter.BasicDiffMethod.WORDS
-               : DiffHighlighter.BasicDiffMethod.CHARS;
+        return highlightWordsRadioButton.isSelected() ? DiffHighlighter.BasicDiffMethod.WORDS : DiffHighlighter.BasicDiffMethod.CHARS;
     }
 }

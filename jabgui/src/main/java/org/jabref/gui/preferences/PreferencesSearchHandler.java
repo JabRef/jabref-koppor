@@ -11,11 +11,13 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.css.PseudoClass;
 
-/// Filters the preference tabs by a search query and highlights the matching elements.
+/// Filters the preference tabs by a search query and highlights the matching
+/// elements.
 ///
-/// Tabs declare what is searchable themselves: the visible texts (with the node they caption)
-/// come from [PreferencesTab#getSearchableElements()], extra invisible synonyms from
-/// [PreferencesTab#getSearchKeywords()]. There is no scene-graph scanning.
+/// Tabs declare what is searchable themselves: the visible texts (with the node
+/// they caption) come from [PreferencesTab#getSearchableElements()], extra
+/// invisible synonyms from [PreferencesTab#getSearchKeywords()]. There is no
+/// scene-graph scanning.
 class PreferencesSearchHandler {
 
     private static final PseudoClass SEARCH_HIGHLIGHT = PseudoClass.getPseudoClass("search-highlight");
@@ -26,8 +28,7 @@ class PreferencesSearchHandler {
 
     PreferencesSearchHandler(List<PreferencesTab> preferenceTabs) {
         this.preferenceTabs = preferenceTabs;
-        this.searchableElements = preferenceTabs.stream()
-                                                .collect(Collectors.toMap(Function.identity(), PreferencesTab::getSearchableElements));
+        this.searchableElements = preferenceTabs.stream().collect(Collectors.toMap(Function.identity(), PreferencesTab::getSearchableElements));
         this.filteredPreferenceTabs = new SimpleListProperty<>(FXCollections.observableArrayList(preferenceTabs));
     }
 
@@ -41,26 +42,31 @@ class PreferencesSearchHandler {
 
         String searchQuery = query.toLowerCase(Locale.ROOT);
         filteredPreferenceTabs.setAll(preferenceTabs.stream()
-                                                    .filter(tab -> tabMatchesQuery(tab, searchQuery))
-                                                    .toList());
+                .filter(tab -> tabMatchesQuery(tab, searchQuery))
+                .toList());
     }
 
-    /// @return true if the query occurs in the tab's keywords or visible texts; matching visible
-    ///         elements are highlighted as a side effect.
+    /// @return true if the query occurs in the tab's keywords or visible texts;
+    ///   matching visible elements are highlighted as a side effect.
     private boolean tabMatchesQuery(PreferencesTab tab, String query) {
-        boolean keywordMatches = tab.getSearchKeywords().stream()
-                                    .anyMatch(keyword -> keyword.toLowerCase(Locale.ROOT).contains(query));
+        boolean keywordMatches = tab.getSearchKeywords()
+                .stream()
+                .anyMatch(keyword -> keyword.toLowerCase(Locale.ROOT).contains(query));
 
-        List<SearchableElement> matches = searchableElements.get(tab).stream()
-                                                            .filter(element -> element.text().toLowerCase(Locale.ROOT).contains(query))
-                                                            .toList();
+        List<SearchableElement> matches = searchableElements.get(tab)
+                .stream()
+                .filter(element -> element.text()
+                        .toLowerCase(Locale.ROOT)
+                        .contains(query))
+                .toList();
         matches.forEach(element -> element.node().pseudoClassStateChanged(SEARCH_HIGHLIGHT, true));
 
         return keywordMatches || !matches.isEmpty();
     }
 
     private void clearHighlights() {
-        searchableElements.values().stream()
+        searchableElements.values()
+                          .stream()
                           .flatMap(List::stream)
                           .forEach(element -> element.node().pseudoClassStateChanged(SEARCH_HIGHLIGHT, false));
     }

@@ -21,7 +21,6 @@ import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
@@ -40,7 +39,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 @NullMarked
-        // [utest->req~jabgui.search.fulltext.lucene-without-postgres~1]
+// [utest->req~jabgui.search.fulltext.lucene-without-postgres~1]
 class InMemoryLuceneSearchBackendTest {
 
     private static final TaskExecutor TASK_EXECUTOR = new CurrentThreadTaskExecutor();
@@ -71,8 +70,7 @@ class InMemoryLuceneSearchBackendTest {
                 Arguments.of(Set.of("minimal-note-all-upper-case"), "any ==! HELLO"),
                 Arguments.of(Set.of("minimal-sentence-case", "minimal-mixed-case"), "any =~! comm."),
                 Arguments.of(Set.of("minimal-all-upper-case"), "any =~! COMM."),
-                Arguments.of(Set.of(), "any =~! Comm.")
-        );
+                Arguments.of(Set.of(), "any =~! Comm."));
     }
 
     // [utest->req~jabgui.search.fulltext.case-sensitive~1]
@@ -101,14 +99,13 @@ class InMemoryLuceneSearchBackendTest {
         assertEquals(Set.of(), search("\"sentence short\"", EnumSet.of(SearchFlags.FULLTEXT)));
     }
 
-    /// Lucene reads `"` as syntax of its own regular expression dialect, `java.util.regex` does not.
-    /// The metadata results still have to arrive, only the linked files are left out.
+    /// Lucene reads `"` as syntax of its own regular expression dialect,
+    /// `java.util.regex` does not. The metadata results still have to arrive,
+    /// only the linked files are left out.
     // [utest->req~jabgui.search.fulltext.lenient-query-parsing~1]
     @Test
     void keepsMetadataResultsOnRegularExpressionLuceneCannotParse() throws IOException, URISyntaxException {
-        assertEquals(
-                Set.of("minimal-mixed-case"),
-                search("\"?minimal-mixed-case", EnumSet.of(SearchFlags.FULLTEXT, SearchFlags.REGULAR_EXPRESSION)));
+        assertEquals(Set.of("minimal-mixed-case"), search("\"?minimal-mixed-case", EnumSet.of(SearchFlags.FULLTEXT, SearchFlags.REGULAR_EXPRESSION)));
     }
 
     // [utest->req~jabgui.search.fulltext.lenient-query-parsing~1]
@@ -120,26 +117,24 @@ class InMemoryLuceneSearchBackendTest {
 
     private Set<String> search(String searchExpression, EnumSet<SearchFlags> searchFlags) throws IOException, URISyntaxException {
         BibDatabaseContext databaseContext = initializeDatabaseContext("test-library-with-attached-files.bib");
-        searchBackend = new InMemoryLuceneSearchBackend(
-                databaseContext,
-                BibEntryPreferences.getDefault(),
-                FilePreferences.getDefault(),
-                TASK_EXECUTOR);
+        searchBackend = new InMemoryLuceneSearchBackend(databaseContext, BibEntryPreferences.getDefault(),
+                FilePreferences.getDefault(), TASK_EXECUTOR);
 
         return searchBackend.search(new SearchQuery(searchExpression, searchFlags))
                             .getMatchedEntries()
                             .stream()
-                            .map(entryId -> databaseContext.getDatabase().getEntryById(entryId).orElseThrow())
+                            .map(entryId -> databaseContext.getDatabase()
+                                    .getEntryById(entryId)
+                                    .orElseThrow())
                             .map(entry -> entry.getCitationKey().orElseThrow())
                             .collect(Collectors.toUnmodifiableSet());
     }
 
     private BibDatabaseContext initializeDatabaseContext(String testFile) throws URISyntaxException, IOException {
-        URL bibResource = Optional.ofNullable(
-                                          InMemoryLuceneSearchBackendTest.class.getResource("/org/jabref/logic/search/" + testFile))
-                                  .orElseThrow();
+        URL bibResource = Optional.ofNullable(InMemoryLuceneSearchBackendTest.class.getResource("/org/jabref/logic/search/" + testFile)).orElseThrow();
         Path bibFile = Path.of(bibResource.toURI());
-        ParserResult result = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor()).importDatabase(bibFile);
+        ParserResult result = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor())
+                .importDatabase(bibFile);
         BibDatabaseContext databaseContext = spy(result.getDatabaseContext());
         when(databaseContext.getFulltextIndexPath()).thenReturn(indexDirectory);
         return databaseContext;

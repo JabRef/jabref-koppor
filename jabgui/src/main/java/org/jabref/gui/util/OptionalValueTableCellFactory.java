@@ -5,7 +5,8 @@ import java.util.function.BiFunction;
 
 import javafx.scene.Node;
 
-/// Constructs a [javafx.scene.control.TableCell] based on an optional value of the cell and a bunch of specified converter methods.
+/// Constructs a [javafx.scene.control.TableCell] based on an optional value of
+/// the cell and a bunch of specified converter methods.
 ///
 /// @param <S> view model of table row
 /// @param <T> cell value

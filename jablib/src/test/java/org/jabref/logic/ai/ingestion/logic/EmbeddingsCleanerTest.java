@@ -2,17 +2,17 @@ package org.jabref.logic.ai.ingestion.logic;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-
-import org.jabref.logic.ai.embedding.MVStoreEmbeddingStore;
-import org.jabref.logic.ai.ingestion.repositories.MVStoreIngestedDocumentsRepository;
-import org.jabref.logic.ai.preferences.AiPreferences;
 
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
+import org.jabref.logic.ai.embedding.MVStoreEmbeddingStore;
+import org.jabref.logic.ai.ingestion.repositories.MVStoreIngestedDocumentsRepository;
+import org.jabref.logic.ai.preferences.AiPreferences;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -36,10 +36,8 @@ class EmbeddingsCleanerTest {
 
     @BeforeEach
     void setUp() {
-        embeddingStore = new MVStoreEmbeddingStore(tempDir.resolve("embeddings.mv"), _ -> {
-        });
-        ingestedDocumentsRepository = new MVStoreIngestedDocumentsRepository(_ -> {
-        }, tempDir.resolve("ingested.mv"));
+        embeddingStore = new MVStoreEmbeddingStore(tempDir.resolve("embeddings.mv"), _ -> {});
+        ingestedDocumentsRepository = new MVStoreIngestedDocumentsRepository(_ -> {}, tempDir.resolve("ingested.mv"));
 
         aiPreferences = mock(AiPreferences.class);
         when(aiPreferences.getEmbeddingsProperties()).thenReturn(List.of());
@@ -49,16 +47,17 @@ class EmbeddingsCleanerTest {
     }
 
     private static TextSegment segmentWithHash(String text, String hash) {
-        return new TextSegment(text, new Metadata(java.util.Map.of(FILE_HASH_METADATA_KEY, hash)));
+        return new TextSegment(text, new Metadata(Map.of(FILE_HASH_METADATA_KEY, hash)));
     }
 
     private List<String> embeddedTexts() {
         return embeddingStore.search(EmbeddingSearchRequest.builder()
-                                                           .queryEmbedding(Embedding.from(new float[] {1.0f, 0.0f}))
-                                                           .maxResults(100)
-                                                           .minScore(0.0)
-                                                           .build())
-                             .matches().stream()
+                                     .queryEmbedding(Embedding.from(new float[] {1.0f, 0.0f}))
+                                     .maxResults(100)
+                                     .minScore(0.0)
+                                     .build())
+                             .matches()
+                             .stream()
                              .map(match -> match.embedded().text())
                              .toList();
     }
@@ -91,8 +90,7 @@ class EmbeddingsCleanerTest {
     // [utest->req~ai.ingestion.model-change-invalidation~1]
     @Test
     void startupClearsEmbeddingsWithoutRecordedModel() {
-        MVStoreIngestedDocumentsRepository legacyRepository = new MVStoreIngestedDocumentsRepository(_ -> {
-        }, tempDir.resolve("legacy.mv"));
+        MVStoreIngestedDocumentsRepository legacyRepository = new MVStoreIngestedDocumentsRepository(_ -> {}, tempDir.resolve("legacy.mv"));
         legacyRepository.markDocumentAsFullyIngested("hash-1");
         embeddingStore.add(Embedding.from(new float[] {1.0f, 0.0f}), segmentWithHash("doc", "hash-1"));
 
@@ -144,8 +142,7 @@ class EmbeddingsCleanerTest {
 
         cleaner.removeDocument("hash-remove");
 
-        EmbeddingSearchRequest request = EmbeddingSearchRequest
-                .builder()
+        EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
                 .queryEmbedding(Embedding.from(new float[] {0.0f, 1.0f}))
                 .maxResults(10)
                 .minScore(0.0)
@@ -154,7 +151,9 @@ class EmbeddingsCleanerTest {
         EmbeddingSearchResult<TextSegment> result = embeddingStore.search(request);
 
         assertFalse(result.matches().isEmpty());
-        assertTrue(result.matches().stream().allMatch(m -> "to keep".equals(m.embedded().text())));
+        assertTrue(result.matches()
+                         .stream()
+                         .allMatch(m -> "to keep".equals(m.embedded().text())));
     }
 
     @Test

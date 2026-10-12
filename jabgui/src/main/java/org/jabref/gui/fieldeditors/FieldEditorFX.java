@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import com.github.difflib.DiffUtils;
+import com.github.difflib.patch.AbstractDelta;
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
@@ -11,7 +14,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.KeyEvent;
-
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.gui.undo.RedoAction;
@@ -20,10 +22,6 @@ import org.jabref.gui.util.NodeTraversalUtils;
 import org.jabref.gui.util.ScrollUtils;
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.model.entry.BibEntry;
-
-import com.github.difflib.DiffUtils;
-import com.github.difflib.patch.AbstractDelta;
-import com.tobiasdiez.easybind.EasyBind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +29,11 @@ public interface FieldEditorFX {
 
     void bindToEntry(BibEntry entry);
 
-    /// @implNote Decided to add undoAction and redoAction as parameter instead of passing a tabSupplier, [org.jabref.gui.DialogService] and [org.jabref.gui.StateManager] to the method.
-    default void establishBinding(TextInputControl textInputControl, StringProperty viewModelTextProperty, KeyBindingRepository keyBindingRepository, UndoAction undoAction, RedoAction redoAction) {
+    /// @implNote Decided to add undoAction and redoAction as parameter instead
+    ///   of passing a tabSupplier, [org.jabref.gui.DialogService] and
+    ///   [org.jabref.gui.StateManager] to the method.
+    default void establishBinding(TextInputControl textInputControl, StringProperty viewModelTextProperty, KeyBindingRepository keyBindingRepository,
+            UndoAction undoAction, RedoAction redoAction) {
         Logger logger = LoggerFactory.getLogger(FieldEditorFX.class);
 
         // We need to use the "global" UndoManager instead of JavaFX TextInputControls's native undo/redo handling.
@@ -144,11 +145,13 @@ public interface FieldEditorFX {
 
     default void focus() {
         Node target = NodeTraversalUtils.findFirstTextInput(getNode())
-                                        .map(input -> (Node) input)
-                                        .orElseGet(() -> getNode().getChildrenUnmodifiable()
-                                                                  .stream()
-                                                                  .findFirst()
-                                                                  .orElse(getNode()));
+                .map(input -> (Node) input)
+                .orElseGet(
+                        () -> getNode()
+                                .getChildrenUnmodifiable()
+                                .stream()
+                                .findFirst()
+                                .orElse(getNode()));
         target.requestFocus();
         Platform.runLater(() -> Optional.ofNullable(target.getScene()).ifPresent(_ -> scrollToVisible(target)));
     }
@@ -166,9 +169,11 @@ public interface FieldEditorFX {
 
     /// Returns relative size of the field editor in terms of display space.
     ///
-    /// A value of 1 means that the editor gets exactly as much space as all other regular editors.
+    /// A value of 1 means that the editor gets exactly as much space as all
+    /// other regular editors.
     ///
-    /// A value of 2 means that the editor gets twice as much space as regular editors.
+    /// A value of 2 means that the editor gets twice as much space as regular
+    /// editors.
     ///
     /// @return the relative weight of the editor in terms of display space
     default double getWeight() {

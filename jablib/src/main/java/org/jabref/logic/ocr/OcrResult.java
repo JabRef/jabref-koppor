@@ -9,14 +9,13 @@ public sealed interface OcrResult {
     /// Represents a successful OCR result.
     ///
     /// Contains the path of the searchable PDF created by the OCR engine.
-    record Success(Path outputFile) implements OcrResult {
-    }
+    record Success(Path outputFile) implements OcrResult {}
 
     /// Represents a failed OCR result.
     ///
-    /// Contains the reason why the failure occurred that the GUI part can localize it and output to the user.
-    record Failure(OcrFailureReason reason) implements OcrResult {
-    }
+    /// Contains the reason why the failure occurred that the GUI part can
+    /// localize it and output to the user.
+    record Failure(OcrFailureReason reason) implements OcrResult {}
 
     /// Checks if this result is success.
     default boolean isSuccess() {

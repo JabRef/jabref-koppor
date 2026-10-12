@@ -13,7 +13,8 @@ class AuthorLastFirstAbbreviatorTest {
     @ParameterizedTest
     @CsvSource(
             delimiterString = "->",
-            textBlock = """
+            textBlock =
+                    """
                         'Lastname, N.' -> 'Lastname, Name'
                         'Lastname, N. M.' -> 'Lastname, Name Middlename'
                         'Lastname, N. M. and Sobrenome, N. N.' -> 'Lastname, Name Middlename and Sobrenome, Nome Nomedomeio'
@@ -22,8 +23,7 @@ class AuthorLastFirstAbbreviatorTest {
                         'Someone, V. S.' -> 'Someone, Van Something'
                         'Smith, J.' -> 'Smith, John'
                         'von Neumann, J. and Smith, J. and Black Brown, P.' -> 'von Neumann, John and Smith, John and Black Brown, Peter'
-                    """
-    )
+                    """)
     void abbreviate(String expected, String input) {
         assertEquals(expected, abbreviator.format(input));
     }

@@ -7,7 +7,6 @@ import org.jabref.logic.undo.JabRefUndoManager;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -47,7 +46,8 @@ class UpdateOriginalEntryTest {
         assertEquals(StandardEntryType.Book, originalEntry.getType());
         assertEquals(Optional.of("Merged title"), originalEntry.getField(StandardField.TITLE));
         assertEquals(Optional.of("0378-5955"), originalEntry.getField(StandardField.ISSN));
-        assertTrue(originalEntry.getField(StandardField.YEAR).isEmpty());
+        assertTrue(originalEntry.getField(StandardField.YEAR)
+                                .isEmpty());
         assertTrue(undoManager.canUndo());
         verify(dialogService).notify(SUCCESS_MESSAGE);
     }

@@ -8,11 +8,11 @@ import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.BibEntryTypesManager;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/// Wrapper around a [BibEntry] offering methods for [BibDatabaseMode]-dependent results
+/// Wrapper around a [BibEntry] offering methods for [BibDatabaseMode]-dependent
+/// results
 public class TypedBibEntry {
 
     private final BibEntry entry;
@@ -31,14 +31,16 @@ public class TypedBibEntry {
         this.mode = databaseContext.getMode();
     }
 
-    /// Checks the fields of the entry whether all required fields are set.
-    /// In other words: It is checked whether this entry contains all fields it needs to be complete.
+    /// Checks the fields of the entry whether all required fields are set. In
+    /// other words: It is checked whether this entry contains all fields it
+    /// needs to be complete.
     ///
     /// @return true if all required fields are set, false otherwise
     public boolean hasAllRequiredFields(BibEntryTypesManager entryTypesManager) {
         Optional<BibEntryType> type = entryTypesManager.enrich(entry.getType(), this.mode);
         if (type.isPresent()) {
-            return entry.allFieldsPresent(type.get().getRequiredFields(), database.orElse(null));
+            return entry.allFieldsPresent(type.get().getRequiredFields(),
+                    database.orElse(null));
         } else {
             return true;
         }

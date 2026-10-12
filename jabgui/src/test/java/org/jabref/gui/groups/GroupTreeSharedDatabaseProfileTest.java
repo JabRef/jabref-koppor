@@ -4,6 +4,7 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.EnumSet;
@@ -15,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefGuiStateManager;
 import org.jabref.gui.StateManager;
@@ -47,7 +47,6 @@ import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,7 +57,8 @@ import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/// Profiles group-tree creation after synchronizing the generated large library through a shared database.
+/// Profiles group-tree creation after synchronizing the generated large library
+/// through a shared database.
 ///
 /// Run explicitly with `-PsharedDatabaseProfile`.
 @ExtendWith(JavaFxExtension.class)
@@ -85,10 +85,9 @@ class GroupTreeSharedDatabaseProfileTest {
             DatabaseConnection targetConnection = openConnection(postgres);
             ProfileDBMSProcessor sourceProcessor = new ProfileDBMSProcessor(sourceConnection);
             sourceProcessor.setUp();
-            insertEntriesInBatches(sourceProcessor, parsedLibrary.getDatabase().getEntries());
-            sourceProcessor.setSharedMetaData(MetaDataSerializer.getSerializedStringMap(
-                    parsedLibrary.getMetaData(),
-                    GlobalCitationKeyPatterns.fromPattern("[auth][year]")));
+            insertEntriesInBatches(sourceProcessor, parsedLibrary.getDatabase()
+                    .getEntries());
+            sourceProcessor.setSharedMetaData(MetaDataSerializer.getSerializedStringMap(parsedLibrary.getMetaData(), GlobalCitationKeyPatterns.fromPattern("[auth][year]")));
 
             BibDatabaseContext targetContext = new BibDatabaseContext();
             DBMSSynchronizer targetSynchronizer = newSynchronizer(targetContext);
@@ -103,7 +102,8 @@ class GroupTreeSharedDatabaseProfileTest {
                 GroupTreeViewModel groupTree = createGroupTree(targetContext);
                 long treeCreationDuration = System.nanoTime() - treeCreationStarted;
 
-                System.out.printf("entries=%d parseMs=%d sharedSynchronizationMs=%d groupTreeMs=%d%n",
+                System.out.printf(
+                        "entries=%d parseMs=%d sharedSynchronizationMs=%d groupTreeMs=%d%n",
                         targetContext.getDatabase().getEntryCount(),
                         Duration.ofNanos(parseDuration).toMillis(),
                         Duration.ofNanos(synchronizationDuration).toMillis(),
@@ -132,8 +132,8 @@ class GroupTreeSharedDatabaseProfileTest {
             }
 
             @Override
-            public java.sql.Connection getConnection() {
-                java.sql.Connection connection = postgres.getConnection();
+            public Connection getConnection() {
+                Connection connection = postgres.getConnection();
                 assertNotNull(connection);
                 return connection;
             }
@@ -148,7 +148,8 @@ class GroupTreeSharedDatabaseProfileTest {
     private void insertEntriesInBatches(ProfileDBMSProcessor processor, List<BibEntry> entries) throws SQLException {
         int batchSize = 1_000;
         for (int start = 0; start < entries.size(); start += batchSize) {
-            processor.insertEntries(entries.subList(start, Math.min(start + batchSize, entries.size())));
+            processor.insertEntries(entries.subList(start,
+                    Math.min(start + batchSize, entries.size())));
         }
     }
 
@@ -161,14 +162,8 @@ class GroupTreeSharedDatabaseProfileTest {
     private DBMSSynchronizer newSynchronizer(BibDatabaseContext context) {
         FieldPreferences fieldPreferences = mock(FieldPreferences.class);
         when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.observableArrayList());
-        return new DBMSSynchronizer(
-                context,
-                ',',
-                fieldPreferences,
-                GlobalCitationKeyPatterns.fromPattern("[auth][year]"),
-                new DummyFileUpdateMonitor(),
-                "PerformanceProfile",
-                new CurrentThreadTaskExecutor());
+        return new DBMSSynchronizer(context, ',', fieldPreferences, GlobalCitationKeyPatterns.fromPattern("[auth][year]"),
+                new DummyFileUpdateMonitor(), "PerformanceProfile", new CurrentThreadTaskExecutor());
     }
 
     private GroupTreeViewModel createGroupTree(BibDatabaseContext context) throws InterruptedException {
@@ -176,19 +171,14 @@ class GroupTreeSharedDatabaseProfileTest {
         OptionalObjectProperty<BibDatabaseContext> activeDatabase = OptionalObjectProperty.empty();
         activeDatabase.setValue(Optional.of(context));
         when(stateManager.activeDatabaseProperty()).thenReturn(activeDatabase);
-        when(stateManager.getSearchContext(context)).thenReturn(new SearchContext(
-                new SimpleBooleanProperty(false),
-                NoOpSearchBackend::new,
-                NoOpSearchBackend::new));
+        when(stateManager.getSearchContext(context)).thenReturn(new SearchContext(new SimpleBooleanProperty(false), NoOpSearchBackend::new, NoOpSearchBackend::new));
         when(stateManager.getSelectedGroups(context)).thenReturn(FXCollections.observableArrayList());
         when(stateManager.getSelectedEntries()).thenReturn(FXCollections.emptyObservableList());
 
         GuiPreferences preferences = mock(GuiPreferences.class);
-        when(preferences.getLibraryPreferences()).thenReturn(new LibraryPreferences(
-                context.getMode(), false, false, false, "Imported entries"));
-        when(preferences.getGroupsPreferences()).thenReturn(new GroupsPreferences(
-                EnumSet.noneOf(GroupViewMode.class), true, true, false,
-                GroupHierarchyType.INDEPENDENT, false));
+        when(preferences.getLibraryPreferences()).thenReturn(new LibraryPreferences(context.getMode(), false, false, false, "Imported entries"));
+        when(preferences.getGroupsPreferences()).thenReturn(new GroupsPreferences(EnumSet.noneOf(GroupViewMode.class), true, true, false, GroupHierarchyType.INDEPENDENT,
+                false));
         BibEntryPreferences bibEntryPreferences = mock(BibEntryPreferences.class);
         when(preferences.getBibEntryPreferences()).thenReturn(bibEntryPreferences);
         when(bibEntryPreferences.getKeywordSeparator()).thenReturn(',');

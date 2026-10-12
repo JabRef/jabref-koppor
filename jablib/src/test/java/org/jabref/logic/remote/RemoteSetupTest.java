@@ -11,7 +11,6 @@ import org.jabref.logic.remote.client.RemoteClient;
 import org.jabref.logic.remote.server.RemoteListenerServerManager;
 import org.jabref.logic.remote.server.RemoteMessageHandler;
 import org.jabref.support.DisabledOnCIServer;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -113,12 +112,14 @@ class RemoteSetupTest {
         try (ServerSocket socket = new ServerSocket(port)) {
             // Setup dummy server always answering "whatever"
             new Thread(() -> {
-                try (Socket message = socket.accept(); OutputStream os = message.getOutputStream()) {
+                try (Socket message = socket.accept();
+                     OutputStream os = message.getOutputStream()) {
                     os.write("whatever".getBytes(StandardCharsets.UTF_8));
                 } catch (IOException _) {
                     // Ignored
                 }
-            }).start();
+            })
+                    .start();
             Thread.sleep(100);
 
             assertFalse(new RemoteClient(port).ping());

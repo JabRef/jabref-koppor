@@ -80,17 +80,11 @@ class CSLItemTypeDefinitions {
             // Thesis
             Map.entry("thesis", StandardEntryType.Thesis),
             // Web Page
-            Map.entry("webpage", StandardEntryType.Online)
-    );
+            Map.entry("webpage", StandardEntryType.Online));
 
     /// Fields that each entry contains
     /// `Author` and `Date` are processed in `ZoteroCitationMarkParser`
-    private static final Set<String> COMMON_FIELDS = Set.of(
-            "DOI",
-            "note",
-            "title",
-            "URL"
-    );
+    private static final Set<String> COMMON_FIELDS = Set.of("DOI", "note", "title", "URL");
 
     private static final Map<String, Field> CSL2BIB_FIELDS = Map.ofEntries(
             Map.entry("abstract", StandardField.ABSTRACT),
@@ -119,8 +113,7 @@ class CSLItemTypeDefinitions {
             Map.entry("URL", StandardField.URL),
             Map.entry("version", StandardField.VERSION),
             Map.entry("volume", StandardField.VOLUME),
-            Map.entry("volume-title", StandardField.ISSUETITLE)
-    );
+            Map.entry("volume-title", StandardField.ISSUETITLE));
 
     private static final Map<String, Map<String, Field>> CSL2BIB_FIELD_OVERRIDES = Map.ofEntries(
             Map.entry("article", Map.of("number", StandardField.EID)),
@@ -131,48 +124,20 @@ class CSLItemTypeDefinitions {
             Map.entry("paper-conference", Map.of("publisher", StandardField.ORGANIZATION)),
             Map.entry("report", Map.of("publisher", StandardField.INSTITUTION)),
             Map.entry("thesis", Map.of("publisher", StandardField.INSTITUTION)),
-            Map.entry("webpage", Map.of("publisher", StandardField.ORGANIZATION))
-    );
+            Map.entry("webpage", Map.of("publisher", StandardField.ORGANIZATION)));
 
     private static final Map<String, Set<String>> CSL_FIELDS_BY_TYPE = Map.ofEntries(
-            cslTypeWithFields("article",
-                    "container-title",
-                    "issue",
-                    "number",
-                    "page",
-                    "ISSN",
+            cslTypeWithFields("article", "container-title", "issue", "number", "page", "ISSN",
                     "volume"),
-
-            cslTypeWithFields("article-journal",
-                    "container-title",
-                    "issue",
-                    "number",
-                    "page",
-                    "ISSN",
+            cslTypeWithFields("article-journal", "container-title", "issue", "number", "page", "ISSN",
                     "volume"),
-
-            cslTypeWithFields("article-magazine",
-                    "container-title",
-                    "issue",
-                    "number",
-                    "page",
-                    "ISSN",
+            cslTypeWithFields("article-magazine", "container-title", "issue", "number", "page", "ISSN",
                     "volume"),
-
-            cslTypeWithFields("article-newspaper",
-                    "container-title",
-                    "issue",
-                    "number",
-                    "page",
-                    "ISSN",
+            cslTypeWithFields("article-newspaper", "container-title", "issue", "number", "page", "ISSN",
                     "volume"),
-
-            cslTypeWithFields("bill",
-                    "collection-number",
-                    "volume",
-                    "page"),
-
-            cslTypeWithFields("book",
+            cslTypeWithFields("bill", "collection-number", "volume", "page"),
+            cslTypeWithFields(
+                    "book",
                     "collection-number",
                     "abstract",
                     "call-number",
@@ -192,13 +157,9 @@ class CSLItemTypeDefinitions {
                     "title-short",
                     "version",
                     "ISSN"),
-
-            cslTypeWithFields("broadcast",
-                    "collection-number",
-                    "publisher-place",
-                    "publisher"),
-
-            cslTypeWithFields("chapter",
+            cslTypeWithFields("broadcast", "collection-number", "publisher-place", "publisher"),
+            cslTypeWithFields(
+                    "chapter",
                     "collection-number",
                     "chapter-number",
                     "container-title",
@@ -211,85 +172,22 @@ class CSLItemTypeDefinitions {
                     "URL",
                     "page",
                     "publisher"),
-
-            cslTypeWithFields("dataset",
-                    "collection-number",
-                    "publisher-place",
+            cslTypeWithFields("dataset", "collection-number", "publisher-place", "publisher"),
+            cslTypeWithFields("entry-dictionary", "collection-number", "collection-title", "volume", "edition", "URL",
+                    "publisher-place", "publisher", "page", "ISBN"),
+            cslTypeWithFields("entry-encyclopedia", "collection-number", "collection-title", "volume", "edition", "URL",
+                    "publisher-place", "publisher", "page", "ISBN"),
+            cslTypeWithFields("graphic", "collection-number", "URL", "event-place", "publisher"),
+            cslTypeWithFields("hearing", "event-place", "URL", "publisher", "page"),
+            cslTypeWithFields("interview", "collection-number", "URL", "publisher-place", "publisher"),
+            cslTypeWithFields("legal_case", "collection-number", "URL", "volume", "page"),
+            cslTypeWithFields("legislation", "number", "volume", "page", "URL"),
+            cslTypeWithFields("manuscript", "collection-number", "URL", "publisher-place", "publisher"),
+            cslTypeWithFields("map", "collection-number", "edition", "ISBN", "URL", "publisher-place",
                     "publisher"),
-
-            cslTypeWithFields("entry-dictionary",
-                    "collection-number",
-                    "collection-title",
-                    "volume",
-                    "edition",
-                    "URL",
-                    "publisher-place",
-                    "publisher",
-                    "page",
-                    "ISBN"),
-
-            cslTypeWithFields("entry-encyclopedia",
-                    "collection-number",
-                    "collection-title",
-                    "volume",
-                    "edition",
-                    "URL",
-                    "publisher-place",
-                    "publisher",
-                    "page",
-                    "ISBN"),
-
-            cslTypeWithFields("graphic",
-                    "collection-number",
-                    "URL",
-                    "event-place",
-                    "publisher"),
-
-            cslTypeWithFields("hearing",
-                    "event-place",
-                    "URL",
-                    "publisher",
-                    "page"),
-
-            cslTypeWithFields("interview",
-                    "collection-number",
-                    "URL",
-                    "publisher-place",
-                    "publisher"),
-
-            cslTypeWithFields("legal_case",
-                    "collection-number",
-                    "URL",
-                    "volume",
-                    "page"),
-
-            cslTypeWithFields("legislation",
-                    "number",
-                    "volume",
-                    "page",
-                    "URL"),
-
-            cslTypeWithFields("manuscript",
-                    "collection-number",
-                    "URL",
-                    "publisher-place",
-                    "publisher"),
-
-            cslTypeWithFields("map",
-                    "collection-number",
-                    "edition",
-                    "ISBN",
-                    "URL",
-                    "publisher-place",
-                    "publisher"),
-
-            cslTypeWithFields("motion_picture",
-                    "collection-number",
-                    "URL",
-                    "publisher-place",
-                    "publisher"),
-
-            cslTypeWithFields("paper-conference",
+            cslTypeWithFields("motion_picture", "collection-number", "URL", "publisher-place", "publisher"),
+            cslTypeWithFields(
+                    "paper-conference",
                     "collection-title",
                     "container-title",
                     "volume",
@@ -301,67 +199,17 @@ class CSLItemTypeDefinitions {
                     "ISSN",
                     "URL",
                     "publisher"),
-
-            cslTypeWithFields("patent",
-                    "page",
-                    "URL",
-                    "number",
-                    "publisher-place"),
-
-            cslTypeWithFields("personal_communication",
-                    "collection-number",
-                    "URL",
-                    "event-place"),
-
-            cslTypeWithFields("post",
-                    "collection-number",
-                    "URL",
-                    "container-title"),
-
-            cslTypeWithFields("post-weblog",
-                    "collection-number",
-                    "URL",
-                    "container-title"),
-
-            cslTypeWithFields("report",
-                    "page",
-                    "number",
-                    "ISBN",
-                    "publisher",
-                    "publisher-place"),
-
-            cslTypeWithFields("song",
-                    "collection-number",
-                    "volume",
-                    "ISBN",
-                    "event-place",
-                    "publisher"),
-
-            cslTypeWithFields("speech",
-                    "collection-number",
-                    "collection-title",
-                    "URL",
-                    "event-place"),
-
-            cslTypeWithFields("standard",
-                    "publisher-place",
-                    "URL"),
-
-            cslTypeWithFields("thesis",
-                    "collection-number",
-                    "collection-title",
-                    "ISBN",
-                    "URL",
-                    "ISSN",
-                    "publisher",
-                    "publisher-place"),
-
-            cslTypeWithFields("webpage",
-                    "collection-number",
-                    "URL",
-                    "publisher",
-                    "container-title")
-    );
+            cslTypeWithFields("patent", "page", "URL", "number", "publisher-place"),
+            cslTypeWithFields("personal_communication", "collection-number", "URL", "event-place"),
+            cslTypeWithFields("post", "collection-number", "URL", "container-title"),
+            cslTypeWithFields("post-weblog", "collection-number", "URL", "container-title"),
+            cslTypeWithFields("report", "page", "number", "ISBN", "publisher", "publisher-place"),
+            cslTypeWithFields("song", "collection-number", "volume", "ISBN", "event-place", "publisher"),
+            cslTypeWithFields("speech", "collection-number", "collection-title", "URL", "event-place"),
+            cslTypeWithFields("standard", "publisher-place", "URL"),
+            cslTypeWithFields("thesis", "collection-number", "collection-title", "ISBN", "URL", "ISSN",
+                    "publisher", "publisher-place"),
+            cslTypeWithFields("webpage", "collection-number", "URL", "publisher", "container-title"));
 
     static EntryType getEntryType(String cslItemType) {
         return CSL2BIB_TYPES.getOrDefault(cslItemType, StandardEntryType.Misc);
@@ -375,13 +223,10 @@ class CSLItemTypeDefinitions {
         return fieldMappings;
     }
 
-    private static void addFieldMappings(Map<String, Field> fieldMappings,
-                                         String cslItemType,
-                                         ZoteroCitationData.ItemData itemData,
-                                         Set<String> cslFields) {
+    private static void addFieldMappings(Map<String, Field> fieldMappings, String cslItemType, ZoteroCitationData.ItemData itemData,
+            Set<String> cslFields) {
         for (String cslField : cslFields) {
-            getBibField(cslItemType, cslField, itemData)
-                    .ifPresent(bibField -> fieldMappings.put(cslField, bibField));
+            getBibField(cslItemType, cslField, itemData).ifPresent(bibField -> fieldMappings.put(cslField, bibField));
         }
     }
 
@@ -392,8 +237,9 @@ class CSLItemTypeDefinitions {
             return getIssueField(cslItemType, cslValue);
         }
 
-        return Optional.ofNullable(CSL2BIB_FIELD_OVERRIDES.getOrDefault(cslItemType, Map.of()).get(cslField))
-                       .or(() -> Optional.ofNullable(CSL2BIB_FIELDS.get(cslField)));
+        return Optional.ofNullable(CSL2BIB_FIELD_OVERRIDES.getOrDefault(cslItemType, Map.of())
+                .get(cslField))
+                .or(() -> Optional.ofNullable(CSL2BIB_FIELDS.get(cslField)));
     }
 
     private static Optional<Field> getIssueField(String cslItemType, String cslValue) {
@@ -403,15 +249,10 @@ class CSLItemTypeDefinitions {
 
         boolean containsDigit = CONTAINS_DIGIT_PATTERN.matcher(cslValue).find();
         return switch (cslItemType) {
-            case "article",
-                 "article-journal",
-                 "article-magazine",
-                 "article-newspaper" ->
+            case "article", "article-journal", "article-magazine", "article-newspaper" ->
                     containsDigit ? Optional.of(StandardField.NUMBER) : Optional.of(StandardField.ISSUE);
-            case "paper-conference" ->
-                    containsDigit ? Optional.of(StandardField.NUMBER) : Optional.empty();
-            default ->
-                    Optional.empty();
+            case "paper-conference" -> containsDigit ? Optional.of(StandardField.NUMBER) : Optional.empty();
+            default -> Optional.empty();
         };
     }
 

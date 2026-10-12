@@ -20,7 +20,6 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.UnknownEntryType;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -33,13 +32,13 @@ public class MetaDataParserTest {
 
     @ParameterizedTest
     @CsvSource({
-            "C:\\temp\\test,                 C:\\temp\\test",
-            "\\\\servername\\path\\to\\file, \\\\\\\\servername\\\\path\\\\to\\\\file",
-            "\\\\servername\\path\\to\\file, \\\\servername\\path\\to\\file",
-            "//servername/path/to/file,      //servername/path/to/file",
-            ".\\pdfs,                        .\\pdfs,",
-            ".\\pdfs,                        .\\\\pdfs,",
-            ".,                              .",
+        "C:\\temp\\test,                 C:\\temp\\test",
+        "\\\\servername\\path\\to\\file, \\\\\\\\servername\\\\path\\\\to\\\\file",
+        "\\\\servername\\path\\to\\file, \\\\servername\\path\\to\\file",
+        "//servername/path/to/file,      //servername/path/to/file",
+        ".\\pdfs,                        .\\pdfs,",
+        ".\\pdfs,                        .\\\\pdfs,",
+        ".,                              .",
     })
     void parseDirectory(String expected, String input) {
         assertEquals(expected, MetaDataParser.parseDirectory(input));
@@ -52,32 +51,23 @@ public class MetaDataParserTest {
                         new BibEntryTypeBuilder()
                                 .withType(new UnknownEntryType("test"))
                                 .withRequiredFields(new UnknownField("Test1"), new UnknownField("Test2")),
-                        "jabref-entrytype: test: req[Test1;Test2] opt[]"
-                ),
+                        "jabref-entrytype: test: req[Test1;Test2] opt[]"),
                 Arguments.of(
                         new BibEntryTypeBuilder()
                                 .withType(new UnknownEntryType("test"))
                                 .withRequiredFields(new UnknownField("tEST"), new UnknownField("tEsT2")),
-                        "jabref-entrytype: test: req[tEST;tEsT2] opt[]"
-                ),
+                        "jabref-entrytype: test: req[tEST;tEsT2] opt[]"),
                 Arguments.of(
                         new BibEntryTypeBuilder()
                                 .withType(new UnknownEntryType("person"))
                                 .withRequiredFields(new UnknownField("Name", FieldProperty.PERSON_NAMES))
-                                .withImportantFields(
-                                        new UnknownField("Googlescholar", FieldProperty.EXTERNAL),
-                                        new UnknownField("Orcid", FieldProperty.EXTERNAL)
-                                ),
-                        "jabref-entrytype-v2: person: req[Name|PERSON_NAMES] opt[Googlescholar|EXTERNAL;Orcid|EXTERNAL]"
-                ),
-                Arguments.of(
-                        new BibEntryTypeBuilder()
-                                .withType(new UnknownEntryType("customizedtype"))
-                                .withRequiredFields(StandardField.TITLE, StandardField.AUTHOR, StandardField.DATE)
-                                .withImportantFields(StandardField.YEAR, StandardField.MONTH, StandardField.PUBLISHER),
-                        "jabref-entrytype-v2: customizedtype: req[title;author;date] opt[year;month;publisher]"
-                )
-        );
+                                .withImportantFields(new UnknownField("Googlescholar", FieldProperty.EXTERNAL), new UnknownField("Orcid", FieldProperty.EXTERNAL)),
+                        "jabref-entrytype-v2: person: req[Name|PERSON_NAMES] opt[Googlescholar|EXTERNAL;Orcid|EXTERNAL]"),
+                Arguments.of(new BibEntryTypeBuilder()
+                        .withType(new UnknownEntryType("customizedtype"))
+                        .withRequiredFields(StandardField.TITLE, StandardField.AUTHOR, StandardField.DATE)
+                        .withImportantFields(StandardField.YEAR, StandardField.MONTH, StandardField.PUBLISHER),
+                        "jabref-entrytype-v2: customizedtype: req[title;author;date] opt[year;month;publisher]"));
     }
 
     @ParameterizedTest
@@ -147,8 +137,7 @@ public class MetaDataParserTest {
 
         Map<String, String> data = Map.of(
                 "fileDirectoryLatex-" + userHost1, "/path/for/host1;",
-                "fileDirectoryLatex-" + userHost2, "/path/for/host2;"
-        );
+                "fileDirectoryLatex-" + userHost2, "/path/for/host2;");
 
         MetaDataParser parser = new MetaDataParser(new DummyFileUpdateMonitor());
         MetaData parsed = parser.parse(data, ',', "userAndHost");

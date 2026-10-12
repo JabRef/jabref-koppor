@@ -10,30 +10,34 @@ import java.util.List;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.query.BaseQueryNode;
 
-/// Provides a convenient interface for search-based fetcher, which follows the usual three-step procedure:
+/// Provides a convenient interface for search-based fetcher, which follows the
+/// usual three-step procedure:
 ///
 /// - Open a URL based on the search query
 /// - Parse the response to get a list of [BibEntry]
 /// - Post-process fetched entries
 ///
+/// This interface is used for web resources which do NOT provide BibTeX data
+/// [BibEntry]. JabRef's infrastructure to convert arbitrary input data to
+/// BibTeX is [Parser].
 ///
-/// This interface is used for web resources which do NOT provide BibTeX data [BibEntry].
-/// JabRef's infrastructure to convert arbitrary input data to BibTeX is [Parser].
+/// This interface inherits [SearchBasedFetcher], because the methods
+/// `performSearch` have to be provided by both. As non-BibTeX web fetcher one
+/// could do "magic" stuff without this helper interface and directly use
+/// [WebFetcher], but this is more work.
 ///
-///
-/// This interface inherits [SearchBasedFetcher], because the methods `performSearch` have to be provided by both.
-/// As non-BibTeX web fetcher one could do "magic" stuff without this helper interface and directly use [WebFetcher], but this is more work.
-///
-///
-/// Note that this interface "should" be an abstract class.
-/// However, Java does not support multi inheritance with classes (but with interfaces).
-/// We need multi inheritance, because a fetcher might implement multiple query types (such as id fetching [IdBasedFetcher]), complete entry [EntryBasedFetcher], and search-based fetcher (this class).
+/// Note that this interface "should" be an abstract class. However, Java does
+/// not support multi inheritance with classes (but with interfaces). We need
+/// multi inheritance, because a fetcher might implement multiple query types
+/// (such as id fetching [IdBasedFetcher]), complete entry [EntryBasedFetcher],
+/// and search-based fetcher (this class).
 
 public interface SearchBasedParserFetcher extends SearchBasedFetcher, ParserFetcher {
 
-    /// This method is used to send queries with advanced URL parameters.
-    /// This method is necessary as the performSearch method does not support certain URL parameters that are used for
-    /// fielded search, such as a title, author, or year parameter.
+    /// This method is used to send queries with advanced URL parameters. This
+    /// method is necessary as the performSearch method does not support certain
+    /// URL parameters that are used for fielded search, such as a title,
+    /// author, or year parameter.
     ///
     /// @param queryNode the first search node
     @Override
@@ -48,7 +52,8 @@ public interface SearchBasedParserFetcher extends SearchBasedFetcher, ParserFetc
         return getBibEntries(urlForQuery);
     }
 
-    /// Default implementation: builds the URL via [#getURLForRawQuery(String)], then downloads, parses, and post-cleans the result.
+    /// Default implementation: builds the URL via [#getURLForRawQuery(String)],
+    /// then downloads, parses, and post-cleans the result.
     @Override
     default List<BibEntry> performRawSearchQuery(String rawQuery) throws FetcherException {
         if (rawQuery.isBlank()) {
@@ -85,7 +90,8 @@ public interface SearchBasedParserFetcher extends SearchBasedFetcher, ParserFetc
     /// @param queryList the list that contains the parsed nodes
     URL getURLForQuery(BaseQueryNode queryList) throws URISyntaxException, MalformedURLException, FetcherException;
 
-    /// Constructs a URL that sends the raw, catalog-native query verbatim to the catalog (bypassing the query transformer).
+    /// Constructs a URL that sends the raw, catalog-native query verbatim to
+    /// the catalog (bypassing the query transformer).
     ///
     /// @param rawQuery catalog-native query string sent verbatim to the catalog
     default URL getURLForRawQuery(String rawQuery) throws URISyntaxException, MalformedURLException, FetcherException {

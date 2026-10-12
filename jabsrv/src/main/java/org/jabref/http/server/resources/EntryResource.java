@@ -10,15 +10,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
-import org.jabref.http.SrvStateManager;
-import org.jabref.http.server.services.ServerUtils;
-import org.jabref.logic.externalfiles.LinkedFileHandler;
-import org.jabref.logic.preferences.CliPreferences;
-import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.LinkedFile;
-import org.jabref.model.entry.field.StandardField;
-
 import com.google.common.html.HtmlEscapers;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
@@ -31,6 +22,14 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.jabref.http.SrvStateManager;
+import org.jabref.http.server.services.ServerUtils;
+import org.jabref.logic.externalfiles.LinkedFileHandler;
+import org.jabref.logic.preferences.CliPreferences;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.LinkedFile;
+import org.jabref.model.entry.field.StandardField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +43,13 @@ public class EntryResource {
     @Inject
     SrvStateManager srvStateManager;
 
-    /// At [http://localhost:23119/libraries/){id}/entries/{entryId}](http://localhost:23119/libraries/){id}/entries/{entryId}
+    /// At
+    /// [http://localhost:23119/libraries/){id}/entries/{entryId}](http://localhost:23119/libraries/){id}/entries/{entryId}
     ///
-    /// Combines attributes of a given BibEntry into a basic entry preview for as plain text.
+    /// Combines attributes of a given BibEntry into a basic entry preview for
+    /// as plain text.
     ///
-    /// @param id      The name of the library
+    /// @param id The name of the library
     /// @param entryId The CitationKey of the BibEntry
     /// @return a basic entry preview as plain text
     @GET
@@ -77,39 +78,47 @@ public class EntryResource {
 
         // the only difference to the HTML version of this method is the format of the output:
 
-        return "Author: " + author
-                + "\nTitle: " + title
-                + "\nJournal: " + journal
-                + "\nVolume: " + volume
-                + "\nNumber: " + number
-                + "\nPages: " + pages
-                + "\nReleased on: " + releaseDate;
+        return "Author: "
+                + author
+                + "\nTitle: "
+                + title
+                + "\nJournal: "
+                + journal
+                + "\nVolume: "
+                + volume
+                + "\nNumber: "
+                + number
+                + "\nPages: "
+                + pages
+                + "\nReleased on: "
+                + releaseDate;
     }
 
     /// At http://localhost:23119/libraries/{id}/entries/{entryId}
     ///
-    /// Combines attributes of a given BibEntry into a basic entry preview for as HTML text.
+    /// Combines attributes of a given BibEntry into a basic entry preview for
+    /// as HTML text.
     ///
-    /// @param id      The name of the library
+    /// @param id The name of the library
     /// @param entryId The CitationKey of the BibEntry
     /// @return a basic entry preview as HTML text
     @GET
     @Path("entries/{entryId}")
     @Produces(MediaType.TEXT_HTML + ";charset=UTF-8")
     public String getHTMLRepresentation(@PathParam("id") String id, @PathParam("entryId") String entryId) throws IOException {
-        List<BibEntry> entriesByCitationKey = getDatabaseContext(id).getDatabase().getEntriesByCitationKey(entryId);
+        List<BibEntry> entriesByCitationKey = getDatabaseContext(id)
+                .getDatabase()
+                .getEntriesByCitationKey(entryId);
         if (entriesByCitationKey.isEmpty()) {
             // This response is served as text/html, so escape the user-controlled path
             // parameters before reflecting them into the message (XSS). The message is
             // attached as the text/html entity so it survives GlobalExceptionMapper, which
             // forwards WebApplicationException.getResponse() verbatim.
-            String message = "Entry with citation key '"
-                    + HtmlEscapers.htmlEscaper().escape(entryId) + "' not found in library "
-                    + HtmlEscapers.htmlEscaper().escape(id);
+            String message = "Entry with citation key '" + HtmlEscapers.htmlEscaper().escape(entryId) + "' not found in library " + HtmlEscapers.htmlEscaper().escape(id);
             throw new NotFoundException(Response.status(Response.Status.NOT_FOUND)
-                                                .type(MediaType.TEXT_HTML + ";charset=UTF-8")
-                                                .entity(message)
-                                                .build());
+                    .type(MediaType.TEXT_HTML + ";charset=UTF-8")
+                    .entity(message)
+                    .build());
         }
         if (entriesByCitationKey.size() > 1) {
             LOGGER.warn("Multiple entries found with citation key '{}'. Using the first one.", entryId);
@@ -173,7 +182,8 @@ public class EntryResource {
         Files.copy(fileInputStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
 
         // 4. Create LinkedFile
-        LinkedFile linkedFile = new LinkedFile(tempFile.getFileName().toString(), tempFile, "PDF");
+        LinkedFile linkedFile = new LinkedFile(tempFile.getFileName().toString(), tempFile,
+                "PDF");
 
         // 5. Rename to suggested pattern (e.g. Author - Title.pdf)
         LinkedFileHandler fileHandler = new LinkedFileHandler(linkedFile, entry, databaseContext, preferences.getFilePreferences());

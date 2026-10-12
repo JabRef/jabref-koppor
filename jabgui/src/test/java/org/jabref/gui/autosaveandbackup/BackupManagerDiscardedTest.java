@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import org.jabref.gui.LibraryTab;
 import org.jabref.logic.exporter.AtomicFileWriter;
 import org.jabref.logic.exporter.BibDatabaseWriter;
+import org.jabref.logic.exporter.BibDatabaseWriter.SaveType;
 import org.jabref.logic.exporter.BibWriter;
 import org.jabref.logic.exporter.SelfContainedSaveConfiguration;
 import org.jabref.logic.preferences.CliPreferences;
@@ -19,7 +20,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,7 +52,7 @@ class BackupManagerDiscardedTest {
         bibDatabaseContext.setDatabasePath(testBib);
 
         bibEntryTypesManager = new BibEntryTypesManager();
-        saveConfiguration = new SelfContainedSaveConfiguration(SaveOrder.getDefaultSaveOrder(), false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false);
+        saveConfiguration = new SelfContainedSaveConfiguration(SaveOrder.getDefaultSaveOrder(), false, SaveType.WITH_JABREF_META_DATA, false);
         preferences = mock(CliPreferences.class, Answers.RETURNS_DEEP_STUBS);
 
         saveDatabase();
@@ -72,19 +72,16 @@ class BackupManagerDiscardedTest {
 
     private void saveDatabase() throws IOException {
         try (Writer writer = new AtomicFileWriter(testBib, StandardCharsets.UTF_8, false)) {
-            BibWriter bibWriter = new BibWriter(writer, bibDatabaseContext.getDatabase().getNewLineSeparator());
-            new BibDatabaseWriter(
-                    bibWriter,
-                    saveConfiguration,
-                    preferences.getFieldPreferences(),
-                    preferences.getCitationKeyPatternPreferences(),
-                    bibEntryTypesManager)
+            BibWriter bibWriter = new BibWriter(writer, bibDatabaseContext.getDatabase()
+                    .getNewLineSeparator());
+            new BibDatabaseWriter(bibWriter, saveConfiguration, preferences.getFieldPreferences(), preferences.getCitationKeyPatternPreferences(), bibEntryTypesManager)
                     .writeDatabase(bibDatabaseContext);
         }
     }
 
     private void databaseModification() {
-        bibDatabaseContext.getDatabase().insertEntry(new BibEntry().withField(StandardField.NOTE, "test"));
+        bibDatabaseContext.getDatabase().insertEntry(new BibEntry()
+                .withField(StandardField.NOTE, "test"));
     }
 
     private void makeBackup() {

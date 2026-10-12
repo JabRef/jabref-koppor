@@ -9,13 +9,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
-
-import com.google.common.annotations.VisibleForTesting;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,19 +100,15 @@ public abstract class AbstractPushToApplication implements PushToApplication {
     @Override
     public void onOperationCompleted() {
         if (notDefined) {
-            sendErrorNotification(
-                    Localization.lang("Error pushing entries"),
-                    Localization.lang("Path to %0 not defined", getDisplayName()) + ".");
+            sendErrorNotification(Localization.lang("Error pushing entries"), Localization.lang("Path to %0 not defined", getDisplayName()) + ".");
         } else if (couldNotCall) {
-            sendErrorNotification(
-                    Localization.lang("Error pushing entries"),
-                    Localization.lang("Could not call executable '%0'.", commandPath) + "\n" +
-                            Localization.lang("Please check the path in the preferences.") + "\n" +
-                            (OS.OS_X ? Localization.lang("On macOS, you can use the command-line binary.") : ""));
+            sendErrorNotification(Localization.lang("Error pushing entries"), Localization.lang("Could not call executable '%0'.", commandPath)
+                    + "\n"
+                    + Localization.lang("Please check the path in the preferences.")
+                    + "\n"
+                    + (OS.OS_X ? Localization.lang("On macOS, you can use the command-line binary.") : ""));
         } else if (couldNotPush) {
-            sendErrorNotification(
-                    Localization.lang("Error pushing entries"),
-                    Localization.lang("Could not connect to %0", getDisplayName()) + ".");
+            sendErrorNotification(Localization.lang("Error pushing entries"), Localization.lang("Could not connect to %0", getDisplayName()) + ".");
         } else {
             notificationService.notify(Localization.lang("Pushed citations to %0", getDisplayName()) + ".");
         }
@@ -129,7 +124,8 @@ public abstract class AbstractPushToApplication implements PushToApplication {
         if (StringUtil.isNullOrEmpty(message)) {
             notificationService.notify(title);
         } else {
-            notificationService.notify(title.concat(" ").concat(message));
+            notificationService.notify(title.concat(" ")
+                    .concat(message));
         }
     }
 
@@ -149,7 +145,8 @@ public abstract class AbstractPushToApplication implements PushToApplication {
         return new String[0];
     }
 
-    /// Function to get the command name in case it is different from the application name
+    /// Function to get the command name in case it is different from the
+    /// application name
     ///
     /// @return String with the command name
     public String getCommandName() {

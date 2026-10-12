@@ -3,8 +3,8 @@ package org.jabref.gui.fieldeditors.contextmenu;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import javafx.beans.property.SimpleStringProperty;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.fieldeditors.LinkedFileViewModel;
 import org.jabref.gui.fieldeditors.LinkedFilesEditorViewModel;
@@ -13,8 +13,6 @@ import org.jabref.logic.FilePreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
-import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -95,8 +93,7 @@ class MultiSelectionMenuBuilderTest {
     private LinkedFileViewModel mockOfflineExistingFileViewModel(Path path) {
         LinkedFile linkedFile = mock(LinkedFile.class, Answers.RETURNS_DEEP_STUBS);
         when(linkedFile.isOnlineLink()).thenReturn(false);
-        when(linkedFile.findIn(any(BibDatabaseContext.class), any(FilePreferences.class)))
-                .thenReturn(Optional.of(path));
+        when(linkedFile.findIn(any(BibDatabaseContext.class), any(FilePreferences.class))).thenReturn(Optional.of(path));
         when(linkedFile.linkProperty()).thenReturn(new SimpleStringProperty(path.getFileName().toString()));
         when(linkedFile.getSourceUrl()).thenReturn("");
         when(linkedFile.sourceUrlProperty()).thenReturn(new SimpleStringProperty(""));
@@ -110,8 +107,7 @@ class MultiSelectionMenuBuilderTest {
     private LinkedFileViewModel mockOfflineMissingFileViewModel() {
         LinkedFile linkedFile = mock(LinkedFile.class, Answers.RETURNS_DEEP_STUBS);
         when(linkedFile.isOnlineLink()).thenReturn(false);
-        when(linkedFile.findIn(any(BibDatabaseContext.class), any(FilePreferences.class)))
-                .thenReturn(Optional.empty());
+        when(linkedFile.findIn(any(BibDatabaseContext.class), any(FilePreferences.class))).thenReturn(Optional.empty());
         when(linkedFile.linkProperty()).thenReturn(new SimpleStringProperty("missing.pdf"));
         when(linkedFile.getSourceUrl()).thenReturn("");
         when(linkedFile.sourceUrlProperty()).thenReturn(new SimpleStringProperty(""));
@@ -127,8 +123,7 @@ class MultiSelectionMenuBuilderTest {
 
         LinkedFile linkedFile = mock(LinkedFile.class, Answers.RETURNS_DEEP_STUBS);
         when(linkedFile.isOnlineLink()).thenReturn(true);
-        when(linkedFile.findIn(any(BibDatabaseContext.class), any(FilePreferences.class)))
-                .thenReturn(Optional.empty());
+        when(linkedFile.findIn(any(BibDatabaseContext.class), any(FilePreferences.class))).thenReturn(Optional.empty());
         when(linkedFile.linkProperty()).thenReturn(new SimpleStringProperty("https://host/file.pdf"));
         when(linkedFile.getSourceUrl()).thenReturn(url);
         when(linkedFile.sourceUrlProperty()).thenReturn(new SimpleStringProperty(url));

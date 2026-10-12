@@ -5,9 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
-
 import org.jabref.gui.testutils.JavaFxTest;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 

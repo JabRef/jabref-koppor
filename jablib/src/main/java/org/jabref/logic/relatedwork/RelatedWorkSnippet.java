@@ -7,10 +7,8 @@ package org.jabref.logic.relatedwork;
 /// contextText: "Unlike Smith et al., our approach uses..."
 /// citationMarker: "[10]"
 public record RelatedWorkSnippet(
-        // Text extracted from a related work text
-        String contextText,
+// Text extracted from a related work text
+String contextText,
 
-        // Citation marker extracted from a related work text
-        String citationMarker
-) {
-}
+// Citation marker extracted from a related work text
+String citationMarker) {}

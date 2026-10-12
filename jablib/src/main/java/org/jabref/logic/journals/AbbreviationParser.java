@@ -55,9 +55,9 @@ public class AbbreviationParser {
                 return NO_DELIMITER;
             }
             return Arrays.stream(DELIMITERS)
-                         .filter(s -> line.contains(s.toString()))
-                         .findFirst()
-                         .orElse(NO_DELIMITER);
+                    .filter(s -> line.contains(s.toString()))
+                    .findFirst()
+                    .orElse(NO_DELIMITER);
         }
     }
 

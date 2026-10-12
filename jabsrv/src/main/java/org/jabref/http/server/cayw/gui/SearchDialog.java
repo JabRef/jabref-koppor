@@ -18,10 +18,8 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,12 +71,7 @@ public class SearchDialog {
             dialogStage.close();
         });
 
-        mainLayout.getChildren().addAll(
-                searchField,
-                selectedContainer,
-                scrollPane,
-                finishButton
-        );
+        mainLayout.getChildren().addAll(searchField, selectedContainer, scrollPane, finishButton);
 
         Scene scene = new Scene(mainLayout, dialogWidth, dialogHeight);
 

@@ -2,14 +2,13 @@ package org.jabref.logic.ai.ingestion.tasks;
 
 import java.io.IOException;
 
+import ai.djl.MalformedModelException;
+import ai.djl.repository.zoo.ModelNotFoundException;
 import org.jabref.logic.ai.embedding.DeepJavaEmbeddingModel;
 import org.jabref.logic.ai.embedding.EmbeddingModelMetadataService;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.ProgressCounter;
-
-import ai.djl.MalformedModelException;
-import ai.djl.repository.zoo.ModelNotFoundException;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +24,7 @@ public class UpdateEmbeddingModelTask extends BackgroundTask<DeepJavaEmbeddingMo
 
     private final ProgressCounter progressCounter = new ProgressCounter();
 
-    public UpdateEmbeddingModelTask(
-            String embeddingModelName,
-            EmbeddingModelMetadataService metadataService
-    ) {
+    public UpdateEmbeddingModelTask(String embeddingModelName, EmbeddingModelMetadataService metadataService) {
         this.embeddingModelName = embeddingModelName;
         this.metadataService = metadataService;
 
@@ -52,11 +48,7 @@ public class UpdateEmbeddingModelTask extends BackgroundTask<DeepJavaEmbeddingMo
         }
 
         try {
-            DeepJavaEmbeddingModel model = new DeepJavaEmbeddingModel(
-                    embeddingModelName,
-                    progressCounter,
-                    metadataService
-            );
+            DeepJavaEmbeddingModel model = new DeepJavaEmbeddingModel(embeddingModelName, progressCounter, metadataService);
 
             if (!originallyDownloaded) {
                 LOGGER.info("Embedding model was successfully downloaded");

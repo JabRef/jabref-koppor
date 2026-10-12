@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.jabref.logic.importer.plaincitation.PlainCitationParserChoice;
 import org.jabref.logic.preferences.FetcherApiKey;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -34,7 +33,9 @@ class ImporterPreferencesTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             # a real key is returned as-is
             SomeFetcher,    real-key,  real-key
 
@@ -47,6 +48,7 @@ class ImporterPreferencesTest {
             UnknownFetcher, real-key,
             """)
     void getApiKeyTreatsBlankAndUnknownAsAbsent(String queried, String configured, String expected) {
-        assertEquals(Optional.ofNullable(expected), withCustomKey(configured).getApiKey(queried));
+        assertEquals(Optional.ofNullable(expected),
+                withCustomKey(configured).getApiKey(queried));
     }
 }

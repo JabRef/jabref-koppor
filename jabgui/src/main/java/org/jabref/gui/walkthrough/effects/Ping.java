@@ -9,9 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
-
 import org.jabref.gui.walkthrough.utils.WalkthroughUtils;
-
 import org.jspecify.annotations.NonNull;
 
 public final class Ping extends BaseWindowEffect {
@@ -39,19 +37,12 @@ public final class Ping extends BaseWindowEffect {
         pane.getChildren().add(ping);
 
         pingAnimation = new Timeline(
-                new KeyFrame(Duration.ZERO,
-                        new KeyValue(ping.opacityProperty(), 1.0),
-                        new KeyValue(ping.scaleXProperty(), 1.0),
+                new KeyFrame(Duration.ZERO, new KeyValue(ping.opacityProperty(), 1.0), new KeyValue(ping.scaleXProperty(), 1.0),
                         new KeyValue(ping.scaleYProperty(), 1.0)),
-                new KeyFrame(Duration.seconds(0.5),
-                        new KeyValue(ping.opacityProperty(), 0.6),
-                        new KeyValue(ping.scaleXProperty(), 1.3),
+                new KeyFrame(Duration.seconds(0.5), new KeyValue(ping.opacityProperty(), 0.6), new KeyValue(ping.scaleXProperty(), 1.3),
                         new KeyValue(ping.scaleYProperty(), 1.3)),
-                new KeyFrame(Duration.seconds(1.0),
-                        new KeyValue(ping.opacityProperty(), 1.0),
-                        new KeyValue(ping.scaleXProperty(), 1.0),
-                        new KeyValue(ping.scaleYProperty(), 1.0))
-        );
+                new KeyFrame(Duration.seconds(1.0), new KeyValue(ping.opacityProperty(), 1.0), new KeyValue(ping.scaleXProperty(), 1.0),
+                        new KeyValue(ping.scaleYProperty(), 1.0)));
 
         pingAnimation.setCycleCount(Timeline.INDEFINITE);
         pingAnimation.play();
@@ -82,12 +73,8 @@ public final class Ping extends BaseWindowEffect {
         double targetX = newBoundsInPane.getMaxX() - INDICATOR_OFFSET;
         double targetY = newBoundsInPane.getMinY() + INDICATOR_OFFSET;
 
-        transitionAnimation = new Timeline(
-                new KeyFrame(TRANSITION_DURATION,
-                        new KeyValue(ping.layoutXProperty(), targetX, Interpolator.EASE_BOTH),
-                        new KeyValue(ping.layoutYProperty(), targetY, Interpolator.EASE_BOTH)
-                )
-        );
+        transitionAnimation = new Timeline(new KeyFrame(TRANSITION_DURATION, new KeyValue(ping.layoutXProperty(), targetX, Interpolator.EASE_BOTH),
+                new KeyValue(ping.layoutYProperty(), targetY, Interpolator.EASE_BOTH)));
 
         transitionAnimation.setOnFinished(_ -> {
             if (this.node != null) {

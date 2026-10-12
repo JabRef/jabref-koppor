@@ -3,23 +3,22 @@ package org.jabref.gui.fieldeditors.contextmenu;
 import java.util.List;
 import java.util.function.Supplier;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextInputControl;
-
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.formatter.Formatters;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
 
-import com.tobiasdiez.easybind.EasyBind;
-
 public class DefaultMenu implements Supplier<List<MenuItem>> {
 
     TextInputControl textInputControl;
 
-    /// The default menu that contains functions for changing the case of text and doing several conversions.
+    /// The default menu that contains functions for changing the case of text
+    /// and doing several conversions.
     ///
     /// @param textInputControl that this menu will be connected to
     public DefaultMenu(TextInputControl textInputControl) {
@@ -42,8 +41,8 @@ public class DefaultMenu implements Supplier<List<MenuItem>> {
         for (final Formatter caseChanger : Formatters.getCaseChangers()) {
             MenuItem menuItem = new MenuItem(caseChanger.getName());
             EasyBind.subscribe(textInputControl.textProperty(), value -> menuItem.setDisable(StringUtil.isNullOrEmpty(value)));
-            menuItem.setOnAction(_ ->
-                    textInputControl.textProperty().set(caseChanger.format(textInputControl.textProperty().get())));
+            menuItem.setOnAction(_ -> textInputControl.textProperty().set(caseChanger.format(textInputControl.textProperty()
+                    .get())));
             submenu.getItems().add(menuItem);
         }
 
@@ -56,8 +55,8 @@ public class DefaultMenu implements Supplier<List<MenuItem>> {
         for (Formatter converter : Formatters.getConverters()) {
             MenuItem menuItem = new MenuItem(converter.getName());
             EasyBind.subscribe(textInputControl.textProperty(), value -> menuItem.setDisable(StringUtil.isNullOrEmpty(value)));
-            menuItem.setOnAction(_ ->
-                    textInputControl.textProperty().set(converter.format(textInputControl.textProperty().get())));
+            menuItem.setOnAction(_ -> textInputControl.textProperty().set(converter.format(textInputControl.textProperty()
+                    .get())));
             submenu.getItems().add(menuItem);
         }
 

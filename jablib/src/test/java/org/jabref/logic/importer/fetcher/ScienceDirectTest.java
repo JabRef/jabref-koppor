@@ -5,7 +5,10 @@ import java.net.URL;
 import java.util.Optional;
 
 import javafx.collections.FXCollections;
-
+import kong.unirest.core.GetRequest;
+import kong.unirest.core.HttpResponse;
+import kong.unirest.core.JsonNode;
+import kong.unirest.core.Unirest;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.util.BuildInfo;
 import org.jabref.logic.util.URLUtil;
@@ -13,11 +16,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.DisabledOnCIServer;
 import org.jabref.support.ExternalServicesTest;
-
-import kong.unirest.core.GetRequest;
-import kong.unirest.core.HttpResponse;
-import kong.unirest.core.JsonNode;
-import kong.unirest.core.Unirest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -52,8 +50,7 @@ class ScienceDirectTest {
 
         assertEquals(
                 Optional.of(URLUtil.create("https://www.sciencedirect.com/science/article/pii/S1674775515001079/pdfft?md5=2b19b19a387cffbae237ca6a987279df&pid=1-s2.0-S1674775515001079-main.pdf")),
-                finder.findFullText(entry)
-        );
+                finder.findFullText(entry));
     }
 
     @Test
@@ -63,8 +60,7 @@ class ScienceDirectTest {
 
         assertEquals(
                 Optional.of(URLUtil.create("https://www.sciencedirect.com/science/article/pii/S2212671614001024/pdf?md5=4e2e9a369b4d5b3db5100aba599bef8b&pid=1-s2.0-S2212671614001024-main.pdf")),
-                finder.findFullText(entry)
-        );
+                finder.findFullText(entry));
     }
 
     @Test
@@ -75,8 +71,7 @@ class ScienceDirectTest {
 
         assertEquals(
                 Optional.of(URLUtil.create("https://www.sciencedirect.com/science/article/pii/S8756328220300065/pdfft?md5=0ad75ff155637dec358e5c9fb8b90afd&pid=1-s2.0-S8756328220300065-main.pdf")),
-                finder.findFullText(entry)
-        );
+                finder.findFullText(entry));
     }
 
     @Test
@@ -90,28 +85,26 @@ class ScienceDirectTest {
     @Test
     @SuppressWarnings("unchecked")
     void findsPdfDirectlyWhenSciDirPdfPresent() throws IOException {
-        String jsonBody = """
+        String jsonBody =
+                """
                 {"full-text-retrieval-response":{"coredata":{"link":[{"@href":"https://api.elsevier.com/content/article/pii/S0963869523002050","@rel":"self","@_fa":"true"},{"@href":"https://www.sciencedirect.com/science/article/pii/S0963869523002050","@rel":"scidir","@_fa":"true"},{"@href":"https://www.sciencedirect.com/science/article/pii/S0963869523002050/pdfft?isDTMRedir=true","@rel":"scidir-pdf","@_fa":"true"}]}}}""";
 
-        entry = new BibEntry()
-                .withField(StandardField.DOI, "10.1016/j.ndteint.2023.102990");
+        entry = new BibEntry().withField(StandardField.DOI, "10.1016/j.ndteint.2023.102990");
 
         GetRequest getRequest = mock(GetRequest.class, Answers.RETURNS_DEEP_STUBS);
         HttpResponse<JsonNode> httpResponse = mock(HttpResponse.class);
         when(httpResponse.getBody()).thenReturn(new JsonNode(jsonBody));
         when(getRequest.header(anyString(), anyString())
                        .queryString(anyString(), anyString())
-                       .asJson()).thenReturn(httpResponse);
+                       .asJson())
+                .thenReturn(httpResponse);
 
         try (MockedStatic<Unirest> unirestMock = Mockito.mockStatic(Unirest.class)) {
             unirestMock.when(() -> Unirest.get(anyString())).thenReturn(getRequest);
 
             Optional<URL> result = finder.findFullText(entry);
 
-            assertEquals(
-                    Optional.of(URLUtil.create("https://www.sciencedirect.com/science/article/pii/S0963869523002050/pdfft?isDTMRedir=true")),
-                    result
-            );
+            assertEquals(Optional.of(URLUtil.create("https://www.sciencedirect.com/science/article/pii/S0963869523002050/pdfft?isDTMRedir=true")), result);
         }
     }
 }

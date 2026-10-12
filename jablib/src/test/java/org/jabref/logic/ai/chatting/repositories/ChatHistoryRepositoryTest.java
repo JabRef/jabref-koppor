@@ -7,7 +7,6 @@ import java.util.List;
 import org.jabref.model.ai.chatting.ChatIdentifier;
 import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.ai.chatting.ChatType;
-
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -26,10 +25,7 @@ class ChatHistoryRepositoryTest {
     private static Path tempDir;
 
     static List<ChatHistoryRepository> repositories() {
-        return List.of(
-                new MVStoreChatHistoryRepository(tempDir.resolve("chat-test.mv"), _ -> {
-                })
-        );
+        return List.of(new MVStoreChatHistoryRepository(tempDir.resolve("chat-test.mv"), _ -> {}));
     }
 
     @ParameterizedTest
@@ -54,8 +50,14 @@ class ChatHistoryRepositoryTest {
         ChatMessage second = ChatMessage.aiMessage("second", List.of());
 
         // Add in reverse order to verify sorting
-        repo.addMessage(IDENTIFIER, new ChatMessage(second.id(), Instant.ofEpochMilli(2000), second.role(), second.content(), second.relevantInformation()));
-        repo.addMessage(IDENTIFIER, new ChatMessage(first.id(), Instant.ofEpochMilli(1000), first.role(), first.content(), first.relevantInformation()));
+        repo.addMessage(
+                IDENTIFIER,
+                new ChatMessage(second.id(), Instant.ofEpochMilli(2000), second.role(),
+                        second.content(), second.relevantInformation()));
+        repo.addMessage(
+                IDENTIFIER,
+                new ChatMessage(first.id(), Instant.ofEpochMilli(1000), first.role(),
+                        first.content(), first.relevantInformation()));
 
         List<ChatMessage> all = repo.getAllMessages(IDENTIFIER);
         assertEquals("first", all.getFirst().content());
@@ -136,7 +138,13 @@ class ChatHistoryRepositoryTest {
 
         assertEquals(1, repo.size(id1));
         assertEquals(1, repo.size(id2));
-        assertEquals("alpha message", repo.getAllMessages(id1).getFirst().content());
-        assertEquals("beta message", repo.getAllMessages(id2).getFirst().content());
+        assertEquals("alpha message",
+                repo.getAllMessages(id1)
+                    .getFirst()
+                    .content());
+        assertEquals("beta message",
+                repo.getAllMessages(id2)
+                    .getFirst()
+                    .content());
     }
 }

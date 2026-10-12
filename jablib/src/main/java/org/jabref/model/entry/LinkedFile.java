@@ -18,20 +18,19 @@ import java.util.regex.Pattern;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.util.FileType;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-/// Represents the link to an external file (e.g. associated PDF file).
-/// This class is [Serializable] which is needed for drag and drop in gui
-/// The conversion from String ([org.jabref.model.entry.field.StandardField.FILE]) is done at [org.jabref.logic.importer.util.FileFieldParser#parse(String)]
+/// Represents the link to an external file (e.g. associated PDF file). This
+/// class is [Serializable] which is needed for drag and drop in gui The
+/// conversion from String ([org.jabref.model.entry.field.StandardField.FILE])
+/// is done at [org.jabref.logic.importer.util.FileFieldParser#parse(String)]
 @AllowedToUseLogic("Uses FileUtil from logic")
 @NullMarked
 public class LinkedFile implements Serializable {
@@ -54,8 +53,9 @@ public class LinkedFile implements Serializable {
     private transient StringProperty sourceURL = new SimpleStringProperty();
 
     /// @param description The description of the linked file
-    /// @param link        The path or URL to the linked file
-    /// @param fileType    The file type of the linked file. See [org.jabref.logic.util.StandardFileType] for common file types.
+    /// @param link The path or URL to the linked file
+    /// @param fileType The file type of the linked file. See
+    ///   [org.jabref.logic.util.StandardFileType] for common file types.
     public LinkedFile(String description, String link, FileType fileType) {
         this(description, link, fileType.getName());
     }
@@ -65,12 +65,15 @@ public class LinkedFile implements Serializable {
         this(description, link.toString(), fileType);
     }
 
-    public LinkedFile(String description, Path link, String fileType, String sourceUrl) {
+    public LinkedFile(String description, Path link, String fileType,
+                      String sourceUrl) {
         this(description, link.toString(), fileType, sourceUrl);
     }
 
-    /// Constructor can also be used for non-valid paths. We need to parse them, because the GUI needs to render it.
-    public LinkedFile(String description, String link, String fileType, String sourceUrl) {
+    /// Constructor can also be used for non-valid paths. We need to parse them,
+    /// because the GUI needs to render it.
+    public LinkedFile(String description, String link, String fileType,
+                      String sourceUrl) {
         this.description.setValue(description);
         setLink(link);
         this.fileType.setValue(fileType);
@@ -89,7 +92,8 @@ public class LinkedFile implements Serializable {
         this(description, link.toString(), fileType);
     }
 
-    public LinkedFile(String description, URL link, String fileType, String sourceUrl) {
+    public LinkedFile(String description, URL link, String fileType,
+                      String sourceUrl) {
         this(description, link.toString(), fileType, sourceUrl);
     }
 
@@ -191,11 +195,12 @@ public class LinkedFile implements Serializable {
         sourceURL = new SimpleStringProperty(in.readUTF());
     }
 
-    /// Checks if the given String is an online link
-    /// Recognizes http://, https://, ftp://, ftps://, and www. prefixes.
+    /// Checks if the given String is an online link Recognizes http://,
+    /// https://, ftp://, ftps://, and www. prefixes.
     ///
     /// @param toCheck The String to check
-    /// @return `true`, if it starts with "http://", "https://", "ftp://", "ftps://" or contains "www."; `false` otherwise
+    /// @return `true`, if it starts with "http://", "https://", "ftp://",
+    ///   "ftps://" or contains "www."; `false` otherwise
     public static boolean isOnlineLink(String toCheck) {
         // We use an explicit regex instead of delegating to URLUtil because
         // isOnlineLink() specifically filters for *remote* links. URLUtil.isURL()
@@ -208,17 +213,24 @@ public class LinkedFile implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(description.get(), link.get(), fileType.get(), sourceURL.get());
+        return Objects.hash(description.get(), link.get(), fileType.get(),
+                sourceURL.get());
     }
 
     @Override
     public String toString() {
-        return "ParsedFileField{" +
-                "description='" + description.get() + '\'' +
-                ", link='" + link.get() + '\'' +
-                ", fileType='" + fileType.get() + '\'' +
-                (StringUtil.isNullOrEmpty(sourceURL.get()) ? "" : (", sourceUrl='" + sourceURL.get() + '\'')) +
-                '}';
+        return "ParsedFileField{"
+                + "description='"
+                + description.get()
+                + '\''
+                + ", link='"
+                + link.get()
+                + '\''
+                + ", fileType='"
+                + fileType.get()
+                + '\''
+                + (StringUtil.isNullOrEmpty(sourceURL.get()) ? "" : (", sourceUrl='" + sourceURL.get() + '\''))
+                + '}';
     }
 
     public boolean isEmpty() {

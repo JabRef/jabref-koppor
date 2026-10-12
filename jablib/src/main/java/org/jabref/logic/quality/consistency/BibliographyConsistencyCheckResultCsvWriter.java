@@ -5,13 +5,12 @@ import java.io.Writer;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.Field;
-
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 
 /// Outputs the findings as CSV.
 ///
@@ -24,7 +23,8 @@ public class BibliographyConsistencyCheckResultCsvWriter extends BibliographyCon
         super(result, writer, isPorcelain);
     }
 
-    public BibliographyConsistencyCheckResultCsvWriter(BibliographyConsistencyCheck.Result result, Writer writer, boolean isPorcelain, BibEntryTypesManager entryTypesManager, BibDatabaseMode bibDatabaseMode) {
+    public BibliographyConsistencyCheckResultCsvWriter(BibliographyConsistencyCheck.Result result, Writer writer, boolean isPorcelain,
+            BibEntryTypesManager entryTypesManager, BibDatabaseMode bibDatabaseMode) {
         super(result, writer, isPorcelain, entryTypesManager, bibDatabaseMode);
     }
 
@@ -36,7 +36,9 @@ public class BibliographyConsistencyCheckResultCsvWriter extends BibliographyCon
     }
 
     @Override
-    protected void writeBibEntry(BibEntry bibEntry, String entryType, Set<Field> requiredFields, Set<Field> optionalFields) throws IOException {
+    protected void writeBibEntry(BibEntry bibEntry, String entryType, Set<Field> requiredFields,
+            Set<Field> optionalFields)
+            throws IOException {
         List<String> theRecord = getFindingsAsList(bibEntry, entryType, requiredFields, optionalFields);
         csvPrinter.printRecord(theRecord);
     }

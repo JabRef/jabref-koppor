@@ -14,7 +14,8 @@ public class IntegrityCheckResultErrorFormatWriter extends IntegrityCheckResultW
     private final ParserResult parserResult;
     private final Path inputFile;
 
-    public IntegrityCheckResultErrorFormatWriter(Writer writer, List<IntegrityMessage> messages, ParserResult parserResult, Path inputFile) {
+    public IntegrityCheckResultErrorFormatWriter(Writer writer, List<IntegrityMessage> messages, ParserResult parserResult,
+            Path inputFile) {
         super(writer, messages);
         this.parserResult = parserResult;
         this.inputFile = inputFile;
@@ -26,17 +27,15 @@ public class IntegrityCheckResultErrorFormatWriter extends IntegrityCheckResultW
         for (IntegrityMessage message : messages) {
             // Entry-level findings (e.g. on the citation key itself) carry only the citation key;
             // field-level findings additionally carry the field name.
-            String location = message.entry().getCitationKey().orElse(message.entry().getAuthorTitleYear(5));
+            String location = message.entry()
+                    .getCitationKey()
+                    .orElse(message.entry().getAuthorTitleYear(5));
             Field field = message.field();
             ParserResult.Range fieldRange = parserResult.getFieldRange(message.entry(), field);
             if (field != InternalField.KEY_FIELD) {
                 location += ":" + field.getName();
             }
-            writer.append("%s:%d:%d:%s: %s\n".formatted(
-                    inputFile,
-                    fieldRange.startLine(),
-                    fieldRange.startColumn(),
-                    location,
+            writer.append("%s:%d:%d:%s: %s\n".formatted(inputFile, fieldRange.startLine(), fieldRange.startColumn(), location,
                     message.message()));
         }
     }

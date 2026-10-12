@@ -21,23 +21,23 @@ import org.jabref.model.entry.field.BibField;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.types.EntryType;
-
 import org.jooq.lambda.Unchecked;
 
 /// Outputs the findings as CSV.
 ///
 /// Following symbols are used (as default):
 ///
-///
 /// - `x` - required field is present
 /// - `o` - optional field is present
 /// - `?` - unknown field is present
 /// - `-` - field is absent
 ///
+/// Note that this classification is based on JabRef's definition and might not
+/// match the publisher's definition.
 ///
-/// Note that this classification is based on JabRef's definition and might not match the publisher's definition.
-///
-/// @implNote We could have implemented a `PaperConsistencyCheckResultFormatter`, but that would have been too much effort.
+/// @implNote We could have implemented a
+///   `PaperConsistencyCheckResultFormatter`, but that would have been too much
+///   effort.
 public abstract class BibliographyConsistencyCheckResultWriter implements Closeable {
 
     protected static final String REQUIRED_FIELD_AT_ENTRY_TYPE_CELL_ENTRY = "x";
@@ -59,23 +59,28 @@ public abstract class BibliographyConsistencyCheckResultWriter implements Closea
         this(result, writer, isPorcelain, new BibEntryTypesManager(), BibDatabaseMode.BIBTEX);
     }
 
-    public BibliographyConsistencyCheckResultWriter(BibliographyConsistencyCheck.Result result, Writer writer, boolean isPorcelain, BibEntryTypesManager entryTypesManager, BibDatabaseMode bibDatabaseMode) {
+    public BibliographyConsistencyCheckResultWriter(BibliographyConsistencyCheck.Result result, Writer writer, boolean isPorcelain,
+            BibEntryTypesManager entryTypesManager, BibDatabaseMode bibDatabaseMode) {
         this.result = result;
         this.writer = writer;
         this.isPorcelain = isPorcelain;
         this.entryTypesManager = entryTypesManager;
         this.bibDatabaseMode = bibDatabaseMode;
-        this.allReportedFields = result.entryTypeToResultMap().values().stream()
-                                       .flatMap(entryTypeResult -> entryTypeResult.fields().stream())
-                                       .sorted(Comparator.comparing(Field::getName))
-                                       .distinct()
-                                       .toList();
+        this.allReportedFields = result.entryTypeToResultMap()
+                .values()
+                .stream()
+                .flatMap(entryTypeResult -> entryTypeResult.fields().stream())
+                .sorted(Comparator.comparing(Field::getName))
+                .distinct()
+                .toList();
         this.columnNames = getColumnNames();
         this.columnCount = columnNames.size();
     }
 
     public void writeFindings() throws IOException {
-        result.entryTypeToResultMap().entrySet().stream()
+        result.entryTypeToResultMap()
+              .entrySet()
+              .stream()
               .sorted(Comparator.comparing(entry -> entry.getKey().getName()))
               .forEach(Unchecked.consumer(this::writeMapEntry));
     }
@@ -88,12 +93,13 @@ public abstract class BibliographyConsistencyCheckResultWriter implements Closea
         return results;
     }
 
-    protected List<String> getFindingsAsList(BibEntry bibEntry, String entryType, Set<Field> requiredFields, Set<Field> optionalFields) {
+    protected List<String> getFindingsAsList(BibEntry bibEntry, String entryType, Set<Field> requiredFields,
+            Set<Field> optionalFields) {
         List<String> results = new ArrayList<>(columnCount + 2);
         results.add(entryType);
         results.add(bibEntry.getCitationKey().orElse(""));
-        allReportedFields.forEach(field -> results.add(
-                bibEntry.getField(field).map(_ -> {
+        allReportedFields.forEach(field -> results.add(bibEntry.getField(field)
+                .map(_ -> {
                     if (requiredFields.contains(field)) {
                         return REQUIRED_FIELD_AT_ENTRY_TYPE_CELL_ENTRY;
                     } else if (optionalFields.contains(field)) {
@@ -101,7 +107,8 @@ public abstract class BibliographyConsistencyCheckResultWriter implements Closea
                     } else {
                         return UNKNOWN_FIELD_AT_ENTRY_TYPE_CELL_ENTRY;
                     }
-                }).orElse(UNSET_FIELD_AT_ENTRY_TYPE_CELL_ENTRY)));
+                })
+                .orElse(UNSET_FIELD_AT_ENTRY_TYPE_CELL_ENTRY)));
         return results;
     }
 
@@ -109,14 +116,12 @@ public abstract class BibliographyConsistencyCheckResultWriter implements Closea
         String entryType = mapEntry.getKey().getDisplayName();
 
         Optional<BibEntryType> bibEntryType = this.entryTypesManager.enrich(mapEntry.getKey(), bibDatabaseMode);
-        Set<Field> requiredFields = bibEntryType
-                .map(BibEntryType::getRequiredFields)
+        Set<Field> requiredFields = bibEntryType.map(BibEntryType::getRequiredFields)
                 .stream()
                 .flatMap(Collection::stream)
                 .flatMap(orFields -> orFields.getFields().stream())
                 .collect(Collectors.toSet());
-        Set<Field> optionalFields = bibEntryType
-                .map(BibEntryType::getOptionalFields)
+        Set<Field> optionalFields = bibEntryType.map(BibEntryType::getOptionalFields)
                 .stream()
                 .flatMap(Collection::stream)
                 .map(BibField::field)
@@ -128,5 +133,7 @@ public abstract class BibliographyConsistencyCheckResultWriter implements Closea
         bibEntries.forEach(Unchecked.consumer(bibEntry -> writeBibEntry(bibEntry, entryType, requiredFields, optionalFields)));
     }
 
-    protected abstract void writeBibEntry(BibEntry bibEntry, String entryType, Set<Field> requiredFields, Set<Field> optionalFields) throws IOException;
+    protected abstract void writeBibEntry(BibEntry bibEntry, String entryType, Set<Field> requiredFields,
+            Set<Field> optionalFields)
+            throws IOException;
 }

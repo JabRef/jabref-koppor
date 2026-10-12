@@ -2,7 +2,6 @@ package org.jabref.gui.mergeentries.threewaymerge.fieldsmerger;
 
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.KeywordList;
-
 import org.jspecify.annotations.NonNull;
 
 /// A merger for the [org.jabref.model.entry.field.StandardField#GROUPS] field

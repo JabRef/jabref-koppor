@@ -9,7 +9,6 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -41,11 +40,15 @@ class BstEntryRendererTest {
     }
 
     private static Path ieeePath() throws URISyntaxException {
-        return Path.of(BstEntryRendererTest.class.getResource("/org/jabref/logic/bst/IEEEtran.bst").toURI());
+        return Path.of(BstEntryRendererTest.class
+                .getResource("/org/jabref/logic/bst/IEEEtran.bst")
+                .toURI());
     }
 
     private static Path abbrvPath() throws URISyntaxException {
-        return Path.of(BstEntryRendererTest.class.getResource("/org/jabref/logic/bst/abbrv.bst").toURI());
+        return Path.of(BstEntryRendererTest.class
+                .getResource("/org/jabref/logic/bst/abbrv.bst")
+                .toURI());
     }
 
     @Test

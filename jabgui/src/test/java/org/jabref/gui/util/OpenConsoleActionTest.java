@@ -7,7 +7,6 @@ import org.jabref.gui.frame.OpenConsoleAction;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.util.OptionalObjectProperty;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

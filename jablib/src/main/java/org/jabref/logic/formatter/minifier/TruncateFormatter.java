@@ -2,14 +2,14 @@ package org.jabref.logic.formatter.minifier;
 
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 
 public class TruncateFormatter extends Formatter {
     private final int TRUNCATE_AFTER;
     private final String KEY;
 
-    /// The TruncateFormatter truncates a string after the given index and removes trailing whitespaces.
+    /// The TruncateFormatter truncates a string after the given index and
+    /// removes trailing whitespaces.
     ///
     /// @param truncateIndex truncate a string after this index.
     public TruncateFormatter(final int truncateIndex) {

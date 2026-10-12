@@ -6,7 +6,6 @@ import java.util.List;
 import org.jabref.gui.StateManager;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -14,14 +13,16 @@ import org.jspecify.annotations.Nullable;
 ///
 /// SIDE EFFECTS:
 ///
-/// 1. Calls `onFinish` in case all entries have been imported (based on the given totalEntries count)
+/// 1. Calls `onFinish` in case all entries have been imported (based on the
+///    given totalEntries count)
 /// 2. Selects the imported entries after importing
 ///
-/// Imports run concurrently: `ImportHandler` schedules one `BackgroundTask` chain per entry, so
-/// `markImported`/`markSkipped` are invoked from different threads. The mutating methods are therefore
-/// `synchronized` so that the counter update, list append, completion check, and `onFinish` execution
-/// happen atomically. This guarantees `onFinish` runs exactly once and only after every imported entry
-/// is visible in `importedEntries`.
+/// Imports run concurrently: `ImportHandler` schedules one `BackgroundTask`
+/// chain per entry, so `markImported`/`markSkipped` are invoked from different
+/// threads. The mutating methods are therefore `synchronized` so that the
+/// counter update, list append, completion check, and `onFinish` execution
+/// happen atomically. This guarantees `onFinish` runs exactly once and only
+/// after every imported entry is visible in `importedEntries`.
 @NullMarked
 public class EntryImportHandlerTracker {
     private final List<BibEntry> importedEntries;
@@ -61,8 +62,9 @@ public class EntryImportHandlerTracker {
         checkDone();
     }
 
-    /// Checks if all entries have been processed; if yes, execute the onFinish action exactly once.
-    /// Must be called while holding this object's monitor (i.e. from a `synchronized` method).
+    /// Checks if all entries have been processed; if yes, execute the onFinish
+    /// action exactly once. Must be called while holding this object's monitor
+    /// (i.e. from a `synchronized` method).
     private void checkDone() {
         if (finished || (imported + skipped) < totalEntries) {
             return;
@@ -81,13 +83,15 @@ public class EntryImportHandlerTracker {
             return;
         }
 
-        stateManager.activeTabProperty().get()
+        stateManager.activeTabProperty()
+                    .get()
                     .filter(tab -> targetDatabaseContext == tab.getBibDatabaseContext())
                     .ifPresent(tab -> tab.clearAndSelect(importedEntriesSnapshot));
     }
 
-    /// Returns an immutable snapshot of the actually imported `BibEntry` instances (the copies inserted
-    /// into the database), not the originals passed to the import call.
+    /// Returns an immutable snapshot of the actually imported `BibEntry`
+    /// instances (the copies inserted into the database), not the originals
+    /// passed to the import call.
     public synchronized List<BibEntry> getImportedEntries() {
         return List.copyOf(importedEntries);
     }

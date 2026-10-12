@@ -28,11 +28,16 @@ public record SimpleHttpResponse(int statusCode, String responseMessage, String 
 
     @Override
     public String toString() {
-        return "SimpleHttpResponse{" +
-                "statusCode=" + statusCode +
-                ", responseMessage='" + responseMessage + '\'' +
-                ", responseBody='" + responseBody + '\'' +
-                '}';
+        return "SimpleHttpResponse{"
+                + "statusCode="
+                + statusCode
+                + ", responseMessage='"
+                + responseMessage
+                + '\''
+                + ", responseBody='"
+                + responseBody
+                + '\''
+                + '}';
     }
 
     private static int getStatusCode(HttpURLConnection connection) {

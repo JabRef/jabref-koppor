@@ -5,13 +5,14 @@ import java.util.Optional;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-/// Represents a node in a chain.
-/// We view a chain as a vertical hierarchy and thus refer to the previous node as parent and the next node is a child.
+/// Represents a node in a chain. We view a chain as a vertical hierarchy and
+/// thus refer to the previous node as parent and the next node is a child.
 ///
-/// In usual implementations, nodes function as wrappers around a data object. Thus normally they have a value property
-/// which allows access to the value stored in the node.
-/// In contrast to this approach, the `ChainNode<T>` class is designed to be used as a base class which provides the
-/// tree traversing functionality via inheritance.
+/// In usual implementations, nodes function as wrappers around a data object.
+/// Thus normally they have a value property which allows access to the value
+/// stored in the node. In contrast to this approach, the `ChainNode<T>` class
+/// is designed to be used as a base class which provides the tree traversing
+/// functionality via inheritance.
 ///
 /// Example usage:
 ///
@@ -31,12 +32,15 @@ public abstract class ChainNode<T extends ChainNode<T>> {
 
     /// This node's parent, or null if this node has no parent
     private @Nullable T parent;
+
     /// This node's child, or null if this node has no child
     private @Nullable T child;
 
     /// Constructs a chain node without parent and no child.
     ///
-    /// @param derivingClass class deriving from TreeNode&lt;T>. It should always be "T.class". We need this parameter since it is hard to get this information by other means.
+    /// @param derivingClass class deriving from TreeNode&lt;T>. It should
+    ///   always be "T.class". We need this parameter since it is hard to get
+    ///   this information by other means.
     public ChainNode(Class<T> derivingClass) {
         parent = null;
         child = null;
@@ -55,8 +59,9 @@ public abstract class ChainNode<T extends ChainNode<T>> {
 
     /// Sets the parent node of this node.
     ///
-    /// This method does not set this node as the child of the new parent, nor does it remove this node
-    /// from the old parent. You should probably call [#moveTo(ChainNode)] to change the chain.
+    /// This method does not set this node as the child of the new parent, nor
+    /// does it remove this node from the old parent. You should probably call
+    /// [#moveTo(ChainNode)] to change the chain.
     ///
     /// @param parent the new parent
     protected void setParent(@Nullable T parent) {
@@ -70,12 +75,14 @@ public abstract class ChainNode<T extends ChainNode<T>> {
         return Optional.ofNullable(child);
     }
 
-    /// Adds the node as the child. Also sets the parent of the given node to this node.
-    /// The given node is not allowed to already be in a tree (i.e. it has to have no parent).
+    /// Adds the node as the child. Also sets the parent of the given node to
+    /// this node. The given node is not allowed to already be in a tree (i.e.
+    /// it has to have no parent).
     ///
     /// @param child the node to add as child
     /// @return the child node
-    /// @throws UnsupportedOperationException if the given node has already a parent
+    /// @throws UnsupportedOperationException if the given node has already a
+    ///   parent
     public T setChild(T child) {
         if (child.getParent().isPresent()) {
             throw new UnsupportedOperationException("Cannot add a node which already has a parent, use moveTo instead");
@@ -87,12 +94,14 @@ public abstract class ChainNode<T extends ChainNode<T>> {
         return child;
     }
 
-    /// Removes this node from its parent and makes it a child of the specified node.
-    /// In this way the whole subchain based at this node is moved to the given node.
+    /// Removes this node from its parent and makes it a child of the specified
+    /// node. In this way the whole subchain based at this node is moved to the
+    /// given node.
     ///
     /// @param target the new parent
-    /// @throws NullPointerException          if target is null
-    /// @throws UnsupportedOperationException if target is an descendant of this node
+    /// @throws NullPointerException if target is null
+    /// @throws UnsupportedOperationException if target is an descendant of this
+    ///   node
     public void moveTo(T target) {
         // Check that the target node is not an ancestor of this node, because this would create loops in the tree
         if (this.isAncestorOf(target)) {

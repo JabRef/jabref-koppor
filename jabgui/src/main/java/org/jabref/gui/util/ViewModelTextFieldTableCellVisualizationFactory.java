@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import com.tobiasdiez.easybind.Subscription;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.scene.control.TableCell;
@@ -15,9 +17,6 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-
-import com.tobiasdiez.easybind.Subscription;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
 
 public class ViewModelTextFieldTableCellVisualizationFactory<S, T> implements Callback<TableColumn<S, T>, TableCell<S, T>> {
 
@@ -52,17 +51,17 @@ public class ViewModelTextFieldTableCellVisualizationFactory<S, T> implements Ca
                 }));
             }
 
-            /// As 'textfield' is a private member of TextFieldTableCell we need need to get to it through the backdoor.
+            /// As 'textfield' is a private member of TextFieldTableCell we need
+            /// need to get to it through the backdoor.
             ///
-            /// @return The TextField containing the editable content of the TableCell
+            /// @return The TextField containing the editable content of the
+            ///   TableCell
             private Optional<TextField> lookupTextField() {
                 if (getGraphic() instanceof TextField textField) {
                     return Optional.of(textField);
                 } else {
                     // Could be an HBox with some graphic and a TextField if a graphic is specified for the TableCell
-                    if (getGraphic() instanceof HBox hbox
-                            && hbox.getChildren().size() > 1
-                            && hbox.getChildren().get(1) instanceof TextField textField) {
+                    if (getGraphic() instanceof HBox hbox && hbox.getChildren().size() > 1 && hbox.getChildren().get(1) instanceof TextField textField) {
                         return Optional.of(textField);
                     }
 
@@ -90,10 +89,10 @@ public class ViewModelTextFieldTableCellVisualizationFactory<S, T> implements Ca
                                                 .getHighestMessage()
                                                 .ifPresent(message -> setTooltip(new Tooltip(message.getMessage())));
 
-                        subscriptions.add(BindingsHelper.includePseudoClassWhen(
-                                this,
-                                INVALID_PSEUDO_CLASS,
-                                validationStatusProperty.apply(viewModel).validProperty().not()));
+                        subscriptions.add(BindingsHelper.includePseudoClassWhen(this, INVALID_PSEUDO_CLASS,
+                                validationStatusProperty.apply(viewModel)
+                                                        .validProperty()
+                                                        .not()));
                     }
                 }
             }

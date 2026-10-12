@@ -12,7 +12,6 @@ import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,9 +33,7 @@ public class PushToLyx extends AbstractPushToApplication {
     @Override
     public void onOperationCompleted() {
         if (couldNotPush) {
-            this.sendErrorNotification(Localization.lang("Error pushing entries"),
-                    Localization.lang("Verify that LyX is running and that the lyxpipe is valid.")
-                            + "[" + commandPath + "]");
+            this.sendErrorNotification(Localization.lang("Error pushing entries"), Localization.lang("Verify that LyX is running and that the lyxpipe is valid.") + "[" + commandPath + "]");
         } else if (couldNotCall) {
             this.sendErrorNotification(Localization.lang("Unable to write to %0.", commandPath + ".in"));
         } else {

@@ -9,7 +9,6 @@ import java.util.TreeSet;
 
 import javafx.collections.FXCollections;
 import javafx.stage.Window;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
@@ -18,7 +17,6 @@ import org.jabref.gui.util.FileDialogConfiguration;
 import org.jabref.logic.FilePreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.LinkedFile;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -59,7 +57,8 @@ class LinkedFileEditDialogViewModelTest {
 
         viewModel.checkForBadFileNameAndAdd(invalidFile);
 
-        LinkedFile expectedFile = new LinkedFile("", tempDir.resolve("_invalid.pdf").toString(), "PDF");
+        LinkedFile expectedFile = new LinkedFile("", tempDir.resolve("_invalid.pdf").toString(),
+                "PDF");
         assertEquals(expectedFile, viewModel.getNewLinkedFile());
     }
 
@@ -70,7 +69,8 @@ class LinkedFileEditDialogViewModelTest {
         when(filePreferences.getWorkingDirectory()).thenReturn(tempDir);
         when(dialogService.showFileOpenDialog(any(FileDialogConfiguration.class), same(owner))).thenReturn(Optional.empty());
 
-        LinkedFileEditDialogViewModel viewModel = new LinkedFileEditDialogViewModel(new LinkedFile("", "paper.pdf", ""), bibDatabaseContext, dialogService, externalApplicationsPreferences, filePreferences);
+        LinkedFileEditDialogViewModel viewModel = new LinkedFileEditDialogViewModel(new LinkedFile("", "paper.pdf", ""), bibDatabaseContext,
+                dialogService, externalApplicationsPreferences, filePreferences);
 
         viewModel.openBrowseDialog(owner);
 

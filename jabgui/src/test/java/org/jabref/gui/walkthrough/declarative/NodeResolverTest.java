@@ -9,11 +9,9 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import org.jabref.gui.icon.IconTheme;
+import org.jabref.gui.icon.IconTheme.JabRefIcons;
 import org.jabref.gui.icon.JabRefIconView;
 import org.jabref.gui.testutils.JavaFxExtension;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -32,17 +30,20 @@ class NodeResolverTest {
         JavaFxExtension.invokeAndWait(() -> stage.get().close());
     }
 
-    /// The DOI row's "look up" button carries the same glyph as the file editor's "Get fulltext"
-    /// button, so a scene-wide search must not be used for the walkthrough.
+    /// The DOI row's "look up" button carries the same glyph as the file
+    /// editor's "Get fulltext" button, so a scene-wide search must not be used
+    /// for the walkthrough.
     @Test
     void buttonWithGraphicInIgnoresSameGlyphOutsideTheContainer() {
-        Button outside = new Button("", new JabRefIconView(IconTheme.JabRefIcons.FETCH_FULLTEXT));
-        Button inside = new Button("", new JabRefIconView(IconTheme.JabRefIcons.FETCH_FULLTEXT));
+        Button outside = new Button("", new JabRefIconView(JabRefIcons.FETCH_FULLTEXT));
+        Button inside = new Button("", new JabRefIconView(JabRefIcons.FETCH_FULLTEXT));
         HBox container = new HBox(inside);
         Scene scene = show(new VBox(outside, container));
 
-        assertEquals(Optional.of(inside), NodeResolver.buttonWithGraphicIn(HBox.class, IconTheme.JabRefIcons.FETCH_FULLTEXT).resolve(scene));
-        assertEquals(Optional.of(outside), NodeResolver.buttonWithGraphic(IconTheme.JabRefIcons.FETCH_FULLTEXT).resolve(scene));
+        assertEquals(Optional.of(inside),
+                NodeResolver.buttonWithGraphicIn(HBox.class, JabRefIcons.FETCH_FULLTEXT).resolve(scene));
+        assertEquals(Optional.of(outside),
+                NodeResolver.buttonWithGraphic(JabRefIcons.FETCH_FULLTEXT).resolve(scene));
     }
 
     @Test

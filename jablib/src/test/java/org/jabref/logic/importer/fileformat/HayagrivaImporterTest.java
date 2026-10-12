@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -28,7 +27,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -50,15 +48,8 @@ class HayagrivaImporterTest {
 
     @BeforeAll
     static void setUp() {
-        hayagrivaYamlExporter = new TemplateExporter(
-                "Hayagriva YAML",
-                "hayagrivayaml",
-                "hayagrivayaml",
-                "",
-                StandardFileType.YAML,
-                mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                SaveOrder.getDefaultSaveOrder(),
-                BlankLineBehaviour.DELETE_BLANKS);
+        hayagrivaYamlExporter = new TemplateExporter("Hayagriva YAML", "hayagrivayaml", "hayagrivayaml", "", StandardFileType.YAML,
+                mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS), SaveOrder.getDefaultSaveOrder(), BlankLineBehaviour.DELETE_BLANKS);
         hayagrivaImporter = new HayagrivaImporter();
         databaseContext = new BibDatabaseContext();
     }
@@ -78,21 +69,24 @@ class HayagrivaImporterTest {
 
     private static Stream<Arguments> roundTripEntries() {
         return Stream.of(
-                Arguments.of("basicFields",
+                Arguments.of(
+                        "basicFields",
                         new BibEntry(StandardEntryType.Article)
                                 .withCitationKey("test")
                                 .withField(StandardField.AUTHOR, "Author, Test")
                                 .withField(StandardField.TITLE, "Test Title")
                                 .withField(StandardField.URL, "http://example.com")
                                 .withField(StandardField.DATE, "2020-10-14")),
-                Arguments.of("multipleAuthors",
+                Arguments.of(
+                        "multipleAuthors",
                         new BibEntry(StandardEntryType.Article)
                                 .withCitationKey("test")
                                 .withField(StandardField.AUTHOR, "Author, Test and One, Other")
                                 .withField(StandardField.TITLE, "Test Title")
                                 .withField(StandardField.URL, "http://example.com")
                                 .withField(StandardField.DATE, "2020-10-14")),
-                Arguments.of("doi",
+                Arguments.of(
+                        "doi",
                         new BibEntry(StandardEntryType.Article)
                                 .withCitationKey("test")
                                 .withField(StandardField.AUTHOR, "Author, Test")
@@ -100,7 +94,8 @@ class HayagrivaImporterTest {
                                 .withField(StandardField.URL, "http://example.com")
                                 .withField(StandardField.DATE, "2020-10-14")
                                 .withField(StandardField.DOI, "10.1109/EDOC.2018.00030")),
-                Arguments.of("isbn",
+                Arguments.of(
+                        "isbn",
                         new BibEntry(StandardEntryType.Book)
                                 .withCitationKey("test")
                                 .withField(StandardField.AUTHOR, "Author, Test")
@@ -108,7 +103,8 @@ class HayagrivaImporterTest {
                                 .withField(StandardField.URL, "http://example.com")
                                 .withField(StandardField.DATE, "2020-10-14")
                                 .withField(StandardField.ISBN, "978-3-16-148410-0")),
-                Arguments.of("issn",
+                Arguments.of(
+                        "issn",
                         new BibEntry(StandardEntryType.Article)
                                 .withCitationKey("test")
                                 .withField(StandardField.AUTHOR, "Author, Test")
@@ -116,7 +112,8 @@ class HayagrivaImporterTest {
                                 .withField(StandardField.URL, "http://example.com")
                                 .withField(StandardField.DATE, "2020-10-14")
                                 .withField(StandardField.ISSN, "0896-3207")),
-                Arguments.of("journalAsParentTitle",
+                Arguments.of(
+                        "journalAsParentTitle",
                         new BibEntry(StandardEntryType.Article)
                                 .withCitationKey("test")
                                 .withField(StandardField.AUTHOR, "Author, Test")
@@ -124,7 +121,8 @@ class HayagrivaImporterTest {
                                 .withField(StandardField.JOURNAL, "Test Publisher")
                                 .withField(StandardField.URL, "http://example.com")
                                 .withField(StandardField.DATE, "2020-10-14")),
-                Arguments.of("affiliatedRuntimeAndTotals",
+                Arguments.of(
+                        "affiliatedRuntimeAndTotals",
                         new BibEntry(StandardEntryType.Misc)
                                 .withCitationKey("test")
                                 .withField(StandardField.TITLE, "Test Film")
@@ -139,8 +137,7 @@ class HayagrivaImporterTest {
                                 .withField(new UnknownField("director"), "Cameron, James")
                                 .withField(new UnknownField("cast-member"), "Schwarzenegger, Arnold and Hamilton, Linda")
                                 .withField(new UnknownField("runtime"), "137:00")
-                                .withField(new UnknownField("time-range"), "17:05-17:48"))
-        );
+                                .withField(new UnknownField("time-range"), "17:05-17:48")));
     }
 
     @ParameterizedTest(name = "roundTripPreserves[{0}]")
@@ -176,7 +173,8 @@ class HayagrivaImporterTest {
 
     @Test
     void isRecognizedFormatReturnsFalseForOtherYaml() throws Exception {
-        String cff = """
+        String cff =
+                """
                 cff-version: 1.2.0
                 message: If you use this software, please cite it as below.
                 title: Some software
@@ -213,7 +211,10 @@ class HayagrivaImporterTest {
                 .withField(StandardField.PAGES, "325-341")
                 .withField(StandardField.DOI, "10.1145/3132747.3132780")
                 .withField(StandardField.BOOKTITLE, "Proceedings of the 26th Symposium on Operating Systems Principles");
-        assertEquals(Optional.of(expected), importBasicYml().getDatabase().getEntryByCitationKey("zygos"));
+        assertEquals(Optional.of(expected),
+                importBasicYml()
+                        .getDatabase()
+                        .getEntryByCitationKey("zygos"));
     }
 
     @Test
@@ -230,7 +231,10 @@ class HayagrivaImporterTest {
                 .withField(StandardField.VOLUME, "102")
                 .withField(StandardField.NUMBER, "16")
                 .withField(StandardField.PUBLISHER, "American Physical Society");
-        assertEquals(Optional.of(expected), importBasicYml().getDatabase().getEntryByCitationKey("kinetics"));
+        assertEquals(Optional.of(expected),
+                importBasicYml()
+                        .getDatabase()
+                        .getEntryByCitationKey("kinetics"));
     }
 
     @Test
@@ -240,7 +244,10 @@ class HayagrivaImporterTest {
                 .withField(StandardField.PAGES, "135-139")
                 .withField(StandardField.NUMBER, "3")
                 .withField(StandardField.BOOKTITLE, "Harry Potter and the Order of the Phoenix");
-        assertEquals(Optional.of(expected), importBasicYml().getDatabase().getEntryByCitationKey("harry"));
+        assertEquals(Optional.of(expected),
+                importBasicYml()
+                        .getDatabase()
+                        .getEntryByCitationKey("harry"));
     }
 
     @Test
@@ -253,14 +260,23 @@ class HayagrivaImporterTest {
                 .withField(StandardField.DATE, "2020-07-18")
                 .withField(StandardField.NUMBER, "3")
                 .withField(StandardField.BOOKTITLE, "Typst");
-        assertEquals(Optional.of(expected), importBasicYml().getDatabase().getEntryByCitationKey("science-e-issue"));
+        assertEquals(Optional.of(expected),
+                importBasicYml()
+                        .getDatabase()
+                        .getEntryByCitationKey("science-e-issue"));
     }
 
     @Test
     void importsCapitalizedAndUnknownTypes() throws Exception {
         ParserResult result = importBasicYml();
-        assertEquals(Optional.of(StandardEntryType.Book), result.getDatabase().getEntryByCitationKey("donne").map(BibEntry::getType));
-        assertEquals(Optional.of(StandardEntryType.Misc), result.getDatabase().getEntryByCitationKey("georgia").map(BibEntry::getType));
+        assertEquals(Optional.of(StandardEntryType.Book),
+                result.getDatabase()
+                      .getEntryByCitationKey("donne")
+                      .map(BibEntry::getType));
+        assertEquals(Optional.of(StandardEntryType.Misc),
+                result.getDatabase()
+                      .getEntryByCitationKey("georgia")
+                      .map(BibEntry::getType));
     }
 
     @Test
@@ -275,13 +291,19 @@ class HayagrivaImporterTest {
                 .withField(new UnknownField("composer"), "Fiedel, Brad")
                 .withField(new UnknownField("runtime"), "137:00")
                 .withField(new UnknownField("time-range"), "17:05-17:48");
-        assertEquals(Optional.of(expected), importBasicYml().getDatabase().getEntryByCitationKey("terminator-2"));
+        assertEquals(Optional.of(expected),
+                importBasicYml()
+                        .getDatabase()
+                        .getEntryByCitationKey("terminator-2"));
     }
 
     @Test
     void importsVolumeTotalAsVolumes() throws Exception {
         assertEquals(Optional.of("5"),
-                importBasicYml().getDatabase().getEntryByCitationKey("wire").flatMap(entry -> entry.getField(StandardField.VOLUMES)));
+                importBasicYml()
+                        .getDatabase()
+                        .getEntryByCitationKey("wire")
+                        .flatMap(entry -> entry.getField(StandardField.VOLUMES)));
     }
 
     @Test
@@ -297,7 +319,8 @@ class HayagrivaImporterTest {
 
     @Test
     void keepsApproximateDateMarker() throws Exception {
-        String yaml = """
+        String yaml =
+                """
                 test:
                     type: Book
                     date: ~2003-06-21
@@ -305,7 +328,9 @@ class HayagrivaImporterTest {
         try (BufferedReader reader = new BufferedReader(Reader.of(yaml))) {
             ParserResult result = hayagrivaImporter.importDatabase(reader);
             assertEquals(Optional.of("~2003-06-21"),
-                    result.getDatabase().getEntryByCitationKey("test").flatMap(entry -> entry.getField(StandardField.DATE)));
+                    result.getDatabase()
+                          .getEntryByCitationKey("test")
+                          .flatMap(entry -> entry.getField(StandardField.DATE)));
         }
     }
 
@@ -314,7 +339,8 @@ class HayagrivaImporterTest {
         try (BufferedReader reader = new BufferedReader(Reader.of("a: [unclosed"))) {
             ParserResult result = hayagrivaImporter.importDatabase(reader);
             assertTrue(result.isInvalid());
-            assertEquals(List.of(), result.getDatabase().getEntries());
+            assertEquals(List.of(),
+                    result.getDatabase().getEntries());
         }
     }
 

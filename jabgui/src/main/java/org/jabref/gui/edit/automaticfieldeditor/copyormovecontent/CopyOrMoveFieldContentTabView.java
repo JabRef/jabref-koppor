@@ -3,12 +3,14 @@ package org.jabref.gui.edit.automaticfieldeditor.copyormovecontent;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import com.tobiasdiez.easybind.EasyBind;
+import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.edit.automaticfieldeditor.AbstractAutomaticFieldEditorTabView;
@@ -20,10 +22,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.undo.CompoundEdit;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import com.tobiasdiez.easybind.EasyBind;
-import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
-
 import static org.jabref.gui.util.FieldsUtil.FIELD_STRING_CONVERTER;
 
 public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorTabView implements AutomaticFieldEditorTab {
@@ -34,22 +32,26 @@ public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorT
     private final BibDatabase database;
     private final StateManager stateManager;
     private final ControlsFxVisualizer visualizer = new ControlsFxVisualizer();
+
     @FXML
     private Button moveContentButton;
+
     @FXML
     private Button swapContentButton;
+
     @FXML
     private ComboBox<Field> fromFieldComboBox;
+
     @FXML
     private ComboBox<Field> toFieldComboBox;
+
     @FXML
     private CheckBox overwriteFieldContentCheckBox;
+
     private CopyOrMoveFieldContentTabViewModel viewModel;
 
-    public CopyOrMoveFieldContentTabView(BibDatabase database,
-                                         CompoundEdit compoundEdit,
-                                         DialogService dialogService,
-                                         StateManager stateManager) {
+    public CopyOrMoveFieldContentTabView(BibDatabase database, CompoundEdit compoundEdit, DialogService dialogService,
+            StateManager stateManager) {
         this.compoundEdit = compoundEdit;
         this.dialogService = dialogService;
         this.selectedEntries = new ArrayList<>(stateManager.getSelectedEntries());
@@ -57,8 +59,8 @@ public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorT
         this.stateManager = stateManager;
 
         ViewLoader.view(this)
-                  .root(this)
-                  .load();
+                .root(this)
+                .load();
     }
 
     public void initialize() {
@@ -67,10 +69,16 @@ public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorT
 
         viewModel.overwriteFieldContentProperty().bindBidirectional(overwriteFieldContentCheckBox.selectedProperty());
 
-        moveContentButton.disableProperty().bind(viewModel.canMoveProperty().not());
-        swapContentButton.disableProperty().bind(viewModel.canSwapProperty().not());
-        copyContentButton.disableProperty().bind(viewModel.toFieldValidationStatus().validProperty().not());
-        overwriteFieldContentCheckBox.disableProperty().bind(viewModel.toFieldValidationStatus().validProperty().not());
+        moveContentButton.disableProperty().bind(viewModel.canMoveProperty()
+                .not());
+        swapContentButton.disableProperty().bind(viewModel.canSwapProperty()
+                .not());
+        copyContentButton.disableProperty().bind(viewModel.toFieldValidationStatus()
+                .validProperty()
+                .not());
+        overwriteFieldContentCheckBox.disableProperty().bind(viewModel.toFieldValidationStatus()
+                .validProperty()
+                .not());
 
         Platform.runLater(() -> visualizer.initVisualization(viewModel.toFieldValidationStatus(), toFieldComboBox, true));
     }
@@ -80,7 +88,8 @@ public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorT
         fromFieldComboBox.getItems().setAll(FieldHelper.getSetFieldsOnly(selectedEntries, viewModel.getAllFields()));
         fromFieldComboBox.setConverter(FIELD_STRING_CONVERTER);
         fromFieldComboBox.valueProperty().bindBidirectional(viewModel.fromFieldProperty());
-        EasyBind.listen(fromFieldComboBox.getEditor().textProperty(), _ -> fromFieldComboBox.commitValue());
+        EasyBind.listen(fromFieldComboBox.getEditor().textProperty(),
+                _ -> fromFieldComboBox.commitValue());
         if (!fromFieldComboBox.getItems().isEmpty()) {
             fromFieldComboBox.getSelectionModel().selectFirst();
         }
@@ -89,7 +98,8 @@ public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorT
         toFieldComboBox.getItems().setAll(viewModel.getAllFields());
         toFieldComboBox.setConverter(FIELD_STRING_CONVERTER);
         toFieldComboBox.valueProperty().bindBidirectional(viewModel.toFieldProperty());
-        EasyBind.listen(toFieldComboBox.getEditor().textProperty(), _ -> toFieldComboBox.commitValue());
+        EasyBind.listen(toFieldComboBox.getEditor().textProperty(),
+                _ -> toFieldComboBox.commitValue());
     }
 
     @Override

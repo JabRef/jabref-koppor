@@ -5,11 +5,12 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.ObservableList;
 import javafx.scene.input.KeyCombination;
-
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.clipboard.ClipBoardManager;
@@ -21,9 +22,6 @@ import org.jabref.gui.util.BindingsHelper;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.BuildInfo;
-
-import com.tobiasdiez.easybind.EasyBind;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,16 +36,13 @@ public class ErrorConsoleViewModel extends AbstractViewModel {
     private final BuildInfo buildInfo;
     private final ListProperty<LogEventViewModel> allMessagesData;
 
-    public ErrorConsoleViewModel(@NonNull DialogService dialogService,
-                                 @NonNull GuiPreferences preferences,
-                                 @NonNull ClipBoardManager clipBoardManager,
-                                 @NonNull BuildInfo buildInfo) {
+    public ErrorConsoleViewModel(@NonNull DialogService dialogService, @NonNull GuiPreferences preferences, @NonNull ClipBoardManager clipBoardManager,
+            @NonNull BuildInfo buildInfo) {
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.clipBoardManager = clipBoardManager;
         this.buildInfo = buildInfo;
-        ObservableList<LogEventViewModel> eventViewModels = EasyBind.map(
-                BindingsHelper.forUI(LogMessages.getInstance().getMessages()),
+        ObservableList<LogEventViewModel> eventViewModels = EasyBind.map(BindingsHelper.forUI(LogMessages.getInstance().getMessages()),
                 LogEventViewModel::new);
         allMessagesData = new ReadOnlyListWrapper<>(eventViewModels);
     }
@@ -56,7 +51,8 @@ public class ErrorConsoleViewModel extends AbstractViewModel {
         return this.allMessagesData;
     }
 
-    /// Concatenates the formatted message of the given [LogEventViewModel]s by using a new line separator.
+    /// Concatenates the formatted message of the given [LogEventViewModel]s by
+    /// using a new line separator.
     ///
     /// @return all messages as String
     private String getLogMessagesAsString(List<LogEventViewModel> messages) {
@@ -93,30 +89,40 @@ public class ErrorConsoleViewModel extends AbstractViewModel {
     public void reportIssue() {
         try {
             // System info
-            String systemInfo = "JabRef %s%n%s %s %s %nJava %s".formatted(buildInfo.version, BuildInfo.OS,
-                    BuildInfo.OS_VERSION, BuildInfo.OS_ARCH, BuildInfo.JAVA_VERSION);
+            String systemInfo = "JabRef %s%n%s %s %s %nJava %s".formatted(buildInfo.version, BuildInfo.OS, BuildInfo.OS_VERSION, BuildInfo.OS_ARCH, BuildInfo.JAVA_VERSION);
             // Steps to reproduce
             String howToReproduce = "Steps to reproduce:\n\n1. ...\n2. ...\n3. ...";
             // Log messages
-            String issueDetails = "<details>\n" + "<summary>" + "Detail information:" + "</summary>\n\n```\n"
-                    + getLogMessagesAsString(allMessagesData) + "\n```\n\n</details>";
+            String issueDetails = "<details>\n"
+                    + "<summary>"
+                    + "Detail information:"
+                    + "</summary>\n\n```\n"
+                    + getLogMessagesAsString(allMessagesData)
+                    + "\n```\n\n</details>";
             clipBoardManager.setContent(issueDetails);
             // Bug report body
             String issueBody = systemInfo + "\n\n" + howToReproduce + "\n\n" + "Paste your log details here.";
 
             dialogService.notify(Localization.lang("Issue on GitHub successfully reported."));
-            dialogService.showInformationDialogAndWait(Localization.lang("Issue report successful"),
-                    Localization.lang("Your issue was reported in your browser.") + "\n" +
-                            Localization.lang("The log and exception information was copied to your clipboard.") + " " +
-                            Localization.lang("Please paste this information (with %0) in the issue description.",
-                                    preferences.getKeyBindingRepository().getKeyCombination(KeyBinding.PASTE).map(KeyCombination::getDisplayText).orElse("")) + "\n" +
-                            Localization.lang("Please also add all steps to reproduce this issue, if possible."));
+            dialogService.showInformationDialogAndWait(Localization.lang("Issue report successful"), Localization.lang("Your issue was reported in your browser.")
+                    + "\n"
+                    + Localization.lang("The log and exception information was copied to your clipboard.")
+                    + " "
+                    + Localization.lang("Please paste this information (with %0) in the issue description.",
+                            preferences.getKeyBindingRepository()
+                                       .getKeyCombination(KeyBinding.PASTE)
+                                       .map(KeyCombination::getDisplayText)
+                                       .orElse(""))
+                    + "\n"
+                    + Localization.lang("Please also add all steps to reproduce this issue, if possible."));
 
             URIBuilder uriBuilder = new URIBuilder()
-                    .setScheme("https").setHost("github.com")
+                    .setScheme("https")
+                    .setHost("github.com")
                     .setPath("/JabRef/jabref/issues/new")
                     .setParameter("body", issueBody);
-            NativeDesktop.openBrowser(uriBuilder.build().toString(), preferences.getExternalApplicationsPreferences());
+            NativeDesktop.openBrowser(uriBuilder.build().toString(),
+                    preferences.getExternalApplicationsPreferences());
         } catch (IOException | URISyntaxException e) {
             LOGGER.error("Problem opening url", e);
         }

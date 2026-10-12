@@ -22,9 +22,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javafx.fxml.FXMLLoader;
-
 import com.airhacks.afterburner.views.ViewLoader;
+import javafx.fxml.FXMLLoader;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Answers;
 import org.mockito.MockedStatic;
@@ -33,27 +32,33 @@ import org.mockito.Mockito;
 @ResourceLock("Localization.lang")
 public class LocalizationParser {
 
-    /// All modules containing Java sources and FXML files which may use localization keys.
+    /// All modules containing Java sources and FXML files which may use
+    /// localization keys.
     private static final List<String> MODULES = List.of("jablib", "jabkit", "jabsrv", "jabgui", "jabls");
 
     private static final String ENGLISH_PROPERTIES_FILE = "/l10n/JabRef_en.properties";
 
-    /// Returns all keys used in the sources which are not declared in the English properties file.
+    /// Returns all keys used in the sources which are not declared in the
+    /// English properties file.
     public static SortedSet<LocalizationEntry> findMissingKeys() throws IOException {
         Set<String> englishKeys = getEnglishKeys();
-        return findLocalizationEntriesInFiles().stream()
-                                               .filter(entry -> !englishKeys.contains(entry.getKey()))
-                                               .collect(Collectors.toCollection(TreeSet::new));
+        return findLocalizationEntriesInFiles()
+                .stream()
+                .filter(entry -> !englishKeys.contains(entry.getKey()))
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
-    /// Returns all keys declared in the English properties file which are not used in the sources.
+    /// Returns all keys declared in the English properties file which are not
+    /// used in the sources.
     public static SortedSet<String> findObsolete() throws IOException {
-        Set<String> keysInSourceFiles = findLocalizationEntriesInFiles().stream()
-                                                                        .map(LocalizationEntry::getKey)
-                                                                        .collect(Collectors.toSet());
-        return getEnglishKeys().stream()
-                               .filter(key -> !keysInSourceFiles.contains(key))
-                               .collect(Collectors.toCollection(TreeSet::new));
+        Set<String> keysInSourceFiles = findLocalizationEntriesInFiles()
+                .stream()
+                .map(LocalizationEntry::getKey)
+                .collect(Collectors.toSet());
+        return getEnglishKeys()
+                .stream()
+                .filter(key -> !keysInSourceFiles.contains(key))
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     private static Set<LocalizationEntry> findLocalizationEntriesInFiles() throws IOException {
@@ -75,17 +80,19 @@ public class LocalizationParser {
         return findInModules("src/main/resources", ".fxml", LocalizationParser::getLanguageKeysInFxmlFile);
     }
 
-    /// Collects the localization entries of all matching files below the given source directory of each module.
+    /// Collects the localization entries of all matching files below the given
+    /// source directory of each module.
     ///
-    /// @param sourceDirectory the module relative directory to walk, e.g. `src/main/java`
-    /// @param extension       only files having this file name extension are parsed
-    /// @param extractor       extracts the localization entries of a single file
-    private static Set<LocalizationEntry> findInModules(String sourceDirectory,
-                                                        String extension,
-                                                        Function<Path, Collection<LocalizationEntry>> extractor) throws IOException {
+    /// @param sourceDirectory the module relative directory to walk, e.g.
+    ///   `src/main/java`
+    /// @param extension only files having this file name extension are parsed
+    /// @param extractor extracts the localization entries of a single file
+    private static Set<LocalizationEntry> findInModules(String sourceDirectory, String extension, Function<Path, Collection<LocalizationEntry>> extractor) throws IOException {
         Set<LocalizationEntry> result = new HashSet<>();
         for (String module : MODULES) {
-            Path root = Path.of("..", module).resolve(sourceDirectory).normalize();
+            Path root = Path.of("..", module)
+                    .resolve(sourceDirectory)
+                    .normalize();
             if (!Files.isDirectory(root)) {
                 continue;
             }
@@ -99,17 +106,17 @@ public class LocalizationParser {
         return result;
     }
 
-    /// Returns the trimmed key set of the English properties file. Each key is already unescaped.
+    /// Returns the trimmed key set of the English properties file. Each key is
+    /// already unescaped.
     private static SortedSet<String> getEnglishKeys() {
         Properties properties = getProperties(ENGLISH_PROPERTIES_FILE);
-        return properties.keySet().stream()
+        return properties.keySet()
+                         .stream()
                          .map(Object::toString)
                          .map(String::trim)
                          .map(key -> key
-                                 // escape keys to make them comparable
-                                 .replace("\\", "\\\\")
-                                 .replace("\n", "\\n")
-                         )
+                                        // escape keys to make them comparable
+                                        .replace("\\", "\\\\").replace("\n", "\\n"))
                          .collect(Collectors.toCollection(TreeSet::new));
     }
 
@@ -119,7 +126,8 @@ public class LocalizationParser {
             throw new IllegalArgumentException("Could not find the properties file " + path);
         }
         Properties properties = new Properties();
-        try (inputStream; InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+        try (inputStream;
+             InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
             properties.load(reader);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -135,9 +143,11 @@ public class LocalizationParser {
         return parseJavaFile(path, JavaLocalizationEntryParser::getLocalizationParameter);
     }
 
-    /// Reads the given Java file and turns everything the parser finds in it into localization entries.
+    /// Reads the given Java file and turns everything the parser finds in it
+    /// into localization entries.
     ///
-    /// The line endings are normalized to `\n`, because the parser treats `\n` as the end of a line comment.
+    /// The line endings are normalized to `\n`, because the parser treats `\n`
+    /// as the end of a line comment.
     private static List<LocalizationEntry> parseJavaFile(Path path, Function<String, List<String>> parser) {
         List<String> lines;
         try {
@@ -146,7 +156,8 @@ public class LocalizationParser {
             throw new RuntimeException(exception);
         }
         String content = String.join("\n", lines);
-        return parser.apply(content).stream()
+        return parser.apply(content)
+                     .stream()
                      .map(key -> new LocalizationEntry(path, key))
                      .toList();
     }

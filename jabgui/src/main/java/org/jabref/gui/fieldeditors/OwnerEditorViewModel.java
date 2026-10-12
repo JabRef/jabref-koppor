@@ -9,11 +9,8 @@ import org.jabref.model.entry.field.Field;
 public class OwnerEditorViewModel extends AbstractEditorViewModel {
     private final CliPreferences preferences;
 
-    public OwnerEditorViewModel(Field field,
-                                SuggestionProvider<?> suggestionProvider,
-                                CliPreferences preferences,
-                                FieldCheckers fieldCheckers,
-                                UndoManager undoManager) {
+    public OwnerEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, CliPreferences preferences,
+            FieldCheckers fieldCheckers, UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.preferences = preferences;
     }

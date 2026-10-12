@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.jabref.model.database.event.BibDatabaseContextChangedEvent;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NonNull;
 
-/// This abstract class pretends a minimal set of attributes and methods which an entries event should have.
+/// This abstract class pretends a minimal set of attributes and methods which
+/// an entries event should have.
 public abstract class EntriesEvent extends BibDatabaseContextChangedEvent {
 
     private final List<BibEntry> bibEntries;

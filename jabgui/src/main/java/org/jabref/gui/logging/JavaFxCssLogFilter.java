@@ -5,12 +5,14 @@ import java.util.logging.Filter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-/// Filters out very noisy JavaFX CSS warnings that are known upstream issues and do not indicate
-/// actionable problems for JabRef users. See JDK-8268657 and related JavaFX CSS warnings.
+/// Filters out very noisy JavaFX CSS warnings that are known upstream issues
+/// and do not indicate actionable problems for JabRef users. See JDK-8268657
+/// and related JavaFX CSS warnings.
 ///
-/// We only filter java.util.logging WARN records whose message indicates a CSS lookup/conversion
-/// problem and that originate from processing a stylesheet (either JavaFX's modena.bss or
-/// JabRef's Theme CSS). All other log records are passed through unmodified.
+/// We only filter java.util.logging WARN records whose message indicates a CSS
+/// lookup/conversion problem and that originate from processing a stylesheet
+/// (either JavaFX's modena.bss or JabRef's Theme CSS). All other log records
+/// are passed through unmodified.
 public class JavaFxCssLogFilter implements Filter {
 
     @Override
@@ -54,7 +56,9 @@ public class JavaFxCssLogFilter implements Filter {
 
         // Additionally, some messages include attached exceptions about class cast during CSS parsing
         if (record.getThrown() != null) {
-            final String ex = record.getThrown().getClass().getName();
+            final String ex = record.getThrown()
+                                    .getClass()
+                                    .getName();
             return !"java.lang.ClassCastException".equals(ex) && !"java.lang.IllegalArgumentException".equals(ex); // suppress CSS parsing exceptions from stylesheets
         }
 

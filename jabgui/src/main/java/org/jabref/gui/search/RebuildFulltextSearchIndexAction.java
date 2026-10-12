@@ -18,14 +18,13 @@ public class RebuildFulltextSearchIndexAction extends SimpleCommand {
     private final Supplier<LibraryTab> tabSupplier;
     private boolean shouldContinue = true;
 
-    public RebuildFulltextSearchIndexAction(StateManager stateManager,
-                                            Supplier<LibraryTab> tabSupplier,
-                                            DialogService dialogService,
-                                            CliPreferences preferences) {
+    public RebuildFulltextSearchIndexAction(StateManager stateManager, Supplier<LibraryTab> tabSupplier, DialogService dialogService,
+            CliPreferences preferences) {
         this.stateManager = stateManager;
         this.dialogService = dialogService;
         this.tabSupplier = tabSupplier;
-        this.executable.bind(needsDatabase(stateManager).and(preferences.getFilePreferences().fulltextIndexLinkedFilesProperty()));
+        this.executable.bind(needsDatabase(stateManager).and(preferences.getFilePreferences()
+                .fulltextIndexLinkedFilesProperty()));
     }
 
     @Override
@@ -39,9 +38,7 @@ public class RebuildFulltextSearchIndexAction extends SimpleCommand {
             return;
         }
 
-        boolean confirm = dialogService.showConfirmationDialogAndWait(
-                Localization.lang("Rebuild fulltext search index"),
-                Localization.lang("Rebuild fulltext search index for current library?"));
+        boolean confirm = dialogService.showConfirmationDialogAndWait(Localization.lang("Rebuild fulltext search index"), Localization.lang("Rebuild fulltext search index for current library?"));
         if (!confirm) {
             shouldContinue = false;
             return;
@@ -53,6 +50,8 @@ public class RebuildFulltextSearchIndexAction extends SimpleCommand {
         if (!shouldContinue || stateManager.getActiveDatabase().isEmpty()) {
             return;
         }
-        tabSupplier.get().getSearchContext().rebuildFullTextIndex();
+        tabSupplier.get()
+                   .getSearchContext()
+                   .rebuildFullTextIndex();
     }
 }

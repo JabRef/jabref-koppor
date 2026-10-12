@@ -10,7 +10,6 @@ import java.util.SortedSet;
 import java.util.stream.Collectors;
 
 import javafx.stage.FileChooser;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.LibraryTabContainer;
@@ -34,7 +33,6 @@ import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -46,7 +44,10 @@ import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 public class ImportCommand extends SimpleCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImportCommand.class);
 
-    public enum ImportMethod { AS_NEW, TO_EXISTING }
+    public enum ImportMethod {
+        AS_NEW,
+        TO_EXISTING
+    }
 
     private final LibraryTabContainer tabContainer;
     private final ImportMethod importMethod;
@@ -56,13 +57,14 @@ public class ImportCommand extends SimpleCommand {
     private final FileUpdateMonitor fileUpdateMonitor;
     private final TaskExecutor taskExecutor;
 
-    public ImportCommand(LibraryTabContainer tabContainer,
-                         ImportMethod importMethod,
-                         CliPreferences preferences,
-                         StateManager stateManager,
-                         FileUpdateMonitor fileUpdateMonitor,
-                         TaskExecutor taskExecutor,
-                         DialogService dialogService) {
+    public ImportCommand(
+            LibraryTabContainer tabContainer,
+            ImportMethod importMethod,
+            CliPreferences preferences,
+            StateManager stateManager,
+            FileUpdateMonitor fileUpdateMonitor,
+            TaskExecutor taskExecutor,
+            DialogService dialogService) {
         this.tabContainer = tabContainer;
         this.importMethod = importMethod;
         this.preferences = preferences;
@@ -77,12 +79,8 @@ public class ImportCommand extends SimpleCommand {
 
     @Override
     public void execute() {
-        ImportFormatReader importFormatReader = new ImportFormatReader(
-                preferences.getImporterPreferences(),
-                preferences.getImportFormatPreferences(),
-                preferences.getCitationKeyPatternPreferences(),
-                fileUpdateMonitor
-        );
+        ImportFormatReader importFormatReader = new ImportFormatReader(preferences.getImporterPreferences(), preferences.getImportFormatPreferences(), preferences.getCitationKeyPatternPreferences(),
+                fileUpdateMonitor);
 
         SortedSet<Importer> importers = importFormatReader.getImporters();
 
@@ -104,21 +102,18 @@ public class ImportCommand extends SimpleCommand {
 
     private void importMultipleFiles(List<Path> files, SortedSet<Importer> importers, FileChooser.ExtensionFilter selectedExtensionFilter) {
         List<Path> nonExistentFiles = files.stream()
-                                           .filter(file -> !Files.exists(file))
-                                           .toList();
+                .filter(file -> !Files.exists(file))
+                .toList();
         if (!nonExistentFiles.isEmpty()) {
             String fileNames = nonExistentFiles.stream()
-                                               .map(path -> path.getFileName().toString())
-                                               .collect(Collectors.joining(", "));
-            dialogService.showErrorDialogAndWait(
-                    Localization.lang("Import"),
-                    Localization.lang("File(s) %0 not found.", fileNames));
+                    .map(path -> path.getFileName().toString())
+                    .collect(Collectors.joining(", "));
+            dialogService.showErrorDialogAndWait(Localization.lang("Import"), Localization.lang("File(s) %0 not found.", fileNames));
             return;
         }
 
         Optional<Importer> format;
-        boolean isGeneralFilter = selectedExtensionFilter == FileFilterConverter.ANY_FILE
-                || "Available import formats".equals(selectedExtensionFilter.getDescription());
+        boolean isGeneralFilter = selectedExtensionFilter == FileFilterConverter.ANY_FILE || "Available import formats".equals(selectedExtensionFilter.getDescription());
 
         if (!isGeneralFilter) {
             // User picked a specific format
@@ -142,7 +137,9 @@ public class ImportCommand extends SimpleCommand {
         if (importMethod == ImportMethod.AS_NEW || tab == null) {
             task.onSuccess(parserResult -> {
                     tabContainer.addTab(parserResult.getDatabaseContext(), true);
-                    dialogService.notify(Localization.lang("%0 entry(s) imported", parserResult.getDatabase().getEntries().size()));
+                    dialogService.notify(Localization.lang("%0 entry(s) imported", parserResult.getDatabase()
+                            .getEntries()
+                            .size()));
                 })
                 .onFailure(ex -> {
                     LOGGER.error("Error importing", ex);
@@ -156,7 +153,8 @@ public class ImportCommand extends SimpleCommand {
         }
 
         // Set last working dir for import
-        preferences.getImporterPreferences().setImportWorkingDirectory(files.getLast().getParent());
+        preferences.getImporterPreferences().setImportWorkingDirectory(files.getLast()
+                .getParent());
     }
 
     /// @throws IOException of a specified importer
@@ -164,12 +162,8 @@ public class ImportCommand extends SimpleCommand {
     private ParserResult doImport(List<Path> files, @Nullable Importer importFormat) throws IOException {
         Optional<Importer> importer = Optional.ofNullable(importFormat);
 
-        ImportFormatReader importFormatReader = new ImportFormatReader(
-                preferences.getImporterPreferences(),
-                preferences.getImportFormatPreferences(),
-                preferences.getCitationKeyPatternPreferences(),
-                fileUpdateMonitor
-        );
+        ImportFormatReader importFormatReader = new ImportFormatReader(preferences.getImporterPreferences(), preferences.getImportFormatPreferences(), preferences.getCitationKeyPatternPreferences(),
+                fileUpdateMonitor);
 
         List<ImportFormatReader.ImportResult> imports = new ArrayList<>();
 
@@ -188,35 +182,29 @@ public class ImportCommand extends SimpleCommand {
                     imports.add(importFormatReader.importWithAutoDetection(filename));
                 } else {
                     UiTaskExecutor.runAndWaitInJavaFXThread(() -> {
-                        if (((importer.get() instanceof PdfGrobidImporter) || (importer.get() instanceof PdfMergeMetadataImporter))
-                                && GrobidUseDialogHelper.showAndWaitIfUserIsUndecided(dialogService, preferences.getGrobidPreferences())) {
+                        if (((importer.get() instanceof PdfGrobidImporter) || (importer.get() instanceof PdfMergeMetadataImporter)) && GrobidUseDialogHelper.showAndWaitIfUserIsUndecided(dialogService, preferences.getGrobidPreferences())) {
                             importFormatReader.reset();
                         }
                         dialogService.notify(Localization.lang("Importing in %0 format", importer.get().getName()) + "...");
                     });
                     // Specific importer
                     ParserResult pr = importer.get().importDatabase(filename);
-                    imports.add(new ImportFormatReader.ImportResult(importer.get().getName(), pr));
+                    imports.add(new ImportFormatReader.ImportResult(importer.get()
+                            .getName(),
+                                    pr));
                 }
             } catch (ImportException ex) {
-                UiTaskExecutor.runAndWaitInJavaFXThread(
-                        () -> dialogService.showWarningDialogAndWait(
-                                Localization.lang("Import error"),
-                                Localization.lang("Please check your library file for wrong syntax.")
-                                        + "\n\n"
-                                        + ex.getLocalizedMessage()));
+                UiTaskExecutor.runAndWaitInJavaFXThread(() -> dialogService.showWarningDialogAndWait(Localization.lang("Import error"), Localization.lang("Please check your library file for wrong syntax.") + "\n\n" + ex.getLocalizedMessage()));
             }
         }
 
         if (imports.isEmpty()) {
-            UiTaskExecutor.runAndWaitInJavaFXThread(
-                    () -> dialogService.showWarningDialogAndWait(
-                            Localization.lang("Import error"),
-                            Localization.lang("No entries found. Please make sure you are using the correct import filter.")));
+            UiTaskExecutor.runAndWaitInJavaFXThread(() -> dialogService.showWarningDialogAndWait(Localization.lang("Import error"), Localization.lang("No entries found. Please make sure you are using the correct import filter.")));
 
             return new ParserResult();
         }
 
-        return ImportResultsMerger.mergeImportResults(imports, preferences.getBibEntryPreferences().getKeywordSeparator(), preferences.getOwnerPreferences(), preferences.getTimestampPreferences());
+        return ImportResultsMerger.mergeImportResults(imports, preferences.getBibEntryPreferences().getKeywordSeparator(),
+                preferences.getOwnerPreferences(), preferences.getTimestampPreferences());
     }
 }

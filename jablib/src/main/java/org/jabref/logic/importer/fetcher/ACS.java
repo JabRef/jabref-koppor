@@ -9,7 +9,6 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -35,7 +34,9 @@ public class ACS implements FulltextFetcher {
 
         String source = SOURCE.formatted(doi.get().asString());
         // Retrieve PDF link
-        Document html = Jsoup.connect(source).ignoreHttpErrors(true).get();
+        Document html = Jsoup.connect(source)
+                .ignoreHttpErrors(true)
+                .get();
         Element link = html.select("a.button_primary").first();
 
         if (link != null) {

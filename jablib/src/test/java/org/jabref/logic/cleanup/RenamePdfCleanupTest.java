@@ -16,7 +16,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -69,8 +68,7 @@ class RenamePdfCleanupTest {
         Therefore, the file is renamed to `Toot (1).tmp` in Windows. Prior to testing,
         delete `AppData/Local/Temp/junit-*` folders, as the test doesn't clean up the
         renamed file and could potentially interfere with subsequent test runs. */
-        assertTrue(Pattern.matches("^:Toot(?:\\s+\\(\\d+\\))?\\.tmp:$",
-                entry.getField(StandardField.FILE).get()));
+        assertTrue(Pattern.matches("^:Toot(?:\\s+\\(\\d+\\))?\\.tmp:$", entry.getField(StandardField.FILE).get()));
     }
 
     @Test
@@ -79,20 +77,15 @@ class RenamePdfCleanupTest {
         Files.createFile(path);
 
         entry.setField(StandardField.TITLE, "test title");
-        entry.setField(StandardField.FILE, FileFieldWriter.getStringRepresentation(
-                Arrays.asList(
-                        new LinkedFile("", Path.of(""), ""),
-                        new LinkedFile("", path.toAbsolutePath(), ""),
-                        new LinkedFile("", Path.of(""), ""))));
+        entry.setField(
+                StandardField.FILE,
+                FileFieldWriter.getStringRepresentation(Arrays.asList(new LinkedFile("", Path.of(""), ""), new LinkedFile("", path.toAbsolutePath(), ""), new LinkedFile("", Path.of(""), ""))));
 
         when(filePreferences.getFileNamePattern()).thenReturn("[citationkey] - [fulltitle]");
         cleanup.cleanup(entry);
 
-        assertEquals(Optional.of(FileFieldWriter.getStringRepresentation(
-                        Arrays.asList(
-                                new LinkedFile("", Path.of(""), ""),
-                                new LinkedFile("", Path.of("Toot - test title.tmp"), ""),
-                                new LinkedFile("", Path.of(""), "")))),
+        assertEquals(
+                Optional.of(FileFieldWriter.getStringRepresentation(Arrays.asList(new LinkedFile("", Path.of(""), ""), new LinkedFile("", Path.of("Toot - test title.tmp"), ""), new LinkedFile("", Path.of(""), "")))),
                 entry.getField(StandardField.FILE));
     }
 
@@ -137,10 +130,11 @@ class RenamePdfCleanupTest {
         when(filePreferences.getFileNamePattern()).thenReturn("[citationkey] - [fulltitle]");
 
         AtomicBoolean schedulerUsed = new AtomicBoolean(false);
-        cleanup.cleanup(entry, mutation -> {
-            schedulerUsed.set(true);
-            mutation.run();
-        });
+        cleanup.cleanup(entry,
+                mutation -> {
+                    schedulerUsed.set(true);
+                    mutation.run();
+                });
 
         assertTrue(schedulerUsed.get());
     }

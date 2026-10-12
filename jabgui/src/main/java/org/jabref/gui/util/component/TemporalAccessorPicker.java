@@ -18,24 +18,31 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.DatePicker;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.fieldeditors.contextmenu.EditorContextAction;
 import org.jabref.gui.util.BindingsHelper;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.Date;
 
-/// A date picker with configurable datetime format where both date and time can be changed via the text field and the
-/// date can additionally be changed via the JavaFX default date picker. Also supports incomplete dates.
+/// A date picker with configurable datetime format where both date and time can
+/// be changed via the text field and the date can additionally be changed via
+/// the JavaFX default date picker. Also supports incomplete dates.
 ///
-/// First recall how the date picker normally works: - The user selects a date in the popup, which sets [#valueProperty()] to the selected date. - The converter ([#converterProperty()]) is used to transform the date
-/// to a string representation and display it in the text field.
+/// First recall how the date picker normally works: - The user selects a date
+/// in the popup, which sets [#valueProperty()] to the selected date. - The
+/// converter ([#converterProperty()]) is used to transform the date to a string
+/// representation and display it in the text field.
 ///
-/// The idea is now to intercept the process and add an additional step: - The user selects a date in the popup, which
-/// sets [#valueProperty()] to the selected date. - The date is converted to a [TemporalAccessor] (i.e,
-/// enriched by a time component) using [#addCurrentTime(LocalDate)] - The string converter ([#stringConverterProperty()]) is used to transform the temporal accessor to a string representation and display it in
-/// the text field.
+/// The idea is now to intercept the process and add an additional step: - The
+/// user selects a date in the popup, which sets [#valueProperty()] to the
+/// selected date. - The date is converted to a [TemporalAccessor] (i.e,
+/// enriched by a time component) using [#addCurrentTime(LocalDate)] - The
+/// string converter ([#stringConverterProperty()]) is used to transform the
+/// temporal accessor to a string representation and display it in the text
+/// field.
 ///
-/// Inspiration taken from <a href="https://github.com/edvin/tornadofx-controls/blob/master/src/main/java/tornadofx/control/DateTimePicker.java">Controlsfx DateTimePicker</a>
+/// Inspiration taken from <a
+/// href="https://github.com/edvin/tornadofx-controls/blob/master/src/main/java/tornadofx/control/DateTimePicker.java">Controlsfx
+/// DateTimePicker</a>
 public class TemporalAccessorPicker extends DatePicker {
     private final ObjectProperty<TemporalAccessor> temporalAccessorValue = new SimpleObjectProperty<>(null);
 
@@ -46,8 +53,7 @@ public class TemporalAccessorPicker extends DatePicker {
         setConverter(new InternalConverter());
 
         // Synchronize changes of the underlying date value with the temporalAccessorValue
-        BindingsHelper.bindBidirectional(valueProperty(), temporalAccessorValue,
-                TemporalAccessorPicker::addCurrentTime,
+        BindingsHelper.bindBidirectional(valueProperty(), temporalAccessorValue, TemporalAccessorPicker::addCurrentTime,
                 TemporalAccessorPicker::getDate);
 
         getEditor().setOnContextMenuRequested(event -> {
@@ -108,14 +114,18 @@ public class TemporalAccessorPicker extends DatePicker {
                     try {
                         return defaultFormatter.parse(value);
                     } catch (DateTimeParseException _) {
-                        return Date.parse(value).map(Date::toTemporalAccessor).orElse(null);
+                        return Date.parse(value)
+                                .map(Date::toTemporalAccessor)
+                                .orElse(null);
                     }
                 } else {
                     return null;
                 }
             }
         };
-        return Objects.requireNonNullElseGet(stringConverterProperty().get(), converterSupplier);
+        return Objects.requireNonNullElseGet(stringConverterProperty()
+                .get(),
+                converterSupplier);
     }
 
     public final void setStringConverter(StringConverter<TemporalAccessor> value) {

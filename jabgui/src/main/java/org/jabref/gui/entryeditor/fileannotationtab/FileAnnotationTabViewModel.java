@@ -15,7 +15,6 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.util.UiTaskExecutor;
@@ -26,7 +25,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.pdf.FileAnnotation;
 import org.jabref.model.util.FileUpdateListener;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,10 +44,8 @@ public class FileAnnotationTabViewModel extends AbstractViewModel {
     private final ClipBoardManager clipBoardManager;
     private final FileUpdateListener fileListener = this::reloadAnnotations;
 
-    public FileAnnotationTabViewModel(FileAnnotationCache cache,
-                                      BibEntry entry,
-                                      FileUpdateMonitor fileMonitor,
-                                      ClipBoardManager clipBoardManager) {
+    public FileAnnotationTabViewModel(FileAnnotationCache cache, BibEntry entry, FileUpdateMonitor fileMonitor,
+            ClipBoardManager clipBoardManager) {
         this.cache = cache;
         this.entry = entry;
         this.fileMonitor = fileMonitor;
@@ -85,8 +81,7 @@ public class FileAnnotationTabViewModel extends AbstractViewModel {
 
         Comparator<FileAnnotation> byPage = Comparator.comparingInt(FileAnnotation::getPage);
 
-        List<FileAnnotationViewModel> newAnnotations = fileAnnotations
-                .getOrDefault(currentFile, new ArrayList<>())
+        List<FileAnnotationViewModel> newAnnotations = fileAnnotations.getOrDefault(currentFile, new ArrayList<>())
                 .stream()
                 .filter(annotation -> (null != annotation.getContent()))
                 .sorted(byPage)
@@ -124,7 +119,9 @@ public class FileAnnotationTabViewModel extends AbstractViewModel {
         sj.add(Localization.lang("Date") + ": " + getCurrentAnnotation().getDate());
         sj.add(Localization.lang("Page") + ": " + getCurrentAnnotation().getPage());
         sj.add(Localization.lang("Content") + ": " + getCurrentAnnotation().getContent());
-        sj.add(Localization.lang("Marking") + ": " + getCurrentAnnotation().markingProperty().get());
+        sj.add(Localization.lang("Marking") + ": " + getCurrentAnnotation()
+                .markingProperty()
+                .get());
 
         clipBoardManager.setContent(sj.toString());
     }

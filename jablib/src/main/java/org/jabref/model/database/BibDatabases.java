@@ -8,8 +8,7 @@ import org.jabref.model.entry.BibEntry;
 
 public class BibDatabases {
 
-    private BibDatabases() {
-    }
+    private BibDatabases() {}
 
     /// Receives a Collection of BibEntry instances, iterates through them, and
     /// removes all entries that have no fields set. This is useful for rooting out

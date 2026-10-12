@@ -14,8 +14,16 @@ public class BibEntryByFieldsComparator implements Comparator<BibEntry> {
         if (sizeComparison != 0) {
             return sizeComparison;
         }
-        Iterator<String> it1 = e1.getFields().stream().map(Field::getName).sorted().iterator();
-        Iterator<String> it2 = e2.getFields().stream().map(Field::getName).sorted().iterator();
+        Iterator<String> it1 = e1.getFields()
+                .stream()
+                .map(Field::getName)
+                .sorted()
+                .iterator();
+        Iterator<String> it2 = e2.getFields()
+                .stream()
+                .map(Field::getName)
+                .sorted()
+                .iterator();
         while (it1.hasNext() && it2.hasNext()) {
             int fieldComparison = it1.next().compareTo(it2.next());
             if (fieldComparison != 0) {

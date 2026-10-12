@@ -20,18 +20,21 @@ public class FieldFormatterCleanupMapper {
     private static final String CLEANUP_FOR_PARSING = ",(?![^\\[]*])";
     private static final Pattern FIELD_FORMATTER_CLEANUP_PATTERN = Pattern.compile("([^\\[]+)\\[([^]]+)]");
 
-    private FieldFormatterCleanupMapper() {
-    }
+    private FieldFormatterCleanupMapper() {}
 
-    /// This parses the key/list map of fields and clean up actions for the field.
+    /// This parses the key/list map of fields and clean up actions for the
+    /// field.
     ///
-    /// General format for one key/list map: `...[...]` - `field[formatter1,formatter2,...]`
-    /// Multiple are written as `...[...]...[...]...[...]`
+    /// General format for one key/list map: `...[...]` -
+    /// `field[formatter1,formatter2,...]` Multiple are written as
+    /// `...[...]...[...]...[...]`
     /// `field1[formatter1,formatter2,...]field2[formatter3,formatter4,...]`
     ///
-    /// The idea is that characters are field names until `[` is reached and that formatter lists are terminated by `]`
+    /// The idea is that characters are field names until `[` is reached and
+    /// that formatter lists are terminated by `]`
     ///
-    /// Example: `pages[normalize_page_numbers]title[escapeAmpersands,escapeDollarSign,escapeUnderscores,latex_cleanup]`
+    /// Example:
+    /// `pages[normalize_page_numbers]title[escapeAmpersands,escapeDollarSign,escapeUnderscores,latex_cleanup]`
     public static List<FieldFormatterCleanup> parseActions(String formatterString) {
         if ((formatterString == null) || formatterString.isEmpty()) {
             // no save actions defined in the metadata
@@ -50,8 +53,7 @@ public class FieldFormatterCleanupMapper {
 
             String fieldString = matcher.group(2);
 
-            List<FieldFormatterCleanup> fieldFormatterCleanups = Arrays
-                    .stream(fieldString.split(","))
+            List<FieldFormatterCleanup> fieldFormatterCleanups = Arrays.stream(fieldString.split(","))
                     .map(FieldFormatterCleanupActions::getFormatterFromString)
                     .map(formatter -> new FieldFormatterCleanup(field, formatter))
                     .toList();
@@ -66,8 +68,8 @@ public class FieldFormatterCleanupMapper {
         Map<Field, Set<String>> groupedByField = new LinkedHashMap<>();
         for (FieldFormatterCleanup cleanup : actionList) {
             // add the formatter to map if not already in there, order sensitive
-            groupedByField.computeIfAbsent(cleanup.getField(), _ -> new LinkedHashSet<>())
-                          .add(cleanup.getFormatter().getKey());
+            groupedByField.computeIfAbsent(cleanup.getField(), _ -> new LinkedHashSet<>()).add(cleanup.getFormatter()
+                    .getKey());
         }
 
         // convert the contents of the hashmap into the correct serialization

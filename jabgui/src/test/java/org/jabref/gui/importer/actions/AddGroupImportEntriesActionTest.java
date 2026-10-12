@@ -5,7 +5,6 @@ import java.util.List;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.groups.GroupTreeNode;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -32,8 +31,12 @@ class AddGroupImportEntriesActionTest {
     }
 
     private List<String> groupNames() {
-        return databaseContext.getMetaData().getGroups()
-                              .map(root -> root.getChildren().stream().map(GroupTreeNode::getName).toList())
+        return databaseContext.getMetaData()
+                              .getGroups()
+                              .map(root -> root.getChildren()
+                                               .stream()
+                                               .map(GroupTreeNode::getName)
+                                               .toList())
                               .orElse(List.of());
     }
 
@@ -45,8 +48,8 @@ class AddGroupImportEntriesActionTest {
         assertEquals(List.of("Imported entries"), groupNames());
     }
 
-    /// A library that already has the group is left alone, so that importing twice does not build a
-    /// second one.
+    /// A library that already has the group is left alone, so that importing
+    /// twice does not build a second one.
     @Test
     void aLibraryThatAlreadyHasTheGroupIsLeftAlone() {
         action.addImportedEntriesGroupIfNeeded(databaseContext, preferences);

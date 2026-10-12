@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import com.tobiasdiez.easybind.Subscription;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
 import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
@@ -20,14 +22,11 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
-
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.logic.util.strings.StringUtil;
 
-import com.tobiasdiez.easybind.Subscription;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
-
-/// Constructs a [ListCell] based on the view model of the row and a bunch of specified converter methods.
+/// Constructs a [ListCell] based on the view model of the row and a bunch of
+/// specified converter methods.
 ///
 /// @param <T> cell value
 public class ViewModelListCellFactory<T> implements Callback<ListView<T>, ListCell<T>> {
@@ -71,7 +70,9 @@ public class ViewModelListCellFactory<T> implements Callback<ListView<T>, ListCe
     }
 
     public ViewModelListCellFactory<T> withIcon(Callback<T, JabRefIcon> toIcon, Callback<T, Color> toColor) {
-        this.toGraphic = viewModel -> toIcon.call(viewModel).withColor(toColor.call(viewModel)).getGraphicNode();
+        this.toGraphic = viewModel -> toIcon.call(viewModel)
+                .withColor(toColor.call(viewModel))
+                .getGraphicNode();
         return this;
     }
 
@@ -235,20 +236,17 @@ public class ViewModelListCellFactory<T> implements Callback<ListView<T>, ListCe
                     }
                     for (Map.Entry<PseudoClass, Callback<T, ObservableValue<Boolean>>> pseudoClassWithCondition : pseudoClasses.entrySet()) {
                         ObservableValue<Boolean> condition = pseudoClassWithCondition.getValue().call(viewModel);
-                        subscriptions.add(BindingsHelper.includePseudoClassWhen(
-                                this,
-                                pseudoClassWithCondition.getKey(),
-                                condition));
+                        subscriptions.add(BindingsHelper.includePseudoClassWhen(this, pseudoClassWithCondition.getKey(), condition));
                     }
                     if (validationStatusProperty != null) {
                         validationStatusProperty.call(viewModel)
                                                 .getHighestMessage()
                                                 .ifPresent(message -> setTooltip(new Tooltip(message.getMessage())));
 
-                        subscriptions.add(BindingsHelper.includePseudoClassWhen(
-                                this,
-                                INVALID_PSEUDO_CLASS,
-                                validationStatusProperty.call(viewModel).validProperty().not()));
+                        subscriptions.add(BindingsHelper.includePseudoClassWhen(this, INVALID_PSEUDO_CLASS,
+                                validationStatusProperty.call(viewModel)
+                                                        .validProperty()
+                                                        .not()));
                     }
                 }
             }

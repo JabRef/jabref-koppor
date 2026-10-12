@@ -1,5 +1,6 @@
 package org.jabref.gui.mergeentries.threewaymerge.cell;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.css.PseudoClass;
@@ -18,7 +19,8 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
-
+import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.StyleClassedTextArea;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.icon.IconTheme;
@@ -27,10 +29,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.identifier.DOI;
-
-import com.tobiasdiez.easybind.EasyBind;
-import org.fxmisc.flowless.VirtualizedScrollPane;
-import org.fxmisc.richtext.StyleClassedTextArea;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.slf4j.Logger;
@@ -58,7 +56,8 @@ public class FieldValueCell extends ThreeWayMergeCell implements Toggle {
     private final HBox actionsContainer = new HBox();
     private final FieldValueCellViewModel viewModel;
 
-    public FieldValueCell(String text, int rowIndex, GuiPreferences preferences, StateManager stateManager) {
+    public FieldValueCell(String text, int rowIndex, GuiPreferences preferences,
+                          StateManager stateManager) {
         super(text, rowIndex);
 
         this.preferences = preferences;
@@ -66,10 +65,11 @@ public class FieldValueCell extends ThreeWayMergeCell implements Toggle {
         this.factory = new ActionFactory();
         this.viewModel = new FieldValueCellViewModel(text);
 
-        EasyBind.listen(viewModel.selectedProperty(), (_, _, isSelected) -> {
-            pseudoClassStateChanged(SELECTED_PSEUDO_CLASS, isSelected);
-            getToggleGroup().selectToggle(FieldValueCell.this);
-        });
+        EasyBind.listen(viewModel.selectedProperty(),
+                (_, _, isSelected) -> {
+                    pseudoClassStateChanged(SELECTED_PSEUDO_CLASS, isSelected);
+                    getToggleGroup().selectToggle(FieldValueCell.this);
+                });
 
         viewModel.fieldValueProperty().bind(textProperty());
 
@@ -103,13 +103,15 @@ public class FieldValueCell extends ThreeWayMergeCell implements Toggle {
         // Workarounds
         preventTextSelectionViaMouseEvents();
 
-        label.prefHeightProperty().bind(label.totalHeightEstimateProperty().orElseConst(-1d));
+        label.prefHeightProperty().bind(label.totalHeightEstimateProperty()
+                .orElseConst(-1d));
 
         // Fix text area consuming scroll events before they reach the outer scrollable
-        label.addEventFilter(ScrollEvent.SCROLL, e -> {
-            e.consume();
-            FieldValueCell.this.fireEvent(e.copyFor(e.getSource(), FieldValueCell.this));
-        });
+        label.addEventFilter(ScrollEvent.SCROLL,
+                e -> {
+                    e.consume();
+                    FieldValueCell.this.fireEvent(e.copyFor(e.getSource(), FieldValueCell.this));
+                });
     }
 
     private void initializeActions() {
@@ -135,7 +137,9 @@ public class FieldValueCell extends ThreeWayMergeCell implements Toggle {
         copyButton.setGraphic(copyIcon);
         copyButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         copyButton.setMaxHeight(Double.MAX_VALUE);
-        copyButton.visibleProperty().bind(textProperty().isEmpty().not());
+        copyButton.visibleProperty().bind(textProperty()
+                .isEmpty()
+                .not());
 
         return copyButton;
     }
@@ -144,12 +148,15 @@ public class FieldValueCell extends ThreeWayMergeCell implements Toggle {
         Node openLinkIcon = IconTheme.JabRefIcons.OPEN_LINK.getGraphicNode();
         openLinkIcon.getStyleClass().add("action-icon");
 
-        Button openLinkButton = factory.createIconButton(() -> Localization.lang("Open Link"), new OpenExternalLinkAction(getText(), preferences.getExternalApplicationsPreferences()));
+        Button openLinkButton = factory.createIconButton(() -> Localization.lang("Open Link"),
+                new OpenExternalLinkAction(getText(), preferences.getExternalApplicationsPreferences()));
         openLinkButton.setGraphic(openLinkIcon);
         openLinkButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         openLinkButton.setMaxHeight(Double.MAX_VALUE);
 
-        openLinkButton.visibleProperty().bind(EasyBind.map(textProperty(), input -> StringUtil.isNotBlank(input) && (URLUtil.isURL(input) || DOI.isValid(input))));
+        openLinkButton.visibleProperty().bind(
+                EasyBind.map(textProperty(),
+                        input -> StringUtil.isNotBlank(input) && (URLUtil.isURL(input) || DOI.isValid(input))));
 
         return openLinkButton;
     }
@@ -161,9 +168,7 @@ public class FieldValueCell extends ThreeWayMergeCell implements Toggle {
 
     private void preventTextSelectionViaMouseEvents() {
         label.addEventFilter(MouseEvent.ANY, e -> {
-            if ((e.getEventType() == MouseEvent.MOUSE_DRAGGED) ||
-                    (e.getEventType() == MouseEvent.DRAG_DETECTED) ||
-                    (e.getEventType() == MouseEvent.MOUSE_ENTERED)) {
+            if ((e.getEventType() == MouseEvent.MOUSE_DRAGGED) || (e.getEventType() == MouseEvent.DRAG_DETECTED) || (e.getEventType() == MouseEvent.MOUSE_ENTERED)) {
                 e.consume();
             } else if (e.getEventType() == MouseEvent.MOUSE_PRESSED) {
                 if (e.getClickCount() > 1) {

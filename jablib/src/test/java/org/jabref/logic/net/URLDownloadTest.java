@@ -5,14 +5,13 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import kong.unirest.core.UnirestException;
 import org.jabref.logic.importer.FetcherClientException;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FetcherServerException;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.support.DisabledOnCIServer;
 import org.jabref.support.ExternalServicesTest;
-
-import kong.unirest.core.UnirestException;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +53,9 @@ class URLDownloadTest {
     void determineMimeType() throws MalformedURLException {
         URLDownload dl = new URLDownload(URLUtil.create("http://www.google.com"));
 
-        assertTrue(dl.getMimeType().get().startsWith("text/html"));
+        assertTrue(dl.getMimeType()
+                     .get()
+                     .startsWith("text/html"));
     }
 
     @Test
@@ -67,8 +68,7 @@ class URLDownloadTest {
 
     @Test
     void downloadToTemporaryFileKeepsName() throws MalformedURLException, FetcherException {
-        URLDownload urlDownload = new URLDownload(
-                URLUtil.create("https://files.jabref.org/download-test.txt"));
+        URLDownload urlDownload = new URLDownload(URLUtil.create("https://files.jabref.org/download-test.txt"));
         Path path = urlDownload.toTemporaryFile();
         String fileName = path.getFileName().toString();
         // fileName is something like jabref-download-test8822989014397910829.txt; thus we cannot use assertEquals

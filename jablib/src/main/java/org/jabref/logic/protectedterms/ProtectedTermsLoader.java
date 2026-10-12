@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +44,8 @@ public class ProtectedTermsLoader {
         // Read internal lists
         for (String filename : preferences.getEnabledInternalTermLists()) {
             if (INTERNAL_LISTS.containsKey(filename)) {
-                mainList.add(readProtectedTermsListFromResource(filename, INTERNAL_LISTS.get(filename).get(), true));
+                mainList.add(readProtectedTermsListFromResource(filename, INTERNAL_LISTS.get(filename).get(),
+                        true));
             } else {
                 LOGGER.warn("Protected terms resource '{}' is no longer available.", filename);
             }
@@ -53,7 +53,8 @@ public class ProtectedTermsLoader {
         for (String filename : preferences.getDisabledInternalTermLists()) {
             if (INTERNAL_LISTS.containsKey(filename)) {
                 if (!preferences.getEnabledInternalTermLists().contains(filename)) {
-                    mainList.add(readProtectedTermsListFromResource(filename, INTERNAL_LISTS.get(filename).get(), false));
+                    mainList.add(readProtectedTermsListFromResource(filename, INTERNAL_LISTS.get(filename).get(),
+                            false));
                 }
             } else {
                 LOGGER.warn("Protected terms resource '{}' is no longer available.", filename);
@@ -62,10 +63,10 @@ public class ProtectedTermsLoader {
 
         // Check if any new internal lists have emerged
         for (String filename : INTERNAL_LISTS.keySet()) {
-            if (!preferences.getEnabledInternalTermLists().contains(filename)
-                    && !preferences.getDisabledInternalTermLists().contains(filename)) {
+            if (!preferences.getEnabledInternalTermLists().contains(filename) && !preferences.getDisabledInternalTermLists().contains(filename)) {
                 // New internal list, add it
-                mainList.add(readProtectedTermsListFromResource(filename, INTERNAL_LISTS.get(filename).get(), true));
+                mainList.add(readProtectedTermsListFromResource(filename, INTERNAL_LISTS.get(filename).get(),
+                        true));
                 LOGGER.warn("New protected terms resource '{}' is available and enabled by default.", filename);
             }
         }
@@ -116,16 +117,13 @@ public class ProtectedTermsLoader {
         mainList.add(readProtectedTermsListFromFile(path, enabled));
     }
 
-    public static ProtectedTermsList readProtectedTermsListFromResource(@NonNull String resource,
-                                                                        @NonNull String description,
-                                                                        boolean enabled) {
+    public static ProtectedTermsList readProtectedTermsListFromResource(@NonNull String resource, @NonNull String description, boolean enabled) {
         ProtectedTermsParser parser = new ProtectedTermsParser();
         parser.readTermsFromResource(resource, description);
         return parser.getProtectTermsList(enabled, true);
     }
 
-    public static ProtectedTermsList readProtectedTermsListFromFile(@NonNull Path path,
-                                                                    boolean enabled) {
+    public static ProtectedTermsList readProtectedTermsListFromFile(@NonNull Path path, boolean enabled) {
         LOGGER.debug("Reading term list from file {}", path);
         ProtectedTermsParser parser = new ProtectedTermsParser();
         parser.readTermsFromFile(path);
@@ -137,9 +135,7 @@ public class ProtectedTermsLoader {
         return mainList.remove(termList);
     }
 
-    public ProtectedTermsList addNewProtectedTermsList(@NonNull String newDescription,
-                                                       @NonNull String newLocation,
-                                                       boolean enabled) {
+    public ProtectedTermsList addNewProtectedTermsList(@NonNull String newDescription, @NonNull String newLocation, boolean enabled) {
         ProtectedTermsList resultingList = new ProtectedTermsList(newDescription, new ArrayList<>(), newLocation);
         resultingList.setEnabled(enabled);
         resultingList.createAndWriteHeading(newDescription);

@@ -8,6 +8,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import com.tobiasdiez.easybind.Subscription;
 import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
@@ -23,8 +24,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
-
-import com.tobiasdiez.easybind.Subscription;
 import org.reactfx.util.TriConsumer;
 
 public class ViewModelTreeTableRowFactory<S> implements Callback<TreeTableView<S>, TreeTableRow<S>> {
@@ -150,21 +149,22 @@ public class ViewModelTreeTableRowFactory<S> implements Callback<TreeTableView<S
                     });
 
                     // Activate context menu if user presses the "context menu" key
-                    treeTableView.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
-                        boolean rowFocused = !isEmpty() && treeTableView.getFocusModel().getFocusedIndex() == getIndex();
-                        if (event.getCode() == KeyCode.CONTEXT_MENU && rowFocused) {
-                            // Get center of focused cell
-                            Bounds anchorBounds = getBoundsInParent();
-                            double x = anchorBounds.getMinX() + anchorBounds.getWidth() / 2;
-                            double y = anchorBounds.getMinY() + anchorBounds.getHeight() / 2;
-                            Point2D screenPosition = getParent().localToScreen(x, y);
+                    treeTableView.addEventHandler(KeyEvent.KEY_RELEASED,
+                            event -> {
+                                boolean rowFocused = !isEmpty() && treeTableView.getFocusModel().getFocusedIndex() == getIndex();
+                                if (event.getCode() == KeyCode.CONTEXT_MENU && rowFocused) {
+                                    // Get center of focused cell
+                                    Bounds anchorBounds = getBoundsInParent();
+                                    double x = anchorBounds.getMinX() + anchorBounds.getWidth() / 2;
+                                    double y = anchorBounds.getMinY() + anchorBounds.getHeight() / 2;
+                                    Point2D screenPosition = getParent().localToScreen(x, y);
 
-                            if (getContextMenu() == null) {
-                                setContextMenu(contextMenuFactory.apply(getItem()));
-                            }
-                            getContextMenu().show(this, screenPosition.getX(), screenPosition.getY());
-                        }
-                    });
+                                    if (getContextMenu() == null) {
+                                        setContextMenu(contextMenuFactory.apply(getItem()));
+                                    }
+                                    getContextMenu().show(this, screenPosition.getX(), screenPosition.getY());
+                                }
+                            });
                 }
 
                 if (!empty && (row != null)) {
@@ -201,15 +201,13 @@ public class ViewModelTreeTableRowFactory<S> implements Callback<TreeTableView<S
                     }
 
                     for (Map.Entry<EventType<?>, BiConsumer<S, ? super Event>> eventFilter : eventFilters.entrySet()) {
-                        addEventFilter(eventFilter.getKey(), event -> eventFilter.getValue().accept(getItem(), event));
+                        addEventFilter(eventFilter.getKey(),
+                                event -> eventFilter.getValue().accept(getItem(), event));
                     }
 
                     for (Map.Entry<PseudoClass, Callback<TreeTableRow<S>, ObservableValue<Boolean>>> pseudoClassWithCondition : pseudoClasses.entrySet()) {
                         ObservableValue<Boolean> condition = pseudoClassWithCondition.getValue().call(this);
-                        subscriptions.add(BindingsHelper.includePseudoClassWhen(
-                                this,
-                                pseudoClassWithCondition.getKey(),
-                                condition));
+                        subscriptions.add(BindingsHelper.includePseudoClassWhen(this, pseudoClassWithCondition.getKey(), condition));
                     }
                 }
             }

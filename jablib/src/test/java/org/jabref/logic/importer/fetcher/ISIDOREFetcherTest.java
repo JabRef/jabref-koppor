@@ -12,7 +12,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.paging.Page;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -32,10 +31,11 @@ class ISIDOREFetcherTest {
 
     private ISIDOREFetcher fetcher;
 
-    /// Fetcher tests run without going through `Launcher`/`JabKitLauncher`, so the merged
-    /// JRE + JabRef trust manager (which contains CA roots not yet present in every JVM's cacerts, e.g.
-    /// HARICA TLS ECC Root CA 2021, used by isidore.science) is never installed. Install it here so
-    /// [URLDownload] sees the same trust configuration as the packaged app.
+    /// Fetcher tests run without going through `Launcher`/`JabKitLauncher`, so
+    /// the merged JRE + JabRef trust manager (which contains CA roots not yet
+    /// present in every JVM's cacerts, e.g. HARICA TLS ECC Root CA 2021, used
+    /// by isidore.science) is never installed. Install it here so [URLDownload]
+    /// sees the same trust configuration as the packaged app.
     @BeforeAll
     static void configureTrustStore() throws IOException {
         TrustStoreManager.createTruststoreFileIfNotExist(tempDir.resolve("truststore.jks"));
@@ -91,8 +91,8 @@ class ISIDOREFetcherTest {
 
         // The results obtained by the fetcher contain three entries (as of 2024), and the first matches our expected entry. So, we can use actual.getFirst(), but shall still use findFirst() in case the order of returned items changes.
         Optional<BibEntry> matchingEntry = actual.stream()
-                                                 .filter(entry -> entry.equals(expected))
-                                                 .findFirst();
+                .filter(entry -> entry.equals(expected))
+                .findFirst();
 
         assertEquals(Optional.of(expected), matchingEntry);
     }
@@ -122,12 +122,13 @@ class ISIDOREFetcherTest {
     @Test
     void author() throws FetcherException {
         List<BibEntry> actual = fetcher.performSearch("author=\"Adam Strange\"");
-        assertEquals(List.of(new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.AUTHOR, "Howard Green and Karen Boyland and Adam Strange")
-                .withField(StandardField.DOI, "doi:10.3406/htn.1990.2970")
-                .withField(StandardField.TITLE, "Le rôle des pépinières dans le développement des entreprises accueillies : essai d'évaluation. L'exemple du Yorkshire -Humberside (R.U.)")
-                .withField(StandardField.YEAR, "1990")
-        ), actual);
+        assertEquals(
+                List.of(new BibEntry(StandardEntryType.Article)
+                        .withField(StandardField.AUTHOR, "Howard Green and Karen Boyland and Adam Strange")
+                        .withField(StandardField.DOI, "doi:10.3406/htn.1990.2970")
+                        .withField(StandardField.TITLE, "Le rôle des pépinières dans le développement des entreprises accueillies : essai d'évaluation. L'exemple du Yorkshire -Humberside (R.U.)")
+                        .withField(StandardField.YEAR, "1990")),
+                actual);
     }
 
     @Test

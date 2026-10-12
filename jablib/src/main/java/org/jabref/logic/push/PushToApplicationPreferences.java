@@ -11,7 +11,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.os.OS;
 
 public class PushToApplicationPreferences {
@@ -22,11 +21,8 @@ public class PushToApplicationPreferences {
 
     private final ObjectProperty<CitationCommandString> citeCommand;
 
-    public PushToApplicationPreferences(String activeApplicationName,
-                                        Map<String, String> commandPaths,
-                                        String emacsArguments,
-                                        String vimServer,
-                                        CitationCommandString citeCommand) {
+    public PushToApplicationPreferences(String activeApplicationName, Map<String, String> commandPaths, String emacsArguments,
+            String vimServer, CitationCommandString citeCommand) {
         this.activeApplicationName = new SimpleStringProperty(activeApplicationName);
         this.commandPaths = new SimpleMapProperty<>(FXCollections.observableMap(commandPaths));
         this.emacsArguments = new SimpleStringProperty(emacsArguments);
@@ -35,14 +31,11 @@ public class PushToApplicationPreferences {
     }
 
     private PushToApplicationPreferences() {
-        this(
-                "TeXstudio",
-                new HashMap<>(),
-                "-n -e",
-                "vim",
+        this("TeXstudio", new HashMap<>(), "-n -e", "vim",
                 new CitationCommandString("\\cite{", ",", "}"));
 
-        commandPaths.put(PushApplications.EMACS.getDisplayName(), OS.OS_X ? "emacsclient" : OS.WINDOWS ? "emacsclient.exe" : "emacsclient");
+        commandPaths.put(PushApplications.EMACS.getDisplayName(),
+                OS.OS_X ? "emacsclient" : OS.WINDOWS ? "emacsclient.exe" : "emacsclient");
         commandPaths.put(PushApplications.LYX.getDisplayName(), System.getProperty("user.home") + File.separator + ".lyx/lyxpipe");
         commandPaths.put(PushApplications.TEXMAKER.getDisplayName(), OS.detectProgramPath("texmaker", "Texmaker"));
         commandPaths.put(PushApplications.TEXSTUDIO.getDisplayName(), OS.detectProgramPath("texstudio", "TeXstudio"));
@@ -118,11 +111,7 @@ public class PushToApplicationPreferences {
     ///
     /// @return a new independent instance with the updated default citation command
     public PushToApplicationPreferences withCitationCommand(CitationCommandString config) {
-        return new PushToApplicationPreferences(
-                this.activeApplicationName.get(),
-                this.commandPaths.get(),
-                this.emacsArguments.get(),
-                this.vimServer.get(),
-                config);
+        return new PushToApplicationPreferences(this.activeApplicationName.get(), this.commandPaths.get(), this.emacsArguments.get(),
+                this.vimServer.get(), config);
     }
 }

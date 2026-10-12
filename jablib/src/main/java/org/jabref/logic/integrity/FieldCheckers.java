@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.model.database.BibDatabaseContext;
@@ -12,19 +14,17 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 public class FieldCheckers {
 
     private final Multimap<Field, ValueChecker> fieldChecker;
 
-    public FieldCheckers(BibDatabaseContext databaseContext, FilePreferences filePreferences,
-                         JournalAbbreviationRepository abbreviationRepository, boolean allowIntegerEdition, String unwantedCharacters) {
+    public FieldCheckers(BibDatabaseContext databaseContext, FilePreferences filePreferences, JournalAbbreviationRepository abbreviationRepository,
+                         boolean allowIntegerEdition, String unwantedCharacters) {
         fieldChecker = getAllMap(databaseContext, filePreferences, abbreviationRepository, allowIntegerEdition, unwantedCharacters);
     }
 
-    private static Multimap<Field, ValueChecker> getAllMap(BibDatabaseContext databaseContext, FilePreferences filePreferences, JournalAbbreviationRepository abbreviationRepository, boolean allowIntegerEdition, String unwantedCharacters) {
+    private static Multimap<Field, ValueChecker> getAllMap(BibDatabaseContext databaseContext, FilePreferences filePreferences, JournalAbbreviationRepository abbreviationRepository,
+            boolean allowIntegerEdition, String unwantedCharacters) {
         ArrayListMultimap<Field, ValueChecker> fieldCheckers = ArrayListMultimap.create(50, 10);
 
         fieldCheckers.put(InternalField.KEY_FIELD, new ValidCitationKeyChecker(unwantedCharacters));
@@ -66,15 +66,13 @@ public class FieldCheckers {
     }
 
     public List<FieldChecker> getAll() {
-        return fieldChecker
-                .entries()
-                .stream()
-                .map(pair -> new FieldChecker(pair.getKey(), pair.getValue()))
-                .collect(Collectors.toList());
+        return fieldChecker.entries()
+                           .stream()
+                           .map(pair -> new FieldChecker(pair.getKey(), pair.getValue()))
+                           .collect(Collectors.toList());
     }
 
     public Collection<ValueChecker> getForField(Field field) {
-        return fieldChecker
-                .get(field);
+        return fieldChecker.get(field);
     }
 }

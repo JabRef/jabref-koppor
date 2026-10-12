@@ -7,10 +7,10 @@ import java.util.Map;
 import org.jabref.logic.bst.util.BstNameFormatter;
 import org.jabref.logic.layout.LayoutFormatter;
 import org.jabref.model.entry.AuthorList;
-
 import org.jspecify.annotations.NonNull;
 
-/// This layout formatter uses the BibTeX `name.format$` method and provides ultimate flexibility.
+/// This layout formatter uses the BibTeX `name.format$` method and provides
+/// ultimate flexibility.
 ///
 /// The formatter needs a parameter with the following format:
 ///
@@ -21,9 +21,9 @@ import org.jspecify.annotations.NonNull;
 ///
 /// Individual cases are separated by `@@` and items in a case by `@`.
 ///
-/// Cases are just integers or the character `*` and tell the formatter to apply the following formats
-/// if there are less or equal authors given.
-/// The cases must be in strictly increasing order with `*` in the last position.
+/// Cases are just integers or the character `*` and tell the formatter to apply
+/// the following formats if there are less or equal authors given. The cases
+/// must be in strictly increasing order with `*` in the last position.
 ///
 /// Example:
 ///
@@ -31,8 +31,8 @@ import org.jspecify.annotations.NonNull;
 /// - `case2 = 3`
 /// - `case3 = *`
 ///
-/// Ranges are either `<integer>..<integer>`, `<integer>` or `*` (using a 1-based index).
-/// Negative integers start from the end (`-1` = last author).
+/// Ranges are either `<integer>..<integer>`, `<integer>` or `*` (using a
+/// 1-based index). Negative integers start from the end (`-1` = last author).
 ///
 /// Example with `Joe Doe and Mary Jane and Bruce Bar and Arthur Kay`:
 ///
@@ -43,7 +43,8 @@ import org.jspecify.annotations.NonNull;
 ///
 /// The `<format>` uses the BibTeX formatter syntax:
 ///
-/// - The letters `v`, `f`, `l`, `j` indicate name parts (von, first, last, jr). Use them inside `{}` for full form.
+/// - The letters `v`, `f`, `l`, `j` indicate name parts (von, first, last, jr).
+///   Use them inside `{}` for full form.
 /// - A single letter (`v`, `f`, `l`, `j`) abbreviates the part.
 /// - Quotes must be escaped as `\"` (not fully supported yet).
 ///
@@ -54,22 +55,25 @@ import org.jspecify.annotations.NonNull;
 /// Complete example:
 ///
 /// Input:
+///
 /// ```
 /// Joe Doe and Mary Jane and Bruce Bar and Arthur Kay
 /// ```
 ///
 /// Output:
+///
 /// ```
 /// Doe, J., Jane, M., Bar, B. and Kay, A.
 /// ```
 ///
 /// Formatter parameter:
+///
 /// ```
 /// 1@*@{ll},{f}.@@2@1@{ll},{f}.@2@ and {ll},{f}.@@*@1..-3@{ll},{f}., @-2@{ll},{f}.@-1@ and {ll},{f}.
 /// ```
 ///
-/// This is troublesome to write, but it works.
-/// For more examples see the test cases.
+/// This is troublesome to write, but it works. For more examples see the test
+/// cases.
 public class NameFormatter implements LayoutFormatter {
 
     public static final String DEFAULT_FORMAT = "1@*@{ff }{vv }{ll}{, jj}@@*@1@{ff }{vv }{ll}{, jj}@*@, {ff }{vv }{ll}{, jj}";

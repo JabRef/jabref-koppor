@@ -22,9 +22,9 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
             // operators, return a generic body to the caller.
             LOGGER.warn("Plain-citation fetcher failed", ufe.getCause());
             return Response.serverError()
-                           .entity("Plain-citation fetcher failed.")
-                           .type(MediaType.TEXT_PLAIN)
-                           .build();
+                    .entity("Plain-citation fetcher failed.")
+                    .type(MediaType.TEXT_PLAIN)
+                    .build();
         }
         if (exception instanceof WebApplicationException webex) {
             Response response = webex.getResponse();
@@ -38,11 +38,13 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
             // as the body; Jersey otherwise returns a bodyless status and clients can't tell why
             // the request failed.
             return Response.fromResponse(response)
-                           .entity(webex.getMessage())
-                           .type(MediaType.TEXT_PLAIN)
-                           .build();
+                    .entity(webex.getMessage())
+                    .type(MediaType.TEXT_PLAIN)
+                    .build();
         }
         LOGGER.error("Unhandled exception on server", exception);
-        return Response.serverError().entity("Internal Server Error").build();
+        return Response.serverError()
+                .entity("Internal Server Error")
+                .build();
     }
 }

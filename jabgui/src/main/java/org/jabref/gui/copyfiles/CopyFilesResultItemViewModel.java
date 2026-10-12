@@ -6,7 +6,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
 
@@ -38,6 +37,10 @@ public class CopyFilesResultItemViewModel {
 
     @Override
     public String toString() {
-        return "CopyFilesResultItemViewModel [file=" + file.get() + ", message=" + message.get() + "]";
+        return "CopyFilesResultItemViewModel [file="
+                + file.get()
+                + ", message="
+                + message.get()
+                + "]";
     }
 }

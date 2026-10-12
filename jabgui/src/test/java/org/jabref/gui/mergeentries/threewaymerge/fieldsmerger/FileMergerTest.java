@@ -18,7 +18,9 @@ class FileMergerTest {
     /// @param fileA  File string a
     /// @param fileB  File String b
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
                 ,,,
                 FileA,FileA,
                 FileA,FileA,''

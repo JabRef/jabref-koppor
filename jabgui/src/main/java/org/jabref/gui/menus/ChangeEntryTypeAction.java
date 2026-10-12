@@ -23,8 +23,8 @@ public class ChangeEntryTypeAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        undoManager.addEdit(Localization.lang("Change entry type"), edit ->
-                entries.forEach(entry -> {
+        undoManager.addEdit(Localization.lang("Change entry type"),
+                edit -> entries.forEach(entry -> {
                     EntryType oldType = entry.getType();
                     if (entry.setType(type).isPresent()) {
                         edit.addEdit(new UndoableChangeType(entry, oldType, type));

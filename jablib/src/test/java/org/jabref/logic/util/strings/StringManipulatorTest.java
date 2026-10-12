@@ -2,8 +2,8 @@ package org.jabref.logic.util.strings;
 
 import java.util.stream.Stream;
 
+import org.jabref.logic.util.strings.StringManipulator.Direction;
 import org.jabref.model.util.ResultingStringState;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -140,18 +140,19 @@ class StringManipulatorTest {
 
     @ParameterizedTest
     @MethodSource("wordBoundaryTestData")
-    void getNextWordBoundary(String text, int caretPosition, int expectedPosition, StringManipulator.Direction direction) {
+    void getNextWordBoundary(String text, int caretPosition, int expectedPosition,
+            Direction direction) {
         int result = StringManipulator.getNextWordBoundary(caretPosition, text, direction);
         assertEquals(expectedPosition, result);
     }
 
     private static Stream<Arguments> wordBoundaryTestData() {
         return Stream.of(
-                Arguments.of("hello person", 3, 0, StringManipulator.Direction.PREVIOUS),
-                Arguments.of("hello person", 12, 6, StringManipulator.Direction.PREVIOUS),
-                Arguments.of("hello person", 0, 0, StringManipulator.Direction.PREVIOUS),
-                Arguments.of("hello person", 0, 5, StringManipulator.Direction.NEXT),
-                Arguments.of("hello person", 5, 12, StringManipulator.Direction.NEXT),
-                Arguments.of("hello person", 12, 12, StringManipulator.Direction.NEXT));
+                Arguments.of("hello person", 3, 0, Direction.PREVIOUS),
+                Arguments.of("hello person", 12, 6, Direction.PREVIOUS),
+                Arguments.of("hello person", 0, 0, Direction.PREVIOUS),
+                Arguments.of("hello person", 0, 5, Direction.NEXT),
+                Arguments.of("hello person", 5, 12, Direction.NEXT),
+                Arguments.of("hello person", 12, 12, Direction.NEXT));
     }
 }

@@ -9,6 +9,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import kong.unirest.core.JsonNode;
+import kong.unirest.core.Unirest;
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.AuthorListParser;
 import org.jabref.logic.importer.FetcherClientException;
 import org.jabref.logic.importer.FetcherException;
@@ -24,13 +30,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Date;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import kong.unirest.core.JsonNode;
-import kong.unirest.core.Unirest;
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +63,9 @@ public class OpenLibraryIsbnFetcher extends AbstractIsbnFetcher {
         try {
             return super.performSearchById(identifier);
         } catch (FetcherClientException e) {
-            if (e.getHttpResponse().map(response -> response.statusCode() == 404).orElse(false)) {
+            if (e.getHttpResponse()
+                 .map(response -> response.statusCode() == 404)
+                 .orElse(false)) {
                 LOGGER.debug("No entry found on OpenLibrary for ISBN {}", identifier, e);
                 return Optional.empty();
             }
@@ -91,8 +92,7 @@ public class OpenLibraryIsbnFetcher extends AbstractIsbnFetcher {
     }
 
     @Override
-    public void doPostCleanup(BibEntry entry) {
-    }
+    public void doPostCleanup(BibEntry entry) {}
 
     private BibEntry jsonItemToBibEntry(JSONObject item) throws ParseException {
         try {
@@ -105,7 +105,8 @@ public class OpenLibraryIsbnFetcher extends AbstractIsbnFetcher {
             entry.setField(StandardField.AUTHOR, authors);
             entry.setField(StandardField.PAGES, item.optString("number_of_pages"));
             entry.setField(StandardField.ISBN,
-                    Optional.ofNullable(item.optJSONArray("isbn_13")).map(array -> array.getString(0))
+                    Optional.ofNullable(item.optJSONArray("isbn_13"))
+                            .map(array -> array.getString(0))
                             .or(() -> Optional.ofNullable(item.optJSONArray("isbn_10")).map(array -> array.getString(0)))
                             .orElse(""));
             entry.setField(StandardField.TITLE,
@@ -113,11 +114,13 @@ public class OpenLibraryIsbnFetcher extends AbstractIsbnFetcher {
                             .or(() -> Optional.ofNullable(item.optString("title", null)))
                             .orElse(""));
             entry.setField(StandardField.SUBTITLE, item.optString("subtitle"));
-            Optional<String> yearOpt = Date.parse(item.optString("publish_date")).flatMap(Date::getYear).map(
-                    Object::toString);
+            Optional<String> yearOpt = Date.parse(item.optString("publish_date"))
+                    .flatMap(Date::getYear)
+                    .map(Object::toString);
             yearOpt.ifPresent(year -> entry.setField(StandardField.YEAR, year));
             entry.setField(StandardField.PUBLISHER,
-                    Optional.ofNullable(item.optJSONArray("publishers")).map(array -> array.getString(0))
+                    Optional.ofNullable(item.optJSONArray("publishers"))
+                            .map(array -> array.getString(0))
                             .orElse(""));
             return entry;
         } catch (JSONException exception) {
@@ -130,14 +133,16 @@ public class OpenLibraryIsbnFetcher extends AbstractIsbnFetcher {
             return "";
         }
         return IntStream.range(0, authors.length())
-                        .mapToObj(authors::getJSONObject)
-                        .map(authorObject -> toAuthor(authorObject.getString("key")))
-                        .collect(AuthorList.collect())
-                        .getAsLastFirstNamesWithAnd(false);
+                .mapToObj(authors::getJSONObject)
+                .map(authorObject -> toAuthor(authorObject.getString("key")))
+                .collect(AuthorList.collect())
+                .getAsLastFirstNamesWithAnd(false);
     }
 
     private Author toAuthor(String key) {
-        JsonNode authorResponse = Unirest.get(BASE_URL + key + ".json").asJson().getBody();
+        JsonNode authorResponse = Unirest.get(BASE_URL + key + ".json")
+                .asJson()
+                .getBody();
         if (authorResponse == null) {
             LOGGER.warn("Could not parse author");
             return new Author(null, null, null, null, null);
@@ -159,23 +164,25 @@ public class OpenLibraryIsbnFetcher extends AbstractIsbnFetcher {
         }
 
         List<Author> authors = IntStream.range(0, works.length())
-                                        .mapToObj(works::getJSONObject)
-                                        .map(obj -> obj.getString("key"))
-                                        .map(worksLink -> BASE_URL + worksLink + ".json")
-                                        .flatMap(this::fromWorkToAuthors)
-                                        .collect(Collectors.toList());
+                .mapToObj(works::getJSONObject)
+                .map(obj -> obj.getString("key"))
+                .map(worksLink -> BASE_URL + worksLink + ".json")
+                .flatMap(this::fromWorkToAuthors)
+                .collect(Collectors.toList());
         return AuthorList.of(authors).getAsLastFirstNamesWithAnd(false);
     }
 
     private Stream<Author> fromWorkToAuthors(String link) {
-        JsonNode body = Unirest.get(link).asJson().getBody();
+        JsonNode body = Unirest.get(link)
+                .asJson()
+                .getBody();
         JSONArray authors = body.getObject().optJSONArray("authors");
         if (authors == null) {
             return Stream.empty();
         }
 
         return IntStream.range(0, authors.length())
-                        .mapToObj(authors::getJSONObject)
-                        .map(authorObject -> toAuthor(authorObject.getJSONObject("author").getString("key")));
+                .mapToObj(authors::getJSONObject)
+                .map(authorObject -> toAuthor(authorObject.getJSONObject("author").getString("key")));
     }
 }

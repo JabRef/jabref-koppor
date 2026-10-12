@@ -8,25 +8,28 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class GroupsHelper {
 
-    private GroupsHelper() {
-    }
+    private GroupsHelper() {}
 
-    /// Assigns `entries` to the explicit group named `groupName` in `databaseContext`,
-    /// creating the group as a top-level explicit group (and the group-tree root) if it does not exist yet.
+    /// Assigns `entries` to the explicit group named `groupName` in
+    /// `databaseContext`, creating the group as a top-level explicit group (and
+    /// the group-tree root) if it does not exist yet.
     ///
-    /// @param keywordSeparator separator used when the group is created as a keyword-backed explicit group
-    public static void assignEntriesToGroup(BibDatabaseContext databaseContext, List<BibEntry> entries, String groupName, Character keywordSeparator) {
-        GroupTreeNode root = databaseContext.getMetaData().getGroups().orElseGet(() -> {
-            GroupTreeNode newRoot = GroupTreeNode.fromGroup(GroupsFactory.createAllEntriesGroup());
-            databaseContext.getMetaData().setGroups(newRoot);
-            return newRoot;
-        });
+    /// @param keywordSeparator separator used when the group is created as a
+    ///   keyword-backed explicit group
+    public static void assignEntriesToGroup(BibDatabaseContext databaseContext, List<BibEntry> entries, String groupName,
+            Character keywordSeparator) {
+        GroupTreeNode root = databaseContext.getMetaData()
+                .getGroups()
+                .orElseGet(() -> {
+                    GroupTreeNode newRoot = GroupTreeNode.fromGroup(GroupsFactory.createAllEntriesGroup());
+                    databaseContext.getMetaData().setGroups(newRoot);
+                    return newRoot;
+                });
 
         // We deliberately do NOT use root.findOrCreateExplicitGroup(...) here. That method attaches
         // a freshly created group to the tree before returning it, so the only place left to assign

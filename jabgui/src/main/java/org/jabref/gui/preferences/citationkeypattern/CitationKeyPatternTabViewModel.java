@@ -9,7 +9,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.commonfxcontrols.CitationKeyPatternsPanelItemModel;
 import org.jabref.gui.commonfxcontrols.CitationKeyPatternsPanelViewModel;
 import org.jabref.gui.preferences.PreferenceTabViewModel;
@@ -34,15 +33,16 @@ public class CitationKeyPatternTabViewModel implements PreferenceTabViewModel {
     // The list and the default properties are being overwritten by the bound properties of the tableView, but to
     // prevent an NPE on storing the preferences before lazy-loading of the setValues, they need to be initialized.
     private final ListProperty<CitationKeyPatternsPanelItemModel> patternListProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final ObjectProperty<CitationKeyPatternsPanelItemModel> defaultKeyPatternProperty = new SimpleObjectProperty<>(
-            new CitationKeyPatternsPanelItemModel(new CitationKeyPatternsPanelViewModel.DefaultEntryType(), ""));
+    private final ObjectProperty<CitationKeyPatternsPanelItemModel> defaultKeyPatternProperty = new SimpleObjectProperty<>(new CitationKeyPatternsPanelItemModel(new CitationKeyPatternsPanelViewModel.DefaultEntryType(), ""));
 
     private final CitationKeyPatternPreferences keyPatternPreferences;
 
-    /// The preference for whether to use the key generator on import is different from how it is configured.
-    /// In the UI, there is no better place to put the option than the Citation Key Generator tab.
-    /// However, shifting the preference to [CitationKeyPatternPreferences] would break the abstraction or hierarchy.
-    /// Hence, we keep the preference in [ImporterPreferences], but for the UI, we initialize it here.
+    /// The preference for whether to use the key generator on import is
+    /// different from how it is configured. In the UI, there is no better place
+    /// to put the option than the Citation Key Generator tab. However, shifting
+    /// the preference to [CitationKeyPatternPreferences] would break the
+    /// abstraction or hierarchy. Hence, we keep the preference in
+    /// [ImporterPreferences], but for the UI, we initialize it here.
     private final ImporterPreferences importerPreferences;
 
     public CitationKeyPatternTabViewModel(CitationKeyPatternPreferences keyPatternPreferences, ImporterPreferences importerPreferences) {
@@ -58,13 +58,11 @@ public class CitationKeyPatternTabViewModel implements PreferenceTabViewModel {
         generateOnSaveProperty.setValue(keyPatternPreferences.shouldGenerateCiteKeysBeforeSaving());
         generateKeyOnImportProperty.setValue(importerPreferences.shouldGenerateNewKeyOnImport());
 
-        if (keyPatternPreferences.getKeySuffix()
-                == CitationKeyPatternPreferences.KeySuffix.ALWAYS) {
+        if (keyPatternPreferences.getKeySuffix() == CitationKeyPatternPreferences.KeySuffix.ALWAYS) {
             letterAlwaysAddProperty.setValue(true);
             letterStartAProperty.setValue(false);
             letterStartBProperty.setValue(false);
-        } else if (keyPatternPreferences.getKeySuffix()
-                == CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A) {
+        } else if (keyPatternPreferences.getKeySuffix() == CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A) {
             letterAlwaysAddProperty.setValue(false);
             letterStartAProperty.setValue(true);
             letterStartBProperty.setValue(false);
@@ -81,8 +79,8 @@ public class CitationKeyPatternTabViewModel implements PreferenceTabViewModel {
 
     @Override
     public void storeSettings() {
-        GlobalCitationKeyPatterns newKeyPattern =
-                new GlobalCitationKeyPatterns(keyPatternPreferences.getKeyPatterns().getDefaultValue());
+        GlobalCitationKeyPatterns newKeyPattern = new GlobalCitationKeyPatterns(keyPatternPreferences.getKeyPatterns()
+                .getDefaultValue());
         patternListProperty.forEach(item -> {
             String patternString = item.getPattern();
             if (!"default".equals(item.getEntryType().getName())) {
@@ -92,10 +90,13 @@ public class CitationKeyPatternTabViewModel implements PreferenceTabViewModel {
             }
         });
 
-        if (!defaultKeyPatternProperty.getValue().getPattern().isBlank()) {
+        if (!defaultKeyPatternProperty.getValue()
+                .getPattern()
+                .isBlank()) {
             // we do not trim the value at the assignment to enable users to have spaces at the beginning and
             // at the end of the pattern
-            newKeyPattern.setDefaultValue(defaultKeyPatternProperty.getValue().getPattern());
+            newKeyPattern.setDefaultValue(defaultKeyPatternProperty.getValue()
+                    .getPattern());
         }
 
         CitationKeyPatternPreferences.KeySuffix keySuffix = CitationKeyPatternPreferences.KeySuffix.ALWAYS;

@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.shared.exception.InvalidDBMSConnectionPropertiesException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,8 @@ public class DBMSConnection implements DatabaseConnection {
         } catch (SQLException e) {
             // Some systems like PostgreSQL retrieves 0 to every exception.
             // Therefore, a stable error determination is not possible.
-            LOGGER.error("Could not connect to database: {} - Error code: {}", e.getMessage(), e.getErrorCode(), e);
+            LOGGER.error("Could not connect to database: {} - Error code: {}",
+                    e.getMessage(), e.getErrorCode(), e);
             throw e;
         }
     }

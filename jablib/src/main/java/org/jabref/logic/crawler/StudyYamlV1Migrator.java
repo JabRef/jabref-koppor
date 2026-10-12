@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.jabref.model.study.Study;
-
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.dataformat.yaml.YAMLFactory;
@@ -18,8 +17,7 @@ public class StudyYamlV1Migrator {
 
     public static String migrate(String v1YamlContent) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        LinkedHashMap<String, Object> v1Mapping = mapper.readValue(v1YamlContent, new TypeReference<>() {
-        });
+        LinkedHashMap<String, Object> v1Mapping = mapper.readValue(v1YamlContent, new TypeReference<>() {});
 
         LinkedHashMap<String, Object> v2Mapping = new LinkedHashMap<>();
         v2Mapping.put("version", Study.CURRENT_SCHEMA_VERSION);
@@ -46,9 +44,9 @@ public class StudyYamlV1Migrator {
         }
 
         YAMLMapper writeMapper = new YAMLMapper(YAMLFactory.builder()
-                                                           .disable(YAMLWriteFeature.WRITE_DOC_START_MARKER)
-                                                           .enable(YAMLWriteFeature.MINIMIZE_QUOTES).build());
+                .disable(YAMLWriteFeature.WRITE_DOC_START_MARKER)
+                .enable(YAMLWriteFeature.MINIMIZE_QUOTES)
+                .build());
         return writeMapper.writeValueAsString(v2Mapping);
     }
 }
-

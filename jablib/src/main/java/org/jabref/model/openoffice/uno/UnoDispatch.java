@@ -16,14 +16,15 @@ import org.slf4j.LoggerFactory;
 /// Executes a LibreOffice UI command against the document's controller.
 ///
 /// Used to reach SwTextNode::DontExpandFormat, which has no UNO equivalent:
-/// `.uno:ResetAttributes` -> SwDoc::ResetAttrs(bTextAttr=true) -> DontExpandFormat,
-/// which sets the DontExpand flag on text hints ending at the view cursor, stopping
-/// a ReferenceMark from absorbing the next typed character. See tdf#81720.
+/// `.uno:ResetAttributes` -> SwDoc::ResetAttrs(bTextAttr=true) ->
+/// DontExpandFormat, which sets the DontExpand flag on text hints ending at the
+/// view cursor, stopping a ReferenceMark from absorbing the next typed
+/// character. See tdf#81720.
 ///
-/// The flag is one-shot, but one is enough: after a character survives, the caret sits
-/// past the mark's end and the bleed condition can no longer hold. What this does not
-/// protect against is the caret returning to that boundary (click, delete, undo) — see
-/// the repair path in `CSLReferenceMarkManager`.
+/// The flag is one-shot, but one is enough: after a character survives, the
+/// caret sits past the mark's end and the bleed condition can no longer hold.
+/// What this does not protect against is the caret returning to that boundary
+/// (click, delete, undo) — see the repair path in `CSLReferenceMarkManager`.
 @NullMarked
 public class UnoDispatch {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnoDispatch.class);
@@ -31,19 +32,17 @@ public class UnoDispatch {
     private static final String RESET_ATTRIBUTES_COMMAND = ".uno:ResetAttributes";
     private static final PropertyValue[] EMPTY_DISPATCH_ARGUMENTS = new PropertyValue[0];
 
-    private UnoDispatch() {
-    }
+    private UnoDispatch() {}
 
-    /// Arms LibreOffice's one-shot `DontExpand` protection when the insertion cursor ends exactly
-    /// at the citation boundary.
+    /// Arms LibreOffice's one-shot `DontExpand` protection when the insertion
+    /// cursor ends exactly at the citation boundary.
     ///
-    /// `.uno:ResetAttributes` acts on the view cursor and shows up in undo history as
-    /// "Clear Direct Formatting", so this helper first verifies that the live insertion cursor is
-    /// collapsed and ends at the same position as `endRange`.
-    public static void resetAttributesAtRangeEnd(XTextDocument doc,
-                                                 XComponentContext context,
-                                                 XTextCursor cursor,
-                                                 XTextRange endRange) {
+    /// `.uno:ResetAttributes` acts on the view cursor and shows up in undo
+    /// history as "Clear Direct Formatting", so this helper first verifies that
+    /// the live insertion cursor is collapsed and ends at the same position as
+    /// `endRange`.
+    public static void resetAttributesAtRangeEnd(XTextDocument doc, XComponentContext context, XTextCursor cursor,
+            XTextRange endRange) {
         try {
             XTextRangeCompare compare = UnoRuntime.queryInterface(XTextRangeCompare.class, cursor.getText());
             if ((compare == null) || !cursor.isCollapsed()) {
@@ -58,23 +57,18 @@ public class UnoDispatch {
         }
     }
 
-    /// Re-arms `DontExpand` for a recreated mark when the user's view cursor is still at that
-    /// boundary after a numeric citation update.
-    public static void resetAttributesAtRangeEnd(XTextDocument doc,
-                                                 XComponentContext context,
-                                                 XTextRange endRange) {
+    /// Re-arms `DontExpand` for a recreated mark when the user's view cursor is
+    /// still at that boundary after a numeric citation update.
+    public static void resetAttributesAtRangeEnd(XTextDocument doc, XComponentContext context, XTextRange endRange) {
         try {
-            UnoCursor.getViewCursor(doc)
-                     .ifPresent(viewCursor -> resetAttributesAtRangeEnd(doc, context, viewCursor, endRange));
+            UnoCursor.getViewCursor(doc).ifPresent(viewCursor -> resetAttributesAtRangeEnd(doc, context, viewCursor, endRange));
         } catch (com.sun.star.uno.RuntimeException exception) {
             LOGGER.debug("Could not resolve view cursor for resetting attributes", exception);
         }
     }
 
-    public static void execute(XTextDocument doc,
-                               XComponentContext context,
-                               String unoUrl,
-                               PropertyValue[] arguments) {
+    public static void execute(XTextDocument doc, XComponentContext context, String unoUrl,
+            PropertyValue[] arguments) {
         try {
             Object dispatchHelperObject = context.getServiceManager().createInstanceWithContext(DISPATCH_HELPER_SERVICE, context);
             XDispatchHelper dispatchHelper = UnoRuntime.queryInterface(XDispatchHelper.class, dispatchHelperObject);

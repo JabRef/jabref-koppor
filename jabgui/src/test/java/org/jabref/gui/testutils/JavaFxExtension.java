@@ -1,5 +1,6 @@
 package org.jabref.gui.testutils;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -15,15 +16,14 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-
 import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-/// Initializes the JavaFX toolkit and invokes a test's JavaFX setup method before each test.
+/// Initializes the JavaFX toolkit and invokes a test's JavaFX setup method
+/// before each test.
 @NullMarked
 public class JavaFxExtension implements BeforeEachCallback, AfterEachCallback {
 
@@ -31,7 +31,7 @@ public class JavaFxExtension implements BeforeEachCallback, AfterEachCallback {
     private static final ReentrantLock TEST_LOCK = new ReentrantLock();
     private static final ConcurrentLinkedQueue<Throwable> ASYNCHRONOUS_FAILURES = new ConcurrentLinkedQueue<>();
     private static boolean toolkitInitialized;
-    private static Thread.@Nullable UncaughtExceptionHandler previousFxUncaughtExceptionHandler;
+    private static UncaughtExceptionHandler previousFxUncaughtExceptionHandler;
 
     @BeforeAll
     static void beforeAll() {
@@ -85,32 +85,38 @@ public class JavaFxExtension implements BeforeEachCallback, AfterEachCallback {
 
     public static void awaitEvents() {
         for (int pass = 0; pass < EVENT_DRAIN_PASSES; pass++) {
-            invokeAndWait(() -> {
-            });
+            invokeAndWait(() -> {});
         }
         throwAsynchronousFailures();
     }
 
-    public static <T extends Node> List<T> lookupAll(Parent root, String selector, Class<T> nodeType) {
+    public static <T extends Node> List<T> lookupAll(Parent root, String selector,
+            Class<T> nodeType) {
         return lookupAll(root, selector, nodeType, _ -> true);
     }
 
-    public static <T extends Node> T lookup(Parent root, String selector, Class<T> nodeType) {
+    public static <T extends Node> T lookup(Parent root, String selector,
+            Class<T> nodeType) {
         return lookup(root, selector, nodeType, _ -> true);
     }
 
-    public static <T extends Node> List<T> lookupAll(Parent root, String selector, Class<T> nodeType, Predicate<T> matcher) {
-        return callAndWait(() -> root.lookupAll(selector).stream()
-                                     .filter(nodeType::isInstance)
-                                     .map(nodeType::cast)
-                                     .filter(matcher)
-                                     .toList());
+    public static <T extends Node> List<T> lookupAll(Parent root, String selector,
+            Class<T> nodeType, Predicate<T> matcher) {
+        return callAndWait(
+                () -> root.lookupAll(selector)
+                          .stream()
+                          .filter(nodeType::isInstance)
+                          .map(nodeType::cast)
+                          .filter(matcher)
+                          .toList());
     }
 
-    public static <T extends Node> T lookup(Parent root, String selector, Class<T> nodeType, Predicate<T> matcher) {
-        return lookupAll(root, selector, nodeType, matcher).stream()
-                                                           .findFirst()
-                                                           .orElseThrow();
+    public static <T extends Node> T lookup(Parent root, String selector,
+            Class<T> nodeType, Predicate<T> matcher) {
+        return lookupAll(root, selector, nodeType, matcher)
+                .stream()
+                .findFirst()
+                .orElseThrow();
     }
 
     private static void initializeToolkit() throws InterruptedException {
@@ -140,8 +146,7 @@ public class JavaFxExtension implements BeforeEachCallback, AfterEachCallback {
     private static void restoreFailureHandler() {
         invokeAndWait(() -> {
             Thread fxApplicationThread = Thread.currentThread();
-            Optional.ofNullable(previousFxUncaughtExceptionHandler)
-                    .ifPresent(fxApplicationThread::setUncaughtExceptionHandler);
+            Optional.ofNullable(previousFxUncaughtExceptionHandler).ifPresent(fxApplicationThread::setUncaughtExceptionHandler);
             previousFxUncaughtExceptionHandler = null;
         });
     }

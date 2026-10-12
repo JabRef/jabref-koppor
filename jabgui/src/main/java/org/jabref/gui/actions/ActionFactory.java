@@ -2,6 +2,10 @@ package org.jabref.gui.actions;
 
 import java.util.Optional;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.Subscription;
+import de.saxsys.mvvmfx.utils.commands.Command;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
@@ -13,15 +17,9 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
 import javafx.stage.WindowEvent;
-
+import org.controlsfx.control.action.ActionUtils;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.logic.util.strings.StringUtil;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.Subscription;
-import de.saxsys.mvvmfx.utils.commands.Command;
-import org.controlsfx.control.action.ActionUtils;
 
 /// Helper class to create and style controls according to an [Action].
 public class ActionFactory {
@@ -34,7 +32,8 @@ public class ActionFactory {
         this.keyBindingRepository = Injector.instantiateModelOrService(KeyBindingRepository.class);
     }
 
-    /// For some reason the graphic is not set correctly by the [ActionUtils] class, so we have to fix this by hand
+    /// For some reason the graphic is not set correctly by the [ActionUtils]
+    /// class, so we have to fix this by hand
     private static void setGraphic(MenuItem node, Action action) {
         node.graphicProperty().unbind();
         action.getIcon().ifPresent(icon -> node.setGraphic(icon.getGraphicNode()));
@@ -48,14 +47,17 @@ public class ActionFactory {
         return menuItem;
     }
 
-    /// Shows the action's long text (its description and, for a [SimpleCommand], its status message) as tooltip on the menu row.
+    /// Shows the action's long text (its description and, for a
+    /// [SimpleCommand], its status message) as tooltip on the menu row.
     ///
-    /// [MenuItem] has no tooltip property, unlike the buttons [ActionUtils] configures from the same text.
-    /// The row node only exists once the menu has been shown and is recreated when the menu's items change,
-    /// so the tooltip is (re)installed whenever the popup is shown.
+    /// [MenuItem] has no tooltip property, unlike the buttons [ActionUtils]
+    /// configures from the same text. The row node only exists once the menu
+    /// has been shown and is recreated when the menu's items change, so the
+    /// tooltip is (re)installed whenever the popup is shown.
     ///
-    /// On macOS, the main menu is rendered natively by the system menu bar (see `MainMenu#setUseSystemMenuBar`).
-    /// Its items have no JavaFX row node, so they show no tooltip there; context menus are not affected.
+    /// On macOS, the main menu is rendered natively by the system menu bar (see
+    /// `MainMenu#setUseSystemMenuBar`). Its items have no JavaFX row node, so
+    /// they show no tooltip there; context menus are not affected.
     private static void enableTooltip(JabRefAction jabRefAction, MenuItem menuItem) {
         // An item can be configured again with another action (e.g., when the push-to-application target changes),
         // so the listeners of the previous configuration have to go, or its outdated tooltip would still be installed
@@ -79,8 +81,7 @@ public class ActionFactory {
         };
         EventHandler<WindowEvent> onPopupShown = _ -> updateTooltip.run();
 
-        Optional.ofNullable(menuItem.getParentPopup())
-                .ifPresent(popup -> popup.addEventHandler(WindowEvent.WINDOW_SHOWN, onPopupShown));
+        Optional.ofNullable(menuItem.getParentPopup()).ifPresent(popup -> popup.addEventHandler(WindowEvent.WINDOW_SHOWN, onPopupShown));
         ChangeListener<ContextMenu> parentPopupListener = (_, oldPopup, newPopup) -> {
             Optional.ofNullable(oldPopup).ifPresent(popup -> popup.removeEventHandler(WindowEvent.WINDOW_SHOWN, onPopupShown));
             Optional.ofNullable(newPopup).ifPresent(popup -> popup.addEventHandler(WindowEvent.WINDOW_SHOWN, onPopupShown));
@@ -91,8 +92,7 @@ public class ActionFactory {
         Runnable disposeTooltip = () -> {
             textSubscription.unsubscribe();
             menuItem.parentPopupProperty().removeListener(parentPopupListener);
-            Optional.ofNullable(menuItem.getParentPopup())
-                    .ifPresent(popup -> popup.removeEventHandler(WindowEvent.WINDOW_SHOWN, onPopupShown));
+            Optional.ofNullable(menuItem.getParentPopup()).ifPresent(popup -> popup.removeEventHandler(WindowEvent.WINDOW_SHOWN, onPopupShown));
             Optional.ofNullable(menuItem.getStyleableNode()).ifPresent(row -> Tooltip.uninstall(row, tooltip));
             tooltip.textProperty().unbind();
         };
@@ -107,14 +107,16 @@ public class ActionFactory {
 
     /// An item for a context menu, carrying no accelerator.
     ///
-    /// A [MenuItem]'s accelerator is global: JavaFX keeps one entry per key combination for the
-    /// whole scene, so an item in a context menu takes the keystroke away from the main menu's item
-    /// for the same action — and then does nothing at all whenever its own command is disabled,
-    /// because JavaFX skips a disabled item's accelerator rather than passing the event on.
+    /// A [MenuItem]'s accelerator is global: JavaFX keeps one entry per key
+    /// combination for the whole scene, so an item in a context menu takes the
+    /// keystroke away from the main menu's item for the same action — and then
+    /// does nothing at all whenever its own command is disabled, because JavaFX
+    /// skips a disabled item's accelerator rather than passing the event on.
     ///
-    /// That is how Ctrl+Z stopped working outside the entry editor: the search field's context menu
-    /// claimed it for `EditorContextAction`, which is enabled only while that field has something to
-    /// undo. A context menu is reached with the mouse, so it loses nothing by leaving the key
+    /// That is how Ctrl+Z stopped working outside the entry editor: the search
+    /// field's context menu claimed it for `EditorContextAction`, which is
+    /// enabled only while that field has something to undo. A context menu is
+    /// reached with the mouse, so it loses nothing by leaving the key
     /// combination to whoever owns it globally.
     public MenuItem createContextMenuItem(Action action, Command command) {
         MenuItem menuItem = createMenuItem(action, command);
@@ -179,10 +181,7 @@ public class ActionFactory {
 
     public ButtonBase configureIconButton(Action action, Command command, ButtonBase button) {
         ActionUtils.unconfigureButton(button);
-        ActionUtils.configureButton(
-                new JabRefAction(action, command, keyBindingRepository),
-                button,
-                ActionUtils.ActionTextBehavior.HIDE);
+        ActionUtils.configureButton(new JabRefAction(action, command, keyBindingRepository), button, ActionUtils.ActionTextBehavior.HIDE);
 
         initButton(action, button);
 

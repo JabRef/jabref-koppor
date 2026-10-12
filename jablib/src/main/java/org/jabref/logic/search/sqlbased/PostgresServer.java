@@ -3,12 +3,10 @@ package org.jabref.logic.search.sqlbased;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-
 import javax.sql.DataSource;
 
-import org.jabref.model.search.PostgresConstants;
-
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
+import org.jabref.model.search.PostgresConstants;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -26,8 +24,8 @@ public class PostgresServer implements AutoCloseable {
         EmbeddedPostgres embeddedPostgres;
         try {
             embeddedPostgres = EmbeddedPostgres.builder()
-                                               .setOutputRedirector(ProcessBuilder.Redirect.DISCARD)
-                                               .start();
+                    .setOutputRedirector(ProcessBuilder.Redirect.DISCARD)
+                    .start();
             LOGGER.debug("Postgres server started, connection port: {}", embeddedPostgres.getPort());
         } catch (IOException e) {
             LOGGER.error("Could not start Postgres server", e);

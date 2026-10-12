@@ -10,21 +10,19 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Only the interface `FileFinder` is visible outside `jablib`.
-/// All the implementations of `FileFinder` are package-private, and are instantiated via `FileFinders`
+/// Only the interface `FileFinder` is visible outside `jablib`. All the
+/// implementations of `FileFinder` are package-private, and are instantiated
+/// via `FileFinders`
 class BrokenLinkedFileNameBasedFileFinder implements FileFinder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BrokenLinkedFileNameBasedFileFinder.class);
 
     @Override
-    public List<Path> findAssociatedFiles(@NonNull BibEntry entry,
-                                          @NonNull List<Path> directories,
-                                          List<String> extensions) throws IOException {
+    public List<Path> findAssociatedFiles(@NonNull BibEntry entry, @NonNull List<Path> directories, List<String> extensions) throws IOException {
         Set<String> brokenLinkedFileNames = getBrokenLinkedFileNames(entry, directories);
 
         if (brokenLinkedFileNames.isEmpty()) {
@@ -38,10 +36,7 @@ class BrokenLinkedFileNameBasedFileFinder implements FileFinder {
         return matches;
     }
 
-    private static List<Path> findAssociatedFilesInDirectory(
-            Path directory,
-            Set<String> brokenLinkedFileNames,
-            List<String> extensions) throws IOException {
+    private static List<Path> findAssociatedFilesInDirectory(Path directory, Set<String> brokenLinkedFileNames, List<String> extensions) throws IOException {
         try (Stream<Path> walk = Files.walk(directory)) {
             // find all files (not directory) that match:
             // 1. it has the same name (case-insensitive) as one of the broken linked file names
@@ -57,7 +52,8 @@ class BrokenLinkedFileNameBasedFileFinder implements FileFinder {
     }
 
     private static @NonNull Set<String> getBrokenLinkedFileNames(@NonNull BibEntry entry, @NonNull List<Path> directories) {
-        return entry.getFiles().stream()
+        return entry.getFiles()
+                    .stream()
                     .filter(linkedFile -> linkedFile.findIn(directories).isEmpty())
                     .map(linkedFile -> FileUtil.getBaseName(linkedFile.getLink()).toLowerCase())
                     .collect(Collectors.toSet());

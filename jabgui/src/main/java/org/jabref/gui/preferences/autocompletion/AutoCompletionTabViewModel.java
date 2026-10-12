@@ -10,7 +10,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.autocompleter.AutoCompletePreferences;
 import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.logic.l10n.Localization;
@@ -51,12 +50,9 @@ public class AutoCompletionTabViewModel implements PreferenceTabViewModel {
         }
 
         switch (autoCompletePreferences.getFirstNameMode()) {
-            case ONLY_ABBREVIATED ->
-                    firstNameModeAbbreviatedProperty.setValue(true);
-            case ONLY_FULL ->
-                    firstNameModeFullProperty.setValue(true);
-            default ->
-                    firstNameModeBothProperty.setValue(true);
+            case ONLY_ABBREVIATED -> firstNameModeAbbreviatedProperty.setValue(true);
+            case ONLY_FULL -> firstNameModeFullProperty.setValue(true);
+            default -> firstNameModeBothProperty.setValue(true);
         }
     }
 
@@ -144,8 +140,11 @@ public class AutoCompletionTabViewModel implements PreferenceTabViewModel {
     }
 
     public List<Field> getSuggestions(String request) {
-        return FieldFactory.getAllFieldsWithOutInternal().stream()
-                           .filter(field -> FieldTextMapper.getDisplayName(field).toLowerCase().contains(request.toLowerCase()))
-                           .collect(Collectors.toList());
+        return FieldFactory.getAllFieldsWithOutInternal()
+                .stream()
+                .filter(field -> FieldTextMapper.getDisplayName(field)
+                        .toLowerCase()
+                        .contains(request.toLowerCase()))
+                .collect(Collectors.toList());
     }
 }

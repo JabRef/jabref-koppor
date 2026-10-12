@@ -24,10 +24,8 @@ public interface GuiPushToApplication extends PushToApplication {
         return new GuiPushToApplicationAction(getDisplayName(), getApplicationIcon());
     }
 
-    default GuiPushToApplicationSettings getSettings(PushToApplication application,
-                                                     DialogService dialogService,
-                                                     FilePreferences filePreferences,
-                                                     PushToApplicationPreferences pushToApplicationPreferences) {
+    default GuiPushToApplicationSettings getSettings(PushToApplication application, DialogService dialogService, FilePreferences filePreferences,
+            PushToApplicationPreferences pushToApplicationPreferences) {
         return new GuiPushToApplicationSettings(application, dialogService, filePreferences, pushToApplicationPreferences);
     }
 }

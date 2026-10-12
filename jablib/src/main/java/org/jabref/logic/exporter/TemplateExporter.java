@@ -28,7 +28,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.metadata.SelfContainedSaveOrder;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -54,59 +53,60 @@ public class TemplateExporter extends Exporter {
     private final BlankLineBehaviour blankLineBehaviour;
     private boolean customExport;
 
-    /// Initialize another export format based on templates stored in dir with layoutFile lfFilename.
+    /// Initialize another export format based on templates stored in dir with
+    /// layoutFile lfFilename.
     ///
-    /// @param name       to display to the user and to call this format in the console.
+    /// @param name to display to the user and to call this format in the
+    ///   console.
     /// @param lfFileName Name of the main layout file.
-    /// @param extension  May or may not contain the . (for instance .txt).
-    public TemplateExporter(String name,
-                            String lfFileName,
-                            String extension,
-                            LayoutFormatterPreferences layoutPreferences,
-                            SelfContainedSaveOrder saveOrder) {
-        this(name,
-                name,
-                lfFileName,
-                "",
-                StandardFileType.fromExtensions(extension),
-                layoutPreferences,
-                saveOrder);
+    /// @param extension May or may not contain the . (for instance .txt).
+    public TemplateExporter(String name, String lfFileName, String extension,
+                            LayoutFormatterPreferences layoutPreferences, SelfContainedSaveOrder saveOrder) {
+        this(name, name, lfFileName, "", StandardFileType.fromExtensions(extension),
+                layoutPreferences, saveOrder);
     }
 
-    /// Initialize another export format based on templates stored in dir with layoutFile lfFilename.
+    /// Initialize another export format based on templates stored in dir with
+    /// layoutFile lfFilename.
     ///
     /// @param displayName Name to display to the user.
     /// @param consoleName Name to call this format in the console.
-    /// @param lfFileName  Name of the main layout file.
-    /// @param directory   Directory in which to find the layout file (a blank string can be passed).
-    /// @param extension   Should contain the . (for instance .txt).
-    public TemplateExporter(String displayName,
-                            String consoleName,
-                            String lfFileName,
-                            String directory,
-                            FileType extension,
-                            LayoutFormatterPreferences layoutPreferences,
-                            SelfContainedSaveOrder saveOrder) {
-        this(displayName, consoleName, lfFileName, directory, extension, layoutPreferences, saveOrder, BlankLineBehaviour.KEEP_BLANKS);
+    /// @param lfFileName Name of the main layout file.
+    /// @param directory Directory in which to find the layout file (a blank
+    ///   string can be passed).
+    /// @param extension Should contain the . (for instance .txt).
+    public TemplateExporter(
+            String displayName,
+            String consoleName,
+            String lfFileName,
+            String directory,
+            FileType extension,
+            LayoutFormatterPreferences layoutPreferences,
+            SelfContainedSaveOrder saveOrder) {
+        this(displayName, consoleName, lfFileName, directory, extension, layoutPreferences,
+                saveOrder, BlankLineBehaviour.KEEP_BLANKS);
     }
 
-    /// Initialize another export format based on templates stored in dir with layoutFile lfFilename.
+    /// Initialize another export format based on templates stored in dir with
+    /// layoutFile lfFilename.
     ///
-    /// @param displayName        Name to display to the user.
-    /// @param consoleName        Name to call this format in the console.
-    /// @param lfFileName         Name of the main layout file.
-    /// @param directory          Directory in which to find the layout file (a blank string can be passed).
-    /// @param extension          Should contain the . (for instance .txt).
-    /// @param layoutPreferences  Preferences for layout
+    /// @param displayName Name to display to the user.
+    /// @param consoleName Name to call this format in the console.
+    /// @param lfFileName Name of the main layout file.
+    /// @param directory Directory in which to find the layout file (a blank
+    ///   string can be passed).
+    /// @param extension Should contain the . (for instance .txt).
+    /// @param layoutPreferences Preferences for layout
     /// @param blankLineBehaviour how to behave regarding blank lines.
-    public TemplateExporter(String displayName,
-                            String consoleName,
-                            String lfFileName,
-                            String directory,
-                            FileType extension,
-                            LayoutFormatterPreferences layoutPreferences,
-                            @Nullable SelfContainedSaveOrder saveOrder,
-                            BlankLineBehaviour blankLineBehaviour) {
+    public TemplateExporter(
+            String displayName,
+            String consoleName,
+            String lfFileName,
+            String directory,
+            FileType extension,
+            LayoutFormatterPreferences layoutPreferences,
+            @Nullable SelfContainedSaveOrder saveOrder,
+            BlankLineBehaviour blankLineBehaviour) {
         super(consoleName, displayName, extension);
         if (lfFileName.endsWith(LAYOUT_EXTENSION)) {
             this.lfFileName = lfFileName.substring(0, lfFileName.length() - LAYOUT_EXTENSION.length());
@@ -128,13 +128,16 @@ public class TemplateExporter extends Exporter {
         this.customExport = custom;
     }
 
-    /// This method should return a reader from which the given layout file can be read.
+    /// This method should return a reader from which the given layout file can
+    /// be read.
     ///
-    /// Subclasses of TemplateExporter are free to override and provide their own implementation.
+    /// Subclasses of TemplateExporter are free to override and provide their
+    /// own implementation.
     ///
     /// @param filename the filename
     /// @return a newly created reader
-    /// @throws IOException if the reader could not be created (e.g., file is not found)
+    /// @throws IOException if the reader could not be created (e.g., file is
+    ///   not found)
     private Reader getReader(String filename) throws IOException {
         // If this is a custom export, just use the given filename:
         String dir;
@@ -165,15 +168,14 @@ public class TemplateExporter extends Exporter {
 
     @Override
     public void export(BibDatabaseContext databaseContext, Path file, List<BibEntry> entries) throws IOException {
-        export(databaseContext, file, entries, List.of(), JournalAbbreviationLoader.loadBuiltInRepository());
+        export(databaseContext, file, entries, List.of(),
+                JournalAbbreviationLoader.loadBuiltInRepository());
     }
 
     @Override
-    public void export(final BibDatabaseContext databaseContext,
-                       final Path file,
-                       List<BibEntry> entries,
-                       List<Path> fileDirForDatabase,
-                       JournalAbbreviationRepository abbreviationRepository) throws IOException {
+    public void export(final BibDatabaseContext databaseContext, final Path file, List<BibEntry> entries,
+                       List<Path> fileDirForDatabase, JournalAbbreviationRepository abbreviationRepository)
+            throws IOException {
         Charset encodingToUse = StandardCharsets.UTF_8;
 
         if (entries.isEmpty()) { // Do not export if no entries to export -- avoids exports with only template text

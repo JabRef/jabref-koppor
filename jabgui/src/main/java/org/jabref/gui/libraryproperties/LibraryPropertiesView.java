@@ -1,26 +1,28 @@
 package org.jabref.gui.libraryproperties;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.ControlHelper;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 public class LibraryPropertiesView extends BaseDialog<LibraryPropertiesViewModel> {
 
-    @FXML private TabPane tabPane;
-    @FXML private ButtonType saveButton;
+    @FXML
+    private TabPane tabPane;
 
-    @Inject private StateManager stateManager;
+    @FXML
+    private ButtonType saveButton;
+
+    @Inject
+    private StateManager stateManager;
 
     private final BibDatabaseContext databaseContext;
     private LibraryPropertiesViewModel viewModel;
@@ -29,13 +31,16 @@ public class LibraryPropertiesView extends BaseDialog<LibraryPropertiesViewModel
         this.databaseContext = databaseContext;
 
         ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+                .load()
+                .setAsDialogPane(this);
 
         ControlHelper.setAction(saveButton, getDialogPane(), _ -> savePreferencesAndCloseDialog());
 
         if (databaseContext.getDatabasePath().isPresent()) {
-            setTitle(Localization.lang("%0 - Library properties", databaseContext.getDatabasePath().get().getFileName()));
+            setTitle(Localization.lang("%0 - Library properties",
+                    databaseContext.getDatabasePath()
+                                   .get()
+                                   .getFileName()));
         } else {
             setTitle(Localization.lang("Library properties"));
         }

@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import javafx.util.StringConverter;
-
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.undo.UndoManager;
@@ -16,7 +15,8 @@ import org.jabref.model.entry.field.Field;
 public class LanguageEditorViewModel extends OptionEditorViewModel<Langid> {
     private BibDatabaseMode databaseMode;
 
-    public LanguageEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, BibDatabaseMode databaseMode, FieldCheckers fieldCheckers, UndoManager undoManager) {
+    public LanguageEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, BibDatabaseMode databaseMode,
+            FieldCheckers fieldCheckers, UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.databaseMode = databaseMode;
     }
@@ -29,7 +29,7 @@ public class LanguageEditorViewModel extends OptionEditorViewModel<Langid> {
                 if (object == null) {
                     return null;
                 } else {
-                    return object.getLangid();  // Langid used as both display and value
+                    return object.getLangid(); // Langid used as both display and value
                 }
             }
 
@@ -51,6 +51,6 @@ public class LanguageEditorViewModel extends OptionEditorViewModel<Langid> {
 
     @Override
     public String convertToDisplayText(Langid object) {
-        return object.getName();  // Langid and display text are the same
+        return object.getName(); // Langid and display text are the same
     }
 }

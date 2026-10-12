@@ -3,6 +3,8 @@ package org.jabref.gui.walkthrough.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.Subscription;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -10,11 +12,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeView;
-
 import org.jabref.gui.util.ScrollUtils;
-
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.Subscription;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +22,7 @@ public class WalkthroughScroller {
 
     /// Mutable list of all [Subscription] of parent bounds and node position
     private final List<Subscription> subscriptions = new ArrayList<>();
+
     private final WalkthroughUtils.DebouncedInvalidationListener debouncedScroller;
 
     public WalkthroughScroller(@NonNull Node node) {
@@ -32,10 +31,9 @@ public class WalkthroughScroller {
         LOGGER.debug("Found {} scrollable parents", scrollableParents.size());
         debouncedScroller = WalkthroughUtils.debounced(_ -> scrollNodeIntoView(node, scrollableParents));
 
-        scrollableParents
-                .stream()
-                .map(parent -> EasyBind.listen(parent.boundsInParentProperty(), debouncedScroller))
-                .forEach(subscriptions::add);
+        scrollableParents.stream()
+                         .map(parent -> EasyBind.listen(parent.boundsInParentProperty(), debouncedScroller))
+                         .forEach(subscriptions::add);
         subscriptions.add(EasyBind.listen(node.localToSceneTransformProperty(), debouncedScroller));
 
         scrollNodeIntoView(node, scrollableParents);
@@ -60,7 +58,10 @@ public class WalkthroughScroller {
     }
 
     private boolean isScrollable(@NonNull Node node) {
-        return node instanceof ScrollPane || node instanceof ListView<?> || node instanceof TableView<?> || node instanceof TreeView<?>;
+        return node instanceof ScrollPane
+                || node instanceof ListView<?>
+                || node instanceof TableView<?>
+                || node instanceof TreeView<?>;
     }
 
     private void scrollNodeIntoView(@NonNull Node targetNode, @NonNull List<Node> scrollableParents) {
@@ -80,22 +81,23 @@ public class WalkthroughScroller {
                     Bounds targetBounds = targetNode.localToScene(targetNode.getBoundsInLocal());
                     ScrollUtils.scrollIntoScrollPane(scrollPane, targetBounds);
                 }
-                case ListView<?> listView ->
-                        scrollIntoListView(targetNode, listView);
-                case TableView<?> tableView ->
-                        scrollIntoTableView(targetNode, tableView);
-                case TreeView<?> treeView ->
-                        scrollIntoTreeView(targetNode, treeView);
-                default ->
-                        LOGGER.warn("Unsupported scrollable type: {}", scrollableParent.getClass().getSimpleName());
+                case ListView<?> listView -> scrollIntoListView(targetNode, listView);
+                case TableView<?> tableView -> scrollIntoTableView(targetNode, tableView);
+                case TreeView<?> treeView -> scrollIntoTreeView(targetNode, treeView);
+                default -> LOGGER.warn("Unsupported scrollable type: {}", scrollableParent.getClass().getSimpleName());
             }
         } catch (RuntimeException e) {
-            LOGGER.warn("Failed to scroll node into view for parent {}", scrollableParent.getClass().getSimpleName(), e);
+            LOGGER.warn("Failed to scroll node into view for parent {}", scrollableParent.getClass().getSimpleName(),
+                    e);
         }
     }
 
     private void scrollIntoListView(@NonNull Node targetNode, @NonNull ListView<?> listView) {
-        int index = findItemIndex(targetNode, listView, listView.getItems().size(), listView.getFixedCellSize());
+        int index = findItemIndex(
+                targetNode,
+                listView,
+                listView.getItems().size(),
+                listView.getFixedCellSize());
         if (index != -1) {
             listView.scrollTo(index);
             LOGGER.debug("Scrolled ListView to index: {}", index);
@@ -103,7 +105,11 @@ public class WalkthroughScroller {
     }
 
     private void scrollIntoTableView(@NonNull Node targetNode, @NonNull TableView<?> tableView) {
-        int index = findItemIndex(targetNode, tableView, tableView.getItems().size(), tableView.getFixedCellSize());
+        int index = findItemIndex(
+                targetNode,
+                tableView,
+                tableView.getItems().size(),
+                tableView.getFixedCellSize());
         if (index != -1) {
             tableView.scrollTo(index);
             LOGGER.debug("Scrolled TableView to index: {}", index);
@@ -118,7 +124,8 @@ public class WalkthroughScroller {
         }
     }
 
-    private int findItemIndex(Node targetNode, Node container, int itemCount, double fixedCellSize) {
+    private int findItemIndex(Node targetNode, Node container, int itemCount,
+            double fixedCellSize) {
         Bounds containerBounds = container.getBoundsInLocal();
         Bounds targetBounds = container.sceneToLocal(targetNode.localToScene(targetNode.getBoundsInLocal()));
 

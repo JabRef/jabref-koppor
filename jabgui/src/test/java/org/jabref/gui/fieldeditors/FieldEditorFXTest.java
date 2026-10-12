@@ -11,7 +11,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.gui.testutils.JavaFxTest;
@@ -19,7 +18,6 @@ import org.jabref.gui.undo.RedoAction;
 import org.jabref.gui.undo.UndoAction;
 import org.jabref.logic.os.OS;
 import org.jabref.model.entry.BibEntry;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,7 +34,9 @@ class FieldEditorFXTest extends JavaFxTest {
     private TextField textField;
     private UndoAction undoAction;
     private RedoAction redoAction;
-    /// Set when a key press reaches the control's own handlers, i.e. was not consumed by the field editor's filter
+
+    /// Set when a key press reaches the control's own handlers, i.e. was not
+    /// consumed by the field editor's filter
     private final AtomicBoolean keyPressReachedControl = new AtomicBoolean();
 
     @Override
@@ -46,8 +46,7 @@ class FieldEditorFXTest extends JavaFxTest {
 
         FieldEditorFX editor = new FieldEditorFX() {
             @Override
-            public void bindToEntry(BibEntry entry) {
-            }
+            public void bindToEntry(BibEntry entry) {}
 
             @Override
             public Parent getNode() {
@@ -74,8 +73,7 @@ class FieldEditorFXTest extends JavaFxTest {
         interact(() -> {
             textField.setText("hello world");
             textField.selectRange(6, 11);
-            textField.fireEvent(new KeyEvent(
-                    textField, textField, KeyEvent.KEY_TYPED, "{", "{", KeyCode.UNDEFINED,
+            textField.fireEvent(new KeyEvent(textField, textField, KeyEvent.KEY_TYPED, "{", "{", KeyCode.UNDEFINED,
                     false, false, false, false));
         });
 
@@ -87,8 +85,7 @@ class FieldEditorFXTest extends JavaFxTest {
         interact(() -> {
             textField.setText("hello  world ");
             textField.selectRange(6, 13);
-            textField.fireEvent(new KeyEvent(
-                    textField, textField, KeyEvent.KEY_TYPED, "{", "{", KeyCode.UNDEFINED,
+            textField.fireEvent(new KeyEvent(textField, textField, KeyEvent.KEY_TYPED, "{", "{", KeyCode.UNDEFINED,
                     false, false, false, false));
         });
 
@@ -100,8 +97,7 @@ class FieldEditorFXTest extends JavaFxTest {
         interact(() -> {
             textField.setText("hello");
             textField.positionCaret(5);
-            textField.fireEvent(new KeyEvent(
-                    textField, textField, KeyEvent.KEY_TYPED, "{", "{", KeyCode.UNDEFINED,
+            textField.fireEvent(new KeyEvent(textField, textField, KeyEvent.KEY_TYPED, "{", "{", KeyCode.UNDEFINED,
                     false, false, false, false));
         });
 
@@ -137,12 +133,23 @@ class FieldEditorFXTest extends JavaFxTest {
         return event.getCode() == code && event.isShortcutDown();
     }
 
-    /// Delivers the key press the way the scene does for a real keystroke: to its focus owner
+    /// Delivers the key press the way the scene does for a real keystroke: to
+    /// its focus owner
     private void pressShortcutOnFocusedField(KeyCode code) {
         textField.requestFocus();
         Node focusOwner = textField.getScene().getFocusOwner();
         assertEquals(textField, focusOwner);
-        focusOwner.fireEvent(new KeyEvent(focusOwner, focusOwner, KeyEvent.KEY_PRESSED, "", code.getName(), code,
-                false, !OS.OS_X, false, OS.OS_X));
+        focusOwner.fireEvent(
+                new KeyEvent(
+                        focusOwner,
+                        focusOwner,
+                        KeyEvent.KEY_PRESSED,
+                        "",
+                        code.getName(),
+                        code,
+                        false,
+                        !OS.OS_X,
+                        false,
+                        OS.OS_X));
     }
 }

@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

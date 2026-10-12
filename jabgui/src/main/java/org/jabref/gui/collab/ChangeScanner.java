@@ -12,7 +12,6 @@ import org.jabref.logic.importer.OpenDatabase;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +23,7 @@ public class ChangeScanner {
 
     private final DatabaseChangeResolverFactory databaseChangeResolverFactory;
 
-    public ChangeScanner(BibDatabaseContext database,
-                         DialogService dialogService,
-                         GuiPreferences preferences,
+    public ChangeScanner(BibDatabaseContext database, DialogService dialogService, GuiPreferences preferences,
                          StateManager stateManager) {
         this.database = database;
         this.preferences = preferences;

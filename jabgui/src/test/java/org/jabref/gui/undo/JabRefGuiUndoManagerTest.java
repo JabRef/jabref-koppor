@@ -7,13 +7,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javafx.application.Platform;
-
 import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.undo.UndoableFieldChange;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,9 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/// Unlike [UndoManagerTest], this needs a live toolkit: the point of this class is the hop onto
-/// the JavaFX thread, and `Platform.runLater` is what requires one. The properties themselves
-/// would not.
+/// Unlike [UndoManagerTest], this needs a live toolkit: the point of this class
+/// is the hop onto the JavaFX thread, and `Platform.runLater` is what requires
+/// one. The properties themselves would not.
 @ExtendWith(JavaFxExtension.class)
 class JabRefGuiUndoManagerTest {
 
@@ -48,8 +46,9 @@ class JabRefGuiUndoManagerTest {
         return new UndoableFieldChange(entry, StandardField.AUTHOR, before, value);
     }
 
-    /// The tab draws its modified marker from this, so it has to follow both edits and saves.
-    /// Driven from the test thread, so each step waits for the queued update, as above.
+    /// The tab draws its modified marker from this, so it has to follow both
+    /// edits and saves. Driven from the test thread, so each step waits for the
+    /// queued update, as above.
     @Test
     // [utest->req~logic.undo.modified-marker-derived~1]
     void theChangedPropertyFollowsTheSavedPosition() {
@@ -74,8 +73,9 @@ class JabRefGuiUndoManagerTest {
         assertFalse(undoManager.redoableProperty().get());
     }
 
-    /// Recorded from the test thread, so the update is posted to the JavaFX thread rather than
-    /// applied inline and each assertion has to let that queue drain first.
+    /// Recorded from the test thread, so the update is posted to the JavaFX
+    /// thread rather than applied inline and each assertion has to let that
+    /// queue drain first.
     @Test
     void propertiesFollowTheStacks() {
         undoManager.addEdit(setAuthor("Bohr"));
@@ -94,30 +94,32 @@ class JabRefGuiUndoManagerTest {
         assertFalse(undoManager.redoableProperty().get());
     }
 
-    /// Recorded from the JavaFX thread, where there is nothing to wait for: the property is
-    /// already current when the edit returns, rather than a pulse behind it.
+    /// Recorded from the JavaFX thread, where there is nothing to wait for: the
+    /// property is already current when the edit returns, rather than a pulse
+    /// behind it.
     @Test
     void propertiesFollowTheStacksWithoutADelayOnTheJavaFxThread() {
         AtomicBoolean undoableImmediatelyAfterTheEdit = new AtomicBoolean();
 
         Platform.runLater(() -> {
             undoManager.addEdit(setAuthor("Bohr"));
-            undoableImmediatelyAfterTheEdit.set(undoManager.undoableProperty().get());
+            undoableImmediatelyAfterTheEdit.set(undoManager.undoableProperty()
+                    .get());
         });
         JavaFxExtension.awaitEvents();
 
         assertTrue(undoableImmediatelyAfterTheEdit.get());
     }
 
-    /// Each queued update reads the stacks when it runs, not when it was requested, so a value
-    /// the manager has already moved past never reaches a property. Both mutations below land
-    /// while the JavaFX thread is blocked, so both updates run after the stack is empty again
-    /// and the menu is never told about an undo that is already gone.
+    /// Each queued update reads the stacks when it runs, not when it was
+    /// requested, so a value the manager has already moved past never reaches a
+    /// property. Both mutations below land while the JavaFX thread is blocked,
+    /// so both updates run after the stack is empty again and the menu is never
+    /// told about an undo that is already gone.
     @Test
     void aQueuedUpdateAppliesTheStateItFindsWhenItRuns() throws InterruptedException {
         List<Boolean> undoableValues = new CopyOnWriteArrayList<>();
-        Platform.runLater(() -> undoManager.undoableProperty().addListener(
-                (_, _, added) -> undoableValues.add(added)));
+        Platform.runLater(() -> undoManager.undoableProperty().addListener((_, _, added) -> undoableValues.add(added)));
         JavaFxExtension.awaitEvents();
 
         CountDownLatch release = new CountDownLatch(1);
@@ -140,9 +142,9 @@ class JabRefGuiUndoManagerTest {
         assertEquals(List.of(), undoableValues);
     }
 
-    /// A burst of edits off the JavaFX thread leaves the properties at the state the journal ends
-    /// in, however many updates that took. The updates are not coalesced, and this is what says
-    /// that they need not be.
+    /// A burst of edits off the JavaFX thread leaves the properties at the
+    /// state the journal ends in, however many updates that took. The updates
+    /// are not coalesced, and this is what says that they need not be.
     @Test
     void aBurstOfEditsLeavesThePropertiesAtTheLastState() throws InterruptedException {
         CountDownLatch release = new CountDownLatch(1);

@@ -22,8 +22,7 @@ public class PushToWinEdt extends AbstractPushToApplication {
         String citeString = getCitePrefix() + keyString + getCiteSuffix();
         // WinEdt macro escaping: ' is escaped by ''
         String escapedCiteString = citeString.replace("'", "''");
-        return new String[] {commandPath,
-                "\"[InsText('" + escapedCiteString + "');]\""};
+        return new String[] {commandPath, "\"[InsText('" + escapedCiteString + "');]\""};
     }
 
     @Override

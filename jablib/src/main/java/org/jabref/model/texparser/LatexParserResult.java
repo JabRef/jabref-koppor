@@ -37,7 +37,8 @@ public class LatexParserResult {
     }
 
     /// Add a citation to the citations multimap.
-    public void addKey(String key, Path path, int lineNumber, int start, int end, String line) {
+    public void addKey(String key, Path path, int lineNumber,
+                       int start, int end, String line) {
         citations.put(key, new Citation(path, lineNumber, start, end, line));
     }
 
@@ -59,11 +60,7 @@ public class LatexParserResult {
 
     @Override
     public String toString() {
-        return "TexParserResult{path=%s, citations=%s, nestedFiles=%s, bibFiles=%s}".formatted(
-                this.path,
-                this.citations,
-                this.nestedFiles,
-                this.bibFiles);
+        return "TexParserResult{path=%s, citations=%s, nestedFiles=%s, bibFiles=%s}".formatted(this.path, this.citations, this.nestedFiles, this.bibFiles);
     }
 
     @Override

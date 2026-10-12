@@ -5,7 +5,6 @@ import java.util.List;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,10 +16,7 @@ class NormalizeWhitespaceFormatterTest {
 
     @BeforeEach
     void setUp() {
-        parser = new NormalizeWhitespaceFormatter(new FieldPreferences(
-                false,
-                List.of(),
-                List.of()));
+        parser = new NormalizeWhitespaceFormatter(new FieldPreferences(false, List.of(), List.of()));
     }
 
     @Test

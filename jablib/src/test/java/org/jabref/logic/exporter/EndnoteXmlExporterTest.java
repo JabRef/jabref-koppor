@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -14,7 +13,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -40,7 +38,9 @@ class EndnoteXmlExporterTest {
     void setUp() {
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(importFormatPreferences.bibEntryPreferences()).thenReturn(mock(BibEntryPreferences.class));
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
 
         databaseContext = new BibDatabaseContext();
         exporter = new EndnoteXmlExporter(new BibEntryPreferences(','));
@@ -68,21 +68,18 @@ class EndnoteXmlExporterTest {
     void exportForNullDBThrowsException(@TempDir Path tempDir) {
         Path file = tempDir.resolve("NullDB");
 
-        assertThrows(NullPointerException.class, () ->
-                exporter.export(null, file, List.of(bookEntry)));
+        assertThrows(NullPointerException.class, () -> exporter.export(null, file, List.of(bookEntry)));
     }
 
     @Test
     void exportForNullExportPathThrowsException(@TempDir Path tempDir) {
-        assertThrows(NullPointerException.class, () ->
-                exporter.export(databaseContext, null, List.of(bookEntry)));
+        assertThrows(NullPointerException.class, () -> exporter.export(databaseContext, null, List.of(bookEntry)));
     }
 
     @Test
     void exportForNullEntryListThrowsException(@TempDir Path tempDir) {
         Path file = tempDir.resolve("EntryNull");
 
-        assertThrows(NullPointerException.class, () ->
-                exporter.export(databaseContext, file, null));
+        assertThrows(NullPointerException.class, () -> exporter.export(databaseContext, file, null));
     }
 }

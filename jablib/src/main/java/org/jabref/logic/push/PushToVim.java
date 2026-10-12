@@ -12,7 +12,6 @@ import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +39,7 @@ public class PushToVim extends AbstractPushToApplication {
         String keyString = this.getKeyString(entries, getDelimiter());
 
         try {
-            String[] com = new String[] {commandPath, "--servername",
-                    preferences.getVimServer(), "--remote-send",
+            String[] com = new String[] {commandPath, "--servername", preferences.getVimServer(), "--remote-send",
                     "<C-\\><C-N>a" + getCitePrefix() + keyString + getCiteSuffix()};
 
             LOGGER.atDebug()
@@ -68,8 +66,7 @@ public class PushToVim extends AbstractPushToApplication {
                     if (!error.isEmpty()) {
                         LOGGER.warn("Push to Vim error: {}", error);
                         couldNotPush = true;
-                        sendErrorNotification(Localization.lang("Error pushing entries"),
-                                Localization.lang("Could not push to a running Vim server.") + " " + error);
+                        sendErrorNotification(Localization.lang("Error pushing entries"), Localization.lang("Could not push to a running Vim server.") + " " + error);
                     }
                 } catch (IOException e) {
                     LOGGER.warn("Error handling std streams", e);
@@ -78,10 +75,11 @@ public class PushToVim extends AbstractPushToApplication {
         } catch (IOException excep) {
             LOGGER.warn("Problem pushing to Vim.", excep);
             couldNotCall = true;
-            sendErrorNotification(Localization.lang("Error pushing entries"),
-                    Localization.lang("Could not call executable '%0'.", commandPath) + "\n" +
-                            Localization.lang("Please check the path in the preferences.") + "\n" +
-                            (OS.OS_X ? Localization.lang("On macOS, you can use the command-line binary.") : ""));
+            sendErrorNotification(Localization.lang("Error pushing entries"), Localization.lang("Could not call executable '%0'.", commandPath)
+                    + "\n"
+                    + Localization.lang("Please check the path in the preferences.")
+                    + "\n"
+                    + (OS.OS_X ? Localization.lang("On macOS, you can use the command-line binary.") : ""));
         }
     }
 
@@ -90,8 +88,7 @@ public class PushToVim extends AbstractPushToApplication {
         if (couldNotPush) {
             // Detailed error notification might have been sent already in pushEntries
         } else if (couldNotCall) {
-            sendErrorNotification(Localization.lang("Error pushing entries"),
-                    Localization.lang("Could not run the 'vim' program."));
+            sendErrorNotification(Localization.lang("Error pushing entries"), Localization.lang("Could not run the 'vim' program."));
         } else {
             super.onOperationCompleted();
         }
@@ -111,30 +108,13 @@ public class PushToVim extends AbstractPushToApplication {
                 // 'start' is a cmd builtin, so we still need cmd /c start,
                 // but we should be careful with arguments.
                 // However, 'start' itself has special handling for double quotes (first quoted arg is title).
-                processBuilder.command("cmd.exe",
-                        "/c",
-                        "start",
-                        "JabRef to Vim",
-                        command[0],
-                        command[1],
-                        command[2],
-                        command[3]);
+                processBuilder.command("cmd.exe", "/c", "start", "JabRef to Vim", command[0], command[1],
+                        command[2], command[3]);
             } else if (OS.LINUX) {
-                processBuilder.command("gnome-terminal",
-                        "--",
-                        command[0],
-                        command[1],
-                        command[2],
-                        command[3]);
+                processBuilder.command("gnome-terminal", "--", command[0], command[1], command[2], command[3]);
             } else if (OS.OS_X) {
-                processBuilder.command("open",
-                        "-a",
-                        "Terminal",
-                        "--args",
-                        command[0],
-                        command[1],
-                        command[2],
-                        command[3]);
+                processBuilder.command("open", "-a", "Terminal", "--args", command[0], command[1],
+                        command[2], command[3]);
             }
             processBuilder.start();
         } catch (IOException e) {
@@ -159,6 +139,7 @@ public class PushToVim extends AbstractPushToApplication {
 
     @Override
     protected String[] jumpToLineCommandlineArguments(Path fileName, int line, int column) {
-        return new String[] {commandPath, "+%d".formatted(line), fileName.toString(), "+normal %d|".formatted(column)};
+        return new String[] {commandPath, "+%d".formatted(line), fileName.toString(),
+                "+normal %d|".formatted(column)};
     }
 }

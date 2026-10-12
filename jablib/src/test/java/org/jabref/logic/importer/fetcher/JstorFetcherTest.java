@@ -16,7 +16,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.DisabledOnCIServer;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -102,16 +101,13 @@ public class JstorFetcherTest implements SearchBasedFetcherCapabilityTest {
 
     @Disabled("jstor does not support search only based on year")
     @Override
-    public void supportsYearRangeSearch() {
-    }
+    public void supportsYearRangeSearch() {}
 
     @Disabled("jstor does not provide articles with journals")
     @Override
-    public void supportsJournalSearch() {
-    }
+    public void supportsJournalSearch() {}
 
     @Disabled("jstor does not support search only based on year")
     @Override
-    public void supportsYearSearch() {
-    }
+    public void supportsYearSearch() {}
 }

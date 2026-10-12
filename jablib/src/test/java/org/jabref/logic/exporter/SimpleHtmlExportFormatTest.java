@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -14,7 +13,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -30,13 +28,8 @@ import static org.mockito.Mockito.mock;
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("exporter")
 class SimpleHtmlExportFormatTest {
-    private final Exporter exporter = new TemplateExporter("Simple HTML",
-            "simplehtml",
-            "simplehtml",
-            "",
-            StandardFileType.HTML,
-            mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS),
-            SaveOrder.getDefaultSaveOrder());
+    private final Exporter exporter = new TemplateExporter("Simple HTML", "simplehtml", "simplehtml", "", StandardFileType.HTML,
+            mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS), SaveOrder.getDefaultSaveOrder());
 
     @Test
     void authorFirstNamesAreExportedAsInitials(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {

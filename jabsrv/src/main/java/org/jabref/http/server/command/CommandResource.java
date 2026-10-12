@@ -26,7 +26,9 @@ public class CommandResource {
             command.setServiceLocator(serviceLocator);
             return command.execute();
         } catch (JacksonException e) {
-            return Response.serverError().entity(e.getMessage()).build();
+            return Response.serverError()
+                    .entity(e.getMessage())
+                    .build();
         }
     }
 }

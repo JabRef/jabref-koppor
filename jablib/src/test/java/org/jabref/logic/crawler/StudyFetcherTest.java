@@ -10,7 +10,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.paging.Page;
 import org.jabref.model.study.QueryResult;
 import org.jabref.model.study.StudyQuery;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 
@@ -36,10 +35,8 @@ class StudyFetcherTest {
         PagedSearchBasedFetcher pagedFetcher = mock(PagedSearchBasedFetcher.class);
         when(pagedFetcher.getName()).thenReturn("TestPagedFetcher");
         when(pagedFetcher.getPageSize()).thenReturn(10);
-        when(pagedFetcher.performRawSearchQueryPaged(anyString(), anyInt()))
-                .thenReturn(new Page<>("native:query", 0, List.of()));
-        when(pagedFetcher.performRawSearchQueryPaged("native:query", 0))
-                .thenReturn(new Page<>("native:query", 0, List.of(new BibEntry())));
+        when(pagedFetcher.performRawSearchQueryPaged(anyString(), anyInt())).thenReturn(new Page<>("native:query", 0, List.of()));
+        when(pagedFetcher.performRawSearchQueryPaged("native:query", 0)).thenReturn(new Page<>("native:query", 0, List.of(new BibEntry())));
 
         StudyFetcher studyFetcher = new StudyFetcher(List.of(pagedFetcher), List.of(studyQuery), Map.of());
         List<QueryResult> results = studyFetcher.crawl();
@@ -74,10 +71,8 @@ class StudyFetcherTest {
         PagedSearchBasedFetcher pagedFetcher = mock(PagedSearchBasedFetcher.class);
         when(pagedFetcher.getName()).thenReturn("TestPagedFetcher");
         when(pagedFetcher.getPageSize()).thenReturn(10);
-        when(pagedFetcher.performSearchPaged(anyString(), anyInt()))
-                .thenReturn(new Page<>("machine learning", 0, List.of()));
-        when(pagedFetcher.performSearchPaged("machine learning", 0))
-                .thenReturn(new Page<>("machine learning", 0, List.of(new BibEntry())));
+        when(pagedFetcher.performSearchPaged(anyString(), anyInt())).thenReturn(new Page<>("machine learning", 0, List.of()));
+        when(pagedFetcher.performSearchPaged("machine learning", 0)).thenReturn(new Page<>("machine learning", 0, List.of(new BibEntry())));
 
         StudyFetcher studyFetcher = new StudyFetcher(List.of(pagedFetcher), List.of(studyQuery), Map.of());
         studyFetcher.crawl();
@@ -94,10 +89,8 @@ class StudyFetcherTest {
         PagedSearchBasedFetcher pagedFetcher = mock(PagedSearchBasedFetcher.class);
         when(pagedFetcher.getName()).thenReturn("IEEEXplore");
         when(pagedFetcher.getPageSize()).thenReturn(10);
-        when(pagedFetcher.performRawSearchQueryPaged(anyString(), anyInt()))
-                .thenReturn(new Page<>("native:query", 0, List.of()));
-        when(pagedFetcher.performRawSearchQueryPaged("native:query", 0))
-                .thenReturn(new Page<>("native:query", 0, List.of(new BibEntry())));
+        when(pagedFetcher.performRawSearchQueryPaged(anyString(), anyInt())).thenReturn(new Page<>("native:query", 0, List.of()));
+        when(pagedFetcher.performRawSearchQueryPaged("native:query", 0)).thenReturn(new Page<>("native:query", 0, List.of(new BibEntry())));
 
         StudyFetcher studyFetcher = new StudyFetcher(List.of(pagedFetcher), List.of(studyQuery), Map.of());
         studyFetcher.crawl();
@@ -114,14 +107,15 @@ class StudyFetcherTest {
         PagedSearchBasedFetcher pagedFetcher = mock(PagedSearchBasedFetcher.class);
         when(pagedFetcher.getName()).thenReturn("TestPagedFetcher");
         when(pagedFetcher.getPageSize()).thenReturn(10);
-        when(pagedFetcher.performRawSearchQueryPaged(anyString(), anyInt()))
-                .thenThrow(new UnsupportedOperationException("not implemented"));
+        when(pagedFetcher.performRawSearchQueryPaged(anyString(), anyInt())).thenThrow(new UnsupportedOperationException("not implemented"));
 
         StudyFetcher studyFetcher = new StudyFetcher(List.of(pagedFetcher), List.of(studyQuery), Map.of());
         List<QueryResult> results = studyFetcher.crawl();
 
         assertFalse(results.isEmpty());
-        assertTrue(results.getFirst().getResultsPerFetcher().isEmpty());
+        assertTrue(results.getFirst()
+                          .getResultsPerFetcher()
+                          .isEmpty());
         verify(pagedFetcher, never()).performSearchPaged(anyString(), anyInt());
     }
 }

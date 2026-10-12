@@ -10,7 +10,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.paging.Page;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -102,14 +101,12 @@ class LOBIDFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     @Test
     @Override
     @Disabled("Results returned contain a few incorrect years. The majority are accurate")
-    public void supportsYearSearch() {
-    }
+    public void supportsYearSearch() {}
 
     @Test
     @Override
     @Disabled("Results returned contain a few incorrect years. The majority are accurate")
-    public void supportsYearRangeSearch() {
-    }
+    public void supportsYearRangeSearch() {}
 
     @Override
     public PagedSearchBasedFetcher getPagedFetcher() {

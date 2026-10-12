@@ -9,7 +9,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.jabref.logic.msc.MscCodeLoader;
 import org.jabref.logic.msc.MscCodeRepository;
 import org.jabref.logic.shared.exception.MscCodeLoadingException;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -21,11 +20,13 @@ public class MscCodeUtils {
     private static final ReentrantLock MSC_CODES_LOCK = new ReentrantLock();
     private static @Nullable volatile MscCodeRepository mscCodes;
 
-    /// Load MSC codes and descriptions from a CSV resource URL into a repository.
+    /// Load MSC codes and descriptions from a CSV resource URL into a
+    /// repository.
     ///
     /// @param resourceUrl URL to the CSV resource containing MSC codes
     /// @return repository with MSC codes as keys and descriptions as values
-    /// @throws MscCodeLoadingException if there is an issue loading or parsing the CSV
+    /// @throws MscCodeLoadingException if there is an issue loading or parsing
+    ///   the CSV
     @NonNull
     public static Optional<MscCodeRepository> loadMscCodeRepositoryFromCsv(URL resourceUrl) throws MscCodeLoadingException {
         try {

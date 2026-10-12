@@ -3,7 +3,6 @@ package org.jabref.logic.layout.format;
 import java.util.stream.Stream;
 
 import org.jabref.logic.layout.LayoutFormatter;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -26,10 +25,7 @@ class RemoveBracketsAddCommaTest {
     }
 
     private static Stream<Arguments> provideExamples() {
-        return Stream.of(
-                Arguments.of("some text,", "{some text}"),
-                Arguments.of("some text", "{some text"),
-                Arguments.of("some text,", "some text}")
-        );
+        return Stream.of(Arguments.of("some text,", "{some text}"),
+                Arguments.of("some text", "{some text"), Arguments.of("some text,", "some text}"));
     }
 }

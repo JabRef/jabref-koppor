@@ -11,4 +11,3 @@ public enum RangeOverlapKind {
     /// They cover the same XTextRange
     EQUAL_RANGE
 }
-

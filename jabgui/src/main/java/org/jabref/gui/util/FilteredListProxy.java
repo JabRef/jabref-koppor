@@ -9,9 +9,7 @@ import java.util.function.Predicate;
 
 import javafx.collections.ObservableListBase;
 import javafx.collections.transformation.FilteredList;
-
 import org.jabref.gui.maintable.BibEntryTableViewModel;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +33,7 @@ public class FilteredListProxy {
                 initReflection();
             }
             REFILTER_METHOD.invoke(filteredList);
-        } catch (IllegalAccessException
-                 | InvocationTargetException
-                 | NoSuchMethodException
-                 | NoSuchFieldException e) {
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | NoSuchFieldException e) {
             LOGGER.warn("Could not refilter list", e);
         }
     }
@@ -53,7 +48,8 @@ public class FilteredListProxy {
             }
 
             BEGIN_CHANGE_METHOD.invoke(filteredList);
-            ENSURE_SIZE_METHOD.invoke(filteredList, filteredList.getSource().size());
+            ENSURE_SIZE_METHOD.invoke(filteredList, filteredList.getSource()
+                    .size());
 
             @SuppressWarnings("unchecked")
             Predicate<BibEntryTableViewModel> predicateImpl = (Predicate<BibEntryTableViewModel>) GET_PREDICATE_IMPL_METHOD.invoke(filteredList);
@@ -75,11 +71,13 @@ public class FilteredListProxy {
                     NEXT_UPDATE_METHOD.invoke(filteredList, pos);
                 } else if (passedBefore) {
                     NEXT_REMOVE_METHOD.invoke(filteredList, pos, el);
-                    System.arraycopy(filtered, pos + 1, filtered, pos, size - pos - 1);
+                    System.arraycopy(filtered, pos + 1, filtered, pos,
+                            size - pos - 1);
                     size--;
                 } else if (passedNow) {
                     int insertionPoint = ~pos;
-                    System.arraycopy(filtered, insertionPoint, filtered, insertionPoint + 1, size - insertionPoint);
+                    System.arraycopy(filtered, insertionPoint, filtered, insertionPoint + 1,
+                            size - insertionPoint);
                     filtered[insertionPoint] = i;
                     NEXT_ADD_METHOD.invoke(filteredList, insertionPoint, insertionPoint + 1);
                     size++;

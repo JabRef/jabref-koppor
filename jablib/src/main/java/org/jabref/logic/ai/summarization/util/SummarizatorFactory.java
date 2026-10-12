@@ -11,33 +11,18 @@ public final class SummarizatorFactory {
         throw new UnsupportedOperationException("cannot instantiate a utility class");
     }
 
-    public static Summarizator create(
-            SummarizatorKind summarizatorKind,
-            String summarizationChunkSystemMessageTemplate,
-            String summarizationCombineSystemMessageTemplate,
-            String summarizationFullDocumentSystemMessageTemplate
-    ) {
+    public static Summarizator create(SummarizatorKind summarizatorKind, String summarizationChunkSystemMessageTemplate, String summarizationCombineSystemMessageTemplate,
+            String summarizationFullDocumentSystemMessageTemplate) {
         return switch (summarizatorKind) {
-            case SummarizatorKind.CHUNKED ->
-                    new ChunkedSummarizator(
-                            summarizationChunkSystemMessageTemplate,
-                            summarizationCombineSystemMessageTemplate
-                    );
+            case SummarizatorKind.CHUNKED -> new ChunkedSummarizator(summarizationChunkSystemMessageTemplate, summarizationCombineSystemMessageTemplate);
 
-            case SummarizatorKind.FULL_DOCUMENT ->
-                    new FullDocumentSummarizator(
-                            summarizationFullDocumentSystemMessageTemplate
-                    );
+            case SummarizatorKind.FULL_DOCUMENT -> new FullDocumentSummarizator(summarizationFullDocumentSystemMessageTemplate);
         };
     }
 
     /// Convenience overload that reads all parameters from [AiPreferences].
     public static Summarizator create(AiPreferences aiPreferences) {
-        return create(
-                aiPreferences.getSummarizatorKind(),
-                aiPreferences.getSummarizationChunkSystemMessageTemplate(),
-                aiPreferences.getSummarizationCombineSystemMessageTemplate(),
-                aiPreferences.getSummarizationFullDocumentSystemMessageTemplate()
-        );
+        return create(aiPreferences.getSummarizatorKind(), aiPreferences.getSummarizationChunkSystemMessageTemplate(), aiPreferences.getSummarizationCombineSystemMessageTemplate(),
+                aiPreferences.getSummarizationFullDocumentSystemMessageTemplate());
     }
 }

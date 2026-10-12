@@ -25,6 +25,5 @@ public final class SearchFieldConstants {
     /// The entry type.
     public static final String ENTRY_TYPE = "entrytype";
 
-    private SearchFieldConstants() {
-    }
+    private SearchFieldConstants() {}
 }

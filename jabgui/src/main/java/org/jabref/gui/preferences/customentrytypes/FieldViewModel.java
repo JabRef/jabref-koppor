@@ -8,7 +8,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.BibField;
 import org.jabref.model.entry.field.Field;
@@ -27,9 +26,7 @@ public class FieldViewModel {
     private final ObjectProperty<FieldPriority> priorityProperty = new SimpleObjectProperty<>();
     private final ObservableList<FieldProperty> properties = FXCollections.observableArrayList();
 
-    public FieldViewModel(Field field,
-                          Mandatory required,
-                          FieldPriority priorityProperty,
+    public FieldViewModel(Field field, Mandatory required, FieldPriority priorityProperty,
                           boolean multiline) {
         this.displayName.setValue(FieldTextMapper.getDisplayName(field));
         this.required.setValue(required == Mandatory.REQUIRED);

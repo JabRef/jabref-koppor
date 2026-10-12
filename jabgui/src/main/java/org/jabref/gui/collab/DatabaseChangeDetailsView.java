@@ -2,7 +2,6 @@ package org.jabref.gui.collab;
 
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
-
 import org.jabref.gui.collab.entrychange.EntryChangeDetailsView;
 import org.jabref.gui.collab.entrychange.EntryWithPreviewAndSourceDetailsView;
 import org.jabref.gui.collab.groupchange.GroupChangeDetailsView;
@@ -13,19 +12,12 @@ import org.jabref.gui.collab.stringchange.BibTexStringChangeDetailsView;
 import org.jabref.gui.collab.stringdelete.BibTexStringDeleteDetailsView;
 import org.jabref.gui.collab.stringrename.BibTexStringRenameDetailsView;
 
-public sealed abstract class DatabaseChangeDetailsView extends AnchorPane permits
-        EntryWithPreviewAndSourceDetailsView,
-        GroupChangeDetailsView,
-        MetadataChangeDetailsView,
-        PreambleChangeDetailsView,
-        BibTexStringAddDetailsView,
-        BibTexStringChangeDetailsView,
-        BibTexStringDeleteDetailsView,
-        BibTexStringRenameDetailsView,
-        EntryChangeDetailsView {
+public abstract sealed class DatabaseChangeDetailsView extends AnchorPane
+        permits EntryWithPreviewAndSourceDetailsView, GroupChangeDetailsView, MetadataChangeDetailsView, PreambleChangeDetailsView, BibTexStringAddDetailsView, BibTexStringChangeDetailsView,
+                BibTexStringDeleteDetailsView, BibTexStringRenameDetailsView, EntryChangeDetailsView {
 
-    /// Set left, top, right, bottom anchors based on common offset parameter for the given child
-    /// and attach it to children.
+    /// Set left, top, right, bottom anchors based on common offset parameter
+    /// for the given child and attach it to children.
     ///
     /// @param child the child node of the implementation
     /// @see AnchorPane#getChildren()

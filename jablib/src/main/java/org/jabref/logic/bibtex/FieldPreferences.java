@@ -7,7 +7,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 
@@ -19,10 +18,10 @@ public class FieldPreferences {
     private final ObservableList<Field> resolvableFields;
     private final ObservableList<Field> nonWrappableFields;
 
-    /// @param resolveStrings true - The character [FieldWriter#BIBTEX_STRING_START_END_SYMBOL] should be interpreted as indicator of BibTeX strings
-    public FieldPreferences(boolean resolveStrings,
-                            List<Field> resolvableFields,
-                            List<Field> nonWrappableFields) {
+    /// @param resolveStrings true - The character
+    ///   [FieldWriter#BIBTEX_STRING_START_END_SYMBOL] should be interpreted as
+    ///   indicator of BibTeX strings
+    public FieldPreferences(boolean resolveStrings, List<Field> resolvableFields, List<Field> nonWrappableFields) {
         this.resolveStrings.set(resolveStrings);
         this.resolvableFields = FXCollections.observableArrayList(resolvableFields);
         this.nonWrappableFields = FXCollections.observableArrayList(nonWrappableFields);
@@ -30,13 +29,12 @@ public class FieldPreferences {
 
     private FieldPreferences() {
         this(
-                // Default resolve string setting
-                true,
-                // Default resolvable field
-                List.copyOf(FieldFactory.parseFieldList(DEFAULT_RESOLVABLE_FIELDS)),
-                // Default non wrappable field
-                List.copyOf(FieldFactory.parseFieldList(DEFAULT_NON_WRAPPABLE_FIELDS))
-        );
+        // Default resolve string setting
+        true,
+        // Default resolvable field
+        List.copyOf(FieldFactory.parseFieldList(DEFAULT_RESOLVABLE_FIELDS)),
+        // Default non wrappable field
+        List.copyOf(FieldFactory.parseFieldList(DEFAULT_NON_WRAPPABLE_FIELDS)));
     }
 
     public static FieldPreferences getDefault() {

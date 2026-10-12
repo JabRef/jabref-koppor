@@ -2,6 +2,7 @@ package org.jabref.gui.groups;
 
 import java.util.EnumSet;
 
+import com.google.common.annotations.VisibleForTesting;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
@@ -9,10 +10,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.model.groups.GroupHierarchyType;
-
-import com.google.common.annotations.VisibleForTesting;
 
 public class GroupsPreferences {
 
@@ -23,14 +21,15 @@ public class GroupsPreferences {
     private final ObjectProperty<GroupHierarchyType> defaultHierarchicalContext;
     private final BooleanProperty showAiChatButton;
 
-    public GroupsPreferences(boolean viewModeIntersection,
-                             boolean viewModeFilter,
-                             boolean viewModeInvert,
-                             boolean shouldAutoAssignGroup,
-                             boolean shouldDisplayGroupCount,
-                             boolean shouldAutoIncludeSelectedEntries,
-                             GroupHierarchyType defaultHierarchicalContext,
-                             boolean showAiChatButton) {
+    public GroupsPreferences(
+            boolean viewModeIntersection,
+            boolean viewModeFilter,
+            boolean viewModeInvert,
+            boolean shouldAutoAssignGroup,
+            boolean shouldDisplayGroupCount,
+            boolean shouldAutoIncludeSelectedEntries,
+            GroupHierarchyType defaultHierarchicalContext,
+            boolean showAiChatButton) {
 
         this.groupViewMode = new SimpleSetProperty<>(FXCollections.observableSet());
         this.shouldAutoAssignGroup = new SimpleBooleanProperty(shouldAutoAssignGroup);
@@ -51,25 +50,20 @@ public class GroupsPreferences {
     }
 
     private GroupsPreferences() {
-        this(
-                true,                             // Default view mode intersection
-                true,                             // Default view mode filter
-                false,                            // Default view mode invert
-                true,                             // Default auto assign group
-                true,                             // Default display group content
-                true,                             // Default include selected entries in new explicit groups
-                GroupHierarchyType.INDEPENDENT,   // Default hierarchical context
-                true                              // Default view mode for the AI chat button
+        this(true, // Default view mode intersection
+        true, // Default view mode filter
+        false, // Default view mode invert
+        true, // Default auto assign group
+        true, // Default display group content
+        true, // Default include selected entries in new explicit groups
+                GroupHierarchyType.INDEPENDENT, // Default hierarchical context
+                true // Default view mode for the AI chat button
         );
     }
 
     @VisibleForTesting
-    public GroupsPreferences(EnumSet<GroupViewMode> groupViewMode,
-                             boolean shouldAutoAssignGroup,
-                             boolean shouldDisplayGroupCount,
-                             boolean shouldAutoIncludeSelectedEntries,
-                             GroupHierarchyType defaultHierarchicalContext,
-                             boolean showAiChatButton) {
+    public GroupsPreferences(EnumSet<GroupViewMode> groupViewMode, boolean shouldAutoAssignGroup, boolean shouldDisplayGroupCount,
+            boolean shouldAutoIncludeSelectedEntries, GroupHierarchyType defaultHierarchicalContext, boolean showAiChatButton) {
         this.groupViewMode = new SimpleSetProperty<>(FXCollections.observableSet(groupViewMode));
         this.shouldAutoAssignGroup = new SimpleBooleanProperty(shouldAutoAssignGroup);
         this.shouldDisplayGroupCount = new SimpleBooleanProperty(shouldDisplayGroupCount);

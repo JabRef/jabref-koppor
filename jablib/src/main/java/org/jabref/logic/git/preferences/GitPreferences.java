@@ -6,7 +6,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -17,11 +16,8 @@ public class GitPreferences {
     private final BooleanProperty rememberPat;
     private final IntegerProperty pullIntervalInMinutes;
 
-    public GitPreferences(String username,
-                          String pat,
-                          String repositoryUrl,
-                          boolean rememberPat,
-                          int pullIntervalInMinutes) {
+    public GitPreferences(String username, String pat, String repositoryUrl,
+                          boolean rememberPat, int pullIntervalInMinutes) {
         this.username = new SimpleStringProperty(username);
         this.pat = new SimpleStringProperty(pat);
         this.repositoryUrl = new SimpleStringProperty(repositoryUrl);
@@ -31,12 +27,11 @@ public class GitPreferences {
 
     // Creates object with default preference values
     private GitPreferences() {
-        this(
-                "",     // username: GitHub username
-                "",     // pat: GitHub personal access token (stored in keyring when rememberPat is enabled)
-                "",     // repositoryUrl: URL of the remote repository
-                false,  // rememberPat: Whether the PAT should be persisted in the keyring
-                5       // pullIntervalInMinutes: Minutes between automatic pulls
+        this("", // username: GitHub username
+        "", // pat: GitHub personal access token (stored in keyring when rememberPat is enabled)
+        "", // repositoryUrl: URL of the remote repository
+        false, // rememberPat: Whether the PAT should be persisted in the keyring
+        5 // pullIntervalInMinutes: Minutes between automatic pulls
         );
     }
 

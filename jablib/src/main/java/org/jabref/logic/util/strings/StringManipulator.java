@@ -39,17 +39,12 @@ public class StringManipulator {
         }
 
         String result = switch (targetCase) {
-            case UPPER ->
-                    new UpperCaseFormatter().format(text.substring(wordStartPosition, nextWordBoundary));
-            case LOWER ->
-                    new LowerCaseFormatter().format(text.substring(wordStartPosition, nextWordBoundary));
-            case CAPITALIZED ->
-                    new CapitalizeFormatter().format(text.substring(wordStartPosition, nextWordBoundary));
+            case UPPER -> new UpperCaseFormatter().format(text.substring(wordStartPosition, nextWordBoundary));
+            case LOWER -> new LowerCaseFormatter().format(text.substring(wordStartPosition, nextWordBoundary));
+            case CAPITALIZED -> new CapitalizeFormatter().format(text.substring(wordStartPosition, nextWordBoundary));
         };
 
-        return new ResultingStringState(
-                nextWordBoundary,
-                text.substring(0, wordStartPosition) + result + text.substring(nextWordBoundary));
+        return new ResultingStringState(nextWordBoundary, text.substring(0, wordStartPosition) + result + text.substring(nextWordBoundary));
     }
 
     /// Delete all characters in a string from the given position to the next word boundary.
@@ -64,14 +59,8 @@ public class StringManipulator {
 
         // Construct new string without cutout
         return switch (direction) {
-            case NEXT ->
-                    new ResultingStringState(
-                            caretPosition,
-                            text.substring(0, caretPosition) + text.substring(nextWordBoundary));
-            case PREVIOUS ->
-                    new ResultingStringState(
-                            nextWordBoundary,
-                            text.substring(0, nextWordBoundary) + text.substring(caretPosition));
+            case NEXT -> new ResultingStringState(caretPosition, text.substring(0, caretPosition) + text.substring(nextWordBoundary));
+            case PREVIOUS -> new ResultingStringState(nextWordBoundary, text.substring(0, nextWordBoundary) + text.substring(caretPosition));
         };
     }
 

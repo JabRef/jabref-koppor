@@ -6,7 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
+import org.controlsfx.control.ToggleSwitch;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -19,8 +19,6 @@ import org.jabref.gui.welcome.quicksettings.PushApplicationDialog;
 import org.jabref.gui.welcome.quicksettings.ThemeDialog;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
-
-import org.controlsfx.control.ToggleSwitch;
 
 public class QuickSettings extends VBox {
     private final GuiPreferences preferences;
@@ -63,46 +61,31 @@ public class QuickSettings extends VBox {
 
     private VBox createContent() {
         ToggleSwitch httpServerToggle = new ToggleSwitch(Localization.lang("Enable HTTP server (for browser extension)"));
-        httpServerToggle.selectedProperty().bindBidirectional(preferences.getRemotePreferences().enableHttpServerProperty());
+        httpServerToggle.selectedProperty().bindBidirectional(preferences.getRemotePreferences()
+                .enableHttpServerProperty());
         httpServerToggle.setMaxWidth(Double.MAX_VALUE);
         httpServerToggle.setPadding(new Insets(5));
 
         ToggleSwitch coverImagesDownloadToggle = new ToggleSwitch(Localization.lang("Enable cover images download"));
-        coverImagesDownloadToggle.selectedProperty().bindBidirectional(preferences.getPreviewPreferences().shouldDownloadCoversProperty());
+        coverImagesDownloadToggle.selectedProperty().bindBidirectional(preferences.getPreviewPreferences()
+                .shouldDownloadCoversProperty());
         coverImagesDownloadToggle.setMaxWidth(Double.MAX_VALUE);
         coverImagesDownloadToggle.setPadding(new Insets(5));
 
-        Button mainFileDirButton = createButton(
-                Localization.lang("Set main file directory"),
-                IconTheme.JabRefIcons.FOLDER,
-                this::showMainFileDirectoryDialog);
+        Button mainFileDirButton = createButton(Localization.lang("Set main file directory"), IconTheme.JabRefIcons.FOLDER, this::showMainFileDirectoryDialog);
 
-        Button themeButton = createButton(
-                Localization.lang("Change appearance"),
-                IconTheme.JabRefIcons.PREFERENCES,
-                this::showThemeDialog);
+        Button themeButton = createButton(Localization.lang("Change appearance"), IconTheme.JabRefIcons.PREFERENCES, this::showThemeDialog);
 
-        Button largeLibraryButton = createButton(
-                Localization.lang("Optimize for large libraries"),
-                IconTheme.JabRefIcons.SELECTORS,
-                this::showLargeLibraryOptimizationDialog);
+        Button largeLibraryButton = createButton(Localization.lang("Optimize for large libraries"), IconTheme.JabRefIcons.SELECTORS, this::showLargeLibraryOptimizationDialog);
 
-        Button pushApplicationButton = createButton(
-                Localization.lang("Configure push to applications"),
-                IconTheme.JabRefIcons.APPLICATION_GENERIC,
-                this::showPushApplicationConfigurationDialog);
+        Button pushApplicationButton = createButton(Localization.lang("Configure push to applications"), IconTheme.JabRefIcons.APPLICATION_GENERIC, this::showPushApplicationConfigurationDialog);
 
-        Button onlineServicesButton = createButton(
-                Localization.lang("Configure web search services"),
-                IconTheme.JabRefIcons.WWW,
-                this::showOnlineServicesConfigurationDialog);
+        Button onlineServicesButton = createButton(Localization.lang("Configure web search services"), IconTheme.JabRefIcons.WWW, this::showOnlineServicesConfigurationDialog);
 
-        Button entryTableButton = createButton(
-                Localization.lang("Customize entry table"),
-                IconTheme.JabRefIcons.TOGGLE_GROUPS,
-                this::showEntryTableConfigurationDialog);
+        Button entryTableButton = createButton(Localization.lang("Customize entry table"), IconTheme.JabRefIcons.TOGGLE_GROUPS, this::showEntryTableConfigurationDialog);
 
-        VBox newContent = new VBox(4,
+        VBox newContent = new VBox(
+                4,
                 httpServerToggle,
                 coverImagesDownloadToggle,
                 mainFileDirButton,

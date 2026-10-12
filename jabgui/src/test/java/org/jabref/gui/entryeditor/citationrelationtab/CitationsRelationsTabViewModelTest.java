@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
+import org.jabref.gui.entryeditor.citationrelationtab.CitationsRelationsTabViewModel.SciteStatus;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.undo.HeadlessGuiUndoManager;
@@ -18,7 +18,7 @@ import org.jabref.logic.citationkeypattern.GlobalCitationKeyPatterns;
 import org.jabref.logic.database.DuplicateCheck;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ImporterPreferences;
-import org.jabref.logic.importer.fetcher.citation.CitationFetcher;
+import org.jabref.logic.importer.fetcher.citation.CitationFetcher.SearchType;
 import org.jabref.logic.preferences.OwnerPreferences;
 import org.jabref.logic.preferences.TimestampPreferences;
 import org.jabref.logic.util.BackgroundTask;
@@ -30,7 +30,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -51,8 +50,10 @@ class CitationsRelationsTabViewModelTest {
 
     @Mock
     private GuiPreferences preferences;
+
     @Mock
     private DuplicateCheck duplicateCheck;
+
     private BibEntry existingEntry;
     private BibEntry firstEntryToImport;
     private BibEntry secondEntryToImport;
@@ -63,7 +64,9 @@ class CitationsRelationsTabViewModelTest {
         MockitoAnnotations.openMocks(this);
 
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
         when(preferences.getImportFormatPreferences()).thenReturn(importFormatPreferences);
 
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS);
@@ -98,11 +101,7 @@ class CitationsRelationsTabViewModelTest {
         when(libraryPreferences.shouldAddImportedEntries()).thenReturn(false);
         when(preferences.getLibraryPreferences()).thenReturn(libraryPreferences);
 
-        viewModel = new CitationsRelationsTabViewModel(
-                preferences,
-                stateManager,
-                mock(DialogService.class),
-                new DummyFileUpdateMonitor(),
+        viewModel = new CitationsRelationsTabViewModel(preferences, stateManager, mock(DialogService.class), new DummyFileUpdateMonitor(),
                 new CurrentThreadTaskExecutor());
 
         existingEntry = new BibEntry(StandardEntryType.Article)
@@ -111,22 +110,22 @@ class CitationsRelationsTabViewModelTest {
 
         bibDatabaseContext.getDatabase().insertEntry(existingEntry);
 
-        firstEntryToImport = new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "First Author")
-                                                                    .withField(StandardField.YEAR, "2022")
-                                                                    .withCitationKey("FirstAuthorCitationKey2022");
+        firstEntryToImport = new BibEntry(StandardEntryType.Article)
+                .withField(StandardField.AUTHOR, "First Author")
+                .withField(StandardField.YEAR, "2022")
+                .withCitationKey("FirstAuthorCitationKey2022");
 
-        secondEntryToImport = new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "Second Author")
-                                                                     .withField(StandardField.YEAR, "2021")
-                                                                     .withCitationKey("SecondAuthorCitationKey20221");
+        secondEntryToImport = new BibEntry(StandardEntryType.Article)
+                .withField(StandardField.AUTHOR, "Second Author")
+                .withField(StandardField.YEAR, "2021")
+                .withCitationKey("SecondAuthorCitationKey20221");
     }
 
     @Test
     void existingEntryCitesOtherPaperWithCitationKeys() {
-        List<CitationRelationItem> citationItems = List.of(
-                new CitationRelationItem(firstEntryToImport, false),
-                new CitationRelationItem(secondEntryToImport, false));
+        List<CitationRelationItem> citationItems = List.of(new CitationRelationItem(firstEntryToImport, false), new CitationRelationItem(secondEntryToImport, false));
 
-        viewModel.importEntries(citationItems, CitationFetcher.SearchType.CITES, existingEntry);
+        viewModel.importEntries(citationItems, SearchType.CITES, existingEntry);
 
         assertEquals(Optional.of("FirstAuthorCitationKey2022,SecondAuthorCitationKey20221"), existingEntry.getField(StandardField.CITES));
         assertEquals(List.of(existingEntry, firstEntryToImport, secondEntryToImport), bibDatabaseContext.getEntries());
@@ -134,16 +133,18 @@ class CitationsRelationsTabViewModelTest {
 
     @Test
     void importedEntriesWithExistingCitationKeysCiteExistingEntry() {
-        List<CitationRelationItem> citationItems = List.of(
-                new CitationRelationItem(firstEntryToImport, false),
-                new CitationRelationItem(secondEntryToImport, false));
+        List<CitationRelationItem> citationItems = List.of(new CitationRelationItem(firstEntryToImport, false), new CitationRelationItem(secondEntryToImport, false));
 
-        viewModel.importEntries(citationItems, CitationFetcher.SearchType.CITED_BY, existingEntry);
+        viewModel.importEntries(citationItems, SearchType.CITED_BY, existingEntry);
 
         // The entries are cloned during the import. Thus, we need to get the actual entries from the database.
         // In the test, the citation key is not changed during the import, thus we can just look up the entries by their citation key.
-        BibEntry firstEntryInLibrary = bibDatabaseContext.getDatabase().getEntryByCitationKey(firstEntryToImport.getCitationKey().get()).get();
-        BibEntry secondEntryInLibrary = bibDatabaseContext.getDatabase().getEntryByCitationKey(secondEntryToImport.getCitationKey().get()).get();
+        BibEntry firstEntryInLibrary = bibDatabaseContext.getDatabase()
+                .getEntryByCitationKey(firstEntryToImport.getCitationKey().get())
+                .get();
+        BibEntry secondEntryInLibrary = bibDatabaseContext.getDatabase()
+                .getEntryByCitationKey(secondEntryToImport.getCitationKey().get())
+                .get();
 
         assertEquals(Optional.of("Test2023"), firstEntryInLibrary.getField(StandardField.CITES));
         assertEquals(List.of(existingEntry, firstEntryInLibrary, secondEntryInLibrary), bibDatabaseContext.getEntries());
@@ -152,22 +153,21 @@ class CitationsRelationsTabViewModelTest {
     @Test
     void existingEntryCitesOtherPaperWithCitationKeysAndExistingCiteField() {
         existingEntry.setField(StandardField.CITES, "Asdf1222");
-        List<CitationRelationItem> citationItems = List.of(
-                new CitationRelationItem(firstEntryToImport, false),
-                new CitationRelationItem(secondEntryToImport, false));
+        List<CitationRelationItem> citationItems = List.of(new CitationRelationItem(firstEntryToImport, false), new CitationRelationItem(secondEntryToImport, false));
 
-        viewModel.importEntries(citationItems, CitationFetcher.SearchType.CITES, existingEntry);
+        viewModel.importEntries(citationItems, SearchType.CITES, existingEntry);
 
-        assertEquals(Optional.of("Asdf1222,FirstAuthorCitationKey2022,SecondAuthorCitationKey20221"), existingEntry.getField(StandardField.CITES));
+        assertEquals(
+                Optional.of("Asdf1222,FirstAuthorCitationKey2022,SecondAuthorCitationKey20221"),
+                existingEntry.getField(StandardField.CITES));
         assertEquals(List.of(existingEntry, firstEntryToImport, secondEntryToImport), bibDatabaseContext.getEntries());
     }
 
     @Test
     void importEntriesUpdatesPropertyOnSuccess() {
-        List<CitationRelationItem> citationItems = List.of(
-                new CitationRelationItem(firstEntryToImport, false));
+        List<CitationRelationItem> citationItems = List.of(new CitationRelationItem(firstEntryToImport, false));
 
-        viewModel.importEntries(citationItems, CitationFetcher.SearchType.CITES, existingEntry);
+        viewModel.importEntries(citationItems, SearchType.CITES, existingEntry);
 
         BibEntry lastImported = viewModel.lastImportedEntryProperty().get();
 
@@ -178,34 +178,34 @@ class CitationsRelationsTabViewModelTest {
     @Test
     void importEntriesUpdatesEvenIfCitationKeyIsMissing() {
         existingEntry.clearCitationKey();
-        List<CitationRelationItem> citationItems = List.of(
-                new CitationRelationItem(firstEntryToImport, false));
-        viewModel.importEntries(citationItems, CitationFetcher.SearchType.CITED_BY, existingEntry);
-        assertEquals(citationItems.getFirst().entry(), viewModel.lastImportedEntryProperty().get());
+        List<CitationRelationItem> citationItems = List.of(new CitationRelationItem(firstEntryToImport, false));
+        viewModel.importEntries(citationItems, SearchType.CITED_BY, existingEntry);
+        assertEquals(citationItems.getFirst().entry(),
+                viewModel.lastImportedEntryProperty().get());
     }
 
     @Test
     void updateForEntryWithoutDoiSetsDoiMissingStatus() {
         BibEntry entryWithoutDoi = new BibEntry(StandardEntryType.Article);
         viewModel.updateForEntry(entryWithoutDoi);
-        assertEquals(CitationsRelationsTabViewModel.SciteStatus.DOI_MISSING, viewModel.statusProperty().get());
+        assertEquals(SciteStatus.DOI_MISSING, viewModel.statusProperty().get());
     }
 
     @Test
     void updateForNullEntrySetsErrorStatus() {
         viewModel.updateForEntry(null);
-        assertEquals(CitationsRelationsTabViewModel.SciteStatus.ERROR, viewModel.statusProperty().get());
+        assertEquals(SciteStatus.ERROR, viewModel.statusProperty().get());
     }
 
     @Test
     void updateForEntryTransitionFromNoDoiToDoiResetsStatus() {
         BibEntry entryWithoutDoi = new BibEntry(StandardEntryType.Article);
         viewModel.updateForEntry(entryWithoutDoi);
-        assertEquals(CitationsRelationsTabViewModel.SciteStatus.DOI_MISSING, viewModel.statusProperty().get());
+        assertEquals(SciteStatus.DOI_MISSING, viewModel.statusProperty().get());
 
         BibEntry entryWithDoi = new BibEntry(StandardEntryType.Article).withField(StandardField.DOI, "10.1000/182");
         viewModel.updateForEntry(entryWithDoi);
-        assertNotEquals(CitationsRelationsTabViewModel.SciteStatus.DOI_MISSING, viewModel.statusProperty().get());
+        assertNotEquals(SciteStatus.DOI_MISSING, viewModel.statusProperty().get());
     }
 
     @Test
@@ -213,12 +213,12 @@ class CitationsRelationsTabViewModelTest {
         BackgroundTask<List<CitationRelationItem>> firstTask = BackgroundTask.wrap(() -> List.<CitationRelationItem>of());
         BackgroundTask<List<CitationRelationItem>> secondTask = BackgroundTask.wrap(() -> List.<CitationRelationItem>of());
 
-        viewModel.trackCitationSearch(CitationFetcher.SearchType.CITES, firstTask);
-        viewModel.trackCitationSearch(CitationFetcher.SearchType.CITES, secondTask);
+        viewModel.trackCitationSearch(SearchType.CITES, firstTask);
+        viewModel.trackCitationSearch(SearchType.CITES, secondTask);
 
         assertTrue(firstTask.isCancelled());
-        assertTrue(viewModel.isTrackedCitationSearch(CitationFetcher.SearchType.CITES, secondTask));
-        assertFalse(viewModel.isTrackedCitationSearch(CitationFetcher.SearchType.CITES, firstTask));
+        assertTrue(viewModel.isTrackedCitationSearch(SearchType.CITES, secondTask));
+        assertFalse(viewModel.isTrackedCitationSearch(SearchType.CITES, firstTask));
     }
 
     @Test
@@ -226,8 +226,8 @@ class CitationsRelationsTabViewModelTest {
         BackgroundTask<List<CitationRelationItem>> citesTask = BackgroundTask.wrap(() -> List.<CitationRelationItem>of());
         BackgroundTask<List<CitationRelationItem>> citedByTask = BackgroundTask.wrap(() -> List.<CitationRelationItem>of());
 
-        viewModel.trackCitationSearch(CitationFetcher.SearchType.CITES, citesTask);
-        viewModel.trackCitationSearch(CitationFetcher.SearchType.CITED_BY, citedByTask);
+        viewModel.trackCitationSearch(SearchType.CITES, citesTask);
+        viewModel.trackCitationSearch(SearchType.CITED_BY, citedByTask);
 
         viewModel.cancelCitationSearches();
 

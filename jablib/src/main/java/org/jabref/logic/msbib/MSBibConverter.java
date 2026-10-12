@@ -20,14 +20,14 @@ public class MSBibConverter {
     private static final String BIBTEX_PREFIX = "BIBTEX_";
     private static final RemoveEnclosingBracesFormatter REMOVE_BRACES_FORMATTER = new RemoveEnclosingBracesFormatter();
 
-    private MSBibConverter() {
-    }
+    private MSBibConverter() {}
 
     public static MSBibEntry convert(BibEntry entry) {
         MSBibEntry result = new MSBibEntry();
 
         // memorize original type
-        result.fields.put(BIBTEX_PREFIX + "Entry", entry.getType().getName());
+        result.fields.put(BIBTEX_PREFIX + "Entry",
+                entry.getType().getName());
         // define new type
         String msBibType = MSBibMapping.getMSBibEntryType(entry.getType()).name();
         result.fields.put("SourceType", msBibType);
@@ -65,7 +65,9 @@ public class MSBibConverter {
         }
 
         result.day = entry.getFieldOrAliasLatexFree(StandardField.DAY).orElse(null);
-        result.month = entry.getMonth().map(Month::getFullName).orElse(null);
+        result.month = entry.getMonth()
+                            .map(Month::getFullName)
+                            .orElse(null);
 
         if (entry.getFieldLatexFree(StandardField.YEAR).isEmpty()) {
             result.year = entry.getFieldOrAliasLatexFree(StandardField.YEAR).orElse(null);
@@ -73,8 +75,7 @@ public class MSBibConverter {
         result.journalName = entry.getFieldOrAliasLatexFree(StandardField.JOURNAL).orElse(null);
 
         // Value must be converted
-        entry.getFieldLatexFree(StandardField.LANGUAGE)
-             .ifPresent(lang -> result.fields.put("LCID", String.valueOf(MSBibMapping.getLCID(lang))));
+        entry.getFieldLatexFree(StandardField.LANGUAGE).ifPresent(lang -> result.fields.put("LCID", String.valueOf(MSBibMapping.getLCID(lang))));
         StringBuilder sbNumber = new StringBuilder();
         entry.getFieldLatexFree(StandardField.ISBN).ifPresent(isbn -> sbNumber.append(" ISBN: ").append(isbn));
         entry.getFieldLatexFree(StandardField.ISSN).ifPresent(issn -> sbNumber.append(" ISSN: ").append(issn));
@@ -142,9 +143,10 @@ public class MSBibConverter {
             authorLatexFree = "{" + authorLatexFree + "}";
         }
 
-        return AuthorList.parse(authorLatexFree).getAuthors()
-                         .stream()
-                         .map(author -> new MsBibAuthor(author, corporate))
-                         .toList();
+        return AuthorList.parse(authorLatexFree)
+                .getAuthors()
+                .stream()
+                .map(author -> new MsBibAuthor(author, corporate))
+                .toList();
     }
 }

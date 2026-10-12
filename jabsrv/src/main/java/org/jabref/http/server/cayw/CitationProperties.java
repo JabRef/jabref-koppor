@@ -15,8 +15,7 @@ public class CitationProperties {
     private @Nullable String suffix;
     private boolean omitAuthor;
 
-    public CitationProperties() {
-    }
+    public CitationProperties() {}
 
     public void setLocatorType(@Nullable LocatorType locatorType) {
         this.locatorType = locatorType;
@@ -50,8 +49,8 @@ public class CitationProperties {
 
     public Optional<String> getPrefix() {
         return Optional.ofNullable(prefix)
-                       .map(String::strip)
-                       .filter(not(String::isEmpty));
+                .map(String::strip)
+                .filter(not(String::isEmpty));
     }
 
     public CitationProperties withPrefix(@Nullable String prefix) {
@@ -65,8 +64,8 @@ public class CitationProperties {
 
     public Optional<String> getSuffix() {
         return Optional.ofNullable(suffix)
-                       .map(String::strip)
-                       .filter(not(String::isEmpty));
+                .map(String::strip)
+                .filter(not(String::isEmpty));
     }
 
     public CitationProperties withSuffix(@Nullable String suffix) {

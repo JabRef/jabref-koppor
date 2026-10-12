@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jabref.logic.os.OS;
-
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,30 +78,26 @@ public class PushToApplicationDetector {
         List<Path> paths = new ArrayList<>();
 
         if (OS.WINDOWS) {
-            paths.addAll(List.of(
-                    Path.of("C:/Program Files"),
-                    Path.of("C:/Program Files (x86)"),
-                    Path.of(System.getProperty("user.home"), "AppData/Local"),
-                    Path.of(System.getProperty("user.home"), "AppData/Roaming")
-            ));
+            paths.addAll(List.of(Path.of("C:/Program Files"), Path.of("C:/Program Files (x86)"), Path.of(System.getProperty("user.home"), "AppData/Local"),
+                    Path.of(System.getProperty("user.home"), "AppData/Roaming")));
         } else if (OS.OS_X) {
-            paths.addAll(List.of(
-                    Path.of("/Applications"),
-                    Path.of("/usr/local/bin"),
-                    Path.of("/opt/homebrew/bin"),
-                    Path.of(System.getProperty("user.home"), "Applications"),
-                    Path.of("/usr/local/texlive"),
-                    Path.of("/Library/TeX/texbin")
-            ));
+            paths.addAll(
+                    List.of(
+                            Path.of("/Applications"),
+                            Path.of("/usr/local/bin"),
+                            Path.of("/opt/homebrew/bin"),
+                            Path.of(System.getProperty("user.home"), "Applications"),
+                            Path.of("/usr/local/texlive"),
+                            Path.of("/Library/TeX/texbin")));
         } else if (OS.LINUX) {
-            paths.addAll(List.of(
-                    Path.of("/usr/bin"),
-                    Path.of("/usr/local/bin"),
-                    Path.of("/opt"),
-                    Path.of("/snap/bin"),
-                    Path.of(System.getProperty("user.home"), ".local/bin"),
-                    Path.of("/usr/local/texlive")
-            ));
+            paths.addAll(
+                    List.of(
+                            Path.of("/usr/bin"),
+                            Path.of("/usr/local/bin"),
+                            Path.of("/opt"),
+                            Path.of("/snap/bin"),
+                            Path.of(System.getProperty("user.home"), ".local/bin"),
+                            Path.of("/usr/local/texlive")));
         }
 
         return paths;
@@ -110,11 +105,11 @@ public class PushToApplicationDetector {
 
     private static @Nullable String findExecutableInDirectory(Path dir, String[] names) {
         try (Stream<Path> stream = Files.walk(dir, 3)) {
-            return stream
-                    .filter(p -> isValidExecutable(p, names))
-                    .map(Path::toAbsolutePath)
-                    .map(Path::toString)
-                    .findFirst().orElse(null);
+            return stream.filter(p -> isValidExecutable(p, names))
+                         .map(Path::toAbsolutePath)
+                         .map(Path::toString)
+                         .findFirst()
+                         .orElse(null);
         } catch (IOException e) {
             LOGGER.trace("Error searching directory {}: {}", dir, e.getMessage(), e);
             return null;
@@ -126,7 +121,9 @@ public class PushToApplicationDetector {
             return false;
         }
 
-        String file = path.getFileName().toString().toLowerCase();
+        String file = path.getFileName()
+                          .toString()
+                          .toLowerCase();
 
         for (String name : names) {
             if (isExecutableNameMatch(file, name)) {
@@ -139,40 +136,25 @@ public class PushToApplicationDetector {
 
     private static boolean isExecutableNameMatch(String file, String name) {
         if (OS.WINDOWS) {
-            return file.equals(name + ".exe") ||
-                    file.equals(name + ".bat") ||
-                    file.equals(name + ".cmd");
+            return file.equals(name + ".exe") || file.equals(name + ".bat") || file.equals(name + ".cmd");
         } else {
-            return file.equals(name) ||
-                    file.equals(name + ".sh") ||
-                    file.equals(name + ".app");
+            return file.equals(name) || file.equals(name + ".sh") || file.equals(name + ".app");
         }
     }
 
     private static String[] getPossibleExecutableNames(String name) {
         return switch (name) {
-            case "Emacs" ->
-                    new String[] {"emacs", "emacsclient"};
-            case "LyX/Kile" ->
-                    new String[] {"lyx", "kile"};
-            case "Texmaker" ->
-                    new String[] {"texmaker"};
-            case "TeXstudio" ->
-                    new String[] {"texstudio"};
-            case "TeXworks" ->
-                    new String[] {"texworks"};
-            case "Vim" ->
-                    new String[] {"vim", "nvim", "gvim"};
-            case "WinEdt" ->
-                    new String[] {"winedt"};
-            case "Sublime Text" ->
-                    new String[] {"subl", "sublime_text"};
-            case "TeXShop" ->
-                    new String[] {"texshop"};
-            case "VScode" ->
-                    new String[] {"code", "code-insiders"};
-            default ->
-                    new String[] {name.replace(" ", "").toLowerCase()};
+            case "Emacs" -> new String[] {"emacs", "emacsclient"};
+            case "LyX/Kile" -> new String[] {"lyx", "kile"};
+            case "Texmaker" -> new String[] {"texmaker"};
+            case "TeXstudio" -> new String[] {"texstudio"};
+            case "TeXworks" -> new String[] {"texworks"};
+            case "Vim" -> new String[] {"vim", "nvim", "gvim"};
+            case "WinEdt" -> new String[] {"winedt"};
+            case "Sublime Text" -> new String[] {"subl", "sublime_text"};
+            case "TeXShop" -> new String[] {"texshop"};
+            case "VScode" -> new String[] {"code", "code-insiders"};
+            default -> new String[] {name.replace(" ", "").toLowerCase()};
         };
     }
 
@@ -185,7 +167,9 @@ public class PushToApplicationDetector {
         result = trySystemCommand("where", exe);
         if (result != null) {
             String[] lines = result.split("\n");
-            return lines.length > 0 && !lines[0].isBlank() ? lines[0].trim() : null;
+            return lines.length > 0 && !lines[0].isBlank()
+                    ? lines[0].trim()
+                    : null;
         }
 
         return null;
@@ -202,7 +186,8 @@ public class PushToApplicationDetector {
                 }
             }
         } catch (IOException | InterruptedException e) {
-            LOGGER.trace("Failed to execute '{}' command: {}", cmd, e.getMessage(), e);
+            LOGGER.trace("Failed to execute '{}' command: {}",
+                    cmd, e.getMessage(), e);
         }
         return null;
     }

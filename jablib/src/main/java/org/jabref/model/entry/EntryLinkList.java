@@ -13,8 +13,7 @@ public class EntryLinkList {
 
     public static final String SEPARATOR = ",";
 
-    private EntryLinkList() {
-    }
+    private EntryLinkList() {}
 
     public static List<ParsedEntryLink> parse(String fieldValue, BibDatabase database) {
         List<ParsedEntryLink> result = new ArrayList<>();
@@ -28,6 +27,8 @@ public class EntryLinkList {
     }
 
     public static String serialize(List<ParsedEntryLink> list) {
-        return list.stream().map(ParsedEntryLink::getKey).collect(Collectors.joining(SEPARATOR));
+        return list.stream()
+                   .map(ParsedEntryLink::getKey)
+                   .collect(Collectors.joining(SEPARATOR));
     }
 }

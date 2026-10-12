@@ -7,11 +7,11 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.journals.Abbreviation;
 
-/// This class provides a view model for abbreviation objects which can also define placeholder objects of abbreviations.
-/// This is indicated by using the `pseudoAbbreviation` property.
+/// This class provides a view model for abbreviation objects which can also
+/// define placeholder objects of abbreviations. This is indicated by using the
+/// `pseudoAbbreviation` property.
 public class AbbreviationViewModel {
 
     private final StringProperty name = new SimpleStringProperty("");
@@ -103,13 +103,23 @@ public class AbbreviationViewModel {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getAbbreviation(), getShortestUniqueAbbreviation(), isPseudoAbbreviation());
+        return Objects.hash(getName(), getAbbreviation(), getShortestUniqueAbbreviation(),
+                isPseudoAbbreviation());
     }
 
     public boolean containsCaseIndependent(String searchTerm) {
         searchTerm = searchTerm.toLowerCase(Locale.ROOT);
-        return this.abbreviation.get().toLowerCase(Locale.ROOT).contains(searchTerm) ||
-                this.name.get().toLowerCase(Locale.ROOT).contains(searchTerm) ||
-                this.shortestUniqueAbbreviation.get().toLowerCase(Locale.ROOT).contains(searchTerm);
+        return this.abbreviation
+                .get()
+                .toLowerCase(Locale.ROOT)
+                .contains(searchTerm)
+                || this.name
+                .get()
+                .toLowerCase(Locale.ROOT)
+                .contains(searchTerm)
+                || this.shortestUniqueAbbreviation
+                .get()
+                .toLowerCase(Locale.ROOT)
+                .contains(searchTerm);
     }
 }

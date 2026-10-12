@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportCleanup;
@@ -23,7 +22,6 @@ import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.support.DisabledOnCIServer;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -49,8 +47,7 @@ class CompositeSearchBasedFetcherTest {
 
     @Test
     void createCompositeFetcherWithNullSet() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new CompositeSearchBasedFetcher(null, importerPreferences, 0));
+        assertThrows(IllegalArgumentException.class, () -> new CompositeSearchBasedFetcher(null, importerPreferences, 0));
     }
 
     @Test
@@ -73,11 +70,12 @@ class CompositeSearchBasedFetcherTest {
         assertEquals(queryResult, List.of());
     }
 
-    @ParameterizedTest(name = "Perform search on query \"quantum\". Using the CompositeFetcher of the following " +
-            "Fetchers: {arguments}")
+    @ParameterizedTest(name = "Perform search on query \"quantum\". Using the CompositeFetcher of the following " + "Fetchers: {arguments}")
     @MethodSource("performSearchParameters")
     void performSearchOnNonEmptyQuery(Set<SearchBasedFetcher> fetchers) throws FetcherException {
-        List<String> fetcherNames = fetchers.stream().map(WebFetcher::getName).toList();
+        List<String> fetcherNames = fetchers.stream()
+                .map(WebFetcher::getName)
+                .toList();
         ObservableList<String> observableList = FXCollections.observableArrayList(fetcherNames);
         when(importerPreferences.getCatalogs()).thenReturn(observableList);
         CompositeSearchBasedFetcher compositeFetcher = new CompositeSearchBasedFetcher(fetchers, importerPreferences, Integer.MAX_VALUE);
@@ -102,7 +100,8 @@ class CompositeSearchBasedFetcherTest {
         }
     }
 
-    /// This method provides other methods with different sized sets of search-based fetchers wrapped in arguments.
+    /// This method provides other methods with different sized sets of
+    /// search-based fetchers wrapped in arguments.
     ///
     /// @return A stream of Arguments wrapping set of fetchers.
     static Stream<Arguments> performSearchParameters() {

@@ -9,14 +9,14 @@ import org.jabref.model.entry.Date;
 public class DateFieldPlausibilityComparator implements FieldValuePlausibilityComparator {
 
     // Only {@link PlausibilityComparatorFactory} may instantiate this
-    DateFieldPlausibilityComparator() {
-    }
+    DateFieldPlausibilityComparator() {}
 
     /// Compares the plausibility of two field values.
     ///
-    /// @param leftValue  value from the library (or candidate)
+    /// @param leftValue value from the library (or candidate)
     /// @param rightValue value from the fetcher (or existing record)
-    /// @return ComparisonResult indicating which date is more plausible: RIGHT_BETTER, LEFT_BETTER, or UNDETERMINED
+    /// @return ComparisonResult indicating which date is more plausible:
+    ///   RIGHT_BETTER, LEFT_BETTER, or UNDETERMINED
 
     @Override
     public ComparisonResult compare(String leftValue, String rightValue) {

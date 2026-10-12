@@ -15,7 +15,6 @@ import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.KeywordList;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -25,8 +24,7 @@ public final class KeywordImportNormalizer {
 
     private static final List<Character> DEFAULT_IMPORT_KEYWORD_DELIMITERS = List.of(';', ',');
 
-    private KeywordImportNormalizer() {
-    }
+    private KeywordImportNormalizer() {}
 
     /// [impl->req~import.bibtex.keywords.normalize-delimiters~1]
     public static void normalizeKeywords(Iterable<BibEntry> entries, BibEntryPreferences preferences) {
@@ -41,9 +39,12 @@ public final class KeywordImportNormalizer {
         normalizeKeywords(entry, preferences, preferences.getKeywordSeparator());
     }
 
-    /// Guesses the separator the given entries already use: the configured import delimiter occurring most often in keyword fields.
-    /// Only effective delimiters count (top level, not escaped, not inside braces), matching how [KeywordList] parses.
-    /// Empty if no keyword field contains any delimiter, or if two delimiters are tied (then the caller's fallback applies).
+    /// Guesses the separator the given entries already use: the configured
+    /// import delimiter occurring most often in keyword fields. Only effective
+    /// delimiters count (top level, not escaped, not inside braces), matching
+    /// how [KeywordList] parses. Empty if no keyword field contains any
+    /// delimiter, or if two delimiters are tied (then the caller's fallback
+    /// applies).
     public static Optional<Character> guessSeparator(Iterable<BibEntry> entries, BibEntryPreferences preferences) {
         List<Character> candidates = parseConfiguredDelimiters(preferences.getImportKeywordDelimiters());
         Map<Character, Long> counts = new HashMap<>();
@@ -57,12 +58,23 @@ public final class KeywordImportNormalizer {
                 }
             });
         }
-        long max = counts.values().stream().mapToLong(Long::longValue).max().orElse(0);
-        List<Character> winners = counts.entrySet().stream().filter(count -> count.getValue() == max).map(Map.Entry::getKey).toList();
-        return (max > 0) && (winners.size() == 1) ? Optional.of(winners.getFirst()) : Optional.empty();
+        long max = counts.values()
+                         .stream()
+                         .mapToLong(Long::longValue)
+                         .max()
+                         .orElse(0);
+        List<Character> winners = counts.entrySet()
+                .stream()
+                .filter(count -> count.getValue() == max)
+                .map(Map.Entry::getKey)
+                .toList();
+        return (max > 0) && (winners.size() == 1)
+                ? Optional.of(winners.getFirst())
+                : Optional.empty();
     }
 
-    /// Applies [NormalizeKeywordDelimitersFormatter] to the entry, i.e. the same cleanup that is available as a save action.
+    /// Applies [NormalizeKeywordDelimitersFormatter] to the entry, i.e. the
+    /// same cleanup that is available as a save action.
     public static void normalizeKeywords(BibEntry entry, BibEntryPreferences preferences, @Nullable Character requestedSeparator) {
         Formatter formatter = new NormalizeKeywordDelimitersFormatter(preferences, requestedSeparator);
         new FieldFormatterCleanup(StandardField.KEYWORDS, formatter).cleanup(entry);
@@ -70,10 +82,10 @@ public final class KeywordImportNormalizer {
 
     public static List<Character> parseConfiguredDelimiters(@Nullable String configuredDelimiters) {
         return Optional.ofNullable(configuredDelimiters)
-                       .filter(delimiters -> !delimiters.isBlank())
-                       .map(KeywordImportNormalizer::splitDelimiters)
-                       .filter(delimiters -> !delimiters.isEmpty())
-                       .orElse(DEFAULT_IMPORT_KEYWORD_DELIMITERS);
+                .filter(delimiters -> !delimiters.isBlank())
+                .map(KeywordImportNormalizer::splitDelimiters)
+                .filter(delimiters -> !delimiters.isEmpty())
+                .orElse(DEFAULT_IMPORT_KEYWORD_DELIMITERS);
     }
 
     private static List<Character> splitDelimiters(@NonNull String configuredDelimiters) {

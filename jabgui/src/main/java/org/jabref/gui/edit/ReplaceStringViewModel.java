@@ -8,7 +8,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.actions.StandardActions;
@@ -17,7 +16,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableFieldChange;
-
 import org.jspecify.annotations.NonNull;
 
 public class ReplaceStringViewModel extends AbstractViewModel {
@@ -43,17 +41,16 @@ public class ReplaceStringViewModel extends AbstractViewModel {
         fields = FieldFactory.parseFieldList(fieldStringProperty.getValue());
         allFieldReplace = allFieldReplaceProperty.getValue();
 
-        List<BibEntry> entries = selectOnlyProperty.getValue()
-                                 ? libraryTab.getSelectedEntries()
-                                 : libraryTab.getDatabase().getEntries();
+        List<BibEntry> entries = selectOnlyProperty.getValue() ? libraryTab.getSelectedEntries() : libraryTab.getDatabase().getEntries();
         AtomicInteger replacements = new AtomicInteger();
-        libraryTab.getUndoManager().addEdit(StandardActions.REPLACE_ALL.getText(), edit ->
-                entries.forEach(entry -> replacements.addAndGet(replaceItem(entry, edit))));
+        libraryTab.getUndoManager().addEdit(StandardActions.REPLACE_ALL.getText(),
+                edit -> entries.forEach(entry -> replacements.addAndGet(replaceItem(entry, edit))));
         return replacements.get();
     }
 
-    /// Does the actual operation on a Bibtex entry based on the settings specified in this same dialog. Returns the
-    /// number of occurrences replaced.
+    /// Does the actual operation on a Bibtex entry based on the settings
+    /// specified in this same dialog. Returns the number of occurrences
+    /// replaced.
     private int replaceItem(BibEntry entry, CompoundEdit compound) {
         int counter = 0;
         if (this.allFieldReplace) {

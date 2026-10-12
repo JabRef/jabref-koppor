@@ -18,7 +18,6 @@ import org.jabref.model.ai.summarization.AiSummary;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 
@@ -31,19 +30,12 @@ public class BibEntrySummarizator {
     private final Summarizator summarizator;
     private final UniversalContentParser universalFileParser = new UniversalContentParser();
 
-    public BibEntrySummarizator(
-            @NonNull FilePreferences filePreferences,
-            @NonNull Summarizator summarizator
-    ) {
+    public BibEntrySummarizator(@NonNull FilePreferences filePreferences, @NonNull Summarizator summarizator) {
         this.filePreferences = filePreferences;
         this.summarizator = summarizator;
     }
 
-    public AiSummary summarize(
-            ChatModel chatModel,
-            BibDatabaseContext bibDatabaseContext,
-            BibEntry entry
-    ) throws InterruptedException {
+    public AiSummary summarize(ChatModel chatModel, BibDatabaseContext bibDatabaseContext, BibEntry entry) throws InterruptedException {
         String citationKey = entry.getCitationKey().orElse("<no citation key>");
 
         // Rationale for RuntimeException here:
@@ -53,13 +45,7 @@ public class BibEntrySummarizator {
         // Stream API would look better here, but we need to catch InterruptedException.
         List<String> linkedFilesSummary = new ArrayList<>();
         for (LinkedFile linkedFile : entry.getFiles()) {
-            generateSummary(
-                    chatModel,
-                    bibDatabaseContext,
-                    linkedFile,
-                    citationKey
-            )
-                    .ifPresent(linkedFilesSummary::add);
+            generateSummary(chatModel, bibDatabaseContext, linkedFile, citationKey).ifPresent(linkedFilesSummary::add);
         }
 
         if (linkedFilesSummary.isEmpty()) {
@@ -73,32 +59,25 @@ public class BibEntrySummarizator {
         if (linkedFilesSummary.size() == 1) {
             finalSummary = linkedFilesSummary.getFirst();
         } else {
-            finalSummary = summarizeSeveralDocuments(
-                    chatModel,
-                    linkedFilesSummary.stream()
-            );
+            finalSummary = summarizeSeveralDocuments(chatModel, linkedFilesSummary.stream());
         }
 
-        return new AiSummary(
-                new AiMetadata(chatModel.getAiProvider(), chatModel.getName(), Instant.now()),
-                summarizator.getKind(),
-                finalSummary
-        );
+        return new AiSummary(new AiMetadata(chatModel.getAiProvider(), chatModel.getName(), Instant.now()),
+                summarizator.getKind(), finalSummary);
     }
 
-    private Optional<String> generateSummary(
-            ChatModel chatModel,
-            BibDatabaseContext bibDatabaseContext,
-            LinkedFile linkedFile,
-            String citationKey
-    ) throws InterruptedException {
+    private Optional<String> generateSummary(ChatModel chatModel, BibDatabaseContext bibDatabaseContext, LinkedFile linkedFile,
+            String citationKey)
+            throws InterruptedException {
         LOGGER.debug("Generating summary for file \"{}\" of entry {}", linkedFile.getLink(), citationKey);
 
         Optional<Path> path = linkedFile.findIn(bibDatabaseContext, filePreferences);
 
         if (path.isEmpty()) {
-            LOGGER.error("Could not find path for a linked file \"{}\" of entry {}", linkedFile.getLink(), citationKey);
-            LOGGER.debug("Unable to generate summary for file \"{}\" of entry {}, because it was not found", linkedFile.getLink(), citationKey);
+            LOGGER.error("Could not find path for a linked file \"{}\" of entry {}",
+                    linkedFile.getLink(), citationKey);
+            LOGGER.debug("Unable to generate summary for file \"{}\" of entry {}, because it was not found",
+                    linkedFile.getLink(), citationKey);
             return Optional.empty();
         }
 
@@ -109,27 +88,21 @@ public class BibEntrySummarizator {
         }
 
         if (document.isEmpty()) {
-            LOGGER.warn("Could not extract text from a linked file \"{}\" of entry {}. It will be skipped when generating a summary.", linkedFile.getLink(), citationKey);
-            LOGGER.debug("Unable to generate summary for file \"{}\" of entry {}, because it was not found", linkedFile.getLink(), citationKey);
+            LOGGER.warn("Could not extract text from a linked file \"{}\" of entry {}. It will be skipped when generating a summary.",
+                    linkedFile.getLink(), citationKey);
+            LOGGER.debug("Unable to generate summary for file \"{}\" of entry {}, because it was not found",
+                    linkedFile.getLink(), citationKey);
             return Optional.empty();
         }
 
-        String linkedFileSummary = summarizator.summarize(
-                chatModel,
-                document.get()
-        );
+        String linkedFileSummary = summarizator.summarize(chatModel, document.get());
 
-        LOGGER.debug("BibEntrySummary for file \"{}\" of entry {} was generated successfully", linkedFile.getLink(), citationKey);
+        LOGGER.debug("BibEntrySummary for file \"{}\" of entry {} was generated successfully",
+                linkedFile.getLink(), citationKey);
         return Optional.of(linkedFileSummary);
     }
 
-    public String summarizeSeveralDocuments(
-            ChatModel chatModel,
-            Stream<String> documents
-    ) throws InterruptedException {
-        return summarizator.summarize(
-                chatModel,
-                documents.collect(Collectors.joining("\n\n"))
-        );
+    public String summarizeSeveralDocuments(ChatModel chatModel, Stream<String> documents) throws InterruptedException {
+        return summarizator.summarize(chatModel, documents.collect(Collectors.joining("\n\n")));
     }
 }

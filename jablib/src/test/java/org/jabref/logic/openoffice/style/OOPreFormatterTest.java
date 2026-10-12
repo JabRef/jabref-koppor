@@ -10,7 +10,8 @@ class OOPreFormatterTest {
     @ParameterizedTest
     @CsvSource(
             delimiterString = "->",
-            textBlock = """
+            textBlock =
+                    """
                     # plain formatting
                     aaa -> aaa
                     \\$ -> $
@@ -55,8 +56,7 @@ class OOPreFormatterTest {
                     \\texttt{kkk} -> <tt>kkk</tt>
                     \\textsuperscript{kkk} -> <sup>kkk</sup>
                     \\textsubscript{kkk} -> <sub>kkk</sub>
-                    """
-    )
+                    """)
     void format(String input, String expected) {
         assertEquals(expected, new OOPreFormatter().format(input));
     }

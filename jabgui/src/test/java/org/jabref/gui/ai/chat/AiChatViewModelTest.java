@@ -1,9 +1,10 @@
 package org.jabref.gui.ai.chat;
 
+import dev.langchain4j.store.embedding.EmbeddingStore;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
+import org.jabref.gui.ai.chat.AiChatViewModel.State;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.ai.embedding.AsyncEmbeddingModel;
 import org.jabref.logic.ai.embedding.EmbeddingModelCache;
@@ -15,8 +16,6 @@ import org.jabref.model.ai.identifiers.FullBibEntry;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
-import dev.langchain4j.store.embedding.EmbeddingStore;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,8 +28,12 @@ class AiChatViewModelTest {
     @Test
     void addingFileToSelectedEntryUpdatesChatState() {
         AiPreferences aiPreferences = spy(AiPreferences.getDefault());
-        doReturn(new SimpleBooleanProperty(true)).when(aiPreferences).aiFeaturesEnabledProperty();
-        doReturn(new SimpleBooleanProperty(true)).when(aiPreferences).aiFeaturesEnabledCurrentlyProperty();
+        doReturn(new SimpleBooleanProperty(true))
+                .when(aiPreferences)
+                .aiFeaturesEnabledProperty();
+        doReturn(new SimpleBooleanProperty(true))
+                .when(aiPreferences)
+                .aiFeaturesEnabledCurrentlyProperty();
 
         EmbeddingModelCache embeddingModelCache = mock(EmbeddingModelCache.class);
         when(embeddingModelCache.getOrCreate(aiPreferences.getEmbeddingModel())).thenReturn(mock(AsyncEmbeddingModel.class));
@@ -43,19 +46,16 @@ class AiChatViewModelTest {
                 mock(IngestedDocumentsRepository.class),
                 mock(EmbeddingStore.class),
                 embeddingModelCache,
-                mock(TaskExecutor.class)
-        );
+                mock(TaskExecutor.class));
         BibEntry entry = new BibEntry();
-        var observableEntries = FXCollections.<FullBibEntry>observableArrayList(
-                identifier -> identifier.entry().getObservables()
-        );
+        var observableEntries = FXCollections.<FullBibEntry>observableArrayList(identifier -> identifier.entry().getObservables());
         observableEntries.add(new FullBibEntry(new BibDatabaseContext(), entry));
         viewModel.entriesProperty().set(observableEntries);
 
-        assertEquals(AiChatViewModel.State.NO_FILES, viewModel.stateProperty().get());
+        assertEquals(State.NO_FILES, viewModel.stateProperty().get());
 
         entry.addFile(new LinkedFile("Paper", "paper.pdf", "pdf"));
 
-        assertEquals(AiChatViewModel.State.IDLE, viewModel.stateProperty().get());
+        assertEquals(State.IDLE, viewModel.stateProperty().get());
     }
 }

@@ -13,14 +13,10 @@ public class DefinitionProviderFactory {
 
     public static Optional<DefinitionProvider> getDefinitionProvider(FilePreferences preferences, LspParserHandler parserHandler, String languageId) {
         return Optional.ofNullable(PROVIDER_MAP.computeIfAbsent(languageId.toLowerCase(), key -> switch (key) {
-            case "markdown" ->
-                    new MarkdownDefinitionProvider(parserHandler);
-            case "latex" ->
-                    new LatexDefinitionProvider(parserHandler);
-            case "bibtex" ->
-                    new BibDefinitionProvider(preferences, parserHandler);
-            default ->
-                    null;
+            case "markdown" -> new MarkdownDefinitionProvider(parserHandler);
+            case "latex" -> new LatexDefinitionProvider(parserHandler);
+            case "bibtex" -> new BibDefinitionProvider(preferences, parserHandler);
+            default -> null;
         }));
     }
 }

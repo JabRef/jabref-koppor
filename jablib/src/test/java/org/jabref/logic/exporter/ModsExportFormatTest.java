@@ -10,7 +10,6 @@ import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.fileformat.BibtexImporter;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -34,7 +33,9 @@ class ModsExportFormatTest {
         databaseContext = new BibDatabaseContext();
         modsExportFormat = new ModsExporter();
         new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor());
-        Path.of(ModsExportFormatTest.class.getResource("ModsExportFormatTestAllFields.bib").toURI());
+        Path.of(ModsExportFormatTest.class
+                .getResource("ModsExportFormatTestAllFields.bib")
+                .toURI());
     }
 
     @Test

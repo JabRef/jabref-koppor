@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.dlsc.gemsfx.TagsField;
+import com.google.common.collect.Comparators;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
@@ -21,7 +24,6 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefDialogService;
 import org.jabref.gui.actions.ActionFactory;
@@ -40,10 +42,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.KeywordList;
 import org.jabref.model.entry.field.Field;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.dlsc.gemsfx.TagsField;
-import com.google.common.collect.Comparators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,9 +72,7 @@ public abstract class TagsEditor extends HBox implements FieldEditorFX {
     private boolean tagOrderUpdateScheduled;
     private boolean updatingTagOrder;
 
-    protected TagsEditor(Field field,
-                         SuggestionProvider<?> suggestionProvider,
-                         FieldCheckers fieldCheckers,
+    protected TagsEditor(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
                          UndoManager undoManager) {
         this.field = field;
         this.suggestionProvider = suggestionProvider;
@@ -93,27 +89,33 @@ public abstract class TagsEditor extends HBox implements FieldEditorFX {
 
     /// Initializes the TagsField with common configuration.
     /// Must be called by subclasses after their ViewModel is created.
-    protected void setupTagsField(StringConverter<Keyword> converter,
-                                  Character separator,
-                                  ListProperty<Keyword> tagListProperty,
-                                  Function<String, List<Keyword>> suggestionsProvider) {
+    protected void setupTagsField(StringConverter<Keyword> converter, Character separator, ListProperty<Keyword> tagListProperty,
+            Function<String, List<Keyword>> suggestionsProvider) {
 
-        tagsField.setCellFactory(new ViewModelListCellFactory<Keyword>().withText(Keyword::get));
+        tagsField.setCellFactory(new ViewModelListCellFactory<Keyword>()
+                .withText(Keyword::get));
         tagsField.setTagViewFactory(this::createTag);
 
         tagsField.setSuggestionProvider(request -> suggestionsProvider.apply(request.getUserText()));
         tagsField.setConverter(converter);
-        tagsField.setMatcher((tag, searchText) -> tag.get().toLowerCase().startsWith(searchText.toLowerCase()));
+        tagsField.setMatcher((tag, searchText) -> tag.get()
+                .toLowerCase()
+                .startsWith(searchText.toLowerCase()));
         tagsField.setComparator(Comparator.comparing(Keyword::get));
 
         tagsField.setNewItemProducer(converter::fromString);
 
         tagsField.setShowSearchIcon(false);
         tagsField.setOnMouseClicked(_ -> tagsField.getEditor().requestFocus());
-        tagsField.getEditor().getStyleClass().clear();
-        tagsField.getEditor().getStyleClass().add("tags-field-editor");
-        tagsField.getEditor().focusedProperty().addListener((_, _, newValue) ->
-                tagsField.pseudoClassStateChanged(FOCUSED, newValue));
+        tagsField.getEditor()
+                 .getStyleClass()
+                 .clear();
+        tagsField.getEditor()
+                 .getStyleClass()
+                 .add("tags-field-editor");
+        tagsField.getEditor()
+                 .focusedProperty()
+                 .addListener((_, _, newValue) -> tagsField.pseudoClassStateChanged(FOCUSED, newValue));
 
         String separatorStr = String.valueOf(separator);
         tagsField.getEditor().setOnKeyReleased(event -> {
@@ -196,18 +198,16 @@ public abstract class TagsEditor extends HBox implements FieldEditorFX {
 
         ContextMenu contextMenu = new ContextMenu();
         ActionFactory factory = new ActionFactory();
-        contextMenu.getItems().addAll(
-                factory.createMenuItem(StandardActions.COPY, new TagContextAction(StandardActions.COPY, tag)),
-                factory.createMenuItem(StandardActions.CUT, new TagContextAction(StandardActions.CUT, tag)),
-                factory.createMenuItem(StandardActions.DELETE, new TagContextAction(StandardActions.DELETE, tag))
-        );
+        contextMenu.getItems().addAll(factory.createMenuItem(StandardActions.COPY, new TagContextAction(StandardActions.COPY, tag)),
+                factory.createMenuItem(StandardActions.CUT, new TagContextAction(StandardActions.CUT, tag)), factory.createMenuItem(StandardActions.DELETE, new TagContextAction(StandardActions.DELETE, tag)));
         tagLabel.setContextMenu(contextMenu);
 
         tagLabel.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 tagsField.removeTags(tag);
                 tagsField.getEditor().setText(tag.get());
-                tagsField.getEditor().positionCaret(tag.get().length());
+                tagsField.getEditor().positionCaret(tag.get()
+                        .length());
             }
         });
 
@@ -220,14 +220,15 @@ public abstract class TagsEditor extends HBox implements FieldEditorFX {
 
         customizeTag(tagLabel, tag);
 
-        tagLabel.setOnDragDetected(event -> {
-            Dragboard db = tagLabel.startDragAndDrop(TransferMode.MOVE);
-            ClipboardContent content = new ClipboardContent();
-            content.putString(tag.get());
-            db.setContent(content);
-            draggedTag = Optional.of(tag);
-            event.consume();
-        });
+        tagLabel.setOnDragDetected(
+                event -> {
+                    Dragboard db = tagLabel.startDragAndDrop(TransferMode.MOVE);
+                    ClipboardContent content = new ClipboardContent();
+                    content.putString(tag.get());
+                    db.setContent(content);
+                    draggedTag = Optional.of(tag);
+                    event.consume();
+                });
         tagLabel.setOnDragEntered(_ -> tagLabel.pseudoClassStateChanged(DRAG_OVER, true));
         tagLabel.setOnDragExited(_ -> tagLabel.pseudoClassStateChanged(DRAG_OVER, false));
         tagLabel.setOnDragDropped(event -> {
@@ -251,8 +252,7 @@ public abstract class TagsEditor extends HBox implements FieldEditorFX {
     }
 
     /// Hook for subclasses to customize tag labels (e.g., adding tooltips).
-    protected void customizeTag(Label tagLabel, Keyword tag) {
-    }
+    protected void customizeTag(Label tagLabel, Keyword tag) {}
 
     @Override
     public Parent getNode() {
@@ -281,19 +281,15 @@ public abstract class TagsEditor extends HBox implements FieldEditorFX {
             switch (command) {
                 case COPY -> {
                     clipBoardManager.setContent(tag.get());
-                    dialogService.notify(Localization.lang("Copied '%0' to clipboard.",
-                            JabRefDialogService.shortenDialogMessage(tag.get())));
+                    dialogService.notify(Localization.lang("Copied '%0' to clipboard.", JabRefDialogService.shortenDialogMessage(tag.get())));
                 }
                 case CUT -> {
                     clipBoardManager.setContent(tag.get());
-                    dialogService.notify(Localization.lang("Copied '%0' to clipboard.",
-                            JabRefDialogService.shortenDialogMessage(tag.get())));
+                    dialogService.notify(Localization.lang("Copied '%0' to clipboard.", JabRefDialogService.shortenDialogMessage(tag.get())));
                     tagsField.removeTags(tag);
                 }
-                case DELETE ->
-                        tagsField.removeTags(tag);
-                default ->
-                        LOGGER.info("Action {} not defined", command.getText());
+                case DELETE -> tagsField.removeTags(tag);
+                default -> LOGGER.info("Action {} not defined", command.getText());
             }
         }
     }

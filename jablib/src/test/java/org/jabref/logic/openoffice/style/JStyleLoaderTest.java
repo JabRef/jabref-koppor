@@ -8,11 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -81,7 +79,8 @@ class JStyleLoaderTest {
         loader = new JStyleLoader(preferences, layoutPreferences, abbreviationRepository);
 
         loader.addStyleIfValid(jStyleFile);
-        assertEquals(NUMBER_OF_INTERNAL_STYLES + 1, loader.getStyles().size());
+        assertEquals(NUMBER_OF_INTERNAL_STYLES + 1,
+                loader.getStyles().size());
     }
 
     @Test
@@ -97,7 +96,8 @@ class JStyleLoaderTest {
     void initializeWithOneExternalFile() {
         when(preferences.getExternalJStyles()).thenReturn(FXCollections.singletonObservableList(jStyleFile.toString()));
         loader = new JStyleLoader(preferences, layoutPreferences, abbreviationRepository);
-        assertEquals(NUMBER_OF_INTERNAL_STYLES + 1, loader.getStyles().size());
+        assertEquals(NUMBER_OF_INTERNAL_STYLES + 1,
+                loader.getStyles().size());
     }
 
     @Test
@@ -124,7 +124,8 @@ class JStyleLoaderTest {
         for (JStyle style : toremove) {
             assertTrue(loader.removeStyle(style));
         }
-        assertEquals(beforeRemoving - 1, loader.getStyles().size());
+        assertEquals(beforeRemoving - 1,
+                loader.getStyles().size());
     }
 
     @Test
@@ -153,7 +154,8 @@ class JStyleLoaderTest {
         int beforeAdding = loader.getStyles().size();
         loader.addStyleIfValid(jStyleFile);
         loader.addStyleIfValid(jStyleFile);
-        assertEquals(beforeAdding + 1, loader.getStyles().size());
+        assertEquals(beforeAdding + 1,
+                loader.getStyles().size());
     }
 
     @Test

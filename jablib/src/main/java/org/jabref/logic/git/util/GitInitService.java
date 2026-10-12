@@ -5,15 +5,14 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import org.jabref.logic.JabRefException;
-import org.jabref.logic.git.GitHandler;
-import org.jabref.logic.l10n.Localization;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.URIish;
+import org.jabref.logic.JabRefException;
+import org.jabref.logic.git.GitHandler;
+import org.jabref.logic.l10n.Localization;
 import org.jspecify.annotations.NonNull;
 
 public final class GitInitService {
@@ -28,9 +27,7 @@ public final class GitInitService {
         //       Maybe, this assumption can be relaxed in the future.
         Optional<Path> outerRoot = GitHandler.findRepositoryRoot(expectedRoot);
         if (outerRoot.isPresent() && !outerRoot.get().equals(expectedRoot)) {
-            throw new JabRefException(
-                    Localization.lang("This library is inside another Git repository\nTo sync this library independently, move it into its own folder (one library per repo) and try again.")
-            );
+            throw new JabRefException(Localization.lang("This library is inside another Git repository\nTo sync this library independently, move it into its own folder (one library per repo) and try again."));
         }
 
         GitHandler handler = gitHandlerRegistry.get(expectedRoot);
@@ -73,14 +70,10 @@ public final class GitInitService {
 
     private static JabRefException translateInitializationFailure(Exception exception) {
         if (GitExceptionUtil.isLockFailure(exception)) {
-            return new JabRefException(
-                    "Failed to initialize repository because it is locked",
-                    Localization.lang("The Git repository is locked. Close other Git, JabRef, or IDE processes and try again."),
-                    exception);
+            return new JabRefException("Failed to initialize repository because it is locked",
+                    Localization.lang("The Git repository is locked. Close other Git, JabRef, or IDE processes and try again."), exception);
         }
-        return new JabRefException(
-                "Failed to initialize repository or set remote",
-                Localization.lang("Could not set up the Git repository for this library. Please check the repository location and try again."),
+        return new JabRefException("Failed to initialize repository or set remote", Localization.lang("Could not set up the Git repository for this library. Please check the repository location and try again."),
                 exception);
     }
 }

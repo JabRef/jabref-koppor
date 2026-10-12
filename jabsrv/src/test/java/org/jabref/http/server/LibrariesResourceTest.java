@@ -2,10 +2,9 @@ package org.jabref.http.server;
 
 import java.util.EnumSet;
 
-import org.jabref.http.server.resources.LibrariesResource;
-
 import jakarta.ws.rs.core.Application;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.jabref.http.server.resources.LibrariesResource;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,12 +23,17 @@ class LibrariesResourceTest extends ServerTest {
 
     @Test
     void defaultOneTestLibrary() {
-        String expected = """
+        String
+                expected = """
                 [
                   "%s",
                   "%s"
-                ]""".formatted(TestBibFile.GENERAL_SERVER_TEST.id, "demo");
-        assertEquals(expected, target("/libraries").request().get(String.class));
+                ]"""
+                                .formatted(TestBibFile.GENERAL_SERVER_TEST.id, "demo");
+        assertEquals(expected,
+                target("/libraries")
+                        .request()
+                        .get(String.class));
     }
 
     @Test
@@ -37,12 +41,17 @@ class LibrariesResourceTest extends ServerTest {
         EnumSet<TestBibFile> availableLibraries = EnumSet.of(TestBibFile.GENERAL_SERVER_TEST, TestBibFile.CHOCOLATE_BIB);
         setAvailableLibraries(availableLibraries);
 
-        String expected = """
+        String
+                expected = """
                 [
                   "%s",
                   "%s",
                   "%s"
-                ]""".formatted(TestBibFile.GENERAL_SERVER_TEST.id, TestBibFile.CHOCOLATE_BIB.id, "demo");
-        assertEquals(expected, target("/libraries").request().get(String.class));
+                ]"""
+                                .formatted(TestBibFile.GENERAL_SERVER_TEST.id, TestBibFile.CHOCOLATE_BIB.id, "demo");
+        assertEquals(expected,
+                target("/libraries")
+                        .request()
+                        .get(String.class));
     }
 }

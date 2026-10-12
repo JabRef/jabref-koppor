@@ -5,7 +5,6 @@ import java.util.stream.Stream;
 
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,7 +26,8 @@ public class PagesCheckerBiblatexTest {
     }
 
     public static Stream<String> bibtexAccepts() {
-        return Stream.of("",
+        return Stream.of(
+                "",
                 // single dash
                 "1-2",
                 // double dash
@@ -51,12 +51,24 @@ public class PagesCheckerBiblatexTest {
                 // unicode separator
                 "1\u201310",
                 // other separators
-                "A10S/90", "1/10",
+                "A10S/90",
+                "1/10",
                 // sequens and sequents
-                "1f", "1ff", "1 f.", "1 ff.", "1sq", "1sqq", "1 sq.", "1 sqq.",
+                "1f",
+                "1ff",
+                "1 f.",
+                "1 ff.",
+                "1sq",
+                "1sqq",
+                "1 sq.",
+                "1 sqq.",
                 // roman numerals
-                "i", "ivxlcdm", "IVXLCDM", "iS", "i-vi", "VII-xii"
-        );
+                "i",
+                "ivxlcdm",
+                "IVXLCDM",
+                "iS",
+                "i-vi",
+                "VII-xii");
     }
 
     @ParameterizedTest
@@ -67,17 +79,17 @@ public class PagesCheckerBiblatexTest {
 
     public static Stream<String> bibtexRejects() {
         return Stream.of(
-                // hex numbers forbidden
-                "777e23",
-                // bibTexDoesNotAcceptMorePageNumbersWithoutComma
-                "1 2",
-                // bibTexDoesNotAcceptBrackets
-                "{1}-{2}",
-                // More than one suffix forbidden
-                "436SS-439S",
-                // invalid ranges
-                "10-", "-10", "10--", "--10", "+10", "10+-10"
-        );
+        // hex numbers forbidden
+        "777e23",
+        // bibTexDoesNotAcceptMorePageNumbersWithoutComma
+        "1 2",
+        // bibTexDoesNotAcceptBrackets
+        "{1}-{2}",
+        // More than one suffix forbidden
+        "436SS-439S",
+        // invalid ranges
+        "10-", "-10",
+                "10--", "--10", "+10", "10+-10");
     }
 
     @ParameterizedTest

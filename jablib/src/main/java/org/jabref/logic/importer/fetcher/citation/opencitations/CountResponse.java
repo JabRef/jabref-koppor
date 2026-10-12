@@ -5,7 +5,8 @@ import org.jspecify.annotations.Nullable;
 
 @NullMarked
 class CountResponse {
-    @Nullable String count;
+    @Nullable
+    String count;
 
     int countAsInt() {
         if (count == null) {

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.store.embedding.EmbeddingStore;
 import javafx.beans.Observable;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -18,7 +20,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.util.BindingsHelper;
@@ -50,9 +51,6 @@ import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.LinkedFile;
-
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.store.embedding.EmbeddingStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,9 +78,7 @@ public class AiChatStatusViewModel extends AbstractViewModel {
     private final ListProperty<GenerateEmbeddingsTask> generateEmbeddingsTasks = new SimpleListProperty<>(FXCollections.observableArrayList());
     private final Map<GenerateEmbeddingsTask, ChangeListener<? super TrackedBackgroundTask.Status>> taskListeners = new HashMap<>();
     private final ListProperty<FullBibEntry> entries = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final ObservableList<IngestionStatusRow> ingestionStatuses = FXCollections.observableArrayList(row ->
-            new Observable[] {row.statusProperty(), row.errorProperty()}
-    );
+    private final ObservableList<IngestionStatusRow> ingestionStatuses = FXCollections.observableArrayList(row -> new Observable[] {row.statusProperty(), row.errorProperty()});
 
     private final ListProperty<ResponseEngineKind> responseEngineKinds = new SimpleListProperty<>(FXCollections.observableArrayList(ResponseEngineKind.values()));
     private final ObjectProperty<ResponseEngineKind> selectedResponseEngineKind = new SimpleObjectProperty<>();
@@ -108,8 +104,7 @@ public class AiChatStatusViewModel extends AbstractViewModel {
             BibEntryTypesManager entryTypesManager,
             DialogService dialogService,
             EmbeddingModelCache embeddingModelCache,
-            EmbeddingStore<TextSegment> embeddingStore
-    ) {
+            EmbeddingStore<TextSegment> embeddingStore) {
         this.aiPreferences = aiPreferences;
         this.filePreferences = filePreferences;
         this.fieldPreferences = fieldPreferences;
@@ -128,30 +123,17 @@ public class AiChatStatusViewModel extends AbstractViewModel {
     }
 
     private void setupBindings() {
-        this.chatModel.bind(ObservablesHelper.createClosableObjectBinding(
-                () -> ChatModelFactory.create(aiPreferences),
-                aiPreferences.getChatProperties()
-        ));
+        this.chatModel.bind(ObservablesHelper.createClosableObjectBinding(() -> ChatModelFactory.create(aiPreferences), aiPreferences.getChatProperties()));
 
-        this.embeddingModel.bind(ObservablesHelper.createObjectBinding(
-                () -> EmbeddingModelFactory.create(aiPreferences, embeddingModelCache),
-                aiPreferences.getEmbeddingsProperties()
-        ));
+        this.embeddingModel.bind(ObservablesHelper.createObjectBinding(() -> EmbeddingModelFactory.create(aiPreferences, embeddingModelCache), aiPreferences.getEmbeddingsProperties()));
 
-        this.responseEngine.bind(ObservablesHelper.createObjectBinding(
-                () -> ResponseEngineFactory.create(
-                        selectedResponseEngineKind.get(),
-                        filePreferences,
-                        embeddingModel.get(),
-                        embeddingStore,
-                        aiPreferences.getRagMinScore(),
-                        aiPreferences.getRagMaxResultsCount()
-                ),
-                Stream.concat(
-                        aiPreferences.getResponseEngineProperties().stream(),
-                        Stream.of(selectedResponseEngineKind)
-                ).toList()
-        ));
+        this.responseEngine.bind(
+                ObservablesHelper.createObjectBinding(
+                        () -> ResponseEngineFactory.create(selectedResponseEngineKind.get(), filePreferences, embeddingModel.get(), embeddingStore,
+                                aiPreferences.getRagMinScore(), aiPreferences.getRagMaxResultsCount()),
+                        Stream.concat(aiPreferences.getResponseEngineProperties().stream(),
+                                Stream.of(selectedResponseEngineKind))
+                                .toList()));
     }
 
     private void setupListeners() {
@@ -178,9 +160,7 @@ public class AiChatStatusViewModel extends AbstractViewModel {
             task.statusProperty().removeListener(listener);
         }
 
-        UiTaskExecutor.runInJavaFXThread(() ->
-                ingestionStatuses.removeIf(row -> row.getLinkedFile().equals(task.getLinkedFile()))
-        );
+        UiTaskExecutor.runInJavaFXThread(() -> ingestionStatuses.removeIf(row -> row.getLinkedFile().equals(task.getLinkedFile())));
     }
 
     private IngestionStatusRow getOrCreateRow(LinkedFile file) {
@@ -207,12 +187,9 @@ public class AiChatStatusViewModel extends AbstractViewModel {
                     row.errorProperty().set(task.getException());
                     row.statusProperty().set(FileStatus.ERROR_WHILE_PROCESSING);
                 }
-                case PENDING ->
-                        row.statusProperty().set(FileStatus.PENDING);
-                case PROCESSING ->
-                        row.statusProperty().set(FileStatus.PROCESSING);
-                case CANCELLED ->
-                        row.statusProperty().set(FileStatus.CANCELLED);
+                case PENDING -> row.statusProperty().set(FileStatus.PENDING);
+                case PROCESSING -> row.statusProperty().set(FileStatus.PROCESSING);
+                case CANCELLED -> row.statusProperty().set(FileStatus.CANCELLED);
             }
         });
     }
@@ -231,18 +208,18 @@ public class AiChatStatusViewModel extends AbstractViewModel {
                 .withInitialDirectory(Directories.getUserDirectory())
                 .build();
 
-        dialogService.showFileSaveDialog(fileDialogConfiguration)
-                     .ifPresent(path -> {
-                         try {
-                             AiChatMarkdownExporter exporter = new AiChatMarkdownExporter(entryTypesManager, fieldPreferences, aiPreferences.getMarkdownChatExportTemplate());
-                             String content = exporter.export(buildMetadata(), getBibEntriesFromFullEntries(), getDatabaseModeOrDefault(), messages);
-                             Files.writeString(path, content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-                             dialogService.notify(Localization.lang("Export operation finished successfully."));
-                         } catch (IOException e) {
-                             LOGGER.error("Problem occurred while writing the export file", e);
-                             dialogService.showErrorDialogAndWait(Localization.lang("Problem occurred while writing the export file"), e);
-                         }
-                     });
+        dialogService.showFileSaveDialog(fileDialogConfiguration).ifPresent(path -> {
+            try {
+                AiChatMarkdownExporter exporter = new AiChatMarkdownExporter(entryTypesManager, fieldPreferences, aiPreferences.getMarkdownChatExportTemplate());
+                String content = exporter.export(buildMetadata(), getBibEntriesFromFullEntries(), getDatabaseModeOrDefault(),
+                        messages);
+                Files.writeString(path, content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                dialogService.notify(Localization.lang("Export operation finished successfully."));
+            } catch (IOException e) {
+                LOGGER.error("Problem occurred while writing the export file", e);
+                dialogService.showErrorDialogAndWait(Localization.lang("Problem occurred while writing the export file"), e);
+            }
+        });
     }
 
     public void exportJson() {
@@ -259,18 +236,18 @@ public class AiChatStatusViewModel extends AbstractViewModel {
                 .withInitialDirectory(Directories.getUserDirectory())
                 .build();
 
-        dialogService.showFileSaveDialog(fileDialogConfiguration)
-                     .ifPresent(path -> {
-                         try {
-                             AiChatJsonExporter exporter = new AiChatJsonExporter(entryTypesManager, fieldPreferences);
-                             String content = exporter.export(buildMetadata(), getBibEntriesFromFullEntries(), getDatabaseModeOrDefault(), messages);
-                             Files.writeString(path, content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-                             dialogService.notify(Localization.lang("Export operation finished successfully."));
-                         } catch (IOException e) {
-                             LOGGER.error("Problem occurred while writing the export file", e);
-                             dialogService.showErrorDialogAndWait(Localization.lang("Problem occurred while writing the export file"), e);
-                         }
-                     });
+        dialogService.showFileSaveDialog(fileDialogConfiguration).ifPresent(path -> {
+            try {
+                AiChatJsonExporter exporter = new AiChatJsonExporter(entryTypesManager, fieldPreferences);
+                String content = exporter.export(buildMetadata(), getBibEntriesFromFullEntries(), getDatabaseModeOrDefault(),
+                        messages);
+                Files.writeString(path, content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                dialogService.notify(Localization.lang("Export operation finished successfully."));
+            } catch (IOException e) {
+                LOGGER.error("Problem occurred while writing the export file", e);
+                dialogService.showErrorDialogAndWait(Localization.lang("Problem occurred while writing the export file"), e);
+            }
+        });
     }
 
     public void setResponseEngine(ResponseEngine responseEngine) {
@@ -279,10 +256,7 @@ public class AiChatStatusViewModel extends AbstractViewModel {
 
     public void clearChatHistory() {
         // [guard->feat~ai.chat.clear-history~1]
-        boolean confirmed = dialogService.showConfirmationDialogAndWait(
-                Localization.lang("Clear chat history"),
-                Localization.lang("Are you sure you want to clear the chat history?")
-        );
+        boolean confirmed = dialogService.showConfirmationDialogAndWait(Localization.lang("Clear chat history"), Localization.lang("Are you sure you want to clear the chat history?"));
 
         if (confirmed) {
             chatHistory.clear();
@@ -305,9 +279,9 @@ public class AiChatStatusViewModel extends AbstractViewModel {
     }
 
     private BibDatabaseMode getDatabaseModeOrDefault() {
-        return entries.isEmpty()
-               ? BibDatabaseMode.BIBTEX
-               : entries.getFirst().databaseContext().getMode();
+        return entries.isEmpty() ? BibDatabaseMode.BIBTEX : entries.getFirst()
+                .databaseContext()
+                .getMode();
     }
 
     public ObservableList<IngestionStatusRow> getIngestionStatuses() {

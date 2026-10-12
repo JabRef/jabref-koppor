@@ -2,11 +2,12 @@ package org.jabref.gui.fieldeditors;
 
 import java.util.Optional;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.autocompleter.SuggestionProvider;
@@ -21,50 +22,54 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 // TODO: Document why this is not an IdentifierEditor like ISBN and EPrint
 //       If there is no reason, then integrate it in IdentifierEditor
 public class ISSNEditor extends HBox implements FieldEditorFX {
-    @FXML private ISSNEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private Button journalInfoButton;
-    @FXML private Button fetchInformationByIdentifierButton;
+    @FXML
+    private ISSNEditorViewModel viewModel;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private KeyBindingRepository keyBindingRepository;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private StateManager stateManager;
+    @FXML
+    private EditorTextField textField;
+
+    @FXML
+    private Button journalInfoButton;
+
+    @FXML
+    private Button fetchInformationByIdentifierButton;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private KeyBindingRepository keyBindingRepository;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private StateManager stateManager;
 
     private Optional<BibEntry> entry = Optional.empty();
 
-    public ISSNEditor(Field field,
-                      SuggestionProvider<?> suggestionProvider,
-                      FieldCheckers fieldCheckers,
-                      UndoManager undoManager,
-                      UndoAction undoAction,
-                      RedoAction redoAction) {
+    public ISSNEditor(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+                      UndoManager undoManager, UndoAction undoAction, RedoAction redoAction) {
 
         ViewLoader.view(this)
-                  .root(this)
-                  .load();
+                .root(this)
+                .load();
 
-        this.viewModel = new ISSNEditorViewModel(
-                field,
-                suggestionProvider,
-                fieldCheckers,
-                taskExecutor,
-                dialogService,
-                undoManager,
-                stateManager,
-                preferences);
+        this.viewModel = new ISSNEditorViewModel(field, suggestionProvider, fieldCheckers, taskExecutor, dialogService, undoManager,
+                stateManager, preferences);
 
         textField.setId(field.getName());
         establishBinding(textField, viewModel.textProperty(), keyBindingRepository, undoAction, redoAction);
         textField.initContextMenu(new DefaultMenu(textField), keyBindingRepository);
-        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
+        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator()
+                .getValidationStatus(),
+                        textField);
     }
 
     public ISSNEditorViewModel getViewModel() {

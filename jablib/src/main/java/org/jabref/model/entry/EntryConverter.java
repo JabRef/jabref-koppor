@@ -29,7 +29,8 @@ public class EntryConverter {
 
         // inverse map
         EntryConverter.FIELD_ALIASES_BIBLATEX_TO_BIBTEX = EntryConverter.FIELD_ALIASES_BIBTEX_TO_BIBLATEX
-                .entrySet().stream()
+                .entrySet()
+                .stream()
                 .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
 
         // all aliases
@@ -38,6 +39,5 @@ public class EntryConverter {
         FIELD_ALIASES.putAll(EntryConverter.FIELD_ALIASES_BIBLATEX_TO_BIBTEX);
     }
 
-    private EntryConverter() {
-    }
+    private EntryConverter() {}
 }

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -15,7 +14,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,14 +35,8 @@ public class CsvExportFormatTest {
 
     @BeforeEach
     void setUp() {
-        exportFormat = new TemplateExporter(
-                "OpenOffice/LibreOffice CSV",
-                "oocsv",
-                "openoffice-csv",
-                "openoffice",
-                StandardFileType.CSV,
-                mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                SaveOrder.getDefaultSaveOrder());
+        exportFormat = new TemplateExporter("OpenOffice/LibreOffice CSV", "oocsv", "openoffice-csv", "openoffice", StandardFileType.CSV,
+                mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS), SaveOrder.getDefaultSaveOrder());
 
         databaseContext = new BibDatabaseContext();
     }
@@ -106,8 +98,7 @@ public class CsvExportFormatTest {
     void performExportForMultipleEditors(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path path = testFolder.resolve("ThisIsARandomlyNamedFile");
         File tmpFile = path.toFile();
-        BibEntry entry = new BibEntry()
-                .withField(StandardField.EDITOR, "von Neumann, John and Smith, John and Black Brown, Peter");
+        BibEntry entry = new BibEntry().withField(StandardField.EDITOR, "von Neumann, John and Smith, John and Black Brown, Peter");
         List<BibEntry> entries = List.of(entry);
 
         exportFormat.export(databaseContext, tmpFile.toPath(), entries);

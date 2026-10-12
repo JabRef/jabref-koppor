@@ -13,6 +13,9 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfoList;
+import io.github.classgraph.ScanResult;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.importer.fetcher.AbstractIsbnFetcher;
 import org.jabref.logic.importer.fetcher.CollectionOfComputerScienceBibliographiesFetcher;
@@ -31,10 +34,6 @@ import org.jabref.logic.importer.plaincitation.LlmPlainCitationParser;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfoList;
-import io.github.classgraph.ScanResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -49,14 +48,13 @@ class WebFetchersTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebFetchersTest.class);
 
-    private static final Set<String> IGNORED_INACCESSIBLE_FETCHERS = Set.of(
-            "org.jabref.logic.importer.fetcher.ArXivFetcher$ArXiv",
-            "org.jabref.logic.importer.FulltextFetchersTest$FulltextFetcherWithTrustLevel",
-            "org.jabref.logic.importer.SearchBasedFetcherTest$StubSearchBasedFetcher");
+    private static final Set<String> IGNORED_INACCESSIBLE_FETCHERS = Set.of("org.jabref.logic.importer.fetcher.ArXivFetcher$ArXiv", "org.jabref.logic.importer.FulltextFetchersTest$FulltextFetcherWithTrustLevel", "org.jabref.logic.importer.SearchBasedFetcherTest$StubSearchBasedFetcher");
 
     private ImportFormatPreferences importFormatPreferences;
     private ImporterPreferences importerPreferences;
-    private final ClassGraph classGraph = new ClassGraph().enableAllInfo().acceptPackages("org.jabref");
+    private final ClassGraph classGraph = new ClassGraph()
+            .enableAllInfo()
+            .acceptPackages("org.jabref");
 
     @BeforeEach
     void setUp() {
@@ -66,14 +64,16 @@ class WebFetchersTest {
 
     private Set<Class<?>> getIgnoredInaccessibleClasses() {
         return IGNORED_INACCESSIBLE_FETCHERS.stream()
-                                            .map(classPath -> {
-                                                try {
-                                                    return Class.forName(classPath);
-                                                } catch (ClassNotFoundException e) {
-                                                    LOGGER.error("Some of the ignored classes were not found", e);
-                                                    return null;
-                                                }
-                                            }).filter(Objects::nonNull).collect(Collectors.toSet());
+                .map(classPath -> {
+                    try {
+                        return Class.forName(classPath);
+                    } catch (ClassNotFoundException e) {
+                        LOGGER.error("Some of the ignored classes were not found", e);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     @Test
@@ -109,10 +109,7 @@ class WebFetchersTest {
 
     @Test
     void getEntryBasedFetchersReturnsAllFetcherDerivingFromEntryBasedFetcher() {
-        Set<EntryBasedFetcher> idFetchers = WebFetchers.getEntryBasedFetchers(
-                mock(ImporterPreferences.class),
-                importFormatPreferences,
-                mock(FilePreferences.class),
+        Set<EntryBasedFetcher> idFetchers = WebFetchers.getEntryBasedFetchers(mock(ImporterPreferences.class), importFormatPreferences, mock(FilePreferences.class),
                 mock(BibDatabaseContext.class));
 
         try (ScanResult scanResult = classGraph.scan()) {
@@ -202,7 +199,9 @@ class WebFetchersTest {
         CrossRef fetcher = (CrossRef) WebFetchers.getIdFetcherForField(StandardField.DOI, importerPreferences).orElseThrow();
         URL url = fetcher.getURLForEntry(new BibEntry().withField(StandardField.TITLE, "A title"));
 
-        assertEquals("query.bibliographic=A%20title&rows=20&offset=0&mailto=user%40example.org", url.getQuery());
+        assertEquals(
+                "query.bibliographic=A%20title&rows=20&offset=0&mailto=user%40example.org",
+                url.getQuery());
     }
 
     private Set<? extends Class<?>> getClasses(Collection<?> objects) {

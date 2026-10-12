@@ -2,8 +2,9 @@ package org.jabref.gui.welcome.components;
 
 import java.time.LocalDate;
 
+import com.dlsc.gemsfx.infocenter.Notification.OnClickBehaviour;
+import com.dlsc.gemsfx.infocenter.NotificationAction;
 import javafx.util.Duration;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.Notifications;
 import org.jabref.gui.edit.OpenBrowserAction;
@@ -11,9 +12,6 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.DelayedExecution;
 import org.jabref.gui.util.URLs;
 import org.jabref.logic.l10n.Localization;
-
-import com.dlsc.gemsfx.infocenter.Notification.OnClickBehaviour;
-import com.dlsc.gemsfx.infocenter.NotificationAction;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -51,26 +49,27 @@ public class DonationProvider {
     private void showNotification() {
         preferences.getDonationPreferences().setLastShownEpochDay((int) LocalDate.now().toEpochDay());
 
-        Notifications.DonationNotification notification = new Notifications.DonationNotification(
-                Localization.lang("Support JabRef"),
-                Localization.lang("Help us improve JabRef by donating."));
+        Notifications.DonationNotification notification = new Notifications.DonationNotification(Localization.lang("Support JabRef"), Localization.lang("Help us improve JabRef by donating."));
 
-        notification.getActions().add(new NotificationAction<>(Localization.lang("Never show again"), _ -> {
-            preferences.getDonationPreferences().setNeverShowAgain(true);
-            return OnClickBehaviour.HIDE_AND_REMOVE;
-        }));
+        notification.getActions().add(new NotificationAction<>(Localization.lang("Never show again"),
+                _ -> {
+                    preferences.getDonationPreferences().setNeverShowAgain(true);
+                    return OnClickBehaviour.HIDE_AND_REMOVE;
+                }));
 
-        notification.getActions().add(new NotificationAction<>(Localization.lang("Donate"), _ -> {
-            new OpenBrowserAction(URLs.DONATE_URL, dialogService, preferences.getExternalApplicationsPreferences()).execute();
-            return OnClickBehaviour.HIDE_AND_REMOVE;
-        }));
+        notification.getActions().add(new NotificationAction<>(Localization.lang("Donate"),
+                _ -> {
+                    new OpenBrowserAction(URLs.DONATE_URL, dialogService, preferences.getExternalApplicationsPreferences())
+                            .execute();
+                    return OnClickBehaviour.HIDE_AND_REMOVE;
+                }));
 
         dialogService.notify(notification);
     }
 
-    /// Schedules the next donation notification after a specified number of days to take care
-    /// of situation where the user may leave the application open for an extended
-    /// period.
+    /// Schedules the next donation notification after a specified number of
+    /// days to take care of situation where the user may leave the application
+    /// open for an extended period.
     private void scheduleAfterDays(int days) {
         cancelScheduled();
         int delayDays = days;

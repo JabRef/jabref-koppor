@@ -7,15 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.importer.fileformat.pdf.RuleBasedBibliographyPdfImporter;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -31,12 +30,9 @@ public class RelatedWorkReferenceResolver {
     ///
     /// @param linkedFile The attached PDF file of the selected bib entry
     /// @return Map from citation key to the corresponding reference entries
-    public Map<String, BibEntry> parseReferences(LinkedFile linkedFile,
-                                                 BibDatabaseContext databaseContext,
-                                                 FilePreferences filePreferences) throws IOException {
+    public Map<String, BibEntry> parseReferences(LinkedFile linkedFile, BibDatabaseContext databaseContext, FilePreferences filePreferences) throws IOException {
         // Get absolute path of PDF file
-        Path pdfPath = linkedFile.findIn(databaseContext, filePreferences)
-                                 .orElseThrow(() -> new IOException("Failed to resolve linked PDF file: " + linkedFile.getLink() + ". Please check the file and try again."));
+        Path pdfPath = linkedFile.findIn(databaseContext, filePreferences).orElseThrow(() -> new IOException("Failed to resolve linked PDF file: " + linkedFile.getLink() + ". Please check the file and try again."));
 
         // Locate Reference section and parse references
         PDDocument document = Loader.loadPDF(pdfPath.toFile());

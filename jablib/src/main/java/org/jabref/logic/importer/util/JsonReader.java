@@ -4,11 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import org.jabref.logic.importer.ParseException;
-
 import kong.unirest.core.json.JSONArray;
 import kong.unirest.core.json.JSONException;
 import kong.unirest.core.json.JSONObject;
+import org.jabref.logic.importer.ParseException;
 
 /// Converts an [InputStream] into a [JSONObject].
 public final class JsonReader {
@@ -19,7 +18,8 @@ public final class JsonReader {
 
     /// Converts the given input stream into a [JSONObject].
     ///
-    /// @return A [JSONObject]. An empty JSON object is returned in the case an empty stream is passed.
+    /// @return A [JSONObject]. An empty JSON object is returned in the case an
+    ///   empty stream is passed.
     public static JSONObject toJsonObject(InputStream inputStream) throws ParseException {
         try {
             String inputStr = new String((inputStream.readAllBytes()), StandardCharsets.UTF_8);

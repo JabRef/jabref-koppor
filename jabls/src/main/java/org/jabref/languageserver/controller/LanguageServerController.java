@@ -5,7 +5,6 @@ import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.remote.server.RemoteMessageHandler;
 import org.jabref.model.entry.BibEntryTypesManager;
-
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +18,8 @@ public class LanguageServerController implements AutoCloseable {
     private final JournalAbbreviationRepository abbreviationRepository;
     private final BibEntryTypesManager bibEntryTypesManager;
 
-    @Nullable private LspLauncher lspLauncher;
+    @Nullable
+    private LspLauncher lspLauncher;
 
     public LanguageServerController(CliPreferences cliPreferences, JournalAbbreviationRepository abbreviationRepository, BibEntryTypesManager bibEntryTypesManager) {
         this.cliPreferences = cliPreferences;

@@ -1,7 +1,6 @@
 package org.jabref.gui.mergeentries.threewaymerge.fieldsmerger;
 
 import org.jabref.model.entry.KeywordList;
-
 import org.jspecify.annotations.NonNull;
 
 /// A merger for the [org.jabref.model.entry.field.StandardField#KEYWORDS] field

@@ -3,6 +3,7 @@ package org.jabref.gui.importer.actions;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.jabref.gui.DialogService;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
@@ -11,8 +12,6 @@ import org.jabref.logic.search.query.SearchQueryConversion;
 import org.jabref.logic.util.Version;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.groups.SearchGroup;
-
-import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 /// This action checks whether the syntax for SearchGroups is the new one.
 /// If not we ask the user whether to migrate.
@@ -29,7 +28,9 @@ public class SearchGroupsMigrationAction implements GUIPostOpenAction {
         if (currentVersion.isPresent()) {
             if (currentVersion.get().equals(VERSION_6_0_ALPHA)) {
                 // TODO: This text will only be shown after releasing 6.0-alpha and then removed
-                dialogService.showErrorDialogAndWait("Search groups migration of " + parserResult.getPath().map(Path::toString).orElse(""),
+                dialogService.showErrorDialogAndWait("Search groups migration of " + parserResult.getPath()
+                        .map(Path::toString)
+                        .orElse(""),
                         "The search groups syntax has been reverted to the old one. Please use the backup you made before using 6.0-alpha.");
             }
             return false;
@@ -40,13 +41,20 @@ public class SearchGroupsMigrationAction implements GUIPostOpenAction {
 
     @Override
     public void performAction(ParserResult parserResult, DialogService dialogService, CliPreferences preferences) {
-        if (!dialogService.showConfirmationDialogAndWait(Localization.lang("Search groups migration of %0", parserResult.getPath().map(Path::toString).orElse("")),
+        if (!dialogService.showConfirmationDialogAndWait(
+                Localization.lang("Search groups migration of %0",
+                        parserResult.getPath()
+                                    .map(Path::toString)
+                                    .orElse("")),
                 Localization.lang("The search groups syntax is outdated. Do you want to migrate to the new syntax?"),
-                Localization.lang("Migrate"), Localization.lang("Keep as is"))) {
+                Localization.lang("Migrate"),
+                Localization.lang("Keep as is"))) {
             return;
         }
 
-        parserResult.getMetaData().getGroups().ifPresent(groupTreeNode -> migrateGroups(groupTreeNode, dialogService));
+        parserResult.getMetaData()
+                    .getGroups()
+                    .ifPresent(groupTreeNode -> migrateGroups(groupTreeNode, dialogService));
         parserResult.getMetaData().setGroupSearchSyntaxVersion(VERSION_6_0_ALPHA_1);
         parserResult.setChangedOnMigration(true);
     }
@@ -72,8 +80,7 @@ public class SearchGroupsMigrationAction implements GUIPostOpenAction {
     private void showAskForNewSearchExpressionDialog(DialogService dialogService, SearchGroup searchGroup) {
         Optional<String> newSearchExpression = dialogService.showInputDialogWithDefaultAndWait(
                 Localization.lang("Search group migration failed"),
-                Localization.lang("The search group '%0' could not be migrated. Please enter the new search expression.",
-                        searchGroup.getName()),
+                Localization.lang("The search group '%0' could not be migrated. Please enter the new search expression.", searchGroup.getName()),
                 searchGroup.getSearchExpression());
         newSearchExpression.ifPresent(searchGroup::setSearchExpression);
     }

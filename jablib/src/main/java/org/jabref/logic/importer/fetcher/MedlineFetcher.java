@@ -12,12 +12,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import kong.unirest.core.UnirestException;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.cleanup.DoiCleanup;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.formatter.bibtexfields.ClearFormatter;
@@ -38,9 +39,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import kong.unirest.core.UnirestException;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,11 +62,12 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher,
         this.importerPreferences = importerPreferences;
     }
 
-    /// When using 'esearch.fcgi?db=&lt;database>&term=&lt;query>' we will get a list of IDs matching the query.
-    /// Input: Any text query (&term)
-    /// Output: List of UIDs matching the query
+    /// When using 'esearch.fcgi?db=&lt;database>&term=&lt;query>' we will get a
+    /// list of IDs matching the query. Input: Any text query (&term) Output:
+    /// List of UIDs matching the query
     ///
-    /// @see <a href="https://www.ncbi.nlm.nih.gov/books/NBK25500/">www.ncbi.nlm.nih.gov/books/NBK25500/</a>
+    /// @see <a
+    ///   href="https://www.ncbi.nlm.nih.gov/books/NBK25500/">www.ncbi.nlm.nih.gov/books/NBK25500/</a>
     private List<String> getPubMedIdsFromQuery(String query) throws FetcherException {
         boolean fetchIDs = false;
         boolean firstOccurrenceOfCount = false;
@@ -118,8 +117,7 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher,
         } catch (IOException | URISyntaxException e) {
             throw new FetcherException("Unable to get PubMed IDs", Localization.lang("Unable to get PubMed IDs"), e);
         } catch (XMLStreamException e) {
-            throw new FetcherException("Error while parsing ID list", Localization.lang("Error while parsing ID list"),
-                    e);
+            throw new FetcherException("Error while parsing ID list", Localization.lang("Error while parsing ID list"), e);
         }
     }
 
@@ -153,12 +151,17 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher,
         // [impl->req~import.doi-from-other-fields~1]
         new DoiCleanup().cleanup(entry);
 
-        new FieldFormatterCleanup(new UnknownField("journal-abbreviation"), new ClearFormatter()).cleanup(entry);
-        new FieldFormatterCleanup(new UnknownField("status"), new ClearFormatter()).cleanup(entry);
-        new FieldFormatterCleanup(new UnknownField("copyright"), new ClearFormatter()).cleanup(entry);
+        new FieldFormatterCleanup(new UnknownField("journal-abbreviation"), new ClearFormatter())
+                .cleanup(entry);
+        new FieldFormatterCleanup(new UnknownField("status"), new ClearFormatter())
+                .cleanup(entry);
+        new FieldFormatterCleanup(new UnknownField("copyright"), new ClearFormatter())
+                .cleanup(entry);
 
-        new FieldFormatterCleanup(StandardField.MONTH, new NormalizeMonthFormatter()).cleanup(entry);
-        new FieldFormatterCleanup(StandardField.AUTHOR, new NormalizeNamesFormatter()).cleanup(entry);
+        new FieldFormatterCleanup(StandardField.MONTH, new NormalizeMonthFormatter())
+                .cleanup(entry);
+        new FieldFormatterCleanup(StandardField.AUTHOR, new NormalizeNamesFormatter())
+                .cleanup(entry);
     }
 
     private URL createSearchUrl(String query) throws URISyntaxException, MalformedURLException {
@@ -181,8 +184,7 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher,
             // Separate the IDs with a comma to search multiple entries
             URL fetchURL = getUrlForIdentifier(String.join(",", ids));
             URLConnection data = fetchURL.openConnection();
-            ParserResult result = new MedlineImporter().importDatabase(
-                    new BufferedReader(new InputStreamReader(data.getInputStream(), StandardCharsets.UTF_8)));
+            ParserResult result = new MedlineImporter().importDatabase(new BufferedReader(new InputStreamReader(data.getInputStream(), StandardCharsets.UTF_8)));
             if (result.hasWarnings()) {
                 LOGGER.warn(result.getErrorMessage());
             }
@@ -190,11 +192,9 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher,
             resultList.forEach(this::doPostCleanup);
             return resultList;
         } catch (URISyntaxException | MalformedURLException e) {
-            throw new FetcherException("Error while generating fetch URL",
-                    Localization.lang("Error while generating fetch URL"), e);
+            throw new FetcherException("Error while generating fetch URL", Localization.lang("Error while generating fetch URL"), e);
         } catch (IOException e) {
-            throw new FetcherException("Error while fetching from Medline",
-                    Localization.lang("Error while fetching from %0", "Medline"), e);
+            throw new FetcherException("Error while fetching from Medline", Localization.lang("Error while fetching from %0", "Medline"), e);
         }
     }
 
@@ -239,7 +239,8 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher,
     public boolean isValidKey(@NonNull String apiKey) {
         try {
             URLDownload urlDownload = new URLDownload(getTestUrl(apiKey));
-            int statusCode = ((HttpURLConnection) urlDownload.getSource().openConnection()).getResponseCode();
+            int statusCode = ((HttpURLConnection) urlDownload.getSource().openConnection())
+                    .getResponseCode();
             return (statusCode >= 200) && (statusCode < 300);
         } catch (IOException | UnirestException _) {
             return false;

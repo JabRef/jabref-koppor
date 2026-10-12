@@ -3,12 +3,11 @@ package org.jabref.logic.shared.notifications;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import org.jabref.logic.shared.DBMSSynchronizer;
-import org.jabref.logic.shared.DatabaseConnection;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import org.jabref.logic.shared.DBMSSynchronizer;
+import org.jabref.logic.shared.DatabaseConnection;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.postgresql.PGConnection;
@@ -18,10 +17,10 @@ import org.slf4j.LoggerFactory;
 
 /// A listener for PostgreSQL database notifications.
 ///
-/// Opens - and on failures reopens - its own database connection, because polling for
-/// notifications blocks the connection it runs on. Reconnecting is retried for as long as the
-/// library is open: every successful reconnect is followed by a full pull, so an outage costs
-/// nothing but delay.
+/// Opens - and on failures reopens - its own database connection, because
+/// polling for notifications blocks the connection it runs on. Reconnecting is
+/// retried for as long as the library is open: every successful reconnect is
+/// followed by a full pull, so an outage costs nothing but delay.
 @NullMarked
 public class NotificationListener implements Runnable {
 
@@ -44,8 +43,9 @@ public class NotificationListener implements Runnable {
         this.processorId = processorId;
     }
 
-    /// Registers the notification subscription. Called before the polling starts, so that no
-    /// notification sent right after this method returns can be missed.
+    /// Registers the notification subscription. Called before the polling
+    /// starts, so that no notification sent right after this method returns can
+    /// be missed.
     public void start() throws SQLException {
         pgConnection = connect();
     }
@@ -91,7 +91,8 @@ public class NotificationListener implements Runnable {
                 if (consecutiveFailures == 1) {
                     LOGGER.warn("Error while listening for shared database updates - reconnecting", exception);
                 } else {
-                    LOGGER.debug("Reconnecting the shared database listener in {} ms (attempt {})", delayMillis, consecutiveFailures, exception);
+                    LOGGER.debug("Reconnecting the shared database listener in {} ms (attempt {})",
+                            delayMillis, consecutiveFailures, exception);
                 }
                 try {
                     Thread.sleep(delayMillis);

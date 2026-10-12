@@ -3,7 +3,6 @@ package org.jabref.gui.mergeentries.threewaymerge;
 import javafx.geometry.Insets;
 import javafx.scene.control.Control;
 import javafx.scene.layout.GridPane;
-
 import org.jabref.gui.mergeentries.threewaymerge.cell.HeaderCell;
 import org.jabref.logic.l10n.Localization;
 
@@ -23,12 +22,7 @@ public class ThreeWayMergeHeaderView extends GridPane {
         this.rightHeaderCell = new HeaderCell(rightHeader);
         this.mergedHeaderCell = new HeaderCell(Localization.lang("Merged entry"));
 
-        addRow(0,
-                new HeaderCell(""),
-                leftHeaderCell,
-                rightHeaderCell,
-                mergedHeaderCell
-        );
+        addRow(0, new HeaderCell(""), leftHeaderCell, rightHeaderCell, mergedHeaderCell);
 
         setPrefHeight(Control.USE_COMPUTED_SIZE);
         setMaxHeight(Control.USE_PREF_SIZE);

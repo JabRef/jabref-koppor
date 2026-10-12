@@ -14,18 +14,18 @@ public class DateGroup extends AbstractGroup {
     String date; // bucket key: "YYYY" or "YYYY-MM" or "YYYY-MM-DD"
     private final Field field;
 
-    public DateGroup(String groupName, GroupHierarchyType context, Field searchField, String date) {
+    public DateGroup(String groupName, GroupHierarchyType context, Field searchField,
+                     String date) {
         super(groupName, context);
         field = searchField;
         this.date = date;
     }
 
     static Optional<Date> extractDate(Field field, BibEntry entry) {
-        boolean isCore =
-                (field == StandardField.DATE)
-                        || (field == StandardField.YEAR)
-                        || (field == StandardField.MONTH)
-                        || (field == StandardField.DAY);
+        boolean isCore = (field == StandardField.DATE)
+                || (field == StandardField.YEAR)
+                || (field == StandardField.MONTH)
+                || (field == StandardField.DAY);
 
         if (isCore) {
             // use alias resolution so DATE <-> YEAR/MONTH/DAY works either way
@@ -36,22 +36,27 @@ public class DateGroup extends AbstractGroup {
         }
     }
 
-    /// Returns a date group key from `d`.
-    /// Format is inferred from `dateKeyFormat` by dash count: 0→YYYY, 1→YYYY-MM, 2→YYYY-MM-DD.
-    /// If required parts are missing, returns [java.util.Optional#empty()].
+    /// Returns a date group key from `d`. Format is inferred from
+    /// `dateKeyFormat` by dash count: 0→YYYY, 1→YYYY-MM, 2→YYYY-MM-DD. If
+    /// required parts are missing, returns [java.util.Optional#empty()].
     ///
-    /// @param d             the parsed date
+    /// @param d the parsed date
     /// @param dateKeyFormat sample format used only for its number of dashes
     /// @return optional key string in the requested granularity
     static Optional<String> getDateKey(Date d, String dateKeyFormat) {
-        int numOfdashes = (int) dateKeyFormat.chars().filter(ch -> ch == '-').count();
+        int numOfdashes = (int) dateKeyFormat.chars()
+                .filter(ch -> ch == '-')
+                .count();
         Optional<Integer> y = d.getYear();
         return switch (numOfdashes) {
-            case 0 ->
-                    y.map("%04d"::formatted); // "YYYY"
+            case 0 -> y.map("%04d"::formatted); // "YYYY"
             case 1 -> { // "YYYY-MM"
                 if (d.getYear().isPresent() && d.getMonth().isPresent()) {
-                    String out = "%04d-%02d".formatted(d.getYear().get(), d.getMonth().get().getNumber());
+                    String out = "%04d-%02d".formatted(
+                            d.getYear().get(),
+                            d.getMonth()
+                             .get()
+                             .getNumber());
                     yield Optional.of(out);
                 } else {
                     yield Optional.empty();
@@ -61,15 +66,16 @@ public class DateGroup extends AbstractGroup {
                 if (d.getYear().isPresent() && d.getMonth().isPresent() && d.getDay().isPresent()) {
                     String out = "%04d-%02d-%02d".formatted(
                             d.getYear().get(),
-                            d.getMonth().get().getNumber(),
+                            d.getMonth()
+                             .get()
+                             .getNumber(),
                             d.getDay().get());
                     yield Optional.of(out);
                 } else {
                     yield Optional.empty();
                 }
             }
-            default ->
-                    Optional.empty();
+            default -> Optional.empty();
         };
     }
 

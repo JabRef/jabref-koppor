@@ -9,12 +9,12 @@ import org.jabref.model.search.query.BaseQueryNode;
 import org.jabref.model.search.query.NotNode;
 import org.jabref.model.search.query.OperatorNode;
 import org.jabref.model.search.query.SearchQueryNode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// In case the transformer contains state for a query transformation (such as the [IEEEQueryTransformer]), it has to be noted at the JavaDoc.
-/// Otherwise, a single instance QueryTransformer can be used.
+/// In case the transformer contains state for a query transformation (such as
+/// the [IEEEQueryTransformer]), it has to be noted at the JavaDoc. Otherwise, a
+/// single instance QueryTransformer can be used.
 public abstract class AbstractQueryTransformer {
     public static final String NO_EXPLICIT_FIELD = "default";
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractQueryTransformer.class);
@@ -34,7 +34,8 @@ public abstract class AbstractQueryTransformer {
             delimiter = getLogicalAndOperator();
         }
 
-        String result = query.children().stream()
+        String result = query.children()
+                             .stream()
                              .map(this::transform)
                              .flatMap(Optional::stream)
                              .collect(Collectors.joining(delimiter, "(", ")"));
@@ -65,7 +66,10 @@ public abstract class AbstractQueryTransformer {
         String term = query.term();
         String field = NO_EXPLICIT_FIELD;
         if (query.field().isPresent()) {
-            field = String.valueOf(query.field().get().getName()).toLowerCase();
+            field = String.valueOf(query.field()
+                    .get()
+                    .getName())
+                    .toLowerCase();
         }
         switch (field) {
             case "author" -> {
@@ -185,21 +189,23 @@ public abstract class AbstractQueryTransformer {
             case NotNode notQueryNode -> {
                 return transform(notQueryNode);
             }
-            case null,
-                 default -> {
+            case null, default -> {
                 LOGGER.error("Unsupported case when transforming the query:\n {}", query);
                 return Optional.empty();
             }
         }
     }
 
-    /// Parses the given query string into a complex query using lucene.
-    /// Note: For unique fields, the alphabetically and numerically first instance in the query string is used in the complex query.
+    /// Parses the given query string into a complex query using lucene. Note:
+    /// For unique fields, the alphabetically and numerically first instance in
+    /// the query string is used in the complex query.
     ///
     /// @param queryNode The first search node
-    /// @return A query string containing all fields that are contained in the original lucene query and
-    /// that are expressible in the library specific query language, other information either is discarded or
-    /// stored as part of the state of the transformer if it can be used e.g. as a URL parameter for the query.
+    /// @return A query string containing all fields that are contained in the
+    ///   original lucene query and that are expressible in the library specific
+    ///   query language, other information either is discarded or stored as
+    ///   part of the state of the transformer if it can be used e.g. as a URL
+    ///   parameter for the query.
     public Optional<String> transformSearchQuery(BaseQueryNode queryNode) {
         Optional<String> transformedQuery = transform(queryNode);
         transformedQuery = transformedQuery.map(this::removeOuterBraces);

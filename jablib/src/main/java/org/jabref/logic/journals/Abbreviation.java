@@ -21,14 +21,18 @@ public class Abbreviation implements Comparable<Abbreviation>, Serializable {
     }
 
     public Abbreviation(String name, String abbreviation, String shortestUniqueAbbreviation) {
-        this(name,
+        this(
+                name,
                 abbreviation,
                 // "L. N." becomes "L  N ", we need to remove the double spaces inbetween
-                abbreviation.replace(".", " ").replace("  ", " ").trim(),
+                abbreviation.replace(".", " ")
+                            .replace("  ", " ")
+                            .trim(),
                 shortestUniqueAbbreviation.trim());
     }
 
-    private Abbreviation(String name, String abbreviation, String dotlessAbbreviation, String shortestUniqueAbbreviation) {
+    private Abbreviation(String name, String abbreviation, String dotlessAbbreviation,
+                         String shortestUniqueAbbreviation) {
         this.name = name.intern();
         this.abbreviation = abbreviation.intern();
         this.dotlessAbbreviation = dotlessAbbreviation.intern();
@@ -89,11 +93,7 @@ public class Abbreviation implements Comparable<Abbreviation>, Serializable {
 
     @Override
     public String toString() {
-        return "Abbreviation{name=%s, abbreviation=%s, dotlessAbbreviation=%s, shortestUniqueAbbreviation=%s}".formatted(
-                this.name,
-                this.abbreviation,
-                this.dotlessAbbreviation,
-                this.shortestUniqueAbbreviation);
+        return "Abbreviation{name=%s, abbreviation=%s, dotlessAbbreviation=%s, shortestUniqueAbbreviation=%s}".formatted(this.name, this.abbreviation, this.dotlessAbbreviation, this.shortestUniqueAbbreviation);
     }
 
     @Override

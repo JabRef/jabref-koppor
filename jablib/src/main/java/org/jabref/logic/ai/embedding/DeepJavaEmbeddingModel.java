@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalInt;
 
-import org.jabref.logic.util.ProgressCounter;
-import org.jabref.logic.util.strings.StringUtil;
-
 import ai.djl.MalformedModelException;
 import ai.djl.huggingface.translator.TextEmbeddingTranslatorFactory;
 import ai.djl.inference.Predictor;
@@ -19,6 +16,8 @@ import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.output.Response;
+import org.jabref.logic.util.ProgressCounter;
+import org.jabref.logic.util.strings.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,11 +32,7 @@ public class DeepJavaEmbeddingModel implements EmbeddingModel, AutoCloseable {
 
     private final EmbeddingModelMetadataService metadataService;
 
-    public DeepJavaEmbeddingModel(
-            String modelName,
-            ProgressCounter progressCounter,
-            EmbeddingModelMetadataService metadataService
-    ) throws ModelNotFoundException, MalformedModelException, IOException {
+    public DeepJavaEmbeddingModel(String modelName, ProgressCounter progressCounter, EmbeddingModelMetadataService metadataService) throws ModelNotFoundException, MalformedModelException, IOException {
         this.modelName = modelName;
         this.metadataService = metadataService;
         try {
@@ -57,7 +52,8 @@ public class DeepJavaEmbeddingModel implements EmbeddingModel, AutoCloseable {
         return modelName;
     }
 
-    /// Returns the maximum snippet size (sequence length in tokens) supported by this embedding model.
+    /// Returns the maximum snippet size (sequence length in tokens) supported
+    /// by this embedding model.
     public OptionalInt getMaxSnippetTokens() {
         String prop = model.getProperty("maxLength");
         if (StringUtil.isNotBlank(prop)) {
@@ -122,8 +118,8 @@ public class DeepJavaEmbeddingModel implements EmbeddingModel, AutoCloseable {
 
     private static Criteria.Builder<String, float[]> makeCriteriaBuilder() {
         return Criteria.builder()
-                       .setTypes(String.class, float[].class)
-                       .optEngine("PyTorch")
-                       .optTranslatorFactory(new TextEmbeddingTranslatorFactory());
+                .setTypes(String.class, float[].class)
+                .optEngine("PyTorch")
+                .optTranslatorFactory(new TextEmbeddingTranslatorFactory());
     }
 }

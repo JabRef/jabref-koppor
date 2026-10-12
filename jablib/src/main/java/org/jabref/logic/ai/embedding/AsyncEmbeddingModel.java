@@ -4,30 +4,29 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
+import dev.langchain4j.data.embedding.Embedding;
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.output.Response;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.logic.ai.ingestion.tasks.UpdateEmbeddingModelTask;
 import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.logic.util.TaskExecutor;
-
-import dev.langchain4j.data.embedding.Embedding;
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.output.Response;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// An [EmbeddingModel] that downloads/loads its underlying model asynchronously via a background task.
+/// An [EmbeddingModel] that downloads/loads its underlying model asynchronously
+/// via a background task.
 ///
 /// The constructor immediately schedules an [UpdateEmbeddingModelTask]. Call
 /// [#embedAll(List)] only once the model is ready (check [#isPresent()]).
 ///
-/// Does not listen to any preferences; the owner is responsible for reacting to preference
-/// changes and creating a new instance if needed.
+/// Does not listen to any preferences; the owner is responsible for reacting to
+/// preference changes and creating a new instance if needed.
 ///
 /// Implements [AutoCloseable]; close it to release the loaded model.
 public class AsyncEmbeddingModel implements EmbeddingModel, AutoCloseable {
@@ -45,13 +44,8 @@ public class AsyncEmbeddingModel implements EmbeddingModel, AutoCloseable {
 
     private boolean closed;
 
-    public AsyncEmbeddingModel(
-            String modelName,
-            AiPreferences aiPreferences,
-            NotificationService notificationService,
-            TaskExecutor taskExecutor,
-            EmbeddingModelMetadataService metadataService
-    ) {
+    public AsyncEmbeddingModel(String modelName, AiPreferences aiPreferences, NotificationService notificationService,
+            TaskExecutor taskExecutor, EmbeddingModelMetadataService metadataService) {
         this.modelName = modelName;
         this.notificationService = notificationService;
         this.taskExecutor = taskExecutor;
@@ -103,8 +97,7 @@ public class AsyncEmbeddingModel implements EmbeddingModel, AutoCloseable {
     public OptionalInt getMaxSnippetTokens() {
         return predictorProperty.get()
                                 .map(DeepJavaEmbeddingModel::getMaxSnippetTokens)
-                                .orElseGet(() -> metadataService
-                                        .getMetadata(modelName)
+                                .orElseGet(() -> metadataService.getMetadata(modelName)
                                         .map(EmbeddingModelMetadata::maxSnippetTokens)
                                         .orElseGet(OptionalInt::empty));
     }
@@ -129,14 +122,18 @@ public class AsyncEmbeddingModel implements EmbeddingModel, AutoCloseable {
             throw new RuntimeException(Localization.lang("Embedding model is not set up"));
         }
 
-        return predictorProperty.get().get().embedAll(list);
+        return predictorProperty.get()
+                                .get()
+                                .embedAll(list);
     }
 
     @Override
     public synchronized void close() {
         closed = true;
         if (predictorProperty.get().isPresent()) {
-            predictorProperty.get().get().close();
+            predictorProperty.get()
+                             .get()
+                             .close();
         }
     }
 }

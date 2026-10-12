@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import jakarta.ws.rs.core.MediaType;
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.PagedSearchBasedParserFetcher;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.Parser;
@@ -20,12 +25,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import jakarta.ws.rs.core.MediaType;
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +43,9 @@ public class ScholarArchiveFetcher implements PagedSearchBasedParserFetcher {
     /// @return URL
     @Override
     public URL getURLForQuery(BaseQueryNode queryNode, int pageNumber) throws URISyntaxException, MalformedURLException {
-        String transformedQuery = new ScholarArchiveQueryTransformer().transformSearchQuery(queryNode).orElse("");
+        String transformedQuery = new ScholarArchiveQueryTransformer()
+                .transformSearchQuery(queryNode)
+                .orElse("");
         return buildSearchURL(transformedQuery, pageNumber);
     }
 
@@ -75,7 +76,8 @@ public class ScholarArchiveFetcher implements PagedSearchBasedParserFetcher {
         return download;
     }
 
-    /// Gets the list of BibEntry by given Json response from scholar archive fetcher API
+    /// Gets the list of BibEntry by given Json response from scholar archive
+    /// fetcher API
     ///
     /// @return Parser, list of BibEntry
     @Override
@@ -109,11 +111,14 @@ public class ScholarArchiveFetcher implements PagedSearchBasedParserFetcher {
 
             JSONArray abstracts = jsonEntry.getJSONArray("abstracts");
             String foundAbstract = IntStream.range(0, abstracts.length())
-                                            .mapToObj(abstracts::getJSONObject)
-                                            .map(object -> object.optString("body"))
-                                            .findFirst().orElse("");
+                    .mapToObj(abstracts::getJSONObject)
+                    .map(object -> object.optString("body"))
+                    .findFirst()
+                    .orElse("");
 
-            String url = Optional.ofNullable(jsonEntry.optJSONObject("fulltext")).map(fullText -> fullText.optString("access_url")).orElse("");
+            String url = Optional.ofNullable(jsonEntry.optJSONObject("fulltext"))
+                    .map(fullText -> fullText.optString("access_url"))
+                    .orElse("");
 
             // publication type
             String type = biblio.optString("release_type");

@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
+import com.google.common.annotations.VisibleForTesting;
 import javafx.beans.property.ObjectProperty;
-
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.bibtex.FieldPreferences;
@@ -25,8 +25,6 @@ import org.jabref.logic.util.Directories;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,17 +36,18 @@ public class SearchCitationsRelationsService {
     private volatile CitationCountFetcher citationCountFetcher;
     private final BibEntryCitationsAndReferencesRepository relationsRepository;
 
-    public SearchCitationsRelationsService(ImporterPreferences importerPreferences,
-                                           ImportFormatPreferences importFormatPreferences,
-                                           FieldPreferences fieldPreferences,
-                                           ObjectProperty<CitationFetcherType> citationFetcherTypeProperty,
-                                           ObjectProperty<CitationCountFetcherType> citationCountFetcherTypeProperty,
-                                           CitationKeyPatternPreferences citationKeyPatternPreferences,
-                                           GrobidPreferences grobidPreferences,
-                                           AiPreferences aiPreferences,
-                                           ChatModel chatModel,
-                                           BibEntryTypesManager entryTypesManager,
-                                           NotificationService notificationService) {
+    public SearchCitationsRelationsService(
+            ImporterPreferences importerPreferences,
+            ImportFormatPreferences importFormatPreferences,
+            FieldPreferences fieldPreferences,
+            ObjectProperty<CitationFetcherType> citationFetcherTypeProperty,
+            ObjectProperty<CitationCountFetcherType> citationCountFetcherTypeProperty,
+            CitationKeyPatternPreferences citationKeyPatternPreferences,
+            GrobidPreferences grobidPreferences,
+            AiPreferences aiPreferences,
+            ChatModel chatModel,
+            BibEntryTypesManager entryTypesManager,
+            NotificationService notificationService) {
         this.citationFetcher = CitationFetcherType.getCitationFetcher(
                 citationFetcherTypeProperty.get(),
                 importerPreferences,
@@ -58,25 +57,15 @@ public class SearchCitationsRelationsService {
                 aiPreferences,
                 chatModel);
 
-        this.citationCountFetcher = CitationCountFetcherType.getCitationCountFetcher(
-                citationCountFetcherTypeProperty.get(),
-                importerPreferences);
+        this.citationCountFetcher = CitationCountFetcherType.getCitationCountFetcher(citationCountFetcherTypeProperty.get(), importerPreferences);
 
         citationFetcherTypeProperty.addListener((_, _, newValue) -> {
-            this.citationFetcher = CitationFetcherType.getCitationFetcher(
-                    newValue,
-                    importerPreferences,
-                    importFormatPreferences,
-                    citationKeyPatternPreferences,
-                    grobidPreferences,
-                    aiPreferences,
+            this.citationFetcher = CitationFetcherType.getCitationFetcher(newValue, importerPreferences, importFormatPreferences, citationKeyPatternPreferences, grobidPreferences, aiPreferences,
                     chatModel);
         });
 
         citationCountFetcherTypeProperty.addListener((_, _, newValue) -> {
-            this.citationCountFetcher = CitationCountFetcherType.getCitationCountFetcher(
-                    newValue,
-                    importerPreferences);
+            this.citationCountFetcher = CitationCountFetcherType.getCitationCountFetcher(newValue, importerPreferences);
         });
 
         this.relationsRepository = new BibEntryCitationsAndReferencesRepositoryShell(
@@ -86,14 +75,11 @@ public class SearchCitationsRelationsService {
                 fieldPreferences,
                 entryTypesManager,
                 citationFetcherTypeProperty,
-                notificationService
-        );
+                notificationService);
     }
 
     @VisibleForTesting
-    SearchCitationsRelationsService(CitationFetcher citationFetcher,
-                                    BibEntryCitationsAndReferencesRepository repository
-    ) {
+    SearchCitationsRelationsService(CitationFetcher citationFetcher, BibEntryCitationsAndReferencesRepository repository) {
         this.citationFetcher = citationFetcher;
         this.citationCountFetcher = citationFetcher;
         this.relationsRepository = repository;
@@ -104,10 +90,7 @@ public class SearchCitationsRelationsService {
     }
 
     public List<BibEntry> searchCites(BibEntry referencing, boolean bypassCache, BooleanSupplier isCancelled) throws FetcherException {
-        boolean isFetchingAllowed =
-                bypassCache
-                        || !relationsRepository.containsReferences(referencing)
-                        || relationsRepository.isReferencesUpdatable(referencing);
+        boolean isFetchingAllowed = bypassCache || !relationsRepository.containsReferences(referencing) || relationsRepository.isReferencesUpdatable(referencing);
         if (isFetchingAllowed) {
             List<BibEntry> referencedBy = citationFetcher.getReferences(referencing);
             if (isCancelled.getAsBoolean()) {
@@ -118,18 +101,17 @@ public class SearchCitationsRelationsService {
         return relationsRepository.getReferences(referencing);
     }
 
-    /// If the store was empty and nothing was fetch in any case (empty fetch, or error) then yes => empty list
-    /// If the store was not empty and nothing was fetched after a successful fetch => the store will be erased and the returned collection will be empty
-    /// If the store was not empty and an error occurs while fetching => will return the content of the store
+    /// If the store was empty and nothing was fetch in any case (empty fetch,
+    /// or error) then yes => empty list If the store was not empty and nothing
+    /// was fetched after a successful fetch => the store will be erased and the
+    /// returned collection will be empty If the store was not empty and an
+    /// error occurs while fetching => will return the content of the store
     public List<BibEntry> searchCitedBy(BibEntry cited, boolean bypassCache) throws FetcherException {
         return searchCitedBy(cited, bypassCache, () -> false);
     }
 
     public List<BibEntry> searchCitedBy(BibEntry cited, boolean bypassCache, BooleanSupplier isCancelled) throws FetcherException {
-        boolean isFetchingAllowed =
-                bypassCache
-                        || !relationsRepository.containsCitations(cited)
-                        || relationsRepository.isCitationsUpdatable(cited);
+        boolean isFetchingAllowed = bypassCache || !relationsRepository.containsCitations(cited) || relationsRepository.isCitationsUpdatable(cited);
         if (isFetchingAllowed) {
             List<BibEntry> citedBy = citationFetcher.getCitations(cited);
             if (isCancelled.getAsBoolean()) {
@@ -141,8 +123,7 @@ public class SearchCitationsRelationsService {
     }
 
     public int getCitationCount(BibEntry citationCounted, Optional<String> actualFieldValue) throws FetcherException {
-        boolean isFetchingAllowed = actualFieldValue.isEmpty() ||
-                relationsRepository.isCitationsUpdatable(citationCounted);
+        boolean isFetchingAllowed = actualFieldValue.isEmpty() || relationsRepository.isCitationsUpdatable(citationCounted);
         if (isFetchingAllowed) {
             Optional<Integer> citationCountResult = citationCountFetcher.getCitationCount(citationCounted);
             return citationCountResult.orElse(0);

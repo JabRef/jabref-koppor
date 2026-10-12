@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.dlsc.gemsfx.infocenter.NotificationAction;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.Notifications;
@@ -19,8 +20,6 @@ import org.jabref.logic.util.io.FileSnapshot;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.util.FileUpdateListener;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.dlsc.gemsfx.infocenter.NotificationAction;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,21 +39,27 @@ public class DatabaseChangeMonitor implements FileUpdateListener {
     private final LibraryTab libraryTab;
     private final Optional<Path> monitoredPath;
     private boolean changeDetectionSuspended;
-    @Nullable private ExternalLibraryChangeNotification activeNotification;
 
-    /// State of the monitored file as of the last scan or the last point where the in-memory library was known to
-    /// match the disk (library load, successful save, all external changes merged). Guarded by
-    /// `synchronized (database)`; `null` when unknown, in which case the next event triggers a full scan.
-    @Nullable private FileSnapshot knownDiskState;
+    @Nullable
+    private ExternalLibraryChangeNotification activeNotification;
 
-    public DatabaseChangeMonitor(BibDatabaseContext database,
-                                 FileUpdateMonitor fileMonitor,
-                                 TaskExecutor taskExecutor,
-                                 DialogService dialogService,
-                                 GuiPreferences preferences,
-                                 UndoManager undoManager,
-                                 StateManager stateManager,
-                                 LibraryTab libraryTab) {
+    /// State of the monitored file as of the last scan or the last point where
+    /// the in-memory library was known to match the disk (library load,
+    /// successful save, all external changes merged). Guarded by `synchronized
+    /// (database)`; `null` when unknown, in which case the next event triggers
+    /// a full scan.
+    @Nullable
+    private FileSnapshot knownDiskState;
+
+    public DatabaseChangeMonitor(
+            BibDatabaseContext database,
+            FileUpdateMonitor fileMonitor,
+            TaskExecutor taskExecutor,
+            DialogService dialogService,
+            GuiPreferences preferences,
+            UndoManager undoManager,
+            StateManager stateManager,
+            LibraryTab libraryTab) {
         this.database = database;
         this.fileMonitor = fileMonitor;
         this.taskExecutor = taskExecutor;
@@ -95,35 +100,31 @@ public class DatabaseChangeMonitor implements FileUpdateListener {
 
     private class ExternalLibraryChangeNotification extends Notifications.FileNotification {
         public ExternalLibraryChangeNotification(List<DatabaseChange> changes) {
-            super(Localization.lang("External changes detected"),
-                    Localization.lang("The library has been modified by another program.") + "\n" +
-                            database.getDatabasePath()
-                                    .map(Path::toString)
-                                    .orElse(""));
+            super(Localization.lang("External changes detected"), Localization.lang("The library has been modified by another program.") + "\n" + database.getDatabasePath()
+                    .map(Path::toString)
+                    .orElse(""));
             setOnClick(_ -> OnClickBehaviour.NONE);
 
-            NotificationAction<Path> dismissAction = new NotificationAction<>(Localization.lang("Dismiss changes"), _ -> {
-                clearActiveNotification(this);
-                return OnClickBehaviour.REMOVE;
-            });
+            NotificationAction<Path> dismissAction = new NotificationAction<>(Localization.lang("Dismiss changes"),
+                    _ -> {
+                        clearActiveNotification(this);
+                        return OnClickBehaviour.REMOVE;
+                    });
 
-            NotificationAction<Path> reviewAction = new NotificationAction<>(Localization.lang("Review changes"), _ -> {
-                DatabaseChangesResolverDialog databaseChangesResolverDialog = new DatabaseChangesResolverDialog(
-                        changes,
-                        database,
-                        Localization.lang("External Changes Resolver"));
-                Optional<Boolean> areAllChangesResolved = dialogService.showCustomDialogAndWait(databaseChangesResolverDialog);
-                if (areAllChangesResolved.orElse(false)) {
-                    applyResolvedChanges(
-                            databaseChangesResolverDialog.getResolvedChanges(),
-                            databaseChangesResolverDialog.resolvedChangesMatchDisk());
+            NotificationAction<Path> reviewAction = new NotificationAction<>(
+                    Localization.lang("Review changes"),
+                    _ -> {
+                        DatabaseChangesResolverDialog databaseChangesResolverDialog = new DatabaseChangesResolverDialog(changes, database, Localization.lang("External Changes Resolver"));
+                        Optional<Boolean> areAllChangesResolved = dialogService.showCustomDialogAndWait(databaseChangesResolverDialog);
+                        if (areAllChangesResolved.orElse(false)) {
+                            applyResolvedChanges(databaseChangesResolverDialog.getResolvedChanges(), databaseChangesResolverDialog.resolvedChangesMatchDisk());
 
-                    clearActiveNotification(this);
-                    return OnClickBehaviour.REMOVE;
-                }
+                            clearActiveNotification(this);
+                            return OnClickBehaviour.REMOVE;
+                        }
 
-                return OnClickBehaviour.NONE;
-            });
+                        return OnClickBehaviour.NONE;
+                    });
 
             getActions().addAll(dismissAction, reviewAction);
         }
@@ -139,8 +140,9 @@ public class DatabaseChangeMonitor implements FileUpdateListener {
         }
     }
 
-    /// Defers handling of file events while keeping the watcher registered, so that events arriving during JabRef's
-    /// own save are neither acted upon (the file may be half-written) nor lost.
+    /// Defers handling of file events while keeping the watcher registered, so
+    /// that events arriving during JabRef's own save are neither acted upon
+    /// (the file may be half-written) nor lost.
     public void suspendChangeDetection() {
         synchronized (database) {
             changeDetectionSuspended = true;
@@ -155,11 +157,18 @@ public class DatabaseChangeMonitor implements FileUpdateListener {
         }
     }
 
-    /// Records the given file state as consistent with the in-memory library. To be called whenever the two are known
-    /// to match (successful save, all external changes merged), so that watcher events reflecting that very state do
-    /// not trigger a scan.
+    /// Records the given file state as consistent with the in-memory library.
+    /// To be called whenever the two are known to match (successful save, all
+    /// external changes merged), so that watcher events reflecting that very
+    /// state do not trigger a scan.
     ///
-    /// @param diskState the matching on-disk state, ideally as reported by the writer that committed it (captured right after the commit, this leaves no window in which a concurrent write could be mistaken for the consistent state); `null` to read the current state from the file instead, which is subject to such a window — its worst case is a delayed notification, never a lost update, since lost-update protection lives in [org.jabref.logic.exporter.AtomicFileOutputStream]
+    /// @param diskState the matching on-disk state, ideally as reported by the
+    ///   writer that committed it (captured right after the commit, this leaves
+    ///   no window in which a concurrent write could be mistaken for the
+    ///   consistent state); `null` to read the current state from the file
+    ///   instead, which is subject to such a window — its worst case is a
+    ///   delayed notification, never a lost update, since lost-update
+    ///   protection lives in [org.jabref.logic.exporter.AtomicFileOutputStream]
     public void markConsistentWithDisk(@Nullable FileSnapshot diskState) {
         synchronized (database) {
             if (diskState != null) {
@@ -170,8 +179,10 @@ public class DatabaseChangeMonitor implements FileUpdateListener {
         }
     }
 
-    /// A full scan parses the whole library file, so it is skipped when size and modification time show that the file
-    /// has not actually changed since the last known-consistent state — e.g. for events caused by JabRef's own save.
+    /// A full scan parses the whole library file, so it is skipped when size
+    /// and modification time show that the file has not actually changed since
+    /// the last known-consistent state — e.g. for events caused by JabRef's own
+    /// save.
     private void scanIfFileChanged() {
         FileSnapshot currentState = monitoredPath.map(FileSnapshot::read).orElse(null);
         if (currentState != null && currentState.equals(knownDiskState)) {
@@ -181,29 +192,33 @@ public class DatabaseChangeMonitor implements FileUpdateListener {
         scanForChanges();
     }
 
-    /// Looks for notable changes of the file on disk compared to the in-memory library and notifies listeners in case
-    /// there are such changes.
+    /// Looks for notable changes of the file on disk compared to the in-memory
+    /// library and notifies listeners in case there are such changes.
     private void scanForChanges() {
         ChangeScanner scanner = new ChangeScanner(database, dialogService, preferences, stateManager);
         BackgroundTask.wrap(scanner::scanForChanges)
-                      .onSuccess(changes -> {
-                          if (!changes.isEmpty()) {
-                              listeners.forEach(listener -> listener.databaseChanged(changes));
-                          }
-                      })
-                      .onFailure(e -> LOGGER.error("Error while watching for changes", e))
-                      .executeWith(taskExecutor);
+                .onSuccess(changes -> {
+                    if (!changes.isEmpty()) {
+                        listeners.forEach(listener -> listener.databaseChanged(changes));
+                    }
+                })
+                .onFailure(e -> LOGGER.error("Error while watching for changes", e))
+                .executeWith(taskExecutor);
     }
 
-    /// Applies the accepted external changes and updates the library's dirty state.
+    /// Applies the accepted external changes and updates the library's dirty
+    /// state.
     ///
-    /// @param resolvedChanges          the externally resolved changes to apply to the in-memory database
-    /// @param resolvedChangesMatchDisk `true` if the accepted result now matches the file on disk, so the library can be marked clean; `false` if the resolved result differs from disk and still needs saving
+    /// @param resolvedChanges the externally resolved changes to apply to the
+    ///   in-memory database
+    /// @param resolvedChangesMatchDisk `true` if the accepted result now
+    ///   matches the file on disk, so the library can be marked clean; `false`
+    ///   if the resolved result differs from disk and still needs saving
     void applyResolvedChanges(List<DatabaseChange> resolvedChanges, boolean resolvedChangesMatchDisk) {
-        undoManager.addEdit(Localization.lang("Merged external changes"), edit ->
-                resolvedChanges.stream()
-                               .filter(DatabaseChange::isAccepted)
-                               .forEach(change -> change.applyChange(edit)));
+        undoManager.addEdit(Localization.lang("Merged external changes"),
+                edit -> resolvedChanges.stream()
+                                       .filter(DatabaseChange::isAccepted)
+                                       .forEach(change -> change.applyChange(edit)));
 
         if (resolvedChangesMatchDisk) {
             libraryTab.resetChangedProperties();

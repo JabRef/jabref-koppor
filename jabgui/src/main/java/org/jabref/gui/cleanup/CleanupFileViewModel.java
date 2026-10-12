@@ -4,7 +4,6 @@ import java.util.EnumSet;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-
 import org.jabref.logic.cleanup.CleanupPreferences;
 
 public class CleanupFileViewModel {
@@ -16,8 +15,7 @@ public class CleanupFileViewModel {
             CleanupPreferences.CleanupStep.RENAME_PDF_ONLY_RELATIVE_PATHS,
             CleanupPreferences.CleanupStep.CLEAN_UP_UPGRADE_EXTERNAL_LINKS,
             CleanupPreferences.CleanupStep.CLEAN_UP_DELETED_LINKED_FILES,
-            CleanupPreferences.CleanupStep.REMOVE_XMP_METADATA
-    );
+            CleanupPreferences.CleanupStep.REMOVE_XMP_METADATA);
 
     public final BooleanProperty movePdfSelected = new SimpleBooleanProperty();
     public final BooleanProperty makePathsRelativeSelected = new SimpleBooleanProperty();

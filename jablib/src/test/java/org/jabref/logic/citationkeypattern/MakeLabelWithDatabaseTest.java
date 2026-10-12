@@ -3,11 +3,10 @@ package org.jabref.logic.citationkeypattern;
 import java.util.Optional;
 
 import javafx.beans.property.SimpleObjectProperty;
-
+import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences.KeySuffix;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -37,17 +36,8 @@ class MakeLabelWithDatabaseTest {
         database.insertEntry(entry);
         pattern = GlobalCitationKeyPatterns.fromPattern("[auth][year]");
         bibtexKeyPattern = new DatabaseCitationKeyPatterns(pattern);
-        preferences = new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A,
-                "",
-                "",
-                DEFAULT_UNWANTED_CHARACTERS,
-                pattern,
-                new SimpleObjectProperty<>(','));
+        preferences = new CitationKeyPatternPreferences(false, false, false, false, KeySuffix.SECOND_WITH_A, "",
+                "", DEFAULT_UNWANTED_CHARACTERS, pattern, new SimpleObjectProperty<>(','));
     }
 
     @Test
@@ -69,17 +59,8 @@ class MakeLabelWithDatabaseTest {
 
     @Test
     void generateDefaultKeyAlwaysLetter() {
-        preferences = new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.ALWAYS,
-                "",
-                "",
-                DEFAULT_UNWANTED_CHARACTERS,
-                pattern,
-                new SimpleObjectProperty<>(','));
+        preferences = new CitationKeyPatternPreferences(false, false, false, false, KeySuffix.ALWAYS, "",
+                "", DEFAULT_UNWANTED_CHARACTERS, pattern, new SimpleObjectProperty<>(','));
 
         new CitationKeyGenerator(bibtexKeyPattern, database, preferences).generateAndSetKey(entry);
         assertEquals(Optional.of("Doe2016a"), entry.getCitationKey());
@@ -87,17 +68,8 @@ class MakeLabelWithDatabaseTest {
 
     @Test
     void generateDefaultKeyAlwaysLetterAlreadyExistsDuplicatesStartAtB() {
-        preferences = new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.ALWAYS,
-                "",
-                "",
-                DEFAULT_UNWANTED_CHARACTERS,
-                pattern,
-                new SimpleObjectProperty<>(','));
+        preferences = new CitationKeyPatternPreferences(false, false, false, false, KeySuffix.ALWAYS, "",
+                "", DEFAULT_UNWANTED_CHARACTERS, pattern, new SimpleObjectProperty<>(','));
 
         CitationKeyGenerator keyGenerator = new CitationKeyGenerator(bibtexKeyPattern, database, preferences);
         keyGenerator.generateAndSetKey(entry);
@@ -110,17 +82,8 @@ class MakeLabelWithDatabaseTest {
 
     @Test
     void generateDefaultKeyStartDuplicatesAtB() {
-        preferences = new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_B,
-                "",
-                "",
-                DEFAULT_UNWANTED_CHARACTERS,
-                pattern,
-                new SimpleObjectProperty<>(','));
+        preferences = new CitationKeyPatternPreferences(false, false, false, false, KeySuffix.SECOND_WITH_B, "",
+                "", DEFAULT_UNWANTED_CHARACTERS, pattern, new SimpleObjectProperty<>(','));
 
         new CitationKeyGenerator(bibtexKeyPattern, database, preferences).generateAndSetKey(entry);
         assertEquals(Optional.of("Doe2016"), entry.getCitationKey());
@@ -128,17 +91,8 @@ class MakeLabelWithDatabaseTest {
 
     @Test
     void generateDefaultKeyAlreadyExistsDuplicatesStartAtB() {
-        preferences = new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_B,
-                "",
-                "",
-                DEFAULT_UNWANTED_CHARACTERS,
-                pattern,
-                new SimpleObjectProperty<>(','));
+        preferences = new CitationKeyPatternPreferences(false, false, false, false, KeySuffix.SECOND_WITH_B, "",
+                "", DEFAULT_UNWANTED_CHARACTERS, pattern, new SimpleObjectProperty<>(','));
 
         CitationKeyGenerator keyGenerator = new CitationKeyGenerator(bibtexKeyPattern, database, preferences);
         keyGenerator.generateAndSetKey(entry);
@@ -429,17 +383,8 @@ class MakeLabelWithDatabaseTest {
 
     @Test
     void generateKeyRegExReplace() {
-        preferences = new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A,
-                "2",
-                "3",
-                DEFAULT_UNWANTED_CHARACTERS,
-                pattern,
-                new SimpleObjectProperty<>(','));
+        preferences = new CitationKeyPatternPreferences(false, false, false, false, KeySuffix.SECOND_WITH_A, "2",
+                "3", DEFAULT_UNWANTED_CHARACTERS, pattern, new SimpleObjectProperty<>(','));
 
         bibtexKeyPattern.setDefaultValue("[auth][year]");
         entry.setField(StandardField.AUTHOR, "John Doe and Donald Smith and Will Wonder");

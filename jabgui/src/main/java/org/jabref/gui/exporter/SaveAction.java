@@ -14,7 +14,11 @@ import org.jabref.model.entry.BibEntryTypesManager;
 /// This class is just a simple wrapper for the soon to be refactored SaveDatabaseAction.
 public class SaveAction extends SimpleCommand {
 
-    public enum SaveMethod { SAVE, SAVE_AS, SAVE_SELECTED }
+    public enum SaveMethod {
+        SAVE,
+        SAVE_AS,
+        SAVE_SELECTED
+    }
 
     private final SaveMethod saveMethod;
     private final Supplier<LibraryTab> tabSupplier;
@@ -25,13 +29,14 @@ public class SaveAction extends SimpleCommand {
     private final BibEntryTypesManager entryTypesManager;
     private final JournalAbbreviationRepository journalAbbreviationRepository;
 
-    public SaveAction(SaveMethod saveMethod,
-                      Supplier<LibraryTab> tabSupplier,
-                      DialogService dialogService,
-                      GuiPreferences preferences,
-                      StateManager stateManager,
-                      BibEntryTypesManager entryTypesManager,
-                      JournalAbbreviationRepository journalAbbreviationRepository) {
+    public SaveAction(
+            SaveMethod saveMethod,
+            Supplier<LibraryTab> tabSupplier,
+            DialogService dialogService,
+            GuiPreferences preferences,
+            StateManager stateManager,
+            BibEntryTypesManager entryTypesManager,
+            JournalAbbreviationRepository journalAbbreviationRepository) {
         this.saveMethod = saveMethod;
         this.tabSupplier = tabSupplier;
         this.dialogService = dialogService;
@@ -49,21 +54,13 @@ public class SaveAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        SaveDatabaseAction saveDatabaseAction = new SaveDatabaseAction(
-                tabSupplier.get(),
-                dialogService,
-                preferences,
-                entryTypesManager,
-                stateManager,
+        SaveDatabaseAction saveDatabaseAction = new SaveDatabaseAction(tabSupplier.get(), dialogService, preferences, entryTypesManager, stateManager,
                 journalAbbreviationRepository);
 
         switch (saveMethod) {
-            case SAVE ->
-                    saveDatabaseAction.save();
-            case SAVE_AS ->
-                    saveDatabaseAction.saveAs();
-            case SAVE_SELECTED ->
-                    saveDatabaseAction.saveSelectedAsPlain();
+            case SAVE -> saveDatabaseAction.save();
+            case SAVE_AS -> saveDatabaseAction.saveAs();
+            case SAVE_SELECTED -> saveDatabaseAction.saveSelectedAsPlain();
         }
     }
 }

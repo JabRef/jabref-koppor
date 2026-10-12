@@ -9,7 +9,6 @@ import java.util.TreeSet;
 import java.util.stream.Stream;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.gui.util.FileNodeViewModel;
@@ -18,11 +17,11 @@ import org.jabref.logic.externalfiles.DateRange;
 import org.jabref.logic.externalfiles.ExternalFileSorter;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.io.AutoLinkPreferences;
+import org.jabref.logic.util.io.AutoLinkPreferences.CitationKeyDependency;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -39,7 +38,8 @@ class UnlinkedFilesCrawlerTest {
     @Test
     void ignoresFilesInNamedSubdirectoryAccordingToGitignore(@TempDir Path testRoot) throws IOException {
         // This mirrors GitIgnoreFileFilterTest::checkDirectoryGitIgnoreSubDir but tests via the crawler
-        Files.writeString(testRoot.resolve(".gitignore"), """
+        Files.writeString(testRoot.resolve(".gitignore"),
+                """
                 ignore/.*
                 ignore/*
                 ignore/// *
@@ -66,7 +66,8 @@ class UnlinkedFilesCrawlerTest {
 
     @Test
     void minimalGitIgnore(@TempDir Path testRoot) throws IOException {
-        Files.writeString(testRoot.resolve(".gitignore"), """
+        Files.writeString(testRoot.resolve(".gitignore"),
+                """
                 *.png
                 """);
         Path subDir = testRoot.resolve("subdir");
@@ -95,7 +96,8 @@ class UnlinkedFilesCrawlerTest {
         databaseContext.setDatabasePath(databasePath);
 
         ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
-        Filter<Path> fileExtensionFilter = new FileExtensionViewModel(StandardFileType.ANY_FILE, externalApplicationsPreferences).dirFilter();
+        Filter<Path> fileExtensionFilter = new FileExtensionViewModel(StandardFileType.ANY_FILE, externalApplicationsPreferences)
+                .dirFilter();
         FilePreferences filePreferences = mock(FilePreferences.class);
         UnlinkedPDFFileFilter unlinkedPdfFileFilter = new UnlinkedPDFFileFilter(fileExtensionFilter, databaseContext, filePreferences);
 
@@ -124,11 +126,7 @@ class UnlinkedFilesCrawlerTest {
         when(databaseContext.getDatabase()).thenReturn(database);
         when(databaseContext.getFileDirectories(filePreferences)).thenReturn(List.of(testRoot));
 
-        UnlinkedFilesSearchResult result = newCrawler(
-                testRoot,
-                _ -> true,
-                databaseContext,
-                filePreferences).call();
+        UnlinkedFilesSearchResult result = newCrawler(testRoot, _ -> true, databaseContext, filePreferences).call();
 
         assertEquals(List.of(entry), result.relatedEntries(file));
     }
@@ -192,34 +190,25 @@ class UnlinkedFilesCrawlerTest {
         UnlinkedFilesCrawler crawler = newCrawler(testRoot, _ -> true, databaseContext, filePreferences);
         crawler.cancel();
 
-        assertEquals(Map.of(), crawler.call().relatedEntriesByFile());
+        assertEquals(Map.of(),
+                crawler.call().relatedEntriesByFile());
     }
 
-    private static UnlinkedFilesCrawler newCrawler(Path directory,
-                                                   Filter<Path> fileFilter,
-                                                   BibDatabaseContext databaseContext,
-                                                   FilePreferences filePreferences) {
-        return new UnlinkedFilesCrawler(
-                directory,
-                fileFilter,
-                DateRange.ALL_TIME,
-                ExternalFileSorter.DEFAULT,
-                databaseContext,
-                filePreferences,
-                externalApplicationsPreferences(),
-                autoLinkPreferences());
+    private static UnlinkedFilesCrawler newCrawler(Path directory, Filter<Path> fileFilter, BibDatabaseContext databaseContext,
+            FilePreferences filePreferences) {
+        return new UnlinkedFilesCrawler(directory, fileFilter, DateRange.ALL_TIME, ExternalFileSorter.DEFAULT, databaseContext, filePreferences,
+                externalApplicationsPreferences(), autoLinkPreferences());
     }
 
     private static ExternalApplicationsPreferences externalApplicationsPreferences() {
         ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
-        when(externalApplicationsPreferences.getExternalFileTypes())
-                .thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
+        when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
         return externalApplicationsPreferences;
     }
 
     private static AutoLinkPreferences autoLinkPreferences() {
         AutoLinkPreferences autoLinkPreferences = mock(AutoLinkPreferences.class);
-        when(autoLinkPreferences.getCitationKeyDependency()).thenReturn(AutoLinkPreferences.CitationKeyDependency.START);
+        when(autoLinkPreferences.getCitationKeyDependency()).thenReturn(CitationKeyDependency.START);
         return autoLinkPreferences;
     }
 }

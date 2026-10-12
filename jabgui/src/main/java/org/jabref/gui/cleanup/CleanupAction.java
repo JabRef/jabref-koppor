@@ -20,12 +20,8 @@ public class CleanupAction extends SimpleCommand {
     private final TaskExecutor taskExecutor;
     private final JournalAbbreviationRepository journalAbbreviationRepository;
 
-    public CleanupAction(Supplier<LibraryTab> tabSupplier,
-                         CliPreferences preferences,
-                         DialogService dialogService,
-                         StateManager stateManager,
-                         TaskExecutor taskExecutor,
-                         JournalAbbreviationRepository journalAbbreviationRepository) {
+    public CleanupAction(Supplier<LibraryTab> tabSupplier, CliPreferences preferences, DialogService dialogService,
+                         StateManager stateManager, TaskExecutor taskExecutor, JournalAbbreviationRepository journalAbbreviationRepository) {
         this.tabSupplier = tabSupplier;
         this.preferences = preferences;
         this.dialogService = dialogService;
@@ -38,15 +34,7 @@ public class CleanupAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        stateManager.getActiveDatabase().ifPresent(databaseContext ->
-                dialogService.showCustomDialogAndWait(new CleanupDialog(
-                        databaseContext,
-                        preferences,
-                        dialogService,
-                        stateManager,
-                        stateManager.getUndoManager(databaseContext),
-                        tabSupplier,
-                        taskExecutor,
-                        journalAbbreviationRepository)));
+        stateManager.getActiveDatabase().ifPresent(databaseContext -> dialogService.showCustomDialogAndWait(new CleanupDialog(databaseContext, preferences, dialogService, stateManager, stateManager.getUndoManager(databaseContext),
+                tabSupplier, taskExecutor, journalAbbreviationRepository)));
     }
 }

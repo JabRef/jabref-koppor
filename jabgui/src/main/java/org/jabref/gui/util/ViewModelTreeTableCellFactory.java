@@ -10,13 +10,12 @@ import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
-
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.jspecify.annotations.Nullable;
 
-/// Constructs a [TreeTableCell] based on the view model of the row and a bunch of specified converter methods.
+/// Constructs a [TreeTableCell] based on the view model of the row and a bunch
+/// of specified converter methods.
 ///
 /// @param <S> view model
 public class ViewModelTreeTableCellFactory<S> implements Callback<TreeTableColumn<S, S>, TreeTableCell<S, S>> {
@@ -56,8 +55,7 @@ public class ViewModelTreeTableCellFactory<S> implements Callback<TreeTableColum
         return this;
     }
 
-    public ViewModelTreeTableCellFactory<S> withOnMouseClickedEvent(
-            Callback<S, EventHandler<? super MouseEvent>> toOnMouseClickedEvent) {
+    public ViewModelTreeTableCellFactory<S> withOnMouseClickedEvent(Callback<S, EventHandler<? super MouseEvent>> toOnMouseClickedEvent) {
         this.toOnMouseClickedEvent = toOnMouseClickedEvent;
         return this;
     }

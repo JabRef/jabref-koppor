@@ -12,7 +12,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.theme.StyleSheet;
 import org.jabref.gui.theme.ThemeColorScheme;
 import org.jabref.gui.theme.ThemePreset;
@@ -33,17 +32,18 @@ public class WorkspacePreferences {
     private final BooleanProperty confirmHideTabBar;
     private final ObservableList<String> selectedSlrCatalogs;
 
-    public WorkspacePreferences(Language language,
-                                boolean shouldOverrideDefaultFontSize,
-                                int mainFontSize,
-                                ThemePreset theme,
-                                ThemeColorScheme colorScheme,
-                                StyleSheet customTheme,
-                                boolean shouldOpenLastEdited,
-                                boolean showAdvancedHints,
-                                boolean confirmDelete,
-                                boolean confirmHideTabBar,
-                                List<String> selectedSlrCatalogs) {
+    public WorkspacePreferences(
+            Language language,
+            boolean shouldOverrideDefaultFontSize,
+            int mainFontSize,
+            ThemePreset theme,
+            ThemeColorScheme colorScheme,
+            StyleSheet customTheme,
+            boolean shouldOpenLastEdited,
+            boolean showAdvancedHints,
+            boolean confirmDelete,
+            boolean confirmHideTabBar,
+            List<String> selectedSlrCatalogs) {
         this.language = new SimpleObjectProperty<>(language);
         this.shouldOverrideDefaultFontSize = new SimpleBooleanProperty(shouldOverrideDefaultFontSize);
         this.mainFontSize = new SimpleIntegerProperty(mainFontSize);
@@ -62,16 +62,16 @@ public class WorkspacePreferences {
     private WorkspacePreferences() {
         this(
                 Language.getLanguageFor(Locale.getDefault().getLanguage()), // Default language
-                false,                                                      // Default font size override
-                9,                                                          // Default font size
-                ThemePreset.JABREF,                                         // Default theme
-                ThemeColorScheme.FOLLOW_SYSTEM,                             // Default color scheme is follow system
-                null,                                                       // Custom theme
-                true,                                                       // Default open last edited
-                true,                                                       // Default show advanced hints
-                true,                                                       // Default confirm delete
-                true,                                                       // Default confirm hide tab bar
-                List.of()                                                   // Default selected SLR catalogs
+                false, // Default font size override
+                9, // Default font size
+                ThemePreset.JABREF, // Default theme
+                ThemeColorScheme.FOLLOW_SYSTEM, // Default color scheme is follow system
+                null, // Custom theme
+                true, // Default open last edited
+                true, // Default show advanced hints
+                true, // Default confirm delete
+                true, // Default confirm hide tab bar
+                List.of() // Default selected SLR catalogs
         );
     }
 

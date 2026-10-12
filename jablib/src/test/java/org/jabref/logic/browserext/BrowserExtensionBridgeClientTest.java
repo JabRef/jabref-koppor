@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.sun.net.httpserver.HttpServer;
+import org.jabref.logic.browserext.BrowserExtensionBridgeClient.MathSciNetOpenResult;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -45,7 +46,8 @@ class BrowserExtensionBridgeClientTest {
         HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/v1/mathscinet/open", exchange -> {
             try (exchange) {
-                receivedAuthHeader.set(exchange.getRequestHeaders().getFirst("Authorization"));
+                receivedAuthHeader.set(exchange.getRequestHeaders()
+                        .getFirst("Authorization"));
                 receivedBody.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
                 byte[] responseBody = "{\"action\":\"opened\",\"tabId\":42}".getBytes(StandardCharsets.UTF_8);
                 exchange.sendResponseHeaders(200, responseBody.length);
@@ -57,14 +59,16 @@ class BrowserExtensionBridgeClientTest {
         server.start();
         try {
             int port = server.getAddress().getPort();
-            Files.writeString(discoveryDir.resolve("jabext-experimental.json"), """
+            Files.writeString(discoveryDir.resolve("jabext-experimental.json"),
+                    """
                     {"name":"jabext-experimental","displayName":"JabRef Browser Extension (experimental)","port":%d,"tokenFile":"%s","protocolVersion":1}
-                    """.formatted(port, tokenFile.toString().replace("\\", "\\\\")));
+                    """
+                            .formatted(port, tokenFile.toString().replace("\\", "\\\\")));
 
             BrowserExtensionBridgeClient client = new BrowserExtensionBridgeClient(discoveryDir);
-            Optional<BrowserExtensionBridgeClient.MathSciNetOpenResult> result = client.openMathSciNet("619693");
+            Optional<MathSciNetOpenResult> result = client.openMathSciNet("619693");
 
-            assertEquals(Optional.of(new BrowserExtensionBridgeClient.MathSciNetOpenResult("opened", 42)), result);
+            assertEquals(Optional.of(new MathSciNetOpenResult("opened", 42)), result);
             assertEquals("Bearer s3cr3t-token", receivedAuthHeader.get());
             assertTrue(receivedBody.get().contains("619693"));
         } finally {

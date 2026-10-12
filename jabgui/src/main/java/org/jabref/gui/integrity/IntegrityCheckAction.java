@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -31,12 +30,8 @@ public class IntegrityCheckAction extends SimpleCommand {
     private final StateManager stateManager;
     private final JournalAbbreviationRepository abbreviationRepository;
 
-    public IntegrityCheckAction(Supplier<LibraryTab> tabSupplier,
-                                GuiPreferences preferences,
-                                DialogService dialogService,
-                                StateManager stateManager,
-                                UiTaskExecutor taskExecutor,
-                                JournalAbbreviationRepository abbreviationRepository) {
+    public IntegrityCheckAction(Supplier<LibraryTab> tabSupplier, GuiPreferences preferences, DialogService dialogService,
+            StateManager stateManager, UiTaskExecutor taskExecutor, JournalAbbreviationRepository abbreviationRepository) {
         this.tabSupplier = tabSupplier;
         this.stateManager = stateManager;
         this.taskExecutor = taskExecutor;
@@ -49,10 +44,7 @@ public class IntegrityCheckAction extends SimpleCommand {
     @Override
     public void execute() {
         BibDatabaseContext database = stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
-        IntegrityCheck check = new IntegrityCheck(database,
-                preferences.getFilePreferences(),
-                preferences.getCitationKeyPatternPreferences(),
-                abbreviationRepository,
+        IntegrityCheck check = new IntegrityCheck(database, preferences.getFilePreferences(), preferences.getCitationKeyPatternPreferences(), abbreviationRepository,
                 preferences.getEntryEditorPreferences().shouldAllowIntegerEditionBibtex());
 
         Task<List<IntegrityMessage>> task = new Task<>() {
@@ -82,10 +74,7 @@ public class IntegrityCheckAction extends SimpleCommand {
         });
         task.setOnFailed(_ -> dialogService.showErrorDialogAndWait("Integrity check failed.", task.getException()));
 
-        dialogService.showProgressDialog(
-                Localization.lang("Checking integrity..."),
-                Localization.lang("Waiting for the check to finish..."),
-                task);
+        dialogService.showProgressDialog(Localization.lang("Checking integrity..."), Localization.lang("Waiting for the check to finish..."), task);
         taskExecutor.execute(task);
     }
 }

@@ -9,11 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.glassfish.grizzly.http.server.HttpServer;
 import org.jabref.architecture.AllowedToUseStandardStreams;
 import org.jabref.http.server.Server;
 import org.jabref.logic.preferences.JabRefCliPreferences;
-
-import org.glassfish.grizzly.http.server.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -27,10 +26,14 @@ public class ServerCli implements Callable<Void> {
     @CommandLine.Parameters(arity = "0..*", paramLabel = "FILE", description = "the library files (*.bib) to serve")
     List<Path> files;
 
-    @CommandLine.Option(names = {"-H", "--host"}, description = "the host name")
+    @CommandLine.Option(
+            names = {"-H", "--host"},
+            description = "the host name")
     private String host = "localhost";
 
-    @CommandLine.Option(names = {"-p", "--port"}, description = "the port")
+    @CommandLine.Option(
+            names = {"-p", "--port"},
+            description = "the port")
     private Integer port = 23119;
 
     /// Starts an http server serving the last files opened in JabRef
@@ -48,14 +51,16 @@ public class ServerCli implements Callable<Void> {
     @Override
     public Void call() throws InterruptedException, IOException {
         // The server serves the last opened files (see org.jabref.http.server.resources.LibraryResource.getLibraryPath)
-        final List<Path> filesToServe = new ArrayList<>(JabRefCliPreferences.getInstance().getLastFilesOpenedPreferences().getLastFilesOpened());
+        final List<Path> filesToServe = new ArrayList<>(JabRefCliPreferences.getInstance()
+                .getLastFilesOpenedPreferences()
+                .getLastFilesOpened());
 
         // Additionally, files can be provided as args
         if (files != null) {
             List<Path> filesToAdd = files.stream()
-                                         .filter(Files::exists)
-                                         .filter(path -> !filesToServe.contains(path))
-                                         .toList();
+                    .filter(Files::exists)
+                    .filter(path -> !filesToServe.contains(path))
+                    .toList();
             LOGGER.info("Adding following files to the list of opened libraries: {}", filesToAdd);
             filesToServe.addAll(0, filesToAdd);
         }

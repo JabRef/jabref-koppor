@@ -2,7 +2,6 @@ package org.jabref.gui.entryeditor.fileannotationtab;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.formatter.bibtexfields.RemoveHyphenatedNewlinesFormatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.pdf.FileAnnotation;
@@ -22,13 +21,16 @@ public class FileAnnotationViewModel {
         this.annotation = annotation;
         author.set(annotation.getAuthor());
         page.set(Integer.toString(annotation.getPage()));
-        date.set(annotation.getTimeModified().toString().replace('T', ' '));
+        date.set(annotation.getTimeModified()
+                           .toString()
+                           .replace('T', ' '));
         setupContentProperties(annotation);
     }
 
     private void setupContentProperties(FileAnnotation annotation) {
         if (annotation.hasLinkedAnnotation()) {
-            this.content.set(annotation.getLinkedFileAnnotation().getContent());
+            this.content.set(annotation.getLinkedFileAnnotation()
+                    .getContent());
             String annotationContent = annotation.getContent();
             String illegibleTextMessage = Localization.lang("The marked area does not contain any legible text!");
             String markingContent = annotationContent.isEmpty() ? illegibleTextMessage : annotationContent;

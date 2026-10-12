@@ -4,10 +4,7 @@ import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
 
-public record CleanupTabSelection(
-        EnumSet<CleanupPreferences.CleanupStep> allJobs,
-        EnumSet<CleanupPreferences.CleanupStep> selectedJobs,
-        Optional<FieldFormatterCleanupActions> formatters) {
+public record CleanupTabSelection(EnumSet<CleanupPreferences.CleanupStep> allJobs, EnumSet<CleanupPreferences.CleanupStep> selectedJobs, Optional<FieldFormatterCleanupActions> formatters) {
 
     public CleanupTabSelection {
         allJobs = allJobs == null ? EnumSet.noneOf(CleanupPreferences.CleanupStep.class) : EnumSet.copyOf(allJobs);
@@ -20,7 +17,8 @@ public record CleanupTabSelection(
     }
 
     public static CleanupTabSelection ofFormatters(FieldFormatterCleanupActions cleanups) {
-        return new CleanupTabSelection(EnumSet.noneOf(CleanupPreferences.CleanupStep.class), EnumSet.noneOf(CleanupPreferences.CleanupStep.class), Optional.of(cleanups));
+        return new CleanupTabSelection(EnumSet.noneOf(CleanupPreferences.CleanupStep.class),
+                EnumSet.noneOf(CleanupPreferences.CleanupStep.class), Optional.of(cleanups));
     }
 
     public boolean isFormatterTab() {

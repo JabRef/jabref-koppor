@@ -52,11 +52,8 @@ public class CitationGroup {
      */
     private Optional<OOText> citationMarker;
 
-    public CitationGroup(OODataModel dataModel,
-                         CitationGroupId groupId,
-                         CitationType citationType,
-                         List<Citation> citationsInStorageOrder,
-                         Optional<String> referenceMarkNameForLinking) {
+    public CitationGroup(OODataModel dataModel, CitationGroupId groupId, CitationType citationType,
+                         List<Citation> citationsInStorageOrder, Optional<String> referenceMarkNameForLinking) {
         this.dataModel = dataModel;
         this.groupId = groupId;
         this.citationType = citationType;
@@ -87,11 +84,12 @@ public class CitationGroup {
             lastCitation.setPageInfo(Optional.empty());
         }
 
-        this.localOrder = OOListUtil.order(citationsInStorageOrder,
-                new CompareCitation(entryComparator, true));
+        this.localOrder = OOListUtil.order(citationsInStorageOrder, new CompareCitation(entryComparator, true));
 
         if (dataModel == OODataModel.JabRef52) {
-            getCitationsInLocalOrder().get(last).setPageInfo(lastPageInfo);
+            getCitationsInLocalOrder()
+                    .get(last)
+                    .setPageInfo(lastPageInfo);
         }
     }
 

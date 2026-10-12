@@ -11,7 +11,8 @@ import org.jabref.model.entry.LinkedFile;
 /// Provides a few helper methods for lists.
 public class ListUtil {
 
-    /// Equivalent to list.stream().anyMatch but with slightly better performance (especially for small lists).
+    /// Equivalent to list.stream().anyMatch but with slightly better
+    /// performance (especially for small lists).
     public static <T> boolean anyMatch(Iterable<T> list, Predicate<T> predicate) {
         for (T element : list) {
             if (predicate.test(element)) {
@@ -21,7 +22,8 @@ public class ListUtil {
         return false;
     }
 
-    /// Equivalent to list.stream().allMatch but with slightly better performance (especially for small lists).
+    /// Equivalent to list.stream().allMatch but with slightly better
+    /// performance (especially for small lists).
     public static <T> boolean allMatch(Iterable<T> list, Predicate<T> predicate) {
         for (T element : list) {
             if (!predicate.test(element)) {
@@ -34,8 +36,7 @@ public class ListUtil {
     /// Extract all [LinkedFile]s from a list of [BibEntry]s.
     /// The result is a stream of distinct [LinkedFile]s.
     public static Stream<LinkedFile> getLinkedFiles(Iterable<BibEntry> entries) {
-        return StreamSupport
-                .stream(entries.spliterator(), false)
+        return StreamSupport.stream(entries.spliterator(), false)
                 .map(BibEntry::getFiles)
                 .flatMap(List::stream)
                 .distinct();

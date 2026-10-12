@@ -2,7 +2,6 @@ package org.jabref.logic.formatter.bibtexfields;
 
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -31,8 +30,7 @@ public class RemoveEnclosingBracesFormatter extends Formatter {
     @Override
     public String format(String value) {
         String formatted = value;
-        while ((formatted.length() >= 2) && (formatted.charAt(0) == '{') && (formatted.charAt(formatted.length() - 1)
-                == '}')) {
+        while ((formatted.length() >= 2) && (formatted.charAt(0) == '{') && (formatted.charAt(formatted.length() - 1) == '}')) {
             String trimmed = formatted.substring(1, formatted.length() - 1);
 
             // It could be that the removed braces were not matching

@@ -33,7 +33,8 @@ public enum CitationFetcherType {
         return name;
     }
 
-    /// Parses a constant by name, falling back to [#SEMANTIC_SCHOLAR] for unknown/corrupted values.
+    /// Parses a constant by name, falling back to [#SEMANTIC_SCHOLAR] for
+    /// unknown/corrupted values.
     public static CitationFetcherType safeValueOf(String name) {
         try {
             return CitationFetcherType.valueOf(name);
@@ -53,28 +54,13 @@ public enum CitationFetcherType {
             ChatModel chatModel) {
 
         return switch (citationFetcherName) {
-            case ALL ->
-                    new AllCitationFetcher(
-                            importerPreferences,
-                            importFormatPreferences,
-                            citationKeyPatternPreferences,
-                            grobidPreferences,
-                            aiPreferences,
-                            chatModel);
-            case CROSSREF ->
-                    new CrossRefCitationFetcher(
-                            importerPreferences,
-                            importFormatPreferences,
-                            citationKeyPatternPreferences,
-                            grobidPreferences,
-                            aiPreferences,
-                            chatModel);
-            case OPEN_ALEX ->
-                    new OpenAlex(importerPreferences);
-            case OPEN_CITATIONS ->
-                    new OpenCitationsFetcher(importerPreferences);
-            case SEMANTIC_SCHOLAR ->
-                    new SemanticScholarCitationFetcher(importerPreferences);
+            case ALL -> new AllCitationFetcher(importerPreferences, importFormatPreferences, citationKeyPatternPreferences,
+                    grobidPreferences, aiPreferences, chatModel);
+            case CROSSREF -> new CrossRefCitationFetcher(importerPreferences, importFormatPreferences, citationKeyPatternPreferences,
+                    grobidPreferences, aiPreferences, chatModel);
+            case OPEN_ALEX -> new OpenAlex(importerPreferences);
+            case OPEN_CITATIONS -> new OpenCitationsFetcher(importerPreferences);
+            case SEMANTIC_SCHOLAR -> new SemanticScholarCitationFetcher(importerPreferences);
         };
     }
 }

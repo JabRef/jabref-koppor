@@ -3,13 +3,12 @@ package org.jabref.logic.importer.fileformat.pdf;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.importer.util.GrobidService;
 import org.jabref.logic.l10n.Localization;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
 
 /// Wraps the GrobidService function to be used as a [PdfImporter].
 public class PdfGrobidImporter extends BibliographyFromPdfImporter {

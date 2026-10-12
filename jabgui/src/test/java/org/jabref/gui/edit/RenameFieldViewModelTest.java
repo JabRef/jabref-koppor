@@ -3,10 +3,11 @@ package org.jabref.gui.edit;
 import java.util.List;
 import java.util.Optional;
 
+import com.dlsc.gemsfx.infocenter.Notification;
+import com.dlsc.gemsfx.infocenter.NotificationGroup;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
-import org.jabref.gui.Notifications;
+import org.jabref.gui.Notifications.UiNotification;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.edit.automaticfieldeditor.renamefield.RenameFieldViewModel;
 import org.jabref.gui.testutils.JavaFxExtension;
@@ -17,9 +18,6 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.undo.CompoundEdit;
-
-import com.dlsc.gemsfx.infocenter.Notification;
-import com.dlsc.gemsfx.infocenter.NotificationGroup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,15 +58,13 @@ class RenameFieldViewModelTest {
 
         when(dialogService.getNotificationGroups()).thenReturn(List.of(notificationGroup));
         doAnswer(invocation -> {
-            notificationGroup.getNotifications().add(invocation.getArgument(0));
-            return null;
-        }).when(dialogService).notify(any(Notifications.UiNotification.class));
+                    notificationGroup.getNotifications().add(invocation.getArgument(0));
+                    return null;
+                })
+                .when(dialogService)
+                .notify(any(UiNotification.class));
 
-        renameFieldViewModel = new RenameFieldViewModel(
-                List.of(entryA, entryB),
-                bibDatabase,
-                mock(CompoundEdit.class),
-                dialogService,
+        renameFieldViewModel = new RenameFieldViewModel(List.of(entryA, entryB), bibDatabase, mock(CompoundEdit.class), dialogService,
                 stateManager);
     }
 

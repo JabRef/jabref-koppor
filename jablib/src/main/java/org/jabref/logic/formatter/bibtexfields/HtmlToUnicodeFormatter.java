@@ -2,12 +2,11 @@ package org.jabref.logic.formatter.bibtexfields;
 
 import java.util.regex.Pattern;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.jabref.architecture.AllowedToUseApacheCommonsLang3;
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.layout.LayoutFormatter;
-
-import org.apache.commons.text.StringEscapeUtils;
 import org.jspecify.annotations.NonNull;
 
 @AllowedToUseApacheCommonsLang3("There is no equivalent in Google's Guava")

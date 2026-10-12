@@ -1,7 +1,6 @@
 package org.jabref.http.dto;
 
 import org.jabref.logic.importer.FetcherException;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Unchecked carrier for [FetcherException] so JAX-RS resources can let it

@@ -12,7 +12,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -48,20 +47,14 @@ class RelatedWorkReferenceResolverTest {
         Map<String, BibEntry> referencesByMarker = resolver.parseReferences(linkedFile, new BibDatabaseContext(), createFilePreferences());
         BibEntry reference = Optional.ofNullable(referencesByMarker.get(marker)).orElseThrow();
 
-        assertEquals(expectedComment, reference.getField(StandardField.COMMENT).orElseThrow());
+        assertEquals(expectedComment, reference.getField(StandardField.COMMENT)
+                .orElseThrow());
     }
 
     private static Stream<Arguments> parseReferences() {
         return Stream.of(
-                Arguments.of(
-                        "[1]",
-                        "[1] Mathieu Acher, José Galindo Duarte, and Jean-Marc Jézéquel. 2023. On Program- ming Variability with Large Language Model-based Assistant. In Proc. of the 27th ACM International Systems and Software Product Line Conference-Volume A. ACM, 8–14."
-                ),
-                Arguments.of(
-                        "[5]",
-                        "[5] Wesley K. G. Assunção, Roberto E. Lopez-Herrejon, Lukas Linsbauer, Silvia R. Vergilio, and Alexander Egyed. 2017. Reengineering legacy applications into software product lines: a systematic mapping. Empir. Softw. Eng. 22, 6 (2017), 2972–3016."
-                )
-        );
+                Arguments.of("[1]", "[1] Mathieu Acher, José Galindo Duarte, and Jean-Marc Jézéquel. 2023. On Program- ming Variability with Large Language Model-based Assistant. In Proc. of the 27th ACM International Systems and Software Product Line Conference-Volume A. ACM, 8–14."),
+                Arguments.of("[5]", "[5] Wesley K. G. Assunção, Roberto E. Lopez-Herrejon, Lukas Linsbauer, Silvia R. Vergilio, and Alexander Egyed. 2017. Reengineering legacy applications into software product lines: a systematic mapping. Empir. Softw. Eng. 22, 6 (2017), 2972–3016."));
     }
 
     private FilePreferences createFilePreferences() {

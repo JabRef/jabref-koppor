@@ -7,18 +7,20 @@ import java.util.Objects;
 
 import org.jabref.model.entry.field.StandardField;
 
-/// This group contains entries, which were manually assigned to it.
-/// Assignments are stored in the [StandardField#GROUPS] field.
-/// Thus, internally, we represent [ExplicitGroup] as a special [WordKeywordGroup] operating on
+/// This group contains entries, which were manually assigned to it. Assignments
+/// are stored in the [StandardField#GROUPS] field. Thus, internally, we
+/// represent [ExplicitGroup] as a special [WordKeywordGroup] operating on
 /// [StandardField#GROUPS].
 public class ExplicitGroup extends WordKeywordGroup {
 
-    /// Previous versions of JabRef stored the linked entries directly in the "jabref-meta" comment at the end of the
-    /// file. These keys are still parsed and stored in this field.
+    /// Previous versions of JabRef stored the linked entries directly in the
+    /// "jabref-meta" comment at the end of the file. These keys are still
+    /// parsed and stored in this field.
     private final List<String> legacyEntryKeys = new ArrayList<>();
 
     public ExplicitGroup(String name, GroupHierarchyType context, Character keywordSeparator) {
-        super(name, context, StandardField.GROUPS, name, true, keywordSeparator, true);
+        super(name, context, StandardField.GROUPS, name, true, keywordSeparator,
+                true);
     }
 
     public void addLegacyEntryKey(String key) {
@@ -66,7 +68,8 @@ public class ExplicitGroup extends WordKeywordGroup {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name.getValue(), context, legacyEntryKeys, iconName, color, description, isExpanded);
+        return Objects.hash(name.getValue(), context, legacyEntryKeys, iconName, color,
+                description, isExpanded);
     }
 
     @Override

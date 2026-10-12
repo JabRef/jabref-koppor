@@ -24,10 +24,8 @@ public class UpdateWithBibliographicInformationByWebFetchers extends SimpleComma
     private final StateManager stateManager;
     private final TaskExecutor taskExecutor;
 
-    public UpdateWithBibliographicInformationByWebFetchers(DialogService dialogService,
-                                                           GuiPreferences preferences,
-                                                           StateManager stateManager,
-                                                           TaskExecutor taskExecutor) {
+    public UpdateWithBibliographicInformationByWebFetchers(DialogService dialogService, GuiPreferences preferences, StateManager stateManager,
+            TaskExecutor taskExecutor) {
         this.dialogService = dialogService;
         this.guiPreferences = preferences;
         this.stateManager = stateManager;
@@ -48,17 +46,16 @@ public class UpdateWithBibliographicInformationByWebFetchers extends SimpleComma
         mergedEntriesView.setTitle(Localization.lang("Merge entry with information"));
         mergedEntriesView.addSource(Localization.lang("Original entry"), originalEntry);
 
-        Set<EntryBasedFetcher> webFetchers = WebFetchers.getEntryBasedFetchers(
-                guiPreferences.getImporterPreferences(),
-                guiPreferences.getImportFormatPreferences(),
-                guiPreferences.getFilePreferences(),
-                databaseContext
-        );
+        Set<EntryBasedFetcher> webFetchers = WebFetchers.getEntryBasedFetchers(guiPreferences.getImporterPreferences(), guiPreferences.getImportFormatPreferences(), guiPreferences.getFilePreferences(),
+                databaseContext);
 
         for (EntryBasedFetcher webFetcher : webFetchers) {
             mergedEntriesView.addSource(webFetcher.getName(), () -> {
                 try {
-                    return webFetcher.performSearch(originalEntry).stream().findFirst().orElse(null);
+                    return webFetcher.performSearch(originalEntry)
+                                     .stream()
+                                     .findFirst()
+                                     .orElse(null);
                 } catch (FetcherException _) {
                     return null;
                 }
@@ -66,13 +63,7 @@ public class UpdateWithBibliographicInformationByWebFetchers extends SimpleComma
         }
 
         Optional<BibEntry> mergedEntry = dialogService.showCustomDialogAndWait(mergedEntriesView);
-        new UpdateOriginalEntry(
-                originalEntry,
-                mergedEntry,
-                dialogService,
-                stateManager.getUndoManager(databaseContext),
-                Localization.lang("Merge entry with information"),
-                Localization.lang("Updated entry with merged information"))
+        new UpdateOriginalEntry(originalEntry, mergedEntry, dialogService, stateManager.getUndoManager(databaseContext), Localization.lang("Merge entry with information"), Localization.lang("Updated entry with merged information"))
                 .update();
     }
 }

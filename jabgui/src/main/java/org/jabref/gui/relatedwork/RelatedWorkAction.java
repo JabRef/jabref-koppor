@@ -23,41 +23,31 @@ public class RelatedWorkAction extends SimpleCommand {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         executable.bind(ActionHelper.needsDatabase(stateManager)
-                                    .and(ActionHelper.needsEntriesSelected(1, stateManager))
-                                    .and(ActionHelper.isPdfFilePresentForSelectedEntry(stateManager, preferences)));
+                .and(ActionHelper.needsEntriesSelected(1, stateManager))
+                .and(ActionHelper.isPdfFilePresentForSelectedEntry(stateManager, preferences)));
     }
 
     @Override
     public void execute() {
         BibDatabaseContext databaseContext = stateManager.getActiveDatabase().orElseThrow();
         BibEntry sourceEntry = stateManager.getSelectedEntries().getFirst();
-        Optional<LinkedFile> linkedPDFFile = sourceEntry.getFiles().stream()
-                                                        .filter(this::isPDFLinkedFile)
-                                                        .findFirst();
+        Optional<LinkedFile> linkedPDFFile = sourceEntry.getFiles()
+                .stream()
+                .filter(this::isPDFLinkedFile)
+                .findFirst();
 
         if (linkedPDFFile.isEmpty()) {
-            dialogService.showWarningDialogAndWait(
-                    Localization.lang("No PDF files available"),
-                    Localization.lang("Please attach PDF files")
-            );
+            dialogService.showWarningDialogAndWait(Localization.lang("No PDF files available"), Localization.lang("Please attach PDF files"));
             return;
         }
 
         Optional<String> citationKey = sourceEntry.getCitationKey();
         if (citationKey.isEmpty()) {
-            dialogService.showWarningDialogAndWait(
-                    Localization.lang("Insert related work text"),
-                    Localization.lang("Selected entry does not have an associated citation key.")
-            );
+            dialogService.showWarningDialogAndWait(Localization.lang("Insert related work text"), Localization.lang("Selected entry does not have an associated citation key."));
             return;
         }
 
-        dialogService.showCustomDialogAndWait(new RelatedWorkDialogView(
-                databaseContext,
-                sourceEntry,
-                linkedPDFFile.get(),
-                citationKey.get()
-        ));
+        dialogService.showCustomDialogAndWait(new RelatedWorkDialogView(databaseContext, sourceEntry, linkedPDFFile.get(), citationKey.get()));
     }
 
     private boolean isPDFLinkedFile(LinkedFile linkedFile) {

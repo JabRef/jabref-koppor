@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.edit.automaticfieldeditor.AbstractAutomaticFieldEditorTabView;
@@ -19,8 +19,6 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.undo.CompoundEdit;
-
-import com.airhacks.afterburner.views.ViewLoader;
 import org.jspecify.annotations.NonNull;
 
 import static org.jabref.gui.util.FieldsUtil.FIELD_STRING_CONVERTER;
@@ -28,15 +26,24 @@ import static org.jabref.gui.util.FieldsUtil.FIELD_STRING_CONVERTER;
 public class ClearContentTabView extends AbstractAutomaticFieldEditorTabView implements AutomaticFieldEditorTab {
 
     private final List<BibEntry> selectedEntries;
-    @NonNull private final StateManager stateManager;
+
+    @NonNull
+    private final StateManager stateManager;
+
     private final BibDatabase database;
     private final CompoundEdit compoundEdit;
     private final DialogService dialogService;
-    @FXML private ComboBox<Field> fieldComboBox;
-    @FXML private Button clearButton;
+
+    @FXML
+    private ComboBox<Field> fieldComboBox;
+
+    @FXML
+    private Button clearButton;
+
     private ClearContentViewModel viewModel;
 
-    public ClearContentTabView(BibDatabase database, CompoundEdit compoundEdit, DialogService dialogService, StateManager stateManager) {
+    public ClearContentTabView(BibDatabase database, CompoundEdit compoundEdit, DialogService dialogService,
+            StateManager stateManager) {
         this.database = database;
         this.compoundEdit = compoundEdit;
         this.dialogService = dialogService;
@@ -44,8 +51,8 @@ public class ClearContentTabView extends AbstractAutomaticFieldEditorTabView imp
         this.stateManager = stateManager;
 
         ViewLoader.view(this)
-                  .root(this)
-                  .load();
+                .root(this)
+                .load();
     }
 
     @FXML
@@ -61,7 +68,8 @@ public class ClearContentTabView extends AbstractAutomaticFieldEditorTabView imp
             fieldComboBox.getSelectionModel().selectFirst();
         }
 
-        clearButton.disableProperty().bind(fieldComboBox.valueProperty().isNull());
+        clearButton.disableProperty().bind(fieldComboBox.valueProperty()
+                .isNull());
 
         Platform.runLater(fieldComboBox::requestFocus);
     }

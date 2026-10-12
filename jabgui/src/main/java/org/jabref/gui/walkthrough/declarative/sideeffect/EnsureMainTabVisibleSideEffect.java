@@ -3,7 +3,6 @@ package org.jabref.gui.walkthrough.declarative.sideeffect;
 import org.jabref.gui.entryeditor.EntryEditorPreferences;
 import org.jabref.gui.entryeditor.EntryEditorTabModel;
 import org.jabref.gui.walkthrough.Walkthrough;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 

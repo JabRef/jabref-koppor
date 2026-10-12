@@ -9,7 +9,6 @@ import org.jabref.model.entry.Author;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +34,8 @@ class PersonNameSuggestionProviderTest {
 
     @Test
     void initAutoCompleterWithNullFieldThrowsException() {
-        assertThrows(NullPointerException.class, () -> new PersonNameSuggestionProvider((Field) null, new BibDatabase()));
+        assertThrows(NullPointerException.class,
+                () -> new PersonNameSuggestionProvider((Field) null, new BibDatabase()));
     }
 
     @Test

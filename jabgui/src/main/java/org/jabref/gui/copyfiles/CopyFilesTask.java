@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 
 import javafx.concurrent.Task;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.preferences.CliPreferences;
@@ -22,7 +21,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.util.OptionalUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +43,15 @@ public class CopyFilesTask extends Task<List<CopyFilesResultItemViewModel>> {
 
     private final BiFunction<Path, Path, Path> resolvePathFilename = (path, file) -> path.resolve(file.getFileName());
 
-    public CopyFilesTask(BibDatabaseContext databaseContext, List<BibEntry> entries, Path path, CliPreferences preferences) {
+    public CopyFilesTask(BibDatabaseContext databaseContext, List<BibEntry> entries, Path path,
+                         CliPreferences preferences) {
         this.databaseContext = databaseContext;
         this.preferences = preferences;
         this.entries = entries;
         this.exportPath = path;
-        totalFilesCount = entries.stream().mapToLong(entry -> entry.getFiles().size()).sum();
+        totalFilesCount = entries.stream()
+                .mapToLong(entry -> entry.getFiles().size())
+                .sum();
     }
 
     @Override
@@ -110,10 +111,13 @@ public class CopyFilesTask extends Task<List<CopyFilesResultItemViewModel>> {
             }
             updateMessage(Localization.lang("Finished copying"));
 
-            String successMessage = Localization.lang("Copied %0 files of %1 successfully to %2",
+            String successMessage = Localization.lang(
+                    "Copied %0 files of %1 successfully to %2",
                     Integer.toString(numberSuccessful),
                     Integer.toString(totalFilesCounter),
-                    newPath.map(Path::getParent).map(Path::toString).orElse(""));
+                    newPath.map(Path::getParent)
+                           .map(Path::toString)
+                           .orElse(""));
             updateMessage(successMessage);
             bw.write(successMessage);
             return results;

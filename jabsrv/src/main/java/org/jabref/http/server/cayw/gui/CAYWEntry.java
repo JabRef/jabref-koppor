@@ -5,13 +5,10 @@ import java.util.Objects;
 import org.jabref.http.server.cayw.CitationProperties;
 import org.jabref.model.entry.BibEntry;
 
-public record CAYWEntry(
-        BibEntry bibEntry,
-        String label, // Used in the list
-        String shortLabel, // Used on the buttons ("chips")
-        String description, // Used when hovering and used as bases on the second line
-        CitationProperties citationProperties
-) {
+public record CAYWEntry(BibEntry bibEntry, String label, // Used in the list
+                        String shortLabel, // Used on the buttons ("chips")
+                        String description, // Used when hovering and used as bases on the second line
+                        CitationProperties citationProperties) {
 
     @Override
     public boolean equals(Object o) {

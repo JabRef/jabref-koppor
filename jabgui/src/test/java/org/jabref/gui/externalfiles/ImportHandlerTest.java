@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
-import org.jabref.gui.duplicationFinder.DuplicateResolverDialog;
+import org.jabref.gui.duplicationFinder.DuplicateResolverDialog.DuplicateResolverResult;
+import org.jabref.gui.externalfiles.ImportHandler.AutoDetectionImportOutcome;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.FilePreferences;
@@ -16,6 +16,7 @@ import org.jabref.logic.LibraryPreferences;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.database.DuplicateCheck;
+import org.jabref.logic.groups.GroupsHelper;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ImportFormatReader.ImportResult;
 import org.jabref.logic.importer.ImporterPreferences;
@@ -32,7 +33,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -57,6 +57,7 @@ class ImportHandlerTest {
 
     @Mock
     private GuiPreferences preferences;
+
     @Mock
     private DuplicateCheck duplicateCheck;
 
@@ -120,7 +121,8 @@ class ImportHandlerTest {
                 mock(DialogService.class),
                 new CurrentThreadTaskExecutor());
 
-        List<BibEntry> bibEntries = importHandler.handleBibTeXData("""
+        List<BibEntry> bibEntries = importHandler
+                .handleBibTeXData("""
                 @InProceedings{Wen2013,
                   library          = {Tagungen\\2013\\KWTK45\\},
                 }
@@ -130,7 +132,8 @@ class ImportHandlerTest {
                 .withCitationKey("Wen2013")
                 .withField(StandardField.LIBRARY, "Tagungen\\2013\\KWTK45\\");
 
-        assertEquals(List.of(expected), bibEntries.stream().toList());
+        assertEquals(List.of(expected),
+                bibEntries.stream().toList());
     }
 
     @Test
@@ -148,7 +151,7 @@ class ImportHandlerTest {
 
         ImportResult importResult = new ImportResult("RIS", parserResult);
 
-        ImportHandler.AutoDetectionImportOutcome outcome = importHandler.createAutoDetectionImportOutcome(Path.of("sample.ris"), importResult);
+        AutoDetectionImportOutcome outcome = importHandler.createAutoDetectionImportOutcome(Path.of("sample.ris"), importResult);
 
         assertFalse(outcome.success());
         assertEquals(List.of(importedEntry), outcome.entriesToAdd());
@@ -162,11 +165,13 @@ class ImportHandlerTest {
 
         ImportResult importResult = new ImportResult("RIS", parserResult);
 
-        ImportHandler.AutoDetectionImportOutcome outcome = importHandler.createAutoDetectionImportOutcome(Path.of("sample.ris"), importResult);
+        AutoDetectionImportOutcome outcome = importHandler.createAutoDetectionImportOutcome(Path.of("sample.ris"), importResult);
 
         assertFalse(outcome.success());
         assertEquals(1, outcome.entriesToAdd().size());
-        assertEquals("No importable data was found in RIS. An empty entry was created with file link. Warning text", outcome.message());
+        assertEquals(
+                "No importable data was found in RIS. An empty entry was created with file link. Warning text",
+                outcome.message());
     }
 
     @Test
@@ -182,14 +187,8 @@ class ImportHandlerTest {
         StateManager stateManager = mock(StateManager.class);
         when(stateManager.getSelectedGroups(any())).thenReturn(FXCollections.observableArrayList());
         when(stateManager.activeTabProperty()).thenReturn(OptionalObjectProperty.empty());
-        ImportHandler handler = new ImportHandler(
-                realContext,
-                preferences,
-                new DummyFileUpdateMonitor(),
-                new JabRefUndoManager(),
-                stateManager,
-                mock(DialogService.class),
-                new CurrentThreadTaskExecutor());
+        ImportHandler handler = new ImportHandler(realContext, preferences, new DummyFileUpdateMonitor(), new JabRefUndoManager(),
+                stateManager, mock(DialogService.class), new CurrentThreadTaskExecutor());
 
         EntryImportHandlerTracker tracker = new EntryImportHandlerTracker(stateManager, realContext, 1);
         handler.importEntriesWithDuplicateCheck(null, List.of(testEntry), tracker);
@@ -197,15 +196,19 @@ class ImportHandlerTest {
         // The tracker exposes the actual inserted copy, not the original
         List<BibEntry> imported = tracker.getImportedEntries();
         assertEquals(1, imported.size());
-        BibEntry insertedEntry = realContext.getDatabase().getEntries().getFirst();
+        BibEntry insertedEntry = realContext.getDatabase()
+                .getEntries()
+                .getFirst();
         assertSame(insertedEntry, imported.getFirst());
         // The tracked/inserted entry is a copy, not the caller's original
         assertNotSame(testEntry, insertedEntry);
 
         // Assigning the group to the tracked entries puts the actual database entry into the group
-        org.jabref.logic.groups.GroupsHelper.assignEntriesToGroup(realContext, imported, "MyGroup", ',');
+        GroupsHelper.assignEntriesToGroup(realContext, imported, "MyGroup", ',');
 
-        assertTrue(insertedEntry.getField(StandardField.GROUPS).orElse("").contains("MyGroup"));
+        assertTrue(insertedEntry.getField(StandardField.GROUPS)
+                                .orElse("")
+                                .contains("MyGroup"));
         // The original entry passed by the caller is untouched
         assertTrue(testEntry.getField(StandardField.GROUPS).isEmpty());
     }
@@ -220,20 +223,25 @@ class ImportHandlerTest {
         BibDatabase bibDatabase = bibDatabaseContext.getDatabase();
         bibDatabase.insertEntry(duplicateEntry); // Simulate that the duplicate entry is already in the database
 
-        DuplicateDecisionResult decisionResult = new DuplicateDecisionResult(DuplicateResolverDialog.DuplicateResolverResult.KEEP_RIGHT, null);
-        importHandler = Mockito.spy(new ImportHandler(
-                bibDatabaseContext,
-                preferences,
-                new DummyFileUpdateMonitor(),
-                new JabRefUndoManager(),
-                mock(StateManager.class),
-                mock(DialogService.class),
-                new CurrentThreadTaskExecutor()));
+        DuplicateDecisionResult decisionResult = new DuplicateDecisionResult(DuplicateResolverResult.KEEP_RIGHT, null);
+        importHandler = Mockito.spy(
+                new ImportHandler(
+                        bibDatabaseContext,
+                        preferences,
+                        new DummyFileUpdateMonitor(),
+                        new JabRefUndoManager(),
+                        mock(StateManager.class),
+                        mock(DialogService.class),
+                        new CurrentThreadTaskExecutor()));
         // Mock the behavior of getDuplicateDecision to return KEEP_RIGHT
-        Mockito.doReturn(CompletableFuture.completedFuture(decisionResult)).when(importHandler).getDuplicateDecision(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK);
+        Mockito.doReturn(CompletableFuture.completedFuture(decisionResult))
+                .when(importHandler)
+                .getDuplicateDecision(testEntry, duplicateEntry, DuplicateResolverResult.BREAK);
 
         // Act
-        BibEntry result = importHandler.handleDuplicates(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK).join().get();
+        BibEntry result = importHandler.handleDuplicates(testEntry, duplicateEntry, DuplicateResolverResult.BREAK)
+                .join()
+                .get();
 
         // Assert that the duplicate entry was removed from the database
         assertFalse(bibDatabase.getEntries().contains(duplicateEntry));
@@ -251,20 +259,25 @@ class ImportHandlerTest {
         BibDatabase bibDatabase = bibDatabaseContext.getDatabase();
         bibDatabase.insertEntry(duplicateEntry); // Simulate that the duplicate entry is already in the database
 
-        DuplicateDecisionResult decisionResult = new DuplicateDecisionResult(DuplicateResolverDialog.DuplicateResolverResult.KEEP_BOTH, null);
-        importHandler = Mockito.spy(new ImportHandler(
-                bibDatabaseContext,
-                preferences,
-                new DummyFileUpdateMonitor(),
-                new JabRefUndoManager(),
-                mock(StateManager.class),
-                mock(DialogService.class),
-                new CurrentThreadTaskExecutor()));
+        DuplicateDecisionResult decisionResult = new DuplicateDecisionResult(DuplicateResolverResult.KEEP_BOTH, null);
+        importHandler = Mockito.spy(
+                new ImportHandler(
+                        bibDatabaseContext,
+                        preferences,
+                        new DummyFileUpdateMonitor(),
+                        new JabRefUndoManager(),
+                        mock(StateManager.class),
+                        mock(DialogService.class),
+                        new CurrentThreadTaskExecutor()));
         // Mock the behavior of getDuplicateDecision to return KEEP_BOTH
-        Mockito.doReturn(CompletableFuture.completedFuture(decisionResult)).when(importHandler).getDuplicateDecision(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK);
+        Mockito.doReturn(CompletableFuture.completedFuture(decisionResult))
+                .when(importHandler)
+                .getDuplicateDecision(testEntry, duplicateEntry, DuplicateResolverResult.BREAK);
 
         // Act
-        BibEntry result = importHandler.handleDuplicates(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK).join().get();
+        BibEntry result = importHandler.handleDuplicates(testEntry, duplicateEntry, DuplicateResolverResult.BREAK)
+                .join()
+                .get();
 
         // Assert
         assertTrue(bibDatabase.getEntries().contains(duplicateEntry)); // Assert that the duplicate entry is still in the database
@@ -285,22 +298,26 @@ class ImportHandlerTest {
         BibDatabase bibDatabase = bibDatabaseContext.getDatabase();
         bibDatabase.insertEntry(duplicateEntry); // Simulate that the duplicate entry is already in the database
 
-        DuplicateDecisionResult decisionResult = new DuplicateDecisionResult(DuplicateResolverDialog.DuplicateResolverResult.KEEP_MERGE, mergedEntry);
-        importHandler = Mockito.spy(new ImportHandler(
-                bibDatabaseContext,
-                preferences,
-                new DummyFileUpdateMonitor(),
-                new JabRefUndoManager(),
-                mock(StateManager.class),
-                mock(DialogService.class),
-                new CurrentThreadTaskExecutor()));
+        DuplicateDecisionResult decisionResult = new DuplicateDecisionResult(DuplicateResolverResult.KEEP_MERGE, mergedEntry);
+        importHandler = Mockito.spy(
+                new ImportHandler(
+                        bibDatabaseContext,
+                        preferences,
+                        new DummyFileUpdateMonitor(),
+                        new JabRefUndoManager(),
+                        mock(StateManager.class),
+                        mock(DialogService.class),
+                        new CurrentThreadTaskExecutor()));
         // Mock the behavior of getDuplicateDecision to return KEEP_MERGE
-        Mockito.doReturn(CompletableFuture.completedFuture(decisionResult)).when(importHandler).getDuplicateDecision(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK);
+        Mockito.doReturn(CompletableFuture.completedFuture(decisionResult))
+                .when(importHandler)
+                .getDuplicateDecision(testEntry, duplicateEntry, DuplicateResolverResult.BREAK);
 
         // Act
         // create and return a default BibEntry or do other computations
-        BibEntry result = importHandler.handleDuplicates(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK).join()
-                                       .orElseGet(BibEntry::new);
+        BibEntry result = importHandler.handleDuplicates(testEntry, duplicateEntry, DuplicateResolverResult.BREAK)
+                .join()
+                .orElseGet(BibEntry::new);
 
         // Assert
         assertFalse(bibDatabase.getEntries().contains(duplicateEntry)); // Assert that the duplicate entry was removed from the database
@@ -339,8 +356,9 @@ class ImportHandlerTest {
     }
 
     /// Entering a DOI in the New Entry dialog ends here, through
-    /// `importEntryWithDuplicateCheck`. The insert has to be a step of its own: undoing it takes
-    /// the entry out again, and until then the library says it needs saving.
+    /// `importEntryWithDuplicateCheck`. The insert has to be a step of its own:
+    /// undoing it takes the entry out again, and until then the library says it
+    /// needs saving.
     @Test
     // [utest->req~logic.undo.entry-insert-recorded~1]
     void importingAnEntryIsOneUndoStep() {
@@ -361,8 +379,8 @@ class ImportHandlerTest {
         assertFalse(journal.canUndo(), "the import left more than one step behind");
     }
 
-    /// An import that collected nothing — cancelled, or every file failed — is not a step, and must
-    /// not report the library as needing a save.
+    /// An import that collected nothing — cancelled, or every file failed — is
+    /// not a step, and must not report the library as needing a save.
     @Test
     void importingNothingIsNotAnUndoStep() {
         BibDatabaseContext databaseContext = new BibDatabaseContext(new BibDatabase());
@@ -375,8 +393,9 @@ class ImportHandlerTest {
         assertFalse(journal.hasChanged(), "an empty import reported the library as changed");
     }
 
-    /// Replacing a duplicate removes the entry that was there. Undoing the import must not leave
-    /// the library without either entry, so the removal is recorded too.
+    /// Replacing a duplicate removes the entry that was there. Undoing the
+    /// import must not leave the library without either entry, so the removal
+    /// is recorded too.
     @Test
     void replacingADuplicateCanBeUndoneBackToTheOriginal() {
         BibEntry existing = new BibEntry(StandardEntryType.Article)
@@ -388,11 +407,11 @@ class ImportHandlerTest {
         JabRefUndoManager journal = new JabRefUndoManager();
         // The decision is asked of the user on the JavaFX thread; this test supplies it instead.
         ImportHandler handler = Mockito.spy(handlerFor(databaseContext, journal));
-        Mockito.doReturn(CompletableFuture.completedFuture(
-                       new DuplicateDecisionResult(DuplicateResolverDialog.DuplicateResolverResult.KEEP_RIGHT, null)))
-               .when(handler).getDuplicateDecision(testEntry, existing, DuplicateResolverDialog.DuplicateResolverResult.BREAK);
+        Mockito.doReturn(CompletableFuture.completedFuture(new DuplicateDecisionResult(DuplicateResolverResult.KEEP_RIGHT, null)))
+                .when(handler)
+                .getDuplicateDecision(testEntry, existing, DuplicateResolverResult.BREAK);
 
-        handler.handleDuplicates(testEntry, existing, DuplicateResolverDialog.DuplicateResolverResult.BREAK)
+        handler.handleDuplicates(testEntry, existing, DuplicateResolverResult.BREAK)
                .thenAccept(entryToImport -> handler.importCleanedEntries(null, List.of(entryToImport.orElseThrow())))
                .join();
 
@@ -408,13 +427,7 @@ class ImportHandlerTest {
     private ImportHandler handlerFor(BibDatabaseContext databaseContext, JabRefUndoManager journal) {
         StateManager stateManager = mock(StateManager.class);
         when(stateManager.getSelectedGroups(any())).thenReturn(FXCollections.observableArrayList());
-        return new ImportHandler(
-                databaseContext,
-                preferences,
-                new DummyFileUpdateMonitor(),
-                journal,
-                stateManager,
-                mock(DialogService.class),
-                new CurrentThreadTaskExecutor());
+        return new ImportHandler(databaseContext, preferences, new DummyFileUpdateMonitor(), journal, stateManager,
+                mock(DialogService.class), new CurrentThreadTaskExecutor());
     }
 }

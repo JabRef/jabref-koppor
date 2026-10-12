@@ -8,7 +8,6 @@ import java.util.List;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.ResourceLock;
@@ -61,7 +60,8 @@ class ParserResultTest {
     @Test
     void warningAddedForWhitespaceInCitationKeyImport(@TempDir Path tmpDir) throws IOException {
         // whitespace after citation key "myArticle "
-        String bibtexEntry = """
+        String bibtexEntry =
+                """
                 @article{ myArticle ,
                   author    = "Author Name",
                   title     = "Title of the Article",
@@ -80,7 +80,8 @@ class ParserResultTest {
     @Test
     void warningAddedForMissingCommaInCitationKeyImport(@TempDir Path tmpDir) throws IOException {
         // Comma replaced by whitespace instead in citation key "myArticle "
-        String bibtexEntry = """
+        String bibtexEntry =
+                """
                 @article{myArticle\s
                    author    = "Author Name",
                    title     = "Title of the Article",
@@ -98,7 +99,8 @@ class ParserResultTest {
 
     @Test
     void warningAddedForCorruptedCitationKeyInImport(@TempDir Path tmpDir) throws IOException {
-        String bibtexEntry = """
+        String bibtexEntry =
+                """
                 @article{myArticle
                    author    = "Author Name",
                    title     = "Title of the Article",
@@ -118,7 +120,8 @@ class ParserResultTest {
     @Test
     void skipsImportEntryForImproperSyntax(@TempDir Path tmpDir) throws IOException {
         // Comma after '=' character on line 2 throws error
-        String bibtexEntry = """
+        String bibtexEntry =
+                """
                 @article{myArticle,
                    author    =, "Author Name",
                    title     = "Title of the Article",

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jabref.model.ai.chatting.ChatMessage;
-
+import org.jabref.model.ai.chatting.ChatMessage.Role;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,10 +20,7 @@ class ChatHistoryUtilsTest {
     @Test
     void deleteRemovesMessageWithMatchingId() {
         ChatMessage msg = ChatMessage.userMessage("to delete");
-        List<ChatMessage> history = new ArrayList<>(List.of(
-                ChatMessage.userMessage("keep"),
-                msg
-        ));
+        List<ChatMessage> history = new ArrayList<>(List.of(ChatMessage.userMessage("keep"), msg));
 
         ChatHistoryUtils.delete(history, msg.id());
 
@@ -33,9 +30,7 @@ class ChatHistoryUtilsTest {
 
     @Test
     void deleteDoesNothingWhenIdNotFound() {
-        List<ChatMessage> history = new ArrayList<>(List.of(
-                ChatMessage.userMessage("keep")
-        ));
+        List<ChatMessage> history = new ArrayList<>(List.of(ChatMessage.userMessage("keep")));
 
         ChatHistoryUtils.delete(history, "non-existent-id");
 
@@ -44,8 +39,10 @@ class ChatHistoryUtilsTest {
 
     @Test
     void regenerateOnUserMessageReturnsItsContentAndTruncatesHistory() {
-        ChatMessage user = new ChatMessage("id-user", Instant.ofEpochMilli(1000), ChatMessage.Role.USER, "user question", List.of());
-        ChatMessage ai = new ChatMessage("id-ai", Instant.ofEpochMilli(2000), ChatMessage.Role.AI, "ai answer", List.of());
+        ChatMessage user = new ChatMessage("id-user", Instant.ofEpochMilli(1000), Role.USER, "user question",
+                List.of());
+        ChatMessage ai = new ChatMessage("id-ai", Instant.ofEpochMilli(2000), Role.AI, "ai answer",
+                List.of());
         List<ChatMessage> history = new ArrayList<>(List.of(user, ai));
 
         Optional<String> toRegenerate = ChatHistoryUtils.regenerate(history, user.id());
@@ -58,8 +55,10 @@ class ChatHistoryUtilsTest {
 
     @Test
     void regenerateOnAiMessageReturnsAssociatedUserContent() {
-        ChatMessage user = new ChatMessage("id-user", Instant.ofEpochMilli(1000), ChatMessage.Role.USER, "original question", List.of());
-        ChatMessage ai = new ChatMessage("id-ai", Instant.ofEpochMilli(2000), ChatMessage.Role.AI, "ai answer", List.of());
+        ChatMessage user = new ChatMessage("id-user", Instant.ofEpochMilli(1000), Role.USER, "original question",
+                List.of());
+        ChatMessage ai = new ChatMessage("id-ai", Instant.ofEpochMilli(2000), Role.AI, "ai answer",
+                List.of());
         List<ChatMessage> history = new ArrayList<>(List.of(user, ai));
 
         Optional<String> toRegenerate = ChatHistoryUtils.regenerate(history, ai.id());
@@ -70,9 +69,7 @@ class ChatHistoryUtilsTest {
 
     @Test
     void regenerateReturnsNullWhenIdNotFound() {
-        List<ChatMessage> history = new ArrayList<>(List.of(
-                ChatMessage.userMessage("question")
-        ));
+        List<ChatMessage> history = new ArrayList<>(List.of(ChatMessage.userMessage("question")));
 
         Optional<String> result = ChatHistoryUtils.regenerate(history, "ghost-id");
 
@@ -82,41 +79,37 @@ class ChatHistoryUtilsTest {
     @Test
     void updateSystemMessageReplacesExistingSystemMessage() {
         ChatMessage existing = ChatMessage.systemMessage("old system");
-        List<ChatMessage> history = new ArrayList<>(List.of(
-                existing,
-                ChatMessage.userMessage("hello")
-        ));
+        List<ChatMessage> history = new ArrayList<>(List.of(existing, ChatMessage.userMessage("hello")));
 
         ChatHistoryUtils.updateSystemMessage(history, "new system");
 
-        long systemCount = history.stream().filter(m -> m.role() == ChatMessage.Role.SYSTEM).count();
+        long systemCount = history.stream()
+                .filter(m -> m.role() == Role.SYSTEM)
+                .count();
         assertEquals(1, systemCount);
         assertEquals("new system", history.getFirst().content());
     }
 
     @Test
     void updateSystemMessageInsertsAtBeginningWhenNonePresent() {
-        List<ChatMessage> history = new ArrayList<>(List.of(
-                ChatMessage.userMessage("hello")
-        ));
+        List<ChatMessage> history = new ArrayList<>(List.of(ChatMessage.userMessage("hello")));
 
         ChatHistoryUtils.updateSystemMessage(history, "system prompt");
 
-        assertEquals(ChatMessage.Role.SYSTEM, history.getFirst().role());
+        assertEquals(Role.SYSTEM, history.getFirst().role());
         assertEquals("system prompt", history.getFirst().content());
         assertEquals(2, history.size());
     }
 
     @Test
     void updateSystemMessageDoesNotAddWhenNewMessageIsEmpty() {
-        List<ChatMessage> history = new ArrayList<>(List.of(
-                ChatMessage.systemMessage("old system"),
-                ChatMessage.userMessage("hello")
-        ));
+        List<ChatMessage> history = new ArrayList<>(List.of(ChatMessage.systemMessage("old system"), ChatMessage.userMessage("hello")));
 
         ChatHistoryUtils.updateSystemMessage(history, "");
 
-        long systemCount = history.stream().filter(m -> m.role() == ChatMessage.Role.SYSTEM).count();
+        long systemCount = history.stream()
+                .filter(m -> m.role() == Role.SYSTEM)
+                .count();
         assertEquals(0, systemCount);
     }
 

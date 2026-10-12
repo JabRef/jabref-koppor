@@ -1,10 +1,9 @@
 package org.jabref.gui.mergeentries.threewaymerge.cell;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.property.StringProperty;
 import javafx.css.PseudoClass;
 import javafx.scene.layout.HBox;
-
-import com.tobiasdiez.easybind.EasyBind;
 
 public abstract class ThreeWayMergeCell extends HBox {
     public static final String ODD_PSEUDO_CLASS = "odd";
