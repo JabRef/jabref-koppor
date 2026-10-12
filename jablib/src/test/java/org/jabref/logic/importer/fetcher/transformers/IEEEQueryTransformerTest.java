@@ -95,7 +95,7 @@ class IEEEQueryTransformerTest extends InfixTransformerTest<IEEEQueryTransformer
 
     @ParameterizedTest
     @MethodSource("getTitleTestData")
-    void stopWordRemoval(String expected, String queryString) throws ParseCancellationException {
+    void stopWordRemoval(String expected, String queryString) throws Exception {
         SearchQuery searchQuery = new SearchQuery(queryString);
         BaseQueryNode searchQueryList = new SearchQueryVisitor(searchQuery.getSearchFlags()).visitStart(searchQuery.getContext());
         Optional<String> query = getTransformer().transformSearchQuery(searchQueryList);

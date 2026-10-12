@@ -13,7 +13,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @NullMarked
-public class SWHIDTest {
+class SWHIDTest {
 
     private static final String DIRECTORY_SWHID = "swh:1:dir:2dc0f462d191524530f5612d2935851505af41dd";
 

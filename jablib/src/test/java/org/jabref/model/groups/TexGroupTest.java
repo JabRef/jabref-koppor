@@ -1,6 +1,5 @@
 package org.jabref.model.groups;
 
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 
 import org.jabref.architecture.AllowedToUseLogic;
@@ -28,7 +27,7 @@ class TexGroupTest {
     }
 
     @Test
-    void containsReturnsTrueForEntryInAux() throws URISyntaxException {
+    void containsReturnsTrueForEntryInAux() throws Exception {
         Path auxFile = Path.of(TexGroupTest.class.getResource("paper.aux").toURI());
         TexGroup group = new TexGroup("paper", GroupHierarchyType.INDEPENDENT, auxFile, new DefaultAuxParser(new BibDatabase()), new DummyFileUpdateMonitor(), metaData, "userandHost");
         BibEntry inAux = new BibEntry();
@@ -38,7 +37,7 @@ class TexGroupTest {
     }
 
     @Test
-    void containsReturnsTrueForEntryNotInAux() throws URISyntaxException {
+    void containsReturnsTrueForEntryNotInAux() throws Exception {
         Path auxFile = Path.of(TexGroupTest.class.getResource("paper.aux").toURI());
         TexGroup group = new TexGroup("paper", GroupHierarchyType.INDEPENDENT, auxFile, new DefaultAuxParser(new BibDatabase()), new DummyFileUpdateMonitor(), metaData, "userandHost");
         BibEntry notInAux = new BibEntry();
@@ -48,7 +47,7 @@ class TexGroupTest {
     }
 
     @Test
-    void getFilePathReturnsRelativePath() throws URISyntaxException {
+    void getFilePathReturnsRelativePath() throws Exception {
         Path auxFile = Path.of(TexGroupTest.class.getResource("paper.aux").toURI());
         String user = "Darwin";
         metaData.setLatexFileDirectory(user, auxFile.getParent().toString());

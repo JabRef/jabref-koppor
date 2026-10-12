@@ -5,7 +5,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BstTextPrefixerTest {
+class BstTextPrefixerTest {
     @ParameterizedTest
     @CsvSource({
             "i, i",

@@ -1,12 +1,8 @@
 package org.jabref.logic.exporter;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.util.StandardFileType;
@@ -50,7 +46,7 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportForNoEntriesWritesNothing(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportForNoEntriesWritesNothing(@TempDir Path tempFile) throws Exception {
         Path file = tempFile.resolve("ThisIsARandomlyNamedFile");
         Files.createFile(file);
         hayagrivaYamlExporter.export(databaseContext, tempFile, List.of());
@@ -58,7 +54,7 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsCorrectContent(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorrectContent(@TempDir Path tempFile) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -83,7 +79,7 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsCorporateAuthorWithoutBraces(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorporateAuthorWithoutBraces(@TempDir Path tempFile) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("examplekey")
                 .withField(StandardField.AUTHOR, "{Some company} and M{\\\"u}ller, Hans");
@@ -103,7 +99,7 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsCorrectMultipleAuthors(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorrectMultipleAuthors(@TempDir Path tempFile) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author and Other One")
@@ -129,7 +125,7 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void formatsContentCorrect(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void formatsContentCorrect(@TempDir Path tempFile) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Misc)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -154,7 +150,7 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    void passesModifiedCharset(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void passesModifiedCharset(@TempDir Path tempFile) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "谷崎 潤一郎")
@@ -179,7 +175,7 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    void passesModifiedCharsetNull(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void passesModifiedCharsetNull(@TempDir Path tempFile) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "谷崎 潤一郎")
@@ -203,7 +199,7 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsCorrectParentField(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorrectParentField(@TempDir Path tempFile) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -232,7 +228,7 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsMultipleEntriesAsSingleYamlDocument(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsMultipleEntriesAsSingleYamlDocument(@TempDir Path tempFile) throws Exception {
         BibEntry first = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("first")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -271,7 +267,7 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsDoiNestedUnderSerialNumber(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsDoiNestedUnderSerialNumber(@TempDir Path tempFile) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -299,7 +295,7 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsIsbnNestedUnderSerialNumber(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsIsbnNestedUnderSerialNumber(@TempDir Path tempFile) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Book)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -327,7 +323,7 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsIssnNestedUnderSerialNumber(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsIssnNestedUnderSerialNumber(@TempDir Path tempFile) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")

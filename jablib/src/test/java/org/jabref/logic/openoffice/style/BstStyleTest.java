@@ -15,19 +15,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class BstStyleTest {
 
     @Test
-    void internalNameStripsBstExtensionIeee() throws IOException {
+    void internalNameStripsBstExtensionIeee() throws Exception {
         BstStyle style = BstStyle.createInternal(BstStyle.INTERNAL_IEEETRAN_PATH);
         assertEquals("IEEEtran", style.getName());
     }
 
     @Test
-    void internalNameStripsBstExtensionAbbrv() throws IOException {
+    void internalNameStripsBstExtensionAbbrv() throws Exception {
         BstStyle style = BstStyle.createInternal(BstStyle.INTERNAL_ABBRV_PATH);
         assertEquals("abbrv", style.getName());
     }
 
     @Test
-    void externalLowercaseExtensionIsStripped(@TempDir Path tempDir) throws IOException {
+    void externalLowercaseExtensionIsStripped(@TempDir Path tempDir) throws Exception {
         Path stylePath = tempDir.resolve("apa.bst");
         Files.writeString(stylePath, "READ");
         BstStyle style = BstStyle.loadExternal(stylePath);
@@ -35,7 +35,7 @@ class BstStyleTest {
     }
 
     @Test
-    void externalUppercaseExtensionIsStripped(@TempDir Path tempDir) throws IOException {
+    void externalUppercaseExtensionIsStripped(@TempDir Path tempDir) throws Exception {
         Path stylePath = tempDir.resolve("FOO.BST");
         Files.writeString(stylePath, "READ");
         BstStyle style = BstStyle.loadExternal(stylePath);
@@ -43,7 +43,7 @@ class BstStyleTest {
     }
 
     @Test
-    void externalNoExtensionIsUnchanged(@TempDir Path tempDir) throws IOException {
+    void externalNoExtensionIsUnchanged(@TempDir Path tempDir) throws Exception {
         Path stylePath = tempDir.resolve("customstyle");
         Files.writeString(stylePath, "READ");
         BstStyle style = BstStyle.loadExternal(stylePath);
@@ -51,7 +51,7 @@ class BstStyleTest {
     }
 
     @Test
-    void hasSortCommandIsStoredOnStyle() throws IOException {
+    void hasSortCommandIsStoredOnStyle() throws Exception {
         BstStyle ieeeStyle = BstStyle.createInternal(BstStyle.INTERNAL_IEEETRAN_PATH);
         BstStyle abbrvStyle = BstStyle.createInternal(BstStyle.INTERNAL_ABBRV_PATH);
 
@@ -60,7 +60,7 @@ class BstStyleTest {
     }
 
     @Test
-    void invalidExternalBstIsRejected(@TempDir Path tempDir) throws IOException {
+    void invalidExternalBstIsRejected(@TempDir Path tempDir) throws Exception {
         Path stylePath = tempDir.resolve("invalid.bst");
         Files.writeString(stylePath, "}");
 

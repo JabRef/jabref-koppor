@@ -1,6 +1,5 @@
 package org.jabref.logic.citation.repository;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
@@ -195,7 +194,7 @@ class MVStoreBibEntryRelationRepositoryTest {
 
     @ParameterizedTest
     @MethodSource("createBibEntries")
-    void shouldUpdateShouldReturnFalseAfterOneWeekWhenTTLisSetTo30(BibEntry entry) throws IOException {
+    void shouldUpdateShouldReturnFalseAfterOneWeekWhenTTLisSetTo30(BibEntry entry) throws Exception {
         // GIVEN
         List<BibEntry> relations = createRelations(entry);
         Clock clock = Clock.fixed(Instant.now(), ZoneId.of("UTC"));

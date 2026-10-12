@@ -1,11 +1,8 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.SearchBasedFetcher;
 import org.jabref.model.entry.BibEntry;
@@ -36,7 +33,7 @@ class DOAJFetcherTest {
     }
 
     @Test
-    void searchByQueryFindsEntry() throws FetcherException {
+    void searchByQueryFindsEntry() throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Nísea de A. Corrêa and Maria P. Foss and Paula R. B. Diniz")
                 .withField(StandardField.DOI, "10.11606/issn.2176-7262.v49i6p533-548")
@@ -71,40 +68,40 @@ class DOAJFetcherTest {
     }
 
     @Test
-    void searchByEmptyQuery() throws FetcherException {
+    void searchByEmptyQuery() throws Exception {
         assertEquals(List.of(), fetcher.performSearch(""));
     }
 
     @Test
-    void appendSingleWord() throws URISyntaxException {
+    void appendSingleWord() throws Exception {
         URIBuilder builder = new URIBuilder("http://example.com/test");
         DOAJFetcher.addPath(builder, "example");
         assertEquals("http://example.com/test/example", builder.build().toASCIIString());
     }
 
     @Test
-    void appendSingleWordWithSlash() throws URISyntaxException {
+    void appendSingleWordWithSlash() throws Exception {
         URIBuilder builder = new URIBuilder("http://example.com/test");
         DOAJFetcher.addPath(builder, "/example");
         assertEquals("http://example.com/test/example", builder.build().toASCIIString());
     }
 
     @Test
-    void appendSlash() throws URISyntaxException {
+    void appendSlash() throws Exception {
         URIBuilder builder = new URIBuilder("http://example.com/test");
         DOAJFetcher.addPath(builder, "/");
         assertEquals("http://example.com/test", builder.build().toASCIIString());
     }
 
     @Test
-    void appendTwoWords() throws URISyntaxException {
+    void appendTwoWords() throws Exception {
         URIBuilder builder = new URIBuilder("http://example.com/test");
         DOAJFetcher.addPath(builder, "example two");
         assertEquals("http://example.com/test/example%20two", builder.build().toASCIIString());
     }
 
     @Test
-    void urlForQuery() throws URISyntaxException, MalformedURLException {
+    void urlForQuery() throws Exception {
         assertEquals("https://doaj.org/api/search/articles/JabRef%20AND%20MRI?pageSize=30",
                 fetcher.getURLForQuery(SearchBasedFetcher.getQueryNode("JabRef MRI")).toString());
     }

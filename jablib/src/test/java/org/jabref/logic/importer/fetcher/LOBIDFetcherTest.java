@@ -2,7 +2,6 @@ package org.jabref.logic.importer.fetcher;
 
 import java.util.List;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
 import org.jabref.logic.importer.SearchBasedFetcher;
 import org.jabref.model.entry.BibEntry;
@@ -36,7 +35,7 @@ class LOBIDFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void searchByQueryFindsEntry() throws FetcherException {
+    void searchByQueryFindsEntry() throws Exception {
         BibEntry firstArticle = new BibEntry(StandardEntryType.Book)
                 .withField(StandardField.AUTHOR, "Nichols, Cathrine and Blume, Eugen and DruckVerlag Kettler GmbH")
                 .withField(StandardField.PUBLISHER, "Verlag Kettler")
@@ -83,18 +82,18 @@ class LOBIDFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void searchByEmptyQueryFindsNothing() throws FetcherException {
+    void searchByEmptyQueryFindsNothing() throws Exception {
         assertEquals(List.of(), fetcher.performSearch(""));
     }
 
     @Test
-    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws FetcherException {
+    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws Exception {
         Page<BibEntry> result = fetcher.performRawSearchQueryPaged("", 0);
         assertTrue(result.getContent().isEmpty());
     }
 
     @Test
-    void performRawSearchQueryPagedFindsEntry() throws FetcherException {
+    void performRawSearchQueryPagedFindsEntry() throws Exception {
         Page<BibEntry> page = fetcher.performRawSearchQueryPaged("isbn:9783862065752", 0);
         assertFalse(page.getContent().isEmpty());
     }

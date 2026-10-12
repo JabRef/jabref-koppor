@@ -1,14 +1,10 @@
 package org.jabref.logic.exporter;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import javafx.collections.FXCollections;
 
@@ -42,7 +38,7 @@ class XmpExporterTest {
     }
 
     @Test
-    void exportSingleEntry(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void exportSingleEntry(@TempDir Path testFolder) throws Exception {
         Path file = testFolder.resolve("ThisIsARandomlyNamedFile");
         Files.createFile(file);
 
@@ -72,7 +68,7 @@ class XmpExporterTest {
     }
 
     @Test
-    void writeMultipleEntriesInASingleFile(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void writeMultipleEntriesInASingleFile(@TempDir Path testFolder) throws Exception {
         Path file = testFolder.resolve("ThisIsARandomlyNamedFile");
         Files.createFile(file);
 
@@ -126,7 +122,7 @@ class XmpExporterTest {
     }
 
     @Test
-    void writeMultipleEntriesInDifferentFiles(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void writeMultipleEntriesInDifferentFiles(@TempDir Path testFolder) throws Exception {
         // set path to the one where the exporter produces several files
         Path file = testFolder.resolve(XmpExporter.XMP_SPLIT_DIRECTORY_INDICATOR);
         Files.createFile(file);
@@ -196,7 +192,7 @@ class XmpExporterTest {
     }
 
     @Test
-    void exportSingleEntryWithPrivacyFilter(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void exportSingleEntryWithPrivacyFilter(@TempDir Path testFolder) throws Exception {
         when(xmpPreferences.getXmpPrivacyFilter()).thenReturn(FXCollections.observableSet(Set.of(StandardField.AUTHOR)));
         when(xmpPreferences.shouldUseXmpPrivacyFilter()).thenReturn(true);
 

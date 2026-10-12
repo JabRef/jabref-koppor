@@ -1,6 +1,5 @@
 package org.jabref.logic.exporter;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -31,7 +30,7 @@ public class MsBibExportFormatTest {
     }
 
     @Test
-    final void performExportWithNoEntry(@TempDir Path tempFile) throws IOException, SaveException {
+    final void performExportWithNoEntry(@TempDir Path tempFile) throws Exception {
         Path path = tempFile.resolve("ThisIsARandomlyNamedFile");
         Files.createFile(path);
         List<BibEntry> entries = List.of();

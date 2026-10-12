@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.StandardEntryType;
 
-import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
 
@@ -116,7 +115,7 @@ class BstVMVisitorTest {
     }
 
     @Test
-    void visitExecuteCommand() throws RecognitionException {
+    void visitExecuteCommand() throws Exception {
         BstVM vm = new BstVM("""
                 INTEGERS { variable.a }
                 FUNCTION { init.state.consts } { #5 'variable.a := }
@@ -129,7 +128,7 @@ class BstVMVisitorTest {
     }
 
     @Test
-    void visitIterateCommand() throws RecognitionException {
+    void visitIterateCommand() throws Exception {
         BstVM vm = new BstVM("""
                 ENTRY { } { } { }
                 FUNCTION { test } { cite$ }
@@ -149,7 +148,7 @@ class BstVMVisitorTest {
     }
 
     @Test
-    void visitReverseCommand() throws RecognitionException {
+    void visitReverseCommand() throws Exception {
         BstVM vm = new BstVM("""
                 ENTRY { } { } { }
                 FUNCTION { test } { cite$ }
@@ -169,7 +168,7 @@ class BstVMVisitorTest {
     }
 
     @Test
-    void visitSortCommand() throws RecognitionException {
+    void visitSortCommand() throws Exception {
         BstVM vm = new BstVM("""
                 ENTRY { } { } { }
                 FUNCTION { presort } { cite$ 'sort.key$ := }

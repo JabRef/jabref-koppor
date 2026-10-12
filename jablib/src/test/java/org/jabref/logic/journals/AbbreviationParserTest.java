@@ -1,7 +1,6 @@
 package org.jabref.logic.journals;
 
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,7 +25,7 @@ class AbbreviationParserTest {
     }
 
     @Test
-    void readingFileFromCSVWithSemicolon() throws IOException {
+    void readingFileFromCSVWithSemicolon() throws Exception {
         // String name, String abbreviation, String shortestUniqueAbbreviation
         String testAbbrev = "Long Name;L.N.;L.N.";
         try (BufferedWriter writer = Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8)) {
@@ -37,7 +36,7 @@ class AbbreviationParserTest {
     }
 
     @Test
-    void readingFileFromCSVWithComma() throws IOException {
+    void readingFileFromCSVWithComma() throws Exception {
         String testAbbrev = "Long Name,L.N.,L.N.";
         try (BufferedWriter writer = Files.newBufferedWriter(csvFile, StandardCharsets.UTF_8)) {
             writer.write(testAbbrev);

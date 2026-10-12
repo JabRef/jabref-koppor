@@ -1,13 +1,10 @@
 package org.jabref.logic.auxparser;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-import org.jabref.logic.JabRefException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
@@ -37,7 +34,7 @@ class AuxParserTest {
     }
 
     @Test
-    void normal() throws URISyntaxException, IOException, JabRefException {
+    void normal() throws Exception {
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("origin.bib")) {
             Path auxFile = Path.of(AuxParserTest.class.getResource("paper.aux").toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);
@@ -60,7 +57,7 @@ class AuxParserTest {
     }
 
     @Test
-    void twoArgMacro() throws URISyntaxException, IOException, JabRefException {
+    void twoArgMacro() throws Exception {
         // Result should be identical to that of testNormal
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("origin.bib")) {
             Path auxFile = Path.of(AuxParserTest.class.getResource("papertwoargmacro.aux").toURI());
@@ -84,7 +81,7 @@ class AuxParserTest {
     }
 
     @Test
-    void notAllFound() throws URISyntaxException, IOException, JabRefException {
+    void notAllFound() throws Exception {
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("origin.bib")) {
             Path auxFile = Path.of(AuxParserTest.class.getResource("badpaper.aux").toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);
@@ -104,7 +101,7 @@ class AuxParserTest {
     }
 
     @Test
-    void duplicateBibDatabaseConfiguration() throws URISyntaxException, IOException, JabRefException {
+    void duplicateBibDatabaseConfiguration() throws Exception {
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("config.bib")) {
             Path auxFile = Path.of(AuxParserTest.class.getResource("paper.aux").toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);
@@ -118,7 +115,7 @@ class AuxParserTest {
     }
 
     @Test
-    void nestedAux() throws URISyntaxException, IOException, JabRefException {
+    void nestedAux() throws Exception {
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("origin.bib")) {
             Path auxFile = Path.of(AuxParserTest.class.getResource("nested.aux").toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);
@@ -138,7 +135,7 @@ class AuxParserTest {
     }
 
     @Test
-    void crossRef() throws URISyntaxException, IOException, JabRefException {
+    void crossRef() throws Exception {
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("origin.bib")) {
             Path auxFile = Path.of(AuxParserTest.class.getResource("crossref.aux").toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);

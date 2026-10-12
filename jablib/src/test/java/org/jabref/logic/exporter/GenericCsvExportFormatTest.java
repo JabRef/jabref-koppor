@@ -1,12 +1,8 @@
 package org.jabref.logic.exporter;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.util.StandardFileType;
@@ -54,7 +50,7 @@ public class GenericCsvExportFormatTest {
     }
 
     @Test
-    void performExportForSingleAuthor(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void performExportForSingleAuthor(@TempDir Path testFolder) throws Exception {
         Path path = testFolder.resolve("test.csv");
         BibEntry entry = new BibEntry()
                 .withCitationKey("Doe2023")
@@ -80,7 +76,7 @@ public class GenericCsvExportFormatTest {
     }
 
     @Test
-    void performExportForMultipleEntries(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void performExportForMultipleEntries(@TempDir Path testFolder) throws Exception {
         Path path = testFolder.resolve("test.csv");
         BibEntry entry1 = new BibEntry()
                 .withCitationKey("Doe2023")
@@ -101,7 +97,7 @@ public class GenericCsvExportFormatTest {
     }
 
     @Test
-    void performExportEscapesDoubleQuotesInFields(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void performExportEscapesDoubleQuotesInFields(@TempDir Path testFolder) throws Exception {
         Path path = testFolder.resolve("test.csv");
         BibEntry entry = new BibEntry()
                 .withCitationKey("Doe2023")

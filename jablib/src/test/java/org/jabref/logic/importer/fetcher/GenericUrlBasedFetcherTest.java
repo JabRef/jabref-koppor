@@ -22,7 +22,7 @@ class GenericUrlBasedFetcherTest {
 
     @Test
     @ExternalServicesTest
-    void performSearchWithValidUrlReturnsMiscEntryWithTitleAndUrldate() throws FetcherException {
+    void performSearchWithValidUrlReturnsMiscEntryWithTitleAndUrldate() throws Exception {
         String url = "https://gi-radar.de/397-coding-unterstuetzung-im-lauf-der-zeit/";
         // Captured before performSearch, which internally calls LocalDate.now() itself during its (real, network-
         // dependent) title fetch -- capturing after the call risks the two calls straddling a midnight rollover.
@@ -42,7 +42,7 @@ class GenericUrlBasedFetcherTest {
 
     @Test
     @ExternalServicesTest
-    void performSearchWithUnreachableUrlStillCreatesEntryWithUrlAsTitleFallback() throws FetcherException {
+    void performSearchWithUnreachableUrlStillCreatesEntryWithUrlAsTitleFallback() throws Exception {
         String url = "https://this-host-should-not-resolve.jabref-test.invalid/some-page";
         String expectedUrlDate = new Date(LocalDate.now()).getNormalized();
 
@@ -57,7 +57,7 @@ class GenericUrlBasedFetcherTest {
 
     @Test
     @ExternalServicesTest
-    void performSearchWithSurroundingWhitespaceStripsItFromStoredUrl() throws FetcherException {
+    void performSearchWithSurroundingWhitespaceStripsItFromStoredUrl() throws Exception {
         String url = "https://this-host-should-not-resolve.jabref-test.invalid/some-page";
 
         List<BibEntry> result = fetcher.performSearch(" " + url + " ");
@@ -68,7 +68,7 @@ class GenericUrlBasedFetcherTest {
     }
 
     @Test
-    void performSearchWithNonHttpUrlFallsBackToUrlAsTitle() throws FetcherException {
+    void performSearchWithNonHttpUrlFallsBackToUrlAsTitle() throws Exception {
         // URLUtil.isURL accepts ftp:// (its regex allows https?|ftp), but jsoup only supports http/https: its
         // protocol check throws MalformedURLException (an IOException) before opening any connection, which
         // fetchTitle must treat like any other fetch failure instead of aborting entry creation.

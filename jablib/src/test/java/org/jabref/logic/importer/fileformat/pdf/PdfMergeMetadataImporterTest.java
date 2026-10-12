@@ -1,7 +1,5 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +48,7 @@ class PdfMergeMetadataImporterTest {
     }
 
     @Test
-    void doesNotHandleEncryptedPdfs() throws URISyntaxException {
+    void doesNotHandleEncryptedPdfs() throws Exception {
         Path file = Path.of(PdfMergeMetadataImporter.class.getResource("/pdfs/encrypted.pdf").toURI());
         List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
         assertEquals(List.of(), result);
@@ -58,7 +56,7 @@ class PdfMergeMetadataImporterTest {
 
     @Test
     @Disabled("Switch from ottobib to OpenLibraryFetcher changed the results")
-    void importWorksAsExpected() throws URISyntaxException {
+    void importWorksAsExpected() throws Exception {
         Path file = Path.of(PdfMergeMetadataImporterTest.class.getResource("mixedMetadata.pdf").toURI());
         List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -92,7 +90,7 @@ class PdfMergeMetadataImporterTest {
     }
 
     @Test
-    void pdfMetadataExtractedFrom2024SPLCBecker() throws URISyntaxException {
+    void pdfMetadataExtractedFrom2024SPLCBecker() throws Exception {
         Path file = Path.of(PdfMergeMetadataImporterTest.class.getResource("2024_SPLC_Becker.pdf").toURI());
         List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -119,7 +117,7 @@ class PdfMergeMetadataImporterTest {
     }
 
     @Test
-    void fetchArxivInformationForPdfWithArxivId() throws URISyntaxException {
+    void fetchArxivInformationForPdfWithArxivId() throws Exception {
         Path file = Path.of(PdfMergeMetadataImporter.class.getResource("/pdfs/test-arxivMetadata.pdf").toURI());
         List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -145,7 +143,7 @@ class PdfMergeMetadataImporterTest {
     }
 
     @Test
-    void importRelativizesFilePath() throws URISyntaxException, IOException {
+    void importRelativizesFilePath() throws Exception {
         // Initialize database and preferences
         FilePreferences preferences = mock(FilePreferences.class);
         BibDatabaseContext database = new BibDatabaseContext();
@@ -167,7 +165,7 @@ class PdfMergeMetadataImporterTest {
     }
 
     @Test
-    void filenameLikeTitleFromXmpIsOverriddenByContentTitle() throws URISyntaxException {
+    void filenameLikeTitleFromXmpIsOverriddenByContentTitle() throws Exception {
         GrobidPreferences noGrobid = mock(GrobidPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(noGrobid.isGrobidEnabled()).thenReturn(false);
 
