@@ -13,7 +13,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.AMSField;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Abbreviates journal field
@@ -24,7 +23,8 @@ public class AbbreviateJournalCleanup implements CleanupJob {
     private final AbbreviationType abbreviationType;
     private final boolean useFJournalField;
 
-    public AbbreviateJournalCleanup(BibDatabase database, JournalAbbreviationRepository journalAbbreviationRepository, AbbreviationType abbreviationType, boolean useFJournalField) {
+    public AbbreviateJournalCleanup(BibDatabase database, JournalAbbreviationRepository journalAbbreviationRepository, AbbreviationType abbreviationType,
+            boolean useFJournalField) {
         this.database = database;
         this.journalAbbreviationRepository = journalAbbreviationRepository;
         this.abbreviationType = abbreviationType;
@@ -56,9 +56,7 @@ public class AbbreviateJournalCleanup implements CleanupJob {
             return List.of();
         }
 
-        Optional<String> newTextOptional = abbreviationType == AbbreviationType.LTWA
-                                           ? journalAbbreviationRepository.getLtwaAbbreviation(text)
-                                           : foundAbbreviation.map(this::getAbbreviatedName);
+        Optional<String> newTextOptional = abbreviationType == AbbreviationType.LTWA ? journalAbbreviationRepository.getLtwaAbbreviation(text) : foundAbbreviation.map(this::getAbbreviatedName);
 
         // Return early if no abbreviation found or it matches original
         if (newTextOptional.isEmpty() || newTextOptional.get().equals(origText)) {
@@ -86,14 +84,10 @@ public class AbbreviateJournalCleanup implements CleanupJob {
 
     private String getAbbreviatedName(Abbreviation text) {
         return switch (abbreviationType) {
-            case DEFAULT ->
-                    text.getAbbreviation();
-            case DOTLESS ->
-                    text.getDotlessAbbreviation();
-            case SHORTEST_UNIQUE ->
-                    text.getShortestUniqueAbbreviation();
-            case LTWA ->
-                    throw new IllegalStateException("Unexpected value: %s".formatted(abbreviationType));
+            case DEFAULT -> text.getAbbreviation();
+            case DOTLESS -> text.getDotlessAbbreviation();
+            case SHORTEST_UNIQUE -> text.getShortestUniqueAbbreviation();
+            case LTWA -> throw new IllegalStateException("Unexpected value: %s".formatted(abbreviationType));
         };
     }
 }

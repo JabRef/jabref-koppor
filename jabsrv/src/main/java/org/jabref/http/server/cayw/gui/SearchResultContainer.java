@@ -9,16 +9,15 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.strings.StringUtil;
 
 public class SearchResultContainer extends ListView<CAYWEntry> {
 
-    private final static int MAX_LINES = 3;
-    private final static int ESTIMATED_CHARS_PER_LINE = 80;
-    private final static int TOOLTIP_WIDTH = 400;
-    private final static double PREF_WIDTH = 300;
+    private static final int MAX_LINES = 3;
+    private static final int ESTIMATED_CHARS_PER_LINE = 80;
+    private static final int TOOLTIP_WIDTH = 400;
+    private static final double PREF_WIDTH = 300;
 
     private ObservableList<CAYWEntry> selectedEntries = javafx.collections.FXCollections.observableArrayList();
 
@@ -44,10 +43,13 @@ public class SearchResultContainer extends ListView<CAYWEntry> {
 
         this.prefWidthProperty().bind(Bindings.createDoubleBinding(() -> {
             if (getParent() != null) {
-                return getParent().getLayoutBounds().getWidth();
+                return getParent()
+                        .getLayoutBounds()
+                        .getWidth();
             }
             return PREF_WIDTH;
-        }, parentProperty()));
+        },
+                parentProperty()));
     }
 
     private static class SearchResultCell extends ListCell<CAYWEntry> {
@@ -68,9 +70,8 @@ public class SearchResultContainer extends ListView<CAYWEntry> {
 
             content.getChildren().addAll(labelText, descriptionText);
 
-            descriptionText.wrappingWidthProperty().bind(
-                    widthProperty().subtract(20)
-            );
+            descriptionText.wrappingWidthProperty().bind(widthProperty()
+                    .subtract(20));
         }
 
         @Override

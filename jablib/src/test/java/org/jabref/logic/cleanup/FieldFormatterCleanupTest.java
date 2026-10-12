@@ -13,7 +13,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,13 +44,20 @@ class FieldFormatterCleanupTest {
         FieldFormatterCleanup cleanup = new FieldFormatterCleanup(InternalField.INTERNAL_ALL_FIELD, new UpperCaseFormatter());
         cleanup.cleanup(entry);
 
-        assertEquals(fieldMap.get(StandardField.TITLE).toUpperCase(), entry.getField(StandardField.TITLE).get());
-        assertEquals(fieldMap.get(StandardField.BOOKTITLE).toUpperCase(), entry.getField(StandardField.BOOKTITLE).get());
-        assertEquals(fieldMap.get(StandardField.YEAR).toUpperCase(), entry.getField(StandardField.YEAR).get());
-        assertEquals(fieldMap.get(StandardField.MONTH).toUpperCase(), entry.getField(StandardField.MONTH).get());
-        assertEquals(fieldMap.get(StandardField.ABSTRACT).toUpperCase(), entry.getField(StandardField.ABSTRACT).get());
-        assertEquals(fieldMap.get(StandardField.DOI).toUpperCase(), entry.getField(StandardField.DOI).get());
-        assertEquals(fieldMap.get(StandardField.ISSN).toUpperCase(), entry.getField(StandardField.ISSN).get());
+        assertEquals(fieldMap.get(StandardField.TITLE).toUpperCase(),
+                entry.getField(StandardField.TITLE).get());
+        assertEquals(fieldMap.get(StandardField.BOOKTITLE).toUpperCase(),
+                entry.getField(StandardField.BOOKTITLE).get());
+        assertEquals(fieldMap.get(StandardField.YEAR).toUpperCase(),
+                entry.getField(StandardField.YEAR).get());
+        assertEquals(fieldMap.get(StandardField.MONTH).toUpperCase(),
+                entry.getField(StandardField.MONTH).get());
+        assertEquals(fieldMap.get(StandardField.ABSTRACT).toUpperCase(),
+                entry.getField(StandardField.ABSTRACT).get());
+        assertEquals(fieldMap.get(StandardField.DOI).toUpperCase(),
+                entry.getField(StandardField.DOI).get());
+        assertEquals(fieldMap.get(StandardField.ISSN).toUpperCase(),
+                entry.getField(StandardField.ISSN).get());
     }
 
     @Test
@@ -59,13 +65,20 @@ class FieldFormatterCleanupTest {
         FieldFormatterCleanup cleanup = new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD, new UpperCaseFormatter());
         cleanup.cleanup(entry);
 
-        assertEquals(fieldMap.get(StandardField.TITLE).toUpperCase(), entry.getField(StandardField.TITLE).get());
-        assertEquals(fieldMap.get(StandardField.BOOKTITLE).toUpperCase(), entry.getField(StandardField.BOOKTITLE).get());
-        assertEquals(fieldMap.get(StandardField.YEAR), entry.getField(StandardField.YEAR).get());
-        assertEquals(fieldMap.get(StandardField.MONTH), entry.getField(StandardField.MONTH).get());
-        assertEquals(fieldMap.get(StandardField.ABSTRACT).toUpperCase(), entry.getField(StandardField.ABSTRACT).get());
-        assertEquals(fieldMap.get(StandardField.DOI), entry.getField(StandardField.DOI).get());
-        assertEquals(fieldMap.get(StandardField.ISSN), entry.getField(StandardField.ISSN).get());
+        assertEquals(fieldMap.get(StandardField.TITLE).toUpperCase(),
+                entry.getField(StandardField.TITLE).get());
+        assertEquals(fieldMap.get(StandardField.BOOKTITLE).toUpperCase(),
+                entry.getField(StandardField.BOOKTITLE).get());
+        assertEquals(fieldMap.get(StandardField.YEAR),
+                entry.getField(StandardField.YEAR).get());
+        assertEquals(fieldMap.get(StandardField.MONTH),
+                entry.getField(StandardField.MONTH).get());
+        assertEquals(fieldMap.get(StandardField.ABSTRACT).toUpperCase(),
+                entry.getField(StandardField.ABSTRACT).get());
+        assertEquals(fieldMap.get(StandardField.DOI),
+                entry.getField(StandardField.DOI).get());
+        assertEquals(fieldMap.get(StandardField.ISSN),
+                entry.getField(StandardField.ISSN).get());
     }
 
     @Test

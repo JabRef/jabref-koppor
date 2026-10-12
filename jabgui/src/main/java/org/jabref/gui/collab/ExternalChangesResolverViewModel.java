@@ -11,21 +11,23 @@ import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.collab.entrychange.EntryChange;
-
 import org.jspecify.annotations.NonNull;
 
 public class ExternalChangesResolverViewModel extends AbstractViewModel {
 
     private final ObservableList<DatabaseChange> visibleChanges = FXCollections.observableArrayList();
 
-    /// Because visible changes list will be bound to the UI, certain changes can be removed. This list is used to keep
-    /// track of changes even when they're removed from the UI and to expose the final resolved change set.
+    /// Because visible changes list will be bound to the UI, certain changes
+    /// can be removed. This list is used to keep track of changes even when
+    /// they're removed from the UI and to expose the final resolved change set.
     private final ObservableList<DatabaseChange> changes = FXCollections.observableArrayList();
-    /// Only a merge can leave a change accepted yet different from disk; accepted changes are the disk version by definition.
+
+    /// Only a merge can leave a change accepted yet different from disk;
+    /// accepted changes are the disk version by definition.
     private boolean mergedResultDiffersFromDisk;
+
     private final ObjectProperty<DatabaseChange> selectedChange = new SimpleObjectProperty<>();
     private final ReadOnlyBooleanWrapper areAllChangesResolved = new ReadOnlyBooleanWrapper(false);
     private final ReadOnlyBooleanWrapper areAllChangesAccepted = new ReadOnlyBooleanWrapper(false);
@@ -37,8 +39,9 @@ public class ExternalChangesResolverViewModel extends AbstractViewModel {
         this.changes.addAll(externalChanges);
 
         updateResolutionState();
-        canAskUserToResolveChange = Bindings.createBooleanBinding(
-                () -> getSelectedChange().flatMap(DatabaseChange::getExternalChangeResolver).isPresent(),
+        canAskUserToResolveChange = Bindings.createBooleanBinding(() -> getSelectedChange()
+                .flatMap(DatabaseChange::getExternalChangeResolver)
+                .isPresent(),
                 selectedChange);
     }
 
@@ -79,9 +82,7 @@ public class ExternalChangesResolverViewModel extends AbstractViewModel {
     }
 
     public boolean resolvedChangesMatchDisk() {
-        return !changes.isEmpty()
-                && !mergedResultDiffersFromDisk
-                && changes.stream().allMatch(DatabaseChange::isAccepted);
+        return !changes.isEmpty() && !mergedResultDiffersFromDisk && changes.stream().allMatch(DatabaseChange::isAccepted);
     }
 
     public BooleanExpression canAskUserToResolveChangeProperty() {
@@ -106,18 +107,19 @@ public class ExternalChangesResolverViewModel extends AbstractViewModel {
     }
 
     public void acceptMergedChange(@NonNull DatabaseChange databaseChange) {
-        getSelectedChange().ifPresent(oldChange -> {
-            int oldChangeIndex = changes.indexOf(oldChange);
-            if (oldChangeIndex >= 0) {
-                changes.set(oldChangeIndex, databaseChange);
-            } else {
-                changes.add(databaseChange);
-            }
-            mergedResultDiffersFromDisk |= !mergedChangeMatchesDiskVersion(oldChange, databaseChange);
-            databaseChange.accept();
-            getVisibleChanges().remove(oldChange);
-            updateResolutionState();
-        });
+        getSelectedChange().ifPresent(
+                oldChange -> {
+                    int oldChangeIndex = changes.indexOf(oldChange);
+                    if (oldChangeIndex >= 0) {
+                        changes.set(oldChangeIndex, databaseChange);
+                    } else {
+                        changes.add(databaseChange);
+                    }
+                    mergedResultDiffersFromDisk |= !mergedChangeMatchesDiskVersion(oldChange, databaseChange);
+                    databaseChange.accept();
+                    getVisibleChanges().remove(oldChange);
+                    updateResolutionState();
+                });
     }
 
     public List<DatabaseChange> getResolvedChanges() {
@@ -141,7 +143,8 @@ public class ExternalChangesResolverViewModel extends AbstractViewModel {
         }
 
         areAllChangesResolved.set(visibleChanges.isEmpty());
-        areAllChangesAccepted.set(changes.stream().allMatch(DatabaseChange::isAccepted));
+        areAllChangesAccepted.set(changes.stream()
+                .allMatch(DatabaseChange::isAccepted));
         areAllChangesDenied.set(changes.stream().noneMatch(DatabaseChange::isAccepted));
     }
 }

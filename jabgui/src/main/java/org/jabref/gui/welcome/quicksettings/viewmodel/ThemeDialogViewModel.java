@@ -14,7 +14,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.WorkspacePreferences;
@@ -28,12 +27,10 @@ import org.jabref.logic.util.strings.StringUtil;
 
 public class ThemeDialogViewModel extends AbstractViewModel {
 
-    private final ReadOnlyListProperty<ThemePreset> themesListProperty =
-            new ReadOnlyListWrapper<>(FXCollections.observableArrayList(ThemePreset.values()));
+    private final ReadOnlyListProperty<ThemePreset> themesListProperty = new ReadOnlyListWrapper<>(FXCollections.observableArrayList(ThemePreset.values()));
     private final ObjectProperty<ThemePreset> selectedThemeProperty = new SimpleObjectProperty<>();
 
-    private final ReadOnlyListProperty<ThemeColorScheme> colorSchemeListProperty =
-            new ReadOnlyListWrapper<>(FXCollections.observableArrayList(ThemeColorScheme.values()));
+    private final ReadOnlyListProperty<ThemeColorScheme> colorSchemeListProperty = new ReadOnlyListWrapper<>(FXCollections.observableArrayList(ThemeColorScheme.values()));
     private final ObjectProperty<ThemeColorScheme> selectedThemeColorSchemeProperty = new SimpleObjectProperty<>();
 
     private final BooleanProperty customThemeEnabled = new SimpleBooleanProperty(false);
@@ -56,13 +53,17 @@ public class ThemeDialogViewModel extends AbstractViewModel {
     private void initializeFromCurrentTheme() {
         selectedThemeProperty.set(workspacePreferences.getTheme());
         selectedThemeColorSchemeProperty.set(workspacePreferences.getColorScheme());
-        customThemeEnabled.setValue(workspacePreferences.getCustomTheme().isPresent());
-        customPathToThemeProperty.setValue(workspacePreferences.getCustomTheme().map(StyleSheet::getName).orElse(""));
+        customThemeEnabled.setValue(workspacePreferences.getCustomTheme()
+                .isPresent());
+        customPathToThemeProperty.setValue(workspacePreferences.getCustomTheme()
+                .map(StyleSheet::getName)
+                .orElse(""));
     }
 
-    /// Paired themes are named after the hue of the current color scheme, and the combo box re-reads the
-    /// names of its entries when the item list changes. The selection is left alone: its own cell is
-    /// refreshed by the view, so that the theme never passes through an invalid null in between.
+    /// Paired themes are named after the hue of the current color scheme, and
+    /// the combo box re-reads the names of its entries when the item list
+    /// changes. The selection is left alone: its own cell is refreshed by the
+    /// view, so that the theme never passes through an invalid null in between.
     private void refreshThemeNames() {
         themesListProperty.setAll(ThemePreset.values());
     }
@@ -120,16 +121,19 @@ public class ThemeDialogViewModel extends AbstractViewModel {
     }
 
     public void importCSSFile() {
-        String fileDir = customPathToThemeProperty.getValue().isEmpty() ? preferences.getInternalPreferences().getLastPreferencesExportPath().toString()
-                                                                        : customPathToThemeProperty.getValue();
+        String fileDir = customPathToThemeProperty.getValue().isEmpty() ? preferences.getInternalPreferences()
+                .getLastPreferencesExportPath()
+                .toString()
+                : customPathToThemeProperty.getValue();
 
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
                 .addExtensionFilter(StandardFileType.CSS)
                 .withDefaultExtension(StandardFileType.CSS)
-                .withInitialDirectory(fileDir).build();
+                .withInitialDirectory(fileDir)
+                .build();
 
-        dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(file ->
-                customPathToThemeProperty.setValue(file.toAbsolutePath().toString()));
+        dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(file -> customPathToThemeProperty.setValue(file.toAbsolutePath()
+                .toString()));
     }
 
     private ThemePreset getSelectedTheme() {

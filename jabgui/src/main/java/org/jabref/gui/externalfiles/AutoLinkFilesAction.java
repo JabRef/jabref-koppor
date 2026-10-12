@@ -6,7 +6,6 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import javafx.concurrent.Task;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
@@ -28,8 +27,8 @@ import org.jabref.model.undo.UndoableFieldChange;
 import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 import static org.jabref.gui.actions.ActionHelper.needsEntriesSelected;
 
-/// This Action may only be used in a menu or button.
-/// Never in the entry editor. FileListEditor and EntryEditor have other ways to update the file links
+/// This Action may only be used in a menu or button. Never in the entry editor.
+/// FileListEditor and EntryEditor have other ways to update the file links
 public class AutoLinkFilesAction extends SimpleCommand {
 
     private final DialogService dialogService;
@@ -37,7 +36,8 @@ public class AutoLinkFilesAction extends SimpleCommand {
     private final StateManager stateManager;
     private final UiTaskExecutor taskExecutor;
 
-    public AutoLinkFilesAction(DialogService dialogService, GuiPreferences preferences, StateManager stateManager, UiTaskExecutor taskExecutor) {
+    public AutoLinkFilesAction(DialogService dialogService, GuiPreferences preferences, StateManager stateManager,
+            UiTaskExecutor taskExecutor) {
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.stateManager = stateManager;
@@ -53,10 +53,7 @@ public class AutoLinkFilesAction extends SimpleCommand {
         final UndoManager undoManager = stateManager.getUndoManager(database);
         final List<BibEntry> entries = List.copyOf(stateManager.getSelectedEntries());
 
-        AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(
-                database,
-                preferences.getExternalApplicationsPreferences(),
-                preferences.getFilePreferences(),
+        AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(database, preferences.getExternalApplicationsPreferences(), preferences.getFilePreferences(),
                 preferences.getAutoLinkPreferences());
         final CompoundEdit compound = new CompoundEdit(StandardActions.AUTO_LINK_FILES.getText());
         // The file fields are written round by round in the task and handed over only in
@@ -100,10 +97,12 @@ public class AutoLinkFilesAction extends SimpleCommand {
                 handOver();
             }
 
-            /// Hands over what the worker changed and releases the library, on every way this task
-            /// can end. Failing and cancelling reach here too: the file fields they had already
-            /// rewritten are in the library whether the task finished or not, so they belong on the
-            /// stack, and holding the library against undo afterwards would disable it for good.
+            /// Hands over what the worker changed and releases the library, on
+            /// every way this task can end. Failing and cancelling reach here
+            /// too: the file fields they had already rewritten are in the
+            /// library whether the task finished or not, so they belong on the
+            /// stack, and holding the library against undo afterwards would
+            /// disable it for good.
             private void handOver() {
                 if (compound.hasEdits()) {
                     undoManager.addEdit(compound.toChangeSet());
@@ -115,34 +114,31 @@ public class AutoLinkFilesAction extends SimpleCommand {
             /// here cannot lose them.
             private void report(AutoSetFileLinksUtil.LinkFilesResult result) {
                 if (!result.getFileExceptions().isEmpty()) {
-                    dialogService.showWarningDialogAndWait(
-                            Localization.lang("Automatically set file links"),
-                            Localization.lang("Problem finding files. See error log for details."));
+                    dialogService.showWarningDialogAndWait(Localization.lang("Automatically set file links"), Localization.lang("Problem finding files. See error log for details."));
                     return;
                 }
 
                 if (result.getChangedEntries().isEmpty()) {
-                    dialogService.showWarningDialogAndWait(
-                            Localization.lang("Automatically set file links"),
-                            Localization.lang("Finished automatically setting external links.") + "\n"
-                                    + Localization.lang("No files found."));
+                    dialogService.showWarningDialogAndWait(Localization.lang("Automatically set file links"), Localization.lang("Finished automatically setting external links.") + "\n" + Localization.lang("No files found."));
                     return;
                 }
 
-                dialogService.notify("%s %s\n%s".formatted(
-                        Localization.lang("Finished automatically setting external links."),
-                        Localization.lang("Changed %0 entry(s).", result.getChangedEntries().size()),
-                        Localization.lang("Affected entry(s): %0", result.getChangedEntries().stream()
-                                                                         .map(BibEntry::getCitationKey)
-                                                                         .flatMap(Optional::stream)
-                                                                         .collect(Collectors.joining(", ")))));
+                dialogService.notify(
+                        "%s %s\n%s".formatted(
+                                Localization.lang("Finished automatically setting external links."),
+                                Localization.lang("Changed %0 entry(s).", result.getChangedEntries().size()),
+                                Localization.lang(
+                                        "Affected entry(s): %0",
+                                        result.getChangedEntries()
+                                              .stream()
+                                              .map(BibEntry::getCitationKey)
+                                              .flatMap(Optional::stream)
+                                              .collect(Collectors.joining(", ")))));
             }
         };
 
-        dialogService.showProgressDialog(
-                Localization.lang("Automatically setting file links"),
-                Localization.lang("Searching for files"),
-                linkFilesTask);
+        dialogService.showProgressDialog(Localization.lang("Automatically setting file links"),
+                Localization.lang("Searching for files"), linkFilesTask);
         taskExecutor.execute(linkFilesTask);
     }
 }

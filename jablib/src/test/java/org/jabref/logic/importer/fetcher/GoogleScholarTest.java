@@ -14,7 +14,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.DisabledOnCIServer;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -42,8 +41,7 @@ class GoogleScholarTest implements SearchBasedFetcherCapabilityTest, PagedSearch
 
         assertEquals(
                 Optional.of(URLUtil.create("https://www.uni-bamberg.de/fileadmin/uni/fakultaeten/wiai_lehrstuehle/praktische_informatik/Dateien/Publikationen/sose14-towards-application-portability-in-paas.pdf")),
-                finder.findFullText(entry)
-        );
+                finder.findFullText(entry));
     }
 
     @Test

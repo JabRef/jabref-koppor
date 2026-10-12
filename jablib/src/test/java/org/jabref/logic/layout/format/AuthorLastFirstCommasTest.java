@@ -1,7 +1,6 @@
 package org.jabref.logic.layout.format;
 
 import org.jabref.logic.layout.LayoutFormatter;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -11,7 +10,9 @@ class AuthorLastFirstCommasTest {
 
     /// Test method for [org.jabref.logic.layout.format.AuthorLastFirstCommas#format(java.lang.String)].
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             # Empty case
             '', ''
             # Single Names

@@ -17,7 +17,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -50,7 +49,8 @@ class MoveFilesCleanupTest {
         Files.createFile(fileBefore);
 
         MetaData metaData = new MetaData();
-        metaData.setLibrarySpecificFileDirectory(defaultFileFolder.toAbsolutePath().toString());
+        metaData.setLibrarySpecificFileDirectory(defaultFileFolder.toAbsolutePath()
+                .toString());
         databaseContext = new BibDatabaseContext(new BibDatabase(), metaData);
         Files.createFile(bibFolder.resolve("test.bib"));
         databaseContext.setDatabasePath(bibFolder.resolve("test.bib"));
@@ -73,8 +73,7 @@ class MoveFilesCleanupTest {
         cleanup.cleanup(entry);
 
         Path fileAfter = defaultFileFolder.resolve("test.pdf");
-        assertEquals(
-                Optional.of(FileFieldWriter.getStringRepresentation(new LinkedFile("", Path.of("test.pdf"), ""))),
+        assertEquals(Optional.of(FileFieldWriter.getStringRepresentation(new LinkedFile("", Path.of("test.pdf"), ""))),
                 entry.getField(StandardField.FILE));
         assertFalse(Files.exists(fileBefore));
         assertTrue(Files.exists(fileAfter));
@@ -83,21 +82,15 @@ class MoveFilesCleanupTest {
     @Test
     void movesFileWithMultipleLinked() {
         LinkedFile fileField = new LinkedFile("", fileBefore.toAbsolutePath(), "");
-        entry.setField(StandardField.FILE, FileFieldWriter.getStringRepresentation(Arrays.asList(
-                new LinkedFile("", Path.of(""), ""),
-                fileField,
-                new LinkedFile("", Path.of(""), ""))));
+        entry.setField(StandardField.FILE,
+                FileFieldWriter.getStringRepresentation(Arrays.asList(new LinkedFile("", Path.of(""), ""), fileField, new LinkedFile("", Path.of(""), ""))));
 
         when(filePreferences.getFileDirectoryPattern()).thenReturn("");
         cleanup.cleanup(entry);
 
         Path fileAfter = defaultFileFolder.resolve("test.pdf");
         assertEquals(
-                Optional.of(FileFieldWriter.getStringRepresentation(
-                        Arrays.asList(
-                                new LinkedFile("", Path.of(""), ""),
-                                new LinkedFile("", Path.of("test.pdf"), ""),
-                                new LinkedFile("", Path.of(""), "")))),
+                Optional.of(FileFieldWriter.getStringRepresentation(Arrays.asList(new LinkedFile("", Path.of(""), ""), new LinkedFile("", Path.of("test.pdf"), ""), new LinkedFile("", Path.of(""), "")))),
                 entry.getField(StandardField.FILE));
         assertFalse(Files.exists(fileBefore));
         assertTrue(Files.exists(fileAfter));
@@ -109,8 +102,7 @@ class MoveFilesCleanupTest {
         cleanup.cleanup(entry);
 
         Path fileAfter = defaultFileFolder.resolve("Misc").resolve("test.pdf");
-        assertEquals(
-                Optional.of(FileFieldWriter.getStringRepresentation(new LinkedFile("", Path.of("Misc/test.pdf"), ""))),
+        assertEquals(Optional.of(FileFieldWriter.getStringRepresentation(new LinkedFile("", Path.of("Misc/test.pdf"), ""))),
                 entry.getField(StandardField.FILE));
         assertFalse(Files.exists(fileBefore));
         assertTrue(Files.exists(fileAfter));
@@ -122,8 +114,7 @@ class MoveFilesCleanupTest {
         cleanup.cleanup(entry);
 
         Path fileAfter = defaultFileFolder.resolve("test.pdf");
-        assertEquals(
-                Optional.of(FileFieldWriter.getStringRepresentation(new LinkedFile("", Path.of("test.pdf"), ""))),
+        assertEquals(Optional.of(FileFieldWriter.getStringRepresentation(new LinkedFile("", Path.of("test.pdf"), ""))),
                 entry.getField(StandardField.FILE));
         assertFalse(Files.exists(fileBefore));
         assertTrue(Files.exists(fileAfter));
@@ -134,9 +125,10 @@ class MoveFilesCleanupTest {
         when(filePreferences.getFileDirectoryPattern()).thenReturn("[entrytype]/[year]/[auth]");
         cleanup.cleanup(entry);
 
-        Path fileAfter = defaultFileFolder.resolve("Misc").resolve("1989").resolve("test.pdf");
-        assertEquals(
-                Optional.of(FileFieldWriter.getStringRepresentation(new LinkedFile("", Path.of("Misc/1989/test.pdf"), ""))),
+        Path fileAfter = defaultFileFolder.resolve("Misc")
+                .resolve("1989")
+                .resolve("test.pdf");
+        assertEquals(Optional.of(FileFieldWriter.getStringRepresentation(new LinkedFile("", Path.of("Misc/1989/test.pdf"), ""))),
                 entry.getField(StandardField.FILE));
         assertFalse(Files.exists(fileBefore));
         assertTrue(Files.exists(fileAfter));
@@ -155,10 +147,11 @@ class MoveFilesCleanupTest {
         when(filePreferences.getFileDirectoryPattern()).thenReturn("");
         AtomicBoolean schedulerUsed = new AtomicBoolean(false);
 
-        cleanup.cleanup(entry, mutation -> {
-            schedulerUsed.set(true);
-            mutation.run();
-        });
+        cleanup.cleanup(entry,
+                mutation -> {
+                    schedulerUsed.set(true);
+                    mutation.run();
+                });
 
         assertTrue(schedulerUsed.get());
     }

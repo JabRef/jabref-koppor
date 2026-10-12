@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 
 import javafx.collections.FXCollections;
-
+import kong.unirest.core.json.JSONObject;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.util.BuildInfo;
@@ -13,8 +13,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
-import kong.unirest.core.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -59,25 +57,19 @@ class BiodiversityLibraryTest {
     @ParameterizedTest
     @ValueSource(strings = {"1234", "331", "121"})
     void getPartMetadaUrl(String id) throws MalformedURLException, URISyntaxException {
-        String expected = BASE_URL
-                + "?apiKey=" + apiKey
-                + "&format=json"
-                + "&op=GetPartMetadata&pages=f&names=f"
-                + "&id=";
+        String expected = BASE_URL + "?apiKey=" + apiKey + "&format=json" + "&op=GetPartMetadata&pages=f&names=f" + "&id=";
 
-        assertEquals(expected + id, fetcher.getPartMetadataURL(id).toString());
+        assertEquals(expected + id,
+                fetcher.getPartMetadataURL(id).toString());
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"1234", "4321", "331"})
     void getItemMetadaUrl(String id) throws MalformedURLException, URISyntaxException {
-        String expected = BASE_URL
-                + "?apiKey=" + apiKey
-                + "&format=json"
-                + "&op=GetItemMetadata&pages=f&ocr=f&ocr=f"
-                + "&id=";
+        String expected = BASE_URL + "?apiKey=" + apiKey + "&format=json" + "&op=GetItemMetadata&pages=f&ocr=f&ocr=f" + "&id=";
 
-        assertEquals(expected + id, fetcher.getItemMetadataURL(id).toString());
+        assertEquals(expected + id,
+                fetcher.getItemMetadataURL(id).toString());
     }
 
     @Test
@@ -94,7 +86,8 @@ class BiodiversityLibraryTest {
                 .withField(StandardField.PAGES, "89--97")
                 .withField(StandardField.DOI, "10.3897/phytokeys.227.104703");
 
-        assertEquals(expected, fetcher.performSearch("Amanoa condorensis (Phyllanthaceae)").getFirst());
+        assertEquals(expected, fetcher.performSearch("Amanoa condorensis (Phyllanthaceae)")
+                .getFirst());
     }
 
     @Test
@@ -110,7 +103,8 @@ class BiodiversityLibraryTest {
 
         assertEquals(expected, fetcher.jsonResultToBibEntry(input));
 
-        input = new JSONObject("""
+        input =
+                new JSONObject("""
                 {
                             "BHLType": "Item",
                             "FoundIn": "Metadata",
@@ -138,7 +132,8 @@ class BiodiversityLibraryTest {
                 .withField(StandardField.PUBLISHER, "Frederick A. Blake,");
         assertEquals(expected, fetcher.jsonResultToBibEntry(input));
 
-        input = new JSONObject("""
+        input =
+                new JSONObject("""
                 {
                             "BHLType": "Item",
                             "FoundIn": "Metadata",

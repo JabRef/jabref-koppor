@@ -8,7 +8,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,11 +62,13 @@ class JavaFxExtensionTest {
             root.getChildren().forEach(node -> node.getStyleClass().add("candidate"));
         });
 
-        assertEquals(2, JavaFxExtension.lookupAll(root, ".candidate", Button.class).size());
+        assertEquals(2, JavaFxExtension.lookupAll(root, ".candidate", Button.class)
+                .size());
         assertEquals(otherButton, JavaFxExtension.lookup(root, ".candidate", Button.class));
         assertEquals(
                 expectedButton,
-                JavaFxExtension.lookup(root, ".candidate", Button.class, button -> "Expected".equals(button.getText())));
+                JavaFxExtension.lookup(root, ".candidate", Button.class,
+                        button -> "Expected".equals(button.getText())));
     }
 
     private static void queueEvents(AtomicInteger completedEvents, int remainingEvents) {

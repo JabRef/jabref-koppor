@@ -5,7 +5,6 @@ import java.util.List;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.query.BaseQueryNode;
 import org.jabref.model.search.query.SearchQueryNode;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -101,8 +100,6 @@ class SearchBasedFetcherTest {
     @Test
     void unmigratedFetcherThrowsOnRawQuery() {
         StubSearchBasedFetcher fetcher = new StubSearchBasedFetcher();
-        assertThrows(UnsupportedOperationException.class,
-                () -> fetcher.performRawSearchQuery("quantum"));
+        assertThrows(UnsupportedOperationException.class, () -> fetcher.performRawSearchQuery("quantum"));
     }
 }
-

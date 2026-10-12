@@ -9,19 +9,19 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.entryeditor.EntryEditorTabModel;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-/// Mutable working copy of one entry editor tab ([EntryEditorTabModel]) while it is edited in the
-/// preferences dialog; converted back via [#toModel()] on store.
+/// Mutable working copy of one entry editor tab ([EntryEditorTabModel]) while
+/// it is edited in the preferences dialog; converted back via [#toModel()] on
+/// store.
 @NullMarked
 public class EditorTabViewModel {
 
     /// `null` for custom tabs.
     private final EntryEditorTabModel.@Nullable BuiltIn builtIn;
+
     private final String customName;
     private final BooleanProperty visible = new SimpleBooleanProperty(true);
     private final ObservableList<String> fieldPatterns = FXCollections.observableArrayList();
@@ -34,10 +34,7 @@ public class EditorTabViewModel {
 
     public static EditorTabViewModel fromModel(EntryEditorTabModel model) {
         return switch (model) {
-            case EntryEditorTabModel.BuiltInTab(
-                    EntryEditorTabModel.BuiltIn type,
-                    boolean visible
-            ) -> {
+            case EntryEditorTabModel.BuiltInTab(EntryEditorTabModel.BuiltIn type, boolean visible) -> {
                 EditorTabViewModel tab = new EditorTabViewModel(type, "");
                 tab.visible.set(visible);
                 yield tab;
@@ -61,10 +58,10 @@ public class EditorTabViewModel {
         }
         // Extracted flags of removed patterns are dropped, so re-adding a pattern later
         // starts with the default (not extracted) again.
-        return new EntryEditorTabModel.CustomizedFieldsTab(
-                customName,
-                List.copyOf(fieldPatterns),
-                fieldPatterns.stream().filter(extractedPatterns::contains).collect(Collectors.toSet()));
+        return new EntryEditorTabModel.CustomizedFieldsTab(customName, List.copyOf(fieldPatterns),
+                fieldPatterns.stream()
+                             .filter(extractedPatterns::contains)
+                             .collect(Collectors.toSet()));
     }
 
     public boolean isCustom() {
@@ -93,7 +90,8 @@ public class EditorTabViewModel {
         extractedPatterns.add(fieldPattern);
     }
 
-    /// Reverts [#extractFromMainTab]: the pattern's fields are shown on the Main tab again.
+    /// Reverts [#extractFromMainTab]: the pattern's fields are shown on the
+    /// Main tab again.
     public void keepOnMainTab(String fieldPattern) {
         extractedPatterns.remove(fieldPattern);
     }

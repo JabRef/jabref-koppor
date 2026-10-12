@@ -12,14 +12,13 @@ public class RegexKeywordGroup extends KeywordGroup {
     private final Pattern pattern;
 
     public RegexKeywordGroup(String name, GroupHierarchyType context, Field searchField,
-                             String searchExpression, boolean caseSensitive) {
+            String searchExpression, boolean caseSensitive) {
         super(name, context, searchField, searchExpression, caseSensitive);
         this.pattern = compilePattern(searchExpression, caseSensitive);
     }
 
     private static Pattern compilePattern(String searchExpression, boolean caseSensitive) {
-        return caseSensitive ? Pattern.compile("\\b" + searchExpression + "\\b") : Pattern.compile(
-                "\\b" + searchExpression + "\\b", Pattern.CASE_INSENSITIVE);
+        return caseSensitive ? Pattern.compile("\\b" + searchExpression + "\\b") : Pattern.compile("\\b" + searchExpression + "\\b", Pattern.CASE_INSENSITIVE);
     }
 
     @Override
@@ -51,10 +50,7 @@ public class RegexKeywordGroup extends KeywordGroup {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(),
-                getHierarchicalContext(),
-                searchField,
-                searchExpression,
+        return Objects.hash(getName(), getHierarchicalContext(), searchField, searchExpression,
                 caseSensitive);
     }
 }

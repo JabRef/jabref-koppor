@@ -14,7 +14,9 @@ public class RankingFieldComparator implements Comparator<Optional<SpecialFieldV
     public int compare(Optional<SpecialFieldValueViewModel> val1, Optional<SpecialFieldValueViewModel> val2) {
         if (val1.isPresent()) {
             if (val2.isPresent()) {
-                int compareToRes = val1.get().getValue().compareTo(val2.get().getValue());
+                int compareToRes = val1.get()
+                                       .getValue()
+                                       .compareTo(val2.get().getValue());
                 if (compareToRes == 0) {
                     return 0;
                 } else {

@@ -22,7 +22,8 @@ public class BibWriter {
         this.newLineSeparator = newLineSeparator;
     }
 
-    /// Writes the given string. The newlines of the given string are converted to the newline set for this class.
+    /// Writes the given string. The newlines of the given string are converted
+    /// to the newline set for this class.
     public void write(String string) throws IOException {
         if (precedingNewLineRequired) {
             writer.write(newLineSeparator);

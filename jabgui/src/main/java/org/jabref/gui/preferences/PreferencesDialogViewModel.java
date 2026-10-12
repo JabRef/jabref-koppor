@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.ai.AiTab;
@@ -46,8 +46,6 @@ import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,9 +53,10 @@ public class PreferencesDialogViewModel extends AbstractViewModel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PreferencesDialogViewModel.class);
 
-    /// Memory-stick mode is deliberately not part of any tab: it belongs to the portable-preferences
-    /// concern (import/export/reset) and is therefore a footer toggle of the dialog itself,
-    /// loaded in [#setValues()] and stored in [#storeAllSettings()] alongside the tabs.
+    /// Memory-stick mode is deliberately not part of any tab: it belongs to the
+    /// portable-preferences concern (import/export/reset) and is therefore a
+    /// footer toggle of the dialog itself, loaded in [#setValues()] and stored
+    /// in [#storeAllSettings()] alongside the tabs.
     private final SimpleBooleanProperty memoryStickProperty = new SimpleBooleanProperty();
 
     private final DialogService dialogService;
@@ -98,8 +97,7 @@ public class PreferencesDialogViewModel extends AbstractViewModel {
                 new CustomImporterTab(),
                 new CustomExporterTab(),
                 new NetworkTab(),
-                new GitTab()
-        );
+                new GitTab());
     }
 
     public ObservableList<PreferencesTab> getPreferenceTabs() {
@@ -110,7 +108,8 @@ public class PreferencesDialogViewModel extends AbstractViewModel {
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
                 .addExtensionFilter(StandardFileType.XML)
                 .withDefaultExtension(StandardFileType.XML)
-                .withInitialDirectory(preferences.getInternalPreferences().getLastPreferencesExportPath()).build();
+                .withInitialDirectory(preferences.getInternalPreferences().getLastPreferencesExportPath())
+                .build();
 
         Optional<Path> importFileOpt = dialogService.showFileOpenDialog(fileDialogConfiguration);
         if (importFileOpt.isPresent()) {
@@ -135,17 +134,16 @@ public class PreferencesDialogViewModel extends AbstractViewModel {
                 .withInitialDirectory(preferences.getInternalPreferences().getLastPreferencesExportPath())
                 .build();
 
-        dialogService.showFileSaveDialog(fileDialogConfiguration)
-                     .ifPresent(exportFile -> {
-                         try {
-                             storeAllSettings();
-                             preferences.exportPreferences(exportFile);
-                             preferences.getInternalPreferences().setLastPreferencesExportPath(exportFile);
-                         } catch (JabRefException ex) {
-                             LOGGER.warn(ex.getMessage(), ex);
-                             dialogService.showErrorDialogAndWait(Localization.lang("Export preferences"), ex);
-                         }
-                     });
+        dialogService.showFileSaveDialog(fileDialogConfiguration).ifPresent(exportFile -> {
+            try {
+                storeAllSettings();
+                preferences.exportPreferences(exportFile);
+                preferences.getInternalPreferences().setLastPreferencesExportPath(exportFile);
+            } catch (JabRefException ex) {
+                LOGGER.warn(ex.getMessage(), ex);
+                dialogService.showErrorDialogAndWait(Localization.lang("Export preferences"), ex);
+            }
+        });
     }
 
     public void showPreferences() {
@@ -154,11 +152,8 @@ public class PreferencesDialogViewModel extends AbstractViewModel {
 
     /// returns true if the preferences have been reset
     public boolean resetPreferences() {
-        boolean resetPreferencesConfirmed = dialogService.showConfirmationDialogAndWait(
-                Localization.lang("Reset preferences"),
-                Localization.lang("Are you sure you want to reset all settings to default values?"),
-                Localization.lang("Reset preferences"),
-                Localization.lang("Cancel"));
+        boolean resetPreferencesConfirmed = dialogService.showConfirmationDialogAndWait(Localization.lang("Reset preferences"), Localization.lang("Are you sure you want to reset all settings to default values?"),
+                Localization.lang("Reset preferences"), Localization.lang("Cancel"));
         if (resetPreferencesConfirmed) {
             try {
                 preferences.clear();
@@ -200,10 +195,7 @@ public class PreferencesDialogViewModel extends AbstractViewModel {
         preferences.flush();
 
         if (!restartWarnings.isEmpty()) {
-            dialogService.showWarningDialogAndWait(Localization.lang("Restart required"),
-                    String.join(",\n", restartWarnings)
-                            + "\n\n"
-                            + Localization.lang("You must restart JabRef for this to come into effect."));
+            dialogService.showWarningDialogAndWait(Localization.lang("Restart required"), String.join(",\n", restartWarnings) + "\n\n" + Localization.lang("You must restart JabRef for this to come into effect."));
         }
 
         Injector.setModelOrService(BibEntryTypesManager.class, preferences.getCustomEntryTypesRepository());
@@ -213,7 +205,8 @@ public class PreferencesDialogViewModel extends AbstractViewModel {
 
     /// Inserts the preference values into the Properties of the ViewModel
     public void setValues() {
-        memoryStickProperty.setValue(preferences.getInternalPreferences().isMemoryStickMode());
+        memoryStickProperty.setValue(preferences.getInternalPreferences()
+                .isMemoryStickMode());
 
         for (PreferencesTab preferencesTab : preferenceTabs) {
             preferencesTab.setValues();

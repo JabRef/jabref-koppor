@@ -5,10 +5,11 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.layout.HBox;
-
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.fieldeditors.contextmenu.DefaultMenu;
 import org.jabref.gui.keyboard.KeyBindingRepository;
@@ -23,39 +24,46 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Date;
 import org.jabref.model.entry.field.Field;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 public class DateEditor extends HBox implements FieldEditorFX {
 
-    @FXML private DateEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private TemporalAccessorPicker datePicker;
+    @FXML
+    private DateEditorViewModel viewModel;
 
-    @Inject private GuiPreferences preferences;
-    @Inject private KeyBindingRepository keyBindingRepository;
+    @FXML
+    private EditorTextField textField;
+
+    @FXML
+    private TemporalAccessorPicker datePicker;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private KeyBindingRepository keyBindingRepository;
 
     private boolean synchronizingPicker;
 
-    public DateEditor(Field field,
-                      DateTimeFormatter dateFormatter,
-                      SuggestionProvider<?> suggestionProvider,
-                      FieldCheckers fieldCheckers,
-                      UndoManager undoManager,
-                      UndoAction undoAction,
-                      RedoAction redoAction) {
+    public DateEditor(
+            Field field,
+            DateTimeFormatter dateFormatter,
+            SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers,
+            UndoManager undoManager,
+            UndoAction undoAction,
+            RedoAction redoAction) {
         ViewLoader.view(this)
-                  .root(this)
-                  .load();
+                .root(this)
+                .load();
 
         this.viewModel = new DateEditorViewModel(field, suggestionProvider, dateFormatter, fieldCheckers, undoManager);
         textField.setId(field.getName());
         datePicker.setStringConverter(viewModel.getDateToStringConverter());
-        viewModel.textProperty().addListener((_, _, newValue) -> UiTaskExecutor.runInJavaFXThread(() -> {
-            if (!textField.isFocused()) {
-                syncPickerWithText(normalizeText(newValue));
-            }
-        }));
+        viewModel.textProperty().addListener((_, _, newValue) ->
+                UiTaskExecutor.runInJavaFXThread(() -> {
+                    if (!textField.isFocused()) {
+                        syncPickerWithText(normalizeText(newValue));
+                    }
+                }));
         datePicker.temporalAccessorValueProperty().addListener((_, _, newValue) -> {
             if (!synchronizingPicker && (newValue != null)) {
                 acceptCommittedText(formatDate(newValue));
@@ -69,7 +77,9 @@ public class DateEditor extends HBox implements FieldEditorFX {
         });
         establishBinding(textField, viewModel.textProperty(), keyBindingRepository, undoAction, redoAction);
         textField.initContextMenu(new DefaultMenu(textField), keyBindingRepository);
-        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
+        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator()
+                .getValidationStatus(),
+                        textField);
     }
 
     public DateEditorViewModel getViewModel() {

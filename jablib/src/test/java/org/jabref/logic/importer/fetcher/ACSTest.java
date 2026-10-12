@@ -10,7 +10,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.DisabledOnCIServer;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,8 +25,7 @@ class ACSTest {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1021/acscentsci.4c00971");
         assertEquals(
                 Optional.of(URLUtil.create("https://pubs.acs.org/doi/pdf/10.1021/acscentsci.4c00971")),
-                fetcher.findFullText(entry)
-        );
+                fetcher.findFullText(entry));
     }
 
     @Test

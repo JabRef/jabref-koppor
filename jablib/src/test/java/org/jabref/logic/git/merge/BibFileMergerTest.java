@@ -18,7 +18,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -35,7 +34,8 @@ import static org.mockito.Mockito.when;
 
 class BibFileMergerTest {
 
-    private static final String SMITH = """
+    private static final String SMITH =
+            """
             @Article{Smith2020,
               author = {Smith, John},
               title  = {Base Title},
@@ -43,7 +43,8 @@ class BibFileMergerTest {
             }
             """;
 
-    private static final String DOE = """
+    private static final String DOE =
+            """
             @Article{Doe2021,
               author = {Doe, Jane},
               title  = {Another Paper},
@@ -51,7 +52,8 @@ class BibFileMergerTest {
             }
             """;
 
-    private static final String NEWTON = """
+    private static final String NEWTON =
+            """
             @Book{Newton1999,
               author = {Newton, Isaac},
               title  = {The Principia},
@@ -87,7 +89,9 @@ class BibFileMergerTest {
 
     @BeforeEach
     void setUp() {
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
         merger = new BibFileMerger(importFormatPreferences);
     }
 
@@ -169,7 +173,10 @@ class BibFileMergerTest {
         MergeOutcome outcome = merger.merge(version("base", "% Note about Smith\n" + BASE), current, version("other", "% Changed note about Smith\n" + BASE));
 
         assertEquals(new Merged(List.of()), outcome);
-        assertEquals("% Changed note about Smith\n", entriesOf(current).getFirst().getUserComments());
+        assertEquals("% Changed note about Smith\n",
+                entriesOf(current)
+                        .getFirst()
+                        .getUserComments());
     }
 
     @Test
@@ -179,7 +186,10 @@ class BibFileMergerTest {
         MergeOutcome outcome = merger.merge(version("base", "% Note about Smith\n" + BASE), current, version("other", "% Changed note about Smith\n" + BASE));
 
         assertEquals(List.of("Smith2020"), conflictingKeys(outcome));
-        assertEquals("% Own note about Smith\n", entriesOf(current).getFirst().getUserComments());
+        assertEquals("% Own note about Smith\n",
+                entriesOf(current)
+                        .getFirst()
+                        .getUserComments());
     }
 
     @Test
@@ -199,12 +209,15 @@ class BibFileMergerTest {
         MergeOutcome outcome = merger.merge(version("base", "% Note about Smith\n" + BASE), current, version("other", DOE));
 
         assertEquals(List.of("Smith2020"), conflictingKeys(outcome));
-        assertEquals(List.of(new BibEntry(SMITH_ENTRY).withUserComments("% Own note about Smith\n"), DOE_ENTRY), entriesOf(current));
+        assertEquals(List.of(new BibEntry(SMITH_ENTRY).withUserComments("% Own note about Smith\n"), DOE_ENTRY),
+                entriesOf(current));
     }
 
     @Test
     void keepsCustomEntryTypeDefinition() throws IOException {
-        String customType = "@Comment{jabref-entrytype: mytype: req[author;title] opt[year]}\n\n" + """
+        String customType =
+                "@Comment{jabref-entrytype: mytype: req[author;title] opt[year]}\n\n"
+                        + """
                 @Mytype{Smith2020,
                   author = {Smith, John},
                   title  = {Base Title},
@@ -287,22 +300,22 @@ class BibFileMergerTest {
     }
 
     static Stream<Arguments> unattachedComments() {
-        return Stream.of(
-                Arguments.of("in front of a custom entry type",
-                        "% Note about the custom type\n@Comment{jabref-entrytype: mytype: req[author;title] opt[year]}\n\n" + """
+        return Stream.of(Arguments.of("in front of a custom entry type",
+                        "% Note about the custom type\n@Comment{jabref-entrytype: mytype: req[author;title] opt[year]}\n\n"
+                                + """
                                 @Mytype{Smith2020,
                                   author = {Smith, John},
                                   title  = {Base Title},
                                 }
                                 """),
-                Arguments.of("in front of a lowercase @comment",
-                        "% note\n@comment{jabref-entrytype: mytype: req[author] opt[year]}\n\n" + """
+                        Arguments.of("in front of a lowercase @comment",
+                                "% note\n@comment{jabref-entrytype: mytype: req[author] opt[year]}\n\n"
+                                        + """
                                 @Mytype{Smith2020,
                                   author = {Smith, John},
                                 }
                                 """),
-                Arguments.of("in front of the preamble",
-                        "% Note about the preamble\n@Preamble{\"\\newcommand{\\noopsort}[1]{}\"}\n\n" + BASE));
+                        Arguments.of("in front of the preamble", "% Note about the preamble\n@Preamble{\"\\newcommand{\\noopsort}[1]{}\"}\n\n" + BASE));
     }
 
     @ParameterizedTest(name = "{0}")
@@ -318,14 +331,17 @@ class BibFileMergerTest {
 
     @Test
     void refusesUnattachedCommentInNonUtf8File() throws IOException {
-        String content = "% Encoding: ISO-8859-1\n\n% Notiz über Müller\n@Comment{jabref-entrytype: mytype: req[author] opt[year]}\n\n" + """
+        String content =
+                "% Encoding: ISO-8859-1\n\n% Notiz über Müller\n@Comment{jabref-entrytype: mytype: req[author] opt[year]}\n\n"
+                        + """
                 @Mytype{Mueller2020,
                   author = {Müller, Max},
                 }
                 """;
         Path current = version("current", content, StandardCharsets.ISO_8859_1);
 
-        MergeOutcome outcome = merger.merge(version("base", content, StandardCharsets.ISO_8859_1), current, version("other", content, StandardCharsets.ISO_8859_1));
+        MergeOutcome outcome = merger.merge(version("base", content, StandardCharsets.ISO_8859_1),
+                current, version("other", content, StandardCharsets.ISO_8859_1));
 
         assertEquals(List.of(Reason.UNATTACHED_COMMENT), reasons(outcome));
         assertEquals(content, Files.readString(current, StandardCharsets.ISO_8859_1));
@@ -341,7 +357,10 @@ class BibFileMergerTest {
     }
 
     private List<BibEntry> entriesOf(Path file) throws IOException {
-        return new BibtexImporter(importFormatPreferences, new DummyFileUpdateMonitor()).importDatabase(file).getDatabase().getEntries();
+        return new BibtexImporter(importFormatPreferences, new DummyFileUpdateMonitor())
+                .importDatabase(file)
+                .getDatabase()
+                .getEntries();
     }
 
     private static BibEntry smithAs(StandardEntryType type) {
@@ -351,11 +370,21 @@ class BibFileMergerTest {
     }
 
     private static List<String> conflictingKeys(MergeOutcome outcome) {
-        return assertInstanceOf(Merged.class, outcome).conflicts().stream().map(ThreeWayEntryConflict::citationKey).toList();
+        return assertInstanceOf(Merged.class, outcome)
+                .conflicts()
+                .stream()
+                .map(ThreeWayEntryConflict::citationKey)
+                .toList();
     }
 
-    /// The refusals of the CURRENT version; identical versions are refused three times for the same reason
+    /// The refusals of the CURRENT version; identical versions are refused
+    /// three times for the same reason
     private static List<Reason> reasons(MergeOutcome outcome) {
-        return assertInstanceOf(Refused.class, outcome).refusals().stream().map(Refusal::reason).distinct().toList();
+        return assertInstanceOf(Refused.class, outcome)
+                .refusals()
+                .stream()
+                .map(Refusal::reason)
+                .distinct()
+                .toList();
     }
 }

@@ -2,8 +2,6 @@ package org.jabref.model.openoffice.uno;
 
 import java.util.Optional;
 
-import org.jabref.model.openoffice.DocumentAnnotation;
-
 import com.sun.star.container.NoSuchElementException;
 import com.sun.star.container.XNameAccess;
 import com.sun.star.container.XNamed;
@@ -13,16 +11,14 @@ import com.sun.star.text.XBookmarksSupplier;
 import com.sun.star.text.XTextContent;
 import com.sun.star.text.XTextDocument;
 import com.sun.star.text.XTextRange;
+import org.jabref.model.openoffice.DocumentAnnotation;
 
 public class UnoBookmark {
 
-    private UnoBookmark() {
-    }
+    private UnoBookmark() {}
 
     /// Provides access to bookmarks by name.
-    public static XNameAccess getNameAccess(XTextDocument doc)
-            throws
-            NoDocumentException {
+    public static XNameAccess getNameAccess(XTextDocument doc) throws NoDocumentException {
 
         XBookmarksSupplier supplier = UnoCast.cast(XBookmarksSupplier.class, doc).get();
         try {
@@ -36,32 +32,26 @@ public class UnoBookmark {
     ///
     /// @param name The name of the bookmark to find.
     /// @return The XTextRange for the bookmark, or Optional.empty().
-    public static Optional<XTextRange> getAnchor(XTextDocument doc, String name)
-            throws
-            WrappedTargetException,
-            NoDocumentException {
+    public static Optional<XTextRange> getAnchor(XTextDocument doc, String name) throws WrappedTargetException, NoDocumentException {
 
         XNameAccess nameAccess = getNameAccess(doc);
         return UnoNameAccess.getTextContentByName(nameAccess, name).map(XTextContent::getAnchor);
     }
 
-    /// Insert a bookmark with the given name at the cursor provided, or with another name if the one we asked for is already in use.
+    /// Insert a bookmark with the given name at the cursor provided, or with
+    /// another name if the one we asked for is already in use.
     ///
     /// In LibreOffice the another name is in "{name}{number}" format.
     ///
-    /// @return The XNamed interface of the bookmark.
-    /// result.getName() should be checked by the caller, because its name may differ from the one requested.
-    public static XNamed create(DocumentAnnotation documentAnnotation)
-            throws
-            CreationException {
+    /// @return The XNamed interface of the bookmark. result.getName() should be
+    ///   checked by the caller, because its name may differ from the one
+    ///   requested.
+    public static XNamed create(DocumentAnnotation documentAnnotation) throws CreationException {
         return UnoNamed.insertNamedTextContent("com.sun.star.text.Bookmark", documentAnnotation);
     }
 
     /// Remove the named bookmark if it exists.
-    public static void removeIfExists(XTextDocument doc, String name)
-            throws
-            NoDocumentException,
-            WrappedTargetException {
+    public static void removeIfExists(XTextDocument doc, String name) throws NoDocumentException, WrappedTargetException {
 
         XNameAccess marks = UnoBookmark.getNameAccess(doc);
 

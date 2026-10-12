@@ -34,7 +34,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.metadata.MetaData;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,15 +42,16 @@ public class FieldEditors {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FieldEditors.class);
 
-    public static FieldEditorFX getForField(final Field field,
-                                            final JournalAbbreviationRepository journalAbbreviationRepository,
-                                            final GuiPreferences preferences,
-                                            final BibDatabaseContext databaseContext,
-                                            final EntryType entryType,
-                                            final SuggestionProviders suggestionProviders,
-                                            final UndoManager undoManager,
-                                            final UndoAction undoAction,
-                                            final RedoAction redoAction) {
+    public static FieldEditorFX getForField(
+            final Field field,
+            final JournalAbbreviationRepository journalAbbreviationRepository,
+            final GuiPreferences preferences,
+            final BibDatabaseContext databaseContext,
+            final EntryType entryType,
+            final SuggestionProviders suggestionProviders,
+            final UndoManager undoManager,
+            final UndoAction undoAction,
+            final RedoAction redoAction) {
         final Set<FieldProperty> fieldProperties = field.getProperties();
 
         final SuggestionProvider<?> suggestionProvider = getSuggestionProvider(field, suggestionProviders, databaseContext.getMetaData());
@@ -63,12 +63,17 @@ public class FieldEditors {
                 preferences.getEntryEditorPreferences().shouldAllowIntegerEditionBibtex(),
                 preferences.getCitationKeyPatternPreferences().getUnwantedCharacters());
 
-        boolean isMultiLine = FieldFactory.isMultiLineField(field, preferences.getFieldPreferences().getNonWrappableFields());
+        boolean isMultiLine = FieldFactory.isMultiLineField(field, preferences.getFieldPreferences()
+                .getNonWrappableFields());
 
-        if (preferences.getTimestampPreferences().getTimestampField().equals(field)) {
-            return new DateEditor(field, DateTimeFormatter.ofPattern(preferences.getTimestampPreferences().getTimestampFormat()), suggestionProvider, fieldCheckers, undoManager, undoAction, redoAction);
+        if (preferences.getTimestampPreferences()
+                       .getTimestampField()
+                       .equals(field)) {
+            return new DateEditor(field, DateTimeFormatter.ofPattern(preferences.getTimestampPreferences().getTimestampFormat()),
+                    suggestionProvider, fieldCheckers, undoManager, undoAction, redoAction);
         } else if (fieldProperties.contains(FieldProperty.DATE)) {
-            return new DateEditor(field, DateTimeFormatter.ofPattern("[uuuu][-MM][-dd]"), suggestionProvider, fieldCheckers, undoManager, undoAction, redoAction);
+            return new DateEditor(field, DateTimeFormatter.ofPattern("[uuuu][-MM][-dd]"), suggestionProvider, fieldCheckers, undoManager,
+                    undoAction, redoAction);
         } else if (fieldProperties.contains(FieldProperty.EXTERNAL)) {
             return new UrlEditor(field, suggestionProvider, fieldCheckers, undoManager, undoAction, redoAction);
         } else if (fieldProperties.contains(FieldProperty.JOURNAL_NAME)) {
@@ -83,14 +88,14 @@ public class FieldEditors {
         } else if (field == StandardField.OWNER) {
             return new OwnerEditor(field, suggestionProvider, fieldCheckers, undoManager, undoAction, redoAction);
         } else if (field == StandardField.GROUPS) {
-            return new GroupsEditor(field, suggestionProvider, fieldCheckers, preferences.getBibEntryPreferences(), databaseContext, undoManager);
+            return new GroupsEditor(field, suggestionProvider, fieldCheckers, preferences.getBibEntryPreferences(), databaseContext,
+                    undoManager);
         } else if (field == StandardField.FILE) {
             return new LinkedFilesEditor(field, databaseContext, suggestionProvider, fieldCheckers, undoManager);
         } else if (fieldProperties.contains(FieldProperty.YES_NO)) {
             return new OptionEditor<>(new YesNoEditorViewModel(field, suggestionProvider, fieldCheckers, undoManager));
         } else if (fieldProperties.contains(FieldProperty.MONTH)) {
-            return new OptionEditor<>(new
-                    MonthEditorViewModel(field, suggestionProvider, databaseContext.getMode(), fieldCheckers, undoManager));
+            return new OptionEditor<>(new MonthEditorViewModel(field, suggestionProvider, databaseContext.getMode(), fieldCheckers, undoManager));
         } else if (fieldProperties.contains(FieldProperty.LANGUAGE)) {
             return new OptionEditor<>(new LanguageEditorViewModel(field, suggestionProvider, databaseContext.getMode(), fieldCheckers, undoManager));
         } else if (field == StandardField.GENDER) {
@@ -108,13 +113,16 @@ public class FieldEditors {
         } else if (fieldProperties.contains(FieldProperty.SINGLE_ENTRY_LINK) || fieldProperties.contains(FieldProperty.MULTIPLE_ENTRY_LINK)) {
             return new LinkedEntriesEditor(field, databaseContext, suggestionProvider, fieldCheckers, undoManager);
         } else if (fieldProperties.contains(FieldProperty.PERSON_NAMES)) {
-            return new PersonsEditor(field, suggestionProvider, fieldCheckers, isMultiLine, undoManager, undoAction, redoAction);
+            return new PersonsEditor(field, suggestionProvider, fieldCheckers, isMultiLine, undoManager, undoAction,
+                    redoAction);
         } else if (StandardField.KEYWORDS == field) {
             return new KeywordsEditor(field, suggestionProvider, fieldCheckers, preferences, databaseContext, undoManager);
         } else if (field == InternalField.KEY_FIELD) {
-            return new CitationKeyEditor(field, suggestionProvider, fieldCheckers, databaseContext, undoManager, undoAction, redoAction);
+            return new CitationKeyEditor(field, suggestionProvider, fieldCheckers, databaseContext, undoManager, undoAction,
+                    redoAction);
         } else if (fieldProperties.contains(FieldProperty.MARKDOWN)) {
-            return new MarkdownEditor(field, suggestionProvider, fieldCheckers, preferences, undoManager, undoAction, redoAction, databaseContext);
+            return new MarkdownEditor(field, suggestionProvider, fieldCheckers, preferences, undoManager, undoAction,
+                    redoAction, databaseContext);
         } else if (field == StandardField.ICORERANKING) {
             return new ICORERankingEditor(field, suggestionProvider, fieldCheckers, undoManager);
         } else if (field instanceof SpecialField specialField) {
@@ -127,7 +135,8 @@ public class FieldEditors {
             if (!isMultiLine && !selectorValues.isEmpty()) {
                 return new OptionEditor<>(new CustomFieldEditorViewModel(field, suggestionProvider, fieldCheckers, undoManager, selectorValues));
             } else {
-                return new SimpleEditor(field, suggestionProvider, fieldCheckers, preferences, isMultiLine, undoManager, undoAction, redoAction);
+                return new SimpleEditor(field, suggestionProvider, fieldCheckers, preferences, isMultiLine, undoManager,
+                        undoAction, redoAction);
             }
         }
     }

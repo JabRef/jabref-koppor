@@ -10,14 +10,10 @@ public enum PlainCitationParserChoice {
 
     public String getLocalizedName() {
         return switch (this) {
-            case RULE_BASED_GENERAL ->
-                    Localization.lang("Rule-based (general)");
-            case RULE_BASED_IEEE ->
-                    Localization.lang("Rule-based (IEEE)");
-            case GROBID ->
-                    Localization.lang("Grobid");
-            case LLM ->
-                    Localization.lang("LLM");
+            case RULE_BASED_GENERAL -> Localization.lang("Rule-based (general)");
+            case RULE_BASED_IEEE -> Localization.lang("Rule-based (IEEE)");
+            case GROBID -> Localization.lang("Grobid");
+            case LLM -> Localization.lang("LLM");
         };
     }
 }

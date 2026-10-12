@@ -6,13 +6,11 @@ import java.util.Map;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-
 import org.jabref.gui.DialogService;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.push.CitationCommandString;
 import org.jabref.logic.push.PushToApplicationPreferences;
 import org.jabref.model.entry.BibEntry;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -51,15 +49,17 @@ class PushToTeXworksTest {
         pushToTeXworks = new GuiPushToTeXworks(dialogService, pushToApplicationPreferences);
     }
 
-    /// To verify that the PushToTeXworks class correctly returns its designated display name.
-    /// The display name is used to identify the application in the GUI.
+    /// To verify that the PushToTeXworks class correctly returns its designated
+    /// display name. The display name is used to identify the application in
+    /// the GUI.
     @Test
     void displayName() {
         assertEquals(DISPLAY_NAME, pushToTeXworks.getDisplayName());
     }
 
-    /// To verify that the PushToTeXworks class correctly returns the command line for TeXworks.
-    /// The command line is used to execute the application from the command line.
+    /// To verify that the PushToTeXworks class correctly returns the command
+    /// line for TeXworks. The command line is used to execute the application
+    /// from the command line.
     @Test
     void getCommandLine() {
         String keyString = "TestKey";
@@ -77,7 +77,8 @@ class PushToTeXworksTest {
 
         String testKey = "TestKey";
         if (OS.OS_X) {
-            List<String> expectedCommand = List.of("open", "-a", TEXWORKS_CLIENT_PATH, "-n", "--args", "--insert-text", testKey);
+            List<String> expectedCommand = List.of("open", "-a", TEXWORKS_CLIENT_PATH, "-n", "--args", "--insert-text",
+                    testKey);
 
             pushToTeXworks.pushEntries(List.of(new BibEntry().withCitationKey(testKey)), processBuilder);
 
@@ -89,8 +90,9 @@ class PushToTeXworksTest {
         }
     }
 
-    /// To verify that the PushToTeXworks class correctly returns the tooltip for TeXworks.
-    /// The tooltip is used to display a short description of the application in the GUI.
+    /// To verify that the PushToTeXworks class correctly returns the tooltip
+    /// for TeXworks. The tooltip is used to display a short description of the
+    /// application in the GUI.
     @Test
     void getTooltip() {
         assertEquals("Push entries to external application (TeXworks)", pushToTeXworks.getTooltip());

@@ -4,9 +4,6 @@ import java.io.UncheckedIOException;
 import java.net.http.HttpClient;
 import java.util.List;
 
-import org.jabref.logic.importer.FetcherException;
-import org.jabref.logic.l10n.Localization;
-
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
@@ -21,6 +18,8 @@ import io.github.stefanbratanov.jvm.openai.ChatCompletion;
 import io.github.stefanbratanov.jvm.openai.CreateChatCompletionRequest;
 import io.github.stefanbratanov.jvm.openai.OpenAI;
 import io.github.stefanbratanov.jvm.openai.Usage;
+import org.jabref.logic.importer.FetcherException;
+import org.jabref.logic.l10n.Localization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +32,13 @@ public class JvmOpenAiChatLanguageModel implements ChatModel {
     private final String baseUrl;
     private final ChatClient chatClient;
 
-    public JvmOpenAiChatLanguageModel(String apiKey, String modelName, double temperature, String baseUrl, HttpClient httpClient) {
+    public JvmOpenAiChatLanguageModel(String apiKey, String modelName, double temperature,
+            String baseUrl, HttpClient httpClient) {
         this.modelName = modelName;
         this.temperature = temperature;
         this.baseUrl = baseUrl;
 
-        OpenAI openAI = OpenAI
-                .newBuilder(apiKey)
+        OpenAI openAI = OpenAI.newBuilder(apiKey)
                 .httpClient(httpClient)
                 .baseUrl(baseUrl)
                 .build();
@@ -49,24 +48,20 @@ public class JvmOpenAiChatLanguageModel implements ChatModel {
 
     @Override
     public ChatResponse chat(List<ChatMessage> list) {
-        LOGGER.debug("Generating response from jvm-openai chat model with {} messages: {}", list.size(), list);
+        LOGGER.debug("Generating response from jvm-openai chat model with {} messages: {}",
+                list.size(), list);
 
-        List<io.github.stefanbratanov.jvm.openai.ChatMessage> messages =
-                list.stream().map(chatMessage -> (io.github.stefanbratanov.jvm.openai.ChatMessage) switch (chatMessage) {
-                    case AiMessage aiMessage ->
-                            io.github.stefanbratanov.jvm.openai.ChatMessage.assistantMessage(aiMessage.text());
-                    case SystemMessage systemMessage ->
-                            io.github.stefanbratanov.jvm.openai.ChatMessage.systemMessage(systemMessage.text());
-                    case ToolExecutionResultMessage toolExecutionResultMessage ->
-                            io.github.stefanbratanov.jvm.openai.ChatMessage.toolMessage(toolExecutionResultMessage.text(), toolExecutionResultMessage.id());
-                    case UserMessage userMessage ->
-                            io.github.stefanbratanov.jvm.openai.ChatMessage.userMessage(userMessage.singleText());
-                    default ->
-                            throw new IllegalStateException("unknown conversion of chat message from langchain4j to jvm-openai");
-                }).toList();
+        List<io.github.stefanbratanov.jvm.openai.ChatMessage> messages = list.stream()
+                .map(chatMessage -> (io.github.stefanbratanov.jvm.openai.ChatMessage) switch (chatMessage) {
+                            case AiMessage aiMessage -> io.github.stefanbratanov.jvm.openai.ChatMessage.assistantMessage(aiMessage.text());
+                            case SystemMessage systemMessage -> io.github.stefanbratanov.jvm.openai.ChatMessage.systemMessage(systemMessage.text());
+                            case ToolExecutionResultMessage toolExecutionResultMessage -> io.github.stefanbratanov.jvm.openai.ChatMessage.toolMessage(toolExecutionResultMessage.text(), toolExecutionResultMessage.id());
+                            case UserMessage userMessage -> io.github.stefanbratanov.jvm.openai.ChatMessage.userMessage(userMessage.singleText());
+                            default -> throw new IllegalStateException("unknown conversion of chat message from langchain4j to jvm-openai");
+                        })
+                .toList();
 
-        CreateChatCompletionRequest request = CreateChatCompletionRequest
-                .newBuilder()
+        CreateChatCompletionRequest request = CreateChatCompletionRequest.newBuilder()
                 .model(modelName)
                 .temperature(temperature)
                 .n(1)
@@ -104,8 +99,10 @@ public class JvmOpenAiChatLanguageModel implements ChatModel {
 
         ChatCompletion.Choice choice = choices.getFirst();
 
-        return new ChatResponse.Builder().aiMessage(new AiMessage(choice.message().content()))
-                                         .tokenUsage(new TokenUsage(usage.promptTokens(), usage.completionTokens()))
-                                         .finishReason(FinishReason.OTHER).build();
+        return new ChatResponse.Builder()
+                .aiMessage(new AiMessage(choice.message().content()))
+                .tokenUsage(new TokenUsage(usage.promptTokens(), usage.completionTokens()))
+                .finishReason(FinishReason.OTHER)
+                .build();
     }
 }

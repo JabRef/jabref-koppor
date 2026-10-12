@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.jabref.logic.importer.Importer;
 import org.jabref.model.entry.BibEntry;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,25 +19,35 @@ class MsBibImporterTest {
 
     @Test
     final void isNotRecognizedFormat() throws IOException, URISyntaxException {
-        List<String> notAccepted = Arrays.asList("CopacImporterTest1.txt", "IsiImporterTest1.isi",
-                "IsiImporterTestInspec.isi", "emptyFile.xml", "IsiImporterTestWOS.isi");
+        List<String> notAccepted = Arrays.asList("CopacImporterTest1.txt", "IsiImporterTest1.isi", "IsiImporterTestInspec.isi",
+                "emptyFile.xml", "IsiImporterTestWOS.isi");
         for (String s : notAccepted) {
-            Path file = Path.of(MsBibImporter.class.getResource(s).toURI());
+            Path file = Path.of(MsBibImporter.class
+                    .getResource(s)
+                    .toURI());
             assertFalse(importer.isRecognizedFormat(file));
         }
     }
 
     @Test
     final void importEntriesEmpty() throws IOException, URISyntaxException {
-        Path file = Path.of(MsBibImporter.class.getResource("EmptyMsBib_Test.xml").toURI());
-        List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
+        Path file = Path.of(MsBibImporter.class
+                .getResource("EmptyMsBib_Test.xml")
+                .toURI());
+        List<BibEntry> entries = importer.importDatabase(file)
+                .getDatabase()
+                .getEntries();
         assertEquals(List.of(), entries);
     }
 
     @Test
     final void importEntriesNotRecognizedFormat() throws IOException, URISyntaxException {
-        Path file = Path.of(MsBibImporter.class.getResource("CopacImporterTest1.txt").toURI());
-        List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
+        Path file = Path.of(MsBibImporter.class
+                .getResource("CopacImporterTest1.txt")
+                .toURI());
+        List<BibEntry> entries = importer.importDatabase(file)
+                .getDatabase()
+                .getEntries();
         assertEquals(0, entries.size());
     }
 

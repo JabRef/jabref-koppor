@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,7 +33,7 @@ class IconsPropertiesTest {
         assertFalse(properties.isEmpty(), "There must be loaded properties after loading " + iconsPropertiesPath);
 
         // check that each key references an existing file
-        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+        for (Entry<Object, Object> entry : properties.entrySet()) {
             String name = entry.getKey().toString();
             String value = entry.getValue().toString();
 
@@ -42,8 +42,9 @@ class IconsPropertiesTest {
 
         // check that each image in the folder is referenced by a key
         List<String> imagesReferencedFromProperties = new ArrayList<>();
-        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-            imagesReferencedFromProperties.add(entry.getValue().toString());
+        for (Entry<Object, Object> entry : properties.entrySet()) {
+            imagesReferencedFromProperties.add(entry.getValue()
+                    .toString());
         }
 
         try (Stream<Path> pathStream = Files.list(Path.of(folder))) {

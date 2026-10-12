@@ -1,7 +1,6 @@
 package org.jabref.gui.entryeditor;
 
 import javafx.scene.control.Tooltip;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.ai.summary.AiSummaryView;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -16,10 +15,7 @@ public class AiSummaryTab extends EntryEditorTab {
 
     private final AiSummaryView aiSummaryView;
 
-    public AiSummaryTab(
-            GuiPreferences preferences,
-            StateManager stateManager
-    ) {
+    public AiSummaryTab(GuiPreferences preferences, StateManager stateManager) {
         this.stateManager = stateManager;
 
         this.aiSummaryView = new AiSummaryView();

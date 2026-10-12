@@ -19,7 +19,6 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +44,9 @@ public class IacrEprintFetcher implements FulltextFetcher, IdBasedFetcher {
 
     @Override
     public Optional<BibEntry> performSearchById(String identifier) throws FetcherException {
-        String identifierWithoutLettersAndSpaces = WITHOUT_LETTERS_SPACE.matcher(identifier).replaceAll(" ").trim();
+        String identifierWithoutLettersAndSpaces = WITHOUT_LETTERS_SPACE.matcher(identifier)
+                .replaceAll(" ")
+                .trim();
 
         if (!IDENTIFIER_PREDICATE.test(identifierWithoutLettersAndSpaces)) {
             throw new FetcherException(Localization.lang("Invalid identifier: '%0'.", identifier));

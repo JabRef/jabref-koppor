@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.fetcher.CrossRef;
@@ -17,9 +19,6 @@ import org.jabref.logic.net.URLDownload;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,15 +77,16 @@ public class OpenCitationsFetcher implements CitationFetcher {
         return fetchCitationData(apiUri.get(), CitationItem::citingIdentifiers);
     }
 
-    /// API explained at <https://api.opencitations.net/index/v2#/references/{id}> and <https://api.opencitations.net/index/v2#/citations/{id}>
+    /// API explained at
+    /// <https://api.opencitations.net/index/v2#/references/{id}> and
+    /// <https://api.opencitations.net/index/v2#/citations/{id}>
     private List<BibEntry> fetchCitationData(URI apiUri, Function<CitationItem, List<CitationItem.IdentifierWithField>> identifierExtractor) throws FetcherException {
         LOGGER.debug("Fetching citation data from: {}", apiUri);
 
         try {
             URL url = apiUri.toURL();
             URLDownload urlDownload = new URLDownload(importerPreferences, url);
-            importerPreferences.getApiKey(getName())
-                               .ifPresent(apiKey -> urlDownload.addHeader("authorization", apiKey));
+            importerPreferences.getApiKey(getName()).ifPresent(apiKey -> urlDownload.addHeader("authorization", apiKey));
 
             String jsonResponse = urlDownload.asString();
             CitationItem[] citationItems = GSON.fromJson(jsonResponse, CitationItem[].class);
@@ -113,12 +113,13 @@ public class OpenCitationsFetcher implements CitationFetcher {
 
     private BibEntry fetchBibEntryFromIdentifiers(List<CitationItem.IdentifierWithField> identifiers) {
         Optional<CitationItem.IdentifierWithField> doiIdentifier = identifiers.stream()
-                                                                              .filter(id -> id.field().equals(StandardField.DOI))
-                                                                              .findFirst();
+                .filter(id -> id.field().equals(StandardField.DOI))
+                .findFirst();
 
         if (doiIdentifier.isPresent()) {
             try {
-                Optional<BibEntry> fetchedEntry = crossRefFetcher.performSearchById(doiIdentifier.get().value());
+                Optional<BibEntry> fetchedEntry = crossRefFetcher.performSearchById(doiIdentifier.get()
+                        .value());
                 if (fetchedEntry.isPresent()) {
                     BibEntry entry = fetchedEntry.get();
                     for (CitationItem.IdentifierWithField identifier : identifiers) {
@@ -129,7 +130,8 @@ public class OpenCitationsFetcher implements CitationFetcher {
                     return entry;
                 }
             } catch (FetcherException e) {
-                LOGGER.warn("Could not fetch BibEntry for DOI: {}", doiIdentifier.get().value(), e);
+                LOGGER.warn("Could not fetch BibEntry for DOI: {}", doiIdentifier.get().value(),
+                        e);
             }
         }
 
@@ -153,8 +155,7 @@ public class OpenCitationsFetcher implements CitationFetcher {
         try {
             URL url = apiUri.get().toURL();
             URLDownload urlDownload = new URLDownload(importerPreferences, url);
-            importerPreferences.getApiKey(getName())
-                               .ifPresent(apiKey -> urlDownload.addHeader("authorization", apiKey));
+            importerPreferences.getApiKey(getName()).ifPresent(apiKey -> urlDownload.addHeader("authorization", apiKey));
 
             String jsonResponse = urlDownload.asString();
             CountResponse countResponse = GSON.fromJson(jsonResponse, CountResponse.class);

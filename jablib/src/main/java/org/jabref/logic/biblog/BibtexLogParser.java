@@ -11,14 +11,12 @@ import java.util.regex.Pattern;
 import org.jabref.model.biblog.BibWarning;
 import org.jabref.model.biblog.SeverityType;
 import org.jabref.model.entry.field.FieldFactory;
-
 import org.jspecify.annotations.NonNull;
 
 /// Parses the contents of a .blg (BibTeX log) file to extract warning messages.
 public class BibtexLogParser {
     private static final Pattern BIBTEX_WARNING_PATTERN = Pattern.compile("^Warning--(?<message>[a-zA-Z ]+) in (?<entryKey>[^\\s]+)$");
-    private static final Pattern BIBLATEX_WARNING_PATTERN = Pattern.compile(
-            "(?:(?:\\[\\d+\\] )?Biber\\.pm:\\d+> )?WARN - Datamodel: [a-z]+ entry '(?<entryKey>[^']+)' \\((?<fileName>[^)]+)\\): (?<message>.+)");
+    private static final Pattern BIBLATEX_WARNING_PATTERN = Pattern.compile("(?:(?:\\[\\d+\\] )?Biber\\.pm:\\d+> )?WARN - Datamodel: [a-z]+ entry '(?<entryKey>[^']+)' \\((?<fileName>[^)]+)\\): (?<message>.+)");
 
     private static final String EMPTY_FIELD_PREFIX = "empty";
     private static final String INVALID_FIELD_PREFIX = "field '";
@@ -26,25 +24,28 @@ public class BibtexLogParser {
 
     public List<BibWarning> parseBiblog(@NonNull Path blgFilePath) throws IOException {
         return Files.lines(blgFilePath)
-                    .map(this::parseWarningLine)
-                    .flatMap(Optional::stream)
-                    .toList();
+                .map(this::parseWarningLine)
+                .flatMap(Optional::stream)
+                .toList();
     }
 
     /// Parses a single line from a .blg file to identify a warning.
     ///
     /// This method supports two warning formats:
     ///
-    /// 1.  **BibTeX Warnings:** Simple warnings from the legacy BibTeX backend.
-    ///     `Warning--[message] in [entryKey]`
-    ///     For example: `Warning--empty journal in Scholey_2013`
+    /// 1. **BibTeX Warnings:** Simple warnings from the legacy BibTeX backend.
+    ///    `Warning--[message] in [entryKey]` For example: `Warning--empty
+    ///    journal in Scholey_2013`
     ///
-    /// 2.  **BibLaTeX Datamodel Warnings:** Detailed warnings from the Biber backend, including datamodel validation issues.
-    ///     `[Log line] > WARN - Datamodel: [entry type] entry '[entryKey]' ([fileName]): [message]`
-    ///     For example: `Biber.pm:123> WARN - Datamodel: article entry 'Scholey_2013' (file.bib): Invalid field 'journal'`
+    /// 2. **BibLaTeX Datamodel Warnings:** Detailed warnings from the Biber
+    ///    backend, including datamodel validation issues. `[Log line] > WARN -
+    ///    Datamodel: [entry type] entry '[entryKey]' ([fileName]): [message]`
+    ///    For example: `Biber.pm:123> WARN - Datamodel: article entry
+    ///    'Scholey_2013' (file.bib): Invalid field 'journal'`
     ///
     /// @param line The single line from the .blg file to parse.
-    /// @returns An `Optional` containing a `BibWarning` if a match is found, or an empty `Optional` otherwise.
+    /// @returns An `Optional` containing a `BibWarning` if a match is found, or
+    ///   an empty `Optional` otherwise.
     Optional<BibWarning> parseWarningLine(String line) {
         Matcher bibtexMatcher = BIBTEX_WARNING_PATTERN.matcher(line);
         if (bibtexMatcher.find()) {
@@ -57,12 +58,7 @@ public class BibtexLogParser {
                 fieldName = FieldFactory.parseField(fieldName).getName();
             }
 
-            return Optional.of(new BibWarning(
-                    SeverityType.WARNING,
-                    message,
-                    fieldName,
-                    entryKey
-            ));
+            return Optional.of(new BibWarning(SeverityType.WARNING, message, fieldName, entryKey));
         }
 
         Matcher biblatexMatcher = BIBLATEX_WARNING_PATTERN.matcher(line);
@@ -84,17 +80,15 @@ public class BibtexLogParser {
                 int startIndex = lowerCaseMessage.indexOf(MULTI_INVALID_FIELD_PREFIX) + MULTI_INVALID_FIELD_PREFIX.length();
                 int endIndex = lowerCaseMessage.indexOf('\'', startIndex);
                 if (endIndex != -1) {
-                    fieldName = lowerCaseMessage.substring(startIndex, endIndex).trim().split(",")[0].trim();
+                    fieldName = lowerCaseMessage.substring(startIndex, endIndex)
+                            .trim()
+                            .split(",")[0]
+                            .trim();
                     fieldName = FieldFactory.parseField(fieldName).getName();
                 }
             }
 
-            return Optional.of(new BibWarning(
-                    SeverityType.WARNING,
-                    message,
-                    fieldName,
-                    entryKey
-            ));
+            return Optional.of(new BibWarning(SeverityType.WARNING, message, fieldName, entryKey));
         }
 
         return Optional.empty();

@@ -6,14 +6,12 @@ import java.util.Map;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Window;
-
 import org.jabref.gui.walkthrough.declarative.WindowResolver;
 import org.jabref.gui.walkthrough.declarative.effect.HighlightEffect;
 import org.jabref.gui.walkthrough.declarative.effect.WalkthroughEffect;
 import org.jabref.gui.walkthrough.effects.FullScreenDarken;
 import org.jabref.gui.walkthrough.effects.Ping;
 import org.jabref.gui.walkthrough.effects.Spotlight;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -30,9 +28,11 @@ public class WalkthroughHighlighter {
 
     /// Applies the specified highlight configuration.
     ///
-    /// @param config         The highlight configuration to apply. Default to BackdropHighlight on the primary windows if null.
-    /// @param scene          The primary scene to apply the highlight to.
-    /// @param fallbackTarget The fallback target node to use if no highlight configuration is provided.
+    /// @param config The highlight configuration to apply. Default to
+    ///   BackdropHighlight on the primary windows if null.
+    /// @param scene The primary scene to apply the highlight to.
+    /// @param fallbackTarget The fallback target node to use if no highlight
+    ///   configuration is provided.
     public void applyHighlight(@Nullable WalkthroughEffect config, @NonNull Scene scene, @Nullable Node fallbackTarget) {
         Map<Window, EffectState> newEffects = computeNewEffects(config, scene, fallbackTarget);
 
@@ -52,24 +52,30 @@ public class WalkthroughHighlighter {
         currentEffects.putAll(newEffects);
     }
 
-    /// Sets a handler to be called when the user clicks on backdrop or darkened areas.
+    /// Sets a handler to be called when the user clicks on backdrop or darkened
+    /// areas.
     ///
-    /// @param handler The handler to call when the background is clicked. If null, no action will be taken on background clicks. Usually used to support quit walkthrough on clicking the effects.
-    /// Detaches the specified window from all effects. Restore the scene graph on this
-    /// window to the state before any effects were applied.
+    /// @param handler The handler to call when the background is clicked. If
+    ///   null, no action will be taken on background clicks. Usually used to
+    ///   support quit walkthrough on clicking the effects. Detaches the
+    ///   specified window from all effects. Restore the scene graph on this
+    ///   window to the state before any effects were applied.
     public void detach(@NonNull Window window) {
-        backdropHighlights.computeIfPresent(window, (_, highlight) -> {
-            highlight.detach();
-            return null;
-        });
-        pulseIndicators.computeIfPresent(window, (_, indicator) -> {
-            indicator.detach();
-            return null;
-        });
-        fullScreenDarkens.computeIfPresent(window, (_, darken) -> {
-            darken.detach();
-            return null;
-        });
+        backdropHighlights.computeIfPresent(window,
+                (_, highlight) -> {
+                    highlight.detach();
+                    return null;
+                });
+        pulseIndicators.computeIfPresent(window,
+                (_, indicator) -> {
+                    indicator.detach();
+                    return null;
+                });
+        fullScreenDarkens.computeIfPresent(window,
+                (_, darken) -> {
+                    darken.detach();
+                    return null;
+                });
 
         currentEffects.remove(window);
     }
@@ -93,8 +99,7 @@ public class WalkthroughHighlighter {
 
         if (config == null) {
             if (fallbackTarget != null) {
-                newEffects.put(fallbackWindow.getWindow(),
-                        new EffectState(HighlightEffect.SPOT_LIGHT, fallbackTarget));
+                newEffects.put(fallbackWindow.getWindow(), new EffectState(HighlightEffect.SPOT_LIGHT, fallbackTarget));
             }
             return newEffects;
         }
@@ -106,11 +111,12 @@ public class WalkthroughHighlighter {
         }
 
         config.windowEffects().forEach(effect -> {
-            Window window = effect.windowResolver().flatMap(WindowResolver::resolve).orElse(fallbackWindow.getWindow());
-            Node targetNode = effect
-                    .targetNodeResolver()
-                    .flatMap(resolver -> resolver.resolve(window.getScene() != null ? window.getScene() : fallbackWindow))
-                    .orElse(fallbackTarget);
+            Window window = effect.windowResolver()
+                                  .flatMap(WindowResolver::resolve)
+                                  .orElse(fallbackWindow.getWindow());
+            Node targetNode = effect.targetNodeResolver()
+                                    .flatMap(resolver -> resolver.resolve(window.getScene() != null ? window.getScene() : fallbackWindow))
+                                    .orElse(fallbackTarget);
 
             if (targetNode != null || effect.effect() == HighlightEffect.FULL_SCREEN_DARKEN) {
                 newEffects.put(window, new EffectState(effect.effect(), targetNode));
@@ -120,11 +126,8 @@ public class WalkthroughHighlighter {
         return newEffects;
     }
 
-    private void diffEffects(Map<Window, EffectState> current,
-                             Map<Window, EffectState> desired,
-                             Map<Window, EffectState> toUpdate,
-                             Map<Window, EffectState> toCreate,
-                             Map<Window, EffectState> toRemove) {
+    private void diffEffects(Map<Window, EffectState> current, Map<Window, EffectState> desired, Map<Window, EffectState> toUpdate,
+            Map<Window, EffectState> toCreate, Map<Window, EffectState> toRemove) {
         current.forEach((window, currentState) -> {
             EffectState desiredState = desired.get(window);
             if (desiredState == null) {
@@ -161,8 +164,7 @@ public class WalkthroughHighlighter {
             case FULL_SCREEN_DARKEN -> {
                 // FullScreenDarken doesn't need updates as it has no target node
             }
-            case NONE ->
-                    detach(window);
+            case NONE -> detach(window);
         }
     }
 
@@ -178,10 +180,8 @@ public class WalkthroughHighlighter {
                     applyPulseAnimation(window, targetNode);
                 }
             }
-            case FULL_SCREEN_DARKEN ->
-                    applyFullScreenDarken(window);
-            case NONE ->
-                    detach(window);
+            case FULL_SCREEN_DARKEN -> applyFullScreenDarken(window);
+            case NONE -> detach(window);
         }
     }
 
@@ -189,12 +189,12 @@ public class WalkthroughHighlighter {
         WalkthroughPane.of(window).ifPresentOrElse(pane -> {
             Spotlight backdrop = getOrCreateBackdropHighlight(window, pane);
             backdrop.attach(targetNode);
-        }, () -> logMissingPane(window));
+        },
+                () -> logMissingPane(window));
     }
 
     private void applyPulseAnimation(@NonNull Window window, @NonNull Node targetNode) {
-        WalkthroughPane.of(window).ifPresentOrElse(
-                pane -> getOrCreatePulseIndicator(window, pane).attach(targetNode),
+        WalkthroughPane.of(window).ifPresentOrElse(pane -> getOrCreatePulseIndicator(window, pane).attach(targetNode),
                 () -> logMissingPane(window));
     }
 
@@ -202,13 +202,15 @@ public class WalkthroughHighlighter {
         WalkthroughPane.of(window).ifPresentOrElse(pane -> {
             FullScreenDarken fullDarken = getOrCreateFullScreenDarken(window, pane);
             fullDarken.attach();
-        }, () -> logMissingPane(window));
+        },
+                () -> logMissingPane(window));
     }
 
-    /// A highlight is decoration: a window that cannot host the pane still gets its step, just without
-    /// the effect.
+    /// A highlight is decoration: a window that cannot host the pane still gets
+    /// its step, just without the effect.
     private static void logMissingPane(Window window) {
-        LOGGER.warn("No walkthrough pane available for window: {}. Skipping the highlight effect.",
+        LOGGER.warn(
+                "No walkthrough pane available for window: {}. Skipping the highlight effect.",
                 window.getClass().getSimpleName());
     }
 

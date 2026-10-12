@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,22 +28,23 @@ class BibStringCheckerTest {
     }
 
     private static Stream<Arguments> provideAcceptedInputs() {
-        return Stream.of(
-                Arguments.of(List.of(), StandardField.TITLE, "Not a single hash mark"),
-                Arguments.of(List.of(), StandardField.MONTH, "#jan#"),
-                Arguments.of(List.of(), StandardField.AUTHOR, "#einstein# and #newton#")
-        );
+        return Stream.of(Arguments.of(List.of(), StandardField.TITLE, "Not a single hash mark"),
+                Arguments.of(List.of(), StandardField.MONTH, "#jan#"), Arguments.of(List.of(), StandardField.AUTHOR, "#einstein# and #newton#"));
     }
 
     @Test
     void monthDoesNotAcceptOddNumberOfHashMarks() {
         entry.setField(StandardField.MONTH, "#jan");
-        assertEquals(List.of(new IntegrityMessage("odd number of unescaped '#'", entry, StandardField.MONTH)), checker.check(entry));
+        assertEquals(
+                List.of(new IntegrityMessage("odd number of unescaped '#'", entry, StandardField.MONTH)),
+                checker.check(entry));
     }
 
     @Test
     void authorDoesNotAcceptOddNumberOfHashMarks() {
         entry.setField(StandardField.AUTHOR, "#einstein# #amp; #newton#");
-        assertEquals(List.of(new IntegrityMessage("odd number of unescaped '#'", entry, StandardField.AUTHOR)), checker.check(entry));
+        assertEquals(
+                List.of(new IntegrityMessage("odd number of unescaped '#'", entry, StandardField.AUTHOR)),
+                checker.check(entry));
     }
 }

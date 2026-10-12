@@ -2,7 +2,6 @@ package org.jabref.gui.openoffice;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.model.openoffice.CitationEntry;
 
 public class CitationEntryViewModel {
@@ -18,7 +17,8 @@ public class CitationEntryViewModel {
     }
 
     public CitationEntryViewModel(CitationEntry citationEntry) {
-        this(citationEntry.getRefMarkName(), citationEntry.getContext(), citationEntry.getPageInfo().orElse(""));
+        this(citationEntry.getRefMarkName(), citationEntry.getContext(),
+                citationEntry.getPageInfo().orElse(""));
     }
 
     public CitationEntry toCitationEntry() {

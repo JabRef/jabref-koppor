@@ -6,7 +6,6 @@ import org.jabref.gui.ai.chat.AiGroupChatWindow;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +30,8 @@ class JabRefGuiStateManagerAiChatWindowTest {
         String groupName = "My group";
         stateManager.setAiChatWindowForGroup(context, groupName, window);
 
-        context.getDatabase().insertEntry(new BibEntry().withField(StandardField.TITLE, "Changed content"));
+        context.getDatabase().insertEntry(new BibEntry()
+                .withField(StandardField.TITLE, "Changed content"));
 
         assertEquals(Optional.of(window), stateManager.getAiChatWindowForGroup(context, groupName));
     }
@@ -41,7 +41,8 @@ class JabRefGuiStateManagerAiChatWindowTest {
         String groupName = "My group";
         stateManager.setAiChatWindowForGroup(context, groupName, window);
 
-        context.getDatabase().insertEntry(new BibEntry().withField(StandardField.TITLE, "Changed content"));
+        context.getDatabase().insertEntry(new BibEntry()
+                .withField(StandardField.TITLE, "Changed content"));
         stateManager.removeAiChatWindowForGroup(context, groupName);
 
         assertEquals(Optional.empty(), stateManager.getAiChatWindowForGroup(context, groupName));

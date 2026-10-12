@@ -33,9 +33,10 @@ public class SearchQueryVisitor extends SearchBaseVisitor<BaseQueryNode> {
 
     @Override
     public BaseQueryNode visitImplicitAndExpression(SearchParser.ImplicitAndExpressionContext ctx) {
-        List<BaseQueryNode> children = ctx.expression().stream()
-                                          .map(this::visit)
-                                          .collect(Collectors.toList());
+        List<BaseQueryNode> children = ctx.expression()
+                .stream()
+                .map(this::visit)
+                .collect(Collectors.toList());
         if (children.size() == 1) {
             return children.getFirst();
         }
@@ -84,22 +85,22 @@ public class SearchQueryVisitor extends SearchBaseVisitor<BaseQueryNode> {
         }
 
         // TODO: Here, there is no unescaping of the term (e.g., field\=thing=value does not work as expected)
-        String field = ctx.FIELD().getText().toLowerCase(Locale.ROOT);
+        String field = ctx.FIELD()
+                          .getText()
+                          .toLowerCase(Locale.ROOT);
 
         // Pseudo-fields
         field = switch (field) {
-            case SearchFieldConstants.KEY ->
-                    InternalField.KEY_FIELD.getName();
-            case SearchFieldConstants.ANY_KEYWORD ->
-                    StandardField.KEYWORDS.getName();
-            case SearchFieldConstants.ANY_FIELD_ALIAS ->
-                    SearchFieldConstants.ANY_FIELD;
-            default ->
-                    field;
-        };
+                    case SearchFieldConstants.KEY -> InternalField.KEY_FIELD.getName();
+                    case SearchFieldConstants.ANY_KEYWORD -> StandardField.KEYWORDS.getName();
+                    case SearchFieldConstants.ANY_FIELD_ALIAS -> SearchFieldConstants.ANY_FIELD;
+                    default -> field;
+                };
 
         if (ctx.operator() != null) {
-            int operator = ctx.operator().getStart().getType();
+            int operator = ctx.operator()
+                              .getStart()
+                              .getType();
             if (operator != SearchParser.REQUAL && operator != SearchParser.CREEQUAL) {
                 term = term.replace("\\", "\\\\");
             }
@@ -110,7 +111,9 @@ public class SearchQueryVisitor extends SearchBaseVisitor<BaseQueryNode> {
         }
 
         if (ctx.operator() != null) {
-            int operator = ctx.operator().getStart().getType();
+            int operator = ctx.operator()
+                              .getStart()
+                              .getType();
             if (operator == SearchParser.NEQUAL
                     || operator == SearchParser.NCEQUAL
                     || operator == SearchParser.NEEQUAL
@@ -125,4 +128,3 @@ public class SearchQueryVisitor extends SearchBaseVisitor<BaseQueryNode> {
         return new SearchQueryNode(Optional.of(FieldFactory.parseField(field)), term);
     }
 }
-

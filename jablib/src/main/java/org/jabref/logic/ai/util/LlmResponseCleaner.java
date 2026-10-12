@@ -2,15 +2,15 @@ package org.jabref.logic.ai.util;
 
 import org.jspecify.annotations.Nullable;
 
-/// Cleans raw LLM response strings by extracting content from the last
-/// fenced code block (`` ``` ... ``` ``) if present, or simply trimming whitespace.
+/// Cleans raw LLM response strings by extracting content from the last fenced
+/// code block (`` ``` ... ``` ``) if present, or simply trimming whitespace.
 ///
 /// Rules:
-/// 1. If the response contains no `` ``` `` fences → return the string stripped of
-///    leading/trailing whitespace.
+/// 1. If the response contains no `` ``` `` fences → return the string stripped
+///    of leading/trailing whitespace.
 /// 2. If one or more `` ``` `` fences exist → find the *last* complete block,
-///    strip the optional language label on the opening fence (e.g. `` ```json ``
-///    or `` ```markdown ``), and return the inner content trimmed.
+///    strip the optional language label on the opening fence (e.g. `` ```json
+///    `` or `` ```markdown ``), and return the inner content trimmed.
 /// 3. If the last fence is unclosed (no matching closing `` ``` ``) → treat
 ///    everything after the opening fence line as the content.
 public final class LlmResponseCleaner {
@@ -74,9 +74,10 @@ public final class LlmResponseCleaner {
 
     /// Returns the start index of the last "opening" ``` in the string.
     ///
-    /// We treat every ``` as a potential opener/closer pair. Walking through the
-    /// string we toggle a flag: the first ``` opens a block, the next closes it, etc.
-    /// We remember the start index of each opener and return the last one seen.
+    /// We treat every ``` as a potential opener/closer pair. Walking through
+    /// the string we toggle a flag: the first ``` opens a block, the next
+    /// closes it, etc. We remember the start index of each opener and return
+    /// the last one seen.
     private static int findLastOpener(String s) {
         int lastOpener = -1;
         boolean inBlock = false;

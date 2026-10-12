@@ -3,6 +3,7 @@ package org.jabref.gui.auximport;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -13,7 +14,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
@@ -29,8 +29,6 @@ import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
-
-import com.tobiasdiez.easybind.EasyBind;
 
 public class FromAuxDialogViewModel {
 
@@ -48,17 +46,16 @@ public class FromAuxDialogViewModel {
 
     private AuxParserResult auxParserResult;
 
-    public FromAuxDialogViewModel(LibraryTabContainer tabContainer,
-                                  DialogService dialogService,
-                                  CliPreferences preferences,
-                                  StateManager stateManager) {
+    public FromAuxDialogViewModel(LibraryTabContainer tabContainer, DialogService dialogService, CliPreferences preferences,
+            StateManager stateManager) {
         this.tabContainer = tabContainer;
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.stateManager = stateManager;
 
         librariesProperty.setAll(stateManager.getOpenDatabases());
-        selectedLibraryProperty.set(tabContainer.getCurrentLibraryTab().getBibDatabaseContext());
+        selectedLibraryProperty.set(tabContainer.getCurrentLibraryTab()
+                .getBibDatabaseContext());
         EasyBind.listen(selectedLibraryProperty, (_, _, _) -> {
             if (auxParserResult != null) {
                 parse();
@@ -69,7 +66,8 @@ public class FromAuxDialogViewModel {
     public String getDatabaseName(BibDatabaseContext databaseContext) {
         Optional<String> dbOpt = Optional.empty();
         if (databaseContext.getDatabasePath().isPresent()) {
-            dbOpt = FileUtil.getUniquePathFragment(stateManager.getAllDatabasePaths(), databaseContext.getDatabasePath().get());
+            dbOpt = FileUtil.getUniquePathFragment(stateManager.getAllDatabasePaths(),
+                    databaseContext.getDatabasePath().get());
         }
         if (databaseContext.getLocation() == DatabaseLocation.SHARED) {
             return databaseContext.getDBMSSynchronizer().getDBName() + " [" + Localization.lang("shared") + "]";
@@ -82,8 +80,13 @@ public class FromAuxDialogViewModel {
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
                 .addExtensionFilter(StandardFileType.AUX)
                 .withDefaultExtension(StandardFileType.AUX)
-                .withInitialDirectory(auxFileProperty.get() == null ? preferences.getFilePreferences().getWorkingDirectory().toString() : auxFileProperty.get()).build();
-        dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(file -> auxFileProperty.setValue(file.toAbsolutePath().toString()));
+                .withInitialDirectory(auxFileProperty.get() == null ? preferences.getFilePreferences()
+                        .getWorkingDirectory()
+                        .toString()
+                        : auxFileProperty.get())
+                .build();
+        dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(file -> auxFileProperty.setValue(file.toAbsolutePath()
+                .toString()));
     }
 
     public void parse() {
@@ -97,7 +100,8 @@ public class FromAuxDialogViewModel {
             AuxParser auxParser = new DefaultAuxParser(referenceDatabase);
             auxParserResult = auxParser.parse(Path.of(auxName));
             notFoundList.setAll(auxParserResult.getUnresolvedKeys());
-            statusTextProperty.set(new AuxParserStatisticsProvider(auxParserResult).getInformation(false));
+            statusTextProperty.set(new AuxParserStatisticsProvider(auxParserResult)
+                    .getInformation(false));
 
             if (!auxParserResult.getGeneratedBibDatabase().hasEntries()) {
                 // The generated database contains no entries -> no active generate-button

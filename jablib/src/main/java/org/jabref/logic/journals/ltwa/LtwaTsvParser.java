@@ -52,14 +52,18 @@ public class LtwaTsvParser {
                 String abbreviationStr = matcher.group(2);
                 String languageStr = matcher.group(3);
 
-                Optional<String> normalizeResult = NormalizeUtils.normalize(ANNOTATION.matcher(word).replaceAll("").strip());
+                Optional<String> normalizeResult = NormalizeUtils.normalize(ANNOTATION.matcher(word)
+                        .replaceAll("")
+                        .strip());
                 if (normalizeResult.isEmpty()) {
                     continue;
                 }
                 word = normalizeResult.get();
                 String abbreviation = NO_ABBREVIATION.equals(abbreviationStr) ? null : abbreviationStr;
-                List<String> languages = Arrays.stream(languageStr.split("\\s*,\\s*")).map(String::trim)
-                                               .filter(not(String::isEmpty)).toList();
+                List<String> languages = Arrays.stream(languageStr.split("\\s*,\\s*"))
+                        .map(String::trim)
+                        .filter(not(String::isEmpty))
+                        .toList();
 
                 entries.add(new LtwaEntry(word, abbreviation, languages));
             }

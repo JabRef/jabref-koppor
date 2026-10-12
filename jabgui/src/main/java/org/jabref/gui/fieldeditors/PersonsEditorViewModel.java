@@ -3,7 +3,7 @@ package org.jabref.gui.fieldeditors;
 import java.util.Collection;
 
 import javafx.util.StringConverter;
-
+import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.jabref.gui.autocompleter.AppendPersonNamesStrategy;
 import org.jabref.gui.autocompleter.AutoCompletePreferences;
 import org.jabref.gui.autocompleter.AutoCompletionStrategy;
@@ -14,13 +14,12 @@ import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.Author;
 import org.jabref.model.entry.field.Field;
 
-import org.controlsfx.control.textfield.AutoCompletionBinding;
-
 public class PersonsEditorViewModel extends AbstractEditorViewModel {
 
     private final AutoCompletePreferences preferences;
 
-    public PersonsEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, AutoCompletePreferences preferences, FieldCheckers fieldCheckers, UndoManager undoManager) {
+    public PersonsEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, AutoCompletePreferences preferences,
+            FieldCheckers fieldCheckers, UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.preferences = preferences;
     }

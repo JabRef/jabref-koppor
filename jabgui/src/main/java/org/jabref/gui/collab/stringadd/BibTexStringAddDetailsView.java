@@ -2,7 +2,6 @@ package org.jabref.gui.collab.stringadd;
 
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.collab.DatabaseChangeDetailsView;
 import org.jabref.gui.theme.StyleClasses;
 import org.jabref.logic.l10n.Localization;
@@ -16,8 +15,7 @@ public final class BibTexStringAddDetailsView extends DatabaseChangeDetailsView 
         container.getChildren().addAll(
                 header,
                 new Label(Localization.lang("Label: %0", stringAdd.getAddedString().getName())),
-                new Label(Localization.lang("Content: %0", stringAdd.getAddedString().getContent()))
-        );
+                new Label(Localization.lang("Content: %0", stringAdd.getAddedString().getContent())));
 
         this.setAllAnchorsAndAttachChild(container);
     }

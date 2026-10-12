@@ -6,14 +6,13 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jabref.logic.git.preferences.GitPreferences;
-import org.jabref.logic.git.util.NoopGitSystemReader;
-
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.WindowCache;
 import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.storage.file.WindowCacheConfig;
 import org.eclipse.jgit.util.SystemReader;
+import org.jabref.logic.git.preferences.GitPreferences;
+import org.jabref.logic.git.util.NoopGitSystemReader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,14 +60,13 @@ class SlrGitHandlerTest {
 
     @Test
     void calculateDiffOnBranch() throws IOException, GitAPIException {
-        String expectedPatch =
-                "diff --git a/TestFolder/Test1.txt b/TestFolder/Test1.txt\n" +
-                        "index 74809e3..2ae1945 100644\n" +
-                        "--- a/TestFolder/Test1.txt\n" +
-                        "+++ b/TestFolder/Test1.txt\n" +
-                        "@@ -1 +1,2 @@\n" +
-                        "+This is a new line of text 2\n" +
-                        " This is a new line of text\n";
+        String expectedPatch = "diff --git a/TestFolder/Test1.txt b/TestFolder/Test1.txt\n"
+                + "index 74809e3..2ae1945 100644\n"
+                + "--- a/TestFolder/Test1.txt\n"
+                + "+++ b/TestFolder/Test1.txt\n"
+                + "@@ -1 +1,2 @@\n"
+                + "+This is a new line of text 2\n"
+                + " This is a new line of text\n";
 
         gitHandler.checkoutBranch("branch1");
         Files.createDirectory(Path.of(repositoryPath.toString(), "TestFolder"));
@@ -89,14 +87,13 @@ class SlrGitHandlerTest {
         Map<Path, String> expected = new HashMap<>();
         expected.put(Path.of(repositoryPath.toString(), "TestFolder", "Test1.txt"), "This is a new line of text 2");
 
-        Map<Path, String> result = gitHandler.parsePatchForAddedEntries(
-                "diff --git a/TestFolder/Test1.txt b/TestFolder/Test1.txt\n" +
-                        "index 74809e3..2ae1945 100644\n" +
-                        "--- a/TestFolder/Test1.txt\n" +
-                        "+++ b/TestFolder/Test1.txt\n" +
-                        "@@ -1 +1,2 @@\n" +
-                        "+This is a new line of text 2\n" +
-                        " This is a new line of text");
+        Map<Path, String> result = gitHandler.parsePatchForAddedEntries("diff --git a/TestFolder/Test1.txt b/TestFolder/Test1.txt\n"
+                + "index 74809e3..2ae1945 100644\n"
+                + "--- a/TestFolder/Test1.txt\n"
+                + "+++ b/TestFolder/Test1.txt\n"
+                + "@@ -1 +1,2 @@\n"
+                + "+This is a new line of text 2\n"
+                + " This is a new line of text");
 
         assertEquals(expected, result);
     }

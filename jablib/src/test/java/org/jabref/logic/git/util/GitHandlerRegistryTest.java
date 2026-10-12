@@ -4,14 +4,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import org.jabref.logic.git.GitHandler;
-import org.jabref.logic.git.preferences.GitPreferences;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.internal.storage.file.WindowCache;
 import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.storage.file.WindowCacheConfig;
 import org.eclipse.jgit.util.SystemReader;
+import org.jabref.logic.git.GitHandler;
+import org.jabref.logic.git.preferences.GitPreferences;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,7 +53,9 @@ class GitHandlerRegistryTest {
 
     @Test
     void returnsSameHandlerForSameRepoPath() throws Exception {
-        testGit = Git.init().setDirectory(tempDir.toFile()).call();
+        testGit = Git.init()
+                .setDirectory(tempDir.toFile())
+                .call();
         Path repoPath = tempDir.toAbsolutePath().normalize();
 
         GitHandler handler1 = registry.get(repoPath);
@@ -71,7 +72,9 @@ class GitHandlerRegistryTest {
 
     @Test
     void resolvesHandlerFromNestedPath() throws Exception {
-        testGit = Git.init().setDirectory(tempDir.toFile()).call();
+        testGit = Git.init()
+                .setDirectory(tempDir.toFile())
+                .call();
 
         Path subDir = Files.createDirectory(tempDir.resolve("nested"));
         Optional<GitHandler> handlerOpt = registry.fromAnyPath(subDir);

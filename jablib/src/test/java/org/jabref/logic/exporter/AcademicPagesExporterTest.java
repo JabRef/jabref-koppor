@@ -11,7 +11,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -31,10 +30,8 @@ class AcademicPagesExporterTest {
     @BeforeEach
     void setUp() {
         entryTypesManager = new BibEntryTypesManager();
-        exporter = new AcademicPagesExporter(
-                mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                mock(FieldPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                entryTypesManager);
+        exporter = new AcademicPagesExporter(mock(LayoutFormatterPreferences.class, Answers.RETURNS_DEEP_STUBS),
+                mock(FieldPreferences.class, Answers.RETURNS_DEEP_STUBS), entryTypesManager);
         databaseContext = new BibDatabaseContext();
     }
 
@@ -62,7 +59,8 @@ class AcademicPagesExporterTest {
         String content = Files.readString(generated).replace("\r\n", "\n");
         String citation = extractYamlValue(content, "citation");
 
-        String expected = """
+        String
+                expected = """
                 ---
                 title: "A Great Paper"
                 collection: publications
@@ -73,7 +71,8 @@ class AcademicPagesExporterTest {
                 bibtexurl: '/files/smith2020.bib'
                 citation: '%s'
                 ---
-                """.formatted(citation);
+                """
+                                .formatted(citation);
 
         assertEquals(expected, content);
     }
@@ -87,7 +86,9 @@ class AcademicPagesExporterTest {
 
         exporter.export(databaseContext, tempDir.resolve("output.md"), List.of(entry));
 
-        assertTrue(Files.exists(tempDir.resolve("output").resolve("files").resolve("smith2020.bib")));
+        assertTrue(Files.exists(tempDir.resolve("output")
+                .resolve("files")
+                .resolve("smith2020.bib")));
     }
 
     @Test
@@ -109,7 +110,8 @@ class AcademicPagesExporterTest {
         String content = Files.readString(generated).replace("\r\n", "\n");
         String citation = extractYamlValue(content, "citation");
 
-        String expected = """
+        String
+                expected = """
                 ---
                 title: "Conference Paper"
                 collection: publications
@@ -120,7 +122,8 @@ class AcademicPagesExporterTest {
                 bibtexurl: '/files/jones2021conf.bib'
                 citation: '%s'
                 ---
-                """.formatted(citation);
+                """
+                                .formatted(citation);
 
         assertEquals(expected, content);
     }
@@ -144,7 +147,8 @@ class AcademicPagesExporterTest {
         String content = Files.readString(generated).replace("\r\n", "\n");
         String citation = extractYamlValue(content, "citation");
 
-        String expected = """
+        String
+                expected = """
                 ---
                 title: "My Book"
                 collection: publications
@@ -154,7 +158,8 @@ class AcademicPagesExporterTest {
                 bibtexurl: '/files/doe2019book.bib'
                 citation: '%s'
                 ---
-                """.formatted(citation);
+                """
+                                .formatted(citation);
 
         assertEquals(expected, content);
     }
@@ -178,7 +183,8 @@ class AcademicPagesExporterTest {
         String content = Files.readString(generated).replace("\r\n", "\n");
         String citation = extractYamlValue(content, "citation");
 
-        String expected = """
+        String
+                expected = """
                 ---
                 title: "A Book Chapter"
                 collection: publications
@@ -189,7 +195,8 @@ class AcademicPagesExporterTest {
                 bibtexurl: '/files/lee2018chapter.bib'
                 citation: '%s'
                 ---
-                """.formatted(citation);
+                """
+                                .formatted(citation);
 
         assertEquals(expected, content);
     }
@@ -211,7 +218,8 @@ class AcademicPagesExporterTest {
         String content = Files.readString(generated).replace("\r\n", "\n");
         String citation = extractYamlValue(content, "citation");
 
-        String expected = """
+        String
+                expected = """
                 ---
                 title: "Some Misc Entry"
                 collection: publications
@@ -221,7 +229,8 @@ class AcademicPagesExporterTest {
                 bibtexurl: '/files/misc2022.bib'
                 citation: '%s'
                 ---
-                """.formatted(citation);
+                """
+                                .formatted(citation);
 
         assertEquals(expected, content);
     }
@@ -257,8 +266,9 @@ class AcademicPagesExporterTest {
         exporter.export(databaseContext, tempDir.resolve("output.md"), List.of(entry));
 
         String content = Files.readString(tempDir.resolve("output")
-                                                 .resolve("_publications")
-                                                 .resolve("2020-01-01-venue2020.md")).replace("\r\n", "\n");
+                .resolve("_publications")
+                .resolve("2020-01-01-venue2020.md"))
+                .replace("\r\n", "\n");
         assertTrue(content.contains("venue: \"Science\""));
         assertFalse(content.contains("Should Not Appear"));
     }
@@ -273,8 +283,9 @@ class AcademicPagesExporterTest {
         exporter.export(databaseContext, tempDir.resolve("output.md"), List.of(entry));
 
         String content = Files.readString(tempDir.resolve("output")
-                                                 .resolve("_publications")
-                                                 .resolve("2020-01-01-noabs2020.md")).replace("\r\n", "\n");
+                .resolve("_publications")
+                .resolve("2020-01-01-noabs2020.md"))
+                .replace("\r\n", "\n");
         assertTrue(content.endsWith("---\n"));
     }
 
@@ -287,8 +298,8 @@ class AcademicPagesExporterTest {
         exporter.export(databaseContext, tempDir.resolve("output.md"), List.of(entry));
 
         assertTrue(Files.exists(tempDir.resolve("output")
-                                       .resolve("_publications")
-                                       .resolve("2023-01-01-unknown.md")));
+                .resolve("_publications")
+                .resolve("2023-01-01-unknown.md")));
     }
 
     @Test
@@ -315,8 +326,9 @@ class AcademicPagesExporterTest {
         exporter.export(databaseContext, tempDir.resolve("output.md"), List.of(entry));
 
         String content = Files.readString(tempDir.resolve("output")
-                                                 .resolve("_publications")
-                                                 .resolve("2020-01-01-abs2020.md")).replace("\r\n", "\n");
+                .resolve("_publications")
+                .resolve("2020-01-01-abs2020.md"))
+                .replace("\r\n", "\n");
 
         String[] parts = content.split("---\n");
         // parts[0] is empty (before first ---), parts[1] is YAML, parts[2] is body
@@ -333,8 +345,9 @@ class AcademicPagesExporterTest {
         exporter.export(databaseContext, tempDir.resolve("output.md"), List.of(entry));
 
         String content = Files.readString(tempDir.resolve("output")
-                                                 .resolve("_publications")
-                                                 .resolve("nodate.md")).replace("\r\n", "\n");
+                .resolve("_publications")
+                .resolve("nodate.md"))
+                .replace("\r\n", "\n");
         assertFalse(content.contains("date:"));
         assertFalse(content.contains("permalink:"));
     }
@@ -343,8 +356,8 @@ class AcademicPagesExporterTest {
         for (String line : content.lines().toList()) {
             if (line.startsWith(key + ":")) {
                 String value = line.substring(key.length() + 1).strip();
-                if ((value.startsWith("'") && value.endsWith("'")) ||
-                        (value.startsWith("\"") && value.endsWith("\""))) {
+                if ((value.startsWith("'") && value.endsWith("'"))
+                        || (value.startsWith("\"") && value.endsWith("\""))) {
                     value = value.substring(1, value.length() - 1);
                 }
                 return value;

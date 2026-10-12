@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -13,7 +14,7 @@ import javafx.scene.control.DialogPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
+import org.controlsfx.control.CheckListView;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.importer.actions.CheckForNewEntryTypesAction;
 import org.jabref.gui.importer.actions.OpenDatabaseAction;
@@ -33,9 +34,6 @@ import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.types.BiblatexNonStandardEntryType;
 import org.jabref.model.entry.types.UnknownEntryType;
-
-import com.airhacks.afterburner.injection.Injector;
-import org.controlsfx.control.CheckListView;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
@@ -52,16 +50,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-/// Drives the dialog itself, so that the wiring between the check lists and the view model is covered, too.
+/// Drives the dialog itself, so that the wiring between the check lists and the
+/// view model is covered, too.
 @NullMarked
 class ImportCustomEntryTypesDialogTest extends JavaFxTest {
 
     private static final BibDatabaseMode MODE = BibDatabaseMode.BIBLATEX;
 
-    private static final BibEntryType MANUSCRIPT_FROM_FILE = parse(
-            "jabref-entrytype: manuscript: req[library;location;shelfmark] opt[origin;scribe]");
-    private static final BibEntryType AUDIO_FROM_FILE = parse(
-            "jabref-entrytype: audio: req[author;date;publisher;title] opt[url;urldate]");
+    private static final BibEntryType MANUSCRIPT_FROM_FILE = parse("jabref-entrytype: manuscript: req[library;location;shelfmark] opt[origin;scribe]");
+    private static final BibEntryType AUDIO_FROM_FILE = parse("jabref-entrytype: audio: req[author;date;publisher;title] opt[url;urldate]");
 
     private CliPreferences preferences;
     private BibEntryTypesManager entryTypesManager;
@@ -95,26 +92,35 @@ class ImportCustomEntryTypesDialogTest extends JavaFxTest {
     @Test
     void unknownTypesAndDifferentCustomizationsAreShownSeparately() {
         interact(() -> {
-            assertEquals(List.of(MANUSCRIPT_FROM_FILE), List.copyOf(unknownTypes().getItems()));
-            assertEquals(List.of(AUDIO_FROM_FILE), differentCustomizations().getItems().stream()
-                                                                            .map(BibEntryTypePrefsAndFileViewModel::customTypeFromFile)
-                                                                            .toList());
+            assertEquals(List.of(MANUSCRIPT_FROM_FILE),
+                    List.copyOf(unknownTypes().getItems()));
+            assertEquals(
+                    List.of(AUDIO_FROM_FILE),
+                    differentCustomizations()
+                            .getItems()
+                            .stream()
+                            .map(BibEntryTypePrefsAndFileViewModel::customTypeFromFile)
+                            .toList());
             assertTrue(differentCustomizationBox().isVisible());
         });
     }
 
-    /// Regression test for <https://github.com/JabRef/jabref/issues/9930>: a checked customization of a type
-    /// JabRef ships has to be stored, otherwise the dialog shows up at every start again.
+    /// Regression test for <https://github.com/JabRef/jabref/issues/9930>: a
+    /// checked customization of a type JabRef ships has to be stored, otherwise
+    /// the dialog shows up at every start again.
     @Test
     void checkedTypesAreStoredOnOk() {
         interact(() -> {
-            unknownTypes().getCheckModel().checkAll();
-            differentCustomizations().getCheckModel().checkAll();
+            unknownTypes()
+                    .getCheckModel()
+                    .checkAll();
+            differentCustomizations()
+                    .getCheckModel()
+                    .checkAll();
             buttonOf(ButtonType.OK).fire();
         });
 
-        assertEquals(List.of(AUDIO_FROM_FILE, MANUSCRIPT_FROM_FILE),
-                List.copyOf(entryTypesManager.getAllCustomizedTypes(MODE)));
+        assertEquals(List.of(AUDIO_FROM_FILE, MANUSCRIPT_FROM_FILE), List.copyOf(entryTypesManager.getAllCustomizedTypes(MODE)));
         verify(preferences).storeCustomEntryTypesRepository(entryTypesManager);
         assertFalse(entryTypesManager.isDifferentCustomOrModifiedType(AUDIO_FROM_FILE, MODE));
         assertFalse(entryTypesManager.isDifferentCustomOrModifiedType(MANUSCRIPT_FROM_FILE, MODE));
@@ -123,7 +129,8 @@ class ImportCustomEntryTypesDialogTest extends JavaFxTest {
     @Test
     void reopeningLibraryAfterImportDoesNotShowCustomEntryTypesDialog(@TempDir Path tempDir) throws Exception {
         Path library = tempDir.resolve("custom-entry-types.bib");
-        Files.writeString(library, """
+        Files.writeString(library,
+                """
                 @Manuscript{example,
                   library = {Archive},
                 }
@@ -149,8 +156,12 @@ class ImportCustomEntryTypesDialogTest extends JavaFxTest {
 
         interact(() -> {
             dialog = new ImportCustomEntryTypesDialog(MODE, List.copyOf(firstOpen.getEntryTypes()));
-            unknownTypes().getCheckModel().checkAll();
-            differentCustomizations().getCheckModel().checkAll();
+            unknownTypes()
+                    .getCheckModel()
+                    .checkAll();
+            differentCustomizations()
+                    .getCheckModel()
+                    .checkAll();
             buttonOf(ButtonType.OK).fire();
         });
         verify(preferences).storeCustomEntryTypesRepository(entryTypesManager);
@@ -167,26 +178,32 @@ class ImportCustomEntryTypesDialogTest extends JavaFxTest {
     @Test
     void unselectedTypesAreNotStored() {
         interact(() -> {
-            differentCustomizations().getCheckModel().checkAll();
+            differentCustomizations()
+                    .getCheckModel()
+                    .checkAll();
             buttonOf(ButtonType.OK).fire();
         });
 
         assertEquals(List.of(AUDIO_FROM_FILE), List.copyOf(entryTypesManager.getAllCustomizedTypes(MODE)));
         assertEquals(Optional.empty(), entryTypesManager.enrich(new UnknownEntryType("manuscript"), MODE));
-        verify(preferences).addDeclinedCustomEntryTypes(List.of(
-                CustomEntryTypeDecision.fingerprint(MANUSCRIPT_FROM_FILE, Optional.empty(), MODE)));
+        verify(preferences).addDeclinedCustomEntryTypes(List.of(CustomEntryTypeDecision.fingerprint(MANUSCRIPT_FROM_FILE, Optional.empty(), MODE)));
     }
 
     @Test
     void nothingIsStoredOnCancel() {
         interact(() -> {
-            unknownTypes().getCheckModel().checkAll();
-            differentCustomizations().getCheckModel().checkAll();
+            unknownTypes()
+                    .getCheckModel()
+                    .checkAll();
+            differentCustomizations()
+                    .getCheckModel()
+                    .checkAll();
             buttonOf(ButtonType.CANCEL).fire();
         });
 
         assertEquals(List.of(), List.copyOf(entryTypesManager.getAllCustomizedTypes(MODE)));
-        assertTrue(entryTypesManager.enrich(BiblatexNonStandardEntryType.Audio, MODE).isPresent());
+        assertTrue(entryTypesManager.enrich(BiblatexNonStandardEntryType.Audio, MODE)
+                .isPresent());
         verify(preferences, never()).storeCustomEntryTypesRepository(entryTypesManager);
         verify(preferences, never()).addDeclinedCustomEntryTypes(any());
     }

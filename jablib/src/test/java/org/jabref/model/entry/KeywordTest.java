@@ -14,7 +14,10 @@ class KeywordTest {
     @Test
     void getPathFromRootAsStringForSimpleChain() {
         Keyword keywordChain = Keyword.of(List.of("A", "B", "C"));
-        assertEquals("A > B", keywordChain.getChild().get().getPathFromRootAsString('>'));
+        assertEquals("A > B",
+                keywordChain.getChild()
+                            .get()
+                            .getPathFromRootAsString('>'));
     }
 
     @Test
@@ -32,7 +35,8 @@ class KeywordTest {
     void ofHierarchicalCreatesCorrectKeywordChain() {
         Keyword keywordChain = Keyword.ofHierarchical("A > B > C");
         assertEquals("A", keywordChain.get());
-        assertTrue(keywordChain.getAllSubchainsAsString('>').contains("A > B > C"));
+        assertTrue(keywordChain.getAllSubchainsAsString('>')
+                               .contains("A > B > C"));
     }
 
     @Test

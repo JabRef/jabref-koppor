@@ -20,17 +20,15 @@ public class MergeWithFetchedEntryAction extends SimpleCommand {
     private final GuiPreferences preferences;
     private final TaskExecutor taskExecutor;
 
-    public MergeWithFetchedEntryAction(DialogService dialogService,
-                                       StateManager stateManager,
-                                       TaskExecutor taskExecutor,
-                                       GuiPreferences preferences) {
+    public MergeWithFetchedEntryAction(DialogService dialogService, StateManager stateManager, TaskExecutor taskExecutor,
+            GuiPreferences preferences) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.taskExecutor = taskExecutor;
         this.preferences = preferences;
 
         this.executable.bind(ActionHelper.needsEntriesSelected(1, stateManager)
-                                         .and(ActionHelper.isAnyFieldSetForSelectedEntry(FetchAndMergeEntry.SUPPORTED_FIELDS, stateManager)));
+                .and(ActionHelper.isAnyFieldSetForSelectedEntry(FetchAndMergeEntry.SUPPORTED_FIELDS, stateManager)));
     }
 
     @Override
@@ -46,6 +44,7 @@ public class MergeWithFetchedEntryAction extends SimpleCommand {
         }
 
         BibEntry originalEntry = stateManager.getSelectedEntries().getFirst();
-        new FetchAndMergeEntry(databaseContext, taskExecutor, preferences, dialogService, stateManager.getUndoManager(databaseContext), stateManager).fetchAndMerge(originalEntry);
+        new FetchAndMergeEntry(databaseContext, taskExecutor, preferences, dialogService, stateManager.getUndoManager(databaseContext), stateManager)
+                .fetchAndMerge(originalEntry);
     }
 }

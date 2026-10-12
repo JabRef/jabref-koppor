@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.jabref.logic.FilePreferences;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.jilt.Builder;
 import org.jilt.BuilderStyle;
 import org.jilt.Opt;
@@ -19,9 +18,11 @@ public class FileTestConfiguration {
     // final BibEntry sourceEntry;
 
     final BibDatabaseContext targetContext;
+
     // final BibEntry targetEntry;
 
-    @Nullable private final Path mainFileDir;
+    @Nullable
+    private final Path mainFileDir;
 
     private final BibTestConfiguration sourceBibTestConfiguration;
     private final BibTestConfiguration targetBibTestConfiguration;
@@ -33,13 +34,10 @@ public class FileTestConfiguration {
             @Opt String mainFileDir,
             Boolean shouldStoreFilesRelativeToBibFile,
             Boolean shouldAdjustOrCopyLinkedFilesOnTransfer,
-
             BibTestConfiguration sourceBibTestConfiguration,
             BibTestConfiguration targetBibTestConfiguration,
-
             FilePreferences filePreferences,
-            Path tempDir
-    ) {
+            Path tempDir) {
         if (mainFileDir == null) {
             when(filePreferences.getMainFileDirectory()).thenReturn(Optional.empty());
             this.mainFileDir = null;

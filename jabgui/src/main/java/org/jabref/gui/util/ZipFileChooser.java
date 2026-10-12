@@ -18,7 +18,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-
 import org.jabref.logic.l10n.Localization;
 
 /// Dialog to allow users to choose a file contained in a ZIP file.
@@ -40,10 +39,8 @@ public class ZipFileChooser extends BaseDialog<Path> {
         nameColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().toString()));
         modifiedColumn.setCellValueFactory(data -> {
             try {
-                return new ReadOnlyStringWrapper(
-                        ZonedDateTime.ofInstant(Files.getLastModifiedTime(data.getValue()).toInstant(),
-                                             ZoneId.systemDefault())
-                                     .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)));
+                return new ReadOnlyStringWrapper(ZonedDateTime.ofInstant(Files.getLastModifiedTime(data.getValue()).toInstant(), ZoneId.systemDefault())
+                        .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)));
             } catch (IOException _) {
                 // Ignore
                 return new ReadOnlyStringWrapper("");
@@ -61,10 +58,9 @@ public class ZipFileChooser extends BaseDialog<Path> {
 
         getDialogPane().setContent(table);
 
-        getDialogPane().getButtonTypes().setAll(
-                ButtonType.OK,
-                ButtonType.CANCEL
-        );
+        getDialogPane()
+                .getButtonTypes()
+                .setAll(ButtonType.OK, ButtonType.CANCEL);
 
         setResultConverter(button -> {
             if (button == ButtonType.OK) {
@@ -80,11 +76,12 @@ public class ZipFileChooser extends BaseDialog<Path> {
     /// @param zipFile ZIP-File
     /// @return entries that can be selected
     private static ObservableList<Path> getSelectableZipEntries(FileSystem zipFile) throws IOException {
-        Path rootDir = zipFile.getRootDirectories().iterator().next();
+        Path rootDir = zipFile.getRootDirectories()
+                              .iterator()
+                              .next();
 
-        return FXCollections.observableArrayList(
-                Files.walk(rootDir)
-                     .filter(file -> file.endsWith(".class"))
-                     .collect(Collectors.toList()));
+        return FXCollections.observableArrayList(Files.walk(rootDir)
+                .filter(file -> file.endsWith(".class"))
+                .collect(Collectors.toList()));
     }
 }

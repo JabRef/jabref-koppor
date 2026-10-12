@@ -19,7 +19,6 @@ import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -27,14 +26,17 @@ import org.slf4j.LoggerFactory;
 
 /// Opens the PDF of an entry addressed by an in-app link.
 ///
-/// The link mirrors the REST API path of the entry (`/libraries/{id}/entries/{key}`) so that the same address
-/// works in jabsrv, cite-as-you-write and JabMap:
+/// The link mirrors the REST API path of the entry
+/// (`/libraries/{id}/entries/{key}`) so that the same address works in jabsrv,
+/// cite-as-you-write and JabMap:
 ///
-/// - `jabref://libraries/{id}/entries/{key}` (absolute, `{id}` as in [BibDatabaseContext#getLibraryId])
+/// - `jabref://libraries/{id}/entries/{key}` (absolute, `{id}` as in
+///   [BibDatabaseContext#getLibraryId])
 /// - `entries/{key}` (relative to the active library, what the AI chat emits)
 ///
-/// Both forms accept an optional `/files/{n}` segment selecting the `{n}`-th linked file (1-based, default: first PDF)
-/// and a `#page={page}` fragment as in the PDF Open Parameters understood by Acrobat.
+/// Both forms accept an optional `/files/{n}` segment selecting the `{n}`-th
+/// linked file (1-based, default: first PDF) and a `#page={page}` fragment as
+/// in the PDF Open Parameters understood by Acrobat.
 // [impl->feat~ai.chat.jump-to-entry-pdf~1]
 @NullMarked
 public class JumpToEntryPdfAction extends SimpleCommand {
@@ -64,16 +66,21 @@ public class JumpToEntryPdfAction extends SimpleCommand {
         EntryLink link = linkOpt.get();
 
         Optional<BibDatabaseContext> databaseOpt = link.libraryId()
-                                                       .map(id -> stateManager.getOpenDatabases().stream()
-                                                                              .filter(context -> context.getLibraryId().filter(id::equals).isPresent())
-                                                                              .findFirst())
-                                                       .orElseGet(stateManager::getActiveDatabase);
+                .map(id -> stateManager.getOpenDatabases()
+                                       .stream()
+                                       .filter(context -> context.getLibraryId()
+                                               .filter(id::equals)
+                                               .isPresent())
+                                       .findFirst())
+                .orElseGet(stateManager::getActiveDatabase);
         if (databaseOpt.isEmpty()) {
             dialogService.notify(Localization.lang("No library open"));
             return;
         }
 
-        Optional<BibEntry> entryOpt = databaseOpt.get().getDatabase().getEntryByCitationKey(link.citationKey());
+        Optional<BibEntry> entryOpt = databaseOpt.get()
+                .getDatabase()
+                .getEntryByCitationKey(link.citationKey());
         if (entryOpt.isEmpty()) {
             dialogService.notify(Localization.lang("Citation key '%0' to select not found in open libraries.", link.citationKey()));
             return;
@@ -81,21 +88,26 @@ public class JumpToEntryPdfAction extends SimpleCommand {
 
         BibEntry entry = entryOpt.get();
         if (stateManager.activeTabProperty() != null && stateManager.activeTabProperty().get() != null) {
-            stateManager.activeTabProperty().get().ifPresent(tab -> tab.clearAndSelect(entry));
+            stateManager.activeTabProperty()
+                        .get()
+                        .ifPresent(tab -> tab.clearAndSelect(entry));
         }
         stateManager.setSelectedEntries(List.of(entry));
 
         List<LinkedFile> files = entry.getFiles();
         Optional<LinkedFile> pdfFileOpt = link.fileIndex()
-                                              .filter(index -> index <= files.size())
-                                              .map(index -> files.get(index - 1))
-                                              .or(() -> files.stream().filter(JumpToEntryPdfAction::isPDF).findFirst());
+                .filter(index -> index <= files.size())
+                .map(index -> files.get(index - 1))
+                .or(() -> files.stream()
+                               .filter(JumpToEntryPdfAction::isPDF)
+                               .findFirst());
         if (pdfFileOpt.isEmpty()) {
             dialogService.notify(Localization.lang("No PDF files available"));
             return;
         }
 
-        openInDocumentViewer(pdfFileOpt.get(), link.page().orElse(1));
+        openInDocumentViewer(pdfFileOpt.get(),
+                link.page().orElse(1));
     }
 
     private static boolean isPDF(LinkedFile file) {
@@ -115,7 +127,8 @@ public class JumpToEntryPdfAction extends SimpleCommand {
         dialogService.showCustomDialog(viewerView);
     }
 
-    /// @return empty if the url is not an entry link (callers then fall back to opening it in the browser)
+    /// @return empty if the url is not an entry link (callers then fall back to
+    ///   opening it in the browser)
     public static Optional<EntryLink> parseUrl(@Nullable String rawUrl) {
         if (rawUrl == null || rawUrl.isBlank()) {
             return Optional.empty();
@@ -138,7 +151,9 @@ public class JumpToEntryPdfAction extends SimpleCommand {
         }
         String path = uri.getPath();
         if (path != null) {
-            segments.addAll(Arrays.stream(path.split("/")).filter(s -> !s.isEmpty()).toList());
+            segments.addAll(Arrays.stream(path.split("/"))
+                    .filter(s -> !s.isEmpty())
+                    .toList());
         }
 
         Optional<String> libraryId = Optional.empty();
@@ -162,9 +177,9 @@ public class JumpToEntryPdfAction extends SimpleCommand {
         }
 
         Optional<Integer> page = Optional.ofNullable(uri.getFragment())
-                                         .map(PAGE_FRAGMENT::matcher)
-                                         .filter(Matcher::find)
-                                         .flatMap(matcher -> parsePositiveInt(matcher.group(1)));
+                .map(PAGE_FRAGMENT::matcher)
+                .filter(Matcher::find)
+                .flatMap(matcher -> parsePositiveInt(matcher.group(1)));
 
         return Optional.of(new EntryLink(libraryId, citationKey, fileIndex, page));
     }
@@ -178,8 +193,9 @@ public class JumpToEntryPdfAction extends SimpleCommand {
     }
 
     /// @param libraryId empty for links relative to the active library
-    /// @param fileIndex 1-based index into the entry's linked files, empty for "first PDF"
-    /// @param page      1-based page number
-    public record EntryLink(Optional<String> libraryId, String citationKey, Optional<Integer> fileIndex, Optional<Integer> page) {
-    }
+    /// @param fileIndex 1-based index into the entry's linked files, empty for
+    ///   "first PDF"
+    /// @param page 1-based page number
+    public record EntryLink(Optional<String> libraryId, String citationKey, Optional<Integer> fileIndex,
+                            Optional<Integer> page) {}
 }

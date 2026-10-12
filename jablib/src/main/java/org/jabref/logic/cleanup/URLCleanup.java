@@ -21,10 +21,7 @@ public class URLCleanup implements CleanupJob {
      * In order to be functional, we made the necessary adjustments regarding Java
      * features (mainly doubled backslashes).
      */
-    private static final String URL_REGEX = "(?i)\\b((?:https?://|www\\d{0,3}[.]|[a-z0-9.\\-]+[.]"
-            + "[a-z]{2,4}/)(?:[^\\s()<>\\\\]+|\\(([^\\s()<>\\\\]+|(\\([^\\s()"
-            + "<>\\\\]+\\)))*\\))+(?:\\(([^\\s()<>\\\\]+|(\\([^\\s()<>\\\\]+\\"
-            + ")))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))";
+    private static final String URL_REGEX = "(?i)\\b((?:https?://|www\\d{0,3}[.]|[a-z0-9.\\-]+[.]" + "[a-z]{2,4}/)(?:[^\\s()<>\\\\]+|\\(([^\\s()<>\\\\]+|(\\([^\\s()" + "<>\\\\]+\\)))*\\))+(?:\\(([^\\s()<>\\\\]+|(\\([^\\s()<>\\\\]+\\" + ")))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))";
     public static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX, Pattern.CASE_INSENSITIVE);
 
     private static final String DATE_TERMS_REGEX = "accessed on|visited on|retrieved on|viewed on";
@@ -51,20 +48,16 @@ public class URLCleanup implements CleanupJob {
             String url = urlMatcher.group();
 
             // Remove the URL from the NoteFieldValue
-            String newNoteFieldValue = noteFieldValue
-                    .replace(url, "")
-
-                    /*
-                     * The following regex erases unnecessary remaining
-                     * content in note field. Explanation:
-                     * <ul>
-                     *     <li>"(, )?": Matches an optional comma followed by a space</li>
-                     *     <li>"\\?": Matches an optional backslash</li>
-                     *     <li>"url\{\}": Matches the literal string "url{}"</li>
-                     * </ul>
-                     * Note that the backslashes are doubled as Java requirement
-                     */
-                    .replaceAll("(, )?\\\\?url\\{\\}(, )?", "");
+            String newNoteFieldValue = noteFieldValue.replace(url, "") /*
+                                                                       * The following regex erases unnecessary remaining
+                                                                       * content in note field. Explanation:
+                                                                       * <ul>
+                                                                       *     <li>"(, )?": Matches an optional comma followed by a space</li>
+                                                                       *     <li>"\\?": Matches an optional backslash</li>
+                                                                       *     <li>"url\{\}": Matches the literal string "url{}"</li>
+                                                                       * </ul>
+                                                                       * Note that the backslashes are doubled as Java requirement
+                                                                       */.replaceAll("(, )?\\\\?url\\{\\}(, )?", "");
 
             /*
              * In case the url and note fields hold the same URL, then we just
@@ -82,14 +75,14 @@ public class URLCleanup implements CleanupJob {
 
             if (dateTermsMatcher.find()) {
                 String term = dateTermsMatcher.group();
-                newNoteFieldValue = newNoteFieldValue
-                        .replace(term, "");
+                newNoteFieldValue = newNoteFieldValue.replace(term, "");
                 if (dateMatcher.find()) {
                     String date = dateMatcher.group();
                     String formattedDate = formatter.format(date);
-                    newNoteFieldValue = newNoteFieldValue
-                            .replace(date, "").trim()
-                            .replaceAll("^,|,$", "").trim(); // either starts or ends with a comma
+                    newNoteFieldValue = newNoteFieldValue.replace(date, "")
+                            .trim()
+                            .replaceAll("^,|,$", "")
+                            .trim(); // either starts or ends with a comma
 
                     // Same approach with the URL cleanup.
                     if (entry.hasField(URLDATE_FIELD)) {

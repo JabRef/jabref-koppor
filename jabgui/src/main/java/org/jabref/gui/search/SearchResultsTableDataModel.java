@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -13,7 +14,6 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.maintable.BibEntryTableViewModel;
 import org.jabref.gui.maintable.MainTableFieldValueFormatter;
@@ -27,8 +27,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResults;
 
-import com.tobiasdiez.easybind.EasyBind;
-
 public class SearchResultsTableDataModel {
 
     private final ObservableList<BibEntryTableViewModel> entriesViewModel = FXCollections.observableArrayList();
@@ -39,7 +37,8 @@ public class SearchResultsTableDataModel {
     private final TaskExecutor taskExecutor;
     private final AtomicLong searchUpdateSequence = new AtomicLong();
 
-    public SearchResultsTableDataModel(BibDatabaseContext bibDatabaseContext, GuiPreferences preferences, StateManager stateManager, TaskExecutor taskExecutor) {
+    public SearchResultsTableDataModel(BibDatabaseContext bibDatabaseContext, GuiPreferences preferences, StateManager stateManager,
+            TaskExecutor taskExecutor) {
         NameDisplayPreferences nameDisplayPreferences = preferences.getNameDisplayPreferences();
         this.stateManager = stateManager;
         this.taskExecutor = taskExecutor;
@@ -55,7 +54,8 @@ public class SearchResultsTableDataModel {
         // We need to wrap the list since otherwise sorting in the table does not work
         entriesSorted = new SortedList<>(entriesFiltered);
 
-        EasyBind.listen(stateManager.activeSearchQuery(SearchType.GLOBAL_SEARCH), (_, _, newValue) -> updateSearchMatches(newValue));
+        EasyBind.listen(stateManager.activeSearchQuery(SearchType.GLOBAL_SEARCH),
+                (_, _, newValue) -> updateSearchMatches(newValue));
         stateManager.searchResultSize(SearchType.GLOBAL_SEARCH).bind(Bindings.size(entriesFiltered));
     }
 
@@ -72,34 +72,33 @@ public class SearchResultsTableDataModel {
         long updateSequence = searchUpdateSequence.incrementAndGet();
         List<BibDatabaseContext> openDatabases = List.copyOf(stateManager.getOpenDatabases());
         List<BibEntryTableViewModel> entries = List.copyOf(entriesViewModel);
-        Optional<SearchQuery> querySnapshot = query.map(searchQuery -> new SearchQuery(
-                searchQuery.getSearchExpression(),
-                EnumSet.copyOf(searchQuery.getSearchFlags())));
+        Optional<SearchQuery> querySnapshot = query.map(searchQuery -> new SearchQuery(searchQuery.getSearchExpression(), EnumSet.copyOf(searchQuery.getSearchFlags())));
         BackgroundTask.wrap(() -> {
-            if (querySnapshot.isPresent()) {
-                SearchResults searchResults = new SearchResults();
-                for (BibDatabaseContext context : openDatabases) {
-                    searchResults.mergeSearchResults(stateManager.getSearchContext(context).search(querySnapshot.get()));
-                }
-                return Optional.of(searchResults);
-            } else {
-                return Optional.<SearchResults>empty();
-            }
-        }).onSuccess(results -> {
-            if (updateSequence != searchUpdateSequence.get()) {
-                return;
-            }
-            results.ifPresentOrElse(
-                    searchResults -> entries.forEach(entry -> {
+                    if (querySnapshot.isPresent()) {
+                        SearchResults searchResults = new SearchResults();
+                        for (BibDatabaseContext context : openDatabases) {
+                            searchResults.mergeSearchResults(stateManager.getSearchContext(context).search(querySnapshot.get()));
+                        }
+                        return Optional.of(searchResults);
+                    } else {
+                        return Optional.<SearchResults>empty();
+                    }
+                })
+                .onSuccess(results -> {
+                    if (updateSequence != searchUpdateSequence.get()) {
+                        return;
+                    }
+                    results.ifPresentOrElse(searchResults -> entries.forEach(entry -> {
                         entry.setHasFullTextResults(searchResults.hasFulltextResults(entry.getEntry()));
                         entry.setVisibleBySearch(searchResults.isMatched(entry.getEntry()));
                     }),
-                    () -> entries.forEach(entry -> {
+                            () -> entries.forEach(entry -> {
                         entry.setHasFullTextResults(false);
                         entry.setVisibleBySearch(true);
                     }));
-            FilteredListProxy.refilterListReflection(entriesFiltered);
-        }).executeWith(taskExecutor);
+                    FilteredListProxy.refilterListReflection(entriesFiltered);
+                })
+                .executeWith(taskExecutor);
     }
 
     public SortedList<BibEntryTableViewModel> getEntriesFilteredAndSorted() {

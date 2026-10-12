@@ -14,7 +14,6 @@ import org.jabref.model.FieldChange;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +27,7 @@ public class MoveFilesCleanup implements CleanupJob {
     private final FilePreferences filePreferences;
     private final List<JabRefException> ioExceptions;
 
-    public MoveFilesCleanup(@NonNull Supplier<BibDatabaseContext> databaseContext,
-                            @NonNull FilePreferences filePreferences) {
+    public MoveFilesCleanup(@NonNull Supplier<BibDatabaseContext> databaseContext, @NonNull FilePreferences filePreferences) {
         this.databaseContext = databaseContext;
         this.filePreferences = filePreferences;
         this.ioExceptions = new ArrayList<>();

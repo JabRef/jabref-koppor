@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.jspecify.annotations.Nullable;
 
 public class BooktitleContainsPagesChecker implements ValueChecker {

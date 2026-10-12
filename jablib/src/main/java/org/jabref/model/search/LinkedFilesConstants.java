@@ -9,19 +9,21 @@ import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 
 public enum LinkedFilesConstants {
-    /// Version number for the search index.
-    /// Increment when:
+    /// Version number for the search index. Increment when:
     ///
-    /// 1. Index changes require reindexing (e.g., new/removed/renamed fields, analyzer changes)
+    /// 1. Index changes require reindexing (e.g., new/removed/renamed fields,
+    ///    analyzer changes)
     /// 2. Lucene codec changes (see module-info.java Lucene section)
-    /// Incrementing triggers reindexing.
+    ///    Incrementing triggers reindexing.
     VERSION("7"),
     PATH("path"),
     CONTENT("content"),
     ANNOTATIONS("annotations"),
-    /// Case-preserving copy of [#CONTENT], used for case-sensitive searches (`=!`, `==!`, `=~!`).
+    /// Case-preserving copy of [#CONTENT], used for case-sensitive searches
+    /// (`=!`, `==!`, `=~!`).
     CONTENT_CASE_SENSITIVE("contentCaseSensitive"),
-    /// Case-preserving copy of [#ANNOTATIONS], used for case-sensitive searches (`=!`, `==!`, `=~!`).
+    /// Case-preserving copy of [#ANNOTATIONS], used for case-sensitive searches
+    /// (`=!`, `==!`, `=~!`).
     ANNOTATIONS_CASE_SENSITIVE("annotationsCaseSensitive"),
     PAGE_NUMBER("pageNumber"),
     MODIFIED("modified");
@@ -42,8 +44,7 @@ public enum LinkedFilesConstants {
 
     public static final Analyzer LINKED_FILES_ANALYZER = new PerFieldAnalyzerWrapper(
             new EnglishAnalyzer(),
-            Map.of(CONTENT_CASE_SENSITIVE.toString(), CASE_PRESERVING_ANALYZER,
-                    ANNOTATIONS_CASE_SENSITIVE.toString(), CASE_PRESERVING_ANALYZER));
+            Map.of(CONTENT_CASE_SENSITIVE.toString(), CASE_PRESERVING_ANALYZER, ANNOTATIONS_CASE_SENSITIVE.toString(), CASE_PRESERVING_ANALYZER));
 
     private final String field;
 
@@ -51,7 +52,8 @@ public enum LinkedFilesConstants {
         this.field = field;
     }
 
-    /// @return the case-preserving counterpart of `field` if there is one, `field` itself otherwise
+    /// @return the case-preserving counterpart of `field` if there is one,
+    ///   `field` itself otherwise
     public static String caseSensitiveFieldOf(String field) {
         int index = PDF_FIELDS.indexOf(field);
         return index == -1 ? field : CASE_SENSITIVE_PDF_FIELDS.get(index);

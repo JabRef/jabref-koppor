@@ -18,12 +18,13 @@ import org.jabref.model.entry.field.Field;
 
 /// Single-pass, three-way semantic merge planner:
 ///
-///   - For each citation key that changed on either side (base→local or base→remote), we first detect semantic conflicts (entry- and field-level).
-///   - Only if no conflict is found for that key, we generate the auto-merge plan; (remote - base) applied on local, but ONLY on fields where local kept base.
+/// - For each citation key that changed on either side (base→local or
+///   base→remote), we first detect semantic conflicts (entry- and field-level).
+/// - Only if no conflict is found for that key, we generate the auto-merge
+///   plan; (remote - base) applied on local, but ONLY on fields where local
+///   kept base.
 public final class SemanticMergeAnalyzer {
-    public static MergeAnalysis analyze(BibDatabaseContext base,
-                                        BibDatabaseContext local,
-                                        BibDatabaseContext remote) {
+    public static MergeAnalysis analyze(BibDatabaseContext base, BibDatabaseContext local, BibDatabaseContext remote) {
         // 1) union of all citationKeys that were changed (on either side)
         EntryTriples triples = EntryTriples.from(base, local, remote);
 
@@ -45,15 +46,8 @@ public final class SemanticMergeAnalyzer {
             }
 
             // B) no semantic conflicts，generate autoPlan
-            AutoPlan.generateAutoPlanForKey(
-                    key,
-                    baseEntry,
-                    localEntry,
-                    remoteEntry,
-                    fieldPatches,
-                    newEntries,
-                    deletedEntryKeys
-            );
+            AutoPlan.generateAutoPlanForKey(key, baseEntry, localEntry, remoteEntry, fieldPatches, newEntries,
+                    deletedEntryKeys);
         }
         return new MergeAnalysis(new MergePlan(fieldPatches, newEntries, deletedEntryKeys), conflicts);
     }

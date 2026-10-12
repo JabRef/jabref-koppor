@@ -13,6 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.UserMessage;
+import org.h2.mvstore.MVMap;
+import org.h2.mvstore.MVStore;
+import org.h2.mvstore.WriteBuffer;
+import org.h2.mvstore.type.BasicDataType;
 import org.jabref.logic.ai.chatting.repositories.ChatHistoryRepository;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.Directories;
@@ -23,33 +29,29 @@ import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.ai.chatting.ChatType;
 import org.jabref.model.ai.chatting.ErrorMessage;
 import org.jabref.model.database.BibDatabaseContext;
-
-import dev.langchain4j.data.message.AiMessage;
-import dev.langchain4j.data.message.UserMessage;
-import org.h2.mvstore.MVMap;
-import org.h2.mvstore.MVStore;
-import org.h2.mvstore.WriteBuffer;
-import org.h2.mvstore.type.BasicDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /// Migrates chat history from the old v1 MVStore file to the new v2 repository.
 ///
-/// Old format (v1): Stored in "chat-history.mv" file.
-/// Map keys like "bibDatabasePath-entry-citationKey" or "bibDatabasePath-group-groupName"
-/// containing Map&lt;Integer, ChatHistoryRecord&gt; where ChatHistoryRecord was a private inner
-/// class of MVStoreChatHistoryStorage (full name:
+/// Old format (v1): Stored in "chat-history.mv" file. Map keys like
+/// "bibDatabasePath-entry-citationKey" or "bibDatabasePath-group-groupName"
+/// containing Map&lt;Integer, ChatHistoryRecord&gt; where ChatHistoryRecord was
+/// a private inner class of MVStoreChatHistoryStorage (full name:
 /// org.jabref.logic.ai.chatting.chathistory.storages.MVStoreChatHistoryStorage$ChatHistoryRecord).
 ///
-/// New format (v2): Stored via repository using ChatIdentifier(libraryId, chatType, chatName).
+/// New format (v2): Stored via repository using ChatIdentifier(libraryId,
+/// chatType, chatName).
 ///
-/// **Problem:** The old inner class no longer exists, so MVStore's ObjectDataType fails with
-/// ClassNotFoundException before our code can intercept.
+/// **Problem:** The old inner class no longer exists, so MVStore's
+/// ObjectDataType fails with ClassNotFoundException before our code can
+/// intercept.
 ///
-/// **Solution:** Open the map with a custom [RawBytesDataType] that returns the raw
-/// Java-serialized bytes for each value without invoking standard Java deserialization.
-/// Then a [ClassRemappingObjectInputStream] deserializes those bytes while remapping
-/// the deleted inner class name to the current [ChatHistoryRecord].
+/// **Solution:** Open the map with a custom [RawBytesDataType] that returns the
+/// raw Java-serialized bytes for each value without invoking standard Java
+/// deserialization. Then a [ClassRemappingObjectInputStream] deserializes those
+/// bytes while remapping the deleted inner class name to the current
+/// [ChatHistoryRecord].
 public final class ChatHistoryMigrationV1 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatHistoryMigrationV1.class);
 
@@ -59,8 +61,7 @@ public final class ChatHistoryMigrationV1 {
 
     /// Old inner class full name that is no longer in the classpath.
     /// Was: private record ChatHistoryRecord inside MVStoreChatHistoryStorage.
-    private static final String OLD_CHAT_HISTORY_RECORD_CLASS =
-            "org.jabref.logic.ai.chatting.chathistory.storages.MVStoreChatHistoryStorage$ChatHistoryRecord";
+    private static final String OLD_CHAT_HISTORY_RECORD_CLASS = "org.jabref.logic.ai.chatting.chathistory.storages.MVStoreChatHistoryStorage$ChatHistoryRecord";
 
     private ChatHistoryMigrationV1() {
         throw new UnsupportedOperationException("cannot instantiate a utility class");
@@ -68,15 +69,14 @@ public final class ChatHistoryMigrationV1 {
 
     /// Migrates old chat history data from v1 file to v2 repository.
     ///
-    /// @param bibDatabaseContext  The database context containing the AI library ID
-    /// @param repository          The new v2 chat history repository to migrate to
+    /// @param bibDatabaseContext The database context containing the AI library
+    ///   ID
+    /// @param repository The new v2 chat history repository to migrate to
     /// @param notificationService Service for notifying user of errors
-    public static void migrate(
-            BibDatabaseContext bibDatabaseContext,
-            ChatHistoryRepository repository,
-            NotificationService notificationService
-    ) {
-        if (bibDatabaseContext.getMetaData().getAiLibraryId().isEmpty()) {
+    public static void migrate(BibDatabaseContext bibDatabaseContext, ChatHistoryRepository repository, NotificationService notificationService) {
+        if (bibDatabaseContext.getMetaData()
+                              .getAiLibraryId()
+                              .isEmpty()) {
             LOGGER.warn("Cannot migrate chat history: AI library ID is not set");
             return;
         }
@@ -86,23 +86,20 @@ public final class ChatHistoryMigrationV1 {
             return;
         }
 
-        String libraryId = bibDatabaseContext.getMetaData().getAiLibraryId().get();
+        String libraryId = bibDatabaseContext.getMetaData()
+                .getAiLibraryId()
+                .get();
 
         Path oldFilePath = Directories.getAiFilesDirectory()
-                                      .getParent()
-                                      .resolve("1")
-                                      .resolve(OLD_CHAT_HISTORY_FILE_NAME);
+                .getParent()
+                .resolve("1")
+                .resolve(OLD_CHAT_HISTORY_FILE_NAME);
 
         migrate(oldFilePath, libraryId, bibDatabaseContext, repository, notificationService);
     }
 
-    public static void migrate(
-            Path oldFilePath,
-            String libraryId,
-            BibDatabaseContext bibDatabaseContext,
-            ChatHistoryRepository repository,
-            NotificationService notificationService
-    ) {
+    public static void migrate(Path oldFilePath, String libraryId, BibDatabaseContext bibDatabaseContext,
+            ChatHistoryRepository repository, NotificationService notificationService) {
         if (!oldFilePath.toFile().exists()) {
             LOGGER.debug("No old chat history file found at {} - skipping migration", oldFilePath);
             return;
@@ -150,13 +147,8 @@ public final class ChatHistoryMigrationV1 {
         return mapName.contains(ENTRY_CHAT_HISTORY_INFIX) || mapName.contains(GROUP_CHAT_HISTORY_INFIX);
     }
 
-    private static boolean migrateOldMap(
-            String oldMapName,
-            String libraryId,
-            BibDatabaseContext bibDatabaseContext,
-            ChatHistoryRepository repository,
-            MVStore oldMvStore
-    ) {
+    private static boolean migrateOldMap(String oldMapName, String libraryId, BibDatabaseContext bibDatabaseContext,
+            ChatHistoryRepository repository, MVStore oldMvStore) {
         ChatType chatType;
         String chatName;
         String pathPrefix;
@@ -168,12 +160,16 @@ public final class ChatHistoryMigrationV1 {
             chatName = oldMapName.substring(index + ENTRY_CHAT_HISTORY_INFIX.length());
 
             if (!pathMatchesCurrentLibrary(pathPrefix, bibDatabaseContext)) {
-                LOGGER.debug("Skipping chat history migration for {}: path prefix '{}' does not match current library '{}'",
-                        oldMapName, pathPrefix, bibDatabaseContext.getDatabasePath().map(Path::toString).orElse("<none>"));
+                LOGGER.debug("Skipping chat history migration for {}: path prefix '{}' does not match current library '{}'", oldMapName, pathPrefix,
+                        bibDatabaseContext.getDatabasePath()
+                                          .map(Path::toString)
+                                          .orElse("<none>"));
                 return false;
             }
 
-            if (bibDatabaseContext.getDatabase().getEntriesByCitationKey(chatName).isEmpty()) {
+            if (bibDatabaseContext.getDatabase()
+                                  .getEntriesByCitationKey(chatName)
+                                  .isEmpty()) {
                 LOGGER.debug("Skipping chat history migration for non-existent entry: {}", chatName);
                 return false;
             }
@@ -184,8 +180,10 @@ public final class ChatHistoryMigrationV1 {
             chatName = oldMapName.substring(index + GROUP_CHAT_HISTORY_INFIX.length());
 
             if (!pathMatchesCurrentLibrary(pathPrefix, bibDatabaseContext)) {
-                LOGGER.debug("Skipping chat history migration for {}: path prefix '{}' does not match current library '{}'",
-                        oldMapName, pathPrefix, bibDatabaseContext.getDatabasePath().map(Path::toString).orElse("<none>"));
+                LOGGER.debug("Skipping chat history migration for {}: path prefix '{}' does not match current library '{}'", oldMapName, pathPrefix,
+                        bibDatabaseContext.getDatabasePath()
+                                          .map(Path::toString)
+                                          .orElse("<none>"));
                 return false;
             }
         } else {
@@ -195,10 +193,7 @@ public final class ChatHistoryMigrationV1 {
 
         // Open with RawBytesDataType so values are returned as raw Java-serialized bytes,
         // bypassing ObjectDataType which would throw ClassNotFoundException for the deleted class.
-        MVMap<Integer, byte[]> oldMap = oldMvStore.openMap(
-                oldMapName,
-                new MVMap.Builder<Integer, byte[]>().valueType(new RawBytesDataType())
-        );
+        MVMap<Integer, byte[]> oldMap = oldMvStore.openMap(oldMapName, new MVMap.Builder<Integer, byte[]>().valueType(new RawBytesDataType()));
 
         if (oldMap.isEmpty()) {
             LOGGER.debug("Skipping empty chat history map: {}", oldMapName);
@@ -217,9 +212,9 @@ public final class ChatHistoryMigrationV1 {
         Instant baseTime = Instant.now();
         int index = 0;
         for (Map.Entry<Integer, byte[]> entry : oldMap.entrySet()
-                                                      .stream()
-                                                      .sorted(Comparator.comparingInt(Map.Entry::getKey))
-                                                      .toList()) {
+                .stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                .toList()) {
             try {
                 ChatHistoryRecord record = deserializeOldRecord(entry.getValue());
                 if (record != null) {
@@ -241,19 +236,24 @@ public final class ChatHistoryMigrationV1 {
         return true;
     }
 
-    /// Returns `true` if `pathPrefix` (extracted from an old map name) refers to the
-    /// same file as the current library.
+    /// Returns `true` if `pathPrefix` (extracted from an old map name) refers
+    /// to the same file as the current library.
     ///
-    /// - If the prefix is an **absolute** path, it is compared after normalization.
-    /// - If the prefix is a **relative** path, the current library's absolute path is checked with
-    ///   [Path#endsWith(Path)], so `a/lib1.bib` matches `D:/my/a/lib1.bib`.
+    /// - If the prefix is an **absolute** path, it is compared after
+    ///   normalization.
+    /// - If the prefix is a **relative** path, the current library's absolute
+    ///   path is checked with [Path#endsWith(Path)], so `a/lib1.bib` matches
+    ///   `D:/my/a/lib1.bib`.
     private static boolean pathMatchesCurrentLibrary(String pathPrefix, BibDatabaseContext bibDatabaseContext) {
         if (pathPrefix.isEmpty() || bibDatabaseContext.getDatabasePath().isEmpty()) {
             return false;
         }
 
         Path oldPath = Path.of(pathPrefix);
-        Path currentAbsolute = bibDatabaseContext.getDatabasePath().get().toAbsolutePath().normalize();
+        Path currentAbsolute = bibDatabaseContext.getDatabasePath()
+                .get()
+                .toAbsolutePath()
+                .normalize();
 
         if (oldPath.isAbsolute()) {
             return oldPath.normalize().equals(currentAbsolute);
@@ -264,8 +264,7 @@ public final class ChatHistoryMigrationV1 {
     /// Deserializes old ChatHistoryRecord bytes using a remapping ObjectInputStream.
     /// Remaps the deleted inner class name to the current [ChatHistoryRecord].
     private static ChatHistoryRecord deserializeOldRecord(byte[] data) {
-        try (ClassRemappingObjectInputStream ois = new ClassRemappingObjectInputStream(
-                new java.io.ByteArrayInputStream(data))) {
+        try (ClassRemappingObjectInputStream ois = new ClassRemappingObjectInputStream(new java.io.ByteArrayInputStream(data))) {
             Object obj = ois.readObject();
             if (obj instanceof ChatHistoryRecord record) {
                 return record;
@@ -273,7 +272,8 @@ public final class ChatHistoryMigrationV1 {
             LOGGER.warn("Deserialized object is not ChatHistoryRecord: {}", obj.getClass());
             return null;
         } catch (Exception e) {
-            LOGGER.error("Failed to deserialize old chat history record: {}", e.getMessage(), e);
+            LOGGER.error("Failed to deserialize old chat history record: {}",
+                    e.getMessage(), e);
             return null;
         }
     }
@@ -295,20 +295,16 @@ public final class ChatHistoryMigrationV1 {
             role = ChatMessage.Role.AI;
         }
 
-        return new ChatMessage(
-                UUID.randomUUID().toString(),
-                timestamp,
-                role,
-                content,
-                List.of()
-        );
+        return new ChatMessage(UUID.randomUUID().toString(), timestamp,
+                role, content, List.of());
     }
 
-    /// Custom ObjectInputStream that remaps the deleted old inner class name
-    /// to the current [ChatHistoryRecord] class.
+    /// Custom ObjectInputStream that remaps the deleted old inner class name to
+    /// the current [ChatHistoryRecord] class.
     ///
-    /// The old and new records have identical components (className: String, content: String),
-    /// so Java record deserialization will call the canonical constructor successfully.
+    /// The old and new records have identical components (className: String,
+    /// content: String), so Java record deserialization will call the canonical
+    /// constructor successfully.
     private static class ClassRemappingObjectInputStream extends ObjectInputStream {
         public ClassRemappingObjectInputStream(InputStream in) throws IOException {
             super(in);
@@ -328,8 +324,9 @@ public final class ChatHistoryMigrationV1 {
         }
     }
 
-    /// Reads raw Java-serialized bytes from MVStore's binary page format without invoking
-    /// Java deserialization. MVStore's ObjectDataType stores each serializable value as:
+    /// Reads raw Java-serialized bytes from MVStore's binary page format
+    /// without invoking Java deserialization. MVStore's ObjectDataType stores
+    /// each serializable value as:
     /// 1. 1 byte: type identifier — `19` (TYPE_SERIALIZED_OBJECT in H2 2.3.232)
     /// 2. VarInt: byte length of the serialized payload
     /// 3. N bytes: the raw Java-serialized payload
@@ -342,9 +339,7 @@ public final class ChatHistoryMigrationV1 {
         public byte[] read(ByteBuffer buff) {
             int type = buff.get() & 0xff;
             if (type != TYPE_SERIALIZED_OBJECT) {
-                throw new IllegalStateException(
-                        "Unexpected MVStore type byte " + type
-                                + " while reading chat history for migration (expected 19 = serialized object).");
+                throw new IllegalStateException("Unexpected MVStore type byte " + type + " while reading chat history for migration (expected 19 = serialized object).");
             }
             int len = readVarInt(buff);
             byte[] data = new byte[len];

@@ -11,10 +11,10 @@ import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.icon.JabRefIcon;
 
-/// Constructs a [javafx.scene.control.TreeTableCell] based on the view model of the row and a bunch of specified converter methods.
+/// Constructs a [javafx.scene.control.TreeTableCell] based on the view model of
+/// the row and a bunch of specified converter methods.
 ///
 /// @param <T> cell value
 public class ViewModelTreeCellFactory<T> implements Callback<TreeView<T>, TreeCell<T>> {
@@ -55,19 +55,19 @@ public class ViewModelTreeCellFactory<T> implements Callback<TreeView<T>, TreeCe
 
     @Override
     public TreeCell<T> call(TreeView<T> tree) {
-        Callback<TreeItem<T>, ObservableValue<Boolean>> getSelectedProperty =
-                item -> {
-                    if (item instanceof CheckBoxTreeItem<?> treeItem) {
-                        return treeItem.selectedProperty();
-                    }
-                    return null;
-                };
+        Callback<TreeItem<T>, ObservableValue<Boolean>> getSelectedProperty = item -> {
+            if (item instanceof CheckBoxTreeItem<?> treeItem) {
+                return treeItem.selectedProperty();
+            }
+            return null;
+        };
 
         StringConverter<TreeItem<T>> converter = new StringConverter<>() {
             @Override
             public String toString(TreeItem<T> treeItem) {
-                return treeItem == null || treeItem.getValue() == null || toText == null ?
-                       "" : toText.call(treeItem.getValue());
+                return treeItem == null || treeItem.getValue() == null || toText == null
+                        ? ""
+                        : toText.call(treeItem.getValue());
             }
 
             @Override

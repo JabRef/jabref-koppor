@@ -14,7 +14,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +32,9 @@ class LibraryOfCongressTest {
     void setUp() {
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class);
         when(importFormatPreferences.bibEntryPreferences()).thenReturn(mock(BibEntryPreferences.class));
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
 
         fetcher = new LibraryOfCongress(importFormatPreferences);
     }
@@ -78,7 +79,10 @@ class LibraryOfCongressTest {
                     .withField(StandardField.YEAR, "2011");
             expected.setType(StandardEntryType.Book);
 
-            assertEquals(expected, fetcher.getParser().parseEntries(inputStream).getFirst());
+            assertEquals(expected,
+                    fetcher.getParser()
+                           .parseEntries(inputStream)
+                           .getFirst());
         }
     }
 

@@ -3,7 +3,6 @@ package org.jabref.gui.maintable;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.preview.PreviewViewer;
@@ -27,25 +26,27 @@ public class MainTableTooltip extends Tooltip {
 
         // Re-fit the tooltip once the rendered preview has its final size. Rendering touches the
         // bounds several times, so re-fits are coalesced: at most one sizeToScene per pulse.
-        preview.getContent().layoutBoundsProperty().addListener((_, oldBounds, newBounds) -> {
-            if (Math.abs(newBounds.getHeight() - oldBounds.getHeight()) < 1
-                    && Math.abs(newBounds.getWidth() - oldBounds.getWidth()) < 1) {
-                return;
-            }
-            if (resizeScheduled) {
-                return;
-            }
-            resizeScheduled = true;
-            Platform.runLater(() -> {
-                resizeScheduled = false;
-                sizeToScene();
-            });
-        });
+        preview.getContent()
+               .layoutBoundsProperty()
+               .addListener((_, oldBounds, newBounds) -> {
+                   if (Math.abs(newBounds.getHeight() - oldBounds.getHeight()) < 1 && Math.abs(newBounds.getWidth() - oldBounds.getWidth()) < 1) {
+                       return;
+                   }
+                   if (resizeScheduled) {
+                       return;
+                   }
+                   resizeScheduled = true;
+                   Platform.runLater(() -> {
+                       resizeScheduled = false;
+                       sizeToScene();
+                   });
+               });
     }
 
     public Tooltip createTooltip(BibDatabaseContext databaseContext, BibEntry entry, String fieldValue) {
         if (preferences.getPreviewPreferences().shouldShowPreviewEntryTableTooltip()) {
-            preview.setLayout(preferences.getPreviewPreferences().getSelectedPreviewLayout());
+            preview.setLayout(preferences.getPreviewPreferences()
+                    .getSelectedPreviewLayout());
             preview.setDatabaseContext(databaseContext);
             preview.setEntry(entry);
             setGraphic(preview);
@@ -61,7 +62,8 @@ public class MainTableTooltip extends Tooltip {
     }
 
     public Tooltip createPreviewTooltip(BibDatabaseContext databaseContext, BibEntry entry) {
-        preview.setLayout(preferences.getPreviewPreferences().getSelectedPreviewLayout());
+        preview.setLayout(preferences.getPreviewPreferences()
+                .getSelectedPreviewLayout());
         preview.setDatabaseContext(databaseContext);
         preview.setEntry(entry);
         setGraphic(preview);

@@ -9,7 +9,6 @@ import java.util.List;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +32,7 @@ public class JStyleLoader {
     private final List<JStyle> internalStyles = new ArrayList<>();
     private final List<JStyle> externalStyles = new ArrayList<>();
 
-    public JStyleLoader(@NonNull OpenOfficePreferences openOfficePreferences,
-                        @NonNull LayoutFormatterPreferences formatterPreferences,
-                        @NonNull JournalAbbreviationRepository abbreviationRepository) {
+    public JStyleLoader(@NonNull OpenOfficePreferences openOfficePreferences, @NonNull LayoutFormatterPreferences formatterPreferences, @NonNull JournalAbbreviationRepository abbreviationRepository) {
         this.openOfficePreferences = openOfficePreferences;
         this.layoutFormatterPreferences = formatterPreferences;
         this.abbreviationRepository = abbreviationRepository;
@@ -133,7 +130,8 @@ public class JStyleLoader {
             }
         }
         // Pick the first internal
-        openOfficePreferences.setCurrentJStyle(internalStyles.getFirst().getPath());
+        openOfficePreferences.setCurrentJStyle(internalStyles.getFirst()
+                .getPath());
         return internalStyles.getFirst();
     }
 }

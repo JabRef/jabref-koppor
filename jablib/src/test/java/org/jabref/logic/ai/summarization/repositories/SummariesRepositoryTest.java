@@ -10,7 +10,6 @@ import org.jabref.model.ai.llm.AiProvider;
 import org.jabref.model.ai.summarization.AiSummary;
 import org.jabref.model.ai.summarization.AiSummaryIdentifier;
 import org.jabref.model.ai.summarization.SummarizatorKind;
-
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -27,10 +26,7 @@ class SummariesRepositoryTest {
     private static Path tempDir;
 
     private static List<SummariesRepository> repositories() {
-        return List.of(
-                new MVStoreSummariesRepository(_ -> {
-                }, tempDir.resolve("summaries-test.mv"))
-        );
+        return List.of(new MVStoreSummariesRepository(_ -> {}, tempDir.resolve("summaries-test.mv")));
     }
 
     private static AiSummary buildSummary(String content) {
@@ -91,7 +87,13 @@ class SummariesRepositoryTest {
         repo.set(id1, buildSummary("alpha summary"));
         repo.set(id2, buildSummary("beta summary"));
 
-        assertEquals("alpha summary", repo.get(id1).get().content());
-        assertEquals("beta summary", repo.get(id2).get().content());
+        assertEquals("alpha summary",
+                repo.get(id1)
+                    .get()
+                    .content());
+        assertEquals("beta summary",
+                repo.get(id2)
+                    .get()
+                    .content());
     }
 }

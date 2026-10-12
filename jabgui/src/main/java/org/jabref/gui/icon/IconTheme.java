@@ -16,10 +16,8 @@ import javafx.scene.control.Dialog;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
 import org.jabref.architecture.AllowedToUseClassGetResource;
 import org.jabref.logic.os.OS;
-
 import org.jspecify.annotations.NullMarked;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
@@ -56,13 +54,7 @@ public class IconTheme {
     public static final Color DEFAULT_DISABLED_COLOR = Color.web("#c8c8c8");
     public static final Color DEFAULT_GROUP_COLOR = Color.web("#8a8a8a");
     public static final Color SELECTED_COLOR = Color.web("#50618F");
-    private static final List<String> LOGO_SET = List.of(
-            "jabrefIcon16",
-            "jabrefIcon20",
-            "jabrefIcon32",
-            "jabrefIcon40",
-            "jabrefIcon48",
-            "jabrefIcon64",
+    private static final List<String> LOGO_SET = List.of("jabrefIcon16", "jabrefIcon20", "jabrefIcon32", "jabrefIcon40", "jabrefIcon48", "jabrefIcon64",
             "jabrefIcon128");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IconTheme.class);
@@ -71,8 +63,7 @@ public class IconTheme {
     private static final String DEFAULT_ICON_PATH = ICON_PATH_PREFIX + "red.png";
     private static final Map<String, String> KEY_TO_ICON = readIconThemeFile(IconTheme.class.getResource("/images/Icons.properties"));
 
-    private IconTheme() {
-    }
+    private IconTheme() {}
 
     public static Image getJabRefIcon() {
         return new Image(getIconUrl("jabrefIcon48").toString());
@@ -84,30 +75,37 @@ public class IconTheme {
                        .toList();
     }
 
-    /// Applies the JabRef icon set to the given [Stage] on platforms that support window icons (non-macOS).
-    /// On macOS, stage icons are omitted so that macOS LaunchServices and dynamic Asset Catalogs natively manage the Dock icon.
+    /// Applies the JabRef icon set to the given [Stage] on platforms that
+    /// support window icons (non-macOS). On macOS, stage icons are omitted so
+    /// that macOS LaunchServices and dynamic Asset Catalogs natively manage the
+    /// Dock icon.
     public static void applyLogo(Stage stage) {
         if (!OS.OS_X) {
             stage.getIcons().addAll(getLogoSet());
         }
     }
 
-    /// Applies the specified icon to the given [Stage] on platforms that support window icons (non-macOS).
+    /// Applies the specified icon to the given [Stage] on platforms that
+    /// support window icons (non-macOS).
     public static void applyLogo(Stage stage, Image image) {
         if (!OS.OS_X) {
             stage.getIcons().add(image);
         }
     }
 
-    /// Applies the default JabRef icon to the window of the given [Dialog] on platforms that support window icons (non-macOS).
+    /// Applies the default JabRef icon to the window of the given [Dialog] on
+    /// platforms that support window icons (non-macOS).
     public static void applyLogo(Dialog<?> dialog) {
         applyLogo(dialog, getJabRefIcon());
     }
 
-    /// Applies the specified icon to the window of the given [Dialog] on platforms that support window icons (non-macOS).
+    /// Applies the specified icon to the window of the given [Dialog] on
+    /// platforms that support window icons (non-macOS).
     public static void applyLogo(Dialog<?> dialog, Image image) {
         if (!OS.OS_X) {
-            if (dialog.getDialogPane().getScene() != null && dialog.getDialogPane().getScene().getWindow() instanceof Stage stage) {
+            if (dialog.getDialogPane().getScene() != null && dialog.getDialogPane()
+                    .getScene()
+                    .getWindow() instanceof Stage stage) {
                 stage.getIcons().add(image);
             }
         }
@@ -120,9 +118,9 @@ public class IconTheme {
             return Optional.of(JabRefIcons.valueOf(normalizedIconCode));
         } catch (IllegalArgumentException _) {
             return java.util.Arrays.stream(JabRefIcons.values())
-                                   .filter(icon -> icon.matchesPersistedName(normalizedIconCode))
-                                   .findFirst()
-                                   .map(JabRefIcon.class::cast);
+                    .filter(icon -> icon.matchesPersistedName(normalizedIconCode))
+                    .findFirst()
+                    .map(JabRefIcon.class::cast);
         }
     }
 
@@ -160,7 +158,6 @@ public class IconTheme {
     }
 
     public enum JabRefIcons implements JabRefIcon {
-
         ADD(MaterialDesignP.PLUS_CIRCLE_OUTLINE),
         ADD_FILLED(MaterialDesignP.PLUS_CIRCLE),
         ADD_NOBOX(MaterialDesignP.PLUS),
@@ -213,7 +210,8 @@ public class IconTheme {
         PRIORITY_LOW(Color.rgb(111, 204, 117), MaterialDesignF.FLAG),
         PRINTED(MaterialDesignP.PRINTER),
         RANKING(MaterialDesignS.STAR),
-        RANK1(MaterialDesignS.STAR, MaterialDesignS.STAR_OUTLINE, MaterialDesignS.STAR_OUTLINE, MaterialDesignS.STAR_OUTLINE, MaterialDesignS.STAR_OUTLINE),
+        RANK1(MaterialDesignS.STAR, MaterialDesignS.STAR_OUTLINE, MaterialDesignS.STAR_OUTLINE,
+                MaterialDesignS.STAR_OUTLINE, MaterialDesignS.STAR_OUTLINE),
         RANK2(MaterialDesignS.STAR, MaterialDesignS.STAR, MaterialDesignS.STAR_OUTLINE, MaterialDesignS.STAR_OUTLINE, MaterialDesignS.STAR_OUTLINE),
         RANK3(MaterialDesignS.STAR, MaterialDesignS.STAR, MaterialDesignS.STAR, MaterialDesignS.STAR_OUTLINE, MaterialDesignS.STAR_OUTLINE),
         RANK4(MaterialDesignS.STAR, MaterialDesignS.STAR, MaterialDesignS.STAR, MaterialDesignS.STAR, MaterialDesignS.STAR_OUTLINE),

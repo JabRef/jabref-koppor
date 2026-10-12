@@ -9,6 +9,8 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import org.apache.xmpbox.schema.DublinCoreSchema;
+import org.apache.xmpbox.type.BadFieldValueException;
 import org.jabref.logic.bibtex.TypedBibEntry;
 import org.jabref.logic.formatter.casechanger.UnprotectTermsFormatter;
 import org.jabref.logic.util.strings.StringUtil;
@@ -23,13 +25,11 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryTypeFactory;
-
-import org.apache.xmpbox.schema.DublinCoreSchema;
-import org.apache.xmpbox.type.BadFieldValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// This class is used for *both* conversion from Dublin Core to BibTeX and conversion form BibTeX to Dublin Core
+/// This class is used for *both* conversion from Dublin Core to BibTeX and
+/// conversion form BibTeX to Dublin Core
 ///
 /// Related class: [org.jabref.logic.xmp.DocumentInformationExtractor]
 public class DublinCoreExtractor {
@@ -47,8 +47,9 @@ public class DublinCoreExtractor {
 
     private final UnprotectTermsFormatter unprotectTermsFormatter = new UnprotectTermsFormatter();
 
-    /// @param dcSchema      Metadata in DublinCore format.
-    /// @param resolvedEntry The BibEntry object, which is filled during metadata extraction.
+    /// @param dcSchema Metadata in DublinCore format.
+    /// @param resolvedEntry The BibEntry object, which is filled during
+    ///   metadata extraction.
     public DublinCoreExtractor(DublinCoreSchema dcSchema, XmpPreferences xmpPreferences, BibEntry resolvedEntry) {
         this.dcSchema = dcSchema;
         this.xmpPreferences = xmpPreferences;
@@ -76,12 +77,11 @@ public class DublinCoreExtractor {
         List<String> dates = dcSchema.getUnqualifiedSequenceValueList("date");
         if ((dates != null) && !dates.isEmpty()) {
             String date = dates.getFirst().trim();
-            Date.parse(date)
-                .ifPresent(dateValue -> {
-                    dateValue.getDay().ifPresent(day -> bibEntry.setField(StandardField.DAY, Integer.toString(day)));
-                    dateValue.getMonth().ifPresent(bibEntry::setMonth);
-                    dateValue.getYear().ifPresent(year -> bibEntry.setField(StandardField.YEAR, Integer.toString(year)));
-                });
+            Date.parse(date).ifPresent(dateValue -> {
+                dateValue.getDay().ifPresent(day -> bibEntry.setField(StandardField.DAY, Integer.toString(day)));
+                dateValue.getMonth().ifPresent(bibEntry::setMonth);
+                dateValue.getYear().ifPresent(year -> bibEntry.setField(StandardField.YEAR, Integer.toString(year)));
+            });
         }
     }
 
@@ -121,10 +121,12 @@ public class DublinCoreExtractor {
         }
     }
 
-    /// This method sets all fields, which are custom in BibTeX and therefore supported by JabRef, but which are not
-    /// included in the DublinCore format.
+    /// This method sets all fields, which are custom in BibTeX and therefore
+    /// supported by JabRef, but which are not included in the DublinCore
+    /// format.
     ///
-    /// The relation attribute of DublinCore is abused to store these custom fields. The prefix `bibtex` is used.
+    /// The relation attribute of DublinCore is abused to store these custom
+    /// fields. The prefix `bibtex` is used.
     private void extractBibTexFields() {
         Predicate<String> isBibTeXElement = s -> s.startsWith(XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX);
         Consumer<String> splitBibTeXElement = s -> {
@@ -228,13 +230,17 @@ public class DublinCoreExtractor {
         }
     }
 
-    /// Helper function for retrieving a BibEntry from the DublinCore metadata in a PDF file.
+    /// Helper function for retrieving a BibEntry from the DublinCore metadata
+    /// in a PDF file.
     ///
-    /// To understand how to get hold of a DublinCore have a look in the test cases for XMPUtil.
+    /// To understand how to get hold of a DublinCore have a look in the test
+    /// cases for XMPUtil.
     ///
-    /// The BibEntry is build by mapping individual fields in the dublin core (like creator, title, subject) to fields in
-    /// a bibtex bibEntry. In case special "bibtex/" entries are contained, the normal dublin core fields take
-    /// precedence. For instance, the dublin core date takes precedence over bibtex/month.
+    /// The BibEntry is build by mapping individual fields in the dublin core
+    /// (like creator, title, subject) to fields in a bibtex bibEntry. In case
+    /// special "bibtex/" entries are contained, the normal dublin core fields
+    /// take precedence. For instance, the dublin core date takes precedence
+    /// over bibtex/month.
     ///
     /// The opposite method is [DublinCoreExtractor#fillDublinCoreSchema()]
     ///
@@ -283,8 +289,7 @@ public class DublinCoreExtractor {
 
     /// BibTeX: year, month; DC: 'dc:date'
     private void fillDate() {
-        bibEntry.getFieldOrAlias(StandardField.DATE)
-                .ifPresent(publicationDate -> dcSchema.addUnqualifiedSequenceValue("date", publicationDate));
+        bibEntry.getFieldOrAlias(StandardField.DATE).ifPresent(publicationDate -> dcSchema.addUnqualifiedSequenceValue("date", publicationDate));
     }
 
     /// BibTeX: abstract; DC: 'dc:description'
@@ -304,7 +309,8 @@ public class DublinCoreExtractor {
 
     /// BibTeX: keywords; DC: 'dc:subject'
     private void fillKeywords(String value) {
-        String[] keywords = value.split(xmpPreferences.getKeywordSeparator().toString());
+        String[] keywords = value.split(xmpPreferences.getKeywordSeparator()
+                .toString());
         for (String keyword : keywords) {
             dcSchema.addSubject(keyword.trim());
         }
@@ -322,8 +328,7 @@ public class DublinCoreExtractor {
 
     /// BibTeX: language; DC: dc:language
     private void fillLanguages(String languages) {
-        Arrays.stream(languages.split(","))
-              .forEach(dcSchema::addLanguage);
+        Arrays.stream(languages.split(",")).forEach(dcSchema::addLanguage);
     }
 
     /// BibTeX: Rights (Custom Field); DC: dc:rights
@@ -336,8 +341,9 @@ public class DublinCoreExtractor {
         dcSchema.setSource(source);
     }
 
-    /// All others (+ citation key) get packaged in the dc:relation attribute with `bibtex/` prefix in the content.
-    /// The value of the given field is fetched from the class variable [DublinCoreExtractor#bibEntry].
+    /// All others (+ citation key) get packaged in the dc:relation attribute
+    /// with `bibtex/` prefix in the content. The value of the given field is
+    /// fetched from the class variable [DublinCoreExtractor#bibEntry].
     private void fillCustomField(Field field) {
         // We write the plain content of the field, because this is a custom DC field content with the semantics that
         // BibTeX data is stored. Thus, we do not need to get rid of BibTeX, but can keep it.
@@ -371,39 +377,29 @@ public class DublinCoreExtractor {
                 continue;
             }
 
-            String value = unprotectTermsFormatter.format(bibEntry.getField(field).get());
+            String value = unprotectTermsFormatter.format(bibEntry.getField(field)
+                    .get());
             if (field instanceof StandardField standardField) {
                 switch (standardField) {
-                    case EDITOR ->
-                            this.fillContributor(value);
-                    case AUTHOR ->
-                            this.fillCreator(value);
-                    case YEAR ->
-                            this.fillDate();
-                    case ABSTRACT ->
-                            this.fillDescription(value);
-                    case DOI ->
-                            this.fillIdentifier(value);
-                    case PUBLISHER ->
-                            this.fillPublisher(value);
-                    case KEYWORDS ->
-                            this.fillKeywords(value);
-                    case TITLE ->
-                            this.fillTitle(value);
-                    case LANGUAGE ->
-                            this.fillLanguages(value);
+                    case EDITOR -> this.fillContributor(value);
+                    case AUTHOR -> this.fillCreator(value);
+                    case YEAR -> this.fillDate();
+                    case ABSTRACT -> this.fillDescription(value);
+                    case DOI -> this.fillIdentifier(value);
+                    case PUBLISHER -> this.fillPublisher(value);
+                    case KEYWORDS -> this.fillKeywords(value);
+                    case TITLE -> this.fillTitle(value);
+                    case LANGUAGE -> this.fillLanguages(value);
                     case FILE -> {
                         // we do not write the "file" field, because the file is the PDF itself
                     }
-                    case DAY,
-                         MONTH -> {
+                    case DAY, MONTH -> {
                         // we do not write day and month separately if dc:year can be used
                         if (!bibEntry.hasField(StandardField.YEAR)) {
                             this.fillCustomField(field);
                         }
                     }
-                    default ->
-                            this.fillCustomField(field);
+                    default -> this.fillCustomField(field);
                 }
             } else {
                 if (DC_COVERAGE.equals(field.getName())) {

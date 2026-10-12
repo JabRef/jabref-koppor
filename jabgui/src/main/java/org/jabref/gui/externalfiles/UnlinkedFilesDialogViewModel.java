@@ -13,6 +13,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
+import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -27,7 +30,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TreeItem;
 import javafx.scene.input.TransferMode;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -44,10 +46,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
-import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,23 +83,13 @@ public class UnlinkedFilesDialogViewModel {
 
     private final FunctionBasedValidator<String> scanDirectoryValidator;
 
-    public UnlinkedFilesDialogViewModel(DialogService dialogService,
-                                        UndoManager undoManager,
-                                        FileUpdateMonitor fileUpdateMonitor,
-                                        GuiPreferences preferences,
-                                        StateManager stateManager,
-                                        TaskExecutor taskExecutor) {
+    public UnlinkedFilesDialogViewModel(DialogService dialogService, UndoManager undoManager, FileUpdateMonitor fileUpdateMonitor,
+            GuiPreferences preferences, StateManager stateManager, TaskExecutor taskExecutor) {
         this.preferences = preferences;
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
         this.bibDatabase = stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
-        importHandler = new ImportHandler(
-                bibDatabase,
-                preferences,
-                fileUpdateMonitor,
-                undoManager,
-                stateManager,
-                dialogService,
+        importHandler = new ImportHandler(bibDatabase, preferences, fileUpdateMonitor, undoManager, stateManager, dialogService,
                 taskExecutor);
 
         this.fileFilterList = FXCollections.observableArrayList(
@@ -115,8 +103,7 @@ public class UnlinkedFilesDialogViewModel {
         this.fileSortList = FXCollections.observableArrayList(ExternalFileSorter.values());
 
         Predicate<String> isDirectory = path -> Files.isDirectory(Path.of(path));
-        scanDirectoryValidator = new FunctionBasedValidator<>(directoryPath, isDirectory,
-                ValidationMessage.error(Localization.lang("Please enter a valid file path.")));
+        scanDirectoryValidator = new FunctionBasedValidator<>(directoryPath, isDirectory, ValidationMessage.error(Localization.lang("Please enter a valid file path.")));
 
         treeRootProperty.setValue(Optional.empty());
     }
@@ -132,24 +119,18 @@ public class UnlinkedFilesDialogViewModel {
         if (findUnlinkedFilesTask != null) {
             findUnlinkedFilesTask.cancel();
         }
-        UnlinkedFilesCrawler task = new UnlinkedFilesCrawler(
-                directory,
-                selectedFileFilter,
-                selectedDateFilter,
-                selectedSortFilter,
-                bibDatabase,
-                preferences.getFilePreferences(),
-                preferences.getExternalApplicationsPreferences(),
-                preferences.getAutoLinkPreferences());
+        UnlinkedFilesCrawler task = new UnlinkedFilesCrawler(directory, selectedFileFilter, selectedDateFilter, selectedSortFilter, bibDatabase,
+                preferences.getFilePreferences(), preferences.getExternalApplicationsPreferences(), preferences.getAutoLinkPreferences());
         findUnlinkedFilesTask = task;
-        task.onRunning(() -> {
-                progressValueProperty.set(ProgressIndicator.INDETERMINATE_PROGRESS);
-                progressTextProperty.setValue(Localization.lang("Searching file system..."));
-                progressTextProperty.bind(task.messageProperty());
-                taskActiveProperty.setValue(true);
-                treeRootProperty.setValue(Optional.empty());
-                relatedEntriesByFile = Map.of();
-            })
+        task.onRunning(
+                    () -> {
+                        progressValueProperty.set(ProgressIndicator.INDETERMINATE_PROGRESS);
+                        progressTextProperty.setValue(Localization.lang("Searching file system..."));
+                        progressTextProperty.bind(task.messageProperty());
+                        taskActiveProperty.setValue(true);
+                        treeRootProperty.setValue(Optional.empty());
+                        relatedEntriesByFile = Map.of();
+                    })
             .onFinished(() -> {
                 progressValueProperty.set(0);
                 taskActiveProperty.setValue(false);
@@ -166,8 +147,7 @@ public class UnlinkedFilesDialogViewModel {
     }
 
     public void startImport() {
-        List<Path> fileList = checkedFileListProperty
-                .stream()
+        List<Path> fileList = checkedFileListProperty.stream()
                 .map(TreeItem::getValue)
                 .map(FileNodeViewModel::getPath)
                 .filter(Files::isRegularFile)
@@ -180,22 +160,20 @@ public class UnlinkedFilesDialogViewModel {
         resultList.clear();
 
         List<Path> filesToLink = fileList.stream()
-                                         .filter(path -> getSelectedEntryForFile(path).isPresent())
-                                         .toList();
+                .filter(path -> getSelectedEntryForFile(path).isPresent())
+                .toList();
 
         List<Path> filesToImport = fileList.stream()
-                                           .filter(path -> getSelectedEntryForFile(path).isEmpty())
-                                           .toList();
+                .filter(path -> getSelectedEntryForFile(path).isEmpty())
+                .toList();
 
         for (Path file : filesToLink) {
             BibEntry targetEntry = fileToSelectedEntryMap.get(file);
             importHandler.getFileLinker().linkFilesToEntry(targetEntry, List.of(file));
-            resultList.add(new ImportFilesResultItemViewModel(file, true,
-                    Localization.lang("File was linked to existing entry")));
+            resultList.add(new ImportFilesResultItemViewModel(file, true, Localization.lang("File was linked to existing entry")));
         }
 
-        importFilesBackgroundTask = importHandler
-                .importFilesInBackground(filesToImport, TransferMode.LINK)
+        importFilesBackgroundTask = importHandler.importFilesInBackground(filesToImport, TransferMode.LINK)
                 .onRunning(() -> {
                     progressValueProperty.bind(importFilesBackgroundTask.workDonePercentageProperty());
                     progressTextProperty.bind(importFilesBackgroundTask.messageProperty());
@@ -224,8 +202,7 @@ public class UnlinkedFilesDialogViewModel {
 
     /// This starts the export of all files of all selected nodes in the file tree view.
     public void startExport() {
-        List<Path> fileList = checkedFileListProperty
-                .stream()
+        List<Path> fileList = checkedFileListProperty.stream()
                 .map(item -> item.getValue().getPath())
                 .filter(Files::isRegularFile)
                 .toList();
@@ -245,8 +222,7 @@ public class UnlinkedFilesDialogViewModel {
             return;
         }
 
-        try (BufferedWriter writer = Files.newBufferedWriter(exportPath.get(), StandardCharsets.UTF_8,
-                StandardOpenOption.CREATE)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(exportPath.get(), StandardCharsets.UTF_8, StandardOpenOption.CREATE)) {
             for (Path file : fileList) {
                 writer.write(file.toString() + "\n");
             }
@@ -278,24 +254,27 @@ public class UnlinkedFilesDialogViewModel {
 
     public void browseFileDirectory() {
         DirectoryDialogConfiguration directoryDialogConfiguration = new DirectoryDialogConfiguration.Builder()
-                .withInitialDirectory(preferences.getFilePreferences().getWorkingDirectory()).build();
+                .withInitialDirectory(preferences.getFilePreferences().getWorkingDirectory())
+                .build();
 
-        dialogService.showDirectorySelectionDialog(directoryDialogConfiguration)
-                     .ifPresent(selectedDirectory -> {
-                         directoryPath.setValue(selectedDirectory.toAbsolutePath().toString());
-                         preferences.getFilePreferences().setWorkingDirectory(selectedDirectory.toAbsolutePath());
-                     });
+        dialogService.showDirectorySelectionDialog(directoryDialogConfiguration).ifPresent(selectedDirectory -> {
+            directoryPath.setValue(selectedDirectory.toAbsolutePath()
+                    .toString());
+            preferences.getFilePreferences().setWorkingDirectory(selectedDirectory.toAbsolutePath());
+        });
     }
 
     private Path getSearchDirectory() {
         Path directory = Path.of(directoryPath.getValue());
         if (Files.notExists(directory)) {
             directory = Path.of(System.getProperty("user.dir"));
-            directoryPath.setValue(directory.toAbsolutePath().toString());
+            directoryPath.setValue(directory.toAbsolutePath()
+                    .toString());
         }
         if (!Files.isDirectory(directory)) {
             directory = directory.getParent();
-            directoryPath.setValue(directory.toAbsolutePath().toString());
+            directoryPath.setValue(directory.toAbsolutePath()
+                    .toString());
         }
         return directory;
     }

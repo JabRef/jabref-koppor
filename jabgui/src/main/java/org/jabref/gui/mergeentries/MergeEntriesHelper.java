@@ -16,27 +16,29 @@ import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableChangeType;
 import org.jabref.model.undo.UndoableFieldChange;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Helper class for merging bibliography entries with undo support.
-/// Source entry data is merged into the library entry, with longer field values preferred
-/// and obsolete fields removed.
+/// Helper class for merging bibliography entries with undo support. Source
+/// entry data is merged into the library entry, with longer field values
+/// preferred and obsolete fields removed.
 public final class MergeEntriesHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeEntriesHelper.class);
 
-    private MergeEntriesHelper() {
-    }
+    private MergeEntriesHelper() {}
 
     /// Merges two BibEntry objects with undo support.
     ///
-    /// @param entryFromFetcher The entry containing new information (source, from the fetcher)
-    /// @param entryFromLibrary The entry to be updated (target, from the library)
-    /// @param compoundEdit     Compound edit to collect undo information
-    /// @param keywordSeparator Separator character used for union-merging the groups field
-    public static boolean mergeEntries(BibEntry entryFromFetcher, BibEntry entryFromLibrary, CompoundEdit compoundEdit, char keywordSeparator) {
+    /// @param entryFromFetcher The entry containing new information (source,
+    ///   from the fetcher)
+    /// @param entryFromLibrary The entry to be updated (target, from the
+    ///   library)
+    /// @param compoundEdit Compound edit to collect undo information
+    /// @param keywordSeparator Separator character used for union-merging the
+    ///   groups field
+    public static boolean mergeEntries(BibEntry entryFromFetcher, BibEntry entryFromLibrary, CompoundEdit compoundEdit,
+            char keywordSeparator) {
         LOGGER.debug("Entry from fetcher: {}", entryFromFetcher);
         LOGGER.debug("Entry from library: {}", entryFromLibrary);
 
@@ -48,9 +50,10 @@ public final class MergeEntriesHelper {
         return typeChanged || fieldsChanged || fieldsRemoved || citationKeyChanged;
     }
 
-    /// Adopts the fetcher-provided citation key (e.g. an INSPIRE texkey) onto the library entry,
-    /// but only if the library entry doesn't already have one — an existing, possibly user-chosen
-    /// key is never overwritten by this merge.
+    /// Adopts the fetcher-provided citation key (e.g. an INSPIRE texkey) onto
+    /// the library entry, but only if the library entry doesn't already have
+    /// one — an existing, possibly user-chosen key is never overwritten by this
+    /// merge.
     private static boolean mergeCitationKey(BibEntry entryFromFetcher, BibEntry entryFromLibrary, CompoundEdit compoundEdit) {
         if (entryFromLibrary.getCitationKey().isPresent()) {
             return false;
@@ -80,7 +83,8 @@ public final class MergeEntriesHelper {
         return false;
     }
 
-    private static boolean mergeFields(BibEntry entryFromFetcher, BibEntry entryFromLibrary, CompoundEdit compoundEdit, char keywordSeparator) {
+    private static boolean mergeFields(BibEntry entryFromFetcher, BibEntry entryFromLibrary, CompoundEdit compoundEdit,
+            char keywordSeparator) {
         Set<Field> allFields = new LinkedHashSet<>();
         allFields.addAll(entryFromFetcher.getFields());
         allFields.addAll(entryFromLibrary.getFields());
@@ -93,16 +97,17 @@ public final class MergeEntriesHelper {
 
             if (field == StandardField.GROUPS && fetcherValue.isPresent()) {
                 // Always union-merge groups so no source group is ever lost
-                String merged = KeywordList.merge(libraryValue.orElse(""), fetcherValue.get(), keywordSeparator)
-                                           .getAsString(keywordSeparator);
+                String merged = KeywordList.merge(libraryValue.orElse(""), fetcherValue.get(), keywordSeparator).getAsString(keywordSeparator);
                 if (!merged.equals(libraryValue.orElse(""))) {
-                    LOGGER.debug("Union-merging groups: {} + {} -> {}", libraryValue.orElse(""), fetcherValue.get(), merged);
+                    LOGGER.debug("Union-merging groups: {} + {} -> {}",
+                            libraryValue.orElse(""), fetcherValue.get(), merged);
                     entryFromLibrary.setField(field, merged);
                     compoundEdit.addEdit(new UndoableFieldChange(entryFromLibrary, field, libraryValue.orElse(null), merged));
                     anyFieldsChanged = true;
                 }
             } else if (fetcherValue.isPresent() && shouldUpdateField(field, fetcherValue.get(), libraryValue)) {
-                LOGGER.debug("Updating field {}: {} -> {}", field, libraryValue.orElse(null), fetcherValue.get());
+                LOGGER.debug("Updating field {}: {} -> {}",
+                        field, libraryValue.orElse(null), fetcherValue.get());
                 entryFromLibrary.setField(field, fetcherValue.get());
                 compoundEdit.addEdit(new UndoableFieldChange(entryFromLibrary, field, libraryValue.orElse(null), fetcherValue.get()));
                 anyFieldsChanged = true;
@@ -138,10 +143,11 @@ public final class MergeEntriesHelper {
             return true;
         }
 
-        return PlausibilityComparatorFactory.INSTANCE.getPlausibilityComparator(field)
-                                                     .map(comparator -> comparator.compare(fetcherValue, libraryValue.get()))
-                                                     .filter(result -> result == ComparisonResult.LEFT_BETTER)
-                                                     .map(_ -> true)
-                                                     .orElse(false);
+        return PlausibilityComparatorFactory.INSTANCE
+                .getPlausibilityComparator(field)
+                .map(comparator -> comparator.compare(fetcherValue, libraryValue.get()))
+                .filter(result -> result == ComparisonResult.LEFT_BETTER)
+                .map(_ -> true)
+                .orElse(false);
     }
 }

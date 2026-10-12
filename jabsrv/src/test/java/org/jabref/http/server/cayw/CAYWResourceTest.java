@@ -1,17 +1,15 @@
 package org.jabref.http.server.cayw;
 
+import jakarta.ws.rs.core.Application;
+import jakarta.ws.rs.core.Response;
 import javafx.collections.FXCollections;
-
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.jabref.http.SrvStateManager;
 import org.jabref.http.server.ServerTest;
 import org.jabref.http.server.TestBibFile;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
-import jakarta.ws.rs.core.Application;
-import jakarta.ws.rs.core.Response;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -83,7 +81,9 @@ class CAYWResourceTest extends ServerTest {
                 .get();
 
         assertEquals(400, response.getStatus());
-        assertEquals("The 'command' parameter contains invalid characters. Only letters (A–Z, a–z) and '*' are allowed.", response.readEntity(String.class));
+        assertEquals(
+                "The 'command' parameter contains invalid characters. Only letters (A–Z, a–z) and '*' are allowed.",
+                response.readEntity(String.class));
     }
 
     @Test

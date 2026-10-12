@@ -2,7 +2,6 @@ package org.jabref.gui.importer;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.importer.fileformat.CustomImporter;
 
 public class ImporterViewModel {
@@ -15,7 +14,8 @@ public class ImporterViewModel {
         this.importer = importer;
         this.name.setValue(importer.getName());
         this.classname.setValue(importer.getClassName());
-        this.basePath.setValue(importer.getBasePath().toString());
+        this.basePath.setValue(importer.getBasePath()
+                .toString());
     }
 
     public CustomImporter getLogic() {

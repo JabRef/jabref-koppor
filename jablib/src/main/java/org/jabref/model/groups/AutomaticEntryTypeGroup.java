@@ -14,8 +14,7 @@ public class AutomaticEntryTypeGroup extends AutomaticGroup {
     @Override
     public Set<GroupTreeNode> createSubgroups(BibEntry entry) {
         EntryType type = entry.getType();
-        return Set.of(new GroupTreeNode(new EntryTypeGroup(type.getName(),
-                GroupHierarchyType.INDEPENDENT, type)));
+        return Set.of(new GroupTreeNode(new EntryTypeGroup(type.getName(), GroupHierarchyType.INDEPENDENT, type)));
     }
 
     @Override

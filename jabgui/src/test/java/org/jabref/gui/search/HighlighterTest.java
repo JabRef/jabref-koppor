@@ -9,7 +9,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,10 +21,7 @@ class HighlighterTest {
 
         Map<Optional<Field>, List<String>> groupedTerms = Highlighter.groupTermsByField(searchQuery);
 
-        assertEquals(
-                Optional.of("\\*"),
-                Highlighter.buildSearchPattern(groupedTerms.get(Optional.of(StandardField.TITLE)))
-        );
+        assertEquals(Optional.of("\\*"), Highlighter.buildSearchPattern(groupedTerms.get(Optional.of(StandardField.TITLE))));
     }
 
     @Test
@@ -41,9 +37,6 @@ class HighlighterTest {
 
         Map<Optional<Field>, List<String>> groupedTerms = Highlighter.groupTermsByField(searchQuery);
 
-        assertEquals(
-                Optional.of("term.*"),
-                Highlighter.buildSearchPattern(groupedTerms.get(Optional.of(StandardField.TITLE)))
-        );
+        assertEquals(Optional.of("term.*"), Highlighter.buildSearchPattern(groupedTerms.get(Optional.of(StandardField.TITLE))));
     }
 }

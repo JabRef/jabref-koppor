@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.jabref.logic.citationstyle.CSLStyleUtils.StyleInfo;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.parallel.Execution;
@@ -39,29 +40,15 @@ class CSLStyleUtilsTest {
     private static final String LITERATURA = "literatura.csl";
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "ieee.csl",
-            "apa.csl",
-            "harvard.csl",
-            "nlm-citation-sequence.csl",
-            "ieee.modified.csl",
-            "apa.v7.csl",
-            "/path/to/style/nature.csl",
-            "C:\\Users\\username\\Documents\\styles\\chicago.csl"
-    })
+    @ValueSource(strings = {"ieee.csl", "apa.csl", "harvard.csl", "nlm-citation-sequence.csl", "ieee.modified.csl", "apa.v7.csl",
+                "/path/to/style/nature.csl", "C:\\Users\\username\\Documents\\styles\\chicago.csl"})
     void acceptsCslExtension(String filename) {
         assertTrue(CSLStyleUtils.isCitationStyleFile(filename));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "ieee.txt",
-            "apa.xml",
-            "harvard.css",
-            "vancouver",
-            "nature.",
-            "",
-            "chicago.CSL" // case sensitivity - should reject
+    @ValueSource(strings = {"ieee.txt", "apa.xml", "harvard.css", "vancouver", "nature.", "",
+                "chicago.CSL" // case sensitivity - should reject
     })
     void rejectsNonCslExtension(String filename) {
         assertFalse(CSLStyleUtils.isCitationStyleFile(filename));
@@ -69,19 +56,21 @@ class CSLStyleUtilsTest {
 
     @ParameterizedTest
     @MethodSource("styleTestData")
-    void parseStyleInfo(String styleName,
-                        String expectedTitle,
-                        String expectedShortTitle,
-                        boolean expectedNumericNature,
-                        boolean expectedBibliographicNature,
-                        boolean expectedHasBibliographySortOrder,
-                        boolean expectedUsesHangingIndent) throws IOException {
+    void parseStyleInfo(
+            String styleName,
+            String expectedTitle,
+            String expectedShortTitle,
+            boolean expectedNumericNature,
+            boolean expectedBibliographicNature,
+            boolean expectedHasBibliographySortOrder,
+            boolean expectedUsesHangingIndent)
+            throws IOException {
         String styleContent;
         try (InputStream inputStream = CSLStyleUtilsTest.class.getResourceAsStream(styleName)) {
             styleContent = new String(inputStream.readAllBytes());
         }
 
-        Optional<CSLStyleUtils.StyleInfo> styleInfo = CSLStyleUtils.parseStyleInfo(styleName, styleContent);
+        Optional<StyleInfo> styleInfo = CSLStyleUtils.parseStyleInfo(styleName, styleContent);
 
         assertTrue(styleInfo.isPresent());
         assertEquals(expectedTitle, styleInfo.get().title());
@@ -94,10 +83,7 @@ class CSLStyleUtilsTest {
 
     @EnabledOnOs(OS.WINDOWS)
     @ParameterizedTest
-    @ValueSource(strings = {
-            "\\\\ieee.csl",
-            "//ieee.csl",
-    })
+    @ValueSource(strings = {"\\\\ieee.csl", "//ieee.csl"})
     void createStyleFromFileReturnsEmptyOptionalForInvalidPath(String filename) {
         Optional<CitationStyle> citationStyle = CSLStyleUtils.createCitationStyleFromFile(filename);
         assertEquals(Optional.empty(), citationStyle);
@@ -105,17 +91,19 @@ class CSLStyleUtilsTest {
 
     @ParameterizedTest
     @MethodSource("styleTestData")
-    void createCitationStyleFromFileReturnsValidCitationStyle(String styleName,
-                                                              String expectedTitle,
-                                                              String expectedShortTitle,
-                                                              boolean expectedNumericNature,
-                                                              boolean expectedBibliographicNature,
-                                                              boolean expectedHasBibliographySortOrder,
-                                                              boolean expectedUsesHangingIndent) {
+    void createCitationStyleFromFileReturnsValidCitationStyle(
+            String styleName,
+            String expectedTitle,
+            String expectedShortTitle,
+            boolean expectedNumericNature,
+            boolean expectedBibliographicNature,
+            boolean expectedHasBibliographySortOrder,
+            boolean expectedUsesHangingIndent) {
         // use absolute path to test csl so that it is treated as external file
-        Path resourcePath = Path.of("").toAbsolutePath()
-                                .resolve("src/test/resources/org/jabref/logic/citationstyle")
-                                .resolve(styleName);
+        Path resourcePath = Path.of("")
+                .toAbsolutePath()
+                .resolve("src/test/resources/org/jabref/logic/citationstyle")
+                .resolve(styleName);
 
         Optional<CitationStyle> citationStyle = CSLStyleUtils.createCitationStyleFromFile(resourcePath.toString());
 
@@ -132,9 +120,12 @@ class CSLStyleUtilsTest {
 
     private static Stream<Arguments> styleTestData() {
         return Stream.of(
-                Arguments.of(MODIFIED_IEEE, "IEEE - Bold Author", "", true, true, false, false),
-                Arguments.of(MODIFIED_APA, "Modified American Psychological Association 7th edition", "APA", false, true, true, true),
-                Arguments.of(LITERATURA, "Literatūra", "Literatūra", false, true, true, true) // Literatūra uses author-date format, so non-numeric
+                Arguments.of(MODIFIED_IEEE, "IEEE - Bold Author", "", true, true, false,
+                        false),
+                Arguments.of(MODIFIED_APA, "Modified American Psychological Association 7th edition",
+                        "APA", false, true, true, true),
+                Arguments.of(LITERATURA, "Literatūra", "Literatūra", false, true, true,
+                        true) // Literatūra uses author-date format, so non-numeric
         );
     }
 
@@ -154,8 +145,7 @@ class CSLStyleUtilsTest {
                 Arguments.of(CHICAGO_AUTHOR_DATE),
                 Arguments.of(NATURE),
                 Arguments.of(MLA),
-                Arguments.of(JOURNAL_OF_CLINICAL_ETHICS)
-        );
+                Arguments.of(JOURNAL_OF_CLINICAL_ETHICS));
     }
 
     @ParameterizedTest
@@ -174,8 +164,7 @@ class CSLStyleUtilsTest {
                 Arguments.of("Chicago Manual of Style 18th edition (author-date)", CHICAGO_AUTHOR_DATE),
                 Arguments.of("Nature", NATURE),
                 Arguments.of("MLA Handbook 9th edition (in-text citations)", MLA),
-                Arguments.of("The Journal of Clinical Ethics", JOURNAL_OF_CLINICAL_ETHICS)
-        );
+                Arguments.of("The Journal of Clinical Ethics", JOURNAL_OF_CLINICAL_ETHICS));
     }
 
     @ParameterizedTest
@@ -194,8 +183,7 @@ class CSLStyleUtilsTest {
                 Arguments.of(false, CHICAGO_AUTHOR_DATE),
                 Arguments.of(true, NATURE),
                 Arguments.of(false, MLA),
-                Arguments.of(false, JOURNAL_OF_CLINICAL_ETHICS)
-        );
+                Arguments.of(false, JOURNAL_OF_CLINICAL_ETHICS));
     }
 
     @ParameterizedTest
@@ -214,8 +202,7 @@ class CSLStyleUtilsTest {
                 Arguments.of(true, CHICAGO_AUTHOR_DATE),
                 Arguments.of(true, NATURE),
                 Arguments.of(true, MLA),
-                Arguments.of(false, JOURNAL_OF_CLINICAL_ETHICS)
-        );
+                Arguments.of(false, JOURNAL_OF_CLINICAL_ETHICS));
     }
 
     @ParameterizedTest
@@ -234,8 +221,7 @@ class CSLStyleUtilsTest {
                 Arguments.of(true, CHICAGO_AUTHOR_DATE),
                 Arguments.of(false, NATURE),
                 Arguments.of(true, MLA),
-                Arguments.of(false, JOURNAL_OF_CLINICAL_ETHICS)
-        );
+                Arguments.of(false, JOURNAL_OF_CLINICAL_ETHICS));
     }
 
     @ParameterizedTest
@@ -254,7 +240,6 @@ class CSLStyleUtilsTest {
                 Arguments.of(true, CHICAGO_AUTHOR_DATE),
                 Arguments.of(false, NATURE),
                 Arguments.of(true, MLA),
-                Arguments.of(false, JOURNAL_OF_CLINICAL_ETHICS)
-        );
+                Arguments.of(false, JOURNAL_OF_CLINICAL_ETHICS));
     }
 }

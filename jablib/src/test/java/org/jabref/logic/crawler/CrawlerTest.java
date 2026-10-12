@@ -8,7 +8,8 @@ import java.nio.file.Path;
 import java.util.List;
 
 import javafx.collections.FXCollections;
-
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.citationkeypattern.CitationKeyGeneratorTestUtils;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
@@ -24,9 +25,6 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.support.ExternalServicesTest;
-
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -42,6 +40,7 @@ import static org.mockito.Mockito.when;
 class CrawlerTest {
     @TempDir
     Path tempRepositoryDirectory;
+
     ImportFormatPreferences importFormatPreferences;
     ImporterPreferences importerPreferences;
     SaveConfiguration saveConfiguration;
@@ -64,7 +63,9 @@ class CrawlerTest {
         saveConfiguration = mock(SaveConfiguration.class, Answers.RETURNS_DEEP_STUBS);
         when(saveConfiguration.getSaveOrder()).thenReturn(SaveOrder.getDefaultSaveOrder());
         when(importerPreferences.getApiKeys()).thenReturn(FXCollections.emptyObservableSet());
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
 
         when(preferences.getCitationKeyPatternPreferences()).thenReturn(citationKeyPatternPreferences);
 
@@ -73,8 +74,8 @@ class CrawlerTest {
 
     private void setUpRepository() throws GitAPIException, URISyntaxException {
         Git git = Git.init()
-                     .setDirectory(tempRepositoryDirectory.toFile())
-                     .call();
+                .setDirectory(tempRepositoryDirectory.toFile())
+                .call();
         setUpTestStudyDefinitionFile();
         git.add()
            .addFilepattern(".")
@@ -93,10 +94,7 @@ class CrawlerTest {
 
     @Test
     void whetherAllFilesAreCreated() throws IOException, ParseException, GitAPIException, SaveException, JabRefException {
-        Crawler testCrawler = new Crawler(getPathToStudyDefinitionFile(),
-                gitHandler,
-                preferences,
-                entryTypesManager,
+        Crawler testCrawler = new Crawler(getPathToStudyDefinitionFile(), gitHandler, preferences, entryTypesManager,
                 new DummyFileUpdateMonitor());
 
         testCrawler.performCrawl();
@@ -105,11 +103,10 @@ class CrawlerTest {
         assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeCloudComputing + " - Cloud Computing")));
 
         List<String> filesToAssert = List.of("ArXiv.bib", "Springer.bib", "result.bib", "Medline_PubMed.bib");
-        filesToAssert.forEach(
-                fileName -> {
-                    assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeQuantum + " - Quantum", fileName)));
-                    assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeCloudComputing + " - Cloud Computing", fileName)));
-                });
+        filesToAssert.forEach(fileName -> {
+            assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeQuantum + " - Quantum", fileName)));
+            assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), hashCodeCloudComputing + " - Cloud Computing", fileName)));
+        });
         assertTrue(Files.exists(Path.of(tempRepositoryDirectory.toString(), "studyResult.bib")));
     }
 

@@ -27,6 +27,11 @@ run-jabkit *FLAGS: ensure-gg-cmd
 run-jabsrv *FLAGS: ensure-gg-cmd
     sh ./gg.cmd gradle :jabsrv-cli:run --args="{{FLAGS}}"
 
+# Format all Java sources with jfmt
+[unix]
+format: ensure-gg-cmd
+    sh ./gg.cmd gradle jfmt
+
 [windows]
 ensure-gg-cmd:
     if (-not (Test-Path 'gg.cmd')) { Write-Host 'gg.cmd not found — downloading...'; Invoke-WebRequest 'https://ggcmd.io/gg.cmd' -OutFile 'gg.cmd' }
@@ -53,6 +58,11 @@ run-jabkit *FLAGS: ensure-gg-cmd
 [windows]
 run-jabsrv *FLAGS: ensure-gg-cmd
     .\gg.cmd gradle :jabsrv-cli:run --args="{{FLAGS}}"
+
+# Format all Java sources with jfmt
+[windows]
+format: ensure-gg-cmd
+    .\gg.cmd gradle jfmt
 
 run-main:
     just run-branch main

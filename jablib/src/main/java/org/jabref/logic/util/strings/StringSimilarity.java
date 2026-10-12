@@ -13,7 +13,8 @@ public class StringSimilarity {
     // edit distance threshold for entry title comparison
     private final int METRIC_THRESHOLD = 4;
 
-    /// String similarity based on Levenshtein, ignoreCase, and fixed metric threshold of 4.
+    /// String similarity based on Levenshtein, ignoreCase, and fixed metric
+    /// threshold of 4.
     ///
     /// @param a String to compare
     /// @param b String to compare
@@ -48,16 +49,20 @@ public class StringSimilarity {
         }
         final double distanceIgnoredCase = editDistanceIgnoreCase(longer, shorter);
         final double similarity = (longerLength - distanceIgnoredCase) / longerLength;
-        LOGGER.trace("Longer string: {} Shorter string: {} Similarity: {}", longer, shorter, similarity);
+        LOGGER.trace("Longer string: {} Shorter string: {} Similarity: {}",
+                longer, shorter, similarity);
         return similarity;
     }
 
-    /// Returns the Longest Common Substring (LCS) similarity rating between two strings, ignoring case.
+    /// Returns the Longest Common Substring (LCS) similarity rating between two
+    /// strings, ignoring case.
     ///
-    /// This function uses the following formula = `(length of longest substring) / (length of shorter string)`.
-    /// The longest common substring is calculated using a space-optimized dynamic programming implementation of the LCS
-    /// algorithm found <a href="https://en.wikipedia.org/wiki/Longest_common_substring">on Wikipedia</a>.
-    ///
+    /// This function uses the following formula = `(length of longest
+    /// substring) / (length of shorter string)`. The longest common substring
+    /// is calculated using a space-optimized dynamic programming implementation
+    /// of the LCS algorithm found <a
+    /// href="https://en.wikipedia.org/wiki/Longest_common_substring">on
+    /// Wikipedia</a>.
     public static double LCSSimilarity(String first, String second) {
         if (first.isEmpty() && second.isEmpty()) {
             return 1.0;

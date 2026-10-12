@@ -17,7 +17,6 @@ import org.jabref.model.entry.identifier.Identifier;
 import org.jabref.model.entry.identifier.RFC;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -65,8 +64,7 @@ class CompositeIdFetcherTest {
                                 .withField(StandardField.KEYWORDS, "Astrophysics of Galaxies (astro-ph.GA), FOS: Physical sciences")
                                 .withField(InternalField.KEY_FIELD, "Cunningham_2022")
                                 .withField(new UnknownField("copyright"), "Creative Commons Attribution 4.0 International"),
-                        "arXiv:2110.02957"
-                ),
+                        "arXiv:2110.02957"),
                 /* disabled, because Iacr does not work
                 Arguments.arguments(
                         "performSearchByIdReturnsCorrectEntryForIacrEprintId",
@@ -96,8 +94,7 @@ class CompositeIdFetcherTest {
                                 .withField(new UnknownField("ppn_gvk"), "100121840X")
                                 .withField(StandardField.EDITION, "Third edition")
                                 .withField(StandardField.ADDRESS, "Boston"),
-                        "9780134685991"
-                ),
+                        "9780134685991"),
                 Arguments.arguments(
                         "performSearchByIdReturnsCorrectEntryForDoiId",
                         new BibEntry(StandardEntryType.Book)
@@ -109,16 +106,16 @@ class CompositeIdFetcherTest {
                                 .withField(StandardField.ISBN, "9781118257517")
                                 .withField(StandardField.DOI, "10.1002/9781118257517")
                                 .withCitationKey("Burd_2011"),
-                        "10.1002/9781118257517"
-                )
-        );
+                        "10.1002/9781118257517"));
     }
 
     @BeforeEach
     void setUp() {
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
         // Needed for ArXiv Fetcher keyword processing
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
         compositeIdFetcher = new CompositeIdFetcher(importFormatPreferences);
     }
 

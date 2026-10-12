@@ -9,7 +9,6 @@ import org.jabref.logic.undo.UndoManager;
 import org.jabref.logic.util.OptionalObjectProperty;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +34,8 @@ class MergeTwoEntriesActionTest {
         when(undoManager.addEdit(anyString(), any())).thenReturn(true);
 
         MergeTwoEntriesAction action = new MergeTwoEntriesAction(
-                new EntriesMergeResult(new BibEntry(), new BibEntry(), new BibEntry(), new BibEntry(), mergedEntry),
+                new EntriesMergeResult(new BibEntry(), new BibEntry(), new BibEntry(),
+                        new BibEntry(), mergedEntry),
                 stateManager,
                 undoManager);
         action.execute();

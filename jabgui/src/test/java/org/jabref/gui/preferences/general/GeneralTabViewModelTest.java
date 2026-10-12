@@ -11,7 +11,6 @@ import org.jabref.http.manager.HttpServerManager;
 import org.jabref.languageserver.controller.LanguageServerController;
 import org.jabref.logic.UiMessageHandler;
 import org.jabref.logic.remote.server.RemoteListenerServerManager;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Answers;

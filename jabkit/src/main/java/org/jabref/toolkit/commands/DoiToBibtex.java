@@ -12,7 +12,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.toolkit.exception.ExportServiceException;
 import org.jabref.toolkit.service.ExportService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -48,7 +47,8 @@ class DoiToBibtex implements Callable<Integer> {
             }
             Optional<BibEntry> entry;
             try {
-                entry = fetcher.performSearchById(doiParsed.get().asString());
+                entry = fetcher.performSearchById(doiParsed.get()
+                        .asString());
             } catch (FetcherException e) {
                 LOGGER.error("Could not fetch BibTeX based on DOI", e);
                 System.err.print(Localization.lang("No data was found for the identifier"));

@@ -5,7 +5,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.jabref.logic.importer.ImportException;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 

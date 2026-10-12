@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibtexString;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,14 +36,16 @@ class BibStringDiffTest {
 
     @Test
     void equalTest() {
-        BibStringDiff other = new BibStringDiff(diff.getOriginalString().orElse(null), diff.getNewString().orElse(null));
+        BibStringDiff other = new BibStringDiff(diff.getOriginalString().orElse(null),
+                diff.getNewString().orElse(null));
         assertEquals(diff, other);
         assertEquals(diff.hashCode(), other.hashCode());
     }
 
     @Test
     void notEqualTest() {
-        BibStringDiff other = new BibStringDiff(diff.getNewString().orElse(null), diff.getOriginalString().orElse(null));
+        BibStringDiff other = new BibStringDiff(diff.getNewString().orElse(null),
+                diff.getOriginalString().orElse(null));
         assertNotEquals(diff, other);
         assertNotEquals(diff.hashCode(), other.hashCode());
     }

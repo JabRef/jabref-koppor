@@ -1,7 +1,6 @@
 package org.jabref.model.database;
 
 import org.jabref.model.entry.BibEntry;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

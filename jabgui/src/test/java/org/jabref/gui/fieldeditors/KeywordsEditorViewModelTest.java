@@ -8,7 +8,6 @@ import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.KeywordList;
 import org.jabref.model.entry.field.Field;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,19 +23,22 @@ class KeywordsEditorViewModelTest {
         SuggestionProvider<String> suggestionProvider = mock(SuggestionProvider.class);
 
         when(suggestionProvider.getPossibleSuggestions()).thenReturn(List.of("value", "key\\,\\\\", "parent > node > child", "father \\> inheritor"));
-        viewModel = new KeywordsEditorViewModel(mock(Field.class), suggestionProvider, mock(FieldCheckers.class), ',', mock(UndoManager.class));
+        viewModel = new KeywordsEditorViewModel(mock(Field.class), suggestionProvider, mock(FieldCheckers.class), ',',
+                mock(UndoManager.class));
     }
 
     @Test
     void getSuggestionsWithEscapedSeparator() {
         String request = "key";
-        assertEquals(List.of(new Keyword(request), new Keyword("key\\,\\\\")), viewModel.getSuggestions(request));
+        assertEquals(List.of(new Keyword(request), new Keyword("key\\,\\\\")),
+                viewModel.getSuggestions(request));
     }
 
     @Test
     void getSuggestionsWithEscapedHierarchicalDelimiter() {
         String request = "father";
-        assertEquals(List.of(new Keyword(request), new Keyword("father \\> inheritor")), viewModel.getSuggestions(request));
+        assertEquals(List.of(new Keyword(request), new Keyword("father \\> inheritor")),
+                viewModel.getSuggestions(request));
     }
 
     @Test
@@ -60,6 +62,7 @@ class KeywordsEditorViewModelTest {
         String hierarchicalString = "parent > node > child";
         Keyword keyword = Keyword.ofHierarchical(hierarchicalString);
 
-        assertEquals(hierarchicalString, KeywordsEditorViewModel.getStringConverter().toString(keyword));
+        assertEquals(hierarchicalString, KeywordsEditorViewModel.getStringConverter()
+                .toString(keyword));
     }
 }

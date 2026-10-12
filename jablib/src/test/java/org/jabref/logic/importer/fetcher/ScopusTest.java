@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
@@ -18,7 +17,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.paging.Page;
 import org.jabref.model.search.query.SearchQueryNode;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -122,8 +120,7 @@ class ScopusTest implements SearchBasedFetcherCapabilityTest, PagedSearchFetcher
         // Check that essential fields are populated
         assertNotEquals(Optional.empty(), firstEntry.getField(StandardField.TITLE));
         // Scopus entries should have DOI or URL
-        assertTrue(firstEntry.getField(StandardField.DOI).isPresent() ||
-                firstEntry.getField(StandardField.URL).isPresent());
+        assertTrue(firstEntry.getField(StandardField.DOI).isPresent() || firstEntry.getField(StandardField.URL).isPresent());
     }
 
     @Test

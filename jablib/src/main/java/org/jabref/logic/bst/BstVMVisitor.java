@@ -5,16 +5,15 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.bibtex.FieldWriter;
 import org.jabref.model.entry.Month;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.StandardField;
-
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -27,10 +26,10 @@ class BstVMVisitor extends BstBaseVisitor<Integer> {
     private final BstVMContext bstVMContext;
     private final StringBuilder bbl;
 
-    @Nullable private BstEntry selectedBstEntry = null;
+    @Nullable
+    private BstEntry selectedBstEntry = null;
 
-    public record Identifier(String name) {
-    }
+    public record Identifier(String name) {}
 
     public BstVMVisitor(BstVMContext bstVMContext, StringBuilder bbl) {
         this.bstVMContext = bstVMContext;
@@ -61,8 +60,7 @@ class BstVMVisitor extends BstBaseVisitor<Integer> {
     public Integer visitFunctionCommand(BstParser.FunctionCommandContext ctx) {
         String name = ctx.id.getText();
         LOGGER.trace("Function: {}", name);
-        bstVMContext.functions().put(name,
-                (visitor, _) -> visitor.visit(ctx.function));
+        bstVMContext.functions().put(name, (visitor, _) -> visitor.visit(ctx.function));
         return BstVM.TRUE;
     }
 
@@ -80,16 +78,16 @@ class BstVMVisitor extends BstBaseVisitor<Integer> {
         for (BstEntry bstEntry : bstVMContext.entries()) {
             if (!bstEntry.fields.containsKey(StandardField.CROSSREF.getName())) {
                 String crossref = bstEntry.entry.getResolvedFieldOrAlias(StandardField.CROSSREF, bstVMContext.bibDatabase())
-                                                .map(content -> normalizeFieldValue(content, fieldWriter, StandardField.CROSSREF))
-                                                .orElse(null);
+                        .map(content -> normalizeFieldValue(content, fieldWriter, StandardField.CROSSREF))
+                        .orElse(null);
                 bstEntry.fields.put(StandardField.CROSSREF.getName(), crossref);
             }
 
             for (Map.Entry<String, @Nullable String> fieldMapEntry : bstEntry.fields.entrySet()) {
                 Field field = FieldFactory.parseField(fieldMapEntry.getKey());
                 bstEntry.entry.getResolvedFieldOrAlias(field, bstVMContext.bibDatabase())
-                              .map(content -> normalizeFieldValue(content, fieldWriter, field))
-                              .ifPresent(fieldMapEntry::setValue);
+                        .map(content -> normalizeFieldValue(content, fieldWriter, field))
+                        .ifPresent(fieldMapEntry::setValue);
             }
         }
 
@@ -98,9 +96,7 @@ class BstVMVisitor extends BstBaseVisitor<Integer> {
 
     private static String normalizeFieldValue(String content, FieldWriter fieldWriter, Field field) {
         String result = fieldWriter.write(field, content);
-        if (result.startsWith("{")
-                && result.endsWith("}")
-                && !FieldWriter.isEscaped(result, result.length() - 1)) {
+        if (result.startsWith("{") && result.endsWith("}") && !FieldWriter.isEscaped(result, result.length() - 1)) {
             // Strip enclosing {} from the output
             return result.substring(1, result.length() - 1);
         }
@@ -108,8 +104,8 @@ class BstVMVisitor extends BstBaseVisitor<Integer> {
             // We don't have the internal BibTeX strings at hand.
             // Thus, we look up the full month name in the generic table.
             return Month.parse(result)
-                        .map(Month::getFullName)
-                        .orElse(result);
+                    .map(Month::getFullName)
+                    .orElse(result);
         }
         return result;
     }
@@ -140,7 +136,8 @@ class BstVMVisitor extends BstBaseVisitor<Integer> {
 
     @Override
     public Integer visitReverseCommand(BstParser.ReverseCommandContext ctx) {
-        ListIterator<BstEntry> i = bstVMContext.entries().listIterator(bstVMContext.entries().size());
+        ListIterator<BstEntry> i = bstVMContext.entries().listIterator(bstVMContext.entries()
+                .size());
         while (i.hasPrevious()) {
             this.selectedBstEntry = i.previous();
             visit(ctx.bstFunction());
@@ -235,7 +232,9 @@ class BstVMVisitor extends BstBaseVisitor<Integer> {
         }
         if (bstVMContext.functions().containsKey(name)) {
             LOGGER.trace("function {}", name);
-            bstVMContext.functions().get(name).execute(this, ctx, selectedBstEntry);
+            bstVMContext.functions()
+                        .get(name)
+                        .execute(this, ctx, selectedBstEntry);
             return;
         }
 
@@ -261,10 +260,8 @@ class BstVMVisitor extends BstBaseVisitor<Integer> {
                             String s = token.getText();
                             bstVMContext.stack().push(s.substring(1, s.length() - 1));
                         }
-                        case BstParser.INTEGER ->
-                                bstVMContext.stack().push(Integer.parseInt(token.getText().substring(1)));
-                        case BstParser.QUOTED ->
-                                bstVMContext.stack().push(new Identifier(token.getText().substring(1)));
+                        case BstParser.INTEGER -> bstVMContext.stack().push(Integer.parseInt(token.getText().substring(1)));
+                        case BstParser.QUOTED -> bstVMContext.stack().push(new Identifier(token.getText().substring(1)));
                     }
                 } else if (childNode instanceof BstParser.StackContext) {
                     bstVMContext.stack().push(childNode);
@@ -272,9 +269,7 @@ class BstVMVisitor extends BstBaseVisitor<Integer> {
                     this.visit(childNode);
                 }
             } catch (BstVMException e) {
-                bstVMContext.path().ifPresentOrElse(
-                        path -> LOGGER.error("{} ({})", e.getMessage(), path, e),
-                        () -> LOGGER.error("", e));
+                bstVMContext.path().ifPresentOrElse(path -> LOGGER.error("{} ({})", e.getMessage(), path, e), () -> LOGGER.error("", e));
                 throw e;
             }
         }

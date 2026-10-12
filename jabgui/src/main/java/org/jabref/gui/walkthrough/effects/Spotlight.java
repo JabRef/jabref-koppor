@@ -1,5 +1,6 @@
 package org.jabref.gui.walkthrough.effects;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -12,10 +13,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
-
 import org.jabref.gui.walkthrough.utils.WalkthroughUtils;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -71,13 +69,12 @@ public final class Spotlight extends BaseWindowEffect {
         hole.setHeight(oldBounds.getHeight());
 
         transitionAnimation = new Timeline(
-                new KeyFrame(TRANSITION_DURATION,
+                new KeyFrame(
+                        TRANSITION_DURATION,
                         new KeyValue(hole.xProperty(), newBoundsInPane.getMinX(), Interpolator.EASE_BOTH),
                         new KeyValue(hole.yProperty(), newBoundsInPane.getMinY(), Interpolator.EASE_BOTH),
                         new KeyValue(hole.widthProperty(), newBoundsInPane.getWidth(), Interpolator.EASE_BOTH),
-                        new KeyValue(hole.heightProperty(), newBoundsInPane.getHeight(), Interpolator.EASE_BOTH)
-                )
-        );
+                        new KeyValue(hole.heightProperty(), newBoundsInPane.getHeight(), Interpolator.EASE_BOTH)));
 
         InvalidationListener updater = _ -> updateOverlayShape();
         subscriptions.add(EasyBind.listen(hole.xProperty(), updater));

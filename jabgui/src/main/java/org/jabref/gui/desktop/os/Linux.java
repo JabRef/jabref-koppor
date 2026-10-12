@@ -21,13 +21,14 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.Directories;
 import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.StreamGobbler;
-
 import org.slf4j.LoggerFactory;
 
-/// This class contains Linux specific implementations for file directories and file/application open handling methods.
+/// This class contains Linux specific implementations for file directories and
+/// file/application open handling methods.
 ///
-/// We cannot use a static logger instance here in this class as the Logger first needs to be configured in the [JabKit#initLogging].
-/// The configuration of tinylog will become immutable as soon as the first log entry is issued.
+/// We cannot use a static logger instance here in this class as the Logger
+/// first needs to be configured in the [JabKit#initLogging]. The configuration
+/// of tinylog will become immutable as soon as the first log entry is issued.
 /// https://tinylog.org/v2/configuration
 @AllowedToUseAwt("Requires AWT to open a file with the native method")
 public class Linux extends NativeDesktop {
@@ -58,7 +59,9 @@ public class Linux extends NativeDesktop {
         Optional<ExternalFileType> type = ExternalFileTypes.getExternalFileTypeByExt(fileType, externalApplicationsPreferences);
         String viewer;
 
-        if (type.isPresent() && !type.get().getOpenWithApplication().isEmpty()) {
+        if (type.isPresent() && !type.get()
+                .getOpenWithApplication()
+                .isEmpty()) {
             viewer = type.get().getOpenWithApplication();
             ProcessBuilder processBuilder = new ProcessBuilder(viewer, filePath);
             Process process = processBuilder.start();
@@ -192,7 +195,8 @@ public class Linux extends NativeDesktop {
         try {
             Process process = new ProcessBuilder("xdg-user-dir", "DOCUMENTS").start(); // Package name with 's', command without
             List<String> strings = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))
-                    .lines().toList();
+                    .lines()
+                    .toList();
             if (strings.isEmpty()) {
                 LoggerFactory.getLogger(Linux.class).error("xdg-user-dir returned nothing");
                 return Directories.getUserDirectory();

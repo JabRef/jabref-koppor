@@ -7,14 +7,12 @@ import java.util.List;
 import java.util.Set;
 
 import javafx.beans.property.SimpleObjectProperty;
-
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.jabref.logic.xmp.XmpPreferences;
 import org.jabref.logic.xmp.XmpUtilReader;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -32,7 +30,8 @@ class PdfUpdateTest extends AbstractJabKitTest {
         }
 
         Path bibFile = tempDir.resolve("test.bib");
-        Files.writeString(bibFile, """
+        Files.writeString(bibFile,
+                """
                 @Article{TestEntry,
                   author = {Test Author},
                   title  = {Test Title},
@@ -45,18 +44,18 @@ class PdfUpdateTest extends AbstractJabKitTest {
         when(preferences.getXmpPreferences()).thenReturn(xmpPreferences);
         when(preferences.getFilePreferences().shouldStoreFilesRelativeToBibFile()).thenReturn(true);
 
-        int exitCode = commandLine.executeToLog(
-                "pdf", "update",
-                "--input=" + bibFile,
-                "--input-format=bibtex",
-                "--format=xmp",
+        int exitCode = commandLine.executeToLog("pdf", "update", "--input=" + bibFile, "--input-format=bibtex", "--format=xmp",
                 "--citation-key=TestEntry");
 
         assertEquals(0, exitCode);
 
         List<BibEntry> writtenEntries = new XmpUtilReader().readXmp(pdfFile, xmpPreferences);
         assertEquals(1, writtenEntries.size(), "No XMP metadata found in PDF after update");
-        assertEquals("Test Author", writtenEntries.getFirst().getField(StandardField.AUTHOR).orElse(""),
+        assertEquals(
+                "Test Author",
+                writtenEntries.getFirst()
+                              .getField(StandardField.AUTHOR)
+                              .orElse(""),
                 "Author field in XMP metadata does not match the bib entry");
     }
 }

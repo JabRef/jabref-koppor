@@ -11,7 +11,8 @@ import org.jabref.model.entry.AuthorList;
 
 import static java.util.function.Predicate.not;
 
-/// Versatile author name formatter that takes arguments to control the formatting style.
+/// Versatile author name formatter that takes arguments to control the
+/// formatting style.
 public class Authors extends AbstractParamLayoutFormatter {
 
     /*
@@ -150,7 +151,8 @@ public class Authors extends AbstractParamLayoutFormatter {
                 abbrDots = false;
                 lastFirstSeparator = ", ";
             }
-        } else if (Authors.SEPARATORS.contains(key.trim().toLowerCase(Locale.ROOT)) || Authors.LAST_SEPARATORS.contains(key.trim().toLowerCase(Locale.ROOT))) {
+        } else if (Authors.SEPARATORS.contains(key.trim().toLowerCase(Locale.ROOT)) || Authors.LAST_SEPARATORS.contains(key.trim()
+                .toLowerCase(Locale.ROOT))) {
             // AuthorSep = [Comma | And | Colon | Semicolon | sep=<string>]
             // AuthorLastSep = [And | Comma | Colon | Semicolon | Amp | Oxford | lastsep=<string>]
 
@@ -229,7 +231,8 @@ public class Authors extends AbstractParamLayoutFormatter {
             for (int i = 0; i < al.getNumberOfAuthors(); i++) {
                 Author a = al.getAuthor(i);
 
-                addSingleName(sb, a, (flMode == Authors.FIRST_FIRST) || ((flMode == Authors.LF_FF) && (i > 0)));
+                addSingleName(sb, a,
+                        (flMode == Authors.FIRST_FIRST) || ((flMode == Authors.LF_FF) && (i > 0)));
 
                 if (i < (al.getNumberOfAuthors() - 2)) {
                     sb.append(separator);
@@ -252,10 +255,14 @@ public class Authors extends AbstractParamLayoutFormatter {
 
     private void addSingleName(StringBuilder sb, Author a, boolean firstFirst) {
         StringBuilder lastNameSB = new StringBuilder();
-        a.getNamePrefix().filter(not(String::isEmpty)).ifPresent(von -> lastNameSB.append(von).append(' '));
+        a.getNamePrefix()
+         .filter(not(String::isEmpty))
+         .ifPresent(von -> lastNameSB.append(von).append(' '));
         a.getFamilyName().ifPresent(lastNameSB::append);
         String jrSeparator = " ";
-        a.getNameSuffix().filter(not(String::isEmpty)).ifPresent(jr -> lastNameSB.append(jrSeparator).append(jr));
+        a.getNameSuffix()
+         .filter(not(String::isEmpty))
+         .ifPresent(jr -> lastNameSB.append(jrSeparator).append(jr));
 
         String firstNameResult = "";
         if (a.getGivenName().isPresent()) {
@@ -293,7 +300,9 @@ public class Authors extends AbstractParamLayoutFormatter {
             sb.append(firstNameResult).append(firstFirstSeparator);
             sb.append(lastNameSB);
         } else {
-            sb.append(lastNameSB).append(lastFirstSeparator).append(firstNameResult);
+            sb.append(lastNameSB)
+              .append(lastFirstSeparator)
+              .append(firstNameResult);
         }
     }
 }

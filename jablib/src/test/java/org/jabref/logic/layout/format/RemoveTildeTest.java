@@ -3,7 +3,6 @@ package org.jabref.logic.layout.format;
 import java.util.stream.Stream;
 
 import org.jabref.logic.layout.LayoutFormatter;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -34,7 +33,6 @@ class RemoveTildeTest {
                 Arguments.of(" \\~ ", "~\\~~"),
                 Arguments.of("\\\\ ", "\\\\~"),
                 Arguments.of("Doe Joe and Jane, M. and Kamp, J. A.", "Doe Joe and Jane, M. and Kamp, J.~A."),
-                Arguments.of("T\\~olkien, J. R. R.", "T\\~olkien, J.~R.~R.")
-        );
+                Arguments.of("T\\~olkien, J. R. R.", "T\\~olkien, J.~R.~R."));
     }
 }

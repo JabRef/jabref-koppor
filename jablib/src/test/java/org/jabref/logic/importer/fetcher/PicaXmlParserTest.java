@@ -14,7 +14,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.BibEntryAssert;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -61,17 +60,23 @@ class PicaXmlParserTest {
             assertNotNull(entries);
             assertEquals(5, entries.size());
 
-            assertEquals(Optional.empty(), entries.getFirst().getField(StandardField.SUBTITLE));
-            assertEquals(Optional.of("C"), entries.get(1).getField(StandardField.SUBTITLE));
-            assertEquals(Optional.of("Word"), entries.get(2).getField(StandardField.SUBTITLE));
-            assertEquals(Optional.of("Word1 word2"), entries.get(3).getField(StandardField.SUBTITLE));
-            assertEquals(Optional.of("Word1 word2"), entries.get(4).getField(StandardField.SUBTITLE));
+            assertEquals(Optional.empty(),
+                    entries.getFirst().getField(StandardField.SUBTITLE));
+            assertEquals(Optional.of("C"),
+                    entries.get(1).getField(StandardField.SUBTITLE));
+            assertEquals(Optional.of("Word"),
+                    entries.get(2).getField(StandardField.SUBTITLE));
+            assertEquals(Optional.of("Word1 word2"),
+                    entries.get(3).getField(StandardField.SUBTITLE));
+            assertEquals(Optional.of("Word1 word2"),
+                    entries.get(4).getField(StandardField.SUBTITLE));
         }
     }
 
     @Test
     void rejectsDocumentTypeDeclarations() {
-        String xmlWithDoctype = """
+        String xmlWithDoctype =
+                """
                 <!DOCTYPE response [<!ENTITY entity SYSTEM "file:///not-accessed">]>
                 <zs:searchRetrieveResponse xmlns:zs="http://www.loc.gov/zing/srw/"/>
                 """;

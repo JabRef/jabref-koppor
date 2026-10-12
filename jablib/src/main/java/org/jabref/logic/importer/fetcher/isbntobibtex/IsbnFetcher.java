@@ -18,15 +18,14 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.ISBN;
 import org.jabref.model.util.OptionalUtil;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Fetcher to generate the Bibtex entry from an ISBN.
-/// The default fetcher is the [OpenLibraryIsbnFetcher].
-/// If the entry is not found in the [OpenLibraryIsbnFetcher].
-/// Alternative fetcher can be specified with the [IsbnFetcher#addRetryFetcher(AbstractIsbnFetcher)] method.
+/// Fetcher to generate the Bibtex entry from an ISBN. The default fetcher is
+/// the [OpenLibraryIsbnFetcher]. If the entry is not found in the
+/// [OpenLibraryIsbnFetcher]. Alternative fetcher can be specified with the
+/// [IsbnFetcher#addRetryFetcher(AbstractIsbnFetcher)] method.
 public class IsbnFetcher implements EntryBasedFetcher, IdBasedFetcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IsbnFetcher.class);
@@ -64,7 +63,8 @@ public class IsbnFetcher implements EntryBasedFetcher, IdBasedFetcher {
             identifier = removeNewlinesAndSpacesFromIdentifier(identifier);
             Optional<ISBN> isbn = ISBN.parse(identifier);
             if (isbn.isPresent()) {
-                bibEntry = gvkIsbnFetcher.performSearchById(isbn.get().asString());
+                bibEntry = gvkIsbnFetcher.performSearchById(isbn.get()
+                        .asString());
             }
         } catch (FetcherException ex) {
             LOGGER.debug("Got a fetcher exception for IBSN search", ex);

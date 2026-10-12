@@ -1,5 +1,6 @@
 package org.jabref.gui.importer.fetcher;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.value.ObservableBooleanValue;
@@ -13,7 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-
+import org.controlsfx.control.SearchableComboBox;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionFactory;
@@ -25,9 +26,6 @@ import org.jabref.gui.search.SearchTextField;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.importer.SearchBasedFetcher;
 import org.jabref.logic.l10n.Localization;
-
-import com.tobiasdiez.easybind.EasyBind;
-import org.controlsfx.control.SearchableComboBox;
 
 public class WebSearchPaneView extends VBox {
 
@@ -50,12 +48,8 @@ public class WebSearchPaneView extends VBox {
         StackPane helpButtonContainer = createHelpButtonContainer();
         HBox fetcherContainer = new HBox(createFetcherComboBox(), helpButtonContainer);
 
-        getChildren().addAll(
-                fetcherContainer,
-                createQueryField(),
-                createModeIndicatorLabel(),
-                createSearchButton()
-        );
+        getChildren().addAll(fetcherContainer, createQueryField(), createModeIndicatorLabel(),
+                createSearchButton());
         this.disableProperty().bind(searchDisabledProperty());
     }
 
@@ -71,8 +65,13 @@ public class WebSearchPaneView extends VBox {
     private void addQueryValidationHints(TextField query) {
         EasyBind.subscribe(viewModel.queryValidationStatus().validProperty(),
                 valid -> {
-                    if (!valid && viewModel.queryValidationStatus().getHighestMessage().isPresent()) {
-                        query.setTooltip(new Tooltip(viewModel.queryValidationStatus().getHighestMessage().get().getMessage()));
+                    if (!valid && viewModel.queryValidationStatus()
+                                           .getHighestMessage()
+                                           .isPresent()) {
+                        query.setTooltip(new Tooltip(viewModel.queryValidationStatus()
+                                .getHighestMessage()
+                                .get()
+                                .getMessage()));
                         query.pseudoClassStateChanged(QUERY_INVALID, true);
                     } else {
                         query.setTooltip(null);
@@ -109,7 +108,8 @@ public class WebSearchPaneView extends VBox {
         Label modeIndicator = new Label();
         modeIndicator.textProperty().bind(viewModel.searchModeIndicatorProperty());
         modeIndicator.managedProperty().bind(modeIndicator.visibleProperty());
-        modeIndicator.visibleProperty().bind(modeIndicator.textProperty().isNotEmpty());
+        modeIndicator.visibleProperty().bind(modeIndicator.textProperty()
+                .isNotEmpty());
         modeIndicator.getStyleClass().addAll("text-muted");
         modeIndicator.setMaxWidth(Double.MAX_VALUE);
         return modeIndicator;
@@ -132,7 +132,10 @@ public class WebSearchPaneView extends VBox {
         ActionFactory factory = new ActionFactory();
         EasyBind.subscribe(viewModel.selectedFetcherProperty(), fetcher -> {
             if ((fetcher != null) && fetcher.getHelpPage().isPresent()) {
-                Button helpButton = factory.createIconButton(StandardActions.HELP, new HelpAction(fetcher.getHelpPage().get(), dialogService, preferences.getExternalApplicationsPreferences()));
+                Button helpButton = factory.createIconButton(
+                        StandardActions.HELP,
+                        new HelpAction(fetcher.getHelpPage().get(), dialogService,
+                                preferences.getExternalApplicationsPreferences()));
                 helpButtonContainer.getChildren().setAll(helpButton);
             } else {
                 helpButtonContainer.getChildren().clear();
@@ -143,9 +146,7 @@ public class WebSearchPaneView extends VBox {
 
     /// Creates an observable boolean value that is true if no database is open
     private ObservableBooleanValue searchDisabledProperty() {
-        return Bindings.createBooleanBinding(
-                () -> stateManager.getOpenDatabases().isEmpty(),
-                stateManager.getOpenDatabases()
-        );
+        return Bindings.createBooleanBinding(() -> stateManager.getOpenDatabases().isEmpty(),
+                stateManager.getOpenDatabases());
     }
 }

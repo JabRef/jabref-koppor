@@ -2,7 +2,6 @@ package org.jabref.gui.icon;
 
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -20,7 +19,8 @@ public final class SvgIcon implements JabRefIcon {
         this(name, svgPath, DEFAULT_SIZE, null);
     }
 
-    private SvgIcon(String name, String svgPath, int size, @Nullable Color color) {
+    private SvgIcon(String name, String svgPath, int size,
+                    @Nullable Color color) {
         this.name = name;
         this.svgPath = svgPath;
         this.size = size;

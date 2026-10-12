@@ -2,10 +2,6 @@ package org.jabref.logic.ai.rag.logic;
 
 import java.util.List;
 
-import org.jabref.logic.FilePreferences;
-import org.jabref.logic.ai.ingestion.logic.ingestion.FileIngestor;
-import org.jabref.model.ai.pipeline.RelevantInformation;
-
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
@@ -15,6 +11,9 @@ import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.EmbeddingStore;
+import org.jabref.logic.FilePreferences;
+import org.jabref.logic.ai.ingestion.logic.ingestion.FileIngestor;
+import org.jabref.model.ai.pipeline.RelevantInformation;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,13 +40,7 @@ class EmbeddingsSearchResponseEngineTest {
 
         when(embeddingModel.embed(any(String.class))).thenReturn(Response.from(new Embedding(new float[] {0.1f, 0.2f})));
 
-        responseEngine = new EmbeddingsSearchResponseEngine(
-                filePreferences,
-                embeddingModel,
-                embeddingStore,
-                0.7,
-                10
-        );
+        responseEngine = new EmbeddingsSearchResponseEngine(filePreferences, embeddingModel, embeddingStore, 0.7, 10);
     }
 
     @Test

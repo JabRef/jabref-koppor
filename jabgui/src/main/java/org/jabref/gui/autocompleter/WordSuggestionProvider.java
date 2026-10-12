@@ -4,7 +4,6 @@ import java.util.stream.Stream;
 
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.field.Field;
-
 import org.jspecify.annotations.NonNull;
 
 /// Stores all words in the given field.

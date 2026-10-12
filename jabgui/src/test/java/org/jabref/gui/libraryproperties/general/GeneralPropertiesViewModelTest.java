@@ -15,7 +15,6 @@ import org.jabref.model.groups.AllEntriesGroup;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.groups.WordKeywordGroup;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 
@@ -38,17 +37,20 @@ class GeneralPropertiesViewModelTest {
         viewModel.storeSettings(databaseContext.getMetaData());
 
         assertEquals("", viewModel.keywordSeparatorProperty().get());
-        assertEquals(Optional.empty(), databaseContext.getMetaData().getKeywordSeparator());
+        assertEquals(Optional.empty(),
+                databaseContext.getMetaData().getKeywordSeparator());
     }
 
-    /// The separator and the group definitions the migration rewrites are metadata, which the
-    /// dialog records as a snapshot; the entries it rewrites are not, so they are recorded here.
+    /// The separator and the group definitions the migration rewrites are
+    /// metadata, which the dialog records as a snapshot; the entries it
+    /// rewrites are not, so they are recorded here.
     @Test
     void changingTheSeparatorMigratesTheEntriesAndRecordsOnlyThose() {
         BibEntry entry = new BibEntry().withField(StandardField.KEYWORDS, "topic, subtopic");
         BibDatabaseContext databaseContext = new BibDatabaseContext(new BibDatabase(List.of(entry)));
         GroupTreeNode root = GroupTreeNode.fromGroup(new AllEntriesGroup("All entries"));
-        root.addSubgroup(new WordKeywordGroup("topic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "topic", true, ',', true));
+        root.addSubgroup(new WordKeywordGroup("topic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS,
+                "topic", true, ',', true));
         databaseContext.getMetaData().setGroups(root);
         CliPreferences preferences = mock(CliPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(preferences.getBibEntryPreferences().getKeywordSeparator()).thenReturn(',');
@@ -60,10 +62,15 @@ class GeneralPropertiesViewModelTest {
         viewModel.keywordSeparatorProperty().set(";");
         viewModel.storeSettings(databaseContext.getMetaData());
 
-        assertEquals(Optional.of(';'), databaseContext.getMetaData().getKeywordSeparator());
+        assertEquals(Optional.of(';'),
+                databaseContext.getMetaData().getKeywordSeparator());
         assertEquals(Optional.of("topic; subtopic"), entry.getField(StandardField.KEYWORDS));
-        assertEquals(new WordKeywordGroup("topic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "topic", true, ';', true),
-                root.getChildren().getFirst().getGroup());
+        assertEquals(
+                new WordKeywordGroup("topic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS,
+                        "topic", true, ';', true),
+                root.getChildren()
+                    .getFirst()
+                    .getGroup());
 
         undoManager.undo();
 

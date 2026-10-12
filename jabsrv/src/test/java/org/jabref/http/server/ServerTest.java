@@ -4,8 +4,11 @@ import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.List;
 
+import com.google.gson.Gson;
 import javafx.collections.FXCollections;
-
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.test.JerseyTest;
 import org.jabref.http.JabRefSrvStateManager;
 import org.jabref.http.SrvStateManager;
 import org.jabref.http.dto.GlobalExceptionMapper;
@@ -21,11 +24,6 @@ import org.jabref.logic.preferences.LastFilesOpenedPreferences;
 import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.metadata.UserHostInfo;
-
-import com.google.gson.Gson;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -68,11 +66,7 @@ public abstract class ServerTest extends JerseyTest {
         resourceConfig.register(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(new JabRefSrvStateManager(
-                        preferences.getBibEntryPreferences(),
-                        preferences.getImportFormatPreferences(),
-                        filesToServe))
-                        .to(SrvStateManager.class);
+                bind(new JabRefSrvStateManager(preferences.getBibEntryPreferences(), preferences.getImportFormatPreferences(), filesToServe)).to(SrvStateManager.class);
             }
         });
     }
@@ -81,7 +75,9 @@ public abstract class ServerTest extends JerseyTest {
         resourceConfig.register(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(new GsonFactory().provide()).to(Gson.class).ranked(2);
+                bind(new GsonFactory().provide())
+                        .to(Gson.class)
+                        .ranked(2);
             }
         });
         resourceConfig.register(GsonMessageBodyReader.class);
@@ -101,7 +97,9 @@ public abstract class ServerTest extends JerseyTest {
         resourceConfig.register(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(preferences).to(CliPreferences.class).ranked(2);
+                bind(preferences)
+                        .to(CliPreferences.class)
+                        .ranked(2);
             }
         });
     }
@@ -115,16 +113,19 @@ public abstract class ServerTest extends JerseyTest {
         });
     }
 
-    /// Restarts the Jersey test container so the state manager is rebuilt with the new
-    /// files. Necessary because the state manager snapshots the file list at
-    /// `configure()` time (see [#filesToServe]).
+    /// Restarts the Jersey test container so the state manager is rebuilt with
+    /// the new files. Necessary because the state manager snapshots the file
+    /// list at `configure()` time (see [#filesToServe]).
     ///
-    /// Calls `super.setUp()` rather than this class's `setUp()` because the latter resets
-    /// [#filesToServe] to the default, which would discard the caller's selection.
+    /// Calls `super.setUp()` rather than this class's `setUp()` because the
+    /// latter resets [#filesToServe] to the default, which would discard the
+    /// caller's selection.
     protected void setAvailableLibraries(EnumSet<TestBibFile> files) {
         try {
             tearDown();
-            filesToServe = files.stream().map(file -> file.path).toList();
+            filesToServe = files.stream()
+                                .map(file -> file.path)
+                                .toList();
             super.setUp();
         } catch (Exception e) {
             throw new IllegalStateException("Could not restart test container with new files", e);
@@ -157,7 +158,8 @@ public abstract class ServerTest extends JerseyTest {
 
         FilePreferences filePreferences = mock(FilePreferences.class);
         when(preferences.getFilePreferences()).thenReturn(filePreferences);
-        when(filePreferences.getUserAndHost()).thenReturn(new UserHostInfo("user", "host").getUserHostString());
+        when(filePreferences.getUserAndHost()).thenReturn(new UserHostInfo("user", "host")
+                .getUserHostString());
         when(importFormatPreferences.filePreferences()).thenReturn(filePreferences);
     }
 

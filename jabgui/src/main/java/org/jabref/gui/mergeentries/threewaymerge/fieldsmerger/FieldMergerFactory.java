@@ -13,22 +13,19 @@ public class FieldMergerFactory {
 
     public FieldMerger create(Field field) {
         return switch (field) {
-            case StandardField.GROUPS ->
-                    new GroupMerger(keywordSeparator);
-            case StandardField.KEYWORDS ->
-                    new KeywordMerger(keywordSeparator);
-            case StandardField.COMMENT ->
-                    new CommentMerger();
-            case StandardField.FILE ->
-                    new FileMerger();
-            case null ->
-                    throw new IllegalArgumentException("Field must not be null");
-            default ->
-                    throw new IllegalArgumentException("No implementation found for merging the given field: " + FieldTextMapper.getDisplayName(field));
+            case StandardField.GROUPS -> new GroupMerger(keywordSeparator);
+            case StandardField.KEYWORDS -> new KeywordMerger(keywordSeparator);
+            case StandardField.COMMENT -> new CommentMerger();
+            case StandardField.FILE -> new FileMerger();
+            case null -> throw new IllegalArgumentException("Field must not be null");
+            default -> throw new IllegalArgumentException("No implementation found for merging the given field: " + FieldTextMapper.getDisplayName(field));
         };
     }
 
     public static boolean canMerge(Field field) {
-        return field == StandardField.GROUPS || field == StandardField.KEYWORDS || field == StandardField.COMMENT || field == StandardField.FILE;
+        return field == StandardField.GROUPS
+                || field == StandardField.KEYWORDS
+                || field == StandardField.COMMENT
+                || field == StandardField.FILE;
     }
 }

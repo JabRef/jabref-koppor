@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.identifier.DOI;
-
 import org.jspecify.annotations.Nullable;
 
 public class DoiValidityChecker implements ValueChecker {

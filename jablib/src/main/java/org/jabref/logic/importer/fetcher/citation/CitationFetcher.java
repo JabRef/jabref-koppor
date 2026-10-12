@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Searches web resources for citing related articles based on a [BibEntry].
@@ -25,16 +24,19 @@ public interface CitationFetcher extends CitationCountFetcher {
         }
     }
 
-    /// Returns the localized name of this fetcher.
-    /// The title can be used to display the fetcher in the menu and in the side pane.
+    /// Returns the localized name of this fetcher. The title can be used to
+    /// display the fetcher in the menu and in the side pane.
     ///
     /// @return the localized name
     String getName();
 
-    /// Looks for hits which are cited by the given [BibEntry]. This typically is the "References" (or "Bibliography" or "Literature") section of a paper.
+    /// Looks for hits which are cited by the given [BibEntry]. This typically
+    /// is the "References" (or "Bibliography" or "Literature") section of a
+    /// paper.
     ///
     /// @param entry entry to search articles for
-    /// @return a list of [BibEntry], which are matched by the query (may be empty)
+    /// @return a list of [BibEntry], which are matched by the query (may be
+    ///   empty)
     List<BibEntry> getReferences(BibEntry entry) throws FetcherException;
 
     /// Looks for hits which are citing the given [BibEntry].

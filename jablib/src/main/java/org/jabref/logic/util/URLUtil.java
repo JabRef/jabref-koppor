@@ -8,9 +8,8 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
-import org.jabref.logic.util.strings.StringUtil;
-
 import org.apache.hc.core5.net.URIBuilder;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jspecify.annotations.NonNull;
 
 /// URL utilities for URLs in the JabRef logic.
@@ -28,9 +27,11 @@ public class URLUtil {
     private static final String GOOGLE_SEARCH_EXP = "^https?://(?:www\\.)?google\\.[\\.a-z]+?/url.*";
 
     /// Cleans URLs returned by Google search.
+    ///
     /// <h4>Example</h4>
-    /// ```text
-    /// If you copy links from search results from Google, all links will be enriched with search meta data, e.g.
+    ///
+    /// ```text If you copy links from search results from Google, all links
+    /// will be enriched with search meta data, e.g.
     /// https://www.google.de/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&&url=http%3A%2F%2Fwww.inrg.csie.ntu.edu.tw%2Falgorithm2014%2Fhomework%2FWagner-74.pdf&ei=DifeVYHkDYWqU5W0j6gD&usg=AFQjCNFl638rl5KVta1jIMWLyb4CPSZidg&sig2=0hSSMw9XZXL3HJWwEcJtOg
     /// ```
     ///
@@ -98,7 +99,8 @@ public class URLUtil {
     ///
     /// @param url the URL string to be converted into a [URL].
     /// @return the [URL] object created from the string URL.
-    /// @throws MalformedURLException if the URL is malformed and cannot be converted to a [URL].
+    /// @throws MalformedURLException if the URL is malformed and cannot be
+    ///   converted to a [URL].
     public static @NonNull URL create(@NonNull String url) throws MalformedURLException {
         String trimmedUrl = url.trim();
         if (trimmedUrl.isEmpty()) {
@@ -124,14 +126,17 @@ public class URLUtil {
         }
     }
 
-    /// Creates a [URI] object from the given string URL.
-    /// This method attempts to convert the given URL string into a [URI] object.
-    /// The pipe character ('|') is replaced with its percent-encoded equivalent ("%7C") because the pipe character
-    /// is only a valid character according to RFC3986. However, JDK's URI implementation is implementing RFC2396 and RFC2732, but not RFC3986.
+    /// Creates a [URI] object from the given string URL. This method attempts
+    /// to convert the given URL string into a [URI] object. The pipe character
+    /// ('|') is replaced with its percent-encoded equivalent ("%7C") because
+    /// the pipe character is only a valid character according to RFC3986.
+    /// However, JDK's URI implementation is implementing RFC2396 and RFC2732,
+    /// but not RFC3986.
     ///
     /// @param url the URL string to be converted into a [URI].
     /// @return the [URI] object created from the string URL.
-    /// @throws IllegalArgumentException if the string URL is not a valid URI or if the URI format is incorrect.
+    /// @throws IllegalArgumentException if the string URL is not a valid URI or
+    ///   if the URI format is incorrect.
     public static URI createUri(String url) {
         try {
             // Replace '|' character with its percent-encoded representation '%7C'.
@@ -142,9 +147,10 @@ public class URLUtil {
         }
     }
 
-    /// Validates that a constructed URL is valid  and conforms to RFC 3986 URI syntax (updated RFC 2396).
-    /// And also validates that it has an HTTP or HTTPS scheme to prevent injection attacks.
-    /// Does not perform complex checks such as opening connections.
+    /// Validates that a constructed URL is valid and conforms to RFC 3986 URI
+    /// syntax (updated RFC 2396). And also validates that it has an HTTP or
+    /// HTTPS scheme to prevent injection attacks. Does not perform complex
+    /// checks such as opening connections.
     public static boolean isValidHttpUrl(String url) {
         try {
             if (StringUtil.isBlank(url)) {

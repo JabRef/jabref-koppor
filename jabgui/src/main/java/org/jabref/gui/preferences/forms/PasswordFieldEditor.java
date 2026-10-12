@@ -2,21 +2,20 @@ package org.jabref.gui.preferences.forms;
 
 import java.util.function.Consumer;
 
+import com.dlsc.gemsfx.EnhancedPasswordField;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.gui.util.ControlHelper;
-
-import com.dlsc.gemsfx.EnhancedPasswordField;
 import org.jspecify.annotations.NullMarked;
 
-/// Custom editor: a bound [EnhancedPasswordField] with an optional row of icon buttons in its
-/// right slot. [EnhancedPasswordField] is third-party, so the fluent subject is this wrapper;
-/// [#field()] hands back the field once configuration is done — it does no work of its own,
-/// it just stops `field` from being reachable before the withers have run:
+/// Custom editor: a bound [EnhancedPasswordField] with an optional row of icon
+/// buttons in its right slot. [EnhancedPasswordField] is third-party, so the
+/// fluent subject is this wrapper; [#field()] hands back the field once
+/// configuration is done — it does no work of its own, it just stops `field`
+/// from being reachable before the withers have run:
 ///
 /// ```java
 /// PasswordFieldEditor.create(viewModel.apiKeyProperty())
@@ -25,7 +24,8 @@ import org.jspecify.annotations.NullMarked;
 ///                    .field();
 /// ```
 ///
-/// Every button follows the field's own disabled state, so disabling the field disables the row.
+/// Every button follows the field's own disabled state, so disabling the field
+/// disables the row.
 @NullMarked
 public final class PasswordFieldEditor {
 
@@ -43,16 +43,16 @@ public final class PasswordFieldEditor {
 
     /// Toggles between masked and plain text.
     public PasswordFieldEditor withRevealButton() {
-        return withIconButton(IconTheme.JabRefIcons.PASSWORD_REVEALED,
-                passwordField -> passwordField.setShowPassword(!passwordField.isShowPassword()));
+        return withIconButton(IconTheme.JabRefIcons.PASSWORD_REVEALED, passwordField -> passwordField.setShowPassword(!passwordField.isShowPassword()));
     }
 
     /// Empties the field and returns focus to it.
     public PasswordFieldEditor withClearButton() {
-        return withIconButton(IconTheme.JabRefIcons.DELETE_ENTRY, passwordField -> {
-            passwordField.clear();
-            passwordField.requestFocus();
-        });
+        return withIconButton(IconTheme.JabRefIcons.DELETE_ENTRY,
+                passwordField -> {
+                    passwordField.clear();
+                    passwordField.requestFocus();
+                });
     }
 
     public PasswordFieldEditor withIconButton(JabRefIcon icon, Consumer<EnhancedPasswordField> action) {

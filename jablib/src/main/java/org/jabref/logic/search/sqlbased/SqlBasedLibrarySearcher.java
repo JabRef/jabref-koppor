@@ -11,7 +11,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabases;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.query.SearchQuery;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,10 +22,9 @@ public class SqlBasedLibrarySearcher implements LibrarySearcher {
     private final BibDatabaseContext databaseContext;
     private final IndexManager indexManager;
 
-    public SqlBasedLibrarySearcher(BibDatabaseContext databaseContext,
-                                   TaskExecutor taskExecutor,
-                                   CliPreferences preferences,
-                                   PostgresServer postgresServer) throws IOException {
+    public SqlBasedLibrarySearcher(BibDatabaseContext databaseContext, TaskExecutor taskExecutor, CliPreferences preferences,
+            PostgresServer postgresServer)
+            throws IOException {
         this.databaseContext = databaseContext;
         this.indexManager = new IndexManager(databaseContext, taskExecutor, preferences, postgresServer);
     }
@@ -41,11 +39,11 @@ public class SqlBasedLibrarySearcher implements LibrarySearcher {
             return List.of();
         }
         List<BibEntry> matchEntries = indexManager.search(query)
-                                                  .getMatchedEntries()
-                                                  .stream()
-                                                  .map(entryId -> databaseContext.getDatabase().getEntryById(entryId))
-                                                  .flatMap(Optional::stream)
-                                                  .toList();
+                .getMatchedEntries()
+                .stream()
+                .map(entryId -> databaseContext.getDatabase().getEntryById(entryId))
+                .flatMap(Optional::stream)
+                .toList();
         indexManager.closeAndWait();
         return BibDatabases.purgeEmptyEntries(matchEntries);
     }

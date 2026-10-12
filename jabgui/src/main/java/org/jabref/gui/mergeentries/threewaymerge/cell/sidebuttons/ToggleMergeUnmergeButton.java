@@ -7,7 +7,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Button;
-
 import org.jabref.gui.actions.Action;
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.SimpleCommand;
@@ -107,6 +106,7 @@ public class ToggleMergeUnmergeButton extends Button {
     }
 
     public enum FieldState {
-        MERGED, UNMERGED
+        MERGED,
+        UNMERGED
     }
 }

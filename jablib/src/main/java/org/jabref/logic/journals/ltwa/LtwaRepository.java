@@ -44,7 +44,10 @@ public class LtwaRepository {
     public LtwaRepository(Path ltwaListFile) {
         this();
 
-        try (MVStore store = new MVStore.Builder().readOnly().fileName(ltwaListFile.toAbsolutePath().toString()).open()) {
+        try (MVStore store = new MVStore.Builder()
+                .readOnly()
+                .fileName(ltwaListFile.toAbsolutePath().toString())
+                .open()) {
             MVMap<String, List<LtwaEntry>> prefixMap = store.openMap(PREFIX_MAP_NAME);
             MVMap<String, List<LtwaEntry>> suffixMap = store.openMap(SUFFIX_MAP_NAME);
 
@@ -62,7 +65,8 @@ public class LtwaRepository {
                 }
             }
 
-            LOGGER.debug("Loaded LTWA repository with {} prefixes and {} suffixes", prefixMap.size(), suffixMap.size());
+            LOGGER.debug("Loaded LTWA repository with {} prefixes and {} suffixes",
+                    prefixMap.size(), suffixMap.size());
         }
     }
 
@@ -76,18 +80,19 @@ public class LtwaRepository {
         }
 
         return Optional.of(title)
-                       .flatMap(NormalizeUtils::toNFKC)
-                       .flatMap(normalizedTitle -> {
-                           CharStream charStream = CharStreams.fromString(normalizedTitle);
-                           LtwaLexer lexer = new LtwaLexer(charStream);
-                           CommonTokenStream tokens = new CommonTokenStream(lexer);
-                           LtwaParser parser = new LtwaParser(tokens);
-                           LtwaParser.TitleContext titleContext = parser.title();
-                           AbbreviationListener listener = new AbbreviationListener(normalizedTitle, prefix, suffix);
-                           ParseTreeWalker walker = new ParseTreeWalker();
-                           walker.walk(listener, titleContext);
-                           return listener.getResult();
-                       });
+                .flatMap(NormalizeUtils::toNFKC)
+                .flatMap(
+                        normalizedTitle -> {
+                            CharStream charStream = CharStreams.fromString(normalizedTitle);
+                            LtwaLexer lexer = new LtwaLexer(charStream);
+                            CommonTokenStream tokens = new CommonTokenStream(lexer);
+                            LtwaParser parser = new LtwaParser(tokens);
+                            LtwaParser.TitleContext titleContext = parser.title();
+                            AbbreviationListener listener = new AbbreviationListener(normalizedTitle, prefix, suffix);
+                            ParseTreeWalker walker = new ParseTreeWalker();
+                            walker.walk(listener, titleContext);
+                            return listener.getResult();
+                        });
     }
 
     /// Listener to apply abbreviation rules to the parsed title
@@ -123,7 +128,10 @@ public class LtwaRepository {
 
         @Override
         public void exitSymbolsElement(LtwaParser.SymbolsElementContext ctx) {
-            String val = ctx.getText().replace("...", "").replace(",", "").replace(".", ",");
+            String val = ctx.getText()
+                            .replace("...", "")
+                            .replace(",", "")
+                            .replace(".", ",");
             if ("&".equals(val) || "+".equals(val)) {
                 return;
             }
@@ -148,7 +156,8 @@ public class LtwaRepository {
         @Override
         public void exitPartElement(LtwaParser.PartElementContext ctx) {
             lastPartPosition = result.length();
-            addAbbreviation(ctx.getStart().getStartIndex(), ctx.getText());
+            addAbbreviation(ctx.getStart().getStartIndex(),
+                    ctx.getText());
         }
 
         @Override
@@ -158,7 +167,8 @@ public class LtwaRepository {
 
         @Override
         public void exitWordElement(LtwaParser.WordElementContext ctx) {
-            addAbbreviation(ctx.getStart().getStartIndex(), ctx.getText());
+            addAbbreviation(ctx.getStart().getStartIndex(),
+                    ctx.getText());
         }
 
         private void addAbbreviation(int position, String initialText) {
@@ -167,8 +177,7 @@ public class LtwaRepository {
             }
 
             String remainingTitle = originalTitle.substring(position);
-            Optional<String> normalizedOpt = NormalizeUtils.normalize(remainingTitle)
-                                                           .map(String::toLowerCase);
+            Optional<String> normalizedOpt = NormalizeUtils.normalize(remainingTitle).map(String::toLowerCase);
 
             if (normalizedOpt.isEmpty()) {
                 error = true;
@@ -203,21 +212,17 @@ public class LtwaRepository {
 
         /// Find matching entries from prefix and suffix trees
         private List<LtwaEntry> findMatchingEntries(String normalizedText) {
-            return Stream.concat(
-                                 prefix.search(normalizedText).stream(),
-                                 suffix.search(reverse(normalizedText)).stream())
-                         .filter(e -> matches(normalizedText, e))
-                         .toList();
+            return Stream.concat(prefix.search(normalizedText).stream(), suffix.search(reverse(normalizedText)).stream())
+                    .filter(e -> matches(normalizedText, e))
+                    .toList();
         }
 
         /// Find the best entry based on prioritization criteria
         private Optional<LtwaEntry> findBestEntry(List<LtwaEntry> entries) {
-            return entries.stream()
-                          .max(Comparator
-                                  .<LtwaEntry>comparingInt(e -> e.word().endsWith("-") ? 1 : 0)
-                                  .thenComparingInt(e -> e.word().length())
-                                  .thenComparingInt(e -> e.abbreviation() != null ? 1 : 0)
-                                  .thenComparingInt(e -> e.languages().contains("eng") ? 1 : 0));
+            return entries.stream().max(Comparator.<LtwaEntry>comparingInt(e -> e.word().endsWith("-") ? 1 : 0)
+                    .thenComparingInt(e -> e.word().length())
+                    .thenComparingInt(e -> e.abbreviation() != null ? 1 : 0)
+                    .thenComparingInt(e -> e.languages().contains("eng") ? 1 : 0));
         }
 
         @Override
@@ -228,16 +233,26 @@ public class LtwaRepository {
 
         @Override
         public void exitStopwordPlusTitleFull(LtwaParser.StopwordPlusTitleFullContext ctx) {
-            String stopword = ctx.stopwordPlusAny().STOPWORD().getText();
-            String second = ctx.stopwordPlusAny().getChild(1).getText();
-            result.append(stopword).append(" ").append(second);
+            String stopword = ctx.stopwordPlusAny()
+                                 .STOPWORD()
+                                 .getText();
+            String second = ctx.stopwordPlusAny()
+                               .getChild(1)
+                               .getText();
+            result.append(stopword)
+                  .append(" ")
+                  .append(second);
             addSpace = false;
         }
 
         @Override
         public void exitAnyPlusSymbolsFull(LtwaParser.AnyPlusSymbolsFullContext ctx) {
-            String first = ctx.anyPlusSymbols().getChild(0).getText();
-            String symbol = ctx.anyPlusSymbols().SYMBOLS().getText();
+            String first = ctx.anyPlusSymbols()
+                              .getChild(0)
+                              .getText();
+            String symbol = ctx.anyPlusSymbols()
+                               .SYMBOLS()
+                               .getText();
             result.append(first).append(symbol);
             addSpace = false;
         }
@@ -245,9 +260,7 @@ public class LtwaRepository {
         @Override
         public void exitEveryRule(ParserRuleContext ctx) {
             isFirstElement = ctx.getParent() instanceof LtwaParser.TitleElementContext && isFirstElement;
-            if (!(ctx instanceof LtwaParser.PartContext ||
-                    ctx instanceof LtwaParser.PartElementContext ||
-                    ctx instanceof LtwaParser.OrdinalContext)) {
+            if (!(ctx instanceof LtwaParser.PartContext || ctx instanceof LtwaParser.PartElementContext || ctx instanceof LtwaParser.OrdinalContext)) {
                 lastPartPosition = -1;
             }
             abbreviatedTitlePosition = Math.max(abbreviatedTitlePosition, ctx.getStart().getStartIndex());
@@ -279,40 +292,34 @@ public class LtwaRepository {
             abbreviation = abbreviation.substring(0, abbreviation.offsetByCodePoints(0, origCodePointCount));
         }
 
-        return NormalizeUtils.toNFKC(abbreviation)
-                             .map(normalized -> {
-                                 int[] normalizedAbbrCodePoints = normalized.codePoints().toArray();
-                                 int[] origCodePoints = original.codePoints().toArray();
-                                 int[] resultCodePoints = Arrays.copyOf(normalizedAbbrCodePoints,
-                                         Math.min(normalizedAbbrCodePoints.length, origCodePoints.length));
-                                 IntStream.range(0, resultCodePoints.length)
-                                          .forEach(i -> preserveOriginalCharacterProperties(
-                                                  normalizedAbbrCodePoints[i],
-                                                  origCodePoints[i],
-                                                  resultCodePoints,
-                                                  i));
+        return NormalizeUtils.toNFKC(abbreviation).map(
+                normalized -> {
+                    int[] normalizedAbbrCodePoints = normalized.codePoints().toArray();
+                    int[] origCodePoints = original.codePoints().toArray();
+                    int[] resultCodePoints = Arrays.copyOf(normalizedAbbrCodePoints, Math.min(normalizedAbbrCodePoints.length, origCodePoints.length));
+                    IntStream.range(0, resultCodePoints.length).forEach(i -> preserveOriginalCharacterProperties(normalizedAbbrCodePoints[i], origCodePoints[i], resultCodePoints, i));
 
-                                 return new String(resultCodePoints, 0, resultCodePoints.length);
-                             });
+                    return new String(resultCodePoints, 0, resultCodePoints.length);
+                });
     }
 
     /// Helper method to preserve original character properties (case, diacritics)
-    private static void preserveOriginalCharacterProperties(
-            int normalizedChar, int originalChar, int[] resultCodePoints, int index) {
+    private static void preserveOriginalCharacterProperties(int normalizedChar, int originalChar, int[] resultCodePoints,
+            int index) {
 
         String normalizedCharStr = new String(Character.toChars(normalizedChar));
         String origCharStr = new String(Character.toChars(originalChar));
 
         NormalizeUtils.toNFKC(origCharStr)
-                      .filter(normalizedOrigChar -> !normalizedOrigChar.isEmpty() &&
-                              normalizedCharStr.equalsIgnoreCase(normalizedOrigChar))
-                      .ifPresent(_ -> resultCodePoints[index] = originalChar);
+                .filter(normalizedOrigChar -> !normalizedOrigChar.isEmpty() && normalizedCharStr.equalsIgnoreCase(normalizedOrigChar))
+                .ifPresent(_ -> resultCodePoints[index] = originalChar);
     }
 
     /// Determines if a title matches an LTWA entry
     private static boolean matches(String title, LtwaEntry entry) {
         String word = entry.word();
-        int margin = (word.startsWith("-") ? 1 : 0) + (word.endsWith("-") ? 1 : 0);
+        int margin = (word.startsWith("-") ? 1 : 0)
+                + (word.endsWith("-") ? 1 : 0);
         if (title.length() < word.length() - margin) {
             return false;
         }
@@ -379,6 +386,8 @@ public class LtwaRepository {
     }
 
     private static String reverse(String str) {
-        return new StringBuilder(str).reverse().toString();
+        return new StringBuilder(str)
+                .reverse()
+                .toString();
     }
 }

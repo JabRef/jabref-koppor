@@ -8,7 +8,8 @@ public class DialogWindowState {
     private final double height;
     private final double width;
 
-    public DialogWindowState(double x, double y, double height, double width) {
+    public DialogWindowState(double x, double y, double height,
+            double width) {
         this.x = x;
         this.y = y;
         this.height = height;

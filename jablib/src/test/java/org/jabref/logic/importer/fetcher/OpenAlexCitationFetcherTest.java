@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.util.BuildInfo;
@@ -12,7 +11,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,8 +35,7 @@ class OpenAlexCitationFetcherTest {
 
     @Test
     void getReferencesWithDoi() throws FetcherException {
-        BibEntry entry = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.DOI, "10.1016/j.jksuci.2024.102118");
+        BibEntry entry = new BibEntry(StandardEntryType.Article).withField(StandardField.DOI, "10.1016/j.jksuci.2024.102118");
 
         List<BibEntry> references = fetcher.getReferences(entry);
 
@@ -47,8 +44,7 @@ class OpenAlexCitationFetcherTest {
 
     @Test
     void getCitationsWithDoi() throws FetcherException {
-        BibEntry entry = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.DOI, "10.1016/j.jksuci.2024.102118");
+        BibEntry entry = new BibEntry(StandardEntryType.Article).withField(StandardField.DOI, "10.1016/j.jksuci.2024.102118");
 
         List<BibEntry> citations = fetcher.getCitations(entry);
 

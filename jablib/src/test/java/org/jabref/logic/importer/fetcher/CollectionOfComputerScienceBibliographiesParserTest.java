@@ -10,7 +10,6 @@ import org.jabref.logic.importer.ParseException;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.support.BibEntryAssert;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -42,7 +41,9 @@ class CollectionOfComputerScienceBibliographiesParserTest {
 
     private void parseXmlAndCheckResults(String xmlName, List<String> resourceNames) throws ParseException, IOException {
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
 
         InputStream is = CollectionOfComputerScienceBibliographiesParserTest.class.getResourceAsStream(xmlName);
         CollectionOfComputerScienceBibliographiesParser parser = new CollectionOfComputerScienceBibliographiesParser(importFormatPreferences);
@@ -50,7 +51,8 @@ class CollectionOfComputerScienceBibliographiesParserTest {
         assertEquals(resourceNames.size(), entries.size());
         assertNotNull(entries);
         for (int i = 0; i < resourceNames.size(); i++) {
-            BibEntryAssert.assertEquals(CollectionOfComputerScienceBibliographiesParserTest.class, resourceNames.get(i), entries.get(i));
+            BibEntryAssert.assertEquals(CollectionOfComputerScienceBibliographiesParserTest.class,
+                    resourceNames.get(i), entries.get(i));
         }
     }
 }

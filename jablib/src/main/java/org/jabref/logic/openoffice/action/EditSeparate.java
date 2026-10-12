@@ -3,6 +3,14 @@ package org.jabref.logic.openoffice.action;
 import java.util.List;
 import java.util.Optional;
 
+import com.sun.star.beans.IllegalTypeException;
+import com.sun.star.beans.NotRemoveableException;
+import com.sun.star.beans.PropertyVetoException;
+import com.sun.star.lang.WrappedTargetException;
+import com.sun.star.text.XTextCursor;
+import com.sun.star.text.XTextDocument;
+import com.sun.star.text.XTextRange;
+import com.sun.star.uno.XComponentContext;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.openoffice.frontend.OOFrontend;
 import org.jabref.logic.openoffice.frontend.UpdateCitationMarkers;
@@ -17,25 +25,12 @@ import org.jabref.model.openoffice.uno.NoDocumentException;
 import org.jabref.model.openoffice.uno.UnoScreenRefresh;
 import org.jabref.model.openoffice.util.OOResult;
 
-import com.sun.star.beans.IllegalTypeException;
-import com.sun.star.beans.NotRemoveableException;
-import com.sun.star.beans.PropertyVetoException;
-import com.sun.star.lang.WrappedTargetException;
-import com.sun.star.text.XTextCursor;
-import com.sun.star.text.XTextDocument;
-import com.sun.star.text.XTextRange;
-import com.sun.star.uno.XComponentContext;
-
 public class EditSeparate {
 
-    private EditSeparate() {
-    }
+    private EditSeparate() {}
 
-    public static OOResult<Boolean, JabRefException> separateCitations(XTextDocument doc,
-                                                                       XComponentContext context,
-                                                                       OOFrontend frontend,
-                                                                       List<BibDatabase> databases,
-                                                                       JStyle style) {
+    public static OOResult<Boolean, JabRefException> separateCitations(XTextDocument doc, XComponentContext context, OOFrontend frontend,
+            List<BibDatabase> databases, JStyle style) {
         try {
             boolean madeModifications = false;
 
@@ -74,7 +69,8 @@ public class EditSeparate {
                         boolean insertSpaceAfter = i != last;
                         Citation citation = citations.get(i);
 
-                        UpdateCitationMarkers.createAndFillCitationGroup(frontend,
+                        UpdateCitationMarkers.createAndFillCitationGroup(
+                                frontend,
                                 doc,
                                 context,
                                 List.of(citation.citationKey),
@@ -95,7 +91,8 @@ public class EditSeparate {
                 UnoScreenRefresh.unlockControllers(doc);
             }
             return OOResult.ok(madeModifications);
-        } catch (CreationException | IllegalTypeException | NoDocumentException | NotRemoveableException | PropertyVetoException | WrappedTargetException | IllegalArgumentException e) {
+        } catch (CreationException | IllegalTypeException | NoDocumentException | NotRemoveableException | PropertyVetoException | WrappedTargetException
+                | IllegalArgumentException e) {
             return OOResult.error(new JabRefException(e.getMessage(), e));
         }
     }

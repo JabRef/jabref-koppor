@@ -17,29 +17,29 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Read-only export of a shared SQL library into a plain `.bib` file, without a [DBMSSynchronizer]
-/// and without a notification listener. This is what gives command line tools access to a shared
-/// database: they read the exported file like any other library.
+/// Read-only export of a shared SQL library into a plain `.bib` file, without a
+/// [DBMSSynchronizer] and without a notification listener. This is what gives
+/// command line tools access to a shared database: they read the exported file
+/// like any other library.
 @NullMarked
 public class SharedDatabaseExport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SharedDatabaseExport.class);
 
-    private SharedDatabaseExport() {
-    }
+    private SharedDatabaseExport() {}
 
-    /// Connects to the shared database, writes its entries and meta data to a temporary file, and disconnects again.
-    /// The file is deleted when the JVM exits.
+    /// Connects to the shared database, writes its entries and meta data to a
+    /// temporary file, and disconnects again. The file is deleted when the JVM
+    /// exits.
     ///
     /// @return the path of the temporary `.bib` file
-    /// @throws DatabaseNotSupportedException if the database is not a JabRef shared database
-    public static Path pullToTemporaryBib(DBMSConnectionUrl url, CliPreferences preferences)
-            throws SQLException, InvalidDBMSConnectionPropertiesException, DatabaseNotSupportedException, IOException {
+    /// @throws DatabaseNotSupportedException if the database is not a JabRef
+    ///   shared database
+    public static Path pullToTemporaryBib(DBMSConnectionUrl url, CliPreferences preferences) throws SQLException, InvalidDBMSConnectionPropertiesException, DatabaseNotSupportedException, IOException {
         BibDatabaseContext context = pull(url, preferences);
 
         Path file = Files.createTempFile("jabref-shared-", ".bib");
@@ -50,8 +50,7 @@ public class SharedDatabaseExport {
         return file;
     }
 
-    private static BibDatabaseContext pull(DBMSConnectionUrl url, CliPreferences preferences)
-            throws SQLException, InvalidDBMSConnectionPropertiesException, DatabaseNotSupportedException {
+    private static BibDatabaseContext pull(DBMSConnectionUrl url, CliPreferences preferences) throws SQLException, InvalidDBMSConnectionPropertiesException, DatabaseNotSupportedException {
         DBMSConnectionProperties properties = new DBMSConnectionPropertiesBuilder()
                 .setType(url.type())
                 .setHost(url.host())

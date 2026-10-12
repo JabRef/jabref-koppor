@@ -7,6 +7,9 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.jabref.logic.bst.util.BstCaseChanger;
 import org.jabref.logic.bst.util.BstNameFormatter;
 import org.jabref.logic.bst.util.BstPurifier;
@@ -16,10 +19,6 @@ import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.Author;
 import org.jabref.model.entry.AuthorList;
-
-import com.google.common.annotations.VisibleForTesting;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -50,12 +49,13 @@ public class BstFunctions {
         }
     }
 
-    public BstFunctions(BstVMContext bstVMContext,
-                        StringBuilder bbl) {
+    public BstFunctions(BstVMContext bstVMContext, StringBuilder bbl) {
         this.strings = bstVMContext.strings();
         this.integers = bstVMContext.integers();
         this.functions = bstVMContext.functions();
-        this.preamble = Optional.of(bstVMContext.bibDatabase()).flatMap(BibDatabase::getPreamble).orElse("");
+        this.preamble = Optional.of(bstVMContext.bibDatabase())
+                .flatMap(BibDatabase::getPreamble)
+                .orElse("");
         this.stack = bstVMContext.stack();
 
         this.bbl = bbl;
@@ -235,9 +235,7 @@ public class BstFunctions {
             Object o1 = stack.pop();
             Object o2 = stack.pop();
 
-            if (!(o1 instanceof BstVMVisitor.Identifier(
-                    String name
-            ))) {
+            if (!(o1 instanceof BstVMVisitor.Identifier(String name))) {
                 throw new BstVMException("Invalid parameters (line %d)".formatted(ctx.start.getLine()));
             }
 
@@ -325,22 +323,22 @@ public class BstFunctions {
     }
 
     /// Pops the top two (string) literals; it changes the case of the second
-    /// according to the specifications of the first, as follows. (Note: The word
-    /// `letters' in the next sentence refers only to those at brace-level 0, the
-    /// top-most brace level; no other characters are changed, except perhaps for
-    /// \special characters", described in Section 4.) If the first literal is the
-    /// string `t', it converts to lower case all letters except the very first
-    /// character in the string, which it leaves alone, and except the first
-    /// character following any colon and then nonnull white space, which it also
-    /// leaves alone; if it's the string `l', it converts all letters to lower case;
-    /// and if it's the string `u', it converts all letters to upper case. It then
-    /// pushes this resulting string. If either type is incorrect, it complains and
-    /// pushes the null string; however, if both types are correct but the
-    /// specification string (i.e., the first string) isn't one of the legal ones, it
-    /// merely pushes the second back onto the stack, after complaining. (Another
-    /// note: It ignores case differences in the specification string; for example,
-    /// the strings t and T are equivalent for the purposes of this built-in
-    /// function.)
+    /// according to the specifications of the first, as follows. (Note: The
+    /// word `letters' in the next sentence refers only to those at brace-level
+    /// 0, the top-most brace level; no other characters are changed, except
+    /// perhaps for \special characters", described in Section 4.) If the first
+    /// literal is the string `t', it converts to lower case all letters except
+    /// the very first character in the string, which it leaves alone, and
+    /// except the first character following any colon and then nonnull white
+    /// space, which it also leaves alone; if it's the string `l', it converts
+    /// all letters to lower case; and if it's the string `u', it converts all
+    /// letters to upper case. It then pushes this resulting string. If either
+    /// type is incorrect, it complains and pushes the null string; however, if
+    /// both types are correct but the specification string (i.e., the first
+    /// string) isn't one of the legal ones, it merely pushes the second back
+    /// onto the stack, after complaining. (Another note: It ignores case
+    /// differences in the specification string; for example, the strings t and
+    /// T are equivalent for the purposes of this built-in function.)
     private void bstChangeCase(BstVMVisitor visitor, ParserRuleContext ctx) {
         if (stack.size() < 2) {
             throw new BstVMException("Not enough operands on stack for operation change.case$ (line %d)".formatted(ctx.start.getLine()));
@@ -390,7 +388,8 @@ public class BstFunctions {
                 return;
             }
 
-            stack.push(bstEntry.entry.getCitationKey().orElse(""));
+            stack.push(bstEntry.entry.getCitationKey()
+                               .orElse(""));
         }
     }
 
@@ -446,9 +445,7 @@ public class BstFunctions {
         Object o2 = stack.pop();
         Object o3 = stack.pop();
 
-        if (!(o1 instanceof String format)
-                || !(o2 instanceof Integer name)
-                || !(o3 instanceof String authors)) {
+        if (!(o1 instanceof String format) || !(o2 instanceof Integer name) || !(o3 instanceof String authors)) {
             stack.push("");
             return;
         }
@@ -503,9 +500,7 @@ public class BstFunctions {
     private void callIdentifierOrTree(Object f, BstVMVisitor visitor, ParserRuleContext ctx) {
         if (f instanceof ParseTree tree) {
             visitor.visit(tree);
-        } else if (f instanceof BstVMVisitor.Identifier(
-                String name
-        )) {
+        } else if (f instanceof BstVMVisitor.Identifier(String name)) {
             visitor.resolveIdentifier(name, ctx);
         } else {
             stack.push(f);
@@ -686,7 +681,8 @@ public class BstFunctions {
 
         String result = string.substring(zeroBasedStart, zeroBasedEnd);
 
-        LOGGER.trace("substring$(s, start, len): ({}, {}, {})={}", string, start, length, result);
+        LOGGER.trace("substring$(s, start, len): ({}, {}, {})={}",
+                string, start, length, result);
         stack.push(result);
     }
 
@@ -812,7 +808,8 @@ public class BstFunctions {
                 return;
             }
 
-            stack.push(bstEntryContext.entry.getType().getName());
+            stack.push(bstEntryContext.entry.getType()
+                    .getName());
         }
     }
 
@@ -833,8 +830,7 @@ public class BstFunctions {
         Object f2 = stack.pop();
         Object f1 = stack.pop();
 
-        if (!((f1 instanceof BstVMVisitor.Identifier) || (f1 instanceof ParseTree))
-                && ((f2 instanceof BstVMVisitor.Identifier) || (f2 instanceof ParseTree))) {
+        if (!((f1 instanceof BstVMVisitor.Identifier) || (f1 instanceof ParseTree)) && ((f2 instanceof BstVMVisitor.Identifier) || (f2 instanceof ParseTree))) {
             throw new BstVMException("Expecting two functions for while$ (line %d)".formatted(ctx.start.getLine()));
         }
 
@@ -845,8 +841,7 @@ public class BstFunctions {
 
             Object i = stack.pop();
             if (!(i instanceof Integer)) {
-                throw new BstVMException("First parameter to while has to return an integer but was %s (line %d)"
-                        .formatted(i.toString(), ctx.start.getLine()));
+                throw new BstVMException("First parameter to while has to return an integer but was %s (line %d)".formatted(i.toString(), ctx.start.getLine()));
             }
             if ((Integer) i <= 0) {
                 break;
@@ -857,11 +852,12 @@ public class BstFunctions {
 
     /// The |built_in| function {\.{width\$}} pops the top (string) literal and
     /// pushes the integer that represents its width in units specified by the
-    /// |char_width| array. This function takes the literal literally; that is, it
-    /// assumes each character in the string is to be printed as is, regardless of
-    /// whether the character has a special meaning to \TeX, except that special
-    /// characters (even without their |right_brace|s) are handled specially. If the
-    /// literal isn't a string, it complains and pushes~0.
+    /// |char_width| array. This function takes the literal literally; that is,
+    /// it assumes each character in the string is to be printed as is,
+    /// regardless of whether the character has a special meaning to \TeX,
+    /// except that special characters (even without their |right_brace|s) are
+    /// handled specially. If the literal isn't a string, it complains and
+    /// pushes~0.
     private void bstWidth(BstVMVisitor visitor, ParserRuleContext ctx) {
         if (stack.isEmpty()) {
             throw new BstVMException("Not enough operands on stack for operation width$ (line %d)".formatted(ctx.start.getLine()));

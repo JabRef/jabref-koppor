@@ -5,7 +5,6 @@ import java.util.stream.Stream;
 
 import org.jabref.model.entry.Author;
 import org.jabref.model.entry.AuthorList;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -39,8 +38,7 @@ class AuthorListParserTest {
                 Arguments.of("{Society of Automotive Engineers}", new Author("", "", null, "{Society of Automotive Engineers}", null)),
 
                 // Demonstrate the "von" part parsing of a non-braced name
-                Arguments.of("Society of Automotive Engineers", new Author("Society", "S.", "of", "Automotive Engineers", null))
-        );
+                Arguments.of("Society of Automotive Engineers", new Author("Society", "S.", "of", "Automotive Engineers", null)));
     }
 
     @ParameterizedTest
@@ -55,11 +53,7 @@ class AuthorListParserTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "Z. Yao, D. S. Weld, et al.",
-            "Z. Yao,D. S. Weld, et al.",
-            "Z. Yao,   D. S. Weld, et al."
-    })
+    @ValueSource(strings = {"Z. Yao, D. S. Weld, et al.", "Z. Yao,D. S. Weld, et al.", "Z. Yao,   D. S. Weld, et al."})
     void etAlNormalizedToAndOthers(String input) {
         assertEquals(Optional.of("Z. Yao and D. S. Weld and others"), AuthorListParser.normalizeSimply(input));
     }
@@ -71,77 +65,34 @@ class AuthorListParserTest {
 
     private static Stream<Arguments> parseMultipleCorrectly() {
         return Stream.of(
-                Arguments.of(
-                        AuthorList.of(
-                                new Author("Alexander", "A.", null, "Artemenko", null),
-                                Author.OTHERS
-                        ),
-                        "Alexander Artemenko and others"),
-                Arguments.of(
-                        AuthorList.of(
-                                new Author("Alexander", "A.", null, "Artemenko", null),
-                                Author.OTHERS
-                        ),
-                        "Alexander Artemenko et al."),
-                Arguments.of(
-                        AuthorList.of(
-                                new Author("John", "J.", null, "Smith", null),
-                                new Author("Jane", "J.", null, "Doe", null),
-                                Author.OTHERS
-                        ),
+                Arguments.of(AuthorList.of(new Author("Alexander", "A.", null, "Artemenko", null), Author.OTHERS), "Alexander Artemenko and others"),
+                Arguments.of(AuthorList.of(new Author("Alexander", "A.", null, "Artemenko", null), Author.OTHERS), "Alexander Artemenko et al."),
+                Arguments.of(AuthorList.of(new Author("John", "J.", null, "Smith", null), new Author("Jane", "J.", null, "Doe", null), Author.OTHERS),
                         "Smith, John and Doe, Jane, et al"),
-                Arguments.of(
-                        AuthorList.of(
-                                new Author("J.", "J.", null, "Smith", null),
-                                new Author("A.", "A.", null, "Doe", null),
-                                Author.OTHERS
-                        ),
+                Arguments.of(AuthorList.of(new Author("J.", "J.", null, "Smith", null), new Author("A.", "A.", null, "Doe", null), Author.OTHERS),
                         "J. Smith and A. Doe ET AL."),
                 Arguments.of(
-                        AuthorList.of(
-                                new Author("I.", "I.", null, "Podadera", null),
-                                new Author("J. M.", "J. M.", null, "Carmona", null),
-                                new Author("A.", "A.", null, "Ibarra", null),
-                                new Author("J.", "J.", null, "Molla", null)
-                        ),
+                        AuthorList.of(new Author("I.", "I.", null, "Podadera", null), new Author("J. M.", "J. M.", null, "Carmona", null), new Author("A.", "A.", null, "Ibarra", null),
+                                new Author("J.", "J.", null, "Molla", null)),
                         "I. Podadera, J. M. Carmona, A. Ibarra, and J. Molla"),
-                Arguments.of(AuthorList.of(
-                                new Author("Vivian", "V.", null, "U", null),
-                                new Author("Thomas", "T.", null, "Lai", null)
-                        ),
-                        "U, Vivian and Lai, Thomas"
-                ),
+                Arguments.of(AuthorList.of(new Author("Vivian", "V.", null, "U", null), new Author("Thomas", "T.", null, "Lai", null)),
+                        "U, Vivian and Lai, Thomas"),
                 Arguments.of(
-                        AuthorList.of(
-                                new Author("I.", "I.", null, "Podadera", null),
-                                new Author("J. M.", "J. M.", null, "Carmona", null),
-                                new Author("A.", "A.", null, "Ibarra", null),
-                                new Author("J.", "J.", null, "Molla", null)
-                        ),
+                        AuthorList.of(new Author("I.", "I.", null, "Podadera", null), new Author("J. M.", "J. M.", null, "Carmona", null), new Author("A.", "A.", null, "Ibarra", null),
+                                new Author("J.", "J.", null, "Molla", null)),
                         "I. Podadera      J. M. Carmona     A. Ibarra     J. Molla"),
-                Arguments.of(
-                        AuthorList.of(
-                                new Author("Alexander", "A.", null, "Artemenko", null),
-                                new Author("I.", "I.", null, "Podadera", null),
-                                new Author("J. M.", "J. M.", null, "Carmona", null)
-                        ),
+                Arguments.of(AuthorList.of(new Author("Alexander", "A.", null, "Artemenko", null), new Author("I.", "I.", null, "Podadera", null), new Author("J. M.", "J. M.", null, "Carmona", null)),
                         """
                                 Alexander Artemenko
                                 I. Podadera
                                 J. M. Carmona
                                 """),
-                Arguments.of(
-                        AuthorList.of(
-                                new Author("First1", "F.", null, "Last1", null),
-                                new Author("First2", "F.", null, "Last2", null),
-                                new Author("First3", "F.", null, "Last3", null)
-                        ),
+                Arguments.of(AuthorList.of(new Author("First1", "F.", null, "Last1", null), new Author("First2", "F.", null, "Last2", null), new Author("First3", "F.", null, "Last3", null)),
                         """
                                 First1 Last1
                                     First2 Last2
                                     First3 Last3
-                                """)
-        );
+                                """));
     }
 
     @ParameterizedTest

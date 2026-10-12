@@ -16,11 +16,7 @@ public class NoURLCheckerTest {
     private final NoURLChecker checker = new NoURLChecker();
 
     @ParameterizedTest(name = "{index}. Title: \"{0}\"")
-    @ValueSource(strings = {
-            "Proceedings of the https://example.com/conference",
-            "Find more at http://mywebsite.org/article",
-            "Visit ftp://files.example.com/download",
-    })
+    @ValueSource(strings = {"Proceedings of the https://example.com/conference", "Find more at http://mywebsite.org/article", "Visit ftp://files.example.com/download"})
     void fieldShouldRaiseWarningForFullURLs(String title) {
         assertNotEquals(Optional.empty(), checker.checkValue(title));
     }

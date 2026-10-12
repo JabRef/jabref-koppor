@@ -24,11 +24,12 @@ public class MainTableFieldValueFormatter {
         this.bibDatabase = bibDatabaseContext.getDatabase();
     }
 
-    /// Format fields for [BibEntryTableViewModel], according to user preferences and with latex translated to
-    /// unicode if possible.
+    /// Format fields for [BibEntryTableViewModel], according to user
+    /// preferences and with latex translated to unicode if possible.
     ///
-    /// @param fields the fields argument of [BibEntryTableViewModel#getFields(OrFields)].
-    /// @param entry  the BibEntry of [BibEntryTableViewModel].
+    /// @param fields the fields argument of
+    ///   [BibEntryTableViewModel#getFields(OrFields)].
+    /// @param entry the BibEntry of [BibEntryTableViewModel].
     /// @return The formatted name field.
     public String formatFieldsValues(final OrFields fields, final BibEntry entry) {
         for (Field field : fields.getFields()) {
@@ -49,8 +50,8 @@ public class MainTableFieldValueFormatter {
         return "";
     }
 
-    /// Format a name field for the table, according to user preferences and with latex expressions translated if
-    /// possible.
+    /// Format a name field for the table, according to user preferences and
+    /// with latex expressions translated if possible.
     ///
     /// @param nameToFormat The contents of the name field.
     /// @return The formatted name field.
@@ -61,25 +62,15 @@ public class MainTableFieldValueFormatter {
 
         AuthorList authors = AuthorList.parse(nameToFormat);
 
-        if (((displayStyle == DisplayStyle.FIRSTNAME_LASTNAME)
-                || (displayStyle == DisplayStyle.LASTNAME_FIRSTNAME))
-                && (abbreviationStyle == AbbreviationStyle.LASTNAME_ONLY)) {
+        if (((displayStyle == DisplayStyle.FIRSTNAME_LASTNAME) || (displayStyle == DisplayStyle.LASTNAME_FIRSTNAME)) && (abbreviationStyle == AbbreviationStyle.LASTNAME_ONLY)) {
             return authors.latexFree().getAsLastNames(false);
         }
 
         return switch (displayStyle) {
-            default ->
-                    nameToFormat;
-            case FIRSTNAME_LASTNAME ->
-                    authors.latexFree().getAsFirstLastNames(
-                            abbreviationStyle == AbbreviationStyle.FULL,
-                            false);
-            case LASTNAME_FIRSTNAME ->
-                    authors.latexFree().getAsLastFirstNames(
-                            abbreviationStyle == AbbreviationStyle.FULL,
-                            false);
-            case NATBIB ->
-                    authors.latexFree().getAsNatbib();
+            default -> nameToFormat;
+            case FIRSTNAME_LASTNAME -> authors.latexFree().getAsFirstLastNames(abbreviationStyle == AbbreviationStyle.FULL, false);
+            case LASTNAME_FIRSTNAME -> authors.latexFree().getAsLastFirstNames(abbreviationStyle == AbbreviationStyle.FULL, false);
+            case NATBIB -> authors.latexFree().getAsNatbib();
         };
     }
 }

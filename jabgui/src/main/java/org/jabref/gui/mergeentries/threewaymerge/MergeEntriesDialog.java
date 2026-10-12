@@ -2,7 +2,6 @@ package org.jabref.gui.mergeentries.threewaymerge;
 
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.BaseDialog;
@@ -14,7 +13,8 @@ public class MergeEntriesDialog extends BaseDialog<EntriesMergeResult> {
     private final BibEntry one;
     private final BibEntry two;
 
-    public MergeEntriesDialog(BibEntry one, BibEntry two, GuiPreferences preferences, StateManager stateManager) {
+    public MergeEntriesDialog(BibEntry one, BibEntry two, GuiPreferences preferences,
+            StateManager stateManager) {
         threeWayMergeView = new ThreeWayMergeView(one, two, preferences, stateManager);
         this.one = one;
         this.two = two;
@@ -22,7 +22,8 @@ public class MergeEntriesDialog extends BaseDialog<EntriesMergeResult> {
         init();
     }
 
-    public MergeEntriesDialog(BibEntry one, BibEntry two, String leftHeader, String rightHeader, GuiPreferences preferences, StateManager stateManager) {
+    public MergeEntriesDialog(BibEntry one, BibEntry two, String leftHeader,
+            String rightHeader, GuiPreferences preferences, StateManager stateManager) {
         threeWayMergeView = new ThreeWayMergeView(one, two, leftHeader, rightHeader, preferences, stateManager);
         this.one = one;
         this.two = two;
@@ -39,11 +40,14 @@ public class MergeEntriesDialog extends BaseDialog<EntriesMergeResult> {
 
         // Create buttons
         ButtonType replaceEntries = new ButtonType(Localization.lang("Merge entries"), ButtonBar.ButtonData.OK_DONE);
-        this.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, replaceEntries);
+        this.getDialogPane()
+                .getButtonTypes()
+                .setAll(ButtonType.CANCEL, replaceEntries);
         this.setResultConverter(buttonType -> {
             threeWayMergeView.saveConfiguration();
             if (buttonType.equals(replaceEntries)) {
-                return new EntriesMergeResult(one, two, threeWayMergeView.getLeftEntry(), threeWayMergeView.getRightEntry(), threeWayMergeView.getMergedEntry());
+                return new EntriesMergeResult(one, two, threeWayMergeView.getLeftEntry(), threeWayMergeView.getRightEntry(),
+                        threeWayMergeView.getMergedEntry());
             } else {
                 return null;
             }

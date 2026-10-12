@@ -17,18 +17,17 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.jabref.logic.journals.ltwa.LtwaRepository;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.TaskExecutor;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/// This class loads abbreviations from a CSV file and stores them into a MV
+/// file ([#readAbbreviationsFromCsvFile(Path)]). It can also create an
+/// [JournalAbbreviationRepository] based on an MV file
+/// ([#loadRepository(AbbreviationPreferences)]).
 ///
-/// This class loads abbreviations from a CSV file and stores them into a MV file ([#readAbbreviationsFromCsvFile(Path)]).
-/// It can also create an [JournalAbbreviationRepository] based on an MV file ([#loadRepository(AbbreviationPreferences)]).
-///
-///
-/// Abbreviations are available at <a href="https://github.com/JabRef/abbrv.jabref.org/">https://github.com/JabRef/abbrv.jabref.org/</a>.
-///
+/// Abbreviations are available at <a
+/// href="https://github.com/JabRef/abbrv.jabref.org/">https://github.com/JabRef/abbrv.jabref.org/</a>.
 public class JournalAbbreviationLoader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JournalAbbreviationLoader.class);
@@ -138,8 +137,7 @@ public class JournalAbbreviationLoader {
         @Override
         public Optional<String> getLtwaAbbreviation(String journalName) {
             ensureLoadingStarted();
-            return loadedDelegate()
-                    .flatMap(repository -> repository.getLtwaAbbreviation(journalName));
+            return loadedDelegate().flatMap(repository -> repository.getLtwaAbbreviation(journalName));
         }
 
         @Override
@@ -153,8 +151,7 @@ public class JournalAbbreviationLoader {
         @Override
         public Optional<Abbreviation> get(String input) {
             ensureLoadingStarted();
-            return loadedDelegate()
-                    .flatMap(repository -> repository.get(input));
+            return loadedDelegate().flatMap(repository -> repository.get(input));
         }
 
         @Override
@@ -184,29 +181,25 @@ public class JournalAbbreviationLoader {
         @Override
         public Optional<String> getNextAbbreviation(String text) {
             ensureLoadingStarted();
-            return loadedDelegate()
-                    .flatMap(repository -> repository.getNextAbbreviation(text));
+            return loadedDelegate().flatMap(repository -> repository.getNextAbbreviation(text));
         }
 
         @Override
         public Optional<String> getDefaultAbbreviation(String text) {
             ensureLoadingStarted();
-            return loadedDelegate()
-                    .flatMap(repository -> repository.getDefaultAbbreviation(text));
+            return loadedDelegate().flatMap(repository -> repository.getDefaultAbbreviation(text));
         }
 
         @Override
         public Optional<String> getDotless(String text) {
             ensureLoadingStarted();
-            return loadedDelegate()
-                    .flatMap(repository -> repository.getDotless(text));
+            return loadedDelegate().flatMap(repository -> repository.getDotless(text));
         }
 
         @Override
         public Optional<String> getShortestUniqueAbbreviation(String text) {
             ensureLoadingStarted();
-            return loadedDelegate()
-                    .flatMap(repository -> repository.getShortestUniqueAbbreviation(text));
+            return loadedDelegate().flatMap(repository -> repository.getShortestUniqueAbbreviation(text));
         }
 
         @Override
@@ -231,12 +224,12 @@ public class JournalAbbreviationLoader {
             }
 
             BackgroundTask.wrap(() -> loadRepositorySynchronously(abbreviationPreferences))
-                          .onSuccess(this::setLoadedRepository)
-                          .onFailure(e -> {
-                              LOGGER.error("Error while loading journal abbreviation repository in background", e);
-                              setFallbackRepository();
-                          })
-                          .executeWith(taskExecutor);
+                    .onSuccess(this::setLoadedRepository)
+                    .onFailure(e -> {
+                        LOGGER.error("Error while loading journal abbreviation repository in background", e);
+                        setFallbackRepository();
+                    })
+                    .executeWith(taskExecutor);
         }
 
         private void setLoadedRepository(JournalAbbreviationRepository repository) {

@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.jabref.logic.l10n.Localization;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -46,10 +45,7 @@ class ISBNCheckerTest {
     }
 
     private static Stream<Arguments> provideBoundaryArgumentsForISBN13() {
-        return Stream.of(
-                Arguments.of(Optional.empty(), "978-0-306-40615-7"),
-                Arguments.of(Optional.of(Localization.lang("incorrect control digit")), "978-0-306-40615-2"),
-                Arguments.of(Optional.of(Localization.lang("incorrect format")), "978_0_306_40615_7")
-        );
+        return Stream.of(Arguments.of(Optional.empty(), "978-0-306-40615-7"), Arguments.of(Optional.of(Localization.lang("incorrect control digit")), "978-0-306-40615-2"),
+                Arguments.of(Optional.of(Localization.lang("incorrect format")), "978_0_306_40615_7"));
     }
 }

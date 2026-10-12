@@ -12,7 +12,6 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,8 +21,9 @@ import static org.mockito.Mockito.when;
 @ExternalServicesTest
 class FulltextFetchersTest {
 
-    /// Required for testing the FulltextFetchers class.
-    /// That code is not put to the FulltextFetcher class itself, because subclasses of FulltextFetcher should implement the getTrustLevel method.
+    /// Required for testing the FulltextFetchers class. That code is not put to
+    /// the FulltextFetcher class itself, because subclasses of FulltextFetcher
+    /// should implement the getTrustLevel method.
     private interface FulltextFetcherWithTrustLevel extends FulltextFetcher {
         default TrustLevel getTrustLevel() {
             return TrustLevel.UNKNOWN;
@@ -35,7 +35,8 @@ class FulltextFetchersTest {
         URL pdfUrl = URLUtil.create("http://docs.oasis-open.org/wsbpel/2.0/OS/wsbpel-v2.0-OS.pdf");
         FulltextFetcherWithTrustLevel finder = _ -> Optional.of(pdfUrl);
         FulltextFetchers fetcher = new FulltextFetchers(Set.of(finder));
-        assertEquals(Optional.of(pdfUrl), fetcher.findFullTextPDF(new BibEntry()).map(FetcherResult::source));
+        assertEquals(Optional.of(pdfUrl),
+                fetcher.findFullTextPDF(new BibEntry()).map(FetcherResult::source));
     }
 
     @Test
@@ -44,7 +45,8 @@ class FulltextFetchersTest {
         FulltextFetcherWithTrustLevel finder = _ -> Optional.of(pdfUrl);
         FulltextFetchers fetcher = new FulltextFetchers(Set.of(finder));
 
-        assertEquals(Optional.empty(), fetcher.findFullTextPDF(new BibEntry()).map(FetcherResult::source));
+        assertEquals(Optional.empty(),
+                fetcher.findFullTextPDF(new BibEntry()).map(FetcherResult::source));
     }
 
     @Test
@@ -53,7 +55,8 @@ class FulltextFetchersTest {
         FulltextFetcherWithTrustLevel finder = _ -> Optional.of(pdfUrl);
         FulltextFetchers fetcher = new FulltextFetchers(Set.of(finder));
 
-        assertEquals(Optional.of(pdfUrl), fetcher.findFullTextPDF(new BibEntry()).map(FetcherResult::source));
+        assertEquals(Optional.of(pdfUrl),
+                fetcher.findFullTextPDF(new BibEntry()).map(FetcherResult::source));
     }
 
     @Test
@@ -73,7 +76,8 @@ class FulltextFetchersTest {
 
         FulltextFetchers fetchers = new FulltextFetchers(Set.of(finderLow, finderHigh));
 
-        assertEquals(Optional.of(highUrl), fetchers.findFullTextPDF(entry).map(FetcherResult::source));
+        assertEquals(Optional.of(highUrl),
+                fetchers.findFullTextPDF(entry).map(FetcherResult::source));
     }
 
     @Test
@@ -89,6 +93,7 @@ class FulltextFetchersTest {
 
         FulltextFetchers fetchers = new FulltextFetchers(Set.of(finder));
 
-        assertEquals(Optional.of(expectedHeaders), fetchers.findFullTextPDF(entry).map(FetcherResult::headers));
+        assertEquals(Optional.of(expectedHeaders),
+                fetchers.findFullTextPDF(entry).map(FetcherResult::headers));
     }
 }

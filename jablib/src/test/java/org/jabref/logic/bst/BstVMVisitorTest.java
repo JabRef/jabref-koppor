@@ -4,11 +4,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.types.StandardEntryType;
-
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.jabref.logic.bst.BstFunctions.BstFunction;
+import org.jabref.logic.bst.BstVMVisitor.Identifier;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.types.StandardEntryType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,32 +51,39 @@ class BstVMVisitorTest {
 
     @Test
     void visitFunctionCommand() {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { test.func } { #1 'test.var := }
                 EXECUTE { test.func }
                 """);
 
         vm.render(List.of());
 
-        Map<String, BstFunctions.BstFunction> functions = vm.getContext().functions();
+        Map<String, BstFunction> functions = vm.getContext().functions();
         assertTrue(functions.containsKey("test.func"));
         assertNotNull(functions.get("test.func"));
     }
 
     @Test
     void visitMacroCommand() {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 MACRO { jan } { "January" }
                 EXECUTE { jan }
                 """);
 
         vm.render(List.of());
 
-        Map<String, BstFunctions.BstFunction> functions = vm.getContext().functions();
+        Map<String, BstFunction> functions = vm.getContext().functions();
         assertTrue(functions.containsKey("jan"));
         assertNotNull(functions.get("jan"));
-        assertEquals("January", vm.getContext().stack().pop());
-        assertTrue(vm.getContext().stack().isEmpty());
+        assertEquals("January",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertTrue(vm.getContext()
+                     .stack()
+                     .isEmpty());
     }
 
     @Test
@@ -85,7 +93,9 @@ class BstVMVisitorTest {
 
         vm.render(testEntries);
 
-        BstEntry bstEntry = vm.getContext().entries().getFirst();
+        BstEntry bstEntry = vm.getContext()
+                              .entries()
+                              .getFirst();
         assertTrue(bstEntry.fields.containsKey("address"));
         assertTrue(bstEntry.fields.containsKey("author"));
         assertTrue(bstEntry.fields.containsKey("title"));
@@ -97,7 +107,8 @@ class BstVMVisitorTest {
 
     @Test
     void visitReadCommand() {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 ENTRY { author title booktitle year owner timestamp url } { } { }
                 READ
                 """);
@@ -105,9 +116,14 @@ class BstVMVisitorTest {
 
         vm.render(testEntries);
 
-        Map<String, String> fields = vm.getContext().entries().getFirst().fields;
+        Map<String, String> fields = vm.getContext()
+                .entries()
+                .getFirst()
+                .fields;
         assertEquals("Crowston, K. and Annabi, H. and Howison, J. and Masango, C.", fields.get("author"));
-        assertEquals("Effective work practices for floss development: A model and propositions", fields.get("title"));
+        assertEquals(
+                "Effective work practices for floss development: A model and propositions",
+                fields.get("title"));
         assertEquals("Hawaii International Conference On System Sciences (HICSS)", fields.get("booktitle"));
         assertEquals("2005", fields.get("year"));
         assertEquals("oezbek", fields.get("owner"));
@@ -117,7 +133,8 @@ class BstVMVisitorTest {
 
     @Test
     void visitExecuteCommand() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 INTEGERS { variable.a }
                 FUNCTION { init.state.consts } { #5 'variable.a := }
                 EXECUTE { init.state.consts }
@@ -125,52 +142,72 @@ class BstVMVisitorTest {
 
         vm.render(List.of());
 
-        assertEquals(5, vm.getContext().integers().get("variable.a"));
+        assertEquals(5,
+                vm.getContext()
+                  .integers()
+                  .get("variable.a"));
     }
 
     @Test
     void visitIterateCommand() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 ENTRY { } { } { }
                 FUNCTION { test } { cite$ }
                 READ
                 ITERATE { test }
                 """);
-        List<BibEntry> testEntries = List.of(
-                BstVMTest.defaultTestEntry(),
-                new BibEntry(StandardEntryType.Article)
-                        .withCitationKey("test"));
+        List<BibEntry> testEntries = List.of(BstVMTest.defaultTestEntry(),
+                new BibEntry(StandardEntryType.Article).withCitationKey("test"));
 
         vm.render(testEntries);
 
-        assertEquals(2, vm.getContext().stack().size());
-        assertEquals("test", vm.getContext().stack().pop());
-        assertEquals("canh05", vm.getContext().stack().pop());
+        assertEquals(2,
+                vm.getContext()
+                  .stack()
+                  .size());
+        assertEquals("test",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("canh05",
+                vm.getContext()
+                  .stack()
+                  .pop());
     }
 
     @Test
     void visitReverseCommand() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 ENTRY { } { } { }
                 FUNCTION { test } { cite$ }
                 READ
                 REVERSE { test }
                 """);
-        List<BibEntry> testEntries = List.of(
-                BstVMTest.defaultTestEntry(),
-                new BibEntry(StandardEntryType.Article)
-                        .withCitationKey("test"));
+        List<BibEntry> testEntries = List.of(BstVMTest.defaultTestEntry(),
+                new BibEntry(StandardEntryType.Article).withCitationKey("test"));
 
         vm.render(testEntries);
 
-        assertEquals(2, vm.getContext().stack().size());
-        assertEquals("canh05", vm.getContext().stack().pop());
-        assertEquals("test", vm.getContext().stack().pop());
+        assertEquals(2,
+                vm.getContext()
+                  .stack()
+                  .size());
+        assertEquals("canh05",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("test",
+                vm.getContext()
+                  .stack()
+                  .pop());
     }
 
     @Test
     void visitSortCommand() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 ENTRY { } { } { }
                 FUNCTION { presort } { cite$ 'sort.key$ := }
                 ITERATE { presort }
@@ -185,15 +222,20 @@ class BstVMVisitorTest {
         vm.render(testEntries);
 
         List<BstEntry> sortedEntries = vm.getContext().entries();
-        assertEquals(Optional.of("a"), sortedEntries.getFirst().entry.getCitationKey());
-        assertEquals(Optional.of("b"), sortedEntries.get(1).entry.getCitationKey());
-        assertEquals(Optional.of("c"), sortedEntries.get(2).entry.getCitationKey());
-        assertEquals(Optional.of("d"), sortedEntries.get(3).entry.getCitationKey());
+        assertEquals(Optional.of("a"),
+                sortedEntries.getFirst().entry.getCitationKey());
+        assertEquals(Optional.of("b"),
+                sortedEntries.get(1).entry.getCitationKey());
+        assertEquals(Optional.of("c"),
+                sortedEntries.get(2).entry.getCitationKey());
+        assertEquals(Optional.of("d"),
+                sortedEntries.get(3).entry.getCitationKey());
     }
 
     @Test
     void visitIdentifier() {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 ENTRY { } { local.variable } { local.label }
                 READ
                 STRINGS { label }
@@ -212,16 +254,32 @@ class BstVMVisitorTest {
 
         vm.render(testEntries);
 
-        assertEquals(2, vm.getContext().stack().pop());
-        assertEquals("TEST-GLOBAL", vm.getContext().stack().pop());
-        assertEquals(1, vm.getContext().stack().pop());
-        assertEquals("TEST", vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals(2,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("TEST-GLOBAL",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(1,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("TEST",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void visitStackitem() {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 STRINGS { t }
                 FUNCTION { test2 } { #3 }
                 FUNCTION { test } {
@@ -236,12 +294,30 @@ class BstVMVisitorTest {
 
         vm.render(List.of());
 
-        assertEquals(3, vm.getContext().stack().pop());
-        assertInstanceOf(ParseTree.class, vm.getContext().stack().pop());
-        assertEquals(new BstVMVisitor.Identifier("t"), vm.getContext().stack().pop());
-        assertEquals(1, vm.getContext().stack().pop());
-        assertEquals("HELLO", vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals(3,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertInstanceOf(ParseTree.class,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(new Identifier("t"),
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(1,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("HELLO",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     // stackitem

@@ -42,6 +42,8 @@ public class FallbackExceptionHandler implements Thread.UncaughtExceptionHandler
         return exception instanceof IllegalStateException
                 && "Executor has been shut down".equals(exception.getMessage())
                 && exception.getStackTrace().length > 0
-                && exception.getStackTrace()[0].getClassName().startsWith("org.apache.sshd.");
+                && exception.getStackTrace()[0]
+                            .getClassName()
+                            .startsWith("org.apache.sshd.");
     }
 }

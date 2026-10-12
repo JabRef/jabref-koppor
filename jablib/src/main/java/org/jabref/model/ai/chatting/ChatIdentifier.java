@@ -7,11 +7,15 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.groups.GroupTreeNode;
 
 public record ChatIdentifier(String libraryId, ChatType chatType, String chatName) {
-    /// Creates a [ChatIdentifier] for an entry if it has a valid AI library ID and a present, unique citation key.
+    /// Creates a [ChatIdentifier] for an entry if it has a valid AI library ID
+    /// and a present, unique citation key.
     ///
     /// @return [Optional#empty()] if the preconditions are not met
     public static Optional<ChatIdentifier> from(BibDatabaseContext ctx, BibEntry entry) {
-        if (ctx.getMetaData().getAiLibraryId().isEmpty() || entry.getCitationKey().isEmpty()) {
+        if (ctx.getMetaData()
+               .getAiLibraryId()
+               .isEmpty()
+                || entry.getCitationKey().isEmpty()) {
             return Optional.empty();
         }
 
@@ -20,25 +24,25 @@ public record ChatIdentifier(String libraryId, ChatType chatType, String chatNam
             return Optional.empty();
         }
 
-        return Optional.of(new ChatIdentifier(
-                ctx.getMetaData().getAiLibraryId().get(),
-                ChatType.WITH_ENTRY,
-                citationKey
-        ));
+        return Optional.of(new ChatIdentifier(ctx.getMetaData()
+                .getAiLibraryId()
+                .get(),
+                ChatType.WITH_ENTRY, citationKey));
     }
 
     /// Creates a [ChatIdentifier] for a group if it has a valid AI library ID.
     ///
     /// @return [Optional#empty()] if the preconditions are not met
     public static Optional<ChatIdentifier> from(BibDatabaseContext ctx, GroupTreeNode group) {
-        if (ctx.getMetaData().getAiLibraryId().isEmpty()) {
+        if (ctx.getMetaData()
+               .getAiLibraryId()
+               .isEmpty()) {
             return Optional.empty();
         }
 
-        return Optional.of(new ChatIdentifier(
-                ctx.getMetaData().getAiLibraryId().get(),
-                ChatType.WITH_GROUP,
-                group.getName()
-        ));
+        return Optional.of(new ChatIdentifier(ctx.getMetaData()
+                .getAiLibraryId()
+                .get(),
+                ChatType.WITH_GROUP, group.getName()));
     }
 }

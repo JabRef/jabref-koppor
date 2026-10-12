@@ -31,7 +31,6 @@ class ToLowerCaseTest {
                 Arguments.of("abcd efg", "abCD eFg"),
                 Arguments.of("abcd123efg", "abCD123eFg"),
                 Arguments.of("hello!*#", "Hello!*#"),
-                Arguments.of("123*%&456", "123*%&456")
-        );
+                Arguments.of("123*%&456", "123*%&456"));
     }
 }

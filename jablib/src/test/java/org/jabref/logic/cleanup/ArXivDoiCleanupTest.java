@@ -4,7 +4,6 @@ import java.util.stream.Stream;
 
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -24,16 +23,14 @@ class ArXivDoiCleanupTest {
         return Stream.of(
                 // Rule 1: eprint present, no DOI -> create the DOI from the eprint, drop the now-redundant eprint
                 Arguments.of(
-                        new BibEntry()
-                                .withField(StandardField.DOI, "10.48550/arxiv.2106.12345"),
+                        new BibEntry().withField(StandardField.DOI, "10.48550/arxiv.2106.12345"),
                         new BibEntry()
                                 .withField(StandardField.EPRINT, "2106.12345")
                                 .withField(StandardField.EPRINTTYPE, "arxiv")),
 
                 // Rule 2: arXiv DOI and matching eprint -> keep DOI only, drop redundant eprint fields
                 Arguments.of(
-                        new BibEntry()
-                                .withField(StandardField.DOI, "10.48550/arXiv.2106.12345"),
+                        new BibEntry().withField(StandardField.DOI, "10.48550/arXiv.2106.12345"),
                         new BibEntry()
                                 .withField(StandardField.DOI, "10.48550/arXiv.2106.12345")
                                 .withField(StandardField.EPRINT, "2106.12345")
@@ -42,8 +39,7 @@ class ArXivDoiCleanupTest {
 
                 // Rule 2: versioned eprint still matches the (unversioned) arXiv DOI
                 Arguments.of(
-                        new BibEntry()
-                                .withField(StandardField.DOI, "10.48550/arXiv.2106.12345"),
+                        new BibEntry().withField(StandardField.DOI, "10.48550/arXiv.2106.12345"),
                         new BibEntry()
                                 .withField(StandardField.DOI, "10.48550/arXiv.2106.12345")
                                 .withField(StandardField.EPRINT, "2106.12345v2")
@@ -51,8 +47,7 @@ class ArXivDoiCleanupTest {
 
                 // Rule 1: a present-but-invalid DOI is treated as missing and overwritten from the eprint
                 Arguments.of(
-                        new BibEntry()
-                                .withField(StandardField.DOI, "10.48550/arxiv.2106.12345"),
+                        new BibEntry().withField(StandardField.DOI, "10.48550/arxiv.2106.12345"),
                         new BibEntry()
                                 .withField(StandardField.DOI, "not-a-valid-doi")
                                 .withField(StandardField.EPRINT, "2106.12345")
@@ -81,27 +76,19 @@ class ArXivDoiCleanupTest {
                                 .withField(StandardField.EPRINTTYPE, "arxiv")),
 
                 // No arXiv data at all -> unchanged
-                Arguments.of(
-                        new BibEntry().withField(StandardField.DOI, "10.1145/2594455"),
+                Arguments.of(new BibEntry().withField(StandardField.DOI, "10.1145/2594455"),
                         new BibEntry().withField(StandardField.DOI, "10.1145/2594455")),
 
                 // Order-independent: arXiv id still in the url, no eprint yet -> move it internally, then consolidate
-                Arguments.of(
-                        new BibEntry()
-                                .withField(StandardField.DOI, "10.48550/arxiv.2106.12345"),
-                        new BibEntry()
-                                .withField(StandardField.URL, "https://arxiv.org/abs/2106.12345")),
+                Arguments.of(new BibEntry().withField(StandardField.DOI, "10.48550/arxiv.2106.12345"),
+                        new BibEntry().withField(StandardField.URL, "https://arxiv.org/abs/2106.12345")),
 
                 // Order-independent: arXiv id still in the journal field, no eprint yet -> consolidate, journal cleared
-                Arguments.of(
-                        new BibEntry()
-                                .withField(StandardField.DOI, "10.48550/arxiv.2106.12345"),
-                        new BibEntry()
-                                .withField(StandardField.JOURNAL, "arXiv:2106.12345")),
+                Arguments.of(new BibEntry().withField(StandardField.DOI, "10.48550/arxiv.2106.12345"),
+                        new BibEntry().withField(StandardField.JOURNAL, "arXiv:2106.12345")),
 
                 // No arXiv data: the probed eprint move yields nothing, so the entry is left untouched
-                Arguments.of(
-                        new BibEntry().withField(StandardField.URL, "https://example.com/article"),
+                Arguments.of(new BibEntry().withField(StandardField.URL, "https://example.com/article"),
                         new BibEntry().withField(StandardField.URL, "https://example.com/article")));
     }
 }

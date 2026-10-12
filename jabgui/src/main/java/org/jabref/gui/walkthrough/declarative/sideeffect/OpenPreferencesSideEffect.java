@@ -1,14 +1,14 @@
 package org.jabref.gui.walkthrough.declarative.sideeffect;
 
+import com.airhacks.afterburner.injection.Injector;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.PreferencesDialogView;
 import org.jabref.gui.walkthrough.Walkthrough;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 
-/// Opens the preferences dialog for a walkthrough and closes it when the walkthrough is reverted.
+/// Opens the preferences dialog for a walkthrough and closes it when the
+/// walkthrough is reverted.
 @NullMarked
 // [impl->req~ux.walkthrough.preferences-direct~1]
 public class OpenPreferencesSideEffect implements WalkthroughSideEffect {

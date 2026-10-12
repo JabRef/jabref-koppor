@@ -3,13 +3,16 @@ package org.jabref.gui.edit.automaticfieldeditor.renamefield;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
+import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
+import de.saxsys.mvvmfx.utils.validation.Validator;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.edit.automaticfieldeditor.AbstractAutomaticFieldEditorTabViewModel;
@@ -24,11 +27,6 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.undo.CompoundEdit;
 
-import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
-import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
-import de.saxsys.mvvmfx.utils.validation.Validator;
-
 public class RenameFieldViewModel extends AbstractAutomaticFieldEditorTabViewModel {
     private final StringProperty newFieldName = new SimpleStringProperty("");
     private final ObjectProperty<Field> selectedField = new SimpleObjectProperty<>(StandardField.AUTHOR);
@@ -40,16 +38,15 @@ public class RenameFieldViewModel extends AbstractAutomaticFieldEditorTabViewMod
 
     private final BooleanBinding canRename;
 
-    public RenameFieldViewModel(List<BibEntry> selectedEntries,
-                                BibDatabase database,
-                                CompoundEdit compoundEdit,
-                                DialogService dialogService,
-                                StateManager stateManager) {
+    public RenameFieldViewModel(List<BibEntry> selectedEntries, BibDatabase database, CompoundEdit compoundEdit,
+            DialogService dialogService, StateManager stateManager) {
         super(database, compoundEdit, dialogService, stateManager);
         this.selectedEntries = new ArrayList<>(selectedEntries);
 
         FieldHelper.getSetFieldsOnly(selectedEntries, getAllFields())
-                   .stream().findFirst().ifPresent(selectedField::set);
+                .stream()
+                .findFirst()
+                .ifPresent(selectedField::set);
 
         fieldValidator = new FunctionBasedValidator<>(selectedField, field -> StringUtil.isNotBlank(field.getName()),
                 ValidationMessage.error("Field cannot be empty"));
@@ -62,7 +59,8 @@ public class RenameFieldViewModel extends AbstractAutomaticFieldEditorTabViewMod
             return null;
         });
 
-        canRename = Bindings.and(fieldValidationStatus().validProperty(), fieldNameValidationStatus().validProperty());
+        canRename = Bindings.and(fieldValidationStatus().validProperty(),
+                fieldNameValidationStatus().validProperty());
     }
 
     public ValidationStatus fieldValidationStatus() {
@@ -105,11 +103,8 @@ public class RenameFieldViewModel extends AbstractAutomaticFieldEditorTabViewMod
         CompoundEdit edits = new CompoundEdit(Localization.lang("Rename field"));
         int affectedEntriesCount = 0;
         if (fieldNameValidationStatus().isValid()) {
-            affectedEntriesCount = new MoveFieldValueAction(selectedField.get(),
-                    FieldFactory.parseField(newFieldName.get()),
-                    selectedEntries,
-                    edits,
-                    false).executeAndGetAffectedEntriesCount();
+            affectedEntriesCount = new MoveFieldValueAction(selectedField.get(), FieldFactory.parseField(newFieldName.get()), selectedEntries, edits, false)
+                    .executeAndGetAffectedEntriesCount();
         }
 
         addEdit(edits, affectedEntriesCount);

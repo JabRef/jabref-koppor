@@ -16,11 +16,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
-
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.fieldeditors.contextmenu.EditorContextAction;
 import org.jabref.gui.keyboard.KeyBindingRepository;
-
 import org.jspecify.annotations.NonNull;
 
 public class EditorTextArea extends TextArea implements Initializable, ContextMenuAddable {
@@ -31,6 +29,7 @@ public class EditorTextArea extends TextArea implements Initializable, ContextMe
     private int collapsedRows = Integer.MAX_VALUE;
     private boolean expanded;
     private boolean resetPending;
+
     /// Variable that contains user-defined behavior for paste action.
     private Runnable pasteActionHandler = () -> {
         // Set empty paste behavior by default
@@ -52,13 +51,15 @@ public class EditorTextArea extends TextArea implements Initializable, ContextMe
         addEventFilter(KeyEvent.KEY_PRESSED, new FieldTraversalEventHandler());
     }
 
-    /// Sizes the area to its wrapped text (one row when empty, growing as text is typed) instead
-    /// of the fixed preferred row count. Intended for natural-height lists that scroll as a whole.
-    /// `widthHint` is the width to wrap at until the first layout has set the real width — pass
-    /// the width the same field had before, so a rebuilt editor is right in its very first frame.
-    /// Until the area is focused for the first time it shows at most `collapsedRows` rows (with
-    /// its own scrollbar); the first focus expands it to the full text (see [#expand]) and it
-    /// stays expanded, so moving the focus on never shrinks a row under the mouse.
+    /// Sizes the area to its wrapped text (one row when empty, growing as text
+    /// is typed) instead of the fixed preferred row count. Intended for
+    /// natural-height lists that scroll as a whole. `widthHint` is the width to
+    /// wrap at until the first layout has set the real width — pass the width
+    /// the same field had before, so a rebuilt editor is right in its very
+    /// first frame. Until the area is focused for the first time it shows at
+    /// most `collapsedRows` rows (with its own scrollbar); the first focus
+    /// expands it to the full text (see [#expand]) and it stays expanded, so
+    /// moving the focus on never shrinks a row under the mouse.
     public void setGrowWithContent(double widthHint, int collapsedRows) {
         this.growWithContent = true;
         this.widthHint = widthHint;
@@ -79,9 +80,10 @@ public class EditorTextArea extends TextArea implements Initializable, ContextMe
         });
     }
 
-    /// Shows the complete text instead of the collapsed `collapsedRows`, as the first focus does.
-    /// Callers use it to restore the expansion of a rebuilt editor (editors are rebuilt for the
-    /// same entry when a field is added or "Show more" is toggled).
+    /// Shows the complete text instead of the collapsed `collapsedRows`, as the
+    /// first focus does. Callers use it to restore the expansion of a rebuilt
+    /// editor (editors are rebuilt for the same entry when a field is added or
+    /// "Show more" is toggled).
     public void expand() {
         if (!expanded) {
             expanded = true;
@@ -105,14 +107,17 @@ public class EditorTextArea extends TextArea implements Initializable, ContextMe
         });
     }
 
-    /// Wraps at the last laid-out width (or the hint before the first layout) instead of
-    /// reporting a horizontal content bias: a biased child makes the enclosing grid measure
-    /// every row at a width, which lets sibling editors such as the tags field wrap at their
-    /// preferred width and briefly show too tall — a visible jump on every entry switch.
+    /// Wraps at the last laid-out width (or the hint before the first layout)
+    /// instead of reporting a horizontal content bias: a biased child makes the
+    /// enclosing grid measure every row at a width, which lets sibling editors
+    /// such as the tags field wrap at their preferred width and briefly show
+    /// too tall — a visible jump on every entry switch.
     @Override
     protected double computePrefHeight(double width) {
         double oneRow = super.computePrefHeight(width);
-        double wrapWidth = width >= 0 ? width : (getWidth() > 0 ? getWidth() : widthHint);
+        double wrapWidth = width >= 0
+                ? width
+                : (getWidth() > 0 ? getWidth() : widthHint);
         if (!growWithContent || wrapWidth <= 0) {
             return oneRow;
         }
@@ -155,7 +160,8 @@ public class EditorTextArea extends TextArea implements Initializable, ContextMe
         this.pasteActionHandler = handler;
     }
 
-    /// Override javafx TextArea method applying TextArea.paste() and pasteActionHandler after
+    /// Override javafx TextArea method applying TextArea.paste() and
+    /// pasteActionHandler after
     @Override
     public void paste() {
         super.paste();
@@ -171,11 +177,16 @@ public class EditorTextArea extends TextArea implements Initializable, ContextMe
 
                 // Get the current text area
                 Node node = (Node) event.getSource();
-                KeyEvent newEvent = new KeyEvent(node,
-                        event.getTarget(), event.getEventType(),
-                        event.getCharacter(), event.getText(),
-                        event.getCode(), event.isShiftDown(),
-                        true, event.isAltDown(),
+                KeyEvent newEvent = new KeyEvent(
+                        node,
+                        event.getTarget(),
+                        event.getEventType(),
+                        event.getCharacter(),
+                        event.getText(),
+                        event.getCode(),
+                        event.isShiftDown(),
+                        true,
+                        event.isAltDown(),
                         event.isMetaDown());
 
                 node.fireEvent(newEvent);

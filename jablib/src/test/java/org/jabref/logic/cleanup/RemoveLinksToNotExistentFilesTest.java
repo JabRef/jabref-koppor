@@ -15,7 +15,6 @@ import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -42,7 +41,8 @@ class RemoveLinksToNotExistentFilesTest {
         Files.createFile(fileBefore);
 
         MetaData metaData = new MetaData();
-        metaData.setLibrarySpecificFileDirectory(newFileFolder.toAbsolutePath().toString());
+        metaData.setLibrarySpecificFileDirectory(newFileFolder.toAbsolutePath()
+                .toString());
 
         BibDatabaseContext databaseContext = new BibDatabaseContext(new BibDatabase(), metaData);
         Files.createFile(testBibFolder);
@@ -56,9 +56,7 @@ class RemoveLinksToNotExistentFilesTest {
                 .withField(StandardField.DATE, "April 2020")
                 .withField(StandardField.YEAR, "2020")
                 .withField(StandardField.DOI, "10.1109/TII.2019.2935531")
-                .withField(StandardField.FILE, FileFieldWriter.getStringRepresentation(List.of(
-                        new LinkedFile("", "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8801912", "PDF"),
-                        fileField)))
+                .withField(StandardField.FILE, FileFieldWriter.getStringRepresentation(List.of(new LinkedFile("", "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8801912", "PDF"), fileField)))
                 .withField(StandardField.ISSUE, "4")
                 .withField(StandardField.ISSN, "1941-0050")
                 .withField(StandardField.JOURNALTITLE, "IEEE Transactions on Industrial Informatics")
@@ -76,19 +74,14 @@ class RemoveLinksToNotExistentFilesTest {
     @Test
     void deleteFileInEntryWithMultipleFileLinks() throws IOException {
         LinkedFile fileField = new LinkedFile("", fileBefore.toAbsolutePath(), "");
-        FieldChange expectedChange = new FieldChange(entry, StandardField.FILE,
-                FileFieldWriter.getStringRepresentation(List.of(
-                        new LinkedFile("", "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8801912", "PDF"),
-                        fileField)),
-                FileFieldWriter.getStringRepresentation(new LinkedFile("", "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8801912", "PDF"))
-        );
+        FieldChange expectedChange = new FieldChange(entry, StandardField.FILE, FileFieldWriter.getStringRepresentation(List.of(new LinkedFile("", "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8801912", "PDF"), fileField)),
+                FileFieldWriter.getStringRepresentation(new LinkedFile("", "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8801912", "PDF")));
         BibEntry expectedEntry = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Shatakshi Sharma and Bhim Singh and Sukumar Mishra")
                 .withField(StandardField.DATE, "April 2020")
                 .withField(StandardField.YEAR, "2020")
                 .withField(StandardField.DOI, "10.1109/TII.2019.2935531")
-                .withField(StandardField.FILE, FileFieldWriter.getStringRepresentation(
-                        new LinkedFile("", "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8801912", "PDF")))
+                .withField(StandardField.FILE, FileFieldWriter.getStringRepresentation(new LinkedFile("", "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8801912", "PDF")))
                 .withField(StandardField.ISSUE, "4")
                 .withField(StandardField.ISSN, "1941-0050")
                 .withField(StandardField.JOURNALTITLE, "IEEE Transactions on Industrial Informatics")
@@ -113,9 +106,7 @@ class RemoveLinksToNotExistentFilesTest {
                 .withField(StandardField.DATE, "April 2020")
                 .withField(StandardField.YEAR, "2020")
                 .withField(StandardField.DOI, "10.1109/TII.2019.2935531")
-                .withField(StandardField.FILE, FileFieldWriter.getStringRepresentation(List.of(
-                        new LinkedFile("", "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8801912", "PDF"),
-                        fileField)))
+                .withField(StandardField.FILE, FileFieldWriter.getStringRepresentation(List.of(new LinkedFile("", "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8801912", "PDF"), fileField)))
                 .withField(StandardField.ISSUE, "4")
                 .withField(StandardField.ISSN, "1941-0050")
                 .withField(StandardField.JOURNALTITLE, "IEEE Transactions on Industrial Informatics")
@@ -137,9 +128,7 @@ class RemoveLinksToNotExistentFilesTest {
 
         // There is only one linked file in entry
         entry.setField(StandardField.FILE, FileFieldWriter.getStringRepresentation(fileField));
-        FieldChange expectedChange = new FieldChange(entry, StandardField.FILE,
-                FileFieldWriter.getStringRepresentation(fileField),
-                null);
+        FieldChange expectedChange = new FieldChange(entry, StandardField.FILE, FileFieldWriter.getStringRepresentation(fileField), null);
         BibEntry expectedEntry = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Shatakshi Sharma and Bhim Singh and Sukumar Mishra")
                 .withField(StandardField.DATE, "April 2020")

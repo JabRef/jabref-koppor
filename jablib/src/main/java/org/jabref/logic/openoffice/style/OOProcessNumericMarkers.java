@@ -11,8 +11,7 @@ import org.jabref.model.openoffice.util.OOListUtil;
 
 class OOProcessNumericMarkers {
 
-    private OOProcessNumericMarkers() {
-    }
+    private OOProcessNumericMarkers() {}
 
     /// Produce citation markers for the case of numbered citations
     /// with bibliography sorted by first appearance in the text.

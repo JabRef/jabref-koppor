@@ -10,7 +10,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -59,8 +58,7 @@ class SemanticScholarCitationFetcherTest {
 
     @Test
     void getReferencesRestricted() {
-        BibEntry entry = new BibEntry()
-                .withField(StandardField.DOI, "10.47397/tb/44-3/tb138kopp-jabref");
+        BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.47397/tb/44-3/tb138kopp-jabref");
         assertThrows(FetcherException.class, () -> fetcher.getReferences(entry));
     }
 

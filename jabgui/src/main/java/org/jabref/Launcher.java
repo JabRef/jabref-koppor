@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
+import com.airhacks.afterburner.injection.Injector;
 import org.jabref.cli.ArgumentProcessor;
 import org.jabref.gui.JabRefGUI;
 import org.jabref.gui.logging.JavaFxCssLogFilter;
@@ -27,8 +28,6 @@ import org.jabref.logic.search.sqlbased.PostgresServer;
 import org.jabref.logic.util.BuildInfo;
 import org.jabref.logic.util.Directories;
 import org.jabref.migrations.PreferencesMigrations;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -60,10 +59,7 @@ public class Launcher {
 
             final JabRefGuiPreferences preferences = JabRefGuiPreferences.getInstance();
 
-            ArgumentProcessor argumentProcessor = new ArgumentProcessor(
-                    args,
-                    ArgumentProcessor.Mode.INITIAL_START,
-                    preferences);
+            ArgumentProcessor argumentProcessor = new ArgumentProcessor(args, ArgumentProcessor.Mode.INITIAL_START, preferences);
 
             if (!argumentProcessor.getGuiCli().usageHelpRequested) {
                 Injector.setModelOrService(CliPreferences.class, preferences);
@@ -131,9 +127,7 @@ public class Launcher {
 
         // We must configure logging as soon as possible, which is why we cannot wait for the usual
         // argument parsing workflow to parse logging options e.g. --debug
-        Level logLevel = Arrays.stream(args).anyMatch("--debug"::equalsIgnoreCase)
-                         ? Level.DEBUG
-                         : Level.INFO;
+        Level logLevel = Arrays.stream(args).anyMatch("--debug"::equalsIgnoreCase) ? Level.DEBUG : Level.INFO;
 
         // addLogToDisk
         // We cannot use `Injector.instantiateModelOrService(BuildInfo.class).version` here, because this initializes logging
@@ -169,7 +163,9 @@ public class Launcher {
         System.exit(0);
     }
 
-    /// @return MultipleInstanceAction: CONTINUE if JabRef should continue starting up, SHUTDOWN if it should quit, FOCUS if it should focus the existing instance.
+    /// @return MultipleInstanceAction: CONTINUE if JabRef should continue
+    ///   starting up, SHUTDOWN if it should quit, FOCUS if it should focus the
+    ///   existing instance.
     private static MultipleInstanceAction handleMultipleAppInstances(String[] args, RemotePreferences remotePreferences) {
         LOGGER.trace("Checking for remote handling...");
 

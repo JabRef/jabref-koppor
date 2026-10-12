@@ -12,5 +12,4 @@ import org.junit.jupiter.api.Tag;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Tag("DatabaseTest")
-public @interface DatabaseTest {
-}
+public @interface DatabaseTest {}

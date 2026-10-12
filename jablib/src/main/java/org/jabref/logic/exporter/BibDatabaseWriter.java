@@ -48,18 +48,21 @@ import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.metadata.SelfContainedSaveOrder;
-
 import org.jooq.lambda.Unchecked;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Writes a .bib file following the BibTeX / BibLaTeX format using the provided [BibWriter]
+/// Writes a .bib file following the BibTeX / BibLaTeX format using the provided
+/// [BibWriter]
 ///
 /// The opposite class is [org.jabref.logic.importer.fileformat.BibtexImporter]
 public class BibDatabaseWriter {
-    public enum SaveType { WITH_JABREF_META_DATA, PLAIN_BIBTEX }
+    public enum SaveType {
+        WITH_JABREF_META_DATA,
+        PLAIN_BIBTEX
+    }
 
     public static final String DATABASE_ID_PREFIX = "DBID:";
     private static final Logger LOGGER = LoggerFactory.getLogger(BibDatabaseWriter.class);
@@ -76,15 +79,14 @@ public class BibDatabaseWriter {
     protected final BibEntryTypesManager entryTypesManager;
     protected final FieldPreferences fieldPreferences;
 
-    @Nullable private JournalAbbreviationRepository journalAbbreviationRepository;
+    @Nullable
+    private JournalAbbreviationRepository journalAbbreviationRepository;
+
     private boolean useFJournalField;
     private Consumer<Runnable> mutationScheduler = Runnable::run;
 
-    public BibDatabaseWriter(@NonNull BibWriter bibWriter,
-                             SelfContainedSaveConfiguration saveConfiguration,
-                             FieldPreferences fieldPreferences,
-                             CitationKeyPatternPreferences keyPatternPreferences,
-                             BibEntryTypesManager entryTypesManager) {
+    public BibDatabaseWriter(@NonNull BibWriter bibWriter, SelfContainedSaveConfiguration saveConfiguration, FieldPreferences fieldPreferences,
+            CitationKeyPatternPreferences keyPatternPreferences, BibEntryTypesManager entryTypesManager) {
         this.bibWriter = bibWriter;
         this.saveConfiguration = saveConfiguration;
         this.keyPatternPreferences = keyPatternPreferences;
@@ -93,32 +95,31 @@ public class BibDatabaseWriter {
         assert saveConfiguration.getSaveOrder().getOrderType() != SaveOrder.OrderType.TABLE;
     }
 
-    /// Convenience constructor. One can directly call [#writeDatabase(BibDatabaseContext)] afterward.
+    /// Convenience constructor. One can directly call
+    /// [#writeDatabase(BibDatabaseContext)] afterward.
     ///
-    /// @param writer             the output to use
+    /// @param writer the output to use
     /// @param bibDatabaseContext - used to get the newline
-    /// @param preferences        - used to read all the preferences
-    public BibDatabaseWriter(@NonNull Writer writer,
-                             @NonNull BibDatabaseContext bibDatabaseContext,
-                             @NonNull CliPreferences preferences) {
-        this(new BibWriter(writer, bibDatabaseContext.getDatabase().getNewLineSeparator()),
+    /// @param preferences - used to read all the preferences
+    public BibDatabaseWriter(@NonNull Writer writer, @NonNull BibDatabaseContext bibDatabaseContext, @NonNull CliPreferences preferences) {
+        this(
+                new BibWriter(writer, bibDatabaseContext.getDatabase().getNewLineSeparator()),
                 preferences.getSelfContainedExportConfiguration(),
                 preferences.getFieldPreferences(),
                 preferences.getCitationKeyPatternPreferences(),
                 preferences.getCustomEntryTypesRepository());
     }
 
-    private static List<FieldChange> applySaveActions(List<BibEntry> toChange,
-                                                      MetaData metaData,
-                                                      FieldPreferences fieldPreferences,
-                                                      Consumer<Runnable> mutationScheduler) {
+    private static List<FieldChange> applySaveActions(List<BibEntry> toChange, MetaData metaData, FieldPreferences fieldPreferences,
+            Consumer<Runnable> mutationScheduler) {
         List<FieldChange> changes = new ArrayList<>();
 
         Optional<FieldFormatterCleanupActions> saveActions = metaData.getSaveActions();
         saveActions.ifPresent(actions -> {
             // save actions defined -> apply for every entry
             for (BibEntry entry : toChange) {
-                changes.addAll(actions.applySaveActions(entry, metaData.getKeywordSeparator().orElse(null), mutationScheduler));
+                changes.addAll(actions.applySaveActions(entry, metaData.getKeywordSeparator().orElse(null),
+                        mutationScheduler));
             }
         });
 
@@ -152,9 +153,10 @@ public class BibDatabaseWriter {
             comparators.add(new IdComparator());
         } else {
             // use configured sorting strategy
-            List<FieldComparator> fieldComparators = saveOrder.getSortCriteria().stream()
-                                                              .map(FieldComparator::new)
-                                                              .toList();
+            List<FieldComparator> fieldComparators = saveOrder.getSortCriteria()
+                    .stream()
+                    .map(FieldComparator::new)
+                    .toList();
             comparators.addAll(fieldComparators);
             comparators.add(new FieldComparator(InternalField.KEY_FIELD));
         }
@@ -162,11 +164,11 @@ public class BibDatabaseWriter {
         return comparators;
     }
 
-    /// We have begun to use getSortedEntries() for both database save operations and non-database save operations. In a
-    /// non-database save operation (such as the exportDatabase call), we do not wish to use the global preference of
-    /// saving in standard order.
-    public static List<BibEntry> getSortedEntries(@NonNull List<BibEntry> entriesToSort,
-                                                  @NonNull SelfContainedSaveOrder saveOrder) {
+    /// We have begun to use getSortedEntries() for both database save
+    /// operations and non-database save operations. In a non-database save
+    /// operation (such as the exportDatabase call), we do not wish to use the
+    /// global preference of saving in standard order.
+    public static List<BibEntry> getSortedEntries(@NonNull List<BibEntry> entriesToSort, @NonNull SelfContainedSaveOrder saveOrder) {
         List<Comparator<BibEntry>> comparators = getSaveComparators(saveOrder);
         FieldComparatorStack<BibEntry> comparatorStack = new FieldComparatorStack<>(comparators);
 
@@ -185,8 +187,9 @@ public class BibDatabaseWriter {
         return this;
     }
 
-    /// Routes [BibEntry] field mutations performed while saving to the correct thread.
-    /// The scheduler must execute each mutation synchronously so the written file contains it.
+    /// Routes [BibEntry] field mutations performed while saving to the correct
+    /// thread. The scheduler must execute each mutation synchronously so the
+    /// written file contains it.
     public BibDatabaseWriter withMutationScheduler(Consumer<Runnable> mutationScheduler) {
         this.mutationScheduler = mutationScheduler;
         return this;
@@ -194,30 +197,36 @@ public class BibDatabaseWriter {
 
     /// Saves the complete database.
     public void writeDatabase(@NonNull BibDatabaseContext bibDatabaseContext) throws IOException {
-        List<BibEntry> entries = bibDatabaseContext.getDatabase().getEntries()
-                                                   .stream()
-                                                   .filter(entry -> !entry.isEmpty())
-                                                   .toList();
+        List<BibEntry> entries = bibDatabaseContext.getDatabase()
+                .getEntries()
+                .stream()
+                .filter(entry -> !entry.isEmpty())
+                .toList();
         writePartOfDatabase(bibDatabaseContext, entries);
     }
 
     /// Saves the database, including only the specified entries.
     ///
-    /// @param entries A list of entries to save. The list itself is not modified in this code
+    /// @param entries A list of entries to save. The list itself is not
+    ///   modified in this code
     public void writePartOfDatabase(BibDatabaseContext bibDatabaseContext, List<BibEntry> entries) throws IOException {
         Optional<String> sharedDatabaseIDOptional = bibDatabaseContext.getDatabase().getSharedDatabaseID();
         sharedDatabaseIDOptional.ifPresent(Unchecked.consumer(this::writeDatabaseID));
 
         // Some file formats write something at the start of the file (like the encoding)
         if (saveConfiguration.getSaveType() == SaveType.WITH_JABREF_META_DATA) {
-            Charset charset = bibDatabaseContext.getMetaData().getEncoding().orElse(StandardCharsets.UTF_8);
+            Charset charset = bibDatabaseContext.getMetaData()
+                    .getEncoding()
+                    .orElse(StandardCharsets.UTF_8);
             writeProlog(bibDatabaseContext, charset);
         }
 
         bibWriter.finishBlock();
 
         // Write preamble if there is one.
-        writePreamble(bibDatabaseContext.getDatabase().getPreamble().orElse(""));
+        writePreamble(bibDatabaseContext.getDatabase()
+                .getPreamble()
+                .orElse(""));
 
         // Write strings if there are any.
         writeStrings(bibDatabaseContext.getDatabase());
@@ -231,13 +240,14 @@ public class BibDatabaseWriter {
         saveActionsFieldChanges.addAll(saveActionChanges);
 
         if (journalAbbreviationRepository != null && saveConfiguration.getSaveType() == SaveType.WITH_JABREF_META_DATA) {
-            bibDatabaseContext.getMetaData().getLibraryAbbreviationType().ifPresent(abbreviationType -> {
-                AbbreviateJournalCleanup cleanup = new AbbreviateJournalCleanup(
-                        bibDatabaseContext.getDatabase(), journalAbbreviationRepository, abbreviationType, useFJournalField);
-                for (BibEntry entry : sortedEntries) {
-                    saveActionsFieldChanges.addAll(cleanup.cleanup(entry, mutationScheduler));
-                }
-            });
+            bibDatabaseContext.getMetaData()
+                              .getLibraryAbbreviationType()
+                              .ifPresent(abbreviationType -> {
+                                  AbbreviateJournalCleanup cleanup = new AbbreviateJournalCleanup(bibDatabaseContext.getDatabase(), journalAbbreviationRepository, abbreviationType, useFJournalField);
+                                  for (BibEntry entry : sortedEntries) {
+                                      saveActionsFieldChanges.addAll(cleanup.cleanup(entry, mutationScheduler));
+                                  }
+                              });
         }
 
         if (keyPatternPreferences.shouldGenerateCiteKeysBeforeSaving()) {
@@ -270,7 +280,8 @@ public class BibDatabaseWriter {
         }
 
         // finally write whatever remains of the file, but at least a concluding newline
-        writeEpilogue(bibDatabaseContext.getDatabase().getEpilog());
+        writeEpilogue(bibDatabaseContext.getDatabase()
+                .getEpilog());
     }
 
     protected void writeProlog(BibDatabaseContext bibDatabaseContext, Charset encoding) throws IOException {
@@ -300,11 +311,8 @@ public class BibDatabaseWriter {
     }
 
     /// Writes all data to the specified writer, using each object's toString() method.
-    protected void writeMetaData(@NonNull MetaData metaData,
-                                 GlobalCitationKeyPatterns globalCiteKeyPattern) throws IOException {
-        Map<String, String> serializedMetaData = MetaDataSerializer.getSerializedStringMap(
-                metaData,
-                globalCiteKeyPattern);
+    protected void writeMetaData(@NonNull MetaData metaData, GlobalCitationKeyPatterns globalCiteKeyPattern) throws IOException {
+        Map<String, String> serializedMetaData = MetaDataSerializer.getSerializedStringMap(metaData, globalCiteKeyPattern);
 
         for (Map.Entry<String, String> metaItem : serializedMetaData.entrySet()) {
             writeMetaDataItem(metaItem);
@@ -337,17 +345,17 @@ public class BibDatabaseWriter {
         bibWriter.writeLine(sharedDatabaseID);
     }
 
-    /// Write all strings in alphabetical order, modified to produce a safe (for BibTeX) order of the strings if they
-    /// reference each other.
+    /// Write all strings in alphabetical order, modified to produce a safe (for
+    /// BibTeX) order of the strings if they reference each other.
     ///
     /// @param database The database whose strings we should write.
     private void writeStrings(BibDatabase database) throws IOException {
         List<BibtexString> strings = database.getStringKeySet()
-                                             .stream()
-                                             .map(database::getString)
-                                             .flatMap(Optional::stream)
-                                             .sorted(new BibtexStringComparator(true))
-                                             .toList();
+                .stream()
+                .map(database::getString)
+                .flatMap(Optional::stream)
+                .sorted(new BibtexStringComparator(true))
+                .toList();
         // First, make a Map of all entries:
         Map<String, BibtexString> remaining = new HashMap<>();
         int maxKeyLength = 0;
@@ -367,8 +375,7 @@ public class BibDatabaseWriter {
         bibWriter.finishBlock();
     }
 
-    protected void writeString(BibtexString bibtexString, Map<String, BibtexString> remaining, int maxKeyLength)
-            throws IOException {
+    protected void writeString(BibtexString bibtexString, Map<String, BibtexString> remaining, int maxKeyLength) throws IOException {
         // First remove this from the "remaining" list so it can't cause problem with circular refs:
         remaining.remove(bibtexString.getName());
 
@@ -407,13 +414,15 @@ public class BibDatabaseWriter {
             bibWriter.writeLine(userComments);
         }
 
-        bibWriter.write(STRING_PREFIX + "{" + bibtexString.getName()
-                + " ".repeat(maxKeyLength - bibtexString.getName().length()) + " = ");
+        bibWriter.write(STRING_PREFIX
+                + "{"
+                + bibtexString.getName()
+                + " ".repeat(maxKeyLength - bibtexString.getName().length())
+                + " = ");
         if (bibtexString.getContent().isEmpty()) {
             bibWriter.write("{}");
         } else {
-            String formatted = new FieldWriter(fieldPreferences)
-                    .write(InternalField.BIBTEX_STRING, bibtexString.getContent());
+            String formatted = new FieldWriter(fieldPreferences).write(InternalField.BIBTEX_STRING, bibtexString.getContent());
             bibWriter.write(formatted);
         }
 
@@ -439,9 +448,7 @@ public class BibDatabaseWriter {
     }
 
     /// Generate keys for all entries that are lacking keys.
-    protected List<FieldChange> generateCitationKeys(BibDatabaseContext databaseContext,
-                                                     List<BibEntry> entries,
-                                                     Consumer<Runnable> mutationScheduler) {
+    protected List<FieldChange> generateCitationKeys(BibDatabaseContext databaseContext, List<BibEntry> entries, Consumer<Runnable> mutationScheduler) {
         List<FieldChange> changes = new ArrayList<>();
         CitationKeyGenerator keyGenerator = new CitationKeyGenerator(databaseContext, keyPatternPreferences);
         for (BibEntry bes : entries) {

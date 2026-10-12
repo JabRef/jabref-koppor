@@ -2,10 +2,8 @@ package org.jabref.gui.keyboard;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-
-import org.jabref.gui.testutils.JavaFxExtension;
-
 import jfx.incubator.scene.control.richtext.CodeArea;
+import org.jabref.gui.testutils.JavaFxExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -21,7 +19,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void nonMacOsDoesNothing() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.LEFT, false, false, false, true);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.LEFT, false, false,
+                false, true);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, false);
 
@@ -32,7 +31,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void commandLeftMovesToLineStart() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.LEFT, false, false, false, true);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.LEFT, false, false,
+                false, true);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, true);
 
@@ -43,7 +43,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void commandRightMovesToLineEnd() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.RIGHT, false, false, false, true);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.RIGHT, false, false,
+                false, true);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, true);
 
@@ -54,7 +55,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void optionLeftMovesWordBackward() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.LEFT, false, false, true, false);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.LEFT, false, false,
+                true, false);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, true);
 
@@ -65,7 +67,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void optionRightMovesWordForward() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.RIGHT, false, false, true, false);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.RIGHT, false, false,
+                true, false);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, true);
 
@@ -76,7 +79,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void shiftCommandLeftExtendsSelectionToLineStart() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.LEFT, true, false, false, true);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.LEFT, true, false,
+                false, true);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, true);
 
@@ -87,7 +91,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void shiftCommandRightExtendsSelectionToLineEnd() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.RIGHT, true, false, false, true);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.RIGHT, true, false,
+                false, true);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, true);
 
@@ -98,7 +103,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void commandUpMovesToDocumentStart() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.UP, false, false, false, true);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.UP, false, false,
+                false, true);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, true);
 
@@ -109,7 +115,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void commandDownMovesToDocumentEnd() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN, false, false, false, true);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN, false, false,
+                false, true);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, true);
 
@@ -120,7 +127,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void optionUpMovesToParagraphStart() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.UP, false, false, true, false);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.UP, false, false,
+                true, false);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, true);
 
@@ -131,7 +139,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void optionDownMovesToParagraphEnd() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN, false, false, true, false);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN, false, false,
+                true, false);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, true);
 
@@ -142,7 +151,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void shiftOptionUpExtendsSelectionToParagraphStart() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.UP, true, false, true, false);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.UP, true, false,
+                true, false);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, true);
 
@@ -153,7 +163,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void shiftOptionDownExtendsSelectionToParagraphEnd() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN, true, false, true, false);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN, true, false,
+                true, false);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, true);
 
@@ -164,7 +175,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void shiftCommandUpExtendsSelectionToDocumentStart() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.UP, true, false, false, true);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.UP, true, false,
+                false, true);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, true);
 
@@ -175,7 +187,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void shiftCommandDownExtendsSelectionToDocumentEnd() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN, true, false, false, true);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN, true, false,
+                false, true);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, true);
 
@@ -186,7 +199,8 @@ class CodeAreaKeyBindingsTest {
     @Test
     void nonArrowKeyIsIgnored() {
         CodeArea codeArea = mock(CodeArea.class);
-        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.A, false, false, false, true);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.A, false, false,
+                false, true);
 
         CodeAreaKeyBindings.handleMacCursorMovementShortcuts(codeArea, event, true);
 

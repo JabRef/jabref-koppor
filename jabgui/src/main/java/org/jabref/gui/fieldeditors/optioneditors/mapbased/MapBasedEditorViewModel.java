@@ -2,15 +2,13 @@ package org.jabref.gui.fieldeditors.optioneditors.mapbased;
 
 import java.util.Collection;
 
+import com.google.common.collect.BiMap;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.fieldeditors.optioneditors.OptionEditorViewModel;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.field.Field;
-
-import com.google.common.collect.BiMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +17,8 @@ public abstract class MapBasedEditorViewModel<T> extends OptionEditorViewModel<T
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MapBasedEditorViewModel.class);
 
-    public MapBasedEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers, UndoManager undoManager) {
+    public MapBasedEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
     }
 
@@ -34,7 +33,9 @@ public abstract class MapBasedEditorViewModel<T> extends OptionEditorViewModel<T
                     return null;
                 } else {
                     // if the object is not found we simply return itself as string
-                    return getItemMap().inverse().getOrDefault(object, object.toString());
+                    return getItemMap()
+                            .inverse()
+                            .getOrDefault(object, object.toString());
                 }
             }
 
@@ -49,7 +50,8 @@ public abstract class MapBasedEditorViewModel<T> extends OptionEditorViewModel<T
         };
     }
 
-    /// Converts a String value to the Type T. If the type cannot be directly cast to T, this method must be overridden in a subclass
+    /// Converts a String value to the Type T. If the type cannot be directly
+    /// cast to T, this method must be overridden in a subclass
     ///
     /// @param string The input value to convert
     /// @return The value or null if the value could not be cast

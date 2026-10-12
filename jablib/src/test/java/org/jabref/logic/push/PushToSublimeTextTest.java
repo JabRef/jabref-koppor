@@ -5,9 +5,7 @@ import java.util.Map;
 
 import javafx.beans.property.SimpleMapProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.util.NotificationService;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;

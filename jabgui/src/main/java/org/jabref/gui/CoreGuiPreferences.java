@@ -16,13 +16,14 @@ public class CoreGuiPreferences {
     private final DoubleProperty horizontalDividerPosition;
     private final DoubleProperty verticalDividerPosition;
 
-    public CoreGuiPreferences(double positionX,
-                              double positionY,
-                              double sizeX,
-                              double sizeY,
-                              boolean windowMaximised,
-                              double horizontalDividerPosition,
-                              double verticalDividerPosition) {
+    public CoreGuiPreferences(
+            double positionX,
+            double positionY,
+            double sizeX,
+            double sizeY,
+            boolean windowMaximised,
+            double horizontalDividerPosition,
+            double verticalDividerPosition) {
         this.positionX = new SimpleDoubleProperty(positionX);
         this.positionY = new SimpleDoubleProperty(positionY);
         this.sizeX = new SimpleDoubleProperty(sizeX);
@@ -34,14 +35,13 @@ public class CoreGuiPreferences {
 
     /// Creates object with default values
     private CoreGuiPreferences() {
-        this(
-                0,             // Main window position x
-                0,             // Main window position y
-                1024,          // Main window size x
-                768,           // Main window size y
-                true,          // Main window maximized
-                0.15,          // Horizontal divider position
-                0.65);         // Vertical divider position
+        this(0, // Main window position x
+        0, // Main window position y
+        1024, // Main window size x
+        768, // Main window size y
+        true, // Main window maximized
+        0.15, // Horizontal divider position
+                0.65); // Vertical divider position
     }
 
     public static CoreGuiPreferences getDefault() {

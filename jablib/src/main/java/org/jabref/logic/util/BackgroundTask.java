@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -14,8 +15,6 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -216,17 +215,18 @@ public abstract class BackgroundTask<V> {
         return taskExecutor.schedule(this, delay, unit);
     }
 
-    /// Sets the [Runnable] that is invoked after the task is finished, irrespectively if it was successful or
-    /// failed with an error.
+    /// Sets the [Runnable] that is invoked after the task is finished,
+    /// irrespectively if it was successful or failed with an error.
     public BackgroundTask<V> onFinished(Runnable onFinished) {
         this.onFinished = onFinished;
         return this;
     }
 
-    /// Creates a [BackgroundTask] that first runs this task and based on the result runs a second task.
+    /// Creates a [BackgroundTask] that first runs this task and based on the
+    /// result runs a second task.
     ///
     /// @param nextTaskFactory the function that creates the new task
-    /// @param <T>             type of the return value of the second task
+    /// @param <T> type of the return value of the second task
     public <T> BackgroundTask<T> then(Function<V, BackgroundTask<T>> nextTaskFactory) {
         return new BackgroundTask<>() {
             @Override
@@ -239,10 +239,11 @@ public abstract class BackgroundTask<V> {
         };
     }
 
-    /// Creates a [BackgroundTask] that first runs this task and based on the result runs a second task.
+    /// Creates a [BackgroundTask] that first runs this task and based on the
+    /// result runs a second task.
     ///
     /// @param nextOperation the function that performs the next operation
-    /// @param <T>           type of the return value of the second task
+    /// @param <T> type of the return value of the second task
     public <T> BackgroundTask<T> thenRun(Function<V, T> nextOperation) {
         return new BackgroundTask<>() {
             @Override
@@ -255,7 +256,8 @@ public abstract class BackgroundTask<V> {
         };
     }
 
-    /// Creates a [BackgroundTask] that first runs this task and based on the result runs a second task.
+    /// Creates a [BackgroundTask] that first runs this task and based on the
+    /// result runs a second task.
     ///
     /// @param nextOperation the function that performs the next operation
     public BackgroundTask<Void> thenRun(Consumer<V> nextOperation) {
@@ -287,9 +289,7 @@ public abstract class BackgroundTask<V> {
         return this;
     }
 
-    public record BackgroundProgress(
-            double workDone,
-            double max) {
+    public record BackgroundProgress(double workDone, double max) {
 
         public double getWorkDonePercentage() {
             if (max == 0) {

@@ -2,6 +2,7 @@ package org.jabref.gui.preferences.keybindings;
 
 import java.util.List;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -17,7 +18,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
+import org.controlsfx.control.textfield.CustomTextField;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
@@ -25,9 +26,6 @@ import org.jabref.gui.preferences.keybindings.presets.KeyBindingPreset;
 import org.jabref.gui.util.RecursiveTreeItem;
 import org.jabref.gui.util.ViewModelTreeTableCellFactory;
 import org.jabref.logic.l10n.Localization;
-
-import com.tobiasdiez.easybind.EasyBind;
-import org.controlsfx.control.textfield.CustomTextField;
 
 import static org.jabref.gui.preferences.forms.FormMetrics.GAP;
 
@@ -75,18 +73,24 @@ public class KeyBindingsTab extends AbstractPreferenceTabView<KeyBindingsTabView
 
         TreeTableColumn<KeyBindingViewModel, String> actionColumn = new TreeTableColumn<>(Localization.lang("Action"));
         actionColumn.setPrefWidth(200.0);
-        actionColumn.setCellValueFactory(cellData -> cellData.getValue().getValue().nameProperty());
+        actionColumn.setCellValueFactory(cellData -> cellData.getValue()
+                .getValue()
+                .nameProperty());
 
         TreeTableColumn<KeyBindingViewModel, String> shortcutColumn = new TreeTableColumn<>(Localization.lang("Shortcut"));
         shortcutColumn.setPrefWidth(100.0);
-        shortcutColumn.setCellValueFactory(cellData -> cellData.getValue().getValue().shownBindingProperty());
+        shortcutColumn.setCellValueFactory(cellData -> cellData.getValue()
+                .getValue()
+                .shownBindingProperty());
 
         TreeTableColumn<KeyBindingViewModel, KeyBindingViewModel> resetColumn = new TreeTableColumn<>();
         resetColumn.setMinWidth(30.0);
         resetColumn.setMaxWidth(30.0);
         resetColumn.setPrefWidth(30.0);
         new ViewModelTreeTableCellFactory<KeyBindingViewModel>()
-                .withGraphic(keyBinding -> keyBinding.getResetIcon().map(JabRefIcon::getGraphicNode).orElse(null))
+                .withGraphic(keyBinding -> keyBinding.getResetIcon()
+                        .map(JabRefIcon::getGraphicNode)
+                        .orElse(null))
                 .withOnMouseClickedEvent(keyBinding -> _ -> keyBinding.resetToDefault())
                 .withStyleClasses(() -> List.of("align-center-right", "padding-right-4"))
                 .install(resetColumn);
@@ -96,7 +100,9 @@ public class KeyBindingsTab extends AbstractPreferenceTabView<KeyBindingsTabView
         clearColumn.setMaxWidth(30.0);
         clearColumn.setPrefWidth(30.0);
         new ViewModelTreeTableCellFactory<KeyBindingViewModel>()
-                .withGraphic(keyBinding -> keyBinding.getClearIcon().map(JabRefIcon::getGraphicNode).orElse(null))
+                .withGraphic(keyBinding -> keyBinding.getClearIcon()
+                        .map(JabRefIcon::getGraphicNode)
+                        .orElse(null))
                 .withOnMouseClickedEvent(keyBinding -> _ -> keyBinding.clear())
                 .withStyleClasses(() -> List.of("align-center-right", "padding-right-4"))
                 .install(clearColumn);
@@ -107,22 +113,18 @@ public class KeyBindingsTab extends AbstractPreferenceTabView<KeyBindingsTabView
         keyBindingsTable.getColumns().add(clearColumn);
 
         keyBindingsTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        viewModel.selectedKeyBindingProperty().bind(
-                EasyBind.wrapNullable(keyBindingsTable.selectionModelProperty())
-                        .mapObservable(SelectionModel::selectedItemProperty)
-                        .mapObservable(TreeItem::valueProperty)
-        );
+        viewModel.selectedKeyBindingProperty().bind(EasyBind.wrapNullable(keyBindingsTable.selectionModelProperty())
+                .mapObservable(SelectionModel::selectedItemProperty)
+                .mapObservable(TreeItem::valueProperty));
         keyBindingsTable.setOnKeyPressed(viewModel::setNewBindingForCurrent);
 
-        keyBindingsTable.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            event.consume();
-            viewModel.setNewBindingForCurrent(event);
-        });
+        keyBindingsTable.addEventFilter(KeyEvent.KEY_PRESSED,
+                event -> {
+                    event.consume();
+                    viewModel.setNewBindingForCurrent(event);
+                });
 
-        keyBindingsTable.rootProperty().bind(
-                EasyBind.map(viewModel.rootKeyBindingProperty(),
-                        keybinding -> new RecursiveTreeItem<>(keybinding, KeyBindingViewModel::getChildren))
-        );
+        keyBindingsTable.rootProperty().bind(EasyBind.map(viewModel.rootKeyBindingProperty(), keybinding -> new RecursiveTreeItem<>(keybinding, KeyBindingViewModel::getChildren)));
     }
 
     private Node buildButtonRow() {

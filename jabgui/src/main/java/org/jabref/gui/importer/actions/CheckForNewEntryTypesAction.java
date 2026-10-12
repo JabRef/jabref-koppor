@@ -3,6 +3,7 @@ package org.jabref.gui.importer.actions;
 import java.util.List;
 import java.util.Set;
 
+import com.airhacks.afterburner.injection.Injector;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.importer.ImportCustomEntryTypesDialog;
 import org.jabref.logic.importer.ParserResult;
@@ -11,8 +12,6 @@ import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import com.airhacks.afterburner.injection.Injector;
 
 /// This action checks whether any new custom entry types were loaded from this
 /// BIB file. If so, an offer to remember these entry types is given.
@@ -42,6 +41,8 @@ public class CheckForNewEntryTypesAction implements GUIPostOpenAction {
     }
 
     private BibDatabaseMode getBibDatabaseModeFromParserResult(ParserResult parserResult, CliPreferences preferences) {
-        return parserResult.getMetaData().getMode().orElse(preferences.getLibraryPreferences().getDefaultBibDatabaseMode());
+        return parserResult.getMetaData()
+                           .getMode()
+                           .orElse(preferences.getLibraryPreferences().getDefaultBibDatabaseMode());
     }
 }

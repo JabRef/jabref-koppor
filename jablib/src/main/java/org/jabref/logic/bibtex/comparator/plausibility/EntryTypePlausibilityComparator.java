@@ -7,8 +7,7 @@ import org.jabref.model.entry.types.StandardEntryType;
 public class EntryTypePlausibilityComparator implements FieldValuePlausibilityComparator {
 
     // Only the factory may instantiate this
-    EntryTypePlausibilityComparator() {
-    }
+    EntryTypePlausibilityComparator() {}
 
     @Override
     public ComparisonResult compare(String leftValue, String rightValue) {

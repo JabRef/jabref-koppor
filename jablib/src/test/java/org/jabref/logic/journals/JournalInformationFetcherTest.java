@@ -3,7 +3,6 @@ package org.jabref.logic.journals;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.fetcher.JournalInformationFetcher;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

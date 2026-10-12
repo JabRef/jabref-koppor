@@ -30,10 +30,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
+import kong.unirest.core.HttpResponse;
+import kong.unirest.core.Unirest;
+import kong.unirest.core.UnirestException;
 import org.jabref.logic.importer.FetcherClientException;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FetcherServerException;
@@ -43,10 +45,6 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.http.SimpleHttpResponse;
-
-import kong.unirest.core.HttpResponse;
-import kong.unirest.core.Unirest;
-import kong.unirest.core.UnirestException;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -54,21 +52,19 @@ import org.slf4j.LoggerFactory;
 
 /// ## Example
 ///
-/// ``java
-/// URLDownload dl = new URLDownload(URL);
-/// String content = dl.asString(ENCODING);
-/// dl.toFile(Path);              // available in FILE
-/// String contentType = dl.getMimeType();
-/// ``
+/// ``java URLDownload dl = new URLDownload(URL); String content =
+/// dl.asString(ENCODING); dl.toFile(Path); // available in FILE String
+/// contentType = dl.getMimeType(); ``
 ///
-/// Almost every call to a public method creates a new HTTP connection
-/// (except for [asString][#asString(Charset, URLConnection)],
-/// which uses an already opened connection).
+/// Almost every call to a public method creates a new HTTP connection (except
+/// for [asString][#asString(Charset, URLConnection)], which uses an already
+/// opened connection).
 ///
 /// Nothing is cached.
 ///
-/// Implementation note: This relies on <https://kong.github.io/unirest-java/configuration/> setting `followRedirects` to `true`
-/// and enabling cookie management.
+/// Implementation note: This relies on
+/// <https://kong.github.io/unirest-java/configuration/> setting
+/// `followRedirects` to `true` and enabling cookie management.
 public class URLDownload {
 
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:151.0) Gecko/20100101 Firefox/151.0";
@@ -88,7 +84,8 @@ public class URLDownload {
     private @Nullable SSLContext sslContext;
 
     /// @param source the URL to download from
-    /// @throws MalformedURLException if no protocol is specified in the source, or an unknown protocol is found
+    /// @throws MalformedURLException if no protocol is specified in the source,
+    ///   or an unknown protocol is found
     public URLDownload(String source) throws MalformedURLException {
         this(URLUtil.create(source));
     }
@@ -131,7 +128,9 @@ public class URLDownload {
             do {
                 // @formatter:on
                 retries++;
-                HttpResponse<String> response = Unirest.head(urlToCheck).headers(parameters).asString();
+                HttpResponse<String> response = Unirest.head(urlToCheck)
+                        .headers(parameters)
+                        .asString();
                 // Check if we have redirects, e.g. arxiv will give otherwise content type HTML for the original url
                 // We need to do it "manually", because ".followRedirects(true)" only works for GET not for HEAD
                 locationHeader = response.getHeaders().getFirst("location");
@@ -140,7 +139,11 @@ public class URLDownload {
                 }
                 // while loop, because there could be multiple redirects
             } while (!StringUtil.isNullOrEmpty(locationHeader) && retries <= MAX_RETRIES);
-            contentType = Unirest.head(urlToCheck).headers(parameters).asString().getHeaders().getFirst("Content-Type");
+            contentType = Unirest.head(urlToCheck)
+                    .headers(parameters)
+                    .asString()
+                    .getHeaders()
+                    .getFirst("Content-Type");
             if ((contentType != null) && !contentType.isEmpty()) {
                 return Optional.of(contentType);
             }
@@ -150,7 +153,12 @@ public class URLDownload {
 
         // Use GET request as alternative if no HEAD request is available
         try {
-            contentType = Unirest.get(source.toString()).headers(parameters).asString().getHeaders().get("Content-Type").getFirst();
+            contentType = Unirest.get(source.toString())
+                    .headers(parameters)
+                    .asString()
+                    .getHeaders()
+                    .get("Content-Type")
+                    .getFirst();
             if (!StringUtil.isNullOrEmpty(contentType)) {
                 return Optional.of(contentType);
             }
@@ -177,12 +185,17 @@ public class URLDownload {
     ///
     /// @return the status code of the response
     public boolean canBeReached() throws UnirestException {
-        int statusCode = Unirest.head(source.toString()).headers(parameters).asString().getStatus();
+        int statusCode = Unirest.head(source.toString())
+                .headers(parameters)
+                .asString()
+                .getStatus();
         return (statusCode >= 200) && (statusCode < 300);
     }
 
     public boolean isMimeType(String type) {
-        return getMimeType().map(mimeType -> mimeType.startsWith(type)).orElse(false);
+        return getMimeType()
+                .map(mimeType -> mimeType.startsWith(type))
+                .orElse(false);
     }
 
     public boolean isPdf() {
@@ -331,7 +344,8 @@ public class URLDownload {
 
     /// Open a connection to this object's URL (with specified settings).
     ///
-    /// If accessing an HTTP URL, remember to close the resulting connection after usage.
+    /// If accessing an HTTP URL, remember to close the resulting connection
+    /// after usage.
     ///
     /// @return an open connection
     public URLConnection openConnection() throws FetcherException {
@@ -352,9 +366,7 @@ public class URLDownload {
                 throw new FetcherException("Error getting response code", e);
             }
 
-            if ((status == HttpURLConnection.HTTP_MOVED_TEMP)
-                    || (status == HttpURLConnection.HTTP_MOVED_PERM)
-                    || (status == HttpURLConnection.HTTP_SEE_OTHER)) {
+            if ((status == HttpURLConnection.HTTP_MOVED_TEMP) || (status == HttpURLConnection.HTTP_MOVED_PERM) || (status == HttpURLConnection.HTTP_SEE_OTHER)) {
                 // get redirect url from "location" header field
                 String newUrl = connection.getHeaderField("location");
 

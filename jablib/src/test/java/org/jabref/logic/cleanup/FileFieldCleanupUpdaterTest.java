@@ -9,7 +9,6 @@ import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,10 +24,11 @@ class FileFieldCleanupUpdaterTest {
         entry.setField(StandardField.FILE, FileFieldWriter.getStringRepresentation(files));
 
         AtomicBoolean schedulerCalled = new AtomicBoolean(false);
-        List<FieldChange> changes = FileFieldCleanupUpdater.updateFileField(entry, files, mutation -> {
-            schedulerCalled.set(true);
-            mutation.run();
-        });
+        List<FieldChange> changes = FileFieldCleanupUpdater.updateFileField(entry, files,
+                mutation -> {
+                    schedulerCalled.set(true);
+                    mutation.run();
+                });
 
         assertEquals(List.of(), changes);
         assertFalse(schedulerCalled.get());
@@ -42,14 +42,16 @@ class FileFieldCleanupUpdaterTest {
         List<LinkedFile> files = List.of(new LinkedFile("", Path.of("new.pdf"), "PDF"));
 
         AtomicBoolean schedulerCalled = new AtomicBoolean(false);
-        List<FieldChange> changes = FileFieldCleanupUpdater.updateFileField(entry, files, mutation -> {
-            schedulerCalled.set(true);
-            mutation.run();
-        });
+        List<FieldChange> changes = FileFieldCleanupUpdater.updateFileField(entry, files,
+                mutation -> {
+                    schedulerCalled.set(true);
+                    mutation.run();
+                });
 
         assertTrue(schedulerCalled.get());
         assertEquals(1, changes.size());
         assertEquals(StandardField.FILE, changes.getFirst().field());
-        assertEquals(FileFieldWriter.getStringRepresentation(files), entry.getField(StandardField.FILE).orElseThrow());
+        assertEquals(FileFieldWriter.getStringRepresentation(files),
+                entry.getField(StandardField.FILE).orElseThrow());
     }
 }

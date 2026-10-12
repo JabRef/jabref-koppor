@@ -11,7 +11,6 @@ import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResult;
 import org.jabref.model.search.query.SearchResults;
 import org.jabref.model.search.query.SqlQueryNode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,13 @@ public class BibFieldsSearcher {
     }
 
     private static SearchQuery createBooleanQueryForEntry(BibEntry entry, SearchQuery oldSearchQuery) {
-        String newSearchExpression = "( " + ENTRY_ID + "= " + entry.getId() + ") AND (" + oldSearchQuery.getSearchExpression() + " )";
+        String newSearchExpression = "( "
+                + ENTRY_ID
+                + "= "
+                + entry.getId()
+                + ") AND ("
+                + oldSearchQuery.getSearchExpression()
+                + " )";
         return new SearchQuery(newSearchExpression, oldSearchQuery.getSearchFlags());
     }
 
@@ -46,7 +51,8 @@ public class BibFieldsSearcher {
         SearchResults searchResults = new SearchResults();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sqlQueryNode.cte())) {
             for (int i = 0; i < sqlQueryNode.params().size(); i++) {
-                preparedStatement.setString(i + 1, sqlQueryNode.params().get(i));
+                preparedStatement.setString(i + 1,
+                        sqlQueryNode.params().get(i));
             }
             LOGGER.debug("Executing search query: {}", preparedStatement);
             ResultSet resultSet = preparedStatement.executeQuery();

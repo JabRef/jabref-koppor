@@ -12,7 +12,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -30,7 +29,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +48,7 @@ class ModsExporter extends Exporter {
     }
 
     @Override
-    public void export(@NonNull final BibDatabaseContext databaseContext,
-                       final Path file,
-                       @NonNull List<BibEntry> entries) throws SaveException {
+    public void export(@NonNull final BibDatabaseContext databaseContext, final Path file, @NonNull List<BibEntry> entries) throws SaveException {
         if (entries.isEmpty()) { // Only export if entries exist
             return;
         }
@@ -178,7 +174,9 @@ class ModsExporter extends Exporter {
         }
     }
 
-    private void writeRelatedInformation(XMLStreamWriter writer, List<String> parts, Map<Field, String> fieldMap, EntryType entryType) throws XMLStreamException {
+    private void writeRelatedInformation(XMLStreamWriter writer, List<String> parts, Map<Field, String> fieldMap,
+            EntryType entryType)
+            throws XMLStreamException {
         writer.writeStartElement("mods", "relatedItem", MODS_NAMESPACE_URI);
         writer.writeAttribute("type", "host");
 

@@ -2,14 +2,13 @@ package org.jabref.gui.welcome.components;
 
 import java.time.LocalDate;
 
+import com.dlsc.gemsfx.infocenter.Notification.OnClickBehaviour;
+import com.dlsc.gemsfx.infocenter.NotificationAction;
 import org.jabref.gui.DialogService;
-import org.jabref.gui.Notifications;
+import org.jabref.gui.Notifications.DonationNotification;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.testutils.JavaFxTest;
 import org.jabref.gui.welcome.DonationPreferences;
-
-import com.dlsc.gemsfx.infocenter.Notification.OnClickBehaviour;
-import com.dlsc.gemsfx.infocenter.NotificationAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -37,7 +36,9 @@ class DonationProviderTest extends JavaFxTest {
 
     @Test
     public void calculateDaysUntilNextPopup() {
-        int lastShownEpochDay = (int) LocalDate.now().minusDays(400).toEpochDay();
+        int lastShownEpochDay = (int) LocalDate.now()
+                .minusDays(400)
+                .toEpochDay();
         assertEquals(0, donationProvider.calculateDaysUntilNextPopup(lastShownEpochDay));
 
         lastShownEpochDay = (int) LocalDate.now().toEpochDay();
@@ -46,27 +47,34 @@ class DonationProviderTest extends JavaFxTest {
 
     @Test
     public void notificationIsShownWhenTheLastOneIsAYearOld() {
-        donationPreferences.setLastShownEpochDay((int) LocalDate.now().minusDays(400).toEpochDay());
+        donationPreferences.setLastShownEpochDay((int) LocalDate.now()
+                .minusDays(400)
+                .toEpochDay());
 
         interact(donationProvider::showIfNeeded);
 
-        verify(dialogService).notify(any(Notifications.DonationNotification.class));
-        assertEquals((int) LocalDate.now().toEpochDay(), donationPreferences.getLastShownEpochDay());
+        verify(dialogService).notify(any(DonationNotification.class));
+        assertEquals((int) LocalDate.now().toEpochDay(),
+                donationPreferences.getLastShownEpochDay());
     }
 
     @Test
     public void noNotificationIsShownWhenTheUserOptedOut() {
         donationPreferences.setNeverShowAgain(true);
-        donationPreferences.setLastShownEpochDay((int) LocalDate.now().minusDays(400).toEpochDay());
+        donationPreferences.setLastShownEpochDay((int) LocalDate.now()
+                .minusDays(400)
+                .toEpochDay());
 
         interact(donationProvider::showIfNeeded);
 
-        verify(dialogService, never()).notify(any(Notifications.DonationNotification.class));
+        verify(dialogService, never()).notify(any(DonationNotification.class));
     }
 
     @Test
     public void neverShowAgainActionOptsTheUserOut() {
-        donationPreferences.setLastShownEpochDay((int) LocalDate.now().minusDays(400).toEpochDay());
+        donationPreferences.setLastShownEpochDay((int) LocalDate.now()
+                .minusDays(400)
+                .toEpochDay());
         interact(donationProvider::showIfNeeded);
 
         assertFalse(donationPreferences.isNeverShowAgain());
@@ -77,9 +85,9 @@ class DonationProviderTest extends JavaFxTest {
     /// GemsFX declares the actions as a raw list, hence the unchecked cast.
     @SuppressWarnings("unchecked")
     private OnClickBehaviour triggerAction(int index) {
-        ArgumentCaptor<Notifications.DonationNotification> captor = ArgumentCaptor.forClass(Notifications.DonationNotification.class);
+        ArgumentCaptor<DonationNotification> captor = ArgumentCaptor.forClass(DonationNotification.class);
         verify(dialogService).notify(captor.capture());
-        Notifications.DonationNotification notification = captor.getValue();
+        DonationNotification notification = captor.getValue();
         NotificationAction<Object> action = notification.getActions().get(index);
         return action.getOnAction().call(notification);
     }

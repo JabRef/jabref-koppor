@@ -1,5 +1,7 @@
 package org.jabref.gui.preferences.entryeditor;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -25,7 +27,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-
+import org.controlsfx.control.textfield.TextFields;
 import org.jabref.gui.DragAndDropDataFormats;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.entryeditor.EntryEditorTabModel;
@@ -41,10 +43,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 
-import com.airhacks.afterburner.injection.Injector;
-import com.tobiasdiez.easybind.EasyBind;
-import org.controlsfx.control.textfield.TextFields;
-
 import static org.jabref.gui.preferences.forms.FormMetrics.GAP;
 
 public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabViewModel> {
@@ -58,12 +56,8 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
     private final CustomLocalDragboard localDragboard;
 
     public EntryEditorTab() {
-        this.viewModel = new EntryEditorTabViewModel(
-                dialogService,
-                preferences.getEntryEditorPreferences(),
-                preferences.getMrDlibPreferences(),
-                preferences.getAbbreviationPreferences(),
-                taskExecutor);
+        this.viewModel = new EntryEditorTabViewModel(dialogService, preferences.getEntryEditorPreferences(), preferences.getMrDlibPreferences(),
+                preferences.getAbbreviationPreferences(), taskExecutor);
         this.localDragboard = Injector.instantiateModelOrService(StateManager.class).getLocalDragboard();
         buildView();
     }
@@ -74,25 +68,19 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
     }
 
     private void buildView() {
-        setContent(form()
-
-                .checkbox(Localization.lang("Open editor when a new entry is created"), viewModel.openOnNewEntryProperty())
-                .checkbox(Localization.lang("Automatically search and show unlinked files in the entry editor"), viewModel.autoLinkFilesEnabledProperty())
-                .checkbox(Localization.lang("Show validation messages"), viewModel.enableValidationProperty())
-                .checkbox(Localization.lang("Allow integers in 'edition' field in BibTeX mode"), viewModel.allowIntegerEditionProperty())
-                .checkbox(Localization.lang("Fetch journal information online to show"), viewModel.journalPopupProperty())
-                .checkbox(Localization.lang("Enable MSC keyword descriptions"), viewModel.enableMscKeywordDescriptionsProperty())
-                .checkbox(Localization.lang("Show BibTeX source by default"), viewModel.defaultSourceProperty())
-                .checkbox(Localization.lang("Accept recommendations from Mr. DLib"), viewModel.acceptRecommendationsProperty())
-
-                .combo(Localization.lang("Citation count fetcher:"),
-                        viewModel.citationCountFetcherTypes(),
-                        viewModel.citationCountFetcherTypeProperty(), CitationCountFetcherType::getName)
-
-                .section(Localization.lang("Editor tabs"), tabs -> tabs
-                        .custom(buildTabConfigRegion()))
-
-                .build());
+        setContent(
+                form()
+                        .checkbox(Localization.lang("Open editor when a new entry is created"), viewModel.openOnNewEntryProperty())
+                        .checkbox(Localization.lang("Automatically search and show unlinked files in the entry editor"), viewModel.autoLinkFilesEnabledProperty())
+                        .checkbox(Localization.lang("Show validation messages"), viewModel.enableValidationProperty())
+                        .checkbox(Localization.lang("Allow integers in 'edition' field in BibTeX mode"), viewModel.allowIntegerEditionProperty())
+                        .checkbox(Localization.lang("Fetch journal information online to show"), viewModel.journalPopupProperty())
+                        .checkbox(Localization.lang("Enable MSC keyword descriptions"), viewModel.enableMscKeywordDescriptionsProperty())
+                        .checkbox(Localization.lang("Show BibTeX source by default"), viewModel.defaultSourceProperty())
+                        .checkbox(Localization.lang("Accept recommendations from Mr. DLib"), viewModel.acceptRecommendationsProperty())
+                        .combo(Localization.lang("Citation count fetcher:"), viewModel.citationCountFetcherTypes(), viewModel.citationCountFetcherTypeProperty(), CitationCountFetcherType::getName)
+                        .section(Localization.lang("Editor tabs"), tabs -> tabs.custom(buildTabConfigRegion()))
+                        .build());
     }
 
     // [impl->req~entry-editor.custom-tabs~1]
@@ -116,7 +104,8 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
         addTabButton.setGraphic(IconTheme.JabRefIcons.ADD_NOBOX.getGraphicNode());
         addTabButton.setTooltip(new Tooltip(Localization.lang("Add new tab")));
         addTabButton.setOnAction(_ -> addTab());
-        addTabButton.disableProperty().bind(addTabName.textProperty().isEmpty());
+        addTabButton.disableProperty().bind(addTabName.textProperty()
+                .isEmpty());
 
         VBox column = new VBox(GAP, tabsTable, new HBox(GAP, addTabName, addTabButton));
         column.setPrefWidth(280.0);
@@ -161,7 +150,8 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
         TableColumn<EditorTabViewModel, String> nameColumn = new TableColumn<>(Localization.lang("Tabs"));
         nameColumn.setSortable(false);
         nameColumn.setReorderable(false);
-        nameColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().getDisplayName()));
+        nameColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue()
+                .getDisplayName()));
 
         TableColumn<EditorTabViewModel, EditorTabViewModel> actionsColumn = new TableColumn<>();
         actionsColumn.setMinWidth(40.0);
@@ -191,7 +181,8 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
                 .setOnDragExited((row, _, _) -> ControlHelper.removeDroppingPseudoClasses(row))
                 .install(tabsTable);
 
-        EasyBind.subscribe(tabsTable.getSelectionModel().selectedItemProperty(), this::onSelectedTabChanged);
+        EasyBind.subscribe(tabsTable.getSelectionModel().selectedItemProperty(),
+                this::onSelectedTabChanged);
         // The tab list is filled after construction (setValues), so select the first row once it arrives.
         viewModel.getTabs().addListener((InvalidationListener) _ -> {
             if (tabsTable.getSelectionModel().isEmpty() && !tabsTable.getItems().isEmpty()) {
@@ -206,9 +197,7 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
             fieldsPlaceholder.setText(Localization.lang("This tab has no fields yet."));
         } else {
             fieldsTable.setItems(FXCollections.emptyObservableList());
-            fieldsPlaceholder.setText(tab == null
-                                      ? Localization.lang("Select a tab to configure its fields.")
-                                      : Localization.lang("The content of built-in tabs is fixed."));
+            fieldsPlaceholder.setText(tab == null ? Localization.lang("Select a tab to configure its fields.") : Localization.lang("The content of built-in tabs is fixed."));
         }
         addFieldName.clear();
     }
@@ -233,17 +222,20 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
         addFieldName.setOnAction(_ -> addField());
         TextFields.bindAutoCompletion(
                 addFieldName,
-                FieldFactory.getAllFieldsWithOutInternal().stream()
-                            .map(Field::getName)
-                            .sorted()
-                            .toList());
+                FieldFactory.getAllFieldsWithOutInternal()
+                        .stream()
+                        .map(Field::getName)
+                        .sorted()
+                        .toList());
 
         Button addFieldButton = new Button(Localization.lang("Add"));
         addFieldButton.setOnAction(_ -> addField());
 
-        addFieldName.disableProperty().bind(EasyBind.map(tabsTable.getSelectionModel().selectedItemProperty(),
-                tab -> (tab == null) || !tab.isCustom()));
-        addFieldButton.disableProperty().bind(addFieldName.disabledProperty().or(addFieldName.textProperty().isEmpty()));
+        addFieldName.disableProperty().bind(
+                EasyBind.map(tabsTable.getSelectionModel().selectedItemProperty(),
+                        tab -> (tab == null) || !tab.isCustom()));
+        addFieldButton.disableProperty().bind(addFieldName.disabledProperty()
+                .or(addFieldName.textProperty().isEmpty()));
 
         Label regexInfo = new Label(Localization.lang("A field name can also be a regular expression, e.g. \"comment-.*\"."));
         regexInfo.getStyleClass().add("italic");
@@ -284,9 +276,7 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
                 .withGraphic(this::createExtractCheckBox)
                 // The tooltip lives on the cell: a disabled checkbox is mouse-transparent, so a
                 // tooltip on the checkbox itself would never show for always-extracted patterns.
-                .withTooltip(pattern -> EntryEditorTabModel.CustomizedFieldsTab.appearsOnMainTab(pattern)
-                                        ? Localization.lang("If checked, the field is not shown in the \"Main\" tab anymore.")
-                                        : Localization.lang("Field not contained in the \"Main\" tab."))
+                .withTooltip(pattern -> EntryEditorTabModel.CustomizedFieldsTab.appearsOnMainTab(pattern) ? Localization.lang("If checked, the field is not shown in the \"Main\" tab anymore.") : Localization.lang("Field not contained in the \"Main\" tab."))
                 .install(extractColumn);
 
         TableColumn<String, String> warningColumn = new TableColumn<>();
@@ -297,12 +287,8 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
         warningColumn.setReorderable(false);
         warningColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue()));
         new ValueTableCellFactory<String, String>()
-                .withGraphic(pattern -> viewModel.isFieldPatternDuplicated(pattern)
-                                        ? IconTheme.JabRefIcons.WARNING.getGraphicNode()
-                                        : null)
-                .withTooltip(pattern -> viewModel.isFieldPatternDuplicated(pattern)
-                                        ? Localization.lang("The field is contained in multiple tabs.")
-                                        : null)
+                .withGraphic(pattern -> viewModel.isFieldPatternDuplicated(pattern) ? IconTheme.JabRefIcons.WARNING.getGraphicNode() : null)
+                .withTooltip(pattern -> viewModel.isFieldPatternDuplicated(pattern) ? Localization.lang("The field is contained in multiple tabs.") : null)
                 .install(warningColumn);
 
         TableColumn<String, String> actionsColumn = new TableColumn<>();
@@ -371,9 +357,7 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
     }
 
     private void resetTabs() {
-        boolean reset = dialogService.showConfirmationDialogAndWait(
-                Localization.lang("Reset to default tabs"),
-                Localization.lang("This will restore the default tabs and remove all custom tabs."),
+        boolean reset = dialogService.showConfirmationDialogAndWait(Localization.lang("Reset to default tabs"), Localization.lang("This will restore the default tabs and remove all custom tabs."),
                 Localization.lang("Reset to default tabs"));
         if (reset) {
             viewModel.resetToDefaults();
@@ -385,7 +369,8 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
 
     // region Drag & drop row reordering
 
-    private <T> void handleOnDragDetected(TableView<T> table, DataFormat format, Class<T> type, T item, MouseEvent event) {
+    private <T> void handleOnDragDetected(TableView<T> table, DataFormat format, Class<T> type,
+            T item, MouseEvent event) {
         ClipboardContent content = new ClipboardContent();
         Dragboard dragboard = table.startDragAndDrop(TransferMode.MOVE);
         content.put(format, "");
@@ -401,7 +386,8 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
         }
     }
 
-    private <T> void handleOnDragDropped(TableView<T> table, Class<T> type, TableRow<T> row, DragEvent event) {
+    private <T> void handleOnDragDropped(TableView<T> table, Class<T> type, TableRow<T> row,
+            DragEvent event) {
         if (localDragboard.hasType(type)) {
             T item = localDragboard.getValue(type);
             table.getItems().remove(item);

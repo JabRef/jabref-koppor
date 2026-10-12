@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.formatter.bibtexfields.NormalizePagesFormatter;
 import org.jabref.logic.importer.IdBasedParserFetcher;
@@ -26,11 +30,6 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +41,8 @@ public class EuropePmcFetcher implements IdBasedParserFetcher, SearchBasedParser
 
     @Override
     public URL getUrlForIdentifier(String identifier) throws URISyntaxException, MalformedURLException {
-        return new URI("https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=" + identifier + "&resultType=core&format=json").toURL();
+        return new URI("https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=" + identifier + "&resultType=core&format=json")
+                .toURL();
     }
 
     @Override
@@ -70,7 +70,9 @@ public class EuropePmcFetcher implements IdBasedParserFetcher, SearchBasedParser
 
     private BibEntry jsonItemToBibEntry(JSONObject item) throws ParseException {
         try {
-            JSONObject result = item.getJSONObject("resultList").getJSONArray("result").getJSONObject(0);
+            JSONObject result = item.getJSONObject("resultList")
+                                    .getJSONArray("result")
+                                    .getJSONObject(0);
 
             LOGGER.debug(result.toString(2));
 
@@ -85,8 +87,7 @@ public class EuropePmcFetcher implements IdBasedParserFetcher, SearchBasedParser
                  .withField(StandardField.PAGES, result.optString("pageInfo"));
 
             String doi = result.optString("doi");
-            entry.withField(StandardField.DOI, doi)
-                 .withField(StandardField.PMID, result.optString("pmid"));
+            entry.withField(StandardField.DOI, doi).withField(StandardField.PMID, result.optString("pmid"));
 
             // Prefer fulltext URLs (e.g., PDF) when available, otherwise fall back to DOI or PubMed page
             String bestUrl = extractBestFullTextUrl(result).orElseGet(() -> {
@@ -213,7 +214,10 @@ public class EuropePmcFetcher implements IdBasedParserFetcher, SearchBasedParser
         if (matchesAny(types, "book")) {
             return StandardEntryType.Book;
         }
-        if (matchesAny(types, "conference") || matchesAny(types, "proceedings") || matchesAny(types, "conference paper") || matchesAny(types, "proceedings paper")) {
+        if (matchesAny(types, "conference")
+                || matchesAny(types, "proceedings")
+                || matchesAny(types, "conference paper")
+                || matchesAny(types, "proceedings paper")) {
             return StandardEntryType.InProceedings;
         }
         if (matchesAny(types, "phd") || matchesAny(types, "phd thesis") || matchesAny(types, "doctoral thesis")) {
@@ -271,7 +275,8 @@ public class EuropePmcFetcher implements IdBasedParserFetcher, SearchBasedParser
 
     @Override
     public void doPostCleanup(BibEntry entry) {
-        new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter()).cleanup(entry);
+        new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter())
+                .cleanup(entry);
     }
 
     @Override

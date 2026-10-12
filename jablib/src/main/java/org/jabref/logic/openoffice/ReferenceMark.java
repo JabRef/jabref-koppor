@@ -3,9 +3,8 @@ package org.jabref.logic.openoffice;
 import java.util.List;
 import java.util.Optional;
 
-import org.jabref.logic.openoffice.oocsltext.CSLCitationType;
-
 import io.github.thibaultmeyer.cuid.CUID;
+import org.jabref.logic.openoffice.oocsltext.CSLCitationType;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +78,8 @@ public sealed interface ReferenceMark permits JabRefReferenceMark, ZoteroReferen
         }
     }
 
-    static ReferenceMark of(String name, List<String> citationKeys, List<Integer> citationNumbers, String uniqueId, CSLCitationType citationType) {
+    static ReferenceMark of(String name, List<String> citationKeys, List<Integer> citationNumbers,
+                            String uniqueId, CSLCitationType citationType) {
         if (isZoteroReferenceMarkName(name)) {
             return new ZoteroReferenceMark(name, citationKeys, citationNumbers, uniqueId, citationType);
         }

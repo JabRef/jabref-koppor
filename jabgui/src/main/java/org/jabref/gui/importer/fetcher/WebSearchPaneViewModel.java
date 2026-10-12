@@ -2,6 +2,11 @@ package org.jabref.gui.importer.fetcher;
 
 import java.util.concurrent.Callable;
 
+import com.tobiasdiez.easybind.EasyBind;
+import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
+import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
+import de.saxsys.mvvmfx.utils.validation.Validator;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
@@ -12,7 +17,9 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.frame.SidePanePreferences;
@@ -29,15 +36,6 @@ import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.util.OptionalUtil;
-
-import com.tobiasdiez.easybind.EasyBind;
-import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
-import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
-import de.saxsys.mvvmfx.utils.validation.Validator;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 public class WebSearchPaneViewModel {
 
@@ -56,9 +54,7 @@ public class WebSearchPaneViewModel {
         this.stateManager = stateManager;
         this.preferences = preferences;
 
-        fetchers.setAll(WebFetchers.getSearchBasedFetchers(
-                preferences.getImportFormatPreferences(),
-                preferences.getImporterPreferences()));
+        fetchers.setAll(WebFetchers.getSearchBasedFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences()));
 
         // Choose last-selected fetcher as default
         SidePanePreferences sidePanePreferences = preferences.getSidePanePreferences();
@@ -68,13 +64,13 @@ public class WebSearchPaneViewModel {
         } else {
             selectedFetcherProperty().setValue(fetchers.get(defaultFetcherIndex));
         }
-        EasyBind.subscribe(selectedFetcherProperty(), newFetcher -> {
-            int newIndex = fetchers.indexOf(newFetcher);
-            sidePanePreferences.setWebSearchFetcherSelected(newIndex);
-        });
+        EasyBind.subscribe(selectedFetcherProperty(),
+                newFetcher -> {
+                    int newIndex = fetchers.indexOf(newFetcher);
+                    sidePanePreferences.setWebSearchFetcherSelected(newIndex);
+                });
 
-        searchQueryValidator = new FunctionBasedValidator<>(
-                query,
+        searchQueryValidator = new FunctionBasedValidator<>(query,
                 queryText -> {
                     if (StringUtil.isBlank(queryText)) {
                         // in case user did not enter something, it is treated as valid (to avoid UI WTFs)
@@ -185,15 +181,17 @@ public class WebSearchPaneViewModel {
             parserResultCallable = () -> new ParserResult(activeFetcher.performSearch(query));
         }
 
-        BackgroundTask<ParserResult> task = BackgroundTask.wrap(parserResultCallable)
-                                                          .withInitialMessage(Localization.lang("Processing \"%0\"...", query));
+        BackgroundTask<ParserResult> task = BackgroundTask.wrap(parserResultCallable).withInitialMessage(Localization.lang("Processing \"%0\"...", query));
         task.onFailure(dialogService::showErrorDialogAndWait);
 
         ImportEntriesDialog dialog;
         if (effectiveFetcher != null) {
-            dialog = new ImportEntriesDialog(stateManager.getActiveDatabase().get(), task, effectiveFetcher, query);
+            dialog = new ImportEntriesDialog(stateManager.getActiveDatabase().get(), task,
+                    effectiveFetcher, query);
         } else {
-            dialog = new ImportEntriesDialog(stateManager.getActiveDatabase().get(), task);
+            dialog = new ImportEntriesDialog(stateManager.getActiveDatabase()
+                    .get(),
+                            task);
         }
         dialog.setTitle(fetcherName);
         dialogService.showCustomDialogAndWait(dialog);

@@ -3,12 +3,15 @@ package org.jabref.gui.edit.automaticfieldeditor.copyormovecontent;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
+import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
+import de.saxsys.mvvmfx.utils.validation.Validator;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.edit.automaticfieldeditor.AbstractAutomaticFieldEditorTabViewModel;
@@ -22,11 +25,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableFieldChange;
-
-import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
-import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
-import de.saxsys.mvvmfx.utils.validation.Validator;
 
 public class CopyOrMoveFieldContentTabViewModel extends AbstractAutomaticFieldEditorTabViewModel {
     private final ObjectProperty<Field> fromField = new SimpleObjectProperty<>(StandardField.ABSTRACT);
@@ -42,18 +40,15 @@ public class CopyOrMoveFieldContentTabViewModel extends AbstractAutomaticFieldEd
 
     private final BooleanBinding canSwap;
 
-    public CopyOrMoveFieldContentTabViewModel(BibDatabase bibDatabase,
-                                              List<BibEntry> selectedEntries,
-                                              CompoundEdit compoundEdit,
-                                              DialogService dialogService,
-                                              StateManager stateManager) {
+    public CopyOrMoveFieldContentTabViewModel(BibDatabase bibDatabase, List<BibEntry> selectedEntries, CompoundEdit compoundEdit,
+            DialogService dialogService, StateManager stateManager) {
         super(bibDatabase, compoundEdit, dialogService, stateManager);
         this.selectedEntries = new ArrayList<>(selectedEntries);
 
         FieldHelper.getSetFieldsOnly(this.selectedEntries, getAllFields())
-                   .stream()
-                   .findFirst()
-                   .ifPresent(fromField::set);
+                .stream()
+                .findFirst()
+                .ifPresent(fromField::set);
 
         toFieldValidator = new FunctionBasedValidator<>(toField, field -> {
             if (StringUtil.isBlank(field.getName())) {
@@ -64,11 +59,13 @@ public class CopyOrMoveFieldContentTabViewModel extends AbstractAutomaticFieldEd
             return null;
         });
 
-        canMove = BooleanBinding.booleanExpression(toFieldValidationStatus().validProperty())
-                                .and(overwriteFieldContentProperty());
+        canMove = BooleanBinding.booleanExpression(toFieldValidationStatus()
+                .validProperty())
+                .and(overwriteFieldContentProperty());
 
-        canSwap = BooleanBinding.booleanExpression(toFieldValidationStatus().validProperty())
-                                .and(overwriteFieldContentProperty());
+        canSwap = BooleanBinding.booleanExpression(toFieldValidationStatus()
+                .validProperty())
+                .and(overwriteFieldContentProperty());
     }
 
     public ValidationStatus toFieldValidationStatus() {
@@ -129,10 +126,8 @@ public class CopyOrMoveFieldContentTabViewModel extends AbstractAutomaticFieldEd
         CompoundEdit moveEdit = new CompoundEdit(Localization.lang("Move content"));
         int affectedEntriesCount = 0;
         if (overwriteFieldContent.get()) {
-            affectedEntriesCount = new MoveFieldValueAction(fromField.get(),
-                    toField.get(),
-                    selectedEntries,
-                    moveEdit).executeAndGetAffectedEntriesCount();
+            affectedEntriesCount = new MoveFieldValueAction(fromField.get(), toField.get(), selectedEntries, moveEdit)
+                    .executeAndGetAffectedEntriesCount();
         }
 
         addEdit(moveEdit, affectedEntriesCount);

@@ -1,8 +1,8 @@
 package org.jabref.gui.maintable.columns;
 
+import com.google.common.collect.MoreCollectors;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Tooltip;
-
 import org.jabref.gui.maintable.BibEntryTableViewModel;
 import org.jabref.gui.maintable.MainTableColumnModel;
 import org.jabref.gui.maintable.MainTableTooltip;
@@ -13,8 +13,6 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.field.OrFields;
 import org.jabref.model.entry.field.UnknownField;
-
-import com.google.common.collect.MoreCollectors;
 
 /// A column that displays the text-value of the field
 public class FieldColumn extends MainTableColumn<String> {
@@ -38,7 +36,9 @@ public class FieldColumn extends MainTableColumn<String> {
 
         if (fields.hasExactlyOne()) {
             // comparator can't parse more than one value
-            Field field = fields.getFields().stream().collect(MoreCollectors.onlyElement());
+            Field field = fields.getFields()
+                                .stream()
+                                .collect(MoreCollectors.onlyElement());
 
             if ((field instanceof UnknownField) || field.isNumeric()) {
                 this.setComparator(new NumericFieldComparator());

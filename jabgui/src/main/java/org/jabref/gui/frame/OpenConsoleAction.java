@@ -11,7 +11,6 @@ import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +22,12 @@ public class OpenConsoleAction extends SimpleCommand {
     private final GuiPreferences preferences;
     private final DialogService dialogService;
 
-    /// Creates a command that opens the console at the path of the supplied database,
-    /// or defaults to the active database. Use
-    /// [#OpenConsoleAction(StateManager, GuiPreferences, DialogService)] if not supplying
-    /// another database.
-    public OpenConsoleAction(Supplier<BibDatabaseContext> databaseContext, StateManager stateManager, GuiPreferences preferences, DialogService dialogService) {
+    /// Creates a command that opens the console at the path of the supplied
+    /// database, or defaults to the active database. Use
+    /// [#OpenConsoleAction(StateManager, GuiPreferences, DialogService)] if not
+    /// supplying another database.
+    public OpenConsoleAction(Supplier<BibDatabaseContext> databaseContext, StateManager stateManager, GuiPreferences preferences,
+            DialogService dialogService) {
         this.databaseContext = databaseContext;
         this.stateManager = stateManager;
         this.preferences = preferences;
@@ -43,12 +43,15 @@ public class OpenConsoleAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        Optional.ofNullable(databaseContext.get()).or(stateManager::getActiveDatabase).flatMap(BibDatabaseContext::getDatabasePath).ifPresent(path -> {
-            try {
-                NativeDesktop.openConsole(path, preferences, dialogService);
-            } catch (IOException e) {
-                LOGGER.info("Could not open console", e);
-            }
-        });
+        Optional.ofNullable(databaseContext.get())
+                .or(stateManager::getActiveDatabase)
+                .flatMap(BibDatabaseContext::getDatabasePath)
+                .ifPresent(path -> {
+                    try {
+                        NativeDesktop.openConsole(path, preferences, dialogService);
+                    } catch (IOException e) {
+                        LOGGER.info("Could not open console", e);
+                    }
+                });
     }
 }

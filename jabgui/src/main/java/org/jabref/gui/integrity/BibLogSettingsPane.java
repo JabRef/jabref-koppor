@@ -2,10 +2,10 @@ package org.jabref.gui.integrity;
 
 import java.nio.file.Path;
 
+import jakarta.inject.Inject;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.util.FileDialogConfiguration;
 import org.jabref.logic.JabRefException;
@@ -13,8 +13,6 @@ import org.jabref.logic.integrity.IntegrityMessage;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
-
-import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,10 +22,15 @@ import org.slf4j.LoggerFactory;
 /// and handles browse/reset button actions.
 public class BibLogSettingsPane {
     private static final Logger LOGGER = LoggerFactory.getLogger(BibLogSettingsPane.class);
+
     @FXML
     private TextField pathField;
+
     private BibLogSettingsViewModel viewModel;
-    @Inject private DialogService dialogService;
+
+    @Inject
+    private DialogService dialogService;
+
     private Runnable onBlgPathChanged;
 
     public void initializeViewModel(BibDatabaseContext context, Runnable onBlgPathChanged) throws JabRefException {

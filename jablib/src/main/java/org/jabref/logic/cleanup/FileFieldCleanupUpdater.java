@@ -13,19 +13,20 @@ import org.jabref.model.entry.field.StandardField;
 
 final class FileFieldCleanupUpdater {
 
-    private FileFieldCleanupUpdater() {
-    }
+    private FileFieldCleanupUpdater() {}
 
-    static List<FieldChange> updateFileField(BibEntry entry,
-                                             List<LinkedFile> files,
-                                             Consumer<Runnable> mutationScheduler) {
+    static List<FieldChange> updateFileField(BibEntry entry, List<LinkedFile> files, Consumer<Runnable> mutationScheduler) {
         String newValue = FileFieldWriter.getStringRepresentation(files);
-        if (entry.getField(StandardField.FILE).filter(newValue::equals).isPresent()) {
+        if (entry.getField(StandardField.FILE)
+                 .filter(newValue::equals)
+                 .isPresent()) {
             return List.of();
         }
 
         AtomicReference<Optional<FieldChange>> change = new AtomicReference<>(Optional.empty());
         mutationScheduler.accept(() -> change.set(entry.setField(StandardField.FILE, newValue)));
-        return change.get().map(List::of).orElseGet(List::of);
+        return change.get()
+                     .map(List::of)
+                     .orElseGet(List::of);
     }
 }

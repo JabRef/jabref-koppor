@@ -2,12 +2,13 @@ package org.jabref.gui.texparser;
 
 import java.nio.file.Path;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
 import javafx.scene.text.Text;
-
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.ControlHelper;
 import org.jabref.gui.util.ViewModelListCellFactory;
@@ -15,17 +16,21 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.texparser.LatexBibEntriesResolverResult;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import com.tobiasdiez.easybind.EasyBind;
-
 public class ParseLatexResultView extends BaseDialog<Void> {
 
     private final LatexBibEntriesResolverResult resolverResult;
     private final BibDatabaseContext databaseContext;
     private final Path basePath;
-    @FXML private ListView<ReferenceViewModel> referenceListView;
-    @FXML private CitationsDisplay citationsDisplay;
-    @FXML private ButtonType importButtonType;
+
+    @FXML
+    private ListView<ReferenceViewModel> referenceListView;
+
+    @FXML
+    private CitationsDisplay citationsDisplay;
+
+    @FXML
+    private ButtonType importButtonType;
+
     private ParseLatexResultViewModel viewModel;
 
     public ParseLatexResultView(LatexBibEntriesResolverResult resolverResult, BibDatabaseContext databaseContext, Path basePath) {
@@ -35,12 +40,15 @@ public class ParseLatexResultView extends BaseDialog<Void> {
 
         setTitle(Localization.lang("LaTeX Citations Search Results"));
 
-        ViewLoader.view(this).load().setAsDialogPane(this);
+        ViewLoader.view(this)
+                .load()
+                .setAsDialogPane(this);
 
-        ControlHelper.setAction(importButtonType, getDialogPane(), _ -> {
-            viewModel.importButtonClicked();
-            close();
-        });
+        ControlHelper.setAction(importButtonType, getDialogPane(),
+                _ -> {
+                    viewModel.importButtonClicked();
+                    close();
+                });
         Button importButton = (Button) getDialogPane().lookupButton(importButtonType);
         importButton.disableProperty().bind(viewModel.importButtonDisabledProperty());
     }

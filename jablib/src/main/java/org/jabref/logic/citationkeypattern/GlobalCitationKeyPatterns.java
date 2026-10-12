@@ -1,7 +1,6 @@
 package org.jabref.logic.citationkeypattern;
 
 import org.jabref.model.entry.types.EntryType;
-
 import org.jspecify.annotations.NonNull;
 
 public class GlobalCitationKeyPatterns extends AbstractCitationKeyPatterns {

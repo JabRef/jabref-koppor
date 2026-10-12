@@ -2,10 +2,12 @@ package org.jabref.model.entry.types;
 
 import java.util.Locale;
 
-/// Defines standard entry types as defined by BibTeX and BibLaTeX.
-/// At [BibtexEntryTypeDefinitions], the required and optional fields for each type (for BibTeX) is defined.
-/// The BibLaTeX entry types are defined at [BiblatexEntryTypeDefinitions].
-/// More reading on BibTeX and its fields is collected at <a href="https://docs.jabref.org/advanced/fields">JabRef's documentation</a>.
+/// Defines standard entry types as defined by BibTeX and BibLaTeX. At
+/// [BibtexEntryTypeDefinitions], the required and optional fields for each type
+/// (for BibTeX) is defined. The BibLaTeX entry types are defined at
+/// [BiblatexEntryTypeDefinitions]. More reading on BibTeX and its fields is
+/// collected at <a href="https://docs.jabref.org/advanced/fields">JabRef's
+/// documentation</a>.
 public enum StandardEntryType implements EntryType {
     // BibTeX
     Article("Article"),

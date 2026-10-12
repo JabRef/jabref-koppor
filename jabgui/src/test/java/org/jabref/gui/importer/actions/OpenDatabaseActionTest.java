@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
@@ -24,7 +23,6 @@ import org.jabref.logic.util.Directories;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,18 +55,18 @@ public class OpenDatabaseActionTest {
         dialogService = mock(DialogService.class);
         guiPreferences = mock(GuiPreferences.class);
         libraryTabContainer = mock(LibraryTabContainer.class);
-        openDatabaseAction = spy(new OpenDatabaseAction(
-                libraryTabContainer,
-                guiPreferences,
-                mock(AiService.class),
-                dialogService,
-                mock(StateManager.class),
-                mock(FileUpdateMonitor.class),
-                mock(BibEntryTypesManager.class),
-                mock(ClipBoardManager.class),
-                mock(TaskExecutor.class),
-                new GitHandlerRegistry(mock(GitPreferences.class))
-        ));
+        openDatabaseAction = spy(
+                new OpenDatabaseAction(
+                        libraryTabContainer,
+                        guiPreferences,
+                        mock(AiService.class),
+                        dialogService,
+                        mock(StateManager.class),
+                        mock(FileUpdateMonitor.class),
+                        mock(BibEntryTypesManager.class),
+                        mock(ClipBoardManager.class),
+                        mock(TaskExecutor.class),
+                        new GitHandlerRegistry(mock(GitPreferences.class))));
     }
 
     @Test
@@ -85,38 +83,32 @@ public class OpenDatabaseActionTest {
 
         // Make it so that showFileOpenDialogAndGetMultipleFiles will throw an error when called with the bad path, but
         // not for the good path as in issue #10548
-        when(dialogService.showFileOpenDialogAndGetMultipleFiles(badConfig))
-                .thenAnswer(_ -> {
-                    throw new IllegalArgumentException();
-                });
-        when(dialogService.showFileOpenDialogAndGetMultipleFiles(goodConfig))
-                .thenAnswer(_ -> List.of());
+        when(dialogService.showFileOpenDialogAndGetMultipleFiles(badConfig)).thenAnswer(_ -> {
+            throw new IllegalArgumentException();
+        });
+        when(dialogService.showFileOpenDialogAndGetMultipleFiles(goodConfig)).thenAnswer(_ -> List.of());
 
         // Simulate a scenario where the initial directory is good
-        when(openDatabaseAction.getFileDialogConfiguration(openDatabaseAction.getInitialDirectory()))
-                .thenReturn(goodConfig);
+        when(openDatabaseAction.getFileDialogConfiguration(openDatabaseAction.getInitialDirectory())).thenReturn(goodConfig);
 
         assertEquals(List.of(), openDatabaseAction.getFilesToOpen());
 
         // Simulate a scenario where the initial directory is bad and the user directory is good
-        when(openDatabaseAction.getFileDialogConfiguration(openDatabaseAction.getInitialDirectory()))
-                .thenReturn(badConfig);
-        when(openDatabaseAction.getFileDialogConfiguration(Directories.getUserDirectory()))
-                .thenReturn(goodConfig);
+        when(openDatabaseAction.getFileDialogConfiguration(openDatabaseAction.getInitialDirectory())).thenReturn(badConfig);
+        when(openDatabaseAction.getFileDialogConfiguration(Directories.getUserDirectory())).thenReturn(goodConfig);
 
         assertThrows(IllegalArgumentException.class, () -> dialogService.showFileOpenDialogAndGetMultipleFiles(badConfig));
         assertDoesNotThrow(() -> dialogService.showFileOpenDialog(goodConfig));
         assertEquals(List.of(), openDatabaseAction.getFilesToOpen());
     }
 
-    /// Sets up the preferences that [OpenDatabaseAction#loadDatabase] needs, with `backupDir` empty so that no
-    /// backup-restore dialog interferes.
+    /// Sets up the preferences that [OpenDatabaseAction#loadDatabase] needs,
+    /// with `backupDir` empty so that no backup-restore dialog interferes.
     private void mockPreferencesForLoad(Path backupDir) {
         FilePreferences filePreferences = mock(FilePreferences.class);
         when(filePreferences.getBackupDirectory()).thenReturn(backupDir);
         when(guiPreferences.getFilePreferences()).thenReturn(filePreferences);
-        when(guiPreferences.getImportFormatPreferences())
-                .thenReturn(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(guiPreferences.getImportFormatPreferences()).thenReturn(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS));
     }
 
     // [utest->req~import.library.unreadable-reported~1]
@@ -130,16 +122,15 @@ public class OpenDatabaseActionTest {
 
         assertTrue(result.isInvalid());
         JavaFxExtension.awaitEvents();
-        verify(dialogService).showErrorDialogAndWait(
-                eq(Localization.lang("Open library error")),
-                contains(unreadable.toString()));
+        verify(dialogService).showErrorDialogAndWait(eq(Localization.lang("Open library error")), contains(unreadable.toString()));
     }
 
     // [utest->req~import.library.unreadable-reported~1]
     @Test
     void loadDatabaseReportsAbortedParse(@TempDir Path tempDir) throws Exception {
         // Unresolved merge conflict markers make the parser abort, so nothing at all is read
-        Path conflicted = Files.writeString(tempDir.resolve("conflicted.bib"), """
+        Path conflicted = Files.writeString(tempDir.resolve("conflicted.bib"),
+                """
                 @article{a,
                 <<<<<<< HEAD
                   title = {Ours},
@@ -154,9 +145,7 @@ public class OpenDatabaseActionTest {
 
         assertTrue(result.isInvalid());
         JavaFxExtension.awaitEvents();
-        verify(dialogService).showErrorDialogAndWait(
-                eq(Localization.lang("Open library error")),
-                contains(conflicted.toString()));
+        verify(dialogService).showErrorDialogAndWait(eq(Localization.lang("Open library error")), contains(conflicted.toString()));
     }
 
     // [utest->req~import.library.unreadable-reported~1]

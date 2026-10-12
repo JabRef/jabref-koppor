@@ -1,11 +1,12 @@
 package org.jabref.languageserver.util;
 
-import org.jabref.logic.importer.ParserResult;
-
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.jabref.logic.importer.ParserResult;
 
-/// Because only positions are supported by the lsp https://github.com/microsoft/language-server-protocol/issues/96 we need to convert back and forth
+/// Because only positions are supported by the lsp
+/// https://github.com/microsoft/language-server-protocol/issues/96 we need to
+/// convert back and forth
 public class LspRangeUtil {
 
     public static int toOffset(String content, Position pos) {
@@ -40,8 +41,7 @@ public class LspRangeUtil {
     public static Range convertToLspRange(ParserResult.Range range) {
         return new Range(
                 new Position(Math.max(range.startLine() - 1, 0), Math.max(range.startColumn() - 1, 0)),
-                new Position(Math.max(range.endLine() - 1, 0), Math.max(range.endColumn() - 1, 0))
-        );
+                new Position(Math.max(range.endLine() - 1, 0), Math.max(range.endColumn() - 1, 0)));
     }
 
     ///
@@ -81,8 +81,7 @@ public class LspRangeUtil {
     }
 
     public static boolean isRangeInRange(Range outer, Range inner) {
-        return comparePositions(outer.getStart(), inner.getStart()) <= 0
-                && comparePositions(outer.getEnd(), inner.getEnd()) >= 0;
+        return comparePositions(outer.getStart(), inner.getStart()) <= 0 && comparePositions(outer.getEnd(), inner.getEnd()) >= 0;
     }
 
     public static int comparePositions(Position p1, Position p2) {

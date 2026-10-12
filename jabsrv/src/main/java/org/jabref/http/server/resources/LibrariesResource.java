@@ -3,16 +3,15 @@ package org.jabref.http.server.resources;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jabref.http.SrvStateManager;
-import org.jabref.http.server.services.ServerUtils;
-import org.jabref.logic.preferences.CliPreferences;
-
 import com.google.gson.Gson;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import org.jabref.http.SrvStateManager;
+import org.jabref.http.server.services.ServerUtils;
+import org.jabref.logic.preferences.CliPreferences;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

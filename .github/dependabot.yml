@@ -37,14 +37,6 @@ updates:
       day: wednesday
     labels: [ ]
   - package-ecosystem: "github-actions"
-    directory: ".github/actions/format-java"
-    cooldown:
-      default-days: 1
-    schedule:
-      interval: weekly
-      day: wednesday
-    labels: [ ]
-  - package-ecosystem: "github-actions"
     directory: ".github/actions/jbang-check"
     cooldown:
       default-days: 1

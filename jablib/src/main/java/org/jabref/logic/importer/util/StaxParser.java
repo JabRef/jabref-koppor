@@ -76,20 +76,28 @@ public final class StaxParser {
         String prefix = reader.getPrefix();
 
         startTag.append("<")
-                .append(prefix != null && !prefix.isBlank() ? prefix + ":" : "")
+                .append(prefix != null && !prefix.isBlank()
+                        ? prefix + ":"
+                        : "")
                 .append(reader.getName().getLocalPart());
 
         String namespaceURI = reader.getNamespaceURI();
         if (addNamespaceURI && namespaceURI != null) {
             startTag.append(" xmlns")
-                    .append(prefix != null && !prefix.isBlank() ? ":" + prefix : "")
+                    .append(prefix != null && !prefix.isBlank()
+                            ? ":" + prefix
+                            : "")
                     .append("=\"")
                     .append(namespaceURI)
                     .append("\"");
         }
 
         for (int i = 0; i < reader.getAttributeCount(); i++) {
-            startTag.append(" ").append(reader.getAttributeLocalName(i)).append("=\"").append(reader.getAttributeValue(i)).append("\"");
+            startTag.append(" ")
+                    .append(reader.getAttributeLocalName(i))
+                    .append("=\"")
+                    .append(reader.getAttributeValue(i))
+                    .append("\"");
         }
 
         if (reader.isEndElement()) {
@@ -105,7 +113,9 @@ public final class StaxParser {
         String prefix = reader.getPrefix();
 
         endTag.append("</")
-              .append(prefix != null && !prefix.isBlank() ? prefix + ":" : "")
+              .append(prefix != null && !prefix.isBlank()
+                      ? prefix + ":"
+                      : "")
               .append(reader.getName().getLocalPart())
               .append(">");
 
@@ -121,7 +131,11 @@ public final class StaxParser {
     }
 
     private static String getXMLProcessingInstruction(XMLStreamReader reader) {
-        return "<?" + reader.getPITarget() + " " + reader.getPIData() + "?>";
+        return "<?"
+                + reader.getPITarget()
+                + " "
+                + reader.getPIData()
+                + "?>";
     }
 
     private static String getXMLText(XMLStreamReader reader) {

@@ -17,18 +17,31 @@ public final class ConferenceUtils {
     // Regex that will match all years of type 19XX or 20XX;
     private static final String YEAR_REGEX = "(19|20)\\d{2}";
     /*
-        Regex that will match:
-        - ordinals of form [number][st|nd|rd|th] as in 1st, 2nd, 3rd, 4th, and so on
-        - ordinals in LaTeX syntax of [number]\textsuperscript{[st|nd|rd|th]} as in 3\textsuperscript{rd},
-          17\textsuperscript{th}, etc. These are just the same ordinals as above but with the added LaTeX text syntax.
-     */
+       Regex that will match:
+       - ordinals of form [number][st|nd|rd|th] as in 1st, 2nd, 3rd, 4th, and so on
+       - ordinals in LaTeX syntax of [number]\textsuperscript{[st|nd|rd|th]} as in 3\textsuperscript{rd},
+         17\textsuperscript{th}, etc. These are just the same ordinals as above but with the added LaTeX text syntax.
+    */
     private static final String ORDINAL_REGEX = "\\d+(\\\\textsuperscript\\{)?(st|nd|rd|th)}?";
     private static final Pattern YEAR_OR_ORDINAL_PATTERN = Pattern.compile(YEAR_REGEX + "|" + ORDINAL_REGEX);
     // Stopwords must not be contained in the ICORE data
     private static final Set<String> TITLE_STOPWORDS = Set.of(
-            "proceedings", "volume", "part", "papers",
-            "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"
-    );
+            "proceedings",
+            "volume",
+            "part",
+            "papers",
+            "january",
+            "february",
+            "march",
+            "april",
+            "may",
+            "june",
+            "july",
+            "august",
+            "september",
+            "october",
+            "november",
+            "december");
     private static final int MAX_CANDIDATES_THRESHOLD = 50;
     private static final int DELIMITER_START = -1;
 
@@ -36,16 +49,16 @@ public final class ConferenceUtils {
         throw new UnsupportedOperationException("Cannot instantiate a utility class");
     }
 
-    /// Attempts to extract the string enclosed in the first deepest set of parentheses from the given input string.
+    /// Attempts to extract the string enclosed in the first deepest set of
+    /// parentheses from the given input string.
     ///
-    /// This method uses a regular expression `\(([^()]*)\)` to find the innermost parenthesized substring.
-    /// Only the **first match** is considered; any additional matching substrings in the input are ignored.
+    /// This method uses a regular expression `\(([^()]*)\)` to find the
+    /// innermost parenthesized substring. Only the **first match** is
+    /// considered; any additional matching substrings in the input are ignored.
     ///
-    ///
-    ///
-    /// If a match is found, leading and trailing whitespace around the string is stripped. If the resulting string is not
-    /// empty, it is returned wrapped in an `Optional`. Otherwise, an empty `Optional` is returned.
-    ///
+    /// If a match is found, leading and trailing whitespace around the string
+    /// is stripped. If the resulting string is not empty, it is returned
+    /// wrapped in an `Optional`. Otherwise, an empty `Optional` is returned.
     ///
     /// Examples:
     ///
@@ -53,12 +66,13 @@ public final class ConferenceUtils {
     /// - `"Conference ( ABC )"` -> `Optional.of("ABC")`
     /// - `"This (SERA) has multiple (CONF) acronyms"` -> `Optional.of("SERA")`
     /// - `"Input with empty () parentheses"` -> `Optional.empty()`
-    /// - `"Input with empty (        ) whitespace in parens"` -> `Optional.empty()`
+    /// - `"Input with empty ( ) whitespace in parens"` -> `Optional.empty()`
     /// - `""` -> `Optional.empty()`
     ///
     /// @param input the string to search, must not be `null`
-    /// @return an `Optional` containing the extracted and trimmed string from the first set of parentheses,
-    /// or `Optional.empty()` if no string is found
+    /// @return an `Optional` containing the extracted and trimmed string from
+    ///   the first set of parentheses, or `Optional.empty()` if no string is
+    ///   found
     public static Optional<String> extractStringFromParentheses(@NonNull String input) {
         if (input.indexOf('(') < 0) {
             return Optional.empty();
@@ -76,25 +90,31 @@ public final class ConferenceUtils {
         return Optional.empty();
     }
 
-    /// Generates possible acronym candidates from the given input string by splitting on common delimiters and extracting
-    /// substrings within the specified cutoff length.
+    /// Generates possible acronym candidates from the given input string by
+    /// splitting on common delimiters and extracting substrings within the
+    /// specified cutoff length.
     ///
-    /// Candidates are ordered in a [TreeSet] such that longer strings are positioned before shorter ones, with
-    /// lexicographical ordering used to break ties. This prevents overfitting on composite acronyms during lookup (like
-    /// between `IEEE-IV` and `IV`) by pushing the shorter substrings to the end.
-    /// A maximum of 50 candidates are generated to avoid excessive expansion.
-    /// The splitting delimiters are `whitespace`, `,`, `'`, `_`, `:`, `.`, and `-`.
-    /// Delimiters between acronyms are kept, if the cutoff length allows.
+    /// Candidates are ordered in a [TreeSet] such that longer strings are
+    /// positioned before shorter ones, with lexicographical ordering used to
+    /// break ties. This prevents overfitting on composite acronyms during
+    /// lookup (like between `IEEE-IV` and `IV`) by pushing the shorter
+    /// substrings to the end. A maximum of 50 candidates are generated to avoid
+    /// excessive expansion. The splitting delimiters are `whitespace`, `,`,
+    /// `'`, `_`, `:`, `.`, and `-`. Delimiters between acronyms are kept, if
+    /// the cutoff length allows.
     ///
+    /// For example, given the input string `"IEEE-IV'2022"` and a cutoff of
+    /// `11`, this method generates the following candidates in order:
+    /// `"IEEE-IV", "IV'2022", "2022", "IEEE", "IV"`. Notice that `"IEEE-IV"` is
+    /// positioned ahead and retains the `-` in between.
     ///
-    /// For example, given the input string `"IEEE-IV'2022"` and a cutoff of `11`, this method generates the
-    /// following candidates in order: `"IEEE-IV", "IV'2022", "2022", "IEEE", "IV"`. Notice that `"IEEE-IV"`
-    /// is positioned ahead and retains the `-` in between.
-    ///
-    /// @param input  the raw string to extract acronym candidates from, must not be `null`
-    /// @param cutoff the maximum allowed length of each candidate substring; candidates longer than this are discarded
-    /// @return a set of acronym candidates ordered by descending length and then lexicographically,
-    /// or an empty set if no valid candidates are found
+    /// @param input the raw string to extract acronym candidates from, must not
+    ///   be `null`
+    /// @param cutoff the maximum allowed length of each candidate substring;
+    ///   candidates longer than this are discarded
+    /// @return a set of acronym candidates ordered by descending length and
+    ///   then lexicographically, or an empty set if no valid candidates are
+    ///   found
     public static Set<String> generateAcronymCandidates(@NonNull String input, int cutoff) {
         if (input.isEmpty() || cutoff <= 0) {
             return Set.of();
@@ -154,32 +174,42 @@ public final class ConferenceUtils {
     }
 
     private static boolean isAcronymDelimiter(char c) {
-        return Character.isWhitespace(c) ||
-                c == '\'' || c == ',' || c == '_' ||
-                c == ':' || c == '.' || c == '-';
+        return Character.isWhitespace(c)
+                || c == '\''
+                || c == ','
+                || c == '_'
+                || c == ':'
+                || c == '.'
+                || c == '-';
     }
 
-    /// Normalizes a raw conference title query string into a simplified form suitable for fuzzy matching.
+    /// Normalizes a raw conference title query string into a simplified form
+    /// suitable for fuzzy matching.
     ///
     /// The normalization process performs the following steps:
     ///
-    /// 1. Removes all substrings enclosed in parentheses, e.g., `"proceedings (ICSE 2022)"` -> `"Proceedings"`.
-    /// 2. Removes all years of form `19XX` or `20xx` (e.g., `1999`, `2022`) and ordinals in
-    ///    regular form (e.g., `1st`, `2nd`, `3rd`) as well as in LaTeX syntax (e.g.,
-    ///    `3\textsuperscript{rd`} or `17\textsuperscript{th`}).
-    /// 3. Splits the input into alphanumeric tokens, discarding stopwords found in the `TITLE_STOPWORDS` set
-    ///    (which includes months, or other common stopwords like `proceedings`, `papers`, etc.)
-    /// 4. Concatenates the remaining tokens into a normalized string without delimiters.
-    /// 5. Removes leading false-start tokens like `"ofthe"`, `"of"`, or `"the"`.
+    /// 1. Removes all substrings enclosed in parentheses, e.g., `"proceedings
+    ///    (ICSE 2022)"` -> `"Proceedings"`.
+    /// 2. Removes all years of form `19XX` or `20xx` (e.g., `1999`, `2022`) and
+    ///    ordinals in regular form (e.g., `1st`, `2nd`, `3rd`) as well as in
+    ///    LaTeX syntax (e.g., `3\textsuperscript{rd`} or
+    ///    `17\textsuperscript{th`}).
+    /// 3. Splits the input into alphanumeric tokens, discarding stopwords found
+    ///    in the `TITLE_STOPWORDS` set (which includes months, or other common
+    ///    stopwords like `proceedings`, `papers`, etc.)
+    /// 4. Concatenates the remaining tokens into a normalized string without
+    ///    delimiters.
+    /// 5. Removes leading false-start tokens like `"ofthe"`, `"of"`, or
+    ///    `"the"`.
     ///
-    /// Note that the input is expected to already be lowercased before calling this method.
+    /// Note that the input is expected to already be lowercased before calling
+    /// this method.
     ///
+    /// An example: `"proceedings of the 3rd international conference on machine
+    /// learning (icml 2018)"` -> `"internationalconferenceonmachinelearning"`
     ///
-    /// An example:
-    /// `"proceedings of the 3rd international conference on machine learning (icml 2018)"` ->
-    /// `"internationalconferenceonmachinelearning"`
-    ///
-    /// @param input the pre-lowercased raw string to normalize, must not be `null`
+    /// @param input the pre-lowercased raw string to normalize, must not be
+    ///   `null`
     /// @return a normalized string representation of the input
     public static String normalize(@NonNull String input) {
         StringBuilder normalized = new StringBuilder();
@@ -201,8 +231,7 @@ public final class ConferenceUtils {
 
         normalizeTokenAndFlush(currentToken, normalized);
 
-        return normalized.toString()
-                         .replaceFirst("^(ofthe|of|the)+", "");   // remove any false starts
+        return normalized.toString().replaceFirst("^(ofthe|of|the)+", ""); // remove any false starts
     }
 
     private static void normalizeTokenAndFlush(StringBuilder currentToken, StringBuilder output) {

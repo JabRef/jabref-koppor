@@ -18,7 +18,8 @@ class RemoveLatexCommandsFormatterTest {
     @ParameterizedTest
     @CsvSource(
             delimiterString = "->",
-            textBlock = """
+            textBlock =
+                    """
                         some text -> some text
                         '' -> '\\sometext'
                         text -> '\\some text'
@@ -28,8 +29,7 @@ class RemoveLatexCommandsFormatterTest {
                         '\\some text\\' -> '\\\\some text\\\\'
                         some_text -> 'some\\_text'
                         'http://pi.informatik.uni-siegen.de/stt/36_2/./03_Technische_Beitraege/ZEUS2016/beitrag_2.pdf' -> 'http://pi.informatik.uni-siegen.de/stt/36\\_2/./03\\_Technische\\_Beitraege/ZEUS2016/beitrag\\_2.pdf'
-                    """
-    )
+                    """)
     void format(String expected, String input) {
         assertEquals(expected, formatter.format(input));
     }

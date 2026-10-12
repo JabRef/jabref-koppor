@@ -74,14 +74,18 @@ public class FieldFormatterCleanup implements CleanupJob {
         String expectedOldValue = oldValue.get();
         if (newValue.isEmpty()) {
             mutationScheduler.accept(() -> {
-                if (entry.getField(fieldKey).filter(current -> current.equals(expectedOldValue)).isPresent()) {
+                if (entry.getField(fieldKey)
+                         .filter(current -> current.equals(expectedOldValue))
+                         .isPresent()) {
                     entry.clearField(fieldKey);
                 }
             });
             appliedValue = null;
         } else {
             mutationScheduler.accept(() -> {
-                if (entry.getField(fieldKey).filter(current -> current.equals(expectedOldValue)).isPresent()) {
+                if (entry.getField(fieldKey)
+                         .filter(current -> current.equals(expectedOldValue))
+                         .isPresent()) {
                     entry.setField(fieldKey, newValue, EntriesEventSource.SAVE_ACTION);
                 }
             });

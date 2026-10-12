@@ -1,15 +1,13 @@
 package org.jabref.gui.entryeditor;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Tab;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.EntryType;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +24,7 @@ public abstract class EntryEditorTab extends Tab {
     /// The entry (and its type) the tab content was last rendered for.
     /// Tab is lazily rebuild in [#notifyAboutFocus(BibEntry)].
     private @Nullable BibEntry renderedEntry;
+
     private @Nullable EntryType renderedEntryType;
 
     /// User-controlled visibility gate, injected by [EntryEditorTabFactory].
@@ -50,11 +49,8 @@ public abstract class EntryEditorTab extends Tab {
     public final ObservableValue<Boolean> visibility() {
         // Built once and cached; JavaFX Application Thread only (no synchronization on the lazy init).
         if (combinedVisibility == null) {
-            combinedVisibility = EasyBind.combine(
-                    preferenceDrivenVisibility,
-                    contentDrivenVisibility,
-                    (preference, content) -> preference && content
-            );
+            combinedVisibility = EasyBind.combine(preferenceDrivenVisibility, contentDrivenVisibility,
+                    (preference, content) -> preference && content);
         }
 
         return combinedVisibility;
@@ -71,12 +67,11 @@ public abstract class EntryEditorTab extends Tab {
     protected abstract void bindToEntry(BibEntry entry);
 
     /// Releases listeners owned by this tab before it is discarded.
-    protected void dispose() {
-    }
+    protected void dispose() {}
 
-    /// Override to perform a special action on focus (like selecting the first field in the editor).
-    protected void handleFocus() {
-    }
+    /// Override to perform a special action on focus (like selecting the first
+    /// field in the editor).
+    protected void handleFocus() {}
 
     public void notifyAboutFocus(BibEntry entry) {
         // currentEntry is bound to the view model and updates on its own; rebuild content only when the

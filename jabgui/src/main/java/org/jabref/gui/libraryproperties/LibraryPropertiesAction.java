@@ -2,12 +2,11 @@ package org.jabref.gui.libraryproperties;
 
 import java.util.function.Supplier;
 
+import com.airhacks.afterburner.injection.Injector;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.model.database.BibDatabaseContext;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,8 @@ public class LibraryPropertiesAction extends SimpleCommand {
             dialogService.showCustomDialogAndWait(new LibraryPropertiesView(alternateDatabase.get()));
         } else {
             if (stateManager.getActiveDatabase().isPresent()) {
-                dialogService.showCustomDialogAndWait(new LibraryPropertiesView(stateManager.getActiveDatabase().get()));
+                dialogService.showCustomDialogAndWait(new LibraryPropertiesView(stateManager.getActiveDatabase()
+                        .get()));
             } else {
                 LOGGER.warn("No library selected.");
             }

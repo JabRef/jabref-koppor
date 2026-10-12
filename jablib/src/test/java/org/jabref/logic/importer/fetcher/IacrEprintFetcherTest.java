@@ -16,7 +16,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.DisabledOnCIServer;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -95,7 +94,10 @@ class IacrEprintFetcherTest {
     @Test
     void searchByIdWithValidId1() throws FetcherException {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("Report 2017/1118 ");
-        assertFalse(fetchedEntry.get().getField(StandardField.ABSTRACT).get().isEmpty());
+        assertFalse(fetchedEntry.get()
+                                .getField(StandardField.ABSTRACT)
+                                .get()
+                                .isEmpty());
         fetchedEntry.get().setField(StandardField.ABSTRACT, "dummy");
         assertEquals(Optional.of(abram2017), fetchedEntry);
     }
@@ -103,7 +105,10 @@ class IacrEprintFetcherTest {
     @Test
     void searchByIdWithValidId2() throws FetcherException {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("iacr ePrint 2016/119");
-        assertFalse(fetchedEntry.get().getField(StandardField.ABSTRACT).get().isEmpty());
+        assertFalse(fetchedEntry.get()
+                                .getField(StandardField.ABSTRACT)
+                                .get()
+                                .isEmpty());
         fetchedEntry.get().setField(StandardField.ABSTRACT, "dummy");
         assertEquals(Optional.of(beierle2016), fetchedEntry);
     }
@@ -111,7 +116,10 @@ class IacrEprintFetcherTest {
     @Test
     void searchByIdWithValidIdAndNonAsciiChars() throws FetcherException {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("some random 2017/1095 stuff around the id");
-        assertFalse(fetchedEntry.get().getField(StandardField.ABSTRACT).get().isEmpty());
+        assertFalse(fetchedEntry.get()
+                                .getField(StandardField.ABSTRACT)
+                                .get()
+                                .isEmpty());
         fetchedEntry.get().setField(StandardField.ABSTRACT, "dummy");
         assertEquals(Optional.of(delgado2017), fetchedEntry);
     }
@@ -154,7 +162,8 @@ class IacrEprintFetcherTest {
     @Test
     void searchByIdWithOldHtmlFormatAndCheckDate() throws FetcherException {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("1997/006");
-        assertEquals(Optional.of("1997-05-04"), fetchedEntry.get().getField(StandardField.DATE));
+        assertEquals(Optional.of("1997-05-04"),
+                fetchedEntry.get().getField(StandardField.DATE));
     }
 
     @DisplayName("Get all entries with old HTML format (except withdrawn ones)")
@@ -164,16 +173,29 @@ class IacrEprintFetcherTest {
     void searchByIdWithOldHtmlFormatWithoutDateCheck(String id) throws FetcherException {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById(id);
         assertTrue(fetchedEntry.isPresent(), "Expected to get an entry for id " + id);
-        assertNotEquals(Optional.empty(), fetchedEntry.get().getField(StandardField.DATE), "Expected non empty date field, entry is\n" + fetchedEntry.toString());
-        assertEquals(10, fetchedEntry.get().getField(StandardField.DATE).get().length(), "Expected yyyy-MM-dd date format, entry is\n" + fetchedEntry.toString());
-        assertNotEquals(Optional.empty(), fetchedEntry.get().getField(StandardField.ABSTRACT), "Expected non empty abstract field, entry is\n" + fetchedEntry.toString());
+        assertNotEquals(
+                Optional.empty(),
+                fetchedEntry.get().getField(StandardField.DATE),
+                "Expected non empty date field, entry is\n" + fetchedEntry.toString());
+        assertEquals(
+                10,
+                fetchedEntry.get()
+                            .getField(StandardField.DATE)
+                            .get()
+                            .length(),
+                "Expected yyyy-MM-dd date format, entry is\n" + fetchedEntry.toString());
+        assertNotEquals(
+                Optional.empty(),
+                fetchedEntry.get().getField(StandardField.ABSTRACT),
+                "Expected non empty abstract field, entry is\n" + fetchedEntry.toString());
     }
 
     /// Helper method for allNonWithdrawnIdsWithOldHtmlFormat.
     ///
-    /// @param year  The year of the generated IDs (e.g. 1996)
+    /// @param year The year of the generated IDs (e.g. 1996)
     /// @param maxId The maximum ID to generate in the given year (e.g. 112)
-    /// @return A list of IDs in the from yyyy/iii (e.g. `[1996/001, 1996/002, ..., 1996/112]`)
+    /// @return A list of IDs in the from yyyy/iii (e.g. `[1996/001, 1996/002,
+    ///   ..., 1996/112]`)
     private static List<String> getIdsFor(int year, int maxId) {
         List<String> result = new ArrayList<>();
         for (int i = 1; i <= maxId; i++) {

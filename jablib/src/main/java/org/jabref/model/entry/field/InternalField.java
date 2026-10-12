@@ -4,7 +4,8 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Optional;
 
-/// JabRef internal fields. These are not normal fields but mostly placeholders with special functions.
+/// JabRef internal fields. These are not normal fields but mostly placeholders
+/// with special functions.
 public enum InternalField implements Field {
     /// The BibTeX key (which is used at \cite{key} in LaTeX
     KEY_FIELD("citationkey"),
@@ -23,10 +24,12 @@ public enum InternalField implements Field {
     /// Marker that the content is just a BibTeX string
     BIBTEX_STRING("__string"),
 
-    /// virtual field to denote "all fields". Used in the metadata serialization for save actions.
+    /// virtual field to denote "all fields". Used in the metadata serialization
+    /// for save actions.
     INTERNAL_ALL_FIELD("all"),
 
-    /// virtual field to denote "all text fields". Used in the metadata serialization for save actions.
+    /// virtual field to denote "all text fields". Used in the metadata
+    /// serialization for save actions.
     INTERNAL_ALL_TEXT_FIELDS_FIELD("all-text-fields"),
 
     /// all field names starting with "Jabref-internal-" are not appearing in .bib files
@@ -52,8 +55,8 @@ public enum InternalField implements Field {
         }
 
         return Arrays.stream(InternalField.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+                .filter(field -> field.getName().equalsIgnoreCase(name))
+                .findAny();
     }
 
     @Override

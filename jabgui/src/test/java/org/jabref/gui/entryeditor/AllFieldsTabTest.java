@@ -12,6 +12,7 @@ import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -22,10 +23,11 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-
+import one.jpro.jmemorybuddy.JMemoryBuddy;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.clipboard.ClipBoardManager;
+import org.jabref.gui.entryeditor.EntryEditorTabModel.CustomizedFieldsTab;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.fieldeditors.FieldEditorFX;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
@@ -46,6 +48,7 @@ import org.jabref.logic.util.CurrentThreadTaskExecutor;
 import org.jabref.logic.util.OptionalObjectProperty;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.io.AutoLinkPreferences;
+import org.jabref.logic.util.io.AutoLinkPreferences.CitationKeyDependency;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
@@ -55,9 +58,6 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.airhacks.afterburner.injection.Injector;
-import one.jpro.jmemorybuddy.JMemoryBuddy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,8 +76,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(JavaFxExtension.class)
 class AllFieldsTabTest {
 
-    /// Runs probes synchronously, but can hold them back so a test can change entry state
-    /// between probe start and probe completion (the stale-result scenario).
+    /// Runs probes synchronously, but can hold them back so a test can change
+    /// entry state between probe start and probe completion (the stale-result
+    /// scenario).
     private static class DeferringTaskExecutor extends CurrentThreadTaskExecutor {
         private final List<BackgroundTask<?>> deferred = new ArrayList<>();
         private boolean deferring;
@@ -118,7 +119,7 @@ class AllFieldsTabTest {
         ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
         when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
         when(preferences.getExternalApplicationsPreferences()).thenReturn(externalApplicationsPreferences);
-        when(preferences.getAutoLinkPreferences()).thenReturn(new AutoLinkPreferences(AutoLinkPreferences.CitationKeyDependency.START, "", false, ';'));
+        when(preferences.getAutoLinkPreferences()).thenReturn(new AutoLinkPreferences(CitationKeyDependency.START, "", false, ';'));
 
         databaseContext = mock(BibDatabaseContext.class);
         when(databaseContext.getFileDirectories(any())).thenReturn(List.of(fileDirectory));
@@ -142,7 +143,14 @@ class AllFieldsTabTest {
         Injector.setModelOrService(JournalAbbreviationRepository.class, mock(JournalAbbreviationRepository.class));
         Injector.setModelOrService(FileUpdateMonitor.class, new DummyFileUpdateMonitor());
 
-        tab = new AllFieldsTab(mock(UndoAction.class), mock(RedoAction.class), preferences, new BibEntryTypesManager(), mock(JournalAbbreviationRepository.class), stateManager, mock(PreviewPanel.class));
+        tab = new AllFieldsTab(
+                mock(UndoAction.class),
+                mock(RedoAction.class),
+                preferences,
+                new BibEntryTypesManager(),
+                mock(JournalAbbreviationRepository.class),
+                stateManager,
+                mock(PreviewPanel.class));
     }
 
     @Test
@@ -174,26 +182,30 @@ class AllFieldsTabTest {
         assertEquals(3, abstractEditorExtraRows("one\ntwo\nthree\nfour"), 0.1);
     }
 
-    /// Lays the abstract editor out in a scene of fixed width so the text area's skin exists and
-    /// its text is wrapped, then returns how many rows beyond the first the area got: its height
-    /// minus a one-row area's height, in units of the font's line height. The layout snaps heights
-    /// to whole pixels, so the rows are only reliable as a rounded quotient, never as raw pixels.
+    /// Lays the abstract editor out in a scene of fixed width so the text
+    /// area's skin exists and its text is wrapped, then returns how many rows
+    /// beyond the first the area got: its height minus a one-row area's height,
+    /// in units of the font's line height. The layout snaps heights to whole
+    /// pixels, so the rows are only reliable as a rounded quotient, never as
+    /// raw pixels.
     private double abstractEditorExtraRows(String abstractText) {
         double[] result = new double[1];
-        JavaFxExtension.invokeAndWait(() -> {
-            TextArea filled = layoutAbstractEditor(abstractText);
-            // One-word baseline: an unset abstract has no editor, only a chip.
-            TextArea oneRow = layoutAbstractEditor("x");
-            Text row = new Text("X");
-            row.setFont(filled.getFont());
-            result[0] = Math.round((filled.getHeight() - oneRow.getHeight()) / row.getLayoutBounds().getHeight());
-        });
+        JavaFxExtension.invokeAndWait(
+                () -> {
+                    TextArea filled = layoutAbstractEditor(abstractText);
+                    // One-word baseline: an unset abstract has no editor, only a chip.
+                    TextArea oneRow = layoutAbstractEditor("x");
+                    Text row = new Text("X");
+                    row.setFont(filled.getFont());
+                    result[0] = Math.round((filled.getHeight() - oneRow.getHeight()) / row.getLayoutBounds().getHeight());
+                });
         return result[0];
     }
 
     private TextArea layoutAbstractEditor(String abstractText) {
-        BibEntry entry = new BibEntry(StandardEntryType.Misc).withCitationKey("CiteKey2021")
-                                                             .withField(StandardField.ABSTRACT, abstractText);
+        BibEntry entry = new BibEntry(StandardEntryType.Misc)
+                .withCitationKey("CiteKey2021")
+                .withField(StandardField.ABSTRACT, abstractText);
         tab.bindToEntry(entry);
         Node editor = tab.editors.get(StandardField.ABSTRACT).getNode();
         // VBox (not StackPane): a StackPane would stretch the editor to the scene height.
@@ -226,9 +238,10 @@ class AllFieldsTabTest {
         assertFalse(tab.editors.containsKey(StandardField.FILE));
     }
 
-    /// Every entry switch drops the whole editor set and builds a new one, so a discarded editor
-    /// must not stay reachable from the entry - otherwise arrow-keying through a library would pile
-    /// up editor generations. Guards the reasoning documented in `FieldsEditorTab#setupPanel`.
+    /// Every entry switch drops the whole editor set and builds a new one, so a
+    /// discarded editor must not stay reachable from the entry - otherwise
+    /// arrow-keying through a library would pile up editor generations. Guards
+    /// the reasoning documented in `FieldsEditorTab#setupPanel`.
     @Test
     void discardedEditorsAreNotRetainedAfterRebuild() {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
@@ -274,12 +287,14 @@ class AllFieldsTabTest {
     }
 
     private TitledPane filesAndLinksPane() {
-        return ((Parent) tab.getEditorContent()).getChildrenUnmodifiable().stream()
-                                                .filter(TitledPane.class::isInstance)
-                                                .map(TitledPane.class::cast)
-                                                .filter(pane -> Localization.lang("Files and links").equals(pane.getText()))
-                                                .findFirst()
-                                                .orElseThrow();
+        return ((Parent) tab.getEditorContent())
+                .getChildrenUnmodifiable()
+                .stream()
+                .filter(TitledPane.class::isInstance)
+                .map(TitledPane.class::cast)
+                .filter(pane -> Localization.lang("Files and links").equals(pane.getText()))
+                .findFirst()
+                .orElseThrow();
     }
 
     // [utest->req~entry-editor.main-tab.file-editor-always-shown~1]
@@ -297,15 +312,19 @@ class AllFieldsTabTest {
 
     /// The section's row labels, top to bottom (labels sit in the grid's first column).
     private List<String> filesAndLinksRowLabels() {
-        GridPane grid = (GridPane) ((VBox) filesAndLinksPane().getContent()).getChildren().getFirst();
-        return grid.getChildren().stream()
+        GridPane grid = (GridPane) ((VBox) filesAndLinksPane().getContent())
+                .getChildren()
+                .getFirst();
+        return grid.getChildren()
+                   .stream()
                    .filter(node -> Integer.valueOf(0).equals(GridPane.getColumnIndex(node)))
                    .sorted(Comparator.comparingInt(GridPane::getRowIndex))
                    .map(node -> ((Label) node).getText())
                    .toList();
     }
 
-    /// BibLaTeX `Online` requires `url`, so the section opens for a field that is not set.
+    /// BibLaTeX `Online` requires `url`, so the section opens for a field that
+    /// is not set.
     // [utest->req~entry-editor.main-tab.file-editor-always-shown~1]
     @Test
     void fileEditorAppearsForRequiredButUnsetLinkField() {
@@ -315,8 +334,7 @@ class AllFieldsTabTest {
         JavaFxExtension.invokeAndWait(() -> tab.bindToEntry(entry));
 
         assertTrue(tab.editors.containsKey(StandardField.FILE));
-        assertEquals(
-                List.of(FieldsUtil.getDisplayName(StandardField.FILE), FieldsUtil.getDisplayName(StandardField.URL)),
+        assertEquals(List.of(FieldsUtil.getDisplayName(StandardField.FILE), FieldsUtil.getDisplayName(StandardField.URL)),
                 filesAndLinksRowLabels());
     }
 
@@ -330,18 +348,23 @@ class AllFieldsTabTest {
 
         JavaFxExtension.invokeAndWait(() -> tab.bindToEntry(entry));
 
-        GridPane grid = (GridPane) ((VBox) filesAndLinksPane().getContent()).getChildren().getFirst();
-        Node fileRow = grid.getChildren().stream()
-                           .filter(node -> Integer.valueOf(1).equals(GridPane.getColumnIndex(node))
-                                   && Integer.valueOf(0).equals(GridPane.getRowIndex(node)))
+        GridPane grid = (GridPane) ((VBox) filesAndLinksPane().getContent())
+                .getChildren()
+                .getFirst();
+        Node fileRow = grid.getChildren()
+                           .stream()
+                           .filter(node -> Integer.valueOf(1).equals(GridPane.getColumnIndex(node)) && Integer.valueOf(0).equals(GridPane.getRowIndex(node)))
                            .findFirst()
                            .orElseThrow();
 
-        assertSame(tab.editors.get(StandardField.FILE).getNode(), fileRow);
+        assertSame(tab.editors.get(StandardField.FILE)
+                      .getNode(),
+                fileRow);
     }
 
-    /// Focusing a field in a collapsed files and links section expands it, which rebuilds the panel;
-    /// a tab disposed before that deferred focus runs must not rebuild.
+    /// Focusing a field in a collapsed files and links section expands it,
+    /// which rebuilds the panel; a tab disposed before that deferred focus runs
+    /// must not rebuild.
     @Test
     void disposedTabDoesNotRebuildOnDeferredFocus() {
         BibEntry entry = new BibEntry(StandardEntryType.Misc)
@@ -356,10 +379,8 @@ class AllFieldsTabTest {
             tab.dispose();
         });
         // Two passes: the focus callback is nested in a second runLater.
-        JavaFxExtension.invokeAndWait(() -> {
-        });
-        JavaFxExtension.invokeAndWait(() -> {
-        });
+        JavaFxExtension.invokeAndWait(() -> {});
+        JavaFxExtension.invokeAndWait(() -> {});
 
         assertFalse(tab.editors.containsKey(StandardField.FILE));
     }
@@ -379,8 +400,7 @@ class AllFieldsTabTest {
     // [utest->req~entry-editor.main-tab.file-editor-always-shown~1]
     @Test
     void fileEditorStaysOnCustomTabThatExtractsIt() {
-        when(preferences.getEntryEditorPreferences().getTabModels()).thenReturn(FXCollections.observableArrayList(
-                new EntryEditorTabModel.CustomizedFieldsTab("Files", List.of("file"), Set.of("file"))));
+        when(preferences.getEntryEditorPreferences().getTabModels()).thenReturn(FXCollections.observableArrayList(new CustomizedFieldsTab("Files", List.of("file"), Set.of("file"))));
         BibEntry entry = new BibEntry(StandardEntryType.Misc)
                 .withCitationKey("CiteKey2021")
                 .withField(StandardField.URL, "https://example.org");

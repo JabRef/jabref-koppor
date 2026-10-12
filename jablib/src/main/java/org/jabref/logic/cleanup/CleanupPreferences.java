@@ -26,23 +26,19 @@ public class CleanupPreferences {
             CleanupStep.CONVERT_TIMESTAMP_TO_MODIFICATIONDATE,
             CleanupStep.DO_NOT_CONVERT_TIMESTAMP);
 
-    private static final FieldFormatterCleanupActions DEFAULT_FIELD_FORMATTER_CLEANUPS =
-            new FieldFormatterCleanupActions(false, FieldFormatterCleanupActions.DEFAULT_SAVE_ACTIONS);
+    private static final FieldFormatterCleanupActions DEFAULT_FIELD_FORMATTER_CLEANUPS = new FieldFormatterCleanupActions(false, FieldFormatterCleanupActions.DEFAULT_SAVE_ACTIONS);
 
     private final ObservableSet<CleanupStep> activeJobs;
     private final ObjectProperty<FieldFormatterCleanupActions> fieldFormatterCleanups;
 
     private CleanupPreferences() {
-        this(
-                EnumSet.copyOf(DEFAULT_ACTIVE_JOBS),  // copy to prevent mutation of static field
-                DEFAULT_FIELD_FORMATTER_CLEANUPS      // Default field formatter cleanups (disabled)
+        this(EnumSet.copyOf(DEFAULT_ACTIVE_JOBS), // copy to prevent mutation of static field
+        DEFAULT_FIELD_FORMATTER_CLEANUPS // Default field formatter cleanups (disabled)
         );
     }
 
     public CleanupPreferences(Set<CleanupStep> activeJobs) {
-        this(
-                EnumSet.copyOf(activeJobs),
-                new FieldFormatterCleanupActions(false, FieldFormatterCleanupActions.DEFAULT_SAVE_ACTIONS));
+        this(EnumSet.copyOf(activeJobs), new FieldFormatterCleanupActions(false, FieldFormatterCleanupActions.DEFAULT_SAVE_ACTIONS));
     }
 
     public CleanupPreferences(CleanupStep activeJob) {
@@ -129,11 +125,13 @@ public class CleanupPreferences {
         ABBREVIATE_LTWA,
         UNABBREVIATE;
 
-        /// Parses a step name, returning an empty Optional for unknown or removed values.
+        /// Parses a step name, returning an empty Optional for unknown or
+        /// removed values.
         ///
-        /// Used when loading preferences written by older versions: e.g. the former `CLEAN_UP_ISSN`
-        /// step was removed (ISSN normalization now happens via the `NormalizeIssn` field formatter),
-        /// and such a stored value must not break preference loading.
+        /// Used when loading preferences written by older versions: e.g. the
+        /// former `CLEAN_UP_ISSN` step was removed (ISSN normalization now
+        /// happens via the `NormalizeIssn` field formatter), and such a stored
+        /// value must not break preference loading.
         public static Optional<CleanupStep> safeValueOf(String name) {
             try {
                 return Optional.of(valueOf(name));

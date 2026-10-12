@@ -21,20 +21,23 @@ public interface SearchBackend {
 
     /// Run the query against this backend.
     ///
-    /// @return a [SearchResults] capturing matched-entry membership and (if supported) fulltext hits.
+    /// @return a [SearchResults] capturing matched-entry membership and (if
+    ///   supported) fulltext hits.
     SearchResults search(SearchQuery query);
 
     /// Test a single entry against the query without re-running a full library search.
     boolean isEntryMatched(BibEntry entry, SearchQuery query);
 
-    /// Indexing lifecycle. Backends without an index (e.g. in-memory) implement these as no-ops.
+    /// Indexing lifecycle. Backends without an index (e.g. in-memory) implement
+    /// these as no-ops.
     void addToIndex(List<BibEntry> entries);
 
     void removeFromIndex(List<BibEntry> entries);
 
     void updateEntry(FieldChangedEvent event);
 
-    /// Re-index linked-file fulltext from scratch. Backends without a fulltext index implement as a no-op.
+    /// Re-index linked-file fulltext from scratch. Backends without a fulltext
+    /// index implement as a no-op.
     void rebuildFullTextIndex();
 
     /// Release backend resources (DB connections, Lucene index handles, …). Idempotent.

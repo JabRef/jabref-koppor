@@ -10,7 +10,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
 
@@ -23,16 +22,17 @@ class CitationKeyDeviationCheckerTest {
 
     @Test
     void citationKeyDeviatesFromGeneratedKey() {
-        BibEntry entry = new BibEntry().withField(InternalField.KEY_FIELD, "WrongKey")
-                                       .withField(StandardField.AUTHOR, "Knuth")
-                                       .withField(StandardField.YEAR, "2014");
+        BibEntry entry = new BibEntry()
+                .withField(InternalField.KEY_FIELD, "WrongKey")
+                .withField(StandardField.AUTHOR, "Knuth")
+                .withField(StandardField.YEAR, "2014");
         BibDatabase bibDatabase = new BibDatabase();
         bibDatabase.insertEntry(entry);
         BibDatabaseContext bibDatabaseContext = new BibDatabaseContext(bibDatabase);
         CitationKeyDeviationChecker checker = new CitationKeyDeviationChecker(bibDatabaseContext, citationKeyPatternPreferences);
 
-        List<IntegrityMessage> expected = List.of(new IntegrityMessage(
-                Localization.lang("Citation key deviates from generated key %0", "Knuth2014"), entry, InternalField.KEY_FIELD));
+        List<IntegrityMessage> expected = List.of(new IntegrityMessage(Localization.lang("Citation key deviates from generated key %0", "Knuth2014"),
+                entry, InternalField.KEY_FIELD));
         assertEquals(expected, checker.check(entry));
     }
 }

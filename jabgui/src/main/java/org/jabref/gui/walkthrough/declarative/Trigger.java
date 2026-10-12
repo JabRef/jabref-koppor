@@ -20,12 +20,10 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
-
 import org.jabref.gui.fieldeditors.LinkedFilesEditor;
 import org.jabref.gui.fieldeditors.LinkedFilesEditorViewModel;
 import org.jabref.gui.util.DelayedExecution;
 import org.jabref.gui.walkthrough.utils.WalkthroughUtils;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,45 +33,61 @@ import org.slf4j.LoggerFactory;
 public interface Trigger {
     Logger LOGGER = LoggerFactory.getLogger(Trigger.class);
 
-    /// Attaches the navigation triggers to the target node. `beforeNavigate` and `onNavigate` are guaranteed to run at
-    /// most once.
+    /// Attaches the navigation triggers to the target node. `beforeNavigate`
+    /// and `onNavigate` are guaranteed to run at most once.
     ///
-    /// @param node           the node to attach the listeners to
+    /// @param node the node to attach the listeners to
     /// @param beforeNavigate the runnable to execute before navigation
-    /// @param onNavigate     the runnable to execute when navigation occurs
+    /// @param onNavigate the runnable to execute when navigation occurs
     /// @return a runnable to clean up the listeners
     Runnable attach(@NonNull Node node, Runnable beforeNavigate, Runnable onNavigate);
 
     static Trigger onClick() {
-        return create().onClick().build();
+        return create()
+                .onClick()
+                .build();
     }
 
     static Trigger onHover() {
-        return create().onHover().build();
+        return create()
+                .onHover()
+                .build();
     }
 
     static Trigger onTextInput() {
-        return create().onTextInput().build();
+        return create()
+                .onTextInput()
+                .build();
     }
 
     static Trigger onDoubleClick() {
-        return create().onDoubleClick().build();
+        return create()
+                .onDoubleClick()
+                .build();
     }
 
     static Trigger onFileAddedToListView() {
-        return create().onFileAddedToListView().build();
+        return create()
+                .onFileAddedToListView()
+                .build();
     }
 
     static Trigger onFetchFulltextCompleted() {
-        return create().onFetchFulltextCompleted().build();
+        return create()
+                .onFetchFulltextCompleted()
+                .build();
     }
 
     static Trigger onTextEquals(String expected) {
-        return create().onTextEquals(expected).build();
+        return create()
+                .onTextEquals(expected)
+                .build();
     }
 
     static Trigger onTextMatchesRegex(String regex) {
-        return create().onTextMatchesRegex(regex).build();
+        return create()
+                .onTextMatchesRegex(regex)
+                .build();
     }
 
     static Builder create() {
@@ -91,11 +105,13 @@ public interface Trigger {
 
         @FunctionalInterface
         private interface PredicateGenerator {
-            /// Modify the node's event dispatch chain or register custom logic to trigger [Trigger] when desired
-            /// conditions are met.
+            /// Modify the node's event dispatch chain or register custom logic
+            /// to trigger [Trigger] when desired conditions are met.
             ///
-            /// @param node       The node to attach the trigger to.
-            /// @param onNavigate A function that wraps the original event handler. It takes a Supplier representing the original action and returns the result of that action.
+            /// @param node The node to attach the trigger to.
+            /// @param onNavigate A function that wraps the original event
+            ///   handler. It takes a Supplier representing the original action
+            ///   and returns the result of that action.
             /// @return A cleanup runnable that detaches the trigger.
             Runnable create(Node node, Function<Supplier<?>, ?> onNavigate);
         }
@@ -124,47 +140,49 @@ public interface Trigger {
             return this;
         }
 
-        /// Triggers navigation on a single mouse click (more precisely, press) or when an action is performed (for Menu
-        /// and Button)
+        /// Triggers navigation on a single mouse click (more precisely, press)
+        /// or when an action is performed (for Menu and Button)
         public Builder onClick() {
-            setGenerator((node, onNavigate) -> {
-                final EventDispatcher originalDispatcher = node.getEventDispatcher();
+            setGenerator(
+                    (node, onNavigate) -> {
+                        final EventDispatcher originalDispatcher = node.getEventDispatcher();
 
-                final EventDispatcher newDispatcher = (event, tail) -> {
-                    EventType<? extends Event> eventType = event.getEventType();
-                    if (eventType == MouseEvent.MOUSE_CLICKED            // Catch all
-                            || eventType == MouseEvent.MOUSE_RELEASED    // MenuItem on ContextWindow hide upon MOUSE_RELEASED, catch ACTION is too late
-                            || eventType == ActionEvent.ACTION) {        // Buttons, especially Buttons on DialogPane
-                        node.setEventDispatcher(originalDispatcher);
-                        Supplier<Event> originalAction = () -> originalDispatcher.dispatchEvent(event, tail);
-                        return (Event) onNavigate.apply(originalAction);
-                    }
-                    return originalDispatcher.dispatchEvent(event, tail);
-                };
+                        final EventDispatcher newDispatcher = (event, tail) -> {
+                            EventType<? extends Event> eventType = event.getEventType();
+                            if (eventType == MouseEvent.MOUSE_CLICKED // Catch all
+                                    || eventType == MouseEvent.MOUSE_RELEASED // MenuItem on ContextWindow hide upon MOUSE_RELEASED, catch ACTION is too late
+                                    || eventType == ActionEvent.ACTION) { // Buttons, especially Buttons on DialogPane
+                                node.setEventDispatcher(originalDispatcher);
+                                Supplier<Event> originalAction = () -> originalDispatcher.dispatchEvent(event, tail);
+                                return (Event) onNavigate.apply(originalAction);
+                            }
+                            return originalDispatcher.dispatchEvent(event, tail);
+                        };
 
-                node.setEventDispatcher(newDispatcher);
+                        node.setEventDispatcher(newDispatcher);
 
-                return () -> node.setEventDispatcher(originalDispatcher);
-            });
+                        return () -> node.setEventDispatcher(originalDispatcher);
+                    });
             return this;
         }
 
         public Builder onHover() {
-            setGenerator((node, onNavigate) -> {
-                final EventDispatcher originalDispatcher = node.getEventDispatcher();
-                final EventDispatcher newDispatcher = (event, tail) -> {
-                    if (event.getEventType() == MouseEvent.MOUSE_ENTERED) {
-                        if (!node.isDisabled() && !event.isConsumed()) {
-                            node.setEventDispatcher(originalDispatcher);
-                            Supplier<Event> originalAction = () -> originalDispatcher.dispatchEvent(event, tail);
-                            return (Event) onNavigate.apply(originalAction);
-                        }
-                    }
-                    return originalDispatcher.dispatchEvent(event, tail);
-                };
-                node.setEventDispatcher(newDispatcher);
-                return () -> node.setEventDispatcher(originalDispatcher);
-            });
+            setGenerator(
+                    (node, onNavigate) -> {
+                        final EventDispatcher originalDispatcher = node.getEventDispatcher();
+                        final EventDispatcher newDispatcher = (event, tail) -> {
+                            if (event.getEventType() == MouseEvent.MOUSE_ENTERED) {
+                                if (!node.isDisabled() && !event.isConsumed()) {
+                                    node.setEventDispatcher(originalDispatcher);
+                                    Supplier<Event> originalAction = () -> originalDispatcher.dispatchEvent(event, tail);
+                                    return (Event) onNavigate.apply(originalAction);
+                                }
+                            }
+                            return originalDispatcher.dispatchEvent(event, tail);
+                        };
+                        node.setEventDispatcher(newDispatcher);
+                        return () -> node.setEventDispatcher(originalDispatcher);
+                    });
             return this;
         }
 
@@ -232,62 +250,66 @@ public interface Trigger {
         }
 
         public Builder onRightClick() {
-            setGenerator((node, onNavigate) -> {
-                final EventDispatcher originalDispatcher = node.getEventDispatcher();
-                final EventDispatcher newDispatcher = (event, tail) -> {
-                    if (event.getEventType() == MouseEvent.MOUSE_PRESSED && ((MouseEvent) event).getButton() == javafx.scene.input.MouseButton.SECONDARY) {
-                        node.setEventDispatcher(originalDispatcher);
-                        Supplier<Event> originalAction = () -> originalDispatcher.dispatchEvent(event, tail);
-                        return (Event) onNavigate.apply(originalAction);
-                    }
-                    return originalDispatcher.dispatchEvent(event, tail);
-                };
-                node.setEventDispatcher(newDispatcher);
-                return () -> node.setEventDispatcher(originalDispatcher);
-            });
+            setGenerator(
+                    (node, onNavigate) -> {
+                        final EventDispatcher originalDispatcher = node.getEventDispatcher();
+                        final EventDispatcher newDispatcher = (event, tail) -> {
+                            if (event.getEventType() == MouseEvent.MOUSE_PRESSED && ((MouseEvent) event).getButton() == javafx.scene.input.MouseButton.SECONDARY) {
+                                node.setEventDispatcher(originalDispatcher);
+                                Supplier<Event> originalAction = () -> originalDispatcher.dispatchEvent(event, tail);
+                                return (Event) onNavigate.apply(originalAction);
+                            }
+                            return originalDispatcher.dispatchEvent(event, tail);
+                        };
+                        node.setEventDispatcher(newDispatcher);
+                        return () -> node.setEventDispatcher(originalDispatcher);
+                    });
             return this;
         }
 
         public Builder onFileAddedToListView() {
-            setGenerator((node, onNavigate) -> {
-                ListView<?> listView = (ListView<?>) node.lookup("#listView");
-                if (listView == null) {
-                    throw new IllegalArgumentException("onFileAddedToListView can only be used with ListView");
-                }
-
-                ListChangeListener<Object> listener = change -> {
-                    while (change.next()) {
-                        if (change.wasAdded() && !change.getAddedSubList().isEmpty()) {
-                            onNavigate.apply(NOTHING);
-                            break;
+            setGenerator(
+                    (node, onNavigate) -> {
+                        ListView<?> listView = (ListView<?>) node.lookup("#listView");
+                        if (listView == null) {
+                            throw new IllegalArgumentException("onFileAddedToListView can only be used with ListView");
                         }
-                    }
-                };
 
-                @SuppressWarnings("unchecked") ObservableList<Object> items = (ObservableList<Object>) listView.getItems();
-                items.addListener(listener);
+                        ListChangeListener<Object> listener = change -> {
+                            while (change.next()) {
+                                if (change.wasAdded() && !change.getAddedSubList().isEmpty()) {
+                                    onNavigate.apply(NOTHING);
+                                    break;
+                                }
+                            }
+                        };
 
-                return () -> items.removeListener(listener);
-            });
+                        @SuppressWarnings("unchecked")
+                        ObservableList<Object> items = (ObservableList<Object>) listView.getItems();
+                        items.addListener(listener);
+
+                        return () -> items.removeListener(listener);
+                    });
             return this;
         }
 
         public Builder onFetchFulltextCompleted() {
-            setGenerator((node, onNavigate) -> {
-                if (!(node instanceof LinkedFilesEditor linkedFilesEditor)) {
-                    throw new IllegalArgumentException("Node must be an instance of LinkedFilesEditor");
-                }
+            setGenerator(
+                    (node, onNavigate) -> {
+                        if (!(node instanceof LinkedFilesEditor linkedFilesEditor)) {
+                            throw new IllegalArgumentException("Node must be an instance of LinkedFilesEditor");
+                        }
 
-                LinkedFilesEditorViewModel viewModel = linkedFilesEditor.getViewModel();
-                ChangeListener<Boolean> fulltextListener = (_, _, inProgress) -> {
-                    if (!inProgress) {
-                        onNavigate.apply(NOTHING);
-                    }
-                };
+                        LinkedFilesEditorViewModel viewModel = linkedFilesEditor.getViewModel();
+                        ChangeListener<Boolean> fulltextListener = (_, _, inProgress) -> {
+                            if (!inProgress) {
+                                onNavigate.apply(NOTHING);
+                            }
+                        };
 
-                viewModel.fulltextLookupInProgressProperty().addListener(fulltextListener);
-                return () -> viewModel.fulltextLookupInProgressProperty().removeListener(fulltextListener);
-            });
+                        viewModel.fulltextLookupInProgressProperty().addListener(fulltextListener);
+                        return () -> viewModel.fulltextLookupInProgressProperty().removeListener(fulltextListener);
+                    });
             return this;
         }
 
@@ -310,15 +332,15 @@ public interface Trigger {
                         navigationRaceCleanups.forEach(Runnable::run);
                         navigationRaceCleanups.clear();
 
-                         /*
-                            Replace this line with `onNavigate.run` WILL LEAD TO [IndexOutOfBoundsException] when JavaFX performs layout
-                            calculation on the dialog pane opened by [org.jabref.gui.preferences.ShowPreferencesAction].
-                            It seems that directly listening to MOUSE_PRESSED event (which is necessary)
-                            triggered a race condition between the walkthrough replacing the new window's scene root
-                            (which it no longer does, see [org.jabref.gui.walkthrough.WalkthroughPane]) and JavaFX
-                            performing layout. The delay is kept because the step's own layout still races the dialog's.
-                            You cannot catch this exception because it occurs directly in the `jdk.internals` package.
-                          */
+                        /*
+                          Replace this line with `onNavigate.run` WILL LEAD TO [IndexOutOfBoundsException] when JavaFX performs layout
+                          calculation on the dialog pane opened by [org.jabref.gui.preferences.ShowPreferencesAction].
+                          It seems that directly listening to MOUSE_PRESSED event (which is necessary)
+                          triggered a race condition between the walkthrough replacing the new window's scene root
+                          (which it no longer does, see [org.jabref.gui.walkthrough.WalkthroughPane]) and JavaFX
+                          performing layout. The delay is kept because the step's own layout still races the dialog's.
+                          You cannot catch this exception because it occurs directly in the `jdk.internals` package.
+                        */
                         new DelayedExecution(NAVIGATION_DELAY, onNavigate).start();
                     }
                 };

@@ -23,9 +23,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.robot.Robot;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
-
 import org.jabref.gui.testutils.JavaFxExtension;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,8 +46,8 @@ class WalkthroughPaneTest {
         assertEquals(Optional.of(pane), WalkthroughPane.of(stage));
     }
 
-    /// The pane covers the window, so its size comes from the scene rather than from whichever parent
-    /// happens to hold it.
+    /// The pane covers the window, so its size comes from the scene rather than
+    /// from whichever parent happens to hold it.
     @Test
     void paneCoversTheWholeScene() {
         WalkthroughPane pane = new WalkthroughPane();
@@ -73,32 +71,39 @@ class WalkthroughPaneTest {
         assertSame(rootBefore, scene.getRoot());
     }
 
-    /// A dialog reassigns its scene root on every show and swaps in a placeholder on close, so a pane that
-    /// survives a show/hide cycle has to belong to the dialog pane rather than to the scene.
+    /// A dialog reassigns its scene root on every show and swaps in a
+    /// placeholder on close, so a pane that survives a show/hide cycle has to
+    /// belong to the dialog pane rather than to the scene.
     @Test
     void paneSurvivesADialogBeingShownAgain() {
         AtomicReference<Dialog<Void>> dialog = new AtomicReference<>();
         AtomicReference<WalkthroughPane> pane = new AtomicReference<>();
-        JavaFxExtension.invokeAndWait(() -> {
-            Dialog<Void> newDialog = new Dialog<>();
-            newDialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
-            pane.set(new WalkthroughPane());
-            newDialog.getDialogPane().getChildren().add(pane.get());
-            newDialog.show();
-            newDialog.close();
-            newDialog.show();
-            dialog.set(newDialog);
-        });
+        JavaFxExtension.invokeAndWait(
+                () -> {
+                    Dialog<Void> newDialog = new Dialog<>();
+                    newDialog.getDialogPane()
+                             .getButtonTypes()
+                             .add(ButtonType.CLOSE);
+                    pane.set(new WalkthroughPane());
+                    newDialog.getDialogPane()
+                             .getChildren()
+                             .add(pane.get());
+                    newDialog.show();
+                    newDialog.close();
+                    newDialog.show();
+                    dialog.set(newDialog);
+                });
 
         DialogPane dialogPane = dialog.get().getDialogPane();
         assertTrue(dialogPane.getChildren().contains(pane.get()));
-        assertEquals(Optional.of(pane.get()), WalkthroughPane.of(dialogPane.getScene().getWindow()));
+        assertEquals(Optional.of(pane.get()),
+                WalkthroughPane.of(dialogPane.getScene().getWindow()));
 
         JavaFxExtension.invokeAndWait(() -> dialog.get().close());
     }
 
-    /// Windows JabRef does not build itself -- context menus and other popups -- get their pane the first
-    /// time a walkthrough needs one.
+    /// Windows JabRef does not build itself -- context menus and other popups
+    /// -- get their pane the first time a walkthrough needs one.
     @Test
     void popupGetsItsPaneOnFirstLookup() {
         Stage owner = showStage(new Scene(new StackPane()));
@@ -117,8 +122,9 @@ class WalkthroughPaneTest {
         JavaFxExtension.invokeAndWait(popup::hide);
     }
 
-    /// A popup window is sized from its content, and a context menu's drop shadow offsets that content. A pane
-    /// sized to the popup's scene would enlarge the very window it measures itself against, until the bounds
+    /// A popup window is sized from its content, and a context menu's drop
+    /// shadow offsets that content. A pane sized to the popup's scene would
+    /// enlarge the very window it measures itself against, until the bounds
     /// computation overflows the stack and the menu no longer renders.
     @Test
     void contextMenuKeepsItsSizeOnceItHasAPane() {
@@ -126,7 +132,10 @@ class WalkthroughPaneTest {
         ContextMenu menu = new ContextMenu(new MenuItem("Open library"), new MenuItem("Preferences"));
         JavaFxExtension.invokeAndWait(() -> {
             menu.show(owner, owner.getX() + 20, owner.getY() + 20);
-            menu.getScene().getRoot().lookup(".context-menu").setEffect(new DropShadow(12, Color.BLACK));
+            menu.getScene()
+                .getRoot()
+                .lookup(".context-menu")
+                .setEffect(new DropShadow(12, Color.BLACK));
         });
         JavaFxExtension.awaitEvents();
         double width = menu.getWidth();
@@ -146,8 +155,9 @@ class WalkthroughPaneTest {
         JavaFxExtension.invokeAndWait(menu::hide);
     }
 
-    /// The pane covers the window in front of its content, so a click next to an overlay node -- through a
-    /// spotlight's hole, beside a panel -- has to reach the control a walkthrough step is waiting for.
+    /// The pane covers the window in front of its content, so a click next to
+    /// an overlay node -- through a spotlight's hole, beside a panel -- has to
+    /// reach the control a walkthrough step is waiting for.
     @Test
     void clickNextToAnOverlayNodeReachesTheWindowContent() {
         AtomicBoolean contentClicked = new AtomicBoolean();
@@ -185,16 +195,17 @@ class WalkthroughPaneTest {
     }
 
     private static void click(Node node) {
-        JavaFxExtension.invokeAndWait(() -> {
-            // Overlay nodes are added to a live window; lay them out now instead of waiting for the next pulse.
-            Parent root = node.getScene().getRoot();
-            root.applyCss();
-            root.layout();
-            Robot robot = new Robot();
-            Bounds bounds = node.localToScreen(node.getBoundsInLocal());
-            robot.mouseMove(bounds.getCenterX(), bounds.getCenterY());
-            robot.mouseClick(MouseButton.PRIMARY);
-        });
+        JavaFxExtension.invokeAndWait(
+                () -> {
+                    // Overlay nodes are added to a live window; lay them out now instead of waiting for the next pulse.
+                    Parent root = node.getScene().getRoot();
+                    root.applyCss();
+                    root.layout();
+                    Robot robot = new Robot();
+                    Bounds bounds = node.localToScreen(node.getBoundsInLocal());
+                    robot.mouseMove(bounds.getCenterX(), bounds.getCenterY());
+                    robot.mouseClick(MouseButton.PRIMARY);
+                });
         JavaFxExtension.awaitEvents();
     }
 

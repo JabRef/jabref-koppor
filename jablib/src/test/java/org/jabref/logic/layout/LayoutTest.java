@@ -13,7 +13,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.entry.types.UnknownEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -97,26 +96,18 @@ class LayoutTest {
 
     @Test
     void HTMLCharsWithDotlessIAndTiled() throws IOException {
-        BibEntry entry = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.ABSTRACT, "\\~{n} \\~n \\'i \\i \\i");
+        BibEntry entry = new BibEntry(StandardEntryType.Article).withField(StandardField.ABSTRACT, "\\~{n} \\~n \\'i \\i \\i");
 
-        String layoutText = layout(
-                "<font face=\"arial\">\\begin{abstract}<BR><BR><b>Abstract: </b> \\format[HTMLChars]{\\abstract}\\end{abstract}</font>",
-                entry);
+        String layoutText = layout("<font face=\"arial\">\\begin{abstract}<BR><BR><b>Abstract: </b> \\format[HTMLChars]{\\abstract}\\end{abstract}</font>", entry);
 
-        assertEquals(
-                "<font face=\"arial\"><BR><BR><b>Abstract: </b> &ntilde; &ntilde; &iacute; &imath; &imath;</font>",
-                layoutText);
+        assertEquals("<font face=\"arial\"><BR><BR><b>Abstract: </b> &ntilde; &ntilde; &iacute; &imath; &imath;</font>", layoutText);
     }
 
     @Test
     void previewAbstractCanRenderLatexMathAsUnicodeBeforeHtmlEscaping() throws IOException {
-        BibEntry entry = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.ABSTRACT, "Much progress has been made in classifying when the weak Lefschetz property holds for $A=\\mathbb{F}[x,y,z]/I$ where $\\text{char}(\\mathbb{F})=0$ and $I=(x^{d_{1}},y^{d_{2}},z^{d_{3}},x^{a_{1}}y^{a_{2}}z^{a_{3}})$.");
+        BibEntry entry = new BibEntry(StandardEntryType.Article).withField(StandardField.ABSTRACT, "Much progress has been made in classifying when the weak Lefschetz property holds for $A=\\mathbb{F}[x,y,z]/I$ where $\\text{char}(\\mathbb{F})=0$ and $I=(x^{d_{1}},y^{d_{2}},z^{d_{3}},x^{a_{1}}y^{a_{2}}z^{a_{3}})$.");
 
-        String layoutText = layout(
-                "<font face=\"arial\">\\begin{abstract}<BR><BR><b>Abstract: </b>\\format[LatexToUnicode,HTMLChars]{\\abstract}\\end{abstract}</font>",
-                entry);
+        String layoutText = layout("<font face=\"arial\">\\begin{abstract}<BR><BR><b>Abstract: </b>\\format[LatexToUnicode,HTMLChars]{\\abstract}\\end{abstract}</font>", entry);
 
         assertEquals(
                 "<font face=\"arial\"><BR><BR><b>Abstract: </b>Much progress has been made in classifying when the weak Lefschetz property holds for A=𝔽[x,y,z]/I where char(𝔽)=0 and I=(xᵈ₁,yᵈ₂,zᵈ₃,xᵃ₁yᵃ₂zᵃ₃).</font>",
@@ -126,7 +117,8 @@ class LayoutTest {
     @ParameterizedTest
     @CsvSource(
             delimiterString = "->",
-            textBlock = """
+            textBlock =
+                    """
                     # || (OR)
                     \\begin{editor||author}\\format[HTMLChars]{\\author}\\end{editor||author} -> Author
                     # && (AND)
@@ -135,30 +127,25 @@ class LayoutTest {
                     \\begin{!year}\\format[HTMLChars]{(no year)}\\end{!year} -> (no year)
                     # combined (!a&&b)
                     \\begin{!editor&&author}\\format[HTMLChars]{\\author}\\end{{!editor&&author}\\begin{editor&&!author}\\format[HTMLChars]{\\editor} (eds.)\\end{editor&&!author} -> Author
-                    """
-    )
+                    """)
     void beginConditionals(String layoutString, String expected) throws IOException {
-        BibEntry entry = new BibEntry(StandardEntryType.Misc)
-                .withField(StandardField.AUTHOR, "Author");
+        BibEntry entry = new BibEntry(StandardEntryType.Misc).withField(StandardField.AUTHOR, "Author");
 
         String layoutText = layout(layoutString, entry);
         assertEquals(expected, layoutText);
     }
 
-    /// Test for http://discourse.jabref.org/t/the-wrapfilelinks-formatter/172 (the example in the help files)
+    /// Test for http://discourse.jabref.org/t/the-wrapfilelinks-formatter/172
+    /// (the example in the help files)
     @Test
     void wrapFileLinksExpandFile() throws IOException {
         BibEntry entry = new BibEntry(StandardEntryType.Article);
         entry.addFile(new LinkedFile("Test file", Path.of("encrypted.pdf"), "PDF"));
 
-        String layoutText = layout(
-                "\\begin{file}\\format[WrapFileLinks(\\i. \\d (\\p))]{\\file}\\end{file}",
-                List.of(Path.of("src/test/resources/pdfs/")),
-                entry);
+        String layoutText = layout("\\begin{file}\\format[WrapFileLinks(\\i. \\d (\\p))]{\\file}\\end{file}",
+                List.of(Path.of("src/test/resources/pdfs/")), entry);
 
-        assertEquals(
-                "1. Test file (" + Path.of("src/test/resources/pdfs/encrypted.pdf").toRealPath() + ")",
-                layoutText);
+        assertEquals("1. Test file (" + Path.of("src/test/resources/pdfs/encrypted.pdf").toRealPath() + ")", layoutText);
     }
 
     @Test
@@ -172,8 +159,7 @@ class LayoutTest {
 
     @Test
     void customNameFormatter() throws IOException {
-        when(layoutFormatterPreferences.getNameFormatterPreferences()).thenReturn(
-                new NameFormatterPreferences(List.of("DCA"), List.of("1@*@{ll}@@2@1..1@{ff}{ll}@2..2@ and {ff}{l}@@*@*@more")));
+        when(layoutFormatterPreferences.getNameFormatterPreferences()).thenReturn(new NameFormatterPreferences(List.of("DCA"), List.of("1@*@{ll}@@2@1..1@{ff}{ll}@2..2@ and {ff}{l}@@*@*@more")));
         BibEntry entry = new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "Joe Doe and Mary Jane");
 
         String layoutText = layout("\\begin{author}\\format[DCA]{\\author}\\end{author}", entry);

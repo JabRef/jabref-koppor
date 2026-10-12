@@ -2,6 +2,10 @@ package org.jabref.logic.openoffice.action;
 
 import java.util.List;
 
+import com.sun.star.beans.IllegalTypeException;
+import com.sun.star.beans.PropertyVetoException;
+import com.sun.star.lang.WrappedTargetException;
+import com.sun.star.text.XTextDocument;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.openoffice.frontend.OOFrontend;
 import org.jabref.model.openoffice.CitationEntry;
@@ -9,15 +13,9 @@ import org.jabref.model.openoffice.uno.NoDocumentException;
 import org.jabref.model.openoffice.util.OOResult;
 import org.jabref.model.openoffice.util.OOVoidResult;
 
-import com.sun.star.beans.IllegalTypeException;
-import com.sun.star.beans.PropertyVetoException;
-import com.sun.star.lang.WrappedTargetException;
-import com.sun.star.text.XTextDocument;
-
 public class ManageCitations {
 
-    private ManageCitations() {
-    }
+    private ManageCitations() {}
 
     public static OOResult<List<CitationEntry>, JabRefException> getCitationEntries(XTextDocument doc) {
         try {

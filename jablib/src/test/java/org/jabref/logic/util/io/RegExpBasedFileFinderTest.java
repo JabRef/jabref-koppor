@@ -8,7 +8,6 @@ import java.util.List;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -27,8 +26,7 @@ class RegExpBasedFileFinderTest {
             "directory/subdirectory/2003_Hippel_209.pdf",
             "directory/subdirectory/2017_Gražulis_726.pdf",
             "directory/subdirectory/pdfInSubdirectory.pdf",
-            "directory/subdirectory/GUO ea - INORG CHEM COMMUN 2010 - Ferroelectric Metal Organic Framework (MOF).pdf"
-    );
+            "directory/subdirectory/GUO ea - INORG CHEM COMMUN 2010 - Ferroelectric Metal Organic Framework (MOF).pdf");
     private Path directory;
     private BibEntry entry;
 
@@ -111,11 +109,12 @@ class RegExpBasedFileFinderTest {
 
     @Test
     void findAssociatedFilesFindFileContainingParenthesizesFromBracketedExpression() throws IOException {
-        BibEntry bibEntry = new BibEntry().withCitationKey("Guo_ICC_2010")
-                                          .withField(StandardField.TITLE, "Ferroelectric Metal Organic Framework (MOF)")
-                                          .withField(StandardField.AUTHOR, "Guo, M. and Cai, H.-L. and Xiong, R.-G.")
-                                          .withField(StandardField.JOURNAL, "Inorganic Chemistry Communications")
-                                          .withField(StandardField.YEAR, "2010");
+        BibEntry bibEntry = new BibEntry()
+                .withCitationKey("Guo_ICC_2010")
+                .withField(StandardField.TITLE, "Ferroelectric Metal Organic Framework (MOF)")
+                .withField(StandardField.AUTHOR, "Guo, M. and Cai, H.-L. and Xiong, R.-G.")
+                .withField(StandardField.JOURNAL, "Inorganic Chemistry Communications")
+                .withField(StandardField.YEAR, "2010");
 
         RegExpBasedFileFinder fileFinder = new RegExpBasedFileFinder("**/.*[TITLE].*\\\\.[extension]", ',');
 
@@ -177,7 +176,9 @@ class RegExpBasedFileFinderTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
                 exact date finds exact file,        2021-07-07,            2021-07-07.pdf;2021-07.pdf, 2021-07-07.pdf, **/.*[DATE].*\\\\.[extension]
                 full date falls back to month,      2021-07-07,            2021-07.pdf,               2021-07.pdf,    **/.*[DATE].*\\\\.[extension]
                 full date falls back to year,       2021-07-07,            2021.pdf,                  2021.pdf,       **/.*[DATE].*\\\\.[extension]
@@ -186,7 +187,9 @@ class RegExpBasedFileFinderTest {
                 lowercase marker triggers fallback, 2021-07-07,            2021-07-07.pdf,            2021-07-07.pdf, **/.*[date].*\\\\.[extension]
                 no matching file returns empty,     2021-07-07,            ,                          ,               **/.*[DATE].*\\\\.[extension]
             """)
-    void dateFallbackBehavior(String description, String dateValue, String filesToCreate, String expectedFile, String pattern) throws IOException {
+    void dateFallbackBehavior(String description, String dateValue, String filesToCreate,
+            String expectedFile, String pattern)
+            throws IOException {
         // given
         BibEntry localEntry = new BibEntry(StandardEntryType.Article).withField(StandardField.DATE, dateValue);
 
@@ -210,15 +213,21 @@ class RegExpBasedFileFinderTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
                 numeric month format,               07,    ,   2021-07.pdf
                 numeric month+day format,           07,    07, 2021-07-07.pdf
                 bibtex month string,                #jul#, ,   2021-07.pdf
                 bibtex month string+day format,     #jul#, 07, 2021-07-07.pdf
             """)
-    void dateFallbackFromYearMonthFieldsWhenNoDateField(String description, String monthValue, String dayValue, String expectedFile) throws IOException {
+    void dateFallbackFromYearMonthFieldsWhenNoDateField(String description, String monthValue, String dayValue,
+            String expectedFile)
+            throws IOException {
         // given - entry has year+month(+day) fields (no date field)
-        BibEntry localEntry = new BibEntry(StandardEntryType.Article).withField(StandardField.YEAR, "2021").withField(StandardField.MONTH, monthValue);
+        BibEntry localEntry = new BibEntry(StandardEntryType.Article)
+                .withField(StandardField.YEAR, "2021")
+                .withField(StandardField.MONTH, monthValue);
         if (dayValue != null && !dayValue.isBlank()) {
             localEntry = localEntry.withField(StandardField.DAY, dayValue);
         }

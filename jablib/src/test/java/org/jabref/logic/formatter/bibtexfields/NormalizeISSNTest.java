@@ -10,12 +10,7 @@ class NormalizeISSNTest {
     private final NormalizeIssn formatISSN = new NormalizeIssn();
 
     @ParameterizedTest
-    @CsvSource({
-            "0123-4567, 0123-4567",
-            "01234567, 0123-4567",
-            "Banana, Banana",
-            "'',''"
-    })
+    @CsvSource({"0123-4567, 0123-4567", "01234567, 0123-4567", "Banana, Banana", "'',''"})
     void issnFormatting(String input, String expected) {
         assertEquals(expected, formatISSN.format(input));
     }

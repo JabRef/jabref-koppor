@@ -12,11 +12,10 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jabref.logic.journals.ltwa.LtwaRepository;
-import org.jabref.logic.util.strings.StringSimilarity;
-
 import org.h2.mvstore.MVMap;
 import org.h2.mvstore.MVStore;
+import org.jabref.logic.journals.ltwa.LtwaRepository;
+import org.jabref.logic.util.strings.StringSimilarity;
 import org.jspecify.annotations.NonNull;
 
 /// A repository for all journal abbreviations, including add and find methods.
@@ -31,38 +30,37 @@ public class JournalAbbreviationRepository {
     private final StringSimilarity similarity = new StringSimilarity();
     private final LtwaRepository ltwaRepository;
 
-    /// Initializes the internal data based on the abbreviations found in the given MV file
+    /// Initializes the internal data based on the abbreviations found in the
+    /// given MV file
     ///
-    /// @param journalList    The path to the MV file containing the journal abbreviations.
+    /// @param journalList The path to the MV file containing the journal
+    ///   abbreviations.
     /// @param ltwaRepository The LTWA repository to use for abbreviations.
     public JournalAbbreviationRepository(Path journalList, LtwaRepository ltwaRepository) {
         MVMap<String, Abbreviation> mvFullToAbbreviationObject;
-        try (MVStore store = new MVStore.Builder().readOnly().fileName(journalList.toAbsolutePath().toString()).open()) {
+        try (MVStore store = new MVStore.Builder()
+                .readOnly()
+                .fileName(journalList.toAbsolutePath().toString())
+                .open()) {
             mvFullToAbbreviationObject = store.openMap("FullToAbbreviation");
-            mvFullToAbbreviationObject.forEach((name, abbreviation) -> {
-                String abbreviationString = abbreviation.getAbbreviation();
-                String shortestUniqueAbbreviation = abbreviation.getShortestUniqueAbbreviation();
-                Abbreviation newAbbreviation = new Abbreviation(
-                        name,
-                        abbreviationString,
-                        shortestUniqueAbbreviation
-                );
-                fullToAbbreviationObject.put(name, newAbbreviation);
-                abbreviationToAbbreviationObject.put(abbreviationString, newAbbreviation);
-                dotlessToAbbreviationObject.put(newAbbreviation.getDotlessAbbreviation(), newAbbreviation);
-                shortestUniqueToAbbreviationObject.put(shortestUniqueAbbreviation, newAbbreviation);
-            });
+            mvFullToAbbreviationObject.forEach(
+                    (name, abbreviation) -> {
+                        String abbreviationString = abbreviation.getAbbreviation();
+                        String shortestUniqueAbbreviation = abbreviation.getShortestUniqueAbbreviation();
+                        Abbreviation newAbbreviation = new Abbreviation(name, abbreviationString, shortestUniqueAbbreviation);
+                        fullToAbbreviationObject.put(name, newAbbreviation);
+                        abbreviationToAbbreviationObject.put(abbreviationString, newAbbreviation);
+                        dotlessToAbbreviationObject.put(newAbbreviation.getDotlessAbbreviation(), newAbbreviation);
+                        shortestUniqueToAbbreviationObject.put(shortestUniqueAbbreviation, newAbbreviation);
+                    });
         }
         this.ltwaRepository = ltwaRepository;
     }
 
-    /// Initializes the repository with demonstration data. Used if no abbreviation file is found.
+    /// Initializes the repository with demonstration data. Used if no
+    /// abbreviation file is found.
     public JournalAbbreviationRepository() {
-        Abbreviation newAbbreviation = new Abbreviation(
-                "Demonstration",
-                "Demo",
-                "Dem"
-        );
+        Abbreviation newAbbreviation = new Abbreviation("Demonstration", "Demo", "Dem");
         fullToAbbreviationObject.put("Demonstration", newAbbreviation);
         abbreviationToAbbreviationObject.put("Demo", newAbbreviation);
         dotlessToAbbreviationObject.put("Demo", newAbbreviation);
@@ -82,14 +80,13 @@ public class JournalAbbreviationRepository {
         if (isExpanded) {
             return false;
         }
-        return name.equalsIgnoreCase(abbreviation.getAbbreviation())
-                || name.equalsIgnoreCase(abbreviation.getDotlessAbbreviation())
-                || name.equalsIgnoreCase(abbreviation.getShortestUniqueAbbreviation());
+        return name.equalsIgnoreCase(abbreviation.getAbbreviation()) || name.equalsIgnoreCase(abbreviation.getDotlessAbbreviation()) || name.equalsIgnoreCase(abbreviation.getShortestUniqueAbbreviation());
     }
 
-    /// Returns true if the given journal name is contained in the list either in its full form
-    /// (e.g., Physical Review Letters) or its abbreviated form (e.g., Phys. Rev. Lett.).
-    /// If the exact match is not found, attempts a fuzzy match to recognize minor input errors.
+    /// Returns true if the given journal name is contained in the list either
+    /// in its full form (e.g., Physical Review Letters) or its abbreviated form
+    /// (e.g., Phys. Rev. Lett.). If the exact match is not found, attempts a
+    /// fuzzy match to recognize minor input errors.
     public boolean isKnownName(String journalName) {
         if (QUESTION_MARK.matcher(journalName).find()) {
             return false;
@@ -105,8 +102,9 @@ public class JournalAbbreviationRepository {
         return ltwaRepository.abbreviate(journalName);
     }
 
-    /// Returns true if the given journal name is in its abbreviated form (e.g. Phys. Rev. Lett.). The test is strict,
-    /// i.e., journals whose abbreviation is the same as the full name are not considered
+    /// Returns true if the given journal name is in its abbreviated form (e.g.
+    /// Phys. Rev. Lett.). The test is strict, i.e., journals whose abbreviation
+    /// is the same as the full name are not considered
     public boolean isAbbreviatedName(String journalName) {
         if (QUESTION_MARK.matcher(journalName).find()) {
             return false;
@@ -127,16 +125,16 @@ public class JournalAbbreviationRepository {
         String journal = input.trim().replaceAll(Matcher.quoteReplacement("\\&"), "&");
 
         Optional<Abbreviation> customAbbreviation = customAbbreviations.stream()
-                                                                       .filter(abbreviation -> isMatched(journal, abbreviation))
-                                                                       .findFirst();
+                .filter(abbreviation -> isMatched(journal, abbreviation))
+                .findFirst();
         if (customAbbreviation.isPresent()) {
             return customAbbreviation;
         }
 
         Optional<Abbreviation> abbreviation = Optional.ofNullable(fullToAbbreviationObject.get(journal))
-                                                      .or(() -> Optional.ofNullable(abbreviationToAbbreviationObject.get(journal)))
-                                                      .or(() -> Optional.ofNullable(dotlessToAbbreviationObject.get(journal)))
-                                                      .or(() -> Optional.ofNullable(shortestUniqueToAbbreviationObject.get(journal)));
+                .or(() -> Optional.ofNullable(abbreviationToAbbreviationObject.get(journal)))
+                .or(() -> Optional.ofNullable(dotlessToAbbreviationObject.get(journal)))
+                .or(() -> Optional.ofNullable(shortestUniqueToAbbreviationObject.get(journal)));
 
         if (abbreviation.isEmpty()) {
             abbreviation = findAbbreviationFuzzyMatched(journal);
@@ -156,7 +154,9 @@ public class JournalAbbreviationRepository {
 
     /// Fuzzy searches abbreviations
     ///
-    /// To prevent wrong matches, such as Nutrients converted to Nutrition we do fuzzy matching if the title is three words or more (or contains non-ASCII characters)
+    /// To prevent wrong matches, such as Nutrients converted to Nutrition we do
+    /// fuzzy matching if the title is three words or more (or contains
+    /// non-ASCII characters)
     private Optional<Abbreviation> findBestFuzzyMatched(Collection<Abbreviation> abbreviations, String input) {
         // Only one or two words - do not do fuzzy matching
         if (input.trim().split("\\s+").length <= 1) {
@@ -171,17 +171,19 @@ public class JournalAbbreviationRepository {
         final double SIMILARITY_THRESHOLD = 1.0;
 
         List<Abbreviation> candidates = abbreviations.stream()
-                                                     .filter(abbreviation -> similarity.isSimilar(input, abbreviation.getName()))
-                                                     .sorted(Comparator.comparingDouble(abbreviation -> similarity.editDistanceIgnoreCase(input, abbreviation.getName())))
-                                                     .toList();
+                .filter(abbreviation -> similarity.isSimilar(input, abbreviation.getName()))
+                .sorted(Comparator.comparingDouble(abbreviation -> similarity.editDistanceIgnoreCase(input, abbreviation.getName())))
+                .toList();
 
         if (candidates.isEmpty()) {
             return Optional.empty();
         }
 
         if (candidates.size() > 1) {
-            double bestDistance = similarity.editDistanceIgnoreCase(input, candidates.getFirst().getName());
-            double secondDistance = similarity.editDistanceIgnoreCase(input, candidates.get(1).getName());
+            double bestDistance = similarity.editDistanceIgnoreCase(input, candidates.getFirst()
+                    .getName());
+            double secondDistance = similarity.editDistanceIgnoreCase(input, candidates.get(1)
+                    .getName());
 
             // If there is a very close match of two abbreviations, do not use any of them, because they are too close.
             if (Math.abs(bestDistance - secondDistance) < SIMILARITY_THRESHOLD) {

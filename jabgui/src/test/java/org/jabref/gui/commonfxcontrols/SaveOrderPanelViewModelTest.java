@@ -4,8 +4,7 @@ import java.util.List;
 
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
-import org.jabref.model.metadata.SaveOrder;
-
+import org.jabref.model.metadata.SaveOrder.SortCriterion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,9 +12,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SaveOrderPanelViewModelTest {
 
-    SortCriterionViewModel sortCriterionKey = new SortCriterionViewModel(new SaveOrder.SortCriterion(InternalField.KEY_FIELD, false));
-    SortCriterionViewModel sortCriterionAuthor = new SortCriterionViewModel(new SaveOrder.SortCriterion(StandardField.AUTHOR, false));
-    SortCriterionViewModel sortCriterionTitle = new SortCriterionViewModel(new SaveOrder.SortCriterion(StandardField.TITLE, true));
+    SortCriterionViewModel sortCriterionKey = new SortCriterionViewModel(new SortCriterion(InternalField.KEY_FIELD, false));
+    SortCriterionViewModel sortCriterionAuthor = new SortCriterionViewModel(new SortCriterion(StandardField.AUTHOR, false));
+    SortCriterionViewModel sortCriterionTitle = new SortCriterionViewModel(new SortCriterion(StandardField.TITLE, true));
 
     SaveOrderConfigPanelViewModel viewModel;
 
@@ -33,7 +32,7 @@ class SaveOrderPanelViewModelTest {
 
     @Test
     void removeCriterion() {
-        SortCriterionViewModel unknownCriterion = new SortCriterionViewModel(new SaveOrder.SortCriterion(StandardField.ABSTRACT, false));
+        SortCriterionViewModel unknownCriterion = new SortCriterionViewModel(new SortCriterion(StandardField.ABSTRACT, false));
         viewModel.removeCriterion(unknownCriterion);
         assertEquals(3, viewModel.sortCriteriaProperty().size());
 

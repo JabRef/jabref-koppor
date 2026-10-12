@@ -5,6 +5,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.git.conflicts.ThreeWayEntryConflict;
 import org.jabref.logic.git.io.GitFileReader;
@@ -24,16 +27,10 @@ import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.database.BibDatabaseContext;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.revwalk.RevCommit;
-
-/// GitSyncService currently serves as an orchestrator for Git pull/push logic (Not responsible for writing.).
+/// GitSyncService currently serves as an orchestrator for Git pull/push logic
+/// (Not responsible for writing.).
 ///
-/// if (hasConflict)
-///     → UI merge;
-/// else
-///     → autoMerge := local + remoteDiff
+/// if (hasConflict) → UI merge; else → autoMerge := local + remoteDiff
 public class GitSyncService {
     private final ImportFormatPreferences importFormatPreferences;
     private final GitHandlerRegistry gitHandlerRegistry;
@@ -46,11 +43,7 @@ public class GitSyncService {
     }
 
     public static GitSyncService create(ImportFormatPreferences importFormatPreferences, GitHandlerRegistry registry) {
-        return new GitSyncService(
-                importFormatPreferences,
-                registry,
-                new MergeBookkeeper(registry)
-        );
+        return new GitSyncService(importFormatPreferences, registry, new MergeBookkeeper(registry));
     }
 
     ///  compute merge inputs/outputs for GUI
@@ -94,7 +87,10 @@ public class GitSyncService {
 
             // 2. load 3 versions (base/remote from Git; local from active DB)
             Path bibPath = bibFilePath.toRealPath();
-            Path workTree = git.getRepository().getWorkTree().toPath().toRealPath();
+            Path workTree = git.getRepository()
+                               .getWorkTree()
+                               .toPath()
+                               .toRealPath();
             Path relativePath;
 
             if (!bibPath.startsWith(workTree)) {
@@ -120,7 +116,8 @@ public class GitSyncService {
             MergePlan autoPlan = analysis.autoPlan();
 
             // 5) return computation (GUI will apply & save, then finalize)
-            return Optional.of(PullPlan.of(status.syncStatus(), baseCommitOpt, localHead, remoteCommit, autoPlan, conflicts));
+            return Optional.of(PullPlan.of(status.syncStatus(), baseCommitOpt, localHead, remoteCommit, autoPlan,
+                    conflicts));
         }
     }
 
@@ -136,8 +133,7 @@ public class GitSyncService {
     ///
     /// - The bib file on disk already reflects: local + autoPlan (+ resolvedPlan)
     /// - No uncommitted unrelated changes
-    public BookkeepingResult finalizeMerge(Path bibFilePath,
-                                           PullPlan computation) throws GitAPIException, IOException, JabRefException {
+    public BookkeepingResult finalizeMerge(Path bibFilePath, PullPlan computation) throws GitAPIException, IOException, JabRefException {
         return bookkeeper.resultRecord(bibFilePath, computation);
     }
 
@@ -190,8 +186,7 @@ public class GitSyncService {
                 throw new JabRefException("Push aborted: Unknown Git status.");
             }
 
-            case BEHIND,
-                 DIVERGED -> {
+            case BEHIND, DIVERGED -> {
                 throw new JabRefException("Push aborted: Local branch is behind or has diverged from remote. Please pull first.");
             }
             default -> {

@@ -17,7 +17,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.desktop.os.NativeDesktop;
@@ -33,7 +32,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,11 +47,8 @@ public class RelatedArticlesTab extends EntryEditorTab {
 
     private final GuiPreferences preferences;
 
-    public RelatedArticlesTab(BuildInfo buildInfo,
-                              GuiPreferences preferences,
-                              DialogService dialogService,
-                              StateManager stateManager,
-                              TaskExecutor taskExecutor) {
+    public RelatedArticlesTab(BuildInfo buildInfo, GuiPreferences preferences, DialogService dialogService,
+            StateManager stateManager, TaskExecutor taskExecutor) {
         this.dialogService = dialogService;
         this.buildInfo = buildInfo;
         this.stateManager = stateManager;
@@ -65,10 +60,12 @@ public class RelatedArticlesTab extends EntryEditorTab {
         setTooltip(new Tooltip(Localization.lang("Related articles")));
     }
 
-    /// Gets a StackPane of related article information to be displayed in the Related Articles tab
+    /// Gets a StackPane of related article information to be displayed in the
+    /// Related Articles tab
     ///
     /// @param entry The currently selected BibEntry on the JabRef UI.
-    /// @return A StackPane with related article information to be displayed in the Related Articles tab.
+    /// @return A StackPane with related article information to be displayed in
+    ///   the Related Articles tab.
     private StackPane getRelatedArticlesPane(BibEntry entry) {
         StackPane root = new StackPane();
         root.setId("related-articles-tab");
@@ -77,18 +74,17 @@ public class RelatedArticlesTab extends EntryEditorTab {
         ProgressIndicator progress = new ProgressIndicator();
         progress.setMaxSize(100, 100);
 
-        BibDatabaseMode mode = stateManager.getActiveDatabase().map(BibDatabaseContext::getMode)
-                                           .orElse(BibDatabaseMode.BIBLATEX);
+        BibDatabaseMode mode = stateManager.getActiveDatabase()
+                .map(BibDatabaseContext::getMode)
+                .orElse(BibDatabaseMode.BIBLATEX);
 
-        MrDLibFetcher fetcher = new MrDLibFetcher(
-                preferences.getWorkspacePreferences().getLanguage().name(),
-                buildInfo.version,
-                preferences.getMrDlibPreferences());
-        BackgroundTask
-                .wrap(() -> fetcher.performSearch(entry))
+        MrDLibFetcher fetcher = new MrDLibFetcher(preferences.getWorkspacePreferences()
+                .getLanguage()
+                .name(),
+                buildInfo.version, preferences.getMrDlibPreferences());
+        BackgroundTask.wrap(() -> fetcher.performSearch(entry))
                 .onRunning(() -> progress.setVisible(true))
                 .onSuccess(relatedArticles -> {
-
                     ImportCleanup cleanup = ImportCleanup.targeting(mode, preferences.getFieldPreferences());
                     cleanup.doPostCleanup(relatedArticles);
                     progress.setVisible(false);
@@ -106,10 +102,12 @@ public class RelatedArticlesTab extends EntryEditorTab {
         return root;
     }
 
-    /// Creates a VBox of the related article information to be used in the StackPane displayed in the Related Articles tab
+    /// Creates a VBox of the related article information to be used in the
+    /// StackPane displayed in the Related Articles tab
     ///
     /// @param list List of BibEntries of related articles
-    /// @return VBox of related article descriptions to be displayed in the Related Articles tab
+    /// @return VBox of related article descriptions to be displayed in the
+    ///   Related Articles tab
     private ScrollPane getRelatedArticleInfo(List<BibEntry> list, MrDLibFetcher fetcher) {
         ScrollPane scrollPane = new ScrollPane();
 
@@ -134,15 +132,19 @@ public class RelatedArticlesTab extends EntryEditorTab {
 
             Hyperlink titleLink = new Hyperlink(title);
             Text journalText = new Text(journal);
-            journalText.setFont(Font.font(Font.getDefault().getFamily(), FontPosture.ITALIC, Font.getDefault().getSize()));
+            journalText.setFont(
+                    Font.font(Font.getDefault().getFamily(), FontPosture.ITALIC,
+                            Font.getDefault().getSize()));
             Text authorsText = new Text(authors);
 
             titleLink.setOnAction(_ -> {
                 if (entry.getField(StandardField.URL).isPresent()) {
                     try {
-                        NativeDesktop.openBrowser(entry.getField(StandardField.URL).get(), preferences.getExternalApplicationsPreferences());
+                        NativeDesktop.openBrowser(entry.getField(StandardField.URL).get(),
+                                preferences.getExternalApplicationsPreferences());
                     } catch (IOException e) {
-                        LOGGER.error("Error opening the browser to: {}", entry.getField(StandardField.URL).get(), e);
+                        LOGGER.error("Error opening the browser to: {}", entry.getField(StandardField.URL).get(),
+                                e);
                         dialogService.showErrorDialogAndWait(e);
                     }
                 }
@@ -175,9 +177,11 @@ public class RelatedArticlesTab extends EntryEditorTab {
         return scrollPane;
     }
 
-    /// Returns a consent dialog used to ask permission to send data to Mr. DLib.
+    /// Returns a consent dialog used to ask permission to send data to Mr.
+    /// DLib.
     ///
-    /// @param entry Currently selected BibEntry. (required to allow reloading of pane if accepted)
+    /// @param entry Currently selected BibEntry. (required to allow reloading
+    ///   of pane if accepted)
     /// @return StackPane returned to be placed into Related Articles tab.
     private ScrollPane getPrivacyDialog(BibEntry entry) {
         ScrollPane root = new ScrollPane();
@@ -208,7 +212,9 @@ public class RelatedArticlesTab extends EntryEditorTab {
         Hyperlink mdlLink = new Hyperlink(Localization.lang("Further information about Mr. DLib for JabRef users."));
         mdlLink.setOnAction(_ -> {
             try {
-                NativeDesktop.openBrowser("http://mr-dlib.org/information-for-users/information-about-mr-dlib-for-jabref-users/", preferences.getExternalApplicationsPreferences());
+                NativeDesktop.openBrowser(
+                        "http://mr-dlib.org/information-for-users/information-about-mr-dlib-for-jabref-users/",
+                        preferences.getExternalApplicationsPreferences());
             } catch (IOException e) {
                 LOGGER.error("Error opening the browser to Mr. DLib information page.", e);
                 dialogService.showErrorDialogAndWait(e);
@@ -226,22 +232,24 @@ public class RelatedArticlesTab extends EntryEditorTab {
         CheckBox cbTimezone = new CheckBox(Localization.lang("Timezone (Provides for better recommendations by indicating the time of day the request is being made.)"));
         vb.getChildren().addAll(cbTitle, cbVersion, cbLanguage, cbOS, cbTimezone);
 
-        button.setOnAction(_ -> {
-            MrDlibPreferences mrDlibPreferences = preferences.getMrDlibPreferences();
-            mrDlibPreferences.setAcceptRecommendations(true);
-            mrDlibPreferences.setSendLanguage(cbLanguage.isSelected());
-            mrDlibPreferences.setSendOs(cbOS.isSelected());
-            mrDlibPreferences.setSendTimezone(cbTimezone.isSelected());
+        button.setOnAction(
+                _ -> {
+                    MrDlibPreferences mrDlibPreferences = preferences.getMrDlibPreferences();
+                    mrDlibPreferences.setAcceptRecommendations(true);
+                    mrDlibPreferences.setSendLanguage(cbLanguage.isSelected());
+                    mrDlibPreferences.setSendOs(cbOS.isSelected());
+                    mrDlibPreferences.setSendTimezone(cbTimezone.isSelected());
 
-            setContent(getRelatedArticlesPane(entry));
-        });
+                    setContent(getRelatedArticlesPane(entry));
+                });
 
         hideTab.setOnAction(_ -> {
             preferences.getEntryEditorPreferences().setTabVisible(EntryEditorTabModel.BuiltIn.RELATED_ARTICLES, false);
         });
 
         hbox.getChildren().addAll(button, hideTab);
-        vbox.getChildren().addAll(title, line1, line2, mdlLink, line3, vb, hbox);
+        vbox.getChildren().addAll(title, line1, line2, mdlLink, line3, vb,
+                hbox);
         root.setContent(vbox);
 
         return root;

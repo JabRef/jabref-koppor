@@ -3,8 +3,6 @@ package org.jabref.logic.git.io;
 import java.io.IOException;
 import java.util.Optional;
 
-import org.jabref.logic.JabRefException;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.BranchConfig;
@@ -15,6 +13,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
+import org.jabref.logic.JabRefException;
 
 ///  Locates the three key commits required for a semantic merge:
 ///
@@ -47,9 +46,13 @@ public class GitRevisionLocator {
             }
         }
         if (remoteId == null) {
-            throw new JabRefException(
-                    "Remote tracking branch is missing for '" + shortenRefName + "'. " +
-                            "Please set upstream, e.g.: git branch --set-upstream-to=origin/" + shortenRefName + " " + shortenRefName);
+            throw new JabRefException("Remote tracking branch is missing for '"
+                    + shortenRefName
+                    + "'. "
+                    + "Please set upstream, e.g.: git branch --set-upstream-to=origin/"
+                    + shortenRefName
+                    + " "
+                    + shortenRefName);
         }
 
         try (RevWalk walk = new RevWalk(git.getRepository())) {

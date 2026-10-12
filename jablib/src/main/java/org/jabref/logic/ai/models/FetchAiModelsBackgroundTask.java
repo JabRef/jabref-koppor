@@ -6,7 +6,6 @@ import org.jabref.logic.ai.AiNamingUtils;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.model.ai.llm.AiProvider;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -19,7 +18,8 @@ public class FetchAiModelsBackgroundTask extends BackgroundTask<List<String>> {
     private final String apiBaseUrl;
     private final @Nullable String apiKey;
 
-    public FetchAiModelsBackgroundTask(AiModelService aiModelService, AiProvider aiProvider, String apiBaseUrl, @Nullable String apiKey) {
+    public FetchAiModelsBackgroundTask(AiModelService aiModelService, AiProvider aiProvider, String apiBaseUrl,
+            @Nullable String apiKey) {
         this.aiModelService = aiModelService;
         this.aiProvider = aiProvider;
         this.apiBaseUrl = apiBaseUrl;
@@ -36,10 +36,6 @@ public class FetchAiModelsBackgroundTask extends BackgroundTask<List<String>> {
 
     @Override
     public List<String> call() {
-        return aiModelService.getAvailableModels(
-                aiProvider,
-                apiBaseUrl,
-                apiKey
-        );
+        return aiModelService.getAvailableModels(aiProvider, apiBaseUrl, apiKey);
     }
 }

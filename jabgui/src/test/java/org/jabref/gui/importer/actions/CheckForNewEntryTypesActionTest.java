@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.airhacks.afterburner.injection.Injector;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.importer.BibEntryTypePrefsAndFileViewModel;
 import org.jabref.gui.importer.ImportCustomEntryTypesDialogViewModel;
@@ -17,8 +18,6 @@ import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,12 +30,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/// The library is a reduced version of the one attached to <https://github.com/JabRef/jabref/issues/9930>:
-/// `audio` and `review` customize entry types JabRef ships, `manuscript` is unknown to JabRef.
+/// The library is a reduced version of the one attached to
+/// <https://github.com/JabRef/jabref/issues/9930>: `audio` and `review`
+/// customize entry types JabRef ships, `manuscript` is unknown to JabRef.
 @NullMarked
 class CheckForNewEntryTypesActionTest {
 
-    private static final String LIBRARY = """
+    private static final String LIBRARY =
+            """
             @Manuscript{NAK5-333,
               library   = {National Archives, Kathmandu},
               shelfmark = {5-333},
@@ -81,8 +82,9 @@ class CheckForNewEntryTypesActionTest {
         assertTrue(action.isActionNecessary(parserResult, dialogService, preferences));
     }
 
-    /// Reproduces <https://github.com/JabRef/jabref/issues/9930>: after the user accepted all offered entry types,
-    /// opening the very same library must not ask again - not even for the customized types JabRef ships.
+    /// Reproduces <https://github.com/JabRef/jabref/issues/9930>: after the
+    /// user accepted all offered entry types, opening the very same library
+    /// must not ask again - not even for the customized types JabRef ships.
     @Test
     void dialogIsNotOfferedAgainAfterTheUserAcceptedEverything() {
         importAllOfferedEntryTypes();
@@ -92,10 +94,10 @@ class CheckForNewEntryTypesActionTest {
 
     @Test
     void dialogIsNotOfferedForDeclinedTypes() {
-        Set<String> declined = parserResult.getEntryTypes().stream()
-                                           .map(type -> CustomEntryTypeDecision.fingerprint(
-                                                   type, entryTypesManager.enrich(type.getType(), BibDatabaseMode.BIBLATEX), BibDatabaseMode.BIBLATEX))
-                                           .collect(Collectors.toSet());
+        Set<String> declined = parserResult.getEntryTypes()
+                .stream()
+                .map(type -> CustomEntryTypeDecision.fingerprint(type, entryTypesManager.enrich(type.getType(), BibDatabaseMode.BIBLATEX), BibDatabaseMode.BIBLATEX))
+                .collect(Collectors.toSet());
         when(preferences.getDeclinedCustomEntryTypes()).thenReturn(declined);
 
         assertFalse(action.isActionNecessary(parserResult, dialogService, preferences));
@@ -104,12 +106,11 @@ class CheckForNewEntryTypesActionTest {
     /// What the dialog does when the user checks every box, without going through JavaFX.
     private void importAllOfferedEntryTypes() {
         List<BibEntryType> typesInFile = List.copyOf(parserResult.getEntryTypes());
-        ImportCustomEntryTypesDialogViewModel viewModel = new ImportCustomEntryTypesDialogViewModel(
-                BibDatabaseMode.BIBLATEX, typesInFile, preferences, entryTypesManager);
+        ImportCustomEntryTypesDialogViewModel viewModel = new ImportCustomEntryTypesDialogViewModel(BibDatabaseMode.BIBLATEX, typesInFile, preferences, entryTypesManager);
 
-        viewModel.importBibEntryTypes(
-                List.copyOf(viewModel.newTypes()),
-                viewModel.differentCustomizations().stream()
+        viewModel.importBibEntryTypes(List.copyOf(viewModel.newTypes()),
+                viewModel.differentCustomizations()
+                         .stream()
                          .map(BibEntryTypePrefsAndFileViewModel::customTypeFromFile)
                          .toList());
     }

@@ -12,7 +12,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.theme.StyleClasses;
@@ -45,8 +44,7 @@ public class XmpPrivacyTab extends AbstractPreferenceTabView<XmpPrivacyTabViewMo
     private void buildView() {
         setContent(form()
                 .checkbox(Localization.lang("Do not write the following fields to XMP Metadata"), viewModel.xmpFilterEnabledProperty())
-                .custom(buildFilterRegion(), region -> region
-                        .validate(viewModel.xmpFilterListValidationStatus(), filterList))
+                .custom(buildFilterRegion(), region -> region.validate(viewModel.xmpFilterListValidationStatus(), filterList))
                 .build());
     }
 
@@ -55,7 +53,8 @@ public class XmpPrivacyTab extends AbstractPreferenceTabView<XmpPrivacyTabViewMo
         filterList.setPrefHeight(300.0);
         filterList.setPrefWidth(200.0);
         filterList.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        filterList.disableProperty().bind(viewModel.xmpFilterEnabledProperty().not());
+        filterList.disableProperty().bind(viewModel.xmpFilterEnabledProperty()
+                .not());
         filterList.itemsProperty().bind(viewModel.filterListProperty());
 
         TableColumn<Field, Field> fieldColumn = new TableColumn<>(Localization.lang("Field name"));
@@ -86,7 +85,8 @@ public class XmpPrivacyTab extends AbstractPreferenceTabView<XmpPrivacyTabViewMo
         filterList.getColumns().add(actionsColumn);
         filterList.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.DELETE) {
-                viewModel.removeFilter(filterList.getSelectionModel().getSelectedItem());
+                viewModel.removeFilter(filterList.getSelectionModel()
+                        .getSelectedItem());
                 event.consume();
             }
         });
@@ -94,7 +94,8 @@ public class XmpPrivacyTab extends AbstractPreferenceTabView<XmpPrivacyTabViewMo
         ComboBox<Field> addFieldName = new ComboBox<>();
         addFieldName.setPrefWidth(200.0);
         addFieldName.setEditable(true);
-        addFieldName.disableProperty().bind(viewModel.xmpFilterEnabledProperty().not());
+        addFieldName.disableProperty().bind(viewModel.xmpFilterEnabledProperty()
+                .not());
         new ViewModelListCellFactory<Field>()
                 .withText(FieldsUtil::getNameWithType)
                 .install(addFieldName);
@@ -116,7 +117,8 @@ public class XmpPrivacyTab extends AbstractPreferenceTabView<XmpPrivacyTabViewMo
         addField.getStyleClass().addAll(StyleClasses.NARROW_ICON_BUTTON);
         addField.setPrefSize(25.0, 25.0);
         addField.setTooltip(new Tooltip(Localization.lang("Add field to filter list")));
-        addField.disableProperty().bind(viewModel.xmpFilterEnabledProperty().not());
+        addField.disableProperty().bind(viewModel.xmpFilterEnabledProperty()
+                .not());
         addField.setOnAction(_ -> viewModel.addField());
 
         HBox region = new HBox(4.0, listColumn, addField);

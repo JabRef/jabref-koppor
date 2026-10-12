@@ -7,7 +7,6 @@ import java.util.List;
 import org.jabref.model.study.Study;
 import org.jabref.model.study.StudyCatalog;
 import org.jabref.model.study.StudyQuery;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,12 +21,8 @@ class SearchRxivExporterTest {
     private final SearchRxivExporter exporter = new SearchRxivExporter();
 
     private Study buildStudy() {
-        return new Study(
-                List.of("John Doe"),
-                "Test Study",
-                List.of("What is AI?"),
-                List.of(new StudyQuery("artificial intelligence AND health")),
-                List.of(new StudyCatalog("IEEE", true)));
+        return new Study(List.of("John Doe"), "Test Study", List.of("What is AI?"),
+                List.of(new StudyQuery("artificial intelligence AND health")), List.of(new StudyCatalog("IEEE", true)));
     }
 
     @Test
@@ -48,7 +43,8 @@ class SearchRxivExporterTest {
             file = files.findFirst().orElseThrow();
         }
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode expected = mapper.readTree("""
+        JsonNode expected = mapper
+                .readTree("""
                 {
                   "search_string": "artificial intelligence AND health",
                   "platform": "ieee",
@@ -69,8 +65,7 @@ class SearchRxivExporterTest {
                 "Test Study",
                 List.of("What is AI?"),
                 List.of(new StudyQuery("machine learning")),
-                List.of(new StudyCatalog("IEEE", true),
-                        new StudyCatalog("ACM", true)));
+                List.of(new StudyCatalog("IEEE", true), new StudyCatalog("ACM", true)));
 
         exporter.export(study, tempDir);
 
@@ -80,18 +75,18 @@ class SearchRxivExporterTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             'a/b:c*d'         , IEEE, IEEE-a_b_c_d-0.json
             '   '             , IEEE, IEEE-query-0.json
             'machine learning', IEEE, 'IEEE-machine learning-0.json'
             """)
-    void exportProducesExpectedFileName(String query, String database, String expectedFileName, @TempDir Path tempDir) throws Exception {
-        Study study = new Study(
-                List.of("John Doe"),
-                "Test Study",
-                List.of("What is AI?"),
-                List.of(new StudyQuery(query)),
-                List.of(new StudyCatalog(database, true)));
+    void exportProducesExpectedFileName(String query, String database, String expectedFileName,
+            @TempDir Path tempDir)
+            throws Exception {
+        Study study = new Study(List.of("John Doe"), "Test Study", List.of("What is AI?"),
+                List.of(new StudyQuery(query)), List.of(new StudyCatalog(database, true)));
 
         exporter.export(study, tempDir);
 

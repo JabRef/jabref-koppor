@@ -15,16 +15,17 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.BibtexString;
 import org.jabref.model.metadata.MetaData;
-
 import org.jspecify.annotations.NullMarked;
 
-/// Everything written to a `.bib` file that the merge takes from `current` as it is, because
-/// [org.jabref.logic.git.merge.planning.SemanticMergeAnalyzer] plans entries with a citation key
-/// only. Two versions with equal non-entry content can be merged without losing any of it.
+/// Everything written to a `.bib` file that the merge takes from `current` as
+/// it is, because [org.jabref.logic.git.merge.planning.SemanticMergeAnalyzer]
+/// plans entries with a citation key only. Two versions with equal non-entry
+/// content can be merged without losing any of it.
 ///
-/// Entries and strings compare by what the writer emits for them. Metadata is compared in its
-/// serialized form, because [MetaData#equals] ignores items JabRef does not know. The shared
-/// database ID and the encoding are written as file header, not as part of the metadata.
+/// Entries and strings compare by what the writer emits for them. Metadata is
+/// compared in its serialized form, because [MetaData#equals] ignores items
+/// JabRef does not know. The shared database ID and the encoding are written as
+/// file header, not as part of the metadata.
 @NullMarked
 record NonEntryContent(
         List<BibEntry> keylessEntries,
@@ -41,8 +42,13 @@ record NonEntryContent(
         BibDatabase database = version.getDatabase();
         MetaData metaData = version.getMetaData();
         return new NonEntryContent(
-                database.getEntries().stream().filter(entry -> entry.getCitationKey().isEmpty()).toList(),
-                database.getStringValues().stream().collect(Collectors.toMap(BibtexString::getName, string -> string)),
+                database.getEntries()
+                        .stream()
+                        .filter(entry -> entry.getCitationKey().isEmpty())
+                        .toList(),
+                database.getStringValues()
+                        .stream()
+                        .collect(Collectors.toMap(BibtexString::getName, string -> string)),
                 database.getPreamble().orElse(""),
                 database.getEpilog(),
                 version.getEntryTypes(),

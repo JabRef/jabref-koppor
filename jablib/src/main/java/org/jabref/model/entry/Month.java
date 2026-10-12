@@ -9,7 +9,6 @@ import org.jabref.logic.util.strings.StringUtil;
 /// Represents a Month of the Year.
 @AllowedToUseLogic("Uses StringUtil temporarily")
 public enum Month {
-
     JANUARY("January", "jan", 1),
     FEBRUARY("February", "feb", 2),
     MARCH("March", "mar", 3),
@@ -107,45 +106,19 @@ public enum Month {
     static Optional<Month> parseGermanShortMonth(String value) {
         value = value.toLowerCase();
         return switch (value) {
-            case "jan",
-                 "januar" ->
-                    Month.getMonthByNumber(1);
-            case "feb",
-                 "februar" ->
-                    Month.getMonthByNumber(2);
-            case "mär",
-                 "mae",
-                 "märz",
-                 "maerz" ->
-                    Month.getMonthByNumber(3);
-            case "apr",
-                 "april" ->
-                    Month.getMonthByNumber(4);
-            case "mai" ->
-                    Month.getMonthByNumber(5);
-            case "jun",
-                 "juni" ->
-                    Month.getMonthByNumber(6);
-            case "jul",
-                 "juli" ->
-                    Month.getMonthByNumber(7);
-            case "aug",
-                 "august" ->
-                    Month.getMonthByNumber(8);
-            case "sep",
-                 "september" ->
-                    Month.getMonthByNumber(9);
-            case "okt",
-                 "oktober" ->
-                    Month.getMonthByNumber(10);
-            case "nov",
-                 "november" ->
-                    Month.getMonthByNumber(11);
-            case "dez",
-                 "dezember" ->
-                    Month.getMonthByNumber(12);
-            default ->
-                    Optional.empty();
+            case "jan", "januar" -> Month.getMonthByNumber(1);
+            case "feb", "februar" -> Month.getMonthByNumber(2);
+            case "mär", "mae", "märz", "maerz" -> Month.getMonthByNumber(3);
+            case "apr", "april" -> Month.getMonthByNumber(4);
+            case "mai" -> Month.getMonthByNumber(5);
+            case "jun", "juni" -> Month.getMonthByNumber(6);
+            case "jul", "juli" -> Month.getMonthByNumber(7);
+            case "aug", "august" -> Month.getMonthByNumber(8);
+            case "sep", "september" -> Month.getMonthByNumber(9);
+            case "okt", "oktober" -> Month.getMonthByNumber(10);
+            case "nov", "november" -> Month.getMonthByNumber(11);
+            case "dez", "dezember" -> Month.getMonthByNumber(12);
+            default -> Optional.empty();
         };
     }
 
@@ -156,19 +129,25 @@ public enum Month {
         return shortName;
     }
 
-    /// Returns the month in JabRef format. The format is the short 3-digit name surrounded by a '#' (FieldWriter.BIBTEX_STRING_START_END_SYMBOL).
+    /// Returns the month in JabRef format. The format is the short 3-digit name
+    /// surrounded by a '#' (FieldWriter.BIBTEX_STRING_START_END_SYMBOL).
     /// Example: #jan#, #feb#, etc.
     ///
-    /// See <a href="https://github.com/JabRef/jabref/issues/263#issuecomment-151246595">Issue 263</a> for a discussion on that thing.
-    /// This seems to be an *invalid* format in terms of plain BiBTeX, but a *valid* format in the case of JabRef.
-    /// The documentation is available at the <a href="https://docs.jabref.org/fields/strings">Strings help</a> of JabRef.
+    /// See <a
+    /// href="https://github.com/JabRef/jabref/issues/263#issuecomment-151246595">Issue
+    /// 263</a> for a discussion on that thing. This seems to be an *invalid*
+    /// format in terms of plain BiBTeX, but a *valid* format in the case of
+    /// JabRef. The documentation is available at the <a
+    /// href="https://docs.jabref.org/fields/strings">Strings help</a> of
+    /// JabRef.
     ///
     /// @return Month in JabRef format
     public String getJabRefFormat() {
         return (FieldWriter.BIBTEX_STRING_START_END_SYMBOL + "%s" + FieldWriter.BIBTEX_STRING_START_END_SYMBOL).formatted(shortName);
     }
 
-    /// Returns the number of the Month in a 1-indexed fashion: 1 -> January, 2 -> February etc.
+    /// Returns the number of the Month in a 1-indexed fashion: 1 -> January, 2
+    /// -> February etc.
     ///
     /// @return number of the month in the Year
     public int getNumber() {
@@ -182,7 +161,8 @@ public enum Month {
         return fullName;
     }
 
-    /// Returns the number of the Month in a 1-indexed fashion using exactly two digits: 01 -> January, 02 -> February...
+    /// Returns the number of the Month in a 1-indexed fashion using exactly two
+    /// digits: 01 -> January, 02 -> February...
     ///
     /// @return number of the month in the Year with two digits
     public String getTwoDigitNumber() {
@@ -191,8 +171,8 @@ public enum Month {
 
     /// Checks if the value is in a strict BibTeX format.
     ///
-    /// A strict format is either a BibTeX string (e.g. `#jun#`) or an integer (e.g. `6`).
-    /// Plain text months (e.g. `June`) are considered non-strict.
+    /// A strict format is either a BibTeX string (e.g. `#jun#`) or an integer
+    /// (e.g. `6`). Plain text months (e.g. `June`) are considered non-strict.
     ///
     /// @param value the string value to check
     /// @return true if the value matches the strict format criteria

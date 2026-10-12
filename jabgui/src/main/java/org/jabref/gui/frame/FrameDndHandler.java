@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
@@ -14,7 +15,6 @@ import javafx.scene.control.skin.TabPaneSkin;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-
 import org.jabref.gui.DragAndDropDataFormats;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -24,8 +24,6 @@ import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.groups.GroupTreeNode;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +35,7 @@ public class FrameDndHandler {
     private final Supplier<OpenDatabaseAction> openDatabaseAction;
     private final StateManager stateManager;
 
-    public FrameDndHandler(TabPane tabPane,
-                           Supplier<Scene> scene,
-                           Supplier<OpenDatabaseAction> openDatabaseAction,
+    public FrameDndHandler(TabPane tabPane, Supplier<Scene> scene, Supplier<OpenDatabaseAction> openDatabaseAction,
                            StateManager stateManager) {
         this.tabPane = tabPane;
         this.scene = scene;
@@ -53,25 +49,27 @@ public class FrameDndHandler {
         Tab dndIndicator = new Tab(Localization.lang("Open files..."), null);
         dndIndicator.getStyleClass().add("drop");
 
-        EasyBind.subscribe(tabPane.skinProperty(), skin -> {
-            if (!(skin instanceof TabPaneSkin)) {
-                return;
-            }
-            // Add drag and drop listeners to JabRefFrame
-            scene.get().setOnDragOver(event -> onSceneDragOver(event, dndIndicator));
-            scene.get().setOnDragEntered(event -> {
-                // It is necessary to setOnDragOver for newly opened tabs
-                // drag'n'drop on tabs covered dnd on tabbedPane, so dnd on tabs should contain all dnds on tabbedPane
-                for (Node destinationTabNode : tabPane.lookupAll(".tab")) {
-                    destinationTabNode.setOnDragOver(tabDragEvent -> onTabDragOver(event, tabDragEvent, dndIndicator));
-                    destinationTabNode.setOnDragExited(_ -> tabPane.getTabs().remove(dndIndicator));
-                    destinationTabNode.setOnDragDropped(tabDragEvent -> onTabDragDropped(destinationTabNode, tabDragEvent, dndIndicator));
-                }
-                event.consume();
-            });
-            scene.get().setOnDragExited(_ -> tabPane.getTabs().remove(dndIndicator));
-            scene.get().setOnDragDropped(event -> onSceneDragDropped(event, dndIndicator));
-        });
+        EasyBind.subscribe(
+                tabPane.skinProperty(),
+                skin -> {
+                    if (!(skin instanceof TabPaneSkin)) {
+                        return;
+                    }
+                    // Add drag and drop listeners to JabRefFrame
+                    scene.get().setOnDragOver(event -> onSceneDragOver(event, dndIndicator));
+                    scene.get().setOnDragEntered(event -> {
+                        // It is necessary to setOnDragOver for newly opened tabs
+                        // drag'n'drop on tabs covered dnd on tabbedPane, so dnd on tabs should contain all dnds on tabbedPane
+                        for (Node destinationTabNode : tabPane.lookupAll(".tab")) {
+                            destinationTabNode.setOnDragOver(tabDragEvent -> onTabDragOver(event, tabDragEvent, dndIndicator));
+                            destinationTabNode.setOnDragExited(_ -> tabPane.getTabs().remove(dndIndicator));
+                            destinationTabNode.setOnDragDropped(tabDragEvent -> onTabDragDropped(destinationTabNode, tabDragEvent, dndIndicator));
+                        }
+                        event.consume();
+                    });
+                    scene.get().setOnDragExited(_ -> tabPane.getTabs().remove(dndIndicator));
+                    scene.get().setOnDragDropped(event -> onSceneDragDropped(event, dndIndicator));
+                });
     }
 
     private void onTabDragDropped(Node destinationTabNode, DragEvent tabDragEvent, Tab dndIndicator) {
@@ -94,7 +92,9 @@ public class FrameDndHandler {
             for (Tab tab : tabPane.getTabs()) {
                 if (tab.getId() != null
                         && tab.getId().equals(destinationTabNode.getId())
-                        && !tabPane.getSelectionModel().getSelectedItem().equals(tab)
+                        && !tabPane.getSelectionModel()
+                                   .getSelectedItem()
+                                   .equals(tab)
                         && tab instanceof LibraryTab libraryTab) {
                     destinationLibraryTab = libraryTab;
                     break;
@@ -109,8 +109,11 @@ public class FrameDndHandler {
             boolean success = false;
             if (hasEntries(dragboard)) {
                 List<BibEntry> originalEntries = stateManager.getLocalDragboard().getBibEntries();
-                List<BibEntry> entryCopies = stateManager.getLocalDragboard().getBibEntries().stream()
-                                                         .map(BibEntry::new).toList();
+                List<BibEntry> entryCopies = stateManager.getLocalDragboard()
+                        .getBibEntries()
+                        .stream()
+                        .map(BibEntry::new)
+                        .toList();
                 BibDatabaseContext sourceBibDatabaseContext = stateManager.getActiveDatabase().orElse(null);
                 TransferMode mode = tabDragEvent.getTransferMode();
                 org.jabref.model.TransferMode modelTransferMode = from(mode);
@@ -131,20 +134,19 @@ public class FrameDndHandler {
 
         copyRootNode(destinationLibraryTab);
 
-        GroupTreeNode destinationLibraryGroupRoot = destinationLibraryTab
-                .getBibDatabaseContext()
+        GroupTreeNode destinationLibraryGroupRoot = destinationLibraryTab.getBibDatabaseContext()
                 .getMetaData()
-                .getGroups().get();
+                .getGroups()
+                .get();
 
-        GroupTreeNode groupsTreeNode = stateManager.getActiveDatabase().get()
-                                                   .getMetaData()
-                                                   .getGroups()
-                                                   .get();
+        GroupTreeNode groupsTreeNode = stateManager.getActiveDatabase()
+                .get()
+                .getMetaData()
+                .getGroups()
+                .get();
 
         for (String pathToSource : groupPathToSources) {
-            GroupTreeNode groupTreeNodeToCopy = groupsTreeNode
-                    .getChildByPath(pathToSource)
-                    .get();
+            GroupTreeNode groupTreeNodeToCopy = groupsTreeNode.getChildByPath(pathToSource).get();
             copyGroupTreeNode(destinationLibraryTab, destinationLibraryGroupRoot, groupTreeNodeToCopy);
         }
     }
@@ -197,17 +199,21 @@ public class FrameDndHandler {
     }
 
     private void copyRootNode(LibraryTab destinationLibraryTab) {
-        if (destinationLibraryTab.getBibDatabaseContext().getMetaData().getGroups().isPresent()
+        if (destinationLibraryTab.getBibDatabaseContext()
+                .getMetaData()
+                .getGroups()
+                .isPresent()
                 && stateManager.getActiveDatabase().isEmpty()) {
             return;
         }
 
         // a root (all entries) GroupTreeNode
-        GroupTreeNode currentLibraryGroupRoot = stateManager.getActiveDatabase().get()
-                                                            .getMetaData()
-                                                            .getGroups()
-                                                            .get()
-                                                            .copyNode();
+        GroupTreeNode currentLibraryGroupRoot = stateManager.getActiveDatabase()
+                .get()
+                .getMetaData()
+                .getGroups()
+                .get()
+                .copyNode();
 
         // add currentLibraryGroupRoot to the Library if it does not have a root.
         destinationLibraryTab.getBibDatabaseContext()
@@ -220,11 +226,15 @@ public class FrameDndHandler {
             return;
         }
 
-        List<BibEntry> allEntries = stateManager.getActiveDatabase().get().getEntries();
+        List<BibEntry> allEntries = stateManager.getActiveDatabase()
+                .get()
+                .getEntries();
         // add groupTreeNodeToCopy to the parent-- in the first run that will the source/main GroupTreeNode
-        GroupTreeNode copiedNode = parent.addSubgroup(groupTreeNodeToCopy.copyNode().getGroup());
+        GroupTreeNode copiedNode = parent.addSubgroup(groupTreeNodeToCopy.copyNode()
+                .getGroup());
         // add all entries of a groupTreeNode to the new library.
-        destinationLibraryTab.dropEntry(stateManager.getActiveDatabase().get(), groupTreeNodeToCopy.getEntriesInGroup(allEntries), groupTreeNodeToCopy.getEntriesInGroup(allEntries), org.jabref.model.TransferMode.COPY);
+        destinationLibraryTab.dropEntry(stateManager.getActiveDatabase().get(),
+                groupTreeNodeToCopy.getEntriesInGroup(allEntries), groupTreeNodeToCopy.getEntriesInGroup(allEntries), org.jabref.model.TransferMode.COPY);
         // List of all children of groupTreeNodeToCopy
         List<GroupTreeNode> children = groupTreeNodeToCopy.getChildren();
 
@@ -244,7 +254,11 @@ public class FrameDndHandler {
         if (!dragboard.hasFiles()) {
             return List.of();
         } else {
-            return dragboard.getFiles().stream().map(File::toPath).filter(this::isAcceptedFile).collect(Collectors.toList());
+            return dragboard.getFiles()
+                            .stream()
+                            .map(File::toPath)
+                            .filter(this::isAcceptedFile)
+                            .collect(Collectors.toList());
         }
     }
 
@@ -269,12 +283,9 @@ public class FrameDndHandler {
             return org.jabref.model.TransferMode.NONE;
         }
         return switch (javafxTransferMode) {
-            case COPY ->
-                    org.jabref.model.TransferMode.COPY;
-            case MOVE ->
-                    org.jabref.model.TransferMode.MOVE;
-            case LINK ->
-                    org.jabref.model.TransferMode.NONE;
+            case COPY -> org.jabref.model.TransferMode.COPY;
+            case MOVE -> org.jabref.model.TransferMode.MOVE;
+            case LINK -> org.jabref.model.TransferMode.NONE;
         };
     }
 }

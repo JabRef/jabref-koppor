@@ -15,7 +15,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.model.strings.LatexToUnicodeAdapter;
@@ -27,9 +26,10 @@ public class CitationsDisplay extends ListView<Citation> {
 
     public CitationsDisplay() {
         this.basePath = new SimpleObjectProperty<>(null);
-        new ViewModelListCellFactory<Citation>().withGraphic(this::getDisplayGraphic)
-                                                .withTooltip(this::getDisplayTooltip)
-                                                .install(this);
+        new ViewModelListCellFactory<Citation>()
+                .withGraphic(this::getDisplayGraphic)
+                .withTooltip(this::getDisplayTooltip)
+                .install(this);
 
         this.getStyleClass().add("citationsList");
     }
@@ -45,7 +45,8 @@ public class CitationsDisplay extends ListView<Citation> {
 
         Node citationIcon = IconTheme.JabRefIcons.LATEX_COMMENT.getGraphicNode();
         Text contextText = new Text(LatexToUnicodeAdapter.format(item.getContext()));
-        contextText.wrappingWidthProperty().bind(this.widthProperty().subtract(85));
+        contextText.wrappingWidthProperty().bind(this.widthProperty()
+                .subtract(85));
         HBox contextBox = new HBox(8, citationIcon, contextText);
         contextBox.getStyleClass().addAll("contextBox", "padding-12");
 
@@ -85,7 +86,8 @@ public class CitationsDisplay extends ListView<Citation> {
         tooltip.setGraphic(new TextFlow(texts.toArray(new Text[0])));
         tooltip.setMaxHeight(10);
         tooltip.setMinWidth(200);
-        tooltip.maxWidthProperty().bind(this.widthProperty().subtract(85));
+        tooltip.maxWidthProperty().bind(this.widthProperty()
+                .subtract(85));
         tooltip.setWrapText(true);
 
         return tooltip;

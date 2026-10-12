@@ -1,9 +1,9 @@
 package org.jabref.gui.welcome.quicksettings;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
-
 import org.jabref.gui.FXDialog;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.URLs;
@@ -11,15 +11,24 @@ import org.jabref.gui.util.component.HelpButton;
 import org.jabref.gui.welcome.quicksettings.viewmodel.LargeLibraryOptimizationDialogViewModel;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
-
 public class LargeLibraryOptimizationDialog extends FXDialog {
-    @FXML private CheckBox disableFulltextIndexing;
-    @FXML private CheckBox disableCreationDate;
-    @FXML private CheckBox disableModificationDate;
-    @FXML private CheckBox disableAutosave;
-    @FXML private CheckBox disableGroupCount;
-    @FXML private HelpButton helpButton;
+    @FXML
+    private CheckBox disableFulltextIndexing;
+
+    @FXML
+    private CheckBox disableCreationDate;
+
+    @FXML
+    private CheckBox disableModificationDate;
+
+    @FXML
+    private CheckBox disableAutosave;
+
+    @FXML
+    private CheckBox disableGroupCount;
+
+    @FXML
+    private HelpButton helpButton;
 
     private LargeLibraryOptimizationDialogViewModel viewModel;
     private final GuiPreferences preferences;
@@ -32,8 +41,8 @@ public class LargeLibraryOptimizationDialog extends FXDialog {
         this.setHeaderText(Localization.lang("Improve performance when working with libraries containing many entries"));
 
         ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+                .load()
+                .setAsDialogPane(this);
 
         setResultConverter(button -> {
             if (button == ButtonType.OK) {

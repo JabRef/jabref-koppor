@@ -11,7 +11,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.AMSField;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Unabbreviates journal field
@@ -69,7 +68,9 @@ public class UnabbreviateJournalCleanup implements CleanupJob {
             return List.of();
         }
 
-        String newText = entry.getField(AMSField.FJOURNAL).orElse("").trim();
+        String newText = entry.getField(AMSField.FJOURNAL)
+                              .orElse("")
+                              .trim();
         if (newText.isBlank()) {
             return List.of();
         }

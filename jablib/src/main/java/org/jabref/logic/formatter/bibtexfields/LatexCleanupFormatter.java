@@ -4,14 +4,14 @@ import java.util.regex.Pattern;
 
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 
-/// Simplifies LaTeX syntax. See [org.jabref.logic.layout.format.RemoveLatexCommandsFormatter] for a formatter removing LaTeX commands completely.
+/// Simplifies LaTeX syntax. See
+/// [org.jabref.logic.layout.format.RemoveLatexCommandsFormatter] for a
+/// formatter removing LaTeX commands completely.
 public class LatexCleanupFormatter extends Formatter {
 
-    private static final Pattern REMOVE_REDUNDANT = Pattern
-            .compile("(?<!\\\\[\\p{Alpha}]{0,100}\\{[^\\}]{0,100})\\}([-/ ]?)\\{");
+    private static final Pattern REMOVE_REDUNDANT = Pattern.compile("(?<!\\\\[\\p{Alpha}]{0,100}\\{[^\\}]{0,100})\\}([-/ ]?)\\{");
 
     private static final Pattern REPLACE_WITH_AT = Pattern.compile("(^|[^\\\\$])\\$");
     private static final Pattern REPLACE_EVERY_OTHER_AT = Pattern.compile("([^@]*)@@([^@]*)@@");

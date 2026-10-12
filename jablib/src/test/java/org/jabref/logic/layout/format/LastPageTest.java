@@ -3,7 +3,6 @@ package org.jabref.logic.layout.format;
 import java.util.stream.Stream;
 
 import org.jabref.logic.layout.LayoutFormatter;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -30,7 +29,6 @@ class LastPageTest {
                 Arguments.of("", "--"),
                 Arguments.of("13911", "13905\u201313911"),
                 Arguments.of("13911", "13905\u201413911"),
-                Arguments.of("13911", "13905 \u2013 13911")
-        );
+                Arguments.of("13911", "13905 \u2013 13911"));
     }
 }

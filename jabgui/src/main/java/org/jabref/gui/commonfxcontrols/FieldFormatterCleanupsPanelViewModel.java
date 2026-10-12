@@ -11,7 +11,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.control.SelectionModel;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.util.NoSelectionModel;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
@@ -58,9 +57,7 @@ public class FieldFormatterCleanupsPanelViewModel {
             return;
         }
 
-        FieldFormatterCleanup cleanup = new FieldFormatterCleanup(
-                selectedFieldProperty.getValue(),
-                selectedFormatterProperty.getValue());
+        FieldFormatterCleanup cleanup = new FieldFormatterCleanup(selectedFieldProperty.getValue(), selectedFormatterProperty.getValue());
 
         if (cleanupsListProperty.stream().noneMatch(item -> item.equals(cleanup))) {
             cleanupsListProperty.add(cleanup);

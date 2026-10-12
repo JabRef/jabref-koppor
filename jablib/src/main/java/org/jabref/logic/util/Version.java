@@ -17,15 +17,16 @@ import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Represents the Application Version with the major and minor number, the full Version String and if it's a developer version
+/// Represents the Application Version with the major and minor number, the full
+/// Version String and if it's a developer version
 public class Version {
 
     public static final String JABREF_DOWNLOAD_URL = "https://downloads.jabref.org";
 
     private static final Version UNKNOWN_VERSION = new Version();
 
-    private final static Pattern VERSION_PATTERN = Pattern.compile("(?<major>\\d+)(\\.(?<minor>\\d+))?(\\.(?<patch>\\d+))?(?<stage>-alpha|-beta)?(?:[._]?(?<num>\\d+))?(?<dev>-?dev)?.*");
-    private final static Pattern CI_SUFFIX_PATTERN = Pattern.compile("-ci\\.\\d+");
+    private static final Pattern VERSION_PATTERN = Pattern.compile("(?<major>\\d+)(\\.(?<minor>\\d+))?(\\.(?<patch>\\d+))?(?<stage>-alpha|-beta)?(?:[._]?(?<num>\\d+))?(?<dev>-?dev)?.*");
+    private static final Pattern CI_SUFFIX_PATTERN = Pattern.compile("-ci\\.\\d+");
 
     private static final String JABREF_GITHUB_RELEASES = "https://api.github.com/repos/JabRef/JabRef/releases";
 
@@ -38,19 +39,24 @@ public class Version {
     private boolean isDevelopmentVersion;
 
     /// Dummy constructor to create a local object (and  [Version#UNKNOWN_VERSION])
-    private Version() {
-    }
+    private Version() {}
 
-    /// Tinylog does not allow for altering existing logging configurations after the logger was initialized .
-    /// Lazy initialization to enable tinylog writing to a file (and also still enabling logging in this class)
+    /// Tinylog does not allow for altering existing logging configurations
+    /// after the logger was initialized . Lazy initialization to enable tinylog
+    /// writing to a file (and also still enabling logging in this class)
     private static Logger getLogger() {
         return LoggerFactory.getLogger(Version.class);
     }
 
-    /// @param version must be in form of following pattern: `(\d+)(\.(\d+))?(\.(\d+))?(-alpha|-beta)?(-?dev)?` (e.g., 3.3; 3.4-dev)
-    /// @return the parsed version or [Version#UNKNOWN_VERSION] if an error occurred
+    /// @param version must be in form of following pattern:
+    ///   `(\d+)(\.(\d+))?(\.(\d+))?(-alpha|-beta)?(-?dev)?` (e.g., 3.3;
+    ///   3.4-dev)
+    /// @return the parsed version or [Version#UNKNOWN_VERSION] if an error
+    ///   occurred
     public static Version parse(String version) {
-        if ((version == null) || version.isEmpty() || BuildInfo.UNKNOWN_VERSION.equals(version)
+        if ((version == null)
+                || version.isEmpty()
+                || BuildInfo.UNKNOWN_VERSION.equals(version)
                 || "${version}".equals(version)) {
             return UNKNOWN_VERSION;
         }
@@ -151,27 +157,28 @@ public class Version {
         return false;
     }
 
-    /// Checks if this version should be updated to one of the given ones. Ignoring the other Version if this one is Stable and the other one is not.
+    /// Checks if this version should be updated to one of the given ones.
+    /// Ignoring the other Version if this one is Stable and the other one is
+    /// not.
     ///
     /// @return The version this one should be updated to, or an empty Optional
     public Optional<Version> shouldBeUpdatedTo(List<Version> availableVersions) {
         Optional<Version> newerVersion = Optional.empty();
         for (Version version : availableVersions) {
-            if (this.shouldBeUpdatedTo(version)
-                    && (newerVersion.isEmpty() || version.isNewerThan(newerVersion.get()))) {
+            if (this.shouldBeUpdatedTo(version) && (newerVersion.isEmpty() || version.isNewerThan(newerVersion.get()))) {
                 newerVersion = Optional.of(version);
             }
         }
         return newerVersion;
     }
 
-    /// Checks if this version should be updated to the given one. Ignoring the other Version if this one is Stable and the other one is not.
+    /// Checks if this version should be updated to the given one. Ignoring the
+    /// other Version if this one is Stable and the other one is not.
     ///
     /// @return True if this version should be updated to the given one
     public boolean shouldBeUpdatedTo(Version otherVersion) {
         // ignoring the other version if it is not stable, except if this version itself is not stable
-        if (developmentStage == Version.DevelopmentStage.STABLE
-                && otherVersion.developmentStage != Version.DevelopmentStage.STABLE) {
+        if (developmentStage == Version.DevelopmentStage.STABLE && otherVersion.developmentStage != Version.DevelopmentStage.STABLE) {
             return false;
         }
 
@@ -215,17 +222,13 @@ public class Version {
                     .append(this.getMinor());
 
             if (this.getPatch() != 0) {
-                changelogLink
-                        .append(".")
-                        .append(this.getPatch());
+                changelogLink.append(".").append(this.getPatch());
             }
 
-            changelogLink
-                    .append(this.developmentStage.stage);
+            changelogLink.append(this.developmentStage.stage);
 
             if (this.getDevelopmentNum() != 0) {
-                changelogLink
-                        .append(this.getDevelopmentNum());
+                changelogLink.append(this.getDevelopmentNum());
             }
 
             changelogLink.append("/CHANGELOG.md");
@@ -265,6 +268,7 @@ public class Version {
 
         /// describes how stable this stage is, the higher the better
         private final int stability;
+
         private final String stage;
 
         DevelopmentStage(String stage, int stability) {

@@ -7,9 +7,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-/// Standard BibTeX and BibLaTeX fields, as well as "normal" JabRef specific fields.
-/// See [org.jabref.model.entry.field.FieldTextMapper] for the display name creation.
-/// See [org.jabref.gui.fieldeditors.FieldNameLabel#getDescription(org.jabref.model.entry.field.Field)] for a description of each field.
+/// Standard BibTeX and BibLaTeX fields, as well as "normal" JabRef specific
+/// fields. See [org.jabref.model.entry.field.FieldTextMapper] for the display
+/// name creation. See
+/// [org.jabref.gui.fieldeditors.FieldNameLabel#getDescription(org.jabref.model.entry.field.Field)]
+/// for a description of each field.
 public enum StandardField implements Field {
     ABSTRACT("abstract", FieldProperty.MULTILINE_TEXT),
     ADDENDUM("addendum"),
@@ -75,8 +77,9 @@ public enum StandardField implements Field {
     JOURNALSUBTITLE("journalsubtitle", FieldProperty.JOURNAL_NAME),
     JOURNALTITLE("journaltitle", FieldProperty.JOURNAL_NAME),
 
-    /// This is used for **sorting**, this is **not** the BibTeX key AKA Citation key. See [InternalField.KEY_FIELD] for that.
-    /// This is only used in very rare cases.
+    /// This is used for **sorting**, this is **not** the BibTeX key AKA
+    /// Citation key. See [InternalField.KEY_FIELD] for that. This is only used
+    /// in very rare cases.
     KEY("key"),
 
     KEYWORDS("keywords"),
@@ -117,8 +120,9 @@ public enum StandardField implements Field {
     SHORTEDITOR("shorteditor", FieldProperty.PERSON_NAMES),
     SHORTTITLE("shorttitle"),
 
-    /// BibLaTeX field: "A field used to modify the sorting order of the bibliography" - see <https://texdoc.org/serve/biblatex/0>, page 30.
-    /// In BibTeX, this is "key".
+    /// BibLaTeX field: "A field used to modify the sorting order of the
+    /// bibliography" - see <https://texdoc.org/serve/biblatex/0>, page 30. In
+    /// BibTeX, this is "key".
     SORTKEY("sortkey"),
 
     SORTNAME("sortname", FieldProperty.PERSON_NAMES),
@@ -157,11 +161,7 @@ public enum StandardField implements Field {
     // endregion
 
     public static final Set<Field> AUTOMATIC_FIELDS = Set.of(OWNER, TIMESTAMP, CREATIONDATE, MODIFICATIONDATE);
-    public static final Set<StandardField> BUILT_IN_MULTILINE_FIELDS = Set.of(
-            ABSTRACT,
-            COMMENT,
-            REVIEW
-    );
+    public static final Set<StandardField> BUILT_IN_MULTILINE_FIELDS = Set.of(ABSTRACT, COMMENT, REVIEW);
 
     private static final Map<String, StandardField> NAME_TO_STANDARD_FIELD = new HashMap<>();
 
@@ -170,7 +170,9 @@ public enum StandardField implements Field {
 
     static {
         for (StandardField field : StandardField.values()) {
-            NAME_TO_STANDARD_FIELD.put(field.getName().toLowerCase(Locale.ROOT), field);
+            NAME_TO_STANDARD_FIELD.put(field.getName()
+                    .toLowerCase(Locale.ROOT),
+                    field);
         }
     }
 

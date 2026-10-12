@@ -7,7 +7,6 @@ import org.jabref.logic.util.Version;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,11 +20,7 @@ class MrDLibFetcherTest {
 
     @BeforeEach
     void setUp() {
-        MrDlibPreferences mrDlibPreferences = new MrDlibPreferences(
-                true,
-                false,
-                false,
-                false);
+        MrDlibPreferences mrDlibPreferences = new MrDlibPreferences(true, false, false, false);
         fetcher = new MrDLibFetcher("", Version.parse(""), mrDlibPreferences);
     }
 

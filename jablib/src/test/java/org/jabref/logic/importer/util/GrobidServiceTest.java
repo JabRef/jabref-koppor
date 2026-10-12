@@ -9,11 +9,11 @@ import java.util.Optional;
 
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ParseException;
+import org.jabref.logic.importer.util.GrobidService.ConsolidateCitations;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -34,12 +34,11 @@ class GrobidServiceTest {
     @BeforeAll
     static void setup() {
         importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
 
-        GrobidPreferences grobidPreferences = new GrobidPreferences(
-                true,
-                false,
-                "https://grobid.jabref.org");
+        GrobidPreferences grobidPreferences = new GrobidPreferences(true, false, "https://grobid.jabref.org");
         grobidService = new GrobidService(grobidPreferences);
     }
 
@@ -58,40 +57,35 @@ class GrobidServiceTest {
                 .withField(StandardField.PAGES, "245-259")
                 .withField(StandardField.VOLUME, "23")
                 .withField(StandardField.NUMBER, "4");
-        Optional<BibEntry> response = grobidService.processCitation("Derwing, T. M., Rossiter, M. J., & Munro, " +
-                "M. J. (2002). Teaching native speakers to listen to foreign-accented speech. " +
-                "Journal of Multilingual and Multicultural Development, 23(4), 245-259.", importFormatPreferences, GrobidService.ConsolidateCitations.WITH_METADATA);
+        Optional<BibEntry> response = grobidService.processCitation("Derwing, T. M., Rossiter, M. J., & Munro, " + "M. J. (2002). Teaching native speakers to listen to foreign-accented speech. " + "Journal of Multilingual and Multicultural Development, 23(4), 245-259.",
+                importFormatPreferences, ConsolidateCitations.WITH_METADATA);
         assertTrue(response.isPresent());
         assertEquals(exampleBibEntry, response.get());
     }
 
     @Test
     void processEmptyStringTest() throws IOException, ParseException {
-        Optional<BibEntry> response = grobidService.processCitation(" ", importFormatPreferences, GrobidService.ConsolidateCitations.WITH_METADATA);
+        Optional<BibEntry> response = grobidService.processCitation(" ", importFormatPreferences, ConsolidateCitations.WITH_METADATA);
         assertNotNull(response);
         assertEquals(Optional.empty(), response);
     }
 
     @Test
     void processInvalidCitationTest() {
-        assertThrows(IOException.class, () -> grobidService.processCitation(
-                "Iiiiiiiiiiiiiiiiiiiiiiii",
-                importFormatPreferences,
-                GrobidService.ConsolidateCitations.WITH_METADATA));
+        assertThrows(IOException.class, () -> grobidService.processCitation("Iiiiiiiiiiiiiiiiiiiiiiii", importFormatPreferences, ConsolidateCitations.WITH_METADATA));
     }
 
     @Test
     void failsWhenGrobidDisabled() {
-        GrobidPreferences importSettingsWithGrobidDisabled = new GrobidPreferences(
-                false,
-                false,
-                "https://grobid.jabref.org");
+        GrobidPreferences importSettingsWithGrobidDisabled = new GrobidPreferences(false, false, "https://grobid.jabref.org");
         assertThrows(UnsupportedOperationException.class, () -> new GrobidService(importSettingsWithGrobidDisabled));
     }
 
     @Test
     void processPdfTest() throws IOException, ParseException, URISyntaxException {
-        Path file = Path.of(GrobidServiceTest.class.getResource("LNCS-minimal.pdf").toURI());
+        Path file = Path.of(GrobidServiceTest.class
+                .getResource("LNCS-minimal.pdf")
+                .toURI());
         List<BibEntry> response = grobidService.processPDF(file, importFormatPreferences);
         assertEquals(1, response.size());
         BibEntry be0 = response.getFirst();
@@ -113,7 +107,8 @@ class GrobidServiceTest {
                 .withField(StandardField.VOLUME, "8274")
                 .withField(StandardField.YEAR, "2013");
 
-        Path file = Path.of(Objects.requireNonNull(GrobidServiceTest.class.getResource("LNCS-minimal.pdf")).toURI());
+        Path file = Path.of(Objects.requireNonNull(GrobidServiceTest.class.getResource("LNCS-minimal.pdf"))
+                .toURI());
         List<BibEntry> extractedReferences = grobidService.processReferences(file, importFormatPreferences);
         assertEquals(List.of(ref1), extractedReferences);
     }

@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.Optional;
 
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 
 /*

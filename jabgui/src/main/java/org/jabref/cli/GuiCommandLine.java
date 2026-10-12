@@ -13,40 +13,68 @@ public class GuiCommandLine {
     @Parameters(paramLabel = "<FILE>", description = "File(s) to be imported.")
     public List<Path> libraries;
 
-    @Option(names = {"-a", "--add"}, description = "Add to currently opened library.")
+    @Option(
+            names = {"-a", "--add"},
+            description = "Add to currently opened library.")
     public boolean append;
 
     /// @deprecated used by the browser extension
     @Deprecated
-    @Option(names = {"--importBibtex"}, hidden = true, description = "Import bibtex string.")
+    @Option(
+            names = {"--importBibtex"},
+            hidden = true,
+            description = "Import bibtex string.")
     public String importBibtex;
 
     /// @deprecated used by the browser extension
     @Deprecated
-    @Option(names = {"-importToOpen", "--importToOpen"}, hidden = true, description = "Imports and appends the given file/url to the opened tab.")
+    @Option(
+            names = {"-importToOpen", "--importToOpen"},
+            hidden = true,
+            description = "Imports and appends the given file/url to the opened tab.")
     public String importToOpen;
 
-    @Option(names = {"-x", "--exportPreferences"}, paramLabel = "FILE", description = "Export preferences.")
+    @Option(
+            names = {"-x", "--exportPreferences"},
+            paramLabel = "FILE",
+            description = "Export preferences.")
     public Path exportPreferences;
 
-    @Option(names = {"-p", "--importPreferences"}, paramLabel = "FILE", description = "Import preferences.")
+    @Option(
+            names = {"-p", "--importPreferences"},
+            paramLabel = "FILE",
+            description = "Import preferences.")
     public Path importPreferences;
 
-    @Option(names = {"-d", "--reset"}, description = "Reset all preferences to default values.")
+    @Option(
+            names = {"-d", "--reset"},
+            description = "Reset all preferences to default values.")
     public boolean resetPreferences;
 
-    @Option(names = {"-v", "--version"}, versionHelp = true, description = "Display version info.")
+    @Option(
+            names = {"-v", "--version"},
+            versionHelp = true,
+            description = "Display version info.")
     public boolean versionInfoRequested;
 
-    @Option(names = {"?", "-h", "--help"}, usageHelp = true, description = "Display this help message.")
+    @Option(
+            names = {"?", "-h", "--help"},
+            usageHelp = true,
+            description = "Display this help message.")
     public boolean usageHelpRequested;
 
-    @Option(names = {"--debug"}, description = "Enable debug logging.")
+    @Option(
+            names = {"--debug"},
+            description = "Enable debug logging.")
     public boolean debugLogging;
 
-    @Option(names = {"-b", "--blank"}, description = "Start with an empty library.")
+    @Option(
+            names = {"-b", "--blank"},
+            description = "Start with an empty library.")
     public boolean blank;
 
-    @Option(names = {"-j", "--jumpToKey"}, description = "Jump to the entry of the given citation key.")
+    @Option(
+            names = {"-j", "--jumpToKey"},
+            description = "Jump to the entry of the given citation key.")
     public String jumpToKey;
 }

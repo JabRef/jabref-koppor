@@ -65,12 +65,17 @@ public class ExtensionSettings {
 
     @Override
     public String toString() {
-        return "ExtensionSettings{" +
-                "consistencyCheckRequired=" + consistencyCheckRequired +
-                ", consistencyCheckOptional=" + consistencyCheckOptional +
-                ", consistencyCheckUnknown=" + consistencyCheckUnknown +
-                ", integrityCheck=" + integrityCheck +
-                ", consistencyCheck=" + consistencyCheck +
-                '}';
+        return "ExtensionSettings{"
+                + "consistencyCheckRequired="
+                + consistencyCheckRequired
+                + ", consistencyCheckOptional="
+                + consistencyCheckOptional
+                + ", consistencyCheckUnknown="
+                + consistencyCheckUnknown
+                + ", integrityCheck="
+                + integrityCheck
+                + ", consistencyCheck="
+                + consistencyCheck
+                + '}';
     }
 }

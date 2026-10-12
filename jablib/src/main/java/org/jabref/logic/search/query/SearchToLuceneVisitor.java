@@ -5,13 +5,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.jabref.model.search.LinkedFilesConstants;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.search.SearchBaseVisitor;
 import org.jabref.search.SearchParser;
-
-import org.apache.lucene.queryparser.classic.QueryParser;
 
 /// Tests are located in `org.jabref.logic.search.query.SearchQueryLuceneConversionTest`.
 // [impl->req~jabgui.search.fulltext.case-sensitive~1]
@@ -29,7 +28,10 @@ public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
 
     @Override
     public String visitImplicitAndExpression(SearchParser.ImplicitAndExpressionContext ctx) {
-        List<String> children = ctx.expression().stream().map(this::visit).toList();
+        List<String> children = ctx.expression()
+                .stream()
+                .map(this::visit)
+                .toList();
         return children.size() == 1 ? children.getFirst() : String.join(" ", children);
     }
 
@@ -66,7 +68,10 @@ public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
     @Override
     public String visitComparison(SearchParser.ComparisonContext ctx) {
         String term = SearchQuery.unescapeSearchValue(ctx.searchValue());
-        boolean isQuoted = ctx.searchValue().getStart().getType() == SearchParser.STRING_LITERAL;
+        boolean isQuoted = ctx.searchValue()
+                              .getStart()
+                              .getType()
+                == SearchParser.STRING_LITERAL;
 
         // unfielded expression - the search bar flags apply
         if (ctx.FIELD() == null) {
@@ -75,25 +80,32 @@ public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
         }
 
         // TODO: Here, there is no unescaping of the term (e.g., field\=thing=value does not work as expected)
-        String field = ctx.FIELD().getText().toLowerCase(Locale.ROOT);
+        String field = ctx.FIELD()
+                          .getText()
+                          .toLowerCase(Locale.ROOT);
         if (!isValidField(field)) {
             return "";
         }
 
         boolean isAnyField = SearchFieldConstants.ANY_FIELD.equals(field) || SearchFieldConstants.ANY_FIELD_ALIAS.equals(field);
-        int operator = ctx.operator().getStart().getType();
+        int operator = ctx.operator()
+                          .getStart()
+                          .getType();
         return buildFieldExpression(isAnyField ? "" : field, term, operator, isQuoted);
     }
 
     /// A valid field is a field that is supported by the Lucene index.
-    /// Currently, Lucene is used for files only. Metadata of the files is stored in the BibEntry.
-    /// Thus, it does not make sense to search for "author" as field name as this is not stored in the Lucene index.
+    /// Currently, Lucene is used for files only. Metadata of the files is
+    /// stored in the BibEntry. Thus, it does not make sense to search for
+    /// "author" as field name as this is not stored in the Lucene index.
     private boolean isValidField(String field) {
         return SearchFieldConstants.ANY_FIELD.equals(field) || SearchFieldConstants.ANY_FIELD_ALIAS.equals(field) || LinkedFilesConstants.PDF_FIELDS.contains(field);
     }
 
-    /// @param field the Lucene field to search in, or the empty string to search in all of [LinkedFilesConstants#PDF_FIELDS]
-    private String buildFieldExpression(String field, String term, int operator, boolean isQuoted) {
+    /// @param field the Lucene field to search in, or the empty string to
+    ///   search in all of [LinkedFilesConstants#PDF_FIELDS]
+    private String buildFieldExpression(String field, String term, int operator,
+            boolean isQuoted) {
         String value = buildValue(term, isRegexOperator(operator), isQuoted);
         String expression;
         if (isCaseSensitiveOperator(operator)) {
@@ -111,12 +123,14 @@ public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
         return isQuoted ? "\"" + escapeQuotes(term) + "\"" : escapeForLucene(term);
     }
 
-    /// The default fields of the query parser are analyzed case-insensitively, so a case-sensitive search
-    /// across all fields has to name the case-preserving fields explicitly.
+    /// The default fields of the query parser are analyzed case-insensitively,
+    /// so a case-sensitive search across all fields has to name the
+    /// case-preserving fields explicitly.
     private static String anyFieldExpression(String value) {
-        return LinkedFilesConstants.CASE_SENSITIVE_PDF_FIELDS.stream()
-                                                             .map(field -> field + ":" + value)
-                                                             .collect(Collectors.joining(" OR ", "(", ")"));
+        return LinkedFilesConstants.CASE_SENSITIVE_PDF_FIELDS
+                .stream()
+                .map(field -> field + ":" + value)
+                .collect(Collectors.joining(" OR ", "(", ")"));
     }
 
     private static String escapeQuotes(String term) {
@@ -125,47 +139,30 @@ public class SearchToLuceneVisitor extends SearchBaseVisitor<String> {
 
     private static String escapeForLucene(String term) {
         return QueryParser.escape(term)
-                          .replace("\\*", "*")
-                          .replace("\\?", "?");
+                .replace("\\*", "*")
+                .replace("\\?", "?");
     }
 
     private static boolean isNegationOperator(int operator) {
         return switch (operator) {
-            case SearchParser.NEQUAL,
-                 SearchParser.NCEQUAL,
-                 SearchParser.NEEQUAL,
-                 SearchParser.NCEEQUAL,
-                 SearchParser.NREQUAL,
-                 SearchParser.NCREEQUAL ->
+            case SearchParser.NEQUAL, SearchParser.NCEQUAL, SearchParser.NEEQUAL, SearchParser.NCEEQUAL, SearchParser.NREQUAL, SearchParser.NCREEQUAL ->
                     true;
-            default ->
-                    false;
+            default -> false;
         };
     }
 
     private static boolean isCaseSensitiveOperator(int operator) {
         return switch (operator) {
-            case SearchParser.CEQUAL,
-                 SearchParser.CEEQUAL,
-                 SearchParser.CREEQUAL,
-                 SearchParser.NCEQUAL,
-                 SearchParser.NCEEQUAL,
-                 SearchParser.NCREEQUAL ->
+            case SearchParser.CEQUAL, SearchParser.CEEQUAL, SearchParser.CREEQUAL, SearchParser.NCEQUAL, SearchParser.NCEEQUAL, SearchParser.NCREEQUAL ->
                     true;
-            default ->
-                    false;
+            default -> false;
         };
     }
 
     private static boolean isRegexOperator(int operator) {
         return switch (operator) {
-            case SearchParser.REQUAL,
-                 SearchParser.CREEQUAL,
-                 SearchParser.NREQUAL,
-                 SearchParser.NCREEQUAL ->
-                    true;
-            default ->
-                    false;
+            case SearchParser.REQUAL, SearchParser.CREEQUAL, SearchParser.NREQUAL, SearchParser.NCREEQUAL -> true;
+            default -> false;
         };
     }
 }

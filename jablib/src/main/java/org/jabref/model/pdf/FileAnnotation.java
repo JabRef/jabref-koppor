@@ -48,20 +48,31 @@ public class FileAnnotation {
     /// @param annotation The actual annotation that holds the information
     /// @param pageNumber The page of the pdf where the annotation occurs
     public FileAnnotation(final PDAnnotation annotation, final int pageNumber) {
-        this(annotation.getCOSObject().getString(COSName.T),
+        this(
+                annotation.getCOSObject().getString(COSName.T),
                 extractModifiedTime(annotation.getModifiedDate()),
-                pageNumber, annotation.getContents(), FileAnnotationType.parse(annotation), Optional.empty());
+                pageNumber,
+                annotation.getContents(),
+                FileAnnotationType.parse(annotation),
+                Optional.empty());
     }
 
-    /// For creating a FileAnnotation that has a connection to another FileAnnotation. Needed when creating a text
-    /// highlighted or underlined annotation with a sticky note.
+    /// For creating a FileAnnotation that has a connection to another
+    /// FileAnnotation. Needed when creating a text highlighted or underlined
+    /// annotation with a sticky note.
     ///
-    /// @param annotation           The actual annotation that holds the information
-    /// @param pageNumber           The page of the pdf where the annotation occurs
-    /// @param linkedFileAnnotation The corresponding note of a marked text area.
+    /// @param annotation The actual annotation that holds the information
+    /// @param pageNumber The page of the pdf where the annotation occurs
+    /// @param linkedFileAnnotation The corresponding note of a marked text
+    ///   area.
     public FileAnnotation(final PDAnnotation annotation, final int pageNumber, FileAnnotation linkedFileAnnotation) {
-        this(annotation.getCOSObject().getString(COSName.T), extractModifiedTime(annotation.getModifiedDate()),
-                pageNumber, annotation.getContents(), FileAnnotationType.parse(annotation), Optional.of(linkedFileAnnotation));
+        this(
+                annotation.getCOSObject().getString(COSName.T),
+                extractModifiedTime(annotation.getModifiedDate()),
+                pageNumber,
+                annotation.getContents(),
+                FileAnnotationType.parse(annotation),
+                Optional.of(linkedFileAnnotation));
     }
 
     /// Parses a String into a LocalDateTime.
@@ -100,7 +111,8 @@ public class FileAnnotation {
         return content.trim();
     }
 
-    /// Abbreviate annotation names when they are longer than `ABBREVIATED_ANNOTATION_NAME_LENGTH` chars
+    /// Abbreviate annotation names when they are longer than
+    /// `ABBREVIATED_ANNOTATION_NAME_LENGTH` chars
     ///
     /// @param annotationName annotation to be shortened
     /// @return the abbreviated name
@@ -163,7 +175,8 @@ public class FileAnnotation {
         return this.linkedFileAnnotation.isPresent();
     }
 
-    /// Before this getter is called the presence of the linked annotation must be checked via hasLinkedAnnotation()!
+    /// Before this getter is called the presence of the linked annotation must
+    /// be checked via hasLinkedAnnotation()!
     ///
     /// @return the note attached to the annotation
     public FileAnnotation getLinkedFileAnnotation() {

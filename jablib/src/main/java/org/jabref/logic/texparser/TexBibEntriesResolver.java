@@ -12,7 +12,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.texparser.LatexBibEntriesResolverResult;
 import org.jabref.model.texparser.LatexParserResults;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,39 +34,40 @@ public class TexBibEntriesResolver {
         LatexBibEntriesResolverResult resolverResult = new LatexBibEntriesResolverResult(latexParserResults);
 
         // Preload databases from BIB files.
-        List<BibDatabase> bibDatabases =
-                latexParserResults.getBibFiles().stream().map(path -> {
+        List<BibDatabase> bibDatabases = latexParserResults.getBibFiles()
+                .stream()
+                .map(path -> {
                     try {
                         return OpenDatabase.loadDatabase(path, importFormatPreferences, fileMonitor).getDatabase();
                     } catch (IOException e) {
                         LOGGER.error("Error opening file '{}'", path, e);
                         return ParserResult.fromError(e).getDatabase();
                     }
-                }).toList();
+                })
+                .toList();
 
         // Add all new entries to the newEntries set.
-        List<BibEntry> newEntries = findNewEntries(bibDatabases, latexParserResults.getCitations().keySet());
+        List<BibEntry> newEntries = findNewEntries(bibDatabases, latexParserResults.getCitations()
+                .keySet());
         resolverResult.getNewEntries().addAll(newEntries);
 
         return resolverResult;
     }
 
     private List<BibEntry> findNewEntries(List<BibDatabase> bibDatabases, Set<String> citations) {
-        return bibDatabases
-                .stream()
-                .flatMap(database ->
-                        citations.stream()
-                                 .flatMap(citation -> database.getEntriesByCitationKey(citation).stream())
-                                 // Check if there is already an entry with the same key in the given database.
-                                 .filter(entry -> !entry.equals(masterDatabase.getEntryByCitationKey(entry.getCitationKey().orElse("")).orElse(new BibEntry())))
-                                 // Add cross-referencing data to the entry (fill empty fields).
-                                 .map(entry -> addCrossReferencingData(entry, database)))
-                .toList();
+        return bibDatabases.stream()
+                           .flatMap(database -> citations.stream()
+                                   .flatMap(citation -> database.getEntriesByCitationKey(citation).stream())
+                                   // Check if there is already an entry with the same key in the given database.
+                                   .filter(entry -> !entry.equals(masterDatabase.getEntryByCitationKey(entry.getCitationKey().orElse("")).orElse(new BibEntry())))
+                                   // Add cross-referencing data to the entry (fill empty fields).
+                                   .map(entry -> addCrossReferencingData(entry, database)))
+                           .toList();
     }
 
     private BibEntry addCrossReferencingData(BibEntry entry, BibDatabase bibDatabase) {
-        bibDatabase.getReferencedEntry(entry).ifPresent(refEntry ->
-                refEntry.getFields().forEach(field -> entry.getFieldMap().putIfAbsent(field, refEntry.getFieldOrAlias(field).orElse(""))));
+        bibDatabase.getReferencedEntry(entry).ifPresent(refEntry -> refEntry.getFields().forEach(field -> entry.getFieldMap().putIfAbsent(field, refEntry.getFieldOrAlias(field)
+                .orElse(""))));
 
         return entry;
     }

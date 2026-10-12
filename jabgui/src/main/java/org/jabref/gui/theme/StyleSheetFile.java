@@ -10,23 +10,25 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.jabref.logic.util.URLUtil;
-
 import com.google.common.base.Strings;
+import org.jabref.logic.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class StyleSheetFile extends StyleSheet {
 
-    /// A size limit above which Theme will not attempt to keep a data-embedded URL in memory for the CSS.
+    /// A size limit above which Theme will not attempt to keep a data-embedded
+    /// URL in memory for the CSS.
     ///
-    /// Embedding the CSS in a `data:` URL has two functional benefits: the theme survives removal
-    /// of the CSS file while the application is running, and — since the URL changes with the
-    /// content — JavaFX's stylesheet cache cannot serve stale content after a live reload.
+    /// Embedding the CSS in a `data:` URL has two functional benefits: the
+    /// theme survives removal of the CSS file while the application is running,
+    /// and — since the URL changes with the content — JavaFX's stylesheet cache
+    /// cannot serve stale content after a live reload.
     ///
-    /// If the CSS is over this limit, the plain file URL is used instead: nothing breaks as long
-    /// as the file exists. Realistic custom themes fit comfortably within 48k (the dark custom
-    /// theme in the JabRef documentation is 2k; jabref-theme.css is 33k). Note that Base-64
+    /// If the CSS is over this limit, the plain file URL is used instead:
+    /// nothing breaks as long as the file exists. Realistic custom themes fit
+    /// comfortably within 48k (the dark custom theme in the JabRef
+    /// documentation is 2k; jabref-theme.css is 33k). Note that Base-64
     /// encoding increases the memory footprint of the URL by a third.
     static final int MAX_IN_MEMORY_CSS_LENGTH = 48000;
 
@@ -59,16 +61,19 @@ final class StyleSheetFile extends StyleSheet {
         return url;
     }
 
-    /// @return the stylesheet location if the stylesheet is present and available. The location will be a local
-    /// URL. Typically, it will be a `'data:'` URL where the CSS is embedded. However, for large themes it can be
-    /// `'file:'`.
+    /// @return the stylesheet location if the stylesheet is present and
+    ///   available. The location will be a local URL. Typically, it will be a
+    ///   `'data:'` URL where the CSS is embedded. However, for large themes it
+    ///   can be `'file:'`.
     @Override
     String getSceneStylesheetLocation() {
         if (Strings.isNullOrEmpty(dataUrl.get())) {
             reload();
         }
         if (Strings.isNullOrEmpty(dataUrl.get())) {
-            return getStylesheetURL().map(URL::toExternalForm).orElse("");
+            return getStylesheetURL()
+                    .map(URL::toExternalForm)
+                    .orElse("");
         }
         return dataUrl.get();
     }

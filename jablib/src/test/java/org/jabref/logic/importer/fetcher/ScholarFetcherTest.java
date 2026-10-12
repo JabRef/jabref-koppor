@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.collections.FXCollections;
-
+import kong.unirest.core.json.JSONObject;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
@@ -21,9 +22,6 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.paging.Page;
 import org.jabref.support.ExternalServicesTest;
-
-import com.airhacks.afterburner.injection.Injector;
-import kong.unirest.core.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -48,7 +46,8 @@ public class ScholarFetcherTest implements SearchBasedFetcherCapabilityTest, Pag
 
     @Test
     void scholarApiJsonToBibtex() throws ParseException {
-        String jsonString = """
+        String jsonString =
+                """
                 {
                        "id": "7184",
                        "title": "Methylated N-(4-N,N-Dimethylaminobenzyl) Chitosan, a Novel Chitosan Derivative, Enhances Paracellular Permeability Across Intestinal Epithelial Cells (Caco-2)",
@@ -107,14 +106,12 @@ public class ScholarFetcherTest implements SearchBasedFetcherCapabilityTest, Pag
     @Test
     @Disabled("ScholarAPI has no journal scoped search")
     @Override
-    public void supportsJournalSearch() {
-    }
+    public void supportsJournalSearch() {}
 
     @Test
     @Disabled("ScholarAPI has no author scoped search")
     @Override
-    public void supportsAuthorSearch() {
-    }
+    public void supportsAuthorSearch() {}
 
     @Override
     public PagedSearchBasedFetcher getPagedFetcher() {
@@ -154,8 +151,7 @@ public class ScholarFetcherTest implements SearchBasedFetcherCapabilityTest, Pag
 
     @Test
     void findFullTextReturnsEmptyWhenHasPdfIsMissing() throws IOException, FetcherException {
-        BibEntry entry = new BibEntry(StandardEntryType.Article)
-                .withField(new UnknownField("scholarapi"), "7184");
+        BibEntry entry = new BibEntry(StandardEntryType.Article).withField(new UnknownField("scholarapi"), "7184");
         assertEquals(Optional.empty(), fetcher.findFullText(entry));
     }
 

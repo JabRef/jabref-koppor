@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.EntryType;
-
 import org.jspecify.annotations.NullMarked;
 
 /// A change of an entry's type.
@@ -22,7 +21,10 @@ public record UndoableChangeType(BibEntry entry, EntryType before, EntryType aft
     @Override
     public ApplyResult apply() {
         if (!Objects.equals(entry.getType(), before)) {
-            return ApplyResult.of(this, "entry is a %s, not the recorded %s".formatted(entry.getType().getName(), before.getName()));
+            return ApplyResult.of(
+                    this,
+                    "entry is a %s, not the recorded %s".formatted(entry.getType().getName(),
+                            before.getName()));
         }
         entry.setType(after);
         return ApplyResult.SUCCESS;

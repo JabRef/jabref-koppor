@@ -1,8 +1,10 @@
 package org.jabref.logic.help;
 
-/// This enum globally defines all help pages with the name of the markdown file in the help repository at Github.
+/// This enum globally defines all help pages with the name of the markdown file
+/// in the help repository at Github.
 ///
-/// @see <a href="https://github.com/JabRef/user-documentation">user-documentation@github</a>
+/// @see <a
+///   href="https://github.com/JabRef/user-documentation">user-documentation@github</a>
 public enum HelpFile {
     // empty string denotes that it refers to the TOC/index
     CONTENTS(""), // this is always the index

@@ -13,11 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /// Assertions on the buttons of a [DialogPane], to be used from a JavaFX thread.
 public class DialogButtonAssertions {
 
-    private DialogButtonAssertions() {
-    }
+    private DialogButtonAssertions() {}
 
     private static List<Button> buttonsOf(DialogPane pane) {
-        return pane.getButtonTypes().stream()
+        return pane.getButtonTypes()
+                   .stream()
                    .map(pane::lookupButton)
                    .map(Button.class::cast)
                    .toList();
@@ -32,7 +32,9 @@ public class DialogButtonAssertions {
     public static void assertCaptionsAreNotTruncated(List<Button> buttons) {
         for (Button button : buttons) {
             // A caption that does not fit is rendered with an ellipsis instead of the caption itself.
-            assertEquals(button.getText(), ((Text) button.lookup(".text")).getText(),
+            assertEquals(
+                    button.getText(),
+                    ((Text) button.lookup(".text")).getText(),
                     "Caption of button '%s' is truncated".formatted(button.getText()));
 
             // Even without an ellipsis, the button must be wide enough for the caption in the font it is rendered in.
@@ -42,7 +44,9 @@ public class DialogButtonAssertions {
         }
     }
 
-    /// The width the button needs to show its whole caption: the caption measured in the font of the button plus the space its background and padding take.
+    /// The width the button needs to show its whole caption: the caption
+    /// measured in the font of the button plus the space its background and
+    /// padding take.
     private static double requiredWidth(Button button) {
         Text caption = new Text(button.getText());
         caption.setFont(button.getFont());

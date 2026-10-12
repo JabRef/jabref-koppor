@@ -14,14 +14,14 @@ public class YearFieldValuePlausibilityComparator implements FieldValuePlausibil
     private static final Pattern YEAR_PATTERN = Pattern.compile("(\\d{4})");
 
     // Only the factor may instantiate this
-    YearFieldValuePlausibilityComparator() {
-    }
+    YearFieldValuePlausibilityComparator() {}
 
     /// Compares the plausibility of two field values.
     ///
-    /// @param leftValue  value from the library (or candidate)
+    /// @param leftValue value from the library (or candidate)
     /// @param rightValue value from the fetcher (or existing record)
-    /// @return ComparisonResult indicating which year is more plausible: RIGHT_BETTER, LEFT_BETTER, or UNDETERMINED
+    /// @return ComparisonResult indicating which year is more plausible:
+    ///   RIGHT_BETTER, LEFT_BETTER, or UNDETERMINED
 
     @Override
     public ComparisonResult compare(String leftValue, String rightValue) {
@@ -63,9 +63,7 @@ public class YearFieldValuePlausibilityComparator implements FieldValuePlausibil
 
         int diff = Math.abs(leftYear - rightYear);
         if (diff > 10) {
-            return rightYear > leftYear
-                   ? ComparisonResult.RIGHT_BETTER
-                   : ComparisonResult.LEFT_BETTER;
+            return rightYear > leftYear ? ComparisonResult.RIGHT_BETTER : ComparisonResult.LEFT_BETTER;
         }
 
         return ComparisonResult.UNDETERMINED; // years are close, undetermined

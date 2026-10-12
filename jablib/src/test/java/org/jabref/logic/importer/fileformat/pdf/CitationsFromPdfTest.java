@@ -1,17 +1,16 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
+import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences.KeySuffix;
 import org.jabref.logic.citationkeypattern.GlobalCitationKeyPatterns;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.util.GrobidPreferences;
 import org.jabref.logic.preferences.DOIPreferences;
 import org.jabref.logic.xmp.XmpPreferences;
 import org.jabref.model.entry.BibEntryPreferences;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,9 +23,13 @@ class CitationsFromPdfTest {
         ImportFormatPreferences original = new ImportFormatPreferences(
                 BibEntryPreferences.getDefault(),
                 new CitationKeyPatternPreferences(
-                        false, false, false, false,
-                        CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A,
-                        "", "",
+                        false,
+                        false,
+                        false,
+                        false,
+                        KeySuffix.SECOND_WITH_A,
+                        "",
+                        "",
                         CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS,
                         GlobalCitationKeyPatterns.fromPattern("[auth][year]"),
                         new SimpleObjectProperty<>(',')),

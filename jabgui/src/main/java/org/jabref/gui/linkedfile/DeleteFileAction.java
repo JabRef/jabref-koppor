@@ -13,7 +13,6 @@ import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.desktop.os.NativeDesktop;
@@ -26,7 +25,6 @@ import org.jabref.logic.FilePreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.LinkedFile;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -44,11 +42,8 @@ public class DeleteFileAction extends SimpleCommand {
     private final List<LinkedFileViewModel> filesToDelete;
     private boolean success = false;
 
-    public DeleteFileAction(DialogService dialogService,
-                            FilePreferences filePreferences,
-                            BibDatabaseContext databaseContext,
-                            @Nullable LinkedFilesEditorViewModel viewModel,
-                            List<LinkedFileViewModel> filesToDelete) {
+    public DeleteFileAction(DialogService dialogService, FilePreferences filePreferences, BibDatabaseContext databaseContext,
+                            @Nullable LinkedFilesEditorViewModel viewModel, List<LinkedFileViewModel> filesToDelete) {
         this.dialogService = dialogService;
         this.filePreferences = filePreferences;
         this.databaseContext = databaseContext;
@@ -57,9 +52,7 @@ public class DeleteFileAction extends SimpleCommand {
     }
 
     /// Called when the user wants to delete a complete entry.
-    public DeleteFileAction(DialogService dialogService,
-                            FilePreferences filePreferences,
-                            BibDatabaseContext databaseContext,
+    public DeleteFileAction(DialogService dialogService, FilePreferences filePreferences, BibDatabaseContext databaseContext,
                             List<LinkedFileViewModel> filesToDelete) {
         this(dialogService, filePreferences, databaseContext, null, filesToDelete);
     }
@@ -88,8 +81,7 @@ public class DeleteFileAction extends SimpleCommand {
 
         // Undo covers the bibliography, not the file system: it can put the link back, and the
         // file it points at stays wherever this dialog leaves it.
-        dialogDescription = Localization.lang("How should these files be handled?")
-                + "\n" + Localization.lang("Undo does not restore files removed from disk.");
+        dialogDescription = Localization.lang("How should these files be handled?") + "\n" + Localization.lang("Undo does not restore files removed from disk.");
         if (numberOfLinkedFiles != 1) {
             dialogTitle = Localization.lang("Delete %0 files", numberOfLinkedFiles);
         } else {
@@ -125,8 +117,7 @@ public class DeleteFileAction extends SimpleCommand {
 
         ButtonType removeFromEntry = new ButtonType(Localization.lang("Keep file(s)"), ButtonBar.ButtonData.YES);
 
-        Optional<ButtonType> buttonType = dialogService.showCustomDialogAndWait(
-                dialogTitle, dialogPane, removeFromEntry, deleteFromDisk, ButtonType.CANCEL);
+        Optional<ButtonType> buttonType = dialogService.showCustomDialogAndWait(dialogTitle, dialogPane, removeFromEntry, deleteFromDisk, ButtonType.CANCEL);
 
         if (buttonType.isPresent()) {
             ButtonType theButtonType = buttonType.get();
@@ -159,7 +150,8 @@ public class DeleteFileAction extends SimpleCommand {
 
     /// Deletes the files from the entry and optionally from disk.
     ///
-    /// @param deleteFromDisk if true, the files are deleted from disk, otherwise they are only removed from the entry
+    /// @param deleteFromDisk if true, the files are deleted from disk,
+    ///   otherwise they are only removed from the entry
     private void deleteFiles(boolean deleteFromDisk) {
         // default: We have a success
         success = true;
@@ -175,7 +167,8 @@ public class DeleteFileAction extends SimpleCommand {
 
     /// Helper method to delete the specified file from disk
     ///
-    /// @param linkedFile The LinkedFile (file which linked to an entry) to be deleted from disk
+    /// @param linkedFile The LinkedFile (file which linked to an entry) to be
+    ///   deleted from disk
     private void deleteFileHelper(BibDatabaseContext databaseContext, LinkedFile linkedFile) {
         Optional<Path> file = linkedFile.findIn(databaseContext, filePreferences);
 

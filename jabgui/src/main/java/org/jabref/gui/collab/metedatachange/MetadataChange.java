@@ -25,9 +25,7 @@ public final class MetadataChange extends DatabaseChange {
         MetaData newMetaData = metaDataDiff.getNewMetaData();
         // group change is handled by GroupChange, so the groups root keeps its original value
         // to prevent any inconsistency - a library without groups stays without groups
-        metaDataDiff.getGroupDifferences()
-                    .ifPresent(groupDiff -> Optional.ofNullable(groupDiff.getOriginalGroupRoot())
-                                                    .ifPresentOrElse(newMetaData::setGroups, newMetaData::clearGroups));
+        metaDataDiff.getGroupDifferences().ifPresent(groupDiff -> Optional.ofNullable(groupDiff.getOriginalGroupRoot()).ifPresentOrElse(newMetaData::setGroups, newMetaData::clearGroups));
 
         undoEdit.applyEdit(new UndoableMetaDataChange(databaseContext, databaseContext.getMetaData(), newMetaData));
     }

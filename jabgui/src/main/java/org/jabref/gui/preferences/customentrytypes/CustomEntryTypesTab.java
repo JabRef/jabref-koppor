@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.ObservableList;
@@ -28,7 +30,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-
+import org.controlsfx.control.CheckComboBox;
+import org.controlsfx.control.textfield.TextFields;
 import org.jabref.gui.DragAndDropDataFormats;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
@@ -49,11 +52,6 @@ import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 
-import com.airhacks.afterburner.injection.Injector;
-import com.tobiasdiez.easybind.EasyBind;
-import org.controlsfx.control.CheckComboBox;
-import org.controlsfx.control.textfield.TextFields;
-
 import static org.jabref.gui.preferences.forms.FormMetrics.GAP;
 
 public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTypesTabViewModel> {
@@ -70,8 +68,9 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
 
     public CustomEntryTypesTab() {
         StateManager stateManager = Injector.instantiateModelOrService(StateManager.class);
-        BibDatabaseMode mode = stateManager.getActiveDatabase().map(BibDatabaseContext::getMode)
-                                           .orElse(preferences.getLibraryPreferences().getDefaultBibDatabaseMode());
+        BibDatabaseMode mode = stateManager.getActiveDatabase()
+                .map(BibDatabaseContext::getMode)
+                .orElse(preferences.getLibraryPreferences().getDefaultBibDatabaseMode());
         BibEntryTypesManager entryTypesRepository = preferences.getCustomEntryTypesRepository();
 
         this.viewModel = new CustomEntryTypesTabViewModel(mode, entryTypesRepository, dialogService, preferences);
@@ -83,14 +82,21 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
         setupFieldsTable();
         setupFieldPropertyCheckComboBox();
 
-        addNewField.disableProperty().bind(viewModel.selectedEntryTypeProperty().isNull());
+        addNewField.disableProperty().bind(viewModel.selectedEntryTypeProperty()
+                .isNull());
 
         addNewEntryType.setOnAction(_ -> addEntryType());
         addNewField.setOnAction(_ -> addNewField());
         addNewField.textProperty().addListener((_, _, _) -> updateAddNewFieldButtonText());
 
-        addNewEntryTypeButton.disableProperty().bind(viewModel.entryTypeValidationStatus().validProperty().not());
-        addNewFieldButton.disableProperty().bind(viewModel.fieldValidationStatus().validProperty().not().or(viewModel.selectedEntryTypeProperty().isNull()));
+        addNewEntryTypeButton.disableProperty().bind(viewModel.entryTypeValidationStatus()
+                .validProperty()
+                .not());
+        addNewFieldButton.disableProperty().bind(
+                viewModel.fieldValidationStatus()
+                         .validProperty()
+                         .not()
+                         .or(viewModel.selectedEntryTypeProperty().isNull()));
 
         viewModel.newFieldToAddProperty().bindBidirectional(addNewField.textProperty());
     }
@@ -107,9 +113,9 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
 
     private void buildView() {
         setContent(form()
-                .custom(new HBox(GAP, buildEntryTypesColumn(), buildFieldsColumn()), columns -> columns
-                        .validate(viewModel.entryTypeValidationStatus(), addNewEntryType)
-                        .validate(viewModel.fieldValidationStatus(), addNewField))
+                .custom(
+                        new HBox(GAP, buildEntryTypesColumn(), buildFieldsColumn()),
+                        columns -> columns.validate(viewModel.entryTypeValidationStatus(), addNewEntryType).validate(viewModel.fieldValidationStatus(), addNewField))
                 .build());
     }
 
@@ -167,66 +173,64 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
     }
 
     private void setupFieldPropertyCheckComboBox() {
-        fieldPropertyCheckComboBox.getItems().addAll(
-                Arrays.stream(FieldProperty.values())
-                      // MULTILINE_TEXT property should be controlled by "multiline" box
-                      .filter(fieldProperty -> fieldProperty != FieldProperty.MULTILINE_TEXT)
-                      .toList()
-        );
+        fieldPropertyCheckComboBox.getItems().addAll(Arrays.stream(FieldProperty.values())
+                // MULTILINE_TEXT property should be controlled by "multiline" box
+                .filter(fieldProperty -> fieldProperty != FieldProperty.MULTILINE_TEXT)
+                .toList());
 
-        addNewField.textProperty().addListener((_, _, newVal) -> {
-            fieldPropertyCheckComboBox.getCheckModel().clearChecks();
-            EntryTypeViewModel selectedEntryTypeViewModel = viewModel.selectedEntryTypeProperty().get();
-            if (selectedEntryTypeViewModel == null) {
-                fieldPropertyCheckComboBox.setDisable(true);
-                return;
-            }
+        addNewField.textProperty().addListener(
+                (_, _, newVal) -> {
+                    fieldPropertyCheckComboBox.getCheckModel().clearChecks();
+                    EntryTypeViewModel selectedEntryTypeViewModel = viewModel.selectedEntryTypeProperty().get();
+                    if (selectedEntryTypeViewModel == null) {
+                        fieldPropertyCheckComboBox.setDisable(true);
+                        return;
+                    }
 
-            if (newVal.isBlank()) {
-                fieldPropertyCheckComboBox.setDisable(true);
-                return;
-            }
+                    if (newVal.isBlank()) {
+                        fieldPropertyCheckComboBox.setDisable(true);
+                        return;
+                    }
 
-            EntryType selectedEntryType = selectedEntryTypeViewModel.entryType().getValue().getType();
-            Field field = FieldFactory.parseField(selectedEntryType, newVal);
-            boolean isStandardField = !(field instanceof UnknownField);
-            fieldPropertyCheckComboBox.setDisable(isStandardField);
+                    EntryType selectedEntryType = selectedEntryTypeViewModel.entryType()
+                            .getValue()
+                            .getType();
+                    Field field = FieldFactory.parseField(selectedEntryType, newVal);
+                    boolean isStandardField = !(field instanceof UnknownField);
+                    fieldPropertyCheckComboBox.setDisable(isStandardField);
 
-            if (isStandardField) {
-                field.getProperties()
-                     .stream()
-                     .filter(fieldProperty -> fieldProperty != FieldProperty.MULTILINE_TEXT)
-                     .forEach(fieldPropertyCheckComboBox.getCheckModel()::check);
-            }
+                    if (isStandardField) {
+                        field.getProperties()
+                             .stream()
+                             .filter(fieldProperty -> fieldProperty != FieldProperty.MULTILINE_TEXT)
+                             .forEach(fieldPropertyCheckComboBox.getCheckModel()::check);
+                    }
 
-            String displayName = FieldTextMapper.getDisplayName(field);
+                    String displayName = FieldTextMapper.getDisplayName(field);
 
-            Optional<FieldViewModel> existingField = selectedEntryTypeViewModel.fields()
-                                                                               .stream()
-                                                                               .filter(fieldViewModel ->
-                                                                                       fieldViewModel.displayNameProperty()
-                                                                                                     .getValue()
-                                                                                                     .equalsIgnoreCase(displayName)
-                                                                               )
-                                                                               .findFirst();
+                    Optional<FieldViewModel> existingField = selectedEntryTypeViewModel.fields()
+                            .stream()
+                            .filter(fieldViewModel -> fieldViewModel.displayNameProperty()
+                                    .getValue()
+                                    .equalsIgnoreCase(displayName))
+                            .findFirst();
 
-            existingField.stream()
-                         .flatMap(fieldViewModel -> fieldViewModel.getProperties().stream())
-                         .filter(fieldProperty -> fieldProperty != FieldProperty.MULTILINE_TEXT)
-                         .forEach(fieldPropertyCheckComboBox.getCheckModel()::check);
+                    existingField.stream()
+                                 .flatMap(fieldViewModel -> fieldViewModel.getProperties().stream())
+                                 .filter(fieldProperty -> fieldProperty != FieldProperty.MULTILINE_TEXT)
+                                 .forEach(fieldPropertyCheckComboBox.getCheckModel()::check);
 
-            selectedEntryTypeViewModel.fields()
-                                      .stream()
-                                      .filter(fieldViewModel ->
-                                              fieldViewModel.displayNameProperty()
-                                                            .getValue()
-                                                            .equalsIgnoreCase(displayName))
-                                      .findFirst()
-                                      .stream()
-                                      .flatMap(existingFieldViewModel -> existingFieldViewModel.getProperties().stream())
-                                      .filter(fieldProperty -> fieldProperty != FieldProperty.MULTILINE_TEXT)
-                                      .forEach(fieldPropertyCheckComboBox.getCheckModel()::check);
-        });
+                    selectedEntryTypeViewModel.fields()
+                            .stream()
+                            .filter(fieldViewModel -> fieldViewModel.displayNameProperty()
+                                    .getValue()
+                                    .equalsIgnoreCase(displayName))
+                            .findFirst()
+                            .stream()
+                            .flatMap(existingFieldViewModel -> existingFieldViewModel.getProperties().stream())
+                            .filter(fieldProperty -> fieldProperty != FieldProperty.MULTILINE_TEXT)
+                            .forEach(fieldPropertyCheckComboBox.getCheckModel()::check);
+                });
     }
 
     private void setupEntryTypesTable() {
@@ -235,7 +239,12 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
         TableColumn<EntryTypeViewModel, String> entryTypColumn = new TableColumn<>(Localization.lang("Entry Type"));
         entryTypColumn.setMinWidth(100.0);
         entryTypColumn.setPrefWidth(100.0);
-        entryTypColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().entryType().get().getType().getDisplayName()));
+        entryTypColumn.setCellValueFactory(
+                cellData -> new ReadOnlyStringWrapper(cellData.getValue()
+                        .entryType()
+                        .get()
+                        .getType()
+                        .getDisplayName()));
 
         TableColumn<EntryTypeViewModel, String> entryTypeActionsColumn = new TableColumn<>();
         entryTypeActionsColumn.setMinWidth(40.0);
@@ -252,7 +261,12 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
 
         entryTypeActionsColumn.setSortable(false);
         entryTypeActionsColumn.setReorderable(false);
-        entryTypeActionsColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().entryType().get().getType().getDisplayName()));
+        entryTypeActionsColumn.setCellValueFactory(
+                cellData -> new ReadOnlyStringWrapper(cellData.getValue()
+                        .entryType()
+                        .get()
+                        .getType()
+                        .getDisplayName()));
         new ValueTableCellFactory<EntryTypeViewModel, String>()
                 .withGraphic((type, _) -> {
                     if (type instanceof CustomEntryTypeViewModel) {
@@ -272,25 +286,26 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
                     if (type instanceof CustomEntryTypeViewModel) {
                         return _ -> viewModel.removeEntryType(entryTypesTable.getSelectionModel().getSelectedItem());
                     } else {
-                        return _ -> {
-                        };
+                        return _ -> {};
                     }
                 })
                 .install(entryTypeActionsColumn);
 
-        viewModel.selectedEntryTypeProperty().bind(entryTypesTable.getSelectionModel().selectedItemProperty());
+        viewModel.selectedEntryTypeProperty().bind(entryTypesTable.getSelectionModel()
+                .selectedItemProperty());
         viewModel.entryTypeToAddProperty().bindBidirectional(addNewEntryType.textProperty());
 
-        EasyBind.subscribe(viewModel.selectedEntryTypeProperty(), type -> {
-            if (type != null) {
-                ObservableList<FieldViewModel> items = type.fields();
-                fields.setItems(items);
-            } else {
-                fields.setItems(null);
-            }
-            addNewField.clear();
-            fieldPropertyCheckComboBox.getCheckModel().clearChecks();
-        });
+        EasyBind.subscribe(viewModel.selectedEntryTypeProperty(),
+                type -> {
+                    if (type != null) {
+                        ObservableList<FieldViewModel> items = type.fields();
+                        fields.setItems(items);
+                    } else {
+                        fields.setItems(null);
+                    }
+                    addNewField.clear();
+                    fieldPropertyCheckComboBox.getCheckModel().clearChecks();
+                });
     }
 
     private void setupFieldsTable() {
@@ -321,27 +336,28 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
         fieldNameColumn.setCellValueFactory(item -> item.getValue().displayNameProperty());
         fieldNameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         fieldNameColumn.setEditable(true);
-        fieldNameColumn.setOnEditCommit((TableColumn.CellEditEvent<FieldViewModel, String> event) -> {
-            String newDisplayName = event.getNewValue();
-            if (newDisplayName.isBlank()) {
-                dialogService.notify(Localization.lang("Name cannot be empty"));
-                event.getTableView().edit(-1, null);
-                event.getTableView().refresh();
-                return;
-            }
+        fieldNameColumn.setOnEditCommit(
+                (TableColumn.CellEditEvent<FieldViewModel, String> event) -> {
+                    String newDisplayName = event.getNewValue();
+                    if (newDisplayName.isBlank()) {
+                        dialogService.notify(Localization.lang("Name cannot be empty"));
+                        event.getTableView().edit(-1, null);
+                        event.getTableView().refresh();
+                        return;
+                    }
 
-            FieldViewModel fieldViewModel = event.getRowValue();
-            String currentDisplayName = fieldViewModel.displayNameProperty().getValue();
-            // The first predicate will check if the user input the original field name or doesn't edit anything after double click
-            boolean fieldExists = !newDisplayName.equals(currentDisplayName) && viewModel.displayNameExists(newDisplayName);
-            if (fieldExists) {
-                dialogService.notify(Localization.lang("Unable to change field name. \"%0\" already in use.", newDisplayName));
-                event.getTableView().edit(-1, null);
-            } else {
-                fieldViewModel.displayNameProperty().setValue(newDisplayName);
-            }
-            event.getTableView().refresh();
-        });
+                    FieldViewModel fieldViewModel = event.getRowValue();
+                    String currentDisplayName = fieldViewModel.displayNameProperty().getValue();
+                    // The first predicate will check if the user input the original field name or doesn't edit anything after double click
+                    boolean fieldExists = !newDisplayName.equals(currentDisplayName) && viewModel.displayNameExists(newDisplayName);
+                    if (fieldExists) {
+                        dialogService.notify(Localization.lang("Unable to change field name. \"%0\" already in use.", newDisplayName));
+                        event.getTableView().edit(-1, null);
+                    } else {
+                        fieldViewModel.displayNameProperty().setValue(newDisplayName);
+                    }
+                    event.getTableView().refresh();
+                });
 
         fieldTypeColumn.setCellFactory(CheckBoxTableCell.forTableColumn(fieldTypeColumn));
         fieldTypeColumn.setCellValueFactory(item -> item.getValue().requiredProperty());
@@ -372,27 +388,28 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
                 .setOnDragExited(this::handleOnDragExited)
                 .install(fields);
 
-        TextFields.bindAutoCompletion(
-                addNewField,
-                viewModel.fieldsForAdding().stream()
+        TextFields.bindAutoCompletion(addNewField,
+                viewModel.fieldsForAdding()
+                         .stream()
                          .map(Field::getName)
-                         .collect(Collectors.toList())
-        );
+                         .collect(Collectors.toList()));
 
         // selected field will show in addNewField box with its properties
-        fields.getSelectionModel().selectedItemProperty().addListener((_, _, newSelection) -> {
-            fieldPropertyCheckComboBox.getCheckModel().clearChecks();
-            if (newSelection != null) {
-                addNewField.setText(newSelection.displayNameProperty().getValue());
+        fields.getSelectionModel()
+              .selectedItemProperty()
+              .addListener((_, _, newSelection) -> {
+                  fieldPropertyCheckComboBox.getCheckModel().clearChecks();
+                  if (newSelection != null) {
+                      addNewField.setText(newSelection.displayNameProperty().getValue());
 
-                ObservableList<FieldProperty> properties = newSelection.getProperties();
-                if (!properties.isEmpty()) {
-                    properties.stream()
-                              .filter(fieldProperty -> fieldProperty != FieldProperty.MULTILINE_TEXT)
-                              .forEach(fieldPropertyCheckComboBox.getCheckModel()::check);
-                }
-            }
-        });
+                      ObservableList<FieldProperty> properties = newSelection.getProperties();
+                      if (!properties.isEmpty()) {
+                          properties.stream()
+                                    .filter(fieldProperty -> fieldProperty != FieldProperty.MULTILINE_TEXT)
+                                    .forEach(fieldPropertyCheckComboBox.getCheckModel()::check);
+                      }
+                  }
+              });
     }
 
     private void makeRotatedColumnHeader(TableColumn<?, ?> column, String text) {
@@ -404,16 +421,14 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
         column.getStyleClass().add("rotated");
     }
 
-    private void handleOnDragOver(TableRow<FieldViewModel> row, FieldViewModel originalItem, DragEvent
-            event) {
+    private void handleOnDragOver(TableRow<FieldViewModel> row, FieldViewModel originalItem, DragEvent event) {
         if ((event.getGestureSource() != originalItem) && event.getDragboard().hasContent(DragAndDropDataFormats.FIELD)) {
             event.acceptTransferModes(TransferMode.MOVE);
             ControlHelper.setDroppingPseudoClasses(row, event);
         }
     }
 
-    private void handleOnDragDetected(TableRow<FieldViewModel> row, FieldViewModel fieldViewModel, MouseEvent
-            event) {
+    private void handleOnDragDetected(TableRow<FieldViewModel> row, FieldViewModel fieldViewModel, MouseEvent event) {
         row.startFullDrag();
         FieldViewModel field = fields.getSelectionModel().getSelectedItem();
 
@@ -453,8 +468,11 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
             return;
         }
 
-        EntryType entryType = selectedEntryType.entryType().getValue().getType();
-        Field field = FieldFactory.parseField(entryType, addNewField.getText().trim());
+        EntryType entryType = selectedEntryType.entryType()
+                .getValue()
+                .getType();
+        Field field = FieldFactory.parseField(entryType, addNewField.getText()
+                .trim());
         boolean fieldExists = viewModel.displayNameExists(FieldTextMapper.getDisplayName(field));
         addNewFieldButton.setText(fieldExists ? Localization.lang("Modify") : Localization.lang("Add"));
     }
@@ -466,7 +484,11 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
 
         String entryTypeName = viewModel.entryTypeToAddProperty().getValue();
         for (EntryTypeViewModel existingEntryType : entryTypesTable.getItems()) {
-            if (existingEntryType.entryType().getValue().getType().getName().equalsIgnoreCase(entryTypeName)) {
+            if (existingEntryType.entryType()
+                                 .getValue()
+                                 .getType()
+                                 .getName()
+                                 .equalsIgnoreCase(entryTypeName)) {
                 this.entryTypesTable.getSelectionModel().select(existingEntryType);
                 this.entryTypesTable.scrollTo(existingEntryType);
                 return;
@@ -491,9 +513,7 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
     }
 
     private void resetEntryTypes() {
-        boolean reset = dialogService.showConfirmationDialogAndWait(
-                Localization.lang("Reset entry types and fields to defaults"),
-                Localization.lang("This will reset all entry types to their default values and remove all custom entry types"),
+        boolean reset = dialogService.showConfirmationDialogAndWait(Localization.lang("Reset entry types and fields to defaults"), Localization.lang("This will reset all entry types to their default values and remove all custom entry types"),
                 Localization.lang("Reset to default"));
         if (reset) {
             viewModel.resetAllCustomEntryTypes();
@@ -505,13 +525,20 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
         }
     }
 
-    /// For multiline property, fields with the same name in each entry type will be updated as the standard fields are global.
+    /// For multiline property, fields with the same name in each entry type
+    /// will be updated as the standard fields are global.
     private BooleanProperty createMultilinePropertyListener(TableColumn.CellDataFeatures<FieldViewModel, Boolean> item) {
         BooleanProperty property = item.getValue().multilineProperty();
         property.addListener((_, _, isSelected) -> {
             viewModel.entryTypes().forEach(typeViewModel -> {
-                typeViewModel.fields().stream()
-                             .filter(field -> field.displayNameProperty().get().equals(item.getValue().displayNameProperty().get()))
+                typeViewModel.fields()
+                             .stream()
+                             .filter(
+                                     field -> field.displayNameProperty()
+                                                   .get()
+                                                   .equals(item.getValue()
+                                                               .displayNameProperty()
+                                                               .get()))
                              .forEach(field -> field.multilineProperty().set(isSelected));
             });
         });

@@ -9,7 +9,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.DisabledOnCIServer;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -41,8 +40,7 @@ public class DOABFetcherTest {
                                 .withField(StandardField.LANGUAGE, "English")
                                 .withField(StandardField.KEYWORDS, "poetry, love, warfare, thema EDItEUR::D Biography, Literature and Literary studies::DC Poetry::DCF Poetry by individual poets")
                                 .withField(StandardField.PUBLISHER, "punctum books"),
-                        "i open fire"
-                ),
+                        "i open fire"),
                 Arguments.of(
                         new BibEntry(StandardEntryType.Book)
                                 .withField(StandardField.ISBN, "9789085551201")
@@ -57,8 +55,7 @@ public class DOABFetcherTest {
                                 .withField(StandardField.LANGUAGE, "English")
                                 .withField(StandardField.KEYWORDS, "Open Access, Monographs, OAPEN Library, Directory of Open Access Books, thema EDItEUR::G Reference, Information and Interdisciplinary subjects::GL Library and information sciences / Museology, thema EDItEUR::G Reference, Information and Interdisciplinary subjects::GP Research and information: general")
                                 .withField(StandardField.PUBLISHER, "Amsterdam University Press"),
-                        "the deliverance of open access books"
-                ),
+                        "the deliverance of open access books"),
                 Arguments.of(
                         new BibEntry(StandardEntryType.Book)
                                 .withField(StandardField.EDITOR, "Andrew Perrin and Loren T. Stuckenbruck")
@@ -72,7 +69,7 @@ public class DOABFetcherTest {
                                 .withField(StandardField.KEYWORDS, "Religion, thema EDItEUR::Q Philosophy and Religion::QR Religion and beliefs::QRM Christianity::QRMF Christianity: sacred texts and revered writings::QRMF1 Bibles::QRMF13 New Testaments")
                                 .withField(StandardField.PUBLISHER, "Brill"),
                         "\"Four Kingdom Motifs before and beyond the Book of Daniel\""
-                        // The title needs to be in quotes in order for and to be parsed correctly here
+                // The title needs to be in quotes in order for and to be parsed correctly here
                 ),
                 Arguments.of(
                         new BibEntry(StandardEntryType.Book)
@@ -85,8 +82,7 @@ public class DOABFetcherTest {
                                 .withField(StandardField.LANGUAGE, "English")
                                 .withField(StandardField.KEYWORDS, "UAV sensors, Environmental Monitoring, drones, unmanned aerial vehicles")
                                 .withField(StandardField.PUBLISHER, "MDPI - Multidisciplinary Digital Publishing Institute"),
-                        "UAV Sensors for Environmental Monitoring"
-                ),
+                        "UAV Sensors for Environmental Monitoring"),
                 Arguments.of(
                         new BibEntry(StandardEntryType.Book)
                                 .withField(StandardField.AUTHOR, "Carl Marnewick and Wikus Erasmus and Joseph Nazeer")
@@ -100,9 +96,8 @@ public class DOABFetcherTest {
                                 .withField(StandardField.KEYWORDS, "agile, structural equation modelling, information technology, success, models, strategic alignment, complexity, waterfall, project management, quantitative, Agile software development, Change management, Deliverable, Exploratory factor analysis, South Africa, thema EDItEUR::U Computing and Information Technology::UB Information technology: general topics")
                                 .withField(StandardField.PUBLISHER, "AOSIS"),
                         "\"The symbiosis between information system project complexity and information system project success\""
-                        // The title needs to be in quotes in order for and to be parsed correctly here
-                )
-        );
+                // The title needs to be in quotes in order for and to be parsed correctly here
+                ));
     }
 
     @ParameterizedTest

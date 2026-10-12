@@ -43,7 +43,8 @@ class FileFilterUtilsTest {
 
     @Test
     void isDuringLastWeekPositiveTest() {
-        assertTrue(fileFilterUtils.isDuringLastWeek(time.minusDays(6).minusHours(23)));
+        assertTrue(fileFilterUtils.isDuringLastWeek(time.minusDays(6)
+                .minusHours(23)));
     }
 
     @Test
@@ -53,7 +54,8 @@ class FileFilterUtilsTest {
 
     @Test
     void isDuringLastMonthPositiveTest() {
-        assertTrue(fileFilterUtils.isDuringLastMonth(time.minusDays(29).minusHours(23)));
+        assertTrue(fileFilterUtils.isDuringLastMonth(time.minusDays(29)
+                .minusHours(23)));
     }
 
     @Test
@@ -63,7 +65,8 @@ class FileFilterUtilsTest {
 
     @Test
     void isDuringLastYearPositiveTest() {
-        assertTrue(fileFilterUtils.isDuringLastYear(time.minusDays(364).minusHours(23)));
+        assertTrue(fileFilterUtils.isDuringLastYear(time.minusDays(364)
+                .minusHours(23)));
     }
 
     @Nested
@@ -119,8 +122,7 @@ class FileFilterUtilsTest {
 
         @Test
         void sortByDateAscendingPositiveTest() {
-            List<String> sortedPaths = fileFilterUtils
-                    .sortByDateAscending(files)
+            List<String> sortedPaths = fileFilterUtils.sortByDateAscending(files)
                     .stream()
                     .map(Path::toString)
                     .collect(Collectors.toList());
@@ -129,8 +131,7 @@ class FileFilterUtilsTest {
 
         @Test
         void sortByDateAscendingNegativeTest() {
-            List<String> sortedPaths = fileFilterUtils
-                    .sortByDateAscending(files)
+            List<String> sortedPaths = fileFilterUtils.sortByDateAscending(files)
                     .stream()
                     .map(Path::toString)
                     .collect(Collectors.toList());
@@ -139,8 +140,7 @@ class FileFilterUtilsTest {
 
         @Test
         void sortByDateDescendingPositiveTest() {
-            List<String> sortedPaths = fileFilterUtils
-                    .sortByDateDescending(files)
+            List<String> sortedPaths = fileFilterUtils.sortByDateDescending(files)
                     .stream()
                     .map(Path::toString)
                     .collect(Collectors.toList());
@@ -149,8 +149,7 @@ class FileFilterUtilsTest {
 
         @Test
         void sortByDateDescendingNegativeTest() {
-            List<String> sortedPaths = fileFilterUtils
-                    .sortByDateDescending(files)
+            List<String> sortedPaths = fileFilterUtils.sortByDateDescending(files)
                     .stream()
                     .map(Path::toString)
                     .collect(Collectors.toList());

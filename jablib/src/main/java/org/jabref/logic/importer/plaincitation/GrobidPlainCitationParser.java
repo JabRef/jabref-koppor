@@ -11,7 +11,6 @@ import org.jabref.logic.importer.util.GrobidPreferences;
 import org.jabref.logic.importer.util.GrobidService;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.http.SimpleHttpResponse;
-
 import org.jsoup.HttpStatusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +30,9 @@ public class GrobidPlainCitationParser implements PlainCitationParser {
         this.grobidService = grobidService;
     }
 
-    /// Passes request to grobid server, using consolidateCitations option to improve result. Takes a while, since the
-    /// server has to look up the entry.
+    /// Passes request to grobid server, using consolidateCitations option to
+    /// improve result. Takes a while, since the server has to look up the
+    /// entry.
     ///
     /// @return A BibTeX string if extraction is successful
     @Override

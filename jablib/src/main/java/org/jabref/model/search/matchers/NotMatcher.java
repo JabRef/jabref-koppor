@@ -2,7 +2,6 @@ package org.jabref.model.search.matchers;
 
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.SearchMatcher;
-
 import org.jspecify.annotations.NonNull;
 
 /// Inverts the search result.

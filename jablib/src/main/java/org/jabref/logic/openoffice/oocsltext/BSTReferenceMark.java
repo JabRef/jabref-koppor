@@ -2,16 +2,16 @@ package org.jabref.logic.openoffice.oocsltext;
 
 import java.util.List;
 
-import org.jabref.logic.openoffice.JabRefReferenceMark;
-import org.jabref.logic.openoffice.ReferenceMark;
-
 import com.sun.star.container.XNamed;
 import com.sun.star.lang.XMultiServiceFactory;
 import com.sun.star.text.XTextContent;
 import com.sun.star.uno.Exception;
 import com.sun.star.uno.UnoRuntime;
+import org.jabref.logic.openoffice.JabRefReferenceMark;
+import org.jabref.logic.openoffice.ReferenceMark;
 
-/// Class to model a reference mark for BST integration. See [BSTReferenceMarkManager] for usage/management.
+/// Class to model a reference mark for BST integration. See
+/// [BSTReferenceMarkManager] for usage/management.
 public class BSTReferenceMark {
     private JabRefReferenceMark referenceMark;
     private XTextContent textContent;
@@ -27,14 +27,12 @@ public class BSTReferenceMark {
         this.citationType = referenceMark.getCitationType();
     }
 
-    public static BSTReferenceMark of(List<String> citationKeys, List<Integer> citationNumbers, CSLCitationType citationType, XMultiServiceFactory factory) throws Exception {
+    public static BSTReferenceMark of(List<String> citationKeys, List<Integer> citationNumbers, CSLCitationType citationType,
+            XMultiServiceFactory factory)
+            throws Exception {
         String uniqueId = ReferenceMark.generateRandomCUID(8);
-        JabRefReferenceMark referenceMark = new JabRefReferenceMark(
-                JabRefReferenceMark.buildReferenceMarkName(citationKeys, citationNumbers, uniqueId, citationType),
-                citationKeys,
-                citationNumbers,
-                uniqueId,
-                citationType);
+        JabRefReferenceMark referenceMark = new JabRefReferenceMark(JabRefReferenceMark.buildReferenceMarkName(citationKeys, citationNumbers, uniqueId, citationType),
+                citationKeys, citationNumbers, uniqueId, citationType);
         XNamed named = UnoRuntime.queryInterface(XNamed.class, factory.createInstance("com.sun.star.text.ReferenceMark"));
         named.setName(referenceMark.getName());
         return new BSTReferenceMark(named, referenceMark);

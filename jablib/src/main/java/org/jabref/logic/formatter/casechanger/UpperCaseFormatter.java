@@ -2,10 +2,10 @@ package org.jabref.logic.formatter.casechanger;
 
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 
-/// Converts all characters of the given string to upper case, but does not change words starting with "{"
+/// Converts all characters of the given string to upper case, but does not
+/// change words starting with "{"
 public class UpperCaseFormatter extends Formatter {
 
     @Override
@@ -29,8 +29,7 @@ public class UpperCaseFormatter extends Formatter {
 
     @Override
     public String getDescription() {
-        return Localization.lang(
-                "CHANGES ALL LETTERS TO UPPER CASE.");
+        return Localization.lang("CHANGES ALL LETTERS TO UPPER CASE.");
     }
 
     @Override

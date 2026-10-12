@@ -11,7 +11,6 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.skin.TableColumnHeader;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.actions.ActionFactory;
@@ -29,10 +28,8 @@ public class MainTableHeaderContextMenu extends ContextMenu {
     private final LibraryTabContainer tabContainer;
     private final DialogService dialogService;
 
-    public MainTableHeaderContextMenu(MainTable mainTable,
-                                      MainTableColumnFactory factory,
-                                      LibraryTabContainer tabContainer,
-                                      DialogService dialogService) {
+    public MainTableHeaderContextMenu(MainTable mainTable, MainTableColumnFactory factory, LibraryTabContainer tabContainer,
+            DialogService dialogService) {
         super();
         this.tabContainer = tabContainer;
         this.mainTable = mainTable;
@@ -98,13 +95,12 @@ public class MainTableHeaderContextMenu extends ContextMenu {
 
         this.getItems().add(new SeparatorMenuItem());
         ActionFactory actionfactory = new ActionFactory();
-        MenuItem showMoreItem = actionfactory.createMenuItem(
-                StandardActions.SHOW_PREFS.withText(Localization.lang("More options...")),
-                new ShowPreferencesAction(tabContainer, TableTab.class, dialogService));
+        MenuItem showMoreItem = actionfactory.createMenuItem(StandardActions.SHOW_PREFS.withText(Localization.lang("More options...")), new ShowPreferencesAction(tabContainer, TableTab.class, dialogService));
         this.getItems().add(showMoreItem);
     }
 
-    /// Creates an item for the menu constructed with the name/visibility of the table column.
+    /// Creates an item for the menu constructed with the name/visibility of the
+    /// table column.
     private RightClickMenuItem createMenuItem(TableColumn<BibEntryTableViewModel, ?> column, boolean isDisplaying) {
         // Gets display name and constructs Radio Menu Item.
         MainTableColumn<?> tableColumn = (MainTableColumn<?>) column;
@@ -145,7 +141,8 @@ public class MainTableHeaderContextMenu extends ContextMenu {
     }
 
     /// Determines if a list of TableColumns contains the searched column.
-    private boolean isColumnInList(MainTableColumn<?> searchColumn, List<TableColumn<BibEntryTableViewModel, ?>> tableColumns) {
+    private boolean isColumnInList(MainTableColumn<?> searchColumn,
+            List<TableColumn<BibEntryTableViewModel, ?>> tableColumns) {
         for (TableColumn<BibEntryTableViewModel, ?> column : tableColumns) {
             MainTableColumnModel model = ((MainTableColumn<?>) column).getModel();
             if (model.equals(searchColumn.getModel())) {
@@ -155,7 +152,8 @@ public class MainTableHeaderContextMenu extends ContextMenu {
         return false;
     }
 
-    /// Creates the list of the "commonly used" columns (currently based on the default preferences).
+    /// Creates the list of the "commonly used" columns (currently based on the
+    /// default preferences).
     private List<TableColumn<BibEntryTableViewModel, ?>> commonColumns() {
         // Qualifier strings
         String entryTypeQualifier = "entrytype";

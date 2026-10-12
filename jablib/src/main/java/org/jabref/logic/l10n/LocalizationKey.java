@@ -8,13 +8,13 @@ public class LocalizationKey {
     private final String key;
     private final String escapedPropertyKey;
 
-    /// @param key plain key - no escaping. E.g., "Copy \cite{key}" or "Newline follows\nsecond line" are valid parameters.
+    /// @param key plain key - no escaping. E.g., "Copy \cite{key}" or "Newline
+    ///   follows\nsecond line" are valid parameters.
     private LocalizationKey(String key) {
         this.key = key;
         // space, #, !, = and : are not allowed in properties file keys
         // # and ! are only disallowed at the beginning of the key but easier to escape every instance
-        this.escapedPropertyKey = key
-                .replace("\n", "\\n")
+        this.escapedPropertyKey = key.replace("\n", "\\n")
                 .replace(" ", "\\ ")
                 .replace("#", "\\#")
                 .replace("!", "\\!")
@@ -22,7 +22,8 @@ public class LocalizationKey {
                 .replace(":", "\\:");
     }
 
-    /// @param key plain key - no escaping. E.g., "Copy \cite{key}" or "Newline follows\nsecond line" are valid parameters.
+    /// @param key plain key - no escaping. E.g., "Copy \cite{key}" or "Newline
+    ///   follows\nsecond line" are valid parameters.
     public static LocalizationKey fromKey(@NonNull String key) {
         return new LocalizationKey(key);
     }

@@ -21,7 +21,8 @@ public class OcrPreferences {
         this("ocrmypdf", PagesWithTextHandling.SKIP, EngineSelection.TESSERACT, List.of(OcrLanguage.ENGLISH));
     }
 
-    public OcrPreferences(String ocrEnginePath, PagesWithTextHandling pagesWithTextHandling, EngineSelection engineSelection, List<OcrLanguage> ocrLanguages) {
+    public OcrPreferences(String ocrEnginePath, PagesWithTextHandling pagesWithTextHandling, EngineSelection engineSelection,
+                          List<OcrLanguage> ocrLanguages) {
         this.ocrEnginePath = new SimpleStringProperty(ocrEnginePath);
         this.pagesWithTextHandling = new SimpleObjectProperty<>(pagesWithTextHandling);
         this.engineSelection = new SimpleObjectProperty<>(engineSelection);

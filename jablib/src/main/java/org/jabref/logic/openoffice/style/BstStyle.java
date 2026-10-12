@@ -6,42 +6,52 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.jabref.logic.bst.BstVM;
-
 import org.antlr.v4.runtime.misc.ParseCancellationException;
+import org.jabref.logic.bst.BstVM;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-/// An [OOStyle] backed by a `.bst` file - either an internal (classpath) style bundled with
-/// JabRef or an external (filesystem) style supplied by the user.
+/// An [OOStyle] backed by a `.bst` file - either an internal (classpath) style
+/// bundled with JabRef or an external (filesystem) style supplied by the user.
 @NullMarked
 public class BstStyle implements OOStyle {
 
     /// Classpath resource paths for the built-in BST styles.
     public static final String INTERNAL_IEEETRAN_PATH = "/resource/openoffice/IEEEtran.bst";
+
     public static final String INTERNAL_ABBRV_PATH = "/resource/openoffice/abbrv.bst";
     public static final String INTERNAL_APA_PATH = "/resource/openoffice/apa.bst";
 
     private final boolean internal;
+
     /// Classpath resource path for internal styles; `null` for external styles.
     private final @Nullable String resourcePath;
+
     /// Filesystem path for external styles; `null` for internal styles.
     private final @Nullable Path filePath;
+
     private final String name;
     private final String source;
+
     /// Parsed executable program for this specific `.bst` style.
     ///
-    /// [BstVM] is **not** style-agnostic: it represents the parsed program of one concrete `.bst`
-    /// file. We keep it on the style so repeated preview/citation/bibliography operations can reuse
-    /// the parsed program and avoid reparsing and reallocating a new [BstVM] on each operation.
+    /// [BstVM] is **not** style-agnostic: it represents the parsed program of
+    /// one concrete `.bst` file. We keep it on the style so repeated
+    /// preview/citation/bibliography operations can reuse the parsed program
+    /// and avoid reparsing and reallocating a new [BstVM] on each operation.
     private final BstVM bstVM;
+
     private final boolean hasSortCommand;
 
-    private BstStyle(@Nullable String resourcePath, @Nullable Path filePath, boolean internal, String source, BstVM bstVM) {
+    private BstStyle(@Nullable String resourcePath, @Nullable Path filePath, boolean internal,
+                     String source, BstVM bstVM) {
         this.internal = internal;
         this.resourcePath = resourcePath;
         this.filePath = filePath;
-        String filename = internal ? Path.of(resourcePath).getFileName().toString() : filePath.getFileName().toString();
+        String filename = internal ? Path.of(resourcePath)
+                .getFileName()
+                .toString()
+                : filePath.getFileName().toString();
         this.name = stripBstExtension(filename);
         this.source = source;
         this.bstVM = bstVM;
@@ -96,9 +106,10 @@ public class BstStyle implements OOStyle {
         return internal;
     }
 
-    /// For external styles returns the absolute filesystem path.
-    /// For internal styles returns the classpath resource path (starts with `/resource/openoffice/`).
-    /// This value is persisted by [JabRefCliPreferences] and used to reconstruct the style on startup.
+    /// For external styles returns the absolute filesystem path. For internal
+    /// styles returns the classpath resource path (starts with
+    /// `/resource/openoffice/`). This value is persisted by
+    /// [JabRefCliPreferences] and used to reconstruct the style on startup.
     @Override
     public String getPath() {
         if (filePath != null) {

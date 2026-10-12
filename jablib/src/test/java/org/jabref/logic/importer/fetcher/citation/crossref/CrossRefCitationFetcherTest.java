@@ -13,7 +13,6 @@ import org.jabref.logic.importer.util.GrobidPreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -33,8 +32,8 @@ class CrossRefCitationFetcherTest {
         GrobidPreferences grobidPreferences = mock(GrobidPreferences.class);
         AiPreferences aiPreferences = mock(AiPreferences.class);
         ChatModel chatModel = mock(ChatModel.class);
-        CrossRefCitationFetcher fetcher = new CrossRefCitationFetcher(
-                importerPreferences, importFormatPreferences, citationKeyPatternPreferences, grobidPreferences, aiPreferences, chatModel);
+        CrossRefCitationFetcher fetcher = new CrossRefCitationFetcher(importerPreferences, importFormatPreferences, citationKeyPatternPreferences,
+                grobidPreferences, aiPreferences, chatModel);
         List<BibEntry> references = fetcher.getReferences(new BibEntry().withField(StandardField.DOI, "10.47397/tb/44-3/tb138kopp-jabref"));
         assertNotEquals(List.of(), references);
     }

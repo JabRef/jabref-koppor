@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.edit.automaticfieldeditor.AbstractAutomaticFieldEditorTabViewModel;
@@ -21,11 +20,8 @@ import org.jabref.model.undo.UndoableFieldChange;
 public class ClearContentViewModel extends AbstractAutomaticFieldEditorTabViewModel {
     private final List<BibEntry> selectedEntries;
 
-    public ClearContentViewModel(BibDatabase bibDatabase,
-                                 List<BibEntry> selectedEntries,
-                                 CompoundEdit compoundEdit,
-                                 DialogService dialogService,
-                                 StateManager stateManager) {
+    public ClearContentViewModel(BibDatabase bibDatabase, List<BibEntry> selectedEntries, CompoundEdit compoundEdit,
+            DialogService dialogService, StateManager stateManager) {
         super(bibDatabase, compoundEdit, dialogService, stateManager);
         this.selectedEntries = new ArrayList<>(selectedEntries);
     }
@@ -40,8 +36,7 @@ public class ClearContentViewModel extends AbstractAutomaticFieldEditorTabViewMo
         for (BibEntry entry : this.selectedEntries) {
             Optional<String> oldFieldValue = entry.getField(field);
             if (oldFieldValue.isPresent()) {
-                entry.clearField(field)
-                     .ifPresent(change -> edits.addEdit(new UndoableFieldChange(change)));
+                entry.clearField(field).ifPresent(change -> edits.addEdit(new UndoableFieldChange(change)));
                 affectedEntriesCount++;
             }
         }

@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.model.FieldChange;
 import org.jabref.model.TreeNode;
 import org.jabref.model.database.BibDatabase;
@@ -18,7 +17,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.SearchMatcher;
 import org.jabref.model.search.matchers.MatcherSet;
 import org.jabref.model.search.matchers.MatcherSets;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -62,16 +60,18 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         this.groupProperty.set(newGroup);
     }
 
-    /// Associates the specified group with this node while also providing the possibility to modify previous matched entries so that they are now matched by the new group.
+    /// Associates the specified group with this node while also providing the
+    /// possibility to modify previous matched entries so that they are now
+    /// matched by the new group.
     ///
-    /// @param newGroup                        the new group (has to be non-null)
-    /// @param shouldKeepPreviousAssignments   specifies whether previous matched entries should be added to the new group
-    /// @param shouldRemovePreviousAssignments specifies whether previous matched entries should be removed from the old group
-    /// @param entriesInDatabase               list of entries in the database
-    public List<FieldChange> setGroup(@NonNull AbstractGroup newGroup,
-                                      boolean shouldKeepPreviousAssignments,
-                                      boolean shouldRemovePreviousAssignments,
-                                      List<BibEntry> entriesInDatabase) {
+    /// @param newGroup the new group (has to be non-null)
+    /// @param shouldKeepPreviousAssignments specifies whether previous matched
+    ///   entries should be added to the new group
+    /// @param shouldRemovePreviousAssignments specifies whether previous
+    ///   matched entries should be removed from the old group
+    /// @param entriesInDatabase list of entries in the database
+    public List<FieldChange> setGroup(@NonNull AbstractGroup newGroup, boolean shouldKeepPreviousAssignments, boolean shouldRemovePreviousAssignments,
+            List<BibEntry> entriesInDatabase) {
         AbstractGroup oldGroup = getGroup();
         groupProperty.set(newGroup);
 
@@ -79,8 +79,9 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         boolean shouldRemoveFromOldGroup = shouldRemovePreviousAssignments && (oldGroup instanceof GroupEntryChanger);
         boolean shouldAddToNewGroup = shouldKeepPreviousAssignments && (newGroup instanceof GroupEntryChanger);
         if (shouldAddToNewGroup || shouldRemoveFromOldGroup) {
-            List<BibEntry> entriesMatchedByOldGroup = entriesInDatabase.stream().filter(oldGroup::isMatch)
-                                                                       .collect(Collectors.toList());
+            List<BibEntry> entriesMatchedByOldGroup = entriesInDatabase.stream()
+                    .filter(oldGroup::isMatch)
+                    .collect(Collectors.toList());
             if (shouldRemoveFromOldGroup) {
                 GroupEntryChanger entryChanger = (GroupEntryChanger) oldGroup;
                 changes.addAll(entryChanger.remove(entriesMatchedByOldGroup));
@@ -94,7 +95,12 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         return changes;
     }
 
-    /// Creates a [SearchMatcher] that matches entries of this group and that takes the hierarchical information into account. I.e., it finds elements contained in this nodes group, or the union of those elements in its own group and its children's groups (recursively), or the intersection of the elements in its own group and its parent's group (depending on the hierarchical settings stored in the involved groups)
+    /// Creates a [SearchMatcher] that matches entries of this group and that
+    /// takes the hierarchical information into account. I.e., it finds elements
+    /// contained in this nodes group, or the union of those elements in its own
+    /// group and its children's groups (recursively), or the intersection of
+    /// the elements in its own group and its parent's group (depending on the
+    /// hierarchical settings stored in the involved groups)
     public SearchMatcher getSearchMatcher() {
         return getSearchMatcher(getGroup().getHierarchicalContext());
     }
@@ -104,17 +110,17 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         if (context == GroupHierarchyType.INDEPENDENT) {
             return getGroup();
         }
-        MatcherSet searchRule = MatcherSets.build(
-                context == GroupHierarchyType.REFINING ? MatcherSets.MatcherType.AND : MatcherSets.MatcherType.OR);
+        MatcherSet searchRule = MatcherSets.build(context == GroupHierarchyType.REFINING ? MatcherSets.MatcherType.AND : MatcherSets.MatcherType.OR);
         searchRule.addRule(getGroup());
         if ((context == GroupHierarchyType.INCLUDING) && (originalContext != GroupHierarchyType.REFINING)) {
             for (GroupTreeNode child : getChildren()) {
                 searchRule.addRule(child.getSearchMatcher(originalContext));
             }
-        } else if ((context == GroupHierarchyType.REFINING) && !isRoot() && (originalContext
-                != GroupHierarchyType.INCLUDING)) {
+        } else if ((context == GroupHierarchyType.REFINING) && !isRoot() && (originalContext != GroupHierarchyType.INCLUDING)) {
             // noinspection OptionalGetWithoutIsPresent
-            searchRule.addRule(getParent().get().getSearchMatcher(originalContext));
+            searchRule.addRule(getParent()
+                    .get()
+                    .getSearchMatcher(originalContext));
         }
         return searchRule;
     }
@@ -128,8 +134,7 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
             return false;
         }
         GroupTreeNode that = (GroupTreeNode) o;
-        return Objects.equals(getGroup(), that.getGroup()) &&
-                Objects.equals(getChildren(), that.getChildren());
+        return Objects.equals(getGroup(), that.getGroup()) && Objects.equals(getChildren(), that.getChildren());
     }
 
     @Override
@@ -137,11 +142,14 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         return Objects.hash(getGroup());
     }
 
-    /// Get only groups containing all the entries or just groups containing any of the
+    /// Get only groups containing all the entries or just groups containing any
+    /// of the
     ///
-    /// @param entries    List of [BibEntry] to search for
-    /// @param requireAll Whether to return only groups that must contain all entries
-    /// @return List of [GroupTreeNode] containing the matches. [AllEntriesGroup] is always contained
+    /// @param entries List of [BibEntry] to search for
+    /// @param requireAll Whether to return only groups that must contain all
+    ///   entries
+    /// @return List of [GroupTreeNode] containing the matches.
+    ///   [AllEntriesGroup] is always contained
     public List<GroupTreeNode> getContainingGroups(List<BibEntry> entries, boolean requireAll) {
         List<GroupTreeNode> groups = new ArrayList<>();
 
@@ -164,12 +172,14 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         return groups;
     }
 
-    /// Determines all groups in the subtree starting at this node which contain the given entry.
+    /// Determines all groups in the subtree starting at this node which contain
+    /// the given entry.
     public List<GroupTreeNode> getMatchingGroups(BibEntry entry) {
         return getMatchingGroups(List.of(entry));
     }
 
-    /// Determines all groups in the subtree starting at this node which contain at least one of the given entries.
+    /// Determines all groups in the subtree starting at this node which contain
+    /// at least one of the given entries.
     public List<GroupTreeNode> getMatchingGroups(List<BibEntry> entries) {
         List<GroupTreeNode> groups = new ArrayList<>();
         // Identity-based cache: matching is evaluated repeatedly while walking the same in-memory tree,
@@ -203,10 +213,12 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         return child;
     }
 
-    /// Returns the existing group with the given name from the subtree starting at this node, if any.
-    /// The receiving node itself is excluded from the search (it is usually the synthetic "All entries" root).
+    /// Returns the existing group with the given name from the subtree starting
+    /// at this node, if any. The receiving node itself is excluded from the
+    /// search (it is usually the synthetic "All entries" root).
     ///
-    /// Group names are unique within a library, so the name identifies the group anywhere in the tree.
+    /// Group names are unique within a library, so the name identifies the
+    /// group anywhere in the tree.
     public Optional<GroupTreeNode> findGroupByName(String name) {
         return iterateOverTree()
                 .filter(node -> node != this)
@@ -214,17 +226,18 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
                 .findFirst();
     }
 
-    /// Returns the existing group with the given name from the subtree starting at this node,
-    /// or creates it as a top-level [ExplicitGroup] (direct subgroup of this node) using
-    /// the given keyword separator if no such group exists.
+    /// Returns the existing group with the given name from the subtree starting
+    /// at this node, or creates it as a top-level [ExplicitGroup] (direct
+    /// subgroup of this node) using the given keyword separator if no such
+    /// group exists.
     ///
-    /// Note: the created group is attached to the tree immediately. Callers that need to assign
-    /// entries to a freshly created group should instead use [#findGroupByName] and create
-    /// the node themselves, so that the entries can be assigned BEFORE the node is attached - see
+    /// Note: the created group is attached to the tree immediately. Callers
+    /// that need to assign entries to a freshly created group should instead
+    /// use [#findGroupByName] and create the node themselves, so that the
+    /// entries can be assigned BEFORE the node is attached - see
     /// [org.jabref.logic.groups.GroupsHelper#assignEntriesToGroup].
     public GroupTreeNode findOrCreateExplicitGroup(String name, Character keywordSeparator) {
-        return findGroupByName(name)
-                .orElseGet(() -> addSubgroup(new ExplicitGroup(name, GroupHierarchyType.INDEPENDENT, keywordSeparator)));
+        return findGroupByName(name).orElseGet(() -> addSubgroup(new ExplicitGroup(name, GroupHierarchyType.INDEPENDENT, keywordSeparator)));
     }
 
     @Override
@@ -251,7 +264,8 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         return findMatches(database.getEntries());
     }
 
-    /// Returns whether this group matches the specified [BibEntry] while taking the hierarchical information into account.
+    /// Returns whether this group matches the specified [BibEntry] while taking
+    /// the hierarchical information into account.
     public boolean matches(BibEntry entry) {
         GroupHierarchyType context = getGroup().getHierarchicalContext();
         if (context == GroupHierarchyType.INDEPENDENT) {
@@ -261,9 +275,7 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         return matches(entry, context, new IdentityHashMap<>());
     }
 
-    private boolean matches(BibEntry entry,
-                            GroupHierarchyType originalContext,
-                            @Nullable IdentityHashMap<GroupTreeNode, MatchCache> cache) {
+    private boolean matches(BibEntry entry, GroupHierarchyType originalContext, @Nullable IdentityHashMap<GroupTreeNode, MatchCache> cache) {
         MatchCache cachedByContext = null;
         if (cache != null) {
             cachedByContext = cache.computeIfAbsent(this, _ -> new MatchCache());
@@ -282,9 +294,14 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
                     break;
                 }
             }
-        } else if ((context == GroupHierarchyType.REFINING) && matches && !isRoot() && (originalContext != GroupHierarchyType.INCLUDING)) {
+        } else if ((context == GroupHierarchyType.REFINING)
+                && matches
+                && !isRoot()
+                && (originalContext != GroupHierarchyType.INCLUDING)) {
             // noinspection OptionalGetWithoutIsPresent
-            matches = getParent().get().matches(entry, originalContext, cache);
+            matches = getParent()
+                    .get()
+                    .matches(entry, originalContext, cache);
         }
 
         if (cachedByContext != null) {
@@ -293,9 +310,7 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         return matches;
     }
 
-    private void collectMatchingGroups(List<BibEntry> entries,
-                                       List<GroupTreeNode> groups,
-                                       IdentityHashMap<BibEntry, IdentityHashMap<GroupTreeNode, MatchCache>> matchCaches) {
+    private void collectMatchingGroups(List<BibEntry> entries, List<GroupTreeNode> groups, IdentityHashMap<BibEntry, IdentityHashMap<GroupTreeNode, MatchCache>> matchCaches) {
         GroupHierarchyType context = getGroup().getHierarchicalContext();
         for (BibEntry entry : entries) {
             @Nullable IdentityHashMap<GroupTreeNode, MatchCache> cacheForEntry = null;
@@ -344,31 +359,32 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         }
     }
 
-    /// Get the path from the root of the tree as a string (every group name is separated by [#PATH_DELIMITER]).
+    /// Get the path from the root of the tree as a string (every group name is
+    /// separated by [#PATH_DELIMITER]).
     ///
     /// The name of the root is not included.
     public String getPath() {
-        return getPathFromRoot().stream()
-                                .skip(1) // Skip root
-                                .map(GroupTreeNode::getName)
-                                .collect(Collectors.joining(PATH_DELIMITER));
+        return getPathFromRoot()
+                .stream()
+                .skip(1) // Skip root
+                .map(GroupTreeNode::getName)
+                .collect(Collectors.joining(PATH_DELIMITER));
     }
 
     @Override
     public String toString() {
-        return "GroupTreeNode{" +
-                "group=" + getGroup() +
-                '}';
+        return "GroupTreeNode{" + "group=" + getGroup() + '}';
     }
 
-    /// Finds a children using the given path. Each group name should be separated by [#PATH_DELIMITER].
+    /// Finds a children using the given path. Each group name should be
+    /// separated by [#PATH_DELIMITER].
     ///
     /// The path should be generated using [#getPath()].
     public Optional<GroupTreeNode> getChildByPath(String pathToSource) {
         GroupTreeNode present = this;
         for (String groupName : pathToSource.split(PATH_DELIMITER)) {
-            Optional<GroupTreeNode> childWithName = present
-                    .getChildren().stream()
+            Optional<GroupTreeNode> childWithName = present.getChildren()
+                    .stream()
                     .filter(group -> Objects.equals(group.getName(), groupName))
                     .findFirst();
             if (childWithName.isPresent()) {
@@ -382,7 +398,9 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         return Optional.of(present);
     }
 
-    /// Adds the specified entries to this group. If the group does not support explicit adding of entries (i.e., does not implement [GroupEntryChanger]), then no action is performed.
+    /// Adds the specified entries to this group. If the group does not support
+    /// explicit adding of entries (i.e., does not implement
+    /// [GroupEntryChanger]), then no action is performed.
     public List<FieldChange> addEntriesToGroup(Collection<BibEntry> entries) {
         if (getGroup() instanceof GroupEntryChanger) {
             return ((GroupEntryChanger) getGroup()).add(entries);
@@ -391,12 +409,16 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         }
     }
 
-    /// Removes the given entries from this group. If the group does not support the explicit removal of entries (i.e., does not implement [GroupEntryChanger]), then no action is performed.
+    /// Removes the given entries from this group. If the group does not support
+    /// the explicit removal of entries (i.e., does not implement
+    /// [GroupEntryChanger]), then no action is performed.
     public List<FieldChange> removeEntriesFromGroup(List<BibEntry> entries) {
         if (getGroup() instanceof GroupEntryChanger entryChanger) {
             return entryChanger.remove(entries);
         } else {
-            LOGGER.warn("Tried to remove entries from a group that does not support entry changing: {}", getGroup().getName());
+            LOGGER.warn(
+                    "Tried to remove entries from a group that does not support entry changing: {}",
+                    getGroup().getName());
             return List.of();
         }
     }
@@ -405,7 +427,9 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         if (this.getGroup() == other) {
             return true;
         } else {
-            return this.getChildren().stream().anyMatch(child -> child.getGroup() == other);
+            return this.getChildren()
+                    .stream()
+                    .anyMatch(child -> child.getGroup() == other);
         }
     }
 }

@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.EntryBasedFetcher;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ParserResult;
@@ -19,8 +20,6 @@ import org.jabref.logic.util.Version;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,9 +107,11 @@ public class MrDLibFetcher implements EntryBasedFetcher {
         return response;
     }
 
-    /// Constructs the query based on title of the BibEntry. Adds statistical stuff to the url.
+    /// Constructs the query based on title of the BibEntry. Adds statistical
+    /// stuff to the url.
     ///
-    /// @param queryWithTitle the query holds the title of the selected entry. Used to make a query to the MDL Server
+    /// @param queryWithTitle the query holds the title of the selected entry.
+    ///   Used to make a query to the MDL Server
     /// @return the string used to make the query at mdl server
     private URL constructQuery(String queryWithTitle) throws URISyntaxException, MalformedURLException {
         // The encoding does not work for / so we convert them by our own
@@ -130,7 +131,10 @@ public class MrDLibFetcher implements EntryBasedFetcher {
             builder.addParameter("os", System.getProperty("os.name"));
         }
         if (preferences.shouldSendTimezone()) {
-            builder.addParameter("timezone", Calendar.getInstance().getTimeZone().getID());
+            builder.addParameter("timezone",
+                    Calendar.getInstance()
+                            .getTimeZone()
+                            .getID());
         }
 
         URI uri = builder.build();

@@ -20,6 +20,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
@@ -28,7 +36,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.VBox;
-
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.http.JabRefSrvStateManager;
 import org.jabref.http.SrvStateManager;
@@ -49,15 +56,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
-import jakarta.inject.Inject;
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -91,16 +89,14 @@ public class CAYWResource {
 
     @GET
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON})
-    public Response getCitation(
-            @BeanParam CAYWQueryParams queryParams
-    ) throws IOException, ExecutionException, InterruptedException {
+    public Response getCitation(@BeanParam CAYWQueryParams queryParams) throws IOException, ExecutionException, InterruptedException {
         // Validation of command parameter
         String command = queryParams.getCommand().orElse("autocite");
         if (!ALLOWED_COMMAND.matcher(command).matches()) {
             LOGGER.warn("Blocked CAYW request with malicious command: {}", command);
             return Response.status(Response.Status.BAD_REQUEST)
-                           .entity("The 'command' parameter contains invalid characters. Only letters (A–Z, a–z) and '*' are allowed.")
-                           .build();
+                    .entity("The 'command' parameter contains invalid characters. Only letters (A–Z, a–z) and '*' are allowed.")
+                    .build();
         }
 
         // Probe parameter handling
@@ -116,15 +112,18 @@ public class CAYWResource {
             if (srvStateManager instanceof JabRefSrvStateManager) {
                 LOGGER.error("The 'selected' parameter is not supported in CLI mode. Please use the GUI to use the selected entries.");
                 return Response.status(Response.Status.BAD_REQUEST)
-                               .entity("The 'selected' parameter is not supported in CLI mode. Please use the GUI to use the selected entries.")
-                               .build();
+                        .entity("The 'selected' parameter is not supported in CLI mode. Please use the GUI to use the selected entries.")
+                        .build();
             }
-            searchResults = srvStateManager.getSelectedEntries().stream().map(this::createCAYWEntry).toList();
+            searchResults = srvStateManager.getSelectedEntries()
+                    .stream()
+                    .map(this::createCAYWEntry)
+                    .toList();
         } else {
             List<CAYWEntry> entries = databaseContext.getEntries()
-                                                     .stream()
-                                                     .map(this::createCAYWEntry)
-                                                     .collect(Collectors.toList());
+                    .stream()
+                    .map(this::createCAYWEntry)
+                    .collect(Collectors.toList());
             initializeGUI();
             searchResults = openSearchGui(entries, databaseContext);
         }
@@ -138,12 +137,16 @@ public class CAYWResource {
             if (srvStateManager instanceof JabRefSrvStateManager) {
                 LOGGER.error("The 'select' parameter is not supported in CLI mode. Please use the GUI to select entries.");
                 return Response.status(Response.Status.BAD_REQUEST)
-                               .entity("The 'select' parameter is not supported in CLI mode. Please use the GUI to select entries.")
-                               .build();
+                        .entity("The 'select' parameter is not supported in CLI mode. Please use the GUI to select entries.")
+                        .build();
             }
-            srvStateManager.getActiveSelectionTabProperty().get().ifPresent(selectionTab -> {
-                selectionTab.clearAndSelect(searchResults.stream().map(CAYWEntry::bibEntry).collect(Collectors.toList()));
-            });
+            srvStateManager.getActiveSelectionTabProperty()
+                           .get()
+                           .ifPresent(selectionTab -> {
+                               selectionTab.clearAndSelect(searchResults.stream()
+                                       .map(CAYWEntry::bibEntry)
+                                       .collect(Collectors.toList()));
+                           });
         }
 
         // Format parameter handling
@@ -160,23 +163,28 @@ public class CAYWResource {
                 javafx.scene.input.Clipboard.getSystemClipboard().setContent(content);
             });
             return Response.accepted()
-                           .header(X_CONTENT_TYPE_OPTIONS, NO_SNIFF)
-                           .header(CONTENT_SECURITY_POLICY, CAYW_CONTENT_SECURITY_POLICY)
-                           .build();
+                    .header(X_CONTENT_TYPE_OPTIONS, NO_SNIFF)
+                    .header(CONTENT_SECURITY_POLICY, CAYW_CONTENT_SECURITY_POLICY)
+                    .build();
         }
 
         // Push to Application parameter handling
         if (queryParams.getApplication().isPresent()) {
             CitationCommandString citationCmd = new CitationCommandString("\\" + command + "{", ",", "}");
-            PushToApplications.getApplication(queryParams.getApplication().get(), LOGGER::info, preferences.getPushToApplicationPreferences().withCitationCommand(citationCmd))
-                              .ifPresent(application -> application.pushEntries(searchResults.stream().map(CAYWEntry::bibEntry).toList()));
+            PushToApplications.getApplication(
+                    queryParams.getApplication().get(),
+                    LOGGER::info,
+                    preferences.getPushToApplicationPreferences().withCitationCommand(citationCmd))
+                    .ifPresent(application -> application.pushEntries(searchResults.stream()
+                    .map(CAYWEntry::bibEntry)
+                    .toList()));
         }
 
         return Response.ok(formattedResponse)
-                       .type(formatter.getMediaType())
-                       .header(X_CONTENT_TYPE_OPTIONS, NO_SNIFF)
-                       .header(CONTENT_SECURITY_POLICY, CAYW_CONTENT_SECURITY_POLICY)
-                       .build();
+                .type(formatter.getMediaType())
+                .header(X_CONTENT_TYPE_OPTIONS, NO_SNIFF)
+                .header(CONTENT_SECURITY_POLICY, CAYW_CONTENT_SECURITY_POLICY)
+                .build();
     }
 
     private List<CAYWEntry> openSearchGui(List<CAYWEntry> entries, BibDatabaseContext databaseContext) throws InterruptedException, ExecutionException {
@@ -185,9 +193,7 @@ public class CAYWResource {
         CompletableFuture<List<CAYWEntry>> future = new CompletableFuture<>();
         Platform.runLater(() -> {
             SearchDialog dialog = new SearchDialog();
-            List<CAYWEntry> results = dialog.show(
-                    searchText -> filterEntries(entries, searchText, searcher),
-                    entries);
+            List<CAYWEntry> results = dialog.show(searchText -> filterEntries(entries, searchText, searcher), entries);
             future.complete(results);
         });
 
@@ -197,9 +203,11 @@ public class CAYWResource {
     /// Filter strategy:
     ///
     /// - Empty input → return everything.
-    /// - Valid Search.g4 expression → grammar-based filter via [InMemoryLibrarySearcher].
-    /// - Invalid expression (e.g. user is mid-typing `author=`) → fall back to a plain
-    ///   substring match across the CAYW labels so the list stays useful as the user types.
+    /// - Valid Search.g4 expression → grammar-based filter via
+    ///   [InMemoryLibrarySearcher].
+    /// - Invalid expression (e.g. user is mid-typing `author=`) → fall back to
+    ///   a plain substring match across the CAYW labels so the list stays
+    ///   useful as the user types.
     private List<CAYWEntry> filterEntries(List<CAYWEntry> entries, String searchText, InMemoryLibrarySearcher searcher) {
         if (searchText.isEmpty()) {
             return entries;
@@ -245,14 +253,18 @@ public class CAYWResource {
 
     private Path normalizeLibraryPath(String libraryPath) {
         try {
-            return Path.of(libraryPath).toAbsolutePath().normalize();
+            return Path.of(libraryPath)
+                    .toAbsolutePath()
+                    .normalize();
         } catch (InvalidPathException exception) {
             throw new BadRequestException(INVALID_LIBRARY_PATH_ERROR, exception);
         }
     }
 
     private boolean isServedLibraryPath(Path requestedLibraryPath) {
-        return getServedLibraryPaths().stream().anyMatch(requestedLibraryPath::equals);
+        return getServedLibraryPaths()
+                .stream()
+                .anyMatch(requestedLibraryPath::equals);
     }
 
     private boolean isLibraryPathAccessAllowed(Path requestedLibraryPath) {
@@ -291,22 +303,23 @@ public class CAYWResource {
 
         CompletableFuture<LibraryPathAccessPromptResult> future = new CompletableFuture<>();
         try {
-            Platform.runLater(() -> {
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle(Localization.lang("Security warning"));
-                alert.setHeaderText(Localization.lang("You are about to open a local file."));
-                Label fileLabel = new Label(Localization.lang("File: %0", requestedLibraryPath));
-                CheckBox dontAskAgain = new CheckBox(Localization.lang("Do not ask again"));
-                alert.getDialogPane().setContent(new VBox(10, fileLabel, dontAskAgain));
+            Platform.runLater(
+                    () -> {
+                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                        alert.setTitle(Localization.lang("Security warning"));
+                        alert.setHeaderText(Localization.lang("You are about to open a local file."));
+                        Label fileLabel = new Label(Localization.lang("File: %0", requestedLibraryPath));
+                        CheckBox dontAskAgain = new CheckBox(Localization.lang("Do not ask again"));
+                        alert.getDialogPane().setContent(new VBox(10, fileLabel, dontAskAgain));
 
-                ButtonType allowButton = new ButtonType(Localization.lang("Allow"), ButtonBar.ButtonData.YES);
-                ButtonType allowAllButton = new ButtonType(Localization.lang("Allow all"), ButtonBar.ButtonData.APPLY);
-                ButtonType disallowButton = new ButtonType(Localization.lang("Disallow"), ButtonBar.ButtonData.NO);
-                alert.getButtonTypes().setAll(allowButton, allowAllButton, disallowButton);
+                        ButtonType allowButton = new ButtonType(Localization.lang("Allow"), ButtonBar.ButtonData.YES);
+                        ButtonType allowAllButton = new ButtonType(Localization.lang("Allow all"), ButtonBar.ButtonData.APPLY);
+                        ButtonType disallowButton = new ButtonType(Localization.lang("Disallow"), ButtonBar.ButtonData.NO);
+                        alert.getButtonTypes().setAll(allowButton, allowAllButton, disallowButton);
 
-                ButtonType selectedButton = alert.showAndWait().orElse(disallowButton);
-                future.complete(new LibraryPathAccessPromptResult(selectedButton, dontAskAgain.isSelected()));
-            });
+                        ButtonType selectedButton = alert.showAndWait().orElse(disallowButton);
+                        future.complete(new LibraryPathAccessPromptResult(selectedButton, dontAskAgain.isSelected()));
+                    });
         } catch (IllegalStateException exception) {
             LOGGER.warn("JavaFX toolkit not initialized for CAYW security prompt.", exception);
             return false;
@@ -338,7 +351,8 @@ public class CAYWResource {
     }
 
     private List<Path> getServedLibraryPaths() {
-        return srvStateManager.getOpenDatabases().stream()
+        return srvStateManager.getOpenDatabases()
+                              .stream()
                               .map(BibDatabaseContext::getDatabasePath)
                               .flatMap(Optional::stream)
                               .map(path -> path.toAbsolutePath().normalize())
@@ -348,7 +362,8 @@ public class CAYWResource {
     private InputStream getLatestDatabaseStream() throws IOException {
         InputStream libraryStream;
         // Use the latest opened library as the default library
-        final List<Path> lastOpenedLibraries = new ArrayList<>(preferences.getLastFilesOpenedPreferences().getLastFilesOpened());
+        final List<Path> lastOpenedLibraries = new ArrayList<>(preferences.getLastFilesOpenedPreferences()
+                .getLastFilesOpened());
         if (lastOpenedLibraries.isEmpty()) {
             LOGGER.warn("No library path provided and no last opened libraries found, using the default chocolate.bib.");
             libraryStream = getChocolateBibAsStream();
@@ -406,10 +421,13 @@ public class CAYWResource {
             // Catches NoClassDefFoundError/UnsatisfiedLinkError when the JavaFX runtime is missing or version-mismatched
             // (e.g., javafx.graphics from an older version paired with a newer javafx.base where javafx.util.FXPermission was removed).
             LOGGER.error("Could not initialize JavaFX runtime for CAYW resource.", e);
-            throw new WebApplicationException(
-                    Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                            .entity("CAYW unavailable: JavaFX runtime could not be initialized (" + e.getClass().getName() + ": " + e.getMessage() + "). The CAYW endpoint requires a working, version-consistent JavaFX runtime on the module path.")
-                            .build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity("CAYW unavailable: JavaFX runtime could not be initialized ("
+                            + e.getClass().getName()
+                            + ": "
+                            + e.getMessage()
+                            + "). The CAYW endpoint requires a working, version-consistent JavaFX runtime on the module path.")
+                    .build());
         }
         try {
             latch.await();
@@ -420,7 +438,8 @@ public class CAYWResource {
         }
     }
 
-    /// @return a stream to the `Chocolate.bib` file in the classpath (is null only if the file was moved or there are issues with the classpath)
+    /// @return a stream to the `Chocolate.bib` file in the classpath (is null
+    ///   only if the file was moved or there are issues with the classpath)
     private @Nullable InputStream getChocolateBibAsStream() {
         return BibDatabase.class.getResourceAsStream(CHOCOLATEBIB_PATH);
     }
@@ -434,11 +453,16 @@ public class CAYWResource {
 
     private boolean matchesSubstring(CAYWEntry entry, String searchText) {
         String lowerSearchText = searchText.toLowerCase();
-        return entry.label().toLowerCase().contains(lowerSearchText) ||
-                entry.description().toLowerCase().contains(lowerSearchText) ||
-                entry.shortLabel().toLowerCase().contains(lowerSearchText);
+        return entry.label()
+                    .toLowerCase()
+                    .contains(lowerSearchText)
+                || entry.description()
+                        .toLowerCase()
+                        .contains(lowerSearchText)
+                || entry.shortLabel()
+                        .toLowerCase()
+                        .contains(lowerSearchText);
     }
 
-    private record LibraryPathAccessPromptResult(ButtonType selectedButton, boolean dontAskAgain) {
-    }
+    private record LibraryPathAccessPromptResult(ButtonType selectedButton, boolean dontAskAgain) {}
 }

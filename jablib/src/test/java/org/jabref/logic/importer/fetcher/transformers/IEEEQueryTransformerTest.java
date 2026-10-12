@@ -3,11 +3,10 @@ package org.jabref.logic.importer.fetcher.transformers;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.jabref.logic.search.query.SearchQueryVisitor;
 import org.jabref.model.search.query.BaseQueryNode;
 import org.jabref.model.search.query.SearchQuery;
-
-import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -89,8 +88,7 @@ class IEEEQueryTransformerTest extends InfixTransformerTest<IEEEQueryTransformer
     private static Stream<Arguments> getTitleTestData() {
         return Stream.of(
                 Arguments.of("Overcoming AND Open AND Source AND Project AND Entry AND Barriers AND Portal AND Newcomers", "Overcoming Open Source Project Entry Barriers with a Portal for Newcomers"),
-                Arguments.of("Overcoming AND Open AND Source AND Project AND Entry AND Barriers", "Overcoming Open Source Project Entry Barriers")
-        );
+                Arguments.of("Overcoming AND Open AND Source AND Project AND Entry AND Barriers", "Overcoming Open Source Project Entry Barriers"));
     }
 
     @ParameterizedTest

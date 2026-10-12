@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.fileformat.BibtexImporter;
+import org.jabref.logic.quality.consistency.BibliographyConsistencyCheck.Result;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
@@ -18,7 +19,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -46,15 +46,16 @@ class BibliographyConsistencyCheckResultTxtWriterTest {
 
         BibDatabaseContext bibContext = new BibDatabaseContext(database);
         bibContext.setMode(BibDatabaseMode.BIBTEX);
-        BibliographyConsistencyCheck.Result result = new BibliographyConsistencyCheck().check(bibContext, new BibEntryTypesManager(), (_, _) -> {
-        });
+        Result result = new BibliographyConsistencyCheck().check(bibContext, new BibEntryTypesManager(), (_, _) -> {});
 
         Path txtFile = tempDir.resolve("checkSimpleLibrary-result.txt");
         try (Writer writer = new OutputStreamWriter(Files.newOutputStream(txtFile));
-             BibliographyConsistencyCheckResultTxtWriter txtWriter = new BibliographyConsistencyCheckResultTxtWriter(result, writer, false, new BibEntryTypesManager(), bibContext.getMode())) {
+             BibliographyConsistencyCheckResultTxtWriter txtWriter = new BibliographyConsistencyCheckResultTxtWriter(result, writer, false, new BibEntryTypesManager(),
+                     bibContext.getMode())) {
             txtWriter.writeFindings();
         }
-        assertEquals("""
+        assertEquals(
+                """
                 Field Presence Consistency Check Result
 
                 | entry type | citation key | Pages | Publisher |
@@ -68,7 +69,8 @@ class BibliographyConsistencyCheckResultTxtWriterTest {
                 | o      | optional field is present |
                 | ?      | unknown field is present  |
                 | -      | field is absent           |
-                """, Files.readString(txtFile).replace("\r\n", "\n"));
+                """,
+                Files.readString(txtFile).replace("\r\n", "\n"));
     }
 
     @Test
@@ -90,17 +92,17 @@ class BibliographyConsistencyCheckResultTxtWriterTest {
         BibDatabaseContext bibContext = new BibDatabaseContext(bibDatabase);
         bibContext.setMode(BibDatabaseMode.BIBLATEX);
 
-        BibliographyConsistencyCheck.Result result = new BibliographyConsistencyCheck()
-                .check(bibContext, new BibEntryTypesManager(), (_, _) -> {
-                });
+        Result result = new BibliographyConsistencyCheck().check(bibContext, new BibEntryTypesManager(), (_, _) -> {});
 
         Path txtFile = tempDir.resolve("checkSimpleLibrary-result.txt");
         try (Writer writer = new OutputStreamWriter(Files.newOutputStream(txtFile));
-             BibliographyConsistencyCheckResultTxtWriter txtWriter = new BibliographyConsistencyCheckResultTxtWriter(result, writer, false, new BibEntryTypesManager(), bibContext.getMode())) {
+             BibliographyConsistencyCheckResultTxtWriter txtWriter = new BibliographyConsistencyCheckResultTxtWriter(result, writer, false, new BibEntryTypesManager(),
+                     bibContext.getMode())) {
             txtWriter.writeFindings();
         }
 
-        assertEquals("""
+        assertEquals(
+                """
                 Field Presence Consistency Check Result
 
                 | entry type | citation key | Date |
@@ -114,7 +116,8 @@ class BibliographyConsistencyCheckResultTxtWriterTest {
                 | o      | optional field is present |
                 | ?      | unknown field is present  |
                 | -      | field is absent           |
-                """, Files.readString(txtFile).replace("\r\n", "\n"));
+                """,
+                Files.readString(txtFile).replace("\r\n", "\n"));
     }
 
     @Test
@@ -122,26 +125,26 @@ class BibliographyConsistencyCheckResultTxtWriterTest {
         UnknownField customField = new UnknownField("custom");
         BibEntry first = new BibEntry(StandardEntryType.Article, "first")
                 .withField(StandardField.AUTHOR, "Author One") // required
-                .withField(StandardField.TITLE, "Title")       // required
-                .withField(StandardField.PAGES, "some pages")  // optional
-                .withField(customField, "custom");             // unknown
-        BibEntry second = new BibEntry(StandardEntryType.Article, "second")
-                .withField(StandardField.AUTHOR, "Author One");
+                .withField(StandardField.TITLE, "Title") // required
+                .withField(StandardField.PAGES, "some pages") // optional
+                .withField(customField, "custom"); // unknown
+        BibEntry second = new BibEntry(StandardEntryType.Article, "second").withField(StandardField.AUTHOR, "Author One");
         List<BibEntry> bibEntriesList = List.of(first, second);
         BibDatabase bibDatabase = new BibDatabase();
         bibDatabase.insertEntries(bibEntriesList);
         BibDatabaseContext bibContext = new BibDatabaseContext(bibDatabase);
         bibContext.setMode(BibDatabaseMode.BIBTEX);
 
-        BibliographyConsistencyCheck.Result result = new BibliographyConsistencyCheck().check(bibContext, new BibEntryTypesManager(), (_, _) -> {
-        });
+        Result result = new BibliographyConsistencyCheck().check(bibContext, new BibEntryTypesManager(), (_, _) -> {});
 
         Path txtFile = tempDir.resolve("checkDifferentOutputSymbols-result.txt");
         try (Writer writer = new OutputStreamWriter(Files.newOutputStream(txtFile));
-             BibliographyConsistencyCheckResultTxtWriter txtWriter = new BibliographyConsistencyCheckResultTxtWriter(result, writer, false, new BibEntryTypesManager(), bibContext.getMode())) {
+             BibliographyConsistencyCheckResultTxtWriter txtWriter = new BibliographyConsistencyCheckResultTxtWriter(result, writer, false, new BibEntryTypesManager(),
+                     bibContext.getMode())) {
             txtWriter.writeFindings();
         }
-        assertEquals("""
+        assertEquals(
+                """
                 Field Presence Consistency Check Result
 
                 | entry type | citation key | custom | Pages | Title |
@@ -155,7 +158,8 @@ class BibliographyConsistencyCheckResultTxtWriterTest {
                 | o      | optional field is present |
                 | ?      | unknown field is present  |
                 | -      | field is absent           |
-                """, Files.readString(txtFile).replace("\r\n", "\n"));
+                """,
+                Files.readString(txtFile).replace("\r\n", "\n"));
     }
 
     @Test
@@ -166,22 +170,22 @@ class BibliographyConsistencyCheckResultTxtWriterTest {
                 .withField(StandardField.TITLE, "Title") // required
                 .withField(StandardField.PAGES, "some pages") // optional
                 .withField(customField, "custom"); // unknown
-        BibEntry second = new BibEntry(StandardEntryType.Article, "second")
-                .withField(StandardField.AUTHOR, "Author One");
+        BibEntry second = new BibEntry(StandardEntryType.Article, "second").withField(StandardField.AUTHOR, "Author One");
         List<BibEntry> bibEntriesList = List.of(first, second);
         BibDatabase bibDatabase = new BibDatabase();
         bibDatabase.insertEntries(bibEntriesList);
         BibDatabaseContext bibContext = new BibDatabaseContext(bibDatabase);
         bibContext.setMode(BibDatabaseMode.BIBTEX);
-        BibliographyConsistencyCheck.Result result = new BibliographyConsistencyCheck().check(bibContext, new BibEntryTypesManager(), (_, _) -> {
-        });
+        Result result = new BibliographyConsistencyCheck().check(bibContext, new BibEntryTypesManager(), (_, _) -> {});
 
         Path txtFile = tempDir.resolve("checkDifferentOutputSymbols-result.txt");
         try (Writer writer = new OutputStreamWriter(Files.newOutputStream(txtFile));
-             BibliographyConsistencyCheckResultTxtWriter txtWriter = new BibliographyConsistencyCheckResultTxtWriter(result, writer, false, new BibEntryTypesManager(), bibContext.getMode())) {
+             BibliographyConsistencyCheckResultTxtWriter txtWriter = new BibliographyConsistencyCheckResultTxtWriter(result, writer, false, new BibEntryTypesManager(),
+                     bibContext.getMode())) {
             txtWriter.writeFindings();
         }
-        assertEquals("""
+        assertEquals(
+                """
                 Field Presence Consistency Check Result
 
                 | entry type | citation key        | custom | Pages | Title |
@@ -195,7 +199,8 @@ class BibliographyConsistencyCheckResultTxtWriterTest {
                 | o      | optional field is present |
                 | ?      | unknown field is present  |
                 | -      | field is absent           |
-                """, Files.readString(txtFile).replace("\r\n", "\n"));
+                """,
+                Files.readString(txtFile).replace("\r\n", "\n"));
     }
 
     @Test
@@ -230,15 +235,16 @@ class BibliographyConsistencyCheckResultTxtWriterTest {
         bibDatabase.insertEntries(bibEntriesList);
         BibDatabaseContext bibContext = new BibDatabaseContext(bibDatabase);
 
-        BibliographyConsistencyCheck.Result result = new BibliographyConsistencyCheck().check(bibContext, new BibEntryTypesManager(), (_, _) -> {
-        });
+        Result result = new BibliographyConsistencyCheck().check(bibContext, new BibEntryTypesManager(), (_, _) -> {});
 
         Path txtFile = tempDir.resolve("checkSimpleLibrary-result.txt");
         try (Writer writer = new OutputStreamWriter(Files.newOutputStream(txtFile));
-             BibliographyConsistencyCheckResultTxtWriter txtWriter = new BibliographyConsistencyCheckResultTxtWriter(result, writer, false, new BibEntryTypesManager(), bibContext.getMode())) {
+             BibliographyConsistencyCheckResultTxtWriter txtWriter = new BibliographyConsistencyCheckResultTxtWriter(result, writer, false, new BibEntryTypesManager(),
+                     bibContext.getMode())) {
             txtWriter.writeFindings();
         }
-        assertEquals("""
+        assertEquals(
+                """
                 Field Presence Consistency Check Result
 
                 | entry type    | citation key | Location | Pages | Publisher |
@@ -256,7 +262,8 @@ class BibliographyConsistencyCheckResultTxtWriterTest {
                 | o      | optional field is present |
                 | ?      | unknown field is present  |
                 | -      | field is absent           |
-                """, Files.readString(txtFile).replace("\r\n", "\n"));
+                """,
+                Files.readString(txtFile).replace("\r\n", "\n"));
     }
 
     @Test
@@ -278,19 +285,20 @@ class BibliographyConsistencyCheckResultTxtWriterTest {
         bibDatabase.insertEntries(bibEntriesList);
         BibDatabaseContext bibContext = new BibDatabaseContext(bibDatabase);
 
-        BibliographyConsistencyCheck.Result result = new BibliographyConsistencyCheck().check(bibContext, new BibEntryTypesManager(), (_, _) -> {
-        });
+        Result result = new BibliographyConsistencyCheck().check(bibContext, new BibEntryTypesManager(), (_, _) -> {});
 
         Path txtFile = tempDir.resolve("checkLibraryWithoutIssues-result.txt");
         try (Writer writer = new OutputStreamWriter(Files.newOutputStream(txtFile));
-             BibliographyConsistencyCheckResultTxtWriter txtWriter = new BibliographyConsistencyCheckResultTxtWriter(result, writer, false, new BibEntryTypesManager(), bibContext.getMode())) {
+             BibliographyConsistencyCheckResultTxtWriter txtWriter = new BibliographyConsistencyCheckResultTxtWriter(result, writer, false, new BibEntryTypesManager(),
+                     bibContext.getMode())) {
             txtWriter.writeFindings();
         }
         assertEquals("""
                 Field Presence Consistency Check Result
 
                 No errors found.
-                """, Files.readString(txtFile).replace("\r\n", "\n"));
+                """,
+                Files.readString(txtFile).replace("\r\n", "\n"));
     }
 
     @Test
@@ -312,8 +320,7 @@ class BibliographyConsistencyCheckResultTxtWriterTest {
         bibDatabase.insertEntries(bibEntriesList);
         BibDatabaseContext bibContext = new BibDatabaseContext(bibDatabase);
 
-        BibliographyConsistencyCheck.Result result = new BibliographyConsistencyCheck().check(bibContext, new BibEntryTypesManager(), (_, _) -> {
-        });
+        Result result = new BibliographyConsistencyCheck().check(bibContext, new BibEntryTypesManager(), (_, _) -> {});
 
         Path txtFile = tempDir.resolve("checkLibraryWithoutIssues-result.txt");
         try (Writer writer = new OutputStreamWriter(Files.newOutputStream(txtFile));
@@ -329,8 +336,7 @@ class BibliographyConsistencyCheckResultTxtWriterTest {
         Path file = Path.of("C:\\TEMP\\JabRef\\biblio-anon.bib");
         Path txtFile = file.resolveSibling("biblio-cited.txt");
         BibDatabaseContext databaseContext = importer.importDatabase(file).getDatabaseContext();
-        BibliographyConsistencyCheck.Result result = new BibliographyConsistencyCheck().check(databaseContext, new BibEntryTypesManager(), (_, _) -> {
-        });
+        Result result = new BibliographyConsistencyCheck().check(databaseContext, new BibEntryTypesManager(), (_, _) -> {});
         try (Writer writer = new OutputStreamWriter(Files.newOutputStream(txtFile));
              BibliographyConsistencyCheckResultTxtWriter txtWriter = new BibliographyConsistencyCheckResultTxtWriter(result, writer, true)) {
             txtWriter.writeFindings();

@@ -12,14 +12,13 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
-import org.jabref.logic.importer.FetcherException;
-import org.jabref.logic.net.URLDownload;
-import org.jabref.logic.util.strings.StringUtil;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.h2.mvstore.MVMap;
 import org.h2.mvstore.MVStore;
+import org.jabref.logic.importer.FetcherException;
+import org.jabref.logic.net.URLDownload;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,17 +30,17 @@ public final class MscCodeLoader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MscCodeLoader.class);
     private static final String MSC_CODES_MAP_NAME = "MscCodes";
-    private static final CSVFormat MSC_CSV_FORMAT = CSVFormat.DEFAULT.builder()
-                                                                     .setDelimiter('\t')
-                                                                     .setIgnoreEmptyLines(true)
-                                                                     .setQuote('"')
-                                                                     .setTrim(true)
-                                                                     .setHeader()
-                                                                     .setSkipHeaderRecord(true)
-                                                                     .get();
+    private static final CSVFormat MSC_CSV_FORMAT = CSVFormat.DEFAULT
+            .builder()
+            .setDelimiter('\t')
+            .setIgnoreEmptyLines(true)
+            .setQuote('"')
+            .setTrim(true)
+            .setHeader()
+            .setSkipHeaderRecord(true)
+            .get();
 
-    private MscCodeLoader() {
-    }
+    private MscCodeLoader() {}
 
     public static List<MscCodeEntry> readMscCodesFromCsvUrl(URL resourceUrl) throws IOException {
         LOGGER.debug("Reading MSC codes from URL {}", resourceUrl);
@@ -57,14 +56,15 @@ public final class MscCodeLoader {
     private static List<MscCodeEntry> readMscCodes(Reader reader) throws IOException {
         try (CSVParser csvParser = MSC_CSV_FORMAT.parse(reader)) {
             return StreamSupport.stream(csvParser.spliterator(), false)
-                                .map(csvRecord -> {
-                                    String code = csvRecord.size() > 0 ? csvRecord.get(0) : "";
-                                    String text = csvRecord.size() > 1 ? csvRecord.get(1) : "";
-                                    String description = csvRecord.size() > 2 ? csvRecord.get(2) : "";
-                                    return new MscCodeEntry(code, text, description);
-                                })
-                                .filter(entry -> !StringUtil.isBlank(entry.code()))
-                                .toList();
+                    .map(
+                            csvRecord -> {
+                                String code = csvRecord.size() > 0 ? csvRecord.get(0) : "";
+                                String text = csvRecord.size() > 1 ? csvRecord.get(1) : "";
+                                String description = csvRecord.size() > 2 ? csvRecord.get(2) : "";
+                                return new MscCodeEntry(code, text, description);
+                            })
+                    .filter(entry -> !StringUtil.isBlank(entry.code()))
+                    .toList();
         }
     }
 
@@ -122,7 +122,10 @@ public final class MscCodeLoader {
         if (!Files.exists(mvStoreFile)) {
             return false;
         }
-        try (MVStore store = new MVStore.Builder().readOnly().fileName(mvStoreFile.toAbsolutePath().toString()).open()) {
+        try (MVStore store = new MVStore.Builder()
+                .readOnly()
+                .fileName(mvStoreFile.toAbsolutePath().toString())
+                .open()) {
             MVMap<String, MscCodeEntry> codesMap = store.openMap(MSC_CODES_MAP_NAME);
             return !codesMap.isEmpty();
         } catch (Exception e) {

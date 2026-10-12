@@ -18,7 +18,8 @@ public class UTF8Checker implements EntryChecker {
 
     /// Creates a UTF8Checker that,
     /// 1. decode a String into a bytes array
-    /// 2. attempts to decode the bytes array to a character array using the UTF-8 Charset
+    /// 2. attempts to decode the bytes array to a character array using the
+    ///    UTF-8 Charset
     ///
     /// @param charset the charset used to decode BibEntry fields
     public UTF8Checker(Charset charset) {
@@ -35,8 +36,8 @@ public class UTF8Checker implements EntryChecker {
         for (Map.Entry<Field, String> field : entry.getFieldMap().entrySet()) {
             boolean utfOnly = UTF8EncodingChecker(field.getValue().getBytes(charset));
             if (!utfOnly) {
-                results.add(new IntegrityMessage(Localization.lang("Non-UTF-8 encoded field found"), entry,
-                        field.getKey()));
+                results.add(new IntegrityMessage(Localization.lang("Non-UTF-8 encoded field found"),
+                        entry, field.getKey()));
             }
         }
         return results;

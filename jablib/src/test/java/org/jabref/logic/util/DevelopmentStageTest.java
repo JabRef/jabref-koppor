@@ -1,5 +1,6 @@
 package org.jabref.logic.util;
 
+import org.jabref.logic.util.Version.DevelopmentStage;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,27 +10,27 @@ class DevelopmentStageTest {
 
     @Test
     void checkStabilityOrder() {
-        assertTrue(Version.DevelopmentStage.ALPHA.isMoreStableThan(Version.DevelopmentStage.UNKNOWN));
-        assertTrue(Version.DevelopmentStage.BETA.isMoreStableThan(Version.DevelopmentStage.ALPHA));
-        assertTrue(Version.DevelopmentStage.STABLE.isMoreStableThan(Version.DevelopmentStage.BETA));
+        assertTrue(DevelopmentStage.ALPHA.isMoreStableThan(DevelopmentStage.UNKNOWN));
+        assertTrue(DevelopmentStage.BETA.isMoreStableThan(DevelopmentStage.ALPHA));
+        assertTrue(DevelopmentStage.STABLE.isMoreStableThan(DevelopmentStage.BETA));
 
-        assertEquals(4, Version.DevelopmentStage.values().length, "It seems that the development stages have been changed, please adjust the test");
+        assertEquals(4, DevelopmentStage.values().length, "It seems that the development stages have been changed, please adjust the test");
     }
 
     @Test
     void parseStages() {
-        assertEquals(Version.DevelopmentStage.ALPHA, Version.DevelopmentStage.parse("-alpha"));
-        assertEquals(Version.DevelopmentStage.BETA, Version.DevelopmentStage.parse("-beta"));
-        assertEquals(Version.DevelopmentStage.STABLE, Version.DevelopmentStage.parse(""));
+        assertEquals(DevelopmentStage.ALPHA, DevelopmentStage.parse("-alpha"));
+        assertEquals(DevelopmentStage.BETA, DevelopmentStage.parse("-beta"));
+        assertEquals(DevelopmentStage.STABLE, DevelopmentStage.parse(""));
     }
 
     @Test
     void parseNull() {
-        assertEquals(Version.DevelopmentStage.UNKNOWN, Version.DevelopmentStage.parse(null));
+        assertEquals(DevelopmentStage.UNKNOWN, DevelopmentStage.parse(null));
     }
 
     @Test
     void parseUnknownString() {
-        assertEquals(Version.DevelopmentStage.UNKNOWN, Version.DevelopmentStage.parse("asdf"));
+        assertEquals(DevelopmentStage.UNKNOWN, DevelopmentStage.parse("asdf"));
     }
 }

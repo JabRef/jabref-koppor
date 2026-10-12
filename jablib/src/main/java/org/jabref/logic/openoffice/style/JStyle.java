@@ -37,24 +37,24 @@ import org.jabref.model.openoffice.style.CitationMarkerNumericBibEntry;
 import org.jabref.model.openoffice.style.CitationMarkerNumericEntry;
 import org.jabref.model.openoffice.style.CitationType;
 import org.jabref.model.openoffice.style.NonUniqueCitationMarker;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// This class embodies a bibliography formatting for OpenOffice, which is composed
-/// of the following elements:
+/// This class embodies a bibliography formatting for OpenOffice, which is
+/// composed of the following elements:
 ///
-/// 1) Each OO BIB entry type must have a formatting. A formatting is an array of elements, each
-/// of which is either a piece of constant text, an entry field value, or a tab. Each element has
-/// a character format associated with it.
+/// 1) Each OO BIB entry type must have a formatting. A formatting is an array
+///    of elements, each of which is either a piece of constant text, an entry
+///    field value, or a tab. Each element has a character format associated
+///    with it.
 ///
-/// 2) Many field values (e.g. author) need to be formatted before input to OpenOffice. The style
-/// has the responsibility of formatting all field values. Formatting is handled by 0-n
-/// JabRef LayoutFormatter classes.
+/// 2) Many field values (e.g. author) need to be formatted before input to
+///    OpenOffice. The style has the responsibility of formatting all field
+///    values. Formatting is handled by 0-n JabRef LayoutFormatter classes.
 ///
-/// 3) If the entries are not numbered, a citation marker must be produced for each entry. This
-/// operation is performed for each JabRef BibEntry.
+/// 3) If the entries are not numbered, a citation marker must be produced for
+///    each entry. This operation is performed for each JabRef BibEntry.
 @AllowedToUseClassGetResource("Required for jstyle loading")
 public class JStyle implements Comparable<JStyle>, OOStyle {
 
@@ -156,9 +156,7 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     private String localCopy;
     private boolean isDefaultLayoutPresent;
 
-    public JStyle(@NonNull Path styleFile,
-                  @NonNull LayoutFormatterPreferences layoutPreferences,
-                  JournalAbbreviationRepository abbreviationRepository) throws IOException {
+    public JStyle(@NonNull Path styleFile, @NonNull LayoutFormatterPreferences layoutPreferences, JournalAbbreviationRepository abbreviationRepository) throws IOException {
         this.layoutPreferences = layoutPreferences;
         this.abbreviationRepository = abbreviationRepository;
         this.styleFile = styleFile;
@@ -168,9 +166,7 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
         path = styleFile.toAbsolutePath().toString();
     }
 
-    public JStyle(@NonNull String resourcePath,
-                  @NonNull LayoutFormatterPreferences layoutPreferences,
-                  JournalAbbreviationRepository abbreviationRepository) throws IOException {
+    public JStyle(@NonNull String resourcePath, @NonNull LayoutFormatterPreferences layoutPreferences, JournalAbbreviationRepository abbreviationRepository) throws IOException {
         this.layoutPreferences = layoutPreferences;
         this.abbreviationRepository = abbreviationRepository;
 
@@ -413,7 +409,8 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
             try {
                 final String typeName = line.substring(0, index);
                 final String formatString = line.substring(index + 1);
-                Layout layout = new LayoutHelper(Reader.of(formatString), layoutPreferences, abbreviationRepository).getLayoutFromText();
+                Layout layout = new LayoutHelper(Reader.of(formatString), layoutPreferences, abbreviationRepository)
+                        .getLayoutFromText();
                 EntryType type = EntryTypeFactory.parse(typeName);
 
                 if (!isDefaultLayoutPresent && JStyle.DEFAULT_MARK.equals(typeName)) {
@@ -467,8 +464,8 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
         }
     }
 
-    /// Convenience method for checking the property for whether we use number citations or
-    /// author-year citations.
+    /// Convenience method for checking the property for whether we use number
+    /// citations or author-year citations.
     ///
     /// @return true if we use numbered citations, false otherwise.
     public boolean isNumberEntries() {
@@ -677,17 +674,12 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
     /// @return The text for the citation.
     public OOText getNumCitationMarker2(List<CitationMarkerNumericEntry> entries) {
         final int minGroupingCount = this.getMinimumGroupingCount();
-        return JStyleGetNumericCitationMarker.getNumCitationMarker2(this,
-                entries,
-                minGroupingCount);
+        return JStyleGetNumericCitationMarker.getNumCitationMarker2(this, entries, minGroupingCount);
     }
 
     /// For some tests we need to override minGroupingCount.
-    public OOText getNumCitationMarker2(List<CitationMarkerNumericEntry> entries,
-                                        int minGroupingCount) {
-        return JStyleGetNumericCitationMarker.getNumCitationMarker2(this,
-                entries,
-                minGroupingCount);
+    public OOText getNumCitationMarker2(List<CitationMarkerNumericEntry> entries, int minGroupingCount) {
+        return JStyleGetNumericCitationMarker.getNumCitationMarker2(this, entries, minGroupingCount);
     }
 
     /// Format a number-based bibliography label for the given number.
@@ -699,43 +691,35 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
         return JStyleGetCitationMarker.getNormalizedCitationMarker(this, entry, Optional.empty());
     }
 
-    /// Format the marker for the in-text citation according to this
-    /// BIB style. Uniquefier letters are added as provided by the
-    /// citationMarkerEntries argument. If successive entries within
-    /// the citation are uniquefied from each other, this method will
-    /// perform a grouping of these entries.
+    /// Format the marker for the in-text citation according to this BIB style.
+    /// Uniquefier letters are added as provided by the citationMarkerEntries
+    /// argument. If successive entries within the citation are uniquefied from
+    /// each other, this method will perform a grouping of these entries.
     ///
-    /// If successive entries within the citation are uniquefied from
-    /// each other, this method will perform a grouping of these
-    /// entries.
+    /// If successive entries within the citation are uniquefied from each
+    /// other, this method will perform a grouping of these entries.
     ///
-    /// FORGIVEN : is needed to allow preliminary markers
-    /// for freshly inserted citations without
-    /// going throw the uniquefication process.
+    /// FORGIVEN : is needed to allow preliminary markers for freshly inserted
+    /// citations without going throw the uniquefication process.
     ///
-    /// @param citationMarkerEntries           The list of entries providing the data.
-    /// @param inParenthesis                   Signals whether a parenthesized citation or an in-text citation is wanted.
-    /// @param nonUniqueCitationMarkerHandling THROWS : Should throw if finds that uniqueLetters provided do not make the entries unique.
-    /// @return The formatted citation. The result does not include the standard wrappers: OOFormat.setLocaleNone() and OOFormat.setCharStyle(). These are added by decorateCitationMarker()
-    public OOText createCitationMarker(List<CitationMarkerEntry> citationMarkerEntries,
-                                       boolean inParenthesis,
-                                       NonUniqueCitationMarker nonUniqueCitationMarkerHandling) {
-        return JStyleGetCitationMarker.createCitationMarker(this,
-                citationMarkerEntries,
-                inParenthesis,
-                nonUniqueCitationMarkerHandling);
+    /// @param citationMarkerEntries The list of entries providing the data.
+    /// @param inParenthesis Signals whether a parenthesized citation or an
+    ///   in-text citation is wanted.
+    /// @param nonUniqueCitationMarkerHandling THROWS : Should throw if finds
+    ///   that uniqueLetters provided do not make the entries unique.
+    /// @return The formatted citation. The result does not include the standard
+    ///   wrappers: OOFormat.setLocaleNone() and OOFormat.setCharStyle(). These
+    ///   are added by decorateCitationMarker()
+    public OOText createCitationMarker(List<CitationMarkerEntry> citationMarkerEntries, boolean inParenthesis, NonUniqueCitationMarker nonUniqueCitationMarkerHandling) {
+        return JStyleGetCitationMarker.createCitationMarker(this, citationMarkerEntries, inParenthesis, nonUniqueCitationMarkerHandling);
     }
 
-    /// As [#createCitationMarker(List, boolean, NonUniqueCitationMarker)], but takes the
-    /// presentation from the citation type of the group, so that the partial and bracket-less
-    /// citation types of <https://github.com/JabRef/jabref/issues/7861> are handled as well.
-    public OOText createCitationMarker(List<CitationMarkerEntry> citationMarkerEntries,
-                                       CitationType citationType,
-                                       NonUniqueCitationMarker nonUniqueCitationMarkerHandling) {
-        return JStyleGetCitationMarker.createCitationMarker(this,
-                citationMarkerEntries,
-                citationType,
-                nonUniqueCitationMarkerHandling);
+    /// As [#createCitationMarker(List, boolean, NonUniqueCitationMarker)], but
+    /// takes the presentation from the citation type of the group, so that the
+    /// partial and bracket-less citation types of
+    /// <https://github.com/JabRef/jabref/issues/7861> are handled as well.
+    public OOText createCitationMarker(List<CitationMarkerEntry> citationMarkerEntries, CitationType citationType, NonUniqueCitationMarker nonUniqueCitationMarkerHandling) {
+        return JStyleGetCitationMarker.createCitationMarker(this, citationMarkerEntries, citationType, nonUniqueCitationMarkerHandling);
     }
 
     /// Add setLocaleNone and optionally setCharStyle(CitationCharacterFormat) around
@@ -906,8 +890,6 @@ public class JStyle implements Comparable<JStyle>, OOStyle {
         JStyle style = this;
         OOText title = style.getReferenceHeaderText();
         String parStyle = style.getReferenceHeaderParagraphFormat();
-        return parStyle == null
-               ? OOFormat.paragraph(title)
-               : OOFormat.paragraph(title, parStyle);
+        return parStyle == null ? OOFormat.paragraph(title) : OOFormat.paragraph(title, parStyle);
     }
 }

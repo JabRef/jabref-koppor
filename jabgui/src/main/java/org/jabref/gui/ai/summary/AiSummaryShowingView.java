@@ -6,6 +6,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Locale;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import javafx.beans.property.ObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -16,7 +18,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.BindingsHelper;
@@ -29,33 +30,41 @@ import org.jabref.model.ai.identifiers.FullBibEntry;
 import org.jabref.model.ai.summarization.AiSummary;
 import org.jabref.model.entry.BibEntryTypesManager;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 public class AiSummaryShowingView extends VBox {
-    @FXML private CheckBox markdownCheckbox;
-    @FXML private Text summaryInfoText;
+    @FXML
+    private CheckBox markdownCheckbox;
+
+    @FXML
+    private Text summaryInfoText;
 
     private MarkdownTextFlow markdownTextFlow;
 
     private AiSummaryShowingViewModel viewModel;
 
-    /// Monotonically increasing stamp identifying the most recently scheduled content update.
+    /// Monotonically increasing stamp identifying the most recently scheduled
+    /// content update.
     ///
-    /// Each [#updateContent()] call increments this counter and captures its own value before
-    /// scheduling the UI mutation on the JavaFX thread. When the scheduled callback runs, it compares
-    /// the captured value against the current counter and skips the mutation if a newer update has been
-    /// scheduled in the meantime, preventing a stale summary from overwriting a newer one.
+    /// Each [#updateContent()] call increments this counter and captures its
+    /// own value before scheduling the UI mutation on the JavaFX thread. When
+    /// the scheduled callback runs, it compares the captured value against the
+    /// current counter and skips the mutation if a newer update has been
+    /// scheduled in the meantime, preventing a stale summary from overwriting a
+    /// newer one.
     private int updateVersion;
 
-    @Inject private GuiPreferences preferences;
-    @Inject private DialogService dialogService;
-    @Inject private BibEntryTypesManager entryTypesManager;
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private BibEntryTypesManager entryTypesManager;
 
     public AiSummaryShowingView() {
         ViewLoader.view(this)
-                  .root(this)
-                  .load();
+                .root(this)
+                .load();
     }
 
     private static String formatSummaryInfo(AiSummary summary) {
@@ -64,16 +73,14 @@ public class AiSummaryShowingView extends VBox {
         }
 
         return Localization.lang("Generated at %0 by %1 (algorithm %2)")
-                           .replaceAll("%0", formatTimestamp(summary.metadata().timestamp()))
-                           .replaceAll("%1", AiNamingUtils.getDisplayName(summary.metadata().aiProvider()) + " " + summary.metadata().model())
-                           .replaceAll("%2", AiNamingUtils.getDisplayName(summary.summarizationAlgorithm()));
+                .replaceAll("%0", formatTimestamp(summary.metadata().timestamp()))
+                .replaceAll("%1", AiNamingUtils.getDisplayName(summary.metadata().aiProvider()) + " " + summary.metadata().model())
+                .replaceAll("%2", AiNamingUtils.getDisplayName(summary.summarizationAlgorithm()));
     }
 
     private static String formatTimestamp(Instant timestamp) {
-        return timestamp
-                .atZone(ZoneId.systemDefault())
-                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-                                         .withLocale(Locale.getDefault()));
+        return timestamp.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+                .withLocale(Locale.getDefault()));
     }
 
     public ObjectProperty<AiSummary> summaryProperty() {
@@ -86,12 +93,7 @@ public class AiSummaryShowingView extends VBox {
 
     @FXML
     private void initialize() {
-        viewModel = new AiSummaryShowingViewModel(
-                preferences.getAiPreferences(),
-                preferences.getFieldPreferences(),
-                entryTypesManager,
-                dialogService
-        );
+        viewModel = new AiSummaryShowingViewModel(preferences.getAiPreferences(), preferences.getFieldPreferences(), entryTypesManager, dialogService);
         initializeMarkdownTextFlow();
 
         setupBindings();
@@ -113,7 +115,8 @@ public class AiSummaryShowingView extends VBox {
     private void setupBindings() {
         viewModel.isMarkdownProperty().bindBidirectional(markdownCheckbox.selectedProperty());
 
-        summaryInfoText.textProperty().bind(viewModel.summaryProperty().map(AiSummaryShowingView::formatSummaryInfo));
+        summaryInfoText.textProperty().bind(viewModel.summaryProperty()
+                .map(AiSummaryShowingView::formatSummaryInfo));
     }
 
     private void setupListeners() {
@@ -123,19 +126,20 @@ public class AiSummaryShowingView extends VBox {
 
     private void updateContent() {
         int requestVersion = ++updateVersion;
-        UiTaskExecutor.runInJavaFXThread(() -> {
-            if (requestVersion != updateVersion) {
-                return;
-            }
-            AiSummary summary = viewModel.summaryProperty().get();
-            String content = StringUtil.makeSafe(summary == null ? null : summary.content());
-            boolean markdown = viewModel.isMarkdownProperty().get();
-            if (markdown) {
-                markdownTextFlow.setMarkdown(content);
-            } else {
-                markdownTextFlow.setPlainText(content);
-            }
-        });
+        UiTaskExecutor.runInJavaFXThread(
+                () -> {
+                    if (requestVersion != updateVersion) {
+                        return;
+                    }
+                    AiSummary summary = viewModel.summaryProperty().get();
+                    String content = StringUtil.makeSafe(summary == null ? null : summary.content());
+                    boolean markdown = viewModel.isMarkdownProperty().get();
+                    if (markdown) {
+                        markdownTextFlow.setMarkdown(content);
+                    } else {
+                        markdownTextFlow.setPlainText(content);
+                    }
+                });
     }
 
     public ObjectProperty<EventHandler<ActionEvent>> onRegenerateProperty() {

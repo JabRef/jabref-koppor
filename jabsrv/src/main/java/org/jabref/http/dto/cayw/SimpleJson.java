@@ -2,18 +2,12 @@ package org.jabref.http.dto.cayw;
 
 import org.jabref.http.server.cayw.CitationProperties;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public record SimpleJson(
-        long id,
-        String citationKey,
-        @Nullable String locator,
-        @Nullable String prefix,
-        @Nullable String suffix,
-        boolean suppressAuthor) {
+public record SimpleJson(long id, String citationKey, @Nullable String locator,
+        @Nullable String prefix, @Nullable String suffix, boolean suppressAuthor) {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleJson.class);
 
@@ -29,7 +23,6 @@ public record SimpleJson(
                 properties.getFormattedLocator().orElse(null),
                 properties.getPrefix().orElse(null),
                 properties.getSuffix().orElse(null),
-                properties.isOmitAuthor()
-        );
+                properties.isOmitAuthor());
     }
 }

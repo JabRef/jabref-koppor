@@ -21,8 +21,7 @@ import org.jabref.model.entry.BibEntry;
 /// Thread-safe: all map operations are protected by a synchronized wrapper.
 public class InMemorySummaryCache {
 
-    private record CachedEntry(AiSummary summary, FullBibEntry fullEntry) {
-    }
+    private record CachedEntry(AiSummary summary, FullBibEntry fullEntry) {}
 
     // IdentityHashMap: compares keys by reference (==), NOT by equals()/hashCode().
     // This is exactly what we need — two BibEntry objects with the same citation key are distinct
@@ -35,8 +34,8 @@ public class InMemorySummaryCache {
         this.repository = repository;
     }
 
-    /// Stores `summary` for `fullEntry`. Overwrites any previously cached summary for the
-    /// same object reference.
+    /// Stores `summary` for `fullEntry`. Overwrites any previously cached
+    /// summary for the same object reference.
     public void put(FullBibEntry fullEntry, AiSummary summary) {
         cache.put(fullEntry.entry(), new CachedEntry(summary, fullEntry));
     }
@@ -51,20 +50,25 @@ public class InMemorySummaryCache {
         cache.remove(entry);
     }
 
-    /// Writes all cached summaries to the persistent repository for entries whose citation key is
-    /// *present and unique* and whose database has a valid AI library ID.
-    /// Entries that do not satisfy both conditions are silently skipped.
+    /// Writes all cached summaries to the persistent repository for entries
+    /// whose citation key is *present and unique* and whose database has a
+    /// valid AI library ID. Entries that do not satisfy both conditions are
+    /// silently skipped.
     ///
-    /// Call this when the library or application is closing so that valid summaries survive
-    /// the next restart.
+    /// Call this when the library or application is closing so that valid
+    /// summaries survive the next restart.
     public void close() {
         cache.forEach((bibEntry, cached) -> {
             // If the BibEntry was deleted from the database, the summary must not be saved.
-            if (!cached.fullEntry.databaseContext().getDatabase().getEntries().contains(bibEntry)) {
+            if (!cached.fullEntry.databaseContext()
+                       .getDatabase()
+                       .getEntries()
+                       .contains(bibEntry)) {
                 return;
             }
 
-            cached.fullEntry().toAiSummaryIdentifier()
+            cached.fullEntry()
+                  .toAiSummaryIdentifier()
                   .ifPresent(id -> repository.set(id, cached.summary()));
         });
     }

@@ -2,6 +2,9 @@ package org.jabref.gui.openoffice;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import com.tobiasdiez.easybind.EasyBind;
+import jakarta.inject.Inject;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
@@ -19,7 +22,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
-
+import org.controlsfx.control.textfield.CustomTextField;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -49,14 +52,10 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.types.StandardEntryType;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import com.tobiasdiez.easybind.EasyBind;
-import jakarta.inject.Inject;
-import org.controlsfx.control.textfield.CustomTextField;
-
 public class StyleSelectDialogView extends BaseDialog<OOStyle> {
 
-    /// Turns [#bstPandocWarning] into a warning; without it the label reads as a plain hint.
+    /// Turns [#bstPandocWarning] into a warning; without it the label reads as
+    /// a plain hint.
     private static final String WARNING_STYLE_CLASS = "text-warning";
 
     private final MenuItem edit = new MenuItem(Localization.lang("Edit"));
@@ -67,50 +66,109 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
     private final BstStyleLoader bstStyleLoader;
     private final JournalAbbreviationRepository journalAbbreviationRepository;
 
-    @FXML private Tab cslStyleTab;
-    @FXML private Tab jStyleTab;
-    @FXML private Tab bstStyleTab;
+    @FXML
+    private Tab cslStyleTab;
+
+    @FXML
+    private Tab jStyleTab;
+
+    @FXML
+    private Tab bstStyleTab;
 
     // CSL Styles TableView
-    @FXML private TableView<CSLStyleSelectViewModel> cslStylesTable;
-    @FXML private TableColumn<CSLStyleSelectViewModel, String> cslNameColumn;
-    @FXML private TableColumn<CSLStyleSelectViewModel, String> cslPathColumn;
-    @FXML private TableColumn<CSLStyleSelectViewModel, Boolean> cslDeleteColumn;
+    @FXML
+    private TableView<CSLStyleSelectViewModel> cslStylesTable;
+
+    @FXML
+    private TableColumn<CSLStyleSelectViewModel, String> cslNameColumn;
+
+    @FXML
+    private TableColumn<CSLStyleSelectViewModel, String> cslPathColumn;
+
+    @FXML
+    private TableColumn<CSLStyleSelectViewModel, Boolean> cslDeleteColumn;
 
     // JStyles TableView
-    @FXML private TableView<JStyleSelectViewModel> jStylesTable;
-    @FXML private TableColumn<JStyleSelectViewModel, String> jStyleNameColumn;
-    @FXML private TableColumn<JStyleSelectViewModel, String> jStyleJournalColumn;
-    @FXML private TableColumn<JStyleSelectViewModel, String> jStyleFileColumn;
-    @FXML private TableColumn<JStyleSelectViewModel, Boolean> jStyleDeleteColumn;
+    @FXML
+    private TableView<JStyleSelectViewModel> jStylesTable;
+
+    @FXML
+    private TableColumn<JStyleSelectViewModel, String> jStyleNameColumn;
+
+    @FXML
+    private TableColumn<JStyleSelectViewModel, String> jStyleJournalColumn;
+
+    @FXML
+    private TableColumn<JStyleSelectViewModel, String> jStyleFileColumn;
+
+    @FXML
+    private TableColumn<JStyleSelectViewModel, Boolean> jStyleDeleteColumn;
 
     // BST Styles TableView
-    @FXML private TableView<BstStyleSelectViewModel> bstStylesTable;
-    @FXML private TableColumn<BstStyleSelectViewModel, String> bstNameColumn;
-    @FXML private TableColumn<BstStyleSelectViewModel, String> bstFileColumn;
-    @FXML private TableColumn<BstStyleSelectViewModel, Boolean> bstDeleteColumn;
-    @FXML private Label bstPandocWarning;
+    @FXML
+    private TableView<BstStyleSelectViewModel> bstStylesTable;
 
-    @FXML private Button addCslButton;
-    @FXML private Button addJStyleButton;
-    @FXML private Button addBstStyleButton;
-    @FXML private RadioButton numericFormatButton;
-    @FXML private RadioButton authorYearFormatButton;
-    @FXML private RadioButton styleDefinedFormatButton;
-    @FXML private VBox bstPreviewBox;
+    @FXML
+    private TableColumn<BstStyleSelectViewModel, String> bstNameColumn;
 
-    @FXML private VBox cslPreviewBox;
-    @FXML private VBox jStylePreviewBox;
+    @FXML
+    private TableColumn<BstStyleSelectViewModel, String> bstFileColumn;
+
+    @FXML
+    private TableColumn<BstStyleSelectViewModel, Boolean> bstDeleteColumn;
+
+    @FXML
+    private Label bstPandocWarning;
+
+    @FXML
+    private Button addCslButton;
+
+    @FXML
+    private Button addJStyleButton;
+
+    @FXML
+    private Button addBstStyleButton;
+
+    @FXML
+    private RadioButton numericFormatButton;
+
+    @FXML
+    private RadioButton authorYearFormatButton;
+
+    @FXML
+    private RadioButton styleDefinedFormatButton;
+
+    @FXML
+    private VBox bstPreviewBox;
+
+    @FXML
+    private VBox cslPreviewBox;
+
+    @FXML
+    private VBox jStylePreviewBox;
 
     private final AtomicBoolean initialScrollPerformed = new AtomicBoolean(false);
-    @FXML private CustomTextField searchBox;
-    @FXML private TabPane tabPane;
-    @FXML private Label currentStyleNameLabel;
 
-    @Inject private GuiPreferences preferences;
-    @Inject private DialogService dialogService;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private BibEntryTypesManager bibEntryTypesManager;
+    @FXML
+    private CustomTextField searchBox;
+
+    @FXML
+    private TabPane tabPane;
+
+    @FXML
+    private Label currentStyleNameLabel;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private BibEntryTypesManager bibEntryTypesManager;
 
     private StyleSelectDialogViewModel viewModel;
     private PreviewViewer previewArticle;
@@ -118,18 +176,16 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
 
     /// ViewModel for the CitationStyle entries in the TableView
 
-    public StyleSelectDialogView(CSLStyleLoader cslStyleLoader,
-                                 JStyleLoader jStyleLoader,
-                                 BstStyleLoader bstStyleLoader,
-                                 JournalAbbreviationRepository journalAbbreviationRepository) {
+    public StyleSelectDialogView(CSLStyleLoader cslStyleLoader, JStyleLoader jStyleLoader, BstStyleLoader bstStyleLoader,
+            JournalAbbreviationRepository journalAbbreviationRepository) {
         this.cslStyleLoader = cslStyleLoader;
         this.jStyleLoader = jStyleLoader;
         this.bstStyleLoader = bstStyleLoader;
         this.journalAbbreviationRepository = journalAbbreviationRepository;
 
         ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+                .load()
+                .setAsDialogPane(this);
 
         setResultConverter(button -> {
             if (button == ButtonType.OK) {
@@ -143,7 +199,8 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
 
     @FXML
     private void initialize() {
-        viewModel = new StyleSelectDialogViewModel(dialogService, cslStyleLoader, jStyleLoader, bstStyleLoader, preferences, journalAbbreviationRepository, taskExecutor, bibEntryTypesManager);
+        viewModel = new StyleSelectDialogViewModel(dialogService, cslStyleLoader, jStyleLoader, bstStyleLoader, preferences, journalAbbreviationRepository,
+                taskExecutor, bibEntryTypesManager);
 
         setupCslStylesTab();
         setupJStylesTab();
@@ -158,8 +215,11 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
             tabPane.getSelectionModel().select(jStyleTab);
         }
 
-        viewModel.setSelectedTab(tabPane.getSelectionModel().getSelectedItem());
-        tabPane.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> viewModel.setSelectedTab(newValue));
+        viewModel.setSelectedTab(tabPane.getSelectionModel()
+                .getSelectedItem());
+        tabPane.getSelectionModel()
+               .selectedItemProperty()
+               .addListener((_, _, newValue) -> viewModel.setSelectedTab(newValue));
 
         updateCurrentStyleLabel();
         addCslButton.setGraphic(IconTheme.JabRefIcons.ADD.getGraphicNode());
@@ -202,11 +262,13 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
                 })
                 .install(cslStylesTable);
 
-        cslStylesTable.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
-            if (newValue != null) {
-                viewModel.selectedCslLayoutProperty().set(newValue.getLayout());
-            }
-        });
+        cslStylesTable.getSelectionModel()
+                      .selectedItemProperty()
+                      .addListener((_, _, newValue) -> {
+                          if (newValue != null) {
+                              viewModel.selectedCslLayoutProperty().set(newValue.getLayout());
+                          }
+                      });
 
         searchBox.textProperty().addListener((_, _, newValue) -> {
             viewModel.setAvailableCslLayoutsFilter(newValue);
@@ -254,13 +316,15 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
                 .withContextMenu(_ -> createContextMenu())
                 .install(jStylesTable);
 
-        jStylesTable.getSelectionModel().selectedItemProperty().addListener((_, oldValue, newValue) -> {
-            if (newValue == null) {
-                viewModel.selectedJStyleProperty().setValue(oldValue);
-            } else {
-                viewModel.selectedJStyleProperty().setValue(newValue);
-            }
-        });
+        jStylesTable.getSelectionModel()
+                    .selectedItemProperty()
+                    .addListener((_, oldValue, newValue) -> {
+                        if (newValue == null) {
+                            viewModel.selectedJStyleProperty().setValue(oldValue);
+                        } else {
+                            viewModel.selectedJStyleProperty().setValue(newValue);
+                        }
+                    });
 
         jStylesTable.setItems(viewModel.jStylesProperty());
 
@@ -276,8 +340,10 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
         EasyBind.subscribe(viewModel.selectedJStyleProperty(), style -> {
             if (viewModel.getSelectedStyle() instanceof JStyle) {
                 jStylesTable.getSelectionModel().select(style);
-                previewArticle.setLayout(new TextBasedPreviewLayout(style.getJStyle().getReferenceFormat(StandardEntryType.Article)));
-                previewBook.setLayout(new TextBasedPreviewLayout(style.getJStyle().getReferenceFormat(StandardEntryType.Book)));
+                previewArticle.setLayout(new TextBasedPreviewLayout(style.getJStyle()
+                        .getReferenceFormat(StandardEntryType.Article)));
+                previewBook.setLayout(new TextBasedPreviewLayout(style.getJStyle()
+                        .getReferenceFormat(StandardEntryType.Book)));
             }
         });
     }
@@ -296,7 +362,8 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
     }
 
     private void updateCurrentStyleLabel() {
-        currentStyleNameLabel.setText(viewModel.getSetStyle().getName());
+        currentStyleNameLabel.setText(viewModel.getSetStyle()
+                .getName());
     }
 
     private void updateCslStylesTable() {
@@ -307,7 +374,8 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
 
         if (viewModel.selectedCslLayoutProperty().get() != null) {
             for (CSLStyleSelectViewModel model : cslStylesTable.getItems()) {
-                if (model.getLayout().equals(viewModel.selectedCslLayoutProperty().get())) {
+                if (model.getLayout().equals(viewModel.selectedCslLayoutProperty()
+                        .get())) {
                     cslStylesTable.getSelectionModel().select(model);
                     cslStylesTable.scrollTo(model);
                     break;
@@ -327,20 +395,17 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
     }
 
     private void setupBstStylesTab() {
-        OpenOfficePreferences openOfficePreferences =
-                preferences.getOpenOfficePreferences(journalAbbreviationRepository);
+        OpenOfficePreferences openOfficePreferences = preferences.getOpenOfficePreferences(journalAbbreviationRepository);
 
         String pandocPath = openOfficePreferences.getPandocPath();
 
         if (StringUtil.isBlank(pandocPath)) {
-            bstPandocWarning.setText(
-                    Localization.lang("Pandoc path is required to be set. Please set it in your preferences."));
+            bstPandocWarning.setText(Localization.lang("Pandoc path is required to be set. Please set it in your preferences."));
             if (!bstPandocWarning.getStyleClass().contains(WARNING_STYLE_CLASS)) {
                 bstPandocWarning.getStyleClass().add(WARNING_STYLE_CLASS);
             }
         } else {
-            bstPandocWarning.setText(
-                    Localization.lang("Pandoc path: %0", pandocPath));
+            bstPandocWarning.setText(Localization.lang("Pandoc path: %0", pandocPath));
             bstPandocWarning.getStyleClass().remove(WARNING_STYLE_CLASS);
         }
 
@@ -375,11 +440,13 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
                 })
                 .install(bstStylesTable);
 
-        bstStylesTable.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
-            if (newValue != null) {
-                viewModel.selectedBstStyleProperty().setValue(newValue);
-            }
-        });
+        bstStylesTable.getSelectionModel()
+                      .selectedItemProperty()
+                      .addListener((_, _, newValue) -> {
+                          if (newValue != null) {
+                              viewModel.selectedBstStyleProperty().setValue(newValue);
+                          }
+                      });
 
         bstStylesTable.setItems(viewModel.bstStylesProperty());
         addBstStyleButton.setGraphic(IconTheme.JabRefIcons.ADD.getGraphicNode());
@@ -432,8 +499,9 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
         viewModel.addBstStyleFile();
     }
 
-    /// When Select Style dialog is first opened, there is a slight delay in population of CSL styles table.
-    /// This function scrolls to the last selected style, while taking care of the delay.
+    /// When Select Style dialog is first opened, there is a slight delay in
+    /// population of CSL styles table. This function scrolls to the last
+    /// selected style, while taking care of the delay.
     private void onDialogShown(DialogEvent event) {
         if (!cslStylesTable.getItems().isEmpty() || !bstStylesTable.getItems().isEmpty()) {
             Platform.runLater(this::scrollToCurrentStyle);
@@ -449,7 +517,9 @@ public class StyleSelectDialogView extends BaseDialog<OOStyle> {
         if (currentStyle instanceof CitationStyle currentCitationStyle) {
             for (int i = 0; i < cslStylesTable.getItems().size(); i++) {
                 CSLStyleSelectViewModel item = cslStylesTable.getItems().get(i);
-                if (item.getLayout().getFilePath().equals(currentCitationStyle.getFilePath())) {
+                if (item.getLayout()
+                        .getFilePath()
+                        .equals(currentCitationStyle.getFilePath())) {
                     cslStylesTable.scrollTo(i);
                     cslStylesTable.getSelectionModel().select(i);
                     break;

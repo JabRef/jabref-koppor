@@ -125,10 +125,14 @@ jobs:
   format:
     needs: changes
     if: needs.changes.outputs.run-gradle-ci-full == 'true'
-    # ubuntu-slim doesn't offer docker
+    # too slow on ubuntu-slim
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: 'true'
+          show-progress: 'false'
+      - uses: ./.github/actions/setup-gradle
       - uses: ./.github/actions/format-java
       # job should fail in case there are changes
       - uses: ./.github/actions/check-formatting
@@ -195,7 +199,7 @@ jobs:
         run: |
           gradle --no-configuration-cache :rewriteRun
 
-      # Reformat code (because OpenRewrite does different indents)
+      # Reformat code (because OpenRewrite does different indents and line breaks)
       - uses: ./.github/actions/format-java
 
       - name: Fail if working directory is unclean
@@ -447,7 +451,7 @@ jobs:
         if: needs.changes.outputs.run-gradle-ci-full == 'true'
       - name: Run ${{ matrix.module }} tests
         if: needs.changes.outputs.run-gradle-ci-full == 'true'
-        run: xvfb-run --auto-servernum gradle :${{ matrix.module }}:check -x checkstyleJmh -x checkstyleMain -x checkstyleTest -x modernizer
+        run: xvfb-run --auto-servernum gradle :${{ matrix.module }}:check -x checkstyleJmh -x checkstyleMain -x checkstyleTest -x jfmtCheck -x modernizer
         env:
           CI: "true"
       - name: Run JabKit portable smoke test
@@ -492,7 +496,7 @@ jobs:
         if: needs.changes.outputs.run-gradle-ci-full == 'true'
       - name: Run ${{ matrix.module }} tests
         if: needs.changes.outputs.run-gradle-ci-full == 'true'
-        run: gradle :${{ matrix.module }}:check -x checkstyleJmh -x checkstyleMain -x checkstyleTest -x modernizer
+        run: gradle :${{ matrix.module }}:check -x checkstyleJmh -x checkstyleMain -x checkstyleTest -x jfmtCheck -x modernizer
         env:
           CI: "true"
 
@@ -521,7 +525,7 @@ jobs:
         if: steps.changed-windows-related-files.outputs.any_changed == 'true'
       - name: Run jablib tests
         if: steps.changed-windows-related-files.outputs.any_changed == 'true'
-        run: gradle :jablib:check -x checkstyleJmh -x checkstyleMain -x checkstyleTest -x modernizer
+        run: gradle :jablib:check -x checkstyleJmh -x checkstyleMain -x checkstyleTest -x jfmtCheck -x modernizer
         env:
           CI: "true"
 

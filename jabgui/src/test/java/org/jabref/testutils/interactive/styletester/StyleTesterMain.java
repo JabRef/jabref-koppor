@@ -3,7 +3,6 @@ package org.jabref.testutils.interactive.styletester;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefDialogService;
 import org.jabref.gui.WorkspacePreferences;

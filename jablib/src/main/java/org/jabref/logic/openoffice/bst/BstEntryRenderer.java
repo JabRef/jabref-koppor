@@ -7,16 +7,17 @@ import org.jabref.logic.bst.BstVM;
 import org.jabref.logic.cleanup.ConvertToBibtexCleanup;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 
-/// Renders a single [BibEntry] through a [BstVM] and strips all LaTeX structure that precedes
-/// the actual bibliography text, leaving inline markup intact for pandoc to process.
+/// Renders a single [BibEntry] through a [BstVM] and strips all LaTeX structure
+/// that precedes the actual bibliography text, leaving inline markup intact for
+/// pandoc to process.
 ///
-/// IEEEtran and similar styles emit a large `\providecommand` preamble before every entry.
-/// Rather than matching individual macros with fragile regexes, we take everything **after the
-/// last `\bibitem{key}`** - since `BstVM.render(List.of(entry), …)` renders exactly one entry,
-/// every line before its `\bibitem` is preamble by construction.
+/// IEEEtran and similar styles emit a large `\providecommand` preamble before
+/// every entry. Rather than matching individual macros with fragile regexes, we
+/// take everything **after the last `\bibitem{key}`** - since
+/// `BstVM.render(List.of(entry), …)` renders exactly one entry, every line
+/// before its `\bibitem` is preamble by construction.
 @NullMarked
 public class BstEntryRenderer {
 

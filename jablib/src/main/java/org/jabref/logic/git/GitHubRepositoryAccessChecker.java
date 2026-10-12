@@ -20,9 +20,9 @@ public class GitHubRepositoryAccessChecker {
         }
         try {
             URIish remote = new URIish(repositoryUrl);
-            if (!"https".equalsIgnoreCase(remote.getScheme())
-                    || !"github.com".equalsIgnoreCase(remote.getHost())
-                    || Optional.ofNullable(remote.getPath()).filter(GitHubRepositoryAccessChecker::isRepositoryPath).isEmpty()) {
+            if (!"https".equalsIgnoreCase(remote.getScheme()) || !"github.com".equalsIgnoreCase(remote.getHost()) || Optional.ofNullable(remote.getPath())
+                    .filter(GitHubRepositoryAccessChecker::isRepositoryPath)
+                    .isEmpty()) {
                 return GitHubRepositoryAccess.INVALID_REPOSITORY_URL;
             }
 
@@ -52,8 +52,6 @@ public class GitHubRepositoryAccessChecker {
         }
 
         String[] pathSegments = normalizedPath.split("/", -1);
-        return pathSegments.length == 2
-                && !pathSegments[0].isBlank()
-                && !pathSegments[1].isBlank();
+        return pathSegments.length == 2 && !pathSegments[0].isBlank() && !pathSegments[1].isBlank();
     }
 }

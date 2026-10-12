@@ -16,7 +16,6 @@ import java.util.function.Supplier;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -62,12 +61,8 @@ public class DuplicateSearch extends SimpleCommand {
     private DuplicateResolverResult rememberedDecision;
     private Future<?> duplicateSearchTask;
 
-    public DuplicateSearch(Supplier<LibraryTab> tabSupplier,
-                           DialogService dialogService,
-                           StateManager stateManager,
-                           GuiPreferences preferences,
-                           BibEntryTypesManager entryTypesManager,
-                           TaskExecutor taskExecutor) {
+    public DuplicateSearch(Supplier<LibraryTab> tabSupplier, DialogService dialogService, StateManager stateManager,
+                           GuiPreferences preferences, BibEntryTypesManager entryTypesManager, TaskExecutor taskExecutor) {
         this.tabSupplier = tabSupplier;
         this.dialogService = dialogService;
         this.stateManager = stateManager;
@@ -95,12 +90,13 @@ public class DuplicateSearch extends SimpleCommand {
             return;
         }
 
-        duplicateCountObservable.addListener((_, _, newValue) -> UiTaskExecutor.runAndWaitInJavaFXThread(() -> duplicateTotal.set(newValue)));
+        duplicateCountObservable.addListener((_, _, newValue) ->
+                UiTaskExecutor.runAndWaitInJavaFXThread(() -> duplicateTotal.set(newValue)));
 
         duplicateSearchTask = HeadlessExecutorService.INSTANCE.executeInterruptibleTask(() -> searchPossibleDuplicates(entries, database.getMode()), "DuplicateSearcher");
         BackgroundTask.wrap(this::verifyDuplicates)
-                      .onSuccess(this::handleDuplicates)
-                      .executeWith(taskExecutor);
+                .onSuccess(this::handleDuplicates)
+                .executeWith(taskExecutor);
     }
 
     private void searchPossibleDuplicates(List<BibEntry> entries, BibDatabaseMode databaseMode) {
@@ -162,18 +158,24 @@ public class DuplicateSearch extends SimpleCommand {
         return result;
     }
 
-    private void askResolveStrategy(DuplicateSearchResult result, BibEntry first, BibEntry second, DuplicateResolverType resolverType) {
+    private void askResolveStrategy(DuplicateSearchResult result, BibEntry first, BibEntry second,
+            DuplicateResolverType resolverType) {
         DuplicateResolverDialog dialog = new DuplicateResolverDialog(first, second, resolverType, stateManager, dialogService, preferences);
 
-        dialog.titleProperty().bind(Bindings.concat(dialog.getTitle()).concat(" (").concat(duplicateProgress).concat("/").concat(duplicateTotal).concat(")"));
+        dialog.titleProperty().bind(
+                Bindings.concat(dialog.getTitle())
+                        .concat(" (")
+                        .concat(duplicateProgress)
+                        .concat("/")
+                        .concat(duplicateTotal)
+                        .concat(")"));
 
         DuplicateResolverResult resolverResult;
 
         if (preferences.getMergeDialogPreferences().shouldMergeApplyToAllEntries() && rememberedDecision != null) {
             resolverResult = rememberedDecision;
         } else {
-            resolverResult = dialogService.showCustomDialogAndWait(dialog)
-                                          .orElse(DuplicateResolverResult.BREAK);
+            resolverResult = dialogService.showCustomDialogAndWait(dialog).orElse(DuplicateResolverResult.BREAK);
 
             if (preferences.getMergeDialogPreferences().shouldMergeApplyToAllEntries()) {
                 rememberedDecision = resolverResult;
@@ -183,9 +185,9 @@ public class DuplicateSearch extends SimpleCommand {
         applyDecisionToResult(result, first, second, resolverResult, dialog);
     }
 
-    private void applyDecisionToResult(DuplicateSearchResult result, BibEntry first, BibEntry second, DuplicateResolverResult resolverResult, DuplicateResolverDialog dialog) {
-        if ((resolverResult == DuplicateResolverResult.KEEP_LEFT)
-                || (resolverResult == DuplicateResolverResult.AUTOREMOVE_EXACT)) {
+    private void applyDecisionToResult(DuplicateSearchResult result, BibEntry first, BibEntry second,
+            DuplicateResolverResult resolverResult, DuplicateResolverDialog dialog) {
+        if ((resolverResult == DuplicateResolverResult.KEEP_LEFT) || (resolverResult == DuplicateResolverResult.AUTOREMOVE_EXACT)) {
             result.remove(second);
             result.replace(first, dialog.getNewLeftEntry());
             if (resolverResult == DuplicateResolverResult.AUTOREMOVE_EXACT) {
@@ -235,12 +237,17 @@ public class DuplicateSearch extends SimpleCommand {
 
         duplicateProgress.set(0);
 
-        dialogService.notify(Localization.lang("Duplicates found") + ": " + duplicateCount.get() + ' '
-                + Localization.lang("pairs processed") + ": " + result.getDuplicateCount());
+        dialogService.notify(Localization.lang("Duplicates found")
+                + ": "
+                + duplicateCount.get()
+                + ' '
+                + Localization.lang("pairs processed")
+                + ": "
+                + result.getDuplicateCount());
     }
 
-    /// Result of a duplicate search.
-    /// Uses [System#identityHashCode(Object)] for identifying objects for removal, as completely identical
+    /// Result of a duplicate search. Uses [System#identityHashCode(Object)] for
+    /// identifying objects for removal, as completely identical
     /// [BibEntries][BibEntry] are equal to each other.
     static class DuplicateSearchResult {
 

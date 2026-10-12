@@ -6,7 +6,6 @@ import org.jabref.gui.DialogService;
 import org.jabref.gui.frame.FileHistoryMenu;
 import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.logic.util.io.FileHistory;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,8 +20,10 @@ class FileHistoryMenuTest {
     private static final String BIBTEX_LIBRARY_PATH = "src/test/resources/org/jabref/";
 
     private FileHistoryMenu fileHistoryMenu;
+
     @Mock
     private FileHistory fileHistory;
+
     @Mock
     private DialogService dialogService;
 

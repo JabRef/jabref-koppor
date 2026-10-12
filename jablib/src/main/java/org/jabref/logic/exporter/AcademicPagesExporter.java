@@ -37,36 +37,33 @@ import org.jabref.model.entry.Date;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NullMarked;
 
-/// Exports JabRef entries to the [academicpages](https://academicpages.github.io) Jekyll template format.
-/// Each [BibEntry] is written as a separate Markdown file under `_publications/`.
-/// YAML front matter is rendered via JabRef's layout engine; file management and computed fields are handled in Java.
+/// Exports JabRef entries to the
+/// [academicpages](https://academicpages.github.io) Jekyll template format.
+/// Each [BibEntry] is written as a separate Markdown file under
+/// `_publications/`. YAML front matter is rendered via JabRef's layout engine;
+/// file management and computed fields are handled in Java.
 @NullMarked
 public class AcademicPagesExporter extends Exporter {
 
     private static final String PUBLICATION_PATH = "publication";
 
-    /// Orders entries by type priority: book -> article -> incollection -> inproceedings -> others
+    /// Orders entries by type priority: book -> article -> incollection ->
+    /// inproceedings -> others
     private static final Map<EntryType, Integer> ENTRY_TYPE_PRIORITY = Map.of(
             StandardEntryType.Book, 1,
             StandardEntryType.Article, 2,
             StandardEntryType.InCollection, 3,
-            StandardEntryType.InProceedings, 4
-    );
+            StandardEntryType.InProceedings, 4);
 
-    private static final Comparator<BibEntry> ENTRY_TYPE_ORDER = Comparator.comparingInt(
-            entry -> ENTRY_TYPE_PRIORITY.getOrDefault(entry.getType(), 0)
-    );
+    private static final Comparator<BibEntry> ENTRY_TYPE_ORDER = Comparator.comparingInt(entry -> ENTRY_TYPE_PRIORITY.getOrDefault(entry.getType(), 0));
 
     private final LayoutFormatterPreferences layoutPreferences;
     private final FieldPreferences fieldPreferences;
     private final BibEntryTypesManager entryTypesManager;
 
-    public AcademicPagesExporter(LayoutFormatterPreferences layoutPreferences,
-                                 FieldPreferences fieldPreferences,
-                                 BibEntryTypesManager entryTypesManager) {
+    public AcademicPagesExporter(LayoutFormatterPreferences layoutPreferences, FieldPreferences fieldPreferences, BibEntryTypesManager entryTypesManager) {
         super("academicpages", "Academic Pages", StandardFileType.MARKDOWN);
         this.layoutPreferences = layoutPreferences;
         this.fieldPreferences = fieldPreferences;
@@ -75,20 +72,21 @@ public class AcademicPagesExporter extends Exporter {
 
     @Override
     public void export(BibDatabaseContext databaseContext, Path outputFile, List<BibEntry> entries) throws SaveException {
-        export(databaseContext, outputFile, entries, List.of(), JournalAbbreviationLoader.loadBuiltInRepository());
+        export(databaseContext, outputFile, entries, List.of(),
+                JournalAbbreviationLoader.loadBuiltInRepository());
     }
 
     @Override
-    public void export(BibDatabaseContext databaseContext,
-                       Path outputFile,
-                       List<BibEntry> entries,
-                       List<Path> fileDirForDatabase,
-                       JournalAbbreviationRepository abbreviationRepository) throws SaveException {
+    public void export(BibDatabaseContext databaseContext, Path outputFile, List<BibEntry> entries,
+                       List<Path> fileDirForDatabase, JournalAbbreviationRepository abbreviationRepository)
+            throws SaveException {
         if (entries.isEmpty()) {
             return;
         }
 
-        String folderName = outputFile.getFileName().toString().replaceAll("\\.md$", "");
+        String folderName = outputFile.getFileName()
+                .toString()
+                .replaceAll("\\.md$", "");
         Path parent = outputFile.getParent() != null ? outputFile.getParent() : Path.of(".");
         Path publicationsDir = parent.resolve(folderName).resolve("_publications");
         Path filesDir = parent.resolve(folderName).resolve("files");
@@ -100,7 +98,9 @@ public class AcademicPagesExporter extends Exporter {
             throw new SaveException(ex);
         }
 
-        for (BibEntry entry : entries.stream().sorted(ENTRY_TYPE_ORDER).toList()) {
+        for (BibEntry entry : entries.stream()
+                .sorted(ENTRY_TYPE_ORDER)
+                .toList()) {
             String markdown = buildMarkdown(entry, filesDir, databaseContext, fileDirForDatabase, abbreviationRepository);
             // Normalize line endings to \n for Jekyll compatibility
             markdown = markdown.replace("\r\n", "\n").replace("\r", "\n");
@@ -115,61 +115,71 @@ public class AcademicPagesExporter extends Exporter {
     }
 
     private String generateFileName(BibEntry entry, Path targetDir) {
-        String key = FileUtil.getValidFileName(entry.getCitationKey().orElse("unknown"));
-        String prefix = resolveDate(entry).map(d -> d + "-").orElse("");
+        String key = FileUtil.getValidFileName(entry.getCitationKey()
+                .orElse("unknown"));
+        String prefix = resolveDate(entry)
+                .map(d -> d + "-")
+                .orElse("");
         return FileNameUniqueness.generateUniqueFileName(targetDir, prefix + key + ".md");
     }
 
-    /// Builds the full Markdown file: YAML front matter (layout + computed fields) + optional abstract body
-    private String buildMarkdown(BibEntry entry,
-                                 Path filesDir,
-                                 BibDatabaseContext databaseContext,
-                                 List<Path> fileDirForDatabase,
-                                 JournalAbbreviationRepository abbreviationRepository) {
+    /// Builds the full Markdown file: YAML front matter (layout + computed
+    /// fields) + optional abstract body
+    private String buildMarkdown(BibEntry entry, Path filesDir, BibDatabaseContext databaseContext,
+            List<Path> fileDirForDatabase, JournalAbbreviationRepository abbreviationRepository) {
         Optional<String> date = resolveDate(entry);
-        String key = FileUtil.getValidFileName(entry.getCitationKey().orElse("unknown"));
+        String key = FileUtil.getValidFileName(entry.getCitationKey()
+                .orElse("unknown"));
 
         StringBuilder sb = new StringBuilder("---\n");
 
         // Layout engine renders: title, collection, excerpt (note), venue, category
-        renderLayout(entry, databaseContext.getDatabase(), fileDirForDatabase, abbreviationRepository)
-                .ifPresent(rendered -> sb.append(rendered.stripTrailing()).append("\n"));
+        renderLayout(entry, databaseContext.getDatabase(), fileDirForDatabase, abbreviationRepository).ifPresent(rendered -> sb.append(rendered.stripTrailing()).append("\n"));
 
         // permalink, date, paperurl, bibtexurl, citation
         date.ifPresent(d -> {
-            sb.append("permalink: /").append(PUBLICATION_PATH).append("/").append(d).append("-").append(key).append("\n");
-            sb.append("date: ").append(d).append("\n");
+            sb.append("permalink: /")
+              .append(PUBLICATION_PATH)
+              .append("/")
+              .append(d)
+              .append("-")
+              .append(key)
+              .append("\n");
+            sb.append("date: ")
+              .append(d)
+              .append("\n");
         });
-        copyPdfAndGetUrl(entry, filesDir, key, fileDirForDatabase)
-                .ifPresent(url -> sb.append("paperurl: '/files/").append(url).append("'\n"));
-        writeBibFile(entry, filesDir, key)
-                .ifPresent(url -> sb.append("bibtexurl: '/files/").append(url).append("'\n"));
-        sb.append("citation: '").append(generateCitation(entry, databaseContext).replace("'", "''")).append("'\n");
+        copyPdfAndGetUrl(entry, filesDir, key, fileDirForDatabase).ifPresent(url -> sb.append("paperurl: '/files/")
+                .append(url)
+                .append("'\n"));
+        writeBibFile(entry, filesDir, key).ifPresent(url -> sb.append("bibtexurl: '/files/")
+                .append(url)
+                .append("'\n"));
+        sb.append("citation: '")
+          .append(generateCitation(entry, databaseContext).replace("'", "''"))
+          .append("'\n");
 
         sb.append("---");
 
-        entry.getFieldOrAliasLatexFree(StandardField.ABSTRACT)
-             .ifPresent(abs -> sb.append("\n\n").append(abs));
+        entry.getFieldOrAliasLatexFree(StandardField.ABSTRACT).ifPresent(abs -> sb.append("\n\n").append(abs));
 
         return sb.append("\n").toString();
     }
 
     /// Renders entry-type-specific YAML fields using a layout file
     /// Falls back to the default layout if no type-specific layout exists
-    private Optional<String> renderLayout(BibEntry entry,
-                                          BibDatabase database,
-                                          List<Path> fileDirForDatabase,
-                                          JournalAbbreviationRepository abbreviationRepository) {
-        String typeName = entry.getType().getName().toLowerCase();
+    private Optional<String> renderLayout(BibEntry entry, BibDatabase database, List<Path> fileDirForDatabase,
+            JournalAbbreviationRepository abbreviationRepository) {
+        String typeName = entry.getType()
+                               .getName()
+                               .toLowerCase();
         String layoutDir = TemplateExporter.LAYOUT_PREFIX + "academicpages/academicpages";
         return loadLayout(layoutDir + "." + typeName + TemplateExporter.LAYOUT_EXTENSION, fileDirForDatabase, abbreviationRepository)
                 .or(() -> loadLayout(layoutDir + TemplateExporter.LAYOUT_EXTENSION, fileDirForDatabase, abbreviationRepository))
                 .map(layout -> layout.doLayout(entry, database));
     }
 
-    private Optional<Layout> loadLayout(String resourcePath,
-                                        List<Path> fileDirForDatabase,
-                                        JournalAbbreviationRepository abbreviationRepository) {
+    private Optional<Layout> loadLayout(String resourcePath, List<Path> fileDirForDatabase, JournalAbbreviationRepository abbreviationRepository) {
         try (InputStream is = AcademicPagesExporter.class.getResourceAsStream(resourcePath)) {
             if (is == null) {
                 return Optional.empty();
@@ -184,8 +194,10 @@ public class AcademicPagesExporter extends Exporter {
     }
 
     /// Copies the first attached PDF to the files directory and returns its filename.
-    private Optional<String> copyPdfAndGetUrl(BibEntry entry, Path outputDir, String key, List<Path> fileDirForDatabase) {
-        return entry.getFiles().stream()
+    private Optional<String> copyPdfAndGetUrl(BibEntry entry, Path outputDir, String key,
+            List<Path> fileDirForDatabase) {
+        return entry.getFiles()
+                    .stream()
                     .filter(f -> "pdf".equalsIgnoreCase(f.getFileType()))
                     .findFirst()
                     .flatMap(f -> f.findIn(fileDirForDatabase))
@@ -227,11 +239,13 @@ public class AcademicPagesExporter extends Exporter {
         BibDatabaseContext ctx = new BibDatabaseContext(new BibDatabase(List.of(entry)));
         ctx.setMode(databaseContext.getMode());
         return CitationStyleGenerator.generateBibliography(
-                List.of(entry),
-                CSLStyleLoader.getDefaultStyle().getSource(),
-                CitationStyleOutputFormat.TEXT,
-                ctx,
-                entryTypesManager).getFirst().trim();
+                        List.of(entry),
+                        CSLStyleLoader.getDefaultStyle().getSource(),
+                        CitationStyleOutputFormat.TEXT,
+                        ctx,
+                        entryTypesManager)
+                .getFirst()
+                .trim();
     }
 
     private Optional<String> resolveDate(BibEntry entry) {

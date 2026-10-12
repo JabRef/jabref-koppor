@@ -18,7 +18,6 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.undo.ChangeSet;
 import org.jabref.model.undo.UndoableFieldChange;
 import org.jabref.model.undo.UndoableRemoveString;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,18 +30,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/// Pins that the two actions act on the journal of the library the user is looking at, and read
-/// it when they run rather than when they were built. One instance of each serves every library
-/// the session opens, so holding a journal would tie the menu to whichever library happened to
-/// exist first.
+/// Pins that the two actions act on the journal of the library the user is
+/// looking at, and read it when they run rather than when they were built. One
+/// instance of each serves every library the session opens, so holding a
+/// journal would tie the menu to whichever library happened to exist first.
 @NullMarked
 class UndoRedoActionTest {
 
     private final HeadlessGuiUndoManager journalOfA = new HeadlessGuiUndoManager();
     private final HeadlessGuiUndoManager journalOfB = new HeadlessGuiUndoManager();
-    /// Given distinct paths on purpose: `BibDatabaseContext#equals` compares content, so two empty
-    /// libraries are equal, and stubbing by one would answer for the other.
+
+    /// Given distinct paths on purpose: `BibDatabaseContext#equals` compares
+    /// content, so two empty libraries are equal, and stubbing by one would
+    /// answer for the other.
     private final BibDatabaseContext libraryA = libraryAt("a.bib");
+
     private final BibDatabaseContext libraryB = libraryAt("b.bib");
     private final OptionalObjectProperty<LibraryTab> activeTab = OptionalObjectProperty.empty();
     private final OptionalObjectProperty<BibDatabaseContext> activeDatabase = OptionalObjectProperty.empty();
@@ -89,8 +91,9 @@ class UndoRedoActionTest {
         assertEquals(Optional.of("Meitner"), entryInB.getField(StandardField.AUTHOR), "the other library was undone as well");
     }
 
-    /// The reason the journal is resolved on every run: the same action instance serves whichever
-    /// library is in front, and switching tabs has to switch what it undoes.
+    /// The reason the journal is resolved on every run: the same action
+    /// instance serves whichever library is in front, and switching tabs has to
+    /// switch what it undoes.
     @Test
     void undoFollowsTheActiveLibraryWhenTheUserSwitchesTabs() {
         journalOfA.addEdit(setAuthor(entryInA, "Bohr"));
@@ -180,9 +183,10 @@ class UndoRedoActionTest {
         assertEquals(Optional.of("Bohr"), entryInA.getField(StandardField.AUTHOR), "the undo ran anyway");
     }
 
-    /// Enablement stays on while a command holds the library, so that pressing Ctrl+Z reaches the
-    /// action and the user is told why nothing happened. A disabled menu item swallows its
-    /// accelerator, which would make the keystroke do nothing at all.
+    /// Enablement stays on while a command holds the library, so that pressing
+    /// Ctrl+Z reaches the action and the user is told why nothing happened. A
+    /// disabled menu item swallows its accelerator, which would make the
+    /// keystroke do nothing at all.
     @Test
     void enablementStaysOnWhileACommandHoldsTheActiveLibrary() {
         journalOfA.addEdit(setAuthor(entryInA, "Bohr"));
@@ -215,8 +219,8 @@ class UndoRedoActionTest {
         assertFalse(redoAction.executableProperty().get());
     }
 
-    /// Enablement keeps this out of reach from the UI, but nothing about the class enforces that,
-    /// and a no-op beats a NullPointerException.
+    /// Enablement keeps this out of reach from the UI, but nothing about the
+    /// class enforces that, and a no-op beats a NullPointerException.
     @Test
     void executingWithNoLibraryOpenDoesNothing() {
         assertDoesNotThrow(() -> undoAction.execute());

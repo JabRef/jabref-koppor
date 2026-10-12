@@ -7,8 +7,7 @@ import org.jspecify.annotations.NullMarked;
 class CitationOOAdapterUtils {
     private static final String LINE_BREAK = "\\R";
 
-    private CitationOOAdapterUtils() {
-    }
+    private CitationOOAdapterUtils() {}
 
     static boolean hasPrecedingSpace(XTextCursor cursor) {
         boolean precedingSpaceExists;

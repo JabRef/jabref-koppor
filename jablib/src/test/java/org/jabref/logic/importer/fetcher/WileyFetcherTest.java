@@ -10,7 +10,6 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -40,8 +39,7 @@ class WileyFetcherTest {
 
         assertEquals(
                 Optional.of(URLUtil.create("https://api.wiley.com/onlinelibrary/tdm/v1/articles/10.1002/we.2952")),
-                fetcher.findFullText(entry)
-        );
+                fetcher.findFullText(entry));
     }
 
     @Test

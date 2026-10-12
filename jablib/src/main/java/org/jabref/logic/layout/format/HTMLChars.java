@@ -55,7 +55,9 @@ public class HTMLChars implements ParamLayoutFormatter {
                 escaped = true;
                 incommand = true;
                 currentCommand = new StringBuilder();
-            } else if (!this.keepCurlyBraces && !incommand && ((c == '{') || (c == '}'))) {
+            } else if (!this.keepCurlyBraces
+                    && !incommand
+                    && ((c == '{') || (c == '}'))) {
                 // Swallow the brace.
             } else if (Character.isLetter(c) || StringUtil.SPECIAL_COMMAND_CHARS.contains(String.valueOf(c))) {
                 escaped = false;
@@ -65,8 +67,7 @@ public class HTMLChars implements ParamLayoutFormatter {
                 } else {
                     currentCommand.append(c);
                     testCharCom:
-                    if ((currentCommand.length() == 1)
-                            && StringUtil.SPECIAL_COMMAND_CHARS.contains(currentCommand.toString())) {
+                    if ((currentCommand.length() == 1) && StringUtil.SPECIAL_COMMAND_CHARS.contains(currentCommand.toString())) {
                         // This indicates that we are in a command of the type
                         // \^o or \~{n}
                         if (i >= (field.length() - 1)) {
@@ -118,7 +119,13 @@ public class HTMLChars implements ParamLayoutFormatter {
                             i++;
                         }
                         i += part.length();
-                        sb.append('<').append(tag).append('>').append(part).append("</").append(tag).append('>');
+                        sb.append('<')
+                          .append(tag)
+                          .append('>')
+                          .append(part)
+                          .append("</")
+                          .append(tag)
+                          .append('>');
                     } else if (c == '{') {
                         String argument = StringUtil.getPart(field, i, true);
                         i += this.keepCurlyBraces ? argument.length() + 1 : argument.length();
@@ -177,12 +184,13 @@ public class HTMLChars implements ParamLayoutFormatter {
 
     private String normalizedField(String inField) {
         // Cannot use StringEscapeUtils#escapeHtml4 because it does not handle LaTeX characters and commands.
-        return HTML_ENTITY_PATTERN.matcher(inField).replaceAll("&amp;") // Replace & with &amp; if it does not begin an HTML entity
-                                  .replaceAll("\\\\&", "&amp;") // Replace \& with &amp;
-                                  .replaceAll("[\\n]{2,}", "<p>") // Replace double line breaks with <p>
-                                  .replace("\n", "<br>") // Replace single line breaks with <br>
-                                  .replace("\\$", "&dollar;") // Replace \$ with &dollar;
-                                  .replaceAll("\\$([^$]*)\\$", this.keepCurlyBraces ? "\\\\{$1\\\\}" : "$1}");
+        return HTML_ENTITY_PATTERN.matcher(inField)
+                .replaceAll("&amp;") // Replace & with &amp; if it does not begin an HTML entity
+                .replaceAll("\\\\&", "&amp;") // Replace \& with &amp;
+                .replaceAll("[\\n]{2,}", "<p>") // Replace double line breaks with <p>
+                .replace("\n", "<br>") // Replace single line breaks with <br>
+                .replace("\\$", "&dollar;") // Replace \$ with &dollar;
+                .replaceAll("\\$([^$]*)\\$", this.keepCurlyBraces ? "\\\\{$1\\\\}" : "$1}");
     }
 
     private String getHTMLTag(String latexCommand) {

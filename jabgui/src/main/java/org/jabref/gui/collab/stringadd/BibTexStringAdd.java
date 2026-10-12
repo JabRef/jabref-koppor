@@ -8,7 +8,6 @@ import org.jabref.model.database.KeyCollisionException;
 import org.jabref.model.entry.BibtexString;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableInsertString;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +27,8 @@ public final class BibTexStringAdd extends DatabaseChange {
         try {
             undoEdit.applyEdit(new UndoableInsertString(databaseContext.getDatabase(), addedString));
         } catch (KeyCollisionException ex) {
-            LOGGER.warn("Error: could not add string '{}': {}", addedString.getName(), ex.getMessage(), ex);
+            LOGGER.warn("Error: could not add string '{}': {}",
+                    addedString.getName(), ex.getMessage(), ex);
         }
     }
 

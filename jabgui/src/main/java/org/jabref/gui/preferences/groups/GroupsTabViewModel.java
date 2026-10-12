@@ -2,7 +2,6 @@ package org.jabref.gui.preferences.groups;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-
 import org.jabref.gui.groups.GroupViewMode;
 import org.jabref.gui.groups.GroupsPreferences;
 import org.jabref.gui.preferences.PreferenceTabViewModel;

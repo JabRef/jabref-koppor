@@ -13,11 +13,6 @@ import java.util.OptionalLong;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jabref.logic.ai.preferences.AiPreferences;
-import org.jabref.logic.importer.FetcherException;
-import org.jabref.logic.net.URLDownload;
-import org.jabref.logic.util.strings.StringUtil;
-
 import ai.djl.repository.Artifact;
 import ai.djl.repository.MRL;
 import ai.djl.repository.zoo.ModelLoader;
@@ -27,12 +22,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
+import org.jabref.logic.ai.preferences.AiPreferences;
+import org.jabref.logic.importer.FetcherException;
+import org.jabref.logic.net.URLDownload;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Service for discovering available AI embedding models and querying their download size
-/// and maximum snippet (token / sequence) limit dynamically at runtime from DJL and Hugging Face.
+/// Service for discovering available AI embedding models and querying their
+/// download size and maximum snippet (token / sequence) limit dynamically at
+/// runtime from DJL and Hugging Face.
 // [impl->feat~ai.expert-settings.embedding-model-size~1]
 // [impl->feat~ai.expert-settings.embedding-model-token-limit~1]
 @NullMarked
@@ -41,14 +41,8 @@ public class EmbeddingModelMetadataService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddingModelMetadataService.class);
 
-    private static final Set<String> CONFIG_AND_TOKENIZER_FILES = Set.of(
-            "config.json",
-            "tokenizer.json",
-            "tokenizer_config.json",
-            "vocab.txt",
-            "special_tokens_map.json",
-            "sentence_bert_config.json"
-    );
+    private static final Set<String> CONFIG_AND_TOKENIZER_FILES = Set.of("config.json", "tokenizer.json", "tokenizer_config.json",
+            "vocab.txt", "special_tokens_map.json", "sentence_bert_config.json");
 
     private final AiPreferences aiPreferences;
     private final Map<String, EmbeddingModelMetadata> metadataCache = new ConcurrentHashMap<>();
@@ -65,7 +59,8 @@ public class EmbeddingModelMetadataService {
         return aiPreferences.getAiFeaturesEnabled() || aiPreferences.getAiFeaturesEnabledCurrently();
     }
 
-    /// Returns the list of available embedding models discovered from the DJL HuggingFace Model Zoo.
+    /// Returns the list of available embedding models discovered from the DJL
+    /// HuggingFace Model Zoo.
     public List<String> getAvailableModels() {
         try {
             ModelZoo modelZoo = ModelZoo.getModelZoo(DJL_PYTORCH_GROUP_ID);
@@ -73,11 +68,11 @@ public class EmbeddingModelMetadataService {
                 Collection<ModelLoader> loaders = modelZoo.getModelLoaders();
                 if (loaders != null && !loaders.isEmpty()) {
                     List<String> models = loaders.stream()
-                                                 .map(ModelLoader::getArtifactId)
-                                                 .filter(StringUtil::isNotBlank)
-                                                 .distinct()
-                                                 .sorted(String.CASE_INSENSITIVE_ORDER)
-                                                 .toList();
+                            .map(ModelLoader::getArtifactId)
+                            .filter(StringUtil::isNotBlank)
+                            .distinct()
+                            .sorted(String.CASE_INSENSITIVE_ORDER)
+                            .toList();
                     if (!models.isEmpty()) {
                         return models;
                     }
@@ -90,8 +85,9 @@ public class EmbeddingModelMetadataService {
         return List.of();
     }
 
-    /// Queries metadata (download size in bytes and maximum snippet length in tokens)
-    /// for the given embedding model from DJL ModelZoo, falling back to the Hugging Face Hub REST API.
+    /// Queries metadata (download size in bytes and maximum snippet length in
+    /// tokens) for the given embedding model from DJL ModelZoo, falling back to
+    /// the Hugging Face Hub REST API.
     public Optional<EmbeddingModelMetadata> getMetadata(String modelName) {
         if (!isAiEnabled() || StringUtil.isBlank(modelName)) {
             return Optional.empty();
@@ -144,7 +140,9 @@ public class EmbeddingModelMetadataService {
 
     private OptionalLong extractSizeFromArtifact(Artifact artifact) {
         if (artifact.getFiles() != null && !artifact.getFiles().isEmpty()) {
-            long total = artifact.getFiles().values().stream()
+            long total = artifact.getFiles()
+                                 .values()
+                                 .stream()
                                  .mapToLong(Artifact.Item::getSize)
                                  .filter(s -> s > 0)
                                  .sum();
@@ -190,11 +188,13 @@ public class EmbeddingModelMetadataService {
                 if (element.isJsonObject()) {
                     JsonObject fileObj = element.getAsJsonObject();
                     String path = fileObj.has("path") && fileObj.get("path").isJsonPrimitive()
-                                  ? fileObj.get("path").getAsString()
-                                  : "";
-                    long size = fileObj.has("size") && fileObj.get("size").isJsonPrimitive() && fileObj.get("size").getAsJsonPrimitive().isNumber()
-                                ? fileObj.get("size").getAsLong()
-                                : 0;
+                            ? fileObj.get("path").getAsString()
+                            : "";
+                    long size = fileObj.has("size") && fileObj.get("size").isJsonPrimitive() && fileObj.get("size")
+                                    .getAsJsonPrimitive()
+                                    .isNumber()
+                            ? fileObj.get("size").getAsLong()
+                            : 0;
 
                     String lowerPath = path.toLowerCase(Locale.ROOT);
                     if (lowerPath.endsWith(".safetensors")) {
@@ -252,7 +252,9 @@ public class EmbeddingModelMetadataService {
                 return OptionalInt.empty();
             }
             JsonObject obj = parsed.getAsJsonObject();
-            if (obj.has(fieldName) && obj.get(fieldName).isJsonPrimitive() && obj.get(fieldName).getAsJsonPrimitive().isNumber()) {
+            if (obj.has(fieldName) && obj.get(fieldName).isJsonPrimitive() && obj.get(fieldName)
+                    .getAsJsonPrimitive()
+                    .isNumber()) {
                 return OptionalInt.of(obj.get(fieldName).getAsInt());
             }
         } catch (JsonParseException | NumberFormatException | FetcherException | IOException | URISyntaxException e) {

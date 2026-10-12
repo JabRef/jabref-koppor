@@ -11,7 +11,6 @@ import org.jabref.model.database.event.AutosaveEvent;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -91,7 +90,8 @@ class AutosaveManagerTest {
         AutosaveUiManager listener = mock(AutosaveUiManager.class);
         manager.registerListener(listener);
         ArgumentCaptor<Runnable> callback = ArgumentCaptor.forClass(Runnable.class);
-        verify(executor).scheduleAtFixedRate(callback.capture(), anyLong(), anyLong(), eq(TimeUnit.SECONDS));
+        verify(executor).scheduleAtFixedRate(callback.capture(), anyLong(), anyLong(),
+                eq(TimeUnit.SECONDS));
 
         try {
             manager.listen(new FieldChangedEvent(new BibEntry(), StandardField.TITLE, "T", ""));

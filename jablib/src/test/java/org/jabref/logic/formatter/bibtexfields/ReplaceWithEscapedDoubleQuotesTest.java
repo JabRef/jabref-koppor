@@ -1,7 +1,6 @@
 package org.jabref.logic.formatter.bibtexfields;
 
 import org.jabref.logic.layout.format.ReplaceWithEscapedDoubleQuotes;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

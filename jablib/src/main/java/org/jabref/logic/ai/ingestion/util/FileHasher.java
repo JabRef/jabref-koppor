@@ -24,7 +24,8 @@ public final class FileHasher {
     /// Computes the SHA-256 hash of a file.
     ///
     /// @param path the path to the file
-    /// @return Optional containing the hex-encoded hash of the file, or empty if an error occurred
+    /// @return Optional containing the hex-encoded hash of the file, or empty
+    ///   if an error occurred
     public static Optional<String> computeHash(Path path) {
         try {
             MessageDigest digest = MessageDigest.getInstance(ALGORITHM);

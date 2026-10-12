@@ -12,8 +12,7 @@ import org.jabref.gui.frame.ExternalApplicationsPreferences;
 /// For logic-oriented URL utilities see [org.jabref.logic.util.URLUtil].
 public class URLUtil {
 
-    private URLUtil() {
-    }
+    private URLUtil() {}
 
     /// Look for the last '.' in the link, and return the following characters.
     ///

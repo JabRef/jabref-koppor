@@ -1,18 +1,16 @@
 package org.jabref.gui.edit.automaticfieldeditor;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.database.BibDatabase;
-
-import com.airhacks.afterburner.views.ViewLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +30,10 @@ public class AutomaticFieldEditorDialog extends BaseDialog<String> {
 
     private AutomaticFieldEditorViewModel viewModel;
 
-    public AutomaticFieldEditorDialog(StateManager stateManager,
-                                      DialogService dialogService,
-                                      UndoManager undoManager) {
-        this.database = stateManager.getActiveDatabase().orElseThrow().getDatabase();
+    public AutomaticFieldEditorDialog(StateManager stateManager, DialogService dialogService, UndoManager undoManager) {
+        this.database = stateManager.getActiveDatabase()
+                .orElseThrow()
+                .getDatabase();
         this.stateManager = stateManager;
         this.dialogService = dialogService;
         this.undoManager = undoManager;
@@ -43,8 +41,8 @@ public class AutomaticFieldEditorDialog extends BaseDialog<String> {
         this.setTitle(Localization.lang("Automatic field editor"));
 
         ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+                .load()
+                .setAsDialogPane(this);
 
         setResultConverter(buttonType -> {
             if (buttonType != null && buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE) {

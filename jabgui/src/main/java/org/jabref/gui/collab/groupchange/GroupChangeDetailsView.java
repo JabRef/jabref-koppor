@@ -8,36 +8,38 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
+import org.fxmisc.richtext.StyleClassedTextArea;
 import org.jabref.gui.collab.DatabaseChangeDetailsView;
 import org.jabref.gui.mergeentries.threewaymerge.diffhighlighter.DiffHighlighter;
 import org.jabref.gui.mergeentries.threewaymerge.diffhighlighter.SplitDiffHighlighter;
 import org.jabref.gui.theme.StyleClasses;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.groups.GroupTreeNode;
-
-import org.fxmisc.richtext.StyleClassedTextArea;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class GroupChangeDetailsView extends DatabaseChangeDetailsView {
 
     public GroupChangeDetailsView(GroupChange groupChange) {
-        this(groupChange,
+        this(
+                groupChange,
                 Localization.lang("%0. Accepting the change replaces the complete groups tree with the externally modified groups tree.", groupChange.getName()),
                 Localization.lang("In JabRef"),
                 Localization.lang("On disk"),
                 DiffHighlighter.BasicDiffMethod.CHARS);
     }
 
-    public GroupChangeDetailsView(GroupChange groupChange, String labelValue, String leftLabelText, String rightLabelText, DiffHighlighter.BasicDiffMethod diffMethod) {
+    public GroupChangeDetailsView(GroupChange groupChange, String labelValue, String leftLabelText,
+            String rightLabelText, DiffHighlighter.BasicDiffMethod diffMethod) {
         Label label = new Label(labelValue);
         label.setWrapText(true);
 
         SplitPane diffPane = createGroupDiffSplitPane(
                 Optional.ofNullable(groupChange.getGroupDiff().getOriginalGroupRoot()),
                 Optional.ofNullable(groupChange.getGroupDiff().getNewGroupRoot()),
-                leftLabelText, rightLabelText, diffMethod);
+                leftLabelText,
+                rightLabelText,
+                diffMethod);
         VBox container = new VBox(12, label, diffPane);
         VBox.setVgrow(diffPane, Priority.ALWAYS);
         setAllAnchorsAndAttachChild(container);
@@ -46,7 +48,8 @@ public final class GroupChangeDetailsView extends DatabaseChangeDetailsView {
     /// Creates a split pane showing differences in groups tree structure.
     ///
     /// @return Configured SplitPane showing groups differences
-    public static SplitPane createGroupDiffSplitPane(Optional<GroupTreeNode> originalGroups, Optional<GroupTreeNode> newGroups, String leftLabelText, String rightLabelText, DiffHighlighter.BasicDiffMethod diffMethod) {
+    public static SplitPane createGroupDiffSplitPane(Optional<GroupTreeNode> originalGroups, Optional<GroupTreeNode> newGroups, String leftLabelText,
+            String rightLabelText, DiffHighlighter.BasicDiffMethod diffMethod) {
         StyleClassedTextArea jabrefTextArea = createConfiguredTextArea();
         StyleClassedTextArea diskTextArea = createConfiguredTextArea();
 

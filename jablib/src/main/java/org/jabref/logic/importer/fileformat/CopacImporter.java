@@ -17,7 +17,6 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NonNull;
 
 /// Importer for COPAC format.
@@ -59,7 +58,8 @@ public class CopacImporter extends Importer {
         return false;
     }
 
-    private static void setOrAppend(BibEntry b, Field field, String value, String separator) {
+    private static void setOrAppend(BibEntry b, Field field, String value,
+            String separator) {
         if (b.hasField(field) && b.getField(field).isPresent()) {
             b.setField(field, b.getField(field).get() + separator + value);
         } else {
@@ -117,28 +117,28 @@ public class CopacImporter extends Importer {
                 String code = line.substring(0, 4);
 
                 switch (code) {
-                    case "TI- " ->
-                            setOrAppend(b, StandardField.TITLE, line.substring(4).trim(), ", ");
-                    case "AU- " ->
-                            setOrAppend(b, StandardField.AUTHOR, line.substring(4).trim(), " and ");
-                    case "PY- " ->
-                            setOrAppend(b, StandardField.YEAR, line.substring(4).trim(), ", ");
-                    case "PU- " ->
-                            setOrAppend(b, StandardField.PUBLISHER, line.substring(4).trim(), ", ");
-                    case "SE- " ->
-                            setOrAppend(b, StandardField.SERIES, line.substring(4).trim(), ", ");
-                    case "IS- " ->
-                            setOrAppend(b, StandardField.ISBN, line.substring(4).trim(), ", ");
-                    case "KW- " ->
-                            setOrAppend(b, StandardField.KEYWORDS, line.substring(4).trim(), ", ");
-                    case "NT- " ->
-                            setOrAppend(b, StandardField.NOTE, line.substring(4).trim(), ", ");
-                    case "PD- " ->
-                            setOrAppend(b, new UnknownField("physicaldimensions"), line.substring(4).trim(), ", ");
-                    case "DT- " ->
-                            setOrAppend(b, new UnknownField("documenttype"), line.substring(4).trim(), ", ");
-                    default ->
-                            setOrAppend(b, FieldFactory.parseField(StandardEntryType.Book, line.substring(0, 2)), line.substring(4).trim(), ", ");
+                    case "TI- " -> setOrAppend(b, StandardField.TITLE,
+                            line.substring(4).trim(), ", ");
+                    case "AU- " -> setOrAppend(b, StandardField.AUTHOR,
+                            line.substring(4).trim(), " and ");
+                    case "PY- " -> setOrAppend(b, StandardField.YEAR,
+                            line.substring(4).trim(), ", ");
+                    case "PU- " -> setOrAppend(b, StandardField.PUBLISHER,
+                            line.substring(4).trim(), ", ");
+                    case "SE- " -> setOrAppend(b, StandardField.SERIES,
+                            line.substring(4).trim(), ", ");
+                    case "IS- " -> setOrAppend(b, StandardField.ISBN,
+                            line.substring(4).trim(), ", ");
+                    case "KW- " -> setOrAppend(b, StandardField.KEYWORDS,
+                            line.substring(4).trim(), ", ");
+                    case "NT- " -> setOrAppend(b, StandardField.NOTE,
+                            line.substring(4).trim(), ", ");
+                    case "PD- " -> setOrAppend(b, new UnknownField("physicaldimensions"),
+                            line.substring(4).trim(), ", ");
+                    case "DT- " -> setOrAppend(b, new UnknownField("documenttype"),
+                            line.substring(4).trim(), ", ");
+                    default -> setOrAppend(b, FieldFactory.parseField(StandardEntryType.Book, line.substring(0, 2)),
+                            line.substring(4).trim(), ", ");
                 }
             }
             results.add(b);

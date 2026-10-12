@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Path;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.ParserResult;
@@ -12,24 +13,28 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.xmp.EncryptedPdfsNotSupportedException;
 import org.jabref.logic.xmp.XmpUtilReader;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jspecify.annotations.NullMarked;
 
-/// Intermediate class to bundle all PDF analysis steps. [PdfImporter]s are also [org.jabref.logic.importer.Importer]s,
-/// which allows user for more fine-grained control of how [org.jabref.model.entry.BibEntry] is extracted from a PDF file.
+/// Intermediate class to bundle all PDF analysis steps. [PdfImporter]s are also
+/// [org.jabref.logic.importer.Importer]s, which allows user for more
+/// fine-grained control of how [org.jabref.model.entry.BibEntry] is extracted
+/// from a PDF file.
 ///
 /// [PdfImporter]s are used in two places in JabRef:
 ///
 /// 1. [PdfMergeMetadataImporter]: uses several [PdfImporter] and automatically
 ///    merges them into 1 [org.jabref.model.entry.BibEntry].
-/// 2. `org.jabref.gui.externalfiles.PdfMergeDialog` also uses several [PdfImporter], but
-///    it shows a merge dialog (instead of automatic merging).
+/// 2. `org.jabref.gui.externalfiles.PdfMergeDialog` also uses several
+///    [PdfImporter], but it shows a merge dialog (instead of automatic
+///    merging).
 ///
-/// Note, that this step should not add PDF file to [org.jabref.model.entry.BibEntry], it will be finally added either in
+/// Note, that this step should not add PDF file to
+/// [org.jabref.model.entry.BibEntry], it will be finally added either in
 /// [#importDatabase(Path)] or [PdfMergeMetadataImporter].
 ///
-/// The result might be the metadata of the given PDF *or* the list of references in the references section (also called "citations"). Each implementation should denote which of these two it supports.
+/// The result might be the metadata of the given PDF *or* the list of
+/// references in the references section (also called "citations"). Each
+/// implementation should denote which of these two it supports.
 @NullMarked
 public abstract class PdfImporter extends Importer {
 
@@ -48,14 +53,12 @@ public abstract class PdfImporter extends Importer {
 
     @Override
     public ParserResult importDatabase(BufferedReader reader) throws IOException {
-        throw new UnsupportedOperationException("PdfImporter does not support importDatabase(BufferedReader reader). "
-                + "Instead use importDatabase(Path filePath).");
+        throw new UnsupportedOperationException("PdfImporter does not support importDatabase(BufferedReader reader). " + "Instead use importDatabase(Path filePath).");
     }
 
     @Override
     public ParserResult importDatabase(String data) throws IOException {
-        throw new UnsupportedOperationException("PdfImporter does not support importDatabase(String data). "
-                + "Instead use importDatabase(Path filePath).");
+        throw new UnsupportedOperationException("PdfImporter does not support importDatabase(String data). " + "Instead use importDatabase(Path filePath).");
     }
 
     @Override
@@ -69,7 +72,8 @@ public abstract class PdfImporter extends Importer {
         }
     }
 
-    /// Note: The "throws" clause is for "developer convenience" - it is turned into a ParserResult at [#importDatabase(Path)].
+    /// Note: The "throws" clause is for "developer convenience" - it is turned
+    /// into a ParserResult at [#importDatabase(Path)].
     public abstract ParserResult importDatabase(Path filePath, PDDocument document) throws IOException, ParseException;
 
     @Override

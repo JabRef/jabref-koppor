@@ -2,7 +2,6 @@ package org.jabref.gui.preferences.nameformatter;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.layout.format.NameFormatter;
 
 public class NameFormatterItemModel {
@@ -48,6 +47,10 @@ public class NameFormatterItemModel {
 
     @Override
     public String toString() {
-        return "[" + name.getValue() + "," + format.getValue() + "]";
+        return "["
+                + name.getValue()
+                + ","
+                + format.getValue()
+                + "]";
     }
 }

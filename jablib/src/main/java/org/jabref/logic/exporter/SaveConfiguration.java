@@ -12,10 +12,8 @@ public class SaveConfiguration {
     private boolean makeBackup;
     private BibDatabaseWriter.SaveType saveType;
 
-    public SaveConfiguration(SaveOrder saveOrder,
-                             Boolean makeBackup,
-                             BibDatabaseWriter.SaveType saveType,
-                             Boolean reformatFile) {
+    public SaveConfiguration(SaveOrder saveOrder, Boolean makeBackup, BibDatabaseWriter.SaveType saveType,
+            Boolean reformatFile) {
         this.saveOrder = saveOrder;
         this.makeBackup = makeBackup;
         this.saveType = saveType;
@@ -23,10 +21,7 @@ public class SaveConfiguration {
     }
 
     public SaveConfiguration() {
-        this(SaveOrder.getDefaultSaveOrder(),
-                false,
-                BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA,
-                false);
+        this(SaveOrder.getDefaultSaveOrder(), false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false);
     }
 
     public SaveOrder getSaveOrder() {
@@ -42,9 +37,12 @@ public class SaveConfiguration {
         return makeBackup;
     }
 
-    /// Required by [org.jabref.gui.autosaveandbackup.BackupManager]. Should not be used in other settings.
+    /// Required by [org.jabref.gui.autosaveandbackup.BackupManager]. Should not
+    /// be used in other settings.
     ///
-    /// @param newMakeBackup whether the [org.jabref.logic.util.BackupFileType#SAVE] copy of the previous file content is kept after a successful save
+    /// @param newMakeBackup whether the
+    ///   [org.jabref.logic.util.BackupFileType#SAVE] copy of the previous file
+    ///   content is kept after a successful save
     public SaveConfiguration withMakeBackup(Boolean newMakeBackup) {
         this.makeBackup = newMakeBackup;
         return this;

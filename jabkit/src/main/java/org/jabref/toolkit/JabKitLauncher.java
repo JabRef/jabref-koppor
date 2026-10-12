@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.util.Pair;
-
 import org.jabref.logic.importer.SearchBasedFetcher;
 import org.jabref.logic.importer.WebFetcher;
 import org.jabref.logic.importer.WebFetchers;
@@ -38,8 +38,6 @@ import org.jabref.toolkit.commands.JabKit;
 import org.jabref.toolkit.exception.CliExceptionHandler;
 import org.jabref.toolkit.service.ExportService;
 import org.jabref.toolkit.service.ImportService;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -47,13 +45,14 @@ import org.tinylog.Level;
 import org.tinylog.configuration.Configuration;
 import picocli.CommandLine;
 
-/// Entrypoint for a command-line only version of JabRef.
-/// It does not open any dialogs, just parses the command line arguments and outputs text and creates/modifies files.
+/// Entrypoint for a command-line only version of JabRef. It does not open any
+/// dialogs, just parses the command line arguments and outputs text and
+/// creates/modifies files.
 ///
-/// See [Command Line Interface Guidelines](https://clig.dev/) for general guidelines how to design a good CLI interface.
+/// See [Command Line Interface Guidelines](https://clig.dev/) for general
+/// guidelines how to design a good CLI interface.
 ///
-/// It does not open any GUI.
-/// For the GUI application see [org.jabref.Launcher].
+/// It does not open any GUI. For the GUI application see [org.jabref.Launcher].
 ///
 /// Does not run GUI-specific preference migrations.
 public class JabKitLauncher {
@@ -85,8 +84,11 @@ public class JabKitLauncher {
             commandLine.setExecutionExceptionHandler(new CliExceptionHandler(commandLine.getExecutionExceptionHandler()));
             // [impl->req~jabkit.cli.banner-shown~1]
             String usageHeader = BuildInfo.JABREF_BANNER.formatted(buildInfo.version) + "\n" + JABKIT_BRAND;
-            commandLine.getCommandSpec().usageMessage().header(usageHeader);
-            applyUsageFooters(commandLine,
+            commandLine.getCommandSpec()
+                       .usageMessage()
+                       .header(usageHeader);
+            applyUsageFooters(
+                    commandLine,
                     ImportService.getAvailableImportFormats(preferences),
                     ExportService.create(preferences, true).getAvailableExportFormats(),
                     WebFetchers.getSearchBasedFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences()));
@@ -114,51 +116,51 @@ public class JabKitLauncher {
         }
     }
 
-    /// Applies appropriate usage footers to each subcommand based on their supported options.
-    /// Distinguishes between input formats, output formats, and export formats.
-    private static void applyUsageFooters(CommandLine commandLine,
-                                          List<Pair<String, String>> inputFormats,
-                                          List<Pair<String, String>> outputFormats,
-                                          Set<SearchBasedFetcher> fetchers) {
+    /// Applies appropriate usage footers to each subcommand based on their
+    /// supported options. Distinguishes between input formats, output formats,
+    /// and export formats.
+    private static void applyUsageFooters(CommandLine commandLine, List<Pair<String, String>> inputFormats,
+            List<Pair<String, String>> outputFormats, Set<SearchBasedFetcher> fetchers) {
 
         final String INPUT_FOOTER_LABEL = Localization.lang("Available import formats:");
         final String OUTPUT_FOOTER_LABEL = Localization.lang("Available output formats:");
         final String EXPORT_FOOTER_LABEL = Localization.lang("Available export formats:");
 
-        String inputFooter = "\n"
-                + INPUT_FOOTER_LABEL + "\n"
-                + StringUtil.alignStringTable(inputFormats);
-        String outputFooter = "\n"
-                + OUTPUT_FOOTER_LABEL + "\n"
-                + StringUtil.alignStringTable(outputFormats);
-        String exportFooter = "\n"
-                + EXPORT_FOOTER_LABEL + "\n"
-                + StringUtil.alignStringTable(outputFormats);
+        String inputFooter = "\n" + INPUT_FOOTER_LABEL + "\n" + StringUtil.alignStringTable(inputFormats);
+        String outputFooter = "\n" + OUTPUT_FOOTER_LABEL + "\n" + StringUtil.alignStringTable(outputFormats);
+        String exportFooter = "\n" + EXPORT_FOOTER_LABEL + "\n" + StringUtil.alignStringTable(outputFormats);
 
-        commandLine.getSubcommands().values().forEach(subCommand -> {
-            Map<String, Boolean> hasOptions = Map.of(
-                    "input", hasCommandOption(subCommand.getCommandSpec(), "--input-format"),
-                    "output", hasCommandOption(subCommand.getCommandSpec(), "--output-format"),
-                    "export", hasCommandOption(subCommand.getCommandSpec(), "--export-format")
-            );
+        commandLine.getSubcommands()
+                   .values()
+                   .forEach(
+                           subCommand -> {
+                               Map<String, Boolean> hasOptions = Map.of(
+                                       "input", hasCommandOption(subCommand.getCommandSpec(), "--input-format"),
+                                       "output", hasCommandOption(subCommand.getCommandSpec(), "--output-format"),
+                                       "export", hasCommandOption(subCommand.getCommandSpec(), "--export-format"));
 
-            String footerText = "";
-            footerText += hasOptions.get("input") ? inputFooter : "";
-            footerText += hasOptions.get("output") ? outputFooter : "";
-            footerText += hasOptions.get("export") ? exportFooter : "";
-            subCommand.getCommandSpec().usageMessage().footer(footerText);
-        });
+                               String footerText = "";
+                               footerText += hasOptions.get("input") ? inputFooter : "";
+                               footerText += hasOptions.get("output") ? outputFooter : "";
+                               footerText += hasOptions.get("export") ? exportFooter : "";
+                               subCommand.getCommandSpec()
+                                         .usageMessage()
+                                         .footer(footerText);
+                           });
 
-        commandLine.getSubcommands().get("fetch")
-                   .getCommandSpec().usageMessage().footer(Localization.lang("The following providers are available:") + "\n"
-                           + fetchers.stream()
-                                     .map(WebFetcher::getName)
-                                     .filter(name -> !"Search pre-configured".equals(name))
-                                     .collect(Collectors.joining(", ")));
+        commandLine.getSubcommands()
+                   .get("fetch")
+                   .getCommandSpec()
+                   .usageMessage()
+                   .footer(Localization.lang("The following providers are available:") + "\n" + fetchers.stream()
+                           .map(WebFetcher::getName)
+                           .filter(name -> !"Search pre-configured".equals(name))
+                           .collect(Collectors.joining(", ")));
     }
 
     private static boolean hasCommandOption(CommandLine.Model.CommandSpec commandSpec, String optionName) {
-        return commandSpec.options().stream()
+        return commandSpec.options()
+                          .stream()
                           .anyMatch(opt -> Arrays.asList(opt.names()).contains(optionName));
     }
 
@@ -201,7 +203,9 @@ public class JabKitLauncher {
         // https://tinylog.org/v2/configuration/#shared-file-writer
         Configuration.set("level", logLevel.name().toLowerCase());
         Configuration.set(fileWriterName, "rolling file");
-        Configuration.set("%s.logLevel".formatted(fileWriterName), logLevel == Level.DEBUG ? "debug" : "info");
+        Configuration.set(
+                "%s.logLevel".formatted(fileWriterName),
+                logLevel == Level.DEBUG ? "debug" : "info");
         // We need to manually join the path, because ".resolve" does not work on Windows, because ":" is not allowed in file names on Windows
         Configuration.set("%s.file".formatted(fileWriterName), directory + File.separator + "log_{date:yyyy-MM-dd_HH-mm-ss}.txt");
         Configuration.set("%s.charset".formatted(fileWriterName), "UTF-8");

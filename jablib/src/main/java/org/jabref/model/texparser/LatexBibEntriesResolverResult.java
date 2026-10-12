@@ -4,9 +4,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import org.jabref.model.entry.BibEntry;
-
 import com.google.common.collect.Multimap;
+import org.jabref.model.entry.BibEntry;
 
 public class LatexBibEntriesResolverResult {
 
@@ -32,9 +31,7 @@ public class LatexBibEntriesResolverResult {
 
     @Override
     public String toString() {
-        return "TexBibEntriesResolverResult{latexParserResults=%s, newEntries=%s}".formatted(
-                this.latexParserResults,
-                this.newEntries);
+        return "TexBibEntriesResolverResult{latexParserResults=%s, newEntries=%s}".formatted(this.latexParserResults, this.newEntries);
     }
 
     @Override
@@ -49,8 +46,7 @@ public class LatexBibEntriesResolverResult {
 
         LatexBibEntriesResolverResult that = (LatexBibEntriesResolverResult) obj;
 
-        return Objects.equals(latexParserResults, that.latexParserResults)
-                && Objects.equals(newEntries, that.newEntries);
+        return Objects.equals(latexParserResults, that.latexParserResults) && Objects.equals(newEntries, that.newEntries);
     }
 
     @Override

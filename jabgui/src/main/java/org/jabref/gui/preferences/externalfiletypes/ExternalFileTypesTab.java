@@ -2,7 +2,6 @@ package org.jabref.gui.preferences.externalfiletypes;
 
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;

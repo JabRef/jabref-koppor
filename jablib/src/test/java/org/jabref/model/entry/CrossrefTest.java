@@ -9,7 +9,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -49,7 +48,9 @@ class CrossrefTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = StandardField.class, names = {"IDS", "XREF", "ENTRYSET", "RELATED", "SORTKEY"})
+    @EnumSource(
+            value = StandardField.class,
+            names = {"IDS", "XREF", "ENTRYSET", "RELATED", "SORTKEY"})
     void forbiddenFields(StandardField field) {
         Optional<String> childField = child.getResolvedFieldOrAlias(field, db);
         assertTrue(childField.isEmpty());
@@ -61,15 +62,9 @@ class CrossrefTest {
         parent.setType(parentType);
         child.setType(childType);
 
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.AUTHOR, null),
-                child.getResolvedFieldOrAlias(StandardField.AUTHOR, db)
-        );
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.AUTHOR, null), child.getResolvedFieldOrAlias(StandardField.AUTHOR, db));
 
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.AUTHOR, null),
-                child.getResolvedFieldOrAlias(StandardField.BOOKAUTHOR, db)
-        );
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.AUTHOR, null), child.getResolvedFieldOrAlias(StandardField.BOOKAUTHOR, db));
     }
 
     private static Stream<Arguments> authorInheritanceSource() {
@@ -79,8 +74,7 @@ class CrossrefTest {
                 Arguments.of(StandardEntryType.MvBook, StandardEntryType.SuppBook),
                 Arguments.of(StandardEntryType.Book, StandardEntryType.InBook),
                 Arguments.of(StandardEntryType.Book, StandardEntryType.BookInBook),
-                Arguments.of(StandardEntryType.Book, StandardEntryType.SuppBook)
-        );
+                Arguments.of(StandardEntryType.Book, StandardEntryType.SuppBook));
     }
 
     @ParameterizedTest
@@ -89,18 +83,9 @@ class CrossrefTest {
         parent.setType(parentType);
         child.setType(childType);
 
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.TITLE, null),
-                child.getResolvedFieldOrAlias(StandardField.MAINTITLE, db)
-        );
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.SUBTITLE, null),
-                child.getResolvedFieldOrAlias(StandardField.MAINSUBTITLE, db)
-        );
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.TITLEADDON, null),
-                child.getResolvedFieldOrAlias(StandardField.MAINTITLEADDON, db)
-        );
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.TITLE, null), child.getResolvedFieldOrAlias(StandardField.MAINTITLE, db));
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.SUBTITLE, null), child.getResolvedFieldOrAlias(StandardField.MAINSUBTITLE, db));
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.TITLEADDON, null), child.getResolvedFieldOrAlias(StandardField.MAINTITLEADDON, db));
     }
 
     private static Stream<Arguments> mainTitleInheritanceSource() {
@@ -115,8 +100,7 @@ class CrossrefTest {
                 Arguments.of(StandardEntryType.MvProceedings, StandardEntryType.Proceedings),
                 Arguments.of(StandardEntryType.MvProceedings, StandardEntryType.InProceedings),
                 Arguments.of(StandardEntryType.MvReference, StandardEntryType.Reference),
-                Arguments.of(StandardEntryType.MvReference, StandardEntryType.InReference)
-        );
+                Arguments.of(StandardEntryType.MvReference, StandardEntryType.InReference));
     }
 
     @ParameterizedTest
@@ -125,18 +109,9 @@ class CrossrefTest {
         parent.setType(parentType);
         child.setType(childType);
 
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.TITLE, null),
-                child.getResolvedFieldOrAlias(StandardField.BOOKTITLE, db)
-        );
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.SUBTITLE, null),
-                child.getResolvedFieldOrAlias(StandardField.BOOKSUBTITLE, db)
-        );
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.TITLEADDON, null),
-                child.getResolvedFieldOrAlias(StandardField.BOOKTITLEADDON, db)
-        );
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.TITLE, null), child.getResolvedFieldOrAlias(StandardField.BOOKTITLE, db));
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.SUBTITLE, null), child.getResolvedFieldOrAlias(StandardField.BOOKSUBTITLE, db));
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.TITLEADDON, null), child.getResolvedFieldOrAlias(StandardField.BOOKTITLEADDON, db));
     }
 
     private static Stream<Arguments> bookTitleInheritanceSource() {
@@ -147,8 +122,7 @@ class CrossrefTest {
                 Arguments.of(StandardEntryType.Collection, StandardEntryType.InCollection),
                 Arguments.of(StandardEntryType.Collection, StandardEntryType.SuppCollection),
                 Arguments.of(StandardEntryType.Reference, StandardEntryType.InReference),
-                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings)
-        );
+                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings));
     }
 
     @ParameterizedTest
@@ -157,21 +131,12 @@ class CrossrefTest {
         parent.setType(parentType);
         child.setType(childType);
 
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.TITLE, null),
-                child.getResolvedFieldOrAlias(StandardField.JOURNALTITLE, db)
-        );
-        assertEquals(
-                parent.getResolvedFieldOrAlias(StandardField.SUBTITLE, null),
-                child.getResolvedFieldOrAlias(StandardField.JOURNALSUBTITLE, db)
-        );
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.TITLE, null), child.getResolvedFieldOrAlias(StandardField.JOURNALTITLE, db));
+        assertEquals(parent.getResolvedFieldOrAlias(StandardField.SUBTITLE, null), child.getResolvedFieldOrAlias(StandardField.JOURNALSUBTITLE, db));
     }
 
     private static Stream<Arguments> journalTitleInheritanceSource() {
-        return Stream.of(
-                Arguments.of(IEEETranEntryType.Periodical, StandardEntryType.Article),
-                Arguments.of(IEEETranEntryType.Periodical, StandardEntryType.SuppPeriodical)
-        );
+        return Stream.of(Arguments.of(IEEETranEntryType.Periodical, StandardEntryType.Article), Arguments.of(IEEETranEntryType.Periodical, StandardEntryType.SuppPeriodical));
     }
 
     @ParameterizedTest
@@ -180,10 +145,14 @@ class CrossrefTest {
         parent.setType(parentType);
         child.setType(childType);
 
-        assertTrue(child.getResolvedFieldOrAlias(StandardField.TITLE, db).isEmpty());
-        assertTrue(child.getResolvedFieldOrAlias(StandardField.SUBTITLE, db).isEmpty());
-        assertTrue(child.getResolvedFieldOrAlias(StandardField.TITLEADDON, db).isEmpty());
-        assertTrue(child.getResolvedFieldOrAlias(StandardField.SHORTTITLE, db).isEmpty());
+        assertTrue(child.getResolvedFieldOrAlias(StandardField.TITLE, db)
+                        .isEmpty());
+        assertTrue(child.getResolvedFieldOrAlias(StandardField.SUBTITLE, db)
+                        .isEmpty());
+        assertTrue(child.getResolvedFieldOrAlias(StandardField.TITLEADDON, db)
+                        .isEmpty());
+        assertTrue(child.getResolvedFieldOrAlias(StandardField.SHORTTITLE, db)
+                        .isEmpty());
     }
 
     private static Stream<Arguments> noTitleInheritanceSource() {
@@ -205,8 +174,7 @@ class CrossrefTest {
                 Arguments.of(StandardEntryType.Collection, StandardEntryType.InCollection),
                 Arguments.of(StandardEntryType.Collection, StandardEntryType.SuppCollection),
                 Arguments.of(StandardEntryType.Reference, StandardEntryType.InReference),
-                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings)
-        );
+                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings));
     }
 
     @ParameterizedTest
@@ -217,10 +185,7 @@ class CrossrefTest {
 
         assertTrue(parent.setField(field, "parent_FIELD").isPresent());
 
-        assertEquals(
-                parent.getResolvedFieldOrAlias(field, null),
-                child.getResolvedFieldOrAlias(field, db)
-        );
+        assertEquals(parent.getResolvedFieldOrAlias(field, null), child.getResolvedFieldOrAlias(field, db));
     }
 
     private static Stream<Arguments> sameNameInheritance() {
@@ -317,7 +282,6 @@ class CrossrefTest {
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.YEAR),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.YEARFILED),
                 Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.MR_NUMBER),
-                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.XDATA)
-        );
+                Arguments.of(StandardEntryType.Proceedings, StandardEntryType.InProceedings, StandardField.XDATA));
     }
 }

@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.jabref.logic.bibtex.FieldWriter;
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.jspecify.annotations.Nullable;
 
 public class BracketChecker implements ValueChecker {

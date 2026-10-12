@@ -35,7 +35,6 @@ import org.jabref.model.search.event.IndexRemovedEvent;
 import org.jabref.model.search.event.IndexStartedEvent;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResults;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,12 +50,9 @@ public class IndexManager {
     private final ConcurrentHashMap<String, PendingFieldUpdates> pendingFieldsByEntry = new ConcurrentHashMap<>();
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    private record PendingFieldUpdates(BibEntry entry, Set<Field> fields) {
-    }
+    private record PendingFieldUpdates(BibEntry entry, Set<Field> fields) {}
 
-    public IndexManager(BibDatabaseContext databaseContext,
-                        TaskExecutor executor,
-                        CliPreferences preferences,
+    public IndexManager(BibDatabaseContext databaseContext, TaskExecutor executor, CliPreferences preferences,
                         PostgresServer postgresServer) {
         this.taskExecutor = executor;
         this.databaseContext = databaseContext;
@@ -76,8 +72,8 @@ public class IndexManager {
                 return null;
             }
         }.willBeRecoveredAutomatically(true)
-         .onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexStartedEvent()))
-         .executeWith(taskExecutor);
+                .onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexStartedEvent()))
+                .executeWith(taskExecutor);
     }
 
     public void addToIndex(List<BibEntry> entries) {
@@ -88,7 +84,7 @@ public class IndexManager {
                 return null;
             }
         }.onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexAddedOrUpdatedEvent(entries)))
-         .executeWith(taskExecutor);
+                .executeWith(taskExecutor);
         linkedFilesIndexManager.addToIndex(entries);
     }
 
@@ -100,7 +96,7 @@ public class IndexManager {
                 return null;
             }
         }.onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexRemovedEvent(entries)))
-         .executeWith(taskExecutor);
+                .executeWith(taskExecutor);
         linkedFilesIndexManager.removeFromIndex(entries);
     }
 
@@ -116,16 +112,17 @@ public class IndexManager {
         /// Accumulate which fields need updating for this entry
         /// Use `entryId` because hashCode of `entry` changes when fields are updated.
         /// Instead, `entryId` is stable.
-        pendingFieldsByEntry.compute(entryId, (_, pendingUpdates) -> {
-            if (pendingUpdates == null) {
-                Set<Field> fields = ConcurrentHashMap.newKeySet();
-                fields.add(field);
-                return new PendingFieldUpdates(entry, fields);
-            }
+        pendingFieldsByEntry.compute(entryId,
+                (_, pendingUpdates) -> {
+                    if (pendingUpdates == null) {
+                        Set<Field> fields = ConcurrentHashMap.newKeySet();
+                        fields.add(field);
+                        return new PendingFieldUpdates(entry, fields);
+                    }
 
-            pendingUpdates.fields().add(field);
-            return new PendingFieldUpdates(entry, pendingUpdates.fields());
-        });
+                    pendingUpdates.fields().add(field);
+                    return new PendingFieldUpdates(entry, pendingUpdates.fields());
+                });
 
         linkedFilesIndexManager.updateEntry(event);
 
@@ -153,9 +150,8 @@ public class IndexManager {
                             }
                             return null;
                         }
-                    }.onFinished(() -> this.databaseContext.getDatabase()
-                                                           .postEvent(new IndexAddedOrUpdatedEvent(List.of(pendingEntry))))
-                     .executeWith(taskExecutor);
+                    }.onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexAddedOrUpdatedEvent(List.of(pendingEntry))))
+                            .executeWith(taskExecutor);
                 }
             });
         });
@@ -224,7 +220,8 @@ public class IndexManager {
         return searchResults;
     }
 
-    /// @implNote No need to check for full-text searches as this method only used by the search groups
+    /// @implNote No need to check for full-text searches as this method only
+    ///   used by the search groups
     public boolean isEntryMatched(BibEntry entry, SearchQuery query) {
         return bibFieldsSearcher.isMatched(entry, query);
     }
@@ -248,14 +245,13 @@ public class IndexManager {
                     LOGGER.info("Deleting out-of-date fulltext search index at {}.", directory);
 
                     try (Stream<Path> indexPath = Files.walk(directory)) {
-                        indexPath.sorted(Comparator.reverseOrder())
-                                 .forEach(file -> {
-                                     try {
-                                         Files.deleteIfExists(file);
-                                     } catch (IOException e) {
-                                         LOGGER.error("Could not delete file {}", file, e);
-                                     }
-                                 });
+                        indexPath.sorted(Comparator.reverseOrder()).forEach(file -> {
+                            try {
+                                Files.deleteIfExists(file);
+                            } catch (IOException e) {
+                                LOGGER.error("Could not delete file {}", file, e);
+                            }
+                        });
                     } catch (IOException e) {
                         LOGGER.error("Could not read directory {}", directory, e);
                     }

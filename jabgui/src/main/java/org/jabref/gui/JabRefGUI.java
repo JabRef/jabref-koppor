@@ -7,6 +7,12 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.dlsc.gemsfx.PowerPane;
+import com.dlsc.gemsfx.infocenter.InfoCenterPane;
+import com.dlsc.gemsfx.infocenter.InfoCenterViewPos;
+import com.tobiasdiez.easybind.EasyBind;
+import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -20,7 +26,10 @@ import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-
+import kong.unirest.core.Unirest;
+import org.controlsfx.control.decoration.Decorator;
+import org.controlsfx.control.decoration.GraphicDecoration;
+import org.controlsfx.dialog.ExceptionDialog;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.frame.JabRefFrame;
 import org.jabref.gui.help.VersionWorker;
@@ -61,17 +70,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.dlsc.gemsfx.PowerPane;
-import com.dlsc.gemsfx.infocenter.InfoCenterPane;
-import com.dlsc.gemsfx.infocenter.InfoCenterViewPos;
-import com.tobiasdiez.easybind.EasyBind;
-import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
-import kong.unirest.core.Unirest;
-import org.controlsfx.control.decoration.Decorator;
-import org.controlsfx.control.decoration.GraphicDecoration;
-import org.controlsfx.dialog.ExceptionDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,8 +105,7 @@ public class JabRefGUI extends Application {
 
     private Stage mainStage;
 
-    public static void setup(List<UiCommand> uiCommands,
-                             GuiPreferences preferences) {
+    public static void setup(List<UiCommand> uiCommands, GuiPreferences preferences) {
         JabRefGUI.uiCommands = uiCommands;
         JabRefGUI.preferences = preferences;
     }
@@ -117,8 +114,8 @@ public class JabRefGUI extends Application {
     public void start(Stage stage) {
         // Installed before the try block below (not after) so background threads started during
         // initialize() are also covered, not just ones started once the main window is up.
-        FallbackExceptionHandler.installExceptionHandler((exception, thread) -> UiTaskExecutor.runInJavaFXThread(() ->
-                showCriticalErrorDialog(Localization.lang("Uncaught exception occurred in %0", thread.toString()), exception)));
+        FallbackExceptionHandler.installExceptionHandler((exception, thread) ->
+                UiTaskExecutor.runInJavaFXThread(() -> showCriticalErrorDialog(Localization.lang("Uncaught exception occurred in %0", thread.toString()), exception)));
 
         try {
             this.mainStage = stage;
@@ -147,22 +144,17 @@ public class JabRefGUI extends Application {
             setupHttpServerEnabledListener();
 
             if (!fileUpdateMonitor.isActive()) {
-                dialogService.showErrorDialogAndWait(
-                        Localization.lang("Unable to monitor file changes. Please close files " +
-                                "and processes and restart. You may encounter errors if you continue " +
-                                "with this session."));
+                dialogService.showErrorDialogAndWait(Localization.lang("Unable to monitor file changes. Please close files " + "and processes and restart. You may encounter errors if you continue " + "with this session."));
             }
 
             BuildInfo buildInfo = Injector.instantiateModelOrService(BuildInfo.class);
-            EasyBind.subscribe(preferences.getInternalPreferences().versionCheckEnabledProperty(), enabled -> {
-                if (enabled) {
-                    new VersionWorker(buildInfo.version,
-                            dialogService,
-                            taskExecutor,
-                            preferences)
-                            .checkForNewVersionDelayed();
-                }
-            });
+            EasyBind.subscribe(preferences.getInternalPreferences().versionCheckEnabledProperty(),
+                    enabled -> {
+                        if (enabled) {
+                            new VersionWorker(buildInfo.version, dialogService, taskExecutor, preferences)
+                                    .checkForNewVersionDelayed();
+                        }
+                    });
 
             setupProxy();
         } catch (Throwable throwable) {
@@ -174,12 +166,14 @@ public class JabRefGUI extends Application {
 
     /// [impl->req~ux.startup.critical-error-dialog~1]
     ///
-    /// Used both for startup failures (from [#start(Stage)]'s catch block) and for uncaught
-    /// exceptions on other threads ([FallbackExceptionHandler], installed before [#initialize()]
-    /// so it also covers background threads started during startup). In both cases, [DialogService]
-    /// or [Scene] may not exist yet: [DialogService] is only set up in [#initialize()], and `Scene`
-    /// is only set in [#openWindow()]. Calling [DialogService] or `Dialog.initOwner` before then
-    /// throws a NullPointerException, so this falls back to an ownerless [ExceptionDialog] instead.
+    /// Used both for startup failures (from [#start(Stage)]'s catch block) and
+    /// for uncaught exceptions on other threads ([FallbackExceptionHandler],
+    /// installed before [#initialize()] so it also covers background threads
+    /// started during startup). In both cases, [DialogService] or [Scene] may
+    /// not exist yet: [DialogService] is only set up in [#initialize()], and
+    /// `Scene` is only set in [#openWindow()]. Calling [DialogService] or
+    /// `Dialog.initOwner` before then throws a NullPointerException, so this
+    /// falls back to an ownerless [ExceptionDialog] instead.
     private void showCriticalErrorDialog(String header, Throwable throwable) {
         try {
             if (mainStage != null && mainStage.getScene() != null) {
@@ -233,10 +227,7 @@ public class JabRefGUI extends Application {
 
         Injector.setModelOrService(KeyBindingRepository.class, preferences.getKeyBindingRepository());
 
-        JabRefGUI.themeManager = new ThemeManager(
-                preferences.getWorkspacePreferences(),
-                fileUpdateMonitor
-        );
+        JabRefGUI.themeManager = new ThemeManager(preferences.getWorkspacePreferences(), fileUpdateMonitor);
         Injector.setModelOrService(ThemeManager.class, themeManager);
 
         JabRefGUI.dialogService = new JabRefDialogService(mainStage);
@@ -255,11 +246,7 @@ public class JabRefGUI extends Application {
         JabRefGUI.clipBoardManager = new ClipBoardManager(stateManager);
         Injector.setModelOrService(ClipBoardManager.class, clipBoardManager);
 
-        JabRefGUI.aiService = new AiService(
-                preferences.getAiPreferences(),
-                preferences.getFilePreferences(),
-                dialogService,
-                taskExecutor);
+        JabRefGUI.aiService = new AiService(preferences.getAiPreferences(), preferences.getFilePreferences(), dialogService, taskExecutor);
         Injector.setModelOrService(AiService.class, aiService);
 
         JabRefGUI.citationsAndRelationsSearchService = new SearchCitationsRelationsService(
@@ -273,8 +260,7 @@ public class JabRefGUI extends Application {
                 preferences.getAiPreferences(),
                 aiService.getCurrentChatModel(),
                 entryTypesManager,
-                dialogService
-        );
+                dialogService);
         Injector.setModelOrService(SearchCitationsRelationsService.class, citationsAndRelationsSearchService);
 
         loadBundledFonts();
@@ -312,15 +298,13 @@ public class JabRefGUI extends Application {
 
         assert preferences.getProxyPreferences().shouldUseAuthentication();
 
-        if (preferences.getProxyPreferences().shouldPersistPassword()
-                && StringUtil.isNotBlank(preferences.getProxyPreferences().getPassword())) {
+        if (preferences.getProxyPreferences().shouldPersistPassword() && StringUtil.isNotBlank(preferences.getProxyPreferences()
+                .getPassword())) {
             ProxyRegisterer.register(preferences.getProxyPreferences());
             return;
         }
 
-        Optional<String> password = dialogService.showPasswordDialogAndWait(
-                Localization.lang("Proxy configuration"),
-                Localization.lang("Proxy requires password"),
+        Optional<String> password = dialogService.showPasswordDialogAndWait(Localization.lang("Proxy configuration"), Localization.lang("Proxy requires password"),
                 Localization.lang("Password"));
 
         if (password.isPresent()) {
@@ -368,11 +352,16 @@ public class JabRefGUI extends Application {
         debugLogWindowState(mainStage);
 
         PowerPane powerpane = new PowerPane();
-        powerpane.getInfoCenterPane().getInfoCenterView().getGroups().addAll(dialogService.getNotificationGroups());
+        powerpane.getInfoCenterPane()
+                 .getInfoCenterView()
+                 .getGroups()
+                 .addAll(dialogService.getNotificationGroups());
         Injector.setModelOrService(InfoCenterPane.class, powerpane.getInfoCenterPane());
         powerpane.setContent(JabRefGUI.mainFrame);
         powerpane.getInfoCenterPane().setInfoCenterViewPos(InfoCenterViewPos.BOTTOM_RIGHT);
-        powerpane.getInfoCenterPane().autoHideProperty().bind(Bindings.isEmpty(dialogService.getPersistentNotifications()));
+        powerpane.getInfoCenterPane()
+                 .autoHideProperty()
+                 .bind(Bindings.isEmpty(dialogService.getPersistentNotifications()));
         // PowerPane is a StackPane, so the walkthrough draws into a sibling of the info center pane
         // rather than into a wrapper around the scene root.
         powerpane.getChildren().add(new WalkthroughPane());
@@ -384,11 +373,12 @@ public class JabRefGUI extends Application {
         themeManager.updateCssOnScene(scene);
 
         LOGGER.debug("Handle TextEditor key bindings");
-        scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            TextInputKeyBindings.call(scene, event, preferences.getKeyBindingRepository());
-            SelectableTextFlowKeyBindings.call(scene, event, preferences.getKeyBindingRepository());
-            WalkthroughKeyBindings.call(event, stateManager, preferences.getKeyBindingRepository());
-        });
+        scene.addEventFilter(KeyEvent.KEY_PRESSED,
+                event -> {
+                    TextInputKeyBindings.call(scene, event, preferences.getKeyBindingRepository());
+                    SelectableTextFlowKeyBindings.call(scene, event, preferences.getKeyBindingRepository());
+                    WalkthroughKeyBindings.call(event, stateManager, preferences.getKeyBindingRepository());
+                });
 
         mainStage.setTitle(JabRefFrame.FRAME_TITLE);
         IconTheme.applyLogo(mainStage);
@@ -411,9 +401,10 @@ public class JabRefGUI extends Application {
 
     /// Installs ControlsFX's decoration root before validation is first used.
     ///
-    /// ControlsFX injects its internal `DecorationPane` as the scene root on the first
-    /// decoration. Doing that during startup avoids replacing the root while opening the entry
-    /// editor, which would otherwise trigger a large CSS reapplication on the critical path.
+    /// ControlsFX injects its internal `DecorationPane` as the scene root on
+    /// the first decoration. Doing that during startup avoids replacing the
+    /// root while opening the entry editor, which would otherwise trigger a
+    /// large CSS reapplication on the critical path.
     private static void installControlsFxDecorationPane(PowerPane powerpane) {
         Region probeNode = new Region();
         GraphicDecoration probeDecoration = new GraphicDecoration(probeNode);
@@ -428,8 +419,7 @@ public class JabRefGUI extends Application {
         });
 
         // Open last edited databases
-        if (uiCommands.stream().noneMatch(UiCommand.BlankWorkspace.class::isInstance)
-                && preferences.getWorkspacePreferences().shouldOpenLastEdited()) {
+        if (uiCommands.stream().noneMatch(UiCommand.BlankWorkspace.class::isInstance) && preferences.getWorkspacePreferences().shouldOpenLastEdited()) {
             mainFrame.openLastEditedDatabases();
         }
 
@@ -475,7 +465,8 @@ public class JabRefGUI extends Application {
     ///
     /// @param mainStage JabRef's stage
     private void debugLogWindowState(Stage mainStage) {
-        LOGGER.debug("""
+        LOGGER
+                .debug("""
                         screen data:
                           mainStage.WINDOW_MAXIMISED: {}
                           mainStage.POS_X: {}
@@ -483,7 +474,7 @@ public class JabRefGUI extends Application {
                           mainStage.SIZE_X: {}
                           mainStage.SIZE_Y: {}
                         """,
-                mainStage.isMaximized(), mainStage.getX(), mainStage.getY(), mainStage.getWidth(), mainStage.getHeight());
+                        mainStage.isMaximized(), mainStage.getX(), mainStage.getY(), mainStage.getWidth(), mainStage.getHeight());
     }
 
     /// Tests if the window coordinates are inside any screen
@@ -503,7 +494,9 @@ public class JabRefGUI extends Application {
         double bottomY = coreGuiPreferences.getPositionY() + coreGuiPreferences.getSizeY();
         LOGGER.debug("left x: {}, bottom y: {}", leftX, bottomY);
 
-        boolean inBounds = Screen.getScreens().stream().anyMatch(screen -> screen.getBounds().contains(leftX, bottomY));
+        boolean inBounds = Screen.getScreens()
+                .stream()
+                .anyMatch(screen -> screen.getBounds().contains(leftX, bottomY));
         LOGGER.debug("lower left corner is in bounds: {}", inBounds);
         return inBounds;
     }
@@ -515,7 +508,9 @@ public class JabRefGUI extends Application {
         double topY = coreGuiPreferences.getPositionY();
         LOGGER.debug("right x: {}, top y: {}", rightX, topY);
 
-        boolean inBounds = Screen.getScreens().stream().anyMatch(screen -> screen.getBounds().contains(rightX, topY));
+        boolean inBounds = Screen.getScreens()
+                .stream()
+                .anyMatch(screen -> screen.getBounds().contains(rightX, topY));
         LOGGER.debug("upper right corner is in bounds: {}", inBounds);
         return inBounds;
     }
@@ -525,9 +520,7 @@ public class JabRefGUI extends Application {
         RemotePreferences remotePreferences = preferences.getRemotePreferences();
         CLIMessageHandler cliMessageHandler = new CLIMessageHandler(mainFrame, preferences);
         if (remotePreferences.shouldEnableRemoteServer()) {
-            remoteListenerServerManager.openAndStart(
-                    cliMessageHandler,
-                    remotePreferences.getRemoteServerPort());
+            remoteListenerServerManager.openAndStart(cliMessageHandler, remotePreferences.getRemoteServerPort());
         }
 
         if (remotePreferences.shouldEnableHttpServer()) {
@@ -540,13 +533,14 @@ public class JabRefGUI extends Application {
 
     private void setupHttpServerEnabledListener() {
         RemotePreferences remotePreferences = preferences.getRemotePreferences();
-        EasyBind.listen(remotePreferences.enableHttpServerProperty(), (_, _, newValue) -> {
-            // stop in all cases, because the port might have changed
-            httpServerManager.stop();
-            if (newValue) {
-                httpServerManager.start(preferences, stateManager, mainFrame, remotePreferences.getHttpServerUri());
-            }
-        });
+        EasyBind.listen(remotePreferences.enableHttpServerProperty(),
+                (_, _, newValue) -> {
+                    // stop in all cases, because the port might have changed
+                    httpServerManager.stop();
+                    if (newValue) {
+                        httpServerManager.start(preferences, stateManager, mainFrame, remotePreferences.getHttpServerUri());
+                    }
+                });
     }
 
     @Override

@@ -4,6 +4,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.internal.storage.file.WindowCache;
+import org.eclipse.jgit.lib.RepositoryCache;
+import org.eclipse.jgit.storage.file.WindowCacheConfig;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.logic.git.preferences.GitPreferences;
@@ -13,11 +17,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.CurrentThreadTaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.internal.storage.file.WindowCache;
-import org.eclipse.jgit.lib.RepositoryCache;
-import org.eclipse.jgit.storage.file.WindowCacheConfig;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,13 +48,8 @@ class GitCommitDialogViewModelTest {
         GitPreferences gitPreferences = mock(GitPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(gitPreferences.getPat()).thenReturn("");
         gitHandlerRegistry = new GitHandlerRegistry(gitPreferences);
-        viewModel = new GitCommitDialogViewModel(
-                stateManager,
-                dialogService,
-                new CurrentThreadTaskExecutor(),
-                gitHandlerRegistry,
-                mock(ImportFormatPreferences.class),
-                new DummyFileUpdateMonitor());
+        viewModel = new GitCommitDialogViewModel(stateManager, dialogService, new CurrentThreadTaskExecutor(), gitHandlerRegistry,
+                mock(ImportFormatPreferences.class), new DummyFileUpdateMonitor());
     }
 
     @AfterEach
@@ -70,10 +64,17 @@ class GitCommitDialogViewModelTest {
         Path libraryFile = repoDir.resolve("library.bib");
         Files.createDirectories(repoDir);
 
-        try (Git git = Git.init().setInitialBranch("main").setDirectory(repoDir.toFile()).call()) {
+        try (Git git = Git.init()
+                .setInitialBranch("main")
+                .setDirectory(repoDir.toFile())
+                .call()) {
             Files.writeString(libraryFile, "@article{a, title={initial}}\n");
-            git.add().addFilepattern("library.bib").call();
-            git.commit().setMessage("Initial commit").call();
+            git.add()
+               .addFilepattern("library.bib")
+               .call();
+            git.commit()
+               .setMessage("Initial commit")
+               .call();
         }
 
         Files.writeString(libraryFile, "@article{a, title={changed}}\n");
@@ -83,11 +84,8 @@ class GitCommitDialogViewModelTest {
         when(databaseContext.getDatabasePath()).thenReturn(Optional.of(libraryFile));
         when(stateManager.getActiveDatabase()).thenReturn(Optional.of(databaseContext));
 
-        viewModel.commit(() -> {
-        });
+        viewModel.commit(() -> {});
 
-        verify(dialogService).showErrorDialogAndWait(
-                Localization.lang("Git commit failed"),
-                Localization.lang("The Git repository is locked. Close other Git, JabRef, or IDE processes and try again."));
+        verify(dialogService).showErrorDialogAndWait(Localization.lang("Git commit failed"), Localization.lang("The Git repository is locked. Close other Git, JabRef, or IDE processes and try again."));
     }
 }

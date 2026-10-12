@@ -5,13 +5,11 @@ import java.util.Optional;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.TextInputControl;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class NodeTraversalUtils {
-    private NodeTraversalUtils() {
-    }
+    private NodeTraversalUtils() {}
 
     /// First [TextInputControl] in the editor node's subtree (the row-filling text field/area),
     /// or empty for composite editors that have none.

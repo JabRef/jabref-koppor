@@ -16,7 +16,6 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -123,7 +122,10 @@ class InMemorySummaryCacheTest {
         cache.put(fullEntry, buildSummary("original"));
         cache.put(fullEntry, buildSummary("updated"));
 
-        assertEquals("updated", cache.get(entry).get().content());
+        assertEquals("updated",
+                cache.get(entry)
+                     .get()
+                     .content());
     }
 
     /// Minimal in-memory implementation of [SummariesRepository] for testing.

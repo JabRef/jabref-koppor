@@ -14,16 +14,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LlmResponseParserTest {
 
     static Stream<Arguments> emptyInputCases() {
-        return Stream.of(
-                Arguments.of("empty string", ""),
-                Arguments.of("whitespace only", "   \n\t  ")
-        );
+        return Stream.of(Arguments.of("empty string", ""), Arguments.of("whitespace only", "   \n\t  "));
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("emptyInputCases")
     void emptyInputs_returnEmptyList(String description, String input) {
-        assertTrue(LlmResponseParser.extractNumberedList(input).isEmpty());
+        assertTrue(LlmResponseParser.extractNumberedList(input)
+                .isEmpty());
     }
 
     static Stream<Arguments> numberedListCases() {
@@ -35,14 +33,12 @@ class LlmResponseParserTest {
                                 3. Third question
                                 """,
                         List.of("First question", "Second question", "Third question")),
-
                 Arguments.of("with leading whitespace",
                         """
                                    1. Question one
                                    2. Question two
                                 """,
                         List.of("Question one", "Question two")),
-
                 Arguments.of("with surrounding prose",
                         """
                                 Here are some questions:
@@ -53,21 +49,18 @@ class LlmResponseParserTest {
                                 Hope this helps!
                                 """,
                         List.of("First question", "Second question")),
-
                 Arguments.of("with double quotes stripped",
                         """
                                 1. "What is the main topic?"
                                 2. "How does it work?"
                                 """,
                         List.of("What is the main topic?", "How does it work?")),
-
                 Arguments.of("with single quotes stripped",
                         """
                                 1. 'First question'
                                 2. 'Second question'
                                 """,
                         List.of("First question", "Second question")),
-
                 Arguments.of("mixed quoted and unquoted items",
                         """
                                 1. "Question with double quotes"
@@ -75,7 +68,6 @@ class LlmResponseParserTest {
                                 3. Question without quotes
                                 """,
                         List.of("Question with double quotes", "Question with single quotes", "Question without quotes")),
-
                 Arguments.of("blank items filtered out",
                         """
                                 1. Valid question
@@ -83,21 +75,18 @@ class LlmResponseParserTest {
                                 3. Another valid question
                                 """,
                         List.of("Valid question", "Another valid question")),
-
                 Arguments.of("extra spacing after number",
                         """
                                 1.    Question with extra spaces
                                 2.  Another one
                                 """,
                         List.of("Question with extra spaces", "Another one")),
-
                 Arguments.of("large numbers parsed correctly",
                         """
                                 100. Question one hundred
                                 101. Question one hundred one
                                 """,
                         List.of("Question one hundred", "Question one hundred one")),
-
                 Arguments.of("numbered takes priority over bulleted",
                         """
                                 Here are questions:
@@ -105,8 +94,7 @@ class LlmResponseParserTest {
                                 - Bulleted item (should not be extracted in numbered mode)
                                 2. Another numbered question
                                 """,
-                        List.of("Numbered question", "Another numbered question"))
-        );
+                        List.of("Numbered question", "Another numbered question")));
     }
 
     @ParameterizedTest(name = "{0}")
@@ -124,7 +112,6 @@ class LlmResponseParserTest {
                                 - Third question
                                 """,
                         List.of("First question", "Second question", "Third question")),
-
                 Arguments.of("asterisk bullets",
                         """
                                 * What is the main idea?
@@ -132,7 +119,6 @@ class LlmResponseParserTest {
                                 * Why is it important?
                                 """,
                         List.of("What is the main idea?", "How does it apply?", "Why is it important?")),
-
                 Arguments.of("unicode bullet character",
                         """
                                 • First item
@@ -140,15 +126,13 @@ class LlmResponseParserTest {
                                 • Third item
                                 """,
                         List.of("First item", "Second item", "Third item")),
-
                 Arguments.of("mixed quote styles stripped",
                         """
                                 - "Question one"
                                 - 'Question two'
                                 - Question three
                                 """,
-                        List.of("Question one", "Question two", "Question three"))
-        );
+                        List.of("Question one", "Question two", "Question three")));
     }
 
     @ParameterizedTest(name = "{0}")
@@ -167,7 +151,6 @@ class LlmResponseParserTest {
                                 Third question
                                 """,
                         List.of("First question", "Second question", "Third question")),
-
                 Arguments.of("mixed bullet types all extracted",
                         """
                                 - Question with hyphen
@@ -176,7 +159,6 @@ class LlmResponseParserTest {
                                 Plain question
                                 """,
                         List.of("Question with hyphen", "Question with asterisk", "Question with bullet", "Plain question")),
-
                 Arguments.of("quotes stripped in fallback",
                         """
                                 "First question"
@@ -184,15 +166,13 @@ class LlmResponseParserTest {
                                 Third question
                                 """,
                         List.of("First question", "Second question", "Third question")),
-
                 Arguments.of("multiline item treated as separate lines",
                         """
                                 Question one
                                 that spans multiple lines
                                 Question two
                                 """,
-                        List.of("Question one", "that spans multiple lines", "Question two"))
-        );
+                        List.of("Question one", "that spans multiple lines", "Question two")));
     }
 
     @ParameterizedTest(name = "{0}")
@@ -202,31 +182,31 @@ class LlmResponseParserTest {
     }
 
     static Stream<Arguments> emptyResultCases() {
-        return Stream.of(
-                Arguments.of("only empty bullet points", """
+        return Stream.of(Arguments.of("only empty bullet points",
+                        """
                         -
                         *
                         •
                         """),
-                Arguments.of("numbers without content", """
+                Arguments.of("numbers without content",
+                        """
                         1.
                         2.
                         3.
-                        """)
-        );
+                        """));
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("emptyResultCases")
     void edgeCases_returnEmptyList(String description, String input) {
-        assertTrue(LlmResponseParser.extractNumberedList(input).isEmpty());
+        assertTrue(LlmResponseParser.extractNumberedList(input)
+                .isEmpty());
     }
 
     static Stream<Arguments> singleItemCases() {
         return Stream.of(
                 Arguments.of("single numbered item", "1. Single question", List.of("Single question")),
-                Arguments.of("single bulleted item", "- Single question", List.of("Single question"))
-        );
+                Arguments.of("single bulleted item", "- Single question", List.of("Single question")));
     }
 
     @ParameterizedTest(name = "{0}")
@@ -245,11 +225,7 @@ class LlmResponseParserTest {
                                 2. How can this be applied in practice?
                                 3. What are the potential limitations?
                                 """,
-                        List.of(
-                                "What are the key differences between the approaches?",
-                                "How can this be applied in practice?",
-                                "What are the potential limitations?")),
-
+                        List.of("What are the key differences between the approaches?", "How can this be applied in practice?", "What are the potential limitations?")),
                 Arguments.of("bulleted with intro and outro prose",
                         """
                                 Based on the discussion, here are some relevant questions:
@@ -260,22 +236,14 @@ class LlmResponseParserTest {
 
                                 Feel free to explore these topics further.
                                 """,
-                        List.of(
-                                "How does this compare to traditional methods?",
-                                "What are the performance implications?",
-                                "Are there any security considerations?")),
-
+                        List.of("How does this compare to traditional methods?", "What are the performance implications?", "Are there any security considerations?")),
                 Arguments.of("numbered with all items quoted",
                         """
                                 1. "What is the main hypothesis?"
                                 2. "How was the data collected?"
                                 3. "What are the key findings?"
                                 """,
-                        List.of(
-                                "What is the main hypothesis?",
-                                "How was the data collected?",
-                                "What are the key findings?"))
-        );
+                        List.of("What is the main hypothesis?", "How was the data collected?", "What are the key findings?")));
     }
 
     @ParameterizedTest(name = "{0}")
@@ -286,7 +254,8 @@ class LlmResponseParserTest {
 
     @Test
     void noLimit_extractsAllTenItems() {
-        String input = """
+        String input =
+                """
                 1. Question 1
                 2. Question 2
                 3. Question 3

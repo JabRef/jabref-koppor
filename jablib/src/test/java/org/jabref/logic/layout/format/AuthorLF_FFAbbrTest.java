@@ -9,8 +9,6 @@ class AuthorLF_FFAbbrTest {
     /// Test method for [org.jabref.logic.layout.format.AuthorLF_FFAbbr#format(java.lang.String)].
     @Test
     void format() {
-        assertEquals("von Neumann, J. and J. Smith and P. Black Brown, Jr",
-                new AuthorLF_FFAbbr()
-                        .format("von Neumann,,John and John Smith and Black Brown, Jr, Peter"));
+        assertEquals("von Neumann, J. and J. Smith and P. Black Brown, Jr", new AuthorLF_FFAbbr().format("von Neumann,,John and John Smith and Black Brown, Jr, Peter"));
     }
 }

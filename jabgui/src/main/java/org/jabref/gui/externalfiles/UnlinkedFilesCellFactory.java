@@ -9,7 +9,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.FileNodeViewModel;
@@ -28,8 +27,7 @@ public class UnlinkedFilesCellFactory extends CheckBoxTreeCell<FileNodeViewModel
     private final StateManager stateManager;
     private final UnlinkedFilesDialogViewModel viewModel;
 
-    public UnlinkedFilesCellFactory(StateManager stateManager,
-                                    UnlinkedFilesDialogViewModel viewModel) {
+    public UnlinkedFilesCellFactory(StateManager stateManager, UnlinkedFilesDialogViewModel viewModel) {
         this.stateManager = stateManager;
         this.viewModel = viewModel;
         cellContent.setSpacing(8);
@@ -50,10 +48,12 @@ public class UnlinkedFilesCellFactory extends CheckBoxTreeCell<FileNodeViewModel
             BibEntry selectedEntry = relatedEntries.getValue();
             // If the user didn't select an entry from the dropdown but still clicks the jump button
             if (selectedEntry != null) {
-                stateManager.activeTabProperty().get().ifPresent(tab -> {
-                    tab.clearAndSelect(selectedEntry);
-                    tab.showAndEdit(selectedEntry);
-                });
+                stateManager.activeTabProperty()
+                            .get()
+                            .ifPresent(tab -> {
+                                tab.clearAndSelect(selectedEntry);
+                                tab.showAndEdit(selectedEntry);
+                            });
             }
         });
 
@@ -63,14 +63,17 @@ public class UnlinkedFilesCellFactory extends CheckBoxTreeCell<FileNodeViewModel
         doNotLinkButton.setOnAction(_ -> {
             relatedEntries.getSelectionModel().clearSelection();
             relatedEntries.setPromptText(Localization.lang("Select entry to link"));
-            viewModel.setSelectedEntryForFile(getTreeItem().getValue().getPath(), null);
+            viewModel.setSelectedEntryForFile(getTreeItem()
+                    .getValue()
+                    .getPath(),
+                    null);
         });
 
         relatedEntries.valueProperty().addListener((_, _, newEntry) -> {
-            viewModel.setSelectedEntryForFile(
-                    getTreeItem().getValue().getPath(),
-                    newEntry
-            );
+            viewModel.setSelectedEntryForFile(getTreeItem()
+                    .getValue()
+                    .getPath(),
+                    newEntry);
         });
     }
 
@@ -90,13 +93,14 @@ public class UnlinkedFilesCellFactory extends CheckBoxTreeCell<FileNodeViewModel
         cellContent.getChildren().clear();
         cellContent.getChildren().add(leftSide);
 
-        if (!item.getPath().toFile().isFile()) {
+        if (!item.getPath()
+                 .toFile()
+                 .isFile()) {
             setGraphic(cellContent);
             setText(null);
             return;
         }
-        ObservableList<BibEntry> fileRelatedEntries =
-                viewModel.getRelatedEntriesForFiles(item.getPath());
+        ObservableList<BibEntry> fileRelatedEntries = viewModel.getRelatedEntriesForFiles(item.getPath());
 
         if (!fileRelatedEntries.isEmpty()) {
             relatedEntries.setPromptText(Localization.lang("Select entry to link"));

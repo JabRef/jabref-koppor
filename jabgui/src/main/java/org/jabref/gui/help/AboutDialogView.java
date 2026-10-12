@@ -1,10 +1,11 @@
 package org.jabref.gui.help;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -12,18 +13,25 @@ import org.jabref.gui.util.BaseDialog;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BuildInfo;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 public class AboutDialogView extends BaseDialog<Void> {
 
-    @FXML private Button closeButton;
-    @FXML private TextArea textAreaVersions;
+    @FXML
+    private Button closeButton;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private ClipBoardManager clipBoardManager;
-    @Inject private BuildInfo buildInfo;
+    @FXML
+    private TextArea textAreaVersions;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private ClipBoardManager clipBoardManager;
+
+    @Inject
+    private BuildInfo buildInfo;
 
     private AboutDialogViewModel viewModel;
 
@@ -31,8 +39,8 @@ public class AboutDialogView extends BaseDialog<Void> {
         this.setTitle(Localization.lang("About JabRef"));
 
         ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+                .load()
+                .setAsDialogPane(this);
     }
 
     public AboutDialogViewModel getViewModel() {

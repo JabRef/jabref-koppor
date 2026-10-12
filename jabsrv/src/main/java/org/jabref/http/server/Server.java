@@ -7,9 +7,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-
 import javax.net.ssl.SSLContext;
 
+import net.harawata.appdirs.AppDirsFactory;
+import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.ssl.SSLContextConfigurator;
+import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.jabref.http.JabRefSrvStateManager;
 import org.jabref.http.SrvStateManager;
 import org.jabref.http.dto.GlobalExceptionMapper;
@@ -34,14 +40,6 @@ import org.jabref.logic.os.OS;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import net.harawata.appdirs.AppDirsFactory;
-import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.ssl.SSLContextConfigurator;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
@@ -79,10 +77,7 @@ public class Server {
 
         LOGGER.debug("Libraries to serve: {}", filesToServeList);
 
-        SrvStateManager srvStateManager = new JabRefSrvStateManager(
-                preferences.getBibEntryPreferences(),
-                preferences.getImportFormatPreferences(),
-                filesToServeList);
+        SrvStateManager srvStateManager = new JabRefSrvStateManager(preferences.getBibEntryPreferences(), preferences.getImportFormatPreferences(), filesToServeList);
 
         ServiceLocator serviceLocator = ServiceLocatorUtilities.createAndPopulateServiceLocator();
         ServiceLocatorUtilities.addOneConstant(serviceLocator, srvStateManager, "statemanager", SrvStateManager.class);
@@ -149,8 +144,7 @@ public class Server {
 
         LOGGER.debug("Starting HTTP server...");
 
-        return GrizzlyHttpServerFactory
-                .createHttpServer(uri, resourceConfig, serviceLocator);
+        return GrizzlyHttpServerFactory.createHttpServer(uri, resourceConfig, serviceLocator);
     }
 
     private boolean sslCertExists() {
@@ -173,12 +167,7 @@ public class Server {
 
     @NonNull
     private Path getSslCert() {
-        return Path.of(AppDirsFactory.getInstance()
-                                     .getUserDataDir(
-                                             OS.APP_DIR_APP_NAME,
-                                             "ssl",
-                                             OS.APP_DIR_APP_AUTHOR))
-                   .resolve("server.p12");
+        return Path.of(AppDirsFactory.getInstance().getUserDataDir(OS.APP_DIR_APP_NAME, "ssl", OS.APP_DIR_APP_AUTHOR)).resolve("server.p12");
     }
 
     static void stopServer() {

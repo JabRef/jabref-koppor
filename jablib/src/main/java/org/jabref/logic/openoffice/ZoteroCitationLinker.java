@@ -3,6 +3,11 @@ package org.jabref.logic.openoffice;
 import java.util.List;
 import java.util.Optional;
 
+import com.sun.star.text.XText;
+import com.sun.star.text.XTextContent;
+import com.sun.star.text.XTextCursor;
+import com.sun.star.text.XTextDocument;
+import com.sun.star.text.XTextRange;
 import org.jabref.logic.database.DuplicateCheck;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
@@ -13,23 +18,13 @@ import org.jabref.model.openoffice.ootext.OOTextIntoOO;
 import org.jabref.model.openoffice.uno.CreationException;
 import org.jabref.model.openoffice.uno.NoDocumentException;
 import org.jabref.model.openoffice.uno.UnoReferenceMark;
-
-import com.sun.star.text.XText;
-import com.sun.star.text.XTextContent;
-import com.sun.star.text.XTextCursor;
-import com.sun.star.text.XTextDocument;
-import com.sun.star.text.XTextRange;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class ZoteroCitationLinker {
-    private ZoteroCitationLinker() {
-    }
+    private ZoteroCitationLinker() {}
 
-    public static int linkZoteroCitations(XTextDocument document,
-                                          BibDatabaseContext bibDatabaseContext,
-                                          BibEntryTypesManager entryTypesManager)
-            throws NoDocumentException, CreationException, com.sun.star.uno.Exception {
+    public static int linkZoteroCitations(XTextDocument document, BibDatabaseContext bibDatabaseContext, BibEntryTypesManager entryTypesManager) throws NoDocumentException, CreationException, com.sun.star.uno.Exception {
         int updatedMarks = 0;
         for (String referenceMarkName : UnoReferenceMark.getListOfNames(document)) {
             String updatedName = linkReferenceMark(referenceMarkName, bibDatabaseContext, entryTypesManager);
@@ -41,9 +36,7 @@ public class ZoteroCitationLinker {
         return updatedMarks;
     }
 
-    static String linkReferenceMark(String referenceMarkName,
-                                    BibDatabaseContext bibDatabaseContext,
-                                    BibEntryTypesManager entryTypesManager) {
+    static String linkReferenceMark(String referenceMarkName, BibDatabaseContext bibDatabaseContext, BibEntryTypesManager entryTypesManager) {
         if (!ReferenceMark.isZoteroReferenceMarkName(referenceMarkName)) {
             return referenceMarkName;
         }
@@ -58,38 +51,29 @@ public class ZoteroCitationLinker {
                 continue;
             }
 
-            updatedReferenceMarkName = ZoteroReferenceMark.addJabRefUri(
-                    updatedReferenceMarkName,
-                    i,
-                    jabRefUri.get());
+            updatedReferenceMarkName = ZoteroReferenceMark.addJabRefUri(updatedReferenceMarkName, i, jabRefUri.get());
         }
 
         return updatedReferenceMarkName;
     }
 
-    private static Optional<String> createJabRefUriForZotero(ZoteroCitationData.CitationItemData citationItem,
-                                                             BibDatabaseContext bibDatabaseContext,
-                                                             DuplicateCheck duplicateCheck) {
+    private static Optional<String> createJabRefUriForZotero(ZoteroCitationData.CitationItemData citationItem, BibDatabaseContext bibDatabaseContext, DuplicateCheck duplicateCheck) {
         List<String> uris = Optional.ofNullable(citationItem.uris).orElse(List.of());
         // Filter citations that only contain ZoteroUri
-        if (uris.stream().anyMatch(ZoteroReferenceMark::isJabRefUri) ||
-                uris.stream().noneMatch(ZoteroReferenceMark::isZoteroUri)) {
+        if (uris.stream().anyMatch(ZoteroReferenceMark::isJabRefUri) || uris.stream().noneMatch(ZoteroReferenceMark::isZoteroUri)) {
             return Optional.empty();
         }
 
         return ZoteroCitationMarkParser.toBibEntry(citationItem)
-                                       .flatMap(entry -> findDuplicate(entry, bibDatabaseContext, duplicateCheck))
-                                       .flatMap(BibEntry::getCitationKey)
-                                       .map(ZoteroReferenceMark::createJabRefUri);
+                .flatMap(entry -> findDuplicate(entry, bibDatabaseContext, duplicateCheck))
+                .flatMap(BibEntry::getCitationKey)
+                .map(ZoteroReferenceMark::createJabRefUri);
     }
 
-    private static Optional<BibEntry> findDuplicate(BibEntry entry,
-                                                    BibDatabaseContext bibDatabaseContext,
-                                                    DuplicateCheck duplicateCheck) {
+    private static Optional<BibEntry> findDuplicate(BibEntry entry, BibDatabaseContext bibDatabaseContext, DuplicateCheck duplicateCheck) {
         BibEntry duplicateEntry = null;
         for (BibEntry candidate : bibDatabaseContext.getEntries()) {
-            if (candidate.getCitationKey().isPresent() &&
-                    duplicateCheck.isDuplicate(entry, candidate, bibDatabaseContext.getMode())) {
+            if (candidate.getCitationKey().isPresent() && duplicateCheck.isDuplicate(entry, candidate, bibDatabaseContext.getMode())) {
                 if (duplicateEntry != null) {
                     return Optional.empty();
                 }
@@ -99,8 +83,7 @@ public class ZoteroCitationLinker {
         return Optional.ofNullable(duplicateEntry);
     }
 
-    private static void updateReferenceMarkName(XTextDocument document, String oldName, String newName)
-            throws NoDocumentException, CreationException, com.sun.star.uno.Exception {
+    private static void updateReferenceMarkName(XTextDocument document, String oldName, String newName) throws NoDocumentException, CreationException, com.sun.star.uno.Exception {
         Optional<XTextContent> oldContent = UnoReferenceMark.getAsTextContent(document, oldName);
         if (oldContent.isEmpty()) {
             return;

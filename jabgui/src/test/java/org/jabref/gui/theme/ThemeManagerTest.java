@@ -18,13 +18,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-
 import org.jabref.gui.WorkspacePreferences;
 import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.FileUpdateListener;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,7 +45,8 @@ import static org.mockito.Mockito.when;
 class ThemeManagerTest {
 
     private static final String TEST_CSS_DATA = "data:text/css;charset=utf-8;base64,LyogQmlibGF0ZXggU291cmNlIENvZGUgKi8KLmNvZGUtYXJlYSAudGV4dCB7CiAgICAtZngtZm9udC1mYW1pbHk6IG1vbm9zcGFjZTsKfQ==";
-    private static final String TEST_CSS_CONTENT = """
+    private static final String TEST_CSS_CONTENT =
+            """
             /* Biblatex Source Code */
             .code-area .text {
                 -fx-font-family: monospace;
@@ -88,9 +87,10 @@ class ThemeManagerTest {
 
         themeManager.updateCssOnScene(scene);
 
-        assertEquals(List.of(
-                ThemePreset.JABREF.getStyleSheet().getSceneStylesheetLocation(),
-                ThemeManager.JABREF_BASE_STYLE_SHEET.getSceneStylesheetLocation()), scene.getStylesheets());
+        assertEquals(
+                List.of(ThemePreset.JABREF.getStyleSheet().getSceneStylesheetLocation(),
+                        ThemeManager.JABREF_BASE_STYLE_SHEET.getSceneStylesheetLocation()),
+                scene.getStylesheets());
     }
 
     @Test
@@ -105,13 +105,16 @@ class ThemeManagerTest {
 
         themeManager.updateCssOnScene(scene);
 
-        assertEquals(List.of(
-                ThemePreset.JABREF.getStyleSheet().getSceneStylesheetLocation(),
-                ThemePreset.NORD.getStyleSheet().getSceneStylesheetLocation(),
-                ThemeManager.JABREF_BASE_STYLE_SHEET.getSceneStylesheetLocation()), scene.getStylesheets());
+        assertEquals(
+                List.of(
+                        ThemePreset.JABREF.getStyleSheet().getSceneStylesheetLocation(),
+                        ThemePreset.NORD.getStyleSheet().getSceneStylesheetLocation(),
+                        ThemeManager.JABREF_BASE_STYLE_SHEET.getSceneStylesheetLocation()),
+                scene.getStylesheets());
     }
 
-    /// An edit in the parent changes a community theme's look, so both files have to be watched.
+    /// An edit in the parent changes a community theme's look, so both files
+    /// have to be watched.
     @Test
     void communityThemeWatchesItsParentForLiveUpdates() throws IOException {
         WorkspacePreferences workspacePreferences = WorkspacePreferences.getDefault();
@@ -139,14 +142,17 @@ class ThemeManagerTest {
         FileUpdateMonitor fileUpdateMonitor = mock(FileUpdateMonitor.class);
         AtomicBoolean listenerAddedOnJavaFxThread = new AtomicBoolean();
         doAnswer(_ -> {
-            listenerAddedOnJavaFxThread.set(Platform.isFxApplicationThread());
-            return null;
-        }).when(fileUpdateMonitor).addListenerForFile(any(), any());
+                    listenerAddedOnJavaFxThread.set(Platform.isFxApplicationThread());
+                    return null;
+                })
+                .when(fileUpdateMonitor)
+                .addListenerForFile(any(), any());
 
         createThemeManager(workspacePreferences, fileUpdateMonitor);
         listenerAddedOnJavaFxThread.set(false);
 
-        workspacePreferences.setCustomTheme(StyleSheet.create(tempFolder.resolve("custom.css").toString()));
+        workspacePreferences.setCustomTheme(StyleSheet.create(tempFolder.resolve("custom.css")
+                .toString()));
 
         JavaFxExtension.awaitEvents();
         assertTrue(listenerAddedOnJavaFxThread.get());
@@ -271,11 +277,13 @@ class ThemeManagerTest {
         ArgumentCaptor<FileUpdateListener> listenerCaptor = ArgumentCaptor.forClass(FileUpdateListener.class);
         verify(fileUpdateMonitor).addListenerForFile(eq(testCss), listenerCaptor.capture());
 
-        Files.writeString(testCss, """
+        Files.writeString(testCss,
+                """
                 /* And now for something slightly different */
                 .code-area .text {
                     -fx-font-family: serif;
-                }""", StandardOpenOption.CREATE);
+                }""",
+                StandardOpenOption.CREATE);
 
         listenerCaptor.getValue().fileUpdated();
 
@@ -283,9 +291,11 @@ class ThemeManagerTest {
                 styleSheet.orElseThrow().getSceneStylesheetLocation(), "stylesheet embedded in data: url should have reloaded");
     }
 
-    /// A third party can replace the scene root of a live window at any time -- ControlsFX injects its
-    /// DecorationPane on the first validation decoration. The font size is carried by a style class on the
-    /// root, so it has to move along instead of being stranded on the node that is no longer the root.
+    /// A third party can replace the scene root of a live window at any time --
+    /// ControlsFX injects its DecorationPane on the first validation
+    /// decoration. The font size is carried by a style class on the root, so it
+    /// has to move along instead of being stranded on the node that is no
+    /// longer the root.
     @Test
     void fontSizeStyleClassFollowsSceneRootChange() {
         WorkspacePreferences workspacePreferences = WorkspacePreferences.getDefault();
@@ -306,7 +316,9 @@ class ThemeManagerTest {
 
         Parent replacementRoot = new StackPane();
         JavaFxExtension.invokeAndWait(() -> {
-            stage.get().getScene().setRoot(replacementRoot);
+            stage.get()
+                 .getScene()
+                 .setRoot(replacementRoot);
             stage.get().close();
         });
 
@@ -315,7 +327,10 @@ class ThemeManagerTest {
     }
 
     private static List<String> fontSizeStyleClasses(Parent parent) {
-        return parent.getStyleClass().stream().filter(styleClass -> styleClass.startsWith("font-size-")).toList();
+        return parent.getStyleClass()
+                     .stream()
+                     .filter(styleClass -> styleClass.startsWith("font-size-"))
+                     .toList();
     }
 
     private ThemeManager createThemeManager(WorkspacePreferences workspacePreferences) {
@@ -329,8 +344,9 @@ class ThemeManagerTest {
         return themeManager.get();
     }
 
-    /// Every [ThemeManager] created in this JVM watches all windows, so the test compares a window shown once
-    /// with one shown three times instead of counting absolute updates.
+    /// Every [ThemeManager] created in this JVM watches all windows, so the
+    /// test compares a window shown once with one shown three times instead of
+    /// counting absolute updates.
     @Test
     void reshownWindowFollowsItsSceneOnce() {
         WorkspacePreferences workspacePreferences = WorkspacePreferences.getDefault();
@@ -353,7 +369,8 @@ class ThemeManagerTest {
         List<Integer> styleClassChanges = styleClassChangesAfterSceneReplacementOnReshownWindow(3);
 
         assertTrue(styleClassChanges.getFirst() > 0, "new scene should receive the font style class");
-        assertEquals(List.of(styleClassChanges.getFirst(), styleClassChanges.getFirst(), styleClassChanges.getFirst()), styleClassChanges);
+        assertEquals(List.of(styleClassChanges.getFirst(), styleClassChanges.getFirst(), styleClassChanges.getFirst()),
+                styleClassChanges);
     }
 
     private static int styleClassChangesOnNewScene(int timesShown) {

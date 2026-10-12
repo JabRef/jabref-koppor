@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.TreeSet;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
@@ -25,7 +24,6 @@ import org.jabref.logic.xmp.XmpPreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -52,8 +50,7 @@ class DownloadLinkedFileActionTest {
 
     @BeforeEach
     void setUp(@TempDir Path tempFolder) throws IOException {
-        entry = new BibEntry()
-                .withCitationKey("asdf");
+        entry = new BibEntry().withCitationKey("asdf");
 
         when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
         when(preferences.getExternalApplicationsPreferences()).thenReturn(externalApplicationsPreferences);
@@ -139,7 +136,9 @@ class DownloadLinkedFileActionTest {
                 preferences.getExternalApplicationsPreferences(),
                 preferences.getFilePreferences(),
                 new CurrentThreadTaskExecutor(),
-                Path.of(linkedFile.getLink()).getFileName().toString(),
+                Path.of(linkedFile.getLink())
+                        .getFileName()
+                        .toString(),
                 keepHtml,
                 new JabRefUndoManager());
         downloadLinkedFileAction2.execute();

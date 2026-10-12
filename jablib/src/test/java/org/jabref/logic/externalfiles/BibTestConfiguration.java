@@ -5,10 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.jabref.logic.externalfiles.FileTestConfiguration.TestFileLinkMode;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.jilt.Builder;
 import org.jilt.BuilderStyle;
 import org.jilt.Opt;
@@ -18,22 +18,27 @@ import org.jspecify.annotations.Nullable;
 /// All paths are relative to tmpDir
 public class BibTestConfiguration {
 
-    @NonNull final Path tempDir;
-    @NonNull final Path bibDir;
-    @NonNull final Path pdfFile;
-    @Nullable final Path librarySpecificFileDir;
-    @Nullable final Path userSpecificFileDir;
-    final FileTestConfiguration.TestFileLinkMode fileLinkMode;
+    @NonNull
+    final Path tempDir;
+
+    @NonNull
+    final Path bibDir;
+
+    @NonNull
+    final Path pdfFile;
+
+    @Nullable
+    final Path librarySpecificFileDir;
+
+    @Nullable
+    final Path userSpecificFileDir;
+
+    final TestFileLinkMode fileLinkMode;
 
     @Builder(style = BuilderStyle.STAGED_PRESERVING_ORDER)
-    BibTestConfiguration(
-            String bibDir,
-            @Opt String librarySpecificFileDir,
-            @Opt String userSpecificFileDir,
-            String pdfFileDir,
-            FileTestConfiguration.TestFileLinkMode fileLinkMode,
-            Path tempDir
-    ) throws IOException {
+    BibTestConfiguration(String bibDir, @Opt String librarySpecificFileDir, @Opt String userSpecificFileDir,
+                         String pdfFileDir, TestFileLinkMode fileLinkMode, Path tempDir)
+            throws IOException {
         this.tempDir = tempDir;
 
         this.fileLinkMode = fileLinkMode;
@@ -77,16 +82,11 @@ public class BibTestConfiguration {
 
     private Path convertLink(@Nullable Path mainFileDir) {
         return switch (fileLinkMode) {
-            case ABSOLUTE ->
-                    pdfFile;
-            case RELATIVE_TO_BIB ->
-                    this.bibDir.relativize(pdfFile);
-            case RELATIVE_TO_MAIN_FILE_DIR ->
-                    tempDir.resolve(mainFileDir).relativize(pdfFile);
-            case RELATIVE_TO_LIBRARY_SPECIFIC_DIR ->
-                    tempDir.resolve(this.librarySpecificFileDir).relativize(pdfFile);
-            case RELATIVE_TO_USER_SPECIFIC_DIR ->
-                    tempDir.resolve(this.userSpecificFileDir).relativize(pdfFile);
+            case ABSOLUTE -> pdfFile;
+            case RELATIVE_TO_BIB -> this.bibDir.relativize(pdfFile);
+            case RELATIVE_TO_MAIN_FILE_DIR -> tempDir.resolve(mainFileDir).relativize(pdfFile);
+            case RELATIVE_TO_LIBRARY_SPECIFIC_DIR -> tempDir.resolve(this.librarySpecificFileDir).relativize(pdfFile);
+            case RELATIVE_TO_USER_SPECIFIC_DIR -> tempDir.resolve(this.userSpecificFileDir).relativize(pdfFile);
         };
     }
 }

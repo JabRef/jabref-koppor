@@ -38,9 +38,7 @@ public class MergeEntriesAction extends SimpleCommand {
         List<BibEntry> selectedEntries = stateManager.getSelectedEntries();
         if (selectedEntries.size() != 2) {
             // Inform the user to select entries first.
-            dialogService.showInformationDialogAndWait(
-                    Localization.lang("Merge entries"),
-                    Localization.lang("You have to choose exactly two entries to merge."));
+            dialogService.showInformationDialogAndWait(Localization.lang("Merge entries"), Localization.lang("You have to choose exactly two entries to merge."));
             return;
         }
 
@@ -65,9 +63,11 @@ public class MergeEntriesAction extends SimpleCommand {
 
         Optional<EntriesMergeResult> mergeResultOpt = dialogService.showCustomDialogAndWait(dialog);
         mergeResultOpt.ifPresentOrElse(entriesMergeResult -> {
-            new MergeTwoEntriesAction(entriesMergeResult, stateManager, stateManager.getUndoManager(databaseContext)).execute();
+            new MergeTwoEntriesAction(entriesMergeResult, stateManager, stateManager.getUndoManager(databaseContext))
+                    .execute();
 
             dialogService.notify(Localization.lang("Merged entries"));
-        }, () -> dialogService.notify(Localization.lang("Canceled merging entries")));
+        },
+                () -> dialogService.notify(Localization.lang("Canceled merging entries")));
     }
 }

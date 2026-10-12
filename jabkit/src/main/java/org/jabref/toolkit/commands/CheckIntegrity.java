@@ -21,7 +21,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.toolkit.exception.ImportServiceException;
 import org.jabref.toolkit.service.ImportService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -44,24 +43,36 @@ class CheckIntegrity implements Callable<Integer> {
     @Mixin
     private InputOption inputOption = new InputOption();
 
-    @Option(names = {"--output-format"}, description = "Output format: csv, errorformat, github-actions or txt", defaultValue = Check.FORMAT_ERRORFORMAT)
+    @Option(
+            names = {"--output-format"},
+            description = "Output format: csv, errorformat, github-actions or txt",
+            defaultValue = Check.FORMAT_ERRORFORMAT)
     private String outputFormat;
 
     // in BibTeX it could be preferences.getEntryEditorPreferences().shouldAllowIntegerEditionBibtex()
-    @Option(names = {"--allow-integer-edition"}, description = "Allows Integer edition", negatable = true, defaultValue = "true", fallbackValue = "true")
+    @Option(
+            names = {"--allow-integer-edition"},
+            description = "Allows Integer edition",
+            negatable = true,
+            defaultValue = "true",
+            fallbackValue = "true")
     private boolean allowIntegerEdition;
 
     @Override
     public Integer call() throws ImportServiceException {
-        return execute(inputOption.getInputFile(check.jabKit.cliPreferences), outputFormat, allowIntegerEdition, sharedOptions.porcelain, check.jabKit);
+        return execute(inputOption.getInputFile(check.jabKit.cliPreferences),
+                outputFormat, allowIntegerEdition, sharedOptions.porcelain, check.jabKit);
     }
 
-    /// Runs the integrity check on `inputFile` and writes the findings to `System.out`.
+    /// Runs the integrity check on `inputFile` and writes the findings to
+    /// `System.out`.
     ///
     /// Shared with the parent `check` command, which runs both checks at once.
     ///
-    /// @return the exit code (0 = no findings, 1 = integrity findings present, 2/3 = error)
-    static int execute(Path inputFile, String outputFormat, boolean allowIntegerEdition, boolean porcelain, JabKit jabKit)
+    /// @return the exit code (0 = no findings, 1 = integrity findings present,
+    ///   2/3 = error)
+    static int execute(Path inputFile, String outputFormat, boolean allowIntegerEdition,
+                       boolean porcelain, JabKit jabKit)
             throws ImportServiceException {
 
         ParserResult parserResult = ImportService.importBibTexFile(inputFile, jabKit.cliPreferences, porcelain);
@@ -73,17 +84,13 @@ class CheckIntegrity implements Callable<Integer> {
 
         BibDatabaseContext databaseContext = parserResult.getDatabaseContext();
 
-        IntegrityCheck integrityCheck = new IntegrityCheck(
-                databaseContext,
-                jabKit.cliPreferences.getFilePreferences(),
-                jabKit.cliPreferences.getCitationKeyPatternPreferences(),
-                JournalAbbreviationLoader.loadRepository(jabKit.cliPreferences.getAbbreviationPreferences()),
-                allowIntegerEdition
-        );
+        IntegrityCheck integrityCheck = new IntegrityCheck(databaseContext, jabKit.cliPreferences.getFilePreferences(), jabKit.cliPreferences.getCitationKeyPatternPreferences(),
+                JournalAbbreviationLoader.loadRepository(jabKit.cliPreferences.getAbbreviationPreferences()), allowIntegerEdition);
 
-        List<IntegrityMessage> messages = databaseContext.getEntries().stream()
-                                                         .flatMap(entry -> integrityCheck.checkEntry(entry).stream())
-                                                         .collect(Collectors.toList());
+        List<IntegrityMessage> messages = databaseContext.getEntries()
+                .stream()
+                .flatMap(entry -> integrityCheck.checkEntry(entry).stream())
+                .collect(Collectors.toList());
 
         messages.addAll(integrityCheck.checkDatabase(databaseContext.getDatabase()));
 
@@ -91,13 +98,9 @@ class CheckIntegrity implements Callable<Integer> {
         IntegrityCheckResultWriter checkResultWriter;
         switch (outputFormat.toLowerCase(Locale.ROOT)) {
             // "txt" is kept as an alias for the errorformat output.
-            case Check.FORMAT_ERRORFORMAT,
-                 Check.FORMAT_TXT ->
-                    checkResultWriter = new IntegrityCheckResultErrorFormatWriter(writer, messages, parserResult, inputFile);
-            case Check.FORMAT_GITHUB_ACTIONS ->
-                    checkResultWriter = new IntegrityCheckResultGitHubActionsWriter(writer, messages, parserResult, inputFile);
-            case Check.FORMAT_CSV ->
-                    checkResultWriter = new IntegrityCheckResultCsvWriter(writer, messages);
+            case Check.FORMAT_ERRORFORMAT, Check.FORMAT_TXT -> checkResultWriter = new IntegrityCheckResultErrorFormatWriter(writer, messages, parserResult, inputFile);
+            case Check.FORMAT_GITHUB_ACTIONS -> checkResultWriter = new IntegrityCheckResultGitHubActionsWriter(writer, messages, parserResult, inputFile);
+            case Check.FORMAT_CSV -> checkResultWriter = new IntegrityCheckResultCsvWriter(writer, messages);
             default -> {
                 System.err.println(Localization.lang("Unknown output format '%0'.", outputFormat));
                 return 3;

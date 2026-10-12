@@ -16,7 +16,6 @@ import org.jabref.toolkit.exception.ExportServiceException;
 import org.jabref.toolkit.exception.ImportServiceException;
 import org.jabref.toolkit.service.ExportService;
 import org.jabref.toolkit.service.ImportService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine.Command;
@@ -40,13 +39,21 @@ class Pseudonymize implements Callable<Integer> {
     @Mixin
     private InputOption inputOption = new InputOption();
 
-    @Option(names = {"--output"}, converter = CygWinPathConverter.class, description = "Output pseudo-bib file")
+    @Option(
+            names = {"--output"},
+            converter = CygWinPathConverter.class,
+            description = "Output pseudo-bib file")
     private Path outputFile;
 
-    @Option(names = {"--key"}, converter = CygWinPathConverter.class, description = "Output pseudo-keys file")
+    @Option(
+            names = {"--key"},
+            converter = CygWinPathConverter.class,
+            description = "Output pseudo-keys file")
     private Path keyFile;
 
-    @Option(names = {"-f", "--force"}, description = "Overwrite output file(s) if any exist(s)")
+    @Option(
+            names = {"-f", "--force"},
+            description = "Overwrite output file(s) if any exist(s)")
     private boolean force;
 
     @Override
@@ -68,9 +75,7 @@ class Pseudonymize implements Callable<Integer> {
             return 2;
         }
 
-        ExportService.create(argumentProcessor.cliPreferences, sharedOptions.porcelain).saveDatabaseContext(
-                result.bibDatabaseContext(),
-                pseudoBibPath);
+        ExportService.create(argumentProcessor.cliPreferences, sharedOptions.porcelain).saveDatabaseContext(result.bibDatabaseContext(), pseudoBibPath);
 
         if (!fileOverwriteCheck(pseudoKeyPath)) {
             return 2;
@@ -91,7 +96,8 @@ class Pseudonymize implements Callable<Integer> {
             return customPath;
         }
         Path directory = inputPath.toAbsolutePath().getParent();
-        if (directory.equals(Path.of(System.getProperty("java.io.tmpdir")).toAbsolutePath())) {
+        if (directory.equals(Path.of(System.getProperty("java.io.tmpdir"))
+                .toAbsolutePath())) {
             // A URL or a shared database was resolved to a temporary file; the results belong where
             // the user can find them, not next to a file named jabref-shared-4711.bib in /tmp
             directory = Path.of("").toAbsolutePath();

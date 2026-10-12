@@ -2,9 +2,10 @@ package org.jabref.logic.ai;
 
 import java.util.UUID;
 
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.store.embedding.EmbeddingStore;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.chatting.InMemoryChatHistoryCache;
@@ -41,11 +42,8 @@ import org.jabref.logic.util.ObservablesHelper;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.store.embedding.EmbeddingStore;
-
-/// The main class for the AI functionality.
-/// Holds all the AI components: LLM and embedding model, chat history and embedding cache.
+/// The main class for the AI functionality. Holds all the AI components: LLM
+/// and embedding model, chat history and embedding cache.
 public class AiService implements AutoCloseable {
     public static final String VERSION = "2";
 
@@ -83,79 +81,43 @@ public class AiService implements AutoCloseable {
 
     private final EmbeddingModelMetadataService embeddingModelMetadataService;
 
-    public AiService(
-            AiPreferences aiPreferences,
-            FilePreferences filePreferences,
-            NotificationService notificationService,
-            TaskExecutor taskExecutor
-    ) {
+    public AiService(AiPreferences aiPreferences, FilePreferences filePreferences, NotificationService notificationService,
+                     TaskExecutor taskExecutor) {
         this.aiPreferences = aiPreferences;
         this.taskExecutor = taskExecutor;
         this.notificationService = notificationService;
         this.embeddingModelMetadataService = new EmbeddingModelMetadataService(aiPreferences);
 
         // Chatting components
-        this.mvStoreChatHistoryRepository = new MVStoreChatHistoryRepository(
-                Directories.getAiFilesDirectory().resolve(CHAT_HISTORY_FILE_NAME),
-                notificationService
-        );
+        this.mvStoreChatHistoryRepository = new MVStoreChatHistoryRepository(Directories.getAiFilesDirectory()
+                .resolve(CHAT_HISTORY_FILE_NAME),
+                        notificationService);
         this.inMemoryChatHistoryCache = new InMemoryChatHistoryCache(mvStoreChatHistoryRepository);
-        this.currentChatModel.bind(ObservablesHelper.createClosableObjectBinding(
-                () -> ChatModelFactory.create(aiPreferences),
-                aiPreferences.getChatProperties()
-        ));
+        this.currentChatModel.bind(ObservablesHelper.createClosableObjectBinding(() -> ChatModelFactory.create(aiPreferences), aiPreferences.getChatProperties()));
         this.modelService = new AiModelService();
 
         // Ingestion components
         this.embeddingModelCache = new EmbeddingModelCache(aiPreferences, notificationService, taskExecutor, embeddingModelMetadataService);
-        this.mvStoreEmbeddingStore = new MVStoreEmbeddingStore(
-                Directories.getAiFilesDirectory().resolve(EMBEDDINGS_FILE_NAME),
-                notificationService
-        );
-        this.mvStoreIngestedDocumentsRepository = new MVStoreIngestedDocumentsRepository(
-                notificationService,
-                Directories.getAiFilesDirectory().resolve(FULLY_INGESTED_FILE_NAME)
-        );
+        this.mvStoreEmbeddingStore = new MVStoreEmbeddingStore(Directories.getAiFilesDirectory()
+                .resolve(EMBEDDINGS_FILE_NAME),
+                        notificationService);
+        this.mvStoreIngestedDocumentsRepository = new MVStoreIngestedDocumentsRepository(notificationService, Directories.getAiFilesDirectory()
+                .resolve(FULLY_INGESTED_FILE_NAME));
         this.ingestionTaskAggregator = new IngestionTaskAggregator(taskExecutor);
-        this.embeddingsCleaner = new EmbeddingsCleaner(
-                aiPreferences,
-                mvStoreEmbeddingStore,
-                mvStoreIngestedDocumentsRepository
-        );
-        this.generateEmbeddingsAiDatabaseListener = new GenerateEmbeddingsAiDatabaseListener(
-                aiPreferences,
-                filePreferences,
-                mvStoreIngestedDocumentsRepository,
-                mvStoreEmbeddingStore,
-                embeddingModelCache,
-                ingestionTaskAggregator
-        );
-        this.currentEmbeddingModel.bind(ObservablesHelper.createObjectBinding(
-                () -> EmbeddingModelFactory.create(aiPreferences, this.embeddingModelCache),
-                aiPreferences.getEmbeddingsProperties()
-        ));
+        this.embeddingsCleaner = new EmbeddingsCleaner(aiPreferences, mvStoreEmbeddingStore, mvStoreIngestedDocumentsRepository);
+        this.generateEmbeddingsAiDatabaseListener = new GenerateEmbeddingsAiDatabaseListener(aiPreferences, filePreferences, mvStoreIngestedDocumentsRepository,
+                mvStoreEmbeddingStore, embeddingModelCache, ingestionTaskAggregator);
+        this.currentEmbeddingModel.bind(ObservablesHelper.createObjectBinding(() -> EmbeddingModelFactory.create(aiPreferences, this.embeddingModelCache), aiPreferences.getEmbeddingsProperties()));
 
-        this.currentDocumentSplitter.bind(ObservablesHelper.createObjectBinding(
-                () -> DocumentSplitterFactory.create(aiPreferences),
-                aiPreferences.getDocumentSplitterProperties()
-        ));
+        this.currentDocumentSplitter.bind(ObservablesHelper.createObjectBinding(() -> DocumentSplitterFactory.create(aiPreferences), aiPreferences.getDocumentSplitterProperties()));
 
         // Summarization components
-        this.mvStoreSummariesRepository = new MVStoreSummariesRepository(
-                notificationService,
-                Directories.getAiFilesDirectory().resolve(SUMMARIES_FILE_NAME)
-        );
+        this.mvStoreSummariesRepository = new MVStoreSummariesRepository(notificationService, Directories.getAiFilesDirectory()
+                .resolve(SUMMARIES_FILE_NAME));
         this.inMemorySummaryCache = new InMemorySummaryCache(mvStoreSummariesRepository);
         this.summarizationTaskAggregator = new SummarizationTaskAggregator(taskExecutor, inMemorySummaryCache);
-        this.generateSummaryAiDatabaseListener = new GenerateSummaryAiDatabaseListener(
-                aiPreferences,
-                filePreferences,
-                summarizationTaskAggregator
-        );
-        this.currentSummarizator.bind(ObservablesHelper.createObjectBinding(
-                () -> SummarizatorFactory.create(aiPreferences),
-                aiPreferences.getSummarizatorProperties()
-        ));
+        this.generateSummaryAiDatabaseListener = new GenerateSummaryAiDatabaseListener(aiPreferences, filePreferences, summarizationTaskAggregator);
+        this.currentSummarizator.bind(ObservablesHelper.createObjectBinding(() -> SummarizatorFactory.create(aiPreferences), aiPreferences.getSummarizatorProperties()));
     }
 
     public void setupDatabase(BibDatabaseContext context, boolean isDummyContext) {
@@ -164,18 +126,20 @@ public class AiService implements AutoCloseable {
 
         if (!isDummyContext && aiPreferences.getAiFeaturesEnabled()) {
             ensureAiLibraryIdPresent(context);
-            BackgroundTask.wrap(() -> migrateDatabase(context))
-                          .executeWith(taskExecutor);
+            BackgroundTask.wrap(() -> migrateDatabase(context)).executeWith(taskExecutor);
         }
     }
 
     private void ensureAiLibraryIdPresent(BibDatabaseContext bibDatabaseContext) {
-        if (bibDatabaseContext.getMetaData().getAiLibraryId().isEmpty()) {
+        if (bibDatabaseContext.getMetaData()
+                              .getAiLibraryId()
+                              .isEmpty()) {
             bibDatabaseContext.getMetaData().setEventPropagation(false);
 
             // Adding a `finally` block just in case an error occurs when calling `setLibraryId`.
             try {
-                bibDatabaseContext.getMetaData().setAiLibraryId(UUID.randomUUID().toString());
+                bibDatabaseContext.getMetaData().setAiLibraryId(UUID.randomUUID()
+                        .toString());
             } finally {
                 bibDatabaseContext.getMetaData().setEventPropagation(true);
             }
@@ -183,17 +147,9 @@ public class AiService implements AutoCloseable {
     }
 
     private void migrateDatabase(BibDatabaseContext context) {
-        ChatHistoryMigrationV1.migrate(
-                context,
-                mvStoreChatHistoryRepository,
-                notificationService
-        );
+        ChatHistoryMigrationV1.migrate(context, mvStoreChatHistoryRepository, notificationService);
 
-        SummariesMigrationV1.migrate(
-                context,
-                mvStoreSummariesRepository,
-                notificationService
-        );
+        SummariesMigrationV1.migrate(context, mvStoreSummariesRepository, notificationService);
     }
 
     public ChatHistoryRepository getChatHistoryRepository() {

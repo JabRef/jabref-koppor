@@ -21,7 +21,8 @@ class JabKitTest extends AbstractJabKitTest {
 
         Path outputBib = tempDir.resolve("output.bib").toAbsolutePath();
 
-        List<String> args = List.of("generate-bib-from-aux", "--aux", auxFile, "--input", fullBib, "--output", outputBib.toString());
+        List<String> args = List.of("generate-bib-from-aux", "--aux", auxFile, "--input", fullBib, "--output",
+                outputBib.toString());
 
         commandLine.execute(args.toArray(String[]::new));
 

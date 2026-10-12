@@ -9,21 +9,23 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.h2.mvstore.MVStore;
+import org.h2.mvstore.MVStore.Builder;
 import org.jabref.logic.ai.chatting.repositories.MVStoreChatHistoryRepository;
 import org.jabref.model.ai.chatting.ChatIdentifier;
 import org.jabref.model.ai.chatting.ChatMessage;
+import org.jabref.model.ai.chatting.ChatMessage.Role;
 import org.jabref.model.ai.chatting.ChatType;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.metadata.MetaData;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.h2.mvstore.MVStore;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -32,14 +34,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-/// Tests that [ChatHistoryMigrationV1] correctly migrates every v1 chat-history MVStore
-/// found under `src/test/resources/…/chatting/migrations/` into the v2 repository.
+/// Tests that [ChatHistoryMigrationV1] correctly migrates every v1 chat-history
+/// MVStore found under `src/test/resources/…/chatting/migrations/` into the v2
+/// repository.
 ///
-/// Entries (database path + citation key) are discovered dynamically from the MVStore map names,
-/// so adding `historiesN.mv` alongside its matching `historiesN.json` is enough
-/// to add a new test case without touching this class.
+/// Entries (database path + citation key) are discovered dynamically from the
+/// MVStore map names, so adding `historiesN.mv` alongside its matching
+/// `historiesN.json` is enough to add a new test case without touching this
+/// class.
 ///
-/// The fixed library ID acts as the new identifier created during v1 → v2 migration.
+/// The fixed library ID acts as the new identifier created during v1 → v2
+/// migration.
 class ChatHistoryMigrationV1Test {
 
     private static final String TEST_RESOURCES = "src/test/resources/org/jabref/logic/ai/chatting/migrations";
@@ -54,7 +59,9 @@ class ChatHistoryMigrationV1Test {
         List<String> names = new ArrayList<>();
         try (var stream = Files.list(Path.of(TEST_RESOURCES))) {
             for (Path p : stream.toList()) {
-                if (p.getFileName().toString().endsWith(".mv")) {
+                if (p.getFileName()
+                     .toString()
+                     .endsWith(".mv")) {
                     names.add(p.getFileName().toString());
                 }
             }
@@ -70,23 +77,19 @@ class ChatHistoryMigrationV1Test {
         List<DiscoveredEntry> entries = discoverEntries(oldFilePath);
         assertFalse(entries.isEmpty(), "Test resource " + fileName + " contains no chat history maps");
 
-        boolean onWindows = System.getProperty("os.name").toLowerCase(java.util.Locale.ROOT).contains("windows");
-        assumeTrue(onWindows || !hasWindowsAbsolutePaths(entries),
-                "Skipping " + fileName + ": contains Windows-style paths, not runnable on this OS");
+        boolean onWindows = System.getProperty("os.name")
+                .toLowerCase(Locale.ROOT)
+                .contains("windows");
+        assumeTrue(onWindows || !hasWindowsAbsolutePaths(entries), "Skipping " + fileName + ": contains Windows-style paths, not runnable on this OS");
 
         BibDatabaseContext ctx = buildContext(entries);
-        MVStoreChatHistoryRepository repo = new MVStoreChatHistoryRepository(
-                tempDir.resolve("v2-" + fileName), _ -> {
-        }
-        );
+        MVStoreChatHistoryRepository repo = new MVStoreChatHistoryRepository(tempDir.resolve("v2-" + fileName), _ -> {});
 
-        ChatHistoryMigrationV1.migrate(oldFilePath, LIBRARY_ID, ctx, repo, _ -> {
-        });
+        ChatHistoryMigrationV1.migrate(oldFilePath, LIBRARY_ID, ctx, repo, _ -> {});
 
         for (DiscoveredEntry entry : entries) {
             ChatIdentifier id = new ChatIdentifier(LIBRARY_ID, entry.chatType(), entry.chatName());
-            assertFalse(repo.isEmpty(id),
-                    "Expected messages for " + entry.chatType() + " / " + entry.chatName());
+            assertFalse(repo.isEmpty(id), "Expected messages for " + entry.chatType() + " / " + entry.chatName());
         }
     }
 
@@ -97,18 +100,15 @@ class ChatHistoryMigrationV1Test {
 
         List<DiscoveredEntry> entries = discoverEntries(oldFilePath);
 
-        boolean onWindows = System.getProperty("os.name").toLowerCase(java.util.Locale.ROOT).contains("windows");
-        assumeTrue(onWindows || !hasWindowsAbsolutePaths(entries),
-                "Skipping " + fileName + ": contains Windows-style paths, not runnable on this OS");
+        boolean onWindows = System.getProperty("os.name")
+                .toLowerCase(Locale.ROOT)
+                .contains("windows");
+        assumeTrue(onWindows || !hasWindowsAbsolutePaths(entries), "Skipping " + fileName + ": contains Windows-style paths, not runnable on this OS");
 
         BibDatabaseContext ctx = buildContext(entries);
-        MVStoreChatHistoryRepository repo = new MVStoreChatHistoryRepository(
-                tempDir.resolve("v2-msg-" + fileName), _ -> {
-        }
-        );
+        MVStoreChatHistoryRepository repo = new MVStoreChatHistoryRepository(tempDir.resolve("v2-msg-" + fileName), _ -> {});
 
-        ChatHistoryMigrationV1.migrate(oldFilePath, LIBRARY_ID, ctx, repo, _ -> {
-        });
+        ChatHistoryMigrationV1.migrate(oldFilePath, LIBRARY_ID, ctx, repo, _ -> {});
 
         String jsonName = fileName.replace(".mv", ".json");
         URL jsonUrl = getClass().getResource(jsonName);
@@ -122,8 +122,7 @@ class ChatHistoryMigrationV1Test {
             if (entry.chatType() != ChatType.WITH_ENTRY) {
                 continue;
             }
-            List<JsonChatHistoryFile.JsonMessage> expected =
-                    jsonFile.messagesFor(entry.dbPath(), entry.chatName());
+            List<JsonChatHistoryFile.JsonMessage> expected = jsonFile.messagesFor(entry.dbPath(), entry.chatName());
             if (expected == null) {
                 continue;
             }
@@ -131,13 +130,20 @@ class ChatHistoryMigrationV1Test {
             ChatIdentifier id = new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, entry.chatName());
             List<ChatMessage> actual = repo.getAllMessages(id);
 
-            assertEquals(expected.size(), actual.size(),
-                    "Message count mismatch for " + entry.chatName());
+            assertEquals(expected.size(), actual.size(), "Message count mismatch for " + entry.chatName());
 
             for (int i = 0; i < expected.size(); i++) {
-                assertEquals(expected.get(i).role(), actual.get(i).role(),
+                assertEquals(
+                        expected.get(i).role(),
+                        actual.get(i).role(),
                         "Role mismatch at index " + i + " for " + entry.chatName());
-                assertEquals(expected.get(i).content().strip(), actual.get(i).content().strip(),
+                assertEquals(
+                        expected.get(i)
+                                .content()
+                                .strip(),
+                        actual.get(i)
+                              .content()
+                              .strip(),
                         "Content mismatch at index " + i + " for " + entry.chatName());
             }
         }
@@ -153,18 +159,20 @@ class ChatHistoryMigrationV1Test {
     }
 
     private static boolean hasWindowsAbsolutePaths(List<DiscoveredEntry> entries) {
-        return entries.stream().map(DiscoveredEntry::dbPath).anyMatch(p -> {
-            String raw = p.toString();
-            return raw.length() >= 3
-                    && Character.isLetter(raw.charAt(0))
-                    && raw.charAt(1) == ':'
-                    && (raw.charAt(2) == '\\' || raw.charAt(2) == '/');
-        });
+        return entries.stream()
+                      .map(DiscoveredEntry::dbPath)
+                      .anyMatch(p -> {
+                          String raw = p.toString();
+                          return raw.length() >= 3
+                                  && Character.isLetter(raw.charAt(0))
+                                  && raw.charAt(1) == ':'
+                                  && (raw.charAt(2) == '\\' || raw.charAt(2) == '/');
+                      });
     }
 
     private List<DiscoveredEntry> discoverEntries(Path oldFilePath) {
         List<DiscoveredEntry> result = new ArrayList<>();
-        try (MVStore store = new MVStore.Builder()
+        try (MVStore store = new Builder()
                 .fileName(oldFilePath.toString())
                 .readOnly()
                 .open()) {
@@ -187,21 +195,22 @@ class ChatHistoryMigrationV1Test {
 
     private BibDatabaseContext buildContext(List<DiscoveredEntry> entries) {
         List<BibEntry> bibEntries = entries.stream()
-                                           .filter(e -> e.chatType() == ChatType.WITH_ENTRY)
-                                           .map(e -> new BibEntry().withCitationKey(e.chatName()))
-                                           .toList();
+                .filter(e -> e.chatType() == ChatType.WITH_ENTRY)
+                .map(e -> new BibEntry().withCitationKey(e.chatName()))
+                .toList();
         BibDatabase database = new BibDatabase(bibEntries);
         MetaData metaData = new MetaData();
         metaData.setAiLibraryId(LIBRARY_ID);
         BibDatabaseContext ctx = new BibDatabaseContext(database, metaData);
         if (!entries.isEmpty()) {
-            ctx.setDatabasePath(entries.getFirst().dbPath().toAbsolutePath());
+            ctx.setDatabasePath(entries.getFirst()
+                    .dbPath()
+                    .toAbsolutePath());
         }
         return ctx;
     }
 
-    private record DiscoveredEntry(Path dbPath, ChatType chatType, String chatName) {
-    }
+    private record DiscoveredEntry(Path dbPath, ChatType chatType, String chatName) {}
 
     private static class JsonChatHistoryFile {
 
@@ -222,15 +231,17 @@ class ChatHistoryMigrationV1Test {
             Map<String, Map<String, List<JsonMessage>>> result = new LinkedHashMap<>();
             root.properties().forEach(dbEntry -> {
                 Map<String, List<JsonMessage>> byKey = new LinkedHashMap<>();
-                dbEntry.getValue().properties().forEach(keyEntry -> {
-                    List<JsonMessage> msgs = new ArrayList<>();
-                    keyEntry.getValue().forEach(node -> {
-                        String role = node.get("role").asText();
-                        String text = node.get("text").asText();
-                        msgs.add(new JsonMessage(roleFromJson(role), text));
-                    });
-                    byKey.put(keyEntry.getKey(), msgs);
-                });
+                dbEntry.getValue()
+                       .properties()
+                       .forEach(keyEntry -> {
+                           List<JsonMessage> msgs = new ArrayList<>();
+                           keyEntry.getValue().forEach(node -> {
+                               String role = node.get("role").asText();
+                               String text = node.get("text").asText();
+                               msgs.add(new JsonMessage(roleFromJson(role), text));
+                           });
+                           byKey.put(keyEntry.getKey(), msgs);
+                       });
                 result.put(dbEntry.getKey(), byKey);
             });
             return new JsonChatHistoryFile(result);
@@ -244,18 +255,14 @@ class ChatHistoryMigrationV1Test {
             return byKey.get(citationKey);
         }
 
-        private static ChatMessage.Role roleFromJson(String role) {
+        private static Role roleFromJson(String role) {
             return switch (role) {
-                case "user" ->
-                        ChatMessage.Role.USER;
-                case "assistant" ->
-                        ChatMessage.Role.AI;
-                default ->
-                        ChatMessage.Role.valueOf(role.toUpperCase());
+                case "user" -> Role.USER;
+                case "assistant" -> Role.AI;
+                default -> Role.valueOf(role.toUpperCase());
             };
         }
 
-        record JsonMessage(ChatMessage.Role role, String content) {
-        }
+        record JsonMessage(Role role, String content) {}
     }
 }

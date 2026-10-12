@@ -31,11 +31,14 @@ public class DOICheck implements LayoutFormatter {
 
         if (doiPreferences.shouldUseCustom()) {
             URI base = URLUtil.createUri(doiPreferences.getDefaultBaseURI());
-            return DOI.parse(result).flatMap(doi -> doi.getExternalURIFromBase(base))
+            return DOI.parse(result)
+                      .flatMap(doi -> doi.getExternalURIFromBase(base))
                       .map(URI::toASCIIString)
                       .orElse(result);
         }
 
-        return DOI.parse(result).map(DOI::getURIAsASCIIString).orElse(result);
+        return DOI.parse(result)
+                  .map(DOI::getURIAsASCIIString)
+                  .orElse(result);
     }
 }

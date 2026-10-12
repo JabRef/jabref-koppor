@@ -7,8 +7,9 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.groups.GroupsFactory;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
@@ -17,13 +18,11 @@ import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
-
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
 import org.jspecify.annotations.NonNull;
 
-/// Converts legacy explicit groups, where the group contained a list of assigned entries, to the new format,
-/// where the entry stores a list of groups it belongs to.
+/// Converts legacy explicit groups, where the group contained a list of
+/// assigned entries, to the new format, where the entry stores a list of groups
+/// it belongs to.
 public class ConvertMarkingToGroups implements PostOpenMigration {
 
     private static final Pattern MARKING_PATTERN = Pattern.compile("\\[(.*):(\\d+)\\]");
@@ -33,22 +32,24 @@ public class ConvertMarkingToGroups implements PostOpenMigration {
         ObservableList<BibEntry> entries = parserResult.getDatabase().getEntries();
         Multimap<String, BibEntry> markings = getMarkingWithEntries(entries);
         if (!markings.isEmpty()) {
-            GroupTreeNode markingRoot = GroupTreeNode.fromGroup(
-                    new ExplicitGroup(Localization.lang("Markings"), GroupHierarchyType.INCLUDING, ','));
+            GroupTreeNode markingRoot = GroupTreeNode.fromGroup(new ExplicitGroup(Localization.lang("Markings"), GroupHierarchyType.INCLUDING, ','));
 
             for (Map.Entry<String, Collection<BibEntry>> marking : markings.asMap().entrySet()) {
                 String markingName = marking.getKey();
                 Collection<BibEntry> markingMatchedEntries = marking.getValue();
 
-                GroupTreeNode markingGroup = markingRoot.addSubgroup(
-                        new ExplicitGroup(markingName, GroupHierarchyType.INCLUDING, ','));
+                GroupTreeNode markingGroup = markingRoot.addSubgroup(new ExplicitGroup(markingName, GroupHierarchyType.INCLUDING, ','));
                 markingGroup.addEntriesToGroup(markingMatchedEntries);
             }
 
-            if (parserResult.getMetaData().getGroups().isEmpty()) {
+            if (parserResult.getMetaData()
+                            .getGroups()
+                            .isEmpty()) {
                 parserResult.getMetaData().setGroups(GroupTreeNode.fromGroup(GroupsFactory.createAllEntriesGroup()));
             }
-            GroupTreeNode root = parserResult.getMetaData().getGroups().get();
+            GroupTreeNode root = parserResult.getMetaData()
+                    .getGroups()
+                    .get();
             root.addChild(markingRoot, 0);
             parserResult.getMetaData().setGroups(root);
 
@@ -56,9 +57,12 @@ public class ConvertMarkingToGroups implements PostOpenMigration {
         }
     }
 
-    /// Looks for markings (such as __markedentry = {[Nicolas:6]}) in the given list of entries.
+    /// Looks for markings (such as __markedentry = {[Nicolas:6]}) in the given
+    /// list of entries.
     private Multimap<String, BibEntry> getMarkingWithEntries(List<BibEntry> entries) {
-        Multimap<String, BibEntry> markings = MultimapBuilder.treeKeys().linkedListValues().build();
+        Multimap<String, BibEntry> markings = MultimapBuilder.treeKeys()
+                .linkedListValues()
+                .build();
 
         for (BibEntry entry : entries) {
             Optional<String> marking = entry.getField(InternalField.MARKED_INTERNAL);

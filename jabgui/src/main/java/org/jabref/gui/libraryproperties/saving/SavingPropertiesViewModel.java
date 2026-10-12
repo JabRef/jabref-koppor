@@ -12,7 +12,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.commonfxcontrols.SortCriterionViewModel;
 import org.jabref.gui.libraryproperties.PropertiesTabViewModel;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
@@ -27,13 +26,11 @@ import org.jabref.model.metadata.SaveOrder;
 
 public class SavingPropertiesViewModel implements PropertiesTabViewModel {
 
-    private static final SaveOrder UI_DEFAULT_SAVE_ORDER = new SaveOrder(SaveOrder.OrderType.ORIGINAL, List.of(
-            new SaveOrder.SortCriterion(StandardField.AUTHOR),
-            new SaveOrder.SortCriterion(StandardField.YEAR),
-            new SaveOrder.SortCriterion(StandardField.TITLE),
-            // Pro users generate their citation keys well. They can just delete the above three proposals and get a well-sorted library.
-            new SaveOrder.SortCriterion(InternalField.KEY_FIELD)
-    ));
+    private static final SaveOrder UI_DEFAULT_SAVE_ORDER = new SaveOrder(
+            SaveOrder.OrderType.ORIGINAL,
+            List.of(new SaveOrder.SortCriterion(StandardField.AUTHOR), new SaveOrder.SortCriterion(StandardField.YEAR), new SaveOrder.SortCriterion(StandardField.TITLE),
+                    // Pro users generate their citation keys well. They can just delete the above three proposals and get a well-sorted library.
+                    new SaveOrder.SortCriterion(InternalField.KEY_FIELD)));
 
     private final BooleanProperty protectDisableProperty = new SimpleBooleanProperty();
     private final BooleanProperty libraryProtectedProperty = new SimpleBooleanProperty();
@@ -54,8 +51,8 @@ public class SavingPropertiesViewModel implements PropertiesTabViewModel {
 
     private final FieldFormatterCleanupActions defaultSaveActions;
 
-    /// The order the dialog was opened with, which [#storeSettings] compares against so that
-    /// leaving the controls alone writes nothing.
+    /// The order the dialog was opened with, which [#storeSettings] compares
+    /// against so that leaving the controls alone writes nothing.
     private SaveOrder saveOrder = UI_DEFAULT_SAVE_ORDER;
 
     public SavingPropertiesViewModel(FieldFormatterCleanupActions defaultSaveActions) {
@@ -70,12 +67,9 @@ public class SavingPropertiesViewModel implements PropertiesTabViewModel {
         // SaveOrderConfigPanel, included via <?import ...> in FXML
 
         switch (saveOrder.getOrderType()) {
-            case SPECIFIED ->
-                    saveInSpecifiedOrderProperty.setValue(true);
-            case ORIGINAL ->
-                    saveInOriginalProperty.setValue(true);
-            case TABLE ->
-                    saveInTableOrderProperty.setValue(true);
+            case SPECIFIED -> saveInSpecifiedOrderProperty.setValue(true);
+            case ORIGINAL -> saveInOriginalProperty.setValue(true);
+            case TABLE -> saveInTableOrderProperty.setValue(true);
         }
 
         sortableFieldsProperty.clear();
@@ -88,9 +82,10 @@ public class SavingPropertiesViewModel implements PropertiesTabViewModel {
 
         sortableFieldsProperty.addAll(FieldFactory.getStandardFieldsWithCitationKey());
         sortCriteriaProperty.clear();
-        sortCriteriaProperty.addAll(saveOrder.getSortCriteria().stream()
-                                             .map(SortCriterionViewModel::new)
-                                             .toList());
+        sortCriteriaProperty.addAll(saveOrder.getSortCriteria()
+                .stream()
+                .map(SortCriterionViewModel::new)
+                .toList());
 
         // FieldFormatterCleanupsPanel, included via <?import ...> in FXML
 
@@ -98,12 +93,14 @@ public class SavingPropertiesViewModel implements PropertiesTabViewModel {
         saveActions.ifPresentOrElse(value -> {
             cleanupsDisableProperty.setValue(!value.isEnabled());
             cleanupsProperty.setValue(FXCollections.observableArrayList(value.getConfiguredActions()));
-        }, () -> {
-            cleanupsDisableProperty.setValue(!defaultSaveActions.isEnabled());
-            cleanupsProperty.setValue(FXCollections.observableArrayList(defaultSaveActions.getConfiguredActions()));
-        });
+        },
+                () -> {
+                    cleanupsDisableProperty.setValue(!defaultSaveActions.isEnabled());
+                    cleanupsProperty.setValue(FXCollections.observableArrayList(defaultSaveActions.getConfiguredActions()));
+                });
 
-        journalAbbreviationOnSaveProperty.setValue(metaData.getLibraryAbbreviationType().orElse(null));
+        journalAbbreviationOnSaveProperty.setValue(metaData.getLibraryAbbreviationType()
+                .orElse(null));
     }
 
     @Override
@@ -114,9 +111,7 @@ public class SavingPropertiesViewModel implements PropertiesTabViewModel {
             metaData.markAsNotProtected();
         }
 
-        FieldFormatterCleanupActions fieldFormatterCleanupActions = new FieldFormatterCleanupActions(
-                !cleanupsDisableProperty().getValue(),
-                cleanupsProperty());
+        FieldFormatterCleanupActions fieldFormatterCleanupActions = new FieldFormatterCleanupActions(!cleanupsDisableProperty().getValue(), cleanupsProperty());
 
         if (FieldFormatterCleanupActions.DEFAULT_SAVE_ACTIONS.equals(fieldFormatterCleanupActions.getConfiguredActions())) {
             metaData.clearSaveActions();
@@ -131,7 +126,9 @@ public class SavingPropertiesViewModel implements PropertiesTabViewModel {
 
         SaveOrder newSaveOrder = new SaveOrder(
                 SaveOrder.OrderType.fromBooleans(saveInSpecifiedOrderProperty.getValue(), saveInOriginalProperty.getValue()),
-                sortCriteriaProperty.stream().map(SortCriterionViewModel::getCriterion).toList());
+                sortCriteriaProperty.stream()
+                                    .map(SortCriterionViewModel::getCriterion)
+                                    .toList());
 
         if (!newSaveOrder.equals(saveOrder)) {
             if (newSaveOrder.equals(SaveOrder.getDefaultSaveOrder())) {

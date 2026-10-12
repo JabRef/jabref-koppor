@@ -2,9 +2,9 @@ package org.jabref.gui.theme;
 
 import java.util.List;
 
-/// Utility-class combinations that recur across otherwise unrelated views. Referencing them
-/// through a named constant keeps the semantic intent reviewable while the styling itself
-/// stays on the shared utility classes.
+/// Utility-class combinations that recur across otherwise unrelated views.
+/// Referencing them through a named constant keeps the semantic intent
+/// reviewable while the styling itself stays on the shared utility classes.
 public final class StyleClasses {
 
     /// Header above one side of a two-pane change/diff view.
@@ -22,6 +22,5 @@ public final class StyleClasses {
     /// Header of a welcome-tab section (also used for the empty main-table placeholder).
     public static final List<String> WELCOME_HEADER = List.of("welcome-header-label", "h3", "bold");
 
-    private StyleClasses() {
-    }
+    private StyleClasses() {}
 }

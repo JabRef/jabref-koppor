@@ -8,9 +8,7 @@ public class MainTablePreferences {
     private final BooleanProperty resizeColumnsToFit = new SimpleBooleanProperty();
     private final BooleanProperty extraFileColumnsEnabled = new SimpleBooleanProperty();
 
-    public MainTablePreferences(ColumnPreferences columnPreferences,
-                                boolean resizeColumnsToFit,
-                                boolean extraFileColumnsEnabled) {
+    public MainTablePreferences(ColumnPreferences columnPreferences, boolean resizeColumnsToFit, boolean extraFileColumnsEnabled) {
         this.columnPreferences = columnPreferences;
         this.resizeColumnsToFit.set(resizeColumnsToFit);
         this.extraFileColumnsEnabled.set(extraFileColumnsEnabled);
@@ -18,10 +16,9 @@ public class MainTablePreferences {
 
     /// Creates Object with default values
     private MainTablePreferences() {
-        this(
-                ColumnPreferences.getDefault(),               // Default column preferences
-                false,                                        // Default resize columns to fit
-                false                                         // Default extra file columns disabled
+        this(ColumnPreferences.getDefault(), // Default column preferences
+        false, // Default resize columns to fit
+        false // Default extra file columns disabled
         );
     }
 

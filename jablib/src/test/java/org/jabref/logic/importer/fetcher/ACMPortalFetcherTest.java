@@ -15,7 +15,6 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.support.DisabledOnCIServer;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -56,14 +55,17 @@ class ACMPortalFetcherTest {
         for (BibEntry bibEntry : fetchedEntries) {
             bibEntry.clearField(StandardField.ABSTRACT);
         }
-        assertEquals(Optional.of(searchEntry), fetchedEntries.stream().findFirst());
+        assertEquals(Optional.of(searchEntry),
+                fetchedEntries.stream().findFirst());
     }
 
     @Test
     void performRawSearchQueryFindsEntry() throws FetcherException {
         List<BibEntry> fetchedEntries = fetcher.performRawSearchQuery("The relationship of code churn and architectural violations in the open source software JabRef");
         assertEquals(Optional.of("10.1145/3129790.3129810"),
-                fetchedEntries.stream().findFirst().flatMap(entry -> entry.getField(StandardField.DOI)));
+                fetchedEntries.stream()
+                              .findFirst()
+                              .flatMap(entry -> entry.getField(StandardField.DOI)));
     }
 
     @Test
@@ -84,6 +86,7 @@ class ACMPortalFetcherTest {
     @Test
     void getParser() {
         ACMPortalParser expected = new ACMPortalParser();
-        assertEquals(expected.getClass(), fetcher.getParser().getClass());
+        assertEquals(expected.getClass(),
+                fetcher.getParser().getClass());
     }
 }

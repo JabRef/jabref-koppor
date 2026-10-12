@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NonNull;
 
 public class ISBN implements Identifier {

@@ -19,7 +19,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.entry.field.SpecialFieldValue;
 import org.jabref.model.undo.UndoableFieldChange;
-
 import org.jspecify.annotations.NonNull;
 
 public class SpecialFieldViewModel {
@@ -28,9 +27,7 @@ public class SpecialFieldViewModel {
     private final CliPreferences preferences;
     private final UndoManager undoManager;
 
-    public SpecialFieldViewModel(@NonNull SpecialField field,
-                                 @NonNull CliPreferences preferences,
-                                 @NonNull UndoManager undoManager) {
+    public SpecialFieldViewModel(@NonNull SpecialField field, @NonNull CliPreferences preferences, @NonNull UndoManager undoManager) {
         this.field = field;
         this.preferences = preferences;
         this.undoManager = undoManager;
@@ -40,12 +37,8 @@ public class SpecialFieldViewModel {
         return field;
     }
 
-    public static SpecialFieldAction getSpecialFieldAction(SpecialField field,
-                                                           SpecialFieldValue value,
-                                                           Supplier<LibraryTab> tabSupplier,
-                                                           DialogService dialogService,
-                                                           CliPreferences preferences,
-                                                           StateManager stateManager) {
+    public static SpecialFieldAction getSpecialFieldAction(SpecialField field, SpecialFieldValue value, Supplier<LibraryTab> tabSupplier,
+            DialogService dialogService, CliPreferences preferences, StateManager stateManager) {
         return new SpecialFieldAction(
                 tabSupplier,
                 field,
@@ -59,7 +52,9 @@ public class SpecialFieldViewModel {
     }
 
     public JabRefIcon getIcon() {
-        return getAction().getIcon().get();
+        return getAction()
+                .getIcon()
+                .get();
     }
 
     public String getLocalization() {
@@ -72,18 +67,12 @@ public class SpecialFieldViewModel {
 
     public static Action getAction(SpecialField field) {
         return switch (field) {
-            case PRINTED ->
-                    StandardActions.PRINTED;
-            case PRIORITY ->
-                    StandardActions.PRIORITY;
-            case QUALITY ->
-                    StandardActions.QUALITY;
-            case RANKING ->
-                    StandardActions.RANKING;
-            case READ_STATUS ->
-                    StandardActions.READ_STATUS;
-            case RELEVANCE ->
-                    StandardActions.RELEVANCE;
+            case PRINTED -> StandardActions.PRINTED;
+            case PRIORITY -> StandardActions.PRIORITY;
+            case QUALITY -> StandardActions.QUALITY;
+            case RANKING -> StandardActions.RANKING;
+            case READ_STATUS -> StandardActions.READ_STATUS;
+            case RELEVANCE -> StandardActions.RELEVANCE;
         };
     }
 
@@ -92,18 +81,26 @@ public class SpecialFieldViewModel {
     }
 
     public List<SpecialFieldValueViewModel> getValues() {
-        return field.getValues().stream()
+        return field.getValues()
+                    .stream()
                     .map(SpecialFieldValueViewModel::new)
                     .collect(Collectors.toList());
     }
 
     public void setSpecialFieldValue(BibEntry bibEntry, SpecialFieldValue value) {
-        Optional<FieldChange> change = UpdateField.updateField(bibEntry, getField(), value.getFieldValue().orElse(null), getField().isSingleValueField());
+        Optional<FieldChange> change = UpdateField.updateField(
+                bibEntry,
+                getField(),
+                value.getFieldValue().orElse(null),
+                getField().isSingleValueField());
 
         change.ifPresent(fieldChange -> undoManager.addEdit(new UndoableFieldChange(fieldChange)));
     }
 
     public void toggle(BibEntry entry) {
-        setSpecialFieldValue(entry, getField().getValues().getFirst());
+        setSpecialFieldValue(entry,
+                getField()
+                        .getValues()
+                        .getFirst());
     }
 }

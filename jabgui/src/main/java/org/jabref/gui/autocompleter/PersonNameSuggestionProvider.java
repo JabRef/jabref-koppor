@@ -6,15 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import com.google.common.base.Equivalence;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.Author;
 import org.jabref.model.entry.AuthorList;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
-
-import com.google.common.base.Equivalence;
-import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.jspecify.annotations.NonNull;
 
 /// Delivers possible completions as a list of [Author]s.

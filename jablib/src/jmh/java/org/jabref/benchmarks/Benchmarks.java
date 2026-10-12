@@ -10,10 +10,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import com.airhacks.afterburner.injection.Injector;
+import org.apache.commons.io.FileUtils;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.exporter.BibDatabaseWriter;
+import org.jabref.logic.exporter.BibDatabaseWriter.SaveType;
 import org.jabref.logic.exporter.BibWriter;
 import org.jabref.logic.exporter.SelfContainedSaveConfiguration;
 import org.jabref.logic.formatter.bibtexfields.HtmlToLatexFormatter;
@@ -47,9 +50,6 @@ import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResults;
-
-import com.airhacks.afterburner.injection.Injector;
-import org.apache.commons.io.FileUtils;
 import org.mockito.Answers;
 import org.openjdk.jmh.Main;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -108,11 +108,9 @@ public class Benchmarks {
         when(linkedFilesContext.getFileDirectories(filePreferences)).thenReturn(List.of(pdfResourceDir));
         when(linkedFilesContext.getFulltextIndexPath()).thenReturn(luceneIndexDir);
 
-        pdfEntries = List.of(
-                new BibEntry(StandardEntryType.PhdThesis)
-                        .withCitationKey("ExampleThesis2017")
-                        .withFiles(List.of(new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.PDF.getName())))
-        );
+        pdfEntries = List.of(new BibEntry(StandardEntryType.PhdThesis)
+                .withCitationKey("ExampleThesis2017")
+                .withFiles(List.of(new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.PDF.getName()))));
         when(linkedFilesContext.getEntries()).thenReturn(pdfEntries);
 
         linkedFilesIndexer = new DefaultLinkedFilesIndexer(linkedFilesContext, filePreferences);
@@ -126,15 +124,11 @@ public class Benchmarks {
     private StringWriter getOutputWriter() throws IOException {
         StringWriter outputWriter = new StringWriter();
         BibWriter bibWriter = new BibWriter(outputWriter, OS.NEWLINE);
-        SelfContainedSaveConfiguration saveConfiguration = new SelfContainedSaveConfiguration(SaveOrder.getDefaultSaveOrder(), false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false);
+        SelfContainedSaveConfiguration saveConfiguration = new SelfContainedSaveConfiguration(SaveOrder.getDefaultSaveOrder(), false, SaveType.WITH_JABREF_META_DATA, false);
         FieldPreferences fieldPreferences = new FieldPreferences(true, List.of(), List.of());
         CitationKeyPatternPreferences citationKeyPatternPreferences = mock(CitationKeyPatternPreferences.class, Answers.RETURNS_DEEP_STUBS);
 
-        BibDatabaseWriter databaseWriter = new BibDatabaseWriter(
-                bibWriter,
-                saveConfiguration,
-                fieldPreferences,
-                citationKeyPatternPreferences,
+        BibDatabaseWriter databaseWriter = new BibDatabaseWriter(bibWriter, saveConfiguration, fieldPreferences, citationKeyPatternPreferences,
                 new BibEntryTypesManager());
         databaseWriter.writePartOfDatabase(new BibDatabaseContext(database, new MetaData()), database.getEntries());
         return outputWriter;
@@ -188,7 +182,8 @@ public class Benchmarks {
 
     @Benchmark
     public boolean keywordGroupContains() {
-        KeywordGroup group = new WordKeywordGroup("testGroup", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "testkeyword", false, ',', false);
+        KeywordGroup group = new WordKeywordGroup("testGroup", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS,
+                "testkeyword", false, ',', false);
         return group.containsAll(database.getEntries());
     }
 

@@ -4,7 +4,6 @@ import java.util.regex.Matcher;
 
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 
 public class EscapeDollarSignFormatter extends Formatter {

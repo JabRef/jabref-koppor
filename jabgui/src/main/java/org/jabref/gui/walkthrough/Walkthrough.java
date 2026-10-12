@@ -10,13 +10,11 @@ import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.stage.Stage;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.walkthrough.declarative.step.PanelStep;
 import org.jabref.gui.walkthrough.declarative.step.SideEffect;
 import org.jabref.gui.walkthrough.declarative.step.TooltipStep;
 import org.jabref.gui.walkthrough.declarative.step.WalkthroughStep;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -147,7 +145,8 @@ public class Walkthrough {
 
     public void goToStep(int stepIndex) {
         if (stepIndex < 0 || stepIndex >= steps.size()) {
-            LOGGER.debug("Invalid step index: {}. Valid range is 0 to {}.", stepIndex, steps.size() - 1);
+            LOGGER.debug("Invalid step index: {}. Valid range is 0 to {}.",
+                    stepIndex, steps.size() - 1);
             return;
         }
 

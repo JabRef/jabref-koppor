@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import org.jabref.model.study.Study;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.core.type.TypeReference;
@@ -24,8 +23,7 @@ public class StudyYamlParser {
     public Study parseStudyYamlFile(Path studyYamlFile) throws IOException {
         ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
         String rawString = Files.readString(studyYamlFile);
-        Map<String, Object> rawMap = yamlMapper.readValue(rawString, new TypeReference<>() {
-        });
+        Map<String, Object> rawMap = yamlMapper.readValue(rawString, new TypeReference<>() {});
         String yamlToDeserialize;
         if (!rawMap.containsKey("version")) {
             LOGGER.debug("Migrating study.yml from v1 to v2 format");
@@ -46,8 +44,9 @@ public class StudyYamlParser {
     public void writeStudyYamlFile(Study study, Path studyYamlFile) throws IOException {
 
         ObjectMapper yamlMapper = new YAMLMapper(YAMLFactory.builder()
-                                                            .disable(YAMLWriteFeature.WRITE_DOC_START_MARKER)
-                                                            .enable(YAMLWriteFeature.MINIMIZE_QUOTES).build());
+                .disable(YAMLWriteFeature.WRITE_DOC_START_MARKER)
+                .enable(YAMLWriteFeature.MINIMIZE_QUOTES)
+                .build());
         yamlMapper.writeValue(studyYamlFile.toFile(), study);
     }
 }

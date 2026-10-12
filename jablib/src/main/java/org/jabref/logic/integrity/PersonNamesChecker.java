@@ -10,7 +10,6 @@ import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.AuthorList;
-
 import org.jspecify.annotations.Nullable;
 
 public class PersonNamesChecker implements ValueChecker {
@@ -31,7 +30,9 @@ public class PersonNamesChecker implements ValueChecker {
         }
 
         // Stored field values may be wrapped over several lines; the wrapping whitespace is not part of the names
-        String normalizedValue = WHITESPACE.matcher(value).replaceAll(" ").strip();
+        String normalizedValue = WHITESPACE.matcher(value)
+                .replaceAll(" ")
+                .strip();
 
         String valueTrimmedAndLowerCase = normalizedValue.toLowerCase(Locale.ROOT);
         if (valueTrimmedAndLowerCase.startsWith("and ") || valueTrimmedAndLowerCase.startsWith(",")) {
@@ -60,7 +61,6 @@ public class PersonNamesChecker implements ValueChecker {
 
     private boolean isStandardFormat(String name) {
         AuthorList authorList = AuthorList.parse(name);
-        return authorList.getAsLastFirstNamesWithAnd(false).equals(name)
-                || authorList.getAsFirstLastNamesWithAnd().equals(name);
+        return authorList.getAsLastFirstNamesWithAnd(false).equals(name) || authorList.getAsFirstLastNamesWithAnd().equals(name);
     }
 }

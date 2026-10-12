@@ -9,6 +9,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
+import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.services.LanguageClient;
 import org.jabref.languageserver.ExtensionSettings;
 import org.jabref.languageserver.LspClientHandler;
 import org.jabref.logic.JabRefException;
@@ -17,11 +21,6 @@ import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.DiagnosticSeverity;
-import org.eclipse.lsp4j.PublishDiagnosticsParams;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,8 @@ public class LspDiagnosticHandler {
     private final Map<String, List<Diagnostic>> integrityDiagnosticsCache; // Maps file URIs to the corresponding list of integrity diagnostics
     private final Map<String, List<Diagnostic>> consistencyDiagnosticsCache; // Maps file URIs to the corresponding list of consistency diagnostics
 
-    public LspDiagnosticHandler(LspClientHandler clientHandler, LspParserHandler parserHandler, CliPreferences cliPreferences, JournalAbbreviationRepository abbreviationRepository, BibEntryTypesManager bibEntryTypesManager) {
+    public LspDiagnosticHandler(LspClientHandler clientHandler, LspParserHandler parserHandler, CliPreferences cliPreferences,
+            JournalAbbreviationRepository abbreviationRepository, BibEntryTypesManager bibEntryTypesManager) {
         this.clientHandler = clientHandler;
         this.parserHandler = parserHandler;
         this.cliPreferences = cliPreferences;
@@ -50,12 +50,14 @@ public class LspDiagnosticHandler {
         this.consistencyDiagnosticsCache = new ConcurrentHashMap<>();
     }
 
-    public void computeAndPublishDiagnostics(LanguageClient client, String uri, String content, Integer version) {
+    public void computeAndPublishDiagnostics(LanguageClient client, String uri, String content,
+            Integer version) {
         List<Diagnostic> diagnostics = computeDiagnostics(content, uri);
         publishDiagnostics(client, uri, version, diagnostics);
     }
 
-    public void publishDiagnostics(LanguageClient client, String uri, Integer version, List<Diagnostic> diagnostics) {
+    public void publishDiagnostics(LanguageClient client, String uri, Integer version,
+            List<Diagnostic> diagnostics) {
         PublishDiagnosticsParams params = new PublishDiagnosticsParams();
         params.setUri(uri);
         params.setVersion(version);
@@ -74,14 +76,17 @@ public class LspDiagnosticHandler {
         try {
             parserResult = parserHandler.parserResultFromString(uri, content, cliPreferences.getImportFormatPreferences());
         } catch (JabRefException | IOException e) {
-            Diagnostic parseDiagnostic = LspDiagnosticBuilder.create(Localization.lang(
-                    "Failed to parse entries.\nThe following error was encountered:\n%0",
-                    e.getMessage())).setSeverity(DiagnosticSeverity.Error).build();
+            Diagnostic parseDiagnostic = LspDiagnosticBuilder.create(Localization.lang("Failed to parse entries.\nThe following error was encountered:\n%0", e.getMessage()))
+                    .setSeverity(DiagnosticSeverity.Error)
+                    .build();
             return List.of(parseDiagnostic);
         }
 
         parserResult.getWarningsMap().forEach((range, message) -> {
-            Diagnostic warningDiagnostic = LspDiagnosticBuilder.create(message).setRange(range).setSeverity(DiagnosticSeverity.Error).build();
+            Diagnostic warningDiagnostic = LspDiagnosticBuilder.create(message)
+                    .setRange(range)
+                    .setSeverity(DiagnosticSeverity.Error)
+                    .build();
             diagnostics.add(warningDiagnostic);
         });
 
@@ -95,19 +100,17 @@ public class LspDiagnosticHandler {
             LOGGER.debug("Cached consistency diagnostics for {}", uri);
         }
 
-        return Stream.of(getFinalDiagnosticsList(uri), diagnostics).flatMap(List::stream).toList();
+        return Stream.of(getFinalDiagnosticsList(uri), diagnostics)
+                .flatMap(List::stream)
+                .toList();
     }
 
     private List<Diagnostic> getFinalDiagnosticsList(String uri) {
         ExtensionSettings settings = clientHandler.getSettings();
         return Stream.concat(
-                settings.isIntegrityCheck() ?
-                integrityDiagnosticsCache.getOrDefault(uri, List.of()).stream() :
-                Stream.empty(),
-                settings.isConsistencyCheck() ?
-                consistencyDiagnosticsCache.getOrDefault(uri, List.of()).stream() :
-                Stream.empty()
-        ).toList();
+                settings.isIntegrityCheck() ? integrityDiagnosticsCache.getOrDefault(uri, List.of()).stream() : Stream.empty(),
+                settings.isConsistencyCheck() ? consistencyDiagnosticsCache.getOrDefault(uri, List.of()).stream() : Stream.empty())
+                .toList();
     }
 
     public void refreshDiagnostics(LanguageClient client) {

@@ -1,5 +1,10 @@
 package org.jabref.gui.mergeentries.threewaymerge.toolbar;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import com.google.common.base.Enums;
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.EasyBinding;
+import jakarta.inject.Inject;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -12,18 +17,11 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.mergeentries.MergeDialogPreferences;
 import org.jabref.gui.mergeentries.threewaymerge.DiffMethod;
 import org.jabref.gui.mergeentries.threewaymerge.diffhighlighter.DiffHighlighter.BasicDiffMethod;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.l10n.Localization;
-
-import com.airhacks.afterburner.views.ViewLoader;
-import com.google.common.base.Enums;
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.EasyBinding;
-import jakarta.inject.Inject;
 
 public class ThreeWayMergeToolbar extends AnchorPane {
     @FXML
@@ -63,8 +61,8 @@ public class ThreeWayMergeToolbar extends AnchorPane {
 
     public ThreeWayMergeToolbar() {
         ViewLoader.view(this)
-                  .root(this)
-                  .load();
+                .root(this)
+                .load();
     }
 
     @FXML
@@ -110,10 +108,12 @@ public class ThreeWayMergeToolbar extends AnchorPane {
             }
         });
 
-        onlyShowChangedFieldsCheck.selectedProperty().bindBidirectional(preferences.getMergeDialogPreferences().mergeShowChangedFieldOnlyProperty());
+        onlyShowChangedFieldsCheck.selectedProperty().bindBidirectional(preferences.getMergeDialogPreferences()
+                .mergeShowChangedFieldOnlyProperty());
         onlyShowChangedFields.bind(onlyShowChangedFieldsCheck.selectedProperty());
 
-        applyToAllEntriesCheck.selectedProperty().bindBidirectional(preferences.getMergeDialogPreferences().mergeApplyToAllEntriesProperty());
+        applyToAllEntriesCheck.selectedProperty().bindBidirectional(preferences.getMergeDialogPreferences()
+                .mergeApplyToAllEntriesProperty());
         applyToAllEntries.bind(applyToAllEntriesCheck.selectedProperty());
 
         loadSavedConfiguration();
@@ -167,12 +167,12 @@ public class ThreeWayMergeToolbar extends AnchorPane {
         return onlyShowChangedFields.get();
     }
 
-    /// Convenience method used to disable diff related views when diff is not selected.
+    /// Convenience method used to disable diff related views when diff is not
+    /// selected.
     ///
-    ///
-    /// This method is required because [EasyBinding] class doesn't have a method to invert a boolean property,
-    /// like [javafx.beans.binding.BooleanExpression#not()]
-    ///
+    /// This method is required because [EasyBinding] class doesn't have a
+    /// method to invert a boolean property, like
+    /// [javafx.beans.binding.BooleanExpression#not()]
     public EasyBinding<Boolean> notShowDiffProperty() {
         return showDiffProperty().map(showDiff -> !showDiff);
     }
@@ -202,7 +202,8 @@ public class ThreeWayMergeToolbar extends AnchorPane {
     }
 
     public enum PlainTextOrDiff {
-        PLAIN_TEXT(Localization.lang("Plain Text")), Diff(Localization.lang("Show Diff"));
+        PLAIN_TEXT(Localization.lang("Plain Text")),
+        Diff(Localization.lang("Show Diff"));
 
         private final String value;
 

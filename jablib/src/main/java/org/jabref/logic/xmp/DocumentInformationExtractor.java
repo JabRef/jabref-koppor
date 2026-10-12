@@ -3,6 +3,10 @@ package org.jabref.logic.xmp;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.pdfbox.cos.COSBase;
+import org.apache.pdfbox.cos.COSDictionary;
+import org.apache.pdfbox.cos.COSName;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.jabref.logic.importer.AuthorListParser;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Month;
@@ -11,11 +15,6 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryTypeFactory;
-
-import org.apache.pdfbox.cos.COSBase;
-import org.apache.pdfbox.cos.COSDictionary;
-import org.apache.pdfbox.cos.COSName;
-import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 
 /// Related class: [org.jabref.logic.xmp.DublinCoreExtractor]
 public class DocumentInformationExtractor {
@@ -31,8 +30,7 @@ public class DocumentInformationExtractor {
             Map.entry(COSName.URL, StandardField.URL),
             Map.entry(COSName.VOLUME, StandardField.VOLUME),
             Map.entry(COSName.VERSION, StandardField.VERSION),
-            Map.entry(COSName.ISSUER, StandardField.EDITOR)
-    );
+            Map.entry(COSName.ISSUER, StandardField.EDITOR));
 
     private final PDDocumentInformation documentInformation;
 
@@ -65,14 +63,14 @@ public class DocumentInformationExtractor {
                 String fieldName = key.substring(XmpUtilShared.BIBTEX_DI_FIELD_NAME_PREFIX.length());
                 Field field = FieldFactory.parseField(fieldName);
                 switch (field) {
-                    case InternalField.TYPE_HEADER ->
-                            bibEntry.setType(EntryTypeFactory.parse(value));
+                    case InternalField.TYPE_HEADER -> bibEntry.setType(EntryTypeFactory.parse(value));
                     case StandardField.MONTH -> {
-                        value = Month.parse(value).map(Month::getJabRefFormat).orElse(value);
+                        value = Month.parse(value)
+                                .map(Month::getJabRefFormat)
+                                .orElse(value);
                         bibEntry.setField(StandardField.MONTH, value);
                     }
-                    default ->
-                            bibEntry.setField(field, value);
+                    default -> bibEntry.setField(field, value);
                 }
             }
         }

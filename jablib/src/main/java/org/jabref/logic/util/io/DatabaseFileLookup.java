@@ -11,12 +11,12 @@ import java.util.stream.Collectors;
 import org.jabref.logic.FilePreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NonNull;
 
 /// Search class for files.
 ///
-/// This class provides some functionality to search in a [org.jabref.model.database.BibDatabase] for files.
+/// This class provides some functionality to search in a
+/// [org.jabref.model.database.BibDatabase] for files.
 public class DatabaseFileLookup {
 
     private final Set<Path> fileCache = new HashSet<>();
@@ -25,10 +25,10 @@ public class DatabaseFileLookup {
 
     private final Path pathOfDatabase;
 
-    /// Creates an instance by passing a [org.jabref.model.database.BibDatabase] which will be used for the searches.
+    /// Creates an instance by passing a [org.jabref.model.database.BibDatabase]
+    /// which will be used for the searches.
     public DatabaseFileLookup(@NonNull BibDatabaseContext databaseContext, FilePreferences filePreferences) {
-        possibleFilePaths = Optional.ofNullable(databaseContext.getFileDirectories(filePreferences))
-                                    .orElse(new ArrayList<>());
+        possibleFilePaths = Optional.ofNullable(databaseContext.getFileDirectories(filePreferences)).orElse(new ArrayList<>());
 
         for (BibEntry entry : databaseContext.getDatabase().getEntries()) {
             fileCache.addAll(parseFileField(entry));
@@ -51,7 +51,8 @@ public class DatabaseFileLookup {
     }
 
     private List<Path> parseFileField(@NonNull BibEntry entry) {
-        return entry.getFiles().stream()
+        return entry.getFiles()
+                    .stream()
                     .filter(file -> !file.isOnlineLink()) // Do not query external file links (huge performance leak)
                     .map(file -> file.findIn(possibleFilePaths))
                     .filter(Optional::isPresent)

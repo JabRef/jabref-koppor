@@ -7,7 +7,6 @@ import java.util.Optional;
 
 import org.jabref.logic.util.BackupFileType;
 import org.jabref.logic.util.Directories;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -46,16 +45,15 @@ class BackupFileUtilTest {
     void getPathOfBackupFileAndCreateDirectoryReturnsSameDirectoryInCaseOfException() {
         backupDir = Directories.getBackupDirectory();
         try (MockedStatic<Files> files = Mockito.mockStatic(Files.class, Answers.CALLS_REAL_METHODS)) { // REAL_METHODS are required because of class loading of "BackupFileType"
-            files.when(() -> Files.createDirectories(Directories.getBackupDirectory()))
-                 .thenThrow(new IOException());
+            files.when(() -> Files.createDirectories(Directories.getBackupDirectory())).thenThrow(new IOException());
             Path testPath = Path.of("tmp", "test.bib");
-            Path result = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(
-                    testPath,
-                    BackupFileType.BACKUP,
-                    backupDir);
+            Path result = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(testPath, BackupFileType.BACKUP, backupDir);
             // The intended fallback behavior is to put the backup file next to the library, using the same name pattern
-            assertEquals(Path.of("tmp").toAbsolutePath(), result.getParent());
-            String fileNameWithoutTimestamp = result.getFileName().toString().replaceAll("\\d{4}-\\d{2}-\\d{2}--\\d{2}\\.\\d{2}\\.\\d{2}", "<timestamp>");
+            assertEquals(Path.of("tmp").toAbsolutePath(),
+                    result.getParent());
+            String fileNameWithoutTimestamp = result.getFileName()
+                    .toString()
+                    .replaceAll("\\d{4}-\\d{2}-\\d{2}--\\d{2}\\.\\d{2}\\.\\d{2}", "<timestamp>");
             assertEquals(BackupFileUtil.getUniqueFilePrefix(testPath) + "--test.bib--<timestamp>.bib", fileNameWithoutTimestamp);
         }
     }

@@ -13,10 +13,12 @@ import org.jspecify.annotations.Nullable;
 
 /// This class represents a scientific study.
 ///
-/// This class defines all aspects of a scientific study relevant to the application. It is a proxy for the file based study definition.
+/// This class defines all aspects of a scientific study relevant to the
+/// application. It is a proxy for the file based study definition.
 ///
 /// The file is parsed using by [org.jabref.logic.crawler.StudyYamlParser]
-@JsonPropertyOrder({"version", "authors", "title", "research-questions", "queries", "catalogs", "max-results-per-catalog"})
+@JsonPropertyOrder({"version", "authors", "title", "research-questions", "queries", "catalogs",
+            "max-results-per-catalog"})
 // The user might add arbitrary content to the YAML
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Study {
@@ -41,7 +43,8 @@ public class Study {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer maxResultsPerCatalog;
 
-    public Study(List<String> authors, String title, List<String> researchQuestions, List<StudyQuery> queryEntries, List<StudyCatalog> catalogs) {
+    public Study(List<String> authors, String title, List<String> researchQuestions,
+                 List<StudyQuery> queryEntries, List<StudyCatalog> catalogs) {
         this.version = CURRENT_SCHEMA_VERSION;
         this.authors = authors;
         this.title = title;
@@ -117,15 +120,24 @@ public class Study {
 
     @Override
     public String toString() {
-        return "Study{" +
-                "version='" + version + '\'' +
-                ", authors=" + authors +
-                ", studyName='" + title + '\'' +
-                ", researchQuestions=" + researchQuestions +
-                ", queries=" + queries +
-                ", catalogs=" + catalogs +
-                ", maxResultsPerCatalog=" + maxResultsPerCatalog +
-                '}';
+        return "Study{"
+                + "version='"
+                + version
+                + '\''
+                + ", authors="
+                + authors
+                + ", studyName='"
+                + title
+                + '\''
+                + ", researchQuestions="
+                + researchQuestions
+                + ", queries="
+                + queries
+                + ", catalogs="
+                + catalogs
+                + ", maxResultsPerCatalog="
+                + maxResultsPerCatalog
+                + '}';
     }
 
     @Override
@@ -139,17 +151,18 @@ public class Study {
 
         Study otherStudy = (Study) other;
 
-        return Objects.equals(version, otherStudy.version) &&
-                Objects.equals(authors, otherStudy.authors) &&
-                Objects.equals(title, otherStudy.title) &&
-                Objects.equals(researchQuestions, otherStudy.researchQuestions) &&
-                Objects.equals(queries, otherStudy.queries) &&
-                Objects.equals(catalogs, otherStudy.catalogs) &&
-                Objects.equals(maxResultsPerCatalog, otherStudy.maxResultsPerCatalog);
+        return Objects.equals(version, otherStudy.version)
+                && Objects.equals(authors, otherStudy.authors)
+                && Objects.equals(title, otherStudy.title)
+                && Objects.equals(researchQuestions, otherStudy.researchQuestions)
+                && Objects.equals(queries, otherStudy.queries)
+                && Objects.equals(catalogs, otherStudy.catalogs)
+                && Objects.equals(maxResultsPerCatalog, otherStudy.maxResultsPerCatalog);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(version, authors, title, researchQuestions, queries, catalogs, maxResultsPerCatalog);
+        return Objects.hash(version, authors, title, researchQuestions, queries, catalogs,
+                maxResultsPerCatalog);
     }
 }

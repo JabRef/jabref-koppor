@@ -1,26 +1,33 @@
 package org.jabref.gui.openoffice;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Modality;
-
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
 
-import com.airhacks.afterburner.views.ViewLoader;
-
 public class ModifyBibliographyPropertiesDialogView extends BaseDialog<Void> {
 
-    @FXML private Label titleLabel;
-    @FXML private TextField titleField;
-    @FXML private Label headerFormatLabel;
-    @FXML private ComboBox<String> headerFormats;
-    @FXML private ComboBox<String> bodyFormats;
+    @FXML
+    private Label titleLabel;
+
+    @FXML
+    private TextField titleField;
+
+    @FXML
+    private Label headerFormatLabel;
+
+    @FXML
+    private ComboBox<String> headerFormats;
+
+    @FXML
+    private ComboBox<String> bodyFormats;
 
     private final ModifyBibliographyPropertiesDialogViewModel viewModel;
 
@@ -32,8 +39,8 @@ public class ModifyBibliographyPropertiesDialogView extends BaseDialog<Void> {
         this.setResizable(false);
 
         ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+                .load()
+                .setAsDialogPane(this);
 
         setResultConverter(buttonType -> {
             if (buttonType == ButtonType.OK) {

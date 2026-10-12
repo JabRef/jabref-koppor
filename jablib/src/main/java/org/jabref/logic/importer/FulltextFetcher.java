@@ -7,20 +7,20 @@ import java.util.Optional;
 
 import org.jabref.logic.importer.fetcher.TrustLevel;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NonNull;
 
-/// This interface is used for classes that try to resolve a full-text PDF url for a BibTex entry.
-/// Implementing classes should specialize on specific article sites.
-/// See e.g. @link{http://libguides.mit.edu/apis}.
+/// This interface is used for classes that try to resolve a full-text PDF url
+/// for a BibTex entry. Implementing classes should specialize on specific
+/// article sites. See e.g. @link{http://libguides.mit.edu/apis}.
 public interface FulltextFetcher {
     /// Tries to find a fulltext URL for a given BibTex entry.
     ///
     /// @param entry The Bibtex entry
-    /// @return The fulltext PDF URL Optional, if found, or an empty Optional if not found.
+    /// @return The fulltext PDF URL Optional, if found, or an empty Optional if
+    ///   not found.
     /// @throws NullPointerException if no BibTex entry is given
-    /// @throws java.io.IOException  if an IO operation has failed
-    /// @throws FetcherException     if a fetcher-specific error occurred
+    /// @throws java.io.IOException if an IO operation has failed
+    /// @throws FetcherException if a fetcher-specific error occurred
     Optional<URL> findFullText(@NonNull BibEntry entry) throws IOException, FetcherException;
 
     /// Returns the level of trust for this fetcher.
@@ -29,8 +29,9 @@ public interface FulltextFetcher {
     /// @return The trust level of the fetcher, the higher the better
     TrustLevel getTrustLevel();
 
-    /// Returns HTTP headers required for downloading the PDF returned by [#findFullText].
-    /// Fetchers that require authentication (for ex: API tokens) should override this method.
+    /// Returns HTTP headers required for downloading the PDF returned by
+    /// [#findFullText]. Fetchers that require authentication (for ex: API
+    /// tokens) should override this method.
     ///
     /// @return A map of header name to header value, empty by default
     default Map<String, String> getDownloadHeaders() {

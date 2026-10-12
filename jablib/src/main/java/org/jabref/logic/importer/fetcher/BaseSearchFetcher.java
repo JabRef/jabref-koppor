@@ -10,6 +10,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.PagedSearchBasedParserFetcher;
@@ -26,11 +30,6 @@ import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
@@ -45,8 +44,7 @@ public class BaseSearchFetcher implements PagedSearchBasedParserFetcher, Customi
 
     private static final String API_URL = "https://api.base-search.net/cgi-bin/BaseHttpSearchInterface.fcgi";
 
-    private static final FetcherRateLimiter RATE_LIMITER =
-            FetcherRateLimiter.ofRequestsPerSecond(FETCHER_NAME, 1.0);
+    private static final FetcherRateLimiter RATE_LIMITER = FetcherRateLimiter.ofRequestsPerSecond(FETCHER_NAME, 1.0);
 
     private static final Map<String, EntryType> ENTRY_TYPES_BY_CODE = Map.ofEntries(
             Map.entry("1", StandardEntryType.Misc),
@@ -119,10 +117,8 @@ public class BaseSearchFetcher implements PagedSearchBasedParserFetcher, Customi
     }
 
     private Optional<JSONArray> getDocs(JSONObject jsonObject) {
-        return Optional.ofNullable(jsonObject.optJSONObject("response"))
-                       .flatMap(responseObject -> Optional.ofNullable(responseObject.optJSONArray("docs"))
-                                                          .or(() -> Optional.ofNullable(responseObject.optJSONObject("result"))
-                                                                            .map(result -> result.optJSONArray("docs"))));
+        return Optional.ofNullable(jsonObject.optJSONObject("response")).flatMap(responseObject ->
+                Optional.ofNullable(responseObject.optJSONArray("docs")).or(() -> Optional.ofNullable(responseObject.optJSONObject("result")).map(result -> result.optJSONArray("docs"))));
     }
 
     private BibEntry parseEntry(JSONObject doc) {
@@ -142,13 +138,13 @@ public class BaseSearchFetcher implements PagedSearchBasedParserFetcher, Customi
     }
 
     private BibEntry withFieldIfPresent(BibEntry entry, Field field, Optional<String> value) {
-        return value.map(fieldValue -> entry.withField(field, fieldValue))
-                    .orElse(entry);
+        return value.map(fieldValue -> entry.withField(field, fieldValue)).orElse(entry);
     }
 
     private Optional<String> getFirstValue(JSONObject doc, String key) {
-        return getValues(doc, key).stream()
-                                  .findFirst();
+        return getValues(doc, key)
+                .stream()
+                .findFirst();
     }
 
     private Optional<String> getJoinedValues(JSONObject doc, String key, String delimiter) {
@@ -164,17 +160,13 @@ public class BaseSearchFetcher implements PagedSearchBasedParserFetcher, Customi
         return switch (value) {
             case JSONArray array ->
                     IntStream.range(0, array.length())
-                             .mapToObj(array::optString)
-                             .filter(StringUtil::isNotBlank)
-                             .toList();
-            case Number number ->
-                    List.of(number.toString());
-            case String string when StringUtil.isNotBlank(string) ->
-                    List.of(string);
-            case null ->
-                    List.of();
-            default ->
-                    List.of();
+                            .mapToObj(array::optString)
+                            .filter(StringUtil::isNotBlank)
+                            .toList();
+            case Number number -> List.of(number.toString());
+            case String string when StringUtil.isNotBlank(string) -> List.of(string);
+            case null -> List.of();
+            default -> List.of();
         };
     }
 

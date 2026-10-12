@@ -24,8 +24,7 @@ public class ExternalFileTypes {
     private static final String FILE_TYPE_REMOVED_FLAG = "REMOVED";
     private static final ExternalFileType HTML_FALLBACK_TYPE = StandardExternalFileType.URL;
 
-    private ExternalFileTypes() {
-    }
+    private ExternalFileTypes() {}
 
     public static List<ExternalFileType> getDefaultExternalFileTypes() {
         return Arrays.asList(StandardExternalFileType.values());
@@ -36,7 +35,10 @@ public class ExternalFileTypes {
     /// @param name The file type name.
     /// @return The ExternalFileType registered, or null if none.
     public static Optional<ExternalFileType> getExternalFileTypeByName(String name, ExternalApplicationsPreferences externalApplicationsPreferences) {
-        Optional<ExternalFileType> externalFileType = externalApplicationsPreferences.getExternalFileTypes().stream().filter(type -> type.getName().equals(name)).findFirst();
+        Optional<ExternalFileType> externalFileType = externalApplicationsPreferences.getExternalFileTypes()
+                .stream()
+                .filter(type -> type.getName().equals(name))
+                .findFirst();
         if (externalFileType.isPresent()) {
             return externalFileType;
         }
@@ -50,7 +52,10 @@ public class ExternalFileTypes {
     /// @return The ExternalFileType registered, or null if none.
     public static Optional<ExternalFileType> getExternalFileTypeByExt(String extension, ExternalApplicationsPreferences externalApplicationsPreferences) {
         String extensionCleaned = extension.replace(".", "").replace("*", "");
-        return externalApplicationsPreferences.getExternalFileTypes().stream().filter(type -> type.getExtension().equalsIgnoreCase(extensionCleaned)).findFirst();
+        return externalApplicationsPreferences.getExternalFileTypes()
+                .stream()
+                .filter(type -> type.getExtension().equalsIgnoreCase(extensionCleaned))
+                .findFirst();
     }
 
     /// Returns true if there is an external file type registered for this extension.
@@ -58,7 +63,9 @@ public class ExternalFileTypes {
     /// @param extension The file extension.
     /// @return true if an ExternalFileType with the extension exists, false otherwise
     public static boolean isExternalFileTypeByExt(String extension, ExternalApplicationsPreferences externalApplicationsPreferences) {
-        return externalApplicationsPreferences.getExternalFileTypes().stream().anyMatch(type -> type.getExtension().equalsIgnoreCase(extension));
+        return externalApplicationsPreferences.getExternalFileTypes()
+                .stream()
+                .anyMatch(type -> type.getExtension().equalsIgnoreCase(extension));
     }
 
     /// Look up the external file type registered for this filename, if any.
@@ -69,7 +76,8 @@ public class ExternalFileTypes {
         int longestFound = -1;
         ExternalFileType foundType = null;
         for (ExternalFileType type : externalApplicationsPreferences.getExternalFileTypes()) {
-            if (!type.getExtension().isEmpty() && filename.toLowerCase(Locale.ROOT).endsWith(type.getExtension().toLowerCase(Locale.ROOT))
+            if (!type.getExtension().isEmpty() && filename.toLowerCase(Locale.ROOT).endsWith(type.getExtension()
+                    .toLowerCase(Locale.ROOT))
                     && (type.getExtension().length() > longestFound)) {
                 longestFound = type.getExtension().length();
                 foundType = type;
@@ -81,8 +89,8 @@ public class ExternalFileTypes {
     /// Look up the external file type registered for this MIME type, if any.
     ///
     /// @param mimeType The MIME type.
-    /// @return The ExternalFileType registered, or null if none. For the mime type "text/html", a valid file type is
-    /// guaranteed to be returned.
+    /// @return The ExternalFileType registered, or null if none. For the mime
+    ///   type "text/html", a valid file type is guaranteed to be returned.
     public static Optional<ExternalFileType> getExternalFileTypeByMimeType(String mimeType, ExternalApplicationsPreferences externalApplicationsPreferences) {
         // Ignores parameters according to link: (https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types)
         if (mimeType.indexOf(';') != -1) {
@@ -125,8 +133,7 @@ public class ExternalFileTypes {
                 // For URLs, extract filename from URL path first to avoid InvalidPathException
                 // URLs contain ":" which is illegal in Windows file paths (e.g., "http://")
                 // See https://github.com/JabRef/jabref/issues/14975
-                extensionOpt = FileUtil.getFileNameFromUrl(linkPath)
-                                       .flatMap(FileUtil::getFileExtension);
+                extensionOpt = FileUtil.getFileNameFromUrl(linkPath).flatMap(FileUtil::getFileExtension);
             } else {
                 // For local files, get extension directly
                 extensionOpt = FileUtil.getFileExtension(linkPath);
@@ -138,7 +145,8 @@ public class ExternalFileTypes {
         }
     }
 
-    /// @return A StringList of customized and removed file types compared to the default list of external file types for storing
+    /// @return A StringList of customized and removed file types compared to
+    ///   the default list of external file types for storing
     public static String toStringList(Collection<ExternalFileType> fileTypes) {
         // First find a list of the default types:
         List<ExternalFileType> defTypes = new ArrayList<>(getDefaultExternalFileTypes());
@@ -191,7 +199,8 @@ public class ExternalFileTypes {
         return FileFieldWriter.encodeStringArray(array);
     }
 
-    /// Set up the list of external file types, either from default values, or from values recorded in PreferencesService.
+    /// Set up the list of external file types, either from default values, or
+    /// from values recorded in PreferencesService.
     public static Set<ExternalFileType> fromString(String storedFileTypes) {
         // First get a list of the default file types as a starting point:
         Set<ExternalFileType> types = new HashSet<>(getDefaultExternalFileTypes());

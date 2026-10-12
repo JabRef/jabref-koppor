@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.PagedSearchBasedParserFetcher;
@@ -21,11 +25,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.paging.Page;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -61,7 +60,9 @@ public class Scopus implements PagedSearchBasedParserFetcher, CustomizableKeyFet
     /// @return URL for the Scopus API request
     @Override
     public URL getURLForQuery(BaseQueryNode queryNode, int pageNumber) throws URISyntaxException, MalformedURLException {
-        String transformedQuery = new ScopusQueryTransformer().transformSearchQuery(queryNode).orElse("");
+        String transformedQuery = new ScopusQueryTransformer()
+                .transformSearchQuery(queryNode)
+                .orElse("");
         return buildSearchURL(transformedQuery, pageNumber);
     }
 
@@ -74,16 +75,20 @@ public class Scopus implements PagedSearchBasedParserFetcher, CustomizableKeyFet
     public Page<BibEntry> performSearchPaged(BaseQueryNode queryNode, int pageNumber) throws FetcherException {
         ScopusQueryTransformer transformer = new ScopusQueryTransformer();
         String transformedQuery = transformer.transformSearchQuery(queryNode).orElse("");
-        List<BibEntry> entries = fetchEntries(transformedQuery, pageNumber).stream()
-                                                                           .filter(entry -> shouldIncludeEntry(entry, transformer))
-                                                                           .toList();
+        List<BibEntry> entries = fetchEntries(transformedQuery, pageNumber)
+                .stream()
+                .filter(entry -> shouldIncludeEntry(entry, transformer))
+                .toList();
         return new Page<>(transformedQuery, pageNumber, entries);
     }
 
-    /// Sends the raw, catalog-native query verbatim as Scopus's `query` parameter, bypassing [ScopusQueryTransformer].
-    /// The blank-query short-circuit, download, parse, and post-cleanup are handled by the shared default in
-    /// [PagedSearchBasedParserFetcher#performRawSearchQueryPaged(String, int)]. Year filtering lives in
-    /// [#performSearchPaged(BaseQueryNode, int)] and is therefore naturally skipped on the raw path.
+    /// Sends the raw, catalog-native query verbatim as Scopus's `query`
+    /// parameter, bypassing [ScopusQueryTransformer]. The blank-query
+    /// short-circuit, download, parse, and post-cleanup are handled by the
+    /// shared default in
+    /// [PagedSearchBasedParserFetcher#performRawSearchQueryPaged(String, int)].
+    /// Year filtering lives in [#performSearchPaged(BaseQueryNode, int)] and is
+    /// therefore naturally skipped on the raw path.
     @Override
     public URL getURLForRawQuery(String rawQuery, int pageNumber) throws URISyntaxException, MalformedURLException {
         return buildSearchURL(rawQuery, pageNumber);
@@ -108,11 +113,14 @@ public class Scopus implements PagedSearchBasedParserFetcher, CustomizableKeyFet
         }
     }
 
-    /// Builds the Scopus search API URL for the given raw query string and page number.
-    /// The raw query is sent verbatim as the `query` parameter, bypassing [ScopusQueryTransformer].
+    /// Builds the Scopus search API URL for the given raw query string and page
+    /// number. The raw query is sent verbatim as the `query` parameter,
+    /// bypassing [ScopusQueryTransformer].
     ///
-    /// @param rawQuery   the query string to pass directly as the `query` parameter
-    /// @param pageNumber zero based page number; converted to a zero based `start` offset.
+    /// @param rawQuery the query string to pass directly as the `query`
+    ///   parameter
+    /// @param pageNumber zero based page number; converted to a zero based
+    ///   `start` offset.
     private URL buildSearchURL(String rawQuery, int pageNumber) throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(API_URL);
         importerPreferences.getApiKey(FETCHER_NAME).ifPresent(apiKey -> uriBuilder.addParameter("apiKey", apiKey));
@@ -348,41 +356,29 @@ public class Scopus implements PagedSearchBasedParserFetcher, CustomizableKeyFet
         }
     }
 
-    /// Determines the BibTeX entry type based on Scopus aggregationType and subtype.
+    /// Determines the BibTeX entry type based on Scopus aggregationType and
+    /// subtype.
     ///
-    /// @param aggregationType the aggregation type (Journal, Book, Conference Proceeding, etc.)
-    /// @param subtype         the document subtype (ar, cp, re, etc.)
+    /// @param aggregationType the aggregation type (Journal, Book, Conference
+    ///   Proceeding, etc.)
+    /// @param subtype the document subtype (ar, cp, re, etc.)
     /// @return appropriate StandardEntryType
     private StandardEntryType determineEntryType(String aggregationType, String subtype) {
         return switch (subtype.toLowerCase()) {
-            case "cp" ->
-                    StandardEntryType.InProceedings;
-            case "bk" ->
-                    StandardEntryType.Book;
-            case "ch" ->
-                    StandardEntryType.InCollection;
-            case "re" ->
-                    StandardEntryType.Article;
-            case "ed" ->
-                    StandardEntryType.Article;
-            case "le" ->
-                    StandardEntryType.Article;
-            case "no" ->
-                    StandardEntryType.Misc;
-            case "sh" ->
-                    StandardEntryType.Article;
-            default ->
-                    switch (aggregationType.toLowerCase()) {
-                        case "book" ->
-                                StandardEntryType.Book;
-                        case "book series" ->
-                                StandardEntryType.InCollection;
-                        case "conference proceeding" ->
-                                StandardEntryType.InProceedings;
-                        case "trade publication" ->
-                                StandardEntryType.Article;
-                        default ->
-                                StandardEntryType.Article; // Default to Article
+            case "cp" -> StandardEntryType.InProceedings;
+            case "bk" -> StandardEntryType.Book;
+            case "ch" -> StandardEntryType.InCollection;
+            case "re" -> StandardEntryType.Article;
+            case "ed" -> StandardEntryType.Article;
+            case "le" -> StandardEntryType.Article;
+            case "no" -> StandardEntryType.Misc;
+            case "sh" -> StandardEntryType.Article;
+            default -> switch (aggregationType.toLowerCase()) {
+                        case "book" -> StandardEntryType.Book;
+                        case "book series" -> StandardEntryType.InCollection;
+                        case "conference proceeding" -> StandardEntryType.InProceedings;
+                        case "trade publication" -> StandardEntryType.Article;
+                        default -> StandardEntryType.Article; // Default to Article
                     };
         };
     }

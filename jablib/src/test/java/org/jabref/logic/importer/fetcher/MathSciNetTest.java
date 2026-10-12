@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.util.List;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.cleanup.NormalizeWhitespacesCleanup;
 import org.jabref.logic.importer.FetcherException;
@@ -16,7 +15,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.DisabledOnCIServer;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -35,7 +33,9 @@ class MathSciNetTest {
     @BeforeEach
     void setUp() {
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
         fetcher = new MathSciNet(importFormatPreferences);
         FieldPreferences fieldPreferences = mock(FieldPreferences.class);
         when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.observableArrayList());
@@ -73,8 +73,7 @@ class MathSciNetTest {
     @Test
     @DisabledOnCIServer("CI server has no subscription to MathSciNet and thus gets 401 response. One single call goes through, but subsequent calls fail.")
     void searchByIdInEntryFindsEntry() throws FetcherException {
-        BibEntry searchEntry = new BibEntry()
-                .withField(StandardField.MR_NUMBER, "3537908");
+        BibEntry searchEntry = new BibEntry().withField(StandardField.MR_NUMBER, "3537908");
 
         List<BibEntry> fetchedEntries = fetcher.performSearch(searchEntry);
         if (!fetchedEntries.isEmpty()) {

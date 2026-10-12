@@ -5,16 +5,15 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.antlr.v4.runtime.BailErrorStrategy;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.ThrowingErrorListener;
 import org.jabref.search.SearchBaseVisitor;
 import org.jabref.search.SearchLexer;
 import org.jabref.search.SearchParser;
-
-import org.antlr.v4.runtime.BailErrorStrategy;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
@@ -85,8 +84,7 @@ public class SearchQuery {
         if (!(o instanceof SearchQuery that)) {
             return false;
         }
-        return Objects.equals(searchExpression, that.searchExpression)
-                && Objects.equals(searchFlags, that.searchFlags);
+        return Objects.equals(searchExpression, that.searchExpression) && Objects.equals(searchFlags, that.searchFlags);
     }
 
     @Override
@@ -122,8 +120,7 @@ public class SearchQuery {
         String term = ctx.getText();
 
         if (ctx.getStart().getType() == SearchParser.STRING_LITERAL) {
-            return term.substring(1, term.length() - 1)
-                       .replace("\\\"", "\"");
+            return term.substring(1, term.length() - 1).replace("\\\"", "\"");
         }
 
         if (ctx.getStart().getType() == SearchParser.TERM) {
@@ -152,7 +149,9 @@ public class SearchQuery {
 
         @Override
         public Boolean visitImplicitAndExpression(SearchParser.ImplicitAndExpressionContext ctx) {
-            return ctx.expression().stream().allMatch(expression -> visit(expression));
+            return ctx.expression()
+                      .stream()
+                      .allMatch(expression -> visit(expression));
         }
 
         @Override
@@ -196,15 +195,12 @@ public class SearchQuery {
                 return searchBarRegex;
             }
 
-            int operator = ctx.operator().getStart().getType();
+            int operator = ctx.operator()
+                              .getStart()
+                              .getType();
             return switch (operator) {
-                case SearchParser.REQUAL,
-                     SearchParser.CREEQUAL,
-                     SearchParser.NREQUAL,
-                     SearchParser.NCREEQUAL ->
-                        true;
-                default ->
-                        false;
+                case SearchParser.REQUAL, SearchParser.CREEQUAL, SearchParser.NREQUAL, SearchParser.NCREEQUAL -> true;
+                default -> false;
             };
         }
     }

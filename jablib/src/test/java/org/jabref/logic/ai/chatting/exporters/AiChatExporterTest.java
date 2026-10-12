@@ -11,7 +11,6 @@ import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -21,7 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AiChatExporterTest {
 
-    private static final String MARKDOWN_TEMPLATE = """
+    private static final String MARKDOWN_TEMPLATE =
+            """
             # AI Chat Export
 
             **Provider:** $metadata.aiProvider
@@ -51,8 +51,7 @@ class AiChatExporterTest {
         FieldPreferences fieldPreferences = new FieldPreferences(true, List.of(), List.of());
         return List.of(
                 new AiChatMarkdownExporter(entryTypesManager, fieldPreferences, MARKDOWN_TEMPLATE),
-                new AiChatJsonExporter(entryTypesManager, fieldPreferences)
-        );
+                new AiChatJsonExporter(entryTypesManager, fieldPreferences));
     }
 
     @ParameterizedTest
@@ -88,10 +87,7 @@ class AiChatExporterTest {
     @ParameterizedTest
     @MethodSource("exporters")
     void systemMessagesAreExcludedFromExport(AiChatExporter exporter) {
-        List<ChatMessage> messages = List.of(
-                ChatMessage.systemMessage("top secret system prompt"),
-                ChatMessage.userMessage("visible user message")
-        );
+        List<ChatMessage> messages = List.of(ChatMessage.systemMessage("top secret system prompt"), ChatMessage.userMessage("visible user message"));
 
         String result = exporter.export(metadata, entries, BibDatabaseMode.BIBTEX, messages);
 
@@ -102,12 +98,8 @@ class AiChatExporterTest {
     @ParameterizedTest
     @MethodSource("exporters")
     void multipleMessagesAllContentPresent(AiChatExporter exporter) {
-        List<ChatMessage> messages = List.of(
-                ChatMessage.userMessage("first question"),
-                ChatMessage.aiMessage("first answer", List.of()),
-                ChatMessage.userMessage("second question"),
-                ChatMessage.aiMessage("second answer", List.of())
-        );
+        List<ChatMessage> messages = List.of(ChatMessage.userMessage("first question"), ChatMessage.aiMessage("first answer", List.of()), ChatMessage.userMessage("second question"),
+                ChatMessage.aiMessage("second answer", List.of()));
 
         String result = exporter.export(metadata, entries, BibDatabaseMode.BIBTEX, messages);
 

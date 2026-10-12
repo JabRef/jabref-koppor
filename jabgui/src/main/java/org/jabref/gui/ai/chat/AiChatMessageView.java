@@ -1,5 +1,7 @@
 package org.jabref.gui.ai.chat;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
@@ -14,7 +16,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.clipboard.ClipBoardManager;
@@ -27,30 +28,45 @@ import org.jabref.gui.util.component.MarkdownTextFlow;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.ai.chatting.ChatMessage;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 public class AiChatMessageView extends HBox {
     private static final PseudoClass USER_PSEUDO_CLASS = PseudoClass.getPseudoClass("user");
     private static final PseudoClass AI_PSEUDO_CLASS = PseudoClass.getPseudoClass("ai");
     private static final PseudoClass ERROR_PSEUDO_CLASS = PseudoClass.getPseudoClass("error");
 
-    @FXML private VBox bubble;
+    @FXML
+    private VBox bubble;
 
-    @FXML private Label sourceLabel;
-    @FXML private StackPane markdownContentPane;
-    @FXML private ContextMenu contextMenu;
+    @FXML
+    private Label sourceLabel;
 
-    @FXML private VBox buttons;
+    @FXML
+    private StackPane markdownContentPane;
+
+    @FXML
+    private ContextMenu contextMenu;
+
+    @FXML
+    private VBox buttons;
+
     // [impl->feat~ai.chat.regenerate-response~1]
-    @FXML private Button regenerateButton;
-    // [impl->feat~ai.chat.delete-messages~1]
-    @FXML private Button deleteButton;
+    @FXML
+    private Button regenerateButton;
 
-    @Inject private ClipBoardManager clipboardManager;
-    @Inject private DialogService dialogService;
-    @Inject private StateManager stateManager;
-    @Inject private GuiPreferences preferences;
+    // [impl->feat~ai.chat.delete-messages~1]
+    @FXML
+    private Button deleteButton;
+
+    @Inject
+    private ClipBoardManager clipboardManager;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private StateManager stateManager;
+
+    @Inject
+    private GuiPreferences preferences;
 
     // Tooltip for the whole component.
     private Tooltip tooltip = new Tooltip();
@@ -60,8 +76,8 @@ public class AiChatMessageView extends HBox {
 
     public AiChatMessageView() {
         ViewLoader.view(this)
-                  .root(this)
-                  .load();
+                .root(this)
+                .load();
     }
 
     @FXML
@@ -74,8 +90,7 @@ public class AiChatMessageView extends HBox {
 
         Tooltip.install(bubble, tooltip);
 
-        bubble.setOnContextMenuRequested(event ->
-                contextMenu.show(bubble, event.getScreenX(), event.getScreenY()));
+        bubble.setOnContextMenuRequested(event -> contextMenu.show(bubble, event.getScreenX(), event.getScreenY()));
 
         setupBindings();
         setupListeners();
@@ -86,9 +101,11 @@ public class AiChatMessageView extends HBox {
         deleteButton.managedProperty().bind(deleteButton.visibleProperty());
 
         sourceLabel.textProperty().bind(viewModel.sourceProperty());
-        tooltip.textProperty().bind(viewModel.timestampProperty().map(LocaleUtil::formatInstant));
+        tooltip.textProperty().bind(viewModel.timestampProperty()
+                .map(LocaleUtil::formatInstant));
 
-        this.alignmentProperty().bind(viewModel.chatMessageProperty().map(AiChatMessageView::determineAlignment));
+        this.alignmentProperty().bind(viewModel.chatMessageProperty()
+                .map(AiChatMessageView::determineAlignment));
         buttons.visibleProperty().bind(this.hoverProperty());
 
         regenerateButton.visibleProperty().bind(viewModel.showRegenerateProperty());
@@ -201,7 +218,8 @@ public class AiChatMessageView extends HBox {
         if (JumpToEntryPdfAction.parseUrl(url).isPresent()) {
             new JumpToEntryPdfAction(url, stateManager, dialogService).execute();
         } else {
-            new OpenBrowserAction(url, dialogService, preferences.getExternalApplicationsPreferences()).execute();
+            new OpenBrowserAction(url, dialogService, preferences.getExternalApplicationsPreferences())
+                    .execute();
         }
     }
 

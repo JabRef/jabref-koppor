@@ -6,29 +6,31 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jabref.model.FieldChange;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Collects the changes of one user action so they undo as one step.
 ///
-/// Usually obtained from [org.jabref.logic.undo.UndoManager#addEdit], which owns the recorder's
-/// lifetime and pushes what it collected. Constructing one directly is for the commands that
-/// cannot use a block: those that collect on a background thread and push on the JavaFX
-/// thread, or that abandon the operation part-way through. Those hand
-/// [org.jabref.logic.undo.UndoManager#addEdit] the result of [#toChangeSet] themselves.
+/// Usually obtained from [org.jabref.logic.undo.UndoManager#addEdit], which
+/// owns the recorder's lifetime and pushes what it collected. Constructing one
+/// directly is for the commands that cannot use a block: those that collect on
+/// a background thread and push on the JavaFX thread, or that abandon the
+/// operation part-way through. Those hand
+/// [org.jabref.logic.undo.UndoManager#addEdit] the result of [#toChangeSet]
+/// themselves.
 ///
-/// The overloads taking [FieldChange] exist because that is what the model already returns
-/// from `setField`, `putKeywords`, `setCitationKey` and friends, so recording a change is a
-/// matter of handing the return value over rather than restating it.
+/// The overloads taking [FieldChange] exist because that is what the model
+/// already returns from `setField`, `putKeywords`, `setCitationKey` and
+/// friends, so recording a change is a matter of handing the return value over
+/// rather than restating it.
 @NullMarked
 public final class CompoundEdit {
 
     private final String name;
     private final List<BibChange> changes = new ArrayList<>();
 
-    /// @param name what the user did, as they would recognise it — see [ChangeSet]. It travels
-    ///             unchanged into the set that [#toChangeSet] builds, so whatever is passed here
-    ///             is what a reader eventually sees.
+    /// @param name what the user did, as they would recognise it — see
+    ///   [ChangeSet]. It travels unchanged into the set that [#toChangeSet]
+    ///   builds, so whatever is passed here is what a reader eventually sees.
     public CompoundEdit(String name) {
         this.name = name;
     }
@@ -37,12 +39,14 @@ public final class CompoundEdit {
         changes.add(change);
     }
 
-    /// Performs `change` and records it in this step, the recorder's counterpart to
-    /// [org.jabref.logic.undo.UndoManager#applyEdit]. As there, the difference from
-    /// [#addEdit(BibChange)] is only who performs the change.
+    /// Performs `change` and records it in this step, the recorder's
+    /// counterpart to [org.jabref.logic.undo.UndoManager#applyEdit]. As there,
+    /// the difference from [#addEdit(BibChange)] is only who performs the
+    /// change.
     ///
-    /// No lock, unlike the manager's method: a recorder belongs to the thread running its block,
-    /// and nothing it collects is reachable from another thread until the block ends.
+    /// No lock, unlike the manager's method: a recorder belongs to the thread
+    /// running its block, and nothing it collects is reachable from another
+    /// thread until the block ends.
     ///
     /// @return what was applied, and what was not — see [BibChange#apply]
     public ApplyResult applyEdit(BibChange change) {
@@ -64,8 +68,8 @@ public final class CompoundEdit {
         changes.add(new UndoableFieldChange(change));
     }
 
-    /// Folds another recorder in as a nested change, so one user action stays one undo step
-    /// even when a command delegates its collecting.
+    /// Folds another recorder in as a nested change, so one user action stays
+    /// one undo step even when a command delegates its collecting.
     public void addEdit(CompoundEdit nested) {
         if (nested.hasEdits()) {
             changes.add(nested.toChangeSet());

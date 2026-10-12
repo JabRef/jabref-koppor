@@ -1,7 +1,6 @@
 package org.jabref.logic.layout.format;
 
 import org.jabref.logic.layout.LayoutFormatter;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +23,9 @@ class RTFCharsTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             '', ''
             hallo, hallo
             R\\u233eflexions sur le timing de la quantit\\u233e, Réflexions sur le timing de la quantité
@@ -35,7 +36,9 @@ class RTFCharsTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             {\\i hallo}, \\emph{hallo}
             {\\i hallo}, {\\emph hallo}
             An article title with {\\i a book title} emphasized, An article title with \\emph{a book title} emphasized
@@ -50,7 +53,8 @@ class RTFCharsTest {
 
     @Test
     void complicated() {
-        assertEquals("R\\u233eflexions sur le timing de la quantit\\u233e {\\u230ae} should be \\u230ae",
+        assertEquals(
+                "R\\u233eflexions sur le timing de la quantit\\u233e {\\u230ae} should be \\u230ae",
                 formatter.format("Réflexions sur le timing de la quantité {\\ae} should be æ"));
     }
 
@@ -61,41 +65,37 @@ class RTFCharsTest {
 
     @Test
     void complicated3() {
-        assertEquals("Le c\\u339oeur d\\u233e\\u231cu mais l'\\u226ame plut\\u244ot na\\u239ive, Lou\\u255ys r" +
-                "\\u234eva de crapa\\u252?ter en cano\\u235e au del\\u224a des \\u238iles, pr\\u232es du m\\u228alstr" +
-                "\\u246om o\\u249u br\\u251ulent les nov\\u230ae.", formatter.format("Le cœur déçu mais l'âme plutôt " +
-                "naïve, Louÿs rêva de crapaüter en canoë au delà des îles, près du mälström où brûlent les novæ."));
+        assertEquals(
+                "Le c\\u339oeur d\\u233e\\u231cu mais l'\\u226ame plut\\u244ot na\\u239ive, Lou\\u255ys r" + "\\u234eva de crapa\\u252?ter en cano\\u235e au del\\u224a des \\u238iles, pr\\u232es du m\\u228alstr" + "\\u246om o\\u249u br\\u251ulent les nov\\u230ae.",
+                formatter.format("Le cœur déçu mais l'âme plutôt " + "naïve, Louÿs rêva de crapaüter en canoë au delà des îles, près du mälström où brûlent les novæ."));
     }
 
     @Test
     void complicated4() {
-        assertEquals("l'\\u238ile exigu\\u235e\n" +
-                "  O\\u249u l'ob\\u232ese jury m\\u251ur\n" +
-                "  F\\u234ete l'ha\\u239i volap\\u252?k,\n" +
-                "  \\u194Ane ex a\\u233equo au whist,\n" +
-                "  \\u212Otez ce v\\u339oeu d\\u233e\\u231cu.", formatter.format("l'île exiguë\n" +
-                "  Où l'obèse jury mûr\n" +
-                "  Fête l'haï volapük,\n" +
-                "  Âne ex aéquo au whist,\n" +
-                "  Ôtez ce vœu déçu."));
+        assertEquals(
+                "l'\\u238ile exigu\\u235e\n" + "  O\\u249u l'ob\\u232ese jury m\\u251ur\n" + "  F\\u234ete l'ha\\u239i volap\\u252?k,\n" + "  \\u194Ane ex a\\u233equo au whist,\n" + "  \\u212Otez ce v\\u339oeu d\\u233e\\u231cu.",
+                formatter.format("l'île exiguë\n" + "  Où l'obèse jury mûr\n" + "  Fête l'haï volapük,\n" + "  Âne ex aéquo au whist,\n" + "  Ôtez ce vœu déçu."));
     }
 
     @Test
     void complicated5() {
-        assertEquals("\\u193Arv\\u237izt\\u369?r\\u337? t\\u252?k\\u246orf\\u250ur\\u243og\\u233ep",
+        assertEquals(
+                "\\u193Arv\\u237izt\\u369?r\\u337? t\\u252?k\\u246orf\\u250ur\\u243og\\u233ep",
                 formatter.format("Árvíztűrő tükörfúrógép"));
     }
 
     @Test
     void complicated6() {
-        assertEquals("Pchn\\u261a\\u263c w t\\u281e \\u322l\\u243od\\u378z je\\u380za lub o\\u347sm skrzy\\u324n fig",
+        assertEquals(
+                "Pchn\\u261a\\u263c w t\\u281e \\u322l\\u243od\\u378z je\\u380za lub o\\u347sm skrzy\\u324n fig",
                 formatter.format("Pchnąć w tę łódź jeża lub ośm skrzyń fig"));
     }
 
     @ParameterizedTest
     @CsvSource(
             quoteCharacter = '"',
-            textBlock = """
+            textBlock =
+                    """
                     # ó
                     "\\'f3",        "\\'{o}"
                     # ò
@@ -156,14 +156,15 @@ class RTFCharsTest {
                     "\\u169?",      "{\\copyright}"
                     # £
                     "\\u163?",      "{\\pounds}"
-                    """
-    )
+                    """)
     void specialCharacters(String expected, String input) {
         assertEquals(expected, formatter.format(input));
     }
 
     @ParameterizedTest(name = "specialChar={0}, formattedStr={1}")
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             # A
             ÀÁÂÃÄĀĂĄ, \\u192A\\u193A\\u194A\\u195A\\u196A\\u256A\\u258A\\u260A
             # a
@@ -261,7 +262,9 @@ class RTFCharsTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
              \\'e0, \\`{a}
              \\'e8, \\`{e}
              \\'ec, \\`{i}
@@ -289,7 +292,9 @@ class RTFCharsTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             \\'c0, \\`A
             \\'c8, \\`E
             \\'cc, \\`I

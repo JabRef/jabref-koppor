@@ -6,8 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import org.jabref.logic.shared.exception.MscCodeLoadingException;
 import org.jabref.logic.util.MscCodeUtils;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -22,52 +22,65 @@ class MscCodeLoaderTest {
     @Test
     void convertCsvToMvStore() throws IOException {
         Path csvFile = tempDir.resolve("MSC_2020.csv");
-        Files.writeString(csvFile, """
+        Files.writeString(csvFile,
+                """
                 code\ttext\tdescription
                 "34B60"\t"Applications of boundary value problems involving ordinary differential equations"\t"Applications of boundary value problems involving ordinary differential equations"
                 "53C99"\t"Global differential geometry"\t"None of the above, but in this section"
-                """, StandardCharsets.ISO_8859_1);
+                """,
+                StandardCharsets.ISO_8859_1);
         Path mvStoreFile = tempDir.resolve("msc-list.mv");
 
         MscCodeLoader.convertCsvToMvStore(csvFile, mvStoreFile);
 
         MscCodeRepository repository = new MscCodeRepository(mvStoreFile);
 
-        assertEquals(Optional.of("Applications of boundary value problems involving ordinary differential equations"),
+        assertEquals(
+                Optional.of("Applications of boundary value problems involving ordinary differential equations"),
                 repository.getText("34B60"));
         assertEquals(Optional.of("None of the above, but in this section"), repository.getDescription("53C99"));
     }
 
     @Test
-    void loadMscCodeRepositoryFromCsvUrl() throws IOException, org.jabref.logic.shared.exception.MscCodeLoadingException {
+    void loadMscCodeRepositoryFromCsvUrl() throws IOException, MscCodeLoadingException {
         Path csvFile = tempDir.resolve("MSC_2020.csv");
-        Files.writeString(csvFile, """
+        Files.writeString(csvFile,
+                """
                 code\ttext\tdescription
                 "34B60"\t"Applications of boundary value problems involving ordinary differential equations"\t"Applications of boundary value problems involving ordinary differential equations"
-                """, StandardCharsets.ISO_8859_1);
+                """,
+                StandardCharsets.ISO_8859_1);
 
-        MscCodeRepository repository = MscCodeUtils.loadMscCodeRepositoryFromCsv(csvFile.toUri().toURL()).get();
+        MscCodeRepository repository = MscCodeUtils.loadMscCodeRepositoryFromCsv(csvFile.toUri()
+                .toURL())
+                .get();
 
-        assertEquals(Optional.of("Applications of boundary value problems involving ordinary differential equations"), repository.getDescription("34B60"));
+        assertEquals(
+                Optional.of("Applications of boundary value problems involving ordinary differential equations"),
+                repository.getDescription("34B60"));
     }
 
     @Test
     void convertCsvToMvStoreRemovesStaleEntries() throws IOException {
         Path csvFile1 = tempDir.resolve("MSC_1.csv");
-        Files.writeString(csvFile1, """
+        Files.writeString(csvFile1,
+                """
                 code\ttext\tdescription
                 "11-XX"\t"Number theory"\t"Number theory"
                 "12-XX"\t"Field theory and polynomials"\t"Field theory and polynomials"
-                """, StandardCharsets.ISO_8859_1);
+                """,
+                StandardCharsets.ISO_8859_1);
         Path mvStoreFile = tempDir.resolve("msc-list.mv");
 
         MscCodeLoader.convertCsvToMvStore(csvFile1, mvStoreFile);
 
         Path csvFile2 = tempDir.resolve("MSC_2.csv");
-        Files.writeString(csvFile2, """
+        Files.writeString(csvFile2,
+                """
                 code\ttext\tdescription
                 "11-XX"\t"Number theory updated"\t"Number theory updated"
-                """, StandardCharsets.ISO_8859_1);
+                """,
+                StandardCharsets.ISO_8859_1);
 
         MscCodeLoader.convertCsvToMvStore(csvFile2, mvStoreFile);
 

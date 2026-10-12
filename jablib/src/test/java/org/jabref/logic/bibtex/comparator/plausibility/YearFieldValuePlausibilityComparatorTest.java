@@ -1,7 +1,6 @@
 package org.jabref.logic.bibtex.comparator.plausibility;
 
 import org.jabref.logic.bibtex.comparator.ComparisonResult;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -12,7 +11,9 @@ class YearFieldValuePlausibilityComparatorTest {
     private final YearFieldValuePlausibilityComparator comparator = new YearFieldValuePlausibilityComparator();
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             # Blank Validation
             '', 2020, RIGHT_BETTER
             2020, '', LEFT_BETTER

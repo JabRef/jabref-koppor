@@ -14,7 +14,6 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -71,7 +70,9 @@ class GvkFetcherTest {
         SearchQuery searchQueryObject = new SearchQuery(query);
         SearchQueryVisitor visitor = new SearchQueryVisitor(searchQueryObject.getSearchFlags());
         URL url = fetcher.getURLForQuery(visitor.visitStart(searchQueryObject.getContext()));
-        assertEquals("https://sru.k10plus.de/opac-de-627?version=1.1&operation=searchRetrieve&query=pica.all%3Djava%20and%20pica.all%3Djdk&maximumRecords=50&recordSchema=picaxml&sortKeys=Year%2C%2C1", url.toString());
+        assertEquals(
+                "https://sru.k10plus.de/opac-de-627?version=1.1&operation=searchRetrieve&query=pica.all%3Djava%20and%20pica.all%3Djdk&maximumRecords=50&recordSchema=picaxml&sortKeys=Year%2C%2C1",
+                url.toString());
     }
 
     @Test
@@ -80,7 +81,9 @@ class GvkFetcherTest {
         SearchQuery searchQueryObject = new SearchQuery(query);
         SearchQueryVisitor visitor = new SearchQueryVisitor(searchQueryObject.getSearchFlags());
         URL url = fetcher.getURLForQuery(visitor.visitStart(searchQueryObject.getContext()));
-        assertEquals("https://sru.k10plus.de/opac-de-627?version=1.1&operation=searchRetrieve&query=pica.kon%3Djava%20and%20pica.tit%3Djdk&maximumRecords=50&recordSchema=picaxml&sortKeys=Year%2C%2C1", url.toString());
+        assertEquals(
+                "https://sru.k10plus.de/opac-de-627?version=1.1&operation=searchRetrieve&query=pica.kon%3Djava%20and%20pica.tit%3Djdk&maximumRecords=50&recordSchema=picaxml&sortKeys=Year%2C%2C1",
+                url.toString());
     }
 
     @Test

@@ -7,7 +7,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.paint.Color;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
 
@@ -47,6 +46,10 @@ public class ImportFilesResultItemViewModel {
 
     @Override
     public String toString() {
-        return "ImportFilesResultItemViewModel [file=" + file.get() + ", message=" + message.get() + "]";
+        return "ImportFilesResultItemViewModel [file="
+                + file.get()
+                + ", message="
+                + message.get()
+                + "]";
     }
 }

@@ -13,7 +13,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyEvent;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingCategory;
@@ -24,13 +23,13 @@ import org.jabref.gui.preferences.keybindings.presets.KeyBindingPreset;
 import org.jabref.gui.preferences.keybindings.presets.NewEntryBindingPreset;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.OptionalObjectProperty;
-
 import org.jspecify.annotations.NonNull;
 
 public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
 
     /// Working copy the tab edits; written back to [#liveKeyBindingRepository] on store.
     private final KeyBindingRepository keyBindingRepository;
+
     private final KeyBindingRepository liveKeyBindingRepository;
     private final OptionalObjectProperty<KeyBindingViewModel> selectedKeyBinding = OptionalObjectProperty.empty();
     private final ObjectProperty<KeyBindingViewModel> rootKeyBinding = new SimpleObjectProperty<>();
@@ -40,8 +39,7 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
 
     private final List<String> restartWarning = new ArrayList<>();
 
-    public KeyBindingsTabViewModel(@NonNull KeyBindingRepository keyBindingRepository,
-                                   @NonNull DialogService dialogService) {
+    public KeyBindingsTabViewModel(@NonNull KeyBindingRepository keyBindingRepository, @NonNull DialogService dialogService) {
         this.keyBindingRepository = new KeyBindingRepository(keyBindingRepository.getKeyBindings());
         this.liveKeyBindingRepository = keyBindingRepository;
         this.dialogService = dialogService;
@@ -50,7 +48,8 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
         keyBindingPresets.add(new NewEntryBindingPreset());
     }
 
-    /// Read all keybindings from the keybinding repository and create table keybinding models for them
+    /// Read all keybindings from the keybinding repository and create table
+    /// keybinding models for them
     @Override
     public void setValues() {
         KeyBindingViewModel root = new KeyBindingViewModel(keyBindingRepository, KeyBindingCategory.FILE);
@@ -85,12 +84,21 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
     /// @param searchTerm term to search for
     /// @return true if the term is found in the keybinding
     private boolean matchesSearchTerm(KeyBinding keyBinding, String searchTerm) {
-        if (keyBinding.getLocalization().toLowerCase().contains(searchTerm) ||
-                keyBinding.getCategory().getName().toLowerCase().contains(searchTerm)) {
+        if (keyBinding.getLocalization()
+                      .toLowerCase()
+                      .contains(searchTerm)
+                || keyBinding.getCategory()
+                             .getName()
+                             .toLowerCase()
+                             .contains(searchTerm)) {
             return true;
         }
         if (keyBindingRepository.getKeyCombination(keyBinding).isPresent()) {
-            return keyBindingRepository.getKeyCombination(keyBinding).get().toString().toLowerCase().contains(searchTerm);
+            return keyBindingRepository.getKeyCombination(keyBinding)
+                    .get()
+                    .toString()
+                    .toLowerCase()
+                    .contains(searchTerm);
         }
         return false;
     }
@@ -131,8 +139,7 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
         String title = Localization.lang("Resetting all keyboard shortcuts");
         String content = Localization.lang("All keyboard shortcuts will be reset to their defaults.");
         ButtonType resetButtonType = new ButtonType("Reset", ButtonBar.ButtonData.OK_DONE);
-        dialogService.showCustomButtonDialogAndWait(Alert.AlertType.INFORMATION, title, content, resetButtonType,
-                ButtonType.CANCEL).ifPresent(response -> {
+        dialogService.showCustomButtonDialogAndWait(Alert.AlertType.INFORMATION, title, content, resetButtonType, ButtonType.CANCEL).ifPresent(response -> {
             if (response == resetButtonType) {
                 keyBindingRepository.resetToDefault();
                 setValues();

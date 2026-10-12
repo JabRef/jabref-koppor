@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
-
+import org.controlsfx.control.PopOver;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.fieldeditors.journalinfo.JournalInfoView;
 import org.jabref.logic.importer.ImporterPreferences;
@@ -14,11 +14,10 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 
-import org.controlsfx.control.PopOver;
-
 public class PopOverUtil {
 
-    public static void showJournalInfo(Button button, BibEntry entry, DialogService dialogService, TaskExecutor taskExecutor, ImporterPreferences importerPreferences) {
+    public static void showJournalInfo(Button button, BibEntry entry, DialogService dialogService,
+            TaskExecutor taskExecutor, ImporterPreferences importerPreferences) {
         Optional<String> optionalIssn = entry.getField(StandardField.ISSN);
         Optional<String> optionalJournalName = entry.getFieldOrAlias(StandardField.JOURNAL);
 
@@ -33,16 +32,14 @@ public class PopOverUtil {
             popOver.setArrowSize(0);
             popOver.show(button, 0);
 
-            BackgroundTask
-                    .wrap(() -> new JournalInfoView(importerPreferences).populateJournalInformation(optionalIssn.orElse(""), optionalJournalName.orElse("")))
+            BackgroundTask.wrap(() -> new JournalInfoView(importerPreferences).populateJournalInformation(optionalIssn.orElse(""), optionalJournalName.orElse("")))
                     .onSuccess(updatedNode -> {
                         popOver.setContentNode(updatedNode);
                         popOver.show(button, 0);
                     })
                     .onFailure(exception -> {
                         popOver.hide();
-                        String message = Localization.lang("Error while fetching journal information: %0",
-                                exception.getMessage());
+                        String message = Localization.lang("Error while fetching journal information: %0", exception.getMessage());
                         dialogService.notify(message);
                     })
                     .executeWith(taskExecutor);

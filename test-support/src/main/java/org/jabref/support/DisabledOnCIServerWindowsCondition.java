@@ -14,8 +14,7 @@ public class DisabledOnCIServerWindowsCondition implements ExecutionCondition {
 
     @Override
     public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
-        Optional<DisabledOnCIServerWindows> annotation = context.getElement()
-                                                                .flatMap(el -> AnnotationSupport.findAnnotation(el, DisabledOnCIServerWindows.class));
+        Optional<DisabledOnCIServerWindows> annotation = context.getElement().flatMap(el -> AnnotationSupport.findAnnotation(el, DisabledOnCIServerWindows.class));
 
         if (annotation.isEmpty()) {
             return ENABLED;
@@ -31,6 +30,7 @@ public class DisabledOnCIServerWindowsCondition implements ExecutionCondition {
             return ENABLED;
         }
 
-        return ConditionEvaluationResult.disabled(annotation.get().value());
+        return ConditionEvaluationResult.disabled(annotation.get()
+                .value());
     }
 }

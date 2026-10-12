@@ -12,7 +12,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.citationstyle.CSLStyleLoader;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.layout.LayoutFormatterPreferences;
@@ -30,13 +29,14 @@ public class PreviewPreferences {
 
     private final BooleanProperty shouldDownloadCovers;
 
-    public PreviewPreferences(List<PreviewLayout> layoutCycle,
-                              int layoutCyclePosition,
-                              String customPreviewLayout,
-                              boolean showPreviewAsExtraTab,
-                              boolean showPreviewEntryTableTooltip,
-                              List<Path> bstPreviewLayoutPaths,
-                              boolean shouldDownloadCovers) {
+    public PreviewPreferences(
+            List<PreviewLayout> layoutCycle,
+            int layoutCyclePosition,
+            String customPreviewLayout,
+            boolean showPreviewAsExtraTab,
+            boolean showPreviewEntryTableTooltip,
+            List<Path> bstPreviewLayoutPaths,
+            boolean shouldDownloadCovers) {
         this.layoutCycle = FXCollections.observableArrayList(layoutCycle);
         this.layoutCyclePosition = new SimpleIntegerProperty(layoutCyclePosition);
         this.customPreviewLayout = new SimpleStringProperty(customPreviewLayout);
@@ -47,14 +47,12 @@ public class PreviewPreferences {
     }
 
     private PreviewPreferences() {
-        this(
-                List.of(),  // Layout cycle - empty by default, see JabRefPreferences::getPreviewPreferencesFromBackingStore
-                0,          // Layout cycle position
-                TextBasedPreviewLayout.DEFAULT,
-                false,      // Show preview as an extra tab
-                false,      // Show the preview entry table tooltip
-                List.of(),  // BST-Paths
-                false       // Download cover images disabled per default - similar to Mr. DLib; see [org.jabref.logic.preferences.JabRefCliPreferences.ACCEPT_RECOMMENDATIONS].
+        this(List.of(), // Layout cycle - empty by default, see JabRefPreferences::getPreviewPreferencesFromBackingStore
+        0, // Layout cycle position
+        TextBasedPreviewLayout.DEFAULT, false, // Show preview as an extra tab
+        false, // Show the preview entry table tooltip
+                List.of(), // BST-Paths
+                false // Download cover images disabled per default - similar to Mr. DLib; see [org.jabref.logic.preferences.JabRefCliPreferences.ACCEPT_RECOMMENDATIONS].
         );
     }
 
@@ -63,19 +61,11 @@ public class PreviewPreferences {
         return new PreviewPreferences();
     }
 
-    public static PreviewPreferences getDefaultWithStyles(LayoutFormatterPreferences layoutFormatterPreferences,
-                                                          JournalAbbreviationRepository abbreviationRepository,
-                                                          BibEntryTypesManager entryTypesManager) {
+    public static PreviewPreferences getDefaultWithStyles(LayoutFormatterPreferences layoutFormatterPreferences, JournalAbbreviationRepository abbreviationRepository, BibEntryTypesManager entryTypesManager) {
         PreviewPreferences defaults = getDefault();
-        defaults.getLayoutCycle().addAll(Stream.of(TextBasedPreviewLayout.NAME, CSLStyleLoader.DEFAULT_STYLE).map(layout ->
-                                                       PreviewLayout.of(
-                                                               layout,
-                                                               TextBasedPreviewLayout.DEFAULT,
-                                                               List.of(),
-                                                               layoutFormatterPreferences,
-                                                               abbreviationRepository,
-                                                               entryTypesManager))
-                                               .toList());
+        defaults.getLayoutCycle().addAll(Stream.of(TextBasedPreviewLayout.NAME, CSLStyleLoader.DEFAULT_STYLE)
+                .map(layout -> PreviewLayout.of(layout, TextBasedPreviewLayout.DEFAULT, List.of(), layoutFormatterPreferences, abbreviationRepository, entryTypesManager))
+                .toList());
         return defaults;
     }
 
@@ -101,14 +91,9 @@ public class PreviewPreferences {
     }
 
     public PreviewLayout getSelectedPreviewLayout() {
-        if (layoutCycle.isEmpty()
-                || layoutCyclePosition.getValue() < 0
-                || layoutCyclePosition.getValue() >= layoutCycle.size()) {
+        if (layoutCycle.isEmpty() || layoutCyclePosition.getValue() < 0 || layoutCyclePosition.getValue() >= layoutCycle.size()) {
             // Fallback dummy layout
-            return new TextBasedPreviewLayout(
-                    getCustomPreviewLayout(),
-                    LayoutFormatterPreferences.getDefault(),
-                    new JournalAbbreviationRepository());
+            return new TextBasedPreviewLayout(getCustomPreviewLayout(), LayoutFormatterPreferences.getDefault(), new JournalAbbreviationRepository());
         } else {
             return layoutCycle.get(layoutCyclePosition.getValue());
         }

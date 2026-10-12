@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.WorkspacePreferences;
 import org.jabref.gui.preferences.GuiPreferences;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -26,7 +25,8 @@ class ThemeDialogViewModelTest {
         viewModel.customPathToThemeProperty().set("");
         assertFalse(viewModel.isValidConfiguration());
 
-        viewModel.customPathToThemeProperty().set(tempDir.resolve("missing.css").toString());
+        viewModel.customPathToThemeProperty().set(tempDir.resolve("missing.css")
+                .toString());
         assertFalse(viewModel.isValidConfiguration());
 
         Path customTheme = Files.createFile(tempDir.resolve("custom.css"));

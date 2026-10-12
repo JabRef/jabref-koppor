@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -24,8 +25,6 @@ import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +34,11 @@ import static org.jabref.logic.git.merge.execution.GitMergeApplier.applyResolved
 
 /// Runs the Git operations configured in the library properties.
 ///
-/// Same operations as [GitCommitAction] and [GitPushAction], but started by a save or a timer
-/// instead of the user. Failures are reported as notifications rather than dialogs. A conflict
-/// during the pull before an auto-push still prompts, because the user is present for the save
-/// that started it; a scheduled pull runs unattended and stays silent.
+/// Same operations as [GitCommitAction] and [GitPushAction], but started by a
+/// save or a timer instead of the user. Failures are reported as notifications
+/// rather than dialogs. A conflict during the pull before an auto-push still
+/// prompts, because the user is present for the save that started it; a
+/// scheduled pull runs unattended and stays silent.
 @NullMarked
 public class GitAutoSync {
     private static final Logger LOGGER = LoggerFactory.getLogger(GitAutoSync.class);
@@ -49,11 +49,8 @@ public class GitAutoSync {
     private final GuiPreferences guiPreferences;
     private final StateManager stateManager;
 
-    public GitAutoSync(DialogService dialogService,
-                       GitHandlerRegistry gitHandlerRegistry,
-                       TaskExecutor taskExecutor,
-                       GuiPreferences guiPreferences,
-                       StateManager stateManager) {
+    public GitAutoSync(DialogService dialogService, GitHandlerRegistry gitHandlerRegistry, TaskExecutor taskExecutor,
+                       GuiPreferences guiPreferences, StateManager stateManager) {
         this.dialogService = dialogService;
         this.gitHandlerRegistry = gitHandlerRegistry;
         this.taskExecutor = taskExecutor;
@@ -74,15 +71,14 @@ public class GitAutoSync {
     }
 
     private void commit(Path bibFilePath, BibDatabaseContext databaseContext, boolean pushAfterCommit) {
-        gitHandlerRegistry.fromAnyPath(bibFilePath).ifPresent(gitHandler ->
-                BackgroundTask.wrap(() -> doCommit(gitHandler, bibFilePath))
-                              .onSuccess(committed -> {
-                                  if (committed && pushAfterCommit) {
-                                      pullThenPush(bibFilePath, databaseContext);
-                                  }
-                              })
-                              .onFailure(this::showCommitError)
-                              .executeWith(taskExecutor));
+        gitHandlerRegistry.fromAnyPath(bibFilePath).ifPresent(gitHandler -> BackgroundTask.wrap(() -> doCommit(gitHandler, bibFilePath))
+                .onSuccess(committed -> {
+                    if (committed && pushAfterCommit) {
+                        pullThenPush(bibFilePath, databaseContext);
+                    }
+                })
+                .onFailure(this::showCommitError)
+                .executeWith(taskExecutor));
     }
 
     private boolean doCommit(GitHandler gitHandler, Path bibFilePath) throws JabRefException, GitAPIException, IOException {
@@ -94,30 +90,27 @@ public class GitAutoSync {
 
     private void pullThenPush(Path bibFilePath, BibDatabaseContext databaseContext) {
         BackgroundTask.wrap(() -> syncService().prepareMerge(databaseContext, bibFilePath))
-                      .onSuccess(pullPlan -> {
-                          if (pullPlan.isEmpty()) {
-                              push(bibFilePath, databaseContext);
-                              return;
-                          }
-                          applyMerge(bibFilePath, databaseContext, pullPlan.get());
-                      })
-                      .onFailure(this::showPullError)
-                      .executeWith(taskExecutor);
+                .onSuccess(pullPlan -> {
+                    if (pullPlan.isEmpty()) {
+                        push(bibFilePath, databaseContext);
+                        return;
+                    }
+                    applyMerge(bibFilePath, databaseContext, pullPlan.get());
+                })
+                .onFailure(this::showPullError)
+                .executeWith(taskExecutor);
     }
 
     private void applyMerge(Path bibFilePath, BibDatabaseContext databaseContext, PullPlan pullPlan) {
         List<ThreeWayEntryConflict> conflicts = pullPlan.conflicts();
         if (!conflicts.isEmpty()) {
-            if (!dialogService.showConfirmationDialogAndWait(
-                    Localization.lang("Git Pull"),
-                    Localization.lang("Detected conflicting changes during pull."),
-                    Localization.lang("Resolve conflicts"),
+            if (!dialogService.showConfirmationDialogAndWait(Localization.lang("Git Pull"), Localization.lang("Detected conflicting changes during pull."), Localization.lang("Resolve conflicts"),
                     Localization.lang("Cancel"))) {
                 dialogService.notify(Localization.lang("Pull canceled."));
                 return;
             }
-            List<BibEntry> resolved = new GuiGitConflictResolverStrategy(
-                    new GitConflictResolverDialog(dialogService, guiPreferences, stateManager)).resolveConflicts(conflicts);
+            List<BibEntry> resolved = new GuiGitConflictResolverStrategy(new GitConflictResolverDialog(dialogService, guiPreferences, stateManager))
+                    .resolveConflicts(conflicts);
             if (resolved.isEmpty()) {
                 dialogService.notify(Localization.lang("Pull canceled."));
                 return;
@@ -141,25 +134,25 @@ public class GitAutoSync {
         });
     }
 
-    /// Pulls remote changes if the library is inside a Git repository. Skips quietly when there are
-    /// uncommitted changes or the merge has conflicts, because no user started this operation.
+    /// Pulls remote changes if the library is inside a Git repository. Skips
+    /// quietly when there are uncommitted changes or the merge has conflicts,
+    /// because no user started this operation.
     public void pull(Path bibFilePath, BibDatabaseContext databaseContext, BooleanSupplier hasUnsavedChanges) {
-        gitHandlerRegistry.fromAnyPath(bibFilePath).ifPresent(gitHandler ->
-                BackgroundTask.wrap(() -> preparePull(gitHandler, databaseContext, bibFilePath))
-                              .onSuccess(pullPlan -> pullPlan.ifPresent(plan -> applyCleanMerge(bibFilePath, databaseContext, plan, hasUnsavedChanges)))
-                              .onFailure(this::showPullError)
-                              .executeWith(taskExecutor));
+        gitHandlerRegistry.fromAnyPath(bibFilePath).ifPresent(gitHandler -> BackgroundTask.wrap(() -> preparePull(gitHandler, databaseContext, bibFilePath))
+                .onSuccess(pullPlan -> pullPlan.ifPresent(plan -> applyCleanMerge(bibFilePath, databaseContext, plan, hasUnsavedChanges)))
+                .onFailure(this::showPullError)
+                .executeWith(taskExecutor));
     }
 
-    private Optional<PullPlan> preparePull(GitHandler gitHandler, BibDatabaseContext databaseContext, Path bibFilePath)
-            throws JabRefException, GitAPIException, IOException {
+    private Optional<PullPlan> preparePull(GitHandler gitHandler, BibDatabaseContext databaseContext, Path bibFilePath) throws JabRefException, GitAPIException, IOException {
         if (GitStatusChecker.checkStatus(gitHandler).uncommittedChanges()) {
             return Optional.empty();
         }
         return syncService().prepareMerge(databaseContext, bibFilePath);
     }
 
-    private void applyCleanMerge(Path bibFilePath, BibDatabaseContext databaseContext, PullPlan pullPlan, BooleanSupplier hasUnsavedChanges) {
+    private void applyCleanMerge(Path bibFilePath, BibDatabaseContext databaseContext, PullPlan pullPlan,
+            BooleanSupplier hasUnsavedChanges) {
         if (!pullPlan.conflicts().isEmpty()) {
             dialogService.notify(Localization.lang("Detected conflicting changes during pull."));
             return;
@@ -181,10 +174,12 @@ public class GitAutoSync {
         if (bookkeepingResult.isFastForward()) {
             dialogService.notify(Localization.lang("Fast-forwarded to remote."));
         } else if (!autoPlan.isEmpty()) {
-            dialogService.notify(Localization.lang("Auto-applied changes: %0 new, %1 modified, %2 deleted.",
-                    autoPlan.newEntries().size(),
-                    autoPlan.fieldPatches().size(),
-                    autoPlan.deletedEntryKeys().size()));
+            dialogService.notify(
+                    Localization.lang(
+                            "Auto-applied changes: %0 new, %1 modified, %2 deleted.",
+                            autoPlan.newEntries().size(),
+                            autoPlan.fieldPatches().size(),
+                            autoPlan.deletedEntryKeys().size()));
         }
     }
 
@@ -194,8 +189,8 @@ public class GitAutoSync {
 
     private void push(Path bibFilePath, BibDatabaseContext databaseContext) {
         BackgroundTask.wrap(() -> syncService().push(databaseContext, bibFilePath))
-                      .onFailure(this::showPushError)
-                      .executeWith(taskExecutor);
+                .onFailure(this::showPushError)
+                .executeWith(taskExecutor);
     }
 
     private void showPullError(Exception exception) {

@@ -15,7 +15,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.BibEntryAssert;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -56,8 +55,14 @@ class MarcXmlParserTest {
             List<BibEntry> entries = new MarcXmlParser().parseEntries(inputStream);
 
             assertEquals(1, entries.size());
-            assertEquals("9783031996870", entries.getFirst().getField(StandardField.ISBN).orElseThrow());
-            assertEquals("10.1007/978-3-031-99687-0", entries.getFirst().getField(StandardField.DOI).orElseThrow());
+            assertEquals("9783031996870",
+                    entries.getFirst()
+                           .getField(StandardField.ISBN)
+                           .orElseThrow());
+            assertEquals("10.1007/978-3-031-99687-0",
+                    entries.getFirst()
+                           .getField(StandardField.DOI)
+                           .orElseThrow());
         }
     }
 
@@ -67,8 +72,14 @@ class MarcXmlParserTest {
             List<BibEntry> entries = new MarcXmlParser().parseEntries(inputStream);
 
             assertEquals(2, entries.size());
-            assertEquals("9783570184783", entries.getFirst().getField(StandardField.ISBN).orElseThrow());
-            assertEquals("9783570184783", entries.get(1).getField(StandardField.ISBN).orElseThrow());
+            assertEquals("9783570184783",
+                    entries.getFirst()
+                           .getField(StandardField.ISBN)
+                           .orElseThrow());
+            assertEquals("9783570184783",
+                    entries.get(1)
+                           .getField(StandardField.ISBN)
+                           .orElseThrow());
         }
     }
 
@@ -79,7 +90,10 @@ class MarcXmlParserTest {
 
             assertEquals(1, entries.size());
             assertEquals(StandardEntryType.Article, entries.getFirst().getType());
-            assertEquals("Seminars in speech and language", entries.getFirst().getField(StandardField.JOURNAL).orElseThrow());
+            assertEquals("Seminars in speech and language",
+                    entries.getFirst()
+                           .getField(StandardField.JOURNAL)
+                           .orElseThrow());
         }
     }
 
@@ -90,7 +104,8 @@ class MarcXmlParserTest {
 
             assertEquals(1, entries.size());
             assertEquals(StandardEntryType.Misc, entries.getFirst().getType());
-            assertEquals(Optional.empty(), entries.getFirst().getField(StandardField.JOURNAL));
+            assertEquals(Optional.empty(),
+                    entries.getFirst().getField(StandardField.JOURNAL));
         }
     }
 
@@ -100,8 +115,10 @@ class MarcXmlParserTest {
             List<BibEntry> entries = new MarcXmlParser().parseEntries(inputStream);
 
             assertEquals(1, entries.size());
-            assertEquals(List.of(), entries.getFirst().getFiles());
-            assertEquals(Optional.empty(), entries.getFirst().getField(StandardField.URL));
+            assertEquals(List.of(),
+                    entries.getFirst().getFiles());
+            assertEquals(Optional.empty(),
+                    entries.getFirst().getField(StandardField.URL));
         }
     }
 
@@ -111,14 +128,20 @@ class MarcXmlParserTest {
             List<BibEntry> entries = new MarcXmlParser().parseEntries(inputStream);
 
             assertEquals(1, entries.size());
-            assertEquals("https://www.swp-berlin.org/publications/products/aktuell/2026A25_Europaeische_Staatsanwaltschaft.pdf", entries.getFirst().getFiles().getFirst().getLink());
-            assertEquals(Optional.empty(), entries.getFirst().getField(StandardField.URL));
+            assertEquals("https://www.swp-berlin.org/publications/products/aktuell/2026A25_Europaeische_Staatsanwaltschaft.pdf",
+                    entries.getFirst()
+                           .getFiles()
+                           .getFirst()
+                           .getLink());
+            assertEquals(Optional.empty(),
+                    entries.getFirst().getField(StandardField.URL));
         }
     }
 
     @Test
     void rejectsDocumentTypeDeclarations() {
-        String xmlWithDoctype = """
+        String xmlWithDoctype =
+                """
                 <!DOCTYPE response [<!ENTITY entity SYSTEM "file:///not-accessed">]>
                 <zs:searchRetrieveResponse xmlns:zs="http://www.loc.gov/zing/srw/"/>
                 """;

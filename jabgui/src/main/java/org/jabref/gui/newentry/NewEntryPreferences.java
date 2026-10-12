@@ -6,7 +6,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.importer.fetcher.DoiFetcher;
 import org.jabref.logic.importer.plaincitation.PlainCitationParserChoice;
 import org.jabref.model.entry.types.EntryType;
@@ -22,14 +21,15 @@ public class NewEntryPreferences {
     private final StringProperty latestIdFetcherName;
     private final StringProperty latestInterpretParserName;
 
-    public NewEntryPreferences(NewEntryDialogTab approach,
-                               boolean expandRecommended,
-                               boolean expandOther,
-                               boolean expandCustom,
-                               EntryType immediateType,
-                               boolean idLookupGuessing,
-                               String idFetcherName,
-                               String interpretParserName) {
+    public NewEntryPreferences(
+            NewEntryDialogTab approach,
+            boolean expandRecommended,
+            boolean expandOther,
+            boolean expandCustom,
+            EntryType immediateType,
+            boolean idLookupGuessing,
+            String idFetcherName,
+            String interpretParserName) {
         this.latestApproach = new SimpleObjectProperty<>(approach);
         this.typesRecommendedExpanded = new SimpleBooleanProperty(expandRecommended);
         this.typesOtherExpanded = new SimpleBooleanProperty(expandOther);
@@ -41,14 +41,13 @@ public class NewEntryPreferences {
     }
 
     private NewEntryPreferences() {
-        this(
-                NewEntryDialogTab.CHOOSE_ENTRY_TYPE, // Default latest approach
-                true,                                // Default expanded recommended
-                false,                               // Default expanded other
-                true,                                // Default expanded custom
-                StandardEntryType.Article,           // Default immediate type
-                true,                                // Default Id lookup guessing
-                DoiFetcher.NAME,                     // Default fetcher
+        this(NewEntryDialogTab.CHOOSE_ENTRY_TYPE, // Default latest approach
+        true, // Default expanded recommended
+        false, // Default expanded other
+        true, // Default expanded custom
+        StandardEntryType.Article, // Default immediate type
+        true, // Default Id lookup guessing
+                DoiFetcher.NAME, // Default fetcher
                 PlainCitationParserChoice.RULE_BASED_GENERAL.getLocalizedName() // Default parser
         );
     }

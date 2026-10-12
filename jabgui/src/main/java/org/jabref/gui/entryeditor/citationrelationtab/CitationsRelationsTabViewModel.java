@@ -10,7 +10,6 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.externalfiles.ImportHandler;
@@ -26,7 +25,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.sciteTallies.TalliesResponse;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -64,7 +62,8 @@ public class CitationsRelationsTabViewModel {
     private @Nullable BackgroundTask<List<CitationRelationItem>> citedByTask;
     private @Nullable BibEntry currentEntry;
 
-    public CitationsRelationsTabViewModel(GuiPreferences preferences, StateManager stateManager, DialogService dialogService, FileUpdateMonitor fileUpdateMonitor, TaskExecutor taskExecutor) {
+    public CitationsRelationsTabViewModel(GuiPreferences preferences, StateManager stateManager, DialogService dialogService,
+            FileUpdateMonitor fileUpdateMonitor, TaskExecutor taskExecutor) {
         this.preferences = preferences;
         this.stateManager = stateManager;
         this.dialogService = dialogService;
@@ -90,24 +89,16 @@ public class CitationsRelationsTabViewModel {
             return;
         }
         List<BibEntry> entries = entriesToImport.stream()
-                                                .map(CitationRelationItem::entry)
-                                                // We need to have a clone of the entry, because we add the entry to the library (and keep it in the citation relation tab, too)
-                                                .map(BibEntry::new)
-                                                .toList();
+                .map(CitationRelationItem::entry)
+                // We need to have a clone of the entry, because we add the entry to the library (and keep it in the citation relation tab, too)
+                .map(BibEntry::new)
+                .toList();
 
-        ImportHandler importHandler = new ImportHandler(
-                databaseContext,
-                preferences,
-                fileUpdateMonitor,
-                stateManager.getUndoManager(databaseContext),
-                stateManager,
-                dialogService,
-                taskExecutor);
+        ImportHandler importHandler = new ImportHandler(databaseContext, preferences, fileUpdateMonitor, stateManager.getUndoManager(databaseContext), stateManager,
+                dialogService, taskExecutor);
         switch (searchType) {
-            case CITES ->
-                    importCites(entries, existingEntry, importHandler);
-            case CITED_BY ->
-                    importCitedBy(entries, existingEntry, importHandler);
+            case CITES -> importCites(entries, existingEntry, importHandler);
+            case CITED_BY -> importCitedBy(entries, existingEntry, importHandler);
         }
         lastImportedEntry.set(entries.getFirst());
     }
@@ -123,7 +114,8 @@ public class CitationsRelationsTabViewModel {
         existingEntry.setCites(citeKeys);
     }
 
-    /// "cited by" is the opposite of "cites", but not stored in field `CITED_BY`, but in the `CITES` field of the citing entry.
+    /// "cited by" is the opposite of "cites", but not stored in field
+    /// `CITED_BY`, but in the `CITES` field of the citing entry.
     ///
     /// Therefore, some special handling is needed
     private void importCitedBy(List<BibEntry> entries, BibEntry existingEntry, ImportHandler importHandler) {
@@ -157,23 +149,21 @@ public class CitationsRelationsTabViewModel {
         }
 
         // The scite.ai api requires a DOI
-        entry.getDOI().ifPresentOrElse(
-                doi -> {
-                    status.set(SciteStatus.IN_PROGRESS);
-                    searchTask = BackgroundTask.wrap(() -> sciteAiFetcher.fetchTallies(doi))
-                                               .onRunning(() -> status.set(SciteStatus.IN_PROGRESS))
-                                               .onSuccess(result -> {
-                                                   currentResult = Optional.of(result);
-                                                   status.set(SciteStatus.FOUND);
-                                               })
-                                               .onFailure(error -> {
-                                                   searchError.set(error.getMessage());
-                                                   status.set(SciteStatus.ERROR);
-                                               })
-                                               .executeWith(taskExecutor);
-                },
-                () -> status.set(SciteStatus.DOI_MISSING)
-        );
+        entry.getDOI().ifPresentOrElse(doi -> {
+            status.set(SciteStatus.IN_PROGRESS);
+            searchTask = BackgroundTask.wrap(() -> sciteAiFetcher.fetchTallies(doi))
+                    .onRunning(() -> status.set(SciteStatus.IN_PROGRESS))
+                    .onSuccess(result -> {
+                        currentResult = Optional.of(result);
+                        status.set(SciteStatus.FOUND);
+                    })
+                    .onFailure(error -> {
+                        searchError.set(error.getMessage());
+                        status.set(SciteStatus.ERROR);
+                    })
+                    .executeWith(taskExecutor);
+        },
+                () -> status.set(SciteStatus.DOI_MISSING));
     }
 
     private void cancelSearch() {
@@ -208,19 +198,15 @@ public class CitationsRelationsTabViewModel {
     public void trackCitationSearch(CitationFetcher.SearchType searchType, BackgroundTask<List<CitationRelationItem>> task) {
         cancelCitationSearch(searchType);
         switch (searchType) {
-            case CITES ->
-                    citingTask = task;
-            case CITED_BY ->
-                    citedByTask = task;
+            case CITES -> citingTask = task;
+            case CITED_BY -> citedByTask = task;
         }
     }
 
     public boolean isTrackedCitationSearch(CitationFetcher.SearchType searchType, BackgroundTask<List<CitationRelationItem>> task) {
         return switch (searchType) {
-            case CITES ->
-                    citingTask == task;
-            case CITED_BY ->
-                    citedByTask == task;
+            case CITES -> citingTask == task;
+            case CITED_BY -> citedByTask == task;
         };
     }
 
@@ -258,31 +244,29 @@ public class CitationsRelationsTabViewModel {
         CrossRef doiFetcher = new CrossRef(preferences.getImporterPreferences());
 
         doiLookupTask = BackgroundTask.wrap(() -> doiFetcher.findIdentifier(entry))
-                                      .onRunning(() -> status.set(SciteStatus.DOI_LOOK_UP))
-                                      .onSuccess(identifier -> {
-                                          if (this.currentEntry != entry) {
-                                              return;
-                                          }
-                                          identifier.ifPresentOrElse(
-                                                  doi -> {
-                                                      entry.setField(StandardField.DOI, doi.asString());
-                                                      onDoiFound.run();
-                                                  },
-                                                  () -> {
-                                                      status.set(SciteStatus.DOI_MISSING);
-                                                      dialogService.notify(Localization.lang("No DOI found."));
-                                                  }
-                                          );
-                                      })
-                                      .onFailure(ex -> {
-                                          if (this.currentEntry != entry) {
-                                              return;
-                                          }
-                                          LOGGER.error("Error while looking up DOI", ex);
-                                          status.set(SciteStatus.DOI_LOOK_UP_ERROR);
-                                          dialogService.notify(Localization.lang("Error while looking up DOI: %0", ex.getLocalizedMessage()));
-                                      })
-                                      .executeWith(taskExecutor);
+                .onRunning(() -> status.set(SciteStatus.DOI_LOOK_UP))
+                .onSuccess(identifier -> {
+                    if (this.currentEntry != entry) {
+                        return;
+                    }
+                    identifier.ifPresentOrElse(doi -> {
+                        entry.setField(StandardField.DOI, doi.asString());
+                        onDoiFound.run();
+                    },
+                            () -> {
+                                status.set(SciteStatus.DOI_MISSING);
+                                dialogService.notify(Localization.lang("No DOI found."));
+                            });
+                })
+                .onFailure(ex -> {
+                    if (this.currentEntry != entry) {
+                        return;
+                    }
+                    LOGGER.error("Error while looking up DOI", ex);
+                    status.set(SciteStatus.DOI_LOOK_UP_ERROR);
+                    dialogService.notify(Localization.lang("Error while looking up DOI: %0", ex.getLocalizedMessage()));
+                })
+                .executeWith(taskExecutor);
     }
 
     public ObjectProperty<SciteStatus> statusProperty() {

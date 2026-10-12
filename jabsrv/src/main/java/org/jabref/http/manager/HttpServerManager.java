@@ -5,7 +5,6 @@ import java.net.URI;
 import org.jabref.http.SrvStateManager;
 import org.jabref.logic.UiMessageHandler;
 import org.jabref.logic.preferences.CliPreferences;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -26,7 +25,8 @@ public class HttpServerManager implements AutoCloseable {
         start(preferences, srvStateManager, null, uri);
     }
 
-    public synchronized void start(CliPreferences preferences, SrvStateManager srvStateManager, @Nullable UiMessageHandler uiMessageHandler, URI uri) {
+    public synchronized void start(CliPreferences preferences, SrvStateManager srvStateManager, @Nullable UiMessageHandler uiMessageHandler,
+            URI uri) {
         if (httpServerThread != null) {
             LOGGER.warn("HTTP server manager already started, cannot start again.");
             return;

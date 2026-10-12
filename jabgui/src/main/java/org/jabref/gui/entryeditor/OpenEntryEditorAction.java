@@ -16,12 +16,14 @@ public class OpenEntryEditorAction extends SimpleCommand {
         this.tabSupplier = tabSupplier;
         this.stateManager = stateManager;
 
-        this.executable.bind(ActionHelper.needsEntriesSelected(stateManager).and(stateManager.getEditorShowing().not()));
+        this.executable.bind(ActionHelper.needsEntriesSelected(stateManager)
+                .and(stateManager.getEditorShowing().not()));
     }
 
     public void execute() {
         if (!stateManager.getSelectedEntries().isEmpty()) {
-            tabSupplier.get().showAndEdit(stateManager.getSelectedEntries().getFirst());
+            tabSupplier.get().showAndEdit(stateManager.getSelectedEntries()
+                    .getFirst());
         }
     }
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.jabref.logic.bst.BstVM;
 import org.jabref.logic.cleanup.ConvertToBibtexCleanup;
 import org.jabref.logic.formatter.bibtexfields.RemoveNewlinesFormatter;
@@ -23,8 +24,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.strings.LatexToUnicodeAdapter;
-
-import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -49,19 +48,25 @@ public final class BstPreviewLayout implements PreviewLayout {
     private static final Pattern GROUP_IT_PATTERN = Pattern.compile("\\{\\\\it\\s+([^}]*?)}");
     private static final Pattern GROUP_BF_PATTERN = Pattern.compile("\\{\\\\bf\\s+([^}]*?)}");
 
-    /// Matches a single LaTeX math command wrapped in the `{{$...$}}` form written by some
-    /// exporters, e.g. `{{$\Sigma$}}`. Group 1 is the command without its leading backslash
-    /// (`Sigma`). Reads as: `{{` `$` `\` (command) `$` `}}`.
+    /// Matches a single LaTeX math command wrapped in the `{{$...$}}` form
+    /// written by some exporters, e.g. `{{$\Sigma$}}`. Group 1 is the command
+    /// without its leading backslash (`Sigma`). Reads as: `{{` `$` `\`
+    /// (command) `$` `}}`.
     private static final Pattern BRACED_MATH_COMMAND_PATTERN = Pattern.compile("\\{\\{\\$\\\\([^$]+)\\$\\}\\}");
 
     private final Path path;
     private String source;
     private final String name;
-    @Nullable private BstVM bstVM;
-    @Nullable private String error;
+
+    @Nullable
+    private BstVM bstVM;
+
+    @Nullable
+    private String error;
 
     /// Private constructor used by [of(BstStyle)] for pre-built internal styles.
-    private BstPreviewLayout(Path path, String source, @Nullable BstVM bstVM, @Nullable String error) {
+    private BstPreviewLayout(Path path, String source, @Nullable BstVM bstVM,
+            @Nullable String error) {
         this.path = path;
         this.source = source;
         this.name = path.getFileName().toString();
@@ -114,12 +119,10 @@ public final class BstPreviewLayout implements PreviewLayout {
             return new BstPreviewLayout(Path.of(styleName), source, vm, null);
         } catch (IOException e) {
             LOGGER.error("Could not load internal BST style for preview: {}", resourcePath, e);
-            return new BstPreviewLayout(Path.of(styleName), "", null,
-                    Localization.lang("Error opening file '%0'", styleName));
+            return new BstPreviewLayout(Path.of(styleName), "", null, Localization.lang("Error opening file '%0'", styleName));
         } catch (ParseCancellationException e) {
             LOGGER.warn("Could not parse internal BST style for preview: {}", resourcePath, e);
-            return new BstPreviewLayout(Path.of(styleName), "", null,
-                    Localization.lang("Error parsing file '%0'", styleName));
+            return new BstPreviewLayout(Path.of(styleName), "", null, Localization.lang("Error parsing file '%0'", styleName));
         }
     }
 
@@ -285,24 +288,30 @@ public final class BstPreviewLayout implements PreviewLayout {
 
     private static boolean isEscaped(String input, int index) {
         int backslashCount = 0;
-        for (int pos = index - 1; pos >= 0 && input.charAt(pos) == '\\'; pos--) {
+        for (int pos = index - 1;
+             pos >= 0 && input.charAt(pos) == '\\';
+             pos--) {
             backslashCount++;
         }
         return (backslashCount % 2) == 1;
     }
 
-    /// Replaces `{{$\Cmd$}}` math expressions in all fields of the given entry by the corresponding
-    /// Unicode character, wrapped in braces. The entry is modified in place, so it has to be a copy.
+    /// Replaces `{{$\Cmd$}}` math expressions in all fields of the given entry
+    /// by the corresponding Unicode character, wrapped in braces. The entry is
+    /// modified in place, so it has to be a copy.
     ///
-    /// The BST engine passes `$...$` through unchanged, so without this step the raw math reaches the
-    /// preview and is then stripped by [RemoveLatexCommandsFormatter].
+    /// The BST engine passes `$...$` through unchanged, so without this step
+    /// the raw math reaches the preview and is then stripped by
+    /// [RemoveLatexCommandsFormatter].
     ///
-    /// The braces around the result are required: they keep `BstCaseChanger` from lowercasing the
-    /// symbol (Σ would become σ). This is also the reason [BibEntry#getFieldLatexFree] cannot be used
-    /// here -- it resolves the LaTeX, but does not add the protecting braces.
+    /// The braces around the result are required: they keep `BstCaseChanger`
+    /// from lowercasing the symbol (Σ would become σ). This is also the reason
+    /// [BibEntry#getFieldLatexFree] cannot be used here -- it resolves the
+    /// LaTeX, but does not add the protecting braces.
     ///
-    /// Commands that cannot be resolved are kept as they are: [LatexToUnicodeAdapter#format] returns
-    /// its (NFC-normalized) input if parsing fails, so replacing unconditionally would corrupt them.
+    /// Commands that cannot be resolved are kept as they are:
+    /// [LatexToUnicodeAdapter#format] returns its (NFC-normalized) input if
+    /// parsing fails, so replacing unconditionally would corrupt them.
     private static void convertBracedMathToUnicode(BibEntry entry) {
         for (Map.Entry<Field, String> field : Map.copyOf(entry.getFieldMap()).entrySet()) {
             Matcher matcher = BRACED_MATH_COMMAND_PATTERN.matcher(field.getValue());
@@ -346,7 +355,10 @@ public final class BstPreviewLayout implements PreviewLayout {
 
     /// Checks if the given style file is a BST file by checking the extension
     public static boolean isBstStyleFile(String styleFile) {
-        return StandardFileType.BST.getExtensions().stream().anyMatch(styleFile::endsWith);
+        return StandardFileType.BST
+                .getExtensions()
+                .stream()
+                .anyMatch(styleFile::endsWith);
     }
 
     public Path getFilePath() {

@@ -4,7 +4,6 @@ import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.paging.Page;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,7 +28,8 @@ public interface PagedSearchFetcherTest {
         assertEquals(20, secondPage.getSize());
 
         for (BibEntry entry : firstPage.getContent()) {
-            assertFalse(secondPage.getContent().contains(entry), "%s contained in %s".formatted(entry, secondPage.getContent()));
+            assertFalse(secondPage.getContent().contains(entry),
+                    "%s contained in %s".formatted(entry, secondPage.getContent()));
         }
     }
 

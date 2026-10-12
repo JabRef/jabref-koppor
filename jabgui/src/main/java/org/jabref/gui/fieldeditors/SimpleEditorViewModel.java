@@ -9,7 +9,8 @@ import org.jabref.model.entry.field.Field;
 
 public class SimpleEditorViewModel extends AbstractEditorViewModel {
 
-    public SimpleEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers, UndoManager undoManager) {
+    public SimpleEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
     }
 

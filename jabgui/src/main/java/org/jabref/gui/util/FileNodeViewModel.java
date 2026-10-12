@@ -12,9 +12,7 @@ import java.util.Objects;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.l10n.Localization;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,15 +47,15 @@ public class FileNodeViewModel {
 
     /// Return a string of a FileTime in a yyyy-MM-dd HH:mm format.
     public static String formatDateTime(FileTime fileTime) {
-        LocalDateTime localDateTime = fileTime
-                .toInstant()
+        LocalDateTime localDateTime = fileTime.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
 
         return localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
     }
 
-    /// Return a string for displaying a node name (and its number of children if it is a directory).
+    /// Return a string for displaying a node name (and its number of children
+    /// if it is a directory).
     public String getDisplayText() {
         if (Files.isDirectory(path)) {
             return "%s (%s)".formatted(path.getFileName(), Localization.lang("%0 file(s)", fileCount));
@@ -65,8 +63,8 @@ public class FileNodeViewModel {
         return path.getFileName().toString();
     }
 
-    /// Return a string for displaying a node name (and its number of children if it is a directory).
-    /// along with the last edited time
+    /// Return a string for displaying a node name (and its number of children
+    /// if it is a directory). along with the last edited time
     public String getDisplayTextWithEditDate() {
         if (Files.isDirectory(path)) {
             return "%s (%s)".formatted(path.getFileName(), Localization.lang("%0 file(s)", fileCount));
@@ -82,10 +80,7 @@ public class FileNodeViewModel {
 
     @Override
     public String toString() {
-        return "FileNodeViewModel{path=%s, children=%s, fileCount=%s}".formatted(
-                this.path,
-                this.children,
-                this.fileCount);
+        return "FileNodeViewModel{path=%s, children=%s, fileCount=%s}".formatted(this.path, this.children, this.fileCount);
     }
 
     @Override

@@ -23,7 +23,8 @@ public class AiSummaryJsonExporter implements AiSummaryExporter {
     }
 
     @Override
-    public String export(AiMetadata metadata, BibEntry entry, BibDatabaseMode mode, AiSummary summary) {
+    public String export(AiMetadata metadata, BibEntry entry, BibDatabaseMode mode,
+                         AiSummary summary) {
         List<ChatMessage> dummyChat = List.of(ChatMessage.aiMessage(summary.content(), List.of()));
         return chatExporter.export(metadata, List.of(entry), mode, dummyChat);
     }

@@ -6,16 +6,15 @@ import java.util.Objects;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.event.EntriesEventSource;
-
 import org.jspecify.annotations.NullMarked;
 
-/// Removal of entries from the library. See [UndoableInsertEntries] on why the entry objects are
-/// retained rather than looked up again on undo.
+/// Removal of entries from the library. See [UndoableInsertEntries] on why the
+/// entry objects are retained rather than looked up again on undo.
 ///
-/// `reinsertSource` is the event source the inverse change reports when it puts the entries
-/// back. It defaults to [EntriesEventSource#UNDO], because restoring removed entries must not
-/// auto-assign them to the currently selected group. Removal itself is always reported as a
-/// local change.
+/// `reinsertSource` is the event source the inverse change reports when it puts
+/// the entries back. It defaults to [EntriesEventSource#UNDO], because
+/// restoring removed entries must not auto-assign them to the currently
+/// selected group. Removal itself is always reported as a local change.
 @NullMarked
 public record UndoableRemoveEntries(BibDatabase database, List<BibEntry> entries, EntriesEventSource reinsertSource) implements BibChange {
 

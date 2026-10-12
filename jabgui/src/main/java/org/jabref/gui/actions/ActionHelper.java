@@ -5,13 +5,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.EasyBinding;
 import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.slr.StudyCatalogItem;
 import org.jabref.gui.undo.GuiUndoManager;
@@ -24,10 +26,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.Field;
 
-import com.airhacks.afterburner.injection.Injector;
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.EasyBinding;
-
 public class ActionHelper {
 
     public static BooleanExpression needsDatabase(StateManager stateManager) {
@@ -35,12 +33,14 @@ public class ActionHelper {
     }
 
     public static BooleanExpression needsSavedLocalDatabase(StateManager stateManager) {
-        EasyBinding<Boolean> binding = EasyBind.map(stateManager.activeDatabaseProperty(), context -> context.filter(c -> c.getLocation() == DatabaseLocation.LOCAL && c.getDatabasePath().isPresent()).isPresent());
+        EasyBinding<Boolean> binding = EasyBind.map(stateManager.activeDatabaseProperty(),
+                context -> context.filter(c -> c.getLocation() == DatabaseLocation.LOCAL && c.getDatabasePath().isPresent()).isPresent());
         return BooleanExpression.booleanExpression(binding);
     }
 
     public static BooleanExpression needsSharedDatabase(StateManager stateManager) {
-        EasyBinding<Boolean> binding = EasyBind.map(stateManager.activeDatabaseProperty(), context -> context.filter(c -> c.getLocation() == DatabaseLocation.SHARED).isPresent());
+        EasyBinding<Boolean> binding = EasyBind.map(stateManager.activeDatabaseProperty(),
+                context -> context.filter(c -> c.getLocation() == DatabaseLocation.SHARED).isPresent());
         return BooleanExpression.booleanExpression(binding);
     }
 
@@ -54,14 +54,12 @@ public class ActionHelper {
         return journalState(stateManager, GuiUndoManager::redoableProperty);
     }
 
-    /// Follows the active library, so that enablement tracks the journal of the library in front
-    /// rather than the one that happened to be open when the menu was built.
-    private static BooleanExpression journalState(StateManager stateManager,
-                                                  Function<GuiUndoManager, ReadOnlyBooleanProperty> state) {
-        return BooleanExpression.booleanExpression(
-                stateManager.activeDatabaseProperty().flatMap(
-                        database -> database.map(context -> state.apply(stateManager.getUndoManager(context)))
-                                            .orElse(new SimpleBooleanProperty(false))));
+    /// Follows the active library, so that enablement tracks the journal of the
+    /// library in front rather than the one that happened to be open when the
+    /// menu was built.
+    private static BooleanExpression journalState(StateManager stateManager, Function<GuiUndoManager, ReadOnlyBooleanProperty> state) {
+        return BooleanExpression.booleanExpression(stateManager.activeDatabaseProperty()
+                .flatMap(database -> database.map(context -> state.apply(stateManager.getUndoManager(context))).orElse(new SimpleBooleanProperty(false))));
     }
 
     public static BooleanExpression needsMultipleDatabases(StateManager stateManager) {
@@ -69,25 +67,20 @@ public class ActionHelper {
     }
 
     public static BooleanExpression needsStudyDatabase(StateManager stateManager) {
-        EasyBinding<Boolean> binding = EasyBind.map(stateManager.activeDatabaseProperty(), context -> context.filter(BibDatabaseContext::isStudy).isPresent());
+        EasyBinding<Boolean> binding = EasyBind.map(stateManager.activeDatabaseProperty(),
+                context -> context.filter(BibDatabaseContext::isStudy).isPresent());
         return BooleanExpression.booleanExpression(binding);
     }
 
     public static BooleanExpression needsGitRemoteConfigured(StateManager stateManager) {
-        return BooleanExpression.booleanExpression(
-                EasyBind.map(
-                        stateManager.activeDatabaseProperty(),
-                        contextOptional -> contextOptional
-                                .filter(context -> context.getLocation() == DatabaseLocation.LOCAL)
-                                .map(context ->
-                                        context.getDatabasePath()
+        return BooleanExpression.booleanExpression(EasyBind.map(stateManager.activeDatabaseProperty(),
+                contextOptional -> contextOptional.filter(context -> context.getLocation() == DatabaseLocation.LOCAL)
+                        .map(context -> context.getDatabasePath()
                                                // TODO: This dependency should be passed more directly. Maybe as part of StateManager - or similar to AiChatService
-                                               .flatMap(path -> Injector.instantiateModelOrService(GitHandlerRegistry.class)
-                                                                        .fromAnyPath(path))
+                                               .flatMap(path -> Injector.instantiateModelOrService(GitHandlerRegistry.class).fromAnyPath(path))
                                                .map(handler -> handler.hasRemote("origin"))
                                                .orElse(false))
-                                .orElse(false))
-        );
+                        .orElse(false)));
     }
 
     public static BooleanExpression needsEntriesSelected(StateManager stateManager) {
@@ -95,8 +88,7 @@ public class ActionHelper {
     }
 
     public static BooleanExpression needsEntriesSelected(int numberOfEntries, StateManager stateManager) {
-        return Bindings.createBooleanBinding(() -> stateManager.getSelectedEntries().size() == numberOfEntries,
-                stateManager.getSelectedEntries());
+        return Bindings.createBooleanBinding(() -> stateManager.getSelectedEntries().size() == numberOfEntries, stateManager.getSelectedEntries());
     }
 
     public static BooleanExpression isFieldSetForSelectedEntry(Field field, StateManager stateManager) {
@@ -106,61 +98,64 @@ public class ActionHelper {
     public static BooleanExpression isAnyFieldSetForSelectedEntry(List<Field> fields, StateManager stateManager) {
         ObservableList<BibEntry> selectedEntries = stateManager.getSelectedEntries();
         Binding<Boolean> fieldsAreSet = EasyBind.valueAt(selectedEntries, 0)
-                                                .mapObservable(entry -> Bindings.createBooleanBinding(
-                                                        () -> entry.getFields().stream().anyMatch(fields::contains),
-                                                        entry.getFieldsObservable()))
-                                                .orElseOpt(false);
+                .mapObservable(entry -> Bindings.createBooleanBinding(() -> entry.getFields()
+                        .stream()
+                        .anyMatch(fields::contains),
+                        entry.getFieldsObservable()))
+                .orElseOpt(false);
         return BooleanExpression.booleanExpression(fieldsAreSet);
     }
 
     public static BooleanExpression isFilePresentForSelectedEntry(StateManager stateManager, CliPreferences preferences) {
         ObservableList<BibEntry> selectedEntries = stateManager.getSelectedEntries();
-        Binding<Boolean> fileIsPresent = EasyBind.valueAt(selectedEntries, 0).mapOpt(entry -> {
-            List<LinkedFile> files = entry.getFiles();
+        Binding<Boolean> fileIsPresent = EasyBind.valueAt(selectedEntries, 0)
+                .mapOpt(entry -> {
+                    List<LinkedFile> files = entry.getFiles();
 
-            if ((!entry.getFiles().isEmpty()) && stateManager.getActiveDatabase().isPresent()) {
-                if (files.getFirst().isOnlineLink()) {
-                    return true;
-                }
+                    if ((!entry.getFiles().isEmpty()) && stateManager.getActiveDatabase().isPresent()) {
+                        if (files.getFirst().isOnlineLink()) {
+                            return true;
+                        }
 
-                Optional<Path> filename = FileUtil.find(
-                        stateManager.getActiveDatabase().get(),
-                        files.getFirst().getLink(),
-                        preferences.getFilePreferences());
-                return filename.isPresent();
-            } else {
-                return false;
-            }
-        }).orElseOpt(false);
+                        Optional<Path> filename = FileUtil.find(
+                                stateManager.getActiveDatabase().get(),
+                                files.getFirst().getLink(),
+                                preferences.getFilePreferences());
+                        return filename.isPresent();
+                    } else {
+                        return false;
+                    }
+                })
+                .orElseOpt(false);
 
         return BooleanExpression.booleanExpression(fileIsPresent);
     }
 
     public static BooleanExpression isPdfFilePresentForSelectedEntry(StateManager stateManager, CliPreferences preferences) {
         ObservableList<BibEntry> selectedEntries = stateManager.getSelectedEntries();
-        Binding<Boolean> pdfFileIsPresent = EasyBind.valueAt(selectedEntries, 0).mapOpt(entry -> {
-            if (stateManager.getActiveDatabase().isEmpty()) {
-                return false;
-            }
+        Binding<Boolean> pdfFileIsPresent = EasyBind.valueAt(selectedEntries, 0)
+                .mapOpt(entry -> {
+                    if (stateManager.getActiveDatabase().isEmpty()) {
+                        return false;
+                    }
 
-            return entry.getFiles().stream()
-                        .filter(linkedFile -> linkedFile.getFileName()
-                                                        .map(Path::of)
-                                                        .map(FileUtil::isPDFFile)
-                                                        .orElse(false))
-                        .anyMatch(linkedFile -> FileUtil.find(
-                                                                stateManager.getActiveDatabase().get(),
-                                                                linkedFile.getLink(),
-                                                                preferences.getFilePreferences())
-                                                        .isPresent());
-        }).orElseOpt(false);
+                    return entry.getFiles()
+                                .stream()
+                                .filter(linkedFile -> linkedFile.getFileName()
+                                        .map(Path::of)
+                                        .map(FileUtil::isPDFFile)
+                                        .orElse(false))
+                                .anyMatch(linkedFile -> FileUtil.find(stateManager.getActiveDatabase().get(), linkedFile.getLink(), preferences.getFilePreferences()).isPresent());
+                })
+                .orElseOpt(false);
 
         return BooleanExpression.booleanExpression(pdfFileIsPresent);
     }
 
     /// Check if at least one of the selected entries has linked files
     ///
-    /// Used in [org.jabref.gui.maintable.OpenSelectedEntriesFilesAction] when multiple entries selected
+    /// Used in [org.jabref.gui.maintable.OpenSelectedEntriesFilesAction] when
+    /// multiple entries selected
     ///
     /// @param stateManager manager for the state of the GUI
     /// @return a boolean binding
@@ -170,8 +165,7 @@ public class ActionHelper {
     }
 
     public static BooleanExpression noCatalogEnabled(ObservableList<StudyCatalogItem> catalogs) {
-        return Bindings.createBooleanBinding(
-                () -> catalogs.stream().noneMatch(StudyCatalogItem::isEnabled),
+        return Bindings.createBooleanBinding(() -> catalogs.stream().noneMatch(StudyCatalogItem::isEnabled),
                 catalogs);
     }
 }

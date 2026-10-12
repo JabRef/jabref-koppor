@@ -9,16 +9,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 
+import org.eclipse.lsp4j.jsonrpc.Launcher;
+import org.eclipse.lsp4j.launch.LSPLauncher;
+import org.eclipse.lsp4j.services.LanguageClient;
 import org.jabref.logic.journals.JournalAbbreviationLoader;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.preferences.JabRefCliPreferences;
 import org.jabref.logic.remote.server.RemoteMessageHandler;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import org.eclipse.lsp4j.jsonrpc.Launcher;
-import org.eclipse.lsp4j.launch.LSPLauncher;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,8 @@ public class LspLauncher extends Thread {
     private volatile boolean running;
     private ServerSocket serverSocket;
 
-    public LspLauncher(RemoteMessageHandler messageHandler, CliPreferences cliPreferences, JournalAbbreviationRepository abbreviationRepository, BibEntryTypesManager bibEntryTypesManager, int port) {
+    public LspLauncher(RemoteMessageHandler messageHandler, CliPreferences cliPreferences, JournalAbbreviationRepository abbreviationRepository,
+                       BibEntryTypesManager bibEntryTypesManager, int port) {
         this.cliPreferences = cliPreferences;
         this.abbreviationRepository = abbreviationRepository;
         this.threadPool = Executors.newCachedThreadPool();
@@ -48,7 +48,8 @@ public class LspLauncher extends Thread {
     }
 
     public LspLauncher(RemoteMessageHandler messageHandler, CliPreferences cliPreferences, int port) {
-        this(messageHandler, cliPreferences, JournalAbbreviationLoader.loadRepository(cliPreferences.getAbbreviationPreferences()), cliPreferences.getCustomEntryTypesRepository(), port);
+        this(messageHandler, cliPreferences, JournalAbbreviationLoader.loadRepository(cliPreferences.getAbbreviationPreferences()),
+                cliPreferences.getCustomEntryTypesRepository(), port);
     }
 
     public LspLauncher(JabRefCliPreferences instance, Integer port) {
@@ -88,7 +89,8 @@ public class LspLauncher extends Thread {
         try (socket; // socket should be closed on error
              InputStream in = socket.getInputStream();
              OutputStream out = socket.getOutputStream()) {
-            Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(clientHandler, in, out, Executors.newCachedThreadPool(), Function.identity());
+            Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(clientHandler, in, out, Executors.newCachedThreadPool(),
+                    Function.identity());
             LOGGER.debug("LSP clientHandler launched.");
             clientHandler.connect(launcher.getRemoteProxy());
             LOGGER.debug("LSP clientHandler connected.");

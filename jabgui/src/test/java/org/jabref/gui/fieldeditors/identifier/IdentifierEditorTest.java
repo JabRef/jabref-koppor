@@ -4,10 +4,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-
 import org.jabref.gui.fieldeditors.EditorTextField;
 import org.jabref.gui.testutils.JavaFxTest;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -26,7 +24,8 @@ class IdentifierEditorTest extends JavaFxTest {
         textField.setId("textField");
         textField.setText("");
 
-        fetchButton.visibleProperty().bind(textField.textProperty().isNotEmpty());
+        fetchButton.visibleProperty().bind(textField.textProperty()
+                .isNotEmpty());
         fetchButton.managedProperty().bind(fetchButton.visibleProperty());
 
         HBox root = new HBox(textField, fetchButton);

@@ -17,8 +17,7 @@ class LlmResponseCleanerTest {
                 Arguments.of("already trimmed text", "Just a sentence.", "Just a sentence."),
                 Arguments.of("multiline with leading/trailing newlines", "\n  line1\n  line2\n", "line1\n  line2"),
                 Arguments.of("empty string", "", ""),
-                Arguments.of("whitespace only", "   \n\t  ", "")
-        );
+                Arguments.of("whitespace only", "   \n\t  ", ""));
     }
 
     @ParameterizedTest(name = "{0}")
@@ -47,8 +46,7 @@ class LlmResponseCleanerTest {
                 Arguments.of("empty block with label", "```json\n```", ""),
                 Arguments.of("internal indentation preserved", "```\n  indented line\n    more indent\n```", "  indented line\n    more indent"),
                 Arguments.of("fence on same line as content", "```json```", ""),
-                Arguments.of("surrounding whitespace stripped", "  ```\n  content  \n```  ", "content")
-        );
+                Arguments.of("surrounding whitespace stripped", "  ```\n  content  \n```  ", "content"));
     }
 
     @ParameterizedTest(name = "{0}")
@@ -59,19 +57,10 @@ class LlmResponseCleanerTest {
 
     static Stream<Arguments> multipleBlockCases() {
         return Stream.of(
-                Arguments.of("returns last of two blocks",
-                        "```\nfirst block\n```\nsome text\n```\nsecond block\n```",
-                        "second block"),
-                Arguments.of("returns last of three blocks",
-                        "```\nA\n```\n```\nB\n```\n```\nC\n```",
-                        "C"),
-                Arguments.of("last block has label, label stripped",
-                        "```\nfirst\n```\n```json\n{\"x\":1}\n```",
-                        "{\"x\":1}"),
-                Arguments.of("first has label, last does not",
-                        "```json\n{}\n```\n```\nplain content\n```",
-                        "plain content")
-        );
+                Arguments.of("returns last of two blocks", "```\nfirst block\n```\nsome text\n```\nsecond block\n```", "second block"),
+                Arguments.of("returns last of three blocks", "```\nA\n```\n```\nB\n```\n```\nC\n```", "C"),
+                Arguments.of("last block has label, label stripped", "```\nfirst\n```\n```json\n{\"x\":1}\n```", "{\"x\":1}"),
+                Arguments.of("first has label, last does not", "```json\n{}\n```\n```\nplain content\n```", "plain content"));
     }
 
     @ParameterizedTest(name = "{0}")
@@ -81,17 +70,8 @@ class LlmResponseCleanerTest {
     }
 
     static Stream<Arguments> unclosedFenceCases() {
-        return Stream.of(
-                Arguments.of("no label, returns content after fence line",
-                        "```\nsome content without closing",
-                        "some content without closing"),
-                Arguments.of("with label, returns content after fence line",
-                        "```json\n{\"partial\": true",
-                        "{\"partial\": true"),
-                Arguments.of("after a closed block, unclosed treated as last opener",
-                        "```\nfirst\n```\n```\nunclosed content",
-                        "unclosed content")
-        );
+        return Stream.of(Arguments.of("no label, returns content after fence line", "```\nsome content without closing", "some content without closing"),
+                Arguments.of("with label, returns content after fence line", "```json\n{\"partial\": true", "{\"partial\": true"), Arguments.of("after a closed block, unclosed treated as last opener", "```\nfirst\n```\n```\nunclosed content", "unclosed content"));
     }
 
     @ParameterizedTest(name = "{0}")
@@ -102,13 +82,8 @@ class LlmResponseCleanerTest {
 
     static Stream<Arguments> realWorldCases() {
         return Stream.of(
-                Arguments.of("JSON response with prose around it",
-                        "Sure! Here is the JSON you requested:\n\n```json\n{\n  \"name\": \"Alice\",\n  \"age\": 30\n}\n```\n\nLet me know if you need anything else.\n",
-                        "{\n  \"name\": \"Alice\",\n  \"age\": 30\n}"),
-                Arguments.of("markdown response with prose before it",
-                        "Here's a summary:\n\n```markdown\n# Summary\n\n- Point A\n- Point B\n```",
-                        "# Summary\n\n- Point A\n- Point B")
-        );
+                Arguments.of("JSON response with prose around it", "Sure! Here is the JSON you requested:\n\n```json\n{\n  \"name\": \"Alice\",\n  \"age\": 30\n}\n```\n\nLet me know if you need anything else.\n", "{\n  \"name\": \"Alice\",\n  \"age\": 30\n}"),
+                Arguments.of("markdown response with prose before it", "Here's a summary:\n\n```markdown\n# Summary\n\n- Point A\n- Point B\n```", "# Summary\n\n- Point A\n- Point B"));
     }
 
     @ParameterizedTest(name = "{0}")

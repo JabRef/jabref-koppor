@@ -5,7 +5,6 @@ import java.util.List;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
@@ -32,21 +31,24 @@ public class JumpToFieldViewModel extends AbstractViewModel {
             return List.of();
         }
 
-        return suggestedFields(entry).stream()
-                                     .map(Field::getName)
-                                     .distinct()
-                                     .sorted()
-                                     .toList();
+        return suggestedFields(entry)
+                .stream()
+                .map(Field::getName)
+                .distinct()
+                .sorted()
+                .toList();
     }
 
-    /// `true` when jumping to `fieldName` would add a field the entry editor does not offer,
-    /// that is: a custom field that does not exist yet.
+    /// `true` when jumping to `fieldName` would add a field the entry editor
+    /// does not offer, that is: a custom field that does not exist yet.
     public boolean isNewField(String fieldName) {
         if (StringUtil.isBlank(fieldName)) {
             return false;
         }
         String normalizedFieldName = fieldName.trim();
-        return getFieldNames().stream().noneMatch(normalizedFieldName::equalsIgnoreCase);
+        return getFieldNames()
+                .stream()
+                .noneMatch(normalizedFieldName::equalsIgnoreCase);
     }
 
     private List<Field> suggestedFields(BibEntry entry) {

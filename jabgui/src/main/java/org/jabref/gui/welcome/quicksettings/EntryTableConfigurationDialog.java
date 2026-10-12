@@ -1,9 +1,9 @@
 package org.jabref.gui.welcome.quicksettings;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
-
 import org.jabref.gui.FXDialog;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.URLs;
@@ -11,11 +11,12 @@ import org.jabref.gui.util.component.HelpButton;
 import org.jabref.gui.welcome.quicksettings.viewmodel.EntryTableConfigurationDialogViewModel;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
-
 public class EntryTableConfigurationDialog extends FXDialog {
-    @FXML private CheckBox showCitationKeyBox;
-    @FXML private HelpButton helpButton;
+    @FXML
+    private CheckBox showCitationKeyBox;
+
+    @FXML
+    private HelpButton helpButton;
 
     private EntryTableConfigurationDialogViewModel viewModel;
     private final GuiPreferences preferences;
@@ -28,8 +29,8 @@ public class EntryTableConfigurationDialog extends FXDialog {
         this.setHeaderText(Localization.lang("Configure which columns are displayed in the entry table"));
 
         ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+                .load()
+                .setAsDialogPane(this);
 
         setResultConverter(button -> {
             if (button == ButtonType.OK) {

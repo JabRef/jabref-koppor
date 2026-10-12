@@ -14,7 +14,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.TreeItem;
 import javafx.stage.Stage;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.gui.testutils.JavaFxTest;
@@ -23,7 +22,6 @@ import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.DelayTaskThrottler;
 import org.jabref.logic.util.TaskExecutor;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -52,11 +50,7 @@ class FileSelectionPageTest extends JavaFxTest {
         TaskExecutor taskExecutor = mock(TaskExecutor.class);
         when(taskExecutor.createThrottler(300)).thenReturn(mock(DelayTaskThrottler.class));
 
-        page = new FileSelectionPage(
-                mock(StateManager.class),
-                viewModel,
-                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                taskExecutor);
+        page = new FileSelectionPage(mock(StateManager.class), viewModel, mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), taskExecutor);
 
         // The result content (including the preview pane) is only shown once a search has produced a tree
         treeRoot.set(Optional.of(new FileNodeViewModel(Path.of(""))));
@@ -73,10 +67,7 @@ class FileSelectionPageTest extends JavaFxTest {
         interact(closeButton::fire);
 
         assertEquals(0, previewPanes());
-        Button showButton = JavaFxExtension.lookup(
-                page,
-                ".button",
-                Button.class,
+        Button showButton = JavaFxExtension.lookup(page, ".button", Button.class,
                 button -> Localization.lang("Show PDF preview").equals(button.getText()));
         assertTrue(showButton.isVisible());
 
@@ -92,16 +83,14 @@ class FileSelectionPageTest extends JavaFxTest {
                 ".button",
                 Button.class,
                 button -> Optional.ofNullable(button.getTooltip())
-                                  .map(tooltip -> tooltip.getText())
-                                  .filter(tooltipText::equals)
-                                  .isPresent());
+                        .map(tooltip -> tooltip.getText())
+                        .filter(tooltipText::equals)
+                        .isPresent());
     }
 
     private long previewPanes() {
-        return JavaFxExtension.lookupAll(
-                page,
-                ".titled-pane",
-                TitledPane.class,
-                pane -> Localization.lang("PDF preview").equals(pane.getText())).size();
+        return JavaFxExtension.lookupAll(page, ".titled-pane", TitledPane.class,
+                pane -> Localization.lang("PDF preview").equals(pane.getText()))
+                .size();
     }
 }

@@ -17,8 +17,7 @@ public class UnicodeNormalFormCanonicalCompositionCheck implements EntryChecker 
                     .entrySet()
                     .stream()
                     .filter(field -> !Normalizer.isNormalized(field.getValue(), Normalizer.Form.NFC))
-                    .map(field -> new IntegrityMessage(Localization.lang("Value is not in Unicode's Normalization Form \"Canonical Composition\" (NFC) format"), entry,
-                            field.getKey()))
+                    .map(field -> new IntegrityMessage(Localization.lang("Value is not in Unicode's Normalization Form \"Canonical Composition\" (NFC) format"), entry, field.getKey()))
                     .toList();
     }
 }

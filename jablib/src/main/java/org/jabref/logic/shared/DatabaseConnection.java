@@ -9,8 +9,9 @@ public interface DatabaseConnection {
 
     Connection getConnection();
 
-    /// Opens an additional connection to the same database. Long-running blocking operations
-    /// (such as the notification listener's polling) need their own connection, because a
-    /// connection serializes all operations running on it; a lost connection is replaced this way.
+    /// Opens an additional connection to the same database. Long-running
+    /// blocking operations (such as the notification listener's polling) need
+    /// their own connection, because a connection serializes all operations
+    /// running on it; a lost connection is replaced this way.
     DatabaseConnection openNewConnection() throws SQLException;
 }

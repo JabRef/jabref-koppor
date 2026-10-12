@@ -6,11 +6,9 @@ import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 
 public enum StandardActions implements Action {
-
     COPY_TO(Localization.lang("Copy to")),
     COPY_MORE(Localization.lang("Copy") + "..."),
     COPY_CITATION_KEY(Localization.lang("Copy citation key"), KeyBinding.COPY_CITATION_KEY),
@@ -86,7 +84,8 @@ public enum StandardActions implements Action {
     SAVE_LIBRARY(Localization.lang("Save library"), IconTheme.JabRefIcons.SAVE, KeyBinding.SAVE_LIBRARY),
     SAVE_LIBRARY_AS(Localization.lang("Save library as..."), KeyBinding.SAVE_LIBRARY_AS),
     SAVE_SELECTED_AS_PLAIN_BIBTEX(Localization.lang("Save selected as plain BibTeX...")),
-    SAVE_ALL(Localization.lang("Save all"), Localization.lang("Save all open libraries"), IconTheme.JabRefIcons.SAVE_ALL, KeyBinding.SAVE_ALL),
+    SAVE_ALL(Localization.lang("Save all"), Localization.lang("Save all open libraries"),
+            IconTheme.JabRefIcons.SAVE_ALL, KeyBinding.SAVE_ALL),
     IMPORT_INTO_NEW_LIBRARY(Localization.lang("Import into new library..."), KeyBinding.IMPORT_INTO_NEW_LIBRARY),
     IMPORT_INTO_CURRENT_LIBRARY(Localization.lang("Import into current library..."), KeyBinding.IMPORT_INTO_CURRENT_LIBRARY),
     EXPORT_ALL(Localization.lang("Export all entries...")),
@@ -110,14 +109,19 @@ public enum StandardActions implements Action {
     AUTOMATIC_FIELD_EDITOR(Localization.lang("Automatic field editor")),
     TOGGLE_GROUPS(Localization.lang("Groups"), IconTheme.JabRefIcons.TOGGLE_GROUPS, KeyBinding.TOGGLE_GROUPS_INTERFACE),
     TOGGLE_OO(Localization.lang("OpenOffice/LibreOffice"), IconTheme.JabRefIcons.FILE_OPENOFFICE, KeyBinding.OPEN_OPEN_OFFICE_LIBRE_OFFICE_CONNECTION),
-    TOGGLE_WEB_SEARCH(Localization.lang("Web search"), Localization.lang("Toggle web search interface"), IconTheme.JabRefIcons.WWW, KeyBinding.WEB_SEARCH),
+    TOGGLE_WEB_SEARCH(Localization.lang("Web search"), Localization.lang("Toggle web search interface"),
+            IconTheme.JabRefIcons.WWW, KeyBinding.WEB_SEARCH),
 
     PARSE_LATEX(Localization.lang("Search for citations in LaTeX files..."), IconTheme.JabRefIcons.LATEX_CITATIONS),
-    NEW_SUB_LIBRARY_FROM_AUX(Localization.lang("New sublibrary based on AUX file") + "...", Localization.lang("New BibTeX sublibrary") + Localization.lang("This feature generates a new library based on which entries are needed in an existing LaTeX document."), IconTheme.JabRefIcons.NEW),
-    NEW_LIBRARY_FROM_PDF_ONLINE(Localization.lang("New library based on references in PDF file... (online)"), Localization.lang("This feature generates a new library based on the list of references in a PDF file. Thereby, it uses Grobid's functionality."), IconTheme.JabRefIcons.NEW),
-    NEW_LIBRARY_FROM_PDF_OFFLINE(Localization.lang("New library based on references in PDF file... (offline)"), Localization.lang("This feature generates a new library based on the list of references in a PDF file. Thereby, it uses JabRef's built-in functionality."), IconTheme.JabRefIcons.NEW),
+    NEW_SUB_LIBRARY_FROM_AUX(Localization.lang("New sublibrary based on AUX file") + "...", Localization.lang("New BibTeX sublibrary") + Localization.lang("This feature generates a new library based on which entries are needed in an existing LaTeX document."),
+            IconTheme.JabRefIcons.NEW),
+    NEW_LIBRARY_FROM_PDF_ONLINE(Localization.lang("New library based on references in PDF file... (online)"),
+            Localization.lang("This feature generates a new library based on the list of references in a PDF file. Thereby, it uses Grobid's functionality."), IconTheme.JabRefIcons.NEW),
+    NEW_LIBRARY_FROM_PDF_OFFLINE(Localization.lang("New library based on references in PDF file... (offline)"),
+            Localization.lang("This feature generates a new library based on the list of references in a PDF file. Thereby, it uses JabRef's built-in functionality."), IconTheme.JabRefIcons.NEW),
     PSEUDONYMIZE_LIBRARY(Localization.lang("Pseudonymize library..."), Localization.lang("Pseudonymize the current library and generate a .bib and .csv file"), IconTheme.JabRefIcons.NEW),
-    WRITE_METADATA_TO_PDF(Localization.lang("Write metadata to PDF file(s)"), Localization.lang("Will write metadata to the PDFs linked from selected entries."), KeyBinding.WRITE_METADATA_TO_PDF),
+    WRITE_METADATA_TO_PDF(Localization.lang("Write metadata to PDF file(s)"),
+            Localization.lang("Will write metadata to the PDFs linked from selected entries."), KeyBinding.WRITE_METADATA_TO_PDF),
 
     START_NEW_STUDY(Localization.lang("Start new systematic literature review")),
     UPDATE_SEARCH_RESULTS_OF_STUDY(Localization.lang("Update study search results")),
@@ -126,7 +130,8 @@ public enum StandardActions implements Action {
     OPEN_DATABASE_FOLDER(Localization.lang("Reveal in file explorer")),
     OPEN_FOLDER(Localization.lang("Open folder(s)"), IconTheme.JabRefIcons.FOLDER, KeyBinding.OPEN_FOLDER),
     OPEN_FILE(Localization.lang("Open file(s)"), IconTheme.JabRefIcons.FILE, KeyBinding.OPEN_FILE),
-    OPEN_CONSOLE(Localization.lang("Open terminal here"), Localization.lang("Open terminal here"), IconTheme.JabRefIcons.CONSOLE, KeyBinding.OPEN_CONSOLE),
+    OPEN_CONSOLE(Localization.lang("Open terminal here"),
+            Localization.lang("Open terminal here"), IconTheme.JabRefIcons.CONSOLE, KeyBinding.OPEN_CONSOLE),
     SORT_TABS_ALPHABETICALLY(Localization.lang("Sort tabs alphabetically")),
     COPY_LINKED_FILES(Localization.lang("Copy linked file(s) to folder...")),
     COPY_DOI(Localization.lang("Copy DOI")),
@@ -158,7 +163,8 @@ public enum StandardActions implements Action {
     LIBRARY_PROPERTIES(Localization.lang("Library properties")),
     FIND_DUPLICATES(Localization.lang("Find duplicates"), IconTheme.JabRefIcons.FIND_DUPLICATES),
     MERGE_ENTRIES(Localization.lang("Merge entries"), IconTheme.JabRefIcons.MERGE_ENTRIES, KeyBinding.MERGE_ENTRIES),
-    RESOLVE_DUPLICATE_KEYS(Localization.lang("Resolve duplicate citation keys"), Localization.lang("Find and remove duplicate citation keys"), KeyBinding.RESOLVE_DUPLICATE_CITATION_KEYS),
+    RESOLVE_DUPLICATE_KEYS(Localization.lang("Resolve duplicate citation keys"),
+            Localization.lang("Find and remove duplicate citation keys"), KeyBinding.RESOLVE_DUPLICATE_CITATION_KEYS),
     CHECK_INTEGRITY(Localization.lang("Check integrity"), KeyBinding.CHECK_INTEGRITY),
     CHECK_CONSISTENCY(Localization.lang("Check consistency"), KeyBinding.CHECK_CONSISTENCY),
     FIND_UNLINKED_FILES(Localization.lang("Search for unlinked local files"), IconTheme.JabRefIcons.SEARCH, KeyBinding.FIND_UNLINKED_FILES),
@@ -271,7 +277,8 @@ public enum StandardActions implements Action {
         this.keyBinding = Optional.empty();
     }
 
-    StandardActions(String text, String description, IconTheme.JabRefIcons icon, KeyBinding keyBinding) {
+    StandardActions(String text, String description, IconTheme.JabRefIcons icon,
+                    KeyBinding keyBinding) {
         this.text = text;
         this.description = description;
         this.icon = Optional.of(icon);

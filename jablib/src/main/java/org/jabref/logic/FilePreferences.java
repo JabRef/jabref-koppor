@@ -10,11 +10,9 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.Directories;
 import org.jabref.model.metadata.UserHostInfo;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -50,48 +48,49 @@ public class FilePreferences {
     private FilePreferences() {
         this(
                 new SimpleObjectProperty<>(OS.getUserHostInfo()), // userAndHost (needs to be sourced from InternalPreferences)
-                null,                                // mainFileDirectory
-                true,                                // storeFilesRelativeToBibFile
-                false,                               // autoRenameFilesOnChange
-                DEFAULT_FILENAME_PATTERNS[1],        // fileNamePattern
-                "",                                  // fileDirectoryPattern
-                true,                                // downloadLinkedFiles
-                true,                                // fulltextIndexLinkedFiles
-                Directories.getUserDirectory(),      // workingDirectory
-                true,                                // createBackup
-                Directories.getBackupDirectory(),    // backupDirectory
-                true,                                // confirmDeleteLinkedFile
-                false,                               // moveToTrash
-                true,                                // adjustFileLinksOnTransfer
-                true,                                // copyLinkedFilesOnTransfer
-                false,                               // moveLinkedFilesOnTransfer - defensive, not to cause the impression of files being lost
-                true,                                // shouldKeepDownloadUrl
-                Path.of("/"),                        // lastUsedDirectory
-                true,                                // openFileExplorerInFileDirectory
-                false                                // openFileExplorerInLastUsedDirectory
+                null, // mainFileDirectory
+                true, // storeFilesRelativeToBibFile
+                false, // autoRenameFilesOnChange
+                DEFAULT_FILENAME_PATTERNS[1], // fileNamePattern
+                "", // fileDirectoryPattern
+                true, // downloadLinkedFiles
+                true, // fulltextIndexLinkedFiles
+                Directories.getUserDirectory(), // workingDirectory
+                true, // createBackup
+                Directories.getBackupDirectory(), // backupDirectory
+                true, // confirmDeleteLinkedFile
+                false, // moveToTrash
+                true, // adjustFileLinksOnTransfer
+                true, // copyLinkedFilesOnTransfer
+                false, // moveLinkedFilesOnTransfer - defensive, not to cause the impression of files being lost
+                true, // shouldKeepDownloadUrl
+                Path.of("/"), // lastUsedDirectory
+                true, // openFileExplorerInFileDirectory
+                false // openFileExplorerInLastUsedDirectory
         );
     }
 
-    public FilePreferences(ReadOnlyObjectProperty<UserHostInfo> userAndHost,
-                           @Nullable Path mainFileDirectory,
-                           boolean storeFilesRelativeToBibFile,
-                           boolean autoRenameFilesOnChange,
-                           String fileNamePattern,
-                           String fileDirectoryPattern,
-                           boolean downloadLinkedFiles,
-                           boolean fulltextIndexLinkedFiles,
-                           Path workingDirectory,
-                           boolean createBackup,
-                           Path backupDirectory,
-                           boolean confirmDeleteLinkedFile,
-                           boolean moveToTrash,
-                           boolean adjustFileLinksOnTransfer,
-                           boolean copyLinkedFilesOnTransfer,
-                           boolean moveFilesOnTransferProperty,
-                           boolean shouldKeepDownloadUrl,
-                           Path lastUsedDirectory,
-                           boolean openFileExplorerInFileDirectory,
-                           boolean openFileExplorerInLastUsedDirectory) {
+    public FilePreferences(
+            ReadOnlyObjectProperty<UserHostInfo> userAndHost,
+            @Nullable Path mainFileDirectory,
+            boolean storeFilesRelativeToBibFile,
+            boolean autoRenameFilesOnChange,
+            String fileNamePattern,
+            String fileDirectoryPattern,
+            boolean downloadLinkedFiles,
+            boolean fulltextIndexLinkedFiles,
+            Path workingDirectory,
+            boolean createBackup,
+            Path backupDirectory,
+            boolean confirmDeleteLinkedFile,
+            boolean moveToTrash,
+            boolean adjustFileLinksOnTransfer,
+            boolean copyLinkedFilesOnTransfer,
+            boolean moveFilesOnTransferProperty,
+            boolean shouldKeepDownloadUrl,
+            Path lastUsedDirectory,
+            boolean openFileExplorerInFileDirectory,
+            boolean openFileExplorerInLastUsedDirectory) {
         this.userAndHost.bind(userAndHost);
         this.mainFileDirectory.setValue(mainFileDirectory);
         this.storeFilesRelativeToBibFile.setValue(storeFilesRelativeToBibFile);

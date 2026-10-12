@@ -3,6 +3,7 @@ package org.jabref.gui.entryeditor;
 import java.util.List;
 import java.util.Optional;
 
+import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
@@ -13,7 +14,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-
+import jfx.incubator.scene.control.richtext.CodeArea;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.keyboard.KeyBinding;
@@ -33,9 +34,6 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.support.DisabledOnCIServer;
-
-import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
-import jfx.incubator.scene.control.richtext.CodeArea;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,51 +63,39 @@ class SourceTabTest {
 
     @BeforeEach
     void setUp() {
-        JavaFxExtension.invokeAndWait(() -> {
-            Stage stage = new Stage();
-            area = new CodeArea();
-            area.appendText("some example\n text to go here\n across a couple of \n lines....");
-            stateManager = mock(StateManager.class);
-            when(stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH)).thenReturn(OptionalObjectProperty.empty());
-            when(stateManager.searchQueryProperty()).thenReturn(mock(StringProperty.class));
-            activeDatabase = OptionalObjectProperty.empty();
-            when(stateManager.activeDatabaseProperty()).thenReturn(activeDatabase);
-            when(stateManager.activeTabProperty()).thenReturn(OptionalObjectProperty.empty());
-            keyBindingRepository = new KeyBindingRepository(List.of(), List.of());
-            keyBindingRepository.put(KeyBinding.SAVE_LIBRARY, "Ctrl+S");
-            ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-            when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
-            fieldPreferences = mock(FieldPreferences.class);
-            when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
-            entryTypesManager = mock(BibEntryTypesManager.class);
+        JavaFxExtension.invokeAndWait(
+                () -> {
+                    Stage stage = new Stage();
+                    area = new CodeArea();
+                    area.appendText("some example\n text to go here\n across a couple of \n lines....");
+                    stateManager = mock(StateManager.class);
+                    when(stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH)).thenReturn(OptionalObjectProperty.empty());
+                    when(stateManager.searchQueryProperty()).thenReturn(mock(StringProperty.class));
+                    activeDatabase = OptionalObjectProperty.empty();
+                    when(stateManager.activeDatabaseProperty()).thenReturn(activeDatabase);
+                    when(stateManager.activeTabProperty()).thenReturn(OptionalObjectProperty.empty());
+                    keyBindingRepository = new KeyBindingRepository(List.of(), List.of());
+                    keyBindingRepository.put(KeyBinding.SAVE_LIBRARY, "Ctrl+S");
+                    ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+                    when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+                    fieldPreferences = mock(FieldPreferences.class);
+                    when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
+                    entryTypesManager = mock(BibEntryTypesManager.class);
 
-            sourceTab = new SourceTab(
+                    sourceTab = new SourceTab(fieldPreferences, importFormatPreferences, new DummyFileUpdateMonitor(), mock(DialogService.class),
+                            entryTypesManager, keyBindingRepository, stateManager, new BibTeXSyntaxHighlighter());
+                    pane = new TabPane(new Tab("main area", area), new Tab("other tab", new Label("some text")), sourceTab);
+                    scene = new Scene(pane);
+                    this.stage = stage;
 
-                    fieldPreferences,
-                    importFormatPreferences,
-                    new DummyFileUpdateMonitor(),
-                    mock(DialogService.class),
-                    entryTypesManager,
-                    keyBindingRepository,
-                    stateManager,
-                    new BibTeXSyntaxHighlighter()
-            );
-            pane = new TabPane(
-                    new Tab("main area", area),
-                    new Tab("other tab", new Label("some text")),
-                    sourceTab
-            );
-            scene = new Scene(pane);
-            this.stage = stage;
+                    stage.setScene(scene);
+                    stage.setWidth(400);
+                    stage.setHeight(400);
+                    stage.show();
 
-            stage.setScene(scene);
-            stage.setWidth(400);
-            stage.setHeight(400);
-            stage.show();
-
-            // select the area's tab
-            pane.getSelectionModel().select(0);
-        });
+                    // select the area's tab
+                    pane.getSelectionModel().select(0);
+                });
     }
 
     @ParameterizedTest
@@ -122,7 +108,8 @@ class SourceTabTest {
             activeDatabase.set(Optional.of(database));
 
             assertEquals(Localization.lang("%0 source", mode.getFormattedName()), sourceTab.getText());
-            assertEquals(Localization.lang("Show/edit %0 source", mode.getFormattedName()), sourceTab.getTooltip().getText());
+            assertEquals(Localization.lang("Show/edit %0 source", mode.getFormattedName()),
+                    sourceTab.getTooltip().getText());
         });
     }
 
@@ -133,7 +120,8 @@ class SourceTabTest {
             activeDatabase.set(Optional.empty());
 
             assertEquals(Localization.lang("Source"), sourceTab.getText());
-            assertEquals(Localization.lang("Show/edit source"), sourceTab.getTooltip().getText());
+            assertEquals(Localization.lang("Show/edit source"),
+                    sourceTab.getTooltip().getText());
         });
     }
 
@@ -194,21 +182,22 @@ class SourceTabTest {
         BibEntry firstEntry = new BibEntry().withField(new UnknownField("title"), "First entry");
         BibEntry secondEntry = new BibEntry().withField(new UnknownField("title"), "Second entry");
 
-        JavaFxExtension.invokeAndWait(() -> {
-            pane.getSelectionModel().select(sourceTab);
-            sourceTab.currentEntryProperty().set(firstEntry);
-            sourceTab.notifyAboutFocus(firstEntry);
+        JavaFxExtension.invokeAndWait(
+                () -> {
+                    pane.getSelectionModel().select(sourceTab);
+                    sourceTab.currentEntryProperty().set(firstEntry);
+                    sourceTab.notifyAboutFocus(firstEntry);
 
-            sourceTab.currentEntryProperty().set(secondEntry);
-            sourceTab.notifyAboutFocus(secondEntry);
+                    sourceTab.currentEntryProperty().set(secondEntry);
+                    sourceTab.notifyAboutFocus(secondEntry);
 
-            CodeArea sourceArea = (CodeArea) sourceTab.getContent();
-            sourceArea.clear();
-            sourceArea.appendText("Unsaved source for the second entry");
+                    CodeArea sourceArea = (CodeArea) sourceTab.getContent();
+                    sourceArea.clear();
+                    sourceArea.appendText("Unsaved source for the second entry");
 
-            firstEntry.setField(new UnknownField("author"), "Author");
-            assertEquals("Unsaved source for the second entry", sourceArea.getText());
-        });
+                    firstEntry.setField(new UnknownField("author"), "Author");
+                    assertEquals("Unsaved source for the second entry", sourceArea.getText());
+                });
     }
 
     @Test
@@ -224,19 +213,23 @@ class SourceTabTest {
         });
         JavaFxExtension.awaitEvents();
 
-        JavaFxExtension.invokeAndWait(() -> {
-            CodeArea sourceArea = (CodeArea) sourceTab.getContent();
-            String editedSource = sourceArea.getText().replace("First entry", "Edited first entry");
-            sourceArea.clear();
-            sourceArea.appendText(editedSource);
+        JavaFxExtension.invokeAndWait(
+                () -> {
+                    CodeArea sourceArea = (CodeArea) sourceTab.getContent();
+                    String editedSource = sourceArea.getText().replace("First entry", "Edited first entry");
+                    sourceArea.clear();
+                    sourceArea.appendText(editedSource);
 
-            // Simulate the selection model having advanced before the deferred tab refresh runs.
-            sourceTab.currentEntryProperty().set(secondEntry);
-            Event.fireEvent(sourceArea, new KeyEvent(KeyEvent.KEY_PRESSED, "s", "S", KeyCode.S, false, true, false, false));
+                    // Simulate the selection model having advanced before the deferred tab refresh runs.
+                    sourceTab.currentEntryProperty().set(secondEntry);
+                    Event.fireEvent(
+                            sourceArea,
+                            new KeyEvent(KeyEvent.KEY_PRESSED, "s", "S", KeyCode.S, false, true,
+                                    false, false));
 
-            assertEquals("Edited first entry", firstEntry.getField(StandardField.TITLE).orElseThrow());
-            assertEquals("Second entry", secondEntry.getField(StandardField.TITLE).orElseThrow());
-        });
+                    assertEquals("Edited first entry", firstEntry.getField(StandardField.TITLE).orElseThrow());
+                    assertEquals("Second entry", secondEntry.getField(StandardField.TITLE).orElseThrow());
+                });
     }
 
     @Test
@@ -244,24 +237,25 @@ class SourceTabTest {
         BibEntry firstEntry = new BibEntry().withField(StandardField.TITLE, "Same title");
         BibEntry secondEntry = new BibEntry().withField(StandardField.TITLE, "Same title");
 
-        JavaFxExtension.invokeAndWait(() -> {
-            pane.getSelectionModel().select(sourceTab);
-            sourceTab.currentEntryProperty().set(firstEntry);
-            sourceTab.notifyAboutFocus(firstEntry);
+        JavaFxExtension.invokeAndWait(
+                () -> {
+                    pane.getSelectionModel().select(sourceTab);
+                    sourceTab.currentEntryProperty().set(firstEntry);
+                    sourceTab.notifyAboutFocus(firstEntry);
 
-            sourceTab.currentEntryProperty().set(secondEntry);
-            sourceTab.notifyAboutFocus(secondEntry);
-            secondEntry.setField(StandardField.AUTHOR, "Author");
+                    sourceTab.currentEntryProperty().set(secondEntry);
+                    sourceTab.notifyAboutFocus(secondEntry);
+                    secondEntry.setField(StandardField.AUTHOR, "Author");
 
-            CodeArea sourceArea = (CodeArea) sourceTab.getContent();
-            assertTrue(sourceArea.getText().contains("author = {Author}"));
-            assertTrue(sourceArea.getText().contains("title  = {Same title}"));
-        });
+                    CodeArea sourceArea = (CodeArea) sourceTab.getContent();
+                    assertTrue(sourceArea.getText().contains("author = {Author}"));
+                    assertTrue(sourceArea.getText().contains("title  = {Same title}"));
+                });
     }
 
-    /// Editing the source and leaving the code area must write every kind of change back to the entry,
-    /// so the field editors and the entry table show the edited data.
-    /// See https://github.com/JabRef/jabref/issues/9219
+    /// Editing the source and leaving the code area must write every kind of
+    /// change back to the entry, so the field editors and the entry table show
+    /// the edited data. See https://github.com/JabRef/jabref/issues/9219
     @Test
     void editedSourceIsWrittenBackToEntryOnFocusLoss() {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
@@ -277,22 +271,24 @@ class SourceTabTest {
         });
         JavaFxExtension.awaitEvents();
 
-        JavaFxExtension.invokeAndWait(() -> {
-            CodeArea sourceArea = (CodeArea) sourceTab.getContent();
-            sourceArea.requestFocus();
-            assertTrue(sourceArea.isFocused());
-            sourceArea.clear();
-            sourceArea.appendText("""
+        JavaFxExtension.invokeAndWait(
+                () -> {
+                    CodeArea sourceArea = (CodeArea) sourceTab.getContent();
+                    sourceArea.requestFocus();
+                    assertTrue(sourceArea.isFocused());
+                    sourceArea.clear();
+                    sourceArea
+                            .appendText("""
                     @Book{new,
                       author  = {Old author},
                       title   = {New title},
                       journal = {New journal},
                     }
                     """);
-            // Focus loss stores the visible source
-            pane.requestFocus();
-            assertFalse(sourceArea.isFocused());
-        });
+                    // Focus loss stores the visible source
+                    pane.requestFocus();
+                    assertFalse(sourceArea.isFocused());
+                });
         JavaFxExtension.awaitEvents();
 
         assertEquals(StandardEntryType.Book, entry.getType());
@@ -315,15 +311,16 @@ class SourceTabTest {
         });
         JavaFxExtension.awaitEvents();
 
-        JavaFxExtension.invokeAndWait(() -> {
-            CodeArea sourceArea = (CodeArea) sourceTab.getContent();
-            String editedSource = sourceArea.getText().replace("First entry", "Edited first entry");
-            sourceArea.clear();
-            sourceArea.appendText(editedSource);
+        JavaFxExtension.invokeAndWait(
+                () -> {
+                    CodeArea sourceArea = (CodeArea) sourceTab.getContent();
+                    String editedSource = sourceArea.getText().replace("First entry", "Edited first entry");
+                    sourceArea.clear();
+                    sourceArea.appendText(editedSource);
 
-            sourceTab.currentEntryProperty().set(secondEntry);
-            sourceTab.notifyAboutFocus(secondEntry);
-        });
+                    sourceTab.currentEntryProperty().set(secondEntry);
+                    sourceTab.notifyAboutFocus(secondEntry);
+                });
         JavaFxExtension.awaitEvents();
 
         assertEquals(Optional.of("Edited first entry"), firstEntry.getField(StandardField.TITLE));

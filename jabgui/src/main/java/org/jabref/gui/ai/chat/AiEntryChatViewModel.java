@@ -1,5 +1,6 @@
 package org.jabref.gui.ai.chat;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -8,30 +9,22 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.logic.ai.chatting.InMemoryChatHistoryCache;
 import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 
-import com.tobiasdiez.easybind.EasyBind;
-
 public class AiEntryChatViewModel extends AbstractViewModel {
     private final BooleanProperty enabled = new SimpleBooleanProperty();
     private final ObjectProperty<FullBibEntry> selectedEntry = new SimpleObjectProperty<>();
-    private final ListProperty<FullBibEntry> entries = new SimpleListProperty<>(FXCollections.observableArrayList(
-            entryIdentifier -> entryIdentifier.entry().getObservables()
-    ));
+    private final ListProperty<FullBibEntry> entries = new SimpleListProperty<>(FXCollections.observableArrayList(entryIdentifier -> entryIdentifier.entry().getObservables()));
     private final ListProperty<ChatMessage> chatHistory = new SimpleListProperty<>(FXCollections.observableArrayList());
 
     private final AiPreferences aiPreferences;
     private final InMemoryChatHistoryCache chatHistoryCache;
 
-    public AiEntryChatViewModel(
-            AiPreferences aiPreferences,
-            InMemoryChatHistoryCache chatHistoryCache
-    ) {
+    public AiEntryChatViewModel(AiPreferences aiPreferences, InMemoryChatHistoryCache chatHistoryCache) {
         this.aiPreferences = aiPreferences;
         this.chatHistoryCache = chatHistoryCache;
 
@@ -52,16 +45,11 @@ public class AiEntryChatViewModel extends AbstractViewModel {
             return;
         }
 
-        ObservableList<FullBibEntry> observableEntries = FXCollections.observableArrayList(
-                entryIdentifier -> entryIdentifier.entry().getObservables()
-        );
+        ObservableList<FullBibEntry> observableEntries = FXCollections.observableArrayList(entryIdentifier -> entryIdentifier.entry().getObservables());
         observableEntries.add(identifier);
         entries.set(observableEntries);
 
-        chatHistory.set(chatHistoryCache.getForEntry(
-                identifier.databaseContext(),
-                identifier.entry()
-        ));
+        chatHistory.set(chatHistoryCache.getForEntry(identifier.databaseContext(), identifier.entry()));
     }
 
     public ObjectProperty<FullBibEntry> selectedEntryProperty() {

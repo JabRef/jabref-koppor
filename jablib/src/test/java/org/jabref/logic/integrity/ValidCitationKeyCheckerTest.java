@@ -5,7 +5,6 @@ import java.util.stream.Stream;
 
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.l10n.Localization;
-
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -32,7 +31,6 @@ class ValidCitationKeyCheckerTest {
                 Arguments.of(Optional.empty(), "kṛṣṇā"),
                 Arguments.of(Optional.empty(), "taṇḍulīyaka"),
                 Arguments.of(Optional.empty(), "Müller2020"),
-                Arguments.of(Optional.empty(), "García_2021")
-        );
+                Arguments.of(Optional.empty(), "García_2021"));
     }
 }

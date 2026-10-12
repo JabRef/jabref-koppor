@@ -2,7 +2,6 @@ package org.jabref.gui.edit.automaticfieldeditor;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
@@ -18,23 +17,18 @@ import org.jabref.model.undo.CompoundEdit;
 public class AutomaticFieldEditorViewModel extends AbstractViewModel {
     private final ObservableList<AutomaticFieldEditorTab> fieldEditorTabs = FXCollections.observableArrayList();
 
-    /// One step for the whole dialog: every tab records into this, and OK pushes it as a single
-    /// undo entry. Named after the dialog, because that is what the user acted in.
+    /// One step for the whole dialog: every tab records into this, and OK
+    /// pushes it as a single undo entry. Named after the dialog, because that
+    /// is what the user acted in.
     private final CompoundEdit dialogEdits = new CompoundEdit(Localization.lang("Automatic field editor"));
 
     private final UndoManager undoManager;
 
-    public AutomaticFieldEditorViewModel(BibDatabase database,
-                                         UndoManager undoManager,
-                                         DialogService dialogService,
-                                         StateManager stateManager) {
+    public AutomaticFieldEditorViewModel(BibDatabase database, UndoManager undoManager, DialogService dialogService,
+            StateManager stateManager) {
         this.undoManager = undoManager;
-        fieldEditorTabs.addAll(
-                new EditFieldContentTabView(database, dialogEdits, dialogService, stateManager),
-                new CopyOrMoveFieldContentTabView(database, dialogEdits, dialogService, stateManager),
-                new ClearContentTabView(database, dialogEdits, dialogService, stateManager),
-                new RenameFieldTabView(database, dialogEdits, dialogService, stateManager)
-        );
+        fieldEditorTabs.addAll(new EditFieldContentTabView(database, dialogEdits, dialogService, stateManager), new CopyOrMoveFieldContentTabView(database, dialogEdits, dialogService, stateManager),
+                new ClearContentTabView(database, dialogEdits, dialogService, stateManager), new RenameFieldTabView(database, dialogEdits, dialogService, stateManager));
     }
 
     public ObservableList<AutomaticFieldEditorTab> getFieldEditorTabs() {
@@ -45,13 +39,17 @@ public class AutomaticFieldEditorViewModel extends AbstractViewModel {
         undoManager.addEdit(dialogEdits.toChangeSet());
     }
 
-    /// Reverts what the tabs already wrote to the library, without recording anything.
+    /// Reverts what the tabs already wrote to the library, without recording
+    /// anything.
     ///
-    /// The one deliberate write outside the journal, and it stays outside on purpose: nothing
-    /// was ever pushed — [#saveChanges] is what pushes — so there is no undo step to reverse and
-    /// none to add. Cancelling leaves the library where it was before the dialog opened, which
-    /// is exactly the state the top of the undo stack already describes.
+    /// The one deliberate write outside the journal, and it stays outside on
+    /// purpose: nothing was ever pushed — [#saveChanges] is what pushes — so
+    /// there is no undo step to reverse and none to add. Cancelling leaves the
+    /// library where it was before the dialog opened, which is exactly the
+    /// state the top of the undo stack already describes.
     public void cancelChanges() {
-        dialogEdits.toChangeSet().inverted().apply();
+        dialogEdits.toChangeSet()
+                   .inverted()
+                   .apply();
     }
 }

@@ -5,7 +5,6 @@ import java.util.concurrent.Callable;
 import org.jabref.architecture.AllowedToUseStandardStreams;
 import org.jabref.languageserver.LspLauncher;
 import org.jabref.logic.preferences.JabRefCliPreferences;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -16,7 +15,9 @@ import picocli.CommandLine;
 public class ServerCli implements Callable<Void> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerCli.class);
 
-    @CommandLine.Option(names = {"-p", "--port"}, description = "the port")
+    @CommandLine.Option(
+            names = {"-p", "--port"},
+            description = "the port")
     private Integer port = 2087;
 
     /// @implNote method needs to be public, because JabLsLauncher calls it.

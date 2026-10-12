@@ -3,30 +3,39 @@ package org.jabref.logic.importer.fetcher.citation.opencitations;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.annotations.SerializedName;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.StandardField;
-
-import com.google.gson.annotations.SerializedName;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
 class CitationItem {
-    @Nullable String oci;
-    @Nullable String citing;
-    @Nullable String cited;
-    @Nullable String creation;
-    @Nullable String timespan;
+    @Nullable
+    String oci;
+
+    @Nullable
+    String citing;
+
+    @Nullable
+    String cited;
+
+    @Nullable
+    String creation;
+
+    @Nullable
+    String timespan;
 
     @SerializedName("journal_sc")
-    @Nullable String journalSelfCitation;
+    @Nullable
+    String journalSelfCitation;
 
     @SerializedName("author_sc")
-    @Nullable String authorSelfCitation;
+    @Nullable
+    String authorSelfCitation;
 
-    record IdentifierWithField(Field field, String value) {
-    }
+    record IdentifierWithField(Field field, String value) {}
 
     List<IdentifierWithField> extractIdentifiers(@Nullable String pidString) {
         if (pidString == null || pidString.isEmpty()) {

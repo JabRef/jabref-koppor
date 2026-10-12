@@ -10,7 +10,8 @@ public abstract class IntegrityCheckResultWriter implements Closeable {
     protected final List<IntegrityMessage> messages;
     protected final Writer writer;
 
-    /// Writer lifecycle: The caller is responsible for closing the writer at the appropriate time.
+    /// Writer lifecycle: The caller is responsible for closing the writer at
+    /// the appropriate time.
     public IntegrityCheckResultWriter(Writer writer, List<IntegrityMessage> messages) {
         this.writer = writer;
         this.messages = messages;
@@ -19,6 +20,5 @@ public abstract class IntegrityCheckResultWriter implements Closeable {
     public abstract void writeFindings() throws IOException;
 
     @Override
-    public void close() throws IOException {
-    }
+    public void close() throws IOException {}
 }

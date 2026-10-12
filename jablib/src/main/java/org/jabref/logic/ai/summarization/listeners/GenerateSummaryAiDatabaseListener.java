@@ -1,8 +1,8 @@
 package org.jabref.logic.ai.summarization.listeners;
 
+import com.google.common.eventbus.Subscribe;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.ai.AiDatabaseListener;
 import org.jabref.logic.ai.chatting.ChatModel;
@@ -19,8 +19,6 @@ import org.jabref.model.database.event.EntriesAddedEvent;
 import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.entry.field.StandardField;
 
-import com.google.common.eventbus.Subscribe;
-
 public class GenerateSummaryAiDatabaseListener implements AiDatabaseListener {
     private final AiPreferences aiPreferences;
     private final FilePreferences filePreferences;
@@ -29,11 +27,7 @@ public class GenerateSummaryAiDatabaseListener implements AiDatabaseListener {
     private final ObjectProperty<ChatModel> chatModel = new SimpleObjectProperty<>();
     private final ObjectProperty<Summarizator> summarizator = new SimpleObjectProperty<>();
 
-    public GenerateSummaryAiDatabaseListener(
-            AiPreferences aiPreferences,
-            FilePreferences filePreferences,
-            SummarizationTaskAggregator summarizationTaskAggregator
-    ) {
+    public GenerateSummaryAiDatabaseListener(AiPreferences aiPreferences, FilePreferences filePreferences, SummarizationTaskAggregator summarizationTaskAggregator) {
         this.aiPreferences = aiPreferences;
         this.filePreferences = filePreferences;
         this.summarizationTaskAggregator = summarizationTaskAggregator;
@@ -42,15 +36,9 @@ public class GenerateSummaryAiDatabaseListener implements AiDatabaseListener {
     }
 
     private void setupBindings() {
-        this.summarizator.bind(ObservablesHelper.createObjectBinding(
-                () -> SummarizatorFactory.create(aiPreferences),
-                aiPreferences.getSummarizatorProperties()
-        ));
+        this.summarizator.bind(ObservablesHelper.createObjectBinding(() -> SummarizatorFactory.create(aiPreferences), aiPreferences.getSummarizatorProperties()));
 
-        this.chatModel.bind(ObservablesHelper.createClosableObjectBinding(
-                () -> ChatModelFactory.create(aiPreferences),
-                aiPreferences.getChatProperties()
-        ));
+        this.chatModel.bind(ObservablesHelper.createClosableObjectBinding(() -> ChatModelFactory.create(aiPreferences), aiPreferences.getChatProperties()));
     }
 
     @Override
@@ -81,13 +69,10 @@ public class GenerateSummaryAiDatabaseListener implements AiDatabaseListener {
                     return;
                 }
 
-                summarizationTaskAggregator.start(new GenerateSummaryTaskRequest(
-                        filePreferences,
-                        chatModel.get(),
-                        summarizator.get(),
-                        new FullBibEntry(context, entry),
-                        false
-                ), false);
+                summarizationTaskAggregator.start(
+                        new GenerateSummaryTaskRequest(filePreferences, chatModel.get(), summarizator.get(),
+                                new FullBibEntry(context, entry), false),
+                        false);
             });
         }
 
@@ -98,13 +83,10 @@ public class GenerateSummaryAiDatabaseListener implements AiDatabaseListener {
                 return;
             }
 
-            summarizationTaskAggregator.start(new GenerateSummaryTaskRequest(
-                    filePreferences,
-                    chatModel.get(),
-                    summarizator.get(),
-                    new FullBibEntry(context, event.getBibEntry()),
-                    false
-            ), false);
+            summarizationTaskAggregator.start(
+                    new GenerateSummaryTaskRequest(filePreferences, chatModel.get(), summarizator.get(),
+                            new FullBibEntry(context, event.getBibEntry()), false),
+                    false);
         }
     }
 }

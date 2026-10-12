@@ -48,7 +48,6 @@ import org.jabref.logic.formatter.minifier.MinifyNameListFormatter;
 import org.jabref.logic.formatter.minifier.TruncateFormatter;
 import org.jabref.logic.layout.format.LatexToUnicodeFormatter;
 import org.jabref.logic.layout.format.ReplaceUnicodeLigaturesFormatter;
-
 import org.jspecify.annotations.NonNull;
 
 public class Formatters {
@@ -57,11 +56,12 @@ public class Formatters {
     private static Map<String, Formatter> keyToFormatterMap;
 
     static {
-        keyToFormatterMap = getAll().stream().collect(Collectors.toMap(Formatter::getKey, f -> f));
+        keyToFormatterMap = getAll()
+                .stream()
+                .collect(Collectors.toMap(Formatter::getKey, f -> f));
     }
 
-    private Formatters() {
-    }
+    private Formatters() {}
 
     public static List<Formatter> getConverters() {
         return Arrays.asList(
@@ -70,18 +70,12 @@ public class Formatters {
                 new LatexToUnicodeFormatter(),
                 new UnicodeToLatexFormatter(),
                 new ConvertMSCCodesFormatter(),
-                new TransliterateFormatter()
-        );
+                new TransliterateFormatter());
     }
 
     public static List<Formatter> getCaseChangers() {
-        return Arrays.asList(
-                new CapitalizeFormatter(),
-                new LowerCaseFormatter(),
-                new SentenceCaseFormatter(),
-                new TitleCaseFormatter(),
-                new UpperCaseFormatter()
-        );
+        return Arrays.asList(new CapitalizeFormatter(), new LowerCaseFormatter(), new SentenceCaseFormatter(),
+                new TitleCaseFormatter(), new UpperCaseFormatter());
     }
 
     public static List<Formatter> getOthers() {
@@ -108,16 +102,11 @@ public class Formatters {
                 new EscapeDollarSignFormatter(),
                 new ShortenDOIFormatter(),
                 new ReplaceUnicodeLigaturesFormatter(),
-                new UnprotectTermsFormatter()
-        );
+                new UnprotectTermsFormatter());
     }
 
     public static List<Formatter> getTitleChangers() {
-        return Arrays.asList(
-                new VeryShortTitleFormatter(),
-                new ShortTitleFormatter(),
-                new CamelFormatter()
-        );
+        return Arrays.asList(new VeryShortTitleFormatter(), new ShortTitleFormatter(), new CamelFormatter());
     }
 
     public static List<Formatter> getAll() {

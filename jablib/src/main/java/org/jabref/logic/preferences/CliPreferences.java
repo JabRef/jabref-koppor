@@ -69,7 +69,8 @@ public interface CliPreferences {
 
     void storeCustomEntryTypesRepository(BibEntryTypesManager entryTypesManager);
 
-    /// Returns the custom entry type decisions the user declined to store, as created by the caller
+    /// Returns the custom entry type decisions the user declined to store, as
+    /// created by the caller
     Set<String> getDeclinedCustomEntryTypes();
 
     void addDeclinedCustomEntryTypes(Collection<String> declinedEntryTypes);
@@ -130,9 +131,7 @@ public interface CliPreferences {
     }
 
     default LayoutFormatterPreferences getLayoutFormatterPreferences() {
-        return new LayoutFormatterPreferences(
-                getNameFormatterPreferences(),
-                getDOIPreferences(),
+        return new LayoutFormatterPreferences(getNameFormatterPreferences(), getDOIPreferences(),
                 getFilePreferences().mainFileDirectoryProperty());
     }
 

@@ -25,7 +25,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NonNull;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -33,12 +32,41 @@ import org.yaml.snakeyaml.Yaml;
 public class CffExporter extends Exporter {
     // Fields that are taken 1:1 from BibTeX to CFF
     public static final List<String> UNMAPPED_FIELDS = List.of(
-            "abbreviation", "collection-doi", "collection-title", "collection-type", "commit", "copyright",
-            "data-type", "database", "date-accessed", "date-downloaded", "date-published", "department", "end",
-            "entry", "filename", "format", "issue-date", "issue-title", "license-url", "loc-end", "loc-start",
-            "medium", "nihmsid", "number-volumes", "patent-states", "pmcid", "repository-artifact", "repository-code",
-            "scope", "section", "start", "term", "thesis-type", "volume-title", "year-original"
-    );
+            "abbreviation",
+            "collection-doi",
+            "collection-title",
+            "collection-type",
+            "commit",
+            "copyright",
+            "data-type",
+            "database",
+            "date-accessed",
+            "date-downloaded",
+            "date-published",
+            "department",
+            "end",
+            "entry",
+            "filename",
+            "format",
+            "issue-date",
+            "issue-title",
+            "license-url",
+            "loc-end",
+            "loc-start",
+            "medium",
+            "nihmsid",
+            "number-volumes",
+            "patent-states",
+            "pmcid",
+            "repository-artifact",
+            "repository-code",
+            "scope",
+            "section",
+            "start",
+            "term",
+            "thesis-type",
+            "volume-title",
+            "year-original");
 
     public static final Map<Field, String> FIELDS_MAP = Map.ofEntries(
             Map.entry(StandardField.ABSTRACT, "abstract"),
@@ -62,8 +90,7 @@ public class CffExporter extends Exporter {
             Map.entry(StandardField.PAGES, "pages"),
             Map.entry(StandardField.PUBSTATE, "status"),
             Map.entry(StandardField.VOLUME, "volume"),
-            Map.entry(StandardField.YEAR, "year")
-    );
+            Map.entry(StandardField.YEAR, "year"));
 
     public static final Map<EntryType, String> TYPES_MAP = Map.ofEntries(
             Map.entry(StandardEntryType.Article, "article"),
@@ -76,17 +103,14 @@ public class CffExporter extends Exporter {
             Map.entry(StandardEntryType.Software, "software"),
             Map.entry(StandardEntryType.Dataset, "dataset"),
             Map.entry(StandardEntryType.Report, "report"),
-            Map.entry(StandardEntryType.Unpublished, "unpublished")
-    );
+            Map.entry(StandardEntryType.Unpublished, "unpublished"));
 
     public CffExporter() {
         super("cff", "CFF", StandardFileType.CFF);
     }
 
     @Override
-    public void export(@NonNull BibDatabaseContext databaseContext,
-                       @NonNull Path file,
-                       @NonNull List<BibEntry> entries) throws SaveException {
+    public void export(@NonNull BibDatabaseContext databaseContext, @NonNull Path file, @NonNull List<BibEntry> entries) throws SaveException {
         // Do not export if no entries to export -- avoids exports with only template text
         if (entries.isEmpty()) {
             return;
@@ -105,11 +129,9 @@ public class CffExporter extends Exporter {
         Yaml yaml = new Yaml(options);
 
         // Find software or dataset entries
-        List<BibEntry> softwareOrDatasetEntries =
-                entriesToTransform.stream()
-                                  .filter(entry ->
-                                          entry.getType() == StandardEntryType.Software || entry.getType() == StandardEntryType.Dataset)
-                                  .toList();
+        List<BibEntry> softwareOrDatasetEntries = entriesToTransform.stream()
+                .filter(entry -> entry.getType() == StandardEntryType.Software || entry.getType() == StandardEntryType.Dataset)
+                .toList();
 
         // If the found software/dataset entries is not only one, then create a dummy main entry holding the given entries
         boolean mainIsDummy = softwareOrDatasetEntries.size() != 1;
@@ -123,7 +145,9 @@ public class CffExporter extends Exporter {
 
         // Preferred citation
         if (main.hasField(StandardField.CITES)) {
-            String citeKey = main.getField(StandardField.CITES).orElse("").split(",")[0];
+            String citeKey = main.getField(StandardField.CITES)
+                                 .orElse("")
+                                 .split(",")[0];
             List<BibEntry> citedEntries = databaseContext.getDatabase().getEntriesByCitationKey(citeKey);
             entriesToTransform.removeAll(citedEntries);
             if (!citedEntries.isEmpty()) {
@@ -170,8 +194,7 @@ public class CffExporter extends Exporter {
             cffData.put("cff-version", "1.2.0");
 
             // Mandatory message field
-            String message = fields.getOrDefault(StandardField.COMMENT,
-                    "If you use this software, please cite it using the metadata from this file.");
+            String message = fields.getOrDefault(StandardField.COMMENT, "If you use this software, please cite it using the metadata from this file.");
             cffData.put("message", message);
             fields.remove(StandardField.COMMENT);
         }
@@ -182,8 +205,7 @@ public class CffExporter extends Exporter {
         fields.remove(StandardField.TITLE);
 
         // Mandatory authors field
-        List<Author> authors = AuthorList.parse(fields.getOrDefault(StandardField.AUTHOR, ""))
-                                         .getAuthors();
+        List<Author> authors = AuthorList.parse(fields.getOrDefault(StandardField.AUTHOR, "")).getAuthors();
         parseAuthors(cffData, authors);
         fields.remove(StandardField.AUTHOR);
 

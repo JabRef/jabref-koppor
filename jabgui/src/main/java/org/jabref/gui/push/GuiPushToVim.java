@@ -19,7 +19,8 @@ public class GuiPushToVim extends PushToVim implements GuiPushToApplication {
     }
 
     @Override
-    public GuiPushToApplicationSettings getSettings(PushToApplication application, DialogService dialogService, FilePreferences filePreferences, PushToApplicationPreferences preferences) {
+    public GuiPushToApplicationSettings getSettings(PushToApplication application, DialogService dialogService, FilePreferences filePreferences,
+            PushToApplicationPreferences preferences) {
         return new GuiPushToVimSettings(application, dialogService, filePreferences, preferences);
     }
 

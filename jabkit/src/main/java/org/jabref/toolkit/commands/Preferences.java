@@ -7,7 +7,6 @@ import java.util.prefs.BackingStoreException;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.shared.prefs.SharedDatabasePreferences;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +15,10 @@ import static picocli.CommandLine.Mixin;
 import static picocli.CommandLine.Parameters;
 import static picocli.CommandLine.ParentCommand;
 
-@Command(name = "preferences", description = "Manage JabKit preferences.",
-        subcommands = {
-                Preferences.PreferencesReset.class,
-                Preferences.PreferencesImport.class,
-                Preferences.PreferencesExport.class
-        })
+@Command(
+        name = "preferences",
+        description = "Manage JabKit preferences.",
+        subcommands = {Preferences.PreferencesReset.class, Preferences.PreferencesImport.class, Preferences.PreferencesExport.class})
 class Preferences implements Callable<Integer> {
     private static final Logger LOGGER = LoggerFactory.getLogger(Preferences.class);
 

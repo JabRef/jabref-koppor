@@ -17,7 +17,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.libraryproperties.PropertiesTabViewModel;
 import org.jabref.gui.util.FieldsUtil;
@@ -48,7 +47,8 @@ public class ContentSelectorViewModel implements PropertiesTabViewModel {
     @Override
     public void setValues(MetaData metaData) {
         // Populate field names keyword map
-        fieldKeywordsMap = ContentSelectors.getFieldKeywordsMap(metaData.getContentSelectors().getContentSelectors());
+        fieldKeywordsMap = ContentSelectors.getFieldKeywordsMap(metaData.getContentSelectors()
+                .getContentSelectors());
 
         // Populate Field names list
         List<Field> existingFields = new ArrayList<>(fieldKeywordsMap.keySet());
@@ -66,7 +66,10 @@ public class ContentSelectorViewModel implements PropertiesTabViewModel {
 
         if (ContentSelectors.isDefaultMap(fieldKeywordsMap)) {
             // Remove all fields of the content selector
-            fieldNamesToRemove = metaData.getContentSelectorsSorted().stream().map(ContentSelector::getField).toList();
+            fieldNamesToRemove = metaData.getContentSelectorsSorted()
+                    .stream()
+                    .map(ContentSelector::getField)
+                    .toList();
         } else {
             fieldNamesToRemove = determineFieldsToRemove(metaData);
         }
@@ -104,11 +107,8 @@ public class ContentSelectorViewModel implements PropertiesTabViewModel {
     }
 
     void showInputFieldNameDialog() {
-        dialogService.showEditableChoiceDialogAndWait(Localization.lang("Add new field name"),
-                             Localization.lang("Field name"),
-                             Localization.lang("Add"),
-                             FXCollections.observableArrayList(FieldFactory.getStandardFieldsWithCitationKey()),
-                             FieldsUtil.FIELD_STRING_CONVERTER)
+        dialogService.showEditableChoiceDialogAndWait(Localization.lang("Add new field name"), Localization.lang("Field name"), Localization.lang("Add"),
+                FXCollections.observableArrayList(FieldFactory.getStandardFieldsWithCitationKey()), FieldsUtil.FIELD_STRING_CONVERTER)
                      .ifPresent(this::addFieldIfUnique);
     }
 
@@ -129,10 +129,7 @@ public class ContentSelectorViewModel implements PropertiesTabViewModel {
             return;
         }
 
-        boolean deleteConfirmed = dialogService.showConfirmationDialogAndWait(
-                Localization.lang("Remove field name"),
-                Localization.lang("Are you sure you want to remove field name: \"%0\"?", FieldTextMapper.getDisplayName(fieldToRemove))
-        );
+        boolean deleteConfirmed = dialogService.showConfirmationDialogAndWait(Localization.lang("Remove field name"), Localization.lang("Are you sure you want to remove field name: \"%0\"?", FieldTextMapper.getDisplayName(fieldToRemove)));
 
         if (deleteConfirmed) {
             removeFieldName(fieldToRemove);
@@ -152,8 +149,7 @@ public class ContentSelectorViewModel implements PropertiesTabViewModel {
     }
 
     void showInputKeywordDialog(Field selectedField) {
-        dialogService.showInputDialogAndWait(Localization.lang("Add new keyword"), Localization.lang("Keyword:"))
-                     .ifPresent(newKeyword -> addKeywordIfUnique(selectedField, newKeyword));
+        dialogService.showInputDialogAndWait(Localization.lang("Add new keyword"), Localization.lang("Keyword:")).ifPresent(newKeyword -> addKeywordIfUnique(selectedField, newKeyword));
     }
 
     private void addKeywordIfUnique(Field field, String keywordToAdd) {
@@ -192,19 +188,23 @@ public class ContentSelectorViewModel implements PropertiesTabViewModel {
         Set<Field> newlyAddedKeywords = fieldKeywordsMap.keySet();
 
         // Remove all content selectors that are not in the new list
-        List<Field> result = new ArrayList<>(metaData.getContentSelectors().getFieldsWithSelectors().stream()
-                                                     .filter(field -> !newlyAddedKeywords.contains(field))
-                                                     .toList());
+        List<Field> result = new ArrayList<>(metaData.getContentSelectors()
+                .getFieldsWithSelectors()
+                .stream()
+                .filter(field -> !newlyAddedKeywords.contains(field))
+                .toList());
         // Remove all unset default fields
         result.addAll(fieldKeywordsMap.entrySet()
-                                      .stream()
-                                      .filter(entry -> ContentSelectors.DEFAULT_FIELD_NAMES.contains(entry.getKey()) && entry.getValue().isEmpty()).map(Map.Entry::getKey)
-                                      .toList());
+                .stream()
+                .filter(entry -> ContentSelectors.DEFAULT_FIELD_NAMES.contains(entry.getKey()) && entry.getValue().isEmpty())
+                .map(Map.Entry::getKey)
+                .toList());
 
         return result;
     }
 
-    private void updateMetaDataContentSelector(MetaData metaData, List<Field> existingFields, Field field, List<String> keywords) {
+    private void updateMetaDataContentSelector(MetaData metaData, List<Field> existingFields, Field field,
+            List<String> keywords) {
         boolean fieldNameDoNotExists = !existingFields.contains(field);
         if (fieldNameDoNotExists) {
             metaData.addContentSelector(new ContentSelector(field, keywords));

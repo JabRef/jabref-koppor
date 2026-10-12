@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.TreeSet;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.preferences.CliPreferences;
@@ -16,7 +15,6 @@ import org.jabref.model.entry.field.FieldProperty;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.BiblatexEntryTypeDefinitions;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -43,7 +41,11 @@ class CustomEntryTypesTabViewModelTest {
         when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.observableArrayList());
         when(preferences.getFieldPreferences()).thenReturn(fieldPreferences);
         entryTypesManager = new BibEntryTypesManager();
-        online = BiblatexEntryTypeDefinitions.ALL.stream().filter(type -> type.getType().equals(StandardEntryType.Online)).findAny().get();
+        online = BiblatexEntryTypeDefinitions.ALL
+                .stream()
+                .filter(type -> type.getType().equals(StandardEntryType.Online))
+                .findAny()
+                .get();
     }
 
     @ParameterizedTest
@@ -64,10 +66,8 @@ class CustomEntryTypesTabViewModelTest {
         BibEntryType onlineWithoutOrFields = new BibEntryTypeBuilder()
                 .withType(StandardEntryType.Online)
                 .withRequiredFields(StandardField.AUTHOR, StandardField.EDITOR, StandardField.TITLE, StandardField.DATE, StandardField.URL)
-                .withImportantFields(
-                        StandardField.SUBTITLE, StandardField.TITLEADDON, StandardField.NOTE, StandardField.ORGANIZATION, StandardField.URLDATE)
-                .withDetailFields(StandardField.LANGUAGE, StandardField.VERSION,
-                        StandardField.ADDENDUM, StandardField.PUBSTATE)
+                .withImportantFields(StandardField.SUBTITLE, StandardField.TITLEADDON, StandardField.NOTE, StandardField.ORGANIZATION, StandardField.URLDATE)
+                .withDetailFields(StandardField.LANGUAGE, StandardField.VERSION, StandardField.ADDENDUM, StandardField.PUBSTATE)
                 .build();
         model.entryTypes().setAll(List.of(new CustomEntryTypeViewModel(onlineWithoutOrFields, _ -> false)));
 
@@ -85,8 +85,7 @@ class CustomEntryTypesTabViewModelTest {
         BibEntryType modified = new BibEntryTypeBuilder()
                 .withType(StandardEntryType.Online)
                 .withRequiredFields(StandardField.AUTHOR, StandardField.EDITOR, StandardField.TITLE, StandardField.DATE, StandardField.URL, StandardField.SUBTITLE, StandardField.TITLEADDON, StandardField.NOTE, StandardField.ORGANIZATION, StandardField.URLDATE)
-                .withDetailFields(StandardField.LANGUAGE, StandardField.VERSION,
-                        StandardField.ADDENDUM, StandardField.PUBSTATE)
+                .withDetailFields(StandardField.LANGUAGE, StandardField.VERSION, StandardField.ADDENDUM, StandardField.PUBSTATE)
                 .build();
         model.entryTypes().setAll(List.of(new CustomEntryTypeViewModel(modified, _ -> false)));
 

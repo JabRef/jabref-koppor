@@ -2,11 +2,10 @@ package org.jabref.http.server;
 
 import java.util.EnumSet;
 
-import org.jabref.http.server.resources.GroupsResource;
-
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.jabref.http.server.resources.GroupsResource;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,7 +29,8 @@ class GroupsResourceTest extends ServerTest {
         String result = target("/libraries/" + TestBibFile.GROUPS_SERVER_TEST.id + "/groups")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
-        assertEquals("""
+        assertEquals(
+                """
                 [
                   {
                     "name": "Papers",
@@ -58,7 +58,8 @@ class GroupsResourceTest extends ServerTest {
                       "Reading List"
                     ]
                   }
-                ]""", result);
+                ]""",
+                result);
     }
 
     @Test

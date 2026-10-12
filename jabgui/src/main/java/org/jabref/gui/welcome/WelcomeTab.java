@@ -21,7 +21,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.LibraryTabContainer;
@@ -53,7 +52,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,20 +80,21 @@ public class WelcomeTab extends Tab {
     private QuickSettings quickSettings;
     private final DonationProvider donationProvider;
 
-    public WelcomeTab(Stage stage,
-                      LibraryTabContainer tabContainer,
-                      GuiPreferences preferences,
-                      AiService aiService,
-                      DialogService dialogService,
-                      StateManager stateManager,
-                      FileUpdateMonitor fileUpdateMonitor,
-                      BibEntryTypesManager entryTypesManager,
-                      ClipBoardManager clipBoardManager,
-                      TaskExecutor taskExecutor,
-                      GitHandlerRegistry gitHandlerRegistry,
-                      FileHistoryMenu fileHistoryMenu,
-                      BuildInfo buildInfo,
-                      WorkspacePreferences workspacePreferences) {
+    public WelcomeTab(
+            Stage stage,
+            LibraryTabContainer tabContainer,
+            GuiPreferences preferences,
+            AiService aiService,
+            DialogService dialogService,
+            StateManager stateManager,
+            FileUpdateMonitor fileUpdateMonitor,
+            BibEntryTypesManager entryTypesManager,
+            ClipBoardManager clipBoardManager,
+            TaskExecutor taskExecutor,
+            GitHandlerRegistry gitHandlerRegistry,
+            FileHistoryMenu fileHistoryMenu,
+            BuildInfo buildInfo,
+            WorkspacePreferences workspacePreferences) {
         super(Localization.lang("Welcome"));
         setClosable(true);
         Node tabIcon = IconTheme.JabRefIcons.WELCOME.getGraphicNode();
@@ -118,7 +117,8 @@ public class WelcomeTab extends Tab {
         this.recentLibrariesBox = new VBox(8);
         recentLibrariesBox.getStyleClass().add("welcome-recent-libraries");
 
-        main = new VBox(24, createTopTitles(), new VBox(), createCommunityBox());
+        main = new VBox(24, createTopTitles(), new VBox(),
+                createCommunityBox());
         main.getStyleClass().addAll("welcome-main-container", "align-center");
         // Sized to its content, so the StackPane centers it: whitespace above and below on a tall window.
         main.setMaxHeight(Region.USE_PREF_SIZE);
@@ -174,10 +174,7 @@ public class WelcomeTab extends Tab {
     }
 
     private VBox createLeftColumn() {
-        VBox leftColumn = new VBox(24,
-                createWelcomeStartBox(),
-                createWelcomeRecentBox()
-        );
+        VBox leftColumn = new VBox(24, createWelcomeStartBox(), createWelcomeRecentBox());
         leftColumn.getStyleClass().addAll("align-top-left");
         return leftColumn;
     }
@@ -190,10 +187,8 @@ public class WelcomeTab extends Tab {
         return rightColumn;
     }
 
-    private void updateColumnsLayout(@NonNull GridPane grid,
-                                     @NonNull VBox leftColumn,
-                                     @NonNull VBox rightColumn,
-                                     double availableWidth) {
+    private void updateColumnsLayout(@NonNull GridPane grid, @NonNull VBox leftColumn, @NonNull VBox rightColumn,
+            double availableWidth) {
         grid.getChildren().clear();
         grid.getColumnConstraints().clear();
 
@@ -246,15 +241,11 @@ public class WelcomeTab extends Tab {
                 () -> new NewDatabaseAction(tabContainer, preferences).execute());
 
         Hyperlink openLibraryLink = createActionLink(Localization.lang("Open library..."),
-                () -> new OpenDatabaseAction(tabContainer, preferences, aiService, dialogService,
-                        stateManager, fileUpdateMonitor, entryTypesManager, clipBoardManager,
-                        taskExecutor, gitHandlerRegistry).execute());
+                () -> new OpenDatabaseAction(tabContainer, preferences, aiService, dialogService, stateManager, fileUpdateMonitor, entryTypesManager, clipBoardManager, taskExecutor, gitHandlerRegistry)
+                        .execute());
 
-        Hyperlink openExampleLibraryLink = createActionLink(Localization.lang("New example library"),
-                this::openExampleLibrary);
-        Hyperlink importIntoNewLibraryLink = createActionLink(Localization.lang("Import into new library..."),
-                this::importIntoNewLibrary
-        );
+        Hyperlink openExampleLibraryLink = createActionLink(Localization.lang("New example library"), this::openExampleLibrary);
+        Hyperlink importIntoNewLibraryLink = createActionLink(Localization.lang("Import into new library..."), this::importIntoNewLibrary);
 
         VBox container = new VBox(8);
         container.getStyleClass().addAll("align-top-left");
@@ -264,7 +255,8 @@ public class WelcomeTab extends Tab {
     }
 
     private void importIntoNewLibrary() {
-        new ImportCommand(tabContainer, ImportCommand.ImportMethod.AS_NEW, preferences, stateManager, fileUpdateMonitor, taskExecutor, dialogService).execute();
+        new ImportCommand(tabContainer, ImportCommand.ImportMethod.AS_NEW, preferences, stateManager, fileUpdateMonitor, taskExecutor, dialogService)
+                .execute();
     }
 
     private VBox createWelcomeRecentBox() {
@@ -294,8 +286,17 @@ public class WelcomeTab extends Tab {
             BibtexParser bibtexParser = new BibtexParser(preferences.getImportFormatPreferences(), fileUpdateMonitor);
             ParserResult result = bibtexParser.parse(reader);
             BibDatabaseContext databaseContext = result.getDatabaseContext();
-            LibraryTab libraryTab = LibraryTab.createLibraryTab(databaseContext, tabContainer, dialogService, aiService,
-                    preferences, stateManager, fileUpdateMonitor, entryTypesManager, clipBoardManager, taskExecutor,
+            LibraryTab libraryTab = LibraryTab.createLibraryTab(
+                    databaseContext,
+                    tabContainer,
+                    dialogService,
+                    aiService,
+                    preferences,
+                    stateManager,
+                    fileUpdateMonitor,
+                    entryTypesManager,
+                    clipBoardManager,
+                    taskExecutor,
                     gitHandlerRegistry);
             tabContainer.addTab(libraryTab, true);
         } catch (IOException e) {
@@ -378,27 +379,19 @@ public class WelcomeTab extends Tab {
         Hyperlink link = new Hyperlink(text);
         link.getStyleClass().addAll("welcome-community-link", "text-accent");
         String url = switch (action) {
-            case HELP ->
-                    URLs.HELP_URL;
-            case OPEN_FORUM ->
-                    URLs.FORUM_URL;
-            case OPEN_MASTODON ->
-                    URLs.MASTODON_URL;
-            case OPEN_LINKEDIN ->
-                    URLs.LINKEDIN_URL;
-            case DONATE ->
-                    URLs.DONATE_URL;
-            case OPEN_DEV_VERSION_LINK ->
-                    URLs.DEV_VERSION_LINK_URL;
-            case OPEN_CHANGELOG ->
-                    URLs.CHANGELOG_URL;
-            case OPEN_PRIVACY_POLICY ->
-                    URLs.PRIVACY_POLICY_URL;
-            default ->
-                    null;
+            case HELP -> URLs.HELP_URL;
+            case OPEN_FORUM -> URLs.FORUM_URL;
+            case OPEN_MASTODON -> URLs.MASTODON_URL;
+            case OPEN_LINKEDIN -> URLs.LINKEDIN_URL;
+            case DONATE -> URLs.DONATE_URL;
+            case OPEN_DEV_VERSION_LINK -> URLs.DEV_VERSION_LINK_URL;
+            case OPEN_CHANGELOG -> URLs.CHANGELOG_URL;
+            case OPEN_PRIVACY_POLICY -> URLs.PRIVACY_POLICY_URL;
+            default -> null;
         };
         if (url != null) {
-            link.setOnAction(_ -> new OpenBrowserAction(url, dialogService, preferences.getExternalApplicationsPreferences()).execute());
+            link.setOnAction(_ -> new OpenBrowserAction(url, dialogService, preferences.getExternalApplicationsPreferences())
+                    .execute());
         }
         if (icon != null) {
             link.setGraphic(icon.getGraphicNode());

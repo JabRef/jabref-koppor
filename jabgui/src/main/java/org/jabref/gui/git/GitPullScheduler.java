@@ -15,16 +15,17 @@ import org.jabref.logic.git.GitHandler;
 import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Pulls remote changes for a library at the interval configured in the Git preferences.
+/// Pulls remote changes for a library at the interval configured in the Git
+/// preferences.
 ///
-/// A scheduler is only started for a library stored inside a Git repository. The "Regularly pull
-/// remote changes" setting is read on every run, so switching it takes effect without reopening
-/// the library, the interval is read once, when the scheduler starts.
+/// A scheduler is only started for a library stored inside a Git repository.
+/// The "Regularly pull remote changes" setting is read on every run, so
+/// switching it takes effect without reopening the library, the interval is
+/// read once, when the scheduler starts.
 @NullMarked
 public class GitPullScheduler {
 
@@ -36,20 +37,18 @@ public class GitPullScheduler {
     private final ScheduledThreadPoolExecutor executor;
     private final BooleanSupplier hasUnsavedChanges;
 
-    private GitPullScheduler(BibDatabaseContext bibDatabaseContext, GitAutoSync gitAutoSync, BooleanSupplier hasUnsavedChanges, int intervalInMinutes) {
+    private GitPullScheduler(BibDatabaseContext bibDatabaseContext, GitAutoSync gitAutoSync, BooleanSupplier hasUnsavedChanges,
+            int intervalInMinutes) {
         this.bibDatabaseContext = bibDatabaseContext;
         this.hasUnsavedChanges = hasUnsavedChanges;
         this.executor = new ScheduledThreadPoolExecutor(1);
-        this.executor.scheduleAtFixedRate(
-                () -> pull(gitAutoSync),
-                intervalInMinutes,
-                intervalInMinutes,
-                TimeUnit.MINUTES);
+        this.executor.scheduleAtFixedRate(() -> pull(gitAutoSync), intervalInMinutes, intervalInMinutes, TimeUnit.MINUTES);
     }
 
-    /// Runs one scheduled pull. Skips while the library has unsaved changes, because a merge would be
-    /// applied underneath the user's edits. Exceptions are caught, because scheduleAtFixedRate
-    /// silently cancels the schedule for the rest of the session if the task throws.
+    /// Runs one scheduled pull. Skips while the library has unsaved changes,
+    /// because a merge would be applied underneath the user's edits. Exceptions
+    /// are caught, because scheduleAtFixedRate silently cancels the schedule
+    /// for the rest of the session if the task throws.
     private void pull(GitAutoSync gitAutoSync) {
         try {
             if (hasUnsavedChanges.getAsBoolean() || !bibDatabaseContext.getMetaData().isGitAutoPull()) {
@@ -61,18 +60,21 @@ public class GitPullScheduler {
         }
     }
 
-    /// Starts the scheduler for the given library, if it is stored inside a Git repository and has no scheduler yet.
+    /// Starts the scheduler for the given library, if it is stored inside a Git
+    /// repository and has no scheduler yet.
     ///
-    /// This method is not thread-safe. The caller has to ensure that this method is not called in parallel.
+    /// This method is not thread-safe. The caller has to ensure that this
+    /// method is not called in parallel.
     ///
     /// @param bibDatabaseContext Associated [BibDatabaseContext]
-    public static void start(BibDatabaseContext bibDatabaseContext,
-                             DialogService dialogService,
-                             GuiPreferences preferences,
-                             StateManager stateManager,
-                             TaskExecutor taskExecutor,
-                             GitHandlerRegistry gitHandlerRegistry,
-                             BooleanSupplier hasUnsavedChanges) {
+    public static void start(
+            BibDatabaseContext bibDatabaseContext,
+            DialogService dialogService,
+            GuiPreferences preferences,
+            StateManager stateManager,
+            TaskExecutor taskExecutor,
+            GitHandlerRegistry gitHandlerRegistry,
+            BooleanSupplier hasUnsavedChanges) {
 
         Optional<Path> databasePath = bibDatabaseContext.getDatabasePath();
         if (databasePath.isEmpty() || GitHandler.findRepositoryRoot(databasePath.get()).isEmpty()) {
@@ -89,11 +91,7 @@ public class GitPullScheduler {
             return;
         }
 
-        GitAutoSync gitAutoSync = new GitAutoSync(dialogService,
-                gitHandlerRegistry,
-                taskExecutor,
-                preferences,
-                stateManager);
+        GitAutoSync gitAutoSync = new GitAutoSync(dialogService, gitHandlerRegistry, taskExecutor, preferences, stateManager);
         RUNNING_INSTANCES.add(new GitPullScheduler(bibDatabaseContext, gitAutoSync, hasUnsavedChanges, intervalInMinutes));
     }
 

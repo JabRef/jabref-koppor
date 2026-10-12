@@ -4,6 +4,14 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.store.embedding.EmbeddingMatch;
+import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
+import dev.langchain4j.store.embedding.EmbeddingSearchResult;
+import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.store.embedding.filter.Filter;
+import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.ai.embedding.EmbeddingInputPrefixes;
 import org.jabref.logic.ai.ingestion.logic.EmbeddingsCleaner;
@@ -15,15 +23,6 @@ import org.jabref.model.ai.pipeline.ResponseEngineKind;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.util.ListUtil;
-
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.store.embedding.EmbeddingMatch;
-import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
-import dev.langchain4j.store.embedding.EmbeddingSearchResult;
-import dev.langchain4j.store.embedding.EmbeddingStore;
-import dev.langchain4j.store.embedding.filter.Filter;
-import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,13 +36,8 @@ public class EmbeddingsSearchResponseEngine implements ResponseEngine {
     private final double minimumScore;
     private final int maximumResultsCount;
 
-    public EmbeddingsSearchResponseEngine(
-            FilePreferences filePreferences,
-            EmbeddingModel embeddingModel,
-            EmbeddingStore<TextSegment> embeddingStore,
-            double minimumScore,
-            int maximumResultsCount
-    ) {
+    public EmbeddingsSearchResponseEngine(FilePreferences filePreferences, EmbeddingModel embeddingModel, EmbeddingStore<TextSegment> embeddingStore,
+            double minimumScore, int maximumResultsCount) {
         this.filePreferences = filePreferences;
         this.embeddingModel = embeddingModel;
         this.embeddingStore = embeddingStore;
@@ -52,38 +46,26 @@ public class EmbeddingsSearchResponseEngine implements ResponseEngine {
     }
 
     @Override
-    public List<RelevantInformation> process(
-            String query,
-            List<FullBibEntry> entriesFilter
-    ) {
-        List<BibEntry> entries = entriesFilter
-                .stream()
+    public List<RelevantInformation> process(String query, List<FullBibEntry> entriesFilter) {
+        List<BibEntry> entries = entriesFilter.stream()
                 .map(FullBibEntry::entry)
                 .toList();
 
         List<LinkedFile> linkedFiles = ListUtil.getLinkedFiles(entries).toList();
 
         // Compute file hashes for filtering
-        List<String> fileHashes = linkedFiles
-                .stream()
-                .flatMap(linkedFile ->
-                        entriesFilter.stream()
-                                     .flatMap(fullEntry -> {
-                                         Optional<Path> path = linkedFile.findIn(fullEntry.databaseContext(), filePreferences);
-                                         return path.flatMap(FileHasher::computeHash).stream();
-                                     })
-                )
+        List<String> fileHashes = linkedFiles.stream()
+                .flatMap(linkedFile -> entriesFilter.stream().flatMap(fullEntry -> {
+                    Optional<Path> path = linkedFile.findIn(fullEntry.databaseContext(), filePreferences);
+                    return path.flatMap(FileHasher::computeHash).stream();
+                }))
                 .distinct()
                 .toList();
 
-        Optional<Filter> filter = fileHashes.isEmpty()
-                                  ? Optional.empty()
-                                  : Optional.of(MetadataFilterBuilder
-                                                .metadataKey(EmbeddingsCleaner.FILE_HASH_METADATA_KEY)
-                                                .isIn(fileHashes));
+        Optional<Filter> filter = fileHashes.isEmpty() ? Optional.empty() : Optional.of(MetadataFilterBuilder.metadataKey(EmbeddingsCleaner.FILE_HASH_METADATA_KEY)
+                .isIn(fileHashes));
 
-        EmbeddingSearchRequest embeddingSearchRequest = EmbeddingSearchRequest
-                .builder()
+        EmbeddingSearchRequest embeddingSearchRequest = EmbeddingSearchRequest.builder()
                 .maxResults(maximumResultsCount)
                 .minScore(minimumScore)
                 .filter(filter.orElse(null))
@@ -92,20 +74,18 @@ public class EmbeddingsSearchResponseEngine implements ResponseEngine {
 
         EmbeddingSearchResult<TextSegment> embeddingSearchResult = embeddingStore.search(embeddingSearchRequest);
 
-        List<RelevantInformation> excerpts = embeddingSearchResult
-                .matches()
+        List<RelevantInformation> excerpts = embeddingSearchResult.matches()
                 .stream()
                 .map(EmbeddingMatch::embedded)
-                .map(textSegment -> {
-                    String fileHash = textSegment.metadata().getString(EmbeddingsCleaner.FILE_HASH_METADATA_KEY);
-                    String citationKey = fileHash == null
-                                         ? null
-                                         : findEntryByFileHash(entriesFilter, fileHash)
-                                           .flatMap(BibEntry::getCitationKey)
-                                           .orElse(null);
-                    Integer pageNumber = textSegment.metadata().getInteger(FileIngestor.PAGE_NUMBER_METADATA_KEY);
-                    return new RelevantInformation(citationKey, pageNumber, textSegment.text());
-                })
+                .map(
+                        textSegment -> {
+                            String fileHash = textSegment.metadata().getString(EmbeddingsCleaner.FILE_HASH_METADATA_KEY);
+                            String citationKey = fileHash == null ? null : findEntryByFileHash(entriesFilter, fileHash)
+                                    .flatMap(BibEntry::getCitationKey)
+                                    .orElse(null);
+                            Integer pageNumber = textSegment.metadata().getInteger(FileIngestor.PAGE_NUMBER_METADATA_KEY);
+                            return new RelevantInformation(citationKey, pageNumber, textSegment.text());
+                        })
                 .toList();
 
         LOGGER.debug("Found excerpts for the message: {}", excerpts);
@@ -146,5 +126,3 @@ public class EmbeddingsSearchResponseEngine implements ResponseEngine {
         return ResponseEngineKind.EMBEDDINGS_SEARCH;
     }
 }
-
-

@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -105,19 +104,24 @@ public class TrustStoreManager {
         return alias.endsWith("[custom]");
     }
 
-    /// Deletes all custom certificates, Custom certificates are certificates with alias that ends with `[custom]`
+    /// Deletes all custom certificates, Custom certificates are certificates
+    /// with alias that ends with `[custom]`
     public void clearCustomCertificates() {
-        aliases().stream().filter(this::isCustomCertificate).forEach(this::deleteCertificate);
+        aliases()
+                .stream()
+                .filter(this::isCustomCertificate)
+                .forEach(this::deleteCertificate);
         flush();
     }
 
     public List<SSLCertificate> getCustomCertificates() {
-        return aliases().stream()
-                        .filter(this::isCustomCertificate)
-                        .map(this::getCertificate)
-                        .map(SSLCertificate::fromX509)
-                        .flatMap(Optional::stream)
-                        .collect(Collectors.toList());
+        return aliases()
+                .stream()
+                .filter(this::isCustomCertificate)
+                .map(this::getCertificate)
+                .map(SSLCertificate::fromX509)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
     }
 
     public X509Certificate getCertificate(String alias) {
@@ -130,10 +134,11 @@ public class TrustStoreManager {
     }
 
     /// This method checks to see if the truststore is present in `storePath`,
-    /// and if it isn't, it copies the default JDK truststore to the specified location.
-    /// If it already exists (e.g. carried over from a previous JabRef installation),
-    /// any certificates newly bundled with this version but missing from the existing
-    /// file are merged in, so upgrading users pick up new roots like HARICA TLS ECC Root CA 2021.
+    /// and if it isn't, it copies the default JDK truststore to the specified
+    /// location. If it already exists (e.g. carried over from a previous JabRef
+    /// installation), any certificates newly bundled with this version but
+    /// missing from the existing file are merged in, so upgrading users pick up
+    /// new roots like HARICA TLS ECC Root CA 2021.
     ///
     /// @param storePath path of the truststore
     public static void createTruststoreFileIfNotExist(Path storePath) {
@@ -158,9 +163,10 @@ public class TrustStoreManager {
         }
     }
 
-    /// Adds any certificate present in the bundled `/ssl/truststore.jks` resource but missing
-    /// from the truststore at `storePath` (e.g. a root added in a newer JabRef release),
-    /// so upgrading an existing installation still picks up new roots.
+    /// Adds any certificate present in the bundled `/ssl/truststore.jks`
+    /// resource but missing from the truststore at `storePath` (e.g. a root
+    /// added in a newer JabRef release), so upgrading an existing installation
+    /// still picks up new roots.
     private static void mergeMissingBundledCertificates(Path storePath) {
         try {
             KeyStore bundledStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -192,8 +198,7 @@ public class TrustStoreManager {
     }
 
     /// @implNote based on https://stackoverflow.com/a/62586564/3450689
-    private static void configureTrustStore(Path myStorePath) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException,
-            CertificateException, IOException {
+    private static void configureTrustStore(Path myStorePath) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, CertificateException, IOException {
         X509TrustManager jreTrustManager = getJreTrustManager();
         X509TrustManager myTrustManager = getJabRefTrustManager(myStorePath);
 
@@ -205,8 +210,7 @@ public class TrustStoreManager {
         return findDefaultTrustManager(null);
     }
 
-    private static X509TrustManager getJabRefTrustManager(Path myStorePath) throws KeyStoreException, IOException,
-            NoSuchAlgorithmException, CertificateException {
+    private static X509TrustManager getJabRefTrustManager(Path myStorePath) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
         // Adapt to load your keystore
         try (InputStream myKeys = Files.newInputStream(myStorePath)) {
             KeyStore myTrustStore = KeyStore.getInstance("jks");
@@ -216,8 +220,7 @@ public class TrustStoreManager {
         }
     }
 
-    private static X509TrustManager findDefaultTrustManager(KeyStore keyStore)
-            throws NoSuchAlgorithmException, KeyStoreException {
+    private static X509TrustManager findDefaultTrustManager(KeyStore keyStore) throws NoSuchAlgorithmException, KeyStoreException {
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         tmf.init(keyStore); // If keyStore is null, tmf will be initialized with the default trust store
 
@@ -229,8 +232,7 @@ public class TrustStoreManager {
         return null;
     }
 
-    private static X509TrustManager createMergedTrustManager(X509TrustManager jreTrustManager,
-                                                             X509TrustManager customTrustManager) {
+    private static X509TrustManager createMergedTrustManager(X509TrustManager jreTrustManager, X509TrustManager customTrustManager) {
         return new X509TrustManager() {
             @Override
             public X509Certificate[] getAcceptedIssuers() {
@@ -258,8 +260,7 @@ public class TrustStoreManager {
         };
     }
 
-    private static void setSystemTrustManager(X509TrustManager mergedTrustManager)
-            throws NoSuchAlgorithmException, KeyManagementException {
+    private static void setSystemTrustManager(X509TrustManager mergedTrustManager) throws NoSuchAlgorithmException, KeyManagementException {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, new TrustManager[] {mergedTrustManager}, null);
 

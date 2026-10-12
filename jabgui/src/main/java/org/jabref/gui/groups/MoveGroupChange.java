@@ -9,9 +9,11 @@ public class MoveGroupChange {
     private GroupTreeNode newParent;
     private int newChildIndex;
 
-    /// @param newParent     The new parent node to which the node will be moved.
-    /// @param newChildIndex The child index at newParent to which the node will be moved.
-    public MoveGroupChange(GroupTreeNode oldParent, int oldChildIndex, GroupTreeNode newParent, int newChildIndex) {
+    /// @param newParent The new parent node to which the node will be moved.
+    /// @param newChildIndex The child index at newParent to which the node will
+    ///   be moved.
+    public MoveGroupChange(GroupTreeNode oldParent, int oldChildIndex, GroupTreeNode newParent,
+                           int newChildIndex) {
         this.oldParent = oldParent;
         this.oldChildIndex = oldChildIndex;
         this.newParent = newParent;

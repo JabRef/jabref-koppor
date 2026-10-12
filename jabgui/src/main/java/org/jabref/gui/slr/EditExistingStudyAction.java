@@ -12,7 +12,6 @@ import org.jabref.logic.crawler.StudyYamlParser;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.study.Study;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +31,9 @@ public class EditExistingStudyAction extends SimpleCommand {
     public void execute() {
         // The action works on the current library
         // This library has to be determined
-        if (stateManager.getActiveDatabase().isEmpty() || !stateManager.getActiveDatabase().get().isStudy()) {
+        if (stateManager.getActiveDatabase().isEmpty() || !stateManager.getActiveDatabase()
+                .get()
+                .isStudy()) {
             return;
         }
         BibDatabaseContext bibDatabaseContext = stateManager.getActiveDatabase().get();

@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.Month;
-
 import org.jspecify.annotations.NonNull;
 
 public class NormalizeMonthFormatter extends Formatter {

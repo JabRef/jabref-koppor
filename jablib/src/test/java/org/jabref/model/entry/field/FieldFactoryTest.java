@@ -3,7 +3,6 @@ package org.jabref.model.entry.field;
 import java.util.stream.Stream;
 
 import org.jabref.model.entry.types.BiblatexApaEntryType;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -16,24 +15,23 @@ class FieldFactoryTest {
     // [utest->adr~hardcode-fieldnames~1]
     @Test
     void orFieldsTwoTerms() {
-        assertEquals("aaa/bbb", FieldFactory.serializeOrFields(new UnknownField("aaa"), new UnknownField("bbb")));
+        assertEquals("aaa/bbb",
+                FieldFactory.serializeOrFields(new UnknownField("aaa"), new UnknownField("bbb")));
     }
 
     // [utest->adr~hardcode-fieldnames~1]
     @Test
     void orFieldsThreeTerms() {
-        assertEquals("aaa/bbb/ccc", FieldFactory.serializeOrFields(new UnknownField("aaa"), new UnknownField("bbb"), new UnknownField("ccc")));
+        assertEquals("aaa/bbb/ccc",
+                FieldFactory.serializeOrFields(new UnknownField("aaa"), new UnknownField("bbb"), new UnknownField("ccc")));
     }
 
     private static Stream<Arguments> fieldsWithoutFieldProperties() {
         return Stream.of(
-                // comment fields
-                Arguments.of(new UserSpecificCommentField("user1"), "comment-user1"),
-                Arguments.of(new UserSpecificCommentField("other-user-id"), "comment-other-user-id"),
+        // comment fields
+        Arguments.of(new UserSpecificCommentField("user1"), "comment-user1"), Arguments.of(new UserSpecificCommentField("other-user-id"), "comment-other-user-id"),
                 // unknown field
-                Arguments.of(new UnknownField("cAsEd"), "cAsEd"),
-                Arguments.of(new UnknownField("rights"), "UnknownField{name='rights'}")
-        );
+                Arguments.of(new UnknownField("cAsEd"), "cAsEd"), Arguments.of(new UnknownField("rights"), "UnknownField{name='rights'}"));
     }
 
     @ParameterizedTest

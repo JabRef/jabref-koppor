@@ -9,13 +9,12 @@ import org.jabref.logic.ai.summarization.logic.summarizationalgorithms.Summariza
 import org.jabref.logic.ai.summarization.repositories.SummariesRepository;
 import org.jabref.logic.ai.summarization.tasks.GenerateSummaryTask;
 import org.jabref.logic.ai.summarization.tasks.GenerateSummaryTaskRequest;
-import org.jabref.logic.ai.util.TrackedBackgroundTask;
+import org.jabref.logic.ai.util.TrackedBackgroundTask.Status;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 import org.jabref.model.ai.summarization.AiSummary;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +44,8 @@ class SummarizationTaskAggregatorTest {
     }
 
     private GenerateSummaryTaskRequest request(boolean regenerate) {
-        return new GenerateSummaryTaskRequest(mock(FilePreferences.class), mock(ChatModel.class), mock(Summarizator.class), fullEntry, regenerate);
+        return new GenerateSummaryTaskRequest(mock(FilePreferences.class), mock(ChatModel.class), mock(Summarizator.class),
+                fullEntry, regenerate);
     }
 
     @Test
@@ -53,7 +53,7 @@ class SummarizationTaskAggregatorTest {
         GenerateSummaryTask failed = aggregator.start(request(true));
         // No linked files, so summarizing fails
         assertThrows(RuntimeException.class, failed::call);
-        assertEquals(TrackedBackgroundTask.Status.ERROR, failed.getStatus());
+        assertEquals(Status.ERROR, failed.getStatus());
 
         assertNotSame(failed, aggregator.start(request(true)));
     }
@@ -83,8 +83,8 @@ class SummarizationTaskAggregatorTest {
         AiSummary newSummary = mock(AiSummary.class);
 
         try (MockedConstruction<BibEntrySummarizator> ignored = mockConstruction(BibEntrySummarizator.class,
-                (summarizator, context) -> when(summarizator.summarize(any(), any(), any()))
-                        .thenReturn(context.getCount() == 1 ? oldSummary : newSummary))) {
+                (summarizator, context) ->
+                        when(summarizator.summarize(any(), any(), any())).thenReturn(context.getCount() == 1 ? oldSummary : newSummary))) {
             GenerateSummaryTask oldTask = aggregator.start(request(true));
             assertSame(oldSummary, oldTask.call());
 

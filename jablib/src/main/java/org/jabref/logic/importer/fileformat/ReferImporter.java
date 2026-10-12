@@ -24,12 +24,12 @@ import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NonNull;
 
-/// This is BibIX variant of Refer.
-/// There is hardly any official document so fields are added taking standard refer type.
-/// Originally number of fields were less and overtime some of these modified or added by various management systems.
+/// This is BibIX variant of Refer. There is hardly any official document so
+/// fields are added taking standard refer type. Originally number of fields
+/// were less and overtime some of these modified or added by various management
+/// systems.
 public class ReferImporter extends Importer {
 
     private static final Pattern Z_PATTERN = Pattern.compile("%0 .*");
@@ -106,7 +106,9 @@ public class ReferImporter extends Importer {
         AtomicBoolean isEdited;
 
         for (String entry : allEntries) {
-            List<String> fields = new ArrayList<>(List.of(entry.trim().substring(1).split("\n%")));
+            List<String> fields = new ArrayList<>(List.of(entry.trim()
+                    .substring(1)
+                    .split("\n%")));
             type = BibEntry.DEFAULT_TYPE;
             author = new StringBuilder();
             editor = new StringBuilder();
@@ -120,54 +122,30 @@ public class ReferImporter extends Importer {
                 String val = field.substring(2);
 
                 switch (tag) {
-                    case "0" ->
-                            type = getType(val, isEdited);
-                    case "7" ->
-                            fieldMap.put(StandardField.EDITION, val);
-                    case "A" ->
-                            addAuthor(author, val);
-                    case "B" ->
-                            addTag(fieldMap, type, val, "B");
-                    case "C" ->
-                            fieldMap.put(StandardField.ADDRESS, val);
-                    case "D" ->
-                            fieldMap.put(StandardField.YEAR, val);
-                    case "E" ->
-                            addEditor(editor, val);
-                    case "F" ->
-                            fieldMap.put(InternalField.KEY_FIELD, CitationKeyGenerator.removeUnwantedCharactersWithKeepDiacritics(val, citationKeyPatternPreferences.getUnwantedCharacters()));
-                    case "G" ->
-                            fieldMap.put(StandardField.LANGUAGE, val);
-                    case "I" ->
-                            addTag(fieldMap, type, val, "I");
-                    case "J" ->
-                            fieldMap.putIfAbsent(StandardField.JOURNAL, val);
-                    case "K" ->
-                            fieldMap.put(StandardField.KEYWORDS, val);
-                    case "N" ->
-                            fieldMap.put(StandardField.ISSUE, val);
-                    case "O" ->
-                            fieldMap.put(StandardField.NOTE, val);
-                    case "P" ->
-                            fieldMap.put(StandardField.PAGES, val.replaceAll("([0-9]) *- *([0-9])", "$1--$2"));
-                    case "R" ->
-                            addTag(fieldMap, type, val, "R");
-                    case "S" ->
-                            fieldMap.put(StandardField.SERIES, val);
-                    case "T" ->
-                            fieldMap.put(StandardField.TITLE, val);
-                    case "U" ->
-                            fieldMap.put(StandardField.URL, val);
-                    case "V" ->
-                            fieldMap.put(StandardField.VOLUME, val);
-                    case "X" ->
-                            fieldMap.put(StandardField.ABSTRACT, val);
-                    case "?" ->
-                            fieldMap.put(StandardField.TRANSLATOR, val);
-                    case "@" ->
-                            fieldMap.put(StandardField.ISBN, val);
-                    default ->
-                            addTag(fieldMap, type, val, "default");
+                    case "0" -> type = getType(val, isEdited);
+                    case "7" -> fieldMap.put(StandardField.EDITION, val);
+                    case "A" -> addAuthor(author, val);
+                    case "B" -> addTag(fieldMap, type, val, "B");
+                    case "C" -> fieldMap.put(StandardField.ADDRESS, val);
+                    case "D" -> fieldMap.put(StandardField.YEAR, val);
+                    case "E" -> addEditor(editor, val);
+                    case "F" -> fieldMap.put(InternalField.KEY_FIELD, CitationKeyGenerator.removeUnwantedCharactersWithKeepDiacritics(val, citationKeyPatternPreferences.getUnwantedCharacters()));
+                    case "G" -> fieldMap.put(StandardField.LANGUAGE, val);
+                    case "I" -> addTag(fieldMap, type, val, "I");
+                    case "J" -> fieldMap.putIfAbsent(StandardField.JOURNAL, val);
+                    case "K" -> fieldMap.put(StandardField.KEYWORDS, val);
+                    case "N" -> fieldMap.put(StandardField.ISSUE, val);
+                    case "O" -> fieldMap.put(StandardField.NOTE, val);
+                    case "P" -> fieldMap.put(StandardField.PAGES, val.replaceAll("([0-9]) *- *([0-9])", "$1--$2"));
+                    case "R" -> addTag(fieldMap, type, val, "R");
+                    case "S" -> fieldMap.put(StandardField.SERIES, val);
+                    case "T" -> fieldMap.put(StandardField.TITLE, val);
+                    case "U" -> fieldMap.put(StandardField.URL, val);
+                    case "V" -> fieldMap.put(StandardField.VOLUME, val);
+                    case "X" -> fieldMap.put(StandardField.ABSTRACT, val);
+                    case "?" -> fieldMap.put(StandardField.TRANSLATOR, val);
+                    case "@" -> fieldMap.put(StandardField.ISBN, val);
+                    default -> addTag(fieldMap, type, val, "default");
                 }
             }
 
@@ -223,7 +201,8 @@ public class ReferImporter extends Importer {
         }
     }
 
-    private void addTag(Map<Field, String> m, EntryType type, String val, String tag) {
+    private void addTag(Map<Field, String> m, EntryType type, String val,
+                        String tag) {
         switch (tag) {
             case "B" -> {
                 if (type.equals(StandardEntryType.Article)) {
@@ -263,7 +242,8 @@ public class ReferImporter extends Importer {
         }
     }
 
-    private void postFix(Map<Field, String> hm, StringBuilder author, StringBuilder editor, AtomicBoolean isEditedBook) {
+    private void postFix(Map<Field, String> hm, StringBuilder author, StringBuilder editor,
+                         AtomicBoolean isEditedBook) {
         // In some of the documentation editor name can be found in place of author name
         if (isEditedBook.get() && editor.toString().isEmpty()) {
             editor = new StringBuilder(author.toString());
@@ -279,11 +259,11 @@ public class ReferImporter extends Importer {
         }
     }
 
-    /// We must be careful about the author names, since they can be presented differently
-    /// by different sources. Normally each %A tag brings one name, and we get the authors
-    /// separated by " and ". This is the correct behaviour.
-    /// One source lists the names separated by comma, with a comma at the end. We can detect
-    /// this format and fix it.
+    /// We must be careful about the author names, since they can be presented
+    /// differently by different sources. Normally each %A tag brings one name,
+    /// and we get the authors separated by " and ". This is the correct
+    /// behaviour. One source lists the names separated by comma, with a comma
+    /// at the end. We can detect this format and fix it.
     ///
     /// @param s The author string
     /// @return The fixed author string

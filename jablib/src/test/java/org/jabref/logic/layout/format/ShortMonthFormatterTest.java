@@ -3,7 +3,6 @@ package org.jabref.logic.layout.format;
 import java.util.stream.Stream;
 
 import org.jabref.logic.layout.LayoutFormatter;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -39,7 +38,6 @@ class ShortMonthFormatterTest {
                 Arguments.of("jan", "Januar"),
                 Arguments.of("jan", "01"),
                 Arguments.of("", "Invented Month"),
-                Arguments.of("", "")
-        );
+                Arguments.of("", ""));
     }
 }

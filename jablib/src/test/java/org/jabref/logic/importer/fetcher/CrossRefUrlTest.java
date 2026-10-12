@@ -8,7 +8,6 @@ import java.util.Optional;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +27,9 @@ class CrossRefUrlTest {
 
         URL url = fetcher.getURLForEntry(entry);
 
-        assertEquals("query.bibliographic=A%20title&rows=20&offset=0&mailto=user%40example.org", url.getQuery());
+        assertEquals(
+                "query.bibliographic=A%20title&rows=20&offset=0&mailto=user%40example.org",
+                url.getQuery());
     }
 
     @Test
@@ -47,6 +48,8 @@ class CrossRefUrlTest {
     void urlIncludesApiKey() {
         CrossRef fetcher = new CrossRef(mock(ImporterPreferences.class));
 
-        assertEquals("https://api.crossref.org/works?query=test&rows=1&mailto=user%40example.org", fetcher.getTestUrl("user@example.org"));
+        assertEquals(
+                "https://api.crossref.org/works?query=test&rows=1&mailto=user%40example.org",
+                fetcher.getTestUrl("user@example.org"));
     }
 }

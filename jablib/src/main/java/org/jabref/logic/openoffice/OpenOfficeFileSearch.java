@@ -13,7 +13,6 @@ import java.util.stream.Stream;
 
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.io.FileUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +25,19 @@ public class OpenOfficeFileSearch {
     public static List<Path> detectInstallations() {
         if (OS.WINDOWS) {
             List<Path> programDirs = findWindowsOpenOfficeDirs();
-            return programDirs.stream().filter(dir -> FileUtil.find(OpenOfficePreferences.WINDOWS_EXECUTABLE, dir).isPresent()).toList();
+            return programDirs.stream()
+                              .filter(dir -> FileUtil.find(OpenOfficePreferences.WINDOWS_EXECUTABLE, dir).isPresent())
+                              .toList();
         } else if (OS.OS_X) {
             List<Path> programDirs = findOSXOpenOfficeDirs();
-            return programDirs.stream().filter(dir -> FileUtil.find(OpenOfficePreferences.OSX_EXECUTABLE, dir).isPresent()).toList();
+            return programDirs.stream()
+                              .filter(dir -> FileUtil.find(OpenOfficePreferences.OSX_EXECUTABLE, dir).isPresent())
+                              .toList();
         } else if (OS.LINUX) {
             List<Path> programDirs = findLinuxOpenOfficeDirs();
-            return programDirs.stream().filter(dir -> FileUtil.find(OpenOfficePreferences.LINUX_EXECUTABLE, dir).isPresent()).toList();
+            return programDirs.stream()
+                              .filter(dir -> FileUtil.find(OpenOfficePreferences.LINUX_EXECUTABLE, dir).isPresent())
+                              .toList();
         } else {
             return List.of();
         }
@@ -40,19 +45,23 @@ public class OpenOfficeFileSearch {
 
     private static List<Path> findOpenOfficeDirectories(List<Path> programDirectories) {
         BiPredicate<Path, BasicFileAttributes> filePredicate = (path, attr) ->
-                attr.isDirectory() && (path.toString().toLowerCase(Locale.ROOT).contains("openoffice")
-                        || path.toString().toLowerCase(Locale.ROOT).contains("libreoffice"));
+                attr.isDirectory() && (path.toString()
+                        .toLowerCase(Locale.ROOT)
+                        .contains("openoffice")
+                        || path.toString()
+                               .toLowerCase(Locale.ROOT)
+                               .contains("libreoffice"));
 
         return programDirectories.stream()
-                                 .flatMap(dirs -> {
-                                     try {
-                                         return Files.find(dirs, 1, filePredicate);
-                                     } catch (IOException e) {
-                                         LOGGER.error("Problem searching for openoffice/libreoffice install directory", e);
-                                         return Stream.empty();
-                                     }
-                                 })
-                                 .toList();
+                .flatMap(dirs -> {
+                    try {
+                        return Files.find(dirs, 1, filePredicate);
+                    } catch (IOException e) {
+                        LOGGER.error("Problem searching for openoffice/libreoffice install directory", e);
+                        return Stream.empty();
+                    }
+                })
+                .toList();
     }
 
     private static List<Path> findWindowsOpenOfficeDirs() {

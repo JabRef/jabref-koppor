@@ -4,19 +4,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
-import org.jabref.logic.util.strings.StringUtil;
-
 import org.eclipse.jgit.transport.sshd.agent.Connector;
 import org.eclipse.jgit.transport.sshd.agent.ConnectorFactory;
 import org.eclipse.jgit.util.SystemReader;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// On Windows, jgit only talks to Pageant unless `IdentityAgent` is set in `~/.ssh/config`. This factory keeps that
-/// default but falls back to the Windows OpenSSH agent's named pipe when Pageant is not running, so either agent
-/// works without configuration. Explicitly configured agents are passed through untouched.
+/// On Windows, jgit only talks to Pageant unless `IdentityAgent` is set in
+/// `~/.ssh/config`. This factory keeps that default but falls back to the
+/// Windows OpenSSH agent's named pipe when Pageant is not running, so either
+/// agent works without configuration. Explicitly configured agents are passed
+/// through untouched.
 @NullMarked
 public class SshAgentConnectorFactory implements ConnectorFactory {
 
@@ -30,8 +31,8 @@ public class SshAgentConnectorFactory implements ConnectorFactory {
         this.delegate = delegate;
     }
 
-    /// Registers the fallback as jgit's default connector factory. No-op outside Windows, where jgit already honors
-    /// `SSH_AUTH_SOCK`.
+    /// Registers the fallback as jgit's default connector factory. No-op
+    /// outside Windows, where jgit already honors `SSH_AUTH_SOCK`.
     public static void install() {
         ConnectorFactory jgitDefault = ConnectorFactory.getDefault();
         if (jgitDefault == null || !SystemReader.getInstance().isWindows()) {
@@ -75,7 +76,8 @@ public class SshAgentConnectorFactory implements ConnectorFactory {
         Connector get() throws IOException;
     }
 
-    /// Connects to the primary agent; if that is unavailable, switches to the fallback for the rest of the session.
+    /// Connects to the primary agent; if that is unavailable, switches to the
+    /// fallback for the rest of the session.
     static class FallbackConnector implements Connector {
         private final ConnectorSupplier fallback;
         private Connector active;

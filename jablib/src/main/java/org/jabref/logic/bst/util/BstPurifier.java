@@ -15,8 +15,7 @@ import org.slf4j.LoggerFactory;
 public class BstPurifier {
     private static final Logger LOGGER = LoggerFactory.getLogger(BstPurifier.class);
 
-    private BstPurifier() {
-    }
+    private BstPurifier() {}
 
     public static String purify(String toPurify) {
         StringBuilder sb = new StringBuilder();
@@ -44,7 +43,9 @@ public class BstPurifier {
                         while ((i < n) && Character.isLetter(cs[i])) {
                             i++;
                         }
-                        while ((i < n) && (braceLevel > 0) && ((c = cs[i]) != '\\')) {
+                        while ((i < n)
+                                && (braceLevel > 0)
+                                && ((c = cs[i]) != '\\')) {
                             if (Character.isLetterOrDigit(c)) {
                                 sb.append(c);
                             } else if (c == '}') {

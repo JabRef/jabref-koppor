@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Reader;
 
 import org.jabref.logic.journals.JournalAbbreviationRepository;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;

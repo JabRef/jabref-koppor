@@ -7,16 +7,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.animation.PauseTransition;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.util.Duration;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.walkthrough.Walkthrough;
 import org.jabref.logic.l10n.Localization;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -56,8 +54,7 @@ public class SideEffectExecutor {
                 boolean conditionMet = waitForCondition(sideEffect);
                 if (!conditionMet) {
                     LOGGER.warn("Expected condition not met for side effect: {}", sideEffect.description());
-                    notifyUser(Localization.lang("Side effect timeout"),
-                            Localization.lang("The condition for '%0' was not met within the timeout period.", sideEffect.description()));
+                    notifyUser(Localization.lang("Side effect timeout"), Localization.lang("The condition for '%0' was not met within the timeout period.", sideEffect.description()));
                     return false;
                 }
                 return sideEffect.forward(walkthrough);
@@ -65,8 +62,10 @@ public class SideEffectExecutor {
                 return sideEffect.backward(walkthrough);
             }
         } catch (Exception e) {
-            LOGGER.error("Error executing {} effect: {}", forward ? "forward" : "backward", sideEffect.description(), e);
-            notifyUser(Localization.lang("Walkthrough side effect error"),
+            LOGGER.error("Error executing {} effect: {}", forward ? "forward" : "backward", sideEffect.description(),
+                    e);
+            notifyUser(
+                    Localization.lang("Walkthrough side effect error"),
                     Localization.lang("An error occurred while executing '%0': %1", sideEffect.description(), e.getMessage()));
             return false;
         } finally {
@@ -83,10 +82,11 @@ public class SideEffectExecutor {
         }
 
         CompletableFuture<Boolean> conditionFuture = new CompletableFuture<>();
-        startTimeout(sideEffect.timeoutMs(), () -> {
-            LOGGER.debug("Timeout reached for side effect: {}", sideEffect.description());
-            conditionFuture.complete(false);
-        });
+        startTimeout(sideEffect.timeoutMs(),
+                () -> {
+                    LOGGER.debug("Timeout reached for side effect: {}", sideEffect.description());
+                    conditionFuture.complete(false);
+                });
 
         setupDependencyMonitoring(sideEffect.dependencies(), () -> {
             if (condition.evaluate()) {

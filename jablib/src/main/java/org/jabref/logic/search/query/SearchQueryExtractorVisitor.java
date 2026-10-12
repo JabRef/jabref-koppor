@@ -35,7 +35,10 @@ public class SearchQueryExtractorVisitor extends SearchBaseVisitor<List<SearchQu
 
     @Override
     public List<SearchQueryNode> visitImplicitAndExpression(SearchParser.ImplicitAndExpressionContext ctx) {
-        List<List<SearchQueryNode>> children = ctx.expression().stream().map(this::visit).toList();
+        List<List<SearchQueryNode>> children = ctx.expression()
+                .stream()
+                .map(this::visit)
+                .toList();
         if (children.size() == 1) {
             return children.getFirst();
         } else {
@@ -80,7 +83,9 @@ public class SearchQueryExtractorVisitor extends SearchBaseVisitor<List<SearchQu
             return List.of();
         }
         if (ctx.operator() != null) {
-            int operator = ctx.operator().getStart().getType();
+            int operator = ctx.operator()
+                              .getStart()
+                              .getType();
             if (operator == SearchParser.NEQUAL
                     || operator == SearchParser.NCEQUAL
                     || operator == SearchParser.NEEQUAL
@@ -101,22 +106,22 @@ public class SearchQueryExtractorVisitor extends SearchBaseVisitor<List<SearchQu
         }
 
         // TODO: Here, there is no unescaping of the field (e.g., field\=thing=value does not work as expected)
-        String field = ctx.FIELD().getText().toLowerCase(Locale.ROOT);
+        String field = ctx.FIELD()
+                          .getText()
+                          .toLowerCase(Locale.ROOT);
 
         // Pseudo-fields
         field = switch (field) {
-            case SearchFieldConstants.KEY ->
-                    InternalField.KEY_FIELD.getName();
-            case SearchFieldConstants.ANY_KEYWORD ->
-                    StandardField.KEYWORDS.getName();
-            case SearchFieldConstants.ANY_FIELD_ALIAS ->
-                    SearchFieldConstants.ANY_FIELD;
-            default ->
-                    field;
-        };
+                    case SearchFieldConstants.KEY -> InternalField.KEY_FIELD.getName();
+                    case SearchFieldConstants.ANY_KEYWORD -> StandardField.KEYWORDS.getName();
+                    case SearchFieldConstants.ANY_FIELD_ALIAS -> SearchFieldConstants.ANY_FIELD;
+                    default -> field;
+                };
 
         if (ctx.operator() != null) {
-            int operator = ctx.operator().getStart().getType();
+            int operator = ctx.operator()
+                              .getStart()
+                              .getType();
             if (operator != SearchParser.REQUAL && operator != SearchParser.CREEQUAL) {
                 term = SearchQueryConversion.escapeRegexLiteral(term);
             }

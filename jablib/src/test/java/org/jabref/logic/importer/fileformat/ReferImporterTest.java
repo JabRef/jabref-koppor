@@ -13,7 +13,6 @@ import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -59,27 +58,43 @@ public class ReferImporterTest {
         List<String> list = List.of("refer.bibIX.Journal.ref", "refer.bibIX.ref");
 
         for (String str : list) {
-            Path file = Path.of(ReferImporterTest.class.getResource(str).toURI());
+            Path file = Path.of(ReferImporterTest.class
+                    .getResource(str)
+                    .toURI());
             assertTrue(referImporter.isRecognizedFormat(file));
         }
     }
 
     @Test
     void isRecognizedFormatReject() throws IOException, URISyntaxException {
-        List<String> list = List.of("Endnote.pattern.A.enw", "IEEEImport1.txt", "IsiImporterTest1.isi", "IsiImporterTestInspec.isi",
-                "IsiImporterTestWOS.isi", "IsiImporterTestMedline.isi", "RisImporterTest1.ris",
-                "Endnote.pattern.no_enw", "empty.pdf", "pdf/annotated.pdf");
+        List<String> list = List.of(
+                "Endnote.pattern.A.enw",
+                "IEEEImport1.txt",
+                "IsiImporterTest1.isi",
+                "IsiImporterTestInspec.isi",
+                "IsiImporterTestWOS.isi",
+                "IsiImporterTestMedline.isi",
+                "RisImporterTest1.ris",
+                "Endnote.pattern.no_enw",
+                "empty.pdf",
+                "pdf/annotated.pdf");
 
         for (String str : list) {
-            Path file = Path.of(ReferImporterTest.class.getResource(str).toURI());
+            Path file = Path.of(ReferImporterTest.class
+                    .getResource(str)
+                    .toURI());
             assertFalse(referImporter.isRecognizedFormat(file));
         }
     }
 
     @Test
     void importDatabaseSingleEntryTest() throws IOException, URISyntaxException {
-        Path file = Path.of(ReferImporterTest.class.getResource("refer.bibIX.Journal.ref").toURI());
-        List<BibEntry> bibEntryList = referImporter.importDatabase(file).getDatabase().getEntries();
+        Path file = Path.of(ReferImporterTest.class
+                .getResource("refer.bibIX.Journal.ref")
+                .toURI());
+        List<BibEntry> bibEntryList = referImporter.importDatabase(file)
+                .getDatabase()
+                .getEntries();
         BibEntry actualEntry = bibEntryList.getFirst();
 
         BibEntry expectedEntry = new BibEntry(StandardEntryType.Article)
@@ -103,7 +118,8 @@ public class ReferImporterTest {
 
     @Test
     void editorNameInAuthorField() throws IOException {
-        String refEntry = """
+        String refEntry =
+                """
                 %0 Edited Book
                 %A testE
                 %A testEL, testEF
@@ -111,9 +127,9 @@ public class ReferImporterTest {
                 """;
 
         BibEntry entry = referImporter.importDatabase(new BufferedReader(Reader.of(refEntry)))
-                                      .getDatabase()
-                                      .getEntries()
-                                      .getFirst();
+                .getDatabase()
+                .getEntries()
+                .getFirst();
 
         assertEquals(StandardEntryType.Book, entry.getType());
         assertEquals(Optional.empty(), entry.getField(StandardField.AUTHOR));
@@ -122,8 +138,12 @@ public class ReferImporterTest {
 
     @Test
     void importMultipleEntries() throws IOException, URISyntaxException {
-        Path file = Path.of(ReferImporterTest.class.getResource("refer.bibIX.ref").toURI());
-        List<BibEntry> bibEntries = referImporter.importDatabase(file).getDatabase().getEntries();
+        Path file = Path.of(ReferImporterTest.class
+                .getResource("refer.bibIX.ref")
+                .toURI());
+        List<BibEntry> bibEntries = referImporter.importDatabase(file)
+                .getDatabase()
+                .getEntries();
 
         BibEntry bookEntry = new BibEntry(StandardEntryType.Book)
                 .withField(StandardField.AUTHOR, "AuthorL, AuthorsF I.")
@@ -197,8 +217,10 @@ public class ReferImporterTest {
     void importPreservesDiacriticalCitationKey() throws IOException {
         String input = "%0 Journal\n%A Author\n%T Title\n%F Müller2020";
         List<BibEntry> entries = referImporter.importDatabase(new BufferedReader(Reader.of(input)))
-                                              .getDatabase().getEntries();
+                .getDatabase()
+                .getEntries();
 
-        assertEquals(Optional.of("Müller2020"), entries.getFirst().getCitationKey());
+        assertEquals(Optional.of("Müller2020"),
+                entries.getFirst().getCitationKey());
     }
 }

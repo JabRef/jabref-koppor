@@ -6,7 +6,6 @@ import org.jabref.gui.collab.entryadd.EntryAdd;
 import org.jabref.gui.collab.entrychange.EntryChange;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -68,7 +67,8 @@ class ExternalChangesResolverViewModelTest {
 
     @Test
     void denyChangeRevertsEarlierAccept() {
-        DatabaseChange change = new EntryAdd(new BibEntry().withCitationKey("Key"), new BibDatabaseContext(), null);
+        DatabaseChange change = new EntryAdd(new BibEntry().withCitationKey("Key"),
+                new BibDatabaseContext(), null);
         change.accept();
         ExternalChangesResolverViewModel viewModel = new ExternalChangesResolverViewModel(List.of(change));
 

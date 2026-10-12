@@ -17,7 +17,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +45,9 @@ class ZbMATHTest {
     @BeforeEach
     void setUp() {
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
 
         fetcher = new ZbMATH(importFormatPreferences);
 
@@ -91,10 +92,7 @@ class ZbMATHTest {
     void getURLForEntryUsesDocumentSearchApi() throws Exception {
         URL urlForEntry = fetcher.getURLForEntry(getDonaldsonSearchEntry());
 
-        String expectedUrl = "https://api.zbmath.org/v1/document/_search"
-                + "?search_string=ti%3A%22An%20application%20of%20gauge%20theory"
-                + "%20to%20four%20dimensional%20topology%22%20%26%20au%3ADonaldson"
-                + "&page=0&results_per_page=5";
+        String expectedUrl = "https://api.zbmath.org/v1/document/_search" + "?search_string=ti%3A%22An%20application%20of%20gauge%20theory" + "%20to%20four%20dimensional%20topology%22%20%26%20au%3ADonaldson" + "&page=0&results_per_page=5";
         assertEquals(expectedUrl, urlForEntry.toString());
     }
 
@@ -136,7 +134,8 @@ class ZbMATHTest {
 
     @Test
     void parserMapsBookEntries() throws ParseException {
-        String response = """
+        String response =
+                """
                 {
                   "result": {
                     "document_type": {"code": "b", "description": "book / book article"},
@@ -182,7 +181,8 @@ class ZbMATHTest {
 
     @Test
     void parserMapsCollectionArticles() throws ParseException {
-        String response = """
+        String response =
+                """
                 {
                   "result": {
                     "document_type": {"code": "a", "description": "serial article"},
@@ -230,7 +230,8 @@ class ZbMATHTest {
 
     @Test
     void parserIgnoresUnsupportedIdType() throws ParseException {
-        String response = """
+        String response =
+                """
                 {
                   "result": {
                     "document_type": {"code": "j", "description": "journal article"},

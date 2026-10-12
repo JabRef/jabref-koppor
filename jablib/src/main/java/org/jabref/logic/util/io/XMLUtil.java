@@ -5,7 +5,6 @@ import java.util.AbstractList;
 import java.util.List;
 import java.util.Optional;
 import java.util.RandomAccess;
-
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -14,7 +13,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.jabref.architecture.AllowedToUseStandardStreams;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -28,8 +26,7 @@ import org.w3c.dom.NodeList;
 public class XMLUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLUtil.class);
 
-    private XMLUtil() {
-    }
+    private XMLUtil() {}
 
     /// Prints out the document to standard out. Used to generate files for test cases.
     public static void printDocument(Document doc) {
@@ -104,7 +101,9 @@ public class XMLUtil {
     /// </item>
     /// ```
     public static Optional<Node> getNode(Node item, String nodeName) {
-        return getNodesByName(item, nodeName).stream().findFirst();
+        return getNodesByName(item, nodeName)
+                .stream()
+                .findFirst();
     }
 
     // Wrapper to make NodeList iterable,

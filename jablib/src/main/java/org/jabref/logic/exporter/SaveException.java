@@ -3,7 +3,6 @@ package org.jabref.logic.exporter;
 import java.util.Optional;
 
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.Nullable;
 
 /// Exception thrown if saving goes wrong. If caused by a specific

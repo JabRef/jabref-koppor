@@ -3,6 +3,7 @@ package org.jabref.gui.autocompleter;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.jabref.gui.autocompleter.AutoCompletePreferences.NameFormat;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.preferences.AutoCompleteFirstNameMode;
 import org.jabref.model.database.BibDatabase;
@@ -10,7 +11,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,12 +28,9 @@ class SuggestionProvidersTest {
     void initializeSuggestionProviders() {
         BibDatabase database = new BibDatabase();
         JournalAbbreviationRepository abbreviationRepository = mock(JournalAbbreviationRepository.class);
-        Set<Field> completeFields = Set.of(StandardField.AUTHOR, StandardField.XREF, StandardField.XDATA, StandardField.JOURNAL, StandardField.PUBLISHER, SpecialField.PRINTED);
-        AutoCompletePreferences autoCompletePreferences = new AutoCompletePreferences(
-                true,
-                AutoCompleteFirstNameMode.BOTH,
-                AutoCompletePreferences.NameFormat.BOTH,
-                completeFields);
+        Set<Field> completeFields = Set.of(StandardField.AUTHOR, StandardField.XREF, StandardField.XDATA,
+                StandardField.JOURNAL, StandardField.PUBLISHER, SpecialField.PRINTED);
+        AutoCompletePreferences autoCompletePreferences = new AutoCompletePreferences(true, AutoCompleteFirstNameMode.BOTH, NameFormat.BOTH, completeFields);
         this.suggestionProviders = new SuggestionProviders(database, abbreviationRepository, autoCompletePreferences);
     }
 
@@ -52,14 +49,14 @@ class SuggestionProvidersTest {
                 Arguments.of(JournalsSuggestionProvider.class, StandardField.PUBLISHER),
 
                 // TODO: Auto completion should be aware of possible values of special fields
-                Arguments.of(WordSuggestionProvider.class, SpecialField.PRINTED)
-        );
+                Arguments.of(WordSuggestionProvider.class, SpecialField.PRINTED));
     }
 
     @ParameterizedTest
     @MethodSource("getTestPairs")
     void appropriateCompleterReturned(Class<SuggestionProvider<BibEntry>> expected, Field field) {
-        assertEquals(expected, suggestionProviders.getForField(field).getClass());
+        assertEquals(expected, suggestionProviders.getForField(field)
+                .getClass());
     }
 
     @Test

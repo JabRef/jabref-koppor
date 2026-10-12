@@ -9,6 +9,10 @@ import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.stream.Collectors;
 
+import de.undercouch.citeproc.ItemDataProvider;
+import de.undercouch.citeproc.bibtex.BibTeXConverter;
+import de.undercouch.citeproc.csl.CSLItemData;
+import de.undercouch.citeproc.helper.json.StringJsonBuilderFactory;
 import org.jabref.logic.formatter.bibtexfields.RemoveNewlinesFormatter;
 import org.jabref.logic.integrity.PagesChecker;
 import org.jabref.model.database.BibDatabaseContext;
@@ -21,17 +25,12 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.strings.LatexToUnicodeAdapter;
-
-import de.undercouch.citeproc.ItemDataProvider;
-import de.undercouch.citeproc.bibtex.BibTeXConverter;
-import de.undercouch.citeproc.csl.CSLItemData;
-import de.undercouch.citeproc.helper.json.StringJsonBuilderFactory;
 import org.jbibtex.BibTeXEntry;
 import org.jbibtex.DigitStringValue;
 import org.jbibtex.Key;
 
-/// Custom [ItemDataProvider] that allows to set the data so that we don't have to instantiate a new CSL object
-/// every time.
+/// Custom [ItemDataProvider] that allows to set the data so that we don't have
+/// to instantiate a new CSL object every time.
 public class JabRefItemDataProvider implements ItemDataProvider {
 
     private static final BibTeXConverter BIBTEX_CONVERTER = new BibTeXConverter();
@@ -97,7 +96,8 @@ public class JabRefItemDataProvider implements ItemDataProvider {
         // https://github.com/JabRef/jabref/issues/8372#issuecomment-1014941935
         BibEntry bibEntry = new BibEntry(originalBibEntry);
         String citeKey = bibEntry.getCitationKey().orElse("");
-        BibTeXEntry bibTeXEntry = new BibTeXEntry(new Key(bibEntry.getType().getName()), new Key(citeKey));
+        BibTeXEntry bibTeXEntry = new BibTeXEntry(new Key(bibEntry.getType().getName()),
+                new Key(citeKey));
 
         // Not every field is already generated into latex free fields
         RemoveNewlinesFormatter removeNewlinesFormatter = new RemoveNewlinesFormatter();
@@ -112,10 +112,9 @@ public class JabRefItemDataProvider implements ItemDataProvider {
                 // Map "number" to CSL "issue", unless no number exists
                 Optional<String> numberField = bibEntry.getField(StandardField.NUMBER);
                 numberField.ifPresent(number -> {
-                            bibEntry.setField(StandardField.ISSUE, number);
-                            bibEntry.clearField(StandardField.NUMBER);
-                        }
-                );
+                    bibEntry.setField(StandardField.ISSUE, number);
+                    bibEntry.clearField(StandardField.NUMBER);
+                });
 
                 bibEntry.getField(StandardField.EID).ifPresent(eid -> {
                     if (!bibEntry.hasField(StandardField.NUMBER)) {
@@ -146,7 +145,9 @@ public class JabRefItemDataProvider implements ItemDataProvider {
 
         SequencedCollection<Field> fields;
         if (entryType.isPresent()) {
-            fields = entryType.map(BibEntryType::getAllFields).map(LinkedHashSet::new).get();
+            fields = entryType.map(BibEntryType::getAllFields)
+                              .map(LinkedHashSet::new)
+                              .get();
             fields.addAll(bibEntry.getFields());
         } else {
             fields = bibEntry.getFields();
@@ -158,7 +159,9 @@ public class JabRefItemDataProvider implements ItemDataProvider {
                     .ifPresent(value -> {
                         if (StandardField.MONTH == key) {
                             // Change month from #mon# to mon because CSL does not support the former format
-                            value = bibEntry.getMonth().map(Month::getShortName).orElse(value);
+                            value = bibEntry.getMonth()
+                                            .map(Month::getShortName)
+                                            .orElse(value);
                         }
                         bibTeXEntry.addField(new Key(key.getName()), new DigitStringValue(value));
                     });
@@ -187,9 +190,12 @@ public class JabRefItemDataProvider implements ItemDataProvider {
     @Override
     public CSLItemData retrieveItem(String id) {
         return data.stream()
-                   .filter(entry -> entry.getCitationKey().orElse("").equals(id))
+                   .filter(entry -> entry.getCitationKey()
+                                         .orElse("")
+                                         .equals(id))
                    .map(entry -> bibEntryToCSLItemData(entry, bibDatabaseContext, entryTypesManager))
-                   .findFirst().orElse(null);
+                   .findFirst()
+                   .orElse(null);
     }
 
     @Override

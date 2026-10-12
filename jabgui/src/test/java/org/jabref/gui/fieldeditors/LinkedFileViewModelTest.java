@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
 
+import com.sun.net.httpserver.HttpServer;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
@@ -35,8 +35,6 @@ import org.jabref.logic.xmp.XmpPreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
-import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,8 +75,7 @@ class LinkedFileViewModelTest {
 
     @BeforeEach
     void setUp(@TempDir Path tempFolder) throws IOException {
-        entry = new BibEntry()
-                .withCitationKey("asdf");
+        entry = new BibEntry().withCitationKey("asdf");
 
         databaseContext = new BibDatabaseContext();
         taskExecutor = mock(TaskExecutor.class);
@@ -110,19 +107,21 @@ class LinkedFileViewModelTest {
         }
     }
 
-    /// Serves the given bytes for every request on a random free port, so download tests do not depend on external sites
+    /// Serves the given bytes for every request on a random free port, so
+    /// download tests do not depend on external sites
     private String serve(String contentType, byte[] body) throws IOException {
         httpServer = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);
-        httpServer.createContext("/", exchange -> {
-            exchange.getResponseHeaders().add("Content-Type", contentType);
-            if ("HEAD".equals(exchange.getRequestMethod())) {
-                exchange.sendResponseHeaders(200, -1);
-            } else {
-                exchange.sendResponseHeaders(200, body.length);
-                exchange.getResponseBody().write(body);
-            }
-            exchange.close();
-        });
+        httpServer.createContext("/",
+                exchange -> {
+                    exchange.getResponseHeaders().add("Content-Type", contentType);
+                    if ("HEAD".equals(exchange.getRequestMethod())) {
+                        exchange.sendResponseHeaders(200, -1);
+                    } else {
+                        exchange.sendResponseHeaders(200, body.length);
+                        exchange.getResponseBody().write(body);
+                    }
+                    exchange.close();
+                });
         httpServer.start();
         return "http://localhost:" + httpServer.getAddress().getPort() + "/";
     }
@@ -131,7 +130,9 @@ class LinkedFileViewModelTest {
     void deleteWhenFilePathNotPresentReturnsTrue() {
         // Making this a spy, so we can inject an empty optional without digging into the implementation
         linkedFile = spy(new LinkedFile("", Path.of("nonexistent file"), ""));
-        doReturn(Optional.empty()).when(linkedFile).findIn(any(BibDatabaseContext.class), any(FilePreferences.class));
+        doReturn(Optional.empty())
+                .when(linkedFile)
+                .findIn(any(BibDatabaseContext.class), any(FilePreferences.class));
 
         LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
         boolean removed = viewModel.delete();
@@ -146,12 +147,10 @@ class LinkedFileViewModelTest {
     void deleteWhenRemoveChosenReturnsTrueButDoesNotDeletesFile() {
         linkedFile = new LinkedFile("", tempFile, "");
         // Mock the dialog created at {@link org.jabref.gui.linkedfile.DeleteFileAction.execute}
-        when(dialogService.showCustomDialogAndWait(
-                anyString(),
-                any(DialogPane.class),
-                any(ButtonType.class),
-                any(ButtonType.class),
-                any(ButtonType.class))).thenAnswer(invocation -> Optional.of(invocation.getArgument(2))); // first vararg - remove button
+        when(
+                dialogService.showCustomDialogAndWait(anyString(), any(DialogPane.class), any(ButtonType.class),
+                        any(ButtonType.class), any(ButtonType.class)))
+                .thenAnswer(invocation -> Optional.of(invocation.getArgument(2))); // first vararg - remove button
 
         LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
         boolean removed = viewModel.delete();
@@ -163,12 +162,10 @@ class LinkedFileViewModelTest {
     @Test
     void deleteWhenDeleteChosenReturnsTrueAndDeletesFile() {
         linkedFile = new LinkedFile("", tempFile, "");
-        when(dialogService.showCustomDialogAndWait(
-                anyString(),
-                any(DialogPane.class),
-                any(ButtonType.class),
-                any(ButtonType.class),
-                any(ButtonType.class))).thenAnswer(invocation -> Optional.of(invocation.getArgument(3))); // second vararg - delete button
+        when(
+                dialogService.showCustomDialogAndWait(anyString(), any(DialogPane.class), any(ButtonType.class),
+                        any(ButtonType.class), any(ButtonType.class)))
+                .thenAnswer(invocation -> Optional.of(invocation.getArgument(3))); // second vararg - delete button
 
         LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
         boolean removed = viewModel.delete();
@@ -180,12 +177,10 @@ class LinkedFileViewModelTest {
     @Test
     void deleteMissingFileReturnsTrue() {
         linkedFile = new LinkedFile("", Path.of("!!nonexistent file!!"), "");
-        when(dialogService.showCustomDialogAndWait(
-                anyString(),
-                any(DialogPane.class),
-                any(ButtonType.class),
-                any(ButtonType.class),
-                any(ButtonType.class))).thenAnswer(invocation -> Optional.of(invocation.getArgument(3))); // second vararg - delete button
+        when(
+                dialogService.showCustomDialogAndWait(anyString(), any(DialogPane.class), any(ButtonType.class),
+                        any(ButtonType.class), any(ButtonType.class)))
+                .thenAnswer(invocation -> Optional.of(invocation.getArgument(3))); // second vararg - delete button
 
         LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
         boolean removed = viewModel.delete();
@@ -196,12 +191,10 @@ class LinkedFileViewModelTest {
     @Test
     void deleteWhenDialogCancelledReturnsFalseAndDoesNotRemoveFile() {
         linkedFile = new LinkedFile("desc", tempFile, "pdf");
-        when(dialogService.showCustomDialogAndWait(
-                anyString(),
-                any(DialogPane.class),
-                any(ButtonType.class),
-                any(ButtonType.class),
-                any(ButtonType.class))).thenAnswer(invocation -> Optional.of(invocation.getArgument(4))); // third vararg - cancel button
+        when(
+                dialogService.showCustomDialogAndWait(anyString(), any(DialogPane.class), any(ButtonType.class),
+                        any(ButtonType.class), any(ButtonType.class)))
+                .thenAnswer(invocation -> Optional.of(invocation.getArgument(4))); // third vararg - cancel button
 
         LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
         boolean removed = viewModel.delete();
@@ -211,10 +204,7 @@ class LinkedFileViewModelTest {
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "true, Keeping URL.",
-            "false, Removed."
-    })
+    @CsvSource({"true, Keeping URL.", "false, Removed."})
     void downloadHtmlFileCausesWarningDisplay(Boolean keepHtmlLink, String warningSuffix) throws IOException {
         when(filePreferences.shouldStoreFilesRelativeToBibFile()).thenReturn(true);
         when(filePreferences.getFileNamePattern()).thenReturn("[citationkey]");
@@ -227,7 +217,8 @@ class LinkedFileViewModelTest {
         String fileType = StandardExternalFileType.URL.getName();
         linkedFile = new LinkedFile(url, fileType);
 
-        LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, new CurrentThreadTaskExecutor(), dialogService, preferences);
+        LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, new CurrentThreadTaskExecutor(), dialogService,
+                preferences);
 
         viewModel.download(keepHtmlLink, new JabRefUndoManager());
 
@@ -307,7 +298,8 @@ class LinkedFileViewModelTest {
 
         databaseContext.setDatabasePath(tempFile);
 
-        LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, new CurrentThreadTaskExecutor(), dialogService, preferences);
+        LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, new CurrentThreadTaskExecutor(), dialogService,
+                preferences);
 
         viewModel.download(keepHtml, new JabRefUndoManager());
 

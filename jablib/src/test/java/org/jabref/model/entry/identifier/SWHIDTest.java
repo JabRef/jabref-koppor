@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.Optional;
 
 import org.jabref.model.entry.field.BiblatexSoftwareField;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,7 +23,9 @@ public class SWHIDTest {
         Optional<SWHID> swhid = SWHID.parse(DIRECTORY_SWHID);
         assertEquals(Optional.of(new SWHID(DIRECTORY_SWHID)), swhid);
         assertEquals(BiblatexSoftwareField.SWHID, swhid.map(SWHID::getDefaultField).orElse(null));
-        assertEquals(Optional.of(URI.create("https://archive.softwareheritage.org/" + DIRECTORY_SWHID)), swhid.flatMap(SWHID::getExternalURI));
+        assertEquals(
+                Optional.of(URI.create("https://archive.softwareheritage.org/" + DIRECTORY_SWHID)),
+                swhid.flatMap(SWHID::getExternalURI));
     }
 
     @Test
@@ -40,13 +41,8 @@ public class SWHIDTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "",
-            " ",
-            "not-a-swhid",
-            "swh:2:dir2dc0f462d191524530f5612d2935851505af41dd",
-            "swh:1:dir2dc0f462d191524530f5612d2935851505af41dd",
-            "swh:1:dir:short"})
+    @ValueSource(strings = {"", " ", "not-a-swhid", "swh:2:dir2dc0f462d191524530f5612d2935851505af41dd",
+                "swh:1:dir2dc0f462d191524530f5612d2935851505af41dd", "swh:1:dir:short"})
     void parseInvalidInputsReturnsEmpty(String invalidInput) {
         assertEquals(Optional.empty(), SWHID.parse(invalidInput));
     }

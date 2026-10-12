@@ -11,6 +11,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 
+import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
+import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
+import de.saxsys.mvvmfx.utils.validation.Validator;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
@@ -23,7 +27,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.desktop.os.NativeDesktop;
@@ -50,11 +53,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.util.OptionalUtil;
-
-import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
-import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
-import de.saxsys.mvvmfx.utils.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,12 +76,8 @@ public class LinkedFileViewModel extends AbstractViewModel {
 
     private final Validator fileExistsValidator;
 
-    public LinkedFileViewModel(LinkedFile linkedFile,
-                               BibEntry entry,
-                               BibDatabaseContext databaseContext,
-                               TaskExecutor taskExecutor,
-                               DialogService dialogService,
-                               GuiPreferences preferences) {
+    public LinkedFileViewModel(LinkedFile linkedFile, BibEntry entry, BibDatabaseContext databaseContext,
+            TaskExecutor taskExecutor, DialogService dialogService, GuiPreferences preferences) {
         this.linkedFile = linkedFile;
         this.preferences = preferences;
         this.linkedFileHandler = new LinkedFileHandler(linkedFile, entry, databaseContext, preferences.getFilePreferences());
@@ -92,36 +86,24 @@ public class LinkedFileViewModel extends AbstractViewModel {
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
 
-        fileExistsValidator = new FunctionBasedValidator<>(
-                linkedFile.linkProperty(),
-                link -> {
-                    if (linkedFile.isOnlineLink()) {
-                        return true;
-                    } else {
-                        Optional<Path> path = FileUtil.find(databaseContext, link, preferences.getFilePreferences());
-                        return path.isPresent() && Files.exists(path.get());
-                    }
-                },
+        fileExistsValidator = new FunctionBasedValidator<>(linkedFile.linkProperty(), link -> {
+            if (linkedFile.isOnlineLink()) {
+                return true;
+            } else {
+                Optional<Path> path = FileUtil.find(databaseContext, link, preferences.getFilePreferences());
+                return path.isPresent() && Files.exists(path.get());
+            }
+        },
                 ValidationMessage.warning(Localization.lang("Could not find file '%0'.", linkedFile.getLink())));
 
-        downloadOngoing.bind(downloadProgress.greaterThanOrEqualTo(0).and(downloadProgress.lessThan(1)));
+        downloadOngoing.bind(downloadProgress.greaterThanOrEqualTo(0)
+                .and(downloadProgress.lessThan(1)));
         isOfflinePdf.setValue(!linkedFile.isOnlineLink() && "pdf".equalsIgnoreCase(linkedFile.getFileType()));
     }
 
-    public static LinkedFileViewModel fromLinkedFile(
-            LinkedFile linkedFile,
-            BibEntry entry,
-            BibDatabaseContext databaseContext,
-            TaskExecutor taskExecutor,
-            DialogService dialogService,
-            GuiPreferences preferences) {
-        return new LinkedFileViewModel(
-                linkedFile,
-                entry,
-                databaseContext,
-                taskExecutor,
-                dialogService,
-                preferences);
+    public static LinkedFileViewModel fromLinkedFile(LinkedFile linkedFile, BibEntry entry, BibDatabaseContext databaseContext,
+            TaskExecutor taskExecutor, DialogService dialogService, GuiPreferences preferences) {
+        return new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
     }
 
     public BooleanProperty isOfflinePdfProperty() {
@@ -166,13 +148,9 @@ public class LinkedFileViewModel extends AbstractViewModel {
 
     public String getTruncatedDescriptionAndLink() {
         if (StringUtil.isBlank(linkedFile.getDescription())) {
-            return ControlHelper.truncateString(linkedFile.getLink(), -1, "...",
-                    ControlHelper.EllipsisPosition.CENTER);
+            return ControlHelper.truncateString(linkedFile.getLink(), -1, "...", ControlHelper.EllipsisPosition.CENTER);
         } else {
-            return ControlHelper.truncateString(linkedFile.getDescription(), -1, "...",
-                    ControlHelper.EllipsisPosition.CENTER) + " (" +
-                    ControlHelper.truncateString(linkedFile.getLink(), -1, "...",
-                            ControlHelper.EllipsisPosition.CENTER) + ")";
+            return ControlHelper.truncateString(linkedFile.getDescription(), -1, "...", ControlHelper.EllipsisPosition.CENTER) + " (" + ControlHelper.truncateString(linkedFile.getLink(), -1, "...", ControlHelper.EllipsisPosition.CENTER) + ")";
         }
     }
 
@@ -182,13 +160,14 @@ public class LinkedFileViewModel extends AbstractViewModel {
 
     public JabRefIcon getTypeIcon() {
         return ExternalFileTypes.getExternalFileTypeByLinkedFile(linkedFile, false, preferences.getExternalApplicationsPreferences())
-                                .map(ExternalFileType::getIcon)
-                                .orElse(IconTheme.JabRefIcons.FILE);
+                .map(ExternalFileType::getIcon)
+                .orElse(IconTheme.JabRefIcons.FILE);
     }
 
     public ObjectBinding<Node> typeIconProperty() {
         if (linkedFileIconBinding == null) {
-            linkedFileIconBinding = Bindings.createObjectBinding(() -> this.getTypeIcon().getGraphicNode(), linkedFile.fileTypeProperty());
+            linkedFileIconBinding = Bindings.createObjectBinding(() -> this.getTypeIcon().getGraphicNode(),
+                    linkedFile.fileTypeProperty());
         }
 
         return linkedFileIconBinding;
@@ -211,7 +190,8 @@ public class LinkedFileViewModel extends AbstractViewModel {
     public void open() {
         try {
             Optional<ExternalFileType> type = ExternalFileTypes.getExternalFileTypeByLinkedFile(linkedFile, true, preferences.getExternalApplicationsPreferences());
-            boolean successful = NativeDesktop.openExternalFileAnyFormat(databaseContext, preferences.getExternalApplicationsPreferences(), preferences.getFilePreferences(), linkedFile.getLink(), type);
+            boolean successful = NativeDesktop.openExternalFileAnyFormat(databaseContext, preferences.getExternalApplicationsPreferences(), preferences.getFilePreferences(),
+                    linkedFile.getLink(), type);
             if (!successful) {
                 dialogService.showErrorDialogAndWait(Localization.lang("File not found"), Localization.lang("Could not find file '%0'.", linkedFile.getLink()));
             }
@@ -223,10 +203,7 @@ public class LinkedFileViewModel extends AbstractViewModel {
     public void openFolder() {
         try {
             if (!linkedFile.isOnlineLink()) {
-                Optional<Path> resolvedPath = FileUtil.find(
-                        databaseContext,
-                        linkedFile.getLink(),
-                        preferences.getFilePreferences());
+                Optional<Path> resolvedPath = FileUtil.find(databaseContext, linkedFile.getLink(), preferences.getFilePreferences());
                 if (resolvedPath.isPresent()) {
                     NativeDesktop.openFolderAndSelectFile(resolvedPath.get(), preferences.getExternalApplicationsPreferences(), dialogService);
                 } else {
@@ -249,10 +226,7 @@ public class LinkedFileViewModel extends AbstractViewModel {
         Path oldFilePath = Path.of(oldFile);
         // The rename happens on disk; only the link is journalled. Undoing afterwards restores the
         // old link, which then points at a name no file has any more.
-        Optional<String> askedFileName = dialogService.showInputDialogWithDefaultAndWait(
-                Localization.lang("Rename file"),
-                Localization.lang("New Filename")
-                        + "\n" + Localization.lang("Undo restores the link, not the file name."),
+        Optional<String> askedFileName = dialogService.showInputDialogWithDefaultAndWait(Localization.lang("Rename file"), Localization.lang("New Filename") + "\n" + Localization.lang("Undo restores the link, not the file name."),
                 oldFilePath.getFileName().toString());
         askedFileName.ifPresent(this::renameFileToName);
     }
@@ -295,13 +269,8 @@ public class LinkedFileViewModel extends AbstractViewModel {
             tooltips.put(keepBoth, Localization.lang("New filename: %0", suggestedFileName));
 
             // Use JabRefDialogService to show a custom dialog with tooltips
-            Optional<ButtonType> result = dialogService.showCustomButtonDialogWithTooltipsAndWait(
-                    Alert.AlertType.CONFIRMATION,
-                    Localization.lang("File already exists"),
-                    Localization.lang("File name: \n'%0'", targetFileName),
-                    tooltips,
-                    replace, keepBoth, provideAlternative, cancel
-            );
+            Optional<ButtonType> result = dialogService.showCustomButtonDialogWithTooltipsAndWait(Alert.AlertType.CONFIRMATION, Localization.lang("File already exists"), Localization.lang("File name: \n'%0'", targetFileName), tooltips,
+                    replace, keepBoth, provideAlternative, cancel);
 
             // Show dialog and handle user response
             if (result.isEmpty() || result.get() == cancel) {
@@ -321,9 +290,7 @@ public class LinkedFileViewModel extends AbstractViewModel {
             linkedFileHandler.renameToName(targetFileName, overwriteFile);
         } catch (IOException _) {
             // Display an error dialog if file is locked or inaccessible
-            dialogService.showErrorDialogAndWait(
-                    Localization.lang("Rename failed"),
-                    Localization.lang("Could not rename the file. The filename may be too long for your operating system, or the file is in use by another process."));
+            dialogService.showErrorDialogAndWait(Localization.lang("Rename failed"), Localization.lang("Could not rename the file. The filename may be too long for your operating system, or the file is in use by another process."));
         }
     }
 
@@ -334,10 +301,7 @@ public class LinkedFileViewModel extends AbstractViewModel {
 
         Optional<Path> currentFile = linkedFile.findIn(databaseContext, preferences.getFilePreferences());
         if (currentFile.isEmpty()) {
-            dialogService.showErrorDialogAndWait(
-                    Localization.lang("File not found"),
-                    Localization.lang("Could not find file '%0'.", linkedFile.getLink())
-            );
+            dialogService.showErrorDialogAndWait(Localization.lang("File not found"), Localization.lang("Could not find file '%0'.", linkedFile.getLink()));
             return;
         }
 
@@ -346,10 +310,8 @@ public class LinkedFileViewModel extends AbstractViewModel {
         try {
             linkedFileHandler.moveToExactDirectory(destDirectoryWithPattern);
         } catch (IOException exception) {
-            dialogService.showErrorDialogAndWait(
-                    Localization.lang("Move file"),
-                    Localization.lang("Could not move file '%0'.", currentFile.get().toString()),
-                    exception);
+            dialogService.showErrorDialogAndWait(Localization.lang("Move file"),
+                    Localization.lang("Could not move file '%0'.", currentFile.get().toString()), exception);
         }
     }
 
@@ -360,7 +322,8 @@ public class LinkedFileViewModel extends AbstractViewModel {
         renameToSuggestion();
     }
 
-    /// Checks if the current linked file is already located in the target directory (considering also the directory pattern if exists).
+    /// Checks if the current linked file is already located in the target
+    /// directory (considering also the directory pattern if exists).
     public boolean isInCurrentDirectory(Path destinationDirectory) {
         Optional<Path> currentDirectory = getCurrentFileDirectory();
         if (currentDirectory.isEmpty()) {
@@ -371,17 +334,18 @@ public class LinkedFileViewModel extends AbstractViewModel {
         try {
             return Files.isSameFile(currentDirectory.get(), destDirectoryWithPattern);
         } catch (IOException e) {
-            LOGGER.debug("Could not compare directories {} and {}.", currentDirectory.get(), destDirectoryWithPattern, e);
+            LOGGER.debug("Could not compare directories {} and {}.",
+                    currentDirectory.get(), destDirectoryWithPattern, e);
             return false;
         }
     }
 
     private Optional<Path> getCurrentFileDirectory() {
-        return linkedFile.findIn(databaseContext, preferences.getFilePreferences())
-                         .map(Path::getParent);
+        return linkedFile.findIn(databaseContext, preferences.getFilePreferences()).map(Path::getParent);
     }
 
-    /// Constructs the target directory by appending the directory pattern (if exists) to the given base directory.
+    /// Constructs the target directory by appending the directory pattern (if
+    /// exists) to the given base directory.
     private Path getFullDestinationDirectory(Path targetBaseDirectory) {
         return targetBaseDirectory.resolve(getFileDirectoryPattern()).normalize();
     }
@@ -392,15 +356,13 @@ public class LinkedFileViewModel extends AbstractViewModel {
             return Path.of("");
         }
 
-        String targetDirectoryName = FileUtil.createDirNameFromPattern(
-                databaseContext.getDatabase(),
-                entry,
-                directoryPattern);
+        String targetDirectoryName = FileUtil.createDirNameFromPattern(databaseContext.getDatabase(), entry, directoryPattern);
 
         return Path.of(targetDirectoryName);
     }
 
-    /// Gets the filename for the current linked file and compares it to the new suggested filename.
+    /// Gets the filename for the current linked file and compares it to the new
+    /// suggested filename.
     ///
     /// @return true if the suggested filename is same as current filename.
     public boolean isGeneratedNameSameAsOriginal() {
@@ -423,10 +385,7 @@ public class LinkedFileViewModel extends AbstractViewModel {
         }
 
         // append File directory pattern if exits
-        String targetDirectoryName = FileUtil.createDirNameFromPattern(
-                databaseContext.getDatabase(),
-                entry,
-                filePreferences.getFileDirectoryPattern());
+        String targetDirectoryName = FileUtil.createDirNameFromPattern(databaseContext.getDatabase(), entry, filePreferences.getFileDirectoryPattern());
 
         Optional<Path> targetDir = baseDir.map(dir -> dir.resolve(targetDirectoryName));
 
@@ -446,13 +405,15 @@ public class LinkedFileViewModel extends AbstractViewModel {
         return OptionalUtil.equals(targetDir, currentDir, equality);
     }
 
-    /// Asks the user for confirmation that he really wants to the delete the file from disk (or just remove the link)
-    /// and then proceeds accordingly.
+    /// Asks the user for confirmation that he really wants to the delete the
+    /// file from disk (or just remove the link) and then proceeds accordingly.
     ///
-    /// @return true if the linked file has been removed afterward from the entry (i.e., because it was deleted
-    /// successfully, does not exist in the first place, or the user choose to remove it)
+    /// @return true if the linked file has been removed afterward from the
+    ///   entry (i.e., because it was deleted successfully, does not exist in
+    ///   the first place, or the user choose to remove it)
     public boolean delete() {
-        DeleteFileAction deleteFileAction = new DeleteFileAction(dialogService, preferences.getFilePreferences(), databaseContext, null, List.of(this));
+        DeleteFileAction deleteFileAction = new DeleteFileAction(dialogService, preferences.getFilePreferences(), databaseContext, null,
+                List.of(this));
         deleteFileAction.execute();
         return deleteFileAction.isSuccess();
     }
@@ -480,7 +441,9 @@ public class LinkedFileViewModel extends AbstractViewModel {
     }
 
     private DownloadLinkedFileAction getDownloadLinkedFileAction(UndoManager undoManager) {
-        String fileName = Path.of(linkedFile.getLink()).getFileName().toString();
+        String fileName = Path.of(linkedFile.getLink())
+                .getFileName()
+                .toString();
 
         return new DownloadLinkedFileAction(
                 databaseContext,

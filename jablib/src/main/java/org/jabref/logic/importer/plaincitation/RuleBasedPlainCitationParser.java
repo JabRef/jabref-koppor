@@ -16,7 +16,9 @@ import org.jabref.model.entry.types.StandardEntryType;
 
 /// Parse a plain citation using regex rules.
 ///
-/// TODO: This class is similar to [org.jabref.logic.importer.fileformat.pdf.RuleBasedBibliographyPdfImporter], we need to unify them.
+/// TODO: This class is similar to
+/// [org.jabref.logic.importer.fileformat.pdf.RuleBasedBibliographyPdfImporter],
+/// we need to unify them.
 public class RuleBasedPlainCitationParser implements PlainCitationParser {
     private static final String AUTHOR_TAG = "[author_tag]";
     private static final String URL_TAG = "[url_tag]";
@@ -26,28 +28,20 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
     private static final String LASTNAME_GROUP = "LASTNAME";
 
     private static final Pattern URL_PATTERN = Pattern.compile(
-            "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)" +
-                    "(([\\w\\-]+\\.)+?([\\w\\-.~]+\\/?)*" +
-                    "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
+            "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)" + "(([\\w\\-]+\\.)+?([\\w\\-.~]+\\/?)*" + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
             Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
-    private static final Pattern YEAR_PATTERN = Pattern.compile(
-            "\\d{4}",
-            Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+    private static final Pattern YEAR_PATTERN = Pattern.compile("\\d{4}", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern AUTHOR_PATTERN = Pattern.compile(
-            "(?<" + LASTNAME_GROUP + ">\\p{Lu}\\w+),?\\s(?<" + INITIALS_GROUP + ">(\\p{Lu}\\.\\s){1,2})" +
-                    "\\s*(and|,|\\.)*",
+            "(?<" + LASTNAME_GROUP + ">\\p{Lu}\\w+),?\\s(?<" + INITIALS_GROUP + ">(\\p{Lu}\\.\\s){1,2})" + "\\s*(and|,|\\.)*",
             Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern AUTHOR_PATTERN_2 = Pattern.compile(
-            "(?<" + INITIALS_GROUP + ">(\\p{Lu}\\.\\s){1,2})(?<" + LASTNAME_GROUP + ">\\p{Lu}\\w+)" +
-                    "\\s*(and|,|\\.)*",
+            "(?<" + INITIALS_GROUP + ">(\\p{Lu}\\.\\s){1,2})(?<" + LASTNAME_GROUP + ">\\p{Lu}\\w+)" + "\\s*(and|,|\\.)*",
             Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
-    private static final Pattern PAGES_PATTERN = Pattern.compile(
-            "(p.)?\\s?\\d+(-\\d+)?",
-            Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+    private static final Pattern PAGES_PATTERN = Pattern.compile("(p.)?\\s?\\d+(-\\d+)?", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private List<String> urls;
     private List<String> authors;
@@ -108,21 +102,23 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
         return fixSpaces(matcher.replaceAll(URL_TAG));
     }
 
-    /// Extracts the first DOI found in `input`, stores its canonical form in [#doi],
-    /// and returns `input` with the matched DOI (including any leading `doi:` or
-    /// `https://doi.org/` prefix) removed so the remaining rules do not re-parse it as a
-    /// URL or title.
+    /// Extracts the first DOI found in `input`, stores its canonical form in
+    /// [#doi], and returns `input` with the matched DOI (including any leading
+    /// `doi:` or `https://doi.org/` prefix) removed so the remaining rules do
+    /// not re-parse it as a URL or title.
     ///
-    /// The DOI is replaced with an empty string rather than a placeholder token: [#findParts]
-    /// later infers the title and journal/publisher from the count of non-numeric segments, and a
-    /// placeholder would skew that count because DOIs typically contain digits while a token like
+    /// The DOI is replaced with an empty string rather than a placeholder
+    /// token: [#findParts] later infers the title and journal/publisher from
+    /// the count of non-numeric segments, and a placeholder would skew that
+    /// count because DOIs typically contain digits while a token like
     /// `[doi_tag]` would not.
     ///
-    /// Called before [#findUrls] so a `doi.org` link is recorded as a DOI rather
-    /// than being swallowed by the generic URL rule.
+    /// Called before [#findUrls] so a `doi.org` link is recorded as a DOI
+    /// rather than being swallowed by the generic URL rule.
     ///
     /// @param input raw citation text
-    /// @return the input with the DOI stripped, or the original input if no DOI was found
+    /// @return the input with the DOI stripped, or the original input if no DOI
+    ///   was found
     private String findDoi(String input) {
         return DOI.findInText(input)
                   .map(parsed -> {
@@ -173,7 +169,8 @@ public class RuleBasedPlainCitationParser implements PlainCitationParser {
     private String fixSpaces(String input) {
         return input.replaceAll("[,.!?;:]", "$0 ")
                     .replaceAll("\\p{Lt}", " $0")
-                    .replaceAll("\\s+", " ").trim();
+                    .replaceAll("\\s+", " ")
+                    .trim();
     }
 
     private String findParts(String input) {

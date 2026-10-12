@@ -2,8 +2,9 @@ package org.jabref.logic.formatter;
 
 import org.jspecify.annotations.NonNull;
 
-/// The Formatter is used for a Filter design-pattern. Extending classes have to accept a String and returned a formatted
-/// version of it. Implementations have to reside in the logic package.
+/// The Formatter is used for a Filter design-pattern. Extending classes have to
+/// accept a String and returned a formatted version of it. Implementations have
+/// to reside in the logic package.
 ///
 /// Example:
 ///
@@ -31,8 +32,8 @@ public abstract class Formatter {
     /// @return the description string, always non empty
     public abstract String getDescription();
 
-    /// Returns an example input string of the formatter. This example is used as input to the formatter to demonstrate
-    /// its functionality
+    /// Returns an example input string of the formatter. This example is used
+    /// as input to the formatter to demonstrate its functionality
     ///
     /// @return the example input string, always non empty
     public abstract String getExampleInput();
@@ -45,7 +46,8 @@ public abstract class Formatter {
         return getKey().hashCode();
     }
 
-    /// Indicates whether some other object is the same formatter as this one based on the key.
+    /// Indicates whether some other object is the same formatter as this one
+    /// based on the key.
     ///
     /// @param obj the object to compare the formatter to
     /// @return true if the object is a formatter with the same key

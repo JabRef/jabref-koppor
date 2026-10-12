@@ -15,26 +15,33 @@ import org.jabref.model.entry.identifier.DOI;
 
 /// Consolidates the arXiv identifier of an entry onto the DOI field.
 ///
-/// arXiv articles are automatically assigned a stable DOI with the prefix `10.48550/arXiv.`,
-/// followed by the arXiv ID. Replacing an article with a new version does **not** generate a new
-/// DOI; the metadata of the existing DOI is updated at DataCite instead. The DOI is therefore the
-/// canonical, version-stable identifier and is preferred over the (redundant) eprint field.
+/// arXiv articles are automatically assigned a stable DOI with the prefix
+/// `10.48550/arXiv.`, followed by the arXiv ID. Replacing an article with a new
+/// version does **not** generate a new DOI; the metadata of the existing DOI is
+/// updated at DataCite instead. The DOI is therefore the canonical,
+/// version-stable identifier and is preferred over the (redundant) eprint
+/// field.
 ///
 /// See the [arXiv DOI documentation](https://info.arxiv.org/help/doi.html).
 ///
 /// Rules:
 ///
-///  1. eprint holds an arXiv ID and there is no valid DOI (absent or unparseable) -> create the DOI from the eprint.
-///  2. the DOI field holds an arXiv DOI matching the eprint -> drop the redundant eprint fields.
-///  3. otherwise (e.g. a real publisher DOI next to an arXiv eprint, or no arXiv data) -> keep both.
+/// 1. eprint holds an arXiv ID and there is no valid DOI (absent or
+///    unparseable) -> create the DOI from the eprint.
+/// 2. the DOI field holds an arXiv DOI matching the eprint -> drop the
+///    redundant eprint fields.
+/// 3. otherwise (e.g. a real publisher DOI next to an arXiv eprint, or no arXiv
+///    data) -> keep both.
 ///
-/// This job is self-contained and independent of cleanup job ordering. The consolidation reads the
-/// already-normalized `eprint` and `doi` fields. When no consolidation is possible from the
-/// fields as they are, the arXiv identifier might still live in a field such as url/journal/note, from
-/// where [EprintCleanup] would move it into the eprint field. In that case this job applies
-/// [EprintCleanup] itself, but only after probing (on a copy) that doing so actually enables a
-/// consolidation - an entry without arXiv data is left untouched, regardless of whether
-/// [EprintCleanup] runs separately or at all.
+/// This job is self-contained and independent of cleanup job ordering. The
+/// consolidation reads the already-normalized `eprint` and `doi` fields. When
+/// no consolidation is possible from the fields as they are, the arXiv
+/// identifier might still live in a field such as url/journal/note, from where
+/// [EprintCleanup] would move it into the eprint field. In that case this job
+/// applies [EprintCleanup] itself, but only after probing (on a copy) that
+/// doing so actually enables a consolidation - an entry without arXiv data is
+/// left untouched, regardless of whether [EprintCleanup] runs separately or at
+/// all.
 public class ArXivDoiCleanup implements CleanupJob {
 
     /// arXiv DOIs use the prefix "10.48550/arXiv." (the DOI registrant assigned to arXiv).
@@ -65,29 +72,29 @@ public class ArXivDoiCleanup implements CleanupJob {
         return appliedChanges;
     }
 
-    /// Consolidates the arXiv identifier onto the DOI field using the already-populated `eprint`
-    /// and `doi` fields. Returns the changes made, or an empty list when no rule applies.
+    /// Consolidates the arXiv identifier onto the DOI field using the
+    /// already-populated `eprint` and `doi` fields. Returns the changes made,
+    /// or an empty list when no rule applies.
     private List<FieldChange> consolidate(BibEntry entry) {
         List<FieldChange> changes = new ArrayList<>();
 
-        Optional<ArXivIdentifier> eprint = entry.getField(StandardField.EPRINT)
-                                                .flatMap(ArXivIdentifier::parse);
+        Optional<ArXivIdentifier> eprint = entry.getField(StandardField.EPRINT).flatMap(ArXivIdentifier::parse);
 
         // Rule 1: create the DOI from the arXiv eprint if there is no valid DOI yet. A present-but-invalid
         // doi value (garbage that DOI.parse rejects) is treated as missing and gets overwritten; a valid
         // non-arXiv publisher DOI parses successfully and is preserved (rule 3).
-        boolean noValidDoi = entry.getField(StandardField.DOI).flatMap(DOI::parse).isEmpty();
+        boolean noValidDoi = entry.getField(StandardField.DOI)
+                .flatMap(DOI::parse)
+                .isEmpty();
         if (eprint.isPresent() && noValidDoi) {
-            eprint.flatMap(ArXivIdentifier::inferDOI)
-                  .ifPresent(inferredDoi -> entry.setField(StandardField.DOI, inferredDoi.asString())
-                                                 .ifPresent(changes::add));
+            eprint.flatMap(ArXivIdentifier::inferDOI).ifPresent(inferredDoi -> entry.setField(StandardField.DOI, inferredDoi.asString()).ifPresent(changes::add));
         }
 
         // Rule 2: if the DOI is the arXiv DOI of the eprint, the eprint fields are redundant.
         Optional<String> arXivIdInDoi = entry.getField(StandardField.DOI)
-                                             .flatMap(DOI::parse)
-                                             .filter(ArXivDoiCleanup::isArXivDoi)
-                                             .flatMap(ArXivDoiCleanup::arXivIdFromDoi);
+                .flatMap(DOI::parse)
+                .filter(ArXivDoiCleanup::isArXivDoi)
+                .flatMap(ArXivDoiCleanup::arXivIdFromDoi);
         Optional<String> arXivIdInEprint = eprint.map(ArXivIdentifier::asStringWithoutVersion);
         if (arXivIdInDoi.isPresent() && arXivIdInDoi.equals(arXivIdInEprint)) {
             removeFieldValue(entry, StandardField.EPRINT, changes);
@@ -99,10 +106,13 @@ public class ArXivDoiCleanup implements CleanupJob {
     }
 
     private static boolean isArXivDoi(DOI doi) {
-        return doi.asString().toLowerCase(Locale.ROOT).startsWith(ARXIV_DOI_PREFIX);
+        return doi.asString()
+                  .toLowerCase(Locale.ROOT)
+                  .startsWith(ARXIV_DOI_PREFIX);
     }
 
-    /// Extracts the normalized arXiv ID from an arXiv DOI (the part after the "10.48550/arXiv." prefix).
+    /// Extracts the normalized arXiv ID from an arXiv DOI (the part after the
+    /// "10.48550/arXiv." prefix).
     private static Optional<String> arXivIdFromDoi(DOI doi) {
         String id = doi.asString().substring(ARXIV_DOI_PREFIX.length());
         return ArXivIdentifier.parse(id).map(ArXivIdentifier::asStringWithoutVersion);

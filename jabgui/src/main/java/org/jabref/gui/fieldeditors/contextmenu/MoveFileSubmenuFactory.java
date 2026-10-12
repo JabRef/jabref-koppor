@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import javafx.collections.ObservableList;
 import javafx.scene.control.Menu;
-
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.actions.StandardActions;
@@ -17,7 +16,6 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.FileDirectories;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -28,9 +26,7 @@ class MoveFileSubmenuFactory {
     private final BibDatabaseContext databaseContext;
     private final GuiPreferences preferences;
 
-    MoveFileSubmenuFactory(ActionFactory actionFactory,
-                           BibDatabaseContext databaseContext,
-                           GuiPreferences preferences) {
+    MoveFileSubmenuFactory(ActionFactory actionFactory, BibDatabaseContext databaseContext, GuiPreferences preferences) {
         this.actionFactory = actionFactory;
         this.databaseContext = databaseContext;
         this.preferences = preferences;
@@ -51,8 +47,8 @@ class MoveFileSubmenuFactory {
     private Menu createMenuItem(List<LinkedFileViewModel> linkedFileViewModels, MoveFileCommand.Operation operation) {
         FileDirectories fileDirectories = databaseContext.getAllFileDirectories(preferences.getFilePreferences());
         Optional<Path> mainFileDirectory = preferences.getFilePreferences()
-                                                      .getMainFileDirectory()
-                                                      .map(path -> path.toAbsolutePath().normalize());
+                .getMainFileDirectory()
+                .map(path -> path.toAbsolutePath().normalize());
 
         Map<String, Optional<Path>> directories = new LinkedHashMap<>();
         directories.put(Localization.lang("Main file directory: %0"), mainFileDirectory);
@@ -66,13 +62,13 @@ class MoveFileSubmenuFactory {
             String label = entry.getValue()
                                 // Dirty hack: String formatted expects %s, Localization.lang %0 as placeholders.
                                 // Since localization strings are reused, we replace here
-                                .map(path -> entry.getKey().replace("%0", "%s").formatted(path))
-                                .orElseGet(() -> entry.getKey().replace("%0", "%s").formatted(Localization.lang("Unavailable")));
-            menu.getItems().add(actionFactory.createCustomMenuItem(
-                    operation.getAction(),
-                    new MoveFileCommand(targetDirectory, linkedFileViewModels, operation),
-                    label
-            ));
+                                .map(path -> entry.getKey()
+                                                  .replace("%0", "%s")
+                                                  .formatted(path))
+                                .orElseGet(() -> entry.getKey()
+                                                      .replace("%0", "%s")
+                                                      .formatted(Localization.lang("Unavailable")));
+            menu.getItems().add(actionFactory.createCustomMenuItem(operation.getAction(), new MoveFileCommand(targetDirectory, linkedFileViewModels, operation), label));
         }
         return menu;
     }
@@ -99,9 +95,7 @@ class MoveFileSubmenuFactory {
         private final List<LinkedFileViewModel> linkedFileViewModels;
         private final Operation operation;
 
-        private MoveFileCommand(@Nullable Path targetDirectory,
-                                List<LinkedFileViewModel> linkedFileViewModels,
-                                Operation operation) {
+        private MoveFileCommand(@Nullable Path targetDirectory, List<LinkedFileViewModel> linkedFileViewModels, Operation operation) {
             this.targetDirectory = targetDirectory;
             this.linkedFileViewModels = linkedFileViewModels;
             this.operation = operation;
@@ -109,9 +103,7 @@ class MoveFileSubmenuFactory {
             setExecutable(isMenuItemExecutable(targetDirectory, linkedFileViewModels, operation));
         }
 
-        private boolean isMenuItemExecutable(@Nullable Path targetDirectory,
-                                             List<LinkedFileViewModel> linkedFileViewModels,
-                                             Operation operation) {
+        private boolean isMenuItemExecutable(@Nullable Path targetDirectory, List<LinkedFileViewModel> linkedFileViewModels, Operation operation) {
             if (targetDirectory == null) {
                 return false;
             }
@@ -119,17 +111,13 @@ class MoveFileSubmenuFactory {
             return switch (operation) {
                 case SINGLE_MOVE -> {
                     LinkedFileViewModel linkedFileViewModel = linkedFileViewModels.getFirst();
-                    yield isMovable(linkedFileViewModel)
-                            && !linkedFileViewModel.isInCurrentDirectory(targetDirectory);
+                    yield isMovable(linkedFileViewModel) && !linkedFileViewModel.isInCurrentDirectory(targetDirectory);
                 }
                 case SINGLE_MOVE_AND_RENAME -> {
                     LinkedFileViewModel linkedFileViewModel = linkedFileViewModels.getFirst();
-                    yield isMovable(linkedFileViewModel)
-                            && (!linkedFileViewModel.isInCurrentDirectory(targetDirectory)
-                            || !linkedFileViewModel.isGeneratedNameSameAsOriginal());
+                    yield isMovable(linkedFileViewModel) && (!linkedFileViewModel.isInCurrentDirectory(targetDirectory) || !linkedFileViewModel.isGeneratedNameSameAsOriginal());
                 }
-                case MULTI_MOVE ->
-                        linkedFileViewModels.stream().anyMatch(this::isMovable);
+                case MULTI_MOVE -> linkedFileViewModels.stream().anyMatch(this::isMovable);
             };
         }
 
@@ -140,24 +128,20 @@ class MoveFileSubmenuFactory {
             }
 
             switch (operation) {
-                case SINGLE_MOVE ->
-                        linkedFileViewModels.getFirst().moveToDirectory(targetDirectory);
-                case SINGLE_MOVE_AND_RENAME ->
-                        linkedFileViewModels.getFirst().moveToDirectoryAndRename(targetDirectory);
-                case MULTI_MOVE ->
-                        linkedFileViewModels.forEach(linkedFileViewModel -> {
-                            if (isMovable(linkedFileViewModel) && !linkedFileViewModel.isInCurrentDirectory(targetDirectory)) {
-                                linkedFileViewModel.moveToDirectory(targetDirectory);
-                            }
-                        });
+                case SINGLE_MOVE -> linkedFileViewModels.getFirst().moveToDirectory(targetDirectory);
+                case SINGLE_MOVE_AND_RENAME -> linkedFileViewModels.getFirst().moveToDirectoryAndRename(targetDirectory);
+                case MULTI_MOVE -> linkedFileViewModels.forEach(linkedFileViewModel -> {
+                    if (isMovable(linkedFileViewModel) && !linkedFileViewModel.isInCurrentDirectory(targetDirectory)) {
+                        linkedFileViewModel.moveToDirectory(targetDirectory);
+                    }
+                });
             }
         }
 
         private boolean isMovable(LinkedFileViewModel linkedFileViewModel) {
-            return !linkedFileViewModel.getFile().isOnlineLink()
-                    && linkedFileViewModel.getFile()
-                                          .findIn(databaseContext, preferences.getFilePreferences())
-                                          .isPresent();
+            return !linkedFileViewModel.getFile().isOnlineLink() && linkedFileViewModel.getFile()
+                    .findIn(databaseContext, preferences.getFilePreferences())
+                    .isPresent();
         }
     }
 }

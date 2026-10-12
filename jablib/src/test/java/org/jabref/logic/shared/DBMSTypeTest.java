@@ -3,7 +3,6 @@ package org.jabref.logic.shared;
 import java.util.Optional;
 
 import org.jabref.support.DatabaseTest;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

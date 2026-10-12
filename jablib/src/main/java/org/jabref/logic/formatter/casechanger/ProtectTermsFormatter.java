@@ -6,11 +6,11 @@ import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.protectedterms.ProtectedTermsLoader;
 import org.jabref.logic.util.strings.StringLengthComparator;
-
 import org.jspecify.annotations.NonNull;
 
-/// Adds {} brackets around acronyms, month names and countries to preserve their case.
-/// Related formatter: [org.jabref.logic.formatter.bibtexfields.RemoveEnclosingBracesFormatter]
+/// Adds {} brackets around acronyms, month names and countries to preserve
+/// their case. Related formatter:
+/// [org.jabref.logic.formatter.bibtexfields.RemoveEnclosingBracesFormatter]
 public class ProtectTermsFormatter extends Formatter {
 
     private final ProtectedTermsLoader protectedTermsLoader;
@@ -43,8 +43,7 @@ public class ProtectTermsFormatter extends Formatter {
 
     @Override
     public String getDescription() {
-        return Localization.lang(
-                "Adds {} brackets around acronyms, month names and countries to preserve their case.");
+        return Localization.lang("Adds {} brackets around acronyms, month names and countries to preserve their case.");
     }
 
     @Override

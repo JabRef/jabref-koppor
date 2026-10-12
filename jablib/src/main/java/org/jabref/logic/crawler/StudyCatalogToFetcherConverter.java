@@ -16,9 +16,7 @@ class StudyCatalogToFetcherConverter {
     private final ImportFormatPreferences importFormatPreferences;
     private final ImporterPreferences importerPreferences;
 
-    public StudyCatalogToFetcherConverter(List<StudyCatalog> libraryEntries,
-                                          ImportFormatPreferences importFormatPreferences,
-                                          ImporterPreferences importerPreferences) {
+    public StudyCatalogToFetcherConverter(List<StudyCatalog> libraryEntries, ImportFormatPreferences importFormatPreferences, ImporterPreferences importerPreferences) {
         this.libraryEntries = libraryEntries;
         this.importFormatPreferences = importFormatPreferences;
         this.importerPreferences = importerPreferences;
@@ -26,9 +24,11 @@ class StudyCatalogToFetcherConverter {
 
     /// Returns a list of instances of all active library fetchers.
     ///
-    /// A fetcher is considered active if there exists an library entry of the library the fetcher is associated with that is enabled.
+    /// A fetcher is considered active if there exists an library entry of the
+    /// library the fetcher is associated with that is enabled.
     ///
-    /// @return Instances of all active fetchers defined in the study definition.
+    /// @return Instances of all active fetchers defined in the study
+    ///   definition.
     public List<SearchBasedFetcher> getActiveFetchers() {
         return getFetchersFromLibraryEntries(this.libraryEntries);
     }
@@ -44,7 +44,8 @@ class StudyCatalogToFetcherConverter {
                              .toList();
     }
 
-    /// Transforms a library entry into a SearchBasedFetcher instance. This only works if the library entry specifies a supported fetcher.
+    /// Transforms a library entry into a SearchBasedFetcher instance. This only
+    /// works if the library entry specifies a supported fetcher.
     ///
     /// @param studyCatalog the entry that will be converted
     /// @return An instance of the fetcher defined by the library entry.
@@ -52,7 +53,7 @@ class StudyCatalogToFetcherConverter {
         Set<SearchBasedFetcher> searchBasedFetchers = WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences);
         String libraryNameFromFetcher = studyCatalog.getName();
         return searchBasedFetchers.stream()
-                                  .filter(searchBasedFetcher -> searchBasedFetcher.getName().equalsIgnoreCase(libraryNameFromFetcher))
-                                  .findAny();
+                .filter(searchBasedFetcher -> searchBasedFetcher.getName().equalsIgnoreCase(libraryNameFromFetcher))
+                .findAny();
     }
 }

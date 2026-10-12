@@ -7,7 +7,8 @@ public interface CitationMarkerNormEntry {
 
     /// Citation key. This is what we usually get from the document.
     ///
-    /// Used if getLookupResult() returns empty, which indicates failure to lookup in the databases.
+    /// Used if getLookupResult() returns empty, which indicates failure to
+    /// lookup in the databases.
     String getCitationKey();
 
     /// Result of looking up citation key in databases.

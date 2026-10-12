@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import javafx.collections.FXCollections;
 import javafx.scene.control.ButtonType;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -22,7 +21,6 @@ import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -62,7 +60,8 @@ class GroupDialogViewModelTest {
         when(groupsPreferences.getDefaultHierarchicalContext()).thenReturn(GroupHierarchyType.INDEPENDENT);
         when(stateManager.getSelectedEntries()).thenReturn(FXCollections.emptyObservableList());
 
-        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, group, null, new DummyFileUpdateMonitor(), stateManager);
+        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, group, null,
+                new DummyFileUpdateMonitor(), stateManager);
     }
 
     @Test
@@ -73,14 +72,16 @@ class GroupDialogViewModelTest {
         when(metaData.getLatexFileDirectory(any(String.class))).thenReturn(Optional.of(temporaryFolder));
 
         viewModel.texGroupFilePathProperty().setValue(anAuxFile.toString());
-        assertTrue(viewModel.texGroupFilePathValidationStatus().isValid());
+        assertTrue(viewModel.texGroupFilePathValidationStatus()
+                            .isValid());
     }
 
     @Test
     void validateNonExistingAbsolutePath() {
         Path notAnAuxFile = temporaryFolder.resolve("notanauxfile.aux").toAbsolutePath();
         viewModel.texGroupFilePathProperty().setValue(notAnAuxFile.toString());
-        assertFalse(viewModel.texGroupFilePathValidationStatus().isValid());
+        assertFalse(viewModel.texGroupFilePathValidationStatus()
+                             .isValid());
     }
 
     @Test
@@ -92,25 +93,30 @@ class GroupDialogViewModelTest {
         when(metaData.getLatexFileDirectory(any(String.class))).thenReturn(Optional.of(temporaryFolder));
 
         viewModel.texGroupFilePathProperty().setValue(anAuxFile.toString());
-        assertTrue(viewModel.texGroupFilePathValidationStatus().isValid());
+        assertTrue(viewModel.texGroupFilePathValidationStatus()
+                            .isValid());
     }
 
     @Test
     void hierarchicalContextFromGroup() {
         GroupHierarchyType groupHierarchyType = GroupHierarchyType.INCLUDING;
         when(group.getHierarchicalContext()).thenReturn(groupHierarchyType);
-        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, group, null, new DummyFileUpdateMonitor(), stateManager);
+        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, group, null,
+                new DummyFileUpdateMonitor(), stateManager);
 
-        assertEquals(groupHierarchyType, viewModel.groupHierarchySelectedProperty().getValue());
+        assertEquals(groupHierarchyType, viewModel.groupHierarchySelectedProperty()
+                .getValue());
     }
 
     @Test
     void defaultHierarchicalContext() {
         GroupHierarchyType defaultHierarchicalContext = GroupHierarchyType.REFINING;
         when(preferences.getGroupsPreferences().getDefaultHierarchicalContext()).thenReturn(defaultHierarchicalContext);
-        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, null, null, new DummyFileUpdateMonitor(), stateManager);
+        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, null, null,
+                new DummyFileUpdateMonitor(), stateManager);
 
-        assertEquals(defaultHierarchicalContext, viewModel.groupHierarchySelectedProperty().getValue());
+        assertEquals(defaultHierarchicalContext, viewModel.groupHierarchySelectedProperty()
+                .getValue());
     }
 
     @Test
@@ -119,10 +125,13 @@ class GroupDialogViewModelTest {
         when(stateManager.getSelectedEntries()).thenReturn(FXCollections.observableArrayList(entry));
         when(groupsPreferences.shouldAutoIncludeSelectedEntries()).thenReturn(true);
 
-        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, null, null, new DummyFileUpdateMonitor(), stateManager);
+        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, null, null,
+                new DummyFileUpdateMonitor(), stateManager);
 
-        assertTrue(viewModel.explicitIncludeSelectedProperty().get());
-        assertTrue(viewModel.selectedEntriesAvailableProperty().get());
+        assertTrue(viewModel.explicitIncludeSelectedProperty()
+                            .get());
+        assertTrue(viewModel.selectedEntriesAvailableProperty()
+                            .get());
     }
 
     @Test
@@ -131,10 +140,12 @@ class GroupDialogViewModelTest {
         when(stateManager.getSelectedEntries()).thenReturn(FXCollections.observableArrayList(entry));
         when(groupsPreferences.shouldAutoIncludeSelectedEntries()).thenReturn(true);
 
-        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, group, null, new DummyFileUpdateMonitor(), stateManager);
+        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, group, null,
+                new DummyFileUpdateMonitor(), stateManager);
 
         assertTrue(viewModel.editingGroupProperty().get());
-        assertFalse(viewModel.explicitIncludeSelectedProperty().get());
+        assertFalse(viewModel.explicitIncludeSelectedProperty()
+                             .get());
     }
 
     @Test
@@ -143,7 +154,8 @@ class GroupDialogViewModelTest {
         BibEntry secondEntry = new BibEntry();
         when(stateManager.getSelectedEntries()).thenReturn(FXCollections.observableArrayList(firstEntry, secondEntry));
 
-        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, null, null, new DummyFileUpdateMonitor(), stateManager);
+        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, null, null,
+                new DummyFileUpdateMonitor(), stateManager);
         viewModel.nameProperty().set("Selected entries group");
         viewModel.explicitIncludeSelectedProperty().set(true);
 

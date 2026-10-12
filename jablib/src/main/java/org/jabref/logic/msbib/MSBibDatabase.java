@@ -6,14 +6,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -108,8 +106,7 @@ public class MSBibDatabase {
 
             Element rootNode = document.createElementNS(NAMESPACE, PREFIX + "Sources");
             rootNode.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns", NAMESPACE);
-            rootNode.setAttributeNS("http://www.w3.org/2000/xmlns/",
-                    "xmlns:" + PREFIX.substring(0, PREFIX.length() - 1), NAMESPACE);
+            rootNode.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:" + PREFIX.substring(0, PREFIX.length() - 1), NAMESPACE);
             rootNode.setAttribute("SelectedStyle", "");
 
             for (MSBibEntry entry : entriesForExport) {

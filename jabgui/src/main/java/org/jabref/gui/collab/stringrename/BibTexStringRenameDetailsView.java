@@ -1,7 +1,6 @@
 package org.jabref.gui.collab.stringrename;
 
 import javafx.scene.control.Label;
-
 import org.jabref.gui.collab.DatabaseChangeDetailsView;
 
 public final class BibTexStringRenameDetailsView extends DatabaseChangeDetailsView {

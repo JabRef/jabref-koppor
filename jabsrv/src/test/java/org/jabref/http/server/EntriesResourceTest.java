@@ -1,19 +1,22 @@
 package org.jabref.http.server;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Stream;
-
-import org.jabref.http.server.resources.EntriesResource;
-import org.jabref.logic.UiCommand;
-import org.jabref.logic.UiMessageHandler;
-import org.jabref.logic.importer.util.MediaTypes;
 
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.jabref.http.server.resources.EntriesResource;
+import org.jabref.logic.UiCommand;
+import org.jabref.logic.UiCommand.AppendBibTeXToLibrary;
+import org.jabref.logic.UiMessageHandler;
+import org.jabref.logic.importer.util.MediaTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -68,8 +71,9 @@ class EntriesResourceTest extends ServerTest {
                 .post(Entity.entity(cslJson, MediaTypes.CITATIONSTYLES_JSON));
     }
 
-    /// Rebinds the standalone null object ([UiMessageHandler#NONE], not GUI-connected) and restarts
-    /// the test container so the resource sees it. Mirrors [ServerTest#setAvailableLibraries].
+    /// Rebinds the standalone null object ([UiMessageHandler#NONE], not
+    /// GUI-connected) and restarts the test container so the resource sees it.
+    /// Mirrors [ServerTest#setAvailableLibraries].
     private void useStandaloneMode() throws Exception {
         tearDown();
         uiMessageHandler = UiMessageHandler.NONE;
@@ -89,17 +93,17 @@ class EntriesResourceTest extends ServerTest {
     void importToOpenLibrarySwitchesToThatLibrary() {
         Response response = postBibtex(TestBibFile.GENERAL_SERVER_TEST.id, "@article{a, title={t}}");
 
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        UiCommand.AppendBibTeXToLibrary command = (UiCommand.AppendBibTeXToLibrary) captureSingleCommand();
-        assertEquals(java.util.Optional.of(TestBibFile.GENERAL_SERVER_TEST.path), command.library());
+        assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        AppendBibTeXToLibrary command = (AppendBibTeXToLibrary) captureSingleCommand();
+        assertEquals(Optional.of(TestBibFile.GENERAL_SERVER_TEST.path), command.library());
     }
 
     @Test
     void importToCurrentLibraryHasEmptyTarget() {
         Response response = postBibtex("current", "@article{a, title={t}}");
 
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        UiCommand.AppendBibTeXToLibrary command = (UiCommand.AppendBibTeXToLibrary) captureSingleCommand();
+        assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        AppendBibTeXToLibrary command = (AppendBibTeXToLibrary) captureSingleCommand();
         assertTrue(command.library().isEmpty());
     }
 
@@ -107,7 +111,7 @@ class EntriesResourceTest extends ServerTest {
     void importToUnknownLibraryReturns404() {
         Response response = postBibtex("does-not-exist", "@article{a, title={t}}");
 
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        assertEquals(Status.NOT_FOUND.getStatusCode(), response.getStatus());
         // The GUI check (isGuiConnected) runs first in GUI mode, but the unknown id must still
         // prevent any command from being handled.
         Mockito.verify(uiMessageHandler, Mockito.never()).handleUiCommands(Mockito.any());
@@ -117,30 +121,36 @@ class EntriesResourceTest extends ServerTest {
     void importEmptyBibtexReturns400() {
         Response response = postBibtex(TestBibFile.GENERAL_SERVER_TEST.id, "   ");
 
-        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
         Mockito.verifyNoInteractions(uiMessageHandler);
     }
 
-    /// CSL-JSON is mapped to the correct entry type (paper-conference -> @InProceedings) and container
-    /// field (container-title -> booktitle) before being appended as BibTeX.
+    /// CSL-JSON is mapped to the correct entry type (paper-conference
+    /// -> @InProceedings) and container field (container-title -> booktitle)
+    /// before being appended as BibTeX.
     @Test
     void importCslJsonConvertsEntryType() {
-        Response response = postCslJson(TestBibFile.GENERAL_SERVER_TEST.id, """
+        Response response = postCslJson(TestBibFile.GENERAL_SERVER_TEST.id,
+                """
                 {"type":"paper-conference","title":"A paper","container-title":"Proc. of Test"}
                 """);
 
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        UiCommand.AppendBibTeXToLibrary command = (UiCommand.AppendBibTeXToLibrary) captureSingleCommand();
-        assertEquals(java.util.Optional.of(TestBibFile.GENERAL_SERVER_TEST.path), command.library());
-        assertTrue(command.bibtex().toLowerCase(java.util.Locale.ROOT).contains("@inproceedings"), command.bibtex());
-        assertTrue(command.bibtex().contains("Proc. of Test"), command.bibtex());
+        assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        AppendBibTeXToLibrary command = (AppendBibTeXToLibrary) captureSingleCommand();
+        assertEquals(Optional.of(TestBibFile.GENERAL_SERVER_TEST.path), command.library());
+        assertTrue(command.bibtex()
+                          .toLowerCase(Locale.ROOT)
+                          .contains("@inproceedings"),
+                command.bibtex());
+        assertTrue(command.bibtex().contains("Proc. of Test"),
+                command.bibtex());
     }
 
     @Test
     void importEmptyCslJsonReturns400() {
         Response response = postCslJson(TestBibFile.GENERAL_SERVER_TEST.id, "   ");
 
-        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
         Mockito.verifyNoInteractions(uiMessageHandler);
     }
 
@@ -148,20 +158,18 @@ class EntriesResourceTest extends ServerTest {
     void importUnparseableCslJsonReturns400() {
         Response response = postCslJson(TestBibFile.GENERAL_SERVER_TEST.id, "not json");
 
-        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
         Mockito.verify(uiMessageHandler, Mockito.never()).handleUiCommands(Mockito.any());
     }
 
     static Stream<Arguments> standaloneEndpoints() {
-        return Stream.of(
-                Arguments.of(MediaTypes.APPLICATION_BIBTEX, "@article{a, title={t}}"),
-                Arguments.of(MediaTypes.CITATIONSTYLES_JSON, "{\"type\":\"book\",\"title\":\"t\"}"),
-                Arguments.of(MediaType.TEXT_PLAIN, "Smith, J. (2020). A title."),
-                Arguments.of(MediaType.APPLICATION_OCTET_STREAM, "some data"));
+        return Stream.of(Arguments.of(MediaTypes.APPLICATION_BIBTEX, "@article{a, title={t}}"), Arguments.of(MediaTypes.CITATIONSTYLES_JSON, "{\"type\":\"book\",\"title\":\"t\"}"),
+                Arguments.of(MediaType.TEXT_PLAIN, "Smith, J. (2020). A title."), Arguments.of(MediaType.APPLICATION_OCTET_STREAM, "some data"));
     }
 
-    /// In standalone mode (no GUI connected) the GUI-required rejection must take precedence over the
-    /// unknown-id 404 that `resolveTargetLibrary` would otherwise raise, for every POST endpoint.
+    /// In standalone mode (no GUI connected) the GUI-required rejection must
+    /// take precedence over the unknown-id 404 that `resolveTargetLibrary`
+    /// would otherwise raise, for every POST endpoint.
     @ParameterizedTest
     @MethodSource("standaloneEndpoints")
     void importToUnknownLibraryInStandaloneModeReturns400(String mediaType, String body) throws Exception {
@@ -171,6 +179,6 @@ class EntriesResourceTest extends ServerTest {
                 .request()
                 .post(Entity.entity(body, mediaType));
 
-        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 }

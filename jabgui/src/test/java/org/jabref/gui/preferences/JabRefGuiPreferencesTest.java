@@ -4,46 +4,39 @@ import java.util.List;
 import java.util.Set;
 
 import org.jabref.gui.entryeditor.EntryEditorTabModel;
-
+import org.jabref.gui.entryeditor.EntryEditorTabModel.BuiltIn;
+import org.jabref.gui.entryeditor.EntryEditorTabModel.BuiltInTab;
+import org.jabref.gui.entryeditor.EntryEditorTabModel.CustomizedFieldsTab;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JabRefGuiPreferencesTest {
 
-    private static final EntryEditorTabModel PREVIEW =
-            new EntryEditorTabModel.BuiltInTab(EntryEditorTabModel.BuiltIn.PREVIEW, true);
-    private static final EntryEditorTabModel MAIN =
-            new EntryEditorTabModel.BuiltInTab(EntryEditorTabModel.BuiltIn.ALL_FIELDS, true);
-    private static final EntryEditorTabModel SOURCE =
-            new EntryEditorTabModel.BuiltInTab(EntryEditorTabModel.BuiltIn.SOURCE, true);
+    private static final EntryEditorTabModel PREVIEW = new BuiltInTab(BuiltIn.PREVIEW, true);
+    private static final EntryEditorTabModel MAIN = new BuiltInTab(BuiltIn.ALL_FIELDS, true);
+    private static final EntryEditorTabModel SOURCE = new BuiltInTab(BuiltIn.SOURCE, true);
 
     @Test
     void storedTabOrderIsApplied() {
-        List<EntryEditorTabModel> ordered = JabRefGuiPreferences.applyStoredTabOrder(
-                List.of(PREVIEW, MAIN, SOURCE),
-                List.of("SOURCE", "ALL_FIELDS"));
+        List<EntryEditorTabModel> ordered = JabRefGuiPreferences.applyStoredTabOrder(List.of(PREVIEW, MAIN, SOURCE), List.of("SOURCE", "ALL_FIELDS"));
 
         assertEquals(List.of(PREVIEW, SOURCE, MAIN), ordered);
     }
 
     @Test
     void tabsUnknownToStoredOrderAreAppendedInDefaultOrder() {
-        List<EntryEditorTabModel> ordered = JabRefGuiPreferences.applyStoredTabOrder(
-                List.of(PREVIEW, MAIN, SOURCE),
-                List.of("SOURCE"));
+        List<EntryEditorTabModel> ordered = JabRefGuiPreferences.applyStoredTabOrder(List.of(PREVIEW, MAIN, SOURCE), List.of("SOURCE"));
 
         assertEquals(List.of(PREVIEW, SOURCE, MAIN), ordered);
     }
 
     @Test
     void duplicateCustomTabNamesAreAllKept() {
-        EntryEditorTabModel first = new EntryEditorTabModel.CustomizedFieldsTab("General", List.of("keywords"));
-        EntryEditorTabModel second = new EntryEditorTabModel.CustomizedFieldsTab("General", List.of("doi"));
+        EntryEditorTabModel first = new CustomizedFieldsTab("General", List.of("keywords"));
+        EntryEditorTabModel second = new CustomizedFieldsTab("General", List.of("doi"));
 
-        List<EntryEditorTabModel> ordered = JabRefGuiPreferences.applyStoredTabOrder(
-                List.of(PREVIEW, MAIN, first, second),
-                List.of("custom:General", "ALL_FIELDS"));
+        List<EntryEditorTabModel> ordered = JabRefGuiPreferences.applyStoredTabOrder(List.of(PREVIEW, MAIN, first, second), List.of("custom:General", "ALL_FIELDS"));
 
         // The stored-order entry consumes the first duplicate; the second survives at the end.
         assertEquals(List.of(PREVIEW, first, MAIN, second), ordered);
@@ -52,11 +45,9 @@ class JabRefGuiPreferencesTest {
     // [utest->req~entry-editor.custom-tabs.extract-field~1]
     @Test
     void parseCustomTabsReadsPlainStringsAndExtractObjects() {
-        assertEquals(
-                List.of(new EntryEditorTabModel.CustomizedFieldsTab(
-                        "My tab", List.of("author", "doi"), Set.of("doi"))),
-                JabRefGuiPreferences.parseCustomTabs(
-                        """
+        assertEquals(List.of(new CustomizedFieldsTab("My tab", List.of("author", "doi"), Set.of("doi"))),
+                JabRefGuiPreferences
+                        .parseCustomTabs("""
                                 {"My tab":["author",{"pattern":"doi","extract":true}]}
                                 """));
     }

@@ -4,7 +4,6 @@ import java.util.stream.Stream;
 
 import org.jabref.logic.layout.LayoutFormatter;
 import org.jabref.logic.preferences.DOIPreferences;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -43,8 +42,6 @@ class DOICheckTest {
                 Arguments.of("https://doi.org/10.1145/354401.354407", "10.1145/354401.354407"),
                 Arguments.of("https://doi.org/10.1145/354401.354407", "/10.1145/354401.354407"),
                 Arguments.of("10", "10"),
-                Arguments.of("1", "1")
-
-        );
+                Arguments.of("1", "1"));
     }
 }

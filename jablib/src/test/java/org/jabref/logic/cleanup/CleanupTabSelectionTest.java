@@ -2,6 +2,7 @@ package org.jabref.logic.cleanup;
 
 import java.util.EnumSet;
 
+import org.jabref.logic.cleanup.CleanupPreferences.CleanupStep;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,45 +14,30 @@ class CleanupTabSelectionTest {
 
     @BeforeEach
     void setUp() {
-        cleanupPreferences = new CleanupPreferences(EnumSet.of(
-                CleanupPreferences.CleanupStep.CLEAN_UP_DOI
-        ));
+        cleanupPreferences = new CleanupPreferences(EnumSet.of(CleanupStep.CLEAN_UP_DOI));
     }
 
     @Test
     void updatePreferencesReplacesStepsInSameCategory() {
-        EnumSet<CleanupPreferences.CleanupStep> allJobs = EnumSet.of(
-                CleanupPreferences.CleanupStep.CLEAN_UP_DOI,
-                CleanupPreferences.CleanupStep.CLEANUP_EPRINT
-        );
-        EnumSet<CleanupPreferences.CleanupStep> selectedJobs = EnumSet.of(
-                CleanupPreferences.CleanupStep.CLEANUP_EPRINT
-        );
+        EnumSet<CleanupStep> allJobs = EnumSet.of(CleanupStep.CLEAN_UP_DOI, CleanupStep.CLEANUP_EPRINT);
+        EnumSet<CleanupStep> selectedJobs = EnumSet.of(CleanupStep.CLEANUP_EPRINT);
 
         CleanupTabSelection selection = CleanupTabSelection.ofJobs(allJobs, selectedJobs);
         CleanupPreferences result = selection.updatePreferences(cleanupPreferences);
 
-        EnumSet<CleanupPreferences.CleanupStep> expected = EnumSet.of(CleanupPreferences.CleanupStep.CLEANUP_EPRINT);
+        EnumSet<CleanupStep> expected = EnumSet.of(CleanupStep.CLEANUP_EPRINT);
         assertEquals(expected, result.getActiveJobs());
     }
 
     @Test
     void updatePreferencesAddsStepInDifferentCategory() {
-        EnumSet<CleanupPreferences.CleanupStep> allJobs = EnumSet.of(
-                CleanupPreferences.CleanupStep.MOVE_PDF,
-                CleanupPreferences.CleanupStep.MAKE_PATHS_RELATIVE
-        );
-        EnumSet<CleanupPreferences.CleanupStep> selectedJobs = EnumSet.of(
-                CleanupPreferences.CleanupStep.MOVE_PDF
-        );
+        EnumSet<CleanupStep> allJobs = EnumSet.of(CleanupStep.MOVE_PDF, CleanupStep.MAKE_PATHS_RELATIVE);
+        EnumSet<CleanupStep> selectedJobs = EnumSet.of(CleanupStep.MOVE_PDF);
 
         CleanupTabSelection selection = CleanupTabSelection.ofJobs(allJobs, selectedJobs);
         CleanupPreferences result = selection.updatePreferences(cleanupPreferences);
 
-        EnumSet<CleanupPreferences.CleanupStep> expected = EnumSet.of(
-                CleanupPreferences.CleanupStep.CLEAN_UP_DOI,
-                CleanupPreferences.CleanupStep.MOVE_PDF
-        );
+        EnumSet<CleanupStep> expected = EnumSet.of(CleanupStep.CLEAN_UP_DOI, CleanupStep.MOVE_PDF);
         assertEquals(expected, result.getActiveJobs());
     }
 

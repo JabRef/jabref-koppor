@@ -2,21 +2,19 @@ package org.jabref.gui.preferences.git;
 
 import java.util.Optional;
 
+import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
+import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
+import de.saxsys.mvvmfx.utils.validation.Validator;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.logic.git.preferences.GitPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
-
-import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
-import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
-import de.saxsys.mvvmfx.utils.validation.Validator;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -36,11 +34,10 @@ public class GitTabViewModel implements PreferenceTabViewModel {
 
         pullIntervalValidator = new FunctionBasedValidator<>(
                 pullIntervalInMinutesProperty,
-                input -> getIntervalAsInt(input).filter(interval -> interval > 0).isPresent(),
-                ValidationMessage.error("%s > %s %n %n %s".formatted(
-                        Localization.lang("Git"),
-                        Localization.lang("Automatic synchronization"),
-                        Localization.lang("You must enter a positive integer value"))));
+                input -> getIntervalAsInt(input)
+                        .filter(interval -> interval > 0)
+                        .isPresent(),
+                ValidationMessage.error("%s > %s %n %n %s".formatted(Localization.lang("Git"), Localization.lang("Automatic synchronization"), Localization.lang("You must enter a positive integer value"))));
     }
 
     @Override
@@ -54,10 +51,13 @@ public class GitTabViewModel implements PreferenceTabViewModel {
 
     @Override
     public void storeSettings() {
-        gitPreferences.setUsername(usernameProperty.getValue().trim());
+        gitPreferences.setUsername(usernameProperty.getValue()
+                .trim());
         gitPreferences.setPersistPat(persistPatProperty.getValue());
-        gitPreferences.setPat(patProperty.getValue().trim());
-        gitPreferences.setPullIntervalInMinutes(Integer.parseInt(pullIntervalInMinutesProperty.getValue().trim()));
+        gitPreferences.setPat(patProperty.getValue()
+                .trim());
+        gitPreferences.setPullIntervalInMinutes(Integer.parseInt(pullIntervalInMinutesProperty.getValue()
+                .trim()));
     }
 
     @Override

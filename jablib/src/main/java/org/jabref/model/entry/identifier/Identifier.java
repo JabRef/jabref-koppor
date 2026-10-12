@@ -27,26 +27,26 @@ public interface Identifier {
 
     Optional<URI> getExternalURI();
 
-    /// @implNote Should be consistent with [org.jabref.logic.importer.WebFetchers#getIdBasedFetcherFoIdentifier(Identifier, ImportFormatPreferences)
+    /// @implNote Should be consistent with
+    ///   [org.jabref.logic.importer.WebFetchers#getIdBasedFetcherFoIdentifier(Identifier,
+    ///   ImportFormatPreferences)
     static Optional<Identifier> from(String identifier) {
         if (StringUtil.isBlank(identifier)) {
             return Optional.empty();
         }
         String trimmedIdentifier = identifier.trim();
         return Stream.<Supplier<Optional<? extends Identifier>>>of(
-                             () -> DOI.findInText(trimmedIdentifier),
-                             () -> ArXivIdentifier.findInText(trimmedIdentifier),
-                             () -> ISBN.parse(trimmedIdentifier),
-                             () -> SSRN.parse(trimmedIdentifier),
-                             () -> RFC.parse(trimmedIdentifier),
-                             () -> IacrEprint.parse(trimmedIdentifier),
-                             () -> SWHID.parse(trimmedIdentifier)
-
-                     )
-                     .map(Supplier::get)
-                     .filter(Optional::isPresent)
-                     .map(Optional::get)
-                     .map(id -> (Identifier) id)
-                     .findFirst();
+                        () -> DOI.findInText(trimmedIdentifier),
+                        () -> ArXivIdentifier.findInText(trimmedIdentifier),
+                        () -> ISBN.parse(trimmedIdentifier),
+                        () -> SSRN.parse(trimmedIdentifier),
+                        () -> RFC.parse(trimmedIdentifier),
+                        () -> IacrEprint.parse(trimmedIdentifier),
+                        () -> SWHID.parse(trimmedIdentifier))
+                .map(Supplier::get)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(id -> (Identifier) id)
+                .findFirst();
     }
 }

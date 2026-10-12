@@ -19,10 +19,9 @@ public class BibEntryPreferences {
     private final ObjectProperty<ImportDelimiterParsingStrategy> importDelimiterParsingStrategy;
 
     private BibEntryPreferences() {
-        this(
-                ',',                                     // Keyword separator
-                DEFAULT_IMPORT_KEYWORD_DELIMITERS,                       // Import keyword delimiters
-                ImportDelimiterParsingStrategy.SPLIT_ON_ALL_DELIMITERS   // Import delimiter parsing strategy
+        this(',', // Keyword separator
+        DEFAULT_IMPORT_KEYWORD_DELIMITERS, // Import keyword delimiters
+        ImportDelimiterParsingStrategy.SPLIT_ON_ALL_DELIMITERS // Import delimiter parsing strategy
         );
     }
 

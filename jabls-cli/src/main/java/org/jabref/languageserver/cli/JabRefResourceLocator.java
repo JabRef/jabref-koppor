@@ -2,9 +2,8 @@ package org.jabref.languageserver.cli;
 
 import java.util.ResourceBundle;
 
-import org.jabref.logic.l10n.Localization;
-
 import com.airhacks.afterburner.views.ResourceLocator;
+import org.jabref.logic.l10n.Localization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

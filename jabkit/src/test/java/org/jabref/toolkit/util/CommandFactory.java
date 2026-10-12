@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import picocli.CommandLine;
+import picocli.CommandLine.IFactory;
 
-/// A custom IFactory implementation that enables unit tests to inject modified Commands instances.
-/// This is useful to override init methods of the system under test or construct the sut with mocked dependencies.
-/// Usually IFactory implementations act as a provider for classes that are already instantiated by a DI-framework.
-public class CommandFactory implements CommandLine.IFactory {
+/// A custom IFactory implementation that enables unit tests to inject modified
+/// Commands instances. This is useful to override init methods of the system
+/// under test or construct the sut with mocked dependencies. Usually IFactory
+/// implementations act as a provider for classes that are already instantiated
+/// by a DI-framework.
+public class CommandFactory implements IFactory {
 
     private final List<Object> objects;
 

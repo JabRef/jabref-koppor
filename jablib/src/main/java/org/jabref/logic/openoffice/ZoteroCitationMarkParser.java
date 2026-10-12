@@ -7,6 +7,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.Author;
 import org.jabref.model.entry.AuthorList;
@@ -14,11 +18,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Date;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +26,7 @@ public class ZoteroCitationMarkParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZoteroCitationMarkParser.class);
 
-    private ZoteroCitationMarkParser() {
-    }
+    private ZoteroCitationMarkParser() {}
 
     public static List<BibEntry> parseCslCitationJson(String cslJson) {
         if (StringUtil.isBlank(cslJson)) {
@@ -50,14 +48,17 @@ public class ZoteroCitationMarkParser {
         }
     }
 
-    /// Parses a bare CSL-JSON payload (a single CSL item object, or an array of them) into
-    /// [BibEntry] instances, reusing the citation-js-based CSL item-type/field mapping (ADR 0064).
+    /// Parses a bare CSL-JSON payload (a single CSL item object, or an array of
+    /// them) into [BibEntry] instances, reusing the citation-js-based CSL
+    /// item-type/field mapping (ADR 0064).
     ///
-    /// Unlike [#parse(String)] this expects the CSL items directly (as produced by a Zotero /
-    /// citation-js CSL-JSON export), not a Zotero reference-mark wrapper. The produced entries have
-    /// no citation key, so callers importing them let JabRef generate keys from its pattern.
+    /// Unlike [#parse(String)] this expects the CSL items directly (as produced
+    /// by a Zotero / citation-js CSL-JSON export), not a Zotero reference-mark
+    /// wrapper. The produced entries have no citation key, so callers importing
+    /// them let JabRef generate keys from its pattern.
     ///
-    /// @return the parsed list of entries or an empty list when the input is blank or not parsable CSL JSON.
+    /// @return the parsed list of entries or an empty list when the input is
+    ///   blank or not parsable CSL JSON.
     public static List<BibEntry> parseCslJsonItems(String cslJson) {
         if (StringUtil.isBlank(cslJson)) {
             return List.of();
@@ -85,10 +86,9 @@ public class ZoteroCitationMarkParser {
     }
 
     public static Optional<BibEntry> toBibEntry(ZoteroCitationData.CitationItemData citationItem) {
-        return toBibEntry(citationItem.itemData)
-                .map(entry -> ZoteroReferenceMark.getCitationKey(citationItem)
-                                                 .map(entry::withCitationKey)
-                                                 .orElse(entry));
+        return toBibEntry(citationItem.itemData).map(entry -> ZoteroReferenceMark.getCitationKey(citationItem)
+                .map(entry::withCitationKey)
+                .orElse(entry));
     }
 
     private static Optional<BibEntry> toBibEntry(ZoteroCitationData.ItemData itemData) {

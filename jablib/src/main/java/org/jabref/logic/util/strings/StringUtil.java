@@ -11,17 +11,15 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.base.CharMatcher;
 import javafx.util.Pair;
-
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.jabref.architecture.AllowedToUseApacheCommonsLang3;
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.bibtex.FieldWriter;
 import org.jabref.logic.os.OS;
 import org.jabref.model.strings.UnicodeToReadableCharMap;
-
-import com.google.common.base.CharMatcher;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -37,12 +35,11 @@ public class StringUtil {
     private static final Pattern BRACED_TITLE_CAPITAL_PATTERN = Pattern.compile("\\{[A-Z]+\\}");
 
     /// Pattern for normalizing whitespace and punctuation using named capture groups
-    private static final Pattern NORMALIZE_PATTERN = Pattern.compile(
-            "(?<whitespace>\\s+)|" +                   // multiple whitespace
-                    "(?<hyphen>\\s*-+\\s*)|" +         // hyphens with surrounding spaces
-                    "(?<comma>\\s*,\\s*)|" +           // commas with surrounding spaces
-                    "(?<semicolon>\\s*;\\s*)|" +       // semicolons with surrounding spaces
-                    "(?<colon>\\s*:\\s*)"              // colons with surrounding spaces
+    private static final Pattern NORMALIZE_PATTERN = Pattern.compile("(?<whitespace>\\s+)|" + // multiple whitespace
+            "(?<hyphen>\\s*-+\\s*)|" + // hyphens with surrounding spaces
+            "(?<comma>\\s*,\\s*)|" + // commas with surrounding spaces
+            "(?<semicolon>\\s*;\\s*)|" + // semicolons with surrounding spaces
+            "(?<colon>\\s*:\\s*)" // colons with surrounding spaces
     );
 
     private static final UnicodeToReadableCharMap UNICODE_CHAR_MAP = new UnicodeToReadableCharMap();
@@ -57,10 +54,12 @@ public class StringUtil {
 
     /// Quote special characters.
     ///
-    /// @param toQuote   The String which may contain special characters.
-    /// @param specials  A String containing all special characters except the quoting character itself, which is automatically quoted.
+    /// @param toQuote The String which may contain special characters.
+    /// @param specials A String containing all special characters except the
+    ///   quoting character itself, which is automatically quoted.
     /// @param quoteChar The quoting character.
-    /// @return A String with every special character (including the quoting character itself) quoted.
+    /// @return A String with every special character (including the quoting
+    ///   character itself) quoted.
     public static String quote(String toQuote, String specials, char quoteChar) {
         if (toQuote == null) {
             return "";
@@ -137,7 +136,8 @@ public class StringUtil {
     /// "ab\\cd\\ed"
     ///
     /// @param to Excluding strings[to]
-    public static String join(String[] strings, String separator, int from, int to) {
+    public static String join(String[] strings, String separator, int from,
+            int to) {
         if ((strings.length == 0) || (from >= to)) {
             return "";
         }
@@ -179,18 +179,19 @@ public class StringUtil {
         return orgName;
     }
 
-    /// Formats field contents for output. Must be "symmetric" with the parse method above, so stored and reloaded fields
-    /// are not mangled.
+    /// Formats field contents for output. Must be "symmetric" with the parse
+    /// method above, so stored and reloaded fields are not mangled.
     ///
-    /// @param in         the string to wrap
+    /// @param in the string to wrap
     /// @param wrapAmount the number of characters belonging to a line of text
-    /// @param newline    the newline character(s)
+    /// @param newline the newline character(s)
     /// @return the wrapped string
     public static String wrap(String in, int wrapAmount, String newline) {
         String[] lines = in.split("\n");
         StringBuilder result = new StringBuilder();
         // remove all whitespace at the end of the string, this especially includes \r created when the field content has \r\n as line separator
-        addWrappedLine(result, CharMatcher.whitespace().trimTrailingFrom(lines[0]), wrapAmount, newline);
+        addWrappedLine(result, CharMatcher.whitespace().trimTrailingFrom(lines[0]),
+                wrapAmount, newline);
         for (int i = 1; i < lines.length; i++) {
             if (lines[i].isBlank()) {
                 result.append(newline);
@@ -208,13 +209,15 @@ public class StringUtil {
         return result.toString();
     }
 
-    /// Appends a text to a string builder. Wraps the text so that each line is approx wrapAmount characters long.
-    /// Wrapping is done using newline and tab character.
+    /// Appends a text to a string builder. Wraps the text so that each line is
+    /// approx wrapAmount characters long. Wrapping is done using newline and
+    /// tab character.
     ///
-    /// @param line          the line of text to be wrapped and appended
-    /// @param wrapAmount    the number of characters belonging to a line of text
+    /// @param line the line of text to be wrapped and appended
+    /// @param wrapAmount the number of characters belonging to a line of text
     /// @param newlineString a string containing the newline character(s)
-    private static void addWrappedLine(StringBuilder result, String line, int wrapAmount, String newlineString) {
+    private static void addWrappedLine(StringBuilder result, String line, int wrapAmount,
+            String newlineString) {
         // Set our pointer to the beginning of the new line in the StringBuffer:
         int length = result.length();
         // Add the line, unmodified:
@@ -238,14 +241,16 @@ public class StringUtil {
     public static String quoteForHTML(String toQuote) {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < toQuote.length(); ++i) {
-            result.append("&#").append((int) toQuote.charAt(i)).append(';');
+            result.append("&#")
+                  .append((int) toQuote.charAt(i))
+                  .append(';');
         }
         return result.toString();
     }
 
     /// Decodes an encoded double String array back into array form. The array
-    /// is assumed to be square, and delimited by the characters ';' (first dim) and
-    /// ':' (second dim).
+    /// is assumed to be square, and delimited by the characters ';' (first dim)
+    /// and ':' (second dim).
     ///
     /// @param value The encoded String to be decoded.
     /// @return The decoded String array.
@@ -314,7 +319,10 @@ public class StringUtil {
             }
 
             // See if we should start bracing:
-            if ((inBrace == 0) && !isBracing && !inString && Character.isLetter((char) c)
+            if ((inBrace == 0)
+                    && !isBracing
+                    && !inString
+                    && Character.isLetter((char) c)
                     && Character.isUpperCase((char) c)) {
                 buf.append('{');
                 isBracing = true;
@@ -375,22 +383,23 @@ public class StringUtil {
     /// Replaces all platform-dependent line breaks by OS.NEWLINE line breaks.
     /// AKA normalize newlines
     ///
-    /// We do NOT use UNIX line breaks as the user explicitly configures its linebreaks and this method is used in bibtex field writing
+    /// We do NOT use UNIX line breaks as the user explicitly configures its
+    /// linebreaks and this method is used in bibtex field writing
     ///
     /// <h4>Example</h4>
-    /// ```text
-    /// Legacy Macintosh \r -> OS.NEWLINE
-    /// Windows \r\n -> OS.NEWLINE
-    /// ```
+    ///
+    /// ```text Legacy Macintosh \r -> OS.NEWLINE Windows \r\n -> OS.NEWLINE ```
     ///
     /// @return a String with only OS.NEWLINE as line breaks
     public static String unifyLineBreaks(String s, String newline) {
         return LINE_BREAKS.matcher(s).replaceAll(newline);
     }
 
-    /// Checks if the given String has exactly one pair of surrounding curly braces
+    /// Checks if the given String has exactly one pair of surrounding curly
+    /// braces
     ///
-    /// Strings with escaped characters in curly braces at the beginning and end are respected, too
+    /// Strings with escaped characters in curly braces at the beginning and end
+    /// are respected, too
     ///
     /// @param toCheck The string to check
     /// @return True, if the check was successful. False otherwise.
@@ -447,7 +456,13 @@ public class StringUtil {
         boolean sign = false;
         char ch;
 
-        if ((str == null) || ((end = str.length()) == 0) || ((((ch = str.charAt(0)) < '0') || (ch > '9')) && (!(sign = ch == '-') || (++idx == end) || ((ch = str.charAt(idx)) < '0') || (ch > '9')))) {
+        if ((str == null)
+                || ((end = str.length()) == 0)
+                || ((((ch = str.charAt(0)) < '0') || (ch > '9'))
+                        && (!(sign = ch == '-')
+                                || (++idx == end)
+                                || ((ch = str.charAt(idx)) < '0')
+                                || (ch > '9')))) {
             throw new NumberFormatException(str);
         }
 
@@ -475,7 +490,13 @@ public class StringUtil {
         boolean sign = false;
         char ch;
 
-        if ((str == null) || ((end = str.length()) == 0) || ((((ch = str.charAt(0)) < '0') || (ch > '9')) && (!(sign = ch == '-') || (++idx == end) || ((ch = str.charAt(idx)) < '0') || (ch > '9')))) {
+        if ((str == null)
+                || ((end = str.length()) == 0)
+                || ((((ch = str.charAt(0)) < '0') || (ch > '9'))
+                        && (!(sign = ch == '-')
+                                || (++idx == end)
+                                || ((ch = str.charAt(idx)) < '0')
+                                || (ch > '9')))) {
             return Optional.empty();
         }
 
@@ -511,7 +532,10 @@ public class StringUtil {
 
         for (int i = 0; i < in.length(); i++) {
             current = in.charAt(i); // NOTE: No IndexOutOfBoundsException caught here; it should not happen.
-            if ((current == 0x9) || (current == 0xA) || (current == 0xD) || ((current >= 0x20) && (current <= 0xD7FF))
+            if ((current == 0x9)
+                    || (current == 0xA)
+                    || (current == 0xD)
+                    || ((current >= 0x20) && (current <= 0xD7FF))
                     || ((current >= 0xE000) && (current <= 0xFFFD))) {
                 out.append(current);
             }
@@ -526,14 +550,16 @@ public class StringUtil {
         // delimiter is a set of characters, so it is turned into a character class.
         // \Q...\E keeps any regex metacharacter inside the class literal.
         return Pattern.compile("[\\Q" + delimiter + "\\E]")
-                      .splitAsStream(buffer + '\n')
-                      .filter(token -> !token.isEmpty())
-                      .toList();
+                .splitAsStream(buffer + '\n')
+                .filter(token -> !token.isEmpty())
+                .toList();
     }
 
     /// Limits the length of a string to a maximum length.
     ///
-    /// Note the implementation is different from [StringUtils.substring](https://commons.apache.org/proper/commons-lang/javadocs/api-2.6/org/apache/commons/lang/StringUtils.html#substring%28java.lang.String,%20int,%20int%29), because it accepts parameters smaller than 4.
+    /// Note the implementation is different from
+    /// [StringUtils.substring](https://commons.apache.org/proper/commons-lang/javadocs/api-2.6/org/apache/commons/lang/StringUtils.html#substring%28java.lang.String,%20int,%20int%29),
+    /// because it accepts parameters smaller than 4.
     ///
     /// @param maxLength the maximum length of the string - <= 0 means no limit
     public static String limitStringLength(String s, int maxLength) {
@@ -548,8 +574,9 @@ public class StringUtil {
         return s.substring(0, Math.max(0, maxLength - 3)) + "...";
     }
 
-    /// Replace non-English characters like umlauts etc. with a sensible letter or letter combination that bibtex can
-    /// accept. The basis for replacement is the HashMap UnicodeToReadableCharMap.
+    /// Replace non-English characters like umlauts etc. with a sensible letter
+    /// or letter combination that bibtex can accept. The basis for replacement
+    /// is the HashMap UnicodeToReadableCharMap.
     public static String replaceSpecialCharacters(String s) {
         /* Some unicode characters can be encoded in multiple ways. This uses <a href="https://docs.oracle.com/en/java/javase/14/docs/api/java.base/java/text/Normalizer.Form.html#NFC">NFC</a>
          * to re-encode the characters so that these characters can be found.
@@ -589,7 +616,8 @@ public class StringUtil {
         return "<b>" + input + "</b>";
     }
 
-    /// Return string enclosed in HTML bold tags  if not null, otherwise return alternative text in HTML bold tags
+    /// Return string enclosed in HTML bold tags if not null, otherwise return
+    /// alternative text in HTML bold tags
     public static String boldHTML(String input, String alternative) {
         if (input == null) {
             return "<b>" + alternative + "</b>";
@@ -631,8 +659,7 @@ public class StringUtil {
     /// Make first character of String uppercase, and the rest lowercase.
     public static String capitalizeFirst(String toCapitalize) {
         if (toCapitalize.length() > 1) {
-            return toCapitalize.substring(0, 1).toUpperCase(Locale.ROOT)
-                    + toCapitalize.substring(1).toLowerCase(Locale.ROOT);
+            return toCapitalize.substring(0, 1).toUpperCase(Locale.ROOT) + toCapitalize.substring(1).toLowerCase(Locale.ROOT);
         } else {
             return toCapitalize.toUpperCase(Locale.ROOT);
         }
@@ -664,8 +691,7 @@ public class StringUtil {
         if (stringOne.isEmpty() || stringTwo.isEmpty()) {
             return false;
         }
-        return StringUtil.unifyLineBreaks(stringOne.get(), OS.NEWLINE).equals(
-                StringUtil.unifyLineBreaks(stringTwo.get(), OS.NEWLINE));
+        return StringUtil.unifyLineBreaks(stringOne.get(), OS.NEWLINE).equals(StringUtil.unifyLineBreaks(stringTwo.get(), OS.NEWLINE));
     }
 
     public static String substringBetween(String str, String open, String close) {
@@ -687,11 +713,13 @@ public class StringUtil {
         }
     }
 
-    /// Checks if the given string contains any whitespace characters. The supported whitespace characters
-    /// are the set of characters matched by `\s` in regular expressions, which are `[ \t\n\x0B\f\r]`.
+    /// Checks if the given string contains any whitespace characters. The
+    /// supported whitespace characters are the set of characters matched by
+    /// `\s` in regular expressions, which are `[ \t\n\x0B\f\r]`.
     ///
     /// @param s The string to check
-    /// @return `True` if the given string does contain at least one whitespace character, `False` otherwise
+    /// @return `True` if the given string does contain at least one whitespace
+    ///   character, `False` otherwise
     public static boolean containsWhitespace(String s) {
         return s.chars().anyMatch(Character::isWhitespace);
     }
@@ -711,7 +739,8 @@ public class StringUtil {
 
         int maxLength = table.stream()
                              .mapToInt(pair -> Objects.requireNonNullElse(pair.getKey(), "").length())
-                             .max().orElse(0);
+                             .max()
+                             .orElse(0);
 
         for (Pair<String, String> pair : table) {
             int padding = Math.max(0, maxLength - pair.getKey().length());
@@ -728,9 +757,11 @@ public class StringUtil {
         return sb.toString();
     }
 
-    /// Splits a string by whitespace, treating backslash-escaped spaces as part of the same token.
+    /// Splits a string by whitespace, treating backslash-escaped spaces as part
+    /// of the same token.
     ///
-    /// Example: `""C:\Current Python\python.exe" -m ocrmypdf"` -> `[""C:\Current Python\python.exe"", "-m", "ocrmypdf"]`
+    /// Example: `""C:\Current Python\python.exe" -m ocrmypdf"` ->
+    /// `[""C:\Current Python\python.exe"", "-m", "ocrmypdf"]`
     ///
     /// @param path the string to split
     /// @return a list of tokens

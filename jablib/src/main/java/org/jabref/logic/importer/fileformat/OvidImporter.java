@@ -23,26 +23,19 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.EntryTypeFactory;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NonNull;
 
 /// Imports an Ovid file.
 public class OvidImporter extends Importer {
 
-    private static final Pattern OVID_SOURCE_PATTERN = Pattern
-            .compile("Source ([ \\w&\\-,:]+)\\.[ ]+([0-9]+)\\(([\\w\\-]+)\\):([0-9]+\\-?[0-9]+?)\\,.*([0-9][0-9][0-9][0-9])");
+    private static final Pattern OVID_SOURCE_PATTERN = Pattern.compile("Source ([ \\w&\\-,:]+)\\.[ ]+([0-9]+)\\(([\\w\\-]+)\\):([0-9]+\\-?[0-9]+?)\\,.*([0-9][0-9][0-9][0-9])");
 
-    private static final Pattern OVID_SOURCE_PATTERN_NO_ISSUE = Pattern
-            .compile("Source ([ \\w&\\-,:]+)\\.[ ]+([0-9]+):([0-9]+\\-?[0-9]+?)\\,.*([0-9][0-9][0-9][0-9])");
+    private static final Pattern OVID_SOURCE_PATTERN_NO_ISSUE = Pattern.compile("Source ([ \\w&\\-,:]+)\\.[ ]+([0-9]+):([0-9]+\\-?[0-9]+?)\\,.*([0-9][0-9][0-9][0-9])");
 
-    private static final Pattern OVID_SOURCE_PATTERN_2 = Pattern.compile(
-            "([ \\w&\\-,]+)\\. Vol ([0-9]+)\\(([\\w\\-]+)\\) ([A-Za-z]+) ([0-9][0-9][0-9][0-9]), ([0-9]+\\-?[0-9]+)");
+    private static final Pattern OVID_SOURCE_PATTERN_2 = Pattern.compile("([ \\w&\\-,]+)\\. Vol ([0-9]+)\\(([\\w\\-]+)\\) ([A-Za-z]+) ([0-9][0-9][0-9][0-9]), ([0-9]+\\-?[0-9]+)");
 
-    private static final Pattern INCOLLECTION_PATTERN = Pattern.compile(
-            "(.+)\\(([0-9][0-9][0-9][0-9])\\)\\. ([ \\w&\\-,:]+)\\.[ ]+\\(pp. ([0-9]+\\-?[0-9]+?)\\).[A-Za-z0-9, ]+pp\\. "
-                    + "([\\w, ]+): ([\\w, ]+)");
-    private static final Pattern BOOK_PATTERN = Pattern.compile(
-            "\\(([0-9][0-9][0-9][0-9])\\)\\. [A-Za-z, ]+([0-9]+) pp\\. ([\\w, ]+): ([\\w, ]+)");
+    private static final Pattern INCOLLECTION_PATTERN = Pattern.compile("(.+)\\(([0-9][0-9][0-9][0-9])\\)\\. ([ \\w&\\-,:]+)\\.[ ]+\\(pp. ([0-9]+\\-?[0-9]+?)\\).[A-Za-z0-9, ]+pp\\. " + "([\\w, ]+): ([\\w, ]+)");
+    private static final Pattern BOOK_PATTERN = Pattern.compile("\\(([0-9][0-9][0-9][0-9])\\)\\. [A-Za-z, ]+([0-9]+) pp\\. ([\\w, ]+): ([\\w, ]+)");
 
     private static final String OVID_PATTERN_STRING = "<[0-9]+>";
     private static final Pattern OVID_PATTERN = Pattern.compile(OVID_PATTERN_STRING);
@@ -141,9 +134,7 @@ public class OvidImporter extends Importer {
         String content = field.substring(linebreak).trim();
 
         // Check if this is the author field (due to a minor special treatment for this field):
-        boolean isAuthor = (fieldName.indexOf("Author") == 0)
-                && !fieldName.contains("Author Keywords")
-                && !fieldName.contains("Author e-mail");
+        boolean isAuthor = (fieldName.indexOf("Author") == 0) && !fieldName.contains("Author Keywords") && !fieldName.contains("Author e-mail");
 
         // Remove unnecessary dots at the end of lines, unless this is the author field,
         // in which case a dot at the end could be significant:
@@ -245,9 +236,7 @@ public class OvidImporter extends Importer {
 
     private EntryType resolveEntryType(Map<Field, String> fieldMap) {
         // Set the entrytype properly:
-        EntryType entryType = fieldMap.containsKey(InternalField.TYPE_HEADER)
-                              ? EntryTypeFactory.parse(fieldMap.get(InternalField.TYPE_HEADER))
-                              : BibEntry.DEFAULT_TYPE;
+        EntryType entryType = fieldMap.containsKey(InternalField.TYPE_HEADER) ? EntryTypeFactory.parse(fieldMap.get(InternalField.TYPE_HEADER)) : BibEntry.DEFAULT_TYPE;
         fieldMap.remove(InternalField.TYPE_HEADER);
         if (entryType.equals(StandardEntryType.Book) && fieldMap.containsKey(new UnknownField("chaptertitle"))) {
             // This means we have an "incollection" entry.

@@ -18,7 +18,8 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.MessageBodyReader;
 import jakarta.ws.rs.ext.Provider;
 
-/// Reads `application/json` request bodies into POJOs via Gson so resources can declare strongly-typed parameters.
+/// Reads `application/json` request bodies into POJOs via Gson so resources can
+/// declare strongly-typed parameters.
 @Provider
 @Consumes(MediaType.APPLICATION_JSON)
 public class GsonMessageBodyReader implements MessageBodyReader<Object> {
@@ -26,11 +27,13 @@ public class GsonMessageBodyReader implements MessageBodyReader<Object> {
     @Inject
     private Gson gson;
 
-    /// Decline types handled by the container's built-in readers (raw JSON text / streams).
-    /// Resources such as `CommandResource` and `MapResource` take the body as `String` and
-    /// parse it themselves; Gson would fail those unless the body were a quoted JSON string.
+    /// Decline types handled by the container's built-in readers (raw JSON text
+    /// / streams). Resources such as `CommandResource` and `MapResource` take
+    /// the body as `String` and parse it themselves; Gson would fail those
+    /// unless the body were a quoted JSON string.
     @Override
-    public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+    public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations,
+            MediaType mediaType) {
         return type != String.class
                 && type != byte[].class
                 && !InputStream.class.isAssignableFrom(type)
@@ -38,12 +41,9 @@ public class GsonMessageBodyReader implements MessageBodyReader<Object> {
     }
 
     @Override
-    public Object readFrom(Class<Object> type,
-                           Type genericType,
-                           Annotation[] annotations,
-                           MediaType mediaType,
-                           MultivaluedMap<String, String> httpHeaders,
-                           InputStream entityStream) throws IOException {
+    public Object readFrom(Class<Object> type, Type genericType, Annotation[] annotations,
+                           MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
+            throws IOException {
         try (Reader reader = new InputStreamReader(entityStream, StandardCharsets.UTF_8)) {
             Object result = gson.fromJson(reader, genericType);
             if (result == null) {

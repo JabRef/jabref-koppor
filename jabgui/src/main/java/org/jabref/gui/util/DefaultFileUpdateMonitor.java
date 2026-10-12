@@ -13,19 +13,20 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.WatchServiceUnavailableException;
 import org.jabref.model.util.FileUpdateListener;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// This class monitors a set of files for changes. Upon detecting a change it notifies the registered [FileUpdateListener]s.
+/// This class monitors a set of files for changes. Upon detecting a change it
+/// notifies the registered [FileUpdateListener]s.
 ///
-/// Implementation based on <a href="https://stackoverflow.com/questions/16251273/can-i-watch-for-single-file-change-with-watchservice-not-the-whole-directory">https://stackoverflow.com/questions/16251273/can-i-watch-for-single-file-change-with-watchservice-not-the-whole-directory</a>.
+/// Implementation based on <a
+/// href="https://stackoverflow.com/questions/16251273/can-i-watch-for-single-file-change-with-watchservice-not-the-whole-directory">https://stackoverflow.com/questions/16251273/can-i-watch-for-single-file-change-with-watchservice-not-the-whole-directory</a>.
 public class DefaultFileUpdateMonitor implements Runnable, FileUpdateMonitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultFileUpdateMonitor.class);
@@ -67,8 +68,7 @@ public class DefaultFileUpdateMonitor implements Runnable, FileUpdateMonitor {
                 Thread.yield();
             }
         } catch (IOException e) {
-            JabRefException exception = new WatchServiceUnavailableException(
-                    e.getMessage(), e.getLocalizedMessage(), e.getCause());
+            JabRefException exception = new WatchServiceUnavailableException(e.getMessage(), e.getLocalizedMessage(), e.getCause());
             filesystemMonitorFailure.set(Optional.of(exception));
             LOGGER.warn("Error during watching", e);
         }
@@ -97,7 +97,8 @@ public class DefaultFileUpdateMonitor implements Runnable, FileUpdateMonitor {
                 listeners.put(file, listener);
             }
         } else {
-            LOGGER.warn("Not adding listener {} to file {} because the file update monitor isn't active", listener, file);
+            LOGGER.warn("Not adding listener {} to file {} because the file update monitor isn't active",
+                    listener, file);
         }
     }
 

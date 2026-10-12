@@ -15,7 +15,6 @@ import org.jabref.model.metadata.MetaData;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.FileUpdateListener;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -31,13 +30,14 @@ public class TexGroup extends AbstractGroup implements FileUpdateListener {
     private final MetaData metaData;
     private final String user;
 
-    TexGroup(String name,
-             GroupHierarchyType context,
-             Path filePath,
-             AuxParser auxParser,
-             FileUpdateMonitor fileMonitor,
-             MetaData metaData,
-             String user) {
+    TexGroup(
+            String name,
+            GroupHierarchyType context,
+            Path filePath,
+            AuxParser auxParser,
+            FileUpdateMonitor fileMonitor,
+            MetaData metaData,
+            String user) {
         super(name, context);
         this.metaData = metaData;
         this.user = user;
@@ -46,26 +46,27 @@ public class TexGroup extends AbstractGroup implements FileUpdateListener {
         this.fileMonitor = fileMonitor;
     }
 
-    public static TexGroup create(String name,
-                                  GroupHierarchyType context,
-                                  Path filePath,
-                                  AuxParser auxParser,
-                                  FileUpdateMonitor fileMonitor,
-                                  MetaData metaData,
-                                  String userAndHost) throws IOException {
-        TexGroup group = new TexGroup(name, context, filePath, auxParser, fileMonitor, metaData, userAndHost);
+    public static TexGroup create(
+            String name,
+            GroupHierarchyType context,
+            Path filePath,
+            AuxParser auxParser,
+            FileUpdateMonitor fileMonitor,
+            MetaData metaData,
+            String userAndHost)
+            throws IOException {
+        TexGroup group = new TexGroup(name, context, filePath, auxParser, fileMonitor, metaData,
+                userAndHost);
         fileMonitor.addListenerForFile(group.getFilePathResolved(), group);
         return group;
     }
 
     // without FileUpdateMonitor
-    public static TexGroup create(String name,
-                                  GroupHierarchyType context,
-                                  Path filePath,
-                                  AuxParser auxParser,
-                                  MetaData metaData,
-                                  String userAndHost) throws IOException {
-        return new TexGroup(name, context, filePath, auxParser, new DummyFileUpdateMonitor(), metaData, userAndHost);
+    public static TexGroup create(String name, GroupHierarchyType context, Path filePath,
+            AuxParser auxParser, MetaData metaData, String userAndHost)
+            throws IOException {
+        return new TexGroup(name, context, filePath, auxParser, new DummyFileUpdateMonitor(),
+                metaData, userAndHost);
     }
 
     public Path getFilePathResolved() {
@@ -79,7 +80,9 @@ public class TexGroup extends AbstractGroup implements FileUpdateListener {
             keysUsedInAux = auxResult.getUniqueKeys();
         }
 
-        return entry.getCitationKey().map(keysUsedInAux::contains).orElse(false);
+        return entry.getCitationKey()
+                    .map(keysUsedInAux::contains)
+                    .orElse(false);
     }
 
     @Override
@@ -89,7 +92,8 @@ public class TexGroup extends AbstractGroup implements FileUpdateListener {
 
     @Override
     public AbstractGroup deepCopy() {
-        return new TexGroup(name.getValue(), context, filePath, auxParser, fileMonitor, metaData, user);
+        return new TexGroup(name.getValue(), context, filePath, auxParser, fileMonitor,
+                metaData, user);
     }
 
     @Override
@@ -109,12 +113,17 @@ public class TexGroup extends AbstractGroup implements FileUpdateListener {
 
     @Override
     public String toString() {
-        return "TexGroup{" +
-                "filePath=" + filePath +
-                ", keysUsedInAux=" + keysUsedInAux +
-                ", auxParser=" + auxParser +
-                ", fileMonitor=" + fileMonitor +
-                "} " + super.toString();
+        return "TexGroup{"
+                + "filePath="
+                + filePath
+                + ", keysUsedInAux="
+                + keysUsedInAux
+                + ", auxParser="
+                + auxParser
+                + ", fileMonitor="
+                + fileMonitor
+                + "} "
+                + super.toString();
     }
 
     @Override
@@ -133,11 +142,13 @@ public class TexGroup extends AbstractGroup implements FileUpdateListener {
         metaData.groupsBinding().invalidate();
     }
 
-    /// Relativizes the given path to the file directories.
-    /// The getLatexFileDirectory must be absolute to correctly relativize because we do not have a bibdatabasecontext
+    /// Relativizes the given path to the file directories. The
+    /// getLatexFileDirectory must be absolute to correctly relativize because
+    /// we do not have a bibdatabasecontext
     ///
     /// @param path The path to relativize
-    /// @return A relative path or the original one if it could not be made relative
+    /// @return A relative path or the original one if it could not be made
+    ///   relative
     private Path relativize(Path path) {
         List<Path> fileDirectories = getFileDirectoriesAsPaths();
         return FileUtil.relativize(path, fileDirectories);

@@ -6,7 +6,8 @@ import org.jabref.logic.util.io.BackupFileUtil;
 
 /// Holds information about test .bib files
 ///
-/// We cannot use a string constant as the path changes from OS to OS. Therefore, we need to dynamically create the expected result.
+/// We cannot use a string constant as the path changes from OS to OS.
+/// Therefore, we need to dynamically create the expected result.
 public enum TestBibFile {
     GENERAL_SERVER_TEST("src/test/resources/org/jabref/http/server/general-server-test.bib"),
     GROUPS_SERVER_TEST("src/test/resources/org/jabref/http/server/groups-server-test.bib"),
@@ -17,7 +18,9 @@ public enum TestBibFile {
     public final String id;
 
     TestBibFile(String locationInSource) {
-        this.path = Path.of(locationInSource).toAbsolutePath().normalize();
+        this.path = Path.of(locationInSource)
+                .toAbsolutePath()
+                .normalize();
         this.id = path.getFileName() + "-" + BackupFileUtil.getUniqueFilePrefix(path);
     }
 }

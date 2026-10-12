@@ -8,6 +8,11 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import org.jabref.logic.citationstyle.JabRefItemDataProvider;
 import org.jabref.logic.openoffice.oocsltext.CSLCitationType;
 import org.jabref.logic.util.strings.StringUtil;
@@ -15,23 +20,14 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.Date;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @NullMarked
-public record ZoteroReferenceMark(
-        String name,
-        List<String> citationKeys,
-        List<Integer> citationNumbers,
-        String uniqueId,
-        CSLCitationType citationType) implements ReferenceMark {
+public record ZoteroReferenceMark(String name, List<String> citationKeys, List<Integer> citationNumbers,
+        String uniqueId, CSLCitationType citationType)
+        implements ReferenceMark {
     public static final String PREFIX = "ZOTERO_ITEM CSL_CITATION ";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZoteroReferenceMark.class);
@@ -49,14 +45,15 @@ public record ZoteroReferenceMark(
     }
 
     /// Example: "ZOTERO_ITEM CSL_CITATION {json} RNDxxxxxxx"
-    public static ZoteroReferenceMark buildReferenceMark(List<BibEntry> entries,
-                                                         List<String> citationKeys,
-                                                         List<Integer> citationNumbers,
-                                                         int firstItemId,
-                                                         CSLCitationType citationType,
-                                                         BibDatabaseContext bibDatabaseContext,
-                                                         BibEntryTypesManager entryTypesManager,
-                                                         Map<String, String> zoteroUriByCitationKey) {
+    public static ZoteroReferenceMark buildReferenceMark(
+            List<BibEntry> entries,
+            List<String> citationKeys,
+            List<Integer> citationNumbers,
+            int firstItemId,
+            CSLCitationType citationType,
+            BibDatabaseContext bibDatabaseContext,
+            BibEntryTypesManager entryTypesManager,
+            Map<String, String> zoteroUriByCitationKey) {
         String citationId = ReferenceMark.generateRandomCUID(CITATION_ID_LENGTH);
         String suffix = createRandomSuffix();
         JabRefItemDataProvider itemDataProvider = new JabRefItemDataProvider();
@@ -71,24 +68,22 @@ public record ZoteroReferenceMark(
         for (int i = 0; i < entries.size(); i++) {
             String citationKey = citationKeys.get(i);
             String itemId = String.valueOf(firstItemId + i);
-            ZoteroCitationData.ItemData itemData = GSON.fromJson(
-                    itemDataProvider.toJson(entries.get(i), bibDatabaseContext, entryTypesManager),
-                    ZoteroCitationData.ItemData.class);
+            ZoteroCitationData.ItemData itemData = GSON.fromJson(itemDataProvider.toJson(entries.get(i), bibDatabaseContext, entryTypesManager), ZoteroCitationData.ItemData.class);
             ZoteroCitationData.IssuedData issued = itemData.issued;
-            if (issued != null &&
-                    ((issued.dateParts == null) || issued.dateParts.isEmpty())) {
+            if (issued != null && ((issued.dateParts == null) || issued.dateParts.isEmpty())) {
                 String rawDate = issued.raw;
                 if (rawDate != null && !StringUtil.isBlank(rawDate)) {
-                    Date.parse(rawDate).ifPresent(date -> {
-                        List<Object> dateParts = new ArrayList<>();
-                        date.getYear().ifPresent(year -> dateParts.add(year.toString()));
-                        date.getMonth().ifPresent(month -> dateParts.add(month.getNumber()));
-                        date.getDay().ifPresent(dateParts::add);
-                        if (!dateParts.isEmpty()) {
-                            issued.dateParts = List.of(dateParts);
-                            issued.raw = null;
-                        }
-                    });
+                    Date.parse(rawDate).ifPresent(
+                            date -> {
+                                List<Object> dateParts = new ArrayList<>();
+                                date.getYear().ifPresent(year -> dateParts.add(year.toString()));
+                                date.getMonth().ifPresent(month -> dateParts.add(month.getNumber()));
+                                date.getDay().ifPresent(dateParts::add);
+                                if (!dateParts.isEmpty()) {
+                                    issued.dateParts = List.of(dateParts);
+                                    issued.raw = null;
+                                }
+                            });
                 }
             }
             itemData.id = itemId;
@@ -107,11 +102,7 @@ public record ZoteroReferenceMark(
         citation.citationItems = citationItems;
 
         String referenceMarkName = PREFIX + GSON.toJson(citation) + " " + suffix;
-        return new ZoteroReferenceMark(
-                referenceMarkName,
-                List.copyOf(citationKeys),
-                List.copyOf(citationNumbers),
-                suffix,
+        return new ZoteroReferenceMark(referenceMarkName, List.copyOf(citationKeys), List.copyOf(citationNumbers), suffix,
                 citationType);
     }
 
@@ -137,11 +128,7 @@ public record ZoteroReferenceMark(
 
             CSLCitationType citationType = suppressesAuthor ? CSLCitationType.IN_TEXT : CSLCitationType.NORMAL;
 
-            return Optional.of(new ZoteroReferenceMark(
-                    referenceMarkName,
-                    List.copyOf(citationKeys),
-                    List.copyOf(citationNumbers),
-                    uniqueId,
+            return Optional.of(new ZoteroReferenceMark(referenceMarkName, List.copyOf(citationKeys), List.copyOf(citationNumbers), uniqueId,
                     citationType));
         } catch (RuntimeException e) {
             LOGGER.debug("Could not parse Zotero reference mark", e);
@@ -155,9 +142,7 @@ public record ZoteroReferenceMark(
             if (!StringUtil.isBlank(citationItem.id) && ITEM_ID_PATTERN.matcher(citationItem.id).matches()) {
                 maxItemId = Math.max(maxItemId, Integer.parseInt(citationItem.id));
             }
-            if (citationItem.itemData != null &&
-                    !StringUtil.isBlank(citationItem.itemData.id) &&
-                    ITEM_ID_PATTERN.matcher(citationItem.itemData.id).matches()) {
+            if (citationItem.itemData != null && !StringUtil.isBlank(citationItem.itemData.id) && ITEM_ID_PATTERN.matcher(citationItem.itemData.id).matches()) {
                 maxItemId = Math.max(maxItemId, Integer.parseInt(citationItem.itemData.id));
             }
         }
@@ -193,7 +178,8 @@ public record ZoteroReferenceMark(
             }
             return PREFIX + GSON.toJson(citation) + " " + suffix;
         } catch (JsonParseException | IllegalStateException e) {
-            LOGGER.debug("Could not add JabRef URI to Zotero reference mark at citation item index {}", citationItemIndex, e);
+            LOGGER.debug("Could not add JabRef URI to Zotero reference mark at citation item index {}",
+                    citationItemIndex, e);
             return referenceMarkName;
         }
     }

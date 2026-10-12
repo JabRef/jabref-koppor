@@ -9,17 +9,13 @@ import org.jabref.logic.preferences.OwnerPreferences;
 import org.jabref.logic.preferences.TimestampPreferences;
 import org.jabref.logic.util.UpdateField;
 import org.jabref.model.database.BibDatabase;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ImportResultsMerger {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImportResultsMerger.class);
 
-    public static ParserResult mergeImportResults(
-            List<ImportFormatReader.ImportResult> imports,
-            Character keyWordSeparator,
-            OwnerPreferences ownerPreferences,
+    public static ParserResult mergeImportResults(List<ImportFormatReader.ImportResult> imports, Character keyWordSeparator, OwnerPreferences ownerPreferences,
             TimestampPreferences timestampPreferences) {
         BibDatabase resultDatabase = new BibDatabase();
         ParserResult result = new ParserResult(resultDatabase);
@@ -35,14 +31,18 @@ public class ImportResultsMerger {
                 // TODO: collect errors into ParserResult, because they are currently ignored (see caller of this method)
             }
 
-            resultDatabase.insertEntries(parserResult.getDatabase().getEntries());
+            resultDatabase.insertEntries(parserResult.getDatabase()
+                    .getEntries());
 
             if (ImportFormatReader.BIBTEX_FORMAT.equals(importResult.format())) {
                 // additional treatment of BibTeX
                 new DatabaseMerger(keyWordSeparator).mergeMetaData(
                         result.getMetaData(),
                         parserResult.getMetaData(),
-                        importResult.parserResult().getPath().map(path -> path.getFileName().toString()).orElse("unknown"),
+                        importResult.parserResult()
+                                    .getPath()
+                                    .map(path -> path.getFileName().toString())
+                                    .orElse("unknown"),
                         parserResult.getDatabase().getEntries());
             }
         }

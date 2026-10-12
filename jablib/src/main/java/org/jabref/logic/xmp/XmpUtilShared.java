@@ -11,8 +11,10 @@ import org.apache.xmpbox.xml.XmpParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// XMPUtilShared provides support for reading [org.jabref.logic.xmp.XmpUtilReader] and writing [org.jabref.logic.xmp.XmpUtilWriter] BibTeX data as XMP metadata
-/// in PDF-documents.
+/// XMPUtilShared provides support for reading
+/// [org.jabref.logic.xmp.XmpUtilReader] and writing
+/// [org.jabref.logic.xmp.XmpUtilWriter] BibTeX data as XMP metadata in
+/// PDF-documents.
 public class XmpUtilShared {
 
     public static final String BIBTEX_DI_FIELD_NAME_PREFIX = "bibtex/";

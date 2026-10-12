@@ -10,7 +10,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
-
 import org.jabref.logic.preferences.AutoCompleteFirstNameMode;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
@@ -18,7 +17,9 @@ import org.jabref.model.entry.field.StandardField;
 public class AutoCompletePreferences {
 
     public enum NameFormat {
-        LAST_FIRST, FIRST_LAST, BOTH
+        LAST_FIRST,
+        FIRST_LAST,
+        BOTH
     }
 
     private final BooleanProperty shouldAutoComplete;
@@ -26,10 +27,8 @@ public class AutoCompletePreferences {
     private final ObjectProperty<NameFormat> nameFormat;
     private final ObservableSet<Field> completeFields;
 
-    public AutoCompletePreferences(boolean shouldAutoComplete,
-                                   AutoCompleteFirstNameMode firstNameMode,
-                                   NameFormat nameFormat,
-                                   Set<Field> completeFields) {
+    public AutoCompletePreferences(boolean shouldAutoComplete, AutoCompleteFirstNameMode firstNameMode, NameFormat nameFormat,
+            Set<Field> completeFields) {
         this.shouldAutoComplete = new SimpleBooleanProperty(shouldAutoComplete);
         this.firstNameMode = new SimpleObjectProperty<>(firstNameMode);
         this.nameFormat = new SimpleObjectProperty<>(nameFormat);
@@ -38,18 +37,13 @@ public class AutoCompletePreferences {
 
     ///  Creates object with default values
     private AutoCompletePreferences() {
-        this(false,                                         // Auto complete default value false
-                AutoCompleteFirstNameMode.BOTH,             // Auto completer of first name uses both: full and abbreviated
-                NameFormat.BOTH,                            // Name format uses both: last_first and first_last
+        this(
+                false, // Auto complete default value false
+                AutoCompleteFirstNameMode.BOTH, // Auto completer of first name uses both: full and abbreviated
+                NameFormat.BOTH, // Name format uses both: last_first and first_last
                 new LinkedHashSet<>(List.of(StandardField.AUTHOR, // Auto completer complete fields
-                        StandardField.EDITOR,
-                        StandardField.TITLE,
-                        StandardField.JOURNAL,
-                        StandardField.PUBLISHER,
-                        StandardField.KEYWORDS,
-                        StandardField.CROSSREF,
-                        StandardField.RELATED,
-                        StandardField.ENTRYSET)));
+                StandardField.EDITOR, StandardField.TITLE, StandardField.JOURNAL, StandardField.PUBLISHER, StandardField.KEYWORDS,
+                        StandardField.CROSSREF, StandardField.RELATED, StandardField.ENTRYSET)));
     }
 
     public static AutoCompletePreferences getDefault() {

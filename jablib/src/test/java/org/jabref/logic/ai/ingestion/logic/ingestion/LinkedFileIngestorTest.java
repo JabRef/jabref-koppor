@@ -1,13 +1,12 @@
 package org.jabref.logic.ai.ingestion.logic.ingestion;
 
+import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.store.embedding.EmbeddingStore;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.ai.ingestion.logic.documentsplitting.DocumentSplitter;
 import org.jabref.logic.ai.ingestion.repositories.IngestedDocumentsRepository;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.LinkedFile;
-
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.store.embedding.EmbeddingStore;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 
@@ -22,12 +21,8 @@ class LinkedFileIngestorTest {
 
     @Test
     void ingestSkipsOnlineLinks() throws InterruptedException {
-        LinkedFileIngestor ingestor = new LinkedFileIngestor(
-                mock(FilePreferences.class),
-                mock(IngestedDocumentsRepository.class),
-                mock(EmbeddingStore.class),
-                mock(EmbeddingModel.class),
-                mock(DocumentSplitter.class));
+        LinkedFileIngestor ingestor = new LinkedFileIngestor(mock(FilePreferences.class), mock(IngestedDocumentsRepository.class), mock(EmbeddingStore.class),
+                mock(EmbeddingModel.class), mock(DocumentSplitter.class));
 
         LinkedFile onlineLink = spy(new LinkedFile("", "https://arxiv.org/pdf/2301.00001v1", "PDF"));
 

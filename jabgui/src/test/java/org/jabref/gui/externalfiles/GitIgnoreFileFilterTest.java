@@ -14,7 +14,8 @@ class GitIgnoreFileFilterTest {
 
     @Test
     void checkSimpleGitIgnore(@TempDir Path dir) throws IOException {
-        Files.writeString(dir.resolve(".gitignore"), """
+        Files.writeString(dir.resolve(".gitignore"),
+                """
                 *.png
                 """);
         GitIgnoreFileFilter gitIgnoreFileFilter = new GitIgnoreFileFilter(dir);
@@ -23,7 +24,8 @@ class GitIgnoreFileFilterTest {
 
     @Test
     void checkSimpleGitIgnoreWithAllowing(@TempDir Path dir) throws IOException {
-        Files.writeString(dir.resolve(".gitignore"), """
+        Files.writeString(dir.resolve(".gitignore"),
+                """
                 !*.png
                 """);
         GitIgnoreFileFilter gitIgnoreFileFilter = new GitIgnoreFileFilter(dir);
@@ -32,7 +34,8 @@ class GitIgnoreFileFilterTest {
 
     @Test
     void checkSimpleGitIgnoreWithOverwritingDefs(@TempDir Path dir) throws IOException {
-        Files.writeString(dir.resolve(".gitignore"), """
+        Files.writeString(dir.resolve(".gitignore"),
+                """
                 !*.png
                 *.png
                 """);
@@ -42,7 +45,8 @@ class GitIgnoreFileFilterTest {
 
     @Test
     void checkDirectoryGitIgnore(@TempDir Path dir) throws IOException {
-        Files.writeString(dir.resolve(".gitignore"), """
+        Files.writeString(dir.resolve(".gitignore"),
+                """
                 **/*.png
                 """);
         GitIgnoreFileFilter gitIgnoreFileFilter = new GitIgnoreFileFilter(dir);
@@ -51,7 +55,8 @@ class GitIgnoreFileFilterTest {
 
     @Test
     void checkDirectoryGitIgnoreSubDir(@TempDir Path dir) throws IOException {
-        Files.writeString(dir.resolve(".gitignore"), """
+        Files.writeString(dir.resolve(".gitignore"),
+                """
                 ignore/.*
                 ignore/*
                 ignore/// *

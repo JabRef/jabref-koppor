@@ -98,7 +98,9 @@ class WrapFileLinksTest {
     void path() throws IOException {
         formatter = new WrapFileLinks(List.of(Path.of("src/test/resources/pdfs/")), Path.of(""));
         formatter.setArgument("\\p");
-        assertEquals(Path.of("src/test/resources/pdfs/encrypted.pdf").toRealPath().toString(),
+        assertEquals(Path.of("src/test/resources/pdfs/encrypted.pdf")
+                .toRealPath()
+                .toString(),
                 formatter.format("Preferences:encrypted.pdf:PDF"));
     }
 
@@ -106,7 +108,9 @@ class WrapFileLinksTest {
     void pathFallBackToGeneratedDir() throws IOException {
         formatter = new WrapFileLinks(List.of(), Path.of("src/test/resources/pdfs/"));
         formatter.setArgument("\\p");
-        assertEquals(Path.of("src/test/resources/pdfs/encrypted.pdf").toRealPath().toString(),
+        assertEquals(Path.of("src/test/resources/pdfs/encrypted.pdf")
+                .toRealPath()
+                .toString(),
                 formatter.format("Preferences:encrypted.pdf:PDF"));
     }
 

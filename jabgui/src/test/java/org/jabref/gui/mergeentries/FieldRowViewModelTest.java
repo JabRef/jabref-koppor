@@ -3,13 +3,13 @@ package org.jabref.gui.mergeentries;
 import java.util.Optional;
 
 import org.jabref.gui.mergeentries.threewaymerge.FieldRowViewModel;
+import org.jabref.gui.mergeentries.threewaymerge.FieldRowViewModel.Selection;
 import org.jabref.gui.mergeentries.threewaymerge.fieldsmerger.FieldMergerFactory;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Month;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -73,22 +73,22 @@ public class FieldRowViewModelTest {
     void selectNonEmptyValueShouldSelectLeftFieldValueIfItIsNotEmpty() {
         FieldRowViewModel numberFieldViewModel = createViewModelForField(StandardField.NUMBER);
         numberFieldViewModel.selectNonEmptyValue();
-        assertEquals(FieldRowViewModel.Selection.LEFT, numberFieldViewModel.getSelection());
+        assertEquals(Selection.LEFT, numberFieldViewModel.getSelection());
 
         FieldRowViewModel authorFieldViewModel = createViewModelForField(StandardField.AUTHOR);
         authorFieldViewModel.selectNonEmptyValue();
-        assertEquals(FieldRowViewModel.Selection.LEFT, authorFieldViewModel.getSelection());
+        assertEquals(Selection.LEFT, authorFieldViewModel.getSelection());
     }
 
     @Test
     void selectNonEmptyValueShouldSelectRightFieldValueIfLeftValueIsEmpty() {
         FieldRowViewModel monthFieldViewModel = createViewModelForField(StandardField.MONTH);
         monthFieldViewModel.selectNonEmptyValue();
-        assertEquals(FieldRowViewModel.Selection.RIGHT, monthFieldViewModel.getSelection());
+        assertEquals(Selection.RIGHT, monthFieldViewModel.getSelection());
 
         FieldRowViewModel addressFieldViewModel = createViewModelForField(StandardField.ADDRESS);
         addressFieldViewModel.selectNonEmptyValue();
-        assertEquals(FieldRowViewModel.Selection.RIGHT, addressFieldViewModel.getSelection());
+        assertEquals(Selection.RIGHT, addressFieldViewModel.getSelection());
     }
 
     @Test
@@ -116,12 +116,12 @@ public class FieldRowViewModelTest {
     void selectLeftValueShouldBeCorrect() {
         FieldRowViewModel monthFieldViewModel = createViewModelForField(StandardField.MONTH);
         monthFieldViewModel.selectLeftValue();
-        assertEquals(FieldRowViewModel.Selection.LEFT, monthFieldViewModel.getSelection());
+        assertEquals(Selection.LEFT, monthFieldViewModel.getSelection());
         assertEquals(Optional.of(""), Optional.ofNullable(monthFieldViewModel.getMergedFieldValue()));
 
         monthFieldViewModel.selectRightValue();
         monthFieldViewModel.selectLeftValue();
-        assertEquals(FieldRowViewModel.Selection.LEFT, monthFieldViewModel.getSelection());
+        assertEquals(Selection.LEFT, monthFieldViewModel.getSelection());
         assertEquals(Optional.of(""), Optional.of(monthFieldViewModel.getMergedFieldValue()));
     }
 
@@ -129,12 +129,12 @@ public class FieldRowViewModelTest {
     void selectRightValueShouldBeCorrect() {
         FieldRowViewModel monthFieldViewModel = createViewModelForField(StandardField.MONTH);
         monthFieldViewModel.selectRightValue();
-        assertEquals(FieldRowViewModel.Selection.RIGHT, monthFieldViewModel.getSelection());
+        assertEquals(Selection.RIGHT, monthFieldViewModel.getSelection());
         assertEquals(rightEntry.getField(StandardField.MONTH), Optional.of(monthFieldViewModel.getMergedFieldValue()));
 
         monthFieldViewModel.selectLeftValue();
         monthFieldViewModel.selectRightValue();
-        assertEquals(FieldRowViewModel.Selection.RIGHT, monthFieldViewModel.getSelection());
+        assertEquals(Selection.RIGHT, monthFieldViewModel.getSelection());
         assertEquals(rightEntry.getField(StandardField.MONTH), Optional.of(monthFieldViewModel.getMergedFieldValue()));
     }
 
@@ -181,7 +181,7 @@ public class FieldRowViewModelTest {
         FieldRowViewModel groupsField = createViewModelForField(StandardField.GROUPS);
         groupsField.mergeFields();
 
-        assertEquals(FieldRowViewModel.Selection.LEFT, groupsField.getSelection());
+        assertEquals(Selection.LEFT, groupsField.getSelection());
     }
 
     @Test
@@ -213,7 +213,7 @@ public class FieldRowViewModelTest {
         BibEntry rightEntry = new BibEntry().withField(StandardField.YEAR, "2020");
         FieldRowViewModel yearField = new FieldRowViewModel(StandardField.YEAR, leftEntry, rightEntry, mergedEntry, fieldMergerFactory);
         yearField.autoSelectBetterValue();
-        assertEquals(FieldRowViewModel.Selection.RIGHT, yearField.getSelection());
+        assertEquals(Selection.RIGHT, yearField.getSelection());
     }
 
     @Test
@@ -222,7 +222,7 @@ public class FieldRowViewModelTest {
         BibEntry rightEntry = new BibEntry().withField(StandardField.YEAR, "2000");
         FieldRowViewModel yearField = new FieldRowViewModel(StandardField.YEAR, leftEntry, rightEntry, mergedEntry, fieldMergerFactory);
         yearField.autoSelectBetterValue();
-        assertEquals(FieldRowViewModel.Selection.RIGHT, yearField.getSelection());
+        assertEquals(Selection.RIGHT, yearField.getSelection());
     }
 
     @Test
@@ -231,7 +231,7 @@ public class FieldRowViewModelTest {
         BibEntry rightEntry = new BibEntry().withField(StandardField.YEAR, "1700");
         FieldRowViewModel yearField = new FieldRowViewModel(StandardField.YEAR, leftEntry, rightEntry, mergedEntry, fieldMergerFactory);
         yearField.autoSelectBetterValue();
-        assertEquals(FieldRowViewModel.Selection.LEFT, yearField.getSelection());
+        assertEquals(Selection.LEFT, yearField.getSelection());
     }
 
     public FieldRowViewModel createViewModelForField(Field field) {

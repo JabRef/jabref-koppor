@@ -3,12 +3,11 @@ package org.jabref.model.openoffice.rangesort;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jabref.model.openoffice.uno.UnoScreenRefresh;
-
 import com.sun.star.awt.Point;
 import com.sun.star.text.XTextDocument;
 import com.sun.star.text.XTextRange;
 import com.sun.star.text.XTextViewCursor;
+import org.jabref.model.openoffice.uno.UnoScreenRefresh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,13 +15,15 @@ import org.slf4j.LoggerFactory;
 ///
 /// Requires functional XTextViewCursor.
 ///
-/// Problem: for multicolumn layout and when viewing pages side-by-side in LO, the (top-down,left-to-right) order interpreted as-on-the-screen: an XTextRange at the top of the second column or second page is sorted before an XTextRange at the bottom of the first column of the first page.
+/// Problem: for multicolumn layout and when viewing pages side-by-side in LO,
+/// the (top-down,left-to-right) order interpreted as-on-the-screen: an
+/// XTextRange at the top of the second column or second page is sorted before
+/// an XTextRange at the bottom of the first column of the first page.
 public class RangeSortVisual {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RangeSortVisual.class);
 
-    private RangeSortVisual() {
-    }
+    private RangeSortVisual() {}
 
     /// Sort the input `inputs` visually.
     ///
@@ -30,8 +31,7 @@ public class RangeSortVisual {
     ///
     /// @return The input, sorted by the elements XTextRange and getIndexInPosition.
     public static <T> List<RangeSortable<T>> visualSort(List<RangeSortable<T>> inputs,
-                                                        XTextDocument doc,
-                                                        FunctionalTextViewCursor fcursor) {
+            XTextDocument doc, FunctionalTextViewCursor fcursor) {
 
         if (UnoScreenRefresh.hasControllersLocked(doc)) {
             final String msg = "visualSort: with ControllersLocked, viewCursor.gotoRange is probably useless";
@@ -54,9 +54,7 @@ public class RangeSortVisual {
         ArrayList<ComparableMark<RangeSortable<T>>> comparableMarks = new ArrayList<>(inputSize);
         for (int i = 0; i < inputSize; i++) {
             RangeSortable<T> input = inputs.get(i);
-            comparableMarks.add(new ComparableMark<>(positions.get(i),
-                    input.getIndexInPosition(),
-                    input));
+            comparableMarks.add(new ComparableMark<>(positions.get(i), input.getIndexInPosition(), input));
         }
         comparableMarks.sort(RangeSortVisual::compareTopToBottomLeftToRight);
 
@@ -73,16 +71,22 @@ public class RangeSortVisual {
         return result;
     }
 
-    /// Given a location, return its position: coordinates relative to the top left position of the first page of the document.
+    /// Given a location, return its position: coordinates relative to the top
+    /// left position of the first page of the document.
     ///
-    /// Note: for text layouts with two or more columns, this gives the wrong order: top-down/left-to-right does not match reading order.
+    /// Note: for text layouts with two or more columns, this gives the wrong
+    /// order: top-down/left-to-right does not match reading order.
     ///
-    /// Note: The "relative to the top left position of the first page" is meant "as it appears on the screen".
+    /// Note: The "relative to the top left position of the first page" is meant
+    /// "as it appears on the screen".
     ///
-    /// In particular: when viewing pages side-by-side, the top half of the right page is higher than the lower half of the left page. Again, top-down/left-to-right does not match reading order.
+    /// In particular: when viewing pages side-by-side, the top half of the
+    /// right page is higher than the lower half of the left page. Again,
+    /// top-down/left-to-right does not match reading order.
     ///
-    /// @param range  Location.
-    /// @param cursor To get the position, we need az XTextViewCursor. It will be moved to the range.
+    /// @param range Location.
+    /// @param cursor To get the position, we need az XTextViewCursor. It will
+    ///   be moved to the range.
     private static Point findPositionOfTextRange(XTextRange range, XTextViewCursor cursor) {
         cursor.gotoRange(range, false);
         return cursor.getPosition();
@@ -100,9 +104,9 @@ public class RangeSortVisual {
 
     /// A reference mark name paired with its visual position.
     ///
-    /// Comparison is based on (Y,X,indexInPosition): vertical compared first, horizontal second, indexInPosition third.
+    /// Comparison is based on (Y,X,indexInPosition): vertical compared first,
+    /// horizontal second, indexInPosition third.
     ///
     /// Used for sorting reference marks by their visual positions.
-    private record ComparableMark<T>(Point position, int indexInPosition, T content) {
-    }
+    private record ComparableMark<T>(Point position, int indexInPosition, T content) {}
 }

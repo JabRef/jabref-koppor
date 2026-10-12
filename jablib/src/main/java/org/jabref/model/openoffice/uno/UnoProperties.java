@@ -17,16 +17,14 @@ import org.jspecify.annotations.NonNull;
 /// Utilities for properties.
 public class UnoProperties {
 
-    private UnoProperties() {
-    }
+    private UnoProperties() {}
 
     public static Optional<XPropertySet> asPropertySet(XPropertyContainer propertyContainer) {
         return UnoCast.cast(XPropertySet.class, propertyContainer);
     }
 
     public static Optional<XPropertySetInfo> getPropertySetInfo(XPropertySet propertySet) {
-        return Optional.ofNullable(propertySet)
-                       .flatMap(e -> Optional.ofNullable(e.getPropertySetInfo()));
+        return Optional.ofNullable(propertySet).flatMap(e -> Optional.ofNullable(e.getPropertySetInfo()));
     }
 
     public static Optional<XPropertySetInfo> getPropertySetInfo(XPropertyContainer propertyContainer) {
@@ -35,8 +33,8 @@ public class UnoProperties {
 
     public static List<String> getPropertyNames(Property @NonNull [] properties) {
         return Arrays.stream(properties)
-                     .map(p -> p.Name)
-                     .collect(Collectors.toList());
+                .map(p -> p.Name)
+                .collect(Collectors.toList());
     }
 
     public static List<String> getPropertyNames(XPropertySetInfo propertySetInfo) {
@@ -53,8 +51,7 @@ public class UnoProperties {
                 .orElse(new ArrayList<>());
     }
 
-    public static Optional<Object> getValueAsObject(@NonNull XPropertySet propertySet, @NonNull String property)
-            throws WrappedTargetException {
+    public static Optional<Object> getValueAsObject(@NonNull XPropertySet propertySet, @NonNull String property) throws WrappedTargetException {
         try {
             return Optional.ofNullable(propertySet.getPropertyValue(property));
         } catch (UnknownPropertyException _) {
@@ -62,8 +59,7 @@ public class UnoProperties {
         }
     }
 
-    public static Optional<Object> getValueAsObject(XPropertyContainer propertyContainer, String property)
-            throws WrappedTargetException {
+    public static Optional<Object> getValueAsObject(XPropertyContainer propertyContainer, String property) throws WrappedTargetException {
         Optional<XPropertySet> propertySet = asPropertySet(propertyContainer);
         if (propertySet.isEmpty()) {
             return Optional.empty();

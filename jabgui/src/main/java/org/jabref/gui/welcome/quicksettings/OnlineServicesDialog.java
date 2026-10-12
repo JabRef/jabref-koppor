@@ -1,12 +1,12 @@
 package org.jabref.gui.welcome.quicksettings;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.FXDialog;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.slr.StudyCatalogItem;
@@ -15,19 +15,36 @@ import org.jabref.gui.util.component.HelpButton;
 import org.jabref.gui.welcome.quicksettings.viewmodel.OnlineServicesDialogViewModel;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
-
 public class OnlineServicesDialog extends FXDialog {
-    @FXML private CheckBox versionCheckBox;
-    @FXML private CheckBox webSearchBox;
-    @FXML private CheckBox dlibCheckBox;
-    @FXML private CheckBox grobidCheckBox;
-    @FXML private TextField grobidUrlField;
-    @FXML private HBox grobidUrlContainer;
-    @FXML private VBox fetchersContainer;
-    @FXML private HelpButton helpButton;
-    @FXML private HelpButton grobidHelpButton;
-    @FXML private HelpButton fetchersHelpButton;
+    @FXML
+    private CheckBox versionCheckBox;
+
+    @FXML
+    private CheckBox webSearchBox;
+
+    @FXML
+    private CheckBox dlibCheckBox;
+
+    @FXML
+    private CheckBox grobidCheckBox;
+
+    @FXML
+    private TextField grobidUrlField;
+
+    @FXML
+    private HBox grobidUrlContainer;
+
+    @FXML
+    private VBox fetchersContainer;
+
+    @FXML
+    private HelpButton helpButton;
+
+    @FXML
+    private HelpButton grobidHelpButton;
+
+    @FXML
+    private HelpButton fetchersHelpButton;
 
     private OnlineServicesDialogViewModel viewModel;
     private final GuiPreferences preferences;
@@ -40,8 +57,8 @@ public class OnlineServicesDialog extends FXDialog {
         this.setHeaderText(Localization.lang("Enable and configure online databases and services for importing entries"));
 
         ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+                .load()
+                .setAsDialogPane(this);
 
         setResultConverter(button -> {
             if (button == ButtonType.OK) {

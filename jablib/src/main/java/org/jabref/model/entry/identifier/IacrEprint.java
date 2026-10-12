@@ -10,7 +10,6 @@ import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,9 +38,7 @@ public class IacrEprint implements Identifier {
     }
 
     private static boolean matchesExcepted(String identifier) {
-        return identifier.matches(
-                "(https\\:\\/\\/)?(ia\\.cr\\/|eprint\\.iacr\\.org\\/)?" + IACR_EPRINT_EXP
-        );
+        return identifier.matches("(https\\:\\/\\/)?(ia\\.cr\\/|eprint\\.iacr\\.org\\/)?" + IACR_EPRINT_EXP);
     }
 
     public static Optional<IacrEprint> parse(String identifier) {
@@ -66,7 +63,8 @@ public class IacrEprint implements Identifier {
     @Override
     public Optional<URI> getExternalURI() {
         try {
-            URI uri = new URI(RESOLVER.getScheme(), RESOLVER.getHost(), "/" + iacrEprint, null);
+            URI uri = new URI(RESOLVER.getScheme(), RESOLVER.getHost(), "/" + iacrEprint,
+                    null);
             return Optional.of(uri);
         } catch (URISyntaxException e) {
             // should never happen
@@ -76,6 +74,8 @@ public class IacrEprint implements Identifier {
     }
 
     public String getAsciiUrl() {
-        return getExternalURI().map(URI::toASCIIString).orElse("");
+        return getExternalURI()
+                .map(URI::toASCIIString)
+                .orElse("");
     }
 }

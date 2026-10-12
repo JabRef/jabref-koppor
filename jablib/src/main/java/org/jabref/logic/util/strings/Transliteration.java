@@ -1,8 +1,7 @@
 package org.jabref.logic.util.strings;
 
-import org.jabref.logic.citationkeypattern.CitationKeyGenerator;
-
 import com.ibm.icu.text.Transliterator;
+import org.jabref.logic.citationkeypattern.CitationKeyGenerator;
 
 public class Transliteration {
 

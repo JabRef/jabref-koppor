@@ -5,6 +5,8 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.SearchBasedFetcher;
@@ -12,9 +14,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -31,7 +30,9 @@ class DOAJFetcherTest {
     @BeforeEach
     void setUp() {
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
         fetcher = new DOAJFetcher(importFormatPreferences);
     }
 
@@ -66,7 +67,9 @@ class DOAJFetcherTest {
         assertEquals(Optional.of("VLSI Design"), bibEntry.getField(StandardField.JOURNAL));
         assertEquals(Optional.of("10.1155/2014/217495"), bibEntry.getField(StandardField.DOI));
         assertEquals(Optional.of("Syed Asad Alam and Oscar Gustafsson"), bibEntry.getField(StandardField.AUTHOR));
-        assertEquals(Optional.of("Design of Finite Word Length Linear-Phase FIR Filters in the Logarithmic Number System Domain"), bibEntry.getField(StandardField.TITLE));
+        assertEquals(
+                Optional.of("Design of Finite Word Length Linear-Phase FIR Filters in the Logarithmic Number System Domain"),
+                bibEntry.getField(StandardField.TITLE));
         assertEquals(Optional.of("2014"), bibEntry.getField(StandardField.YEAR));
     }
 
@@ -105,7 +108,7 @@ class DOAJFetcherTest {
 
     @Test
     void urlForQuery() throws URISyntaxException, MalformedURLException {
-        assertEquals("https://doaj.org/api/search/articles/JabRef%20AND%20MRI?pageSize=30",
-                fetcher.getURLForQuery(SearchBasedFetcher.getQueryNode("JabRef MRI")).toString());
+        assertEquals("https://doaj.org/api/search/articles/JabRef%20AND%20MRI?pageSize=30", fetcher.getURLForQuery(SearchBasedFetcher.getQueryNode("JabRef MRI"))
+                .toString());
     }
 }

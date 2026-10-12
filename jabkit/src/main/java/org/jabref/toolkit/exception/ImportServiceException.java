@@ -9,7 +9,8 @@ public class ImportServiceException extends CliException {
         super(message, localizedMessage, exitCode);
     }
 
-    public ImportServiceException(String message, String localizedMessage, Throwable cause, int exitCode) {
+    public ImportServiceException(String message, String localizedMessage, Throwable cause,
+            int exitCode) {
         super(message, localizedMessage, cause, exitCode);
     }
 }

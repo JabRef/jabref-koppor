@@ -12,7 +12,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.jabref.model.entry.BibEntry;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,9 +25,7 @@ class CitaviXmlImporterTest {
     CitaviXmlImporter citaviXmlImporter = new CitaviXmlImporter();
 
     public static Stream<Arguments> cleanUpText() {
-        return Stream.of(
-                Arguments.of("no action", "no action"),
-                Arguments.of("\\{action\\}", "{action}"),
+        return Stream.of(Arguments.of("no action", "no action"), Arguments.of("\\{action\\}", "{action}"),
                 Arguments.of("\\}", "}"));
     }
 
@@ -40,7 +37,8 @@ class CitaviXmlImporterTest {
 
     @Test
     void importPreservesCitationKey(@TempDir Path tempDir) throws IOException {
-        String xml = """
+        String xml =
+                """
                 <?xml version="1.0" encoding="utf-8"?>
                 <CitaviExchangeData Version="6.0.0.0">
                   <References>
@@ -57,12 +55,14 @@ class CitaviXmlImporterTest {
         List<BibEntry> entries = importFromXml(xml, tempDir);
 
         assertEquals(1, entries.size());
-        assertEquals(Optional.of("Har97"), entries.getFirst().getCitationKey());
+        assertEquals(Optional.of("Har97"),
+                entries.getFirst().getCitationKey());
     }
 
     @Test
     void importIgnoresEmptyCitationKey(@TempDir Path tempDir) throws IOException {
-        String xml = """
+        String xml =
+                """
                 <?xml version="1.0" encoding="utf-8"?>
                 <CitaviExchangeData Version="6.0.0.0">
                   <References>
@@ -78,12 +78,14 @@ class CitaviXmlImporterTest {
         List<BibEntry> entries = importFromXml(xml, tempDir);
 
         assertEquals(1, entries.size());
-        assertEquals(Optional.empty(), entries.getFirst().getCitationKey());
+        assertEquals(Optional.empty(),
+                entries.getFirst().getCitationKey());
     }
 
     @Test
     void importStripsWhitespaceFromCitationKey(@TempDir Path tempDir) throws IOException {
-        String xml = """
+        String xml =
+                """
                 <?xml version="1.0" encoding="utf-8"?>
                 <CitaviExchangeData Version="6.0.0.0">
                   <References>
@@ -99,12 +101,14 @@ class CitaviXmlImporterTest {
         List<BibEntry> entries = importFromXml(xml, tempDir);
 
         assertEquals(1, entries.size());
-        assertEquals(Optional.of("Doe2021"), entries.getFirst().getCitationKey());
+        assertEquals(Optional.of("Doe2021"),
+                entries.getFirst().getCitationKey());
     }
 
     @Test
     void importStripsDisallowedCharactersFromCitationKey(@TempDir Path tempDir) throws IOException {
-        String xml = """
+        String xml =
+                """
                 <?xml version="1.0" encoding="utf-8"?>
                 <CitaviExchangeData Version="6.0.0.0">
                   <References>
@@ -120,7 +124,8 @@ class CitaviXmlImporterTest {
         List<BibEntry> entries = importFromXml(xml, tempDir);
 
         assertEquals(1, entries.size());
-        assertEquals(Optional.of("Smith2020"), entries.getFirst().getCitationKey());
+        assertEquals(Optional.of("Smith2020"),
+                entries.getFirst().getCitationKey());
     }
 
     private List<BibEntry> importFromXml(String xml, Path tempDir) throws IOException {
@@ -132,6 +137,8 @@ class CitaviXmlImporterTest {
         }
         Path ctv6bakFile = tempDir.resolve("test.ctv6bak");
         Files.write(ctv6bakFile, baos.toByteArray());
-        return citaviXmlImporter.importDatabase(ctv6bakFile).getDatabase().getEntries();
+        return citaviXmlImporter.importDatabase(ctv6bakFile)
+                                .getDatabase()
+                                .getEntries();
     }
 }

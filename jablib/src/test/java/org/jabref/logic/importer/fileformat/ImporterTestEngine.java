@@ -25,16 +25,17 @@ public class ImporterTestEngine {
 
     private static final String TEST_RESOURCES = "src/test/resources/org/jabref/logic/importer/fileformat";
 
-    /// @param fileNamePredicate A predicate that describes the files which contain tests
+    /// @param fileNamePredicate A predicate that describes the files which
+    ///   contain tests
     /// @return A collection with the names of files in the test folder
-    /// @throws IOException if there is a problem when trying to read the files in the file system
+    /// @throws IOException if there is a problem when trying to read the files
+    ///   in the file system
     public static Collection<String> getTestFiles(Predicate<String> fileNamePredicate) throws IOException {
         try (Stream<Path> stream = Files.list(Path.of(TEST_RESOURCES))) {
-            return stream
-                    .map(path -> path.getFileName().toString())
-                    .filter(fileNamePredicate)
-                    .filter(name -> !"pdf".equals(name)) // There is a `pdf` in {@link TEST_RESOURCES}.
-                    .collect(Collectors.toList());
+            return stream.map(path -> path.getFileName().toString())
+                         .filter(fileNamePredicate)
+                         .filter(name -> !"pdf".equals(name)) // There is a `pdf` in {@link TEST_RESOURCES}.
+                         .collect(Collectors.toList());
         }
     }
 
@@ -57,15 +58,18 @@ public class ImporterTestEngine {
 
     private static Path getPath(String fileName) throws IOException {
         try {
-            return Path.of(ImporterTestEngine.class.getResource(fileName).toURI());
+            return Path.of(ImporterTestEngine.class
+                    .getResource(fileName)
+                    .toURI());
         } catch (URISyntaxException e) {
             throw new IOException(e);
         }
     }
 
     public static void testImportMalformedFiles(Importer importer, String fileName) throws IOException {
-        List<BibEntry> entries = importer.importDatabase(getPath(fileName)).getDatabase()
-                                         .getEntries();
+        List<BibEntry> entries = importer.importDatabase(getPath(fileName))
+                .getDatabase()
+                .getEntries();
         assertEquals(entries, new ArrayList<BibEntry>());
     }
 }

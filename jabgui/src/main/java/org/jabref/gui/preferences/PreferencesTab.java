@@ -9,14 +9,14 @@ import javafx.scene.Node;
 /// It needs to extend from Component.
 public interface PreferencesTab {
 
-    /// Extra, invisible search terms for the tab (synonyms, abbreviations). The visible texts are
-    /// covered by [#getSearchableElements()] already.
+    /// Extra, invisible search terms for the tab (synonyms, abbreviations). The
+    /// visible texts are covered by [#getSearchableElements()] already.
     default List<String> getSearchKeywords() {
         return List.of(getTabName(), getTitle());
     }
 
-    /// The visible texts of the tab with the nodes they caption; the preferences search matches
-    /// these and highlights the node.
+    /// The visible texts of the tab with the nodes they caption; the
+    /// preferences search matches these and highlights the node.
     default List<SearchableElement> getSearchableElements() {
         return List.of();
     }
@@ -26,11 +26,13 @@ public interface PreferencesTab {
 
     /// Should return the localized identifier to use for the tab.
     ///
-    /// @return Identifier for the tab (for instance "General", "Appearance" or "External Files").
+    /// @return Identifier for the tab (for instance "General", "Appearance" or
+    ///   "External Files").
     String getTabName();
 
-    /// The heading the dialog shows above the tab's content. Defaults to the tab's name; override
-    /// where the heading is more specific (e.g. tab "Entry types", heading "Custom entry types").
+    /// The heading the dialog shows above the tab's content. Defaults to the
+    /// tab's name; override where the heading is more specific (e.g. tab "Entry
+    /// types", heading "Custom entry types").
     default String getTitle() {
         return getTabName();
     }
@@ -49,9 +51,10 @@ public interface PreferencesTab {
     /// to be closed. This calls the appropriate method in the ViewModel.
     boolean validateSettings();
 
-    /// This method should be called after storing the preferences, This
-    /// calls the appropriate method in the ViewModel.
+    /// This method should be called after storing the preferences, This calls
+    /// the appropriate method in the ViewModel.
     ///
-    /// @return The messages for the changed properties (e.g. "Changed language: English")
+    /// @return The messages for the changed properties (e.g. "Changed language:
+    ///   English")
     List<String> getRestartWarnings();
 }

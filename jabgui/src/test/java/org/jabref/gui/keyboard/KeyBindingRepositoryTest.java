@@ -13,22 +13,19 @@ class KeyBindingRepositoryTest {
     private static Stream<Arguments> provideTestData() {
         return Stream.of(
                 // Correctly mapped
-                Arguments.of(
-                        List.of(KeyBinding.MERGE_ENTRIES, KeyBinding.NEW_TECHREPORT, KeyBinding.PASTE),
-                        List.of("shortcut+1", "alt+2", "shift+3")
-                ),
+                Arguments.of(List.of(KeyBinding.MERGE_ENTRIES, KeyBinding.NEW_TECHREPORT, KeyBinding.PASTE), List.of("shortcut+1", "alt+2", "shift+3")),
 
                 // Defaults on faulty data
-                Arguments.of(
-                        List.of(KeyBinding.MERGE_ENTRIES, KeyBinding.NEW_TECHREPORT, KeyBinding.PASTE),
-                        List.of(KeyBinding.MERGE_ENTRIES.getDefaultKeyBinding(), KeyBinding.NEW_TECHREPORT.getDefaultKeyBinding())
-                ));
+                Arguments.of(List.of(KeyBinding.MERGE_ENTRIES, KeyBinding.NEW_TECHREPORT, KeyBinding.PASTE),
+                        List.of(KeyBinding.MERGE_ENTRIES.getDefaultKeyBinding(), KeyBinding.NEW_TECHREPORT.getDefaultKeyBinding())));
     }
 
     @ParameterizedTest
     @MethodSource("provideTestData")
     void parseStringLists(List<KeyBinding> keybindings, List<String> bindings) {
-        List<String> bindNames = keybindings.stream().map(KeyBinding::getConstant).toList();
+        List<String> bindNames = keybindings.stream()
+                .map(KeyBinding::getConstant)
+                .toList();
         KeyBindingRepository keyBindingRepository = new KeyBindingRepository(bindNames, bindings);
 
         assertEquals(keyBindingRepository.get(bindNames.getFirst()), bindings.getFirst());

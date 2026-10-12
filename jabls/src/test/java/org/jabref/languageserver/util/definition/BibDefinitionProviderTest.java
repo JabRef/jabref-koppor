@@ -10,7 +10,6 @@ import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.LinkedFile;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,16 +26,20 @@ class BibDefinitionProviderTest {
     void setUp() {
         importFormatPreferences = mock(ImportFormatPreferences.class);
         when(importFormatPreferences.bibEntryPreferences()).thenReturn(mock(BibEntryPreferences.class));
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences()
+                .getKeywordSeparator())
+                .thenReturn(',');
         when(importFormatPreferences.filePreferences()).thenReturn(mock(FilePreferences.class));
-        when(importFormatPreferences.filePreferences().getUserAndHost()).thenReturn("MockedUser-mockedhost");
+        when(importFormatPreferences.filePreferences()
+                .getUserAndHost())
+                .thenReturn("MockedUser-mockedhost");
     }
 
-    /// The functionality itself should be tested elsewhere. We keep this test, because we want to have an end-to-end test
+    /// The functionality itself should be tested elsewhere. We keep this test,
+    /// because we want to have an end-to-end test
     @Test
     void provideDefinition() throws JabRefException, IOException {
-        ParserResult parserResult = lspParserHandler.parserResultFromString(
-                "file:///tmp/some-uri.bib",
+        ParserResult parserResult = lspParserHandler.parserResultFromString("file:///tmp/some-uri.bib",
                 """
                         @Article{Cooper_2007,
                                 author       = {Cooper, Karen A. and Donovan, Jennifer L. and Waterhouse, Andrew L. and Williamson, Gary},
@@ -54,11 +57,13 @@ class BibDefinitionProviderTest {
                         }
                         """,
                 importFormatPreferences);
-        List<LinkedFile> files = parserResult.getDatabaseContext().getEntries().getFirst().getFiles();
+        List<LinkedFile> files = parserResult.getDatabaseContext()
+                .getEntries()
+                .getFirst()
+                .getFiles();
         List<LinkedFile> expected = List.of(
                 new LinkedFile("", "C:/Users/Philip/Downloads/corti-et-al-2009-cocoa-and-cardiovascular-health.pdf", "PDF"),
-                new LinkedFile("", "corti-et-al-2009-cocoa-and-cardiovascular-health.pdf", "PDF")
-        );
+                new LinkedFile("", "corti-et-al-2009-cocoa-and-cardiovascular-health.pdf", "PDF"));
         assertEquals(expected, files);
     }
 }

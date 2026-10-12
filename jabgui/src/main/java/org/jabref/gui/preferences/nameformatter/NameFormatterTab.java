@@ -12,7 +12,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.StandardActions;
 import org.jabref.gui.help.HelpAction;
@@ -82,9 +81,7 @@ public class NameFormatterTab extends AbstractPreferenceTabView<NameFormatterTab
 
         Button help = new Button();
         help.setPrefSize(25.0, 25.0);
-        new ActionFactory().configureIconButton(
-                StandardActions.HELP_NAME_FORMATTER,
-                new HelpAction(HelpFile.CUSTOM_EXPORTS_NAME_FORMATTER, dialogService, preferences.getExternalApplicationsPreferences()),
+        new ActionFactory().configureIconButton(StandardActions.HELP_NAME_FORMATTER, new HelpAction(HelpFile.CUSTOM_EXPORTS_NAME_FORMATTER, dialogService, preferences.getExternalApplicationsPreferences()),
                 help);
 
         Button add = new Button();
@@ -137,8 +134,7 @@ public class NameFormatterTab extends AbstractPreferenceTabView<NameFormatterTab
         new ValueTableCellFactory<NameFormatterItemModel, String>()
                 .withGraphic(_ -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
                 .withTooltip(name -> Localization.lang("Remove formatter '%0'", name))
-                .withOnMouseClickedEvent(_ -> _ ->
-                        viewModel.removeFormatter(table.getFocusModel().getFocusedItem()))
+                .withOnMouseClickedEvent(_ -> _ -> viewModel.removeFormatter(table.getFocusModel().getFocusedItem()))
                 .install(actionsColumn);
 
         table.getColumns().add(nameColumn);
@@ -147,7 +143,8 @@ public class NameFormatterTab extends AbstractPreferenceTabView<NameFormatterTab
 
         table.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.DELETE) {
-                viewModel.removeFormatter(table.getSelectionModel().getSelectedItem());
+                viewModel.removeFormatter(table.getSelectionModel()
+                        .getSelectedItem());
                 event.consume();
             }
         });

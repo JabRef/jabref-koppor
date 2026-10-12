@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.search.sqlbased.LuceneIndexer;
 import org.jabref.logic.search.sqlbased.indexing.DefaultLinkedFilesIndexer;
@@ -23,13 +22,13 @@ import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResults;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Maintains the Lucene index for linked files independently of the metadata search backend.
+/// Maintains the Lucene index for linked files independently of the metadata
+/// search backend.
 @NullMarked
 public class LinkedFilesIndexManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinkedFilesIndexManager.class);
@@ -43,8 +42,7 @@ public class LinkedFilesIndexManager {
     private final ConcurrentHashMap<String, FileDelta> pendingFileValuesByEntry = new ConcurrentHashMap<>();
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    private record FileDelta(String oldValue, String newValue) {
-    }
+    private record FileDelta(String oldValue, String newValue) {}
 
     public LinkedFilesIndexManager(BibDatabaseContext databaseContext, TaskExecutor taskExecutor, FilePreferences filePreferences) {
         this.taskExecutor = taskExecutor;
@@ -126,8 +124,8 @@ public class LinkedFilesIndexManager {
         String entryId = entry.getId();
         pendingFileValuesByEntry.compute(entryId, (_, existing) -> {
             return Optional.ofNullable(existing)
-                           .map(fileDelta -> new FileDelta(fileDelta.oldValue(), normalizeNullToEmpty(event.getNewValue())))
-                           .orElseGet(() -> new FileDelta(normalizeNullToEmpty(event.getOldValue()), normalizeNullToEmpty(event.getNewValue())));
+                    .map(fileDelta -> new FileDelta(fileDelta.oldValue(), normalizeNullToEmpty(event.getNewValue())))
+                    .orElseGet(() -> new FileDelta(normalizeNullToEmpty(event.getOldValue()), normalizeNullToEmpty(event.getNewValue())));
         });
 
         indexUpdateThrottler.schedule(() -> {

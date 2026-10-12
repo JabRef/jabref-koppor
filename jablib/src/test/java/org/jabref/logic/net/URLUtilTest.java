@@ -5,7 +5,6 @@ import java.net.URI;
 import java.net.URL;
 
 import org.jabref.logic.util.URLUtil;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -21,7 +20,8 @@ class URLUtilTest {
 
     @ParameterizedTest
     @CsvSource(
-            textBlock = """
+            textBlock =
+                    """
                     # empty text
                     ''
                     ' '
@@ -29,15 +29,15 @@ class URLUtilTest {
                     this is no url!
                     # no Google search URL
                     http://dl.acm.org/citation.cfm?id=321811
-                    """
-    )
+                    """)
     void cleanGoogleSearchUrlKeepsNonGoogleUrls(String input) {
         assertEquals(input, URLUtil.cleanGoogleSearchURL(input));
     }
 
     @ParameterizedTest
     @CsvSource(
-            textBlock = """
+            textBlock =
+                    """
                     # malformed Google URL
                     https://www.google.de/url♥
                     # no queries
@@ -55,8 +55,7 @@ class URLUtilTest {
                     https://www.google.de/url?url=
                     # url param value no URL
                     https://www.google.de/url?url=this+is+no+url
-                    """
-    )
+                    """)
     void cleanGoogleSearchUrlKeepsGoogleOnlyUrls(String input) {
         assertEquals(input, URLUtil.cleanGoogleSearchURL(input));
     }
@@ -64,7 +63,8 @@ class URLUtilTest {
     @ParameterizedTest
     @CsvSource(
             delimiterString = "->",
-            textBlock = """
+            textBlock =
+                    """
                     # Http
                     http://www.google.de/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0CCEQFjAAahUKEwjJurHd2sfHAhWBsxQKHSrEAaM&url=http%3A%2F%2Fmoz.com%2Fugc%2Fthe-ultimate-guide-to-the-google-search-parameters&ei=0THeVYmOJIHnUqqIh5gK&usg=AFQjCNHnid_r_d2LP8_MqvI7lQnTC3lB_g&sig2=ICzxDroG2ENTJSUGmdhI2w -> http://moz.com/ugc/the-ultimate-guide-to-the-google-search-parameters
                     # Https
@@ -77,30 +77,29 @@ class URLUtilTest {
                     https://www.google.co.uk/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0CCEQFjAAahUKEwjJurHd2sfHAhWBsxQKHSrEAaM&url=https%3A%2F%2Fmoz.com%2Fugc%2Fthe-ultimate-guide-to-the-google-search-parameters&ei=0THeVYmOJIHnUqqIh5gK&usg=AFQjCNHnid_r_d2LP8_MqvI7lQnTC3lB_g&sig2=ICzxDroG2ENTJSUGmdhI2w -> https://moz.com/ugc/the-ultimate-guide-to-the-google-search-parameters
                     # accept ftp results
                     https://www.google.fr/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0CCEQFjAAahUKEwjJurHd2sfHAhWBsxQKHSrEAaM&url=ftp%3A%2F%2Fmoz.com%2Fugc%2Fthe-ultimate-guide-to-the-google-search-parameters&ei=0THeVYmOJIHnUqqIh5gK&usg=AFQjCNHnid_r_d2LP8_MqvI7lQnTC3lB_g&sig2=ICzxDroG2ENTJSUGmdhI2w -> ftp://moz.com/ugc/the-ultimate-guide-to-the-google-search-parameters
-                    """
-    )
+                    """)
     void cleanGoogleSearchURLShouldReturnTargetURL(String input, String expected) {
         assertEquals(expected, URLUtil.cleanGoogleSearchURL(input));
     }
 
     @ParameterizedTest
     @CsvSource(
-            textBlock = """
+            textBlock =
+                    """
                     http://www.google.com
                     https://www.google.com
-                    """
-    )
+                    """)
     void isURLshouldAcceptValidURL(String url) {
         assertTrue(URLUtil.isURL(url));
     }
 
     @ParameterizedTest
     @CsvSource(
-            textBlock = """
+            textBlock =
+                    """
                     www.google.com
                     google.com
-                    """
-    )
+                    """)
     void isURLshouldRejectInvalidURL(String url) {
         assertFalse(URLUtil.isURL(url));
     }
@@ -136,8 +135,7 @@ class URLUtilTest {
 
     @Test
     void emptyUrl() {
-        MalformedURLException exception = assertThrows(MalformedURLException.class, () ->
-                URLUtil.create("   "));
+        MalformedURLException exception = assertThrows(MalformedURLException.class, () -> URLUtil.create("   "));
         assertTrue(exception.getMessage().contains("URL must not be empty."));
     }
 
@@ -152,28 +150,26 @@ class URLUtilTest {
     @Test
     void uriMissingSchemeAndNotStartingWithWww() {
         // URLs not starting with www. and without a scheme should still throw an exception
-        MalformedURLException exception = assertThrows(MalformedURLException.class, () ->
-                URLUtil.create("example.com"));
+        MalformedURLException exception = assertThrows(MalformedURLException.class, () -> URLUtil.create("example.com"));
         assertTrue(exception.getMessage().contains("not absolute"));
     }
 
     @Test
     void uriMissingHost() {
-        MalformedURLException exception = assertThrows(MalformedURLException.class, () ->
-                URLUtil.create("mailto:someone@example.com"));
+        MalformedURLException exception = assertThrows(MalformedURLException.class, () -> URLUtil.create("mailto:someone@example.com"));
         assertTrue(exception.getMessage().contains("must include both scheme and host"));
     }
 
     @Test
     void malformedSyntax() {
-        MalformedURLException exception = assertThrows(MalformedURLException.class, () ->
-                URLUtil.create("http://[invalid-url]"));
+        MalformedURLException exception = assertThrows(MalformedURLException.class, () -> URLUtil.create("http://[invalid-url]"));
         assertTrue(exception.getMessage().contains("Invalid URI"));
     }
 
     @ParameterizedTest
     @CsvSource(
-            textBlock = """
+            textBlock =
+                    """
                     http://www.google.com
                     https://www.google.com
                     http://example.com
@@ -186,15 +182,15 @@ class URLUtilTest {
                     HTTPS://EXAMPLE.COM
                     http://example.com/path/to/resource
                     https://sub.example.com
-                    """
-    )
+                    """)
     void isValidHttpUrlShouldAcceptValidHttpUrls(String url) {
         assertTrue(URLUtil.isValidHttpUrl(url));
     }
 
     @ParameterizedTest
     @CsvSource(
-            textBlock = """
+            textBlock =
+                    """
                     ftp://example.com
                     file:///path/to/file
                     mailto:someone@example.com
@@ -207,8 +203,7 @@ class URLUtilTest {
                     http://example.com/test<>file
                     http://example.com/test{file}
                     http://[invalid-url]
-                    """
-    )
+                    """)
     void isValidHttpUrlShouldRejectNonHttpUrls(String url) {
         assertFalse(URLUtil.isValidHttpUrl(url));
     }

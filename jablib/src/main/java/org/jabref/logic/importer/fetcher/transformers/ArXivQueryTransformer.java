@@ -38,7 +38,8 @@ public class ArXivQueryTransformer extends YearRangeByFilteringQueryTransformer 
         return createKeyValuePair("jr", journalTitle);
     }
 
-    /// Manual testing shows that this works if added as an unfielded term, might lead to false positives
+    /// Manual testing shows that this works if added as an unfielded term,
+    /// might lead to false positives
     @Override
     protected String handleYear(String year) {
         startYear = Math.min(startYear, Integer.parseInt(year));
@@ -56,11 +57,11 @@ public class ArXivQueryTransformer extends YearRangeByFilteringQueryTransformer 
         // multi-word author searches for structured query-node transformations.
         Optional<String> authorQuery = entry.getField(StandardField.AUTHOR).map(author -> "au:" + author);
         Optional<String> titleQuery = entry.getField(StandardField.TITLE)
-                                           .map(StringUtil::ignoreCurlyBracket)
-                                           .map(this::handleTitle);
+                .map(StringUtil::ignoreCurlyBracket)
+                .map(this::handleTitle);
         var queryTerms = Stream.of(authorQuery, titleQuery)
-                               .flatMap(Optional::stream)
-                               .toList();
+                .flatMap(Optional::stream)
+                .toList();
 
         if (queryTerms.isEmpty()) {
             return Optional.empty();

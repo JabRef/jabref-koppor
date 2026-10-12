@@ -2,7 +2,6 @@ package org.jabref.gui.collab.stringdelete;
 
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.collab.DatabaseChangeDetailsView;
 import org.jabref.gui.theme.StyleClasses;
 import org.jabref.logic.l10n.Localization;
@@ -16,8 +15,7 @@ public final class BibTexStringDeleteDetailsView extends DatabaseChangeDetailsVi
         container.getChildren().addAll(
                 header,
                 new Label(Localization.lang("Label: %0", stringDelete.getDeletedString().getName())),
-                new Label(Localization.lang("Content: %0", stringDelete.getDeletedString().getContent()))
-        );
+                new Label(Localization.lang("Content: %0", stringDelete.getDeletedString().getContent())));
 
         this.setAllAnchorsAndAttachChild(container);
     }

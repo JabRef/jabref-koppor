@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javafx.concurrent.Task;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
@@ -26,9 +25,7 @@ public class CopyFilesAction extends SimpleCommand {
     private final StateManager stateManager;
     private final UiTaskExecutor uiTaskExecutor;
 
-    public CopyFilesAction(DialogService dialogService,
-                           CliPreferences preferences,
-                           StateManager stateManager,
+    public CopyFilesAction(DialogService dialogService, CliPreferences preferences, StateManager stateManager,
                            UiTaskExecutor taskExecutor) {
         this.dialogService = dialogService;
         this.preferences = preferences;
@@ -58,10 +55,8 @@ public class CopyFilesAction extends SimpleCommand {
         exportPath.ifPresent(path -> {
             Task<List<CopyFilesResultItemViewModel>> exportTask = new CopyFilesTask(database, entries, path, preferences);
 
-            dialogService.showProgressDialog(
-                    Localization.lang("Copy linked file(s) to folder..."),
-                    Localization.lang("Copy linked file(s) to folder..."),
-                    exportTask);
+            dialogService.showProgressDialog(Localization.lang("Copy linked file(s) to folder..."),
+                    Localization.lang("Copy linked file(s) to folder..."), exportTask);
 
             uiTaskExecutor.execute(exportTask);
             exportTask.setOnSucceeded(_ -> showDialog(exportTask.getValue()));

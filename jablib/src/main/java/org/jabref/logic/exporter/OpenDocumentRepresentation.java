@@ -2,7 +2,6 @@ package org.jabref.logic.exporter;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,7 +17,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -145,7 +143,8 @@ class OpenDocumentRepresentation {
             for (BibEntry e : entries) {
                 row = result.createElement("table:table-row");
                 addTableCell(result, row, getField(e, InternalField.KEY_FIELD));
-                addTableCell(result, row, new GetOpenOfficeType().format(e.getType().getName()));
+                addTableCell(result, row,
+                        new GetOpenOfficeType().format(e.getType().getName()));
                 addTableCell(result, row, getField(e, StandardField.ADDRESS));
                 addTableCell(result, row, getField(e, StandardField.ASSIGNEE));
                 addTableCell(result, row, getField(e, StandardField.ANNOTE));
@@ -171,7 +170,8 @@ class OpenDocumentRepresentation {
                 addTableCell(result, row, getField(e, StandardField.REVISION));
                 addTableCell(result, row, getField(e, StandardField.SCHOOL));
                 addTableCell(result, row, getField(e, StandardField.SERIES));
-                addTableCell(result, row, new NonSpaceWhitespaceRemover().format(new RemoveBrackets().format(getField(e, StandardField.TITLE))));
+                addTableCell(result, row,
+                        new NonSpaceWhitespaceRemover().format(new RemoveBrackets().format(getField(e, StandardField.TITLE))));
                 addTableCell(result, row, getField(e, new UnknownField("reporttype")));
                 addTableCell(result, row, getField(e, StandardField.VOLUME));
                 addTableCell(result, row, getField(e, StandardField.YEAR));

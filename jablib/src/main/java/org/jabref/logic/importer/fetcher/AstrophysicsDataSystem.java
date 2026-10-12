@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.cleanup.MoveFieldCleanup;
 import org.jabref.logic.formatter.bibtexfields.ClearFormatter;
@@ -33,16 +37,10 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.paging.Page;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NonNull;
 
 /// Fetches data from the SAO/NASA Astrophysics Data System (<a href="https://ui.adsabs.harvard.edu/">https://ui.adsabs.harvard.edu/</a>)
-public class AstrophysicsDataSystem
-        implements IdBasedParserFetcher, PagedSearchBasedParserFetcher, EntryBasedParserFetcher, CustomizableKeyFetcher {
+public class AstrophysicsDataSystem implements IdBasedParserFetcher, PagedSearchBasedParserFetcher, EntryBasedParserFetcher, CustomizableKeyFetcher {
     public static final String FETCHER_NAME = "SAO/NASA ADS";
 
     private static final String API_SEARCH_URL = "https://api.adsabs.harvard.edu/v1/search/query";
@@ -65,7 +63,9 @@ public class AstrophysicsDataSystem
 
     /// @return export URL endpoint
     private static URL getUrlForExport() throws URISyntaxException, MalformedURLException {
-        return new URIBuilder(API_EXPORT_URL).build().toURL();
+        return new URIBuilder(API_EXPORT_URL)
+                .build()
+                .toURL();
     }
 
     @Override
@@ -77,7 +77,10 @@ public class AstrophysicsDataSystem
     /// @return URL which points to a search request for given query
     @Override
     public URL getURLForQuery(BaseQueryNode queryList, int pageNumber) throws URISyntaxException, MalformedURLException {
-        return buildSearchURL(new DefaultQueryTransformer().transformSearchQuery(queryList).orElse(""), pageNumber);
+        return buildSearchURL(new DefaultQueryTransformer()
+                .transformSearchQuery(queryList)
+                .orElse(""),
+                pageNumber);
     }
 
     private URL buildSearchURL(String query, int pageNumber) throws URISyntaxException, MalformedURLException {
@@ -99,9 +102,8 @@ public class AstrophysicsDataSystem
         Optional<String> author = entry.getFieldOrAlias(StandardField.AUTHOR).map(a -> "author:\"" + a + "\"");
 
         if (title.isPresent()) {
-            stringBuilder.append(title.get())
-                         .append(author.map(s -> " AND " + s)
-                                       .orElse(""));
+            stringBuilder.append(title.get()).append(author.map(s -> " AND " + s)
+                    .orElse(""));
         } else {
             stringBuilder.append(author.orElse(""));
         }
@@ -132,14 +134,20 @@ public class AstrophysicsDataSystem
 
     @Override
     public void doPostCleanup(BibEntry entry) {
-        new FieldFormatterCleanup(StandardField.ABSTRACT, new RemoveEnclosingBracesFormatter()).cleanup(entry);
-        new FieldFormatterCleanup(StandardField.ABSTRACT, new RemoveNewlinesFormatter()).cleanup(entry);
-        new FieldFormatterCleanup(StandardField.TITLE, new RemoveEnclosingBracesFormatter()).cleanup(entry);
-        new FieldFormatterCleanup(StandardField.AUTHOR, new NormalizeNamesFormatter()).cleanup(entry);
-        new FieldFormatterCleanup(StandardField.MONTH, new NormalizeMonthFormatter()).cleanup(entry);
+        new FieldFormatterCleanup(StandardField.ABSTRACT, new RemoveEnclosingBracesFormatter())
+                .cleanup(entry);
+        new FieldFormatterCleanup(StandardField.ABSTRACT, new RemoveNewlinesFormatter())
+                .cleanup(entry);
+        new FieldFormatterCleanup(StandardField.TITLE, new RemoveEnclosingBracesFormatter())
+                .cleanup(entry);
+        new FieldFormatterCleanup(StandardField.AUTHOR, new NormalizeNamesFormatter())
+                .cleanup(entry);
+        new FieldFormatterCleanup(StandardField.MONTH, new NormalizeMonthFormatter())
+                .cleanup(entry);
 
         // Remove ADS note
-        new FieldFormatterCleanup(new UnknownField("adsnote"), new ClearFormatter()).cleanup(entry);
+        new FieldFormatterCleanup(new UnknownField("adsnote"), new ClearFormatter())
+                .cleanup(entry);
         // Move adsurl to url field
         new MoveFieldCleanup(new UnknownField("adsurl"), StandardField.URL).cleanup(entry);
         entry.getField(StandardField.ABSTRACT)
@@ -211,16 +219,20 @@ public class AstrophysicsDataSystem
             return Optional.empty();
         }
         if (fetchedEntries.size() > 1) {
-            LOGGER.info("Fetcher {} found more than one result for identifier {}. We will use the first entry.", getName(), identifier);
+            LOGGER.info("Fetcher {} found more than one result for identifier {}. We will use the first entry.",
+                    getName(), identifier);
         }
         BibEntry entry = fetchedEntries.getFirst();
         return Optional.of(entry);
     }
 
     /// @param identifiers bibcodes for which bibentries should be fetched
-    /// @return list of bibentries matching the bibcodes. Can be empty and differ in size to the size of requested bibcodes
+    /// @return list of bibentries matching the bibcodes. Can be empty and
+    ///   differ in size to the size of requested bibcodes
     private List<BibEntry> performSearchByIds(Collection<String> identifiers) throws FetcherException {
-        List<String> ids = identifiers.stream().filter(identifier -> !StringUtil.isBlank(identifier)).collect(Collectors.toList());
+        List<String> ids = identifiers.stream()
+                .filter(identifier -> !StringUtil.isBlank(identifier))
+                .collect(Collectors.toList());
         if (ids.isEmpty()) {
             return List.of();
         }

@@ -1,5 +1,7 @@
 package org.jabref.gui.ai.chat;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ListProperty;
 import javafx.fxml.FXML;
@@ -11,7 +13,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.ai.AiPrivacyNoticeView;
 import org.jabref.gui.ai.statuspane.UniversalStatusPaneView;
@@ -28,47 +29,78 @@ import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
-/// General AI chat component with [org.jabref.model.entry.BibEntry]. Can be used for chatting with one entry ([AiEntryChatView]) or with several entries (like [AiGroupChatView]).
+/// General AI chat component with [org.jabref.model.entry.BibEntry]. Can be
+/// used for chatting with one entry ([AiEntryChatView]) or with several entries
+/// (like [AiGroupChatView]).
 ///
-/// To set up this component, set or bind the [#entriesProperty()] and [#chatHistoryProperty()] properties.
+/// To set up this component, set or bind the [#entriesProperty()] and
+/// [#chatHistoryProperty()] properties.
 // [impl->feat~ai.chatting~1]
 public class AiChatView extends StackPane {
-    @FXML private AiPrivacyNoticeView privacyNotice;
-    @FXML private UniversalStatusPaneView restartNeededPane;
-    @FXML private UniversalStatusPaneView noFilesErrorPane;
-    @FXML private BorderPane mainContainer;
+    @FXML
+    private AiPrivacyNoticeView privacyNotice;
 
-    @FXML private ListScrollPane<ChatMessage> chatHistoryScrollPane;
+    @FXML
+    private UniversalStatusPaneView restartNeededPane;
 
-    @FXML private Pane transparentPane;
-    @FXML private ProgressIndicator loadingIndicator;
+    @FXML
+    private UniversalStatusPaneView noFilesErrorPane;
 
-    @FXML private HBox followUpQuestionsArea;
-    @FXML private SimpleListView<String> followUpQuestionsSimpleListView;
+    @FXML
+    private BorderPane mainContainer;
 
-    @FXML private Button infoButton;
+    @FXML
+    private ListScrollPane<ChatMessage> chatHistoryScrollPane;
+
+    @FXML
+    private Pane transparentPane;
+
+    @FXML
+    private ProgressIndicator loadingIndicator;
+
+    @FXML
+    private HBox followUpQuestionsArea;
+
+    @FXML
+    private SimpleListView<String> followUpQuestionsSimpleListView;
+
+    @FXML
+    private Button infoButton;
+
     // [impl->feat~ai.chat.smart-prompt-field~1]
-    @FXML private HistoryTextArea userMessageTextArea;
-    @FXML private Button sendButton;
-    @FXML private Button retryButton;
-    @FXML private Button cancelButton;
+    @FXML
+    private HistoryTextArea userMessageTextArea;
 
-    @FXML private Label noticeText;
+    @FXML
+    private Button sendButton;
 
-    @Inject private GuiPreferences preferences;
-    @Inject private AiService aiService;
-    @Inject private DialogService dialogService;
-    @Inject private TaskExecutor taskExecutor;
+    @FXML
+    private Button retryButton;
+
+    @FXML
+    private Button cancelButton;
+
+    @FXML
+    private Label noticeText;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private AiService aiService;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private TaskExecutor taskExecutor;
 
     private AiChatViewModel viewModel;
 
     public AiChatView() {
         ViewLoader.view(this)
-                  .root(this)
-                  .load();
+                .root(this)
+                .load();
     }
 
     @FXML
@@ -81,8 +113,7 @@ public class AiChatView extends StackPane {
                 aiService.getIngestedDocumentsRepository(),
                 aiService.getEmbeddingsStore(),
                 aiService.getEmbeddingModelCache(),
-                taskExecutor
-        );
+                taskExecutor);
 
         setupBindings();
         setupValues();
@@ -119,8 +150,8 @@ public class AiChatView extends StackPane {
         restartNeededPane.visibleProperty().bind(isRestartNeeded);
         noFilesErrorPane.visibleProperty().bind(isNoFiles);
         mainContainer.visibleProperty().bind(isAiTurnedOff.not()
-                                                          .and(isNoFiles.not())
-                                                          .and(isRestartNeeded.not()));
+                .and(isNoFiles.not())
+                .and(isRestartNeeded.not()));
 
         loadingIndicator.visibleProperty().bind(isWaiting);
         transparentPane.visibleProperty().bind(isWaiting);
@@ -128,7 +159,8 @@ public class AiChatView extends StackPane {
         sendButton.visibleProperty().bind(isIdle);
         retryButton.visibleProperty().bind(isError);
         cancelButton.visibleProperty().bind(isWaiting.or(isError));
-        noticeText.textProperty().bind(viewModel.chatModelProperty().map(AiChatView::formatNoticeText));
+        noticeText.textProperty().bind(viewModel.chatModelProperty()
+                .map(AiChatView::formatNoticeText));
     }
 
     private static String formatNoticeText(ChatModel model) {
@@ -138,10 +170,11 @@ public class AiChatView extends StackPane {
 
     private void setupFollowUpQuestions() {
         followUpQuestionsArea.visibleProperty().bind(
-                viewModel.followUpQuestionsProperty().emptyProperty().not()
+                viewModel.followUpQuestionsProperty()
+                         .emptyProperty()
+                         .not()
                          .and(preferences.getAiPreferences().generateFollowUpQuestionsProperty())
-                         .and(viewModel.stateProperty().isEqualTo(AiChatViewModel.State.IDLE))
-        );
+                         .and(viewModel.stateProperty().isEqualTo(AiChatViewModel.State.IDLE)));
 
         followUpQuestionsSimpleListView.itemsProperty().bind(viewModel.followUpQuestionsProperty());
         followUpQuestionsSimpleListView.setRenderer(question -> {
@@ -153,14 +186,11 @@ public class AiChatView extends StackPane {
     }
 
     private void setupValues() {
-        userMessageTextArea.getHistory().addAll(
-                viewModel
-                        .chatHistoryProperty()
-                        .stream()
-                        .map(ChatMessage::content)
-                        .filter(StringUtil::isNotBlank)
-                        .toList()
-        );
+        userMessageTextArea.getHistory().addAll(viewModel.chatHistoryProperty()
+                .stream()
+                .map(ChatMessage::content)
+                .filter(StringUtil::isNotBlank)
+                .toList());
     }
 
     private Node renderChatMessage(ChatMessage chatMessage) {

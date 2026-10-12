@@ -11,7 +11,6 @@ import java.util.SortedSet;
 import java.util.stream.Collectors;
 
 import javafx.stage.FileChooser;
-
 import org.jabref.logic.exporter.Exporter;
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.l10n.Localization;
@@ -24,8 +23,7 @@ public class FileFilterConverter {
 
     public static FileChooser.ExtensionFilter ANY_FILE = new FileChooser.ExtensionFilter(Localization.lang("Any file"), "*");
 
-    private FileFilterConverter() {
-    }
+    private FileFilterConverter() {}
 
     public static FileChooser.ExtensionFilter toExtensionFilter(FileType fileType) {
         String fileList = String.join(", ", fileType.getExtensionsWithAsteriskAndDot());
@@ -37,9 +35,10 @@ public class FileFilterConverter {
         return new FileChooser.ExtensionFilter(description, fileType.getExtensionsWithAsteriskAndDot());
     }
 
-    /// Determines the appropriate file extension filter based on the given file.
-    /// If the file is recognized as a BibTeX file, it returns a BibTeX-specific extension filter.
-    /// Otherwise, it returns a generic filter.
+    /// Determines the appropriate file extension filter based on the given
+    /// file. If the file is recognized as a BibTeX file, it returns a
+    /// BibTeX-specific extension filter. Otherwise, it returns a generic
+    /// filter.
     ///
     /// @param file The file to check.
     /// @return The corresponding Extension Filter for the file type.
@@ -51,18 +50,24 @@ public class FileFilterConverter {
     }
 
     public static Optional<Importer> getImporter(FileChooser.ExtensionFilter extensionFilter, Collection<Importer> importers) {
-        return importers.stream().filter(importer -> importer.getName().equals(extensionFilter.getDescription())).findFirst();
+        return importers.stream()
+                        .filter(importer -> importer.getName().equals(extensionFilter.getDescription()))
+                        .findFirst();
     }
 
     public static Optional<Exporter> getExporter(FileChooser.ExtensionFilter extensionFilter, Collection<Exporter> exporters) {
-        return exporters.stream().filter(exporter -> exporter.getName().equals(extensionFilter.getDescription())).findFirst();
+        return exporters.stream()
+                        .filter(exporter -> exporter.getName().equals(extensionFilter.getDescription()))
+                        .findFirst();
     }
 
     public static FileChooser.ExtensionFilter forAllImporters(SortedSet<Importer> importers) {
-        List<FileType> fileTypes = importers.stream().map(Importer::getFileType).toList();
+        List<FileType> fileTypes = importers.stream()
+                .map(Importer::getFileType)
+                .toList();
         List<String> flatExtensions = fileTypes.stream()
-                                               .flatMap(type -> type.getExtensionsWithAsteriskAndDot().stream())
-                                               .collect(Collectors.toList());
+                .flatMap(type -> type.getExtensionsWithAsteriskAndDot().stream())
+                .collect(Collectors.toList());
 
         return new FileChooser.ExtensionFilter(Localization.lang("Available import formats"), flatExtensions);
     }
@@ -96,16 +101,16 @@ public class FileFilterConverter {
 
     public static Filter<Path> toDirFilter(List<String> extensions) {
         List<String> extensionsCleaned = extensions.stream()
-                                                   .map(extension -> extension.replace(".", "").replace("*", ""))
-                                                   .filter(StringUtil::isNotBlank)
-                                                   .toList();
+                .map(extension -> extension.replace(".", "").replace("*", ""))
+                .filter(StringUtil::isNotBlank)
+                .toList();
         if (extensionsCleaned.isEmpty()) {
             // Except every file
             return _ -> true;
         } else {
             return path -> FileUtil.getFileExtension(path)
-                                   .map(extensionsCleaned::contains)
-                                   .orElse(false);
+                    .map(extensionsCleaned::contains)
+                    .orElse(false);
         }
     }
 }

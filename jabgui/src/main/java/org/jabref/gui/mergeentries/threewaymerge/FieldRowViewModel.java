@@ -1,5 +1,6 @@
 package org.jabref.gui.mergeentries.threewaymerge;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -8,7 +9,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.mergeentries.threewaymerge.fieldsmerger.FieldMerger;
 import org.jabref.gui.mergeentries.threewaymerge.fieldsmerger.FieldMergerFactory;
 import org.jabref.logic.bibtex.comparator.plausibility.PlausibilityComparatorFactory;
@@ -18,8 +18,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.types.EntryTypeFactory;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +26,8 @@ public class FieldRowViewModel {
     public enum Selection {
         LEFT,
         RIGHT,
-        /// When the user types something into the merged field value and neither the left nor
-        /// right values match it, NONE is selected
+        /// When the user types something into the merged field value and
+        /// neither the left nor right values match it, NONE is selected
         NONE
     }
 
@@ -54,14 +52,16 @@ public class FieldRowViewModel {
 
     private final FieldMergerFactory fieldMergerFactory;
 
-    /// Values captured the first time this row's fields were merged, so that unmerge can put
-    /// them back and a later merge can reapply the same result. Null until the first merge.
+    /// Values captured the first time this row's fields were merged, so that
+    /// unmerge can put them back and a later merge can reapply the same result.
+    /// Null until the first merge.
     private @Nullable MergedValues mergedValues;
 
     /// Whether the merged value is currently shown, as opposed to the two original values.
     private boolean showingMergedValue;
 
-    public FieldRowViewModel(Field field, BibEntry leftEntry, BibEntry rightEntry, BibEntry mergedEntry, FieldMergerFactory fieldMergerFactory) {
+    public FieldRowViewModel(Field field, BibEntry leftEntry, BibEntry rightEntry,
+            BibEntry mergedEntry, FieldMergerFactory fieldMergerFactory) {
         this.field = field;
         this.leftEntry = leftEntry;
         this.rightEntry = rightEntry;
@@ -73,52 +73,57 @@ public class FieldRowViewModel {
             setRightFieldValue(rightEntry.getType().getDisplayName());
         } else {
             setLeftFieldValue(leftEntry.getField(field).orElse(""));
-            setRightFieldValue(rightEntry.getField(field).orElse(""));
+            setRightFieldValue(rightEntry.getField(field)
+                    .orElse(""));
         }
 
-        EasyBind.listen(leftFieldValueProperty(), (_, _, leftValue) -> leftEntry.setField(field, leftValue));
-        EasyBind.listen(rightFieldValueProperty(), (_, _, rightValue) -> rightEntry.setField(field, rightValue));
-        EasyBind.listen(mergedFieldValueProperty(), (_, _, mergedFieldValue) -> {
-            if (field.equals(InternalField.TYPE_HEADER)) {
-                getMergedEntry().setType(EntryTypeFactory.parse(mergedFieldValue));
-            } else {
-                getMergedEntry().setField(field, mergedFieldValue);
-            }
-        });
+        EasyBind.listen(leftFieldValueProperty(),
+                (_, _, leftValue) -> leftEntry.setField(field, leftValue));
+        EasyBind.listen(rightFieldValueProperty(),
+                (_, _, rightValue) -> rightEntry.setField(field, rightValue));
+        EasyBind.listen(mergedFieldValueProperty(),
+                (_, _, mergedFieldValue) -> {
+                    if (field.equals(InternalField.TYPE_HEADER)) {
+                        getMergedEntry().setType(EntryTypeFactory.parse(mergedFieldValue));
+                    } else {
+                        getMergedEntry().setField(field, mergedFieldValue);
+                    }
+                });
 
         hasEqualLeftAndRight = Bindings.createBooleanBinding(this::hasEqualLeftAndRightValues, leftFieldValueProperty(), rightFieldValueProperty());
 
         selectNonEmptyValue();
 
-        EasyBind.listen(isFieldsMergedProperty(), (_, _, areFieldsMerged) -> {
-            LOGGER.debug("Field are merged: {}", areFieldsMerged);
-            if (areFieldsMerged) {
-                selectLeftValue();
-            } else {
-                selectNonEmptyValue();
-            }
-        });
+        EasyBind.listen(isFieldsMergedProperty(),
+                (_, _, areFieldsMerged) -> {
+                    LOGGER.debug("Field are merged: {}", areFieldsMerged);
+                    if (areFieldsMerged) {
+                        selectLeftValue();
+                    } else {
+                        selectNonEmptyValue();
+                    }
+                });
 
-        EasyBind.subscribe(selectionProperty(), selection -> {
-            LOGGER.debug("Selecting {}' value for field {}", selection, FieldTextMapper.getDisplayName(field));
-            switch (selection) {
-                case LEFT ->
-                        EasyBind.subscribe(leftFieldValueProperty(), this::setMergedFieldValue);
-                case RIGHT ->
-                        EasyBind.subscribe(rightFieldValueProperty(), this::setMergedFieldValue);
-            }
-        });
+        EasyBind.subscribe(selectionProperty(),
+                selection -> {
+                    LOGGER.debug("Selecting {}' value for field {}", selection, FieldTextMapper.getDisplayName(field));
+                    switch (selection) {
+                        case LEFT -> EasyBind.subscribe(leftFieldValueProperty(), this::setMergedFieldValue);
+                        case RIGHT -> EasyBind.subscribe(rightFieldValueProperty(), this::setMergedFieldValue);
+                    }
+                });
 
-        EasyBind.subscribe(mergedFieldValueProperty(), mergedValue -> {
-            LOGGER.debug("Merged value is {} for field {}", mergedValue, FieldTextMapper.getDisplayName(field));
-            if (mergedValue.equals(getLeftFieldValue())) {
-                selectLeftValue();
-            } else if (getMergedFieldValue().equals(getRightFieldValue())) {
-                selectRightValue();
-            } else {
-                selectNone();
-            }
-        });
+        EasyBind.subscribe(mergedFieldValueProperty(),
+                mergedValue -> {
+                    LOGGER.debug("Merged value is {} for field {}", mergedValue, FieldTextMapper.getDisplayName(field));
+                    if (mergedValue.equals(getLeftFieldValue())) {
+                        selectLeftValue();
+                    } else if (getMergedFieldValue().equals(getRightFieldValue())) {
+                        selectRightValue();
+                    } else {
+                        selectNone();
+                    }
+                });
 
         EasyBind.subscribe(hasEqualLeftAndRightBinding(), this::setIsFieldsMerged);
 
@@ -134,11 +139,11 @@ public class FieldRowViewModel {
                 .map(comparator -> comparator.compare(leftValue, rightValue))
                 .ifPresent(result -> {
                     switch (result) {
-                        case RIGHT_BETTER ->
-                                selectRightValue();
-                        case LEFT_BETTER ->
-                                selectLeftValue();
-                        default -> { /* nothing */ }
+                        case RIGHT_BETTER -> selectRightValue();
+                        case LEFT_BETTER -> selectLeftValue();
+                        default -> {
+                            // nothing
+                        }
                     }
                 });
     }
@@ -279,6 +284,5 @@ public class FieldRowViewModel {
         return mergedEntry;
     }
 
-    private record MergedValues(String left, String right, String merged) {
-    }
+    private record MergedValues(String left, String right, String merged) {}
 }

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Optional;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.util.BuildInfo;
 import org.jabref.logic.util.URLUtil;
@@ -12,7 +11,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.DisabledOnCIServer;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

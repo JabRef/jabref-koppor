@@ -5,11 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import jakarta.ws.rs.core.MediaType;
 import org.jabref.http.server.cayw.CAYWQueryParams;
 import org.jabref.http.server.cayw.CitationProperties;
 import org.jabref.http.server.cayw.gui.CAYWEntry;
-
-import jakarta.ws.rs.core.MediaType;
 
 public class TypstFormatter implements CAYWFormatter {
 
@@ -27,30 +26,31 @@ public class TypstFormatter implements CAYWFormatter {
     }
 
     private Optional<String> formatEntry(CAYWEntry entry) {
-        return entry.bibEntry().getCitationKey().map(key -> {
-            CitationProperties props = entry.citationProperties();
+        return entry.bibEntry()
+                    .getCitationKey()
+                    .map(
+                            key -> {
+                                CitationProperties props = entry.citationProperties();
 
-            /// <key> or label("key") for keys with /
-            String keyRef = key.contains("/")
-                            ? "label(\"%s\")".formatted(key)
-                            : "<%s>".formatted(key);
+                                /// <key> or label("key") for keys with /
+                                String keyRef = key.contains("/") ? "label(\"%s\")".formatted(key) : "<%s>".formatted(key);
 
-            String locator = props.getFormattedLocator().orElse("");
-            boolean omitAuthor = props.isOmitAuthor();
+                                String locator = props.getFormattedLocator().orElse("");
+                                boolean omitAuthor = props.isOmitAuthor();
 
-            /// #cite(<key>, supplement: [...], form: "year")
-            List<String> args = new ArrayList<>();
-            args.add(keyRef);
+                                /// #cite(<key>, supplement: [...], form: "year")
+                                List<String> args = new ArrayList<>();
+                                args.add(keyRef);
 
-            if (!locator.isEmpty()) {
-                args.add("supplement: [%s]".formatted(locator));
-            }
+                                if (!locator.isEmpty()) {
+                                    args.add("supplement: [%s]".formatted(locator));
+                                }
 
-            if (omitAuthor) {
-                args.add("form: \"year\"");
-            }
+                                if (omitAuthor) {
+                                    args.add("form: \"year\"");
+                                }
 
-            return "#cite(%s)".formatted(String.join(", ", args));
-        });
+                                return "#cite(%s)".formatted(String.join(", ", args));
+                            });
     }
 }

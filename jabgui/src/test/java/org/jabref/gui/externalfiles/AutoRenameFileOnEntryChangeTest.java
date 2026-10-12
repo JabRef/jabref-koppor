@@ -6,11 +6,12 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.common.eventbus.Subscribe;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
+import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences.KeySuffix;
 import org.jabref.logic.citationkeypattern.GlobalCitationKeyPatterns;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
@@ -20,8 +21,6 @@ import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.MetaData;
-
-import com.google.common.eventbus.Subscribe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -46,26 +45,18 @@ class AutoRenameFileOnEntryChangeTest {
         GlobalCitationKeyPatterns keyPattern = GlobalCitationKeyPatterns.fromPattern("[auth][year]");
         GuiPreferences guiPreferences = mock(GuiPreferences.class);
         filePreferences = mock(FilePreferences.class);
-        CitationKeyPatternPreferences patternPreferences = new CitationKeyPatternPreferences(
-                false,
-                false,
-                true,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A,
-                "",
-                "",
-                DEFAULT_UNWANTED_CHARACTERS,
-                keyPattern,
-                new SimpleObjectProperty<>(','));
+        CitationKeyPatternPreferences patternPreferences = new CitationKeyPatternPreferences(false, false, true, false, KeySuffix.SECOND_WITH_A, "",
+                "", DEFAULT_UNWANTED_CHARACTERS, keyPattern, new SimpleObjectProperty<>(','));
 
         when(guiPreferences.getCitationKeyPatternPreferences()).thenReturn(patternPreferences);
         when(guiPreferences.getFilePreferences()).thenReturn(filePreferences);
         when(filePreferences.shouldStoreFilesRelativeToBibFile()).thenReturn(true);
         when(filePreferences.getFileNamePattern()).thenReturn("[bibtexkey]");
 
-        entry = new BibEntry(StandardEntryType.Article).withCitationKey("oldKey2081")
-                                                       .withField(StandardField.AUTHOR, "oldKey")
-                                                       .withField(StandardField.YEAR, "2081");
+        entry = new BibEntry(StandardEntryType.Article)
+                .withCitationKey("oldKey2081")
+                .withField(StandardField.AUTHOR, "oldKey")
+                .withField(StandardField.YEAR, "2081");
 
         bibDatabaseContext.getDatabase().insertEntry(entry);
         AutoRenameFileOnEntryChange autoRenameFileOnEntryChange = new AutoRenameFileOnEntryChange(bibDatabaseContext, guiPreferences.getFilePreferences());
@@ -94,7 +85,10 @@ class AutoRenameFileOnEntryChangeTest {
         entry.setFiles(List.of(new LinkedFile("", "oldKey2081.pdf", "PDF")));
         entry.setField(StandardField.AUTHOR, "newKey");
 
-        assertEquals("oldKey2081.pdf", entry.getFiles().getFirst().getLink());
+        assertEquals("oldKey2081.pdf",
+                entry.getFiles()
+                     .getFirst()
+                     .getLink());
         assertFileExists(tempDir.resolve("oldKey2081.pdf"));
     }
 
@@ -106,7 +100,10 @@ class AutoRenameFileOnEntryChangeTest {
         when(filePreferences.shouldAutoRenameFilesOnChange()).thenReturn(true);
         entry.setField(StandardField.AUTHOR, "newKey");
 
-        assertEquals("oldKey2081.pdf", entry.getFiles().getFirst().getLink());
+        assertEquals("oldKey2081.pdf",
+                entry.getFiles()
+                     .getFirst()
+                     .getLink());
         assertFileExists(tempDir.resolve("oldKey2081.pdf"));
     }
 
@@ -118,25 +115,25 @@ class AutoRenameFileOnEntryChangeTest {
 
         // change author only
         entry.setField(StandardField.AUTHOR, "newKey");
-        assertEquals("newKey2081.pdf", entry.getFiles().getFirst().getLink());
+        assertEquals("newKey2081.pdf",
+                entry.getFiles()
+                     .getFirst()
+                     .getLink());
         assertFileExists(tempDir.resolve("newKey2081.pdf"));
 
         // change year only
         entry.setField(StandardField.YEAR, "2082");
-        assertEquals("newKey2082.pdf", entry.getFiles().getFirst().getLink());
+        assertEquals("newKey2082.pdf",
+                entry.getFiles()
+                     .getFirst()
+                     .getLink());
         assertFileExists(tempDir.resolve("newKey2082.pdf"));
     }
 
     @Test
     void multipleFilesRenameOnEntryChange() throws IOException {
         // create multiple entries
-        List<String> fileNames = List.of(
-                "oldKey2081.pdf",
-                "oldKey2081.jpg",
-                "oldKey2081.csv",
-                "oldKey2081.doc",
-                "oldKey2081.docx"
-        );
+        List<String> fileNames = List.of("oldKey2081.pdf", "oldKey2081.jpg", "oldKey2081.csv", "oldKey2081.doc", "oldKey2081.docx");
 
         for (String fileName : fileNames) {
             Path filePath = tempDir.resolve(fileName);
@@ -183,13 +180,16 @@ class AutoRenameFileOnEntryChangeTest {
         assertFileExists(tempDir.resolve("newKey2081.pdf"));
         assertFileExists(tempDir.resolve("newKey2081 (1).pdf"));
         assertFileExists(tempDir.resolve("newKey2081 (2).pdf"));
-        assertEquals("newKey2081 (2).pdf", entry.getFiles().getFirst().getLink());
+        assertEquals("newKey2081 (2).pdf",
+                entry.getFiles()
+                     .getFirst()
+                     .getLink());
     }
 
     static void assertFileExists(Path file) throws IOException {
         String listedFiles = Files.list(file.getParent())
-                                  .map(path -> "'" + path.getFileName().toString() + "'")
-                                  .collect(Collectors.joining(", "));
+                .map(path -> "'" + path.getFileName().toString() + "'")
+                .collect(Collectors.joining(", "));
 
         assertTrue(Files.exists(file), "file '" + file.getFileName().toString() + "' doesn't exist,  but found " + listedFiles);
     }

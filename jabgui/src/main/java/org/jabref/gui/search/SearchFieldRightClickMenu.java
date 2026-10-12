@@ -6,15 +6,13 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
-
+import org.controlsfx.control.textfield.CustomTextField;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.actions.StandardActions;
 import org.jabref.gui.fieldeditors.contextmenu.EditorContextAction;
 import org.jabref.logic.l10n.Localization;
-
-import org.controlsfx.control.textfield.CustomTextField;
 
 public class SearchFieldRightClickMenu {
     public static ContextMenu create(StateManager stateManager, CustomTextField searchField) {

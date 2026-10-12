@@ -4,7 +4,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.gui.duplicationFinder.DuplicateResolverDialog;
 
 public class MergeDialogPreferences {
@@ -17,22 +16,23 @@ public class MergeDialogPreferences {
     private final ObjectProperty<DuplicateResolverDialog.DuplicateResolverResult> allEntriesDuplicateResolverDecision;
 
     private MergeDialogPreferences() {
-        this(DiffMode.WORD,                                             // Default diff mode
-                true,                                                   // Default show diff
-                true,                                                   // Default show unified diff
-                true,                                                   // Default highlight words
-                false,                                                  // Default show changed fields only
-                false,                                                  // Default apply to all entries
+        this(DiffMode.WORD, // Default diff mode
+        true, // Default show diff
+        true, // Default show unified diff
+        true, // Default highlight words
+        false, // Default show changed fields only
+        false, // Default apply to all entries
                 DuplicateResolverDialog.DuplicateResolverResult.BREAK); // Default duplicate resolver decision
     }
 
-    public MergeDialogPreferences(DiffMode mergeDiffMode,
-                                  boolean mergeShouldShowDiff,
-                                  boolean mergeShouldShowUnifiedDiff,
-                                  boolean mergeHighlightWords,
-                                  boolean mergeShowChangedFieldsOnly,
-                                  boolean mergeApplyToAllEntries,
-                                  DuplicateResolverDialog.DuplicateResolverResult allEntriesDuplicateResolverDecision) {
+    public MergeDialogPreferences(
+            DiffMode mergeDiffMode,
+            boolean mergeShouldShowDiff,
+            boolean mergeShouldShowUnifiedDiff,
+            boolean mergeHighlightWords,
+            boolean mergeShowChangedFieldsOnly,
+            boolean mergeApplyToAllEntries,
+            DuplicateResolverDialog.DuplicateResolverResult allEntriesDuplicateResolverDecision) {
         this.mergeDiffMode = new SimpleObjectProperty<>(mergeDiffMode);
         this.mergeShouldShowDiff = new SimpleBooleanProperty(mergeShouldShowDiff);
         this.mergeShouldShowUnifiedDiff = new SimpleBooleanProperty(mergeShouldShowUnifiedDiff);

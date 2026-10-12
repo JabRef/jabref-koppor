@@ -5,7 +5,6 @@ import java.util.List;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 import org.jabref.model.ai.pipeline.RelevantInformation;
 import org.jabref.model.ai.pipeline.ResponseEngineKind;
-
 import org.jspecify.annotations.NullMarked;
 
 // [impl->feat~ai.response-engines~1]
@@ -15,4 +14,3 @@ public interface ResponseEngine {
 
     ResponseEngineKind getKind();
 }
-

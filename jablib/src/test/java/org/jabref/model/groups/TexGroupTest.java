@@ -9,7 +9,6 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,8 +28,11 @@ class TexGroupTest {
 
     @Test
     void containsReturnsTrueForEntryInAux() throws URISyntaxException {
-        Path auxFile = Path.of(TexGroupTest.class.getResource("paper.aux").toURI());
-        TexGroup group = new TexGroup("paper", GroupHierarchyType.INDEPENDENT, auxFile, new DefaultAuxParser(new BibDatabase()), new DummyFileUpdateMonitor(), metaData, "userandHost");
+        Path auxFile = Path.of(TexGroupTest.class
+                .getResource("paper.aux")
+                .toURI());
+        TexGroup group = new TexGroup("paper", GroupHierarchyType.INDEPENDENT, auxFile, new DefaultAuxParser(new BibDatabase()),
+                new DummyFileUpdateMonitor(), metaData, "userandHost");
         BibEntry inAux = new BibEntry();
         inAux.setCitationKey("Darwin1888");
 
@@ -39,8 +41,11 @@ class TexGroupTest {
 
     @Test
     void containsReturnsTrueForEntryNotInAux() throws URISyntaxException {
-        Path auxFile = Path.of(TexGroupTest.class.getResource("paper.aux").toURI());
-        TexGroup group = new TexGroup("paper", GroupHierarchyType.INDEPENDENT, auxFile, new DefaultAuxParser(new BibDatabase()), new DummyFileUpdateMonitor(), metaData, "userandHost");
+        Path auxFile = Path.of(TexGroupTest.class
+                .getResource("paper.aux")
+                .toURI());
+        TexGroup group = new TexGroup("paper", GroupHierarchyType.INDEPENDENT, auxFile, new DefaultAuxParser(new BibDatabase()),
+                new DummyFileUpdateMonitor(), metaData, "userandHost");
         BibEntry notInAux = new BibEntry();
         notInAux.setCitationKey("NotInAux2017");
 
@@ -49,10 +54,14 @@ class TexGroupTest {
 
     @Test
     void getFilePathReturnsRelativePath() throws URISyntaxException {
-        Path auxFile = Path.of(TexGroupTest.class.getResource("paper.aux").toURI());
+        Path auxFile = Path.of(TexGroupTest.class
+                .getResource("paper.aux")
+                .toURI());
         String user = "Darwin";
-        metaData.setLatexFileDirectory(user, auxFile.getParent().toString());
-        TexGroup group = new TexGroup("paper", GroupHierarchyType.INDEPENDENT, auxFile, new DefaultAuxParser(new BibDatabase()), new DummyFileUpdateMonitor(), metaData, user);
+        metaData.setLatexFileDirectory(user, auxFile.getParent()
+                .toString());
+        TexGroup group = new TexGroup("paper", GroupHierarchyType.INDEPENDENT, auxFile, new DefaultAuxParser(new BibDatabase()),
+                new DummyFileUpdateMonitor(), metaData, user);
 
         assertEquals("paper.aux", group.getFilePath().toString());
     }

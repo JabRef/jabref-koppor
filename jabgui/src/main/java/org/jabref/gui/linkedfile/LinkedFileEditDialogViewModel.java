@@ -7,6 +7,9 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -15,7 +18,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.stage.Window;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.externalfiletype.ExternalFileType;
@@ -30,10 +32,6 @@ import org.jabref.logic.util.io.FileNameCleaner;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.LinkedFile;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,11 +51,8 @@ public class LinkedFileEditDialogViewModel extends AbstractViewModel {
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
     private final FilePreferences filePreferences;
 
-    public LinkedFileEditDialogViewModel(LinkedFile linkedFile,
-                                         BibDatabaseContext database,
-                                         DialogService dialogService,
-                                         ExternalApplicationsPreferences externalApplicationsPreferences,
-                                         FilePreferences filePreferences) {
+    public LinkedFileEditDialogViewModel(LinkedFile linkedFile, BibDatabaseContext database, DialogService dialogService,
+            ExternalApplicationsPreferences externalApplicationsPreferences, FilePreferences filePreferences) {
         this.database = database;
         this.dialogService = dialogService;
         this.filePreferences = filePreferences;
@@ -72,14 +67,12 @@ public class LinkedFileEditDialogViewModel extends AbstractViewModel {
         if (!link.isEmpty()) {
             // Check if this looks like a remote link:
             if (REMOTE_LINK_PATTERN.matcher(link).matches()) {
-                ExternalFileTypes.getExternalFileTypeByExt("html", externalApplicationsPreferences)
-                                 .ifPresent(selectedExternalFileType::setValue);
+                ExternalFileTypes.getExternalFileTypeByExt("html", externalApplicationsPreferences).ifPresent(selectedExternalFileType::setValue);
             }
 
             // Try to guess the file type:
             String theLink = link.trim();
-            ExternalFileTypes.getExternalFileTypeForName(theLink, externalApplicationsPreferences)
-                             .ifPresent(selectedExternalFileType::setValue);
+            ExternalFileTypes.getExternalFileTypeForName(theLink, externalApplicationsPreferences).ifPresent(selectedExternalFileType::setValue);
         }
     }
 
@@ -89,7 +82,9 @@ public class LinkedFileEditDialogViewModel extends AbstractViewModel {
         Optional<Path> file = FileUtil.find(database, fileText, filePreferences);
 
         Path workingDir = file.orElse(filePreferences.getWorkingDirectory());
-        String fileName = Path.of(fileText).getFileName().toString();
+        String fileName = Path.of(fileText)
+                .getFileName()
+                .toString();
 
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
                 .withInitialDirectory(workingDir)
@@ -102,10 +97,10 @@ public class LinkedFileEditDialogViewModel extends AbstractViewModel {
     @VisibleForTesting
     void checkForBadFileNameAndAdd(Path fileToAdd) {
         if (FileUtil.detectBadFileName(fileToAdd.toString())) {
-            String newFilename = FileNameCleaner.cleanFileName(fileToAdd.getFileName().toString());
+            String newFilename = FileNameCleaner.cleanFileName(fileToAdd.getFileName()
+                    .toString());
 
-            boolean correctButtonPressed = dialogService.showConfirmationDialogAndWait(Localization.lang("File \"%0\" cannot be added!", fileToAdd.getFileName()),
-                    Localization.lang("Illegal characters in the file name detected.\nFile will be renamed to \"%0\" and added.", newFilename),
+            boolean correctButtonPressed = dialogService.showConfirmationDialogAndWait(Localization.lang("File \"%0\" cannot be added!", fileToAdd.getFileName()), Localization.lang("Illegal characters in the file name detected.\nFile will be renamed to \"%0\" and added.", newFilename),
                     Localization.lang("Rename and add"));
 
             if (correctButtonPressed) {
@@ -167,16 +162,21 @@ public class LinkedFileEditDialogViewModel extends AbstractViewModel {
     }
 
     public LinkedFile getNewLinkedFile() {
-        String fileType = monadicSelectedExternalFileType.getValue().map(ExternalFileType::toString).orElse("");
+        String fileType = monadicSelectedExternalFileType.getValue()
+                .map(ExternalFileType::toString)
+                .orElse("");
 
         if (LinkedFile.isOnlineLink(link.getValue())) {
             try {
-                return new LinkedFile(description.getValue(), URLUtil.create(link.getValue()), fileType, sourceUrl.getValue());
+                return new LinkedFile(description.getValue(), URLUtil.create(link.getValue()), fileType,
+                        sourceUrl.getValue());
             } catch (MalformedURLException _) {
-                return new LinkedFile(description.getValue(), link.getValue(), fileType, sourceUrl.getValue());
+                return new LinkedFile(description.getValue(), link.getValue(), fileType,
+                        sourceUrl.getValue());
             }
         }
-        return new LinkedFile(description.getValue(), Path.of(link.getValue()), fileType, sourceUrl.getValue());
+        return new LinkedFile(description.getValue(), Path.of(link.getValue()), fileType,
+                sourceUrl.getValue());
     }
 
     private String relativize(Path filePath) {

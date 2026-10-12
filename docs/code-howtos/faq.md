@@ -26,6 +26,10 @@ Then, click "Sync fork" to get your fork up-to-date and get the workflow passing
 
 ## Failing tests
 
+### Failing <b>format</b> check
+
+JabRef's Java sources are formatted with [jfmt](https://github.com/Netflix/jfmt). Run `./gradlew jfmt` (or `just format`), commit the result, and push. Details are in the [formatting section of the code quality howto](code-quality.md#formatting).
+
 ### Failing <b>Checkstyle</b> tests
 
 JabRef follows a pre-defined style of code for uniformity and maintainability that must be adhered to during development. To set up warnings and auto-fixes conforming to these style rules in your IDE, follow [Step 3](https://devdocs.jabref.org/getting-into-the-code/guidelines-for-setting-up-a-local-workspace/intellij-13-code-style.html) of the process to set up a local workspace in the documentation. Ideally, follow all the [set up rules](https://devdocs.jabref.org/getting-into-the-code/guidelines-for-setting-up-a-local-workspace/) in the documentation end-to-end to avoid typical set-up errors.<br> <b>Note</b>: The steps provided in the documentation are for IntelliJ, which is the preferred IDE for Java development. The `checkstyle.xml` is also available for VSCode, in the same directory as mentioned in the steps.

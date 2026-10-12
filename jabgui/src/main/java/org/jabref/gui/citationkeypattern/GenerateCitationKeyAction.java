@@ -37,11 +37,8 @@ public class GenerateCitationKeyAction extends SimpleCommand {
     private final TaskExecutor taskExecutor;
     private final CliPreferences preferences;
 
-    public GenerateCitationKeyAction(Supplier<LibraryTab> tabSupplier,
-                                     DialogService dialogService,
-                                     StateManager stateManager,
-                                     TaskExecutor taskExecutor,
-                                     CliPreferences preferences) {
+    public GenerateCitationKeyAction(Supplier<LibraryTab> tabSupplier, DialogService dialogService, StateManager stateManager,
+            TaskExecutor taskExecutor, CliPreferences preferences) {
         this.tabSupplier = tabSupplier;
         this.dialogService = dialogService;
         this.stateManager = stateManager;
@@ -59,8 +56,7 @@ public class GenerateCitationKeyAction extends SimpleCommand {
 
     private void generateKeysIn(BibDatabaseContext databaseContext) {
         if (entries.isEmpty()) {
-            dialogService.showWarningDialogAndWait(Localization.lang("Autogenerate citation keys"),
-                    Localization.lang("First select the entries you want keys to be generated for."));
+            dialogService.showWarningDialogAndWait(Localization.lang("Autogenerate citation keys"), Localization.lang("First select the entries you want keys to be generated for."));
             return;
         }
         dialogService.notify(formatOutputMessage(Localization.lang("Generating citation key for"), entries.size()));
@@ -137,8 +133,7 @@ public class GenerateCitationKeyAction extends SimpleCommand {
                     messageProperty().set(Localization.lang("%0/%1 entries", 0, entries.size()));
                 });
                 // generate the new citation keys for each entry
-                CitationKeyGenerator keyGenerator =
-                        new CitationKeyGenerator(databaseContext, preferences.getCitationKeyPatternPreferences());
+                CitationKeyGenerator keyGenerator = new CitationKeyGenerator(databaseContext, preferences.getCitationKeyPatternPreferences());
                 int entriesDone = 0;
                 for (BibEntry entry : entries) {
                     String newKey = keyGenerator.generateKey(entry);
@@ -158,8 +153,7 @@ public class GenerateCitationKeyAction extends SimpleCommand {
             }
         };
 
-        return backgroundTask.onSuccess(_ ->
-                dialogService.notify(formatOutputMessage(Localization.lang("Generated citation key for"), entries.size())));
+        return backgroundTask.onSuccess(_ -> dialogService.notify(formatOutputMessage(Localization.lang("Generated citation key for"), entries.size())));
     }
 
     private String formatOutputMessage(String start, int count) {

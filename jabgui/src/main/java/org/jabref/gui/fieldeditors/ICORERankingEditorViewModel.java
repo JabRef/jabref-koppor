@@ -15,7 +15,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.icore.ConferenceEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +34,7 @@ public class ICORERankingEditorViewModel extends AbstractEditorViewModel {
             DialogService dialogService,
             UndoManager undoManager,
             GuiPreferences preferences,
-            ConferenceRepository conferenceRepository
-    ) {
+            ConferenceRepository conferenceRepository) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.dialogService = dialogService;
         this.preferences = preferences;

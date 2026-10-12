@@ -23,7 +23,9 @@ class UnicodeConverterTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             # combining accents
             {\\"{a}}, a\u0308
             {\\"{a}}b, a\u0308b

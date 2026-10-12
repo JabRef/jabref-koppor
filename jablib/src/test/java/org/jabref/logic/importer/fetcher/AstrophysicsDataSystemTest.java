@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ImporterPreferences;
@@ -15,7 +14,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.paging.Page;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -93,8 +91,7 @@ public class AstrophysicsDataSystemTest implements PagedSearchFetcherTest {
                 .withField(StandardField.EID, "arXiv:1812.04698")
                 .withField(StandardField.PRIMARYCLASS, "math.DG")
                 .withField(StandardField.URL, "https://ui.adsabs.harvard.edu/abs/2018arXiv181204698D")
-                .withField(StandardField.ABSTRACT,
-                        "We establish a general slice theorem for the action of a locally convex         Lie group on a locally convex manifold, which generalizes the         classical slice theorem of Palais to infinite dimensions. We         discuss two important settings under which the assumptions of         this theorem are fulfilled. First, using Gl{\\\"o}ckner's inverse         function theorem, we show that the linear action of a compact         Lie group on a Fr{\\'e}chet space admits a slice. Second, using         the Nash--Moser theorem, we establish a slice theorem for the         tame action of a tame Fr{\\'e}chet Lie group on a tame         Fr{\\'e}chet manifold. For this purpose, we develop the concept         of a graded Riemannian metric, which allows the construction of         a path-length metric compatible with the manifold topology and         of a local addition. Finally, generalizing a classical result in         finite dimensions, we prove that the existence of a slice         implies that the decomposition of the manifold into orbit types         of the group action is a stratification.");
+                .withField(StandardField.ABSTRACT, "We establish a general slice theorem for the action of a locally convex         Lie group on a locally convex manifold, which generalizes the         classical slice theorem of Palais to infinite dimensions. We         discuss two important settings under which the assumptions of         this theorem are fulfilled. First, using Gl{\\\"o}ckner's inverse         function theorem, we show that the linear action of a compact         Lie group on a Fr{\\'e}chet space admits a slice. Second, using         the Nash--Moser theorem, we establish a slice theorem for the         tame action of a tame Fr{\\'e}chet Lie group on a tame         Fr{\\'e}chet manifold. For this purpose, we develop the concept         of a graded Riemannian metric, which allows the construction of         a path-length metric compatible with the manifold topology and         of a local addition. Finally, generalizing a classical result in         finite dimensions, we prove that the existence of a slice         implies that the decomposition of the manifold into orbit types         of the group action is a stratification.");
 
         sunWelchEntry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("2012NatMa..11...44S")

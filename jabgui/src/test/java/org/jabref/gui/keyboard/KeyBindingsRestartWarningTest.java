@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.keybindings.KeyBindingsTabViewModel;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

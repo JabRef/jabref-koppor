@@ -10,7 +10,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.jabref.architecture.AllowedToUseClassGetResource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +31,11 @@ public abstract sealed class StyleSheet permits StyleSheetDataUrl, StyleSheetFil
 
     abstract URL getSceneStylesheet();
 
-    /// The location to put into `Scene#getStylesheets`. Typically a `data:` URL with the CSS
-    /// embedded — that way the theme survives removal of the CSS file while the application is
-    /// running, and JavaFX's stylesheet cache cannot serve stale content after a live reload
-    /// (the URL changes with the content). Large stylesheets fall back to the plain URL.
+    /// The location to put into `Scene#getStylesheets`. Typically a `data:` URL
+    /// with the CSS embedded — that way the theme survives removal of the CSS
+    /// file while the application is running, and JavaFX's stylesheet cache
+    /// cannot serve stale content after a live reload (the URL changes with the
+    /// content). Large stylesheets fall back to the plain URL.
     ///
     /// @return the stylesheet location, or an empty string if unavailable
     String getSceneStylesheetLocation() {
@@ -54,11 +54,15 @@ public abstract sealed class StyleSheet permits StyleSheetDataUrl, StyleSheetFil
 
         if (styleSheetUrl.isEmpty()) {
             try {
-                styleSheetUrl = Optional.of(Path.of(name).toUri().toURL());
+                styleSheetUrl = Optional.of(Path.of(name)
+                        .toUri()
+                        .toURL());
             } catch (InvalidPathException e) {
-                LOGGER.warn("Cannot load custom css {} because it is an invalid path: {}", name, e.getLocalizedMessage(), e);
+                LOGGER.warn("Cannot load custom css {} because it is an invalid path: {}",
+                        name, e.getLocalizedMessage(), e);
             } catch (MalformedURLException e) {
-                LOGGER.warn("Cannot load custom css url {} because it is a malformed url: {}", name, e.getLocalizedMessage(), e);
+                LOGGER.warn("Cannot load custom css url {} because it is a malformed url: {}",
+                        name, e.getLocalizedMessage(), e);
             }
         }
 

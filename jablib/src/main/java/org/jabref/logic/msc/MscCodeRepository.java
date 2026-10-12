@@ -16,15 +16,17 @@ public class MscCodeRepository {
 
     private final Map<String, MscCodeEntry> mscCodes = new HashMap<>();
 
-    public MscCodeRepository() {
-    }
+    public MscCodeRepository() {}
 
     public MscCodeRepository(Collection<MscCodeEntry> entries) {
         entries.forEach(entry -> mscCodes.put(entry.code(), entry));
     }
 
     public MscCodeRepository(Path mscListFile) throws IOException {
-        try (MVStore store = new MVStore.Builder().readOnly().fileName(mscListFile.toAbsolutePath().toString()).open()) {
+        try (MVStore store = new MVStore.Builder()
+                .readOnly()
+                .fileName(mscListFile.toAbsolutePath().toString())
+                .open()) {
             MVMap<String, MscCodeEntry> mvMscCodes = store.openMap(MSC_CODES_MAP_NAME);
             mscCodes.putAll(mvMscCodes);
         }

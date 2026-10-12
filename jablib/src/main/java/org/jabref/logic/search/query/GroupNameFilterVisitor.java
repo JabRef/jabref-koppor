@@ -2,12 +2,11 @@ package org.jabref.logic.search.query;
 
 import java.util.Locale;
 
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.search.SearchBaseVisitor;
 import org.jabref.search.SearchParser;
-
-import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 /// Evaluates a Search.g4 parse tree against a group display name string.
 /// Key behavioral difference from [SearchQueryVisitor]:
@@ -36,12 +35,17 @@ public class GroupNameFilterVisitor extends SearchBaseVisitor<Boolean> {
         if (ctx.expression().size() == 1) {
             return visit(ctx.expression().getFirst());
         }
-        boolean allSimpleTerm = ctx.expression().stream()
-                                   .allMatch(e -> e instanceof SearchParser.ComparisonExpressionContext);
+        boolean allSimpleTerm = ctx.expression()
+                .stream()
+                .allMatch(e -> e instanceof SearchParser.ComparisonExpressionContext);
         if (allSimpleTerm) {
-            return ctx.expression().stream().anyMatch(this::visit);
+            return ctx.expression()
+                      .stream()
+                      .anyMatch(this::visit);
         } else {
-            return ctx.expression().stream().allMatch(this::visit);
+            return ctx.expression()
+                      .stream()
+                      .allMatch(this::visit);
         }
     }
 
@@ -49,9 +53,7 @@ public class GroupNameFilterVisitor extends SearchBaseVisitor<Boolean> {
     public Boolean visitBinaryExpression(SearchParser.BinaryExpressionContext ctx) {
         boolean left = visit(ctx.left);
         boolean right = visit(ctx.right);
-        return ctx.bin_op.getType() == SearchParser.AND
-               ? left && right
-               : left || right;
+        return ctx.bin_op.getType() == SearchParser.AND ? left && right : left || right;
     }
 
     @Override
@@ -89,7 +91,8 @@ public class GroupNameFilterVisitor extends SearchBaseVisitor<Boolean> {
         return groupName.contains(term);
     }
 
-    /// Implemented a static method that checks whether the group name matches the given query string.
+    /// Implemented a static method that checks whether the group name matches
+    /// the given query string.
     public static boolean matches(String groupName, String query) {
         if (StringUtil.isBlank(query)) {
             return true;

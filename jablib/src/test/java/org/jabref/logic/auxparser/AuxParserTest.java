@@ -12,7 +12,6 @@ import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +38,9 @@ class AuxParserTest {
     @Test
     void normal() throws URISyntaxException, IOException, JabRefException {
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("origin.bib")) {
-            Path auxFile = Path.of(AuxParserTest.class.getResource("paper.aux").toURI());
+            Path auxFile = Path.of(AuxParserTest.class
+                    .getResource("paper.aux")
+                    .toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);
             AuxParser auxParser = new DefaultAuxParser(bibDatabaseContext.getDatabase());
             AuxParserResult auxResult = auxParser.parse(auxFile);
@@ -53,8 +54,7 @@ class AuxParserTest {
             assertTrue(newEntries.get(1).hasChanged());
             assertEquals(2, auxResult.getResolvedKeysCount());
             assertEquals(2, auxResult.getFoundKeysInAux());
-            assertEquals(auxResult.getFoundKeysInAux() + auxResult.getCrossRefEntriesCount(),
-                    auxResult.getResolvedKeysCount() + auxResult.getUnresolvedKeysCount());
+            assertEquals(auxResult.getFoundKeysInAux() + auxResult.getCrossRefEntriesCount(), auxResult.getResolvedKeysCount() + auxResult.getUnresolvedKeysCount());
             assertEquals(0, auxResult.getCrossRefEntriesCount());
         }
     }
@@ -63,7 +63,9 @@ class AuxParserTest {
     void twoArgMacro() throws URISyntaxException, IOException, JabRefException {
         // Result should be identical to that of testNormal
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("origin.bib")) {
-            Path auxFile = Path.of(AuxParserTest.class.getResource("papertwoargmacro.aux").toURI());
+            Path auxFile = Path.of(AuxParserTest.class
+                    .getResource("papertwoargmacro.aux")
+                    .toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);
             AuxParser auxParser = new DefaultAuxParser(bibDatabaseContext.getDatabase());
             AuxParserResult auxResult = auxParser.parse(auxFile);
@@ -77,8 +79,7 @@ class AuxParserTest {
             assertTrue(newEntries.get(1).hasChanged());
             assertEquals(2, auxResult.getResolvedKeysCount());
             assertEquals(2, auxResult.getFoundKeysInAux());
-            assertEquals(auxResult.getFoundKeysInAux() + auxResult.getCrossRefEntriesCount(),
-                    auxResult.getResolvedKeysCount() + auxResult.getUnresolvedKeysCount());
+            assertEquals(auxResult.getFoundKeysInAux() + auxResult.getCrossRefEntriesCount(), auxResult.getResolvedKeysCount() + auxResult.getUnresolvedKeysCount());
             assertEquals(0, auxResult.getCrossRefEntriesCount());
         }
     }
@@ -86,7 +87,9 @@ class AuxParserTest {
     @Test
     void notAllFound() throws URISyntaxException, IOException, JabRefException {
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("origin.bib")) {
-            Path auxFile = Path.of(AuxParserTest.class.getResource("badpaper.aux").toURI());
+            Path auxFile = Path.of(AuxParserTest.class
+                    .getResource("badpaper.aux")
+                    .toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);
             AuxParser auxParser = new DefaultAuxParser(bibDatabaseContext.getDatabase());
             AuxParserResult auxResult = auxParser.parse(auxFile);
@@ -97,8 +100,7 @@ class AuxParserTest {
             assertEquals(2, newDB.getEntries().size());
             assertEquals(2, auxResult.getResolvedKeysCount());
             assertEquals(3, auxResult.getFoundKeysInAux());
-            assertEquals(auxResult.getFoundKeysInAux() + auxResult.getCrossRefEntriesCount(),
-                    auxResult.getResolvedKeysCount() + auxResult.getUnresolvedKeysCount());
+            assertEquals(auxResult.getFoundKeysInAux() + auxResult.getCrossRefEntriesCount(), auxResult.getResolvedKeysCount() + auxResult.getUnresolvedKeysCount());
             assertEquals(0, auxResult.getCrossRefEntriesCount());
         }
     }
@@ -106,7 +108,9 @@ class AuxParserTest {
     @Test
     void duplicateBibDatabaseConfiguration() throws URISyntaxException, IOException, JabRefException {
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("config.bib")) {
-            Path auxFile = Path.of(AuxParserTest.class.getResource("paper.aux").toURI());
+            Path auxFile = Path.of(AuxParserTest.class
+                    .getResource("paper.aux")
+                    .toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);
             AuxParser auxParser = new DefaultAuxParser(bibDatabaseContext.getDatabase());
             AuxParserResult auxResult = auxParser.parse(auxFile);
@@ -120,7 +124,9 @@ class AuxParserTest {
     @Test
     void nestedAux() throws URISyntaxException, IOException, JabRefException {
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("origin.bib")) {
-            Path auxFile = Path.of(AuxParserTest.class.getResource("nested.aux").toURI());
+            Path auxFile = Path.of(AuxParserTest.class
+                    .getResource("nested.aux")
+                    .toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);
             AuxParser auxParser = new DefaultAuxParser(bibDatabaseContext.getDatabase());
             AuxParserResult auxResult = auxParser.parse(auxFile);
@@ -131,8 +137,7 @@ class AuxParserTest {
             assertEquals(2, newDB.getEntries().size());
             assertEquals(2, auxResult.getResolvedKeysCount());
             assertEquals(2, auxResult.getFoundKeysInAux());
-            assertEquals(auxResult.getFoundKeysInAux() + auxResult.getCrossRefEntriesCount(),
-                    auxResult.getResolvedKeysCount() + auxResult.getUnresolvedKeysCount());
+            assertEquals(auxResult.getFoundKeysInAux() + auxResult.getCrossRefEntriesCount(), auxResult.getResolvedKeysCount() + auxResult.getUnresolvedKeysCount());
             assertEquals(0, auxResult.getCrossRefEntriesCount());
         }
     }
@@ -140,7 +145,9 @@ class AuxParserTest {
     @Test
     void crossRef() throws URISyntaxException, IOException, JabRefException {
         try (InputStream originalStream = AuxParserTest.class.getResourceAsStream("origin.bib")) {
-            Path auxFile = Path.of(AuxParserTest.class.getResource("crossref.aux").toURI());
+            Path auxFile = Path.of(AuxParserTest.class
+                    .getResource("crossref.aux")
+                    .toURI());
             final BibDatabaseContext bibDatabaseContext = BibDatabaseContext.of(originalStream, importFormatPreferences);
             AuxParser auxParser = new DefaultAuxParser(bibDatabaseContext.getDatabase());
             AuxParserResult auxResult = auxParser.parse(auxFile);
@@ -151,8 +158,7 @@ class AuxParserTest {
             assertEquals(4, newDB.getEntries().size());
             assertEquals(3, auxResult.getResolvedKeysCount());
             assertEquals(4, auxResult.getFoundKeysInAux());
-            assertEquals(auxResult.getFoundKeysInAux() + auxResult.getCrossRefEntriesCount(),
-                    auxResult.getResolvedKeysCount() + auxResult.getUnresolvedKeysCount());
+            assertEquals(auxResult.getFoundKeysInAux() + auxResult.getCrossRefEntriesCount(), auxResult.getResolvedKeysCount() + auxResult.getUnresolvedKeysCount());
             assertEquals(1, auxResult.getCrossRefEntriesCount());
         }
     }
@@ -168,8 +174,7 @@ class AuxParserTest {
         assertEquals(0, newDB.getEntries().size());
         assertEquals(0, auxResult.getResolvedKeysCount());
         assertEquals(0, auxResult.getFoundKeysInAux());
-        assertEquals(auxResult.getFoundKeysInAux() + auxResult.getCrossRefEntriesCount(),
-                auxResult.getResolvedKeysCount() + auxResult.getUnresolvedKeysCount());
+        assertEquals(auxResult.getFoundKeysInAux() + auxResult.getCrossRefEntriesCount(), auxResult.getResolvedKeysCount() + auxResult.getUnresolvedKeysCount());
         assertEquals(0, auxResult.getCrossRefEntriesCount());
     }
 }

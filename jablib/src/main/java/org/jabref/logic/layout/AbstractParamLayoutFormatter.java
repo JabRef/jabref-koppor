@@ -9,8 +9,7 @@ public abstract class AbstractParamLayoutFormatter implements ParamLayoutFormatt
 
     private static final char SEPARATOR = ',';
 
-    protected AbstractParamLayoutFormatter() {
-    }
+    protected AbstractParamLayoutFormatter() {}
 
     /// Parse an argument string and return the parts of the argument. The parts are
     /// separated by commas, and escaped commas are reduced to literal commas.
@@ -40,16 +39,11 @@ public abstract class AbstractParamLayoutFormatter implements ParamLayoutFormatt
 
     private static void handleEscapedCharacter(StringBuilder current, char currentChar) {
         switch (currentChar) {
-            case 'n' ->
-                    current.append('\n');
-            case 't' ->
-                    current.append('\t');
-            case ',' ->
-                    current.append(',');
-            case '"' ->
-                    current.append('"');
-            case '\\' ->
-                    current.append('\\');
+            case 'n' -> current.append('\n');
+            case 't' -> current.append('\t');
+            case ',' -> current.append(',');
+            case '"' -> current.append('"');
+            case '\\' -> current.append('\\');
             default -> {
                 current.append('\\');
                 current.append(currentChar);

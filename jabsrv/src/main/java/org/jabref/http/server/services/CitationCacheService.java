@@ -4,12 +4,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 
-import org.jabref.model.entry.BibEntry;
-
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.thibaultmeyer.cuid.CUID;
 import jakarta.inject.Singleton;
+import org.jabref.model.entry.BibEntry;
 
 /// Caches the result of a plain-citation → BibEntry conversion so a hover
 /// existence check and a subsequent add-to-library don't both pay the LLM /
@@ -33,23 +32,23 @@ public class CitationCacheService {
     private static final Duration TOKEN_TTL = Duration.ofHours(1);
     private static final int TEXT_MAX_ENTRIES = 1024;
     private static final Duration TEXT_TTL = Duration.ofDays(1);
+
     /// Token length picked to match the CUID2 size already used by
     /// [BibFieldsIndexer]: long enough to be collision-resistant in a 256-slot
     /// cache without being noisy in HTTP responses.
     private static final int CUID_LENGTH = 12;
 
-    public record CachedCitation(BibEntry parsed, String rawCitation, Instant createdAt) {
-    }
+    public record CachedCitation(BibEntry parsed, String rawCitation, Instant createdAt) {}
 
     private final Cache<String, CachedCitation> tokenCache = Caffeine.newBuilder()
-                                                                     .maximumSize(TOKEN_MAX_ENTRIES)
-                                                                     .expireAfterWrite(TOKEN_TTL)
-                                                                     .build();
+            .maximumSize(TOKEN_MAX_ENTRIES)
+            .expireAfterWrite(TOKEN_TTL)
+            .build();
 
     private final Cache<String, CachedCitation> textCache = Caffeine.newBuilder()
-                                                                    .maximumSize(TEXT_MAX_ENTRIES)
-                                                                    .expireAfterWrite(TEXT_TTL)
-                                                                    .build();
+            .maximumSize(TEXT_MAX_ENTRIES)
+            .expireAfterWrite(TEXT_TTL)
+            .build();
 
     /// Stores a parsed citation and returns the token the client should send
     /// back to the add endpoint.

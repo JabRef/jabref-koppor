@@ -8,39 +8,47 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.PopupWindow;
 import javafx.stage.Window;
-
 import org.jspecify.annotations.NullMarked;
 
-/// The layer a walkthrough draws into: an initially empty pane covering a whole window, on top of that
-/// window's regular content. Panels, tooltips and highlight effects are added here and removed again.
+/// The layer a walkthrough draws into: an initially empty pane covering a whole
+/// window, on top of that window's regular content. Panels, tooltips and
+/// highlight effects are added here and removed again.
 ///
-/// A window adds its pane where it is built and keeps it for its lifetime, as a child of a parent the window
-/// already has -- never as a replacement for the scene root, see [Where overlays are rendered](https://devdocs.jabref.org/code-howtos/walkthrough.html#where-overlays-are-rendered).
+/// A window adds its pane where it is built and keeps it for its lifetime, as a
+/// child of a parent the window already has -- never as a replacement for the
+/// scene root, see [Where overlays are
+/// rendered](https://devdocs.jabref.org/code-howtos/walkthrough.html#where-overlays-are-rendered).
 ///
-/// @implNote The pane is unmanaged. In the main window and in dialogs it sizes itself to the scene rather
-/// than to its parent, so that one rule covers a pane that fills the window and a dialog pane that is the
-/// scene root alike; [javafx.scene.Parent#layout()] descends into unmanaged children, so the pane still
-/// lays out its own. A popup's pane takes no size, see [Extent#NONE].
+/// @implNote The pane is unmanaged. In the main window and in dialogs it sizes
+///   itself to the scene rather than to its parent, so that one rule covers a
+///   pane that fills the window and a dialog pane that is the scene root alike;
+///   [javafx.scene.Parent#layout()] descends into unmanaged children, so the
+///   pane still lays out its own. A popup's pane takes no size, see
+///   [Extent#NONE].
 @NullMarked
 public final class WalkthroughPane extends StackPane {
 
-    /// Keyed into the scene's property map, so [#of(Window)] is a lookup instead of a scene-graph search
-    /// and nothing outlives the scene that holds the pane. A window has at most one pane.
+    /// Keyed into the scene's property map, so [#of(Window)] is a lookup
+    /// instead of a scene-graph search and nothing outlives the scene that
+    /// holds the pane. A window has at most one pane.
     private static final Object SCENE_PROPERTY_KEY = new Object();
 
-    /// A lower view order renders a child in front of its siblings, whatever its position in the list.
-    /// A [javafx.scene.control.DialogPane] appends its header, content and button bar as they are first
-    /// needed, so position in the list is not something the pane can hold on to.
+    /// A lower view order renders a child in front of its siblings, whatever
+    /// its position in the list. A [javafx.scene.control.DialogPane] appends
+    /// its header, content and button bar as they are first needed, so position
+    /// in the list is not something the pane can hold on to.
     private static final double IN_FRONT_OF_SIBLINGS = -1;
 
     /// How much of its window the pane takes up.
     private enum Extent {
         /// The whole scene: the main window and dialogs are sized independently of the pane.
         SCENE,
-        /// None of its own. A popup window is sized from the bounds of its content, and a context menu's drop
-        /// shadow offsets that content from the scene's origin, so a pane sized to the popup's scene would
-        /// enlarge the very window it measures itself against -- until the bounds computation overflows the
-        /// stack and the menu stops rendering. On popups the walkthrough only draws effects that position
+        /// None of its own. A popup window is sized from the bounds of its
+        /// content, and a context menu's drop shadow offsets that content from
+        /// the scene's origin, so a pane sized to the popup's scene would
+        /// enlarge the very window it measures itself against -- until the
+        /// bounds computation overflows the stack and the menu stops rendering.
+        /// On popups the walkthrough only draws effects that position
         /// themselves, such as the ping.
         NONE
     }
@@ -84,13 +92,13 @@ public final class WalkthroughPane extends StackPane {
 
     /// Returns the pane of the given window.
     ///
-    /// The main window and every JabRef dialog are given theirs where they are built. A popup -- a context
-    /// menu a walkthrough steps into -- is not JabRef's to build, so it is given one here, the first time
-    /// a walkthrough draws on it. Empty for any other window built outside JabRef.
+    /// The main window and every JabRef dialog are given theirs where they are
+    /// built. A popup -- a context menu a walkthrough steps into -- is not
+    /// JabRef's to build, so it is given one here, the first time a walkthrough
+    /// draws on it. Empty for any other window built outside JabRef.
     public static Optional<WalkthroughPane> of(Window window) {
         Optional<Scene> scene = Optional.ofNullable(window.getScene());
-        Optional<WalkthroughPane> existing = scene.map(currentScene -> currentScene.getProperties().get(SCENE_PROPERTY_KEY))
-                                                  .map(WalkthroughPane.class::cast);
+        Optional<WalkthroughPane> existing = scene.map(currentScene -> currentScene.getProperties().get(SCENE_PROPERTY_KEY)).map(WalkthroughPane.class::cast);
         if (existing.isPresent() || !(window instanceof PopupWindow)) {
             return existing;
         }

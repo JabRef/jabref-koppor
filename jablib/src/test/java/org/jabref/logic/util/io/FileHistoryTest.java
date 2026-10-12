@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Locale;
 
 import org.jabref.logic.util.JabRefBaseDirectoryLocator;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -31,7 +30,8 @@ class FileHistoryTest {
     void newItemsAreAddedInRightOrder() {
         history.newFile(Path.of("aa"));
         history.newFile(Path.of("bb"));
-        assertEquals(Arrays.asList(Path.of("bb"), Path.of("aa")), history);
+        assertEquals(Arrays.asList(Path.of("bb"), Path.of("aa")),
+                history);
     }
 
     @Test
@@ -39,7 +39,8 @@ class FileHistoryTest {
         history.newFile(Path.of("aa"));
         history.newFile(Path.of("bb"));
         history.newFile(Path.of("aa"));
-        assertEquals(Arrays.asList(Path.of("aa"), Path.of("bb")), history);
+        assertEquals(Arrays.asList(Path.of("aa"), Path.of("bb")),
+                history);
     }
 
     @Test
@@ -50,7 +51,8 @@ class FileHistoryTest {
 
         history.removeItem(Path.of("bb"));
 
-        assertEquals(Arrays.asList(Path.of("cc"), Path.of("aa")), history);
+        assertEquals(Arrays.asList(Path.of("cc"), Path.of("aa")),
+                history);
     }
 
     @Test
@@ -133,7 +135,10 @@ class FileHistoryTest {
     @Test
     @EnabledOnOs(OS.WINDOWS)
     void removeItemHandlesFileOnDifferentDriveRoot() {
-        String baseDrive = baseDir.getRoot().toString().substring(0, 1).toUpperCase(Locale.ROOT);
+        String baseDrive = baseDir.getRoot()
+                .toString()
+                .substring(0, 1)
+                .toUpperCase(Locale.ROOT);
         String otherDrive = "H".equals(baseDrive) ? "C" : "H";
         Path differentRoot = Path.of(otherDrive + ":\\somefile.pdf");
 

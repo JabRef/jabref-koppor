@@ -11,11 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.jabref.logic.JabRefException;
-import org.jabref.logic.git.preferences.GitPreferences;
-import org.jabref.logic.l10n.Localization;
-import org.jabref.logic.util.strings.StringUtil;
-
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
@@ -41,12 +36,17 @@ import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.util.FileUtils;
+import org.jabref.logic.JabRefException;
+import org.jabref.logic.git.preferences.GitPreferences;
+import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// This class handles the updating of the local and remote git repository that is located at the repository path
-/// This provides an easy-to-use interface to manage a git repository
+/// This class handles the updating of the local and remote git repository that
+/// is located at the repository path This provides an easy-to-use interface to
+/// manage a git repository
 public class GitHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHandler.class);
 
@@ -76,10 +76,10 @@ public class GitHandler {
         try {
             // Git.init().call() returns a handle that must be closed before the repository is reopened below.
             Git.init()
-               .setDirectory(repositoryPathAsFile)
-               .setInitialBranch("main")
-               .call()
-               .close();
+                    .setDirectory(repositoryPathAsFile)
+                    .setInitialBranch("main")
+                    .call()
+                    .close();
             setupGitIgnore();
             String initialCommit = "Initial commit";
             if (!createCommitOnCurrentBranch(initialCommit, false)) {
@@ -97,8 +97,9 @@ public class GitHandler {
         }
     }
 
-    /// Resolves symlinks so repository detection and repository-relative paths refer to the real file.
-    /// Falls back to the lexical absolute path when resolution fails (e.g. the file vanished meanwhile).
+    /// Resolves symlinks so repository detection and repository-relative paths
+    /// refer to the real file. Falls back to the lexical absolute path when
+    /// resolution fails (e.g. the file vanished meanwhile).
     public static @NonNull Path resolveToRealPath(@NonNull Path path) {
         try {
             return path.toRealPath();
@@ -108,18 +109,22 @@ public class GitHandler {
         }
     }
 
-    /// Creates the repository and commits `fileToCommit` together with the generated `.gitignore`.
-    /// Unlike [#initIfNeeded()] this stages nothing else, so unrelated files in the directory
-    /// (PDFs, notes, other libraries) stay untracked until the user adds them deliberately.
+    /// Creates the repository and commits `fileToCommit` together with the
+    /// generated `.gitignore`. Unlike [#initIfNeeded()] this stages nothing
+    /// else, so unrelated files in the directory (PDFs, notes, other libraries)
+    /// stay untracked until the user adds them deliberately.
     ///
-    /// Fails with a [JabRefException] if there already is a repository, or if the file cannot be staged —
-    /// an ignore rule excludes it from `git add` silently. Everything this call created is removed again
-    /// on failure, so the user can fix the cause and retry, or clone into the directory instead.
+    /// Fails with a [JabRefException] if there already is a repository, or if
+    /// the file cannot be staged — an ignore rule excludes it from `git add`
+    /// silently. Everything this call created is removed again on failure, so
+    /// the user can fix the cause and retry, or clone into the directory
+    /// instead.
     ///
-    /// `synchronized` so that concurrent invocations (the GUI submits this as a background task) cannot
-    /// interleave: the rollback below may only ever delete a `.git` directory this invocation created,
-    /// which the entry check guarantees while the lock is held. The registry hands out one handler per
-    /// repository path, so the lock covers all in-process callers.
+    /// `synchronized` so that concurrent invocations (the GUI submits this as a
+    /// background task) cannot interleave: the rollback below may only ever
+    /// delete a `.git` directory this invocation created, which the entry check
+    /// guarantees while the lock is held. The registry hands out one handler
+    /// per repository path, so the lock covers all in-process callers.
     public synchronized void initAndCommit(@NonNull Path fileToCommit) throws IOException, GitAPIException, JabRefException {
         // NOFOLLOW_LINKS: a dangling .git symlink is invisible to isGitRepository() but is still a
         // pre-existing user-owned entry — initializing over it would let rollback delete it
@@ -137,9 +142,9 @@ public class GitHandler {
 
         String pathInRepository = relativizeToRepository(fileToCommit);
         try (Git git = Git.init()
-                          .setDirectory(repositoryPathAsFile)
-                          .setInitialBranch("main")
-                          .call()) {
+                .setDirectory(repositoryPathAsFile)
+                .setInitialBranch("main")
+                .call()) {
             copyGitIgnoreIfAbsent();
             // A pre-existing .gitignore is user-owned: honor its rules, but do not commit it uninvited
             List<String> pathsToCommit = gitignoreExisted ? List.of(pathInRepository) : List.of(pathInRepository, ".gitignore");
@@ -158,7 +163,8 @@ public class GitHandler {
         } catch (IOException | GitAPIException | JGitInternalException | JabRefException e) {
             LOGGER.debug("Rolling back failed Git repository initialization at {}", repositoryPath, e);
             try {
-                FileUtils.delete(repositoryRoot.resolve(Constants.DOT_GIT).toFile(), FileUtils.RECURSIVE | FileUtils.SKIP_MISSING);
+                FileUtils.delete(repositoryRoot.resolve(Constants.DOT_GIT).toFile(),
+                        FileUtils.RECURSIVE | FileUtils.SKIP_MISSING);
                 if (!gitignoreExisted) {
                     Files.deleteIfExists(gitignore);
                 }
@@ -227,7 +233,8 @@ public class GitHandler {
         }
     }
 
-    /// Returns true if the given path points to a directory that is a git repository (contains a .git folder)
+    /// Returns true if the given path points to a directory that is a git
+    /// repository (contains a .git folder)
     boolean isGitRepository() {
         // For some reason the solution from https://www.eclipse.org/lists/jgit-dev/msg01892.html does not work
         // This solution is quite simple but might not work in special cases, for us it should suffice.
@@ -263,7 +270,8 @@ public class GitHandler {
     /// Creates a commit on the currently checked out branch
     ///
     /// @param amend Whether to amend to the last commit (true), or not (false)
-    /// @return Returns true if a new commit was created. This is the case if the repository was not clean on method invocation
+    /// @return Returns true if a new commit was created. This is the case if
+    ///   the repository was not clean on method invocation
     public boolean createCommitOnCurrentBranch(String commitMessage, boolean amend) throws IOException, GitAPIException {
         boolean commitCreated = false;
         try (Git git = Git.open(this.repositoryPathAsFile)) {
@@ -277,8 +285,7 @@ public class GitHandler {
                    .call();
                 // Add all removed files to index
                 if (!status.getMissing().isEmpty()) {
-                    RmCommand removeCommand = git.rm()
-                                                 .setCached(true);
+                    RmCommand removeCommand = git.rm().setCached(true);
                     status.getMissing().forEach(removeCommand::addFilepattern);
                     removeCommand.call();
                 }
@@ -294,16 +301,22 @@ public class GitHandler {
 
     /// Commits `fileToCommit` on the current branch, staging nothing else.
     ///
-    /// Unlike [#createCommitOnCurrentBranch(String,boolean)], which stages the whole working tree.
+    /// Unlike [#createCommitOnCurrentBranch(String,boolean)], which stages the
+    /// whole working tree.
     ///
     /// @return true if a commit was created, false if the file was unchanged
     public boolean createCommitForFileOnCurrentBranch(Path fileToCommit, String commitMessage) throws IOException, GitAPIException {
         String pathInRepository = relativizeToRepository(fileToCommit);
         try (Git git = Git.open(this.repositoryPathAsFile)) {
-            if (git.status().addPath(pathInRepository).call().isClean()) {
+            if (git.status()
+                   .addPath(pathInRepository)
+                   .call()
+                   .isClean()) {
                 return false;
             }
-            git.add().addFilepattern(pathInRepository).call();
+            git.add()
+               .addFilepattern(pathInRepository)
+               .call();
             git.commit()
                .setOnly(pathInRepository)
                .setAllowEmpty(false)
@@ -335,7 +348,8 @@ public class GitHandler {
         this.checkoutBranch(currentBranch);
     }
 
-    /// Pushes all commits made to the branch that is tracked by the currently checked out branch.
+    /// Pushes all commits made to the branch that is tracked by the currently
+    /// checked out branch.
     public void pushCommitsToRemoteRepository() throws IOException, GitAPIException, JabRefException {
         try (Git git = Git.open(this.repositoryPathAsFile)) {
             Optional<String> urlOpt = currentRemoteUrl(git.getRepository());
@@ -369,8 +383,8 @@ public class GitHandler {
             String branch = repo.getBranch();
 
             PushCommand pushCommand = git.push()
-                                         .setRemote("origin")
-                                         .setRefSpecs(new RefSpec("refs/heads/" + branch + ":refs/heads/" + branch));
+                    .setRemote("origin")
+                    .setRefSpecs(new RefSpec("refs/heads/" + branch + ":refs/heads/" + branch));
 
             credsOpt.ifPresent(pushCommand::setCredentialsProvider);
             LOGGER.info("Pushing branch {} to origin and configuring its upstream.", branch);
@@ -432,12 +446,15 @@ public class GitHandler {
         }
     }
 
-    /// Try to locate the Git repository root by walking up the directory tree starting from the given path.
+    /// Try to locate the Git repository root by walking up the directory tree
+    /// starting from the given path.
     ///
     /// If a directory containing a .git folder is found, return that path.
     ///
-    /// @param anyPathInsideRepo the file or directory path that is assumed to be located inside a Git repository
-    /// @return an optional containing the path to the Git repository root if found
+    /// @param anyPathInsideRepo the file or directory path that is assumed to
+    ///   be located inside a Git repository
+    /// @return an optional containing the path to the Git repository root if
+    ///   found
     public static Optional<Path> findRepositoryRoot(Path anyPathInsideRepo) {
         Path current = anyPathInsideRepo.toAbsolutePath();
         while (current != null) {
@@ -463,7 +480,8 @@ public class GitHandler {
 
     public boolean hasRemote(String remoteName) {
         try (Git git = Git.open(this.repositoryPathAsFile)) {
-            return git.getRepository().getConfig()
+            return git.getRepository()
+                      .getConfig()
                       .getSubsections("remote")
                       .contains(remoteName);
         } catch (IOException e) {
@@ -488,10 +506,7 @@ public class GitHandler {
         if (gitPreferences.getPat().isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(
-                new UsernamePasswordCredentialsProvider(
-                        gitPreferences.getUsername(),
-                        gitPreferences.getPat()));
+        return Optional.of(new UsernamePasswordCredentialsProvider(gitPreferences.getUsername(), gitPreferences.getPat()));
     }
 
     private static void verifyPushResults(Iterable<PushResult> pushResults) throws JabRefException {
@@ -502,9 +517,9 @@ public class GitHandler {
                 LOGGER.info("Remote push response: {}", remoteMessage);
             }
             for (RemoteRefUpdate update : pushResult.getRemoteUpdates()) {
-                LOGGER.info("Push update for {} completed with status {}.", update.getRemoteName(), update.getStatus());
-                if (update.getStatus() != RemoteRefUpdate.Status.OK
-                        && update.getStatus() != RemoteRefUpdate.Status.UP_TO_DATE) {
+                LOGGER.info("Push update for {} completed with status {}.",
+                        update.getRemoteName(), update.getStatus());
+                if (update.getStatus() != RemoteRefUpdate.Status.OK && update.getStatus() != RemoteRefUpdate.Status.UP_TO_DATE) {
                     String localizedMessage = getLocalizedPushRejectionMessage(update, remoteMessage);
                     LOGGER.warn("Push update for {} was rejected with status {}. Update message: {}. Remote response: {}.",
                             update.getRemoteName(), update.getStatus(), update.getMessage(), remoteMessage);
@@ -517,21 +532,26 @@ public class GitHandler {
     private static String getLocalizedPushRejectionMessage(RemoteRefUpdate update, String remoteMessage) {
         String updateMessage = update.getMessage();
         if (StringUtil.isNotBlank(updateMessage) && StringUtil.isNotBlank(remoteMessage)) {
-            return Localization.lang("Push to %0 was rejected (%1). %2 %3", update.getRemoteName(), update.getStatus(), updateMessage, remoteMessage);
+            return Localization.lang("Push to %0 was rejected (%1). %2 %3", update.getRemoteName(),
+                    update.getStatus(), updateMessage, remoteMessage);
         }
         if (StringUtil.isNotBlank(updateMessage)) {
-            return Localization.lang("Push to %0 was rejected (%1). %2", update.getRemoteName(), update.getStatus(), updateMessage);
+            return Localization.lang("Push to %0 was rejected (%1). %2",
+                    update.getRemoteName(), update.getStatus(), updateMessage);
         }
         if (StringUtil.isNotBlank(remoteMessage)) {
-            return Localization.lang("Push to %0 was rejected (%1). %2", update.getRemoteName(), update.getStatus(), remoteMessage);
+            return Localization.lang("Push to %0 was rejected (%1). %2",
+                    update.getRemoteName(), update.getStatus(), remoteMessage);
         }
         return Localization.lang("Push to %0 was rejected (%1).", update.getRemoteName(), update.getStatus());
     }
 
     /// The Git index always uses forward slashes, independent of the platform.
     private String relativizeToRepository(Path file) {
-        return repositoryPath.toAbsolutePath().normalize()
+        return repositoryPath.toAbsolutePath()
+                             .normalize()
                              .relativize(file.toAbsolutePath().normalize())
-                             .toString().replace('\\', '/');
+                             .toString()
+                             .replace('\\', '/');
     }
 }

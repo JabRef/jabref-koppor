@@ -10,10 +10,10 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
 import javafx.scene.control.MenuItem;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.SimpleCommand;
@@ -27,27 +27,18 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
-import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-record MultiSelectionMenuBuilder(
-        DialogService dialogService,
-        BibDatabaseContext databaseContext,
-        ObservableOptionalValue<BibEntry> bibEntry,
-        GuiPreferences preferences,
-        LinkedFilesEditorViewModel viewModel
-) implements ContextMenuBuilder {
+record MultiSelectionMenuBuilder(DialogService dialogService, BibDatabaseContext databaseContext, ObservableOptionalValue<BibEntry> bibEntry,
+        GuiPreferences preferences, LinkedFilesEditorViewModel viewModel)
+        implements ContextMenuBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiSelectionMenuBuilder.class);
 
-    MultiSelectionMenuBuilder(@NonNull DialogService dialogService,
-                              @NonNull BibDatabaseContext databaseContext,
-                              @NonNull ObservableOptionalValue<BibEntry> bibEntry,
-                              @NonNull GuiPreferences preferences,
-                              @NonNull LinkedFilesEditorViewModel viewModel) {
+    MultiSelectionMenuBuilder(@NonNull DialogService dialogService, @NonNull BibDatabaseContext databaseContext, @NonNull ObservableOptionalValue<BibEntry> bibEntry,
+            @NonNull GuiPreferences preferences, @NonNull LinkedFilesEditorViewModel viewModel) {
         this.dialogService = dialogService;
         this.databaseContext = databaseContext;
         this.bibEntry = bibEntry;
@@ -66,33 +57,33 @@ record MultiSelectionMenuBuilder(
         List<MenuItem> menuItems = new ArrayList<>();
 
         menuItems.add(batchCommandItem(actionFactory, StandardActions.OPEN_FILE, selection, this::alwaysEnabled));
-        menuItems.add(customBatchItem(actionFactory, StandardActions.OPEN_FOLDER, selection, this::isLocalAndExists, this::openContainingFolders));
+        menuItems.add(customBatchItem(actionFactory, StandardActions.OPEN_FOLDER, selection, this::isLocalAndExists,
+                this::openContainingFolders));
         menuItems.add(batchCommandItem(actionFactory, StandardActions.DOWNLOAD_FILE, selection, this::isOnline));
         menuItems.add(batchCommandItem(actionFactory, StandardActions.REDOWNLOAD_FILE, selection, this::hasSourceUrl));
-        menuItems.add(new MoveFileSubmenuFactory(actionFactory, databaseContext, preferences).createForMulti(selection));
+        menuItems.add(new MoveFileSubmenuFactory(actionFactory, databaseContext, preferences)
+                .createForMulti(selection));
         menuItems.add(buildCopyToFolderItem(actionFactory, selection));
         menuItems.add(customBatchItem(actionFactory, StandardActions.REMOVE_LINKS, selection, this::alwaysEnabled,
-                linkedFileViewModels -> linkedFileViewModels.forEach(linkedFileViewModel ->
-                        new ContextAction(StandardActions.REMOVE_LINKS, linkedFileViewModel, databaseContext, bibEntry, preferences, viewModel).execute())));
+                linkedFileViewModels -> linkedFileViewModels.forEach(linkedFileViewModel -> new ContextAction(StandardActions.REMOVE_LINKS, linkedFileViewModel, databaseContext, bibEntry, preferences, viewModel)
+                        .execute())));
         menuItems.add(batchCommandItem(actionFactory, StandardActions.DELETE_FILE, selection, this::isLocalAndExists));
 
         return menuItems;
     }
 
-    private MenuItem buildCopyToFolderItem(ActionFactory actionFactory,
-                                           ObservableList<LinkedFileViewModel> selection) {
+    private MenuItem buildCopyToFolderItem(ActionFactory actionFactory, ObservableList<LinkedFileViewModel> selection) {
         SimpleCommand copyCommand = new SimpleCommand() {
             {
-                executable.bind(Bindings.createBooleanBinding(
-                        () -> selection.stream().anyMatch(MultiSelectionMenuBuilder.this::isLocalAndExists),
+                executable.bind(Bindings.createBooleanBinding(() -> selection.stream().anyMatch(MultiSelectionMenuBuilder.this::isLocalAndExists),
                         selection));
             }
 
             @Override
             public void execute() {
                 List<LinkedFileViewModel> localLinkedFiles = selection.stream()
-                                                                      .filter(MultiSelectionMenuBuilder.this::isLocalAndExists)
-                                                                      .toList();
+                        .filter(MultiSelectionMenuBuilder.this::isLocalAndExists)
+                        .toList();
 
                 if (localLinkedFiles.isEmpty()) {
                     return;
@@ -134,9 +125,7 @@ record MultiSelectionMenuBuilder(
                     dialogService.notify(Localization.lang("Copied %0 file(s) to %1", copiedCount, exportPath));
                 }
                 if (skippedCount > 0) {
-                    dialogService.showInformationDialogAndWait(
-                            Localization.lang("Copy linked file(s)"),
-                            Localization.lang("%0 file(s) were skipped (already exist or not accessible).", skippedCount));
+                    dialogService.showInformationDialogAndWait(Localization.lang("Copy linked file(s)"), Localization.lang("%0 file(s) were skipped (already exist or not accessible).", skippedCount));
                 }
             }
         };
@@ -144,15 +133,12 @@ record MultiSelectionMenuBuilder(
         return actionFactory.createMenuItem(StandardActions.COPY_FILE_TO_FOLDER, copyCommand);
     }
 
-    private MenuItem batchCommandItem(ActionFactory actionFactory,
-                                      StandardActions action,
-                                      ObservableList<LinkedFileViewModel> selection,
-                                      Predicate<LinkedFileViewModel> enablePredicate) {
+    private MenuItem batchCommandItem(ActionFactory actionFactory, StandardActions action, ObservableList<LinkedFileViewModel> selection,
+            Predicate<LinkedFileViewModel> enablePredicate) {
 
         SimpleCommand command = new SimpleCommand() {
             {
-                executable.bind(Bindings.createBooleanBinding(
-                        () -> selection.stream().anyMatch(enablePredicate),
+                executable.bind(Bindings.createBooleanBinding(() -> selection.stream().anyMatch(enablePredicate),
                         selection));
             }
 
@@ -161,24 +147,20 @@ record MultiSelectionMenuBuilder(
                 List<LinkedFileViewModel> snapshot = new ArrayList<>(selection);
                 snapshot.stream()
                         .filter(enablePredicate)
-                        .forEach(linkedFileViewModel ->
-                                new ContextAction(action, linkedFileViewModel, databaseContext, bibEntry, preferences, viewModel).execute());
+                        .forEach(linkedFileViewModel -> new ContextAction(action, linkedFileViewModel, databaseContext, bibEntry, preferences, viewModel)
+                                .execute());
             }
         };
 
         return actionFactory.createMenuItem(action, command);
     }
 
-    private MenuItem customBatchItem(ActionFactory actionFactory,
-                                     StandardActions action,
-                                     ObservableList<LinkedFileViewModel> selection,
-                                     Predicate<LinkedFileViewModel> enablePredicate,
-                                     Consumer<List<LinkedFileViewModel>> consumer) {
+    private MenuItem customBatchItem(ActionFactory actionFactory, StandardActions action, ObservableList<LinkedFileViewModel> selection,
+            Predicate<LinkedFileViewModel> enablePredicate, Consumer<List<LinkedFileViewModel>> consumer) {
 
         SimpleCommand command = new SimpleCommand() {
             {
-                executable.bind(Bindings.createBooleanBinding(
-                        () -> selection.stream().anyMatch(enablePredicate),
+                executable.bind(Bindings.createBooleanBinding(() -> selection.stream().anyMatch(enablePredicate),
                         selection));
             }
 
@@ -197,10 +179,9 @@ record MultiSelectionMenuBuilder(
     }
 
     boolean isLocalAndExists(LinkedFileViewModel linkedFileViewModel) {
-        return !linkedFileViewModel.getFile().isOnlineLink()
-                && linkedFileViewModel.getFile()
-                                      .findIn(databaseContext, preferences.getFilePreferences())
-                                      .isPresent();
+        return !linkedFileViewModel.getFile().isOnlineLink() && linkedFileViewModel.getFile()
+                .findIn(databaseContext, preferences.getFilePreferences())
+                .isPresent();
     }
 
     boolean isOnline(LinkedFileViewModel linkedFileViewModel) {
@@ -208,7 +189,9 @@ record MultiSelectionMenuBuilder(
     }
 
     boolean hasSourceUrl(LinkedFileViewModel linkedFileViewModel) {
-        return !linkedFileViewModel.getFile().getSourceUrl().isEmpty();
+        return !linkedFileViewModel.getFile()
+                .getSourceUrl()
+                .isEmpty();
     }
 
     void openContainingFolders(List<LinkedFileViewModel> linkedFileViewModels) {
@@ -220,7 +203,9 @@ record MultiSelectionMenuBuilder(
                 continue;
             }
 
-            Path file = resolved.get().toAbsolutePath().normalize();
+            Path file = resolved.get()
+                                .toAbsolutePath()
+                                .normalize();
             Path dir = (file.getParent() != null) ? file.getParent() : file;
 
             representativeByDir.putIfAbsent(dir, file);

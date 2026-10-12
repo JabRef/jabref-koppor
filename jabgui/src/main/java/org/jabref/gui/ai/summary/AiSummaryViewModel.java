@@ -6,11 +6,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.util.BindingsHelper;
@@ -32,8 +32,6 @@ import org.jabref.logic.util.ObservablesHelper;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 import org.jabref.model.ai.summarization.AiSummary;
 import org.jabref.model.entry.BibEntry;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.jspecify.annotations.Nullable;
 
 public class AiSummaryViewModel extends AbstractViewModel {
@@ -67,14 +65,8 @@ public class AiSummaryViewModel extends AbstractViewModel {
     private final SummarizationTaskAggregator summarizationTaskAggregator;
     private final DialogService dialogService;
 
-    public AiSummaryViewModel(
-            AiPreferences aiPreferences,
-            FilePreferences filePreferences,
-            SummariesRepository summariesRepository,
-            InMemorySummaryCache inMemoryCache,
-            SummarizationTaskAggregator summarizationTaskAggregator,
-            DialogService dialogService
-    ) {
+    public AiSummaryViewModel(AiPreferences aiPreferences, FilePreferences filePreferences, SummariesRepository summariesRepository,
+            InMemorySummaryCache inMemoryCache, SummarizationTaskAggregator summarizationTaskAggregator, DialogService dialogService) {
         this.aiPreferences = aiPreferences;
         this.filePreferences = filePreferences;
         this.summariesRepository = summariesRepository;
@@ -90,47 +82,25 @@ public class AiSummaryViewModel extends AbstractViewModel {
         BindingsHelper.bindEnum(
                 state,
                 State.READY,
-
-                Map.entry(State.AI_TURNED_OFF,
-                        aiPreferences.aiFeaturesEnabledCurrentlyProperty().not()
-                ),
-
-                Map.entry(State.RESTART_NEEDED,
-                        aiPreferences.restartNeededBinding()
-                ),
-
+                Map.entry(State.AI_TURNED_OFF, aiPreferences.aiFeaturesEnabledCurrentlyProperty().not()),
+                Map.entry(State.RESTART_NEEDED, aiPreferences.restartNeededBinding()),
                 Map.entry(State.NO_FILES,
                         entry.map(FullBibEntry::entry)
                              .map(BibEntry::getFiles)
-                             .map(List::isEmpty)
-                ),
-
+                             .map(List::isEmpty)),
                 Map.entry(State.NO_SUPPORTED_FILE_TYPES,
                         entry.map(FullBibEntry::entry)
                              .map(BibEntry::getFiles)
                              .map(l -> l.stream()
                                         .map(f -> Path.of(f.getLink()))
-                                        .noneMatch(UniversalContentParser::isSupportedFileType))
-                ),
-
-                Map.entry(State.DONE,
-                        summary.isNotNull()
-                ),
-
+                                        .noneMatch(UniversalContentParser::isSupportedFileType))),
+                Map.entry(State.DONE, summary.isNotNull()),
                 Map.entry(State.CANCELLED,
                         currentTask.map(TrackedBackgroundTask::getStatus)
                                    .map(s -> s == TrackedBackgroundTask.Status.CANCELLED)
-                                   .orElse(false)
-                ),
-
-                Map.entry(State.ERROR_WHILE_GENERATING,
-                        error.isNotNull()
-                ),
-
-                Map.entry(State.PROCESSING,
-                        currentTask.isNotNull()
-                )
-        );
+                                   .orElse(false)),
+                Map.entry(State.ERROR_WHILE_GENERATING, error.isNotNull()),
+                Map.entry(State.PROCESSING, currentTask.isNotNull()));
 
         Function<GenerateSummaryTask, ReadOnlyObjectProperty<TrackedBackgroundTask.Status>> propertyExtractor = GenerateSummaryTask::statusProperty;
 
@@ -144,19 +114,13 @@ public class AiSummaryViewModel extends AbstractViewModel {
             }
         });
 
-        this.chatModel.bind(ObservablesHelper.createClosableObjectBinding(
-                () -> ChatModelFactory.create(aiPreferences),
-                aiPreferences.getChatProperties()
-        ));
+        this.chatModel.bind(ObservablesHelper.createClosableObjectBinding(() -> ChatModelFactory.create(aiPreferences), aiPreferences.getChatProperties()));
 
         setupSummarizatorBinding();
     }
 
     private void setupSummarizatorBinding() {
-        summarizator.bind(ObservablesHelper.createObjectBinding(
-                () -> SummarizatorFactory.create(aiPreferences),
-                aiPreferences.getSummarizatorProperties()
-        ));
+        summarizator.bind(ObservablesHelper.createObjectBinding(() -> SummarizatorFactory.create(aiPreferences), aiPreferences.getSummarizatorProperties()));
     }
 
     private void setupListeners() {
@@ -213,8 +177,7 @@ public class AiSummaryViewModel extends AbstractViewModel {
         // 3. Check if there is a running task.
         // 4. Otherwise, start a new task.
 
-        Optional<AiSummary> persistedSummary = fullEntry.toAiSummaryIdentifier()
-                                                        .flatMap(summariesRepository::get);
+        Optional<AiSummary> persistedSummary = fullEntry.toAiSummaryIdentifier().flatMap(summariesRepository::get);
         if (persistedSummary.isPresent()) {
             this.summary.set(persistedSummary.get());
             return;
@@ -242,8 +205,7 @@ public class AiSummaryViewModel extends AbstractViewModel {
                     error.set(task.getException());
                     clearTask();
                 }
-                default -> {
-                }
+                default -> {}
             }
             return;
         }
@@ -294,8 +256,7 @@ public class AiSummaryViewModel extends AbstractViewModel {
 
         inMemoryCache.remove(fullEntry.entry());
 
-        fullEntry.toAiSummaryIdentifier()
-                 .ifPresent(summariesRepository::clear);
+        fullEntry.toAiSummaryIdentifier().ifPresent(summariesRepository::clear);
 
         summary.set(null);
     }
@@ -306,15 +267,8 @@ public class AiSummaryViewModel extends AbstractViewModel {
         }
 
         error.set(null);
-        GenerateSummaryTask task = summarizationTaskAggregator.start(
-                new GenerateSummaryTaskRequest(
-                        filePreferences,
-                        chatModel.get(),
-                        summarizator.get(),
-                        fullEntry,
-                        true
-                )
-        );
+        GenerateSummaryTask task = summarizationTaskAggregator.start(new GenerateSummaryTaskRequest(filePreferences, chatModel.get(), summarizator.get(), fullEntry,
+                true));
 
         currentTask.set(task);
         // The task may have finished before the status listener was attached

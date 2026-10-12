@@ -10,7 +10,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.mergeentries.threewaymerge.fieldsmerger.FieldMergerFactory;
 import org.jabref.gui.mergeentries.threewaymerge.toolbar.ThreeWayMergeToolbar;
@@ -44,18 +43,15 @@ public class ThreeWayMergeView extends VBox {
     private final FieldMergerFactory fieldMergerFactory;
     private final String keywordSeparator;
 
-    public ThreeWayMergeView(BibEntry leftEntry, BibEntry rightEntry, String leftHeader, String rightHeader, GuiPreferences preferences, StateManager stateManager) {
+    public ThreeWayMergeView(BibEntry leftEntry, BibEntry rightEntry, String leftHeader,
+            String rightHeader, GuiPreferences preferences, StateManager stateManager) {
         this.preferences = preferences;
         this.stateManager = stateManager;
 
-        viewModel = new ThreeWayMergeViewModel(
-                safeClone(leftEntry, rightEntry),
-                safeClone(rightEntry, leftEntry),
-                leftHeader,
-                rightHeader);
+        viewModel = new ThreeWayMergeViewModel(safeClone(leftEntry, rightEntry), safeClone(rightEntry, leftEntry), leftHeader, rightHeader);
         Character separator = stateManager.getActiveDatabase()
-                                          .map(databaseContext -> databaseContext.getKeywordSeparator(preferences.getBibEntryPreferences().getKeywordSeparator()))
-                                          .orElse(preferences.getBibEntryPreferences().getKeywordSeparator());
+                .map(databaseContext -> databaseContext.getKeywordSeparator(preferences.getBibEntryPreferences().getKeywordSeparator()))
+                .orElse(preferences.getBibEntryPreferences().getKeywordSeparator());
         this.fieldMergerFactory = new FieldMergerFactory(separator);
         this.keywordSeparator = separator.toString();
 
@@ -70,15 +66,22 @@ public class ThreeWayMergeView extends VBox {
         initializeHeaderView();
         initializeToolbar();
 
-        this.setPrefHeight(Screen.getPrimary().getBounds().getHeight() * 0.76);
-        this.setPrefWidth(Screen.getPrimary().getBounds().getWidth() * 0.97);
+        this.setPrefHeight(Screen.getPrimary()
+                .getBounds()
+                .getHeight()
+                * 0.76);
+        this.setPrefWidth(Screen.getPrimary()
+                .getBounds()
+                .getWidth()
+                * 0.97);
 
         getChildren().addAll(toolbar, headerView, scrollPane);
 
         getStyleClass().add("three-way-merge");
     }
 
-    public ThreeWayMergeView(BibEntry leftEntry, BibEntry rightEntry, GuiPreferences preferences, StateManager stateManager) {
+    public ThreeWayMergeView(BibEntry leftEntry, BibEntry rightEntry, GuiPreferences preferences,
+            StateManager stateManager) {
         this(leftEntry, rightEntry, LEFT_DEFAULT_HEADER, RIGHT_DEFAULT_HEADER, preferences, stateManager);
     }
 
@@ -110,7 +113,12 @@ public class ThreeWayMergeView extends VBox {
     private void updateDiff() {
         if (toolbar.shouldShowDiffs()) {
             for (FieldRowView row : fieldRows) {
-                if ("Groups".equals(row.getFieldNameCell().getText()) && (row.getLeftValueCell().getText().contains(keywordSeparator) || row.getRightValueCell().getText().contains(keywordSeparator))) {
+                if ("Groups".equals(row.getFieldNameCell().getText()) && (row.getLeftValueCell()
+                        .getText()
+                        .contains(keywordSeparator)
+                        || row.getRightValueCell()
+                              .getText()
+                              .contains(keywordSeparator))) {
                     row.showDiff(new ShowDiffConfig(toolbar.getDiffView(), new GroupDiffMode(keywordSeparator)));
                 } else {
                     row.showDiff(new ShowDiffConfig(toolbar.getDiffView(), toolbar.getDiffHighlightingMethod()));
@@ -122,10 +130,7 @@ public class ThreeWayMergeView extends VBox {
     }
 
     private void initializeHeaderView() {
-        headerView.getColumnConstraints().addAll(fieldNameColumnConstraints,
-                leftEntryColumnConstraints,
-                rightEntryColumnConstraints,
-                mergedEntryColumnConstraints);
+        headerView.getColumnConstraints().addAll(fieldNameColumnConstraints, leftEntryColumnConstraints, rightEntryColumnConstraints, mergedEntryColumnConstraints);
     }
 
     private void initializeScrollPane() {
@@ -160,9 +165,11 @@ public class ThreeWayMergeView extends VBox {
 
         FieldRowView fieldRow;
         if (field.getProperties().contains(FieldProperty.PERSON_NAMES)) {
-            fieldRow = new PersonsNameFieldRowView(field, getLeftEntry(), getRightEntry(), getMergedEntry(), fieldMergerFactory, preferences, stateManager, fieldIndex);
+            fieldRow = new PersonsNameFieldRowView(field, getLeftEntry(), getRightEntry(),
+                    getMergedEntry(), fieldMergerFactory, preferences, stateManager, fieldIndex);
         } else {
-            fieldRow = new FieldRowView(field, getLeftEntry(), getRightEntry(), getMergedEntry(), fieldMergerFactory, preferences, stateManager, fieldIndex);
+            fieldRow = new FieldRowView(field, getLeftEntry(), getRightEntry(),
+                    getMergedEntry(), fieldMergerFactory, preferences, stateManager, fieldIndex);
         }
 
         fieldRows.add(fieldIndex, fieldRow);
@@ -222,8 +229,8 @@ public class ThreeWayMergeView extends VBox {
             return new BibEntry(primary);
         }
         BibEntry placeholder = peer != null && peer.getType() != null
-                               ? new BibEntry(peer.getType())
-                               : new BibEntry();
+                ? new BibEntry(peer.getType())
+                : new BibEntry();
         if (peer != null) {
             peer.getCitationKey().ifPresent(placeholder::withCitationKey);
         }

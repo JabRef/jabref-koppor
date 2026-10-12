@@ -3,10 +3,9 @@ package org.jabref.logic.git.model;
 import java.util.List;
 import java.util.Optional;
 
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.jabref.logic.git.conflicts.ThreeWayEntryConflict;
 import org.jabref.logic.git.status.SyncStatus;
-
-import org.eclipse.jgit.revwalk.RevCommit;
 
 /// PullPlan contains:
 ///  base / remote / localHead commits (for finalize)
@@ -20,12 +19,8 @@ public final class PullPlan {
     private final MergePlan autoPlan;
     private final List<ThreeWayEntryConflict> conflicts;
 
-    private PullPlan(SyncStatus status,
-                     Optional<RevCommit> base,
-                     RevCommit localHead,
-                     RevCommit remote,
-                     MergePlan autoPlan,
-                     List<ThreeWayEntryConflict> conflicts) {
+    private PullPlan(SyncStatus status, Optional<RevCommit> base, RevCommit localHead,
+                     RevCommit remote, MergePlan autoPlan, List<ThreeWayEntryConflict> conflicts) {
         this.status = status;
         this.base = base;
         this.localHead = localHead;
@@ -34,12 +29,8 @@ public final class PullPlan {
         this.conflicts = conflicts;
     }
 
-    public static PullPlan of(SyncStatus syncStatus,
-                              Optional<RevCommit> base,
-                              RevCommit localHead,
-                              RevCommit remote,
-                              MergePlan autoPlan,
-                              List<ThreeWayEntryConflict> conflicts) {
+    public static PullPlan of(SyncStatus syncStatus, Optional<RevCommit> base, RevCommit localHead,
+            RevCommit remote, MergePlan autoPlan, List<ThreeWayEntryConflict> conflicts) {
         return new PullPlan(syncStatus, base, localHead, remote, autoPlan, conflicts);
     }
 

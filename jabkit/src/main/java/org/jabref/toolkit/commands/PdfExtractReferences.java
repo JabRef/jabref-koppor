@@ -21,7 +21,6 @@ import org.jabref.toolkit.converter.ExtractionModeConverter;
 import org.jabref.toolkit.exception.ExportServiceException;
 import org.jabref.toolkit.exception.ImportServiceException;
 import org.jabref.toolkit.service.ExportService;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -49,10 +48,15 @@ class PdfExtractReferences implements Callable<Integer> {
     private JabKit.SharedOptions sharedOptions;
 
     // [impl->req~jabkit.cli.input-url~2]
-    @Parameters(paramLabel = "FILE", description = "PDF(s) to extract references from, each a file or an http(s)/ftp URL.", arity = "1..*")
+    @Parameters(
+            paramLabel = "FILE",
+            description = "PDF(s) to extract references from, each a file or an http(s)/ftp URL.",
+            arity = "1..*")
     private List<String> inputFiles;
 
-    @Option(names = "--mode", converter = ExtractionModeConverter.class,
+    @Option(
+            names = "--mode",
+            converter = ExtractionModeConverter.class,
             description = "Extraction mode: ${COMPLETION-CANDIDATES} (LLM is experimental). Defaults to GROBID if Grobid is enabled in preferences, otherwise RULE_BASED.")
     private @Nullable ExtractionMode mode;
 
@@ -87,8 +91,8 @@ class PdfExtractReferences implements Callable<Integer> {
 
         CliPreferences preferences = pdf.argumentProcessor.cliPreferences;
         ExtractionMode effectiveMode = mode != null
-                                       ? mode
-                                       : (preferences.getGrobidPreferences().isGrobidEnabled() ? ExtractionMode.GROBID : ExtractionMode.RULE_BASED);
+                ? mode
+                : (preferences.getGrobidPreferences().isGrobidEnabled() ? ExtractionMode.GROBID : ExtractionMode.RULE_BASED);
 
         if (grobidUrl != null && effectiveMode != ExtractionMode.GROBID) {
             System.err.println(Localization.lang("--grobid-url can only be used with --mode=GROBID."));
@@ -130,27 +134,22 @@ class PdfExtractReferences implements Callable<Integer> {
             }
 
             if (!sharedOptions.porcelain) {
-                (writeToStdOut ? System.err : System.out)
-                        .println(Localization.lang("Extracting references from %0 (mode: %1).", displayName(input), effectiveMode));
+                (writeToStdOut ? System.err : System.out).println(Localization.lang("Extracting references from %0 (mode: %1).", displayName(input), effectiveMode));
             }
 
             ParserResult result = switch (effectiveMode) {
-                case RULE_BASED ->
-                        CitationsFromPdf.extractCitationsUsingRuleBasedAlgorithm(preferences, inputFile);
+                case RULE_BASED -> CitationsFromPdf.extractCitationsUsingRuleBasedAlgorithm(preferences, inputFile);
                 // Force Grobid enabled for this single call: the user explicitly asked for --mode=GROBID,
                 // but the stored preference may have Grobid disabled, which would otherwise make
                 // GrobidService throw instead of running the extraction.
-                case GROBID ->
-                        CitationsFromPdf.extractCitationsUsingGrobid(
-                                preferences,
-                                inputFile,
-                                grobidUrl != null ? grobidUrl : preferences.getGrobidPreferences().getGrobidURL());
-                case LLM ->
-                        CitationsFromPdf.extractCitationsUsingLLM(preferences, LOGGER::info, inputFile);
+                case GROBID -> CitationsFromPdf.extractCitationsUsingGrobid(preferences, inputFile,
+                        grobidUrl != null ? grobidUrl : preferences.getGrobidPreferences().getGrobidURL());
+                case LLM -> CitationsFromPdf.extractCitationsUsingLLM(preferences, LOGGER::info, inputFile);
             };
 
             if (result.isInvalid()) {
-                LOGGER.error("Could not extract references from '{}': {}", displayName(input), result.getErrorMessage());
+                LOGGER.error("Could not extract references from '{}': {}",
+                        displayName(input), result.getErrorMessage());
                 failed.add(input);
                 continue;
             }
@@ -171,7 +170,8 @@ class PdfExtractReferences implements Callable<Integer> {
 
     /// Creates `directory` (and any missing parents) if it doesn't exist yet.
     ///
-    /// @return `true` if the directory exists afterwards, `false` if it could not be created
+    /// @return `true` if the directory exists afterwards, `false` if it could
+    ///   not be created
     private static boolean ensureDirectoryExists(Path directory) {
         try {
             Files.createDirectories(directory);
@@ -182,25 +182,26 @@ class PdfExtractReferences implements Callable<Integer> {
         }
     }
 
-    /// The input as shown to the user: URLs are redacted so that embedded credentials do not end up
-    /// on the console or in the log.
+    /// The input as shown to the user: URLs are redacted so that embedded
+    /// credentials do not end up on the console or in the log.
     private static String displayName(String input) {
         return URLUtil.isURL(input) ? FetcherException.getRedactedUrl(input) : input;
     }
 
-    /// Target for the "one `.bib` next to each source PDF" default. A downloaded URL has no local
-    /// source directory to sit next to, so its output goes into the working directory instead of
-    /// silently into the temporary directory holding the download.
+    /// Target for the "one `.bib` next to each source PDF" default. A
+    /// downloaded URL has no local source directory to sit next to, so its
+    /// output goes into the working directory instead of silently into the
+    /// temporary directory holding the download.
     private static Path defaultBibFile(String input, Path resolvedFile) {
         String bibFileName = outputBaseName(input, resolvedFile) + ".bib";
-        return URLUtil.isURL(input)
-               ? Path.of(bibFileName)
-               : resolvedFile.toAbsolutePath().getParent().resolve(bibFileName);
+        return URLUtil.isURL(input) ? Path.of(bibFileName) : resolvedFile.toAbsolutePath()
+                .getParent()
+                .resolve(bibFileName);
     }
 
-    /// Base name (without extension) for an input's output file. For a URL the name is taken from
-    /// the URL itself, not from the randomly named temporary file it was downloaded to, so that
-    /// output names are stable across runs.
+    /// Base name (without extension) for an input's output file. For a URL the
+    /// name is taken from the URL itself, not from the randomly named temporary
+    /// file it was downloaded to, so that output names are stable across runs.
     private static String outputBaseName(String input, Path resolvedFile) {
         if (!URLUtil.isURL(input)) {
             return FileUtil.getBaseName(resolvedFile);
@@ -208,7 +209,9 @@ class PdfExtractReferences implements Callable<Integer> {
         try {
             // URI#getPath drops query and fragment
             String urlPath = URI.create(input).getPath();
-            Path lastSegment = (urlPath == null || urlPath.isEmpty()) ? null : Path.of(urlPath).getFileName();
+            Path lastSegment = (urlPath == null || urlPath.isEmpty())
+                    ? null
+                    : Path.of(urlPath).getFileName();
             return lastSegment == null ? "downloaded" : FileUtil.getBaseName(lastSegment);
         } catch (IllegalArgumentException _) {
             // Downloadable URL that is no strict URI (or whose path is no valid Path) - it carries no usable file name
@@ -216,12 +219,14 @@ class PdfExtractReferences implements Callable<Integer> {
         }
     }
 
-    /// Target inside `--output-dir` for one input. Inputs from different directories can share a file
-    /// name, so a name already taken in this run gets a counter appended - `paper.bib`, `paper-2.bib`,
-    /// ... - instead of the later input silently overwriting the earlier one's references.
+    /// Target inside `--output-dir` for one input. Inputs from different
+    /// directories can share a file name, so a name already taken in this run
+    /// gets a counter appended - `paper.bib`, `paper-2.bib`, ... - instead of
+    /// the later input silently overwriting the earlier one's references.
     ///
-    /// Only names taken within the same run are avoided: a batch that is run again replaces its own
-    /// previous output rather than piling up numbered copies of it.
+    /// Only names taken within the same run are avoided: a batch that is run
+    /// again replaces its own previous output rather than piling up numbered
+    /// copies of it.
     private static Path outputDirTarget(Path outputDir, String baseName, Set<Path> takenTargets) {
         Path target = outputDir.resolve(baseName + ".bib");
 

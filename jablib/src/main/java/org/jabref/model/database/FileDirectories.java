@@ -8,9 +8,7 @@ import org.jspecify.annotations.Nullable;
 
 /// Holds the configured file directories in a fixed order.
 @NullMarked
-public record FileDirectories(@Nullable Path userDirectory,
-                              @Nullable Path libraryDirectory,
-                              @Nullable Path fallbackDirectory) {
+public record FileDirectories(@Nullable Path userDirectory, @Nullable Path libraryDirectory, @Nullable Path fallbackDirectory) {
 
     public Optional<Path> getUserDirectoryOpt() {
         return Optional.ofNullable(userDirectory);

@@ -3,14 +3,16 @@ package org.jabref.logic.ai.util;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.ProgressCounter;
 
-/// An extension to the [BackgroundTask] that stores the result (or exception) of the task inside.
+/// An extension to the [BackgroundTask] that stores the result (or exception)
+/// of the task inside.
 ///
-/// Useful for the Ai features with task aggregators ([org.jabref.logic.ai.ingestion.IngestionTaskAggregator], [org.jabref.logic.ai.summarization.SummarizationTaskAggregator]),
-/// because it allows to use the task object as a temporary storage.
+/// Useful for the Ai features with task aggregators
+/// ([org.jabref.logic.ai.ingestion.IngestionTaskAggregator],
+/// [org.jabref.logic.ai.summarization.SummarizationTaskAggregator]), because it
+/// allows to use the task object as a temporary storage.
 public abstract class TrackedBackgroundTask<V> extends BackgroundTask<V> {
     public enum Status {
         PENDING,

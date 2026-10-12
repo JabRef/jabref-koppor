@@ -50,8 +50,7 @@ public class StudyQuery {
             return false;
         }
         StudyQuery that = (StudyQuery) o;
-        return Objects.equals(query, that.query) &&
-                Objects.equals(catalogSpecific, that.catalogSpecific);
+        return Objects.equals(query, that.query) && Objects.equals(catalogSpecific, that.catalogSpecific);
     }
 
     @Override
@@ -61,9 +60,12 @@ public class StudyQuery {
 
     @Override
     public String toString() {
-        return "QueryEntry{" +
-                "query='" + query + '\'' +
-                ", catalogSpecific=" + catalogSpecific +
-                '}';
+        return "QueryEntry{"
+                + "query='"
+                + query
+                + '\''
+                + ", catalogSpecific="
+                + catalogSpecific
+                + '}';
     }
 }

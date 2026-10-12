@@ -11,5 +11,6 @@ import org.jabref.model.entry.BibEntry;
 ///
 /// Implementations may produce different output formats (Markdown, JSON, etc.).
 public interface AiChatExporter {
-    String export(AiMetadata metadata, List<BibEntry> entries, BibDatabaseMode mode, List<ChatMessage> messages);
+    String export(AiMetadata metadata, List<BibEntry> entries, BibDatabaseMode mode,
+                  List<ChatMessage> messages);
 }

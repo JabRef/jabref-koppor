@@ -11,13 +11,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.InternalField;
-
 import org.jspecify.annotations.NonNull;
 
 public class ThreeWayMergeViewModel extends AbstractViewModel {
@@ -30,10 +28,8 @@ public class ThreeWayMergeViewModel extends AbstractViewModel {
 
     private final ObservableList<Field> visibleFields = FXCollections.observableArrayList();
 
-    public ThreeWayMergeViewModel(@NonNull BibEntry leftEntry,
-                                  @NonNull BibEntry rightEntry,
-                                  @NonNull String leftHeader,
-                                  @NonNull String rightHeader) {
+    public ThreeWayMergeViewModel(@NonNull BibEntry leftEntry, @NonNull BibEntry rightEntry, @NonNull String leftHeader,
+            @NonNull String rightHeader) {
         setLeftEntry(leftEntry);
         setRightEntry(rightEntry);
         setLeftHeader(leftHeader);
@@ -41,9 +37,8 @@ public class ThreeWayMergeViewModel extends AbstractViewModel {
 
         mergedEntry.set(new BibEntry());
 
-        setVisibleFields(Stream.concat(
-                leftEntry.getFields().stream(),
-                rightEntry.getFields().stream()).collect(Collectors.toSet()));
+        setVisibleFields(Stream.concat(leftEntry.getFields().stream(), rightEntry.getFields().stream())
+                .collect(Collectors.toSet()));
     }
 
     public StringProperty leftHeaderProperty() {
@@ -94,7 +89,8 @@ public class ThreeWayMergeViewModel extends AbstractViewModel {
         return visibleFields;
     }
 
-    /// Convince method to determine the total number of fields in the union of the left and right fields.
+    /// Convince method to determine the total number of fields in the union of
+    /// the left and right fields.
     public int numberOfVisibleFields() {
         return visibleFields.size();
     }

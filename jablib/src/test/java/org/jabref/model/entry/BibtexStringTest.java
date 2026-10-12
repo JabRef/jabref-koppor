@@ -1,5 +1,6 @@
 package org.jabref.model.entry;
 
+import org.jabref.model.entry.BibtexString.Type;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,7 +14,7 @@ class BibtexStringTest {
         BibtexString bs = new BibtexString("AAA", "An alternative action");
         assertEquals("AAA", bs.getName());
         assertEquals("An alternative action", bs.getContent());
-        assertEquals(BibtexString.Type.OTHER, bs.getType());
+        assertEquals(Type.OTHER, bs.getType());
     }
 
     @Test
@@ -66,7 +67,7 @@ class BibtexStringTest {
 
         bs2.setId(IdGenerator.next());
         bs2.setName("aOG");
-        assertEquals(BibtexString.Type.AUTHOR, bs2.getType());
+        assertEquals(Type.AUTHOR, bs2.getType());
 
         bs2.setContent("Oscar Gustafsson");
         assertEquals("aOG", bs2.getName());
@@ -92,27 +93,27 @@ class BibtexStringTest {
     void authorTypeCorrectlyDetermined() {
         // Source of the example: https://docs.jabref.org/fields/strings
         BibtexString bibtexString = new BibtexString("aKopp", "KoppOliver");
-        assertEquals(BibtexString.Type.AUTHOR, bibtexString.getType());
+        assertEquals(Type.AUTHOR, bibtexString.getType());
     }
 
     @Test
     void institutionTypeCorrectlyDetermined() {
         // Source of the example: https://docs.jabref.org/fields/strings
         BibtexString bibtexString = new BibtexString("iMIT", "{Massachusetts Institute of Technology ({MIT})}");
-        assertEquals(BibtexString.Type.INSTITUTION, bibtexString.getType());
+        assertEquals(Type.INSTITUTION, bibtexString.getType());
     }
 
     @Test
     void otherTypeCorrectlyDeterminedForLowerCase() {
         // Source of the example: https://docs.jabref.org/fields/strings
         BibtexString bibtexString = new BibtexString("anct", "Anecdote");
-        assertEquals(BibtexString.Type.OTHER, bibtexString.getType());
+        assertEquals(Type.OTHER, bibtexString.getType());
     }
 
     @Test
     void otherTypeCorrectlyDeterminedForUpperCase() {
         // Source of the example: https://docs.jabref.org/fields/strings
         BibtexString bibtexString = new BibtexString("lTOSCA", "Topology and Orchestration Specification for Cloud Applications");
-        assertEquals(BibtexString.Type.OTHER, bibtexString.getType());
+        assertEquals(Type.OTHER, bibtexString.getType());
     }
 }

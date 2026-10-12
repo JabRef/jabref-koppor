@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.jabref.model.study.Study;
 import org.jabref.model.study.StudyCatalog;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -24,7 +23,11 @@ class StudyYamlV1MigratorTest {
         String input = Files.readString(Path.of(inputUrl.toURI()));
         String expected = Files.readString(Path.of(expectedUrl.toURI()));
 
-        assertEquals(expected.replace("\r\n", "\n").trim(), StudyYamlV1Migrator.migrate(input).replace("\r\n", "\n").trim());
+        assertEquals(
+                expected.replace("\r\n", "\n").trim(),
+                StudyYamlV1Migrator.migrate(input)
+                        .replace("\r\n", "\n")
+                        .trim());
     }
 
     @Test
@@ -35,7 +38,11 @@ class StudyYamlV1MigratorTest {
         String input = Files.readString(Path.of(inputUrl.toURI()));
         String expected = Files.readString(Path.of(expectedUrl.toURI()));
 
-        assertEquals(expected.replace("\r\n", "\n").trim(), StudyYamlV1Migrator.migrate(input).replace("\r\n", "\n").trim());
+        assertEquals(
+                expected.replace("\r\n", "\n").trim(),
+                StudyYamlV1Migrator.migrate(input)
+                        .replace("\r\n", "\n")
+                        .trim());
     }
 
     @Test
@@ -50,11 +57,18 @@ class StudyYamlV1MigratorTest {
 
         assertEquals(Study.CURRENT_SCHEMA_VERSION, study.getVersion());
         assertEquals(1, study.getCatalogs().size());
-        assertEquals(
-                List.of("Springer"),
-                study.getCatalogs().stream().map(StudyCatalog::getName).toList());
-        assertTrue(study.getCatalogs().getFirst().isEnabled());
+        assertEquals(List.of("Springer"),
+                study.getCatalogs()
+                     .stream()
+                     .map(StudyCatalog::getName)
+                     .toList());
+        assertTrue(study.getCatalogs()
+                        .getFirst()
+                        .isEnabled());
         assertEquals(1, study.getQueries().size());
-        assertEquals("Quantum", study.getQueries().getFirst().getQuery());
+        assertEquals("Quantum",
+                study.getQueries()
+                     .getFirst()
+                     .getQuery());
     }
 }

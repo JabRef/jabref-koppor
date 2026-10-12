@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.SortType;
 import javafx.scene.control.TableView;
-
+import org.jabref.gui.maintable.MainTableColumnModel.Type;
 import org.jabref.gui.maintable.columns.MainTableColumn;
 import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,9 +37,9 @@ class ColumnPreferencesApplierTest {
 
     @BeforeEach
     void setUp() {
-        titleColumn = new MainTableColumnModel(MainTableColumnModel.Type.NORMALFIELD, StandardField.TITLE.getName());
-        yearColumn = new MainTableColumnModel(MainTableColumnModel.Type.NORMALFIELD, StandardField.YEAR.getName());
-        relevanceColumn = new MainTableColumnModel(MainTableColumnModel.Type.SPECIALFIELD, SpecialField.RANKING.getName());
+        titleColumn = new MainTableColumnModel(Type.NORMALFIELD, StandardField.TITLE.getName());
+        yearColumn = new MainTableColumnModel(Type.NORMALFIELD, StandardField.YEAR.getName());
+        relevanceColumn = new MainTableColumnModel(Type.SPECIALFIELD, SpecialField.RANKING.getName());
 
         columnPreferences = new ColumnPreferences(List.of(titleColumn, yearColumn), List.of(titleColumn));
         mainTablePreferences = new MainTablePreferences(columnPreferences, false, false);
@@ -58,13 +58,16 @@ class ColumnPreferencesApplierTest {
 
     @Test
     void bindShowsConfiguredColumnsAfterMatchCategoryColumn() {
-        assertEquals(MainTableColumnModel.Type.MATCH_CATEGORY, modelOf(table.getColumns().getFirst()).getType());
+        assertEquals(Type.MATCH_CATEGORY, modelOf(table.getColumns().getFirst()).getType());
         assertEquals(List.of(titleColumn, yearColumn), visibleColumns());
     }
 
     @Test
     void applySortOrderPutsMatchCategoryColumnFirst() {
-        assertEquals(List.of(table.getColumns().getFirst(), table.getColumns().get(1)), table.getSortOrder());
+        assertEquals(
+                List.of(table.getColumns().getFirst(),
+                        table.getColumns().get(1)),
+                table.getSortOrder());
     }
 
     @Test
@@ -97,11 +100,11 @@ class ColumnPreferencesApplierTest {
         BoundTable secondTable = newBoundTable();
 
         TableColumn<BibEntryTableViewModel, ?> yearColumnInFirstTable = findColumn(table, yearColumn);
-        yearColumnInFirstTable.setSortType(TableColumn.SortType.DESCENDING);
+        yearColumnInFirstTable.setSortType(SortType.DESCENDING);
         table.getSortOrder().setAll(List.of(table.getColumns().getFirst(), yearColumnInFirstTable));
 
         assertEquals(List.of(yearColumn), visibleSortOrder(secondTable.table()));
-        assertEquals(TableColumn.SortType.DESCENDING, findColumn(secondTable.table(), yearColumn).getSortType());
+        assertEquals(SortType.DESCENDING, findColumn(secondTable.table(), yearColumn).getSortType());
     }
 
     @Test
@@ -117,12 +120,13 @@ class ColumnPreferencesApplierTest {
     void keepsMatchCategoryColumnInSortOrderWhenSortedColumnIsRemoved() {
         columnPreferences.setColumns(List.of(yearColumn));
 
-        assertEquals(List.of(table.getColumns().getFirst()), table.getSortOrder());
+        assertEquals(List.of(table.getColumns().getFirst()),
+                table.getSortOrder());
     }
 
     @Test
     void ignoresReservedColumnsInPreferences() {
-        MainTableColumnModel reservedColumn = new MainTableColumnModel(MainTableColumnModel.Type.MATCH_CATEGORY);
+        MainTableColumnModel reservedColumn = new MainTableColumnModel(Type.MATCH_CATEGORY);
 
         columnPreferences.setColumns(List.of(titleColumn, reservedColumn, relevanceColumn));
 
@@ -141,7 +145,8 @@ class ColumnPreferencesApplierTest {
     @Test
     void tableSurvivesRoundTripThroughPreferences() {
         TableColumn<BibEntryTableViewModel, ?> yearTableColumn = table.getColumns().get(2);
-        List<TableColumn<BibEntryTableViewModel, ?>> expectedColumns = List.of(table.getColumns().getFirst(), yearTableColumn, table.getColumns().get(1));
+        List<TableColumn<BibEntryTableViewModel, ?>> expectedColumns = List.of(table.getColumns().getFirst(), yearTableColumn,
+                table.getColumns().get(1));
 
         // Reordering by drag and drop, as JavaFX does it
         table.getColumns().remove(yearTableColumn);
@@ -179,7 +184,7 @@ class ColumnPreferencesApplierTest {
     /// Mirrors [MainTableColumnFactory#createColumns()]
     private static List<TableColumn<BibEntryTableViewModel, ?>> createColumns(List<MainTableColumnModel> configuredColumns) {
         List<TableColumn<BibEntryTableViewModel, ?>> columns = new ArrayList<>();
-        columns.add(new MainTableColumn<>(new MainTableColumnModel(MainTableColumnModel.Type.MATCH_CATEGORY)));
+        columns.add(new MainTableColumn<>(new MainTableColumnModel(Type.MATCH_CATEGORY)));
         configuredColumns.stream()
                          .filter(MainTableColumnModel::isConfigurable)
                          .forEach(model -> columns.add(new MainTableColumn<>(model)));
@@ -201,11 +206,10 @@ class ColumnPreferencesApplierTest {
         return ((MainTableColumn<?>) column).getModel();
     }
 
-    private static TableColumn<BibEntryTableViewModel, ?> findColumn(TableView<BibEntryTableViewModel> table,
-                                                                     MainTableColumnModel model) {
-        return table.getColumns().stream()
-                    .filter(column -> column instanceof MainTableColumn<?> mainTableColumn
-                            && model.equals(mainTableColumn.getModel()))
+    private static TableColumn<BibEntryTableViewModel, ?> findColumn(TableView<BibEntryTableViewModel> table, MainTableColumnModel model) {
+        return table.getColumns()
+                    .stream()
+                    .filter(column -> column instanceof MainTableColumn<?> mainTableColumn && model.equals(mainTableColumn.getModel()))
                     .findFirst()
                     .orElseThrow();
     }
@@ -226,8 +230,5 @@ class ColumnPreferencesApplierTest {
         return ColumnPreferencesRecorder.toPersistedModels(table.getSortOrder());
     }
 
-    private record BoundTable(TableView<BibEntryTableViewModel> table,
-                              ColumnPreferencesApplier applier,
-                              ColumnPreferencesRecorder recorder) {
-    }
+    private record BoundTable(TableView<BibEntryTableViewModel> table, ColumnPreferencesApplier applier, ColumnPreferencesRecorder recorder) {}
 }

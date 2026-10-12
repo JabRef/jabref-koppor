@@ -8,7 +8,6 @@ import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.util.BindingsHelper;
@@ -27,12 +26,8 @@ public class LinkedEntriesEditorViewModel extends AbstractEditorViewModel {
     private final ListProperty<ParsedEntryLink> linkedEntries;
     private final StateManager stateManager;
 
-    public LinkedEntriesEditorViewModel(Field field,
-                                        SuggestionProvider<?> suggestionProvider,
-                                        BibDatabaseContext databaseContext,
-                                        FieldCheckers fieldCheckers,
-                                        UndoManager undoManager,
-                                        StateManager stateManager) {
+    public LinkedEntriesEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, BibDatabaseContext databaseContext,
+            FieldCheckers fieldCheckers, UndoManager undoManager, StateManager stateManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
 
         this.databaseContext = databaseContext;
@@ -40,10 +35,7 @@ public class LinkedEntriesEditorViewModel extends AbstractEditorViewModel {
         this.stateManager = stateManager;
 
         linkedEntries = new SimpleListProperty<>(FXCollections.observableArrayList());
-        BindingsHelper.bindContentBidirectional(
-                linkedEntries,
-                text,
-                EntryLinkList::serialize,
+        BindingsHelper.bindContentBidirectional(linkedEntries, text, EntryLinkList::serialize,
                 newText -> EntryLinkList.parse(newText, databaseContext.getDatabase()));
     }
 
@@ -69,8 +61,7 @@ public class LinkedEntriesEditorViewModel extends AbstractEditorViewModel {
     }
 
     public List<ParsedEntryLink> getSuggestions(String request) {
-        List<ParsedEntryLink> suggestions = suggestionProvider
-                .getPossibleSuggestions()
+        List<ParsedEntryLink> suggestions = suggestionProvider.getPossibleSuggestions()
                 .stream()
                 .map(suggestion -> suggestion instanceof BibEntry bibEntry ? bibEntry.getCitationKey().orElse("") : (String) suggestion)
                 .filter(suggestion -> suggestion.toLowerCase(Locale.ROOT).contains(request.toLowerCase(Locale.ROOT)))
@@ -87,7 +78,8 @@ public class LinkedEntriesEditorViewModel extends AbstractEditorViewModel {
     }
 
     public void jumpToEntry(ParsedEntryLink parsedEntryLink) {
-        parsedEntryLink.getLinkedEntry().ifPresent(entry ->
-                stateManager.activeTabProperty().get().ifPresent(tab -> tab.clearAndSelect(entry)));
+        parsedEntryLink.getLinkedEntry().ifPresent(entry -> stateManager.activeTabProperty()
+                .get()
+                .ifPresent(tab -> tab.clearAndSelect(entry)));
     }
 }

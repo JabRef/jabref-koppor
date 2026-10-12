@@ -23,7 +23,8 @@ public class SaveAllAction extends SimpleCommand {
     private final BibEntryTypesManager entryTypesManager;
     private final JournalAbbreviationRepository journalAbbreviationRepository;
 
-    public SaveAllAction(Supplier<List<LibraryTab>> tabsSupplier, GuiPreferences preferences, DialogService dialogService, StateManager stateManager, BibEntryTypesManager entryTypesManager, JournalAbbreviationRepository journalAbbreviationRepository) {
+    public SaveAllAction(Supplier<List<LibraryTab>> tabsSupplier, GuiPreferences preferences, DialogService dialogService,
+                         StateManager stateManager, BibEntryTypesManager entryTypesManager, JournalAbbreviationRepository journalAbbreviationRepository) {
         this.tabsSupplier = tabsSupplier;
         this.dialogService = dialogService;
         this.preferences = preferences;

@@ -1,11 +1,10 @@
 package org.jabref.http.server;
 
-import org.jabref.http.server.resources.LibrariesQueryResource;
-
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.jabref.http.server.resources.LibrariesQueryResource;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,12 +24,14 @@ class LibrariesQueryResourceTest extends ServerTest {
     @Test
     void singleQueryReturnsMatches() {
         // [utest->req~jabsrv.query.search~1]
-        String body = """
+        String body =
+                """
                 {"queries": ["author = \\"Test Author\\""]}""";
         String result = target("/libraries:query")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(body), String.class);
-        String expected = """
+        String
+                expected = """
                 {
                   "results": [
                     {
@@ -47,19 +48,22 @@ class LibrariesQueryResourceTest extends ServerTest {
                       ]
                     }
                   ]
-                }""".formatted(TestBibFile.GENERAL_SERVER_TEST.id, TestBibFile.GENERAL_SERVER_TEST.id);
+                }"""
+                                .formatted(TestBibFile.GENERAL_SERVER_TEST.id, TestBibFile.GENERAL_SERVER_TEST.id);
         assertEquals(expected, result);
     }
 
     @Test
     void queriesAreReturnedInInputOrder() {
         // [utest->req~jabsrv.query.search~1]
-        String body = """
+        String body =
+                """
                 {"queries": ["title = \\"Test DOI Entry\\"", "title = \\"Demo Title\\""]}""";
         String result = target("/libraries:query")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(body), String.class);
-        String expected = """
+        String
+                expected = """
                 {
                   "results": [
                     {
@@ -81,19 +85,22 @@ class LibrariesQueryResourceTest extends ServerTest {
                       ]
                     }
                   ]
-                }""".formatted(TestBibFile.GENERAL_SERVER_TEST.id, TestBibFile.GENERAL_SERVER_TEST.id);
+                }"""
+                                .formatted(TestBibFile.GENERAL_SERVER_TEST.id, TestBibFile.GENERAL_SERVER_TEST.id);
         assertEquals(expected, result);
     }
 
     @Test
     void queryWithoutMatchReturnsEmptyMatches() {
         // [utest->req~jabsrv.query.search~1]
-        String body = """
+        String body =
+                """
                 {"queries": ["author = \\"Nobody\\""]}""";
         String result = target("/libraries:query")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(body), String.class);
-        String expected = """
+        String expected =
+                """
                 {
                   "results": [
                     {
@@ -113,6 +120,7 @@ class LibrariesQueryResourceTest extends ServerTest {
         assertEquals("""
                 {
                   "results": []
-                }""", result);
+                }""",
+                result);
     }
 }

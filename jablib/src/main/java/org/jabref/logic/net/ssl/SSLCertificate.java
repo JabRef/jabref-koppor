@@ -28,14 +28,23 @@ public class SSLCertificate {
     private final String signatureAlgorithm;
     private final Integer version;
 
-    public SSLCertificate(byte[] encoded, String serialNumber, String issuer, LocalDate validFrom, LocalDate validTo, String signatureAlgorithm, Integer version) {
+    public SSLCertificate(
+            byte[] encoded,
+            String serialNumber,
+            String issuer,
+            LocalDate validFrom,
+            LocalDate validTo,
+            String signatureAlgorithm,
+            Integer version) {
         this.serialNumber = serialNumber;
         this.issuer = issuer;
         this.validFrom = validFrom;
         this.validTo = validTo;
         this.signatureAlgorithm = signatureAlgorithm;
         this.version = version;
-        this.sha256Thumbprint = Hashing.sha256().hashBytes(encoded).toString();
+        this.sha256Thumbprint = Hashing.sha256()
+                .hashBytes(encoded)
+                .toString();
     }
 
     public String getSerialNumber() {
@@ -69,12 +78,17 @@ public class SSLCertificate {
 
     public static Optional<SSLCertificate> fromX509(@NonNull X509Certificate x509Certificate) {
         try {
-            return Optional.of(new SSLCertificate(x509Certificate.getEncoded(), x509Certificate.getSerialNumber().toString(),
-                    x509Certificate.getIssuerX500Principal().getName(),
-                    LocalDate.ofInstant(x509Certificate.getNotBefore().toInstant(), ZoneId.systemDefault()),
-                    LocalDate.ofInstant(x509Certificate.getNotAfter().toInstant(), ZoneId.systemDefault()),
-                    x509Certificate.getSigAlgName(),
-                    x509Certificate.getVersion()));
+            return Optional.of(
+                    new SSLCertificate(
+                            x509Certificate.getEncoded(),
+                            x509Certificate.getSerialNumber().toString(),
+                            x509Certificate.getIssuerX500Principal().getName(),
+                            LocalDate.ofInstant(x509Certificate.getNotBefore().toInstant(),
+                                    ZoneId.systemDefault()),
+                            LocalDate.ofInstant(x509Certificate.getNotAfter().toInstant(),
+                                    ZoneId.systemDefault()),
+                            x509Certificate.getSigAlgName(),
+                            x509Certificate.getVersion()));
         } catch (CertificateEncodingException e) {
             LOGGER.warn("Error while encoding certificate", e);
         }

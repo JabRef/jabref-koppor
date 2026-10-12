@@ -1,7 +1,6 @@
 package org.jabref.gui.entryeditor;
 
 import javafx.scene.control.Tooltip;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.ai.chat.AiEntryChatView;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -15,10 +14,7 @@ public class AiChatTab extends EntryEditorTab {
 
     private final AiEntryChatView aiEntryChatView = new AiEntryChatView();
 
-    public AiChatTab(
-            GuiPreferences preferences,
-            StateManager stateManager
-    ) {
+    public AiChatTab(GuiPreferences preferences, StateManager stateManager) {
         this.stateManager = stateManager;
 
         setText(EntryEditorTabModel.BuiltIn.AI_CHAT.displayName());

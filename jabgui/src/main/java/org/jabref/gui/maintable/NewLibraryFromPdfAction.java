@@ -15,16 +15,15 @@ import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Similar to [ExtractReferencesAction]. This action creates a new library, the other action "just" appends to the current library
-///
+/// Similar to [ExtractReferencesAction]. This action creates a new library, the
+/// other action "just" appends to the current library
 ///
 /// - Mode choice A: online or offline
-/// - Mode choice B: complete entry or single file (the latter is not implemented)
-///
+/// - Mode choice B: complete entry or single file (the latter is not
+///   implemented)
 public abstract class NewLibraryFromPdfAction extends SimpleCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(NewLibraryFromPdfAction.class);
 
@@ -35,12 +34,8 @@ public abstract class NewLibraryFromPdfAction extends SimpleCommand {
     private final DialogService dialogService;
     private final TaskExecutor taskExecutor;
 
-    public NewLibraryFromPdfAction(
-            LibraryTabContainer libraryTabContainer,
-            StateManager stateManager,
-            DialogService dialogService,
-            CliPreferences preferences,
-            TaskExecutor taskExecutor) {
+    public NewLibraryFromPdfAction(LibraryTabContainer libraryTabContainer, StateManager stateManager, DialogService dialogService,
+            CliPreferences preferences, TaskExecutor taskExecutor) {
         this.libraryTabContainer = libraryTabContainer;
         this.stateManager = stateManager;
         this.dialogService = dialogService;
@@ -64,13 +59,13 @@ public abstract class NewLibraryFromPdfAction extends SimpleCommand {
             LOGGER.trace("Selected file: {}", path);
             Callable<ParserResult> parserResultCallable = getParserResultCallable(path);
             BackgroundTask.wrap(parserResultCallable)
-                          .withInitialMessage(Localization.lang("Processing PDF(s)"))
-                          .onFailure(dialogService::showErrorDialogAndWait)
-                          .onSuccess(result -> {
-                              LOGGER.trace("Finished processing PDF(s): {}", result);
-                              libraryTabContainer.addTab(result.getDatabaseContext(), true);
-                          })
-                          .executeWith(taskExecutor);
+                    .withInitialMessage(Localization.lang("Processing PDF(s)"))
+                    .onFailure(dialogService::showErrorDialogAndWait)
+                    .onSuccess(result -> {
+                        LOGGER.trace("Finished processing PDF(s): {}", result);
+                        libraryTabContainer.addTab(result.getDatabaseContext(), true);
+                    })
+                    .executeWith(taskExecutor);
         });
     }
 

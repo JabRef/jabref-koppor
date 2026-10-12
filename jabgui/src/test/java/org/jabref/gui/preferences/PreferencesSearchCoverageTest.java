@@ -7,12 +7,12 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.scene.control.Labeled;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.clipboard.ClipBoardManager;
@@ -51,8 +51,6 @@ import org.jabref.logic.undo.UndoManager;
 import org.jabref.logic.util.CurrentThreadTaskExecutor;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.strings.StringUtil;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,10 +61,11 @@ import org.mockito.Answers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
-/// Guards the invariant the preferences search rests on: every visible text of a tab is registered
-/// as a [SearchableElement], whether the form builder placed it or a `custom(...)` node brought it.
-/// Without this test, a custom node whose texts nobody registered is a hole in the search that
-/// nothing else reports.
+/// Guards the invariant the preferences search rests on: every visible text of
+/// a tab is registered as a [SearchableElement], whether the form builder
+/// placed it or a `custom(...)` node brought it. Without this test, a custom
+/// node whose texts nobody registered is a hole in the search that nothing else
+/// reports.
 @ExtendWith(JavaFxExtension.class)
 class PreferencesSearchCoverageTest {
 
@@ -91,8 +90,9 @@ class PreferencesSearchCoverageTest {
         Injector.setModelOrService(UndoManager.class, mock(UndoManager.class));
     }
 
-    /// The tabs are created inside the test rather than here, because a parameter source runs
-    /// before the JavaFX toolkit is up and a tab builds controls.
+    /// The tabs are created inside the test rather than here, because a
+    /// parameter source runs before the JavaFX toolkit is up and a tab builds
+    /// controls.
     private static Stream<Named<Supplier<PreferencesTab>>> tabs() {
         return Stream.of(
                 Named.of("General", GeneralTab::new),
@@ -126,22 +126,24 @@ class PreferencesSearchCoverageTest {
     void everyVisibleTextIsSearchable(Supplier<PreferencesTab> tabFactory) {
         PreferencesTab tab = tabFactory.get();
 
-        Set<String> registered = tab.getSearchableElements().stream()
-                                    .map(SearchableElement::text)
-                                    .collect(Collectors.toSet());
+        Set<String> registered = tab.getSearchableElements()
+                .stream()
+                .map(SearchableElement::text)
+                .collect(Collectors.toSet());
 
-        List<String> unregistered = visibleTexts(tab.getContent()).stream()
-                                                                  .filter(text -> !registered.contains(text))
-                                                                  .toList();
+        List<String> unregistered = visibleTexts(tab.getContent())
+                .stream()
+                .filter(text -> !registered.contains(text))
+                .toList();
 
-        assertEquals(List.of(), unregistered,
-                "these texts of tab \"" + tab.getTabName() + "\" cannot be found by the preferences search");
+        assertEquals(List.of(), unregistered, "these texts of tab \"" + tab.getTabName() + "\" cannot be found by the preferences search");
     }
 
-    /// The texts a user reads on the tab, collected the way the builder's escape hatch collects
-    /// them: the descent stops at a control, whose insides belong to its skin. Buttons are left
-    /// out — they carry the actions of a list ("Add", "Remove", "Reset to default"), not the name
-    /// of a setting, and are deliberately not searchable.
+    /// The texts a user reads on the tab, collected the way the builder's
+    /// escape hatch collects them: the descent stops at a control, whose
+    /// insides belong to its skin. Buttons are left out — they carry the
+    /// actions of a list ("Add", "Remove", "Reset to default"), not the name of
+    /// a setting, and are deliberately not searchable.
     private static List<String> visibleTexts(Node node) {
         List<String> texts = new ArrayList<>();
         collect(node, texts);

@@ -10,11 +10,11 @@ import java.util.Optional;
 
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Provides a convenient interface for ID-based fetcher, which follow the usual three-step procedure:
+/// Provides a convenient interface for ID-based fetcher, which follow the usual
+/// three-step procedure:
 ///
 /// 1. Open a URL based on the search query
 /// 2. Parse the response to get a list of [BibEntry]
@@ -48,7 +48,8 @@ public interface IdBasedParserFetcher extends IdBasedFetcher, ParserFetcher {
                 return Optional.empty();
             }
             if (fetchedEntries.size() > 1) {
-                LOGGER.info("Fetcher {} found more than one result for identifier {}. We will use the first entry.", getName(), identifier);
+                LOGGER.info("Fetcher {} found more than one result for identifier {}. We will use the first entry.",
+                        getName(), identifier);
             }
             BibEntry entry = fetchedEntries.getFirst();
             doPostCleanup(entry);

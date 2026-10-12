@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -27,7 +26,6 @@ import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,8 +73,7 @@ public class OpenDocumentSpreadsheetCreator extends Exporter {
         }
     }
 
-    private static void exportOpenDocumentSpreadsheet(Path file, BibDatabase database, List<BibEntry> entries)
-            throws IOException {
+    private static void exportOpenDocumentSpreadsheet(Path file, BibDatabase database, List<BibEntry> entries) throws IOException {
 
         // First store the xml formatted content to a temporary file.
         Path tmpFile = Files.createTempFile("opendocument", null);
@@ -95,9 +92,7 @@ public class OpenDocumentSpreadsheetCreator extends Exporter {
     }
 
     @Override
-    public void export(@NonNull final BibDatabaseContext databaseContext,
-                       final Path file,
-                       @NonNull List<BibEntry> entries) throws IOException {
+    public void export(@NonNull final BibDatabaseContext databaseContext, final Path file, @NonNull List<BibEntry> entries) throws IOException {
         if (!entries.isEmpty()) { // Only export if entries exists
             OpenDocumentSpreadsheetCreator.exportOpenDocumentSpreadsheet(file, databaseContext.getDatabase(), entries);
         }

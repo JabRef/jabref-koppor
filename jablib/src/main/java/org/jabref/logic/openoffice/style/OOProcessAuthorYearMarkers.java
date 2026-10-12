@@ -20,8 +20,7 @@ import org.jabref.model.openoffice.util.OOListUtil;
 
 class OOProcessAuthorYearMarkers {
 
-    private OOProcessAuthorYearMarkers() {
-    }
+    private OOProcessAuthorYearMarkers() {}
 
     /// Fills `sortedCitedReferences//normalizedCitationMarker`
     private static void createNormalizedCitationMarkers(CitedReferences sortedCitedReferences, JStyle style) {
@@ -30,17 +29,19 @@ class OOProcessAuthorYearMarkers {
         }
     }
 
-    /// For each cited source make the citation keys unique by setting
-    /// the uniqueLetter fields to letters ("a", "b") or Optional.empty()
+    /// For each cited source make the citation keys unique by setting the
+    /// uniqueLetter fields to letters ("a", "b") or Optional.empty()
     ///
-    /// precondition: sortedCitedReferences already has normalized citation markers.
-    /// precondition: sortedCitedReferences is sorted (according to the order we want the letters to be assigned)
+    /// precondition: sortedCitedReferences already has normalized citation
+    /// markers. precondition: sortedCitedReferences is sorted (according to the
+    /// order we want the letters to be assigned)
     ///
-    /// Expects to see data for all cited sources here.
-    /// Clears uniqueLetters before filling.
+    /// Expects to see data for all cited sources here. Clears uniqueLetters
+    /// before filling.
     ///
-    /// On return: Each citedReference in sortedCitedReferences has uniqueLetter set as needed.
-    /// The same values are copied to the corresponding citations in citationGroups.
+    /// On return: Each citedReference in sortedCitedReferences has uniqueLetter
+    /// set as needed. The same values are copied to the corresponding citations
+    /// in citationGroups.
     ///
     /// Depends on: style, citations and their order.
     private static void createUniqueLetters(CitedReferences sortedCitedReferences, CitationGroups citationGroups) {
@@ -52,7 +53,8 @@ class OOProcessAuthorYearMarkers {
         //
         Map<String, List<String>> normalizedCitationMarkerToClashingKeys = new HashMap<>();
         for (CitedReference citedReference : sortedCitedReferences.values()) {
-            String normalizedCitationMarker = OOText.toString(citedReference.getNormalizedCitationMarker().get());
+            String normalizedCitationMarker = OOText.toString(citedReference.getNormalizedCitationMarker()
+                    .get());
             String citationKey = citedReference.citationKey;
 
             List<String> clashingKeys = normalizedCitationMarkerToClashingKeys.putIfAbsent(normalizedCitationMarker, new ArrayList<>(1));
@@ -136,9 +138,7 @@ class OOProcessAuthorYearMarkers {
 
             List<Citation> citations = group.getCitationsInLocalOrder();
             List<CitationMarkerEntry> citationMarkerEntries = OOListUtil.map(citations, citation -> citation);
-            OOText citMarker = style.createCitationMarker(citationMarkerEntries,
-                    group.citationType,
-                    strictlyUnique);
+            OOText citMarker = style.createCitationMarker(citationMarkerEntries, group.citationType, strictlyUnique);
             group.setCitationMarker(Optional.of(citMarker));
         }
     }

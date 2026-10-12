@@ -6,7 +6,6 @@ import javafx.collections.SetChangeListener;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.groups.GroupModeViewModel;
@@ -24,12 +23,8 @@ public class GroupsSidePaneComponent extends SidePaneComponent {
     private final ToggleButton filterToggle = ControlHelper.iconToggleButton(IconTheme.JabRefIcons.FILTER);
     private final ToggleButton invertToggle = ControlHelper.iconToggleButton(IconTheme.JabRefIcons.INVERT);
 
-    public GroupsSidePaneComponent(SimpleCommand closeCommand,
-                                   SimpleCommand moveUpCommand,
-                                   SimpleCommand moveDownCommand,
-                                   SidePaneContentFactory contentFactory,
-                                   GroupsPreferences groupsPreferences,
-                                   DialogService dialogService) {
+    public GroupsSidePaneComponent(SimpleCommand closeCommand, SimpleCommand moveUpCommand, SimpleCommand moveDownCommand,
+            SidePaneContentFactory contentFactory, GroupsPreferences groupsPreferences, DialogService dialogService) {
         super(SidePaneType.GROUPS, closeCommand, moveUpCommand, moveDownCommand, contentFactory);
         setId(WalkthroughNodeIds.GROUPS_SIDE_PANE);
         this.groupsPreferences = groupsPreferences;
@@ -54,14 +49,16 @@ public class GroupsSidePaneComponent extends SidePaneComponent {
     private void setupFilterToggle() {
         addExtraNodeToHeader(filterToggle, 0);
         filterToggle.setTooltip(new Tooltip(Localization.lang("Filter by groups")));
-        filterToggle.setSelected(groupsPreferences.groupViewModeProperty().contains(GroupViewMode.FILTER));
+        filterToggle.setSelected(groupsPreferences.groupViewModeProperty()
+                .contains(GroupViewMode.FILTER));
         filterToggle.selectedProperty().addListener((_, _, newValue) -> groupsPreferences.setGroupViewMode(GroupViewMode.FILTER, newValue));
     }
 
     private void setupInvertToggle() {
         addExtraNodeToHeader(invertToggle, 0);
         invertToggle.setTooltip(new Tooltip(Localization.lang("Invert groups")));
-        invertToggle.setSelected(groupsPreferences.groupViewModeProperty().contains(GroupViewMode.INVERT));
+        invertToggle.setSelected(groupsPreferences.groupViewModeProperty()
+                .contains(GroupViewMode.INVERT));
         invertToggle.selectedProperty().addListener((_, _, newValue) -> groupsPreferences.setGroupViewMode(GroupViewMode.INVERT, newValue));
     }
 

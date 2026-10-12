@@ -5,13 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.jabref.logic.JabRefException;
-import org.jabref.logic.git.GitHandler;
-import org.jabref.logic.git.preferences.GitPreferences;
-import org.jabref.logic.git.util.GitHandlerRegistry;
-import org.jabref.logic.l10n.Localization;
-
-import org.eclipse.jgit.api.CreateBranchCommand;
+import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.WindowCache;
@@ -21,6 +15,11 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.WindowCacheConfig;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.URIish;
+import org.jabref.logic.JabRefException;
+import org.jabref.logic.git.GitHandler;
+import org.jabref.logic.git.preferences.GitPreferences;
+import org.jabref.logic.git.util.GitHandlerRegistry;
+import org.jabref.logic.l10n.Localization;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +47,8 @@ class GitStatusCheckerTest {
 
     private final PersonIdent author = new PersonIdent("Tester", "tester@example.org");
 
-    private final String baseContent = """
+    private final String baseContent =
+            """
             @article{a,
               author = {initial-author},
               doi = {xya},
@@ -60,7 +60,8 @@ class GitStatusCheckerTest {
             }
             """;
 
-    private final String remoteUpdatedContent = """
+    private final String remoteUpdatedContent =
+            """
             @article{a,
               author = {initial-author},
               doi = {xya},
@@ -72,7 +73,8 @@ class GitStatusCheckerTest {
             }
             """;
 
-    private final String localUpdatedContent = """
+    private final String localUpdatedContent =
+            """
             @article{a,
               author = {local-update},
               doi = {xya},
@@ -90,18 +92,26 @@ class GitStatusCheckerTest {
         when(gitPreferences.getPat()).thenReturn("");
         gitHandlerRegistry = new GitHandlerRegistry(gitPreferences);
         Path remoteDir = tempDir.resolve("remote.git");
-        remoteGit = Git.init().setBare(true).setDirectory(remoteDir.toFile()).call();
+        remoteGit = Git.init()
+                .setBare(true)
+                .setDirectory(remoteDir.toFile())
+                .call();
 
         Path seedDir = tempDir.resolve("seed");
         seedGit = Git.init()
-                     .setInitialBranch("main")
-                     .setDirectory(seedDir.toFile())
-                     .call();
+                .setInitialBranch("main")
+                .setDirectory(seedDir.toFile())
+                .call();
         Path seedFile = seedDir.resolve("library.bib");
         Files.writeString(seedFile, baseContent, StandardCharsets.UTF_8);
 
-        seedGit.add().addFilepattern("library.bib").call();
-        seedGit.commit().setAuthor(author).setMessage("Initial commit").call();
+        seedGit.add()
+               .addFilepattern("library.bib")
+               .call();
+        seedGit.commit()
+               .setAuthor(author)
+               .setMessage("Initial commit")
+               .call();
 
         seedGit.remoteAdd()
                .setName("origin")
@@ -115,13 +125,13 @@ class GitStatusCheckerTest {
 
         Path localDir = tempDir.resolve("local");
         localGit = Git.cloneRepository()
-                      .setURI(remoteDir.toUri().toString())
-                      .setDirectory(localDir.toFile())
-                      .setBranch("main")
-                      .call();
+                .setURI(remoteDir.toUri().toString())
+                .setDirectory(localDir.toFile())
+                .setBranch("main")
+                .call();
         localGit.branchCreate()
                 .setName("main")
-                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+                .setUpstreamMode(SetupUpstreamMode.SET_UPSTREAM)
                 .setStartPoint("origin/main")
                 .setForce(true)
                 .call();
@@ -172,18 +182,23 @@ class GitStatusCheckerTest {
     void behindStatusWhenRemoteHasNewCommit(@TempDir Path tempDir) throws Exception {
         Path remoteWork = tempDir.resolve("remoteWork");
         try (Git remoteClone = Git.cloneRepository()
-                                  .setURI(remoteGit.getRepository().getDirectory().toURI().toString())
-                                  .setDirectory(remoteWork.toFile())
-                                  .setBranchesToClone(List.of("refs/heads/main"))
-                                  .setBranch("main")
-                                  .call()) {
+                .setURI(remoteGit.getRepository()
+                                 .getDirectory()
+                                 .toURI()
+                                 .toString())
+                .setDirectory(remoteWork.toFile())
+                .setBranchesToClone(List.of("refs/heads/main"))
+                .setBranch("main")
+                .call()) {
             commitFile(remoteClone, remoteUpdatedContent, "Remote update");
             remoteClone.push()
                        .setRemote("origin")
                        .setRefSpecs(new RefSpec("refs/heads/main:refs/heads/main"))
                        .call();
         }
-        localGit.fetch().setRemote("origin").call();
+        localGit.fetch()
+                .setRemote("origin")
+                .call();
         GitHandler gitHandler = gitHandlerRegistry.get(localLibrary.getParent());
         GitStatusSnapshot snapshot = GitStatusChecker.checkStatus(gitHandler);
 
@@ -200,8 +215,14 @@ class GitStatusCheckerTest {
 
     @Test
     void remoteEmptinessCheckPropagatesRemoteErrors(@TempDir Path tempDir) throws Exception {
-        localGit.getRepository().getConfig().setString("remote", "origin", "url", tempDir.resolve("missing.git").toUri().toString());
-        localGit.getRepository().getConfig().save();
+        localGit.getRepository()
+                .getConfig()
+                .setString("remote", "origin", "url", tempDir.resolve("missing.git")
+                        .toUri()
+                        .toString());
+        localGit.getRepository()
+                .getConfig()
+                .save();
 
         GitHandler gitHandler = gitHandlerRegistry.get(localLibrary.getParent());
 
@@ -211,11 +232,19 @@ class GitStatusCheckerTest {
     @Test
     void uncommittedChangesDetectedWhenNoRemoteConfigured(@TempDir Path tempDir) throws Exception {
         Path repoDir = tempDir.resolve("noRemote");
-        try (Git git = Git.init().setInitialBranch("main").setDirectory(repoDir.toFile()).call()) {
+        try (Git git = Git.init()
+                .setInitialBranch("main")
+                .setDirectory(repoDir.toFile())
+                .call()) {
             Path file = repoDir.resolve("library.bib");
             Files.writeString(file, baseContent, StandardCharsets.UTF_8);
-            git.add().addFilepattern("library.bib").call();
-            git.commit().setAuthor(author).setMessage("Initial commit").call();
+            git.add()
+               .addFilepattern("library.bib")
+               .call();
+            git.commit()
+               .setAuthor(author)
+               .setMessage("Initial commit")
+               .call();
             Files.writeString(file, localUpdatedContent, StandardCharsets.UTF_8);
         }
 
@@ -228,9 +257,15 @@ class GitStatusCheckerTest {
 
     @Test
     void uncommittedChangesDetectedWhenRemoteIsUnreachable() throws Exception {
-        localGit.getRepository().getConfig().setString("remote", "origin", "url", "https://example.com");
-        localGit.getRepository().getConfig().unsetSection("branch", "main");
-        localGit.getRepository().getConfig().save();
+        localGit.getRepository()
+                .getConfig()
+                .setString("remote", "origin", "url", "https://example.com");
+        localGit.getRepository()
+                .getConfig()
+                .unsetSection("branch", "main");
+        localGit.getRepository()
+                .getConfig()
+                .save();
         Files.writeString(localLibrary, localUpdatedContent, StandardCharsets.UTF_8);
 
         GitHandler gitHandler = gitHandlerRegistry.get(localLibrary.getParent());
@@ -246,18 +281,23 @@ class GitStatusCheckerTest {
 
         Path remoteWork = tempDir.resolve("remoteWork");
         try (Git remoteClone = Git.cloneRepository()
-                                  .setURI(remoteGit.getRepository().getDirectory().toURI().toString())
-                                  .setDirectory(remoteWork.toFile())
-                                  .setBranchesToClone(List.of("refs/heads/main"))
-                                  .setBranch("main")
-                                  .call()) {
+                .setURI(remoteGit.getRepository()
+                                 .getDirectory()
+                                 .toURI()
+                                 .toString())
+                .setDirectory(remoteWork.toFile())
+                .setBranchesToClone(List.of("refs/heads/main"))
+                .setBranch("main")
+                .call()) {
             commitFile(remoteClone, remoteUpdatedContent, "Remote update");
             remoteClone.push()
                        .setRemote("origin")
                        .setRefSpecs(new RefSpec("refs/heads/main:refs/heads/main"))
                        .call();
         }
-        localGit.fetch().setRemote("origin").call();
+        localGit.fetch()
+                .setRemote("origin")
+                .call();
         GitHandler gitHandler = gitHandlerRegistry.get(localLibrary.getParent());
         GitStatusSnapshot snapshot = GitStatusChecker.checkStatus(gitHandler);
         assertEquals(SyncStatus.DIVERGED, snapshot.syncStatus());
@@ -266,25 +306,51 @@ class GitStatusCheckerTest {
     @Test
     void invalidHeadIsReportedAsJabRefException(@TempDir Path tempDir) throws Exception {
         Path repoDir = tempDir.resolve("broken");
-        try (Git git = Git.init().setInitialBranch("main").setDirectory(repoDir.toFile()).call()) {
+        try (Git git = Git.init()
+                .setInitialBranch("main")
+                .setDirectory(repoDir.toFile())
+                .call()) {
             Path file = repoDir.resolve("library.bib");
             Files.writeString(file, baseContent, StandardCharsets.UTF_8);
-            git.add().addFilepattern("library.bib").call();
-            git.commit().setAuthor(author).setMessage("Initial commit").call();
+            git.add()
+               .addFilepattern("library.bib")
+               .call();
+            git.commit()
+               .setAuthor(author)
+               .setMessage("Initial commit")
+               .call();
         }
-        Files.writeString(repoDir.resolve(".git").resolve("refs").resolve("heads").resolve("main"), "0000000000000000000000000000000000000000");
+        Files.writeString(repoDir.resolve(".git")
+                .resolve("refs")
+                .resolve("heads")
+                .resolve("main"),
+                "0000000000000000000000000000000000000000");
 
         GitHandler gitHandler = gitHandlerRegistry.get(repoDir);
         JabRefException exception = assertThrows(JabRefException.class, () -> GitStatusChecker.checkStatusOrThrow(gitHandler));
 
-        assertEquals(Localization.lang("The local Git repository is incomplete or corrupted. Remove the broken .git directory in that folder or choose another folder, then try again."), exception.getLocalizedMessage());
+        assertEquals(
+                Localization.lang("The local Git repository is incomplete or corrupted. Remove the broken .git directory in that folder or choose another folder, then try again."),
+                exception.getLocalizedMessage());
     }
 
     private RevCommit commitFile(Git git, String content, String message) throws Exception {
-        Path file = git.getRepository().getWorkTree().toPath().resolve("library.bib");
+        Path file = git.getRepository()
+                       .getWorkTree()
+                       .toPath()
+                       .resolve("library.bib");
         Files.writeString(file, content, StandardCharsets.UTF_8);
-        String relativePath = git.getRepository().getWorkTree().toPath().relativize(file).toString();
-        git.add().addFilepattern(relativePath).call();
-        return git.commit().setAuthor(author).setMessage(message).call();
+        String relativePath = git.getRepository()
+                .getWorkTree()
+                .toPath()
+                .relativize(file)
+                .toString();
+        git.add()
+           .addFilepattern(relativePath)
+           .call();
+        return git.commit()
+                  .setAuthor(author)
+                  .setMessage(message)
+                  .call();
     }
 }

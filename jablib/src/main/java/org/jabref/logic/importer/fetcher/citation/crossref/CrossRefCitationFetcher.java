@@ -27,16 +27,18 @@ import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
-/// Uses [CrossRef's REST API](https://www.crossref.org/documentation/retrieve-metadata/rest-api/) for getting paper information
+/// Uses [CrossRef's REST
+/// API](https://www.crossref.org/documentation/retrieve-metadata/rest-api/) for
+/// getting paper information
 ///
-/// Example URL: <https://api.crossref.org/works/10.47397/tb/44-3/tb138kopp-jabref>
+/// Example URL:
+/// <https://api.crossref.org/works/10.47397/tb/44-3/tb138kopp-jabref>
 public class CrossRefCitationFetcher implements CitationFetcher {
     public static final String FETCHER_NAME = "CrossRef";
 
@@ -55,13 +57,8 @@ public class CrossRefCitationFetcher implements CitationFetcher {
 
     private final CrossRef crossRefForDoi;
 
-    public CrossRefCitationFetcher(
-            ImporterPreferences importerPreferences,
-            ImportFormatPreferences importFormatPreferences,
-            CitationKeyPatternPreferences citationKeyPatternPreferences,
-            GrobidPreferences grobidPreferences,
-            AiPreferences aiPreferences,
-            ChatModel chatModel) {
+    public CrossRefCitationFetcher(ImporterPreferences importerPreferences, ImportFormatPreferences importFormatPreferences, CitationKeyPatternPreferences citationKeyPatternPreferences,
+            GrobidPreferences grobidPreferences, AiPreferences aiPreferences, ChatModel chatModel) {
         this.importerPreferences = importerPreferences;
         this.importFormatPreferences = importFormatPreferences;
         this.citationKeyPatternPreferences = citationKeyPatternPreferences;
@@ -90,9 +87,7 @@ public class CrossRefCitationFetcher implements CitationFetcher {
         }
 
         PlainCitationParserChoice parserChoice = importerPreferences.getDefaultPlainCitationParser();
-        final PlainCitationParser parser = parserChoice == PlainCitationParserChoice.LLM
-                                           ? PlainCitationParserFactory.getLlmPlainCitationParser(importFormatPreferences, aiPreferences, chatModel)
-                                           : PlainCitationParserFactory.getPlainCitationParser(parserChoice, citationKeyPatternPreferences, grobidPreferences, importFormatPreferences);
+        final PlainCitationParser parser = parserChoice == PlainCitationParserChoice.LLM ? PlainCitationParserFactory.getLlmPlainCitationParser(importFormatPreferences, aiPreferences, chatModel) : PlainCitationParserFactory.getPlainCitationParser(parserChoice, citationKeyPatternPreferences, grobidPreferences, importFormatPreferences);
 
         try (InputStream stream = new URLDownload(uri.get().toString()).asInputStream()) {
             JsonNode node = mapper.readTree(stream);
@@ -145,7 +140,8 @@ public class CrossRefCitationFetcher implements CitationFetcher {
         return bibEntry;
     }
 
-    private void setField(BibEntry bibEntry, Field field, JsonNode reference, String path) {
+    private void setField(BibEntry bibEntry, Field field, JsonNode reference,
+                          String path) {
         JsonNode node = reference.at(path);
         if (!node.isMissingNode()) {
             bibEntry.setField(field, node.asString());
@@ -160,10 +156,9 @@ public class CrossRefCitationFetcher implements CitationFetcher {
 
     private BibEntry getBibEntryFromText(PlainCitationParser parser, String unstructured) {
         try {
-            return parser.parsePlainCitation(unstructured)
-                         .orElseGet(() -> new BibEntry()
-                                 .withField(StandardField.NOTE, unstructured)
-                                 .withChanged(true));
+            return parser.parsePlainCitation(unstructured).orElseGet(() -> new BibEntry()
+                    .withField(StandardField.NOTE, unstructured)
+                    .withChanged(true));
         } catch (FetcherException e) {
             LOGGER.warn("Could not get bib entry from text {}", unstructured, e);
             return new BibEntry()
@@ -175,16 +170,15 @@ public class CrossRefCitationFetcher implements CitationFetcher {
     private BibEntry getBibEntryFromDoi(String referenceDoi, JsonNode unstructured) throws FetcherException {
         // Determine the doi using CrossRef
         // In case no BibEntry found for the doi, just return a BibEntry using the doi
-        return crossRefForDoi.performSearchById(referenceDoi)
-                             .orElseGet(() -> {
-                                 BibEntry bibEntry = new BibEntry()
-                                         .withField(StandardField.DOI, referenceDoi)
-                                         .withChanged(true);
-                                 if (!unstructured.isMissingNode()) {
-                                     bibEntry.setField(StandardField.NOTE, unstructured.asText());
-                                 }
-                                 return bibEntry;
-                             });
+        return crossRefForDoi.performSearchById(referenceDoi).orElseGet(() -> {
+            BibEntry bibEntry = new BibEntry()
+                    .withField(StandardField.DOI, referenceDoi)
+                    .withChanged(true);
+            if (!unstructured.isMissingNode()) {
+                bibEntry.setField(StandardField.NOTE, unstructured.asText());
+            }
+            return bibEntry;
+        });
     }
 
     /// Crossref has no citation count feature
@@ -196,8 +190,7 @@ public class CrossRefCitationFetcher implements CitationFetcher {
     // Clone of org.jabref.logic.importer.FulltextFetchers.findDoiForEntry
     private void findDoiForEntry(BibEntry clonedEntry) {
         try {
-            crossRefForDoi.findIdentifier(clonedEntry)
-                          .ifPresent(e -> clonedEntry.setField(StandardField.DOI, e.asString()));
+            crossRefForDoi.findIdentifier(clonedEntry).ifPresent(e -> clonedEntry.setField(StandardField.DOI, e.asString()));
         } catch (FetcherException e) {
             LOGGER.debug("Failed to find DOI", e);
         }

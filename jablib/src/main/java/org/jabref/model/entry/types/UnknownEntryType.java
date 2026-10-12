@@ -5,7 +5,6 @@ import java.util.Objects;
 
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.jspecify.annotations.NonNull;
 
 /// Can be created using [org.jabref.model.entry.types.EntryTypeFactory#parse]
@@ -19,9 +18,7 @@ public class UnknownEntryType implements EntryType {
 
     @Override
     public String toString() {
-        return "UnknownEntryType{" +
-                "name='" + name + '\'' +
-                '}';
+        return "UnknownEntryType{" + "name='" + name + '\'' + '}';
     }
 
     @Override

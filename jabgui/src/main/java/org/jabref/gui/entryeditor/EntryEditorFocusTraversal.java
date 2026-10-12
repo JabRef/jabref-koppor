@@ -10,11 +10,11 @@ import javafx.scene.control.TextInputControl;
 /// Pure, stateless DOM traversal helpers shared by [EntryEditorFocusUtils].
 final class EntryEditorFocusTraversal {
 
-    private EntryEditorFocusTraversal() {
-    }
+    private EntryEditorFocusTraversal() {}
 
     static Optional<Node> findFirstTextInputById(Parent parent, String id) {
-        return findFirstMatching(parent, node -> node instanceof TextInputControl textInput && id.equalsIgnoreCase(textInput.getId()));
+        return findFirstMatching(parent,
+                node -> node instanceof TextInputControl textInput && id.equalsIgnoreCase(textInput.getId()));
     }
 
     static Optional<Node> findFirstTextInput(Parent parent) {
@@ -29,8 +29,9 @@ final class EntryEditorFocusTraversal {
         return findLastMatching(parent, EntryEditorFocusTraversal::isNodeFocusable);
     }
 
-    /// Tries to locate the editor grid (style class `"editorPane"`) to avoid including preview
-    /// or other sibling panels when determining focus-order boundaries.
+    /// Tries to locate the editor grid (style class `"editorPane"`) to avoid
+    /// including preview or other sibling panels when determining focus-order
+    /// boundaries.
     static Optional<Parent> findEditorGridParent(Parent root) {
         if (root.getStyleClass().contains("editorPane")) {
             return Optional.of(root);
@@ -77,6 +78,9 @@ final class EntryEditorFocusTraversal {
     }
 
     private static boolean isNodeFocusable(Node node) {
-        return node.isFocusTraversable() && node.isVisible() && !node.isDisabled() && node.isManaged();
+        return node.isFocusTraversable()
+                && node.isVisible()
+                && !node.isDisabled()
+                && node.isManaged();
     }
 }

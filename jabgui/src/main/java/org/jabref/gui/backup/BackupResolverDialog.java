@@ -8,15 +8,13 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.layout.StackPane;
-
+import org.controlsfx.control.HyperlinkLabel;
 import org.jabref.gui.FXDialog;
 import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.io.BackupFileUtil;
 import org.jabref.logic.util.io.FileUtil;
-
-import org.controlsfx.control.HyperlinkLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,17 +28,26 @@ public class BackupResolverDialog extends FXDialog {
     public BackupResolverDialog(Path originalPath, Path backupDir, ExternalApplicationsPreferences externalApplicationsPreferences) {
         super(AlertType.CONFIRMATION, Localization.lang("Backup found"), true);
         setHeaderText(null);
-        getDialogPane().getButtonTypes().setAll(RESTORE_FROM_BACKUP, REVIEW_BACKUP, IGNORE_BACKUP);
+        getDialogPane()
+                .getButtonTypes()
+                .setAll(RESTORE_FROM_BACKUP, REVIEW_BACKUP, IGNORE_BACKUP);
 
         Optional<Path> backupPathOpt = BackupFileUtil.getPathOfLatestExistingBackupFile(originalPath, backupDir);
-        String backupFilename = backupPathOpt.map(Path::getFileName).map(Path::toString).orElse(Localization.lang("File not found"));
+        String backupFilename = backupPathOpt.map(Path::getFileName)
+                .map(Path::toString)
+                .orElse(Localization.lang("File not found"));
         String librarySize = FileUtil.getFileSize(originalPath).orElse(Localization.lang("Unknown"));
         String backupSize = backupPathOpt.flatMap(FileUtil::getFileSize).orElse(Localization.lang("Unknown"));
-        String content = Localization.lang("A backup file for '%0' was found at [%1]", originalPath.getFileName().toString(), backupFilename) + "\n" +
-                Localization.lang("Current library size: %0", librarySize) + "\n" +
-                Localization.lang("Backup size: %0", backupSize) + "\n" +
-                Localization.lang("This could indicate that JabRef did not shut down cleanly last time the file was used.") + "\n\n" +
-                Localization.lang("Do you want to recover the library from the backup file?");
+        String content = Localization.lang("A backup file for '%0' was found at [%1]", originalPath.getFileName().toString(),
+                        backupFilename)
+                + "\n"
+                + Localization.lang("Current library size: %0", librarySize)
+                + "\n"
+                + Localization.lang("Backup size: %0", backupSize)
+                + "\n"
+                + Localization.lang("This could indicate that JabRef did not shut down cleanly last time the file was used.")
+                + "\n\n"
+                + Localization.lang("Do you want to recover the library from the backup file?");
 
         HyperlinkLabel contentLabel = new HyperlinkLabel(content);
         contentLabel.setPrefWidth(360);

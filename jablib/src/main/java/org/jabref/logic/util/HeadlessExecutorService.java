@@ -48,8 +48,7 @@ public class HeadlessExecutorService implements Executor {
 
     private final Timer timer = new Timer("timer", true);
 
-    private HeadlessExecutorService() {
-    }
+    private HeadlessExecutorService() {}
 
     public void execute(@NonNull Runnable command) {
         executorService.execute(command);
@@ -66,7 +65,8 @@ public class HeadlessExecutorService implements Executor {
         }
     }
 
-    /// Executes a callable task that provides a return value after the calculation is done.
+    /// Executes a callable task that provides a return value after the
+    /// calculation is done.
     ///
     /// @param command The task to execute.
     /// @return A Future object that provides the returning value.
@@ -74,7 +74,8 @@ public class HeadlessExecutorService implements Executor {
         return executorService.submit(command);
     }
 
-    /// Executes a collection of callable tasks and returns a List of the resulting Future objects after the calculation is done.
+    /// Executes a collection of callable tasks and returns a List of the
+    /// resulting Future objects after the calculation is done.
     ///
     /// @param tasks The tasks to execute
     /// @return A List of Future objects that provide the returning values.
@@ -87,7 +88,8 @@ public class HeadlessExecutorService implements Executor {
         }
     }
 
-    public <T> List<Future<T>> executeAll(@NonNull Collection<Callable<T>> tasks, int timeout, TimeUnit timeUnit) {
+    public <T> List<Future<T>> executeAll(@NonNull Collection<Callable<T>> tasks,
+            int timeout, TimeUnit timeUnit) {
         try {
             return executorService.invokeAll(tasks, timeout, timeUnit);
         } catch (InterruptedException _) {
@@ -152,8 +154,9 @@ public class HeadlessExecutorService implements Executor {
         }
     }
 
-    /// Shuts down the provided executor service by first trying a normal shutdown, then waiting for the shutdown and then forcibly shutting it down.
-    /// Returns if the status of the shut down is known.
+    /// Shuts down the provided executor service by first trying a normal
+    /// shutdown, then waiting for the shutdown and then forcibly shutting it
+    /// down. Returns if the status of the shut down is known.
     public static void gracefullyShutdown(String name, ExecutorService executorService, int timeoutInSeconds) {
         try {
             // This is non-blocking. See https://stackoverflow.com/a/57383461/873282.

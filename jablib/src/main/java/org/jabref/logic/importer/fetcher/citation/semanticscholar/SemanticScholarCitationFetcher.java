@@ -7,6 +7,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
+import com.google.gson.Gson;
+import kong.unirest.core.json.JSONObject;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.fetcher.CustomizableKeyFetcher;
@@ -15,9 +17,6 @@ import org.jabref.logic.importer.fetcher.citation.CitationFetcher;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.net.URLDownload;
 import org.jabref.model.entry.BibEntry;
-
-import com.google.gson.Gson;
-import kong.unirest.core.json.JSONObject;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +45,12 @@ public class SemanticScholarCitationFetcher implements CitationFetcher, Customiz
         }
 
         try {
-            String apiUrl = SEMANTIC_SCHOLAR_API + "paper/" + "DOI:" + entry.getDOI().get().asString()
+            String apiUrl = SEMANTIC_SCHOLAR_API
+                    + "paper/"
+                    + "DOI:"
+                    + entry.getDOI()
+                           .get()
+                           .asString()
                     + "?fields=citationCount"
                     + "&limit=1";
             return Optional.of(new URI(apiUrl));
@@ -106,9 +110,9 @@ public class SemanticScholarCitationFetcher implements CitationFetcher, Customiz
         if (referencesResponse.getData() == null) {
             JSONObject responseObject = new JSONObject(response);
             String disclaimer = Optional.ofNullable(responseObject.optJSONObject("citingPaperInfo"))
-                                        .flatMap(citingPaperInfo -> Optional.ofNullable(citingPaperInfo.optJSONObject("openAccessPdf")))
-                                        .flatMap(openAccessPdf -> Optional.ofNullable(openAccessPdf.optString("disclaimer")))
-                                        .orElse("");
+                    .flatMap(citingPaperInfo -> Optional.ofNullable(citingPaperInfo.optJSONObject("openAccessPdf")))
+                    .flatMap(openAccessPdf -> Optional.ofNullable(openAccessPdf.optString("disclaimer")))
+                    .orElse("");
 
             if (!disclaimer.isBlank()) {
                 LOGGER.debug("Received a disclaimer from Semantic Scholar: {}", disclaimer);
@@ -120,10 +124,10 @@ public class SemanticScholarCitationFetcher implements CitationFetcher, Customiz
         }
 
         return referencesResponse.getData()
-                                 .stream()
-                                 .filter(citationDataItem -> citationDataItem.getCitedPaper() != null)
-                                 .map(referenceDataItem -> referenceDataItem.getCitedPaper().toBibEntry())
-                                 .toList();
+                .stream()
+                .filter(citationDataItem -> citationDataItem.getCitedPaper() != null)
+                .map(referenceDataItem -> referenceDataItem.getCitedPaper().toBibEntry())
+                .toList();
     }
 
     @Override
@@ -147,9 +151,9 @@ public class SemanticScholarCitationFetcher implements CitationFetcher, Customiz
             result = urlDownload.asString();
         } catch (FetcherException e) {
             Optional<String> error = e.getHttpResponse()
-                                      .flatMap(response -> Optional.ofNullable(response.responseBody()))
-                                      .map(JSONObject::new)
-                                      .flatMap(json -> Optional.ofNullable(json.optString("error")));
+                    .flatMap(response -> Optional.ofNullable(response.responseBody()))
+                    .map(JSONObject::new)
+                    .flatMap(json -> Optional.ofNullable(json.optString("error")));
 
             if (error.isPresent() && !error.get().isEmpty()) {
                 throw new FetcherException(referencesUrl, error.get(), e);
@@ -170,8 +174,15 @@ public class SemanticScholarCitationFetcher implements CitationFetcher, Customiz
         }
 
         try {
-            String apiUrl = SEMANTIC_SCHOLAR_API + "paper/" + "DOI:" + entry.getDOI().get().asString() + endpoint
-                    + "?fields=" + PAPER_FIELDS
+            String apiUrl = SEMANTIC_SCHOLAR_API
+                    + "paper/"
+                    + "DOI:"
+                    + entry.getDOI()
+                           .get()
+                           .asString()
+                    + endpoint
+                    + "?fields="
+                    + PAPER_FIELDS
                     + "&limit=1000";
             return Optional.of(new URI(apiUrl));
         } catch (URISyntaxException e) {

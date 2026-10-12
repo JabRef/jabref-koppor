@@ -6,7 +6,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jspecify.annotations.NullMarked;
 
 /// View representation of [org.jabref.model.study.StudyCatalog]
@@ -25,7 +24,8 @@ public class StudyCatalogItem {
         this(name, enabled, reason, "");
     }
 
-    public StudyCatalogItem(String name, boolean enabled, String reason, String nativeQuery) {
+    public StudyCatalogItem(String name, boolean enabled, String reason,
+                            String nativeQuery) {
         this.name = new SimpleStringProperty(name);
         this.enabled = new SimpleBooleanProperty(enabled);
         this.reason = new SimpleStringProperty(reason);
@@ -82,12 +82,16 @@ public class StudyCatalogItem {
 
     @Override
     public String toString() {
-        return "StudyCatalogItem{" +
-                "name=" + name.get() +
-                ", enabled=" + enabled.get() +
-                ", reason=" + reason.get() +
-                ", nativeQuery=" + nativeQuery.get() +
-                '}';
+        return "StudyCatalogItem{"
+                + "name="
+                + name.get()
+                + ", enabled="
+                + enabled.get()
+                + ", reason="
+                + reason.get()
+                + ", nativeQuery="
+                + nativeQuery.get()
+                + '}';
     }
 
     @Override
@@ -99,14 +103,15 @@ public class StudyCatalogItem {
             return false;
         }
         StudyCatalogItem that = (StudyCatalogItem) o;
-        return Objects.equals(getName(), that.getName()) &&
-                Objects.equals(isEnabled(), that.isEnabled()) &&
-                Objects.equals(getReason(), that.getReason()) &&
-                Objects.equals(getNativeQuery(), that.getNativeQuery());
+        return Objects.equals(getName(), that.getName())
+                && Objects.equals(isEnabled(), that.isEnabled())
+                && Objects.equals(getReason(), that.getReason())
+                && Objects.equals(getNativeQuery(), that.getNativeQuery());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), isEnabled(), getReason(), getNativeQuery());
+        return Objects.hash(getName(), isEnabled(), getReason(),
+                getNativeQuery());
     }
 }

@@ -58,9 +58,7 @@ public class Citation implements ComparableCitation, CitationMarkerEntry, Citati
     }
 
     public static Optional<CitationLookupResult> lookup(BibDatabase database, String key) {
-        return database
-                .getEntryByCitationKey(key)
-                .map(bibEntry -> new CitationLookupResult(bibEntry, database));
+        return database.getEntryByCitationKey(key).map(bibEntry -> new CitationLookupResult(bibEntry, database));
     }
 
     public static Optional<CitationLookupResult> lookup(List<BibDatabase> databases, String key) {

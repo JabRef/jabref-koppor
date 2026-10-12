@@ -8,7 +8,6 @@ import java.util.List;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +33,9 @@ class MrDLibImporterTest {
         List<BibEntry> resultList = parserResult.getDatabase().getEntries();
 
         assertEquals("2006",
-                resultList.getFirst().getFieldLatexFree(StandardField.YEAR).get());
+                resultList.getFirst()
+                          .getFieldLatexFree(StandardField.YEAR)
+                          .get());
     }
 
     @Test
@@ -44,7 +45,9 @@ class MrDLibImporterTest {
         List<BibEntry> resultList = parserResult.getDatabase().getEntries();
 
         assertEquals("The protection of rural lands with the spatial development strategy on the case of Hrastnik commune",
-                resultList.getFirst().getFieldLatexFree(StandardField.TITLE).get());
+                resultList.getFirst()
+                          .getFieldLatexFree(StandardField.TITLE)
+                          .get());
     }
 
     @Test

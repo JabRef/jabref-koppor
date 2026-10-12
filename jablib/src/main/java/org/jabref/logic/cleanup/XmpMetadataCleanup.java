@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.xml.transform.TransformerException;
 
 import org.jabref.logic.FilePreferences;
@@ -19,7 +18,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,13 +57,13 @@ public class XmpMetadataCleanup implements CleanupJob {
 
         if (changed.get()) {
             // Since only metadata is removed, no field "changes" but we still return a list
-            return List.of(new FieldChange(
-                    entry,
-                    StandardField.FILE,
-                    // IntelliJ warning can be ignored since File field is always present if changed is true
-                    entry.getField(StandardField.FILE).get(),
-                    entry.getField(StandardField.FILE).get()
-            ));
+            return List.of(
+                    new FieldChange(
+                            entry,
+                            StandardField.FILE,
+                            // IntelliJ warning can be ignored since File field is always present if changed is true
+                            entry.getField(StandardField.FILE).get(),
+                            entry.getField(StandardField.FILE).get()));
         }
         return List.of();
     }

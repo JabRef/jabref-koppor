@@ -10,7 +10,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -89,8 +88,10 @@ class IsbnFetcherTest {
         assertEquals(List.of(bibEntry), fetchedEntry);
     }
 
-    /// This test searches for a valid ISBN. See https://www.amazon.de/dp/3728128155/?tag=jabref-21 However, this ISBN is
-    /// not available on ebook.de. The fetcher should something as it falls back to OttoBib
+    /// This test searches for a valid ISBN. See
+    /// https://www.amazon.de/dp/3728128155/?tag=jabref-21 However, this ISBN is
+    /// not available on ebook.de. The fetcher should something as it falls back
+    /// to OttoBib
     @Test
     void searchForIsbnAvailableAtOttoBibButNonOnEbookDe() throws FetcherException {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("3728128155");

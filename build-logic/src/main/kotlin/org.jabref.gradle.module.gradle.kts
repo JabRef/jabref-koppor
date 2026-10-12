@@ -6,6 +6,7 @@ plugins {
     id("org.jabref.gradle.base.targets")
     id("org.jabref.gradle.check.checkstyle")
     id("org.jabref.gradle.check.dependencies")
+    id("org.jabref.gradle.check.jfmt")
     id("org.jabref.gradle.check.modernizer")
     id("org.jabref.gradle.feature.compile")
     id("org.jabref.gradle.feature.javadoc")

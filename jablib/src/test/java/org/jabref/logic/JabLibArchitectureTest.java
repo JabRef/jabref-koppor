@@ -1,10 +1,8 @@
 package org.jabref.logic;
 
+import com.tngtech.archunit.core.importer.ImportOption.DoNotIncludeTests;
+import com.tngtech.archunit.junit.AnalyzeClasses;
 import org.jabref.support.CommonArchitectureTest;
 
-import com.tngtech.archunit.core.importer.ImportOption;
-import com.tngtech.archunit.junit.AnalyzeClasses;
-
-@AnalyzeClasses(packages = "org.jabref", importOptions = ImportOption.DoNotIncludeTests.class)
-public class JabLibArchitectureTest extends CommonArchitectureTest {
-}
+@AnalyzeClasses(packages = "org.jabref", importOptions = DoNotIncludeTests.class)
+public class JabLibArchitectureTest extends CommonArchitectureTest {}

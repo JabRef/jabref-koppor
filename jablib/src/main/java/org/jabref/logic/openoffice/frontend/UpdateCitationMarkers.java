@@ -3,6 +3,13 @@ package org.jabref.logic.openoffice.frontend;
 import java.util.List;
 import java.util.Optional;
 
+import com.sun.star.beans.IllegalTypeException;
+import com.sun.star.beans.NotRemoveableException;
+import com.sun.star.beans.PropertyVetoException;
+import com.sun.star.lang.WrappedTargetException;
+import com.sun.star.text.XTextCursor;
+import com.sun.star.text.XTextDocument;
+import com.sun.star.uno.XComponentContext;
 import org.jabref.logic.openoffice.style.JStyle;
 import org.jabref.model.openoffice.ootext.OOText;
 import org.jabref.model.openoffice.ootext.OOTextIntoOO;
@@ -11,14 +18,6 @@ import org.jabref.model.openoffice.style.CitationGroups;
 import org.jabref.model.openoffice.style.CitationType;
 import org.jabref.model.openoffice.uno.CreationException;
 import org.jabref.model.openoffice.uno.NoDocumentException;
-
-import com.sun.star.beans.IllegalTypeException;
-import com.sun.star.beans.NotRemoveableException;
-import com.sun.star.beans.PropertyVetoException;
-import com.sun.star.lang.WrappedTargetException;
-import com.sun.star.text.XTextCursor;
-import com.sun.star.text.XTextDocument;
-import com.sun.star.uno.XComponentContext;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,19 +26,16 @@ public class UpdateCitationMarkers {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateCitationMarkers.class);
 
-    private UpdateCitationMarkers() {
-    }
+    private UpdateCitationMarkers() {}
 
-    /// Visit each reference mark in referenceMarkNames, overwrite its text content.
+    /// Visit each reference mark in referenceMarkNames, overwrite its text
+    /// content.
     ///
-    /// After each fillCitationMarkInCursor call check if we lost the BIB_SECTION_NAME bookmark and recreate it if we did.
+    /// After each fillCitationMarkInCursor call check if we lost the
+    /// BIB_SECTION_NAME bookmark and recreate it if we did.
     ///
     /// @param style Bibliography style to use.
-    public static void applyNewCitationMarkers(XTextDocument doc, OOFrontend frontend, JStyle style)
-            throws
-            NoDocumentException,
-            CreationException,
-            WrappedTargetException {
+    public static void applyNewCitationMarkers(XTextDocument doc, OOFrontend frontend, JStyle style) throws NoDocumentException, CreationException, WrappedTargetException {
 
         CitationGroups citationGroups = frontend.citationGroups;
 
@@ -48,8 +44,7 @@ public class UpdateCitationMarkers {
             Optional<OOText> marker = group.getCitationMarker();
 
             if (marker.isEmpty()) {
-                LOGGER.warn("applyNewCitationMarkers: no marker for {}",
-                        group.groupId.citationGroupIdAsString());
+                LOGGER.warn("applyNewCitationMarkers: no marker for {}", group.groupId.citationGroupIdAsString());
                 continue;
             }
 
@@ -61,15 +56,9 @@ public class UpdateCitationMarkers {
         }
     }
 
-    public static void fillCitationMarkInCursor(XTextDocument doc,
-                                                @NonNull XTextCursor cursor,
-                                                @NonNull OOText citationText,
-                                                boolean withText,
-                                                @NonNull JStyle style)
-            throws
-            WrappedTargetException,
-            CreationException,
-            IllegalArgumentException {
+    public static void fillCitationMarkInCursor(XTextDocument doc, @NonNull XTextCursor cursor, @NonNull OOText citationText,
+            boolean withText, @NonNull JStyle style)
+            throws WrappedTargetException, CreationException, IllegalArgumentException {
 
         if (withText) {
             OOText citationText2 = style.decorateCitationMarker(citationText);
@@ -87,42 +76,35 @@ public class UpdateCitationMarkers {
 
     /// Inserts a citation group in the document: creates and fills it.
     ///
-    /// @param citationKeys      BibTeX keys of
-    /// @param citationText      Text for the citation. A citation mark or placeholder if not yet available.
-    /// @param position          Location to insert at.
-    /// @param insertSpaceBefore A space inserted before the reference mark makes it easier to separate from the text coming before.
-    /// @param insertSpaceAfter  A space inserted after the reference mark makes it easier to separate from the text coming after. But is not wanted when we recreate a reference mark.
-    public static void createAndFillCitationGroup(OOFrontend frontend,
-                                                  XTextDocument doc,
-                                                  XComponentContext context,
-                                                  List<String> citationKeys,
-                                                  @NonNull List<Optional<OOText>> pageInfos,
-                                                  CitationType citationType,
-                                                  OOText citationText,
-                                                  XTextCursor position,
-                                                  JStyle style,
-                                                  boolean insertSpaceBefore,
-                                                  boolean insertSpaceAfter)
-            throws
-            NotRemoveableException,
-            WrappedTargetException,
-            PropertyVetoException,
-            IllegalArgumentException,
-            CreationException,
-            NoDocumentException,
-            IllegalTypeException {
+    /// @param citationKeys BibTeX keys of
+    /// @param citationText Text for the citation. A citation mark or
+    ///   placeholder if not yet available.
+    /// @param position Location to insert at.
+    /// @param insertSpaceBefore A space inserted before the reference mark
+    ///   makes it easier to separate from the text coming before.
+    /// @param insertSpaceAfter A space inserted after the reference mark makes
+    ///   it easier to separate from the text coming after. But is not wanted
+    ///   when we recreate a reference mark.
+    public static void createAndFillCitationGroup(
+            OOFrontend frontend,
+            XTextDocument doc,
+            XComponentContext context,
+            List<String> citationKeys,
+            @NonNull List<Optional<OOText>> pageInfos,
+            CitationType citationType,
+            OOText citationText,
+            XTextCursor position,
+            JStyle style,
+            boolean insertSpaceBefore,
+            boolean insertSpaceAfter)
+            throws NotRemoveableException, WrappedTargetException, PropertyVetoException, IllegalArgumentException, CreationException, NoDocumentException,
+                   IllegalTypeException {
 
         if (pageInfos.size() != citationKeys.size()) {
             throw new IllegalArgumentException("pageInfos.size != citationKeys.size");
         }
-        CitationGroup group = frontend.createCitationGroup(doc,
-                context,
-                citationKeys,
-                pageInfos,
-                citationType,
-                position,
-                insertSpaceBefore,
-                insertSpaceAfter);
+        CitationGroup group = frontend.createCitationGroup(doc, context, citationKeys, pageInfos, citationType, position,
+                insertSpaceBefore, insertSpaceAfter);
 
         final boolean withText = citationType.withText();
 

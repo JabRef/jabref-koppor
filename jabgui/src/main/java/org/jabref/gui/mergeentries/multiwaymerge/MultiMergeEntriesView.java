@@ -7,6 +7,9 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.EasyObservableValue;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -37,7 +40,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.mergeentries.DiffMode;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -57,10 +59,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.field.StandardField;
-
-import com.airhacks.afterburner.views.ViewLoader;
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.EasyObservableValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,21 +68,37 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiMergeEntriesView.class);
 
     // LEFT
-    @FXML private ScrollPane leftScrollPane;
-    @FXML private VBox fieldHeader;
+    @FXML
+    private ScrollPane leftScrollPane;
+
+    @FXML
+    private VBox fieldHeader;
 
     // CENTER
-    @FXML private ScrollPane topScrollPane;
-    @FXML private HBox supplierHeader;
-    @FXML private ScrollPane centerScrollPane;
-    @FXML private GridPane optionsGrid;
+    @FXML
+    private ScrollPane topScrollPane;
+
+    @FXML
+    private HBox supplierHeader;
+
+    @FXML
+    private ScrollPane centerScrollPane;
+
+    @FXML
+    private GridPane optionsGrid;
 
     // RIGHT
-    @FXML private ScrollPane rightScrollPane;
-    @FXML private VBox fieldEditor;
+    @FXML
+    private ScrollPane rightScrollPane;
 
-    @FXML private Label failedSuppliers;
-    @FXML private ComboBox<DiffMode> diffMode;
+    @FXML
+    private VBox fieldEditor;
+
+    @FXML
+    private Label failedSuppliers;
+
+    @FXML
+    private ComboBox<DiffMode> diffMode;
 
     private final ToggleGroup headerToggleGroup = new ToggleGroup();
     private final HashMap<Field, FieldRow> fieldRows = new HashMap<>();
@@ -94,19 +108,20 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
 
     private final GuiPreferences preferences;
 
-    public MultiMergeEntriesView(GuiPreferences preferences,
-                                 TaskExecutor taskExecutor) {
+    public MultiMergeEntriesView(GuiPreferences preferences, TaskExecutor taskExecutor) {
         this.preferences = preferences;
         this.taskExecutor = taskExecutor;
 
         viewModel = new MultiMergeEntriesViewModel();
 
         ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+                .load()
+                .setAsDialogPane(this);
 
         ButtonType mergeEntries = new ButtonType(Localization.lang("Merge entries"), ButtonBar.ButtonData.OK_DONE);
-        this.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, mergeEntries);
+        this.getDialogPane()
+                .getButtonTypes()
+                .setAll(ButtonType.CANCEL, mergeEntries);
         this.setResultConverter(viewModel::resultConverter);
 
         viewModel.entriesProperty().addListener((ListChangeListener<MultiMergeEntriesViewModel.EntrySource>) c -> {
@@ -119,17 +134,20 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
             }
         });
 
-        viewModel.mergedEntryProperty().get().getFieldsObservable().addListener((MapChangeListener<Field, String>) change -> {
-            if (change.wasAdded() && !fieldRows.containsKey(change.getKey())) {
-                Field newField = change.getKey();
-                // UI rows are never removed even if a merged field gets cleared again. Therefore the next row index
-                // must be based on the current UI row count instead of the current merged-entry field count.
-                int nextRowIndex = fieldEditor.getChildren().size();
-                FieldRow fieldRow = new FieldRow(newField, nextRowIndex);
-                fieldRows.put(change.getKey(), fieldRow);
-                addEmptyCellsForMissingSources(newField);
-            }
-        });
+        viewModel.mergedEntryProperty()
+                 .get()
+                 .getFieldsObservable()
+                 .addListener((MapChangeListener<Field, String>) change -> {
+                     if (change.wasAdded() && !fieldRows.containsKey(change.getKey())) {
+                         Field newField = change.getKey();
+                         // UI rows are never removed even if a merged field gets cleared again. Therefore the next row index
+                         // must be based on the current UI row count instead of the current merged-entry field count.
+                         int nextRowIndex = fieldEditor.getChildren().size();
+                         FieldRow fieldRow = new FieldRow(newField, nextRowIndex);
+                         fieldRows.put(change.getKey(), fieldRow);
+                         addEmptyCellsForMissingSources(newField);
+                     }
+                 });
     }
 
     @FXML
@@ -139,10 +157,16 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
         rightScrollPane.vvalueProperty().bindBidirectional(centerScrollPane.vvalueProperty());
 
         viewModel.failedSuppliersProperty().addListener((_, _, _) -> {
-            failedSuppliers.setText(viewModel.failedSuppliersProperty().get().isEmpty() ? "" : Localization.lang(
-                    "Could not extract Metadata from: %0",
-                    String.join(", ", viewModel.failedSuppliersProperty())));
-            int activeColumns = viewModel.entriesProperty().get().size() - viewModel.failedSuppliersProperty().get().size();
+            failedSuppliers.setText(viewModel.failedSuppliersProperty()
+                    .get()
+                    .isEmpty()
+                    ? "" : Localization.lang("Could not extract Metadata from: %0", String.join(", ", viewModel.failedSuppliersProperty())));
+            int activeColumns = viewModel.entriesProperty()
+                    .get()
+                    .size()
+                    - viewModel.failedSuppliersProperty()
+                               .get()
+                               .size();
             if (activeColumns < ACTIVE_COLUMNS_MINIMUM) {
                 // [impl->req~ux.auto-close.merge-entries~1]
                 close();
@@ -152,15 +176,14 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
     }
 
     private void fillDiffModes() {
-        diffMode.setItems(FXCollections.observableList(List.of(
-                DiffMode.PLAIN,
-                DiffMode.WORD,
-                DiffMode.CHARACTER)));
+        diffMode.setItems(FXCollections.observableList(List.of(DiffMode.PLAIN, DiffMode.WORD, DiffMode.CHARACTER)));
         new ViewModelListCellFactory<DiffMode>()
                 .withText(DiffMode::getDisplayText)
                 .install(diffMode);
-        diffMode.setValue(preferences.getMergeDialogPreferences().getMergeDiffMode());
-        EasyBind.subscribe(this.diffMode.valueProperty(), mode -> preferences.getMergeDialogPreferences().setMergeDiffMode(mode));
+        diffMode.setValue(preferences.getMergeDialogPreferences()
+                .getMergeDiffMode());
+        EasyBind.subscribe(this.diffMode.valueProperty(),
+                mode -> preferences.getMergeDialogPreferences().setMergeDiffMode(mode));
     }
 
     private void addColumn(MultiMergeEntriesViewModel.EntrySource entrySourceColumn) {
@@ -241,7 +264,9 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
     private void addEmptyCellsForMissingSources(Field field) {
         List<MultiMergeEntriesViewModel.EntrySource> sources = viewModel.entriesProperty().get();
         for (int columnIndex = 0; columnIndex < sources.size(); columnIndex++) {
-            BibEntry sourceEntry = sources.get(columnIndex).entryProperty().get();
+            BibEntry sourceEntry = sources.get(columnIndex)
+                    .entryProperty()
+                    .get();
             if ((sourceEntry != null) && sourceEntry.getField(field).isEmpty()) {
                 addEmptyCellIfMissing(field, columnIndex);
             }
@@ -264,30 +289,32 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
                 return;
             }
 
-            boolean cellAlreadyExists = optionsGrid.getChildrenUnmodifiable().stream()
-                                                   .filter(HBox.class::isInstance)
-                                                   .anyMatch(node -> Objects.equals(GridPane.getColumnIndex(node), columnIndex)
-                                                           && Objects.equals(GridPane.getRowIndex(node), fieldRow.rowIndex));
+            boolean cellAlreadyExists = optionsGrid.getChildrenUnmodifiable()
+                    .stream()
+                    .filter(HBox.class::isInstance)
+                    .anyMatch(node -> Objects.equals(GridPane.getColumnIndex(node), columnIndex) && Objects.equals(GridPane.getRowIndex(node), fieldRow.rowIndex));
             if (!cellAlreadyExists) {
                 optionsGrid.add(new Cell("", field, columnIndex), columnIndex, fieldRow.rowIndex);
             }
         });
     }
 
-    /// Set up the button that displays the name of the source so that if it is clicked, all toggles in that column are
-    /// selected.
+    /// Set up the button that displays the name of the source so that if it is
+    /// clicked, all toggles in that column are selected.
     ///
     /// @param sourceButton the header button to setup
-    /// @param column       the column this button is heading
+    /// @param column the column this button is heading
     private void setupSourceButtonAction(ToggleButton sourceButton, int column) {
         sourceButton.selectedProperty().addListener((_, _, newValue) -> {
             if (newValue) {
-                optionsGrid.getChildrenUnmodifiable().stream()
+                optionsGrid.getChildrenUnmodifiable()
+                           .stream()
                            .filter(node -> GridPane.getColumnIndex(node) == column)
                            .filter(HBox.class::isInstance)
-                           .forEach(hbox -> ((HBox) hbox).getChildrenUnmodifiable().stream()
-                                                         .filter(ToggleButton.class::isInstance)
-                                                         .forEach(toggleButton -> ((ToggleButton) toggleButton).setSelected(true)));
+                           .forEach(hbox -> ((HBox) hbox).getChildrenUnmodifiable()
+                                   .stream()
+                                   .filter(ToggleButton.class::isInstance)
+                                   .forEach(toggleButton -> ((ToggleButton) toggleButton).setSelected(true)));
                 sourceButton.setSelected(true);
             }
         });
@@ -301,7 +328,8 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
         if (field.equals(StandardField.DOI)) {
             return false;
         }
-        return FieldFactory.isMultiLineField(field, preferences.getFieldPreferences().getNonWrappableFields());
+        return FieldFactory.isMultiLineField(field, preferences.getFieldPreferences()
+                .getNonWrappableFields());
     }
 
     private class Cell extends HBox {
@@ -315,76 +343,84 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
             If this is not explicitly done on the JavaFX thread, the bindings to the text fields don't work properly.
             The text only shows up after one text in that same row is selected by the user.
              */
-            UiTaskExecutor.runInJavaFXThread(() -> {
+            UiTaskExecutor.runInJavaFXThread(
+                    () -> {
+                        FieldRow row = fieldRows.get(field);
 
-                FieldRow row = fieldRows.get(field);
+                        prefWidthProperty().bind(((Region) supplierHeader.getChildren().get(columnIndex))
+                                .widthProperty());
+                        setMinWidth(Control.USE_PREF_SIZE);
+                        setMaxWidth(Control.USE_PREF_SIZE);
+                        prefHeightProperty().bind(((Region) fieldEditor.getChildren().get(row.rowIndex))
+                                .heightProperty());
+                        setMinHeight(Control.USE_PREF_SIZE);
+                        setMaxHeight(Control.USE_PREF_SIZE);
 
-                prefWidthProperty().bind(((Region) supplierHeader.getChildren().get(columnIndex)).widthProperty());
-                setMinWidth(Control.USE_PREF_SIZE);
-                setMaxWidth(Control.USE_PREF_SIZE);
-                prefHeightProperty().bind(((Region) fieldEditor.getChildren().get(row.rowIndex)).heightProperty());
-                setMinHeight(Control.USE_PREF_SIZE);
-                setMaxHeight(Control.USE_PREF_SIZE);
+                        // Button
+                        ToggleButton cellButton = new ToggleButton();
+                        cellButton.prefHeightProperty().bind(heightProperty());
+                        cellButton.setMinHeight(Control.USE_PREF_SIZE);
+                        cellButton.setMaxHeight(Control.USE_PREF_SIZE);
+                        cellButton.setGraphicTextGap(0);
+                        getChildren().add(cellButton);
+                        cellButton.maxWidthProperty().bind(widthProperty());
+                        if (content.isEmpty()) {
+                            cellButton.prefWidthProperty().bind(widthProperty());
+                        }
+                        HBox.setHgrow(cellButton, Priority.ALWAYS);
 
-                // Button
-                ToggleButton cellButton = new ToggleButton();
-                cellButton.prefHeightProperty().bind(heightProperty());
-                cellButton.setMinHeight(Control.USE_PREF_SIZE);
-                cellButton.setMaxHeight(Control.USE_PREF_SIZE);
-                cellButton.setGraphicTextGap(0);
-                getChildren().add(cellButton);
-                cellButton.maxWidthProperty().bind(widthProperty());
-                if (content.isEmpty()) {
-                    cellButton.prefWidthProperty().bind(widthProperty());
-                }
-                HBox.setHgrow(cellButton, Priority.ALWAYS);
+                        // Text
+                        DiffHighlightingEllipsingTextFlow buttonText = new DiffHighlightingEllipsingTextFlow(
+                                content,
+                                viewModel.mergedEntryProperty()
+                                         .get()
+                                         .getFieldBinding(field)
+                                         .asOrdinary(),
+                                diffMode.valueProperty());
 
-                // Text
-                DiffHighlightingEllipsingTextFlow buttonText = new DiffHighlightingEllipsingTextFlow(content, viewModel.mergedEntryProperty().get().getFieldBinding(field).asOrdinary(), diffMode.valueProperty());
+                        buttonText.maxWidthProperty().bind(widthProperty().add(-10));
+                        buttonText.maxHeightProperty().bind(heightProperty());
+                        cellButton.setGraphic(buttonText);
+                        cellButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                        cellButton.setContentDisplay(ContentDisplay.CENTER);
 
-                buttonText.maxWidthProperty().bind(widthProperty().add(-10));
-                buttonText.maxHeightProperty().bind(heightProperty());
-                cellButton.setGraphic(buttonText);
-                cellButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-                cellButton.setContentDisplay(ContentDisplay.CENTER);
+                        // Tooltip
+                        Tooltip buttonTooltip = new Tooltip(content);
+                        buttonTooltip.setWrapText(true);
+                        buttonTooltip.prefWidthProperty().bind(widthProperty());
+                        buttonTooltip.setTextAlignment(TextAlignment.LEFT);
+                        cellButton.setTooltip(buttonTooltip);
 
-                // Tooltip
-                Tooltip buttonTooltip = new Tooltip(content);
-                buttonTooltip.setWrapText(true);
-                buttonTooltip.prefWidthProperty().bind(widthProperty());
-                buttonTooltip.setTextAlignment(TextAlignment.LEFT);
-                cellButton.setTooltip(buttonTooltip);
+                        cellButton.setToggleGroup(row.toggleGroup);
+                        // An empty cell is only added so the user can explicitly clear the merged field. Auto-selecting it
+                        // would clear the value that was just merged (rows are created as a reaction to that value being set).
+                        if (!content.isEmpty() && (row.toggleGroup.getSelectedToggle() == null)) {
+                            cellButton.setSelected(true);
+                        }
 
-                cellButton.setToggleGroup(row.toggleGroup);
-                // An empty cell is only added so the user can explicitly clear the merged field. Auto-selecting it
-                // would clear the value that was just merged (rows are created as a reaction to that value being set).
-                if (!content.isEmpty() && (row.toggleGroup.getSelectedToggle() == null)) {
-                    cellButton.setSelected(true);
-                }
+                        if (field.equals(StandardField.DOI) && !content.isEmpty()) {
+                            Button doiButton = ControlHelper.iconButton(IconTheme.JabRefIcons.LOOKUP_IDENTIFIER);
+                            HBox.setHgrow(doiButton, Priority.NEVER);
+                            doiButton.prefHeightProperty().bind(cellButton.heightProperty());
+                            doiButton.setMinHeight(Control.USE_PREF_SIZE);
+                            doiButton.setMaxHeight(Control.USE_PREF_SIZE);
 
-                if (field.equals(StandardField.DOI) && !content.isEmpty()) {
-                    Button doiButton = ControlHelper.iconButton(IconTheme.JabRefIcons.LOOKUP_IDENTIFIER);
-                    HBox.setHgrow(doiButton, Priority.NEVER);
-                    doiButton.prefHeightProperty().bind(cellButton.heightProperty());
-                    doiButton.setMinHeight(Control.USE_PREF_SIZE);
-                    doiButton.setMaxHeight(Control.USE_PREF_SIZE);
+                            getChildren().add(doiButton);
 
-                    getChildren().add(doiButton);
-
-                    doiButton.setOnAction(_ -> {
-                        DoiFetcher doiFetcher = new DoiFetcher(preferences.getImportFormatPreferences());
-                        doiButton.setDisable(true);
-                        addSource(Localization.lang("From DOI"), () -> {
-                            try {
-                                return doiFetcher.performSearchById(content).get();
-                            } catch (FetcherException | NoSuchElementException e) {
-                                LOGGER.warn("Failed to fetch BibEntry for DOI {}", content, e);
-                                return null;
-                            }
-                        });
+                            doiButton.setOnAction(_ -> {
+                                DoiFetcher doiFetcher = new DoiFetcher(preferences.getImportFormatPreferences());
+                                doiButton.setDisable(true);
+                                addSource(Localization.lang("From DOI"), () -> {
+                                    try {
+                                        return doiFetcher.performSearchById(content).get();
+                                    } catch (FetcherException | NoSuchElementException e) {
+                                        LOGGER.warn("Failed to fetch BibEntry for DOI {}", content, e);
+                                        return null;
+                                    }
+                                });
+                            });
+                        }
                     });
-                }
-            });
         }
 
         public String getContent() {
@@ -411,8 +447,9 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
         });
     }
 
-    /// Starts automatic identifier fetching for the columns already added via [#addSource]. Must be called after
-    /// all initial sources have been added, since it only considers the columns present at call time.
+    /// Starts automatic identifier fetching for the columns already added via
+    /// [#addSource]. Must be called after all initial sources have been added,
+    /// since it only considers the columns present at call time.
     public void enableAutomaticIdentifierFetching() {
         for (MultiMergeEntriesViewModel.EntrySource entrySourceColumn : List.copyOf(viewModel.entriesProperty())) {
             if (!entrySourceColumn.isLoadingProperty().getValue()) {
@@ -437,9 +474,7 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
             return;
         }
         viewModel.findNewFetchableIdentifiers(entry).forEach((field, value) ->
-                WebFetchers.getIdBasedFetcherForField(field, preferences.getImportFormatPreferences())
-                           .ifPresent(fetcher -> addFetchedColumn(
-                                   Localization.lang("From %0", FieldTextMapper.getDisplayName(field)), fetcher, value)));
+                WebFetchers.getIdBasedFetcherForField(field, preferences.getImportFormatPreferences()).ifPresent(fetcher -> addFetchedColumn(Localization.lang("From %0", FieldTextMapper.getDisplayName(field)), fetcher, value)));
     }
 
     private class FieldRow {
@@ -450,7 +485,8 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
         private final int rowIndex;
 
         // Reference needs to be kept, since java garbage collection would otherwise destroy the subscription
-        @SuppressWarnings("FieldCanBeLocal") private EasyObservableValue<String> fieldBinding;
+        @SuppressWarnings("FieldCanBeLocal")
+        private EasyObservableValue<String> fieldBinding;
 
         public FieldRow(Field field, int rowIndex) {
             this.rowIndex = rowIndex;
@@ -472,7 +508,8 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
                 if (newValue == null) {
                     viewModel.setMergedFieldValue(field, null);
                 } else {
-                    viewModel.setMergedFieldValue(field, ((DiffHighlightingEllipsingTextFlow) ((ToggleButton) newValue).getGraphic()).getFullText());
+                    viewModel.setMergedFieldValue(field, ((DiffHighlightingEllipsingTextFlow) ((ToggleButton) newValue).getGraphic())
+                            .getFullText());
                     headerToggleGroup.selectToggle(null);
                 }
             });
@@ -484,7 +521,10 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
         private void addRow(Field field) {
             VBox.setVgrow(fieldEditorCell, Priority.ALWAYS);
 
-            fieldBinding = viewModel.mergedEntryProperty().get().getFieldBinding(field).asOrdinary();
+            fieldBinding = viewModel.mergedEntryProperty()
+                                    .get()
+                                    .getFieldBinding(field)
+                                    .asOrdinary();
             BindingsHelper.bindBidirectional(
                     fieldEditorCell.textProperty(),
                     fieldBinding,

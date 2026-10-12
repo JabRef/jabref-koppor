@@ -9,7 +9,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
@@ -30,10 +29,12 @@ class DBLPFetcherTest {
 
         entry.setType(StandardEntryType.Article);
         entry.setCitationKey("DBLP:journals/stt/GeigerHL16");
-        entry.setField(StandardField.TITLE, """
+        entry.setField(StandardField.TITLE,
+                """
                 Process Engine Benchmarking with Betsy in the Context of {ISO/IEC}
                                   Quality Standards""");
-        entry.setField(StandardField.AUTHOR, """
+        entry.setField(StandardField.AUTHOR,
+                """
                 Matthias Geiger and
                                   Simon Harrer and
                                   J{\\\"{o}}rg Lenhard""");
@@ -41,8 +42,7 @@ class DBLPFetcherTest {
         entry.setField(StandardField.VOLUME, "36");
         entry.setField(StandardField.NUMBER, "2");
         entry.setField(StandardField.YEAR, "2016");
-        entry.setField(StandardField.URL,
-                "https://fb-swt.gi.de/fileadmin/FB/SWT/Softwaretechnik-Trends/Verzeichnis/Band_36_Heft_2/beitrag_2.pdf");
+        entry.setField(StandardField.URL, "https://fb-swt.gi.de/fileadmin/FB/SWT/Softwaretechnik-Trends/Verzeichnis/Band_36_Heft_2/beitrag_2.pdf");
         entry.setField(new UnknownField("biburl"), "https://dblp.org/rec/journals/stt/GeigerHL16.bib");
         entry.setField(new UnknownField("bibsource"), "dblp computer science bibliography, https://dblp.org");
     }

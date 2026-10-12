@@ -1,16 +1,14 @@
 package org.jabref.gui.preferences.customexporter;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-
 import org.jabref.gui.exporter.ExporterViewModel;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.util.ControlHelper;
 import org.jabref.logic.l10n.Localization;
-
-import com.tobiasdiez.easybind.EasyBind;
 
 import static org.jabref.gui.preferences.forms.FormMetrics.BUTTON_WIDTH;
 
@@ -41,7 +39,8 @@ public class CustomExporterTab extends AbstractPreferenceTabView<CustomExporterT
         exporterTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         exporterTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         exporterTable.itemsProperty().bind(viewModel.exportersProperty());
-        EasyBind.bindContent(viewModel.selectedExportersProperty(), exporterTable.getSelectionModel().getSelectedItems());
+        EasyBind.bindContent(viewModel.selectedExportersProperty(),
+                exporterTable.getSelectionModel().getSelectedItems());
 
         TableColumn<ExporterViewModel, String> nameColumn = new TableColumn<>(Localization.lang("Export name"));
         nameColumn.setCellValueFactory(cellData -> cellData.getValue().name());

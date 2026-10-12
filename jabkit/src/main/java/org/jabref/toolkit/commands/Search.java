@@ -17,7 +17,6 @@ import org.jabref.toolkit.exception.ExportServiceException;
 import org.jabref.toolkit.exception.ImportServiceException;
 import org.jabref.toolkit.service.ExportService;
 import org.jabref.toolkit.service.ImportService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,16 +35,24 @@ class Search implements Callable<Integer> {
     @Mixin
     private JabKit.SharedOptions sharedOptions;
 
-    @Option(names = {"--query"}, description = "Search query", required = true)
+    @Option(
+            names = {"--query"},
+            description = "Search query",
+            required = true)
     private String query;
 
     @Mixin
     private InputOption inputOption = new InputOption();
 
-    @Option(names = {"--output"}, converter = CygWinPathConverter.class, description = "Output file")
+    @Option(
+            names = {"--output"},
+            converter = CygWinPathConverter.class,
+            description = "Output file")
     private Path outputFile;
 
-    @Option(names = {"--output-format"}, description = "Output format: bib, txt, etc.")
+    @Option(
+            names = {"--output-format"},
+            description = "Output format: bib, txt, etc.")
     private String outputFormat = "bibtex";
 
     @Override

@@ -10,7 +10,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
-
 import org.jabref.http.server.cayw.CitationProperties;
 import org.jabref.http.server.cayw.LocatorType;
 import org.jabref.logic.l10n.Localization;
@@ -28,7 +27,8 @@ public class CitationPropertiesPopup extends Popup {
 
         ComboBox<LocatorType> locatorTypeCombo = new ComboBox<>();
         locatorTypeCombo.getItems().addAll(LocatorType.values());
-        locatorTypeCombo.setValue(properties.getLocatorType().orElse(LocatorType.PAGE));
+        locatorTypeCombo.setValue(properties.getLocatorType()
+                .orElse(LocatorType.PAGE));
         properties.setLocatorType(locatorTypeCombo.getValue());
 
         TextField locatorValueField = new TextField();

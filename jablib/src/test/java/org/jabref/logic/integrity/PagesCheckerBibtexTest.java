@@ -5,7 +5,6 @@ import java.util.stream.Stream;
 
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,7 +26,8 @@ public class PagesCheckerBibtexTest {
     }
 
     public static Stream<String> bibtexAccepts() {
-        return Stream.of("",
+        return Stream.of(
+                "",
                 // double dash
                 "1--2",
                 // one page number
@@ -49,8 +49,12 @@ public class PagesCheckerBibtexTest {
                 // unicode separator
                 "1\u201310",
                 // roman numerals
-                "i", "ivxlcdm", "IVXLCDM", "iS", "i--vi", "VII--xii"
-        );
+                "i",
+                "ivxlcdm",
+                "IVXLCDM",
+                "iS",
+                "i--vi",
+                "VII--xii");
     }
 
     @ParameterizedTest
@@ -61,19 +65,19 @@ public class PagesCheckerBibtexTest {
 
     public static Stream<String> bibtexRejects() {
         return Stream.of(
-                // hex numbers forbidden
-                "777e23",
-                // bibTexDoesNotAcceptRangeOfNumbersWithSingleDash
-                "1-2",
-                // bibTexDoesNotAcceptMorePageNumbersWithoutComma
-                "1 2",
-                // bibTexDoesNotAcceptBrackets
-                "{1}-{2}",
-                // single dash forbidden
-                "436S-439S",
-                // invalid ranges
-                "10-", "-10", "10--", "--10", "+10", "10+-10"
-        );
+        // hex numbers forbidden
+        "777e23",
+        // bibTexDoesNotAcceptRangeOfNumbersWithSingleDash
+        "1-2",
+        // bibTexDoesNotAcceptMorePageNumbersWithoutComma
+        "1 2",
+        // bibTexDoesNotAcceptBrackets
+        "{1}-{2}",
+        // single dash forbidden
+        "436S-439S",
+        // invalid ranges
+        "10-",
+                "-10", "10--", "--10", "+10", "10+-10");
     }
 
     @ParameterizedTest

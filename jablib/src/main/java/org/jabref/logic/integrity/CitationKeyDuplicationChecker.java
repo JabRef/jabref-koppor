@@ -7,7 +7,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
-
 import org.jspecify.annotations.NonNull;
 
 public class CitationKeyDuplicationChecker implements EntryChecker {
@@ -27,8 +26,7 @@ public class CitationKeyDuplicationChecker implements EntryChecker {
 
         boolean isDuplicate = database.isDuplicateCitationKeyExisting(citeKey.get());
         if (isDuplicate) {
-            return List.of(
-                    new IntegrityMessage(Localization.lang("Duplicate citation key"), entry, InternalField.KEY_FIELD));
+            return List.of(new IntegrityMessage(Localization.lang("Duplicate citation key"), entry, InternalField.KEY_FIELD));
         }
         return List.of();
     }

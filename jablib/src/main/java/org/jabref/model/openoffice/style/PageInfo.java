@@ -6,8 +6,7 @@ import org.jabref.model.openoffice.ootext.OOText;
 
 public class PageInfo {
 
-    private PageInfo() {
-    }
+    private PageInfo() {}
 
     /*
      * pageInfo normalization
@@ -39,6 +38,8 @@ public class PageInfo {
         if (bb.isEmpty()) {
             return +1;
         }
-        return aa.get().toString().compareTo(bb.get().toString());
+        return aa.get()
+                 .toString()
+                 .compareTo(bb.get().toString());
     }
 }

@@ -11,7 +11,8 @@ import org.jabref.model.entry.field.Field;
 
 public class PatentTypeEditorViewModel extends StringMapBasedEditorViewModel {
 
-    public PatentTypeEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers, UndoManager undoManager) {
+    public PatentTypeEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers,
+            UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager, getMap());
     }
 

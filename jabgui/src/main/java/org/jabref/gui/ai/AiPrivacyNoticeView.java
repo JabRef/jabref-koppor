@@ -1,5 +1,7 @@
 package org.jabref.gui.ai;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
@@ -9,7 +11,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.URLs;
@@ -17,36 +18,37 @@ import org.jabref.logic.ai.AiNamingUtils;
 import org.jabref.logic.ai.AiService;
 import org.jabref.model.ai.llm.AiProvider;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 public class AiPrivacyNoticeView extends ScrollPane {
-    @FXML private VBox text;
-    @FXML private GridPane aiPolicies;
-    @FXML private Text embeddingModelText;
+    @FXML
+    private VBox text;
 
-    @Inject private GuiPreferences preferences;
-    @Inject private DialogService dialogService;
-    @Inject private AiService aiService;
+    @FXML
+    private GridPane aiPolicies;
+
+    @FXML
+    private Text embeddingModelText;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private AiService aiService;
 
     private AiPrivacyNoticeViewModel viewModel;
 
     public AiPrivacyNoticeView() {
         ViewLoader.view(this)
-                  .root(this)
-                  .load();
+                .root(this)
+                .load();
     }
 
     @FXML
     private void initialize() {
-        viewModel = new AiPrivacyNoticeViewModel(
-                preferences.getAiPreferences(),
-                preferences.getExternalApplicationsPreferences(),
-                preferences.getEntryEditorPreferences(),
-                preferences.getGroupsPreferences(),
-                dialogService,
-                aiService.getEmbeddingModelMetadataService()
-        );
+        viewModel = new AiPrivacyNoticeViewModel(preferences.getAiPreferences(), preferences.getExternalApplicationsPreferences(), preferences.getEntryEditorPreferences(),
+                preferences.getGroupsPreferences(), dialogService, aiService.getEmbeddingModelMetadataService());
 
         setupBindings();
         setupUi();
@@ -72,7 +74,8 @@ public class AiPrivacyNoticeView extends ScrollPane {
 
         // Note: Ideally, this should be bound to update automatically if the size changes but keeping the original logic for text replacement here.
         String embeddingTemplate = embeddingModelText.getText();
-        String replaced = embeddingTemplate.replaceAll("%0", viewModel.embeddingModelSizeProperty().get());
+        String replaced = embeddingTemplate.replaceAll("%0", viewModel.embeddingModelSizeProperty()
+                .get());
         embeddingModelText.setText(replaced);
     }
 

@@ -4,21 +4,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javafx.scene.text.Text;
-
 import com.github.difflib.DiffUtils;
 import com.github.difflib.patch.AbstractDelta;
+import javafx.scene.text.Text;
 
 public class DiffHighlighting {
 
-    private DiffHighlighting() {
-    }
+    private DiffHighlighting() {}
 
     public static List<Text> generateDiffHighlighting(String baseString, String modifiedString, String separator) {
         List<String> baseStringSplit = Arrays.asList(baseString.split(separator));
         List<String> modifiedStringSplit = Arrays.asList(modifiedString.split(separator));
         List<AbstractDelta<String>> deltaList = DiffUtils.diff(baseStringSplit, modifiedStringSplit).getDeltas();
-        List<Text> result = baseStringSplit.stream().map(text -> forUnchanged(text + separator)).collect(Collectors.toList());
+        List<Text> result = baseStringSplit.stream()
+                .map(text -> forUnchanged(text + separator))
+                .collect(Collectors.toList());
         for (AbstractDelta<String> delta : deltaList.reversed()) {
             int startPos = delta.getSource().getPosition();
             List<String> lines = delta.getSource().getLines();
@@ -29,8 +29,10 @@ public class DiffHighlighting {
                         result.set(startPos + offset, forRemoved(line + separator));
                         offset++;
                     }
-                    result.set(startPos + offset - 1, forRemoved(baseStringSplit.get((startPos + offset) - 1) + separator));
-                    result.add(startPos + offset, forAdded(String.join(separator, delta.getTarget().getLines())));
+                    result.set(startPos + offset - 1,
+                            forRemoved(baseStringSplit.get((startPos + offset) - 1) + separator));
+                    result.add(startPos + offset,
+                            forAdded(String.join(separator, delta.getTarget().getLines())));
                     break;
                 case DELETE:
                     for (String line : lines) {
@@ -39,7 +41,8 @@ public class DiffHighlighting {
                     }
                     break;
                 case INSERT:
-                    result.add(delta.getSource().getPosition(), forAdded(String.join(separator, delta.getTarget().getLines())));
+                    result.add(delta.getSource().getPosition(),
+                            forAdded(String.join(separator, delta.getTarget().getLines())));
                     break;
                 default:
                     break;

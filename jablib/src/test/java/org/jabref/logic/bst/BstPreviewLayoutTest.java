@@ -11,7 +11,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,42 +25,55 @@ class BstPreviewLayoutTest {
 
     @Test
     void generatePreviewForSimpleEntryUsingAbbr() throws URISyntaxException {
-        BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
-        BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "Oliver Kopp")
-                                       .withField(StandardField.TITLE, "Thoughts on Development");
+        BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class
+                .getResource("abbrv.bst")
+                .toURI()));
+        BibEntry entry = new BibEntry()
+                .withField(StandardField.AUTHOR, "Oliver Kopp")
+                .withField(StandardField.TITLE, "Thoughts on Development");
         String preview = bstPreviewLayout.generatePreview(entry, bibDatabaseContext);
         assertEquals("O.\u00a0Kopp. Thoughts on development.", preview);
     }
 
     @Test
     void monthMayIsCorrectlyRendered() throws URISyntaxException {
-        BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
-        BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "Oliver Kopp")
-                                       .withField(StandardField.TITLE, "Thoughts on Development")
-                                       .withField(StandardField.MONTH, "#May#");
+        BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class
+                .getResource("abbrv.bst")
+                .toURI()));
+        BibEntry entry = new BibEntry()
+                .withField(StandardField.AUTHOR, "Oliver Kopp")
+                .withField(StandardField.TITLE, "Thoughts on Development")
+                .withField(StandardField.MONTH, "#May#");
         String preview = bstPreviewLayout.generatePreview(entry, bibDatabaseContext);
         assertEquals("O.\u00a0Kopp. Thoughts on development, May.", preview);
     }
 
     @Test
     void generatePreviewForSliceTheoremPaperUsingAbbr() throws URISyntaxException {
-        BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
+        BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class
+                .getResource("abbrv.bst")
+                .toURI()));
         String preview = bstPreviewLayout.generatePreview(getSliceTheoremPaper(), bibDatabaseContext);
         assertEquals("T.\u00a0Diez. Slice theorem for fréchet group actions and covariant symplectic field theory. May 2014.", preview);
     }
 
     @Test
     void generatePreviewForSliceTheoremPaperUsingIEEE() throws URISyntaxException {
-        BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("IEEEtran.bst").toURI()));
+        BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class
+                .getResource("IEEEtran.bst")
+                .toURI()));
         String preview = bstPreviewLayout.generatePreview(getSliceTheoremPaper(), bibDatabaseContext);
         assertEquals("T.\u00a0Diez, \"Slice theorem for fréchet group actions and covariant symplectic field theory\" May 2014.", preview);
     }
 
     @Test
     void mathSymbolsInBracedMathAreConvertedToUnicode() throws URISyntaxException {
-        BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
-        BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "Oliver Kopp")
-                                       .withField(StandardField.TITLE, "{{$\\Sigma$}}{{$\\Delta$}} Modulator");
+        BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class
+                .getResource("abbrv.bst")
+                .toURI()));
+        BibEntry entry = new BibEntry()
+                .withField(StandardField.AUTHOR, "Oliver Kopp")
+                .withField(StandardField.TITLE, "{{$\\Sigma$}}{{$\\Delta$}} Modulator");
         String preview = bstPreviewLayout.generatePreview(entry, bibDatabaseContext);
         assertEquals("O.\u00a0Kopp. \u03a3\u0394 modulator.", preview);
     }
@@ -69,9 +81,12 @@ class BstPreviewLayoutTest {
     @ParameterizedTest
     @MethodSource
     void generatePreviewHandlesInlineFormatting(String title, String expectedPreview) throws URISyntaxException {
-        BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
-        BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "Oliver Kopp")
-                                       .withField(StandardField.TITLE, title);
+        BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class
+                .getResource("abbrv.bst")
+                .toURI()));
+        BibEntry entry = new BibEntry()
+                .withField(StandardField.AUTHOR, "Oliver Kopp")
+                .withField(StandardField.TITLE, title);
         String preview = bstPreviewLayout.generatePreview(entry, bibDatabaseContext);
         assertEquals(expectedPreview, preview);
     }
@@ -95,15 +110,17 @@ class BstPreviewLayoutTest {
 
                 // Existing superscript and subscript rendering should remain unchanged
                 Arguments.of("Proceedings of the 9\\textsuperscript{th} symposium", "O.\u00a0Kopp. Proceedings of the 9ᵗʰ symposium."),
-                Arguments.of("{H\\textsubscript{2}O}", "O.\u00a0Kopp. H₂O.")
-        );
+                Arguments.of("{H\\textsubscript{2}O}", "O.\u00a0Kopp. H₂O."));
     }
 
     @Test
     void unresolvableBracedMathIsKept() throws URISyntaxException {
-        BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
-        BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "Oliver Kopp")
-                                       .withField(StandardField.TITLE, "{{$\\notacommand$}} Modulator");
+        BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class
+                .getResource("abbrv.bst")
+                .toURI()));
+        BibEntry entry = new BibEntry()
+                .withField(StandardField.AUTHOR, "Oliver Kopp")
+                .withField(StandardField.TITLE, "{{$\\notacommand$}} Modulator");
         String preview = bstPreviewLayout.generatePreview(entry, bibDatabaseContext);
         assertEquals("O.\u00a0Kopp. modulator.", preview);
     }

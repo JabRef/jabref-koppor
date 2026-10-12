@@ -8,9 +8,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import javafx.stage.FileChooser;
-
 import org.jabref.logic.util.FileType;
-
 import org.jspecify.annotations.NonNull;
 
 public class FileDialogConfiguration {
@@ -21,10 +19,8 @@ public class FileDialogConfiguration {
     private final String initialFileName;
     private FileChooser.ExtensionFilter selectedExtensionFilter;
 
-    private FileDialogConfiguration(Path initialDirectory,
-                                    @NonNull List<FileChooser.ExtensionFilter> extensionFilters,
-                                    FileChooser.ExtensionFilter defaultExtension,
-                                    String initialFileName) {
+    private FileDialogConfiguration(Path initialDirectory, @NonNull List<FileChooser.ExtensionFilter> extensionFilters, FileChooser.ExtensionFilter defaultExtension,
+            String initialFileName) {
         this.initialDirectory = initialDirectory;
         this.extensionFilters = extensionFilters;
         this.defaultExtension = defaultExtension;
@@ -134,8 +130,8 @@ public class FileDialogConfiguration {
 
         public Builder addExtensionFilter(FileType... fileTypes) {
             Stream.of(fileTypes)
-                  .map(FileFilterConverter::toExtensionFilter)
-                  .forEachOrdered(this::addExtensionFilter);
+                    .map(FileFilterConverter::toExtensionFilter)
+                    .forEachOrdered(this::addExtensionFilter);
             return this;
         }
 

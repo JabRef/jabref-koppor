@@ -15,7 +15,8 @@ class ClearFormatterTest {
         formatter = new ClearFormatter();
     }
 
-    /// Check whether the clear formatter really returns the empty string for the empty string
+    /// Check whether the clear formatter really returns the empty string for
+    /// the empty string
     @Test
     void formatReturnsEmptyForEmptyString() {
         assertEquals("", formatter.format(""));

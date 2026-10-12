@@ -1,7 +1,12 @@
-# IntelliJ IDEA Code Style Configuration
+# Code Style Configuration
+
+Java sources are formatted with [jfmt](https://github.com/Netflix/jfmt) (`./gradlew jfmt`). The IDE configurations below only approximate jfmt's output; the CI check uses jfmt itself.
+See [the formatting section of the code quality howto](../docs/code-howtos/code-quality.md#formatting).
+
+## IntelliJ IDEA Code Style Configuration
 
 IntelliJ IDEA comes with a powerful code formatter that helps you to keep the formatting consistent with the style JabRef uses.
-Style-checks are done for each pull request and installing this code style configuration helps you to ensure that this test passes. To install it, you need to do the following steps:
+To install it, you need to do the following steps:
 
 1. Go to *Preferences* or press <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>S</kbd> (<kbd>Cmd</kbd> + <kbd>,</kbd> on macOS)
 2. Go to "Editor > Code Style"
@@ -16,8 +21,7 @@ Style-checks are done for each pull request and installing this code style confi
 
 * Please let `.editorconfig` override the settings of IntelliJ
 
-
-# Eclipse:
+## Eclipse
 
 The Eclipse code formatter style is stored in the `eclipse.gradle` file and gets imported automatically.
 In case the formatter style needs to be adapted, configure it and export in eclipse.

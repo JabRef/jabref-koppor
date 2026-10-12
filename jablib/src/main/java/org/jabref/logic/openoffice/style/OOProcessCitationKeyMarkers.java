@@ -10,8 +10,7 @@ import org.jabref.model.openoffice.util.OOListUtil;
 
 class OOProcessCitationKeyMarkers {
 
-    private OOProcessCitationKeyMarkers() {
-    }
+    private OOProcessCitationKeyMarkers() {}
 
     /// Produce citation markers for the case when the citation
     /// markers are the citation keys themselves, separated by commas.
@@ -21,10 +20,9 @@ class OOProcessCitationKeyMarkers {
         citationGroups.createPlainBibliographySortedByComparator(OOProcess.AUTHOR_YEAR_TITLE_COMPARATOR);
 
         for (CitationGroup group : citationGroups.getCitationGroupsInGlobalOrder()) {
-            String citMarker =
-                    style.getCitationGroupMarkupBefore()
-                            + String.join(",", OOListUtil.map(group.getCitationsInLocalOrder(), Citation::getCitationKey))
-                            + style.getCitationGroupMarkupAfter();
+            String citMarker = style.getCitationGroupMarkupBefore() + String.join(",",
+                    OOListUtil.map(group.getCitationsInLocalOrder(), Citation::getCitationKey))
+                    + style.getCitationGroupMarkupAfter();
             group.setCitationMarker(Optional.of(OOText.fromString(citMarker)));
         }
     }

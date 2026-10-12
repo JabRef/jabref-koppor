@@ -12,8 +12,7 @@ public class GroupsFactory {
 
     public static final String ALL_ENTRIES_GROUP_DEFAULT_ICON = "ALL_ENTRIES_GROUP_ICON";
 
-    private GroupsFactory() {
-    }
+    private GroupsFactory() {}
 
     public static AllEntriesGroup createAllEntriesGroup() {
         AllEntriesGroup group = new AllEntriesGroup(Localization.lang("All entries"));
@@ -22,18 +21,12 @@ public class GroupsFactory {
     }
 
     public static SearchGroup createWithoutFilesGroup() {
-        return new SearchGroup(
-                Localization.lang("Entries without linked files"),
-                GroupHierarchyType.INDEPENDENT,
-                "file !=~.*",
-                EnumSet.noneOf(SearchFlags.class));
+        return new SearchGroup(Localization.lang("Entries without linked files"), GroupHierarchyType.INDEPENDENT,
+                "file !=~.*", EnumSet.noneOf(SearchFlags.class));
     }
 
     public static SearchGroup createWithoutGroupsGroup() {
-        return new SearchGroup(
-                Localization.lang("Entries without groups"),
-                GroupHierarchyType.INDEPENDENT,
-                "groups !=~.*",
-                EnumSet.noneOf(SearchFlags.class));
+        return new SearchGroup(Localization.lang("Entries without groups"), GroupHierarchyType.INDEPENDENT,
+                "groups !=~.*", EnumSet.noneOf(SearchFlags.class));
     }
 }

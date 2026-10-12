@@ -6,19 +6,21 @@ import java.util.Optional;
 
 import org.jabref.architecture.AllowedToUseClassGetResource;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.Nullable;
 
-/// A theme the user can select. Every theme, JabRef's own included, is maintained on
-/// <https://themes.jabref.org/> and bundled by the build from the `jabgui/src/main/themes.jabref.org`
-/// submodule (see `processResources` in `jabgui/build.gradle.kts`); the JabRef repository holds no
-/// theme of its own, only the base stylesheet that reads the tokens.
+/// A theme the user can select. Every theme, JabRef's own included, is
+/// maintained on <https://themes.jabref.org/> and bundled by the build from the
+/// `jabgui/src/main/themes.jabref.org` submodule (see `processResources` in
+/// `jabgui/build.gradle.kts`); the JabRef repository holds no theme of its own,
+/// only the base stylesheet that reads the tokens.
 ///
-/// The constants are a hand-maintained mirror of that submodule -- `ThemePresetTest` fails when the
-/// two drift apart -- so that the set of themes is fixed at compile time and no classpath scanning
-/// happens at startup. The JabRef and Primer themes declare the complete `-color-*` token contract
-/// and have no parent; the other themes only override what differs from their [#getParent()], the
-/// JabRef theme, which [ThemeManager] installs beneath them.
+/// The constants are a hand-maintained mirror of that submodule --
+/// `ThemePresetTest` fails when the two drift apart -- so that the set of
+/// themes is fixed at compile time and no classpath scanning happens at
+/// startup. The JabRef and Primer themes declare the complete `-color-*` token
+/// contract and have no parent; the other themes only override what differs
+/// from their [#getParent()], the JabRef theme, which [ThemeManager] installs
+/// beneath them.
 ///
 /// [impl->req~ux.themes.bundled-community-themes~1]
 @AllowedToUseClassGetResource("The previews are bundled next to the themes.")
@@ -45,7 +47,8 @@ public enum ThemePreset {
 
     private StyleSheet styleSheet;
 
-    /// @param parent the theme this one only overrides tokens of, `null` for a theme declaring the complete token contract
+    /// @param parent the theme this one only overrides tokens of, `null` for a
+    ///   theme declaring the complete token contract
     ThemePreset(String themeName, String css, @Nullable ThemePreset parent) {
         this.darkName = themeName;
         this.lightName = themeName;
@@ -54,10 +57,12 @@ public enum ThemePreset {
         this.parent = parent;
     }
 
-    /// Dino Girl published her dark and light hues as separate themes; the port pairs each dark hue with
-    /// the closest light one in a single file, so such a theme carries one name per color scheme.
-    /// Community theme names are proper nouns and stay untranslated.
-    ThemePreset(String collection, String darkHue, String lightHue, String css, @Nullable ThemePreset parent) {
+    /// Dino Girl published her dark and light hues as separate themes; the port
+    /// pairs each dark hue with the closest light one in a single file, so such
+    /// a theme carries one name per color scheme. Community theme names are
+    /// proper nouns and stay untranslated.
+    ThemePreset(String collection, String darkHue, String lightHue,
+                String css, @Nullable ThemePreset parent) {
         this.darkName = collection + " " + darkHue;
         this.lightName = collection + " " + lightHue;
         this.bothNames = collection + " " + darkHue + " / " + lightHue;
@@ -86,29 +91,29 @@ public enum ThemePreset {
         return bothNames;
     }
 
-    /// The name matching the color scheme the user would see the theme in; when following the system,
-    /// both hues are shown as "dark / light".
+    /// The name matching the color scheme the user would see the theme in; when
+    /// following the system, both hues are shown as "dark / light".
     ///
-    /// @param colorScheme the scheme the theme is shown in; an unset one is read as [ThemeColorScheme#FOLLOW_SYSTEM], as everywhere else
+    /// @param colorScheme the scheme the theme is shown in; an unset one is
+    ///   read as [ThemeColorScheme#FOLLOW_SYSTEM], as everywhere else
     public String getLocalizedName(@Nullable ThemeColorScheme colorScheme) {
         return switch (Objects.requireNonNullElse(colorScheme, ThemeColorScheme.FOLLOW_SYSTEM)) {
-            case DARK ->
-                    darkName;
-            case LIGHT ->
-                    lightName;
-            case FOLLOW_SYSTEM ->
-                    getLocalizedName();
+            case DARK -> darkName;
+            case LIGHT -> lightName;
+            case FOLLOW_SYSTEM -> getLocalizedName();
         };
     }
 
-    /// The theme whose stylesheet is installed beneath this one, so that the tokens this theme does not
-    /// declare come from there. Empty for the JabRef and Primer themes, which declare every token.
+    /// The theme whose stylesheet is installed beneath this one, so that the
+    /// tokens this theme does not declare come from there. Empty for the JabRef
+    /// and Primer themes, which declare every token.
     public Optional<ThemePreset> getParent() {
         return Optional.ofNullable(parent);
     }
 
-    /// The bundled screenshot of this theme in the given color scheme, scaled to preview size by the
-    /// build (`generateThemePreviews` in `jabgui/build.gradle.kts`). Following the system yields the dark one.
+    /// The bundled screenshot of this theme in the given color scheme, scaled
+    /// to preview size by the build (`generateThemePreviews` in
+    /// `jabgui/build.gradle.kts`). Following the system yields the dark one.
     public Optional<URL> getPreview(ThemeColorScheme colorScheme) {
         String baseName = css.substring(css.lastIndexOf('/') + 1, css.length() - ".css".length());
         String scheme = colorScheme == ThemeColorScheme.LIGHT ? "light" : "dark";

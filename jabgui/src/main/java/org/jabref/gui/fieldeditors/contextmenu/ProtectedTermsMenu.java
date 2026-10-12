@@ -2,11 +2,11 @@ package org.jabref.gui.fieldeditors.contextmenu;
 
 import java.util.Optional;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextInputControl;
-
 import org.jabref.gui.actions.Action;
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.SimpleCommand;
@@ -18,8 +18,6 @@ import org.jabref.logic.formatter.casechanger.UnprotectTermsFormatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.protectedterms.ProtectedTermsList;
 import org.jabref.logic.protectedterms.ProtectedTermsLoader;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 
 class ProtectedTermsMenu extends Menu {
@@ -59,7 +57,8 @@ class ProtectedTermsMenu extends Menu {
 
     private class ProtectSelectionAction extends SimpleCommand {
         ProtectSelectionAction() {
-            this.executable.bind(textInputControl.selectedTextProperty().isNotEmpty());
+            this.executable.bind(textInputControl.selectedTextProperty()
+                    .isNotEmpty());
         }
 
         @Override
@@ -81,7 +80,8 @@ class ProtectedTermsMenu extends Menu {
     private class UnprotectSelectionAction extends SimpleCommand {
 
         public UnprotectSelectionAction() {
-            this.executable.bind(textInputControl.selectedTextProperty().isNotEmpty());
+            this.executable.bind(textInputControl.selectedTextProperty()
+                    .isNotEmpty());
         }
 
         @Override
@@ -94,7 +94,8 @@ class ProtectedTermsMenu extends Menu {
 
     private class FormatFieldAction extends SimpleCommand {
         FormatFieldAction() {
-            this.executable.bind(textInputControl.textProperty().isNotEmpty());
+            this.executable.bind(textInputControl.textProperty()
+                    .isNotEmpty());
         }
 
         @Override
@@ -129,7 +130,8 @@ class ProtectedTermsMenu extends Menu {
                 list.addProtectedTerm(text.substring(beginIdx, endIdx));
             } else {
                 // Remove leading and trailing whitespaces
-                list.addProtectedTerm(textInputControl.getSelectedText().strip());
+                list.addProtectedTerm(textInputControl.getSelectedText()
+                        .strip());
             }
         }
     }
@@ -139,7 +141,8 @@ class ProtectedTermsMenu extends Menu {
         this.textInputControl = textInputControl;
         FORMATTER = new ProtectTermsFormatter(Injector.instantiateModelOrService(ProtectedTermsLoader.class));
 
-        getItems().addAll(factory.createMenuItem(protectSelectionActionInformation, new ProtectSelectionAction()),
+        getItems().addAll(
+                factory.createMenuItem(protectSelectionActionInformation, new ProtectSelectionAction()),
                 getExternalFilesMenu(),
                 new SeparatorMenuItem(),
                 factory.createMenuItem(() -> Localization.lang("Format field"), new FormatFieldAction()),
@@ -149,10 +152,10 @@ class ProtectedTermsMenu extends Menu {
     private Menu getExternalFilesMenu() {
         Menu protectedTermsMenu = factory.createSubMenu(() -> Localization.lang("Add selected text to list"));
         ProtectedTermsLoader loader = Injector.instantiateModelOrService(ProtectedTermsLoader.class);
-        loader.getProtectedTermsLists().stream()
+        loader.getProtectedTermsLists()
+              .stream()
               .filter(list -> !list.isInternalList())
-              .forEach(list -> protectedTermsMenu.getItems().add(
-                      factory.createMenuItem(list::getDescription, new AddToProtectedTermsAction(list))));
+              .forEach(list -> protectedTermsMenu.getItems().add(factory.createMenuItem(list::getDescription, new AddToProtectedTermsAction(list))));
 
         if (protectedTermsMenu.getItems().isEmpty()) {
             MenuItem emptyItem = new MenuItem(Localization.lang("No list enabled"));

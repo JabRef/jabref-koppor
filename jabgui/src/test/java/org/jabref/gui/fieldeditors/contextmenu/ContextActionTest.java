@@ -3,8 +3,8 @@ package org.jabref.gui.fieldeditors.contextmenu;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import javafx.beans.property.SimpleStringProperty;
-
 import org.jabref.gui.actions.StandardActions;
 import org.jabref.gui.fieldeditors.LinkedFileViewModel;
 import org.jabref.gui.fieldeditors.LinkedFilesEditorViewModel;
@@ -14,8 +14,6 @@ import org.jabref.logic.FilePreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
-import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -49,8 +47,7 @@ class ContextActionTest {
 
         ContextAction action = newAction(StandardActions.RENAME_FILE_TO_PATTERN, fileViewModel);
 
-        assertFalse(action.isExecutable(),
-                "RENAME_FILE_TO_PATTERN should be disabled when suggested name equals original");
+        assertFalse(action.isExecutable(), "RENAME_FILE_TO_PATTERN should be disabled when suggested name equals original");
     }
 
     @Test
@@ -182,9 +179,7 @@ class ContextActionTest {
         return newAction(actionType, fileViewModel, mock(LinkedFilesEditorViewModel.class));
     }
 
-    private static ContextAction newAction(StandardActions actionType,
-                                           LinkedFileViewModel fileViewModel,
-                                           LinkedFilesEditorViewModel editorViewModel) {
+    private static ContextAction newAction(StandardActions actionType, LinkedFileViewModel fileViewModel, LinkedFilesEditorViewModel editorViewModel) {
         GuiPreferences guiPreferences = mock(GuiPreferences.class, Answers.RETURNS_DEEP_STUBS);
         FilePreferences filePreferences = mock(FilePreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(guiPreferences.getFilePreferences()).thenReturn(filePreferences);
@@ -192,20 +187,12 @@ class ContextActionTest {
         BibDatabaseContext databaseContext = mock(BibDatabaseContext.class);
         ObservableOptionalValue<BibEntry> bibEntryOptional = mockEmptyBibEntryOptional();
 
-        return new ContextAction(
-                actionType,
-                fileViewModel,
-                databaseContext,
-                bibEntryOptional,
-                guiPreferences,
-                editorViewModel
-        );
+        return new ContextAction(actionType, fileViewModel, databaseContext, bibEntryOptional, guiPreferences, editorViewModel);
     }
 
     private static ObservableOptionalValue<BibEntry> mockEmptyBibEntryOptional() {
         @SuppressWarnings("unchecked")
-        ObservableOptionalValue<BibEntry> optional =
-                (ObservableOptionalValue<BibEntry>) mock(ObservableOptionalValue.class);
+        ObservableOptionalValue<BibEntry> optional = (ObservableOptionalValue<BibEntry>) mock(ObservableOptionalValue.class);
         when(optional.getValue()).thenReturn(Optional.empty());
         return optional;
     }
@@ -213,8 +200,7 @@ class ContextActionTest {
     private static LinkedFileViewModel mockOfflineExistingFileViewModel() {
         LinkedFile modelLinkedFile = mock(LinkedFile.class, Answers.RETURNS_DEEP_STUBS);
         when(modelLinkedFile.isOnlineLink()).thenReturn(false);
-        when(modelLinkedFile.findIn(any(BibDatabaseContext.class), any(FilePreferences.class)))
-                .thenReturn(Optional.of(Path.of("dummy.pdf")));
+        when(modelLinkedFile.findIn(any(BibDatabaseContext.class), any(FilePreferences.class))).thenReturn(Optional.of(Path.of("dummy.pdf")));
         when(modelLinkedFile.linkProperty()).thenReturn(new SimpleStringProperty("dummy.pdf"));
         when(modelLinkedFile.getSourceUrl()).thenReturn("");
         when(modelLinkedFile.sourceUrlProperty()).thenReturn(new SimpleStringProperty(""));
@@ -231,8 +217,7 @@ class ContextActionTest {
 
         LinkedFile modelLinkedFile = mock(LinkedFile.class, Answers.RETURNS_DEEP_STUBS);
         when(modelLinkedFile.isOnlineLink()).thenReturn(true);
-        when(modelLinkedFile.findIn(any(BibDatabaseContext.class), any(FilePreferences.class)))
-                .thenReturn(Optional.empty());
+        when(modelLinkedFile.findIn(any(BibDatabaseContext.class), any(FilePreferences.class))).thenReturn(Optional.empty());
         when(modelLinkedFile.linkProperty()).thenReturn(new SimpleStringProperty("https://host/file.pdf"));
         when(modelLinkedFile.getSourceUrl()).thenReturn(nonNullUrl);
         when(modelLinkedFile.sourceUrlProperty()).thenReturn(new SimpleStringProperty(nonNullUrl));

@@ -27,12 +27,8 @@ class LowerCaseFormatterTest {
     }
 
     private static Stream<Arguments> provideStringsForFormat() {
-        return Stream.of(
-                Arguments.of("lower", "lower"),
-                Arguments.of("lower", "LOWER"),
-                Arguments.of("lower {UPPER}", "LOWER {UPPER}"),
-                Arguments.of("lower {U}pper", "LOWER {U}PPER")
-        );
+        return Stream.of(Arguments.of("lower", "lower"), Arguments.of("lower", "LOWER"), Arguments.of("lower {UPPER}", "LOWER {UPPER}"),
+                Arguments.of("lower {U}pper", "LOWER {U}PPER"));
     }
 
     @Test

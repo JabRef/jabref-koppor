@@ -30,7 +30,6 @@ import org.jabref.logic.util.Directories;
 import org.jabref.logic.util.io.BackupFileUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.metadata.MetaData;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -88,7 +87,8 @@ public class BibDatabaseContext {
         this(database, metaData, path, DatabaseLocation.LOCAL);
     }
 
-    public BibDatabaseContext(BibDatabase database, MetaData metaData, @Nullable Path path, DatabaseLocation location) {
+    public BibDatabaseContext(BibDatabase database, MetaData metaData, @Nullable Path path,
+            DatabaseLocation location) {
         this(database, metaData);
         this.path = path;
 
@@ -131,7 +131,9 @@ public class BibDatabaseContext {
         return database;
     }
 
-    /// The keyword separator of this library, falling back to the given separator (typically the global preference) when the library does not declare one
+    /// The keyword separator of this library, falling back to the given
+    /// separator (typically the global preference) when the library does not
+    /// declare one
     public Character getKeywordSeparator(Character fallbackKeywordSeparator) {
         return metaData.getKeywordSeparator().orElse(fallbackKeywordSeparator);
     }
@@ -147,26 +149,27 @@ public class BibDatabaseContext {
     /// Returns whether this .bib file belongs to a [org.jabref.model.study.Study]
     public boolean isStudy() {
         return this.getDatabasePath()
-                   .map(path -> Crawler.FILENAME_STUDY_RESULT_BIB.equals(path.getFileName().toString()) &&
-                           Files.exists(path.resolveSibling(StudyRepository.STUDY_DEFINITION_FILE_NAME)))
-                   .orElse(false);
+                .map(path -> Crawler.FILENAME_STUDY_RESULT_BIB.equals(path.getFileName().toString()) && Files.exists(path.resolveSibling(StudyRepository.STUDY_DEFINITION_FILE_NAME)))
+                .orElse(false);
     }
 
-    /// Look up the directories set up for this database.
-    /// There can be up to four directory definitions for these files:
+    /// Look up the directories set up for this database. There can be up to
+    /// four directory definitions for these files:
     ///
     /// 1. next to the .bib file.
     /// 2. the preferences can specify a default one.
     /// 3. the database's metadata can specify a library-specific directory.
     /// 4. the database's metadata can specify a user-specific directory.
     ///
-    ///
-    /// The settings are prioritized in the following order, and the first defined setting is used:
+    /// The settings are prioritized in the following order, and the first
+    /// defined setting is used:
     ///
     /// 1. user-specific metadata directory
     /// 2. general metadata directory
-    /// 3. BIB file directory (if configured in the preferences AND none of the two above directories are configured)
-    /// 4. preferences directory (if .bib file directory should not be used according to the (global) preferences)
+    /// 3. BIB file directory (if configured in the preferences AND none of the
+    ///    two above directories are configured)
+    /// 4. preferences directory (if .bib file directory should not be used
+    ///    according to the (global) preferences)
     ///
     /// @param preferences The fileDirectory preferences
     /// @return List of existing absolute paths
@@ -197,11 +200,11 @@ public class BibDatabaseContext {
     /// @return fixed-size record containing absolute paths (if configured)
     public FileDirectories getAllFileDirectories(FilePreferences preferences) {
         Path userFileDirectory = metaData.getUserFileDirectory(preferences.getUserAndHost())
-                                         .map(this::getFileDirectoryPath)
-                                         .orElse(null);
+                .map(this::getFileDirectoryPath)
+                .orElse(null);
         Path librarySpecificFileDirectory = metaData.getLibrarySpecificFileDirectory()
-                                                    .map(this::getFileDirectoryPath)
-                                                    .orElse(null);
+                .map(this::getFileDirectoryPath)
+                .orElse(null);
 
         Path bibOrMainFileDirectory;
 
@@ -212,11 +215,7 @@ public class BibDatabaseContext {
             bibOrMainFileDirectory = preferences.getMainFileDirectory().orElse(null);
         }
 
-        return new FileDirectories(
-                userFileDirectory,
-                librarySpecificFileDirectory,
-                bibOrMainFileDirectory
-        );
+        return new FileDirectories(userFileDirectory, librarySpecificFileDirectory, bibOrMainFileDirectory);
     }
 
     public Optional<Path> getDatabaseDirectory() {
@@ -234,9 +233,10 @@ public class BibDatabaseContext {
     ///
     /// @return the path - or an empty optional, if none of the directories exists
     public Optional<Path> getFirstExistingFileDir(FilePreferences preferences) {
-        return getFileDirectories(preferences).stream()
-                                              .filter(Files::exists)
-                                              .findFirst();
+        return getFileDirectories(preferences)
+                .stream()
+                .filter(Files::exists)
+                .findFirst();
     }
 
     /// @return The absolute path for the given directory
@@ -248,11 +248,12 @@ public class BibDatabaseContext {
 
         // If this path is relative, we try to interpret it as relative to the file path of this BIB file:
         return getDatabasePath()
-                .map(databaseFile -> Optional.ofNullable(databaseFile.getParent())
-                                             .orElse(Path.of(""))
-                                             .resolve(path)
-                                             .normalize()
-                                             .toAbsolutePath())
+                .map(
+                        databaseFile -> Optional.ofNullable(databaseFile.getParent())
+                                .orElse(Path.of(""))
+                                .resolve(path)
+                                .normalize()
+                                .toAbsolutePath())
                 .orElse(path);
     }
 
@@ -302,7 +303,8 @@ public class BibDatabaseContext {
             // Eventually, this leads to filenames as "40daf3b0--fuu.bib--2022-09-04--01.36.25.bib" --> "--" is used as separator between "groups"
             String fileName = BackupFileUtil.getUniqueFilePrefix(databasePath) + "--" + databasePath.getFileName();
             indexPath = appData.resolve(fileName);
-            LOGGER.debug("Index path for {} is {}", getDatabasePath().get(), indexPath);
+            LOGGER.debug("Index path for {} is {}", getDatabasePath().get(),
+                    indexPath);
             return indexPath;
         }
 
@@ -339,14 +341,20 @@ public class BibDatabaseContext {
 
     @Override
     public String toString() {
-        return "BibDatabaseContext{" +
-                "metaData=" + metaData +
-                ", mode=" + getMode() +
-                ", databasePath=" + getDatabasePath() +
-                ", biblatexMode=" + isBiblatexMode() +
-                ", uid= " + getUid() +
-                ", fulltextIndexPath=" + getFulltextIndexPath() +
-                '}';
+        return "BibDatabaseContext{"
+                + "metaData="
+                + metaData
+                + ", mode="
+                + getMode()
+                + ", databasePath="
+                + getDatabasePath()
+                + ", biblatexMode="
+                + isBiblatexMode()
+                + ", uid= "
+                + getUid()
+                + ", fulltextIndexPath="
+                + getFulltextIndexPath()
+                + '}';
     }
 
     @Override
@@ -357,20 +365,30 @@ public class BibDatabaseContext {
         if (!(o instanceof BibDatabaseContext that)) {
             return false;
         }
-        return Objects.equals(database, that.database) && Objects.equals(metaData, that.metaData) && Objects.equals(path, that.path) && location == that.location;
+        return Objects.equals(database, that.database)
+                && Objects.equals(metaData, that.metaData)
+                && Objects.equals(path, that.path)
+                && location == that.location;
     }
 
-    /// @implNote This implementation needs to be consistent with equals. That means, as soon as a new entry is added to the database, two different instances of BibDatabaseContext are not equal - and thus, the hashCode also needs to change. This has the drawback, that one cannot create HashMaps from the BiDatabaseContext anymore, as the hashCode changes as soon as a new entry is added.
+    /// @implNote This implementation needs to be consistent with equals. That
+    ///   means, as soon as a new entry is added to the database, two different
+    ///   instances of BibDatabaseContext are not equal - and thus, the hashCode
+    ///   also needs to change. This has the drawback, that one cannot create
+    ///   HashMaps from the BiDatabaseContext anymore, as the hashCode changes
+    ///   as soon as a new entry is added.
     @Override
     public int hashCode() {
         return Objects.hash(database, metaData, path, location);
     }
 
-    /// Get the generated UID for the current context. Can be used to distinguish contexts with changing metadata etc
+    /// Get the generated UID for the current context. Can be used to
+    /// distinguish contexts with changing metadata etc
     ///
     /// This is required, because of [#hashCode()] implementation.
     ///
-    /// @return The generated UID in UUIDv4 format with the prefix bibdatabasecontext_
+    /// @return The generated UID in UUIDv4 format with the prefix
+    ///   bibdatabasecontext_
     public String getUid() {
         return uid;
     }

@@ -42,7 +42,6 @@ import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabases;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
@@ -54,8 +53,8 @@ public class ImportFormatReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImportFormatReader.class);
 
-    /// All import formats.
-    /// Sorted accordingly to [Importer#compareTo], which defaults to alphabetically by the name
+    /// All import formats. Sorted accordingly to [Importer#compareTo], which
+    /// defaults to alphabetically by the name
     private final List<Importer> importers = new ArrayList<>(30);
 
     private final ImporterPreferences importerPreferences;
@@ -64,10 +63,8 @@ public class ImportFormatReader {
     private final CitationKeyPatternPreferences citationKeyPatternPreferences;
     private BibtexImporter bibtexImporter;
 
-    public ImportFormatReader(ImporterPreferences importerPreferences,
-                              ImportFormatPreferences importFormatPreferences,
-                              CitationKeyPatternPreferences citationKeyPatternPreferences,
-                              FileUpdateMonitor fileUpdateMonitor) {
+    public ImportFormatReader(ImporterPreferences importerPreferences, ImportFormatPreferences importFormatPreferences, CitationKeyPatternPreferences citationKeyPatternPreferences,
+            FileUpdateMonitor fileUpdateMonitor) {
         this.importerPreferences = importerPreferences;
         this.importFormatPreferences = importFormatPreferences;
         this.fileUpdateMonitor = fileUpdateMonitor;
@@ -148,35 +145,33 @@ public class ImportFormatReader {
     /// Checks whether at least one registered importer supports the file extension.
     public boolean hasImporterForFile(Path filePath) {
         return FileUtil.getFileExtension(filePath)
-                       .map(extension -> importers.stream().anyMatch(importer -> importer.supportsFileExtension(extension)))
-                       .orElse(false);
+                .map(extension -> importers.stream().anyMatch(importer -> importer.supportsFileExtension(extension)))
+                .orElse(false);
     }
 
     /// @param format       The name of the format used
     /// @param parserResult The resulting data
-    public record ImportResult(String format, ParserResult parserResult) {
-    }
+    public record ImportResult(String format, ParserResult parserResult) {}
 
-    /// Tries to import a file by iterating through the available import filters,
-    /// and keeping the import that seems most promising.
+    /// Tries to import a file by iterating through the available import
+    /// filters, and keeping the import that seems most promising.
     ///
     /// This method last attempts to read this file as bibtex.
     ///
-    /// @throws ImportException if the import fails (for example, if no suitable importer is found)
+    /// @throws ImportException if the import fails (for example, if no suitable
+    ///   importer is found)
     public ImportResult importWithAutoDetection(Path filePath) throws ImportException {
-        ImportResult importResult = importWithAutoDetection(
-                importer -> importer.importDatabase(filePath),
-                importer -> importer.isRecognizedFormat(filePath),
-                () -> OpenDatabase.loadDatabase(filePath, importFormatPreferences, fileUpdateMonitor)
-        );
+        ImportResult importResult = importWithAutoDetection(importer -> importer.importDatabase(filePath), importer -> importer.isRecognizedFormat(filePath),
+                () -> OpenDatabase.loadDatabase(filePath, importFormatPreferences, fileUpdateMonitor));
         importResult.parserResult.setPath(filePath);
         return importResult;
     }
 
-    /// Tries to import a stream by iterating through the available import filters,
-    /// and keeping the import that seems most promising.
+    /// Tries to import a stream by iterating through the available import
+    /// filters, and keeping the import that seems most promising.
     ///
-    /// @throws ImportException if the import fails (for example, if no suitable importer is found)
+    /// @throws ImportException if the import fails (for example, if no suitable
+    ///   importer is found)
     public ImportResult importWithAutoDetection(Reader reader) throws ImportException {
         // We try out multiple readers - therefore, streaming does not help to save resources
         Path tempFile;
@@ -198,34 +193,34 @@ public class ImportFormatReader {
         return importResult;
     }
 
-    /// Tries to import a String by iterating through the available import filters,
-    /// and keeping the import that seems the most promising
+    /// Tries to import a String by iterating through the available import
+    /// filters, and keeping the import that seems the most promising
     ///
     /// @param data the string to import
     /// @return an UnknownFormatImport with the imported entries and metadata
-    /// @throws ImportException if the import fails (for example, if no suitable importer is found)
+    /// @throws ImportException if the import fails (for example, if no suitable
+    ///   importer is found)
     public ImportResult importWithAutoDetection(@NonNull String data) throws ImportException {
-        return importWithAutoDetection(
-                importer -> importer.importDatabase(data),
-                importer -> importer.isRecognizedFormat(data),
+        return importWithAutoDetection(importer -> importer.importDatabase(data), importer -> importer.isRecognizedFormat(data),
                 () -> bibtexImporter.importDatabase(data));
     }
 
-    /// Tries to import entries by iterating through the available import filters,
-    /// and keeping the import that seems the most promising
+    /// Tries to import entries by iterating through the available import
+    /// filters, and keeping the import that seems the most promising
     ///
-    /// The implementation idea is to be independent of BufferedInputStream vs. File.
-    /// Therefore, functions are passed.
+    /// The implementation idea is to be independent of BufferedInputStream vs.
+    /// File. Therefore, functions are passed.
     ///
-    /// @param importDatabase     the function to import the entries with a formatter
-    /// @param isRecognizedFormat the function to check whether the source is in the correct format for an importer
-    /// @param importUsingBibtex  used as fallback when the importers did not match
+    /// @param importDatabase the function to import the entries with a
+    ///   formatter
+    /// @param isRecognizedFormat the function to check whether the source is in
+    ///   the correct format for an importer
+    /// @param importUsingBibtex used as fallback when the importers did not
+    ///   match
     /// @return an UnknownFormatImport with the imported entries and metadata
-    /// @throws ImportException if the import fails (for example, if no suitable importer is found)
-    private ImportResult importWithAutoDetection(
-            CheckedFunction<Importer, ParserResult> importDatabase,
-            CheckedFunction<Importer, Boolean> isRecognizedFormat,
-            CheckedSupplier<ParserResult> importUsingBibtex) throws ImportException {
+    /// @throws ImportException if the import fails (for example, if no suitable
+    ///   importer is found)
+    private ImportResult importWithAutoDetection(CheckedFunction<Importer, ParserResult> importDatabase, CheckedFunction<Importer, Boolean> isRecognizedFormat, CheckedSupplier<ParserResult> importUsingBibtex) throws ImportException {
         // stores ref to best result, gets updated at the next loop
         List<BibEntry> bestResult = null;
         int bestResultFieldCount = 0;
@@ -252,7 +247,9 @@ public class ImportFormatReader {
                 // Sometimes, an importer detects garbage as valid entries. Thus, a simple count of entries is not sufficient.
                 // Instead, we count the number of fields in all entries as heuristic.
                 // Alternatively, we could also consider the number of characters in all entries.
-                int fieldCount = entries.stream().mapToInt(entry -> entry.getFields().size()).sum();
+                int fieldCount = entries.stream()
+                                        .mapToInt(entry -> entry.getFields().size())
+                                        .sum();
 
                 if (fieldCount > bestResultFieldCount) {
                     bestResult = entries;

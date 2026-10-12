@@ -22,7 +22,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.identifier.Identifier;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableFieldChange;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,10 +37,8 @@ public class LookupIdentifierAction<T extends Identifier> extends SimpleCommand 
     private final DialogService dialogService;
     private final TaskExecutor taskExecutor;
 
-    public LookupIdentifierAction(IdFetcher<T> fetcher,
-                                  StateManager stateManager,
-                                  DialogService dialogService,
-                                  TaskExecutor taskExecutor) {
+    public LookupIdentifierAction(IdFetcher<T> fetcher, StateManager stateManager, DialogService dialogService,
+            TaskExecutor taskExecutor) {
         this.fetcher = fetcher;
         this.stateManager = stateManager;
         this.dialogService = dialogService;
@@ -56,18 +53,19 @@ public class LookupIdentifierAction<T extends Identifier> extends SimpleCommand 
         stateManager.getActiveDatabase().ifPresent(this::lookUpIn);
     }
 
-    /// The journal and the entries are taken here rather than when the lookup runs: the work
-    /// belongs to the library the user started on, the state manager replaces its selection when
-    /// they switch away from it, and asking for a journal after that library closed would create
-    /// one nothing can reach.
+    /// The journal and the entries are taken here rather than when the lookup
+    /// runs: the work belongs to the library the user started on, the state
+    /// manager replaces its selection when they switch away from it, and asking
+    /// for a journal after that library closed would create one nothing can
+    /// reach.
     private void lookUpIn(BibDatabaseContext databaseContext) {
         UndoManager undoManager = stateManager.getUndoManager(databaseContext);
         List<BibEntry> selectedEntries = List.copyOf(stateManager.getSelectedEntries());
 
         try {
             BackgroundTask.wrap(() -> lookupIdentifiers(undoManager, selectedEntries))
-                          .onSuccess(dialogService::notify)
-                          .executeWith(taskExecutor);
+                    .onSuccess(dialogService::notify)
+                    .executeWith(taskExecutor);
         } catch (Exception e) {
             LOGGER.error("Problem running ID Worker", e);
         }
@@ -99,7 +97,8 @@ public class LookupIdentifierAction<T extends Identifier> extends SimpleCommand 
         return Localization.lang("Determined %0 for %1 entries", fetcher.getIdentifierName(), Integer.toString(foundCount));
     }
 
-    /// Looks the identifier up for one entry and writes it, unless the entry already has one.
+    /// Looks the identifier up for one entry and writes it, unless the entry
+    /// already has one.
     ///
     /// @return whether the entry gained an identifier
     private boolean lookUpAndRecord(BibEntry bibEntry, CompoundEdit compoundEdit) {
@@ -129,8 +128,8 @@ public class LookupIdentifierAction<T extends Identifier> extends SimpleCommand 
     }
 
     private void notifyProgress(int count, String totalCount, int foundCount) {
-        String statusMessage = Localization.lang("Looking up %0... - entry %1 out of %2 - found %3",
-                fetcher.getIdentifierName(), Integer.toString(count), totalCount, Integer.toString(foundCount));
+        String statusMessage = Localization.lang("Looking up %0... - entry %1 out of %2 - found %3", fetcher.getIdentifierName(),
+                Integer.toString(count), totalCount, Integer.toString(foundCount));
         UiTaskExecutor.runInJavaFXThread(() -> dialogService.notify(statusMessage));
     }
 }

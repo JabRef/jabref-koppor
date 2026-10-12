@@ -5,7 +5,8 @@ public enum GroupHierarchyType {
     /// Group's contents are independent of its hierarchical position.
     INDEPENDENT("Independent"),
 
-    /// Group's content is the intersection of its own content with its supergroup's content.
+    /// Group's content is the intersection of its own content with its
+    /// supergroup's content.
     REFINING("Intersection"), // INTERSECTION
 
     /// Group's content is the union of its own content with its subgroups' content.
@@ -17,8 +18,9 @@ public enum GroupHierarchyType {
         this.displayName = displayName;
     }
 
-    /// Returns the hierarchy type from its position in this enum.
-    /// If the specified position is out of the enums bounds, then [#INDEPENDENT] is returned.
+    /// Returns the hierarchy type from its position in this enum. If the
+    /// specified position is out of the enums bounds, then [#INDEPENDENT] is
+    /// returned.
     public static GroupHierarchyType getByNumberOrDefault(int type) {
         GroupHierarchyType[] types = values();
         if (type >= 0 && type < types.length) {
@@ -28,7 +30,8 @@ public enum GroupHierarchyType {
         }
     }
 
-    /// Parses a constant by name, falling back to [#INDEPENDENT] for unknown/corrupted values.
+    /// Parses a constant by name, falling back to [#INDEPENDENT] for
+    /// unknown/corrupted values.
     public static GroupHierarchyType safeValueOf(String name) {
         try {
             return GroupHierarchyType.valueOf(name);

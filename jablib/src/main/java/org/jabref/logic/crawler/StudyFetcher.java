@@ -13,12 +13,12 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.study.FetchResult;
 import org.jabref.model.study.QueryResult;
 import org.jabref.model.study.StudyQuery;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Delegates the search of the provided set of targeted E-Libraries with the provided queries to the E-Library specific fetchers,
-/// and aggregates the results returned by the fetchers by query and E-Library.
+/// Delegates the search of the provided set of targeted E-Libraries with the
+/// provided queries to the E-Library specific fetchers, and aggregates the
+/// results returned by the fetchers by query and E-Library.
 class StudyFetcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(StudyFetcher.class);
 
@@ -32,9 +32,10 @@ class StudyFetcher {
         this.resultLimits = resultLimits;
     }
 
-    /// Each Map Entry contains the results for one search term for all libraries.
-    /// Each entry of the internal map contains the results for a given library.
-    /// If any library API is not available, its corresponding entry is missing from the internal map.
+    /// Each Map Entry contains the results for one search term for all
+    /// libraries. Each entry of the internal map contains the results for a
+    /// given library. If any library API is not available, its corresponding
+    /// entry is missing from the internal map.
     public List<QueryResult> crawl() {
         return searchQueries.parallelStream()
                             .map(this::getQueryResult)
@@ -48,7 +49,8 @@ class StudyFetcher {
     /// Queries all catalogs on the given searchQuery.
     ///
     /// @param searchQuery The query the search is performed for.
-    /// @return Mapping of each fetcher by name and all their retrieved publications as a BibDatabase
+    /// @return Mapping of each fetcher by name and all their retrieved
+    ///   publications as a BibDatabase
     private List<FetchResult> performSearchOnQuery(StudyQuery searchQuery) {
         return activeFetchers.parallelStream()
                              .map(fetcher -> performSearchOnQueryForFetcher(searchQuery, fetcher))
@@ -72,7 +74,9 @@ class StudyFetcher {
     }
 
     private Optional<String> getCatalogOverride(StudyQuery searchQuery, SearchBasedFetcher fetcher) {
-        return searchQuery.getCatalogSpecific().entrySet().stream()
+        return searchQuery.getCatalogSpecific()
+                          .entrySet()
+                          .stream()
                           .filter(entry -> entry.getKey().equalsIgnoreCase(fetcher.getName()))
                           .map(Map.Entry::getValue)
                           .filter(v -> v != null && !v.isBlank())
@@ -87,14 +91,16 @@ class StudyFetcher {
         if (catalogOverride.isPresent()) {
             try {
                 for (int page = 0; page < pages; page++) {
-                    fetchResult.addAll(basedFetcher.performRawSearchQueryPaged(catalogOverride.get(), page).getContent());
+                    fetchResult.addAll(basedFetcher.performRawSearchQueryPaged(catalogOverride.get(), page)
+                            .getContent());
                 }
             } catch (UnsupportedOperationException e) {
                 throw new FetcherException(basedFetcher.getName() + " does not support raw search queries for catalogSpecific override", e);
             }
         } else {
             for (int page = 0; page < pages; page++) {
-                fetchResult.addAll(basedFetcher.performSearchPaged(searchQuery.getQuery(), page).getContent());
+                fetchResult.addAll(basedFetcher.performSearchPaged(searchQuery.getQuery(), page)
+                        .getContent());
             }
         }
         if (fetchResult.size() > limit) {

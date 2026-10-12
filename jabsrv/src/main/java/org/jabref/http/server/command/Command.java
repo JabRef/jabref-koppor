@@ -2,25 +2,21 @@ package org.jabref.http.server.command;
 
 import java.util.List;
 
-import org.jabref.logic.UiCommand;
-import org.jabref.logic.UiMessageHandler;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.ws.rs.core.Response;
 import org.glassfish.hk2.api.ServiceLocator;
+import org.jabref.logic.UiCommand;
+import org.jabref.logic.UiMessageHandler;
 
 /// Example calls are documented at `jabsrv/src/test/commands.http`
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "command")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = SelectEntriesCommand.class, name = "selectentries"),
-        @JsonSubTypes.Type(value = OpenLibrariesCommand.class, name = "open"),
-        @JsonSubTypes.Type(value = FocusCommand.class, name = "focus")
-})
+@JsonSubTypes({@JsonSubTypes.Type(value = SelectEntriesCommand.class, name = "selectentries"),
+            @JsonSubTypes.Type(value = OpenLibrariesCommand.class, name = "open"), @JsonSubTypes.Type(value = FocusCommand.class, name = "focus")})
 public abstract class Command {
 
     @JsonIgnore
@@ -36,8 +32,8 @@ public abstract class Command {
         UiMessageHandler uiMessageHandler = serviceLocator.getService(UiMessageHandler.class);
         if (uiMessageHandler == null || !uiMessageHandler.isGuiConnected()) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                           .entity("This command is not supported in CLI mode.")
-                           .build();
+                    .entity("This command is not supported in CLI mode.")
+                    .build();
         }
         uiMessageHandler.handleUiCommands(List.of(uiCommand));
 

@@ -4,8 +4,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
+import com.google.common.annotations.VisibleForTesting;
 import javafx.beans.property.ObjectProperty;
-
 import org.jabref.logic.ai.util.MVStoreBase;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -14,8 +14,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import com.google.common.annotations.VisibleForTesting;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -31,24 +29,24 @@ public class BibEntryCitationsAndReferencesRepositoryShell extends MVStoreBase i
     private final BibEntryRelationRepository citationsDao;
     private final BibEntryRelationRepository referencesDao;
 
-    public BibEntryCitationsAndReferencesRepositoryShell(Path citationsRelationsDirectory,
-                                                         int storeTTL,
-                                                         ImportFormatPreferences importFormatPreferences,
-                                                         FieldPreferences fieldPreferences,
-                                                         BibEntryTypesManager entryTypesManager,
-                                                         ObjectProperty<CitationFetcherType> citationFetcherTypeProperty,
-                                                         NotificationService notificationService) {
+    public BibEntryCitationsAndReferencesRepositoryShell(
+            Path citationsRelationsDirectory,
+            int storeTTL,
+            ImportFormatPreferences importFormatPreferences,
+            FieldPreferences fieldPreferences,
+            BibEntryTypesManager entryTypesManager,
+            ObjectProperty<CitationFetcherType> citationFetcherTypeProperty,
+            NotificationService notificationService) {
         super(citationsRelationsDirectory.resolve(CITATION_RELATIONS_STORE), notificationService);
 
-        this.referencesDao = new MVStoreBibEntryRelationRepository(mvStore, "references", storeTTL, entryTypesManager, importFormatPreferences, fieldPreferences, citationFetcherTypeProperty);
-        this.citationsDao = new MVStoreBibEntryRelationRepository(mvStore, "citations", storeTTL, entryTypesManager, importFormatPreferences, fieldPreferences, citationFetcherTypeProperty);
+        this.referencesDao = new MVStoreBibEntryRelationRepository(mvStore, "references", storeTTL, entryTypesManager, importFormatPreferences, fieldPreferences,
+                citationFetcherTypeProperty);
+        this.citationsDao = new MVStoreBibEntryRelationRepository(mvStore, "citations", storeTTL, entryTypesManager, importFormatPreferences, fieldPreferences,
+                citationFetcherTypeProperty);
     }
 
     @VisibleForTesting
-    public BibEntryCitationsAndReferencesRepositoryShell(
-            BibEntryRelationRepository citationsDao,
-            BibEntryRelationRepository referencesDao
-    ) {
+    public BibEntryCitationsAndReferencesRepositoryShell(BibEntryRelationRepository citationsDao, BibEntryRelationRepository referencesDao) {
         super();
         this.citationsDao = citationsDao;
         this.referencesDao = referencesDao;
@@ -56,9 +54,7 @@ public class BibEntryCitationsAndReferencesRepositoryShell extends MVStoreBase i
 
     @Override
     public void addCitations(BibEntry entry, List<BibEntry> citations) {
-        citationsDao.addRelations(
-                entry, Objects.requireNonNullElseGet(citations, List::of)
-        );
+        citationsDao.addRelations(entry, Objects.requireNonNullElseGet(citations, List::of));
         commit();
     }
 
@@ -82,9 +78,7 @@ public class BibEntryCitationsAndReferencesRepositoryShell extends MVStoreBase i
 
     @Override
     public void addReferences(BibEntry entry, @Nullable List<BibEntry> references) {
-        referencesDao.addRelations(
-                entry, Objects.requireNonNullElseGet(references, List::of)
-        );
+        referencesDao.addRelations(entry, Objects.requireNonNullElseGet(references, List::of));
         commit();
     }
 

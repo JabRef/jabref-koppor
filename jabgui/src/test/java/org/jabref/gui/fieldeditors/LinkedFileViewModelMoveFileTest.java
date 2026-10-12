@@ -17,7 +17,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +32,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(JavaFxExtension.class)
 class LinkedFileViewModelMoveFileTest {
 
-    @TempDir Path tempDir;
+    @TempDir
+    Path tempDir;
 
     private BibDatabaseContext databaseContext;
     private GuiPreferences preferences;
@@ -109,10 +109,7 @@ class LinkedFileViewModelMoveFileTest {
 
         viewModel.moveToDirectory(destinationDir);
 
-        verify(dialogService).showErrorDialogAndWait(
-                eq(Localization.lang("File not found")),
-                eq(Localization.lang("Could not find file '%0'.", linkedFile.getLink()))
-        );
+        verify(dialogService).showErrorDialogAndWait(eq(Localization.lang("File not found")), eq(Localization.lang("Could not find file '%0'.", linkedFile.getLink())));
     }
 
     @Test

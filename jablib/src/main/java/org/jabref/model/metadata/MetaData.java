@@ -10,9 +10,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
 
+import com.google.common.eventbus.EventBus;
+import com.tobiasdiez.easybind.optional.OptionalBinding;
+import com.tobiasdiez.easybind.optional.OptionalWrapper;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.citationkeypattern.AbstractCitationKeyPatterns;
 import org.jabref.logic.citationkeypattern.CitationKeyPattern;
@@ -29,10 +31,6 @@ import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.groups.event.GroupUpdatedEvent;
 import org.jabref.model.metadata.event.MetaDataChangeSource;
 import org.jabref.model.metadata.event.MetaDataChangedEvent;
-
-import com.google.common.eventbus.EventBus;
-import com.tobiasdiez.easybind.optional.OptionalBinding;
-import com.tobiasdiez.easybind.optional.OptionalWrapper;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -79,15 +77,31 @@ public class MetaData {
     private final Map<String, Path> blgFilePathMap = new HashMap<>();
     private Optional<Version> groupSearchSyntaxVersion = Optional.empty();
 
-    @Nullable private Charset encoding;
-    @Nullable private SaveOrder saveOrder;
-    @Nullable private String defaultCiteKeyPattern;
-    @Nullable private FieldFormatterCleanupActions saveActions;
-    @Nullable private BibDatabaseMode mode;
-    @Nullable private AbbreviationType libraryAbbreviationType;
-    @Nullable private Character keywordSeparator;
+    @Nullable
+    private Charset encoding;
+
+    @Nullable
+    private SaveOrder saveOrder;
+
+    @Nullable
+    private String defaultCiteKeyPattern;
+
+    @Nullable
+    private FieldFormatterCleanupActions saveActions;
+
+    @Nullable
+    private BibDatabaseMode mode;
+
+    @Nullable
+    private AbbreviationType libraryAbbreviationType;
+
+    @Nullable
+    private Character keywordSeparator;
+
     private boolean isProtected;
-    @Nullable private String librarySpecificFileDirectory;
+
+    @Nullable
+    private String librarySpecificFileDirectory;
 
     @NonNull
     private final ContentSelectors contentSelectors = new ContentSelectors();
@@ -95,8 +109,13 @@ public class MetaData {
     private final Map<String, List<String>> unknownMetaData = new HashMap<>();
     private boolean isEventPropagationEnabled = true;
     private boolean encodingExplicitlySupplied;
-    @Nullable private String versionDBStructure;
-    @Nullable private String aiLibraryId;
+
+    @Nullable
+    private String versionDBStructure;
+
+    @Nullable
+    private String aiLibraryId;
+
     private boolean containsSearchGroups;
 
     private boolean gitAutoPull;
@@ -125,15 +144,17 @@ public class MetaData {
         return groupsRootBinding;
     }
 
-    /// Sets a new group root node. **WARNING **: This invalidates everything returned by getGroups() so far!!!
+    /// Sets a new group root node. **WARNING **: This invalidates everything
+    /// returned by getGroups() so far!!!
     public void setGroups(@NonNull GroupTreeNode root) {
         setGroups(root, MetaDataChangeSource.LOCAL);
     }
 
     /// Sets a new group root node, reporting who is behind the change.
     ///
-    /// The group panel writes its tree back through here after every operation it records, and so
-    /// does undoing one, which is why this door can say [MetaDataChangeSource#JOURNAL].
+    /// The group panel writes its tree back through here after every operation
+    /// it records, and so does undoing one, which is why this door can say
+    /// [MetaDataChangeSource#JOURNAL].
     public void setGroups(@NonNull GroupTreeNode root, MetaDataChangeSource source) {
         // Subscribed once per node. The group panel writes its tree back after every operation, and
         // most of those hand back the node already installed: subscribing again each time would
@@ -148,8 +169,8 @@ public class MetaData {
         postChange(source);
     }
 
-    /// Removes the group tree, so that the library has no groups at all — the state it is in before
-    /// the first group is created.
+    /// Removes the group tree, so that the library has no groups at all — the
+    /// state it is in before the first group is created.
     public void clearGroups() {
         clearGroups(MetaDataChangeSource.LOCAL);
     }
@@ -219,7 +240,9 @@ public class MetaData {
 
     /// Updates the stored key patterns to the given key patterns.
     ///
-    /// @param bibtexKeyPatterns the key patterns to update to. A reference to this object is stored internally and is returned at getCiteKeyPattern();
+    /// @param bibtexKeyPatterns the key patterns to update to. A reference to
+    ///   this object is stored internally and is returned at
+    ///   getCiteKeyPattern();
     public void setCiteKeyPattern(@NonNull AbstractCitationKeyPatterns bibtexKeyPatterns) {
         CitationKeyPattern defaultValue = bibtexKeyPatterns.getDefaultValue();
         Map<EntryType, CitationKeyPattern> nonDefaultPatterns = bibtexKeyPatterns.getPatterns();
@@ -232,7 +255,8 @@ public class MetaData {
 
         // Set new value if it is not a default value
         for (Map.Entry<EntryType, CitationKeyPattern> pattern : nonDefaultPatterns.entrySet()) {
-            citeKeyPatterns.put(pattern.getKey(), pattern.getValue().stringRepresentation());
+            citeKeyPatterns.put(pattern.getKey(),
+                    pattern.getValue().stringRepresentation());
         }
 
         // Store default pattern
@@ -288,7 +312,8 @@ public class MetaData {
         postChange();
     }
 
-    /// The separator used in this library's keyword fields; absent if the library does not declare one (then the global preference applies)
+    /// The separator used in this library's keyword fields; absent if the
+    /// library does not declare one (then the global preference applies)
     public Optional<Character> getKeywordSeparator() {
         return Optional.ofNullable(keywordSeparator);
     }
@@ -422,15 +447,17 @@ public class MetaData {
         return copy;
     }
 
-    /// Overwrites this instance's contents with those of `other`. **This instance survives**, and
-    /// with it everything registered on its [EventBus] — installing `other` in the library instead
-    /// would orphan every listener of the instance it replaced.
+    /// Overwrites this instance's contents with those of `other`. **This
+    /// instance survives**, and with it everything registered on its [EventBus]
+    /// — installing `other` in the library instead would orphan every listener
+    /// of the instance it replaced.
     public void overwriteWith(@NonNull MetaData other) {
         overwriteWith(other, MetaDataChangeSource.LOCAL);
     }
 
-    /// Overwrites this instance's contents with those of `other`, reporting who is behind the
-    /// change. The door an [org.jabref.model.undo.UndoableMetaDataChange] goes through, which is
+    /// Overwrites this instance's contents with those of `other`, reporting who
+    /// is behind the change. The door an
+    /// [org.jabref.model.undo.UndoableMetaDataChange] goes through, which is
     /// why it can say [MetaDataChangeSource#JOURNAL].
     public void overwriteWith(@NonNull MetaData other, MetaDataChangeSource source) {
         citeKeyPatterns.clear();
@@ -476,8 +503,9 @@ public class MetaData {
         postChange(MetaDataChangeSource.LOCAL);
     }
 
-    /// Every setter reports [MetaDataChangeSource#LOCAL]; the two doors a recorded change goes
-    /// through — [#setGroups(GroupTreeNode,MetaDataChangeSource)] and
+    /// Every setter reports [MetaDataChangeSource#LOCAL]; the two doors a
+    /// recorded change goes through —
+    /// [#setGroups(GroupTreeNode,MetaDataChangeSource)] and
     /// [#overwriteWith(MetaData,MetaDataChangeSource)] — say so instead.
     private void postChange(MetaDataChangeSource source) {
         if (isEventPropagationEnabled) {
@@ -494,7 +522,8 @@ public class MetaData {
         setEncoding(encoding, ChangePropagation.POST_EVENT);
     }
 
-    /// This method (with additional parameter) has been introduced to avoid event loops while saving a database.
+    /// This method (with additional parameter) has been introduced to avoid
+    /// event loops while saving a database.
     public void setEncoding(@NonNull Charset encoding, ChangePropagation postChanges) {
         this.encoding = encoding;
         if (postChanges == ChangePropagation.POST_EVENT) {
@@ -506,7 +535,8 @@ public class MetaData {
         return encodingExplicitlySupplied;
     }
 
-    /// Sets the indication whether the encoding was set using "% Encoding: ..." or whether it was detected "magically"
+    /// Sets the indication whether the encoding was set using "% Encoding: ..."
+    /// or whether it was detected "magically"
     public void setEncodingExplicitlySupplied(boolean encodingExplicitlySupplied) {
         this.encodingExplicitlySupplied = encodingExplicitlySupplied;
     }
@@ -584,13 +614,69 @@ public class MetaData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(isProtected, groupsRoot.getValue(), encoding, encodingExplicitlySupplied, saveOrder, citeKeyPatterns, userFileDirectory,
-                latexFileDirectory, defaultCiteKeyPattern, saveActions, mode, keywordSeparator, librarySpecificFileDirectory, contentSelectors, versionDBStructure, aiLibraryId, gitAutoPull, gitAutoCommit, gitAutoPush);
+        return Objects.hash(
+                isProtected,
+                groupsRoot.getValue(),
+                encoding,
+                encodingExplicitlySupplied,
+                saveOrder,
+                citeKeyPatterns,
+                userFileDirectory,
+                latexFileDirectory,
+                defaultCiteKeyPattern,
+                saveActions,
+                mode,
+                keywordSeparator,
+                librarySpecificFileDirectory,
+                contentSelectors,
+                versionDBStructure,
+                aiLibraryId,
+                gitAutoPull,
+                gitAutoCommit,
+                gitAutoPush);
     }
 
     @Override
     public String toString() {
-        return "MetaData [citeKeyPatterns=" + citeKeyPatterns + ", userFileDirectory=" + userFileDirectory + ", laTexFileDirectory=" + latexFileDirectory + ", groupsRoot=" + groupsRoot + ", encoding=" + encoding + ", saveOrderConfig=" + saveOrder + ", defaultCiteKeyPattern=" + defaultCiteKeyPattern + ", saveActions=" + saveActions + ", mode=" + mode + ", keywordSeparator=" + keywordSeparator + ", isProtected=" + isProtected + ", librarySpecificFileDirectory=" + librarySpecificFileDirectory + ", contentSelectors=" + contentSelectors + ", encodingExplicitlySupplied=" + encodingExplicitlySupplied + ", VersionDBStructure=" + versionDBStructure + ", aiLibraryId=" + aiLibraryId + ", gitAutoPull=" + gitAutoPull + ", gitAutoCommit=" + gitAutoCommit + ", gitAutoPush=" + gitAutoPush + "]";
+        return "MetaData [citeKeyPatterns="
+                + citeKeyPatterns
+                + ", userFileDirectory="
+                + userFileDirectory
+                + ", laTexFileDirectory="
+                + latexFileDirectory
+                + ", groupsRoot="
+                + groupsRoot
+                + ", encoding="
+                + encoding
+                + ", saveOrderConfig="
+                + saveOrder
+                + ", defaultCiteKeyPattern="
+                + defaultCiteKeyPattern
+                + ", saveActions="
+                + saveActions
+                + ", mode="
+                + mode
+                + ", keywordSeparator="
+                + keywordSeparator
+                + ", isProtected="
+                + isProtected
+                + ", librarySpecificFileDirectory="
+                + librarySpecificFileDirectory
+                + ", contentSelectors="
+                + contentSelectors
+                + ", encodingExplicitlySupplied="
+                + encodingExplicitlySupplied
+                + ", VersionDBStructure="
+                + versionDBStructure
+                + ", aiLibraryId="
+                + aiLibraryId
+                + ", gitAutoPull="
+                + gitAutoPull
+                + ", gitAutoCommit="
+                + gitAutoCommit
+                + ", gitAutoPush="
+                + gitAutoPush
+                + "]";
     }
 
     public Optional<Path> getBlgFilePath(String user) {

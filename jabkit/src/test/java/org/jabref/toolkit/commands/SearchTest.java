@@ -11,7 +11,6 @@ import org.jabref.logic.importer.fileformat.BibtexImporter;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.support.BibEntryAssert;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Execution;
@@ -31,10 +30,7 @@ public class SearchTest extends AbstractJabKitTest {
         Path output = tempDir.resolve("output");
         Path origin = getClassResourceAsPath("origin.bib");
 
-        commandLine.execute("search",
-                "--input=" + origin,
-                "--query=Einstein",
-                "--output-format=bibtex",
+        commandLine.execute("search", "--input=" + origin, "--query=Einstein", "--output-format=bibtex",
                 "--output=" + output);
 
         assertTrue(Files.readString(output).contains("Einstein"));
@@ -48,10 +44,7 @@ public class SearchTest extends AbstractJabKitTest {
         Path output = tempDir.resolve("output");
         Path origin = getClassResourceAsPath("origin.bib");
 
-        commandLine.execute("search",
-                "--input=" + origin,
-                "--query=19",
-                "--output-format=bibtex",
+        commandLine.execute("search", "--input=" + origin, "--query=19", "--output-format=bibtex",
                 "--output=" + output);
 
         assertTrue(Files.readString(output).contains("Einstein"));
@@ -66,10 +59,7 @@ public class SearchTest extends AbstractJabKitTest {
         Path output = tempDir.resolve("output");
         Path origin = getClassResourceAsPath("origin.bib");
 
-        commandLine.execute("search",
-                "--input=" + origin,
-                "--query=blah",
-                "--output-format=bibtex",
+        commandLine.execute("search", "--input=" + origin, "--query=blah", "--output-format=bibtex",
                 "--output=" + output);
 
         assertFileDoesntExist(output);
@@ -81,17 +71,18 @@ public class SearchTest extends AbstractJabKitTest {
         Path originBib = getClassResourceAsPath("origin.bib");
         String originBibFile = originBib.toAbsolutePath().toString();
 
-        Path expectedBib = Path.of(
-                Objects.requireNonNull(JabKitTest.class.getResource("ArgumentProcessorTestExportMatches.bib"))
-                       .toURI()
-        );
+        Path expectedBib = Path.of(Objects.requireNonNull(JabKitTest.class.getResource("ArgumentProcessorTestExportMatches.bib"))
+                .toURI());
 
         BibtexImporter bibtexImporter = new BibtexImporter(importFormatPreferences, new DummyFileUpdateMonitor());
-        List<BibEntry> expectedEntries = bibtexImporter.importDatabase(expectedBib).getDatabase().getEntries();
+        List<BibEntry> expectedEntries = bibtexImporter.importDatabase(expectedBib)
+                .getDatabase()
+                .getEntries();
 
         Path outputBib = tempDir.resolve("output.bib").toAbsolutePath();
 
-        List<String> args = List.of("search", "--debug", "--query", "author=Einstein", "--input", originBibFile, "--output", outputBib.toString());
+        List<String> args = List.of("search", "--debug", "--query", "author=Einstein", "--input", originBibFile,
+                "--output", outputBib.toString());
 
         commandLine.execute(args.toArray(String[]::new));
 

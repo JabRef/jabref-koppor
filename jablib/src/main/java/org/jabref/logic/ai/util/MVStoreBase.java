@@ -4,17 +4,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.jabref.logic.util.NotificationService;
-
 import org.h2.mvstore.MVStore;
 import org.h2.mvstore.MVStoreException;
+import org.jabref.logic.util.NotificationService;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /// This is a base class for the AI artifacts (summaries, chat messages, etc.).
-/// It sets up and wraps an [MVStore], and also provides a way to load an *in-memory* storage in case there are problems while initializing the on-disk version.
-/// It also uses a [NotificationService] to notify the user about errors.
+/// It sets up and wraps an [MVStore], and also provides a way to load an
+/// *in-memory* storage in case there are problems while initializing the
+/// on-disk version. It also uses a [NotificationService] to notify the user
+/// about errors.
 public abstract class MVStoreBase implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(MVStoreBase.class);
 

@@ -26,8 +26,7 @@ public class ExportTab extends AbstractPreferenceTabView<ExportTabViewModel> {
         exportOrderPanel.setCriteriaLimit(3);
 
         setContent(form()
-                .section(Localization.lang("Export sort order"), order -> order
-                        .custom(exportOrderPanel))
+                .section(Localization.lang("Export sort order"), order -> order.custom(exportOrderPanel))
                 .build());
     }
 }

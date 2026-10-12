@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -21,7 +20,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -247,16 +245,14 @@ class CffExporterTest {
 
     @Test
     final void roundTripTest(@TempDir Path tempDir) throws URISyntaxException, IOException, SaveException, ParserConfigurationException, TransformerException {
-        CitationKeyPatternPreferences citationKeyPatternPreferences = mock(
-                CitationKeyPatternPreferences.class,
-                Answers.RETURNS_SMART_NULLS
-        );
-        when(citationKeyPatternPreferences.getKeyPatterns())
-                .thenReturn(GlobalCitationKeyPatterns.fromPattern("[auth][year]"));
+        CitationKeyPatternPreferences citationKeyPatternPreferences = mock(CitationKeyPatternPreferences.class, Answers.RETURNS_SMART_NULLS);
+        when(citationKeyPatternPreferences.getKeyPatterns()).thenReturn(GlobalCitationKeyPatterns.fromPattern("[auth][year]"));
 
         // First, import the file which will be parsed as two entries
         CffImporter importer = new CffImporter(citationKeyPatternPreferences);
-        Path file = Path.of(CffImporterTest.class.getResource("CITATION.cff").toURI());
+        Path file = Path.of(CffImporterTest.class
+                .getResource("CITATION.cff")
+                .toURI());
         BibDatabase db = importer.importDatabase(file).getDatabase();
         BibDatabaseContext dbc = new BibDatabaseContext(db);
 
@@ -321,4 +317,3 @@ class CffExporterTest {
         }
     }
 }
-

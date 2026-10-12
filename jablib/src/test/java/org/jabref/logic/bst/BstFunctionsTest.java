@@ -4,13 +4,13 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RecognitionException;
+import org.jabref.logic.bst.BstFunctions.BstFunction;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.RecognitionException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -31,7 +31,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class BstFunctionsTest {
     @Test
     void compareFunctions() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { test.compare } {
                     #5  #5      =   % TRUE
                     #1  #2      =   % FALSE
@@ -49,22 +50,56 @@ class BstFunctionsTest {
 
         vm.render(List.of());
 
-        assertEquals(BstVM.FALSE, vm.getContext().stack().pop());
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());
-        assertEquals(BstVM.FALSE, vm.getContext().stack().pop());
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());
-        assertEquals(BstVM.FALSE, vm.getContext().stack().pop());
-        assertEquals(BstVM.FALSE, vm.getContext().stack().pop());
-        assertEquals(BstVM.FALSE, vm.getContext().stack().pop());
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());
-        assertEquals(BstVM.FALSE, vm.getContext().stack().pop());
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals(BstVM.FALSE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.FALSE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.FALSE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.FALSE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.FALSE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.FALSE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void arithmeticFunctions() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { test } {
                     #1  #1  +   % 2
                     #5  #2  -   % 3
@@ -74,14 +109,24 @@ class BstFunctionsTest {
 
         vm.render(List.of());
 
-        assertEquals(3, vm.getContext().stack().pop());
-        assertEquals(2, vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals(3,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(2,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void arithmeticFunctionTypeMismatch() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { test } {
                     #1  "HELLO" +   % Should throw exception
                 }
@@ -94,7 +139,8 @@ class BstFunctionsTest {
     @Test
     void stringOperations() throws RecognitionException {
         // Test for concat (*) and add.period
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { test } {
                     "H" "ello"      *           % Hello
                     "Johnny"        add.period$ % Johnny.
@@ -111,21 +157,52 @@ class BstFunctionsTest {
 
         vm.render(List.of());
 
-        assertEquals("Johnny.}", vm.getContext().stack().pop());
-        assertEquals("Johnny?}", vm.getContext().stack().pop());
-        assertEquals("Johnny!}", vm.getContext().stack().pop());
-        assertEquals("Johnny.}", vm.getContext().stack().pop());
-        assertEquals("Johnny?", vm.getContext().stack().pop());
-        assertEquals("Johnny!", vm.getContext().stack().pop());
-        assertEquals("Johnny.", vm.getContext().stack().pop());
-        assertEquals("Johnny.", vm.getContext().stack().pop());
-        assertEquals("Hello", vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals("Johnny.}",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("Johnny?}",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("Johnny!}",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("Johnny.}",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("Johnny?",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("Johnny!",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("Johnny.",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("Johnny.",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("Hello",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void missing() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 ENTRY { title } { } { }
                 FUNCTION { presort } { cite$ 'sort.key$ := }
                 ITERATE { presort }
@@ -134,45 +211,69 @@ class BstFunctionsTest {
                 FUNCTION { test } { title missing$ cite$ }
                 ITERATE { test }
                 """);
-        List<BibEntry> testEntries = List.of(
-                BstVMTest.defaultTestEntry(),
+        List<BibEntry> testEntries = List.of(BstVMTest.defaultTestEntry(),
                 new BibEntry(StandardEntryType.Article)
                         .withCitationKey("test")
                         .withField(StandardField.AUTHOR, "No title"));
 
         vm.render(testEntries);
 
-        assertEquals("test", vm.getContext().stack().pop());      // cite
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());          // missing title
-        assertEquals("canh05", vm.getContext().stack().pop());    // cite
-        assertEquals(BstVM.FALSE, vm.getContext().stack().pop());         // missing title
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals("test",
+                vm.getContext()
+                  .stack()
+                  .pop()); // cite
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop()); // missing title
+        assertEquals("canh05",
+                vm.getContext()
+                  .stack()
+                  .pop()); // cite
+        assertEquals(BstVM.FALSE,
+                vm.getContext()
+                  .stack()
+                  .pop()); // missing title
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void missingCrossrefWithoutEntryDeclaration() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 ENTRY { title } { } { }
                 READ
                 FUNCTION { test } { crossref missing$ }
                 ITERATE { test }
                 """);
-        List<BibEntry> testEntries = List.of(
-                new BibEntry(StandardEntryType.InProceedings)
-                        .withCitationKey("child")
-                        .withField(StandardField.CROSSREF, "parent"),
+        List<BibEntry> testEntries = List.of(new BibEntry(StandardEntryType.InProceedings)
+                .withCitationKey("child")
+                .withField(StandardField.CROSSREF, "parent"),
                 BstVMTest.defaultTestEntry());
 
         vm.render(testEntries);
 
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());
-        assertEquals(BstVM.FALSE, vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.FALSE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void numNames() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { test } {
                     "Johnny Foo { and } Mary Bar" num.names$
                     "Johnny Foo and Mary Bar" num.names$
@@ -182,14 +283,24 @@ class BstFunctionsTest {
 
         vm.render(List.of());
 
-        assertEquals(2, vm.getContext().stack().pop());
-        assertEquals(1, vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals(2,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(1,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void substring() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { test } {
                     "123456789" #2  #1          substring$  % 2
                     "123456789" #4  global.max$ substring$  % 456789
@@ -205,46 +316,79 @@ class BstFunctionsTest {
 
         vm.render(List.of());
 
-        assertEquals("78", vm.getContext().stack().pop());
-        assertEquals("789", vm.getContext().stack().pop());
-        assertEquals("9", vm.getContext().stack().pop());
-        assertEquals("123", vm.getContext().stack().pop());
-        assertEquals("123456789", vm.getContext().stack().pop());
-        assertEquals("123456789", vm.getContext().stack().pop());
-        assertEquals("123456789", vm.getContext().stack().pop());
-        assertEquals("456789", vm.getContext().stack().pop());
-        assertEquals("2", vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals("78",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("789",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("9",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("123",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("123456789",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("123456789",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("123456789",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("456789",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("2",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @ParameterizedTest
     @CsvSource({
-            "d, abcd, -1, 1",
-            "cd, abcd, -1, 2",
-            "bcd, abcd, -1, 3",
-            "c, abcd, -2, 1",
-            "abc, abcd, -2, 100",
-            "abc, abcd, -2, 2147483647",
-            "b, abcd, -3, 1",
-            "a, abcd, -4, 1",
-            "'', abcd, -5, 1",                    // invalid number -5
-            "'', abcd, -2147483647, 2147483647",  // invalid number
+        "d, abcd, -1, 1",
+        "cd, abcd, -1, 2",
+        "bcd, abcd, -1, 3",
+        "c, abcd, -2, 1",
+        "abc, abcd, -2, 100",
+        "abc, abcd, -2, 2147483647",
+        "b, abcd, -3, 1",
+        "a, abcd, -4, 1",
+        "'', abcd, -5, 1", // invalid number -5
+        "'', abcd, -2147483647, 2147483647", // invalid number
     })
-    void substringPlain(String expected, String full, Integer start, Integer length) {
+    void substringPlain(String expected, String full, Integer start,
+                        Integer length) {
         BstVMContext bstVMContext = new BstVMContext(List.of(), new BibDatabase(), Path.of("404.bst"));
         BstFunctions bstFunctions = new BstFunctions(bstVMContext, new StringBuilder());
         bstVMContext.stack().push(full);
         bstVMContext.stack().push(start);
         bstVMContext.stack().push(length);
         bstFunctions.bstSubstring(
-                new BstVMVisitor(new BstVMContext(List.of(), new BibDatabase(), null), new StringBuilder(0)),
+                new BstVMVisitor(new BstVMContext(List.of(), new BibDatabase(), null),
+                        new StringBuilder(0)),
                 ParserRuleContext.EMPTY);
         assertEquals(expected, bstVMContext.stack().pop());
     }
 
     @Test
     void empty() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 ENTRY { title } { } { }
                 READ
                 STRINGS { s }
@@ -261,17 +405,36 @@ class BstFunctionsTest {
 
         vm.render(testEntry);
 
-        assertEquals(BstVM.FALSE, vm.getContext().stack().pop());
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals(BstVM.FALSE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void formatNameStatic() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { format }{ "Charles Louis Xavier Joseph de la Vall{\\'e}e Poussin" #1 "{vv~}{ll}{, jj}{, f}?" format.name$ }
                 EXECUTE { format }
                 """);
@@ -279,13 +442,20 @@ class BstFunctionsTest {
 
         vm.render(v);
 
-        assertEquals("de~la Vall{\\'e}e~Poussin, C.~L. X.~J?", vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals("de~la Vall{\\'e}e~Poussin, C.~L. X.~J?",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void formatNameInEntries() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 ENTRY { author } { } { }
                 FUNCTION { presort } { cite$ 'sort.key$ := }
                 ITERATE { presort }
@@ -294,22 +464,31 @@ class BstFunctionsTest {
                 FUNCTION { format }{ author #2 "{vv~}{ll}{, jj}{, f}?" format.name$ }
                 ITERATE { format }
                 """);
-        List<BibEntry> testEntries = List.of(
-                BstVMTest.defaultTestEntry(),
+        List<BibEntry> testEntries = List.of(BstVMTest.defaultTestEntry(),
                 new BibEntry(StandardEntryType.Book)
                         .withCitationKey("test")
                         .withField(StandardField.AUTHOR, "Jonathan Meyer and Charles Louis Xavier Joseph de la Vall{\\'e}e Poussin"));
 
         vm.render(testEntries);
 
-        assertEquals("de~la Vall{\\'e}e~Poussin, C.~L. X.~J?", vm.getContext().stack().pop());
-        assertEquals("Annabi, H?", vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals("de~la Vall{\\'e}e~Poussin, C.~L. X.~J?",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("Annabi, H?",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void changeCase() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 STRINGS { title }
                 READ
                 FUNCTION { format.title } {
@@ -330,16 +509,31 @@ class BstFunctionsTest {
         vm.render(List.of());
 
         assertEquals("{A}{D}/{C}ycle: {I}{B}{M}'s {F}ramework for {A}pplication {D}evelopment and {C}ase",
-                vm.getContext().stack().pop());
-        assertEquals("", vm.getContext().stack().pop());
-        assertEquals("Hello world", vm.getContext().stack().pop());
-        assertEquals("Hello world", vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("Hello world",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("Hello world",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void textLength() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { test } {
                     "hello world" text.length$                                  % 11
                     "Hello {W}orld" text.length$                                % 11
@@ -355,60 +549,112 @@ class BstFunctionsTest {
 
         vm.render(List.of());
 
-        assertEquals(11, vm.getContext().stack().pop());
-        assertEquals(1, vm.getContext().stack().pop());
-        assertEquals(1, vm.getContext().stack().pop());
-        assertEquals(1, vm.getContext().stack().pop());
-        assertEquals(8, vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().pop());
-        assertEquals(11, vm.getContext().stack().pop());
-        assertEquals(11, vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals(11,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(1,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(1,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(1,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(8,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(11,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(11,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void intToStr() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { test } { #3 int.to.str$ #9999 int.to.str$ }
                 EXECUTE { test }
                 """);
 
         vm.render(List.of());
 
-        assertEquals("9999", vm.getContext().stack().pop());
-        assertEquals("3", vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals("9999",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("3",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void chrToInt() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { test } { "H" chr.to.int$ }
                 EXECUTE { test }
                 """);
 
         vm.render(List.of());
 
-        assertEquals(72, vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals(72,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void chrToIntIntToChr() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { test } { "H" chr.to.int$ int.to.chr$ }
                 EXECUTE {test}
                 """);
 
         vm.render(List.of());
 
-        assertEquals("H", vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals("H",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void type() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 ENTRY  { } { } { }
                 FUNCTION { presort } { cite$ 'sort.key$ := }
                 ITERATE { presort }
@@ -424,16 +670,32 @@ class BstFunctionsTest {
 
         vm.render(testEntries);
 
-        assertEquals("inproceedings", vm.getContext().stack().pop());
-        assertEquals("misc", vm.getContext().stack().pop());
-        assertEquals("book", vm.getContext().stack().pop());
-        assertEquals("article", vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals("inproceedings",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("misc",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("book",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("article",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void callType() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 ENTRY { title } { } { }
                 FUNCTION { presort } { cite$ 'sort.key$ := }
                 ITERATE { presort }
@@ -443,24 +705,31 @@ class BstFunctionsTest {
                 FUNCTION { book }{ "Book called on " title * }
                 ITERATE { call.type$ }
                 """);
-        List<BibEntry> testEntries = List.of(
-                BstVMTest.defaultTestEntry(),
+        List<BibEntry> testEntries = List.of(BstVMTest.defaultTestEntry(),
                 new BibEntry(StandardEntryType.Book)
                         .withCitationKey("test")
                         .withField(StandardField.TITLE, "Test"));
 
         vm.render(testEntries);
 
-        assertEquals("Book called on Test", vm.getContext().stack().pop());
-        assertEquals(
-                "InProceedings called on Effective work practices for floss development: A model and propositions",
-                vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals("Book called on Test",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("InProceedings called on Effective work practices for floss development: A model and propositions",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void swap() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { a } { #3 "Hallo" swap$ }
                 EXECUTE { a }
                 """);
@@ -468,14 +737,24 @@ class BstFunctionsTest {
         List<BibEntry> v = List.of();
         vm.render(v);
 
-        assertEquals(3, vm.getContext().stack().pop());
-        assertEquals("Hallo", vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals(3,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("Hallo",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void assignFunction() {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 INTEGERS { test.var }
                 FUNCTION { test.func } { #1 'test.var := }
                 EXECUTE { test.func }
@@ -483,15 +762,19 @@ class BstFunctionsTest {
 
         vm.render(List.of());
 
-        Map<String, BstFunctions.BstFunction> functions = vm.getContext().functions();
+        Map<String, BstFunction> functions = vm.getContext().functions();
         assertTrue(functions.containsKey("test.func"));
         assertNotNull(functions.get("test.func"));
-        assertEquals(1, vm.getContext().integers().get("test.var"));
+        assertEquals(1,
+                vm.getContext()
+                  .integers()
+                  .get("test.var"));
     }
 
     @Test
     void simpleIf() {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { path1 } { #1 }
                 FUNCTION { path0 } { #0 }
                 FUNCTION { test } {
@@ -503,14 +786,24 @@ class BstFunctionsTest {
 
         vm.render(List.of());
 
-        assertEquals(0, vm.getContext().stack().pop());
-        assertEquals(1, vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(1,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void simpleWhile() {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 INTEGERS { i }
                 FUNCTION { test } {
                     #3 'i :=
@@ -527,15 +820,28 @@ class BstFunctionsTest {
 
         vm.render(List.of());
 
-        assertEquals(1, vm.getContext().stack().pop());
-        assertEquals(2, vm.getContext().stack().pop());
-        assertEquals(3, vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals(1,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(2,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(3,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void nestedControlFunctions() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 STRINGS { t }
                 FUNCTION { not } { { #0 } { #1 } if$ }
                 FUNCTION { n.dashify } {
@@ -574,13 +880,20 @@ class BstFunctionsTest {
 
         vm.render(v);
 
-        assertEquals(1, vm.getContext().stack().size());
-        assertEquals("HELLO--WORLD", vm.getContext().stack().pop());
+        assertEquals(1,
+                vm.getContext()
+                  .stack()
+                  .size());
+        assertEquals("HELLO--WORLD",
+                vm.getContext()
+                  .stack()
+                  .pop());
     }
 
     @Test
     void logic() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { not } { { #0 } { #1 } if$ }
                 FUNCTION { and } { 'skip$ { pop$ #0 } if$ }
                 FUNCTION { or } { { pop$ #1 } 'skip$ if$ }
@@ -601,23 +914,57 @@ class BstFunctionsTest {
 
         vm.render(List.of());
 
-        assertEquals(BstVM.FALSE, vm.getContext().stack().pop());
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());
-        assertEquals(BstVM.FALSE, vm.getContext().stack().pop());
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());
-        assertEquals(BstVM.FALSE, vm.getContext().stack().pop());
-        assertEquals(BstVM.FALSE, vm.getContext().stack().pop());
-        assertEquals(BstVM.FALSE, vm.getContext().stack().pop());
-        assertEquals(BstVM.TRUE, vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals(BstVM.FALSE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.FALSE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.FALSE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.FALSE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.FALSE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(BstVM.TRUE,
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     /// See also [org.jabref.logic.bst.util.BstWidthCalculatorTest]
     @Test
     void width() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 ENTRY { address author title type } { } { label }
                 STRINGS { longest.label }
                 INTEGERS { number.label longest.label.width }
@@ -653,13 +1000,19 @@ class BstFunctionsTest {
 
         vm.render(testEntries);
 
-        assertTrue(vm.getContext().integers().containsKey("longest.label.width"));
-        assertEquals("\\begin{thebibliography}{1}", vm.getContext().stack().pop());
+        assertTrue(vm.getContext()
+                     .integers()
+                     .containsKey("longest.label.width"));
+        assertEquals("\\begin{thebibliography}{1}",
+                vm.getContext()
+                  .stack()
+                  .pop());
     }
 
     @Test
     void duplicateEmptyPopSwapIf() throws RecognitionException {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { emphasize } {
                     duplicate$ empty$
                         { pop$ "" }
@@ -675,14 +1028,24 @@ class BstFunctionsTest {
 
         vm.render(List.of());
 
-        assertEquals("{\\em Hello}", vm.getContext().stack().pop());
-        assertEquals("", vm.getContext().stack().pop());
-        assertEquals(0, vm.getContext().stack().size());
+        assertEquals("{\\em Hello}",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals("",
+                vm.getContext()
+                  .stack()
+                  .pop());
+        assertEquals(0,
+                vm.getContext()
+                  .stack()
+                  .size());
     }
 
     @Test
     void preambleWriteNewlineQuote() {
-        BstVM vm = new BstVM("""
+        BstVM vm =
+                new BstVM("""
                 FUNCTION { test } {
                     preamble$
                     write$

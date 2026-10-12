@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringWriter;
-
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Result;
@@ -16,7 +15,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.jabref.architecture.AllowedToUseClassGetResource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +44,9 @@ public final class MathMLParser {
             Source xmlSource = new StreamSource(Reader.of(xmlContent));
 
             // No SystemId required, because no relative URLs need to be resolved
-            Source xsltSource = new StreamSource(xsltResource, MathMLParser.class.getResource(XSLT_FILE_PATH).toExternalForm());
+            Source xsltSource = new StreamSource(xsltResource, MathMLParser.class
+                    .getResource(XSLT_FILE_PATH)
+                    .toExternalForm());
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer(xsltSource);
@@ -56,9 +56,7 @@ public final class MathMLParser {
             transformer.transform(xmlSource, result);
 
             latexResult = writer.getBuffer().toString();
-        } catch (XMLStreamException
-                 | TransformerException
-                 | IOException e) {
+        } catch (XMLStreamException | TransformerException | IOException e) {
             LOGGER.error("Could not transform", e);
             return "<Unsupported MathML expression>";
         }

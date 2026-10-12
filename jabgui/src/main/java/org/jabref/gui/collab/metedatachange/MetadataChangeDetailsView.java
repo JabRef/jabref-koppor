@@ -3,7 +3,6 @@ package org.jabref.gui.collab.metedatachange;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.collab.DatabaseChangeDetailsView;
 import org.jabref.gui.collab.groupchange.GroupChangeDetailsView;
 import org.jabref.gui.mergeentries.threewaymerge.diffhighlighter.DiffHighlighter;
@@ -15,14 +14,12 @@ import org.jabref.logic.l10n.Localization;
 public final class MetadataChangeDetailsView extends DatabaseChangeDetailsView {
 
     public MetadataChangeDetailsView(MetadataChange metadataChange, GlobalCitationKeyPatterns globalCitationKeyPatterns) {
-        this(metadataChange, globalCitationKeyPatterns, Localization.lang("In JabRef"), Localization.lang("On disk"), DiffHighlighter.BasicDiffMethod.CHARS);
+        this(metadataChange, globalCitationKeyPatterns, Localization.lang("In JabRef"), Localization.lang("On disk"),
+                DiffHighlighter.BasicDiffMethod.CHARS);
     }
 
-    public MetadataChangeDetailsView(MetadataChange metadataChange,
-                                     GlobalCitationKeyPatterns globalCitationKeyPatterns,
-                                     String leftLabelText,
-                                     String rightLabelText,
-                                     DiffHighlighter.BasicDiffMethod diffMethod) {
+    public MetadataChangeDetailsView(MetadataChange metadataChange, GlobalCitationKeyPatterns globalCitationKeyPatterns, String leftLabelText,
+            String rightLabelText, DiffHighlighter.BasicDiffMethod diffMethod) {
         VBox container = new VBox(12);
 
         Label header = new Label(Localization.lang("The following metadata changed:"));
@@ -43,22 +40,25 @@ public final class MetadataChangeDetailsView extends DatabaseChangeDetailsView {
     /// @param container      The parent container to add the difference view to
     /// @param diff           The metadata difference to display
     /// @param metadataChange The metadata change object containing all changes
-    private void addDifferenceView(VBox container,
-                                   MetaDataDiff.Difference diff,
-                                   MetadataChange metadataChange,
-                                   String leftLabelText,
-                                   String rightLabelText,
-                                   DiffHighlighter.BasicDiffMethod diffMethod) {
+    private void addDifferenceView(VBox container, MetaDataDiff.Difference diff, MetadataChange metadataChange,
+            String leftLabelText, String rightLabelText, DiffHighlighter.BasicDiffMethod diffMethod) {
         Label typeLabel = new Label(getDifferenceString(diff.differenceType()));
         typeLabel.getStyleClass().add("diff-type-label");
         container.getChildren().add(typeLabel);
 
         // Show appropriate view based on difference type
         if (diff.differenceType() == MetaDataDiff.DifferenceType.GROUPS) {
-            container.getChildren().add(GroupChangeDetailsView.createGroupDiffSplitPane(
-                    metadataChange.getMetaDataDiff().getOriginalMetaData().getGroups(),
-                    metadataChange.getMetaDataDiff().getNewMetaData().getGroups(),
-                    leftLabelText, rightLabelText, diffMethod));
+            container.getChildren().add(
+                    GroupChangeDetailsView.createGroupDiffSplitPane(
+                            metadataChange.getMetaDataDiff()
+                                          .getOriginalMetaData()
+                                          .getGroups(),
+                            metadataChange.getMetaDataDiff()
+                                          .getNewMetaData()
+                                          .getGroups(),
+                            leftLabelText,
+                            rightLabelText,
+                            diffMethod));
         } else {
             container.getChildren().add(createDefaultDiffScrollPane(diff));
         }
@@ -82,30 +82,18 @@ public final class MetadataChangeDetailsView extends DatabaseChangeDetailsView {
 
     private String getDifferenceString(MetaDataDiff.DifferenceType changeType) {
         return switch (changeType) {
-            case PROTECTED ->
-                    Localization.lang("Library protection");
-            case GROUPS ->
-                    Localization.lang("Modified groups tree");
-            case ENCODING ->
-                    Localization.lang("Library encoding");
-            case SAVE_SORT_ORDER ->
-                    Localization.lang("Save sort order");
-            case KEY_PATTERNS ->
-                    Localization.lang("Key patterns");
-            case USER_FILE_DIRECTORY ->
-                    Localization.lang("User-specific file directory");
-            case LATEX_FILE_DIRECTORY ->
-                    Localization.lang("LaTeX file directory");
-            case DEFAULT_KEY_PATTERN ->
-                    Localization.lang("Default pattern");
-            case SAVE_ACTIONS ->
-                    Localization.lang("Save actions");
-            case MODE ->
-                    Localization.lang("Library mode");
-            case LIBRARY_SPECIFIC_FILE_DIRECTORY ->
-                    Localization.lang("Library-specific file directory");
-            case CONTENT_SELECTOR ->
-                    Localization.lang("Content selectors");
+            case PROTECTED -> Localization.lang("Library protection");
+            case GROUPS -> Localization.lang("Modified groups tree");
+            case ENCODING -> Localization.lang("Library encoding");
+            case SAVE_SORT_ORDER -> Localization.lang("Save sort order");
+            case KEY_PATTERNS -> Localization.lang("Key patterns");
+            case USER_FILE_DIRECTORY -> Localization.lang("User-specific file directory");
+            case LATEX_FILE_DIRECTORY -> Localization.lang("LaTeX file directory");
+            case DEFAULT_KEY_PATTERN -> Localization.lang("Default pattern");
+            case SAVE_ACTIONS -> Localization.lang("Save actions");
+            case MODE -> Localization.lang("Library mode");
+            case LIBRARY_SPECIFIC_FILE_DIRECTORY -> Localization.lang("Library-specific file directory");
+            case CONTENT_SELECTOR -> Localization.lang("Content selectors");
         };
     }
 }

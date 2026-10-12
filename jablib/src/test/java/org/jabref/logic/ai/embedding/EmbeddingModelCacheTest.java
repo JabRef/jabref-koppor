@@ -1,9 +1,10 @@
 package org.jabref.logic.ai.embedding;
 
+import java.util.concurrent.Future;
+
 import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.logic.util.TaskExecutor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +30,7 @@ class EmbeddingModelCacheTest {
         when(aiPreferences.getAiFeaturesEnabled()).thenReturn(true);
         NotificationService notificationService = mock(NotificationService.class);
         taskExecutor = mock(TaskExecutor.class);
-        when(taskExecutor.execute(any())).thenReturn(mock(java.util.concurrent.Future.class));
+        when(taskExecutor.execute(any())).thenReturn(mock(Future.class));
 
         cache = new EmbeddingModelCache(aiPreferences, notificationService, taskExecutor, mock(EmbeddingModelMetadataService.class));
     }

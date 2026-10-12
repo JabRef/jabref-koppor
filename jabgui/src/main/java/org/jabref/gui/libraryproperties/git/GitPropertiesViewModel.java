@@ -2,11 +2,9 @@ package org.jabref.gui.libraryproperties.git;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-
 import org.jabref.gui.libraryproperties.PropertiesTabViewModel;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.metadata.MetaData;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked

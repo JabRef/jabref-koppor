@@ -25,34 +25,27 @@ public class AuthorListTest {
     Examples are similar to page 4 in
     [BibTeXing by Oren Patashnik](https://ctan.org/tex-archive/biblio/bibtex/contrib/doc/)
     */
-    private static final Author MUHAMMAD_ALKHWARIZMI =
-            new Author("Mu{\\d{h}}ammad", "M.", null, "al-Khw{\\={a}}rizm{\\={i}}", null);
-    private static final Author CORRADO_BOHM =
-            new Author("Corrado", "C.", null, "B{\\\"o}hm", null);
-    private static final Author KURT_GODEL =
-            new Author("Kurt", "K.", null, "G{\\\"{o}}del", null);
-    private static final Author BANU_MOSA =
-            new Author(null, null, null, "{The Ban\\={u} M\\={u}s\\={a} brothers}", null);
+    private static final Author MUHAMMAD_ALKHWARIZMI = new Author("Mu{\\d{h}}ammad", "M.", null, "al-Khw{\\={a}}rizm{\\={i}}", null);
+    private static final Author CORRADO_BOHM = new Author("Corrado", "C.", null, "B{\\\"o}hm", null);
+    private static final Author KURT_GODEL = new Author("Kurt", "K.", null, "G{\\\"{o}}del", null);
+    private static final Author BANU_MOSA = new Author(null, null, null, "{The Ban\\={u} M\\={u}s\\={a} brothers}", null);
     private static final AuthorList EMPTY_AUTHOR = AuthorList.of(List.of());
     private static final AuthorList ONE_AUTHOR_WITH_LATEX = AuthorList.of(MUHAMMAD_ALKHWARIZMI);
-    private static final AuthorList TWO_AUTHORS_WITH_LATEX = AuthorList.of(MUHAMMAD_ALKHWARIZMI,
-            CORRADO_BOHM);
-    private static final AuthorList THREE_AUTHORS_WITH_LATEX = AuthorList.of(MUHAMMAD_ALKHWARIZMI,
-            CORRADO_BOHM, KURT_GODEL);
+    private static final AuthorList TWO_AUTHORS_WITH_LATEX = AuthorList.of(MUHAMMAD_ALKHWARIZMI, CORRADO_BOHM);
+    private static final AuthorList THREE_AUTHORS_WITH_LATEX = AuthorList.of(MUHAMMAD_ALKHWARIZMI, CORRADO_BOHM, KURT_GODEL);
     private static final AuthorList ONE_INSTITUTION_WITH_LATEX = AuthorList.of(BANU_MOSA);
-    private static final AuthorList ONE_INSTITUTION_WITH_STARTING_PARENTHESIS = AuthorList.of(
-            new Author(
-                    null, null, null, "{{\\L{}}ukasz Micha\\l{}}", null));
+    private static final AuthorList ONE_INSTITUTION_WITH_STARTING_PARENTHESIS = AuthorList.of(new Author(null, null, null, "{{\\L{}}ukasz Micha\\l{}}", null));
     private static final AuthorList TWO_INSTITUTIONS_WITH_LATEX = AuthorList.of(BANU_MOSA, BANU_MOSA);
-    private static final AuthorList MIXED_AUTHOR_AND_INSTITUTION_WITH_LATEX = AuthorList.of(BANU_MOSA,
-            CORRADO_BOHM);
+    private static final AuthorList MIXED_AUTHOR_AND_INSTITUTION_WITH_LATEX = AuthorList.of(BANU_MOSA, CORRADO_BOHM);
 
     public static int size(String bibtex) {
         return AuthorList.parse(bibtex).getNumberOfAuthors();
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             '', ''
             'John Smith', 'Smith'
             'John Smith and Black Brown, Peter', 'Smith and Black Brown'
@@ -63,7 +56,9 @@ public class AuthorListTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             # LaTeX-free empty author string
             EMPTY_AUTHOR                                , ''
             # LaTeX-free Unicode one author name from LaTeX
@@ -103,7 +98,9 @@ public class AuthorListTest {
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             # No authors
             '', '', true, false
             '', '', false, false
@@ -123,14 +120,17 @@ public class AuthorListTest {
             'John Smith', 'J. Smith', true, true
             'John Smith and Black Brown, Peter', 'John Smith and Peter Black Brown', false, true
             'John Smith and Black Brown, Peter', 'J. Smith and P. Black Brown', true, true
-            """
-    )
-    void fixAuthorFirstNameFirstCommas(String input, String expected, boolean abbreviate, boolean oxford) {
+            """)
+    void fixAuthorFirstNameFirstCommas(String input, String expected, boolean abbreviate,
+            boolean oxford) {
         assertEquals(expected, AuthorList.fixAuthorFirstNameFirstCommas(input, abbreviate, oxford));
     }
 
     @ParameterizedTest
-    @CsvSource(delimiterString = ";", textBlock = """
+    @CsvSource(
+            delimiterString = ";",
+            textBlock =
+                    """
             # Empty author string for empty input abbreviate
             EMPTY_AUTHOR                                ; true  ; false ; ''
             # Unicode one author name from LaTeX abbreviate
@@ -168,39 +168,43 @@ public class AuthorListTest {
             # One institution with parenthesis at start
             ONE_INSTITUTION_WITH_STARTING_PARENTHESIS   ; false ; false ; Łukasz Michał
             """)
-    void getAsFirstLastNamesLatexFree(String authorListName, boolean abbreviate, boolean oxford, String expected) {
+    void getAsFirstLastNamesLatexFree(String authorListName, boolean abbreviate, boolean oxford,
+            String expected) {
         AuthorList authorList = getAuthorListByName(authorListName);
         assertEquals(expected, authorList.latexFree().getAsFirstLastNames(abbreviate, oxford));
     }
 
     @ParameterizedTest
-    @CsvSource("""
+    @CsvSource(
+            """
             'John Smith', 'Smith, John', false
             'John Smith', 'Smith, J.', true
             'John Smith and Black Brown, Peter', 'Smith, John and Black Brown, Peter', false
             'John Smith and Black Brown, Peter', 'Smith, J. and Black Brown, P.', true
             'John Peter von Neumann', 'von Neumann, J. P.', true
-            """
-    )
+            """)
     void fixAuthorLastNameFirstCommasnoOxford(String input, String expected, boolean abbreviate) {
         assertEquals(expected, AuthorList.fixAuthorLastNameFirstCommas(input, abbreviate, false));
     }
 
     @ParameterizedTest
-    @CsvSource("""
+    @CsvSource(
+            """
             'John Smith', 'Smith, John', false
             'John Smith', 'Smith, J.', true
             'John Smith and Black Brown, Peter', 'Smith, John and Black Brown, Peter', false
             'John Smith and Black Brown, Peter', 'Smith, J. and Black Brown, P.', true
             'John Peter von Neumann', 'von Neumann, J. P.', true
-            """
-    )
+            """)
     void fixAuthorLastNameFirstCommasoxford(String input, String expected, boolean abbreviate) {
         assertEquals(expected, AuthorList.fixAuthorLastNameFirstCommas(input, abbreviate, true));
     }
 
     @ParameterizedTest
-    @CsvSource(delimiterString = ";", textBlock = """
+    @CsvSource(
+            delimiterString = ";",
+            textBlock =
+                    """
             # Empty author string for empty input abbreviate
             EMPTY_AUTHOR                                ; true  ; false ; ''
             # Unicode one author name from LaTeX abbreviate
@@ -266,7 +270,8 @@ public class AuthorListTest {
             # One institution with parenthesis at start Oxford comma
             ONE_INSTITUTION_WITH_STARTING_PARENTHESIS   ; false ; true  ; Łukasz Michał
             """)
-    void getAsLastFirstNamesLatexFree(String authorListName, boolean abbreviate, boolean oxford, String expected) {
+    void getAsLastFirstNamesLatexFree(String authorListName, boolean abbreviate, boolean oxford,
+            String expected) {
         AuthorList authorList = getAuthorListByName(authorListName);
         assertEquals(expected, authorList.latexFree().getAsLastFirstNames(abbreviate, oxford));
     }
@@ -274,7 +279,8 @@ public class AuthorListTest {
     @ParameterizedTest
     @CsvSource(
             delimiter = ';',
-            textBlock = """
+            textBlock =
+                    """
                     Smith, John;John Smith;false
                     Smith, John and Black Brown, Peter;John Smith and Black Brown, Peter;false
                     von Neumann, John and Smith, John and Black Brown, Peter;John von Neumann and John Smith and Black Brown, Peter;false
@@ -286,14 +292,15 @@ public class AuthorListTest {
                     von Neumann, J. and Smith, J. and Black Brown, P.;John von Neumann and John Smith and Black Brown, Peter;true
                     von Last, Jr, F.;von Last, Jr ,First;true
                     von Neumann, J. and Smith, J. and Black Brown, P.;John von Neumann and John Smith and Black Brown, Peter;true
-                    """
-    )
+                    """)
     void fixAuthorLastNameFirst_default(String expected, String input, boolean abbreviate) {
         assertEquals(expected, AuthorList.fixAuthorLastNameFirst(input, abbreviate));
     }
 
     @ParameterizedTest
-    @CsvSource(textBlock = """
+    @CsvSource(
+            textBlock =
+                    """
             # no Oxford comma
             '', '', false
             'John Smith', 'Smith', false
@@ -305,14 +312,16 @@ public class AuthorListTest {
             'John Smith', 'Smith', true
             'Smith, Jr, John', 'Smith', true
             'John von Neumann and John Smith and Black Brown, Peter', 'von Neumann, Smith, and Black Brown', true
-            """
-    )
+            """)
     void fixAuthorLastNameOnlyCommas(String input, String expected, boolean oxford) {
         assertEquals(expected, AuthorList.fixAuthorLastNameOnlyCommas(input, oxford));
     }
 
     @ParameterizedTest
-    @CsvSource(delimiterString = ";", textBlock = """
+    @CsvSource(
+            delimiterString = ";",
+            textBlock =
+                    """
             # Unicode one author name from LaTeX
             ONE_AUTHOR_WITH_LATEX                       ; false ; al-Khwārizmī
             # Unicode two author names from LaTeX
@@ -342,11 +351,7 @@ public class AuthorListTest {
         assertEquals("Smith, J.", AuthorList.fixAuthorForAlphabetization("John Smith"));
         assertEquals("Neumann, J.", AuthorList.fixAuthorForAlphabetization("John von Neumann"));
         assertEquals("Neumann, J.", AuthorList.fixAuthorForAlphabetization("J. von Neumann"));
-        assertEquals(
-                "Neumann, J. and Smith, J. and Black Brown, Jr., P.",
-                AuthorList
-                        .fixAuthorForAlphabetization(
-                                "John von Neumann and John Smith and de Black Brown, Jr., Peter"));
+        assertEquals("Neumann, J. and Smith, J. and Black Brown, Jr., P.", AuthorList.fixAuthorForAlphabetization("John von Neumann and John Smith and de Black Brown, Jr., Peter"));
     }
 
     @Test
@@ -379,7 +384,8 @@ public class AuthorListTest {
 
     @Test
     void getEmptyAuthor() {
-        assertThrows(Exception.class, () -> AuthorList.parse("").getAuthor(0));
+        assertThrows(Exception.class,
+                () -> AuthorList.parse("").getAuthor(0));
     }
 
     @Test
@@ -452,20 +458,19 @@ public class AuthorListTest {
     void getAuthorsNatbib() {
         assertEquals("", AuthorList.parse("").getAsNatbib());
         assertEquals("Smith", AuthorList.parse("John Smith").getAsNatbib());
-        assertEquals("Smith and Black Brown", AuthorList.parse(
-                "John Smith and Black Brown, Peter").getAsNatbib());
-        assertEquals("von Neumann et al.", AuthorList.parse(
-                "John von Neumann and John Smith and Black Brown, Peter").getAsNatbib());
+        assertEquals("Smith and Black Brown", AuthorList.parse("John Smith and Black Brown, Peter")
+                .getAsNatbib());
+        assertEquals("von Neumann et al.", AuthorList.parse("John von Neumann and John Smith and Black Brown, Peter")
+                .getAsNatbib());
 
         /*
          * [ 1465610 ] (Double-)Names containing hyphen (-) not handled correctly
          */
-        assertEquals("Last-Name et al.", AuthorList.parse(
-                "First Second Last-Name" + " and John Smith and Black Brown, Peter").getAsNatbib());
+        assertEquals("Last-Name et al.", AuthorList.parse("First Second Last-Name" + " and John Smith and Black Brown, Peter")
+                .getAsNatbib());
 
         // Test caching
-        AuthorList al = AuthorList
-                .parse("John von Neumann and John Smith and Black Brown, Peter");
+        AuthorList al = AuthorList.parse("John von Neumann and John Smith and Black Brown, Peter");
         assertEquals(al.getAsNatbib(), al.getAsNatbib());
     }
 
@@ -474,22 +479,20 @@ public class AuthorListTest {
         // No comma before and
         assertEquals("", AuthorList.parse("").getAsLastNames(false));
         assertEquals("Smith", AuthorList.parse("John Smith").getAsLastNames(false));
-        assertEquals("Smith", AuthorList.parse("Smith, Jr, John").getAsLastNames(
-                false));
+        assertEquals("Smith", AuthorList.parse("Smith, Jr, John").getAsLastNames(false));
 
-        assertEquals("von Neumann, Smith and Black Brown", AuthorList.parse(
-                "John von Neumann and John Smith and Black Brown, Peter").getAsLastNames(false));
+        assertEquals("von Neumann, Smith and Black Brown", AuthorList.parse("John von Neumann and John Smith and Black Brown, Peter")
+                .getAsLastNames(false));
         // Oxford comma
         assertEquals("", AuthorList.parse("").getAsLastNames(true));
         assertEquals("Smith", AuthorList.parse("John Smith").getAsLastNames(true));
-        assertEquals("Smith", AuthorList.parse("Smith, Jr, John").getAsLastNames(
-                true));
+        assertEquals("Smith", AuthorList.parse("Smith, Jr, John").getAsLastNames(true));
 
-        assertEquals("von Neumann, Smith, and Black Brown", AuthorList.parse(
-                "John von Neumann and John Smith and Black Brown, Peter").getAsLastNames(true));
+        assertEquals("von Neumann, Smith, and Black Brown", AuthorList.parse("John von Neumann and John Smith and Black Brown, Peter")
+                .getAsLastNames(true));
 
-        assertEquals("von Neumann and Smith",
-                AuthorList.parse("John von Neumann and John Smith").getAsLastNames(false));
+        assertEquals("von Neumann and Smith", AuthorList.parse("John von Neumann and John Smith")
+                .getAsLastNames(false));
     }
 
     @Test
@@ -512,10 +515,8 @@ public class AuthorListTest {
         al = AuthorList.parse("John von Neumann and John Smith and Black Brown, Peter");
         // Method description is different than code -> additional comma
         // there
-        assertEquals("von Neumann, John, Smith, John and Black Brown, Peter",
-                al.getAsLastFirstNames(false, false));
-        assertEquals("von Neumann, J., Smith, J. and Black Brown, P.",
-                al.getAsLastFirstNames(true, false));
+        assertEquals("von Neumann, John, Smith, John and Black Brown, Peter", al.getAsLastFirstNames(false, false));
+        assertEquals("von Neumann, J., Smith, J. and Black Brown, P.", al.getAsLastFirstNames(true, false));
 
         al = AuthorList.parse("John Peter von Neumann");
         assertEquals("von Neumann, J. P.", al.getAsLastFirstNames(true, false));
@@ -539,10 +540,8 @@ public class AuthorListTest {
         assertEquals("Smith, J. and Black Brown, P.", al.getAsLastFirstNames(true, true));
 
         al = AuthorList.parse("John von Neumann and John Smith and Black Brown, Peter");
-        assertEquals("von Neumann, John, Smith, John, and Black Brown, Peter", al
-                .getAsLastFirstNames(false, true));
-        assertEquals("von Neumann, J., Smith, J., and Black Brown, P.", al.getAsLastFirstNames(
-                true, true));
+        assertEquals("von Neumann, John, Smith, John, and Black Brown, Peter", al.getAsLastFirstNames(false, true));
+        assertEquals("von Neumann, J., Smith, J., and Black Brown, P.", al.getAsLastFirstNames(true, true));
 
         al = AuthorList.parse("John Peter von Neumann");
         assertEquals("von Neumann, J. P.", al.getAsLastFirstNames(true, true));
@@ -550,24 +549,21 @@ public class AuthorListTest {
 
     @Test
     void getAuthorsLastFirstAnds() {
-        assertEquals("Smith, John", AuthorList.parse("John Smith").getAsLastFirstNamesWithAnd(
-                false));
-        assertEquals("Smith, John and Black Brown, Peter", AuthorList.parse(
-                "John Smith and Black Brown, Peter").getAsLastFirstNamesWithAnd(false));
-        assertEquals("von Neumann, John and Smith, John and Black Brown, Peter", AuthorList
-                .parse("John von Neumann and John Smith and Black Brown, Peter")
+        assertEquals("Smith, John", AuthorList.parse("John Smith").getAsLastFirstNamesWithAnd(false));
+        assertEquals("Smith, John and Black Brown, Peter", AuthorList.parse("John Smith and Black Brown, Peter")
+                .getAsLastFirstNamesWithAnd(false));
+        assertEquals("von Neumann, John and Smith, John and Black Brown, Peter", AuthorList.parse("John von Neumann and John Smith and Black Brown, Peter")
                 .getAsLastFirstNamesWithAnd(false));
         assertEquals("von Last, Jr, First", AuthorList.parse("von Last, Jr ,First")
-                                                      .getAsLastFirstNamesWithAnd(false));
+                .getAsLastFirstNamesWithAnd(false));
 
-        assertEquals("Smith, J.", AuthorList.parse("John Smith").getAsLastFirstNamesWithAnd(
-                true));
-        assertEquals("Smith, J. and Black Brown, P.", AuthorList.parse(
-                "John Smith and Black Brown, Peter").getAsLastFirstNamesWithAnd(true));
-        assertEquals("von Neumann, J. and Smith, J. and Black Brown, P.", AuthorList.parse(
-                "John von Neumann and John Smith and Black Brown, Peter").getAsLastFirstNamesWithAnd(true));
+        assertEquals("Smith, J.", AuthorList.parse("John Smith").getAsLastFirstNamesWithAnd(true));
+        assertEquals("Smith, J. and Black Brown, P.", AuthorList.parse("John Smith and Black Brown, Peter")
+                .getAsLastFirstNamesWithAnd(true));
+        assertEquals("von Neumann, J. and Smith, J. and Black Brown, P.", AuthorList.parse("John von Neumann and John Smith and Black Brown, Peter")
+                .getAsLastFirstNamesWithAnd(true));
         assertEquals("von Last, Jr, F.", AuthorList.parse("von Last, Jr ,First")
-                                                   .getAsLastFirstNamesWithAnd(true));
+                .getAsLastFirstNamesWithAnd(true));
     }
 
     @Test
@@ -593,14 +589,10 @@ public class AuthorListTest {
         assertEquals("J. Smith and P. Black Brown", al.getAsFirstLastNames(true, true));
 
         al = AuthorList.parse("John von Neumann and John Smith and Black Brown, Peter");
-        assertEquals("John von Neumann, John Smith and Peter Black Brown", al.getAsFirstLastNames(
-                false, false));
-        assertEquals("J. von Neumann, J. Smith and P. Black Brown", al.getAsFirstLastNames(true,
-                false));
-        assertEquals("John von Neumann, John Smith, and Peter Black Brown", al
-                .getAsFirstLastNames(false, true));
-        assertEquals("J. von Neumann, J. Smith, and P. Black Brown", al.getAsFirstLastNames(true,
-                true));
+        assertEquals("John von Neumann, John Smith and Peter Black Brown", al.getAsFirstLastNames(false, false));
+        assertEquals("J. von Neumann, J. Smith and P. Black Brown", al.getAsFirstLastNames(true, false));
+        assertEquals("John von Neumann, John Smith, and Peter Black Brown", al.getAsFirstLastNames(false, true));
+        assertEquals("J. von Neumann, J. Smith, and P. Black Brown", al.getAsFirstLastNames(true, true));
 
         al = AuthorList.parse("John Peter von Neumann");
         assertEquals("John Peter von Neumann", al.getAsFirstLastNames(false, false));
@@ -611,67 +603,65 @@ public class AuthorListTest {
 
     @Test
     void getAuthorsFirstFirstAnds() {
-        assertEquals("John Smith", AuthorList.parse("John Smith")
-                                             .getAsFirstLastNamesWithAnd());
-        assertEquals("John Smith and Peter Black Brown", AuthorList.parse(
-                "John Smith and Black Brown, Peter").getAsFirstLastNamesWithAnd());
-        assertEquals("John von Neumann and John Smith and Peter Black Brown", AuthorList
-                .parse("John von Neumann and John Smith and Black Brown, Peter")
+        assertEquals("John Smith", AuthorList.parse("John Smith").getAsFirstLastNamesWithAnd());
+        assertEquals("John Smith and Peter Black Brown", AuthorList.parse("John Smith and Black Brown, Peter")
                 .getAsFirstLastNamesWithAnd());
-        assertEquals("First von Last, Jr. III", AuthorList
-                .parse("von Last, Jr. III, First").getAsFirstLastNamesWithAnd());
+        assertEquals("John von Neumann and John Smith and Peter Black Brown", AuthorList.parse("John von Neumann and John Smith and Black Brown, Peter")
+                .getAsFirstLastNamesWithAnd());
+        assertEquals("First von Last, Jr. III", AuthorList.parse("von Last, Jr. III, First")
+                .getAsFirstLastNamesWithAnd());
     }
 
     @Test
     void getAuthorsForAlphabetization() {
-        assertEquals("Smith, J.", AuthorList.parse("John Smith")
-                                            .getForAlphabetization());
-        assertEquals("Neumann, J.", AuthorList.parse("John von Neumann")
-                                              .getForAlphabetization());
-        assertEquals("Neumann, J.", AuthorList.parse("J. von Neumann")
-                                              .getForAlphabetization());
-        assertEquals("Neumann, J. and Smith, J. and Black Brown, Jr., P.", AuthorList
-                .parse("John von Neumann and John Smith and de Black Brown, Jr., Peter")
+        assertEquals("Smith, J.", AuthorList.parse("John Smith").getForAlphabetization());
+        assertEquals("Neumann, J.", AuthorList.parse("John von Neumann").getForAlphabetization());
+        assertEquals("Neumann, J.", AuthorList.parse("J. von Neumann").getForAlphabetization());
+        assertEquals("Neumann, J. and Smith, J. and Black Brown, Jr., P.", AuthorList.parse("John von Neumann and John Smith and de Black Brown, Jr., Peter")
                 .getForAlphabetization());
     }
 
     @Test
     void removeStartAndEndBraces() {
         assertEquals("{A}bbb{c}", AuthorList.parse("{A}bbb{c}").getAsLastNames(false));
-        assertEquals("{Vall{\\'e}e Poussin}",
-                AuthorList.parse("{Vall{\\'e}e Poussin}").getAsLastNames(false));
-        assertEquals("Poussin", AuthorList.parse("{Vall{\\'e}e} {Poussin}").getAsLastNames(false));
-        assertEquals("Poussin", AuthorList.parse("Vall{\\'e}e Poussin").getAsLastNames(false));
-        assertEquals("Lastname", AuthorList.parse("Firstname {Lastname}").getAsLastNames(false));
-        assertEquals("{Firstname Lastname}",
-                AuthorList.parse("{Firstname Lastname}").getAsLastNames(false));
+        assertEquals("{Vall{\\'e}e Poussin}", AuthorList.parse("{Vall{\\'e}e Poussin}")
+                .getAsLastNames(false));
+        assertEquals("Poussin", AuthorList.parse("{Vall{\\'e}e} {Poussin}")
+                .getAsLastNames(false));
+        assertEquals("Poussin", AuthorList.parse("Vall{\\'e}e Poussin")
+                .getAsLastNames(false));
+        assertEquals("Lastname", AuthorList.parse("Firstname {Lastname}")
+                .getAsLastNames(false));
+        assertEquals("{Firstname Lastname}", AuthorList.parse("{Firstname Lastname}")
+                .getAsLastNames(false));
     }
 
     @Test
     void createCorrectInitials() {
         assertEquals(Optional.of("J. G."),
-                AuthorList.parse("Hornberg, Johann Gottfried").getAuthor(0).getGivenNameAbbreviated());
+                AuthorList.parse("Hornberg, Johann Gottfried")
+                        .getAuthor(0)
+                        .getGivenNameAbbreviated());
     }
 
     @ParameterizedTest
     @CsvSource({
-            "'{Tse-tung} Mao', 'Tse-tung', '{Tse-tung}.', '', 'Mao', ''",
-            "'{van den Bergen}, Hans', 'Hans', 'H.', '', 'van den Bergen', ''",
-            "'Tse-tung Mao', 'Tse-tung', 'T.-t.', '', 'Mao', ''",
-            "'Firstname Bailey-Jones', 'Firstname', 'F.', '', 'Bailey-Jones', ''",
-            "'E. S. El-{M}allah', 'E. S.', 'E. S.', '', 'El-{M}allah', ''",
-            "'E. S. {K}ent-{B}oswell', 'E. S.', 'E. S.', '', '{K}ent-{B}oswell', ''",
-            "'H{e}lene Fiaux', 'H{e}lene', 'H.', '', 'Fiaux', ''"
+        "'{Tse-tung} Mao', 'Tse-tung', '{Tse-tung}.', '', 'Mao', ''",
+        "'{van den Bergen}, Hans', 'Hans', 'H.', '', 'van den Bergen', ''",
+        "'Tse-tung Mao', 'Tse-tung', 'T.-t.', '', 'Mao', ''",
+        "'Firstname Bailey-Jones', 'Firstname', 'F.', '', 'Bailey-Jones', ''",
+        "'E. S. El-{M}allah', 'E. S.', 'E. S.', '', 'El-{M}allah', ''",
+        "'E. S. {K}ent-{B}oswell', 'E. S.', 'E. S.', '', '{K}ent-{B}oswell', ''",
+        "'H{e}lene Fiaux', 'H{e}lene', 'H.', '', 'Fiaux', ''"
     })
     void parseNameWithSpecialCharacters(String input, String givenName, String givenNameAbbr,
-                                        String namePrefix, String familyName, String nameSuffix) {
+            String namePrefix, String familyName, String nameSuffix) {
         Author expected = new Author(
                 givenName.isEmpty() ? null : givenName,
                 givenNameAbbr.isEmpty() ? null : givenNameAbbr,
                 namePrefix.isEmpty() ? null : namePrefix,
                 familyName.isEmpty() ? null : familyName,
-                nameSuffix.isEmpty() ? null : nameSuffix
-        );
+                nameSuffix.isEmpty() ? null : nameSuffix);
         assertEquals(AuthorList.of(expected), AuthorList.parse(input));
     }
 
@@ -686,12 +676,8 @@ public class AuthorListTest {
     @Disabled("Has issues with space character in W-P.")
     void parseWithDash() {
         assertEquals(
-                AuthorList.of(
-                        new Author("Z.", "Z.", null, "Yao", null),
-                        new Author("D. S.", "D. S.", null, "Weld", null),
-                        new Author("W-P.", "W-P.", null, "Chen", null),
-                        new Author("H.", "H.", null, "Sun", null)
-                ),
+                AuthorList.of(new Author("Z.", "Z.", null, "Yao", null), new Author("D. S.", "D. S.", null, "Weld", null), new Author("W-P.", "W-P.", null, "Chen", null),
+                        new Author("H.", "H.", null, "Sun", null)),
                 AuthorList.parse("Z. Yao, D. S. Weld, W.-P. Chen, and H. Sun"));
     }
 
@@ -699,35 +685,45 @@ public class AuthorListTest {
     void parseFirstNameFromFirstAuthorMultipleAuthorsWithLatexNames() {
         assertEquals("Mu{\\d{h}}ammad",
                 AuthorList.parse("Mu{\\d{h}}ammad al-Khw{\\={a}}rizm{\\={i}} and Corrado B{\\\"o}hm")
-                          .getAuthor(0).getGivenName().orElse(null));
+                        .getAuthor(0)
+                        .getGivenName()
+                        .orElse(null));
     }
 
     @Test
     void parseFirstNameFromSecondAuthorMultipleAuthorsWithLatexNames() {
         assertEquals("Corrado",
                 AuthorList.parse("Mu{\\d{h}}ammad al-Khw{\\={a}}rizm{\\={i}} and Corrado B{\\\"o}hm")
-                          .getAuthor(1).getGivenName().orElse(null));
+                        .getAuthor(1)
+                        .getGivenName()
+                        .orElse(null));
     }
 
     @Test
     void parseLastNameFromFirstAuthorMultipleAuthorsWithLatexNames() {
         assertEquals("al-Khw{\\={a}}rizm{\\={i}}",
                 AuthorList.parse("Mu{\\d{h}}ammad al-Khw{\\={a}}rizm{\\={i}} and Corrado B{\\\"o}hm")
-                          .getAuthor(0).getFamilyName().orElse(null));
+                        .getAuthor(0)
+                        .getFamilyName()
+                        .orElse(null));
     }
 
     @Test
     void parseLastNameFromSecondAuthorMultipleAuthorsWithLatexNames() {
         assertEquals("B{\\\"o}hm",
                 AuthorList.parse("Mu{\\d{h}}ammad al-Khw{\\={a}}rizm{\\={i}} and Corrado B{\\\"o}hm")
-                          .getAuthor(1).getFamilyName().orElse(null));
+                        .getAuthor(1)
+                        .getFamilyName()
+                        .orElse(null));
     }
 
     @Test
     void parseInstitutionAuthorWithLatexNames() {
         assertEquals("{The Ban\\={u} M\\={u}s\\={a} brothers}",
-                AuthorList.parse("{The Ban\\={u} M\\={u}s\\={a} brothers}").getAuthor(0).getFamilyName()
-                          .orElse(null));
+                AuthorList.parse("{The Ban\\={u} M\\={u}s\\={a} brothers}")
+                        .getAuthor(0)
+                        .getFamilyName()
+                        .orElse(null));
     }
 
     @Test
@@ -757,8 +753,8 @@ public class AuthorListTest {
     }
 
     /// This tests an unreachable key issue addressed in
-    /// [#6552](https://github.com/JabRef/jabref/pull/6552). The test is incorrect BibTeX but is
-    /// handled by the parser and common in practice.
+    /// [#6552](https://github.com/JabRef/jabref/pull/6552). The test is
+    /// incorrect BibTeX but is handled by the parser and common in practice.
     @Test
     void parseCacheAuthorsWithTwoOrMoreCommasAndWithSpaceInAllParts() {
         final String uniqueAuthorsNames = "Basil Dankworth, Gianna Birdwhistle, Cosmo Berrycloth";
@@ -782,39 +778,27 @@ public class AuthorListTest {
     @Test
     void correctNamesWithOneComma() {
         Author expected = new Author("Alexander der Große", "A. d. G.", null, "Canon der Barbar", null);
-        assertEquals(AuthorList.of(expected),
-                AuthorList.parse("Canon der Barbar, Alexander der Große"));
+        assertEquals(AuthorList.of(expected), AuthorList.parse("Canon der Barbar, Alexander der Große"));
 
         expected = new Author("Alexander H. G.", "A. H. G.", null, "Rinnooy Kan", null);
         assertEquals(AuthorList.of(expected), AuthorList.parse("Rinnooy Kan, Alexander H. G."));
 
         expected = new Author("Alexander Hendrik George", "A. H. G.", null, "Rinnooy Kan", null);
-        assertEquals(AuthorList.of(expected),
-                AuthorList.parse("Rinnooy Kan, Alexander Hendrik George"));
+        assertEquals(AuthorList.of(expected), AuthorList.parse("Rinnooy Kan, Alexander Hendrik George"));
 
         expected = new Author("José María", "J. M.", null, "Rodriguez Fernandez", null);
         assertEquals(AuthorList.of(expected), AuthorList.parse("Rodriguez Fernandez, José María"));
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "true, true",
-            "true, false",
-            "false, true",
-            "false, false"
-    })
+    @CsvSource({"true, true", "true, false", "false, true", "false, false"})
     void equalsReflexive(boolean abbreviate, boolean oxford) {
         AuthorList authorList = AuthorList.of(new Author(null, null, null, null, null));
         assertEquals(authorList, authorList);
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "true, true",
-            "true, false",
-            "false, true",
-            "false, false"
-    })
+    @CsvSource({"true, true", "true, false", "false, true", "false, false"})
     void equalsSymmetric(boolean abbreviate, boolean oxford) {
         AuthorList firstAuthorList = AuthorList.of(new Author("A", null, null, null, null));
         AuthorList secondAuthorList = AuthorList.of(new Author("A", null, null, null, null));
@@ -852,8 +836,7 @@ public class AuthorListTest {
 
     @Test
     void equalsFalseWhenNotAuthorList() {
-        assertNotEquals(AuthorList.of(new Author(null, null, null, null, null)),
-                new Author(null, null, null, null, null));
+        assertNotEquals(AuthorList.of(new Author(null, null, null, null, null)), new Author(null, null, null, null, null));
     }
 
     @Test
@@ -876,14 +859,12 @@ public class AuthorListTest {
 
     @Test
     void getAsLastFirstFirstLastNamesWithAndEmptyAuthor() {
-        assertEquals("",
-                EMPTY_AUTHOR.getAsLastFirstFirstLastNamesWithAnd(true));
+        assertEquals("", EMPTY_AUTHOR.getAsLastFirstFirstLastNamesWithAnd(true));
     }
 
     @Test
     void getAsLastFirstFirstLastNamesWithAndMultipleAuthors() {
-        assertEquals("al-Khw{\\={a}}rizm{\\={i}}, M. and C. B{\\\"o}hm and K. G{\\\"{o}}del",
-                THREE_AUTHORS_WITH_LATEX.getAsLastFirstFirstLastNamesWithAnd(true));
+        assertEquals("al-Khw{\\={a}}rizm{\\={i}}, M. and C. B{\\\"o}hm and K. G{\\\"{o}}del", THREE_AUTHORS_WITH_LATEX.getAsLastFirstFirstLastNamesWithAnd(true));
     }
 
     // Helper method to get AuthorList by name

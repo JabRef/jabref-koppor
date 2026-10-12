@@ -8,7 +8,6 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.logic.layout.format.NameFormatterPreferences;
 import org.jabref.logic.util.strings.StringUtil;
@@ -56,10 +55,8 @@ public class NameFormatterTabViewModel implements PreferenceTabViewModel {
     }
 
     public void addFormatter() {
-        if (!StringUtil.isNullOrEmpty(addFormatterNameProperty.getValue()) &&
-                !StringUtil.isNullOrEmpty(addFormatterStringProperty.getValue())) {
-            formatterListProperty.add(new NameFormatterItemModel(
-                    addFormatterNameProperty.getValue(), addFormatterStringProperty.getValue()));
+        if (!StringUtil.isNullOrEmpty(addFormatterNameProperty.getValue()) && !StringUtil.isNullOrEmpty(addFormatterStringProperty.getValue())) {
+            formatterListProperty.add(new NameFormatterItemModel(addFormatterNameProperty.getValue(), addFormatterStringProperty.getValue()));
 
             addFormatterNameProperty.setValue("");
             addFormatterStringProperty.setValue("");

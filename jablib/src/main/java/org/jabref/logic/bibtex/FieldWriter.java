@@ -8,11 +8,11 @@ import java.util.List;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.InternalField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Converts JabRef's internal BibTeX representation of a BibTeX field to BibTeX text representation
+/// Converts JabRef's internal BibTeX representation of a BibTeX field to BibTeX
+/// text representation
 public class FieldWriter {
 
     // See also ADR-0024
@@ -25,8 +25,7 @@ public class FieldWriter {
 
     private final FieldPreferences preferences;
 
-    private record BracePosition(int index, int line, int column) {
-    }
+    private record BracePosition(int index, int line, int column) {}
 
     public FieldWriter(FieldPreferences preferences) {
         this.preferences = preferences;
@@ -56,10 +55,7 @@ public class FieldWriter {
                 } else if (item == '}') {
                     if (openBraces.isEmpty()) {
                         errors.add(Localization.lang("Unbalanced '}' at line %0, column %1 (index %2): in '%3'.",
-                                line + 1,
-                                i - lastLineIndex + 1,
-                                i,
-                                getContextSnippet(text, i)));
+                                line + 1, i - lastLineIndex + 1, i, getContextSnippet(text, i)));
                     } else {
                         openBraces.pop();
                     }
@@ -69,11 +65,8 @@ public class FieldWriter {
 
         while (!openBraces.isEmpty()) {
             FieldWriter.BracePosition lastOpenBrace = openBraces.pop();
-            errors.add(Localization.lang("Unbalanced '{' at line %0, column %1 (index %2): in '%3'.",
-                    lastOpenBrace.line() + 1,
-                    lastOpenBrace.column(),
-                    lastOpenBrace.index(),
-                    getContextSnippet(text, lastOpenBrace.index())));
+            errors.add(Localization.lang("Unbalanced '{' at line %0, column %1 (index %2): in '%3'.", lastOpenBrace.line() + 1, lastOpenBrace.column(),
+                    lastOpenBrace.index(), getContextSnippet(text, lastOpenBrace.index())));
         }
 
         return errors;
@@ -127,16 +120,22 @@ public class FieldWriter {
     private static String getContextSnippet(String text, int index) {
         int neighbourSize = 5;
         return text.substring(Math.max(0, index - neighbourSize), index)
-                + "*" + text.charAt(index) + "*"
-                + text.substring(index + 1, Math.min(text.length(), index + neighbourSize + 1));
+                + "*"
+                + text.charAt(index)
+                + "*"
+                + text.substring(index + 1,
+                        Math.min(text.length(), index + neighbourSize + 1));
     }
 
-    /// Checks if the character at the specified index in the given text is escaped.
-    /// A character is considered escaped if it is preceded by an odd number of backslashes (\).
+    /// Checks if the character at the specified index in the given text is
+    /// escaped. A character is considered escaped if it is preceded by an odd
+    /// number of backslashes (\).
     ///
-    /// @param text  the input string to check for escaped characters
-    /// @param index the index of the character in the text to check for escaping
-    /// @return true if the character at the specified index is escaped, false otherwise
+    /// @param text the input string to check for escaped characters
+    /// @param index the index of the character in the text to check for
+    ///   escaping
+    /// @return true if the character at the specified index is escaped, false
+    ///   otherwise
     public static boolean isEscaped(String text, int index) {
         int indexCounter = 0;
         for (int i = index - 1; i >= 0; i--) {
@@ -151,7 +150,8 @@ public class FieldWriter {
 
     /// Formats the content of a field.
     ///
-    /// @param field   the name of the field - used to trigger different serializations, e.g., turning off resolution for some strings
+    /// @param field the name of the field - used to trigger different
+    ///   serializations, e.g., turning off resolution for some strings
     /// @param content the content of the field
     /// @return a formatted string suitable for output
     public String write(Field field, String content) {
@@ -194,12 +194,8 @@ public class FieldWriter {
 
                 if (pos2 == -1) {
                     pos1 = content.length();
-                    LOGGER.warn("The character {} is not allowed in BibTeX strings unless escaped as in '\\\\{}'. "
-                                    + "In JabRef, use pairs of # characters to indicate a string. "
-                                    + "Field value: {}",
-                            BIBTEX_STRING_START_END_SYMBOL,
-                            BIBTEX_STRING_START_END_SYMBOL,
-                            content);
+                    LOGGER.warn("The character {} is not allowed in BibTeX strings unless escaped as in '\\\\{}'. " + "In JabRef, use pairs of # characters to indicate a string. " + "Field value: {}",
+                            BIBTEX_STRING_START_END_SYMBOL, BIBTEX_STRING_START_END_SYMBOL, content);
                 }
             }
 
@@ -210,8 +206,8 @@ public class FieldWriter {
                 // We check that the string label is not empty. That means
                 // an occurrence of ## will simply be ignored. Should it instead
                 // cause an error message?
-                writeStringLabel(stringBuilder, content, pos1 + 1, pos2, pos1 == pivot,
-                        (pos2 + 1) == content.length());
+                writeStringLabel(stringBuilder, content, pos1 + 1, pos2,
+                        pos1 == pivot, (pos2 + 1) == content.length());
             }
 
             if (pos2 > -1) {
@@ -254,7 +250,8 @@ public class FieldWriter {
 
     /// @param stringBuilder the StringBuilder to append the text to
     /// @param text          the text to append
-    private void writeText(StringBuilder stringBuilder, String text, int startPos, int endPos) {
+    private void writeText(StringBuilder stringBuilder, String text, int startPos,
+                           int endPos) {
         stringBuilder.append(FIELD_START);
         stringBuilder.append(text, startPos, endPos);
         stringBuilder.append(FIELD_END);
@@ -266,8 +263,11 @@ public class FieldWriter {
     /// @param endPos        the position in text where the text to add ends
     /// @param isFirst       true if the label to write is the first one to write
     /// @param isLast        true if the label to write is the last one to write
-    private void writeStringLabel(StringBuilder stringBuilder, String text, int startPos, int endPos, boolean isFirst, boolean isLast) {
-        String line = (isFirst ? "" : " # ") + text.substring(startPos, endPos) + (isLast ? "" : " # ");
+    private void writeStringLabel(StringBuilder stringBuilder, String text, int startPos,
+            int endPos, boolean isFirst, boolean isLast) {
+        String line = (isFirst ? "" : " # ")
+                + text.substring(startPos, endPos)
+                + (isLast ? "" : " # ");
         stringBuilder.append(line);
     }
 }

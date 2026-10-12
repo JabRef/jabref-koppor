@@ -2,7 +2,8 @@ package org.jabref.logic.layout.format;
 
 import org.jabref.logic.layout.LayoutFormatter;
 
-/// Replaces and's for & (in case of two authors) and , (in case of more than two authors).
+/// Replaces and's for & (in case of two authors) and , (in case of more than
+/// two authors).
 public class AuthorAndsCommaReplacer implements LayoutFormatter {
 
     @Override
@@ -26,7 +27,9 @@ public class AuthorAndsCommaReplacer implements LayoutFormatter {
                 for (i = 0; i < (x - 2); i++) {
                     sb.append(authors[i]).append(", ");
                 }
-                sb.append(authors[i]).append(" & ").append(authors[i + 1]);
+                sb.append(authors[i])
+                  .append(" & ")
+                  .append(authors[i + 1]);
                 s = sb.toString();
                 break;
         }

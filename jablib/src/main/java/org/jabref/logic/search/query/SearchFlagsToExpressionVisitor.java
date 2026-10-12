@@ -6,7 +6,6 @@ import java.util.List;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.search.SearchBaseVisitor;
 import org.jabref.search.SearchParser;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +37,10 @@ public class SearchFlagsToExpressionVisitor extends SearchBaseVisitor<String> {
 
     @Override
     public String visitImplicitAndExpression(SearchParser.ImplicitAndExpressionContext ctx) {
-        List<String> children = ctx.expression().stream().map(this::visit).toList();
+        List<String> children = ctx.expression()
+                .stream()
+                .map(this::visit)
+                .toList();
         if (children.size() == 1) {
             return children.getFirst();
         }
@@ -57,7 +59,11 @@ public class SearchFlagsToExpressionVisitor extends SearchBaseVisitor<String> {
 
     @Override
     public String visitBinaryExpression(SearchParser.BinaryExpressionContext ctx) {
-        return visit(ctx.left) + " " + ctx.bin_op.getText() + " " + visit(ctx.right);
+        return visit(ctx.left)
+                + " "
+                + ctx.bin_op.getText()
+                + " "
+                + visit(ctx.right);
     }
 
     @Override
@@ -77,7 +83,9 @@ public class SearchFlagsToExpressionVisitor extends SearchBaseVisitor<String> {
         // fielded expression
         EnumSet<SearchFlags> searchFlags = EnumSet.noneOf(SearchFlags.class);
         String field = ctx.FIELD().getText();
-        int operator = ctx.operator().getStart().getType();
+        int operator = ctx.operator()
+                          .getStart()
+                          .getType();
 
         searchFlags.add(isCaseSensitive ? CASE_SENSITIVE : CASE_INSENSITIVE);
         if (operator == SearchParser.NEQUAL) {

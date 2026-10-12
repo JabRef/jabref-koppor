@@ -23,9 +23,11 @@ public interface TaskExecutor {
     /// @return a ScheduledFuture representing pending completion of
     /// the task and whose `get()` method will return
     /// `null` upon completion
-    <V> Future<?> schedule(BackgroundTask<V> task, long delay, TimeUnit unit);
+    <V> Future<?> schedule(BackgroundTask<V> task, long delay,
+                           TimeUnit unit);
 
-    /// Shutdown the task executor. May happen in the background or may be finished when this method returns.
+    /// Shutdown the task executor. May happen in the background or may be
+    /// finished when this method returns.
     void shutdown();
 
     /// Creates a new task throttler, and registers it so that it gets properly shutdown.

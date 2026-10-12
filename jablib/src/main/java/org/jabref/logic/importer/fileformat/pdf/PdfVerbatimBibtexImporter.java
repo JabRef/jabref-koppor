@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.ParserResult;
@@ -14,13 +15,12 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.PdfUtils;
 import org.jabref.model.entry.BibEntry;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-
 /// This importer imports a verbatim BibTeX entry from the first page of the PDF.
 public class PdfVerbatimBibtexImporter extends PdfImporter {
 
-    /// Matches the start of a BibTeX entry: an entry type followed by an opening brace or parenthesis.
-    /// Other "@" occurrences in the page text (such as author email addresses) do not match.
+    /// Matches the start of a BibTeX entry: an entry type followed by an
+    /// opening brace or parenthesis. Other "@" occurrences in the page text
+    /// (such as author email addresses) do not match.
     private static final Pattern ENTRY_START = Pattern.compile("@\\s*[a-zA-Z]+\\s*[{(]");
 
     private final ImportFormatPreferences importFormatPreferences;

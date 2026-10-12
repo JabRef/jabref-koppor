@@ -6,13 +6,12 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.importer.IdBasedParserFetcher;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.Parser;
 import org.jabref.logic.importer.fileformat.BibtexParser;
-
-import org.apache.hc.core5.net.URIBuilder;
 
 /*
  * https://datatracker.ietf.org
@@ -21,7 +20,7 @@ import org.apache.hc.core5.net.URIBuilder;
  */
 public class RfcFetcher implements IdBasedParserFetcher {
 
-    private final static String DRAFT_PREFIX = "draft";
+    private static final String DRAFT_PREFIX = "draft";
     private final ImportFormatPreferences importFormatPreferences;
 
     public RfcFetcher(ImportFormatPreferences importFormatPreferences) {

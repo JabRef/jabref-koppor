@@ -2,6 +2,7 @@ package org.jabref.gui.preferences.entry;
 
 import java.util.function.UnaryOperator;
 
+import com.dlsc.gemsfx.TagsField;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -11,7 +12,6 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.StandardActions;
 import org.jabref.gui.help.HelpAction;
@@ -22,17 +22,12 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldTextMapper;
 
-import com.dlsc.gemsfx.TagsField;
-
 import static org.jabref.gui.preferences.forms.FormMetrics.GAP;
 
 public class EntryTab extends AbstractPreferenceTabView<EntryTabViewModel> {
 
     public EntryTab() {
-        this.viewModel = new EntryTabViewModel(
-                preferences.getBibEntryPreferences(),
-                preferences.getFieldPreferences(),
-                preferences.getOwnerPreferences(),
+        this.viewModel = new EntryTabViewModel(preferences.getBibEntryPreferences(), preferences.getFieldPreferences(), preferences.getOwnerPreferences(),
                 preferences.getTimestampPreferences());
         buildView();
     }
@@ -43,32 +38,24 @@ public class EntryTab extends AbstractPreferenceTabView<EntryTabViewModel> {
     }
 
     private void buildView() {
-        TagsField<Field> resolvableTags = TagsFieldEditor.create(
-                FieldTextMapper::getDisplayName, viewModel::getSuggestions, viewModel.getFieldStringConverter(), viewModel.resolvableTagsFieldProperty());
-        TagsField<Field> nonWrappableTags = TagsFieldEditor.create(
-                FieldTextMapper::getDisplayName, viewModel::getSuggestions, viewModel.getFieldStringConverter(), viewModel.nonWrappableTagsFieldProperty());
+        TagsField<Field> resolvableTags = TagsFieldEditor.create(FieldTextMapper::getDisplayName, viewModel::getSuggestions, viewModel.getFieldStringConverter(),
+                viewModel.resolvableTagsFieldProperty());
+        TagsField<Field> nonWrappableTags = TagsFieldEditor.create(FieldTextMapper::getDisplayName, viewModel::getSuggestions, viewModel.getFieldStringConverter(),
+                viewModel.nonWrappableTagsFieldProperty());
 
         setContent(form()
-
-                .section(Localization.lang("Field"), field -> field
-                        .custom(buildKeywordSeparatorRow())
-                        .stringField(Localization.lang("Accepted keyword delimiters on import"), viewModel.importKeywordDelimitersProperty())
-                        .combo(Localization.lang("Delimiter parsing strategy"),
-                                viewModel.importDelimiterParsingStrategies(),
-                                viewModel.importDelimiterParsingStrategyProperty(),
-                                viewModel::getImportDelimiterParsingStrategyDisplayName)
-                        .checkbox(Localization.lang("Resolve BibTeX strings"), viewModel.resolveStringsProperty())
-                        .tagsField(Localization.lang("Affected fields"), resolvableTags,
-                                affected -> affected.disableWhen(viewModel.resolveStringsProperty().not()))
-                        .tagsField(Localization.lang("Do not wrap when saving"), nonWrappableTags))
-
-                .section(Localization.lang("Entry owner"), owner -> owner
-                        .custom(buildOwnerRow()))
-
-                .section(Localization.lang("Time stamp"), timeStamp -> timeStamp
-                        .checkbox(Localization.lang("Add timestamp to new entries (field \"creationdate\")"), viewModel.addCreationDateProperty())
-                        .checkbox(Localization.lang("Add timestamp to modified entries (field \"modificationdate\")"), viewModel.addModificationDateProperty()))
-
+                .section(
+                        Localization.lang("Field"),
+                        field -> field.custom(buildKeywordSeparatorRow())
+                                      .stringField(Localization.lang("Accepted keyword delimiters on import"), viewModel.importKeywordDelimitersProperty())
+                                      .combo(Localization.lang("Delimiter parsing strategy"), viewModel.importDelimiterParsingStrategies(), viewModel.importDelimiterParsingStrategyProperty(), viewModel::getImportDelimiterParsingStrategyDisplayName)
+                                      .checkbox(Localization.lang("Resolve BibTeX strings"), viewModel.resolveStringsProperty())
+                                      .tagsField(Localization.lang("Affected fields"), resolvableTags, affected -> affected.disableWhen(viewModel.resolveStringsProperty().not()))
+                                      .tagsField(Localization.lang("Do not wrap when saving"), nonWrappableTags))
+                .section(Localization.lang("Entry owner"), owner -> owner.custom(buildOwnerRow()))
+                .section(
+                        Localization.lang("Time stamp"),
+                        timeStamp -> timeStamp.checkbox(Localization.lang("Add timestamp to new entries (field \"creationdate\")"), viewModel.addCreationDateProperty()).checkbox(Localization.lang("Add timestamp to modified entries (field \"modificationdate\")"), viewModel.addModificationDateProperty()))
                 .build());
     }
 
@@ -79,8 +66,7 @@ public class EntryTab extends AbstractPreferenceTabView<EntryTabViewModel> {
         keywordSeparator.setAlignment(Pos.CENTER);
         keywordSeparator.textProperty().bindBidirectional(viewModel.keywordSeparatorProperty());
         // Limit the keyword separator to a single character.
-        UnaryOperator<TextFormatter.Change> singleCharacterFilter =
-                change -> change.getControlNewText().length() <= 1 ? change : null;
+        UnaryOperator<TextFormatter.Change> singleCharacterFilter = change -> change.getControlNewText().length() <= 1 ? change : null;
         keywordSeparator.setTextFormatter(new TextFormatter<>(singleCharacterFilter));
 
         HBox row = new HBox(4.0, new Label(Localization.lang("Keyword separator")), keywordSeparator);
@@ -94,20 +80,19 @@ public class EntryTab extends AbstractPreferenceTabView<EntryTabViewModel> {
 
         TextField markOwnerName = new TextField();
         markOwnerName.textProperty().bindBidirectional(viewModel.markOwnerNameProperty());
-        markOwnerName.disableProperty().bind(markOwner.selectedProperty().not());
+        markOwnerName.disableProperty().bind(markOwner.selectedProperty()
+                .not());
         HBox.setHgrow(markOwnerName, Priority.ALWAYS);
 
         CheckBox markOwnerOverwrite = new CheckBox(Localization.lang("Overwrite"));
         markOwnerOverwrite.selectedProperty().bindBidirectional(viewModel.markOwnerOverwriteProperty());
-        markOwnerOverwrite.disableProperty().bind(markOwner.selectedProperty().not());
+        markOwnerOverwrite.disableProperty().bind(markOwner.selectedProperty()
+                .not());
         markOwnerOverwrite.setTooltip(new Tooltip(Localization.lang("If a pasted or imported entry already has the field set, overwrite.")));
 
         Button markOwnerHelp = new Button();
         markOwnerHelp.setPrefWidth(20.0);
-        new ActionFactory().configureIconButton(
-                StandardActions.HELP,
-                new HelpAction(HelpFile.OWNER, dialogService, preferences.getExternalApplicationsPreferences()),
-                markOwnerHelp);
+        new ActionFactory().configureIconButton(StandardActions.HELP, new HelpAction(HelpFile.OWNER, dialogService, preferences.getExternalApplicationsPreferences()), markOwnerHelp);
 
         HBox row = new HBox(GAP, markOwner, markOwnerName, markOwnerOverwrite, markOwnerHelp);
         row.setAlignment(Pos.CENTER_LEFT);

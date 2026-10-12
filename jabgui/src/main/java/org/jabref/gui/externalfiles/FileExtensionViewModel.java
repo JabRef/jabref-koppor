@@ -37,8 +37,8 @@ public class FileExtensionViewModel {
 
     public JabRefIcon getIcon() {
         return ExternalFileTypes.getExternalFileTypeByExt(extensions.getFirst(), externalApplicationsPreferences)
-                                .map(ExternalFileType::getIcon)
-                                .orElse(null);
+                .map(ExternalFileType::getIcon)
+                .orElse(null);
     }
 
     public Filter<Path> dirFilter() {

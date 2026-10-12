@@ -11,9 +11,8 @@ public class NameFormatterPreferences {
     private final ObservableList<String> nameFormatterValue;
 
     private NameFormatterPreferences() {
-        this(
-                List.of(), // Name formatter keys
-                List.of()  // Name formatter values
+        this(List.of(), // Name formatter keys
+        List.of() // Name formatter values
         );
     }
 

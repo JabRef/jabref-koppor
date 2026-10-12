@@ -3,13 +3,15 @@ package org.jabref.gui.edit.automaticfieldeditor.editfieldcontent;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import com.tobiasdiez.easybind.EasyBind;
+import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.edit.automaticfieldeditor.AbstractAutomaticFieldEditorTabView;
@@ -19,10 +21,6 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.undo.CompoundEdit;
-
-import com.airhacks.afterburner.views.ViewLoader;
-import com.tobiasdiez.easybind.EasyBind;
-import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 
 import static org.jabref.gui.util.FieldsUtil.FIELD_STRING_CONVERTER;
 
@@ -35,20 +33,23 @@ public class EditFieldContentTabView extends AbstractAutomaticFieldEditorTabView
     private final BibDatabase database;
     private final StateManager stateManager;
     private final ControlsFxVisualizer visualizer = new ControlsFxVisualizer();
+
     @FXML
     private CheckBox showOnlySetFieldsCheckBox;
+
     @FXML
     private ComboBox<Field> fieldComboBox;
+
     @FXML
     private TextField fieldValueTextField;
+
     @FXML
     private CheckBox overwriteFieldContentCheckBox;
+
     private EditFieldContentViewModel viewModel;
 
-    public EditFieldContentTabView(BibDatabase database,
-                                   CompoundEdit compoundEdit,
-                                   DialogService dialogService,
-                                   StateManager stateManager) {
+    public EditFieldContentTabView(BibDatabase database, CompoundEdit compoundEdit, DialogService dialogService,
+            StateManager stateManager) {
         this.compoundEdit = compoundEdit;
         this.dialogService = dialogService;
         this.selectedEntries = new ArrayList<>(stateManager.getSelectedEntries());
@@ -56,8 +57,8 @@ public class EditFieldContentTabView extends AbstractAutomaticFieldEditorTabView
         this.stateManager = stateManager;
 
         ViewLoader.view(this)
-                  .root(this)
-                  .load();
+                .root(this)
+                .load();
     }
 
     @FXML
@@ -67,27 +68,32 @@ public class EditFieldContentTabView extends AbstractAutomaticFieldEditorTabView
 
         showOnlySetFieldsCheckBox.setSelected(true);
 
-        EasyBind.subscribe(showOnlySetFieldsCheckBox.selectedProperty(), selected -> {
-            java.util.Collection<Field> items = selected
-                                                ? FieldHelper.getSetFieldsOnly(selectedEntries, viewModel.getAllFields())
-                                                : viewModel.getAllFields();
+        EasyBind.subscribe(showOnlySetFieldsCheckBox.selectedProperty(),
+                selected -> {
+                    java.util.Collection<Field> items = selected ? FieldHelper.getSetFieldsOnly(selectedEntries, viewModel.getAllFields()) : viewModel.getAllFields();
 
-            fieldComboBox.getItems().setAll(items);
-            if (!fieldComboBox.getItems().isEmpty()) {
-                fieldComboBox.getSelectionModel().selectFirst();
-            }
-        });
+                    fieldComboBox.getItems().setAll(items);
+                    if (!fieldComboBox.getItems().isEmpty()) {
+                        fieldComboBox.getSelectionModel().selectFirst();
+                    }
+                });
 
         fieldComboBox.valueProperty().bindBidirectional(viewModel.selectedFieldProperty());
-        EasyBind.listen(fieldComboBox.getEditor().textProperty(), _ -> fieldComboBox.commitValue());
+        EasyBind.listen(fieldComboBox.getEditor().textProperty(),
+                _ -> fieldComboBox.commitValue());
 
         fieldValueTextField.textProperty().bindBidirectional(viewModel.fieldValueProperty());
 
         overwriteFieldContentCheckBox.selectedProperty().bindBidirectional(viewModel.overwriteFieldContentProperty());
 
-        appendValueButton.disableProperty().bind(viewModel.canAppendProperty().not());
-        setValueButton.disableProperty().bind(viewModel.fieldValidationStatus().validProperty().not());
-        overwriteFieldContentCheckBox.disableProperty().bind(viewModel.fieldValidationStatus().validProperty().not());
+        appendValueButton.disableProperty().bind(viewModel.canAppendProperty()
+                .not());
+        setValueButton.disableProperty().bind(viewModel.fieldValidationStatus()
+                .validProperty()
+                .not());
+        overwriteFieldContentCheckBox.disableProperty().bind(viewModel.fieldValidationStatus()
+                .validProperty()
+                .not());
 
         Platform.runLater(() -> visualizer.initVisualization(viewModel.fieldValidationStatus(), fieldComboBox, true));
     }

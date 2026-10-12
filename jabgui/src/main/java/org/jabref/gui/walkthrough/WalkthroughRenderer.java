@@ -8,7 +8,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIconView;
 import org.jabref.gui.util.component.MarkdownTextFlow;
@@ -134,43 +133,33 @@ public class WalkthroughRenderer {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        component.backButtonText()
-                 .ifPresent(text ->
-                         actions.getChildren()
-                                .add(makeButton(text, false, beforeNavigate, walkthrough::previousStep)));
+        component.backButtonText().ifPresent(text -> actions.getChildren().add(makeButton(text, false, beforeNavigate, walkthrough::previousStep)));
 
         HBox rightActions = new HBox(4);
         rightActions.setAlignment(Pos.CENTER_RIGHT);
 
-        component.skipButtonText()
-                 .ifPresent(text ->
-                         rightActions.getChildren()
-                                     .add(makeButton(text, false, beforeNavigate, walkthrough::skip)));
-        component.continueButtonText()
-                 .ifPresent(text ->
-                         rightActions.getChildren()
-                                     .add(makeButton(text, true, beforeNavigate, walkthrough::nextStep)));
+        component.skipButtonText().ifPresent(text -> rightActions.getChildren().add(makeButton(text, false, beforeNavigate, walkthrough::skip)));
+        component.continueButtonText().ifPresent(text -> rightActions.getChildren().add(makeButton(text, true, beforeNavigate, walkthrough::nextStep)));
         actions.getChildren().addAll(spacer, rightActions);
         return actions;
     }
 
     private VBox createContent(VisibleComponent component, Walkthrough walkthrough, Runnable beforeNavigate) {
         VBox contentBox = new VBox(4);
-        contentBox.getChildren().addAll(component.content().stream().map(block ->
-                switch (block) {
-                    case TextBlock textBlock ->
-                            render(textBlock);
-                    case InfoBlock infoBlock ->
-                            render(infoBlock);
-                    case ArbitraryJFXBlock arbitraryBlock ->
-                            render(arbitraryBlock, walkthrough, beforeNavigate);
-                }
-        ).toArray(Node[]::new));
+        contentBox.getChildren().addAll(component.content()
+                .stream()
+                .map(block -> switch (block) {
+                            case TextBlock textBlock -> render(textBlock);
+                            case InfoBlock infoBlock -> render(infoBlock);
+                            case ArbitraryJFXBlock arbitraryBlock -> render(arbitraryBlock, walkthrough, beforeNavigate);
+                        })
+                .toArray(Node[]::new));
         return contentBox;
     }
 
     /// @param text the already localized button text
-    private Button makeButton(String text, boolean isDefault, Runnable beforeNavigate, Runnable navigationAction) {
+    private Button makeButton(String text, boolean isDefault, Runnable beforeNavigate,
+            Runnable navigationAction) {
         Button button = new Button(text);
         button.getStyleClass().addAll("h5", "padding-4");
         if (isDefault) {

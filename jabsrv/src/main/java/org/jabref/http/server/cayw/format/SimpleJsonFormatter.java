@@ -2,13 +2,12 @@ package org.jabref.http.server.cayw.format;
 
 import java.util.List;
 
+import com.google.gson.Gson;
+import jakarta.ws.rs.core.MediaType;
 import org.jabref.http.dto.GsonFactory;
 import org.jabref.http.dto.cayw.SimpleJson;
 import org.jabref.http.server.cayw.CAYWQueryParams;
 import org.jabref.http.server.cayw.gui.CAYWEntry;
-
-import com.google.gson.Gson;
-import jakarta.ws.rs.core.MediaType;
 import org.jvnet.hk2.annotations.Service;
 
 @Service
@@ -28,10 +27,8 @@ public class SimpleJsonFormatter implements CAYWFormatter {
     @Override
     public String format(CAYWQueryParams queryParams, List<CAYWEntry> caywEntries) {
         List<SimpleJson> simpleJsons = caywEntries.stream()
-                                                  .map(entry -> SimpleJson.fromBibEntry(
-                                                          entry.bibEntry(),
-                                                          entry.citationProperties()))
-                                                  .toList();
+                .map(entry -> SimpleJson.fromBibEntry(entry.bibEntry(), entry.citationProperties()))
+                .toList();
         return gson.toJson(simpleJsons);
     }
 }

@@ -21,12 +21,15 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.eventbus.EventBus;
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.optional.OptionalBinding;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.bibtex.BibEntryWriter;
 import org.jabref.logic.bibtex.FieldPreferences;
@@ -52,11 +55,6 @@ import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.strings.LatexToUnicodeAdapter;
 import org.jabref.model.util.MultiKeyMap;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.eventbus.EventBus;
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.optional.OptionalBinding;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -94,10 +92,15 @@ import static java.util.function.Predicate.not;
 ///
 /// - comments before entry --&gt; [#commentsBeforeEntry]
 /// - entry type --&gt; [#type]
-/// - citation key --&gt; contained in [#fields] using they hashmap key `KEY_FIELD`
+/// - citation key --&gt; contained in [#fields] using they hashmap key
+///   `KEY_FIELD`
 /// - fields --&gt; contained in [#fields]
 ///
-/// In case you search for a builder as described in Item 2 of the book "Effective Java", you won't find one. Please use the methods [#withCitationKey(String)] and [#withField(Field,String)]. All these methods set [#hasChanged()] to `false`. In case `changed`, use [#withChanged(boolean)].
+/// In case you search for a builder as described in Item 2 of the book
+/// "Effective Java", you won't find one. Please use the methods
+/// [#withCitationKey(String)] and [#withField(Field,String)]. All these methods
+/// set [#hasChanged()] to `false`. In case `changed`, use
+/// [#withChanged(boolean)].
 @AllowedToUseLogic("because it needs access to parser and writers")
 public class BibEntry {
 
@@ -115,7 +118,8 @@ public class BibEntry {
     /// Cache that stores latex free versions of fields.
     private final Map<Field, String> latexFreeFields = new ConcurrentHashMap<>();
 
-    /// Cache that stores the field as keyword lists (format &lt;Field, Separator, Keyword list>)
+    /// Cache that stores the field as keyword lists (format &lt;Field,
+    /// Separator, Keyword list>)
     private final MultiKeyMap<StandardField, Character, KeywordList> fieldsAsKeywords = new MultiKeyMap<>(StandardField.class);
 
     private final EventBus eventBus = new EventBus();
@@ -129,12 +133,16 @@ public class BibEntry {
     /// The part before the start of the entry
     private String commentsBeforeEntry = "";
 
-    /// Stores the text "rendering" of the entry as read by the BibTeX reader. Includes comments.
+    /// Stores the text "rendering" of the entry as read by the BibTeX reader.
+    /// Includes comments.
     private String parsedSerialization = "";
 
-    /// Marks whether the complete serialization, which was read from file, should be used.
+    /// Marks whether the complete serialization, which was read from file,
+    /// should be used.
     ///
-    /// Is set to `true`, if parts of the entry changed. This causes the entry to be serialized based on the internal state (and not based on the old serialization)
+    /// Is set to `true`, if parts of the entry changed. This causes the entry
+    /// to be serialized based on the internal state (and not based on the old
+    /// serialization)
     private boolean changed;
 
     /// Constructs a new BibEntry. The internal ID is set to IdGenerator.next()
@@ -159,9 +167,9 @@ public class BibEntry {
         this.setCitationKey(citationKey);
     }
 
-    /// Returns a copy of this entry.
-    /// This will set a new ID for the copied entry to be able to distinguish both copies.
-    /// Does *not* port the listeners.
+    /// Returns a copy of this entry. This will set a new ID for the copied
+    /// entry to be able to distinguish both copies. Does *not* port the
+    /// listeners.
     public BibEntry(BibEntry other) {
         this(other.type.getValue());
         this.fields = FXCollections.observableMap(new ConcurrentHashMap<>(other.fields));
@@ -196,22 +204,22 @@ public class BibEntry {
     /// @return the mapped field or null if there is no valid mapping available
     private Optional<Field> getSourceField(Field targetField, EntryType targetEntry, EntryType sourceEntry) {
         // 1. Sort out forbidden fields
-        if ((targetField == StandardField.IDS) ||
-                (targetField == StandardField.CROSSREF) ||
-                (targetField == StandardField.XREF) ||
-                (targetField == StandardField.ENTRYSET) ||
-                (targetField == StandardField.RELATED) ||
-                (targetField == StandardField.SORTKEY)) {
+        if ((targetField == StandardField.IDS)
+                || (targetField == StandardField.CROSSREF)
+                || (targetField == StandardField.XREF)
+                || (targetField == StandardField.ENTRYSET)
+                || (targetField == StandardField.RELATED)
+                || (targetField == StandardField.SORTKEY)) {
             return Optional.empty();
         }
 
         // 2. Handle special field mappings
-        if (((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.InBook)) ||
-                ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.BookInBook)) ||
-                ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.SuppBook)) ||
-                ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.InBook)) ||
-                ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.BookInBook)) ||
-                ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.SuppBook))) {
+        if (((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.InBook))
+                || ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.BookInBook))
+                || ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.SuppBook))
+                || ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.InBook))
+                || ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.BookInBook))
+                || ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.SuppBook))) {
             if (targetField == StandardField.AUTHOR) {
                 return Optional.of(StandardField.AUTHOR);
             }
@@ -220,17 +228,17 @@ public class BibEntry {
             }
         }
 
-        if (((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.Book)) ||
-                ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.InBook)) ||
-                ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.BookInBook)) ||
-                ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.SuppBook)) ||
-                ((sourceEntry == StandardEntryType.MvCollection) && (targetEntry == StandardEntryType.Collection)) ||
-                ((sourceEntry == StandardEntryType.MvCollection) && (targetEntry == StandardEntryType.InCollection)) ||
-                ((sourceEntry == StandardEntryType.MvCollection) && (targetEntry == StandardEntryType.SuppCollection)) ||
-                ((sourceEntry == StandardEntryType.MvProceedings) && (targetEntry == StandardEntryType.Proceedings)) ||
-                ((sourceEntry == StandardEntryType.MvProceedings) && (targetEntry == StandardEntryType.InProceedings)) ||
-                ((sourceEntry == StandardEntryType.MvReference) && (targetEntry == StandardEntryType.Reference)) ||
-                ((sourceEntry == StandardEntryType.MvReference) && (targetEntry == StandardEntryType.InReference))) {
+        if (((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.Book))
+                || ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.InBook))
+                || ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.BookInBook))
+                || ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.SuppBook))
+                || ((sourceEntry == StandardEntryType.MvCollection) && (targetEntry == StandardEntryType.Collection))
+                || ((sourceEntry == StandardEntryType.MvCollection) && (targetEntry == StandardEntryType.InCollection))
+                || ((sourceEntry == StandardEntryType.MvCollection) && (targetEntry == StandardEntryType.SuppCollection))
+                || ((sourceEntry == StandardEntryType.MvProceedings) && (targetEntry == StandardEntryType.Proceedings))
+                || ((sourceEntry == StandardEntryType.MvProceedings) && (targetEntry == StandardEntryType.InProceedings))
+                || ((sourceEntry == StandardEntryType.MvReference) && (targetEntry == StandardEntryType.Reference))
+                || ((sourceEntry == StandardEntryType.MvReference) && (targetEntry == StandardEntryType.InReference))) {
             if (targetField == StandardField.MAINTITLE) {
                 return Optional.of(StandardField.TITLE);
             }
@@ -242,9 +250,7 @@ public class BibEntry {
             }
 
             // those fields are no more available for the same-name inheritance strategy
-            if ((targetField == StandardField.TITLE) ||
-                    (targetField == StandardField.SUBTITLE) ||
-                    (targetField == StandardField.TITLEADDON)) {
+            if ((targetField == StandardField.TITLE) || (targetField == StandardField.SUBTITLE) || (targetField == StandardField.TITLEADDON)) {
                 return Optional.empty();
             }
 
@@ -254,13 +260,13 @@ public class BibEntry {
             }
         }
 
-        if (((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.InBook)) ||
-                ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.BookInBook)) ||
-                ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.SuppBook)) ||
-                ((sourceEntry == StandardEntryType.Collection) && (targetEntry == StandardEntryType.InCollection)) ||
-                ((sourceEntry == StandardEntryType.Collection) && (targetEntry == StandardEntryType.SuppCollection)) ||
-                ((sourceEntry == StandardEntryType.Reference) && (targetEntry == StandardEntryType.InReference)) ||
-                ((sourceEntry == StandardEntryType.Proceedings) && (targetEntry == StandardEntryType.InProceedings))) {
+        if (((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.InBook))
+                || ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.BookInBook))
+                || ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.SuppBook))
+                || ((sourceEntry == StandardEntryType.Collection) && (targetEntry == StandardEntryType.InCollection))
+                || ((sourceEntry == StandardEntryType.Collection) && (targetEntry == StandardEntryType.SuppCollection))
+                || ((sourceEntry == StandardEntryType.Reference) && (targetEntry == StandardEntryType.InReference))
+                || ((sourceEntry == StandardEntryType.Proceedings) && (targetEntry == StandardEntryType.InProceedings))) {
             if (targetField == StandardField.BOOKTITLE) {
                 return Optional.of(StandardField.TITLE);
             }
@@ -272,9 +278,7 @@ public class BibEntry {
             }
 
             // those fields are no more available for the same-name inheritance strategy
-            if ((targetField == StandardField.TITLE) ||
-                    (targetField == StandardField.SUBTITLE) ||
-                    (targetField == StandardField.TITLEADDON)) {
+            if ((targetField == StandardField.TITLE) || (targetField == StandardField.SUBTITLE) || (targetField == StandardField.TITLEADDON)) {
                 return Optional.empty();
             }
 
@@ -284,8 +288,8 @@ public class BibEntry {
             }
         }
 
-        if (((sourceEntry == IEEETranEntryType.Periodical) && (targetEntry == StandardEntryType.Article)) ||
-                ((sourceEntry == IEEETranEntryType.Periodical) && (targetEntry == StandardEntryType.SuppPeriodical))) {
+        if (((sourceEntry == IEEETranEntryType.Periodical) && (targetEntry == StandardEntryType.Article))
+                || ((sourceEntry == IEEETranEntryType.Periodical) && (targetEntry == StandardEntryType.SuppPeriodical))) {
             if (targetField == StandardField.JOURNALTITLE) {
                 return Optional.of(StandardField.TITLE);
             }
@@ -294,8 +298,7 @@ public class BibEntry {
             }
 
             // those fields are no more available for the same-name inheritance strategy
-            if ((targetField == StandardField.TITLE) ||
-                    (targetField == StandardField.SUBTITLE)) {
+            if ((targetField == StandardField.TITLE) || (targetField == StandardField.SUBTITLE)) {
                 return Optional.empty();
             }
 
@@ -313,11 +316,11 @@ public class BibEntry {
     /// which belongs to the given database.
     ///
     /// If a database is given, this function will try to resolve any string
-    /// references in the field-value.
-    /// Also, if a database is given, this function will try to find values for
-    /// unset fields in the entry linked by the "crossref" ([StandardField#CROSSREF]) field, if any.
+    /// references in the field-value. Also, if a database is given, this
+    /// function will try to find values for unset fields in the entry linked by
+    /// the "crossref" ([StandardField#CROSSREF]) field, if any.
     ///
-    /// @param field    The field to return the value of.
+    /// @param field The field to return the value of.
     /// @param database The database of the bibtex entry.
     /// @return The resolved field value or null if not found.
     public Optional<String> getResolvedFieldOrAlias(Field field, @Nullable BibDatabase database) {
@@ -353,25 +356,27 @@ public class BibEntry {
             }
         }
 
-        return (database == null) || result.isEmpty() ?
-               result :
-               Optional.of(database.resolveForStrings(result.get()));
+        return (database == null) || result.isEmpty()
+                ? result
+                : Optional.of(database.resolveForStrings(result.get()));
     }
 
     /// Returns this entry's ID. It is used internally to distinguish different BibTeX entries.
     //  It is **not** the citation key (which is stored in the {@link InternalField#KEY_FIELD} and also known as BibTeX key).
 
+    /// This id changes on each run of JabRef (because it is currently generated
+    /// as increasing number).
     ///
-    /// This id changes on each run of JabRef (because it is currently generated as increasing number).
-    ///
-    /// For more stable ids, check [org.jabref.model.entry.SharedBibEntryData#getSharedID]
+    /// For more stable ids, check
+    /// [org.jabref.model.entry.SharedBibEntryData#getSharedID]
     public String getId() {
         return id;
     }
 
     /// Sets this entry's identifier (ID).
     ///
-    /// The entry is also updated in the shared database - provided the database containing it doesn't veto the change.
+    /// The entry is also updated in the shared database - provided the database
+    /// containing it doesn't veto the change.
     ///
     /// @param id The ID to be used
     @VisibleForTesting
@@ -381,10 +386,12 @@ public class BibEntry {
         changed = true;
     }
 
-    /// Sets the citation key. Note: This is *not* the internal Id of this entry.
-    /// The internal Id is always present, whereas the citation key might not be present.
+    /// Sets the citation key. Note: This is *not* the internal Id of this
+    /// entry. The internal Id is always present, whereas the citation key might
+    /// not be present.
     ///
-    /// @param newKey The cite key to set. Must not be null; use [#clearCitationKey()] to remove the cite key.
+    /// @param newKey The cite key to set. Must not be null; use
+    ///   [#clearCitationKey()] to remove the cite key.
     public Optional<FieldChange> setCitationKey(String newKey) {
         return setField(InternalField.KEY_FIELD, newKey);
     }
@@ -398,8 +405,7 @@ public class BibEntry {
     /// If not present, [BibEntry#getAuthorTitleYear(int)] can be used
     @NonNull
     public Optional<String> getCitationKey() {
-        return Optional.ofNullable(fields.get(InternalField.KEY_FIELD))
-                       .filter(StringUtil::isNotBlank);
+        return Optional.ofNullable(fields.get(InternalField.KEY_FIELD)).filter(StringUtil::isNotBlank);
     }
 
     public boolean hasCitationKey() {
@@ -441,14 +447,19 @@ public class BibEntry {
         return Optional.of(change);
     }
 
-    /// Returns an unmodifiable sequence containing the names of all fields that are set for this particular entry.
+    /// Returns an unmodifiable sequence containing the names of all fields that
+    /// are set for this particular entry.
     public SequencedSet<Field> getFields() {
         return new LinkedHashSet<>(fields.keySet());
     }
 
-    /// Returns an unmodifiable sequence containing the names of all fields that are a) set for this particular entry and b) matching the given predicate
+    /// Returns an unmodifiable sequence containing the names of all fields that
+    /// are a) set for this particular entry and b) matching the given predicate
     public SequencedSet<Field> getFields(Predicate<Field> selector) {
-        return getFields().stream().filter(selector).collect(Collectors.toCollection(LinkedHashSet::new));
+        return getFields()
+                .stream()
+                .filter(selector)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     /// Returns the contents of the given field as an Optional.
@@ -486,8 +497,9 @@ public class BibEntry {
     ///
     /// Used by [#getFieldOrAlias(Field)] and [#getFieldOrAliasLatexFree(Field)]
     ///
-    /// @param field         the field
-    /// @param getFieldValue the method to get the value of a given field in a given entry
+    /// @param field the field
+    /// @param getFieldValue the method to get the value of a given field in a
+    ///   given entry
     /// @return determined field value
     private Optional<String> genericGetFieldOrAlias(Field field, BiFunction<BibEntry, Field, Optional<String>> getFieldValue) {
         Optional<String> fieldValue = getFieldValue.apply(this, field);
@@ -505,9 +517,7 @@ public class BibEntry {
 
         // Finally, handle dates
         if (StandardField.DATE == field) {
-            Optional<Date> date = Date.parse(
-                    getFieldValue.apply(this, StandardField.YEAR),
-                    getFieldValue.apply(this, StandardField.MONTH),
+            Optional<Date> date = Date.parse(getFieldValue.apply(this, StandardField.YEAR), getFieldValue.apply(this, StandardField.MONTH),
                     getFieldValue.apply(this, StandardField.DAY));
 
             return date.map(Date::getNormalized);
@@ -523,13 +533,18 @@ public class BibEntry {
             if (parsedDate.isPresent()) {
                 return switch (field) {
                     case StandardField.YEAR ->
-                            parsedDate.get().getYear().map(Object::toString);
+                            parsedDate.get()
+                                      .getYear()
+                                      .map(Object::toString);
                     case StandardField.MONTH ->
-                            parsedDate.get().getMonth().map(Month::getJabRefFormat);
+                            parsedDate.get()
+                                      .getMonth()
+                                      .map(Month::getJabRefFormat);
                     case StandardField.DAY ->
-                            parsedDate.get().getDay().map(Object::toString);
-                    default ->
-                            throw new IllegalStateException("Unexpected value");
+                            parsedDate.get()
+                                      .getDay()
+                                      .map(Object::toString);
+                    default -> throw new IllegalStateException("Unexpected value");
                 };
             } else {
                 // Date field not in valid format
@@ -583,12 +598,11 @@ public class BibEntry {
 
     /// Set a field, and notify listeners about the change.
     ///
-    /// @param field       The field to set
-    /// @param value       The value to set - "null" for clear. Useful for cleaner code at fetchers.
+    /// @param field The field to set
+    /// @param value The value to set - "null" for clear. Useful for cleaner
+    ///   code at fetchers.
     /// @param eventSource Source the event is sent from
-    public Optional<FieldChange> setField(@NonNull Field field,
-                                          @Nullable String value,
-                                          @NonNull EntriesEventSource eventSource) {
+    public Optional<FieldChange> setField(@NonNull Field field, @Nullable String value, @NonNull EntriesEventSource eventSource) {
         if (StringUtil.isNullOrEmpty(value)) {
             return clearField(field);
         }
@@ -616,7 +630,8 @@ public class BibEntry {
     /// Set a field, and notify listeners about the change.
     ///
     /// @param field The field to set.
-    /// @param value The value to set - "null" for clear. Useful for cleaner code at fetchers.
+    /// @param value The value to set - "null" for clear. Useful for cleaner
+    ///   code at fetchers.
     public Optional<FieldChange> setField(Field field, @Nullable String value) {
         return setField(field, value, EntriesEventSource.LOCAL);
     }
@@ -628,11 +643,12 @@ public class BibEntry {
         return clearField(field, EntriesEventSource.LOCAL);
     }
 
-    /// Remove the mapping for the field name, and notify listeners about
-    /// the change including the [EntriesEventSource].
+    /// Remove the mapping for the field name, and notify listeners about the
+    /// change including the [EntriesEventSource].
     ///
-    /// @param field       the field to clear.
-    /// @param eventSource the source a new [FieldChangedEvent] should be posten from.
+    /// @param field the field to clear.
+    /// @param eventSource the source a new [FieldChangedEvent] should be posten
+    ///   from.
     public Optional<FieldChange> clearField(Field field, EntriesEventSource eventSource) {
         Optional<String> oldValue = getField(field);
         if (oldValue.isEmpty()) {
@@ -649,30 +665,36 @@ public class BibEntry {
         return Optional.of(change);
     }
 
-    /// Determines whether this entry has all the given fields present. If a non-null
-    /// database argument is given, this method will try to look up missing fields in
-    /// entries linked by the "crossref" field, if any.
+    /// Determines whether this entry has all the given fields present. If a
+    /// non-null database argument is given, this method will try to look up
+    /// missing fields in entries linked by the "crossref" field, if any.
     ///
-    /// @param fields   An array of field names to be checked.
-    /// @param database The database in which to look up crossref'd entries, if any. This argument can be null, meaning that no attempt will be made to follow crossrefs.
-    /// @return true if all fields are set or could be resolved, false otherwise.
+    /// @param fields An array of field names to be checked.
+    /// @param database The database in which to look up crossref'd entries, if
+    ///   any. This argument can be null, meaning that no attempt will be made
+    ///   to follow crossrefs.
+    /// @return true if all fields are set or could be resolved, false
+    ///   otherwise.
     public boolean allFieldsPresent(Collection<OrFields> fields, BibDatabase database) {
         return fields.stream().allMatch(field -> this.getResolvedFieldOrAlias(field, database).isPresent());
     }
 
     // region String representations
 
-    /// Serializes all fields, even the JabRef internal ones. Does NOT serialize "KEY_FIELD" as field, but as key.
+    /// Serializes all fields, even the JabRef internal ones. Does NOT serialize
+    /// "KEY_FIELD" as field, but as key.
     ///
-    /// We do it this way to
-    ///   a) enable debugging the internal representation and
-    ///   b) save time at this method.
+    /// We do it this way to a) enable debugging the internal representation and
+    /// b) save time at this method.
     ///
-    /// This returns canonical BibTeX serialization. Special characters such as "{" or "&" are NOT escaped, but written
-    /// as is. In case the JabRef "hack" for distinguishing "field = value" and "field = {value}" (in .bib files) is
-    /// used, it is output as "field = {#value#}", which may cause headaches in debugging.
+    /// This returns canonical BibTeX serialization. Special characters such as
+    /// "{" or "&" are NOT escaped, but written as is. In case the JabRef "hack"
+    /// for distinguishing "field = value" and "field = {value}" (in .bib files)
+    /// is used, it is output as "field = {#value#}", which may cause headaches
+    /// in debugging.
     ///
-    /// Alternative for some more readable output: [#getAuthorTitleYear(int)] or [#getKeyAuthorTitleYear(int)].
+    /// Alternative for some more readable output: [#getAuthorTitleYear(int)] or
+    /// [#getKeyAuthorTitleYear(int)].
     ///
     /// @return A user-readable string NOT A VALID BibTeX string
     @Override
@@ -682,13 +704,13 @@ public class BibEntry {
 
     /// Uses `\n` as newline separator
     ///
-    /// Method similar to [org.jabref.gui.entryeditor.SourceTab#getSourceString(BibEntry, BibDatabaseMode, FieldPreferences)]
+    /// Method similar to
+    /// [org.jabref.gui.entryeditor.SourceTab#getSourceString(BibEntry,
+    /// BibDatabaseMode, FieldPreferences)]
     ///
-    /// @return String representation - empty string in case of an error (to ease calling)
-    public @NonNull String getStringRepresentation(
-            BibEntry entry,
-            BibDatabaseMode type,
-            BibEntryTypesManager entryTypesManager,
+    /// @return String representation - empty string in case of an error (to
+    ///   ease calling)
+    public @NonNull String getStringRepresentation(BibEntry entry, BibDatabaseMode type, BibEntryTypesManager entryTypesManager,
             FieldPreferences fieldPreferences) {
         try (StringWriter writer = new StringWriter()) {
             BibWriter bibWriter = new BibWriter(writer, "\n");
@@ -710,6 +732,7 @@ public class BibEntry {
         changed = false;
         this.parsedSerialization = parsedSerialization;
     }
+
     // endregion
 
     public String getAuthorTitleYear() {
@@ -720,13 +743,15 @@ public class BibEntry {
         return getKeyAuthorTitleYear(0);
     }
 
-    /// Creates a short textual description of the entry in the format: `Author1, Author2: Title (Year)`
+    /// Creates a short textual description of the entry in the format:
+    /// `Author1, Author2: Title (Year)`
     ///
     /// If `0` is passed as `maxCharacters`, the description is not truncated.
     ///
-    /// @param maxCharacters The maximum number of characters (additional characters are replaced by "..."). Set to 0 to disable truncation.
-    /// @return A short textual description of the entry in the format:
-    /// Author1, Author2: Title (Year)
+    /// @param maxCharacters The maximum number of characters (additional
+    ///   characters are replaced by "..."). Set to 0 to disable truncation.
+    /// @return A short textual description of the entry in the format: Author1,
+    ///   Author2: Title (Year)
     public String getAuthorTitleYear(int maxCharacters) {
         String authorField = getField(StandardField.AUTHOR).orElse("N/A");
         String titleField = getField(StandardField.TITLE).orElse("N/A");
@@ -754,7 +779,8 @@ public class BibEntry {
 
     /// Returns the title of the given BibTeX entry as an Optional.
     ///
-    /// @return an Optional containing the title of a BibTeX entry in case it exists, otherwise return an empty Optional.
+    /// @return an Optional containing the title of a BibTeX entry in case it
+    ///   exists, otherwise return an empty Optional.
     public Optional<String> getTitle() {
         return getField(StandardField.TITLE);
     }
@@ -767,9 +793,11 @@ public class BibEntry {
         return getField(StandardField.ISBN).flatMap(ISBN::parse);
     }
 
-    /// Will return the publication date of the given bibtex entry conforming to ISO 8601, i.e. either YYYY or YYYY-MM.
+    /// Will return the publication date of the given bibtex entry conforming to
+    /// ISO 8601, i.e. either YYYY or YYYY-MM.
     ///
-    /// @return will return the publication date of the entry or null if no year was found.
+    /// @return will return the publication date of the entry or null if no year
+    ///   was found.
     public Optional<Date> getPublicationDate() {
         return getFieldOrAlias(StandardField.DATE).flatMap(Date::parse);
     }
@@ -786,9 +814,10 @@ public class BibEntry {
         this.changed = changed;
     }
 
-    /// Required to trigger new serialization of the entry.
-    /// Reason: We don't have a `build()` command, we don't want to create a new serialization at each call,
-    /// we need to construct a BibEntry with `changed=false` (which is the default) and thus we need a workaround.
+    /// Required to trigger new serialization of the entry. Reason: We don't
+    /// have a `build()` command, we don't want to create a new serialization at
+    /// each call, we need to construct a BibEntry with `changed=false` (which
+    /// is the default) and thus we need a workaround.
     public BibEntry withChanged(boolean changed) {
         this.changed = changed;
         return this;
@@ -866,9 +895,7 @@ public class BibEntry {
         }
     }
 
-    public Optional<FieldChange> replaceKeywords(KeywordList keywordsToReplace,
-                                                 Keyword newValue,
-                                                 Character keywordDelimiter) {
+    public Optional<FieldChange> replaceKeywords(KeywordList keywordsToReplace, Keyword newValue, Character keywordDelimiter) {
         KeywordList keywordList = getKeywords(keywordDelimiter);
         keywordList.replaceAll(keywordsToReplace, newValue);
 
@@ -896,9 +923,7 @@ public class BibEntry {
             return false;
         }
         BibEntry entry = (BibEntry) o;
-        return Objects.equals(type.getValue(), entry.type.getValue())
-                && Objects.equals(fields, entry.fields)
-                && Objects.equals(commentsBeforeEntry, entry.commentsBeforeEntry);
+        return Objects.equals(type.getValue(), entry.type.getValue()) && Objects.equals(fields, entry.fields) && Objects.equals(commentsBeforeEntry, entry.commentsBeforeEntry);
     }
 
     /// On purpose, this hashes the "content" of the BibEntry, not the [#sharedBibEntryData].
@@ -965,8 +990,9 @@ public class BibEntry {
     }
 
     public List<ParsedEntryLink> getEntryLinkList(Field field, BibDatabase database) {
-        return getField(field).map(fieldValue -> EntryLinkList.parse(fieldValue, database))
-                              .orElse(List.of());
+        return getField(field)
+                .map(fieldValue -> EntryLinkList.parse(fieldValue, database))
+                .orElse(List.of());
     }
 
     public Optional<FieldChange> setEntryLinkList(Field field, List<ParsedEntryLink> list) {
@@ -1037,7 +1063,8 @@ public class BibEntry {
     /// Gets a list of linked files.
     ///
     /// @return the list of linked files, is never null but can be empty.
-    /// Changes to the underlying list will have no effect on the entry itself. Use [#addFile(LinkedFile)].
+    ///   Changes to the underlying list will have no effect on the entry
+    ///   itself. Use [#addFile(LinkedFile)].
     public List<LinkedFile> getFiles() {
         Optional<String> oldValue = getField(StandardField.FILE);
         if (oldValue.isEmpty()) {
@@ -1080,6 +1107,7 @@ public class BibEntry {
         currentFiles.addAll(filesToAdd);
         return setFiles(currentFiles);
     }
+
     // endregion
 
     /// Checks [StandardField#CITES] for a list of citation keys and returns them.
@@ -1089,11 +1117,11 @@ public class BibEntry {
     /// @return List of citation keys; empty list if field is empty or not available.
     public SequencedSet<String> getCites() {
         return this.getField(StandardField.CITES)
-                   .stream()
-                   .flatMap(content -> Arrays.stream(content.split(",")))
-                   .map(String::trim)
-                   .filter(not(String::isEmpty))
-                   .collect(Collectors.toCollection(LinkedHashSet::new));
+                .stream()
+                .flatMap(content -> Arrays.stream(content.split(",")))
+                .map(String::trim)
+                .filter(not(String::isEmpty))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public Optional<FieldChange> setCites(SequencedSet<String> keys) {
@@ -1136,11 +1164,12 @@ public class BibEntry {
 
     /// Helper method to add a downloaded file to the entry.
     ///
-    /// Use-case: URL is contained in the file, the file is downloaded and should then replace the url.
-    /// This method. adds the given path (as file) to the entry and removes the url.
+    /// Use-case: URL is contained in the file, the file is downloaded and
+    /// should then replace the url. This method. adds the given path (as file)
+    /// to the entry and removes the url.
     ///
     /// @param linkToDownloadedFile the link to the file, which was downloaded
-    /// @param downloadedFile       the path to be added to the entry
+    /// @param downloadedFile the path to be added to the entry
     public void replaceDownloadedFile(String linkToDownloadedFile, LinkedFile downloadedFile) {
         List<LinkedFile> linkedFiles = this.getFiles();
 
@@ -1163,19 +1192,23 @@ public class BibEntry {
         this.setFiles(linkedFiles);
     }
 
-    /// Merge this entry's fields with another BibEntry. Non-intersecting fields will be automatically merged. In cases of
-    /// intersection, priority is given to THIS entry's field value.
+    /// Merge this entry's fields with another BibEntry. Non-intersecting fields
+    /// will be automatically merged. In cases of intersection, priority is
+    /// given to THIS entry's field value.
     ///
     /// @param other another BibEntry from which fields are sourced from
     public void mergeWith(BibEntry other) {
         mergeWith(other, Set.of());
     }
 
-    /// Merge this entry's fields with another BibEntry. Non-intersecting fields will be automatically merged. In cases of
-    /// intersection, priority is given to THIS entry's field value, UNLESS specified otherwise in the arguments.
+    /// Merge this entry's fields with another BibEntry. Non-intersecting fields
+    /// will be automatically merged. In cases of intersection, priority is
+    /// given to THIS entry's field value, UNLESS specified otherwise in the
+    /// arguments.
     ///
-    /// @param other                  another BibEntry from which fields are sourced from
-    /// @param otherPrioritizedFields collection of Fields in which 'other' has a priority into final result
+    /// @param other another BibEntry from which fields are sourced from
+    /// @param otherPrioritizedFields collection of Fields in which 'other' has
+    ///   a priority into final result
     public void mergeWith(BibEntry other, Set<Field> otherPrioritizedFields) {
         Set<Field> thisFields = new TreeSet<>(Comparator.comparing(Field::getName));
         Set<Field> otherFields = new TreeSet<>(Comparator.comparing(Field::getName));
@@ -1184,13 +1217,16 @@ public class BibEntry {
         otherFields.addAll(other.getFields());
 
         // At the moment, "Field" interface does not provide explicit equality, so using their names instead.
-        Set<String> thisFieldsNames = thisFields.stream().map(Field::getName).collect(Collectors.toSet());
-        Set<String> otherPrioritizedFieldsNames = otherPrioritizedFields.stream().map(Field::getName).collect(Collectors.toSet());
+        Set<String> thisFieldsNames = thisFields.stream()
+                .map(Field::getName)
+                .collect(Collectors.toSet());
+        Set<String> otherPrioritizedFieldsNames = otherPrioritizedFields.stream()
+                .map(Field::getName)
+                .collect(Collectors.toSet());
 
         for (Field otherField : otherFields) {
             Optional<String> otherFieldValue = other.getField(otherField);
-            if (!thisFieldsNames.contains(otherField.getName()) ||
-                    otherPrioritizedFieldsNames.contains(otherField.getName())) {
+            if (!thisFieldsNames.contains(otherField.getName()) || otherPrioritizedFieldsNames.contains(otherField.getName())) {
                 // As iterator only goes through non-null fields from OTHER, otherFieldValue can never be empty
                 otherFieldValue.ifPresent(s -> this.setField(otherField, s));
             } else {
@@ -1199,8 +1235,8 @@ public class BibEntry {
                         List<LinkedFile> currentFiles = this.getFiles();
                         List<LinkedFile> otherFiles = other.getFiles();
                         List<LinkedFile> filesToAdd = otherFiles.stream()
-                                                                .filter(file -> !currentFiles.contains(file))
-                                                                .toList();
+                                .filter(file -> !currentFiles.contains(file))
+                                .toList();
                         if (!filesToAdd.isEmpty()) {
                             this.addFiles(filesToAdd);
                         }

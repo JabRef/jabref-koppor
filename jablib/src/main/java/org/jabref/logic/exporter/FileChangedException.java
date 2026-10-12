@@ -5,8 +5,9 @@ import java.nio.file.Path;
 
 import org.jspecify.annotations.NullMarked;
 
-/// Thrown when the target file of an [AtomicFileOutputStream] was modified by another process between opening the
-/// stream and committing it. The commit is aborted so that the other process's changes are not overwritten silently.
+/// Thrown when the target file of an [AtomicFileOutputStream] was modified by
+/// another process between opening the stream and committing it. The commit is
+/// aborted so that the other process's changes are not overwritten silently.
 @NullMarked
 public class FileChangedException extends IOException {
 

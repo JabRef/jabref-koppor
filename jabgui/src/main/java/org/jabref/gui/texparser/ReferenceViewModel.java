@@ -5,7 +5,6 @@ import java.util.Collection;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.model.texparser.Citation;
 
 public class ReferenceViewModel {
@@ -37,9 +36,6 @@ public class ReferenceViewModel {
 
     @Override
     public String toString() {
-        return "ReferenceViewModel{entry='%s', highlighted=%s, citationList=%s}".formatted(
-                this.entry,
-                this.highlighted,
-                this.citationList);
+        return "ReferenceViewModel{entry='%s', highlighted=%s, citationList=%s}".formatted(this.entry, this.highlighted, this.citationList);
     }
 }

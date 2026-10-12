@@ -28,47 +28,36 @@ public class JavaLocalizationEntryParserTest {
                 // \n is a "real" newline character in the simulated read read Java source code
                 Arguments.of("Localization.lang(\"multi \" + \n\"line\")", "multi line"),
                 Arguments.of("Localization.lang(\n            \"A string\")", "A string"),
-
                 Arguments.of("Localization.lang(\"one per line with var\", var)", "one per line with var"),
                 Arguments.of("Localization.lang(\"Search %0\", \"Springer\")", "Search %0"),
                 Arguments.of("Localization.lang(\"Reset preferences (key1,key2,... or 'all')\")", "Reset preferences (key1,key2,... or 'all')"),
-                Arguments.of("Localization.lang(\"Multiple entries selected. Do you want to change the type of all these to '%0'?\")",
-                        "Multiple entries selected. Do you want to change the type of all these to '%0'?"),
-                Arguments.of("Localization.lang(\"Run fetcher, e.g. \\\"--fetch=Medline:cancer\\\"\");",
-                        "Run fetcher, e.g. \"--fetch=Medline:cancer\""),
+                Arguments.of("Localization.lang(\"Multiple entries selected. Do you want to change the type of all these to '%0'?\")", "Multiple entries selected. Do you want to change the type of all these to '%0'?"),
+                Arguments.of("Localization.lang(\"Run fetcher, e.g. \\\"--fetch=Medline:cancer\\\"\");", "Run fetcher, e.g. \"--fetch=Medline:cancer\""),
 
                 // \n is allowed. See // see also https://stackoverflow.com/a/10285687/873282
                 // It appears as "\n" literally in the source code
                 // It appears as "\n" as key of the localization, too
                 // To mirror that, we have to write \\n here
-                Arguments.of("Localization.lang(\"First line\\nSecond line\")", "First line\\nSecond line")
-        );
+                Arguments.of("Localization.lang(\"First line\\nSecond line\")", "First line\\nSecond line"));
     }
 
     public static Stream<Arguments> multiLineChecks() {
-        return Stream.of(
-                Arguments.of("Localization.lang(\"two per line\") Localization.lang(\"two per line\")", Arrays.asList("two per line", "two per line"))
-        );
+        return Stream.of(Arguments.of("Localization.lang(\"two per line\") Localization.lang(\"two per line\")", Arrays.asList("two per line", "two per line")));
     }
 
     public static Stream<Arguments> singleLineParameterChecks() {
-        return Stream.of(
-                Arguments.of("Localization.lang(\"one per line\")", "\"one per line\""),
-                Arguments.of("Localization.lang(\"one per line\" + var)", "\"one per line\" + var"),
-                Arguments.of("Localization.lang(var + \"one per line\")", "var + \"one per line\""),
-                Arguments.of("Localization.lang(\"Search %0\", \"Springer\")", "\"Search %0\", \"Springer\"")
-        );
+        return Stream.of(Arguments.of("Localization.lang(\"one per line\")", "\"one per line\""), Arguments.of("Localization.lang(\"one per line\" + var)", "\"one per line\" + var"), Arguments.of("Localization.lang(var + \"one per line\")", "var + \"one per line\""),
+                Arguments.of("Localization.lang(\"Search %0\", \"Springer\")", "\"Search %0\", \"Springer\""));
     }
 
     public static Stream<String> causesRuntimeExceptions() {
-        return Stream.of(
-                "Localization.lang(\"Ends with a space \")",
-                // "\\n" in the *.java source file
-                "Localization.lang(\"Escaped newline\\\\nthere\")"
-        );
+        return Stream.of("Localization.lang(\"Ends with a space \")",
+        // "\\n" in the *.java source file
+        "Localization.lang(\"Escaped newline\\\\nthere\")");
     }
 
-    /// Code snippets in which `Localization.lang` only occurs inside a comment, hence no key must be found.
+    /// Code snippets in which `Localization.lang` only occurs inside a comment,
+    /// hence no key must be found.
     public static Stream<String> commentedOutLocalizations() {
         return Stream.of(
                 "// Localization.lang(\"key in line comment\")",
@@ -78,8 +67,7 @@ public class JavaLocalizationEntryParserTest {
                 "/*\n * Localization.lang(\"key in multi line block comment\")\n */",
                 "/" + "*" + "*" + "\n * Localization.lang(\"key in javadoc\")\n */", // Hide fake javadoc from autoformatter
                 // unterminated block comment at the end of a file
-                "/* Localization.lang(\"key in unterminated block comment\")"
-        );
+                "/* Localization.lang(\"key in unterminated block comment\")");
     }
 
     public static Stream<Arguments> commentsMixedWithCode() {
@@ -99,8 +87,7 @@ public class JavaLocalizationEntryParserTest {
                 // character literals containing quotes do not confuse the parser
                 Arguments.of("char c = '\"'; Localization.lang(\"real\")", List.of("real")),
                 // comment markers inside a text block do not start a comment
-                Arguments.of("String s = \"\"\"\n// no comment /* here\n\"\"\"; Localization.lang(\"real\")", List.of("real"))
-        );
+                Arguments.of("String s = \"\"\"\n// no comment /* here\n\"\"\"; Localization.lang(\"real\")", List.of("real")));
     }
 
     @ParameterizedTest
@@ -120,7 +107,14 @@ public class JavaLocalizationEntryParserTest {
         String source = "int i = 0; // comment\n/* block\ncomment */ int j = 1;";
         String blanked = JavaLocalizationEntryParser.blankOutComments(source);
         assertEquals(source.length(), blanked.length());
-        assertEquals("int i = 0;" + " ".repeat(11) + "\n" + " ".repeat(8) + "\n" + " ".repeat(10) + " int j = 1;", blanked);
+        assertEquals("int i = 0;"
+                + " ".repeat(11)
+                + "\n"
+                + " ".repeat(8)
+                + "\n"
+                + " ".repeat(10)
+                + " int j = 1;",
+                blanked);
     }
 
     @ParameterizedTest

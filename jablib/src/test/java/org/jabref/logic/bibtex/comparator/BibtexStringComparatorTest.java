@@ -1,7 +1,6 @@
 package org.jabref.logic.bibtex.comparator;
 
 import org.jabref.model.entry.BibtexString;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -13,13 +13,11 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.externalfiletype.CustomExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
-import org.jabref.gui.icon.IconTheme;
-
+import org.jabref.gui.icon.IconTheme.JabRefIcons;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,16 +29,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/// The "browser" in these tests is a shell script recording its argument, so the assertions catch
-/// any URL mangling on the way to the external application (the regression fixed here: routing
-/// online links through `Path.of`, which collapses `https://` and truncates query strings).
+/// The "browser" in these tests is a shell script recording its argument, so
+/// the assertions catch any URL mangling on the way to the external application
+/// (the regression fixed here: routing online links through `Path.of`, which
+/// collapses `https://` and truncates query strings).
 @NullMarked
 @DisabledOnOs(OS.WINDOWS)
 class NativeDesktopTest {
 
     private static final String URL_WITH_QUERY = "https://journals.plos.org/plosmedicine/article/file?id=10.1371/journal.pmed.1004085&type=printable";
 
-    @TempDir Path tempDir;
+    @TempDir
+    Path tempDir;
 
     private Path recorder;
     private Path recorded;
@@ -65,7 +65,8 @@ class NativeDesktopTest {
 
     @Test
     void openBrowserPassesFullUrlToCustomBrowser() throws IOException, InterruptedException {
-        ExternalFileType htmlType = new CustomExternalFileType("URL", "html", "text/html", recorder.toString(), "www", IconTheme.JabRefIcons.WWW);
+        ExternalFileType htmlType = new CustomExternalFileType("URL", "html", "text/html", recorder.toString(), "www",
+                JabRefIcons.WWW);
         ExternalApplicationsPreferences preferences = mock(ExternalApplicationsPreferences.class);
         when(preferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(htmlType));
 

@@ -10,40 +10,25 @@ import java.util.Optional;
 import org.jabref.model.entry.KeywordList;
 
 public enum SpecialField implements Field {
+    PRINTED("printed", SpecialFieldValue.PRINTED),
 
-    PRINTED("printed",
-            SpecialFieldValue.PRINTED
-    ),
+    PRIORITY("priority", SpecialFieldValue.CLEAR_PRIORITY, SpecialFieldValue.PRIORITY_HIGH,
+            SpecialFieldValue.PRIORITY_MEDIUM, SpecialFieldValue.PRIORITY_LOW),
 
-    PRIORITY("priority",
-            SpecialFieldValue.CLEAR_PRIORITY,
-            SpecialFieldValue.PRIORITY_HIGH,
-            SpecialFieldValue.PRIORITY_MEDIUM,
-            SpecialFieldValue.PRIORITY_LOW
-    ),
+    QUALITY("qualityassured", SpecialFieldValue.QUALITY_ASSURED),
 
-    QUALITY("qualityassured",
-            SpecialFieldValue.QUALITY_ASSURED
-    ),
-
-    RANKING("ranking",
+    RANKING(
+            "ranking",
             SpecialFieldValue.CLEAR_RANK,
             SpecialFieldValue.RANK_1,
             SpecialFieldValue.RANK_2,
             SpecialFieldValue.RANK_3,
             SpecialFieldValue.RANK_4,
-            SpecialFieldValue.RANK_5
-    ),
+            SpecialFieldValue.RANK_5),
 
-    READ_STATUS("readstatus",
-            SpecialFieldValue.CLEAR_READ_STATUS,
-            SpecialFieldValue.READ,
-            SpecialFieldValue.SKIMMED
-    ),
+    READ_STATUS("readstatus", SpecialFieldValue.CLEAR_READ_STATUS, SpecialFieldValue.READ, SpecialFieldValue.SKIMMED),
 
-    RELEVANCE("relevance",
-            SpecialFieldValue.RELEVANT
-    );
+    RELEVANCE("relevance", SpecialFieldValue.RELEVANT);
 
     private final List<SpecialFieldValue> values;
     private final KeywordList keywords;
@@ -72,8 +57,8 @@ public enum SpecialField implements Field {
 
     public static Optional<SpecialField> fromName(String name) {
         return Arrays.stream(SpecialField.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+                .filter(field -> field.getName().equalsIgnoreCase(name))
+                .findAny();
     }
 
     public boolean isSingleValueField() {

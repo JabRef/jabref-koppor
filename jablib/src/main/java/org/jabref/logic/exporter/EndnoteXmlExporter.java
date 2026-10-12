@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SequencedMap;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -33,7 +32,6 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NonNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -93,8 +91,7 @@ public class EndnoteXmlExporter extends Exporter {
 
     private final DocumentBuilderFactory documentBuilderFactory;
 
-    private record EndNoteType(String name, int number) {
-    }
+    private record EndNoteType(String name, int number) {}
 
     private final BibEntryPreferences bibEntryPreferences;
 
@@ -105,9 +102,7 @@ public class EndnoteXmlExporter extends Exporter {
     }
 
     @Override
-    public void export(@NonNull BibDatabaseContext databaseContext,
-                       @NonNull Path file,
-                       @NonNull List<BibEntry> entries) throws ParserConfigurationException, TransformerException {
+    public void export(@NonNull BibDatabaseContext databaseContext, @NonNull Path file, @NonNull List<BibEntry> entries) throws ParserConfigurationException, TransformerException {
         if (entries.isEmpty()) {
             return;
         }
@@ -153,40 +148,43 @@ public class EndnoteXmlExporter extends Exporter {
     }
 
     private static void mapTitle(BibEntry entry, Document document, Element recordElement) {
-        entry.getFieldOrAlias(StandardField.TITLE).ifPresent(title -> {
-            Element titlesElement = document.createElement("titles");
+        entry.getFieldOrAlias(StandardField.TITLE).ifPresent(
+                title -> {
+                    Element titlesElement = document.createElement("titles");
 
-            Element titleElement = document.createElement("title");
-            titleElement.setTextContent(title);
-            titlesElement.appendChild(titleElement);
+                    Element titleElement = document.createElement("title");
+                    titleElement.setTextContent(title);
+                    titlesElement.appendChild(titleElement);
 
-            entry.getField(new UnknownField("alt-title")).ifPresent(altTitle -> {
-                Element altTitleElement = document.createElement("alt-title");
-                altTitleElement.setTextContent(altTitle);
-                titlesElement.appendChild(altTitleElement);
-            });
+                    entry.getField(new UnknownField("alt-title")).ifPresent(altTitle -> {
+                        Element altTitleElement = document.createElement("alt-title");
+                        altTitleElement.setTextContent(altTitle);
+                        titlesElement.appendChild(altTitleElement);
+                    });
 
-            entry.getField(StandardField.BOOKTITLE).ifPresent(secondaryTitle -> {
-                Element secondaryTitleElement = document.createElement("secondary-title");
-                secondaryTitleElement.setTextContent(secondaryTitle);
-                titlesElement.appendChild(secondaryTitleElement);
-            });
+                    entry.getField(StandardField.BOOKTITLE).ifPresent(secondaryTitle -> {
+                        Element secondaryTitleElement = document.createElement("secondary-title");
+                        secondaryTitleElement.setTextContent(secondaryTitle);
+                        titlesElement.appendChild(secondaryTitleElement);
+                    });
 
-            recordElement.appendChild(titlesElement);
-        });
+                    recordElement.appendChild(titlesElement);
+                });
     }
 
     private static void mapJournalTitle(BibEntry entry, Document document, Element recordElement) {
-        entry.getFieldOrAlias(StandardField.JOURNAL).ifPresent(journalTitle -> {
-            Element periodicalElement = document.createElement("periodical");
-            Element fullTitleElement = document.createElement("full-title");
-            fullTitleElement.setTextContent(journalTitle);
-            periodicalElement.appendChild(fullTitleElement);
-            recordElement.appendChild(periodicalElement);
-        });
+        entry.getFieldOrAlias(StandardField.JOURNAL).ifPresent(
+                journalTitle -> {
+                    Element periodicalElement = document.createElement("periodical");
+                    Element fullTitleElement = document.createElement("full-title");
+                    fullTitleElement.setTextContent(journalTitle);
+                    periodicalElement.appendChild(fullTitleElement);
+                    recordElement.appendChild(periodicalElement);
+                });
     }
 
-    private void mapKeywords(BibDatabase bibDatabase, BibEntry entry, Document document, Element recordElement) {
+    private void mapKeywords(BibDatabase bibDatabase, BibEntry entry, Document document,
+            Element recordElement) {
         entry.getFieldOrAlias(StandardField.KEYWORDS).ifPresent(_ -> {
             Element keywordsElement = document.createElement("keywords");
             entry.getResolvedKeywords(bibEntryPreferences.getKeywordSeparator(), bibDatabase).forEach(keyword -> {
@@ -202,21 +200,23 @@ public class EndnoteXmlExporter extends Exporter {
     private static void mapUrls(BibEntry entry, Document document, Element recordElement) {
         Element urlsElement = document.createElement("urls");
 
-        entry.getFieldOrAlias(StandardField.FILE).ifPresent(fileField -> {
-            Element pdfUrlsElement = document.createElement("pdf-urls");
-            Element urlElement = document.createElement("url");
-            urlElement.setTextContent(fileField);
-            pdfUrlsElement.appendChild(urlElement);
-            urlsElement.appendChild(pdfUrlsElement);
-        });
+        entry.getFieldOrAlias(StandardField.FILE).ifPresent(
+                fileField -> {
+                    Element pdfUrlsElement = document.createElement("pdf-urls");
+                    Element urlElement = document.createElement("url");
+                    urlElement.setTextContent(fileField);
+                    pdfUrlsElement.appendChild(urlElement);
+                    urlsElement.appendChild(pdfUrlsElement);
+                });
 
-        entry.getFieldOrAlias(StandardField.URL).ifPresent(url -> {
-            Element webUrlsElement = document.createElement("web-urls");
-            Element urlElement = document.createElement("url");
-            urlElement.setTextContent(url);
-            webUrlsElement.appendChild(urlElement);
-            urlsElement.appendChild(webUrlsElement);
-        });
+        entry.getFieldOrAlias(StandardField.URL).ifPresent(
+                url -> {
+                    Element webUrlsElement = document.createElement("web-urls");
+                    Element urlElement = document.createElement("url");
+                    urlElement.setTextContent(url);
+                    webUrlsElement.appendChild(urlElement);
+                    urlsElement.appendChild(webUrlsElement);
+                });
 
         if (urlsElement.hasChildNodes()) {
             recordElement.appendChild(urlsElement);
@@ -241,13 +241,14 @@ public class EndnoteXmlExporter extends Exporter {
             datesElement.appendChild(yearElement);
         });
         // We need to use getField here - getFieldOrAlias for Date tries to convert year, month, and day to a date, which we do not want
-        entry.getField(StandardField.DATE).ifPresent(date -> {
-            Element pubDatesElement = document.createElement("pub-dates");
-            Element dateElement = document.createElement("date");
-            dateElement.setTextContent(date);
-            pubDatesElement.appendChild(dateElement);
-            datesElement.appendChild(pubDatesElement);
-        });
+        entry.getField(StandardField.DATE).ifPresent(
+                date -> {
+                    Element pubDatesElement = document.createElement("pub-dates");
+                    Element dateElement = document.createElement("date");
+                    dateElement.setTextContent(date);
+                    pubDatesElement.appendChild(dateElement);
+                    datesElement.appendChild(pubDatesElement);
+                });
         if (datesElement.hasChildNodes()) {
             recordElement.appendChild(datesElement);
         }
@@ -265,7 +266,10 @@ public class EndnoteXmlExporter extends Exporter {
     private static void createMetaInformationElements(BibDatabaseContext databaseContext, Document document, Element recordElement) {
         Element databaseElement = document.createElement("database");
         databaseElement.setAttribute("name", "MyLibrary");
-        String name = databaseContext.getDatabasePath().map(Path::getFileName).map(Path::toString).orElse("MyLibrary");
+        String name = databaseContext.getDatabasePath()
+                .map(Path::getFileName)
+                .map(Path::toString)
+                .orElse("MyLibrary");
         databaseElement.setTextContent(name);
         recordElement.appendChild(databaseElement);
 
@@ -284,7 +288,8 @@ public class EndnoteXmlExporter extends Exporter {
         }
     }
 
-    private static void addPersons(String authors, Document document, Element contributorsElement, String wrapTagName) {
+    private static void addPersons(String authors, Document document, Element contributorsElement,
+            String wrapTagName) {
         Element container = document.createElement(wrapTagName);
         AuthorList parsedPersons = AuthorList.parse(authors).latexFree();
         for (Author person : parsedPersons) {

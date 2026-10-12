@@ -17,7 +17,8 @@ public final class LlmResponseParser {
     /// Extracts a numbered or bulleted list from an LLM response.
     ///
     /// @param response the raw LLM response
-    /// @return a list of extracted non-blank items; empty list if no valid items found
+    /// @return a list of extracted non-blank items; empty list if no valid
+    ///   items found
     public static List<String> extractNumberedList(String response) {
         List<String> items = new ArrayList<>();
 
@@ -60,8 +61,7 @@ public final class LlmResponseParser {
             groups.add(current);
         }
 
-        boolean anyBullets = groups.stream()
-                                   .anyMatch(g -> g.stream().anyMatch(l -> BULLET_LINE_PATTERN.matcher(l).find()));
+        boolean anyBullets = groups.stream().anyMatch(g -> g.stream().anyMatch(l -> BULLET_LINE_PATTERN.matcher(l).find()));
 
         List<String> result = new ArrayList<>();
         for (List<String> group : groups) {
@@ -70,9 +70,10 @@ public final class LlmResponseParser {
                 continue;
             }
             for (String line : group) {
-                String item = BULLET_LINE_PATTERN.matcher(line).replaceFirst("")
-                                                 .replaceAll("^\\d+\\.\\s*", "")
-                                                 .replaceAll(QUOTE_REMOVAL_PATTERN, "");
+                String item = BULLET_LINE_PATTERN.matcher(line)
+                        .replaceFirst("")
+                        .replaceAll("^\\d+\\.\\s*", "")
+                        .replaceAll(QUOTE_REMOVAL_PATTERN, "");
                 if (isValidItem(item)) {
                     result.add(item);
                 }

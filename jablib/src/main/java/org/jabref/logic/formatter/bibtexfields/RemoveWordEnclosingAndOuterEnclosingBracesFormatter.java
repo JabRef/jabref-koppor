@@ -5,17 +5,16 @@ import java.util.StringJoiner;
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.jspecify.annotations.NullMarked;
 
-/// Removes start and end brace both at the complete string and at beginning/end of a word
+/// Removes start and end brace both at the complete string and at beginning/end
+/// of a word
 ///
 /// E.g.,
 ///
 /// - {Vall{\'e}e Poussin} -> Vall{\'e}e Poussin
 /// - {Vall{\'e}e} {Poussin} -> Vall{\'e}e Poussin
 /// - Vall{\'e}e Poussin -> Vall{\'e}e Poussin
-///
 @NullMarked
 public class RemoveWordEnclosingAndOuterEnclosingBracesFormatter extends Formatter {
 

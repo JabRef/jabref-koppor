@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.jabref.model.search.SearchMatcher;
-
 import org.jspecify.annotations.NonNull;
 
 public abstract class MatcherSet implements SearchMatcher {

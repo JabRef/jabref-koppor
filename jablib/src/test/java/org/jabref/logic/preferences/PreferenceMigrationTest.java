@@ -2,7 +2,6 @@ package org.jabref.logic.preferences;
 
 import org.jabref.logic.ai.preferences.AiDefaultExpertSettings;
 import org.jabref.model.ai.pipeline.ResponseEngineKind;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -131,7 +130,8 @@ class PreferenceMigrationTest {
         assertEquals(customGrobidUrl, preferences.getGrobidPreferences().getGrobidURL());
     }
 
-    private void restorePreference(JabRefCliPreferences preferences, String key, boolean hasValue, String value) {
+    private void restorePreference(JabRefCliPreferences preferences, String key, boolean hasValue,
+            String value) {
         if (!hasValue) {
             preferences.remove(key);
             return;

@@ -114,16 +114,19 @@ public class Bootstrap {
 
     /// backwards compatibility stub.
     ///
-    /// @param context_entries the hash table contains mappings of entry names (type string) to context entries (type class ComponentContextEntry).
+    /// @param context_entries the hash table contains mappings of entry names
+    ///   (type string) to context entries (type class ComponentContextEntry).
     /// @return a new context.
     /// @throws Exception if things go awry.
     public static XComponentContext createInitialComponentContext(Hashtable<String, Object> context_entries) throws Exception {
         return createInitialComponentContext((Map<String, Object>) context_entries);
     }
 
-    /// Bootstraps an initial component context with service manager and basic jurt components inserted.
+    /// Bootstraps an initial component context with service manager and basic
+    /// jurt components inserted.
     ///
-    /// @param context_entries the hash table contains mappings of entry names (type string) to context entries (type class ComponentContextEntry).
+    /// @param context_entries the hash table contains mappings of entry names
+    ///   (type string) to context entries (type class ComponentContextEntry).
     /// @return a new context.
     /// @throws Exception if things go awry.
     public static XComponentContext createInitialComponentContext(Map<String, Object> context_entries) throws Exception {
@@ -159,7 +162,8 @@ public class Bootstrap {
     /// @return a freshly bootstrapped service manager
     /// @throws Exception if things go awry.
     public static XMultiServiceFactory createSimpleServiceManager() throws Exception {
-        return UnoRuntime.queryInterface(XMultiServiceFactory.class, createInitialComponentContext((Map<String, Object>) null).getServiceManager());
+        return UnoRuntime.queryInterface(XMultiServiceFactory.class, createInitialComponentContext((Map<String, Object>) null)
+                .getServiceManager());
     }
 
     /// Bootstraps the initial component context from a native UNO installation.
@@ -175,7 +179,7 @@ public class Bootstrap {
 
     /// Backwards compatibility stub.
     ///
-    /// @param ini_file             ini_file (may be null: uno.rc besides cppuhelper lib)
+    /// @param ini_file ini_file (may be null: uno.rc besides cppuhelper lib)
     /// @param bootstrap_parameters bootstrap parameters (maybe null)
     /// @return a freshly bootstrapped component context.
     /// @throws Exception if things go awry.
@@ -185,10 +189,9 @@ public class Bootstrap {
 
     /// Bootstraps the initial component context from a native UNO installation.
     ///
-    /// See also
-    /// `cppuhelper/defaultBootstrap_InitialComponentContext()`.
+    /// See also `cppuhelper/defaultBootstrap_InitialComponentContext()`.
     ///
-    /// @param ini_file             ini_file (may be null: uno.rc besides cppuhelper lib)
+    /// @param ini_file ini_file (may be null: uno.rc besides cppuhelper lib)
     /// @param bootstrap_parameters bootstrap parameters (maybe null)
     /// @return a freshly bootstrapped component context.
     /// @throws Exception if things go awry.
@@ -247,7 +250,8 @@ public class Bootstrap {
 
     /// Bootstraps the component context from a UNO installation.
     ///
-    /// @param argArray an array of strings - commandline options to start instance of soffice with
+    /// @param argArray an array of strings - commandline options to start
+    ///   instance of soffice with
     /// @return a bootstrapped component context.
     /// @throws BootstrapException if things go awry.
     /// @see #getDefaultOptions()

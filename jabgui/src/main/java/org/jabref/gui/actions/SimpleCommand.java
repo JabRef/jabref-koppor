@@ -1,12 +1,10 @@
 package org.jabref.gui.actions;
 
+import de.saxsys.mvvmfx.utils.commands.CommandBase;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
-
 import org.jabref.gui.util.BindingsHelper;
-
-import de.saxsys.mvvmfx.utils.commands.CommandBase;
 
 /// A simple command that does not track progress of the action.
 public abstract class SimpleCommand extends CommandBase {
