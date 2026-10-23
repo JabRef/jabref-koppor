@@ -2,6 +2,7 @@ package org.jabref.logic.quality.consistency;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -96,6 +97,7 @@ public class BibliographyConsistencyCheck {
                       .toList();
     }
 
+    /// @param entryTypeToResultMap ordered by the name of the entry type
     public record Result(Map<EntryType, EntryTypeResult> entryTypeToResultMap) {
     }
 
@@ -124,11 +126,14 @@ public class BibliographyConsistencyCheck {
 
         List<BibEntryType> entryTypeDefinitions = bibEntryTypesManager.getAllTypes(bibContext.getMode()).stream().toList();
 
-        // Use LinkedHashMap to preserve the order of Bib(tex|latex)EntryTypeDefinitions.ALL
+        // Ordered by entry type name, so that all consumers (GUI, CLI output, language server) list the types in the same order
         Map<EntryType, EntryTypeResult> resultMap = new LinkedHashMap<>();
+        List<Map.Entry<EntryType, Set<Field>>> entryTypesByName = entryTypeToFieldsInAnyEntryMap.entrySet().stream()
+                                                                                                .sorted(Comparator.comparing(mapEntry -> mapEntry.getKey().getName()))
+                                                                                                .toList();
 
         int counter = 0;
-        for (Map.Entry<EntryType, Set<Field>> mapEntry : entryTypeToFieldsInAnyEntryMap.entrySet()) {
+        for (Map.Entry<EntryType, Set<Field>> mapEntry : entryTypesByName) {
             entriesGroupingProgress.accept(counter++, entryTypeToFieldsInAnyEntryMap.size());
             EntryType entryType = mapEntry.getKey();
             Set<Field> fieldsInAnyEntry = mapEntry.getValue();
