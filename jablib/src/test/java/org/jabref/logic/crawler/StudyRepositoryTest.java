@@ -323,6 +323,18 @@ class StudyRepositoryTest {
     }
 
     @Test
+    void studyLockSkipsBlankOverrideBeforeNonBlankOne() throws Exception {
+        Map<String, String> catalogSpecific = studyRepository.getStudy().getQueries().getFirst().getCatalogSpecific();
+        catalogSpecific.put("arxiv", " ");
+        catalogSpecific.put("ARXIV", "ti:Quantum");
+
+        studyRepository.persist(getMockResults());
+
+        // Same override as StudyFetcher sends
+        assertEquals("ti:Quantum", parseStudyLock().getQueries().getFirst().getCatalogSpecific().get("arXiv"));
+    }
+
+    @Test
     void studyLockFallsBackToQueryForBlankOverride() throws Exception {
         studyRepository.getStudy().getQueries().getFirst().getCatalogSpecific().put("arXiv", " ");
 

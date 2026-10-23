@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import javafx.collections.FXCollections;
 
 import org.jabref.logic.preferences.CliPreferences;
@@ -47,10 +49,14 @@ class ExporterTest {
 
     @ParameterizedTest
     @MethodSource("exportFormats")
-    void exportingEmptyDatabaseYieldsEmptyFile(Exporter exportFormat, String name, @TempDir Path testFolder) throws Exception {
+    void exportingEmptyDatabaseYieldsExpectedDocument(Exporter exportFormat, String name, @TempDir Path testFolder) throws Exception {
         Path tmpFile = testFolder.resolve("ARandomlyNamedFile");
         Files.createFile(tmpFile);
         exportFormat.export(new BibDatabaseContext(), tmpFile, List.of());
-        assertEquals(List.of(), Files.readAllLines(tmpFile));
+        if (exportFormat instanceof BibframeExporter) {
+            assertEquals("rdf:RDF", DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(tmpFile.toFile()).getDocumentElement().getTagName());
+        } else {
+            assertEquals(List.of(), Files.readAllLines(tmpFile));
+        }
     }
 }
