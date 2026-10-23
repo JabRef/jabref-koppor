@@ -1,12 +1,9 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.Optional;
 
 import javafx.collections.FXCollections;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.util.BuildInfo;
 import org.jabref.model.entry.BibEntry;
@@ -58,7 +55,7 @@ class BiodiversityLibraryTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"1234", "331", "121"})
-    void getPartMetadaUrl(String id) throws MalformedURLException, URISyntaxException {
+    void getPartMetadaUrl(String id) throws Exception {
         String expected = BASE_URL
                 + "?apiKey=" + apiKey
                 + "&format=json"
@@ -70,7 +67,7 @@ class BiodiversityLibraryTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"1234", "4321", "331"})
-    void getItemMetadaUrl(String id) throws MalformedURLException, URISyntaxException {
+    void getItemMetadaUrl(String id) throws Exception {
         String expected = BASE_URL
                 + "?apiKey=" + apiKey
                 + "&format=json"
@@ -81,7 +78,7 @@ class BiodiversityLibraryTest {
     }
 
     @Test
-    void performSearch() throws FetcherException {
+    void performSearch() throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Clark, John L. (John Littner)  and Neill, David A. ")
                 .withField(StandardField.JOURNALTITLE, "PhytoKeys")

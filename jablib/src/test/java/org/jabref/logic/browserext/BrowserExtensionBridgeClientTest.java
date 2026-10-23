@@ -1,6 +1,5 @@
 package org.jabref.logic.browserext;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +25,7 @@ class BrowserExtensionBridgeClientTest {
     }
 
     @Test
-    void openMathSciNetReturnsEmptyWhenDiscoveryFileIsMalformed(@TempDir Path discoveryDir) throws IOException {
+    void openMathSciNetReturnsEmptyWhenDiscoveryFileIsMalformed(@TempDir Path discoveryDir) throws Exception {
         Files.writeString(discoveryDir.resolve("jabext-experimental.json"), "{\"name\":\"jabext-experimental\"}");
 
         BrowserExtensionBridgeClient client = new BrowserExtensionBridgeClient(discoveryDir);
@@ -35,7 +34,7 @@ class BrowserExtensionBridgeClientTest {
     }
 
     @Test
-    void openMathSciNetSendsBearerTokenAndParsesResponse(@TempDir Path discoveryDir) throws IOException {
+    void openMathSciNetSendsBearerTokenAndParsesResponse(@TempDir Path discoveryDir) throws Exception {
         Path tokenFile = discoveryDir.resolve("jabext-experimental.token");
         Files.writeString(tokenFile, "s3cr3t-token");
 

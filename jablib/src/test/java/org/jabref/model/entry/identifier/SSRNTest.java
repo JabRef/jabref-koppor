@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SSRNTest {
+class SSRNTest {
     private static Stream<Arguments> provideTestData() {
         return Stream.of(
                 // Basic string
@@ -34,7 +34,7 @@ public class SSRNTest {
     /// @param input      the input to be checked
     @ParameterizedTest
     @MethodSource("provideTestData")
-    public void acceptCorrectSSRNAbstracts(boolean findInText, String input) {
+    void acceptCorrectSSRNAbstracts(boolean findInText, String input) {
         assertEquals("4904445", new SSRN(input).asString());
         Optional<SSRN> parsed = SSRN.parse(input);
 
@@ -47,19 +47,19 @@ public class SSRNTest {
     }
 
     @Test
-    public void findInText() {
+    void findInText() {
         Optional<SSRN> parsed = SSRN.parse("The example paper (https://ssrn.com/abstract=4904445) should be found within this text");
         assertTrue(parsed.isPresent());
         assertEquals("4904445", parsed.get().asString());
     }
 
     @Test
-    public void identifierNormalisation() {
+    void identifierNormalisation() {
         assertEquals("123456", new SSRN(123456).asString());
     }
 
     @Test
-    public void identifierExternalUrl() {
+    void identifierExternalUrl() {
         SSRN ssrnIdentifier = new SSRN(123456);
         URI uri = URLUtil.createUri("https://ssrn.com/abstract=123456");
         assertEquals(Optional.of(uri), ssrnIdentifier.getExternalURI());

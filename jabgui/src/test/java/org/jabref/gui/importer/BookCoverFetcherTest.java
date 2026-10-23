@@ -1,6 +1,5 @@
 package org.jabref.gui.importer;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,7 +13,6 @@ import javafx.collections.FXCollections;
 
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.util.Directories;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
@@ -100,7 +98,7 @@ class BookCoverFetcherTest {
     /// We create a new book cover in the cover directory.
     /// When we try to get the book cover we should get the same path as when we created it.
     @Test
-    void getAlreadyDownloadedCover() throws IOException {
+    void getAlreadyDownloadedCover() throws Exception {
         Files.createFile(coverPath);
 
         Optional<Path> optionalPath = bookCoverFetcher.getDownloadedCoverForEntry(entry);
@@ -116,7 +114,7 @@ class BookCoverFetcherTest {
     /// When we try to get the book cover with the same isbn we should not get anything
     /// since it is not a real image.
     @Test
-    void getNoCoverWhenNotAvailableFilePresent() throws IOException {
+    void getNoCoverWhenNotAvailableFilePresent() throws Exception {
         Files.createFile(notAvailablePath);
 
         Optional<Path> optionalPath = bookCoverFetcher.getDownloadedCoverForEntry(entry);
@@ -129,7 +127,7 @@ class BookCoverFetcherTest {
     /// When we try to download the book and fail to do so, the modification time should be set to now.
     @Test
     @ExternalServicesTest
-    void modificationTimeChangesWhenMoreThan24Hours() throws IOException, FetcherException {
+    void modificationTimeChangesWhenMoreThan24Hours() throws Exception {
         Instant now = Instant.now();
         Files.createFile(badNotAvailablePath);
         // Set the last modification time of the file to be 25 hours ago
@@ -149,7 +147,7 @@ class BookCoverFetcherTest {
     /// We create a new .not-available file in the cover directory with a modification time less than 24 hours ago
     /// When we try to download the book, the modification time should not change.
     @Test
-    void modificationTimeDoesNotChangeWhenLessThan24Hours() throws IOException, FetcherException {
+    void modificationTimeDoesNotChangeWhenLessThan24Hours() throws Exception {
         Files.createFile(badNotAvailablePath);
         // Set the last modification time of the file to be 23 hours ago
         Files.setLastModifiedTime(badNotAvailablePath, FileTime.from(Instant.now().minus(23, ChronoUnit.HOURS)));
@@ -168,7 +166,7 @@ class BookCoverFetcherTest {
     /// When we try to download the book and succeed, the file should be deleted.
     @Test
     @ExternalServicesTest
-    void notAvailableFileIsDeletedAfterSuccessfulDownload() throws IOException, FetcherException {
+    void notAvailableFileIsDeletedAfterSuccessfulDownload() throws Exception {
         Files.createFile(notAvailablePath);
         Files.setLastModifiedTime(notAvailablePath, FileTime.from(Instant.now().minus(25, ChronoUnit.HOURS)));
 

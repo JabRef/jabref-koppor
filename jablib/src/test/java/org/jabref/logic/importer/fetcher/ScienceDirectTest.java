@@ -1,6 +1,5 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 
@@ -47,7 +46,7 @@ class ScienceDirectTest {
 
     @Test
     @DisabledOnCIServer("CI server is blocked")
-    void findByDoiOldPage() throws IOException {
+    void findByDoiOldPage() throws Exception {
         entry.setField(StandardField.DOI, "10.1016/j.jrmge.2015.08.004");
 
         assertEquals(
@@ -58,7 +57,7 @@ class ScienceDirectTest {
 
     @Test
     @DisabledOnCIServer("CI server is blocked")
-    void findByDoiNewPage() throws IOException {
+    void findByDoiNewPage() throws Exception {
         entry.setField(StandardField.DOI, "10.1016/j.aasri.2014.09.002");
 
         assertEquals(
@@ -69,7 +68,7 @@ class ScienceDirectTest {
 
     @Test
     @DisabledOnCIServer("CI server is blocked")
-    void findByDoiWorksForBoneArticle() throws IOException {
+    void findByDoiWorksForBoneArticle() throws Exception {
         // The DOI is an example by a user taken from https://github.com/JabRef/jabref/issues/5860
         entry.setField(StandardField.DOI, "https://doi.org/10.1016/j.bone.2020.115226");
 
@@ -81,7 +80,7 @@ class ScienceDirectTest {
 
     @Test
     @DisabledOnCIServer("CI server is blocked")
-    void notFoundByDoi() throws IOException {
+    void notFoundByDoi() throws Exception {
         entry.setField(StandardField.DOI, "10.1016/j.aasri.2014.0559.002");
 
         assertEquals(Optional.empty(), finder.findFullText(entry));
@@ -89,7 +88,7 @@ class ScienceDirectTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void findsPdfDirectlyWhenSciDirPdfPresent() throws IOException {
+    void findsPdfDirectlyWhenSciDirPdfPresent() throws Exception {
         String jsonBody = """
                 {"full-text-retrieval-response":{"coredata":{"link":[{"@href":"https://api.elsevier.com/content/article/pii/S0963869523002050","@rel":"self","@_fa":"true"},{"@href":"https://www.sciencedirect.com/science/article/pii/S0963869523002050","@rel":"scidir","@_fa":"true"},{"@href":"https://www.sciencedirect.com/science/article/pii/S0963869523002050/pdfft?isDTMRedir=true","@rel":"scidir-pdf","@_fa":"true"}]}}}""";
 

@@ -1,6 +1,5 @@
 package org.jabref.logic.git;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -9,7 +8,6 @@ import java.util.Map;
 import org.jabref.logic.git.preferences.GitPreferences;
 import org.jabref.logic.git.util.NoopGitSystemReader;
 
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.WindowCache;
 import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.storage.file.WindowCacheConfig;
@@ -60,7 +58,7 @@ class SlrGitHandlerTest {
     }
 
     @Test
-    void calculateDiffOnBranch() throws IOException, GitAPIException {
+    void calculateDiffOnBranch() throws Exception {
         String expectedPatch =
                 "diff --git a/TestFolder/Test1.txt b/TestFolder/Test1.txt\n" +
                         "index 74809e3..2ae1945 100644\n" +
@@ -85,7 +83,7 @@ class SlrGitHandlerTest {
     }
 
     @Test
-    void calculatePatch() throws IOException, GitAPIException {
+    void calculatePatch() throws Exception {
         Map<Path, String> expected = new HashMap<>();
         expected.put(Path.of(repositoryPath.toString(), "TestFolder", "Test1.txt"), "This is a new line of text 2");
 
@@ -102,7 +100,7 @@ class SlrGitHandlerTest {
     }
 
     @Test
-    void applyPatch() throws IOException, GitAPIException {
+    void applyPatch() throws Exception {
         gitHandler.checkoutBranch("branch1");
         Files.createFile(Path.of(repositoryPath.toString(), "Test1.txt"));
         gitHandler.createCommitOnCurrentBranch("Commit on branch1", false);

@@ -8,9 +8,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
-import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.net.ssl.TrustStoreManager;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
@@ -99,43 +97,43 @@ class ZbMATHTest {
     }
 
     @Test
-    void searchByQueryFindsEntry() throws FetcherException {
+    void searchByQueryFindsEntry() throws Exception {
         List<BibEntry> fetchedEntries = fetcher.performSearch("an:0507.57010");
         assertEquals(List.of(donaldsonEntry), fetchedEntries);
     }
 
     @Test
-    void searchByIdFindsEntry() throws FetcherException {
+    void searchByIdFindsEntry() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("0507.57010");
         assertEquals(Optional.of(donaldsonEntry), fetchedEntry);
     }
 
     @Test
-    void searchByEntryFindsEntry() throws FetcherException {
+    void searchByEntryFindsEntry() throws Exception {
         List<BibEntry> fetchedEntries = fetcher.performSearch(getDonaldsonSearchEntry());
         assertEquals(List.of(donaldsonEntry), fetchedEntries);
     }
 
     @Test
-    void searchByIdFindsBookEntry() throws FetcherException {
+    void searchByIdFindsBookEntry() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("0411.68039");
         assertEquals(Optional.of(gareyJohnsonBookEntry), fetchedEntry);
     }
 
     @Test
-    void searchByIdFindsCollectionEntry() throws FetcherException {
+    void searchByIdFindsCollectionEntry() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("1418.91504");
         assertEquals(Optional.of(blackScholesCollectionEntry), fetchedEntry);
     }
 
     @Test
-    void searchByEmptyEntryFindsNothing() throws FetcherException {
+    void searchByEmptyEntryFindsNothing() throws Exception {
         List<BibEntry> fetchedEntries = fetcher.performSearch(new BibEntry());
         assertEquals(List.of(), fetchedEntries);
     }
 
     @Test
-    void parserMapsBookEntries() throws ParseException {
+    void parserMapsBookEntries() throws Exception {
         String response = """
                 {
                   "result": {
@@ -181,7 +179,7 @@ class ZbMATHTest {
     }
 
     @Test
-    void parserMapsCollectionArticles() throws ParseException {
+    void parserMapsCollectionArticles() throws Exception {
         String response = """
                 {
                   "result": {
@@ -229,7 +227,7 @@ class ZbMATHTest {
     }
 
     @Test
-    void parserIgnoresUnsupportedIdType() throws ParseException {
+    void parserIgnoresUnsupportedIdType() throws Exception {
         String response = """
                 {
                   "result": {

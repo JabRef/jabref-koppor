@@ -1,6 +1,5 @@
 package org.jabref.logic.crawler;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -9,15 +8,12 @@ import java.util.List;
 
 import javafx.collections.FXCollections;
 
-import org.jabref.logic.JabRefException;
 import org.jabref.logic.citationkeypattern.CitationKeyGeneratorTestUtils;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.exporter.SaveConfiguration;
-import org.jabref.logic.exporter.SaveException;
 import org.jabref.logic.git.SlrGitHandler;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ImporterPreferences;
-import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.entry.BibEntryTypesManager;
@@ -92,7 +88,7 @@ class CrawlerTest {
     }
 
     @Test
-    void whetherAllFilesAreCreated() throws IOException, ParseException, GitAPIException, SaveException, JabRefException {
+    void whetherAllFilesAreCreated() throws Exception {
         Crawler testCrawler = new Crawler(getPathToStudyDefinitionFile(),
                 gitHandler,
                 preferences,

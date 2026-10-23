@@ -85,19 +85,19 @@ class DoiFetcherTest {
     }
 
     @Test
-    void performSearchBurd2011() throws FetcherException {
+    void performSearchBurd2011() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("10.1002/9781118257517");
         assertEquals(Optional.of(bibEntryBurd2011), fetchedEntry);
     }
 
     @Test
-    void performSearchDecker2007() throws FetcherException {
+    void performSearchDecker2007() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("10.1109/ICWS.2007.59");
         assertEquals(Optional.of(bibEntryDecker2007), fetchedEntry);
     }
 
     @Test
-    void performSearchIannarelli2019() throws FetcherException {
+    void performSearchIannarelli2019() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("10.3303/CET1977146");
         assertEquals(Optional.of(bibEntryIannarelli2019), fetchedEntry);
     }
@@ -123,19 +123,19 @@ class DoiFetcherTest {
     }
 
     @Test
-    void performSearchNonTrimmedDOI() throws FetcherException {
+    void performSearchNonTrimmedDOI() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("http s://doi.org/ 10.1109 /ICWS .2007.59 ");
         assertEquals(Optional.of(bibEntryDecker2007), fetchedEntry);
     }
 
     @Test
-    void aPSJournalCopiesArticleIdToPageField() throws FetcherException {
+    void aPSJournalCopiesArticleIdToPageField() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("10.1103/physreva.102.023315");
         assertEquals(Optional.of(bibEntryStenzel2020), fetchedEntry);
     }
 
     @Test
-    void performSearchDOIWithUnencodedCharacters() throws FetcherException {
+    void performSearchDOIWithUnencodedCharacters() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("10.1002/(SICI)1099-1476(20000125)23:2<147::AID-MMA108>3.0.CO;2-J");
         assertEquals(Optional.of(bibBenedetto2000), fetchedEntry);
     }

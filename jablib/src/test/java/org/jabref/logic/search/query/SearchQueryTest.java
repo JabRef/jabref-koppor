@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SearchQueryTest {
+class SearchQueryTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "",
@@ -54,7 +54,7 @@ public class SearchQueryTest {
             "t\\(1\\)erm",
             "t\\\"erm",
     })
-    public void validSearchQuery(String searchExpression) {
+    void validSearchQuery(String searchExpression) {
         assertTrue(new SearchQuery(searchExpression).isValid());
     }
 
@@ -66,7 +66,7 @@ public class SearchQueryTest {
             "term AND",
             "field CONTAINS NOT value",
     })
-    public void invalidSearchQuery(String searchExpression) {
+    void invalidSearchQuery(String searchExpression) {
         assertFalse(new SearchQuery(searchExpression).isValid());
     }
 

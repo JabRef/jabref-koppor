@@ -1,6 +1,5 @@
 package org.jabref.gui;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -59,7 +58,7 @@ class ClipBoardManagerTest extends JavaFxTest {
     }
 
     @Test
-    void copyStringBibEntry() throws IOException {
+    void copyStringBibEntry() throws Exception {
         String expected = """
                 @Article{,
                   author  = {Claudepierre, S. G.},
@@ -87,7 +86,7 @@ class ClipBoardManagerTest extends JavaFxTest {
     }
 
     @Test
-    void copyStringBibEntryWithStringConstants() throws IOException {
+    void copyStringBibEntryWithStringConstants() throws Exception {
         String expected = """
                 @String{grl = "Geophys. Res. Lett."}
 
