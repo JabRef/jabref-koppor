@@ -10,6 +10,7 @@ import javafx.scene.input.Clipboard;
 
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.testutils.JavaFxTest;
+import org.jabref.injection.Injector;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.TransferMode;
@@ -22,7 +23,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 
-import com.airhacks.afterburner.injection.Injector;
 import org.jooq.lambda.Unchecked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

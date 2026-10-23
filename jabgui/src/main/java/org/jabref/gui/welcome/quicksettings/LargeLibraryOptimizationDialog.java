@@ -7,11 +7,10 @@ import javafx.scene.control.CheckBox;
 import org.jabref.gui.FXDialog;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.URLs;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.component.HelpButton;
 import org.jabref.gui.welcome.quicksettings.viewmodel.LargeLibraryOptimizationDialogViewModel;
 import org.jabref.logic.l10n.Localization;
-
-import com.airhacks.afterburner.views.ViewLoader;
 
 public class LargeLibraryOptimizationDialog extends FXDialog {
     @FXML private CheckBox disableFulltextIndexing;

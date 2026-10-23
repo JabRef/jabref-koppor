@@ -11,11 +11,10 @@ import org.jabref.gui.FXDialog;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.slr.StudyCatalogItem;
 import org.jabref.gui.util.URLs;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.component.HelpButton;
 import org.jabref.gui.welcome.quicksettings.viewmodel.OnlineServicesDialogViewModel;
 import org.jabref.logic.l10n.Localization;
-
-import com.airhacks.afterburner.views.ViewLoader;
 
 public class OnlineServicesDialog extends FXDialog {
     @FXML private CheckBox versionCheckBox;
