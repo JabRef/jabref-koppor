@@ -44,7 +44,7 @@ public class PushToSublimeText extends AbstractPushToApplication {
         }
         try {
             String keyString = this.getKeyString(entries, getDelimiter());
-            LOGGER.debug("Sublime string: {}", String.join(" ", getCommandLine(keyString)));
+            LOGGER.atDebug().addArgument(() -> String.join(" ", getCommandLine(keyString))).log("Sublime string: {}");
 
             String[] command = getCommandLine(keyString);
             ProcessBuilder processBuilder = new ProcessBuilder(command);
@@ -79,7 +79,7 @@ public class PushToSublimeText extends AbstractPushToApplication {
                 }
             }
         } catch (IOException | InterruptedException excep) {
-            LOGGER.warn("Error: Could not call executable '{}'", commandPath, excep);
+            LOGGER.error("Error: Could not call executable '{}'", commandPath, excep);
             couldNotCall = true;
 
             if (excep instanceof IOException) {

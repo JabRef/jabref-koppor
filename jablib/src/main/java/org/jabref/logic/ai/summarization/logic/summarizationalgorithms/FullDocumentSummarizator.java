@@ -23,7 +23,7 @@ public class FullDocumentSummarizator implements Summarizator {
 
     @Override
     public String summarize(ChatModel chatModel, String text) throws InterruptedException {
-        LOGGER.debug("Summarizing whole document ({} chars)", text.length());
+        LOGGER.atDebug().addArgument(() -> text.length()).log("Summarizing whole document ({} chars)");
 
         if (Thread.currentThread().isInterrupted()) {
             throw new InterruptedException();

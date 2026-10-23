@@ -317,7 +317,7 @@ public class TemplateExporter extends Exporter {
                 }
             } catch (IOException ex) {
                 // TODO: show error message here?
-                LOGGER.warn("Problem opening formatter file.", ex);
+                LOGGER.error("Problem opening formatter file.", ex);
             }
         }
     }

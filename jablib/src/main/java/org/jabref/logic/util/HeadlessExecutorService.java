@@ -60,7 +60,7 @@ public class HeadlessExecutorService implements Executor {
         try {
             future.get();
         } catch (InterruptedException e) {
-            LOGGER.debug("The thread is waiting, occupied or interrupted", e);
+            LOGGER.error("The thread is waiting, occupied or interrupted", e);
         } catch (ExecutionException e) {
             LOGGER.error("Problem executing command", e);
         }

@@ -236,7 +236,7 @@ public class LinkedFileViewModel extends AbstractViewModel {
                 dialogService.showErrorDialogAndWait(Localization.lang("Cannot open folder as the file is an online link."));
             }
         } catch (IOException ex) {
-            LOGGER.debug("Cannot open folder", ex);
+            LOGGER.error("Cannot open folder", ex);
         }
     }
 
@@ -371,7 +371,7 @@ public class LinkedFileViewModel extends AbstractViewModel {
         try {
             return Files.isSameFile(currentDirectory.get(), destDirectoryWithPattern);
         } catch (IOException e) {
-            LOGGER.debug("Could not compare directories {} and {}.", currentDirectory.get(), destDirectoryWithPattern, e);
+            LOGGER.error("Could not compare directories {} and {}.", currentDirectory.get(), destDirectoryWithPattern, e);
             return false;
         }
     }

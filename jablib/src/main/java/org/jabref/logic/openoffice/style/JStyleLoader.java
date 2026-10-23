@@ -67,9 +67,9 @@ public class JStyleLoader {
             }
         } catch (FileNotFoundException e) {
             // The file couldn't be found... should we tell anyone?
-            LOGGER.info("Cannot find external style file {}", filename, e);
+            LOGGER.error("Cannot find external style file {}", filename, e);
         } catch (IOException e) {
-            LOGGER.info("Problem reading external style file {}", filename, e);
+            LOGGER.error("Problem reading external style file {}", filename, e);
         }
         return false;
     }
@@ -88,9 +88,9 @@ public class JStyleLoader {
                 }
             } catch (FileNotFoundException _) {
                 // The file couldn't be found... should we tell anyone?
-                LOGGER.info("Cannot find external style file {}", filename);
+                LOGGER.warn("Cannot find external style file {}", filename);
             } catch (IOException e) {
-                LOGGER.info("Problem reading external style file {}", filename, e);
+                LOGGER.error("Problem reading external style file {}", filename, e);
             }
         }
     }
@@ -101,7 +101,7 @@ public class JStyleLoader {
             try {
                 internalStyles.add(new JStyle(filename, layoutFormatterPreferences, abbreviationRepository));
             } catch (IOException e) {
-                LOGGER.info("Problem reading internal style file {}", filename, e);
+                LOGGER.error("Problem reading internal style file {}", filename, e);
             }
         }
     }

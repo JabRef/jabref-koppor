@@ -761,7 +761,7 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
             newConnection = dbmsConnection.openNewConnection();
         } catch (SQLException e) {
             long nextDelayMillis = Math.min(delayMillis * 2, MAX_RECONNECT_DELAY_MILLIS);
-            LOGGER.debug("Reconnecting to the shared database failed - next attempt in {} ms", nextDelayMillis, e);
+            LOGGER.error("Reconnecting to the shared database failed - next attempt in {} ms", nextDelayMillis, e);
             scheduleReconnect(nextDelayMillis);
             return;
         }
@@ -928,8 +928,7 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
             if (sharedVersion == bibEntry.getSharedBibEntryData().getVersion()) {
                 unchangedEntries.add(bibEntry);
             } else {
-                LOGGER.info("Keeping shared entry {}, which was changed while it was removed locally",
-                        bibEntry.getSharedBibEntryData().getSharedIdAsInt());
+                LOGGER.atInfo().addArgument(() -> bibEntry.getSharedBibEntryData().getSharedIdAsInt()).log("Keeping shared entry {}, which was changed while it was removed locally");
             }
         }
         return unchangedEntries;
@@ -999,7 +998,7 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
                 return true;
             }
         } catch (SQLException e) {
-            LOGGER.debug("SQL Error during connection check", e);
+            LOGGER.error("SQL Error during connection check", e);
         }
         goOffline();
         return false;
@@ -1062,7 +1061,7 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
         try {
             connection.close();
         } catch (SQLException e) {
-            LOGGER.debug("Could not close the shared database connection", e);
+            LOGGER.error("Could not close the shared database connection", e);
         }
     }
 

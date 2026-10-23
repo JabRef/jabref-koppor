@@ -55,7 +55,7 @@ public class OpenCitationsFetcher implements CitationFetcher {
             String apiUrl = API_BASE_URL + "/" + endpoint + "/doi:" + doi.get().asString();
             return Optional.of(new URI(apiUrl));
         } catch (URISyntaxException e) {
-            LOGGER.debug("Could not create API URI for endpoint: {}", endpoint, e);
+            LOGGER.error("Could not create API URI for endpoint: {}", endpoint, e);
             return Optional.empty();
         }
     }
@@ -129,7 +129,7 @@ public class OpenCitationsFetcher implements CitationFetcher {
                     return entry;
                 }
             } catch (FetcherException e) {
-                LOGGER.warn("Could not fetch BibEntry for DOI: {}", doiIdentifier.get().value(), e);
+                LOGGER.error("Could not fetch BibEntry for DOI: {}", doiIdentifier.get().value(), e);
             }
         }
 
@@ -148,7 +148,7 @@ public class OpenCitationsFetcher implements CitationFetcher {
             return Optional.empty();
         }
 
-        LOGGER.debug("Citation count URL: {}", apiUri.get());
+        LOGGER.atDebug().addArgument(() -> apiUri.get()).log("Citation count URL: {}");
 
         try {
             URL url = apiUri.get().toURL();

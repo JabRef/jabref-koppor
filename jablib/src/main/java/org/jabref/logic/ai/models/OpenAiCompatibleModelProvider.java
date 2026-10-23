@@ -32,7 +32,7 @@ public class OpenAiCompatibleModelProvider implements AiModelProvider {
     @Override
     public List<String> fetchModels(AiProvider aiProvider, String apiBaseUrl, @Nullable String apiKey) {
         if (apiKey == null || apiKey.isBlank()) {
-            LOGGER.debug("API key is not provided for {}, skipping model fetch", aiProvider.name());
+            LOGGER.atDebug().addArgument(() -> aiProvider.name()).log("API key is not provided for {}, skipping model fetch");
             return List.of();
         }
 
@@ -49,11 +49,11 @@ public class OpenAiCompatibleModelProvider implements AiModelProvider {
             String response = urlDownload.asString();
             models = parseModelsFromResponse(new JsonNode(response));
 
-            LOGGER.debug("Successfully fetched {} models from {}", models.size(), aiProvider.name());
+            LOGGER.atDebug().addArgument(() -> models.size()).addArgument(() -> aiProvider.name()).log("Successfully fetched {} models from {}");
         } catch (FetcherClientException e) {
             // Invalid API key or wrong base URL: URLDownload already logged the response (incl. status), so no stack trace above debug
             LOGGER.warn("Could not fetch models from {}: client error (see HTTP response logged before)", aiProvider.name());
-            LOGGER.debug("Client error while fetching models from {}", aiProvider.name(), e);
+            LOGGER.error("Client error while fetching models from {}", aiProvider.name(), e);
         } catch (FetcherException | MalformedURLException | JSONException e) {
             LOGGER.error("Failed to fetch models from {}", aiProvider.name(), e);
         }
@@ -108,7 +108,7 @@ public class OpenAiCompatibleModelProvider implements AiModelProvider {
                 }
             }
         } catch (Exception e) {
-            LOGGER.warn("Failed to parse models response.", e);
+            LOGGER.error("Failed to parse models response.", e);
         }
 
         return models;

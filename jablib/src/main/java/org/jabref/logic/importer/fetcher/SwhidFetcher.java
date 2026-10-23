@@ -115,12 +115,12 @@ public class SwhidFetcher implements IdBasedFetcher {
                                   .map(response -> response.statusCode() == 404)
                                   .orElse(false);
             if (isNotFound) {
-                LOGGER.debug("No citation metadata found for SWHID: {}", canonicalSwhid, e);
+                LOGGER.error("No citation metadata found for SWHID: {}", canonicalSwhid, e);
                 return Optional.empty();
             }
             throw e;
         } catch (JSONException | ParseException e) {
-            LOGGER.info("Error fetching or parsing SWHID response for {}", canonicalSwhid, e);
+            LOGGER.error("Error fetching or parsing SWHID response for {}", canonicalSwhid, e);
             throw new FetcherException("Failed to retrieve or parse metadata from Software Heritage", e);
         }
     }

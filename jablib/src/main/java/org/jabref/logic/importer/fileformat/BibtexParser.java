@@ -191,7 +191,7 @@ public class BibtexParser implements Parser {
             return parseFileContent();
         } catch (ConflictMarkerFoundException exception) {
             // Parsing on would silently drop one side of the conflict or store the markers in an entry's serialization
-            LOGGER.debug("Aborted parsing, because the file contains a merge conflict marker", exception);
+            LOGGER.error("Aborted parsing, because the file contains a merge conflict marker", exception);
             return ParserResult.fromErrorMessage(exception.getMessage());
         }
     }
@@ -373,7 +373,7 @@ public class BibtexParser implements Parser {
         } catch (IOException ex) {
             // This makes the parser more robust:
             // If an exception is thrown when parsing an entry, drop the entry and try to resume parsing.
-            LOGGER.warn("Could not parse entry", ex);
+            LOGGER.error("Could not parse entry", ex);
             String errorMessage = Localization.lang("Error occurred when parsing entry") + ": '" + ex.getMessage()
                     + "'. " + "\n\n" + Localization.lang("JabRef skipped the entry.");
             parserResult.addWarning(new ParserResult.Range(startLine, startColumn, line, column), errorMessage);
@@ -391,7 +391,7 @@ public class BibtexParser implements Parser {
             // if we get an IO Exception here, then we have an unbracketed comment,
             // which means that we should just return and the comment will be picked up as arbitrary text
             // by the parser
-            LOGGER.info("Found unbracketed comment");
+            LOGGER.warn("Found unbracketed comment");
             return;
         }
 

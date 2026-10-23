@@ -81,7 +81,7 @@ public class EditAction extends SimpleCommand {
                     LOGGER.debug("Ignoring {} request inside the entry preview", action);
                 }
             } else {
-                LOGGER.debug("Else: {}", focusOwner.getClass().getSimpleName());
+                LOGGER.atDebug().addArgument(() -> focusOwner.getClass().getSimpleName()).log("Else: {}");
                 // Not sure what is selected -> copy/paste/cut selected entries except for Preview and CodeArea
 
                 switch (action) {

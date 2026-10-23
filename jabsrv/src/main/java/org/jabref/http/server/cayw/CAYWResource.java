@@ -269,7 +269,7 @@ public class CAYWResource {
             headless = GraphicsEnvironment.isHeadless();
         } catch (LinkageError awtUnavailable) {
             // Native image doesn't bundle AWT libs, so isHeadless() fails to link; treat that as headless.
-            LOGGER.debug("AWT unavailable (native image without bundled AWT libs); treating as headless.", awtUnavailable);
+            LOGGER.error("AWT unavailable (native image without bundled AWT libs); treating as headless.", awtUnavailable);
             headless = true;
         }
         if (headless) {
@@ -285,7 +285,7 @@ public class CAYWResource {
         try {
             initializeGUI();
         } catch (RuntimeException exception) {
-            LOGGER.warn("Could not show CAYW security prompt for path {}.", requestedLibraryPath, exception);
+            LOGGER.error("Could not show CAYW security prompt for path {}.", requestedLibraryPath, exception);
             return false;
         }
 
@@ -308,7 +308,7 @@ public class CAYWResource {
                 future.complete(new LibraryPathAccessPromptResult(selectedButton, dontAskAgain.isSelected()));
             });
         } catch (IllegalStateException exception) {
-            LOGGER.warn("JavaFX toolkit not initialized for CAYW security prompt.", exception);
+            LOGGER.error("JavaFX toolkit not initialized for CAYW security prompt.", exception);
             return false;
         }
 
@@ -330,9 +330,9 @@ public class CAYWResource {
             return shouldAllow;
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
-            LOGGER.warn("Interrupted while waiting for CAYW security prompt.", exception);
+            LOGGER.error("Interrupted while waiting for CAYW security prompt.", exception);
         } catch (ExecutionException exception) {
-            LOGGER.warn("Failed to evaluate CAYW security prompt.", exception);
+            LOGGER.error("Failed to evaluate CAYW security prompt.", exception);
         }
         return false;
     }
@@ -399,7 +399,7 @@ public class CAYWResource {
                 latch.countDown();
             });
         } catch (IllegalStateException alreadyInitialized) {
-            LOGGER.debug("JavaFX runtime already initialized.", alreadyInitialized);
+            LOGGER.error("JavaFX runtime already initialized.", alreadyInitialized);
             initialized = true;
             return;
         } catch (Throwable e) {

@@ -79,7 +79,7 @@ public class PushToTexShop extends AbstractPushToApplication {
                 }
             }
         } catch (IOException | InterruptedException excep) {
-            LOGGER.warn("Error: Could not call executable '{}'", commandPath, excep);
+            LOGGER.error("Error: Could not call executable '{}'", commandPath, excep);
             couldNotCall = true;
 
             if (excep instanceof IOException) {

@@ -70,7 +70,7 @@ public class DefaultFileUpdateMonitor implements Runnable, FileUpdateMonitor {
             JabRefException exception = new WatchServiceUnavailableException(
                     e.getMessage(), e.getLocalizedMessage(), e.getCause());
             filesystemMonitorFailure.set(Optional.of(exception));
-            LOGGER.warn("Error during watching", e);
+            LOGGER.error("Error during watching", e);
         }
     }
 

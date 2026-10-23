@@ -56,7 +56,7 @@ public class LinkedFilesIndexManager {
         try {
             indexer = new DefaultLinkedFilesIndexer(databaseContext, filePreferences);
         } catch (IOException e) {
-            LOGGER.debug("Error initializing linked files index - using read only index", e);
+            LOGGER.error("Error initializing linked files index - using read only index", e);
             indexer = new ReadOnlyLinkedFilesIndexer(databaseContext);
         }
         linkedFilesIndexer = indexer;

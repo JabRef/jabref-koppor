@@ -380,7 +380,7 @@ public class JabRefFrameViewModel {
         } catch (UncheckedIOException ex) {
             // Could be access denied exception - when this is started from the application directory
             // Therefore log level "debug"
-            LOGGER.debug("Could not check for existing bib file {}", dirsToCheck, ex);
+            LOGGER.error("Could not check for existing bib file {}", dirsToCheck, ex);
             return Optional.empty();
         }
     }
@@ -451,7 +451,7 @@ public class JabRefFrameViewModel {
             // TODO: Think of wrapping in BackgroundTask - similar to org.jabref.gui.importer.actions.ImportCommand.importMultipleFiles
             importResult = importFormatReader.importWithAutoDetection(library);
         } catch (Throwable ex) {
-            LOGGER.warn("Could not import", ex);
+            LOGGER.error("Could not import", ex);
             UiTaskExecutor.runAndWaitInJavaFXThread(
                     () -> dialogService.showWarningDialogAndWait(
                             Localization.lang("Import error"),

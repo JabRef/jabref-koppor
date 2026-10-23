@@ -378,7 +378,7 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
                             try {
                                 return doiFetcher.performSearchById(content).get();
                             } catch (FetcherException | NoSuchElementException e) {
-                                LOGGER.warn("Failed to fetch BibEntry for DOI {}", content, e);
+                                LOGGER.error("Failed to fetch BibEntry for DOI {}", content, e);
                                 return null;
                             }
                         });
@@ -405,7 +405,7 @@ public class MultiMergeEntriesView extends BaseDialog<BibEntry> {
             try {
                 return fetcher.performSearchById(id).orElse(null);
             } catch (FetcherException e) {
-                LOGGER.warn("Failed to fetch BibEntry for {} using {}", id, title, e);
+                LOGGER.error("Failed to fetch BibEntry for {} using {}", id, title, e);
                 return null;
             }
         });

@@ -632,7 +632,7 @@ public class BibDatabase {
             this.eventBus.unregister(listener);
         } catch (IllegalArgumentException e) {
             // occurs if the event source has not been registered, should not prevent shutdown
-            LOGGER.debug("Problem unregistering", e);
+            LOGGER.error("Problem unregistering", e);
         }
     }
 

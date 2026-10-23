@@ -96,13 +96,13 @@ public final class MergeEntriesHelper {
                 String merged = KeywordList.merge(libraryValue.orElse(""), fetcherValue.get(), keywordSeparator)
                                            .getAsString(keywordSeparator);
                 if (!merged.equals(libraryValue.orElse(""))) {
-                    LOGGER.debug("Union-merging groups: {} + {} -> {}", libraryValue.orElse(""), fetcherValue.get(), merged);
+                    LOGGER.atDebug().addArgument(() -> libraryValue.orElse("")).addArgument(() -> fetcherValue.get()).addArgument(merged).log("Union-merging groups: {} + {} -> {}");
                     entryFromLibrary.setField(field, merged);
                     compoundEdit.addEdit(new UndoableFieldChange(entryFromLibrary, field, libraryValue.orElse(null), merged));
                     anyFieldsChanged = true;
                 }
             } else if (fetcherValue.isPresent() && shouldUpdateField(field, fetcherValue.get(), libraryValue)) {
-                LOGGER.debug("Updating field {}: {} -> {}", field, libraryValue.orElse(null), fetcherValue.get());
+                LOGGER.atDebug().addArgument(field).addArgument(() -> libraryValue.orElse(null)).addArgument(() -> fetcherValue.get()).log("Updating field {}: {} -> {}");
                 entryFromLibrary.setField(field, fetcherValue.get());
                 compoundEdit.addEdit(new UndoableFieldChange(entryFromLibrary, field, libraryValue.orElse(null), fetcherValue.get()));
                 anyFieldsChanged = true;
@@ -124,7 +124,7 @@ public final class MergeEntriesHelper {
 
             Optional<String> value = entryFromLibrary.getField(field);
             if (value.isPresent()) {
-                LOGGER.debug("Removing obsolete field {} with value {}", field, value.get());
+                LOGGER.atDebug().addArgument(field).addArgument(() -> value.get()).log("Removing obsolete field {} with value {}");
                 entryFromLibrary.clearField(field);
                 compoundEdit.addEdit(new UndoableFieldChange(entryFromLibrary, field, value.get(), null));
                 anyFieldsRemoved = true;

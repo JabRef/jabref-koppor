@@ -253,7 +253,7 @@ public class ImportHandler {
                                 entriesToAdd.addAll(importOutcome.entriesToAdd());
                                 addResultToList(file, importOutcome.success(), importOutcome.message());
                             } catch (ImportException e) {
-                                LOGGER.warn("Could not import file {} using auto-detection", file, e);
+                                LOGGER.error("Could not import file {} using auto-detection", file, e);
                                 entriesToAdd.add(createEmptyEntryWithLink(file));
                                 addResultToList(file, false, Localization.lang("Could not auto-detect file format. An empty entry was created with file link."));
                             }
@@ -611,7 +611,7 @@ public class ImportHandler {
             importStringConstantsWithDuplicateCheck(stringConstants);
             return result;
         } catch (ParseException ex) {
-            LOGGER.info("Data could not be interpreted as Bib(La)TeX", ex);
+            LOGGER.error("Data could not be interpreted as Bib(La)TeX", ex);
             dialogService.notify(Localization.lang("Failed to parse Bib(La)TeX: %0", ex.getLocalizedMessage()));
             return List.of();
         }

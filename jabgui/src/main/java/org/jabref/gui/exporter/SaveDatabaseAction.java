@@ -302,7 +302,7 @@ public class SaveDatabaseAction {
             return SaveResult.SUCCESS;
         } catch (SaveException ex) {
             if (ex.getCause() instanceof FileChangedException) {
-                LOGGER.info("Library {} was modified by another program while saving; save aborted", targetPath, ex);
+                LOGGER.error("Library {} was modified by another program while saving; save aborted", targetPath, ex);
                 fileChangedDuringSave = true;
             } else {
                 LOGGER.error("A problem occurred when trying to save the file {}", targetPath, ex);

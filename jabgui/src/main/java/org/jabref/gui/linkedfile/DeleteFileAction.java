@@ -76,7 +76,7 @@ public class DeleteFileAction extends SimpleCommand {
         }
 
         if (!filePreferences.confirmDeleteLinkedFile()) {
-            LOGGER.info("Deleting {} files without confirmation.", filesToDelete.size());
+            LOGGER.atInfo().addArgument(() -> filesToDelete.size()).log("Deleting {} files without confirmation.");
             deleteFiles(true);
             return;
         }
@@ -202,7 +202,7 @@ public class DeleteFileAction extends SimpleCommand {
         } catch (IOException ex) {
             success = false;
             dialogService.showErrorDialogAndWait(Localization.lang("Cannot delete file '%0'", theFile), Localization.lang("File permission error"));
-            LOGGER.warn("Error while deleting: {}", linkedFile, ex);
+            LOGGER.error("Error while deleting: {}", linkedFile, ex);
         }
     }
 

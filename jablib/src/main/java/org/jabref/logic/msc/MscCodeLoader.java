@@ -47,7 +47,7 @@ public final class MscCodeLoader {
         LOGGER.debug("Reading MSC codes from URL {}", resourceUrl);
         try (InputStreamReader reader = new InputStreamReader(new URLDownload(resourceUrl).asInputStream(), StandardCharsets.ISO_8859_1)) {
             List<MscCodeEntry> entries = readMscCodes(reader);
-            LOGGER.debug("Loaded {} MSC codes from {}", entries.size(), resourceUrl);
+            LOGGER.atDebug().addArgument(() -> entries.size()).addArgument(resourceUrl).log("Loaded {} MSC codes from {}");
             return entries;
         } catch (FetcherException e) {
             throw new IOException(e);
@@ -105,7 +105,7 @@ public final class MscCodeLoader {
                 store.commit();
             }
             Files.move(tempFile, mvStoreFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-            LOGGER.debug("Stored {} MSC codes in {}", entries.size(), mvStoreFile);
+            LOGGER.atDebug().addArgument(() -> entries.size()).addArgument(mvStoreFile).log("Stored {} MSC codes in {}");
         } catch (IOException e) {
             LOGGER.error("Error writing MSC codes to MVStore: {}", mvStoreFile, e);
             if (tempFile != null) {
@@ -126,7 +126,7 @@ public final class MscCodeLoader {
             MVMap<String, MscCodeEntry> codesMap = store.openMap(MSC_CODES_MAP_NAME);
             return !codesMap.isEmpty();
         } catch (Exception e) {
-            LOGGER.debug("MSC codes MVStore not available or broken: {}", mvStoreFile, e);
+            LOGGER.error("MSC codes MVStore not available or broken: {}", mvStoreFile, e);
             return false;
         }
     }
