@@ -138,6 +138,8 @@ public final class ChatHistoryMigrationV1 {
                 }
             }
 
+            repository.commit();
+
             LOGGER.atDebug().addArgument(() -> migratedMapNames.size()).addArgument(() -> oldMapNames.size()).log("Successfully migrated {} of {} chat history maps");
         } catch (Exception e) {
             LOGGER.error("Failed to migrate chat history from v1 to v2", e);
