@@ -165,6 +165,9 @@ Needs: impl, utest
 When extracting the year from the text of a PDF's first page, JabRef takes only a standalone four-digit number, not attached to letters and not part of a four-digit range (such as a page range), between 1900 and two years after the current year, so postal codes, ISSNs, and page ranges are not imported as the year.
 ## Rule-based reference extraction reads the biblatex standard styles
 `req~import.pdf.references.biblatex~1`
+
+Needs: impl, utest
+
 ## Rule-based reference extraction reads labelled BibTeX reference lists
 `req~import.pdf.references.labelled~1`
 When extracting a year from a PDF's first page, JabRef accepts a standalone four-digit number outside a year range, between 1900 and two years after the current year.

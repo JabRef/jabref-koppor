@@ -37,12 +37,19 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added "Help > View background tasks" and clearer "Quit anyway"/"Keep JabRef open" buttons when quitting during background tasks. [#12706](https://github.com/JabRef/jabref/issues/12706)
 - We added `jabkit get-fulltext` to download and link full text PDFs, reporting the result per entry. [#770](https://github.com/JabRef/jabref-koppor/pull/770)
 - We added `jabkit get-fulltexts` to download and link full text PDFs, reporting the result per entry. [#770](https://github.com/JabRef/jabref-koppor/pull/770)
+- We added syntax highlighting to the BibTeX source window of the citations tab. [#17355](https://github.com/JabRef/jabref/issues/17355)
 - We added pushing the current library to [CiteDrive](https://www.citedrive.com/), including logging in to CiteDrive. [#14493](https://github.com/JabRef/jabref/pull/14493)
 - Extracting references from a PDF now recognizes bibliographies typeset with biblatex, including alphabetic labels such as `[AL26]`. [#775](https://github.com/JabRef/jabref-koppor/pull/775)
 - The JabRef language server now shows entry details on hover and reads `bibliography:` from Markdown front matter. [#17302](https://github.com/JabRef/jabref/pull/17302)
 - We added entry details on hover to the JabRef language server, which now also reads `bibliography:` from Markdown front matter. [#17302](https://github.com/JabRef/jabref/pull/17302)
 - We added syntax highlighting to the BibTeX source window of the citations tab. [#17355](https://github.com/JabRef/jabref/issues/17355)
 - We added text search to AI chats. [#17183](https://github.com/JabRef/jabref/pull/17183)
+- We added support for fetching fulltext PDFs through a locally-running browser-extension provider. [#16124](https://github.com/JabRef/jabref/pull/16124)
+- We now focus the citation key field when a newly added entry opens in the entry editor. [#16929](https://github.com/JabRef/jabref/pull/16929)
+- We added creating a new entry by double-clicking the empty space below the last row of the entry table. [#16929](https://github.com/JabRef/jabref/pull/16929)
+- We added a warning when opening a pre-3.4 library whose static group memberships would be lost on save. [#3251](https://github.com/JabRef/jabref/issues/3251)
+- We added "Delete" and "Retry" to the context menu of AI chat messages and made user messages retryable. [#17151](https://github.com/JabRef/jabref/pull/17151)
+- We added entry details on hover to the JabRef language server, which now also reads `bibliography:` from Markdown front matter. [#17302](https://github.com/JabRef/jabref/pull/17302)
 
 ### Changed
 
@@ -59,6 +66,12 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We changed the Hayagriva YAML export to keep data JabRef cannot edit (short titles, person aliases, additional identifiers) when re-exporting an imported file, to write comments, and to derive `date` from the BibTeX year/month fields. [#736](https://github.com/JabRef/jabref-koppor/pull/736)
 - We moved the "Show diff" button to the Git commit dialog's button row. [#16730](https://github.com/JabRef/jabref/issues/16730)
 - We changed the HTTP server to list linked PDF files per entry at `GET /libraries/{id}/entries/{citationKey}/files` instead of `entries/pdffiles`. [#17567](https://github.com/JabRef/jabref/pull/17567)
+- We moved the "Show diff" button to the Git commit dialog's button row. [#16730](https://github.com/JabRef/jabref/issues/16730)
+- We changed saving custom entry types to ask for a restart, so the entry editor shows the changes. [#17121](https://github.com/JabRef/jabref/pull/17121)
+- We show the donation prompt six months after the first launch and every six months, unless dismissed forever. [#17008](https://github.com/JabRef/jabref/pull/17008)
+- We moved the "Show diff" button to the Git commit dialog's button row. [#16730](https://github.com/JabRef/jabref/issues/16730)
+- We changed saving custom entry types to ask for a restart, so the entry editor shows the changes. [#17121](https://github.com/JabRef/jabref/pull/17121)
+- We changed the main table to keep the entry shown in the entry editor visible when enlarging the entry editor. [#17167](https://github.com/JabRef/jabref/pull/17167)
 
 ### Fixed
 
@@ -183,6 +196,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where the preferences search did not scroll to its first match. [#17012](https://github.com/JabRef/jabref/pull/17012)
 - We fixed an issue where JabRef asked to store a library's custom entry types at every start. [#9930](https://github.com/JabRef/jabref/issues/9930)
 - We fixed an issue where the AI chat tab still said "Unable to chat" after attaching a file. [#17157](https://github.com/JabRef/jabref/pull/17157)
+- We fixed an issue where the AI summary tab was blank for entries with only remote files. [#17203](https://github.com/JabRef/jabref/issues/17203)
 - We fixed an issue where legacy group memberships, markings, and special fields were no longer migrated when opening a library. [#17019](https://github.com/JabRef/jabref/pull/17019)
 - We fixed an issue where the AI chat tab still said "Unable to chat" after attaching a file. [#17157](https://github.com/JabRef/jabref/pull/17157)
 - We fixed an issue where saving the "Custom entry types" preferences removed custom fields from the non-wrapped fields. [#17121](https://github.com/JabRef/jabref/pull/17121)
@@ -194,6 +208,9 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where the links at the bottom of the Welcome tab were cut off in small windows. [#17015](https://github.com/JabRef/jabref/issues/17015)
 - We fixed an issue where "Automatically set file links" did not work when no external file types were configured. [#15084](https://github.com/JabRef/jabref/issues/15084)
 - We fixed an issue where citing organisations in JStyle format was not sorting or displaying properly in LibreOffice. [#11725](https://github.com/JabRef/jabref/issues/11725)
+- We fixed an issue where the "Backup found" dialog appeared while another library's tab was selected. [#16919](https://github.com/JabRef/jabref/pull/16919)
+- We fixed an issue where the preferences search did not scroll to its first match. [#17012](https://github.com/JabRef/jabref/pull/17012)
+- We fixed an issue where failed tasks kept showing as running in the notification center. [#17124](https://github.com/JabRef/jabref/pull/17124)
 
 ### Removed
 
