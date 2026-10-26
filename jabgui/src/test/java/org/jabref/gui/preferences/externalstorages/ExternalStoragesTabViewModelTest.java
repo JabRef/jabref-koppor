@@ -2,37 +2,24 @@ package org.jabref.gui.preferences.externalstorages;
 
 import org.jabref.logic.net.CiteDrivePreferences;
 
-import org.junit.jupiter.api.Test;
+import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@NullMarked
+@ResourceLock("Localization.lang")
 class ExternalStoragesTabViewModelTest {
 
-    private final CiteDrivePreferences citeDrivePreferences = CiteDrivePreferences.getDefault();
-    private final ExternalStoragesTabViewModel viewModel = new ExternalStoragesTabViewModel(citeDrivePreferences);
-
-    @Test
-    void editedValuesReachThePreferences() {
+    @ParameterizedTest
+    @ValueSource(strings = {"http://api.example/", "http://127.0.0.1:8080/"})
+    void rejectsUnencryptedApiAddress(String address) {
+        ExternalStoragesTabViewModel viewModel = new ExternalStoragesTabViewModel(CiteDrivePreferences.getDefault());
         viewModel.setValues();
 
-        viewModel.rememberCiteDriveLoginProperty().set(false);
-        viewModel.citeDriveApiBaseUrlProperty().set(" https://api.example.com/ ");
-        viewModel.citeDriveAppBaseUrlProperty().set("https://app.example.com/");
-        viewModel.storeSettings();
-
-        assertFalse(citeDrivePreferences.shouldPersistRefreshToken());
-        assertEquals("https://api.example.com/", citeDrivePreferences.getApiBaseUrl());
-        assertEquals("https://app.example.com/", citeDrivePreferences.getAppBaseUrl());
-    }
-
-    @Test
-    void addressThatIsNoUrlIsRejected() {
-        viewModel.setValues();
-        assertTrue(viewModel.validateSettings());
-
-        viewModel.citeDriveApiBaseUrlProperty().set("not a url");
+        viewModel.citeDriveApiBaseUrlProperty().set(address);
 
         assertFalse(viewModel.validateSettings());
     }

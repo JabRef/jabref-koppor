@@ -1,6 +1,5 @@
 package org.jabref.gui.util.component;
 
-import java.text.Normalizer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -9,12 +8,22 @@ import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.NodeOrientation;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Separator;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.clipboard.ClipBoardManager;
@@ -44,6 +53,7 @@ import com.vladsch.flexmark.ast.Paragraph;
 import com.vladsch.flexmark.ast.StrongEmphasis;
 import com.vladsch.flexmark.ext.tables.TableBlock;
 import com.vladsch.flexmark.ext.tables.TableBody;
+import com.vladsch.flexmark.ext.tables.TableCaption;
 import com.vladsch.flexmark.ext.tables.TableCell;
 import com.vladsch.flexmark.ext.tables.TableHead;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
@@ -53,7 +63,6 @@ import com.vladsch.flexmark.util.ast.DelimitedNode;
 import com.vladsch.flexmark.util.ast.Document;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.ast.NodeVisitor;
-import com.vladsch.flexmark.util.ast.TextCollectingVisitor;
 import com.vladsch.flexmark.util.ast.VisitHandler;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import org.jspecify.annotations.NonNull;
@@ -87,6 +96,19 @@ public class MarkdownTextFlow extends SelectableTextFlow {
                 .set(Parser.EXTENSIONS, List.of(TablesExtension.create()));
         this.parser = Parser.builder(options).build();
         this.htmlRenderer = HtmlRenderer.builder(options).build();
+        setOnKeyPressed(event -> {
+            if (!event.isShortcutDown()) {
+                return;
+            }
+            if (event.getCode() == KeyCode.C) {
+                copySelectedText();
+            } else if (event.getCode() == KeyCode.A) {
+                selectAll();
+            } else {
+                return;
+            }
+            event.consume();
+        });
     }
 
     public void setMarkdown(@NonNull String markdownText) {
@@ -227,7 +249,14 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             return;
         }
 
-        if (!isSelectionActive()) {
+        if (!super.isSelectionActive()) {
+            getChildren().stream()
+                         .filter(MarkdownAwareTable.class::isInstance)
+                         .map(MarkdownAwareTable.class::cast)
+                         .flatMap(table -> table.cells.stream())
+                         .filter(SelectableTextFlow::isSelectionActive)
+                         .findFirst()
+                         .ifPresent(MarkdownTextFlow::copySelectedText);
             return;
         }
 
@@ -242,7 +271,30 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             Node astNode = segment.astNode();
             String markdownText = getMarkdownRepresentation(astNode, renderedText);
 
-            int segmentLength = segment.layoutLength();
+            switch (fxNode) {
+                case MarkdownAwareText mat -> {
+                    renderedText = mat.getText();
+                    astNode = mat.astNode;
+                    markdownText = getMarkdownRepresentation(astNode, renderedText);
+                }
+                case MarkdownAwareHyperlink mah -> {
+                    renderedText = mah.getText();
+                    astNode = mah.astNode;
+                    markdownText = getMarkdownRepresentation(astNode, renderedText);
+                }
+                case MarkdownAwareTable table -> {
+                    renderedText = "\uFFFC";
+                    astNode = table.astNode;
+                    markdownText = getMarkdownRepresentation(astNode, renderedText);
+                }
+                case null,
+                     default -> {
+                    continue;
+                }
+            }
+
+            // Layout indices count an embedded hyperlink as a single character, see SelectableTextFlow#getTextFlowContent()
+            int segmentLength = fxNode instanceof Text ? renderedText.length() : 1;
             int segmentStart = currentPos;
             int segmentEnd = currentPos + segmentLength;
 
@@ -281,79 +333,8 @@ public class MarkdownTextFlow extends SelectableTextFlow {
         clipBoardManager.setHtmlContent(htmlRenderer.render(parser.parse(result.toString())), result.toString());
     }
 
-    /// The text of one or more adjacent nodes that belong to the same Markdown node, as needed to
-    /// reconstruct the Markdown markup while copying. A syntax-highlighted code block is rendered as
-    /// one node per token, but copied as a single block.
-    /// `layoutLength` is the segment's width in the index space of [SelectableTextFlow#getTextFlowContent()],
-    /// where an embedded hyperlink counts as a single character rather than its rendered text.
-    @NullMarked
-    private record CopySegment(String text, @Nullable Node astNode, int layoutLength) {
-    }
-
-    /// Removes the newlines Flexmark adds around the content of a code block (`\n` at the beginning,
-    /// `\n\n` at the end), keeping blank lines that are part of the code.
-    private static String stripSyntheticNewlines(String content) {
-        if ((content.length() >= 3) && content.startsWith("\n") && content.endsWith("\n\n")) {
-            return content.substring(1, content.length() - 2);
-        }
-        return content;
-    }
-
-    private static boolean isNewlineMarker(String text) {
-        return "\n".equals(text) || "\n\n".equals(text);
-    }
-
-    private List<CopySegment> buildCopySegments() {
-        List<CopySegment> segments = new ArrayList<>();
-        // The nodes of one Markdown node are collected in a builder: a code block has one node per token.
-        StringBuilder pending = new StringBuilder();
-        @Nullable Node pendingNode = null;
-        boolean pendingIsNewlineMarker = false;
-        int pendingLength = 0;
-
-        for (javafx.scene.Node fxNode : getChildren()) {
-            String renderedText;
-            Node astNode;
-
-            if (fxNode instanceof MarkdownAwareText markdownText) {
-                renderedText = markdownText.getText();
-                astNode = markdownText.astNode;
-            } else if (fxNode instanceof MarkdownAwareHyperlink hyperlink) {
-                renderedText = hyperlink.getText();
-                astNode = hyperlink.astNode;
-            } else {
-                continue;
-            }
-
-            // Layout indices count an embedded hyperlink as a single character, see SelectableTextFlow#getTextFlowContent()
-            int renderedLength = fxNode instanceof Hyperlink ? 1 : renderedText.length();
-
-            // The newline nodes between blocks carry the block's node as well, but are copied as newlines.
-            if (!pending.isEmpty() && (astNode != null) && (astNode == pendingNode) && !pendingIsNewlineMarker) {
-                pending.append(renderedText);
-                pendingLength += renderedLength;
-                continue;
-            }
-
-            if (!pending.isEmpty()) {
-                segments.add(new CopySegment(pending.toString(), pendingNode, pendingLength));
-            }
-            pending.setLength(0);
-            pending.append(renderedText);
-            pendingLength = renderedLength;
-            pendingNode = astNode;
-            pendingIsNewlineMarker = isNewlineMarker(renderedText);
-        }
-
-        if (!pending.isEmpty()) {
-            segments.add(new CopySegment(pending.toString(), pendingNode, pendingLength));
-        }
-
-        return segments;
-    }
-
-    private String getMarkdownRepresentation(@Nullable Node astNode, String renderedText) {
-        if (isNewlineMarker(renderedText)) {
+    private String getMarkdownRepresentation(Node astNode, String renderedText) {
+        if (renderedText.isBlank() && !(astNode instanceof DelimitedNode)) {
             return renderedText;
         }
         return switch (astNode) {
@@ -460,6 +441,8 @@ public class MarkdownTextFlow extends SelectableTextFlow {
                 addNewlinesBetweenBlocks(paragraph);
             } else if (paragraph.getPrevious() instanceof Paragraph) {
                 addTextNode("\n", paragraph);
+            } else if (paragraph.getPrevious() instanceof TableBlock) {
+                addTextNode("\n\n" + listContinuationPrefix(paragraph), paragraph);
             }
 
             for (Node child : paragraph.getChildren()) {
@@ -572,6 +555,9 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             addNewlinesBetweenBlocks(quote);
 
             for (Node child : quote.getChildren()) {
+                if (child.getPrevious() instanceof TableBlock || child instanceof TableBlock && child.getPrevious() instanceof Paragraph) {
+                    addTextNode("\n>\n", quote, "markdown-blockquote-marker");
+                }
                 if (child instanceof Paragraph) {
                     processQuoteParagraph(quote, child);
                 } else {
@@ -593,29 +579,29 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             previousBlock = html;
         }
 
-        /// Renders the table as monospaced text with aligned columns, as the selection only works on [Text] nodes.
         private void visit(TableBlock table) {
             // [impl->req~ai.chat.markdown-tables~1]
-            // Inside a block quote or list, the enclosing marker is already emitted
             if (table.getParent() instanceof Document) {
                 addNewlinesBetweenBlocks(table);
+            } else if (table.getParent() instanceof ListItem && table.getPrevious() instanceof Paragraph) {
+                addTextNode("\n\n" + listContinuationPrefix(table), table);
             }
 
-            List<List<String>> rows = new ArrayList<>();
-            List<TableCell.Alignment> alignments = new ArrayList<>();
+            List<List<TableCell>> rows = new ArrayList<>();
+            List<TableCaption> captions = new ArrayList<>();
             int headerRowCount = 0;
             for (Node section : table.getChildren()) {
+                if (section instanceof TableCaption caption) {
+                    captions.add(caption);
+                }
                 if (!(section instanceof TableHead) && !(section instanceof TableBody)) {
                     continue;
                 }
                 for (Node row : section.getChildren()) {
-                    List<String> cells = new ArrayList<>();
+                    List<TableCell> cells = new ArrayList<>();
                     for (Node cell : row.getChildren()) {
                         if (cell instanceof TableCell tableCell) {
-                            if (alignments.size() == cells.size()) {
-                                alignments.add(tableCell.getAlignment());
-                            }
-                            cells.add(Normalizer.normalize(new TextCollectingVisitor().collectAndGetText(cell).strip(), Normalizer.Form.NFC));
+                            cells.add(tableCell);
                         }
                     }
                     rows.add(cells);
@@ -625,45 +611,109 @@ public class MarkdownTextFlow extends SelectableTextFlow {
                 }
             }
 
-            int columnCount = rows.stream().mapToInt(List::size).max().orElse(0);
-            int[] widths = new int[columnCount];
-            for (List<String> row : rows) {
-                for (int i = 0; i < row.size(); i++) {
-                    widths[i] = Math.max(widths[i], row.get(i).codePointCount(0, row.get(i).length()));
-                }
+            int columnCount = rows.stream().mapToInt(row -> row.stream().mapToInt(TableCell::getSpan).sum()).max().orElse(0);
+            MarkdownAwareTable grid = new MarkdownAwareTable(table);
+            for (int column = 0; column < columnCount; column++) {
+                ColumnConstraints constraints = new ColumnConstraints();
+                constraints.setPercentWidth(100.0 / columnCount);
+                grid.getColumnConstraints().add(constraints);
             }
 
-            // A single node, because copying maps each node to the Markdown source of its AST node
-            StringJoiner lines = new StringJoiner("\n");
-            for (int r = 0; r < rows.size(); r++) {
-                StringJoiner line = new StringJoiner(" │ ");
-                for (int i = 0; i < columnCount; i++) {
-                    String cell = i < rows.get(r).size() ? rows.get(r).get(i) : "";
-                    // ponytail: code points, not display width; East Asian wide glyphs still misalign
-                    int padding = widths[i] - cell.codePointCount(0, cell.length());
-                    int leftPadding = switch (alignments.get(i)) {
-                        case RIGHT ->
-                                padding;
-                        case CENTER ->
-                                padding / 2;
-                        case null,
-                             default ->
-                                0;
-                    };
-                    line.add(" ".repeat(leftPadding) + cell + " ".repeat(padding - leftPadding));
+            int rowIndex = 0;
+            for (int row = 0; row < rows.size(); row++) {
+                int column = 0;
+                for (TableCell cell : rows.get(row)) {
+                    StackPane cellPane = renderTableCell(cell, grid);
+                    grid.add(cellPane, column, rowIndex, cell.getSpan(), 1);
+                    column += cell.getSpan();
                 }
-                lines.add(line.toString().stripTrailing());
-                if (r == headerRowCount - 1) {
-                    StringJoiner separator = new StringJoiner("─┼─");
-                    for (int width : widths) {
-                        separator.add("─".repeat(width));
-                    }
-                    lines.add(separator.toString());
+                rowIndex++;
+                if (row == headerRowCount - 1) {
+                    grid.add(new Separator(), 0, rowIndex++, columnCount, 1);
                 }
             }
+            for (TableCaption caption : captions) {
+                StackPane captionPane = renderTableContent(caption, grid);
+                captionPane.getStyleClass().add("italic");
+                grid.add(captionPane, 0, rowIndex++, columnCount, 1);
+            }
 
-            addTextNode(lines.toString(), table, "markdown-code-block", "font-monospace");
+            bindTableWidth(grid);
+            getChildren().add(grid);
             previousBlock = table;
+        }
+
+        private StackPane renderTableCell(TableCell cell, MarkdownAwareTable grid) {
+            StackPane pane = renderTableContent(cell, grid);
+            MarkdownTextFlow flow = grid.cells.getLast();
+            flow.setTextAlignment(switch (cell.getAlignment()) {
+                case RIGHT ->
+                        TextAlignment.RIGHT;
+                case CENTER ->
+                        TextAlignment.CENTER;
+                case null,
+                     default ->
+                        TextAlignment.LEFT;
+            });
+            flow.getStyleClass().add(switch (cell.getAlignment()) {
+                case RIGHT ->
+                        "markdown-table-cell-right";
+                case CENTER ->
+                        "markdown-table-cell-center";
+                case null,
+                     default ->
+                        "markdown-table-cell-left";
+            });
+            if (cell.isHeader()) {
+                pane.getStyleClass().add("bold");
+            }
+            return pane;
+        }
+
+        private StackPane renderTableContent(Node content, MarkdownAwareTable grid) {
+            StackPane pane = new StackPane();
+            pane.setAlignment(Pos.TOP_LEFT);
+            pane.setMinWidth(0);
+            pane.getStyleClass().add("padding-4-8");
+            pane.setUserData(content);
+            MarkdownTextFlow flow = new MarkdownTextFlow(pane);
+            flow.setMinWidth(0);
+            flow.hyperlinkHandlerProperty().bind(hyperlinkHandlerProperty());
+            flow.new MarkdownRenderer().render(content);
+            for (javafx.scene.Node child : flow.getChildren()) {
+                if (child instanceof Hyperlink hyperlink) {
+                    hyperlink.setWrapText(true);
+                    hyperlink.setMinWidth(0);
+                    hyperlink.maxWidthProperty().bind(flow.widthProperty());
+                }
+            }
+            pane.getChildren().add(flow);
+            GridPane.setValignment(pane, VPos.TOP);
+            grid.cells.add(flow);
+            return pane;
+        }
+
+        private void bindTableWidth(MarkdownAwareTable grid) {
+            List<javafx.scene.Node> prefixes = new ArrayList<>();
+            for (javafx.scene.Node child : getChildren().reversed()) {
+                prefixes.add(child);
+                if (child instanceof Text text && text.getText().contains("\n")) {
+                    break;
+                }
+            }
+            List<Observable> dependencies = new ArrayList<>();
+            dependencies.add(widthProperty());
+            prefixes.forEach(prefix -> dependencies.add(prefix.layoutBoundsProperty()));
+            grid.prefWidthProperty().bind(Bindings.createDoubleBinding(
+                    () -> Math.max(0, getWidth() - prefixes.stream().mapToDouble(prefix -> prefix.getLayoutBounds().getWidth()).sum()),
+                    dependencies.toArray(Observable[]::new)));
+        }
+
+        private String listContinuationPrefix(Node node) {
+            if (node.getParent() instanceof ListItem item) {
+                return " ".repeat(2 * Math.max(0, listIndentationLevel - 1) + item.getOpeningMarker().length() + 1);
+            }
+            return "";
         }
 
         private void processQuoteParagraph(BlockQuote quote, Node child) {
@@ -729,6 +779,24 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             super(text);
             this.astNode = astNode;
             setUserData(astNode);
+        }
+    }
+
+    /// An embedded table occupies one TextFlow selection index, while its cells retain their own selections.
+    @NullMarked
+    private static class MarkdownAwareTable extends GridPane {
+        private final TableBlock astNode;
+        private final List<MarkdownTextFlow> cells = new ArrayList<>();
+
+        MarkdownAwareTable(TableBlock astNode) {
+            this.astNode = astNode;
+            setUserData(astNode);
+            setMinWidth(0);
+        }
+
+        @Override
+        public double getBaselineOffset() {
+            return cells.isEmpty() ? super.getBaselineOffset() : cells.getFirst().getParent().getBaselineOffset();
         }
     }
 }

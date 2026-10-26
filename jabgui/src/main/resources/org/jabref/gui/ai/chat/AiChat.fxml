@@ -12,6 +12,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import org.jabref.gui.ai.AiPrivacyNoticeView?>
+<?import org.jabref.gui.ai.chat.AiChatFindBar?>
 <?import org.jabref.gui.ai.statuspane.UniversalStatusPaneView?>
 <?import org.jabref.gui.icon.JabRefIconView?>
 <?import org.jabref.gui.util.component.HistoryTextArea?>
@@ -73,49 +74,13 @@
                         maxWidth="50"
                         maxHeight="50"/>
 
-                <HBox fx:id="findBar"
-                      spacing="4"
-                      alignment="CENTER"
-                      maxWidth="-Infinity"
-                      maxHeight="-Infinity"
-                      styleClass="bg-secondary,bordered,corner-radius,padding-4-12"
-                      StackPane.alignment="TOP_RIGHT">
+                <AiChatFindBar fx:id="findBar"
+                               StackPane.alignment="TOP_RIGHT">
                     <StackPane.margin>
                         <Insets top="8"
                                 right="24"/>
                     </StackPane.margin>
-                    <TextField fx:id="findField"
-                               promptText="%Search..."/>
-                    <Label fx:id="findResultLabel"
-                           styleClass="text-muted"/>
-                    <Button onAction="#findPrevious"
-                            styleClass="icon-button,narrow">
-                        <graphic>
-                            <JabRefIconView glyph="PREVIOUS_UP"/>
-                        </graphic>
-                        <tooltip>
-                            <Tooltip text="%Previous"/>
-                        </tooltip>
-                    </Button>
-                    <Button onAction="#findNext"
-                            styleClass="icon-button,narrow">
-                        <graphic>
-                            <JabRefIconView glyph="NEXT_DOWN"/>
-                        </graphic>
-                        <tooltip>
-                            <Tooltip text="%Next"/>
-                        </tooltip>
-                    </Button>
-                    <Button onAction="#closeFind"
-                            styleClass="icon-button,narrow">
-                        <graphic>
-                            <JabRefIconView glyph="CLOSE"/>
-                        </graphic>
-                        <tooltip>
-                            <Tooltip text="%Close"/>
-                        </tooltip>
-                    </Button>
-                </HBox>
+                </AiChatFindBar>
             </StackPane>
         </center>
 

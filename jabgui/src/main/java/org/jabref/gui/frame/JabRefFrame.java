@@ -16,7 +16,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
-import javafx.event.EventTarget;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -38,13 +37,14 @@ import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.ActionHelper;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.actions.StandardActions;
-import org.jabref.gui.ai.chat.AiChatView;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.entryeditor.EntryEditor;
 import org.jabref.gui.importer.NewEntryAction;
 import org.jabref.gui.importer.actions.OpenDatabaseAction;
 import org.jabref.gui.keyboard.KeyBinding;
+import org.jabref.gui.keyboard.KeyBindingRepository;
+import org.jabref.gui.keyboard.SearchShortcutTarget;
 import org.jabref.gui.libraryproperties.LibraryPropertiesAction;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.push.GuiPushToApplicationCommand;
@@ -345,17 +345,34 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
         }
     }
 
-    private static boolean isInAiChat(EventTarget target) {
-        for (Node node = target instanceof Node targetNode ? targetNode : null; node != null; node = node.getParent()) {
-            if (node instanceof AiChatView) {
-                return true;
-            }
+    /// The frame captures shortcuts before child views; a view that handles Search must receive it itself.
+    // [impl->req~ai.chat.find.unavailable~1]
+    static boolean handleSearchKeyBinding(KeyEvent event, KeyBindingRepository keyBindings, Runnable focusLibrarySearch) {
+        if (!keyBindings.matches(event, KeyBinding.SEARCH)) {
+            return false;
         }
-        return false;
+
+        if (event.getTarget() instanceof Node target && hasSearchShortcutTarget(target)) {
+            return true;
+        }
+        focusLibrarySearch.run();
+        event.consume();
+        return true;
+    }
+
+    private static boolean hasSearchShortcutTarget(Node node) {
+        if (node instanceof SearchShortcutTarget searchTarget) {
+            return searchTarget.canHandleSearch();
+        }
+        return Optional.ofNullable(node.getParent()).map(JabRefFrame::hasSearchShortcutTarget).orElse(false);
     }
 
     private void initKeyBindings() {
         addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            // Check search before the switch, which only sees the first matching key binding.
+            if (handleSearchKeyBinding(event, preferences.getKeyBindingRepository(), globalSearchBar::requestFocus)) {
+                return;
+            }
             Optional<KeyBinding> keyBinding = preferences.getKeyBindingRepository().mapToKeyBinding(event);
             if (keyBinding.isPresent()) {
                 switch (keyBinding.get()) {
@@ -374,12 +391,6 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
                     case PREVIOUS_LIBRARY:
                         tabbedPane.getSelectionModel().selectPrevious();
                         event.consume();
-                        break;
-                    case SEARCH:
-                        // The AI chat has its own find bar
-                        if (!isInAiChat(event.getTarget())) {
-                            globalSearchBar.requestFocus();
-                        }
                         break;
                     case OPEN_GLOBAL_SEARCH_DIALOG:
                         globalSearchBar.openGlobalSearchDialog();

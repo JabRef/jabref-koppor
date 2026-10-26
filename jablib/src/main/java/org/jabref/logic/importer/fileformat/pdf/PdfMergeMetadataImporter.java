@@ -95,9 +95,12 @@ public class PdfMergeMetadataImporter extends PdfImporter {
         // [impl->adr~track-pdf-reference-list-provenance~1]
         // BibEntry equality is by content, but provenance belongs to the instance
         Set<BibEntry> citedWorks = Collections.newSetFromMap(new IdentityHashMap<>());
-        List<BibEntry> extractedCandidates = extractCandidatesFromPdf(filePath, document, citedWorks);
+        List<String> warnings = new ArrayList<>();
+        List<BibEntry> extractedCandidates = extractCandidatesFromPdf(filePath, document, citedWorks, warnings);
         if (extractedCandidates.isEmpty()) {
-            return new ParserResult();
+            ParserResult result = new ParserResult();
+            warnings.forEach(result::addWarning);
+            return result;
         }
 
         List<BibEntry> fetchedCandidates = fetchIdsOfCandidates(extractedCandidates);
@@ -109,15 +112,19 @@ public class PdfMergeMetadataImporter extends PdfImporter {
         // We use the absolute path here as we do not know the context where this import will be used.
         // The caller is responsible for making the path relative if necessary.
         entry.addFile(new LinkedFile("", filePath, StandardFileType.PDF.getName()));
-        return new ParserResult(List.of(entry));
+        ParserResult result = new ParserResult(List.of(entry));
+        warnings.forEach(result::addWarning);
+        return result;
     }
 
-    private List<BibEntry> extractCandidatesFromPdf(Path filePath, PDDocument document, Set<BibEntry> citedWorks) {
+    private List<BibEntry> extractCandidatesFromPdf(Path filePath, PDDocument document, Set<BibEntry> citedWorks, List<String> warnings) {
         List<BibEntry> candidates = new ArrayList<>();
 
         for (PdfImporter metadataImporter : metadataImporters) {
             try {
-                List<BibEntry> extractedEntries = metadataImporter.importDatabase(filePath, document).getDatabase().getEntries();
+                ParserResult importerResult = metadataImporter.importDatabase(filePath, document);
+                warnings.addAll(importerResult.warnings());
+                List<BibEntry> extractedEntries = importerResult.getDatabase().getEntries();
                 LOGGER.debug("Importer {} extracted {}", metadataImporter.getName(), extractedEntries);
                 candidates.addAll(extractedEntries);
                 if (metadataImporter instanceof BibliographyFromPdfImporter) {
