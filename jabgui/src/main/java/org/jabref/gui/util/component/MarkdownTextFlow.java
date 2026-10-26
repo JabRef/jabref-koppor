@@ -185,6 +185,15 @@ public class MarkdownTextFlow extends SelectableTextFlow {
         getChildren().add(textNode);
     }
 
+    /// Removes the newlines Flexmark adds around the content of a code block (`\n` at the beginning,
+    /// `\n\n` at the end), keeping blank lines that are part of the code.
+    private static String stripSyntheticNewlines(String content) {
+        if ((content.length() >= 3) && content.startsWith("\n") && content.endsWith("\n\n")) {
+            return content.substring(1, content.length() - 2);
+        }
+        return content;
+    }
+
     /// Adds the nodes for a code block, with syntax highlighting if the code is JSON.
     // [impl->feat~ai.chat.json-highlighting~1]
     private void addCodeBlockNodes(String content, Node codeBlock) {
