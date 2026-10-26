@@ -200,8 +200,7 @@ public class MarkdownTextFlow extends SelectableTextFlow {
                                    () -> addTextNode(content, codeBlock, "markdown-code-block", "font-monospace"));
     }
 
-    /// Adds one text node per JSON token; they are merged back into one segment when copying
-    /// (see buildCopySegments).
+    /// Adds one text node per JSON token.
     private void addJsonNodes(String json, Node codeBlock) {
         List<JsonHighlighter.Segment> segments = JsonHighlighter.tokenize(json);
 
@@ -266,10 +265,10 @@ public class MarkdownTextFlow extends SelectableTextFlow {
         StringJoiner result = new StringJoiner("");
         int currentPos = 0;
 
-        for (CopySegment segment : buildCopySegments()) {
-            String renderedText = segment.text();
-            Node astNode = segment.astNode();
-            String markdownText = getMarkdownRepresentation(astNode, renderedText);
+        for (javafx.scene.Node fxNode : getChildren()) {
+            String renderedText;
+            String markdownText;
+            Node astNode;
 
             switch (fxNode) {
                 case MarkdownAwareText mat -> {
