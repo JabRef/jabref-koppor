@@ -71,8 +71,9 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We show the donation prompt six months after the first launch and every six months, unless dismissed forever. [#17008](https://github.com/JabRef/jabref/pull/17008)
 - We moved the "Show diff" button to the Git commit dialog's button row. [#16730](https://github.com/JabRef/jabref/issues/16730)
 - We changed saving custom entry types to ask for a restart, so the entry editor shows the changes. [#17121](https://github.com/JabRef/jabref/pull/17121)
-- We changed the main table to keep the entry shown in the entry editor visible when enlarging the entry editor. [#17167](https://github.com/JabRef/jabref/pull/17167)
 - We changed single-line entry fields to return focus to the editor when <kbd>Enter</kbd> is pressed. [#17445](https://github.com/JabRef/jabref/issues/17445)
+- We show the donation prompt six months after the first launch and every six months, unless dismissed forever. [#17008](https://github.com/JabRef/jabref/pull/17008)
+- We changed the main table to keep the entry shown in the entry editor visible when enlarging the entry editor. [#17167](https://github.com/JabRef/jabref/pull/17167)
 
 ### Fixed
 
