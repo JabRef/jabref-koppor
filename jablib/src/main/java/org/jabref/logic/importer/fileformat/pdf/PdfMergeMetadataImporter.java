@@ -25,6 +25,7 @@ import org.jabref.logic.importer.fetcher.ArXivFetcher;
 import org.jabref.logic.importer.fetcher.DoiFetcher;
 import org.jabref.logic.importer.fetcher.isbntobibtex.IsbnFetcher;
 import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.util.PdfUtils;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
@@ -64,7 +65,7 @@ public class PdfMergeMetadataImporter extends PdfImporter {
         ));
 
         if (importFormatPreferences.grobidPreferences().isGrobidEnabled()) {
-            this.metadataImporters.add(2, new PdfGrobidImporter(importFormatPreferences));
+            this.metadataImporters.add(2, new PdfGrobidHeaderImporter(importFormatPreferences));
         }
         doiFetcher = new DoiFetcher(importFormatPreferences);
         arXivFetcher = new ArXivFetcher(importFormatPreferences);
@@ -107,7 +108,7 @@ public class PdfMergeMetadataImporter extends PdfImporter {
 
         List<BibEntry> allCandidates = new ArrayList<>(fetchedCandidates);
         allCandidates.addAll(extractedCandidates);
-        BibEntry entry = mergeCandidates(allCandidates, citedWorks, PdfAuthorCrossCheck.extractLeadingPagesText(document));
+        BibEntry entry = mergeCandidates(allCandidates, citedWorks, extractLeadingPagesText(document));
 
         // We use the absolute path here as we do not know the context where this import will be used.
         // The caller is responsible for making the path relative if necessary.
@@ -115,6 +116,16 @@ public class PdfMergeMetadataImporter extends PdfImporter {
         ParserResult result = new ParserResult(List.of(entry));
         warnings.forEach(result::addWarning);
         return result;
+    }
+
+    /// Text of the first two pages for the author cross-check; empty if the text cannot be extracted
+    private static String extractLeadingPagesText(PDDocument document) {
+        try {
+            return PdfUtils.getLeadingPagesContents(document, 2);
+        } catch (IOException e) {
+            LOGGER.debug("Could not extract text for the author plausibility check", e);
+            return "";
+        }
     }
 
     private List<BibEntry> extractCandidatesFromPdf(Path filePath, PDDocument document, Set<BibEntry> citedWorks, List<String> warnings) {

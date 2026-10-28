@@ -3,6 +3,7 @@ package org.jabref.logic.importer.fileformat.pdf;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -13,6 +14,8 @@ import javafx.collections.FXCollections;
 
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.util.GrobidPreferences;
+import org.jabref.logic.util.PdfUtils;
+import org.jabref.logic.xmp.XmpPreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
@@ -56,6 +59,8 @@ class PdfMergeMetadataImporterOfflineTest {
     /// means it is dropped. Columns: author | leadingPagesText | expectedAuthor (an empty leadingPagesText
     /// column arrives as `null`, modelling a PDF whose text could not be extracted).
     // [utest->req~import.pdf.author-confirmed-by-text~1]
+    // [utest->req~import.pdf.author-preserved-without-text~1,req~import.pdf.author-unconfirmed-single-removed~1]
+    // [utest->req~import.pdf.author-unconfirmed-multiple-retained~1]
     @ParameterizedTest
     @CsvSource(delimiter = '|', quoteCharacter = '"', textBlock = """
             Doe, Alice                  | Alice Doe, Bob Smith, Example University Testing Lab | Doe, Alice
@@ -68,7 +73,7 @@ class PdfMergeMetadataImporterOfflineTest {
             van der Berg, Anna          | Anna van der Berg, Example University               | van der Berg, Anna
             May, John                   | John Doe wrote what may happen, Example University   |
             Connor, Eve                 | A study by Sean O'Connor, Example University         |
-            O’Connor, Sean              | A study by SEAN O'CONNOR, Example University         | O’Connor, Sean
+            O\u2019Connor, Sean         | A study by SEAN O'CONNOR, Example University         | O\u2019Connor, Sean
             """)
     void singleCreatorCandidateAuthorIsCrossCheckedAgainstText(String author, @Nullable String leadingPagesText, @Nullable String expectedAuthor) {
         BibEntry candidate = new BibEntry().withField(StandardField.AUTHOR, author);
@@ -90,6 +95,7 @@ class PdfMergeMetadataImporterOfflineTest {
         assertEquals(Optional.of("Alice Doe and others"), merged.getField(StandardField.AUTHOR));
     }
 
+    // [utest->req~import.pdf.author-best-confirmed-candidate~1]
     @Test
     void authorAbsentFromDocumentTextIsReplacedByConfirmedCandidate() {
         BibEntry documentInformation = new BibEntry()
@@ -101,6 +107,32 @@ class PdfMergeMetadataImporterOfflineTest {
 
         assertEquals(Optional.of("Doe, Alice and Smith, Bob and Roe, Carol and Poe, Dave"),
                 merged.getField(StandardField.AUTHOR));
+    }
+
+    // [utest->req~import.pdf.author-best-confirmed-candidate~1]
+    @Test
+    void candidateWithMoreConfirmedFamilyNamesWins() {
+        BibEntry documentInformation = new BibEntry().withField(StandardField.AUTHOR, "Void, Eve");
+        BibEntry oneConfirmedName = new BibEntry().withField(StandardField.AUTHOR, "Doe, Alice");
+        BibEntry twoConfirmedNames = new BibEntry().withField(StandardField.AUTHOR, "Doe, Alice and Smith, Bob");
+
+        BibEntry merged = PdfMergeMetadataImporter.mergeCandidates(
+                List.of(documentInformation, oneConfirmedName, twoConfirmedNames), DOCUMENT_TEXT);
+
+        assertEquals(twoConfirmedNames.getField(StandardField.AUTHOR), merged.getField(StandardField.AUTHOR));
+    }
+
+    // [utest->req~import.pdf.author-best-confirmed-candidate~1]
+    @Test
+    void equallyConfirmedCandidatesKeepImportPriority() {
+        BibEntry documentInformation = new BibEntry().withField(StandardField.AUTHOR, "Void, Eve");
+        BibEntry earlier = new BibEntry().withField(StandardField.AUTHOR, "Doe, Alice");
+        BibEntry later = new BibEntry().withField(StandardField.AUTHOR, "Smith, Bob");
+
+        BibEntry merged = PdfMergeMetadataImporter.mergeCandidates(
+                List.of(documentInformation, earlier, later), DOCUMENT_TEXT);
+
+        assertEquals(earlier.getField(StandardField.AUTHOR), merged.getField(StandardField.AUTHOR));
     }
 
     @Test
@@ -128,6 +160,7 @@ class PdfMergeMetadataImporterOfflineTest {
                 merged.getField(StandardField.AUTHOR));
     }
 
+    // [utest->req~import.pdf.author-preserved-with-citation-key~1]
     @Test
     void unconfirmedAuthorFromEntryWithCitationKeyIsKept() {
         BibEntry jabRefWrittenMetadata = new BibEntry()
@@ -139,6 +172,7 @@ class PdfMergeMetadataImporterOfflineTest {
         assertEquals(Optional.of("Void, Eve"), merged.getField(StandardField.AUTHOR));
     }
 
+    // [utest->req~import.pdf.author-preserved-with-entry-type~1]
     @Test
     void unconfirmedAuthorFromEntryWithExplicitTypeIsKept() {
         BibEntry jabRefWrittenMetadata = new BibEntry(StandardEntryType.Article)
@@ -166,6 +200,19 @@ class PdfMergeMetadataImporterOfflineTest {
         assertEquals(Optional.of(byline), merged.getField(StandardField.AUTHOR));
     }
 
+    // [utest->req~import.pdf.author-candidate-plausible~1]
+    @Test
+    void sentenceContainingConfirmedNameIsReplacedByPlausibleCandidate() {
+        BibEntry documentInformation = new BibEntry()
+                .withField(StandardField.AUTHOR, "Written by Alice Doe");
+        BibEntry content = new BibEntry(StandardEntryType.InProceedings)
+                .withField(StandardField.AUTHOR, "Doe, Alice");
+
+        BibEntry merged = PdfMergeMetadataImporter.mergeCandidates(List.of(documentInformation, content), DOCUMENT_TEXT);
+
+        assertEquals(Optional.of("Doe, Alice"), merged.getField(StandardField.AUTHOR));
+    }
+
     @Test
     void proseMisparsedAsAuthorListDoesNotReplaceUnconfirmedAuthor() {
         BibEntry documentInformation = new BibEntry()
@@ -179,6 +226,7 @@ class PdfMergeMetadataImporterOfflineTest {
         assertEquals(Optional.empty(), merged.getField(StandardField.AUTHOR));
     }
 
+    // [utest->adr~track-pdf-reference-list-provenance~1]
     @Test
     void citedWorkAuthorIsReplacedByConfirmedByline() {
         BibEntry citedWork = new BibEntry(StandardEntryType.Article)
@@ -268,9 +316,26 @@ class PdfMergeMetadataImporterOfflineTest {
 
         try (PDDocument document = Loader.loadPDF(file.toFile())) {
             BibEntry merged = PdfMergeMetadataImporter.mergeCandidates(List.of(documentInformation, content),
-                    PdfAuthorCrossCheck.extractLeadingPagesText(document));
+                    PdfUtils.getLeadingPagesContents(document, 2));
 
             assertEquals(content.getField(StandardField.AUTHOR), merged.getField(StandardField.AUTHOR));
+        }
+    }
+
+    /// arXiv's XMP joins the authors with U+2C20 and a byte order mark instead of " and "; the byline prints the
+    /// family names glued to affiliation markers ("Riccaa,∗"), so only the given names confirm the value
+    @Test
+    void realPdfXmpAuthorWithBrokenSeparatorsIsKept() throws IOException, URISyntaxException {
+        Path file = Path.of(PdfMergeMetadataImporterOfflineTest.class.getResource("/pdfs/test-arxivMetadata.pdf").toURI());
+        XmpPreferences xmpPreferences = mock(XmpPreferences.class, Answers.RETURNS_DEEP_STUBS);
+
+        try (PDDocument document = Loader.loadPDF(file.toFile())) {
+            List<BibEntry> candidates = new ArrayList<>(new PdfXmpImporter(xmpPreferences).importDatabase(file, document).getDatabase().getEntries());
+            candidates.addAll(new PdfContentImporter().importDatabase(file, document).getDatabase().getEntries());
+
+            BibEntry merged = PdfMergeMetadataImporter.mergeCandidates(candidates, PdfUtils.getLeadingPagesContents(document, 2));
+
+            assertEquals(Optional.of("Filippo Ricca\u2C20\uFEFFAlessandro Marchetto\u2C20\uFEFFAndrea Stocco\u2C20"), merged.getField(StandardField.AUTHOR));
         }
     }
 }
