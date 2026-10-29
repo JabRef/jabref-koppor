@@ -187,11 +187,13 @@ public class AiService implements AutoCloseable {
     }
 
     private void migrateDatabase(BibDatabaseContext context) {
-        ChatHistoryMigrationV1.migrate(
-                context,
-                mvStoreChatHistoryRepository,
-                notificationService
-        );
+        synchronized (mvStoreChatHistoryRepository) {
+            ChatHistoryMigrationV1.migrate(
+                    context,
+                    mvStoreChatHistoryRepository,
+                    notificationService
+            );
+        }
 
         SummariesMigrationV1.migrate(
                 context,
@@ -206,6 +208,11 @@ public class AiService implements AutoCloseable {
 
     public InMemoryChatHistoryCache getChatHistoryCache() {
         return inMemoryChatHistoryCache;
+    }
+
+    /// Releases chat cache retention for a closed library while outstanding writes finish.
+    public void releaseLibrary(BibDatabaseContext context) {
+        inMemoryChatHistoryCache.releaseLibrary(context);
     }
 
     public ChatModel getCurrentChatModel() {
