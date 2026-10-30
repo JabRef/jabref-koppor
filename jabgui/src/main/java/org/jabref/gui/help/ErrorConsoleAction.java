@@ -3,8 +3,7 @@ package org.jabref.gui.help;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.errorconsole.ErrorConsoleView;
-
-import com.airhacks.afterburner.injection.Injector;
+import org.jabref.injection.Injector;
 
 /// Such an error console can be
 /// useful in getting complete bug reports, especially from Windows users,

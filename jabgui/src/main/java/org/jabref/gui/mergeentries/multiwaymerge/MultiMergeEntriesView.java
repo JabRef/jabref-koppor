@@ -45,6 +45,7 @@ import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.BindingsHelper;
 import org.jabref.gui.util.ControlHelper;
 import org.jabref.gui.util.UiTaskExecutor;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.IdBasedFetcher;
@@ -58,7 +59,6 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.field.StandardField;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import com.tobiasdiez.easybind.EasyObservableValue;
 import org.slf4j.Logger;

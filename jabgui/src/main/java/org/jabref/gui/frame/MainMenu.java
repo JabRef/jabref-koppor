@@ -83,6 +83,7 @@ import org.jabref.gui.undo.RedoAction;
 import org.jabref.gui.undo.UndoAction;
 import org.jabref.gui.util.URLs;
 import org.jabref.gui.util.UiTaskExecutor;
+import org.jabref.injection.Injector;
 import org.jabref.logic.ai.AiService;
 import org.jabref.logic.citedrive.OAuthSessionRegistry;
 import org.jabref.logic.git.util.GitHandlerRegistry;
@@ -96,8 +97,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.airhacks.afterburner.injection.Injector;
 
 public class MainMenu extends MenuBar {
     private final JabRefFrame frame;
