@@ -32,6 +32,16 @@ class BstPreviewLayoutTest {
     }
 
     @Test
+    void generatePreviewForEntryWithMathFormulaInTitle() throws Exception {
+        BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
+        BibEntry entry = new BibEntry(StandardEntryType.Misc)
+                .withField(StandardField.AUTHOR, "Jane Doe")
+                .withField(StandardField.TITLE, "Characterization of $\\alpha$");
+        String preview = bstPreviewLayout.generatePreview(entry, bibDatabaseContext);
+        assertEquals("J.\u00a0Doe. Characterization of α.", preview);
+    }
+
+    @Test
     void monthMayIsCorrectlyRendered() throws Exception {
         BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
         BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "Oliver Kopp")
