@@ -1,6 +1,5 @@
 package org.jabref.gui.entryeditor;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -316,7 +315,7 @@ class AllFieldsTabTest {
     }
 
     @Test
-    void fileEditorAppearsWhenAutolinkFindsUnlinkedFile() throws IOException {
+    void fileEditorAppearsWhenAutolinkFindsUnlinkedFile() throws Exception {
         Files.createFile(fileDirectory.resolve("CiteKey2021.pdf"));
         BibEntry entry = new BibEntry(StandardEntryType.Misc).withCitationKey("CiteKey2021");
 
@@ -386,7 +385,7 @@ class AllFieldsTabTest {
     }
 
     @Test
-    void fileEditorStaysHiddenWhenAutolinkIsDisabled() throws IOException {
+    void fileEditorStaysHiddenWhenAutolinkIsDisabled() throws Exception {
         when(preferences.getEntryEditorPreferences().autoLinkFilesEnabled()).thenReturn(false);
         Files.createFile(fileDirectory.resolve("CiteKey2021.pdf"));
         BibEntry entry = new BibEntry(StandardEntryType.Misc).withCitationKey("CiteKey2021");
@@ -427,7 +426,7 @@ class AllFieldsTabTest {
     }
 
     @Test
-    void staleProbeResultDoesNotAddFileEditor() throws IOException {
+    void staleProbeResultDoesNotAddFileEditor() throws Exception {
         Files.createFile(fileDirectory.resolve("CiteKey2021.pdf"));
         BibEntry entry = new BibEntry(StandardEntryType.Misc).withCitationKey("OtherKey");
 

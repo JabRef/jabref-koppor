@@ -1,11 +1,8 @@
 package org.jabref.logic.importer.fetcher;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -13,7 +10,6 @@ import java.util.Optional;
 
 import javafx.collections.FXCollections;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.Parser;
 import org.jabref.logic.search.query.SearchQueryVisitor;
@@ -48,7 +44,7 @@ class OpenAlexFetcherTest {
     }
 
     @Test
-    void getURLForQueryBuildsSearchUrl() throws MalformedURLException, URISyntaxException {
+    void getURLForQueryBuildsSearchUrl() throws Exception {
         String testQuery = "deep learning";
         SearchQuery searchQuery = new SearchQuery(testQuery);
         SearchQueryVisitor visitor = new SearchQueryVisitor(searchQuery.getSearchFlags());
@@ -117,7 +113,7 @@ class OpenAlexFetcherTest {
     }
 
     @Test
-    void fullTextFindByDOI() throws URISyntaxException, FetcherException, IOException {
+    void fullTextFindByDOI() throws Exception {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1145/3503250");
         assertEquals(
                 Optional.of(new URI("https://dl.acm.org/doi/pdf/10.1145/3503250").toURL()),
@@ -126,7 +122,7 @@ class OpenAlexFetcherTest {
     }
 
     @Test
-    void fullTextFindByDOIAlternate() throws FetcherException, IOException, URISyntaxException {
+    void fullTextFindByDOIAlternate() throws Exception {
         assertEquals(
                 Optional.of(new URI("https://www.mdpi.com/2227-9032/9/2/206/pdf?version=1614152367").toURL()),
                 fetcher.findFullText(new BibEntry()
@@ -134,12 +130,12 @@ class OpenAlexFetcherTest {
     }
 
     @Test
-    void fullTextSearchOnEmptyEntry() throws IOException, FetcherException {
+    void fullTextSearchOnEmptyEntry() throws Exception {
         assertEquals(Optional.empty(), fetcher.findFullText(new BibEntry()));
     }
 
     @Test
-    void fullTextSearchByopenAlexURl() throws IOException, FetcherException, URISyntaxException {
+    void fullTextSearchByopenAlexURl() throws Exception {
         assertEquals(
                 Optional.of(new URI("https://www.mdpi.com/2227-9032/9/2/206/pdf?version=1614152367").toURL()),
                 fetcher.findFullText(new BibEntry()
@@ -147,7 +143,7 @@ class OpenAlexFetcherTest {
     }
 
     @Test
-    void getURLForQueryWithLucene() throws MalformedURLException, URISyntaxException {
+    void getURLForQueryWithLucene() throws Exception {
         String query = "nerf";
         SearchQuery searchQueryObject = new SearchQuery(query);
         SearchQueryVisitor visitor = new SearchQueryVisitor(searchQueryObject.getSearchFlags());
@@ -156,7 +152,7 @@ class OpenAlexFetcherTest {
     }
 
     @Test
-    void searchByQueryFindsEntry() throws FetcherException {
+    void searchByQueryFindsEntry() throws Exception {
         BibEntry master = new BibEntry(StandardEntryType.InProceedings)
                 .withField(StandardField.AUTHOR, "Matthew Tancik and Vincent Casser and Xinchen Yan and Sabeek Pradhan and Ben Mildenhall and Pratul P. Srinivasan and Jonathan T. Barron and Henrik Kretzschmar")
                 .withField(StandardField.TITLE, "Block-NeRF: Scalable Large Scene Neural View Synthesis")
@@ -171,12 +167,12 @@ class OpenAlexFetcherTest {
     }
 
     @Test
-    void performSearchByEmptyQuery() throws FetcherException {
+    void performSearchByEmptyQuery() throws Exception {
         assertEquals(List.of(), fetcher.performSearch(""));
     }
 
     @Test
-    void searchByQuotedQueryFindsEntry() throws FetcherException {
+    void searchByQuotedQueryFindsEntry() throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.InProceedings)
                 .withField(StandardField.AUTHOR, "Haithem Turki and Deva Ramanan and Mahadev Satyanarayanan")
                 .withField(StandardField.DATE, "2022-06-01")

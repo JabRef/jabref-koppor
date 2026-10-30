@@ -74,7 +74,7 @@ class RemoveLinksToNotExistentFilesTest {
     }
 
     @Test
-    void deleteFileInEntryWithMultipleFileLinks() throws IOException {
+    void deleteFileInEntryWithMultipleFileLinks() throws Exception {
         LinkedFile fileField = new LinkedFile("", fileBefore.toAbsolutePath(), "");
         FieldChange expectedChange = new FieldChange(entry, StandardField.FILE,
                 FileFieldWriter.getStringRepresentation(List.of(
@@ -132,7 +132,7 @@ class RemoveLinksToNotExistentFilesTest {
     }
 
     @Test
-    void deleteLinkedFile() throws IOException {
+    void deleteLinkedFile() throws Exception {
         LinkedFile fileField = new LinkedFile("", fileBefore.toAbsolutePath(), "");
 
         // There is only one linked file in entry

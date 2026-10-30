@@ -1,9 +1,7 @@
 package org.jabref.logic.importer.fileformat;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.Reader;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -59,7 +57,7 @@ class EndnoteImporterTest {
     }
 
     @Test
-    void isRecognizedFormat() throws IOException, URISyntaxException {
+    void isRecognizedFormat() throws Exception {
         List<String> list = Arrays.asList("Endnote.pattern.A.enw", "Endnote.pattern.E.enw", "Endnote.book.example.enw");
 
         for (String string : list) {
@@ -69,7 +67,7 @@ class EndnoteImporterTest {
     }
 
     @Test
-    void isRecognizedFormatReject() throws IOException, URISyntaxException {
+    void isRecognizedFormatReject() throws Exception {
         List<String> list = Arrays.asList("IEEEImport1.txt", "IsiImporterTest1.isi", "IsiImporterTestInspec.isi",
                 "IsiImporterTestWOS.isi", "IsiImporterTestMedline.isi", "RisImporterTest1.ris",
                 "Endnote.pattern.no_enw", "empty.pdf", "pdf/annotated.pdf");
@@ -81,7 +79,7 @@ class EndnoteImporterTest {
     }
 
     @Test
-    void importEntries0() throws IOException, URISyntaxException {
+    void importEntries0() throws Exception {
         Path file = Path.of(EndnoteImporterTest.class.getResource("Endnote.entries.enw").toURI());
         List<BibEntry> bibEntries = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -126,7 +124,7 @@ class EndnoteImporterTest {
     }
 
     @Test
-    void importEntries1() throws IOException {
+    void importEntries1() throws Exception {
         String medlineString = "%O Artn\\\\s testO\n%A testA,\n%E testE0, testE1";
         List<BibEntry> bibEntries = importer.importDatabase(new BufferedReader(Reader.of(medlineString))).getDatabase()
                                             .getEntries();
@@ -141,7 +139,7 @@ class EndnoteImporterTest {
     }
 
     @Test
-    void importEntriesBookExample() throws IOException, URISyntaxException {
+    void importEntriesBookExample() throws Exception {
         Path file = Path.of(EndnoteImporterTest.class.getResource("Endnote.book.example.enw").toURI());
         List<BibEntry> bibEntries = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -162,7 +160,7 @@ class EndnoteImporterTest {
     }
 
     @Test
-    void importPreservesDiacriticalCitationKey() throws IOException {
+    void importPreservesDiacriticalCitationKey() throws Exception {
         String input = "%0 Journal\n%A Author\n%T Title\n%F kṛṣṇā";
         List<BibEntry> entries = importer.importDatabase(new BufferedReader(Reader.of(input)))
                                          .getDatabase().getEntries();

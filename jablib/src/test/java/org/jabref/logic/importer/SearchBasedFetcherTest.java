@@ -35,19 +35,19 @@ class SearchBasedFetcherTest {
     }
 
     @Test
-    void emptyQueryReturnsEmptyList() throws FetcherException {
+    void emptyQueryReturnsEmptyList() throws Exception {
         StubSearchBasedFetcher fetcher = new StubSearchBasedFetcher();
         assertEquals(List.of(), fetcher.performSearch(""));
     }
 
     @Test
-    void blankQueryReturnsEmptyList() throws FetcherException {
+    void blankQueryReturnsEmptyList() throws Exception {
         StubSearchBasedFetcher fetcher = new StubSearchBasedFetcher();
         assertEquals(List.of(), fetcher.performSearch("   "));
     }
 
     @Test
-    void validQueryIsParsedIntoStructuredNode() throws FetcherException {
+    void validQueryIsParsedIntoStructuredNode() throws Exception {
         StubSearchBasedFetcher fetcher = new StubSearchBasedFetcher();
         fetcher.performSearch("quantum");
 
@@ -57,7 +57,7 @@ class SearchBasedFetcherTest {
     }
 
     @Test
-    void invalidQueryFallsBackToRawTerm() throws FetcherException {
+    void invalidQueryFallsBackToRawTerm() throws Exception {
         StubSearchBasedFetcher fetcher = new StubSearchBasedFetcher();
         fetcher.performSearch("!term");
 
@@ -67,7 +67,7 @@ class SearchBasedFetcherTest {
     }
 
     @Test
-    void fetcherSpecificSyntaxFallsBackToRawTerm() throws FetcherException {
+    void fetcherSpecificSyntaxFallsBackToRawTerm() throws Exception {
         StubSearchBasedFetcher fetcher = new StubSearchBasedFetcher();
         fetcher.performSearch("pica.tit=quantum");
 
@@ -76,7 +76,7 @@ class SearchBasedFetcherTest {
     }
 
     @Test
-    void specialCharactersInQueryFallBackToRawTerm() throws FetcherException {
+    void specialCharactersInQueryFallBackToRawTerm() throws Exception {
         StubSearchBasedFetcher fetcher = new StubSearchBasedFetcher();
 
         fetcher.performSearch("t(erm");
@@ -89,7 +89,7 @@ class SearchBasedFetcherTest {
     }
 
     @Test
-    void doiQueryFallsBackToRawTerm() throws FetcherException {
+    void doiQueryFallsBackToRawTerm() throws Exception {
         StubSearchBasedFetcher fetcher = new StubSearchBasedFetcher();
         fetcher.performSearch("10.1109/5.771073");
 

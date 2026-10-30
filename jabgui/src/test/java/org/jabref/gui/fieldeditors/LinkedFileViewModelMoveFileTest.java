@@ -67,7 +67,7 @@ class LinkedFileViewModelMoveFileTest {
     }
 
     @Test
-    void moveToDirectoryMovesFileToChosenTarget() throws IOException {
+    void moveToDirectoryMovesFileToChosenTarget() throws Exception {
         Path sourceFile = sourceDir.resolve("nested/sub/test.pdf");
         Files.createDirectories(sourceFile.getParent());
         Files.createFile(sourceFile);
@@ -82,7 +82,7 @@ class LinkedFileViewModelMoveFileTest {
     }
 
     @Test
-    void moveToDirectoryUsesConfiguredDirectoryPattern() throws IOException {
+    void moveToDirectoryUsesConfiguredDirectoryPattern() throws Exception {
         when(filePreferences.getFileDirectoryPattern()).thenReturn("[entrytype]");
 
         Path sourceFile = sourceDir.resolve("test.pdf");
@@ -116,7 +116,7 @@ class LinkedFileViewModelMoveFileTest {
     }
 
     @Test
-    void isInDirectoryReturnsTrueForCurrentCurrentDirectoryAndPattern() throws IOException {
+    void isInDirectoryReturnsTrueForCurrentCurrentDirectoryAndPattern() throws Exception {
         when(filePreferences.getFileDirectoryPattern()).thenReturn("[entrytype]");
         String targetDirectoryName = FileUtil.createDirNameFromPattern(databaseContext.getDatabase(), entry, "[entrytype]");
 
@@ -132,7 +132,7 @@ class LinkedFileViewModelMoveFileTest {
     }
 
     @Test
-    void isInDirectoryReturnsFalseForDifferentCurrentDirectory() throws IOException {
+    void isInDirectoryReturnsFalseForDifferentCurrentDirectory() throws Exception {
         Path existingFile = sourceDir.resolve("test.pdf");
         Files.createFile(existingFile);
         LinkedFile linkedFile = new LinkedFile("desc", existingFile, "pdf");

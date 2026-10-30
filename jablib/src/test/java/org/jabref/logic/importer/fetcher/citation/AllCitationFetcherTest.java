@@ -3,7 +3,6 @@ package org.jabref.logic.importer.fetcher.citation;
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.util.GrobidPreferences;
@@ -35,13 +34,13 @@ class AllCitationFetcherTest {
     }
 
     @Test
-    void getReferences() throws FetcherException {
+    void getReferences() throws Exception {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1016/j.jksuci.2024.102118");
         assertNotNull(fetcher.getReferences(entry));
     }
 
     @Test
-    void getCitations() throws FetcherException {
+    void getCitations() throws Exception {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1016/j.jksuci.2024.102118");
         assertNotNull(fetcher.getCitations(entry));
     }

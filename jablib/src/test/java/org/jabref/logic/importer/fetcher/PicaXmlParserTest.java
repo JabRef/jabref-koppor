@@ -39,22 +39,22 @@ class PicaXmlParserTest {
     }
 
     @Test
-    void emptyResult() throws ParseException, IOException {
+    void emptyResult() throws Exception {
         doTest("gvk_empty_result_because_of_bad_query.xml", 0, List.of());
     }
 
     @Test
-    void resultFor797485368() throws ParseException, IOException {
+    void resultFor797485368() throws Exception {
         doTest("gvk_result_for_797485368.xml", 1, List.of("gvk_result_for_797485368.bib"));
     }
 
     @Test
-    void gMP() throws ParseException, IOException {
+    void gMP() throws Exception {
         doTest("gvk_gmp.xml", 2, Arrays.asList("gvk_gmp.1.bib", "gvk_gmp.2.bib"));
     }
 
     @Test
-    void subTitleTest() throws IOException, ParseException {
+    void subTitleTest() throws Exception {
         try (InputStream is = PicaXmlParserTest.class.getResourceAsStream("gvk_artificial_subtitle_test.xml")) {
             PicaXmlParser parser = new PicaXmlParser();
             List<BibEntry> entries = parser.parseEntries(is);

@@ -1,10 +1,8 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
@@ -35,7 +33,7 @@ class WileyFetcherTest {
     }
 
     @Test
-    void findFullTextByDoi() throws IOException, FetcherException {
+    void findFullTextByDoi() throws Exception {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1002/we.2952");
 
         assertEquals(
@@ -45,7 +43,7 @@ class WileyFetcherTest {
     }
 
     @Test
-    void findFullTextReturnsEmptyWithoutApiKey() throws IOException, FetcherException {
+    void findFullTextReturnsEmptyWithoutApiKey() throws Exception {
         when(importerPreferences.getApiKey(WileyFetcher.FETCHER_NAME)).thenReturn(Optional.empty());
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1002/we.2952");
 
@@ -53,7 +51,7 @@ class WileyFetcherTest {
     }
 
     @Test
-    void findFullTextReturnsEmptyWithBlankApiKey() throws IOException, FetcherException {
+    void findFullTextReturnsEmptyWithBlankApiKey() throws Exception {
         when(importerPreferences.getApiKey(WileyFetcher.FETCHER_NAME)).thenReturn(Optional.of("   "));
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1002/we.2952");
 
@@ -61,7 +59,7 @@ class WileyFetcherTest {
     }
 
     @Test
-    void findFullTextReturnsEmptyWithoutDoi() throws IOException, FetcherException {
+    void findFullTextReturnsEmptyWithoutDoi() throws Exception {
         assertEquals(Optional.empty(), fetcher.findFullText(new BibEntry()));
     }
 

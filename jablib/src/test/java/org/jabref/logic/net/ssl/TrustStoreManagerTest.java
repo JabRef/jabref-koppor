@@ -1,14 +1,10 @@
 package org.jabref.logic.net.ssl;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -21,7 +17,7 @@ class TrustStoreManagerTest {
 
     @Test
     void createTruststoreFileIfNotExistMergesMissingBundledCertificatesIntoExistingFile(@TempDir Path tempDir)
-            throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+            throws Exception {
         Path storePath = tempDir.resolve("truststore.jks");
 
         KeyStore existingStore = KeyStore.getInstance(KeyStore.getDefaultType());

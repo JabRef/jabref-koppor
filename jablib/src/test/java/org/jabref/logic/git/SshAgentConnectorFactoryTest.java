@@ -84,7 +84,7 @@ class SshAgentConnectorFactoryTest {
     }
 
     @Test
-    void primaryAgentIsUsedWhenReachable() throws IOException {
+    void primaryAgentIsUsedWhenReachable() throws Exception {
         FakeConnector pageant = new FakeConnector(true, false);
         FakeConnector pipe = new FakeConnector(true, false);
         RecordingFactory jgit = new RecordingFactory(pageant, pipe);
@@ -97,7 +97,7 @@ class SshAgentConnectorFactoryTest {
     }
 
     @Test
-    void fallsBackToOpenSshPipeWhenPrimaryRefuses() throws IOException {
+    void fallsBackToOpenSshPipeWhenPrimaryRefuses() throws Exception {
         FakeConnector pageant = new FakeConnector(false, false);
         FakeConnector pipe = new FakeConnector(true, false);
         RecordingFactory jgit = new RecordingFactory(pageant, pipe);
@@ -111,7 +111,7 @@ class SshAgentConnectorFactoryTest {
     }
 
     @Test
-    void fallsBackWhenPrimaryThrows() throws IOException {
+    void fallsBackWhenPrimaryThrows() throws Exception {
         FakeConnector pageant = new FakeConnector(false, true);
         FakeConnector pipe = new FakeConnector(true, false);
         RecordingFactory jgit = new RecordingFactory(pageant, pipe);
@@ -123,14 +123,14 @@ class SshAgentConnectorFactoryTest {
     }
 
     @Test
-    void reportsNoAgentWhenBothUnavailable() throws IOException {
+    void reportsNoAgentWhenBothUnavailable() throws Exception {
         RecordingFactory jgit = new RecordingFactory(new FakeConnector(false, false), new FakeConnector(false, false));
 
         assertFalse(new SshAgentConnectorFactory(jgit).create(null, Path.of(".").toFile()).connect());
     }
 
     @Test
-    void explicitIdentityAgentIsPassedThrough() throws IOException {
+    void explicitIdentityAgentIsPassedThrough() throws Exception {
         FakeConnector pageant = new FakeConnector(true, false);
         FakeConnector pipe = new FakeConnector(true, false);
         RecordingFactory jgit = new RecordingFactory(pageant, pipe);

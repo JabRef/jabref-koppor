@@ -60,14 +60,14 @@ class CustomImporterTest {
     }
 
     @Test
-    void compareToSmaller() throws ImportException {
+    void compareToSmaller() throws Exception {
         CustomImporter ovidImporter = asCustomImporter(new OvidImporter());
 
         assertTrue(importer.compareTo(ovidImporter) < 0);
     }
 
     @Test
-    void compareToEven() throws ImportException {
+    void compareToEven() throws Exception {
         assertEquals(0, importer.compareTo(asCustomImporter(new CopacImporter())));
     }
 
@@ -77,7 +77,7 @@ class CustomImporterTest {
     }
 
     @Test
-    void classicConstructor() throws ImportException {
+    void classicConstructor() throws Exception {
         CustomImporter customImporter = new CustomImporter(
                 "src/main/java/org/jabref/logic/importer/fileformat/CopacImporter.java",
                 "org.jabref.logic.importer.fileformat.CopacImporter");

@@ -12,7 +12,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Execution(ExecutionMode.SAME_THREAD)
-public class LtwaRepositoryTest {
+class LtwaRepositoryTest {
     private JournalAbbreviationRepository repository;
 
     @BeforeEach

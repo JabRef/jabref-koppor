@@ -1,7 +1,6 @@
 package org.jabref.logic.externalfiles;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -51,7 +50,7 @@ class LinkedFileHandlerTest {
                 newName.pdf, testFile, newName.pdf
                 newName..pdf, test.pdf, newName.
             """)
-    void renameFile(String expectedFileName, String originalFileName, String newFileName) throws IOException {
+    void renameFile(String expectedFileName, String originalFileName, String newFileName) throws Exception {
         final Path tempFile = tempFolder.resolve(originalFileName);
         Files.createFile(tempFile);
 

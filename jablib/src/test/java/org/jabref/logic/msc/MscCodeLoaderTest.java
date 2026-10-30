@@ -1,6 +1,5 @@
 package org.jabref.logic.msc;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +19,7 @@ class MscCodeLoaderTest {
     Path tempDir;
 
     @Test
-    void convertCsvToMvStore() throws IOException {
+    void convertCsvToMvStore() throws Exception {
         Path csvFile = tempDir.resolve("MSC_2020.csv");
         Files.writeString(csvFile, """
                 code\ttext\tdescription
@@ -39,7 +38,7 @@ class MscCodeLoaderTest {
     }
 
     @Test
-    void loadMscCodeRepositoryFromCsvUrl() throws IOException, org.jabref.logic.shared.exception.MscCodeLoadingException {
+    void loadMscCodeRepositoryFromCsvUrl() throws Exception {
         Path csvFile = tempDir.resolve("MSC_2020.csv");
         Files.writeString(csvFile, """
                 code\ttext\tdescription
@@ -52,7 +51,7 @@ class MscCodeLoaderTest {
     }
 
     @Test
-    void convertCsvToMvStoreRemovesStaleEntries() throws IOException {
+    void convertCsvToMvStoreRemovesStaleEntries() throws Exception {
         Path csvFile1 = tempDir.resolve("MSC_1.csv");
         Files.writeString(csvFile1, """
                 code\ttext\tdescription

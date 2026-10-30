@@ -114,7 +114,7 @@ class JabRefGuiUndoManagerTest {
     /// while the JavaFX thread is blocked, so both updates run after the stack is empty again
     /// and the menu is never told about an undo that is already gone.
     @Test
-    void aQueuedUpdateAppliesTheStateItFindsWhenItRuns() throws InterruptedException {
+    void aQueuedUpdateAppliesTheStateItFindsWhenItRuns() throws Exception {
         List<Boolean> undoableValues = new CopyOnWriteArrayList<>();
         Platform.runLater(() -> undoManager.undoableProperty().addListener(
                 (_, _, added) -> undoableValues.add(added)));
@@ -144,7 +144,7 @@ class JabRefGuiUndoManagerTest {
     /// in, however many updates that took. The updates are not coalesced, and this is what says
     /// that they need not be.
     @Test
-    void aBurstOfEditsLeavesThePropertiesAtTheLastState() throws InterruptedException {
+    void aBurstOfEditsLeavesThePropertiesAtTheLastState() throws Exception {
         CountDownLatch release = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {

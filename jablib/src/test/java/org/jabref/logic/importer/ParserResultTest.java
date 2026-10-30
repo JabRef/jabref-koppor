@@ -1,6 +1,5 @@
 package org.jabref.logic.importer;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -59,7 +58,7 @@ class ParserResultTest {
     }
 
     @Test
-    void warningAddedForWhitespaceInCitationKeyImport(@TempDir Path tmpDir) throws IOException {
+    void warningAddedForWhitespaceInCitationKeyImport(@TempDir Path tmpDir) throws Exception {
         // whitespace after citation key "myArticle "
         String bibtexEntry = """
                 @article{ myArticle ,
@@ -78,7 +77,7 @@ class ParserResultTest {
     }
 
     @Test
-    void warningAddedForMissingCommaInCitationKeyImport(@TempDir Path tmpDir) throws IOException {
+    void warningAddedForMissingCommaInCitationKeyImport(@TempDir Path tmpDir) throws Exception {
         // Comma replaced by whitespace instead in citation key "myArticle "
         String bibtexEntry = """
                 @article{myArticle\s
@@ -97,7 +96,7 @@ class ParserResultTest {
     }
 
     @Test
-    void warningAddedForCorruptedCitationKeyInImport(@TempDir Path tmpDir) throws IOException {
+    void warningAddedForCorruptedCitationKeyInImport(@TempDir Path tmpDir) throws Exception {
         String bibtexEntry = """
                 @article{myArticle
                    author    = "Author Name",
@@ -116,7 +115,7 @@ class ParserResultTest {
     }
 
     @Test
-    void skipsImportEntryForImproperSyntax(@TempDir Path tmpDir) throws IOException {
+    void skipsImportEntryForImproperSyntax(@TempDir Path tmpDir) throws Exception {
         // Comma after '=' character on line 2 throws error
         String bibtexEntry = """
                 @article{myArticle,

@@ -1,13 +1,10 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.search.query.SearchQueryVisitor;
 import org.jabref.model.entry.BibEntry;
@@ -44,7 +41,7 @@ class CollectionOfComputerScienceBibliographiesFetcherTest {
     }
 
     @Test
-    void getUrlForQueryReturnsCorrectUrl() throws MalformedURLException, URISyntaxException {
+    void getUrlForQueryReturnsCorrectUrl() throws Exception {
         String query = "java jdk";
         SearchQuery searchQueryObject = new SearchQuery(query);
         SearchQueryVisitor visitor = new SearchQueryVisitor(searchQueryObject.getSearchFlags());
@@ -53,7 +50,7 @@ class CollectionOfComputerScienceBibliographiesFetcherTest {
     }
 
     @Test
-    void performSearchReturnsMatchingMultipleEntries() throws FetcherException {
+    void performSearchReturnsMatchingMultipleEntries() throws Exception {
         List<BibEntry> searchResult = fetcher.performSearch("jabref");
 
         BibEntry secondBibEntry = new BibEntry(StandardEntryType.Article)
@@ -107,7 +104,7 @@ class CollectionOfComputerScienceBibliographiesFetcherTest {
     }
 
     @Test
-    void performSearchReturnsEmptyListForEmptySearch() throws FetcherException {
+    void performSearchReturnsEmptyListForEmptySearch() throws Exception {
         List<BibEntry> searchResult = fetcher.performSearch("");
         assertEquals(List.of(), searchResult);
     }

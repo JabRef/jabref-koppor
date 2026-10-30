@@ -1,6 +1,5 @@
 package org.jabref.gui.externalfiles;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -32,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class UnlinkedFilesDialogViewModelTest {
+class UnlinkedFilesDialogViewModelTest {
     @TempDir
     Path tempDir;
     @TempDir
@@ -53,7 +52,7 @@ public class UnlinkedFilesDialogViewModelTest {
     private UnlinkedFilesDialogViewModel viewModel;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
 
         // Mock a base directory
@@ -86,7 +85,7 @@ public class UnlinkedFilesDialogViewModelTest {
     }
 
     @Test
-    public void startImportWithValidFilesTest() throws IOException {
+    void startImportWithValidFilesTest() throws Exception {
         // Create temporary test files
         tempDir = Files.createTempDirectory("testDir");
         subDir = tempDir.resolve("subdir");

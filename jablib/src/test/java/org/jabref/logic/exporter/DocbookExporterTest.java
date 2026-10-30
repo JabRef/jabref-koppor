@@ -1,14 +1,10 @@
 package org.jabref.logic.exporter;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.util.StandardFileType;
@@ -50,7 +46,7 @@ public class DocbookExporterTest {
     }
 
     @Test
-    void corruptedTitleBraces(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void corruptedTitleBraces(@TempDir Path testFolder) throws Exception {
         Path tmpFile = testFolder.resolve("testBraces");
 
         BibEntry entry = new BibEntry();
@@ -66,7 +62,7 @@ public class DocbookExporterTest {
     }
 
     @Test
-    void corruptedTitleUnicode(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void corruptedTitleUnicode(@TempDir Path testFolder) throws Exception {
         Path tmpFile = testFolder.resolve("testBraces");
 
         BibEntry entry = new BibEntry();

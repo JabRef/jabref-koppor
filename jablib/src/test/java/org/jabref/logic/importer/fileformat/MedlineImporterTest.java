@@ -1,12 +1,10 @@
 package org.jabref.logic.importer.fileformat;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.Reader;
 
 import javax.xml.stream.XMLInputFactory;
 
-import org.jabref.logic.importer.ImportException;
 import org.jabref.logic.util.StandardFileType;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -48,12 +46,12 @@ class MedlineImporterTest {
     }
 
     @Test
-    void meshHeadingListIsParsedIntoIndividualKeywords() throws IOException, ImportException {
+    void meshHeadingListIsParsedIntoIndividualKeywords() throws Exception {
         ImporterTestEngine.testImportEntries(importer, "MedlineImporterTestMeshHeadingList.xml", ".xml");
     }
 
     @Test
-    void rejectsExternalEntities() throws IOException {
+    void rejectsExternalEntities() throws Exception {
         String xmlWithExternalEntity = """
                 <!DOCTYPE PubmedArticleSet [<!ENTITY entity SYSTEM "file:///not-accessed">]>
                 <PubmedArticleSet><PubmedArticle><PMID>&entity;</PMID></PubmedArticle></PubmedArticleSet>

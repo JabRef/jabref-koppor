@@ -1,6 +1,5 @@
 package org.jabref.logic.quality.consistency;
 
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Files;
@@ -34,7 +33,7 @@ class BibliographyConsistencyCheckResultCsvWriterTest {
     private final BibEntryTypesManager entryTypesManager = new BibEntryTypesManager();
 
     @Test
-    void checkSimpleLibrary(@TempDir Path tempDir) throws IOException {
+    void checkSimpleLibrary(@TempDir Path tempDir) throws Exception {
         BibEntry first = new BibEntry(StandardEntryType.Article, "first")
                 .withField(StandardField.AUTHOR, "Author One")
                 .withField(StandardField.PAGES, "some pages");
@@ -115,7 +114,7 @@ class BibliographyConsistencyCheckResultCsvWriterTest {
     }
 
     @Test
-    void checkDifferentOutputSymbols(@TempDir Path tempDir) throws IOException {
+    void checkDifferentOutputSymbols(@TempDir Path tempDir) throws Exception {
         UnknownField customField = new UnknownField("custom");
         BibEntry first = new BibEntry(StandardEntryType.Article, "first")
                 .withField(StandardField.AUTHOR, "Author One") // required
@@ -147,7 +146,7 @@ class BibliographyConsistencyCheckResultCsvWriterTest {
     }
 
     @Test
-    void checkComplexLibrary(@TempDir Path tempDir) throws IOException {
+    void checkComplexLibrary(@TempDir Path tempDir) throws Exception {
         BibEntry first = new BibEntry(StandardEntryType.Article, "first")
                 .withField(StandardField.AUTHOR, "Author One")
                 .withField(StandardField.PAGES, "some pages");
@@ -195,7 +194,7 @@ class BibliographyConsistencyCheckResultCsvWriterTest {
     }
 
     @Test
-    void checkLibraryWithoutIssues(@TempDir Path tempDir) throws IOException {
+    void checkLibraryWithoutIssues(@TempDir Path tempDir) throws Exception {
         BibEntry first = new BibEntry(StandardEntryType.Article, "first")
                 .withField(StandardField.AUTHOR, "Author One")
                 .withField(StandardField.TITLE, "some title")
@@ -230,7 +229,7 @@ class BibliographyConsistencyCheckResultCsvWriterTest {
 
     @Test
     @Disabled("This test is only for manual generation of a report")
-    void checkManualInput() throws IOException {
+    void checkManualInput() throws Exception {
         Path file = Path.of("C:\\TEMP\\JabRef\\biblio-anon.bib");
         Path csvFile = file.resolveSibling("biblio-cited.csv");
         BibDatabaseContext databaseContext = importer.importDatabase(file).getDatabaseContext();
