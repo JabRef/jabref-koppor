@@ -15,10 +15,6 @@ version = providers.gradleProperty("projVersion")
     .orElse("100.0.0")
     .get()
 
-mainModuleInfo {
-    annotationProcessor("info.picocli.codegen")
-}
-
 dependencies {
     // TeaVM
     implementation(teavm.libs.jsoApis)
