@@ -269,6 +269,129 @@ class RuleBasedBibliographyPdfImporterTest {
         assertEquals(List.of(ALVER2007, ALVER2007A, KOPP2012, KOPPP2018, KOENIG2023), parserResult.getDatabase().getEntries());
     }
 
+    @Test
+    void biblatexAlphabetic() throws URISyntaxException {
+        // [utest->req~import.pdf.references.labelled~1]
+        Path file = Path.of(RuleBasedBibliographyPdfImporterTest.class.getResource("/pdfs/biblatex/alphabetic.pdf").toURI());
+        ParserResult parserResult = ruleBasedBibliographyPdfImporter.importDatabase(file);
+
+        BibEntry adr26 = new BibEntry(StandardEntryType.Article)
+                .withCitationKey("adr26")
+                .withField(StandardField.AUTHOR, "adr")
+                .withField(StandardField.TITLE, "Architectural Decision Records")
+                .withField(StandardField.YEAR, "2026")
+                .withField(StandardField.URL, "https://adr.github.io")
+                .withField(StandardField.COMMENT, "[adr26] adr. “Architectural Decision Records”. In: (2026). url: https:// adr.github.io.");
+        BibEntry al26 = new BibEntry(StandardEntryType.Article)
+                .withCitationKey("AL26")
+                .withField(StandardField.AUTHOR, "Aisha Alansari and Hamzah Luqman")
+                .withField(StandardField.TITLE, "Large language models hallucination: A comprehensive survey")
+                .withField(StandardField.JOURNAL, "Computer Science Review")
+                .withField(StandardField.VOLUME, "61")
+                .withField(StandardField.YEAR, "2026")
+                .withField(StandardField.PAGES, "100970")
+                .withField(StandardField.ISSN, "1574-0137")
+                .withField(StandardField.DOI, "https://doi.org/10.1016/j.cosrev.2026.100970")
+                .withField(StandardField.URL, "https://www.sciencedirect.com/science/article/pii/S157401372600078X")
+                .withField(StandardField.COMMENT, "[AL26] Aisha Alansari and Hamzah Luqman. “Large language models hal- lucination: A comprehensive survey”. In: Computer Science Review 61 (2026), p. 100970. issn: 1574-0137. doi: https://doi.org/10. 1016/j.cosrev.2026.100970. url: https://www.sciencedirect. com/science/article/pii/S157401372600078X.");
+        BibEntry atn25 = new BibEntry(StandardEntryType.Article)
+                .withCitationKey("ATN25")
+                .withField(StandardField.AUTHOR, "Dang Anh-Hoang and others")
+                .withField(StandardField.TITLE, "Survey and analysis of hallucinations in large language models: attribution to prompting strategies or model behavior")
+                .withField(StandardField.JOURNAL, "Frontiers in Artificial Intelligence Volume 8 - 2025")
+                .withField(StandardField.YEAR, "2025")
+                .withField(StandardField.ISSN, "2624-8212")
+                .withField(StandardField.DOI, "10.3389/frai.2025.1622292")
+                .withField(StandardField.URL, "https://www.frontiersin.org/journals/artificial-intelligence/articles/10.3389/frai.2025.1622292")
+                .withField(StandardField.COMMENT, "[ATN25] Dang Anh-Hoang et al. “Survey and analysis of hallucinations in large language models: attribution to prompting strategies or model behavior”. In: Frontiers in Artificial Intelligence Volume 8 - 2025 (2025). issn: 2624-8212. doi: 10.3389/frai.2025.1622292. url: https://www.frontiersin.org/journals/artificial-intelligence/ articles/10.3389/frai.2025.1622292.");
+        BibEntry buc23 = new BibEntry(StandardEntryType.Article)
+                .withCitationKey("Buc+23")
+                .withField(StandardField.AUTHOR, "Georg Buchgeher and others")
+                .withField(StandardField.TITLE, "Using Architecture Decision Records in Open Source Projects—An MSR Study on GitHub")
+                .withField(StandardField.JOURNAL, "IEEE Access")
+                .withField(StandardField.VOLUME, "11")
+                .withField(StandardField.YEAR, "2023")
+                .withField(StandardField.PAGES, "63725-63740")
+                .withField(StandardField.DOI, "10.1109/ACCESS.2023.3287654")
+                .withField(StandardField.COMMENT, "[Buc+23] Georg Buchgeher et al. “Using Architecture Decision Records in Open Source Projects—An MSR Study on GitHub”. In: IEEE Access 11 (2023), pp. 63725–63740. doi: 10.1109/ACCESS.2023.3287654.");
+        BibEntry jb05 = new BibEntry(StandardEntryType.InProceedings)
+                .withCitationKey("JB05")
+                .withField(StandardField.AUTHOR, "A. Jansen and J. Bosch")
+                .withField(StandardField.TITLE, "Software Architecture as a Set of Architectural Design Decisions")
+                .withField(StandardField.BOOKTITLE, "5th Working IEEE/IFIP Conference on Software Architecture (WICSA’05)")
+                .withField(StandardField.YEAR, "2005")
+                .withField(StandardField.PAGES, "109-120")
+                .withField(StandardField.DOI, "10.1109/WICSA.2005.61")
+                .withField(StandardField.COMMENT, "[JB05] A. Jansen and J. Bosch. “Software Architecture as a Set of Ar- chitectural Design Decisions”. In: 5th Working IEEE/IFIP Confer- ence on Software Architecture (WICSA’05). 2005, pp. 109–120. doi: 10.1109/WICSA.2005.61.");
+        BibEntry ka19 = new BibEntry(StandardEntryType.InProceedings)
+                .withCitationKey("KA19")
+                .withField(StandardField.AUTHOR, "Oliver Kopp and Anita Armbruster")
+                .withField(StandardField.TITLE, "Generalized Markdown Architectural Decision Records: Capturing the Essence of Decisions")
+                .withField(StandardField.BOOKTITLE, "Proceedings of the 11th Central European Workshop on Services and their Composition")
+                .withField(StandardField.VOLUME, "2339")
+                .withField(StandardField.SERIES, "CEUR Workshop Proceedings")
+                .withField(StandardField.PUBLISHER, "CEUR-WS.org")
+                .withField(StandardField.YEAR, "2019")
+                .withField(StandardField.PAGES, "55-57")
+                .withField(StandardField.URL, "https://ceur-ws.org/Vol-2339/paper11.pdf")
+                .withField(StandardField.COMMENT, "[KA19] Oliver Kopp and Anita Armbruster. “Generalized Markdown Ar- chitectural Decision Records: Capturing the Essence of Decisions”. In: Proceedings of the 11th Central European Workshop on Services and their Composition. Vol. 2339. CEUR Workshop Proceedings. CEUR-WS.org, 2019, pp. 55–57. url: https://ceur-ws.org/Vol- 2339/paper11.pdf.");
+        BibEntry kaz18 = new BibEntry(StandardEntryType.InProceedings)
+                .withCitationKey("KAZ18")
+                .withField(StandardField.AUTHOR, "Oliver Kopp and others")
+                .withField(StandardField.TITLE, "Markdown Architectural Decision Records: Format and Tool Support")
+                .withField(StandardField.BOOKTITLE, "Central-European Workshop on Services and their Composition")
+                .withField(StandardField.YEAR, "2018")
+                .withField(StandardField.URL, "https://api.semanticscholar.org/CorpusID:4802254")
+                .withField(StandardField.COMMENT, "[KAZ18] Oliver Kopp et al. “Markdown Architectural Decision Records: For- mat and Tool Support”. In: Central-European Workshop on Services and their Composition. 2018. url: https://api.semanticscholar. org/CorpusID:4802254.");
+        BibEntry kop18 = new BibEntry(StandardEntryType.Misc)
+                .withCitationKey("Kop+18")
+                .withField(StandardField.AUTHOR, "Oliver Kopp and others")
+                .withField(StandardField.TITLE, "Markdown Architectural Decision Records (MADR) Version 1.4.0")
+                .withField(StandardField.YEAR, "2018")
+                .withField(StandardField.URL, "https://github.com/adr/madr/tree/release/v1")
+                .withField(StandardField.COMMENT, "[Kop+18] Oliver Kopp et al. Markdown Architectural Decision Records (MADR) Version 1.4.0. 2018. url: https://github.com/adr/madr/tree/ release/v1 (visited on 06/15/2026). 1");
+
+        assertEquals(List.of(adr26, al26, atn25, buc23, jb05, ka19, kaz18, kop18), parserResult.getDatabase().getEntries());
+    }
+
+    @Test
+    void biblatexInProceedingsWithEditorsSeriesAndLocation() {
+        // [utest->req~import.pdf.references.labelled~1]
+        BibEntry expected = new BibEntry(StandardEntryType.InProceedings)
+                .withCitationKey("Mül+20")
+                .withField(StandardField.AUTHOR, "Hans Müller and Eva Schmidt and Jan Kurz")
+                .withField(StandardField.TITLE, "A Title")
+                .withField(StandardField.BOOKTITLE, "Proceedings of Something")
+                .withField(StandardField.EDITOR, "Anna Weber and Bernd Koch")
+                .withField(StandardField.VOLUME, "12")
+                .withField(StandardField.SERIES, "LNCS")
+                .withField(StandardField.LOCATION, "Berlin")
+                .withField(StandardField.PUBLISHER, "Springer")
+                .withField(StandardField.YEAR, "2020")
+                .withField(StandardField.PAGES, "1-10")
+                .withField(StandardField.DOI, "10.1007/978-3-030-00000-0_1")
+                .withField(StandardField.COMMENT, "[Mül+20] Hans Müller, Eva Schmidt, and Jan Kurz. “A Title”. In: Proceedings of Something. Ed. by Anna Weber and Bernd Koch. Vol. 12. LNCS. Berlin: Springer, 2020, pp. 1–10. doi: 10.1007/978-3-030-00000-0_1.");
+        List<RuleBasedBibliographyPdfImporter.IntermediateData> intermediateData = RuleBasedBibliographyPdfImporter.getIntermediateData(expected.getField(StandardField.COMMENT).get());
+        assertEquals(expected, ruleBasedBibliographyPdfImporter.parsePlainCitation(intermediateData.getFirst().label(), intermediateData.getFirst().reference()));
+    }
+
+    @Test
+    void splitsAtBibtexAlphaLabels() {
+        // [utest->req~import.pdf.references.labelled~1]
+        String contents = """
+                [AL26] Aisha Alansari and Hamzah Luqman. Large language models hallucination: A comprehensive survey. Computer Science Review,
+                61:100970, 2026.
+                [BSG+ 23] Georg Buchgeher, Stefan Schöberl, Verena Geist, Bernhard
+                Dorninger, Philipp Haindl, and Rainer Weinreich. Using architecture
+                decision records in open source projects—an msr study on github.
+                IEEE Access, 11:63725–63740, 2023.
+                """;
+        assertEquals(List.of(
+                        new RuleBasedBibliographyPdfImporter.IntermediateData("AL26", "Aisha Alansari and Hamzah Luqman. Large language models hallucination: A comprehensive survey. Computer Science Review, 61:100970, 2026."),
+                        new RuleBasedBibliographyPdfImporter.IntermediateData("BSG+23", "Georg Buchgeher, Stefan Schöberl, Verena Geist, Bernhard Dorninger, Philipp Haindl, and Rainer Weinreich. Using architecture decision records in open source projects—an msr study on github. IEEE Access, 11:63725–63740, 2023.")),
+                RuleBasedBibliographyPdfImporter.getIntermediateData(contents));
+    }
+
     static Stream<BibEntry> references() {
         return Stream.of(
                 KOENIG2023,
@@ -297,6 +420,6 @@ class RuleBasedBibliographyPdfImporterTest {
         List<RuleBasedBibliographyPdfImporter.IntermediateData> intermediateDataList = RuleBasedBibliographyPdfImporter.getIntermediateData(expectedEntry.getField(StandardField.COMMENT).get());
         assertEquals(1, intermediateDataList.size());
         RuleBasedBibliographyPdfImporter.IntermediateData intermediateData = intermediateDataList.getFirst();
-        assertEquals(expectedEntry, ruleBasedBibliographyPdfImporter.parsePlainCitation(intermediateData.number(), intermediateData.reference()));
+        assertEquals(expectedEntry, ruleBasedBibliographyPdfImporter.parsePlainCitation(intermediateData.label(), intermediateData.reference()));
     }
 }

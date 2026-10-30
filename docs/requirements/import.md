@@ -151,6 +151,17 @@ For the book-import work in [JabRef issue #12874](https://github.com/JabRef/jabr
 
 The individual terms are insufficient for exclusion. This rule recognizes a specific article format, not all research papers.
 
+## Rule-based reference extraction reads labelled BibTeX reference lists
+`req~import.pdf.references.labelled~1`
+
+The rule-based extraction splits a PDF's reference list into references at their labels, as typeset by BibTeX and biblatex styles: numeric (`[12]`) or alphabetic (`[AL26]`, `[Buc+23]`, `[BSG+ 23]`).
+Each entry carries the printed reference in `comment`.
+
+Fields are read for two layouts: IEEE (`J. Knaster et al., “Title”, Nucl. Fusion, vol. 57, …`) and the biblatex standard styles (`Authors. “Title”. In: …`).
+There, field values such as the DOI are kept as printed, so faults of the typeset list stay visible.
+
+Reference lists without labels, such as those of author-year styles, are not supported.
+
 Needs: impl, utest
 
 <!-- markdownlint-disable-file MD022 -->
