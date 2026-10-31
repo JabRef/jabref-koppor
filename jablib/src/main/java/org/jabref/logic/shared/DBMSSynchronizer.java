@@ -309,6 +309,9 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
         }
 
         dbmsProcessor.startNotificationListener(this);
+        OfflineChanges.Recorded recorded = offlineChanges.peek();
+        lastSharedMetaData = Optional.ofNullable(recorded.lastSharedMetaData())
+                                     .orElseGet(() -> Optional.ofNullable(recorded.metaDataBase()).orElse(Map.of()));
         // Synchronously on the caller's thread: the library is not shown before this returns
         long localRevisionAtRead = localMetaDataRevision.get();
         Map<String, String> sharedMetaData = dbmsProcessor.getSharedMetaData();
@@ -569,6 +572,7 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
                 () -> {
                     writeSharedMetaDataToDatabase(serializedMetaData);
                     lastSharedMetaData = serializedMetaData;
+                    offlineChanges.recordSharedMetaData(serializedMetaData);
                 },
                 () -> offlineChanges.recordMetaData(serializedMetaData, lastSharedMetaData));
     }
@@ -643,6 +647,7 @@ public class DBMSSynchronizer implements DatabaseSynchronizer {
             }
             // Only once applied: a snapshot that failed to parse must not hide an earlier shared group tree
             lastSharedMetaData = sharedMetaData;
+            offlineChanges.recordSharedMetaData(sharedMetaData);
             lastAppliedRemoteMetaData = Map.copyOf(sharedMetaData);
             lastAppliedLocalMetaDataRevision = currentLocalRevision;
             hasAppliedRemoteMetaData = true;
