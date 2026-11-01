@@ -118,7 +118,7 @@ public class DownloadFullTextAction extends SimpleCommand {
                             uiThread.accept(() -> downloadFullText(download, databaseContext));
                         } finally {
                             count++;
-                            UiTaskExecutor.runInJavaFXThread(() -> EntryLookupsInProgress.FULLTEXT.finished(entry));
+                            EntryLookupsInProgress.FULLTEXT.finishedLater(entry);
                         }
                         updateProgress(count, entries.size());
                         updateMessage(Localization.lang("%0/%1 entries", count, entries.size()));
@@ -126,7 +126,7 @@ public class DownloadFullTextAction extends SimpleCommand {
                 } finally {
                     // Entries skipped by a cancellation or a failed lookup
                     List<BibEntry> notLookedUp = entries.subList(count, entries.size());
-                    UiTaskExecutor.runInJavaFXThread(() -> notLookedUp.forEach(EntryLookupsInProgress.FULLTEXT::finished));
+                    notLookedUp.forEach(EntryLookupsInProgress.FULLTEXT::finishedLater);
                 }
                 return null;
             }
