@@ -157,6 +157,11 @@ public class AiChatViewModel extends AbstractViewModel {
                 aiPreferences.getDocumentSplitterProperties()
         ));
 
+        this.chatModel.bind(ObservablesHelper.createClosableObjectBinding(
+                () -> ChatModelFactory.create(aiPreferences),
+                aiPreferences.getChatProperties()
+        ));
+
         BooleanBinding isAiTurnedOff = aiPreferences.aiFeaturesEnabledCurrentlyProperty().not();
         BooleanBinding isWaiting = generateRagResponseTask.isNotNull();
         BooleanBinding hasNoFiles = Bindings.createBooleanBinding(() ->
@@ -209,8 +214,6 @@ public class AiChatViewModel extends AbstractViewModel {
                 aiPreferences.getRagMinScore(),
                 aiPreferences.getRagMaxResultsCount()
         ));
-
-        chatModel.setValue(ChatModelFactory.create(aiPreferences));
     }
 
     private void setupListeners() {
