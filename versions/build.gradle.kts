@@ -28,7 +28,7 @@ extra["jbangVersion"] = jbang
 
 dependencies {
     api(platform("ai.djl:bom:0.40.0"))
-    api(platform("dev.langchain4j:langchain4j-bom:1.22.0"))
+    api(platform("dev.langchain4j:langchain4j-bom:1.23.0"))
     api(enforcedPlatform("io.zonky.test.postgres:embedded-postgres-binaries-bom:18.6.0"))
     api(platform("org.junit:junit-bom:6.1.3"))
     api(platform("org.glassfish.grizzly:grizzly-bom:5.0.3"))
@@ -66,8 +66,8 @@ dependencies.constraints {
     api("com.h2database:h2-mvstore:2.5.252")
     api("com.ibm.icu:icu4j:72.0.1!!")
     api("com.knuddels:jtokkit:1.1.0")
-    api("com.konghq:unirest-java-core:4.10.5")
-    api("com.konghq:unirest-modules-gson:4.10.5")
+    api("com.konghq:unirest-java-core:4.11.1")
+    api("com.konghq:unirest-modules-gson:4.11.1")
     api("com.nimbusds:oauth2-oidc-sdk:11.38.2")
     api("com.nimbusds:nimbus-jose-jwt:10.10")
     api("com.squareup.okhttp3:mockwebserver3:5.5.1")
@@ -143,7 +143,7 @@ dependencies.constraints {
     api("org.glassfish.jaxb:jaxb-runtime:4.0.9")
     api("org.graalvm.sdk:nativeimage:25.4.4.1.1")
     api("org.hamcrest:hamcrest:3.0")
-    api("org.hibernate.validator:hibernate-validator:9.1.5.Final")
+    api("org.hibernate.validator:hibernate-validator:9.1.6.Final")
     api("org.hisp.dhis:json-tree:1.12.0")
     api("org.jabref:afterburner.fx:2.0.0")
     api("org.jabref:easybind:2.3.0")
