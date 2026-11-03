@@ -18,6 +18,7 @@ import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 
 import org.jabref.gui.DialogService;
+import org.jabref.gui.Notifications;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
@@ -222,15 +223,19 @@ public class DownloadLinkedFileAction extends SimpleCommand {
         }
     }
 
+    /// Notifies instead of opening a modal dialog: the download runs in the background, often as one of many
+    /// (bulk full text download, import), and a blocked publisher must not stop the user with a dialog per entry.
     private void onFailure(URLDownload urlDownload, Exception ex) {
         LOGGER.error("Error downloading from URL: {}", urlDownload, ex);
-        if (ex instanceof FetcherException fetcherException) {
-            dialogService.showErrorDialogAndWait(fetcherException);
-        } else {
-            String fetcherExceptionMessage = ex.getLocalizedMessage();
-            String failedTitle = Localization.lang("Failed to download from URL");
-            dialogService.showErrorDialogAndWait(failedTitle, Localization.lang("Please check the URL and try again.\nURL: %0\nDetails: %1", urlDownload.getSource(), fetcherExceptionMessage));
-        }
+        // The response body (often a whole HTML page) stays in the log
+        String reason = Optional.of(ex)
+                                .filter(FetcherException.class::isInstance)
+                                .flatMap(e -> ((FetcherException) e).getHttpResponse())
+                                .map(response -> "HTTP %d %s".formatted(response.statusCode(), response.responseMessage()))
+                                .orElseGet(ex::getLocalizedMessage);
+        dialogService.notify(new Notifications.UndefinedNotification(
+                Localization.lang("Failed to download from URL"),
+                "%s\n%s\n%s".formatted(entry.getCitationKey().orElse(""), FetcherException.getRedactedUrl(urlDownload.getSource().toString()), reason).strip()));
     }
 
     private boolean checkSSLHandshake(URLDownload urlDownload) {
