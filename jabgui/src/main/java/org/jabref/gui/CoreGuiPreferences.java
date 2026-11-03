@@ -14,7 +14,7 @@ public class CoreGuiPreferences {
     private final BooleanProperty windowMaximised;
 
     private final DoubleProperty horizontalDividerPosition;
-    private final DoubleProperty verticalDividerPosition;
+    private final DoubleProperty entryEditorDividerPosition;
 
     public CoreGuiPreferences(double positionX,
                               double positionY,
@@ -22,14 +22,14 @@ public class CoreGuiPreferences {
                               double sizeY,
                               boolean windowMaximised,
                               double horizontalDividerPosition,
-                              double verticalDividerPosition) {
+                              double entryEditorDividerPosition) {
         this.positionX = new SimpleDoubleProperty(positionX);
         this.positionY = new SimpleDoubleProperty(positionY);
         this.sizeX = new SimpleDoubleProperty(sizeX);
         this.sizeY = new SimpleDoubleProperty(sizeY);
         this.windowMaximised = new SimpleBooleanProperty(windowMaximised);
         this.horizontalDividerPosition = new SimpleDoubleProperty(horizontalDividerPosition);
-        this.verticalDividerPosition = new SimpleDoubleProperty(verticalDividerPosition);
+        this.entryEditorDividerPosition = new SimpleDoubleProperty(entryEditorDividerPosition);
     }
 
     /// Creates object with default values
@@ -41,7 +41,7 @@ public class CoreGuiPreferences {
                 768,           // Main window size y
                 true,          // Main window maximized
                 0.15,          // Horizontal divider position
-                0.65);         // Vertical divider position
+                0.65);         // Entry editor divider position (the editor docks on the right)
     }
 
     public static CoreGuiPreferences getDefault() {
@@ -120,15 +120,15 @@ public class CoreGuiPreferences {
         this.horizontalDividerPosition.set(horizontalDividerPosition);
     }
 
-    public double getVerticalDividerPosition() {
-        return verticalDividerPosition.get();
+    public double getEntryEditorDividerPosition() {
+        return entryEditorDividerPosition.get();
     }
 
-    public DoubleProperty getVerticalDividerPositionProperty() {
-        return verticalDividerPosition;
+    public DoubleProperty entryEditorDividerPositionProperty() {
+        return entryEditorDividerPosition;
     }
 
-    public void setVerticalDividerPosition(double dividerPosition) {
-        this.verticalDividerPosition.set(dividerPosition);
+    public void setEntryEditorDividerPosition(double dividerPosition) {
+        this.entryEditorDividerPosition.set(dividerPosition);
     }
 }
