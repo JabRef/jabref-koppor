@@ -58,9 +58,13 @@ dependencies.constraints {
     api("com.github.javaparser:javaparser-core:3.28.2")
     api("com.github.javaparser:javaparser-symbol-solver-core:3.28.2")
     api("com.github.sialcasa.mvvmFX:mvvmfx-validation:f195849ca9") //jitpack
+
+    // Kept apart by the blank lines: next to a neighbouring entry, every version bump of that entry
+    // conflicts with this inserted one and stalls the merge into experimental.
     // In-flight test of github.com/dlsc-software-consulting-gmbh/PDFViewFX/pull/48: latest commit of its branch (Gradle re-checks snapshots every 24 h; --refresh-dependencies forces it); gradle/modules.properties points com.dlsc.pdfviewfx here
     api("com.github.koppor.PDFViewFX:pdfviewfx:annotations-SNAPSHOT") //jitpack
-    api("com.google.errorprone:error_prone_core:2.51.0")
+
+    api("com.google.errorprone:error_prone_core:2.52.0")
     api("com.google.guava:guava:33.7.2-jre")
     api("com.googlecode.plist:dd-plist:1.30")
     api("com.h2database:h2-mvstore:2.5.252")
