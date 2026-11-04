@@ -92,15 +92,6 @@ are parsed correctly by the GitHub Actions runner.
 
 Needs: impl
 
-## Full text download reports each entry
-`req~jabkit.cli.get-fulltexts-report~1`
-
-`jabkit get-fulltexts` updates the given library in place (or writes to `--output`).
-It prints one line per entry saying whether its full text document was downloaded, not found,
-skipped, or failed, followed by a summary with the counts.
-Entries that already link a local PDF are skipped without contacting a publisher.
-
-Needs: impl
 ## JabKit must preserve existing citation keys when overwrite avoidance is enabled
 `req~jabkit.cli.citation-key-avoid-overwrite~1`
 
@@ -110,5 +101,15 @@ When overwrite avoidance is disabled, existing keys may be regenerated. See
 [issue 17458](https://github.com/JabRef/jabref/issues/17458).
 
 Needs: impl, utest
+
+## Full text download reports each entry
+`req~jabkit.cli.get-fulltexts-report~1`
+
+`jabkit get-fulltexts` updates the given library in place (or writes to `--output`).
+It prints one line per entry saying whether its full text document was downloaded, not found,
+skipped, or failed, followed by a summary with the counts.
+Entries that already link a local PDF are skipped without contacting a publisher.
+
+Needs: impl
 
 <!-- markdownlint-disable-file MD022 -->
