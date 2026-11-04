@@ -229,6 +229,11 @@ Fields are read for two layouts: IEEE (`J. Knaster et al., “Title”, Nucl. Fu
 There, field values such as the DOI are kept as printed, so faults of the typeset list stay visible.
 
 Reference lists without labels, such as those of author-year styles, are not supported.
+## The AUX file import must prefill the AUX file of the library's LaTeX document
+`req~import.aux.prefill~1`
+
+When the "New sublibrary based on AUX file" dialog opens, it fills in the AUX file that belongs to a `.tex` file in the library's LaTeX file directory (the library's directory if none is set).
+If several such AUX files exist, the most recently modified one is taken.
 
 Needs: impl, utest
 
