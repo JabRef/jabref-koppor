@@ -26,13 +26,12 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added pushing the current library to [CiteDrive](https://www.citedrive.com/), including logging in to CiteDrive. [#14493](https://github.com/JabRef/jabref/pull/14493)
 - We added the cleanup formatter "LaTeX to Unicode-aware LaTeX", which converts LaTeX character commands to Unicode and keeps escaped characters. [#8715](https://github.com/JabRef/jabref/issues/8715)
 - We added text search to AI chats. [#17183](https://github.com/JabRef/jabref/pull/17183)
-- We added restricting the columns of the consistency check to the fields a `.bst` style uses. [#17710](https://github.com/JabRef/jabref/pull/17710)
-- We added checking bibliography consistency only for entries cited in a LaTeX `.aux` file. [#1403](https://github.com/JabRef/jabref-issue-melting-pot/issues/1403)
-- We added tooltips explaining the symbols in the consistency check table. [#17710](https://github.com/JabRef/jabref/pull/17710)
 - We added indentation and syntax highlighting for JSON in AI chat answers. [#17181](https://github.com/JabRef/jabref/pull/17181)
 - We added a warning for shortcuts already in use, allowing users to replace the existing shortcut or keep both. [#17240](https://github.com/JabRef/jabref/issues/17240)
 - We added "Delete" and "Retry" to the context menu of AI chat messages and made user messages retryable. [#17151](https://github.com/JabRef/jabref/pull/17151)
 - We added restricting the columns of the consistency check to the fields a `.bst` style uses. [#17710](https://github.com/JabRef/jabref/pull/17710)
+- We added checking bibliography consistency only for entries cited in a LaTeX `.aux` file. [#1403](https://github.com/JabRef/jabref-issue-melting-pot/issues/1403)
+- We added tooltips explaining the symbols in the consistency check table. [#17710](https://github.com/JabRef/jabref/pull/17710)
 - We added prefilling of the AUX file belonging to the library's LaTeX document in "New sublibrary based on AUX file". [#790](https://github.com/JabRef/jabref-koppor/pull/790)
 - We added switching between JStyle, CSL, and BST citation styles within the same Writer document. [#14962](https://github.com/JabRef/jabref/issues/14962)
 - We added a "Directory mapping" preference (Preferences → Linked files) that lets JabRef substitute a mapped directory for a matching path prefix when a linked file's absolute path cannot be found, e.g. when a library is shared between machines whose file directories don't line up. [#16173](https://github.com/JabRef/jabref/pull/16173)
@@ -64,7 +63,6 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - The context window size for AI models unknown to JabRef (e.g., local models) now defaults to 64k tokens instead of 8k. [#17326](https://github.com/JabRef/jabref/pull/17326)
 - We now show which web search fetchers have a saved API key. [#16250](https://github.com/JabRef/jabref/issues/16250)
 - We improved the error message shown when Semantic Scholar restricts access to a paper's references. [#17291](https://github.com/JabRef/jabref/issues/17291)
-- We changed the opening of libraries from older JabRef versions to ask which conversions to perform and to remember the choice. [#16941](https://github.com/JabRef/jabref/pull/16941)
 - We moved the "Show diff" button to the Git commit dialog's button row. [#16730](https://github.com/JabRef/jabref/issues/16730)
 - We changed the HTTP server to list linked PDF files per entry at `GET /libraries/{id}/entries/{citationKey}/files` instead of `entries/pdffiles`. [#17567](https://github.com/JabRef/jabref/pull/17567)
 - We changed saving custom entry types to ask for a restart, so the entry editor shows the changes. [#17121](https://github.com/JabRef/jabref/pull/17121)
@@ -73,6 +71,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We show the donation prompt six months after the first launch and every six months, unless dismissed forever. [#17008](https://github.com/JabRef/jabref/pull/17008)
 - We changed the main table tooltip to stay visible while hovered, with a configurable duration. [#17502](https://github.com/JabRef/jabref/issues/17502)
 - We changed the document viewer to stay open when <kbd>Escape</kbd> is pressed. [#17175](https://github.com/JabRef/jabref/pull/17175)
+- We changed the opening of libraries from older JabRef versions to ask which conversions to perform and to remember the choice. [#16941](https://github.com/JabRef/jabref/pull/16941)
 - We changed Writer integration: older JStyle, CSL, and BST citations are no longer managed; no migration is provided. [#14962](https://github.com/JabRef/jabref/issues/14962)
 - We renamed the preference "Create backup" to "Create backups", because JabRef keeps multiple backup versions. [#780](https://github.com/JabRef/jabref-koppor/pull/780)
 - We changed the main table to keep the entry shown in the entry editor visible when enlarging the entry editor. [#17167](https://github.com/JabRef/jabref/pull/17167)
@@ -160,6 +159,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 ### Removed
 
 - We removed the "Waiting for AI reply..." notification; the AI chat already shows a progress indicator. [#17145](https://github.com/JabRef/jabref/pull/17145)
+- We temporarily removed the language handling for Docling due to a bug in RapidOCR. [#17674](https://github.com/JabRef/jabref/pull/17674)
 - We removed the `HayagrivaType` layout formatter, since the Hayagriva YAML export no longer uses a layout template. [#736](https://github.com/JabRef/jabref-koppor/pull/736)
 - The context window size for AI models unknown to JabRef (e.g., local models) now defaults to 64k tokens instead of 8k. [#17326](https://github.com/JabRef/jabref/pull/17326)
 - We changed saving custom entry types to ask for a restart, so the entry editor shows the changes. [#17121](https://github.com/JabRef/jabref/pull/17121)
@@ -241,6 +241,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 ### Removed
 
 - We removed the "Waiting for AI reply..." notification; the AI chat already shows a progress indicator. [#17145](https://github.com/JabRef/jabref/pull/17145)
+- We temporarily removed the language handling for Docling due to a bug in RapidOCR. [#17674](https://github.com/JabRef/jabref/pull/17674)
 
 ## [6.0-beta.1] - 2026-09-21
 
