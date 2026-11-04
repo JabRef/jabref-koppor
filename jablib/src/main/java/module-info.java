@@ -111,6 +111,7 @@ open module org.jabref.jablib {
     exports org.jabref.logic.openoffice.uno;
     exports org.jabref.model.openoffice.util;
     exports org.jabref.logic.importer.plaincitation;
+    exports org.jabref.logic.biblatex;
     exports org.jabref.logic.bst;
     exports org.jabref.model.study;
     exports org.jabref.logic.shared.security;

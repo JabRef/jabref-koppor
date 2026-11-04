@@ -37,6 +37,7 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
     @FXML private ComboBox<String> entryTypeCombo;
     @FXML private RadioButton restrictToBstFieldsRadio;
     @FXML private Label bstStyleLabel;
+    @FXML private RadioButton restrictToAuxEntriesRadio;
     @FXML private Label auxFileLabel;
 
     @Inject private StateManager stateManager;
@@ -55,6 +56,7 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
 
         this.setTitle(Localization.lang("Check consistency"));
         this.initModality(Modality.NONE);
+        this.setOnHidden(_ -> viewModel.cancelPendingLoads());
 
         ViewLoader.view(this)
                   .load()
@@ -87,6 +89,8 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
         restrictToBstFieldsRadio.disableProperty().bind(viewModel.bstStyleNameProperty().isEmpty());
         bstStyleLabel.textProperty().bind(viewModel.bstStyleNameProperty());
 
+        restrictToAuxEntriesRadio.selectedProperty().bindBidirectional(viewModel.restrictToAuxEntriesProperty());
+        restrictToAuxEntriesRadio.disableProperty().bind(viewModel.auxFileNameProperty().isEmpty());
         auxFileLabel.textProperty().bind(viewModel.auxFileNameProperty());
         tableView.setPlaceholder(new Label(Localization.lang("No problems found.")));
         rebuildColumns();
@@ -188,11 +192,6 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
     @FXML
     private void browseAuxFile() {
         viewModel.browseAuxFile();
-    }
-
-    @FXML
-    private void showAllEntries() {
-        viewModel.showAllEntries();
     }
 
     @FXML
