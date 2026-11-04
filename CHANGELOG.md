@@ -91,6 +91,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where closing a library did not free its memory, so a session that opened and closed several libraries kept all of them in memory. [#16948](https://github.com/JabRef/jabref/pull/16948)
 - We fixed an issue where case-sensitive search (`=!`, `==!`, `=~!`) in linked files ignored the casing and matched text in any casing. [#13048](https://github.com/JabRef/jabref/issues/13048)
 - We fixed linked-file full-text search results missing from the entry editor. [#17367](https://github.com/JabRef/jabref/pull/17367)
+- We fixed an issue on Windows where linked files with very long paths opened the file explorer, not the file. [TODO](TODO)
 - We fixed an issue where accepting a backup that adds groups to a library without groups failed with an error. [#17165](https://github.com/JabRef/jabref/pull/17165)
 - We fixed an issue where JabRef closed when a client of the integrated language server disconnected. [#17303](https://github.com/JabRef/jabref/pull/17303)
 - We fixed menu items not showing why they are disabled when a menu was opened for the first time. [#17200](https://github.com/JabRef/jabref/pull/17200)
@@ -215,6 +216,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where failed tasks kept showing as running in the notification center. [#17124](https://github.com/JabRef/jabref/pull/17124)
 - We fixed a `.gitignore` outside a git repository hiding all results in "Search for unlinked local files". [#17141](https://github.com/JabRef/jabref/pull/17141)
 - We fixed an issue where accepting an external change to an entry lost its table position, selection, and open entry editor. [#16813](https://github.com/JabRef/jabref/pull/16813)
+- We fixed an issue where searching with a full DOI link returned no results. [#17348](https://github.com/JabRef/jabref/issues/17348)
 
 ### Removed
 

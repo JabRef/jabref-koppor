@@ -130,8 +130,9 @@ public class OpenDirectoryLibraryAction extends SimpleCommand {
     /// the paired PDF is never touched.
     private void disposeFile(Path file) {
         try {
-            if (preferences.getFilePreferences().moveToTrash() && NativeDesktop.get().moveToTrashSupported()) {
-                NativeDesktop.get().moveToTrash(file);
+            NativeDesktop nativeDesktop = Injector.instantiateModelOrService(NativeDesktop.class);
+            if (preferences.getFilePreferences().moveToTrash() && nativeDesktop.moveToTrashSupported()) {
+                nativeDesktop.moveToTrash(file);
             } else {
                 Files.delete(file);
             }
