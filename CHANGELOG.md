@@ -11,16 +11,12 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Added
 
-- We added switching between JStyle, CSL, and BST citation styles within the same Writer document. [#14962](https://github.com/JabRef/jabref/issues/14962)
-- We added a "Directory mapping" preference (Preferences → Linked files) that lets JabRef substitute a mapped directory for a matching path prefix when a linked file's absolute path cannot be found, e.g. when a library is shared between machines whose file directories don't line up. [#16173](https://github.com/JabRef/jabref/pull/16173)
 - We added an option to enable AI provider debugging in expert settings for testing AI features without external API calls. [#17607](https://github.com/JabRef/jabref/pull/17607)
 - We added ISBN extraction from bibliographic pages in PDF books. [#12874](https://github.com/JabRef/jabref/issues/12874)
 - We added a dark appearance variant of the macOS application icon. [#17290](https://github.com/JabRef/jabref/issues/17290)
 - We added ARM64 Flatpak builds and nightly, beta, and stable channels. [#13349](https://github.com/JabRef/jabref/issues/13349)
 - We added ARM64 Flatpak builds, nightly, beta, and stable channels, and host editor integration. [#13349](https://github.com/JabRef/jabref/issues/13349)
 - We added `jabkit git merge-driver`, a Git merge driver that merges `.bib` files semantically. [#16838](https://github.com/JabRef/jabref/pull/16838)
-- Extracting references from a PDF now recognizes bibliographies typeset with biblatex, including alphabetic labels such as `[AL26]`. [#775](https://github.com/JabRef/jabref-koppor/pull/775)
-- We added `jabkit pdf check-references`, which reports faults of a PDF's printed reference list, such as DOIs given as URL. [#778](https://github.com/JabRef/jabref-koppor/pull/778)
 - We added Markdown table rendering to AI chat responses and AI summaries. [#17142](https://github.com/JabRef/jabref/pull/17142)
 - We added tooltips with action descriptions to menu items. [#9615](https://github.com/JabRef/jabref/issues/9615)
 - We added "Contribute to JabRef" to the Help menu, linking to [contribute.jabref.org](https://contribute.jabref.org). [#17162](https://github.com/JabRef/jabref/pull/17162)
@@ -33,6 +29,10 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added indentation and syntax highlighting for JSON in AI chat answers. [#17181](https://github.com/JabRef/jabref/pull/17181)
 - We added a warning for shortcuts already in use, allowing users to replace the existing shortcut or keep both. [#17240](https://github.com/JabRef/jabref/issues/17240)
 - We added "Delete" and "Retry" to the context menu of AI chat messages and made user messages retryable. [#17151](https://github.com/JabRef/jabref/pull/17151)
+- We added switching between JStyle, CSL, and BST citation styles within the same Writer document. [#14962](https://github.com/JabRef/jabref/issues/14962)
+- We added a "Directory mapping" preference (Preferences → Linked files) that lets JabRef substitute a mapped directory for a matching path prefix when a linked file's absolute path cannot be found, e.g. when a library is shared between machines whose file directories don't line up. [#16173](https://github.com/JabRef/jabref/pull/16173)
+- Extracting references from a PDF now recognizes bibliographies typeset with biblatex, including alphabetic labels such as `[AL26]`. [#775](https://github.com/JabRef/jabref-koppor/pull/775)
+- We added `jabkit pdf check-references`, which reports faults of a PDF's printed reference list, such as DOIs given as URL. [#778](https://github.com/JabRef/jabref-koppor/pull/778)
 - We added an option to automatically merge changes made to the library file outside JabRef into the open library. [#8431](https://github.com/JabRef/jabref/issues/8431)
 - We added merging of conflicted copies left by sync clients, per library or as a global default (off by default). [#16827](https://github.com/JabRef/jabref/pull/16827)
 - We added a find bar to the AI chat, opened with <kbd>Ctrl</kbd> + <kbd>F</kbd>. [#17183](https://github.com/JabRef/jabref/pull/17183)
@@ -48,16 +48,13 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added "Help > View background tasks" and clearer "Quit anyway"/"Keep JabRef open" buttons when quitting during background tasks. [#12706](https://github.com/JabRef/jabref/issues/12706)
 - We added `jabkit get-fulltext` to download and link full text PDFs, reporting the result per entry. [#770](https://github.com/JabRef/jabref-koppor/pull/770)
 - We added `jabkit get-fulltexts` to download and link full text PDFs, reporting the result per entry. [#770](https://github.com/JabRef/jabref-koppor/pull/770)
-- Extracting references from a PDF now recognizes bibliographies typeset with biblatex, including alphabetic labels such as `[AL26]`. [#775](https://github.com/JabRef/jabref-koppor/pull/775)
 - The JabRef language server now shows entry details on hover and reads `bibliography:` from Markdown front matter. [#17302](https://github.com/JabRef/jabref/pull/17302)
 - We added entry details on hover to the JabRef language server, which now also reads `bibliography:` from Markdown front matter. [#17302](https://github.com/JabRef/jabref/pull/17302)
 - We added restoring of the library tab and entry that were selected when JabRef was closed. [#16911](https://github.com/JabRef/jabref/pull/16911)
 
 ### Changed
 
-- We changed Writer integration: older JStyle, CSL, and BST citations are no longer managed; no migration is provided. [#14962](https://github.com/JabRef/jabref/issues/14962)
 - We improved OCR failure messages to show the executed command and diagnostic output. [#16679](https://github.com/JabRef/jabref/issues/16679)
-- We renamed the preference "Create backup" to "Create backups", because JabRef keeps multiple backup versions. [#780](https://github.com/JabRef/jabref-koppor/pull/780)
 - We moved the JabRef version display in the Welcome tab onto the "Download development version" line to save space. [#17160](https://github.com/JabRef/jabref/issues/17160)
 - The context window size for AI models unknown to JabRef (e.g., local models) now defaults to 64k tokens instead of 8k. [#17326](https://github.com/JabRef/jabref/pull/17326)
 - We now show which web search fetchers have a saved API key. [#16250](https://github.com/JabRef/jabref/issues/16250)
@@ -70,6 +67,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We show the donation prompt six months after the first launch and every six months, unless dismissed forever. [#17008](https://github.com/JabRef/jabref/pull/17008)
 - We changed the main table tooltip to stay visible while hovered, with a configurable duration. [#17502](https://github.com/JabRef/jabref/issues/17502)
 - We changed the document viewer to stay open when <kbd>Escape</kbd> is pressed. [#17175](https://github.com/JabRef/jabref/pull/17175)
+- We changed Writer integration: older JStyle, CSL, and BST citations are no longer managed; no migration is provided. [#14962](https://github.com/JabRef/jabref/issues/14962)
+- We renamed the preference "Create backup" to "Create backups", because JabRef keeps multiple backup versions. [#780](https://github.com/JabRef/jabref-koppor/pull/780)
 - We changed the main table to keep the entry shown in the entry editor visible when enlarging the entry editor. [#17167](https://github.com/JabRef/jabref/pull/17167)
 - We added synchronizing a library with its file, per library or as a global default (off by default). [#8431](https://github.com/JabRef/jabref/issues/8431)
 - Automatic file linking no longer links the Markdown sidecars of a directory library (Markdown files with a Hayagriva frontmatter); other Markdown files are still linked. [#741](https://github.com/JabRef/jabref-koppor/pull/741)
@@ -77,6 +76,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- We fixed an issue where clicking "Generate" in the AUX file import dialog before parsing caused an exception.
 - We fixed an issue where it was hard to distinguish between enabled/disabled status of search buttons in dark mode and added tooltips. [#11569](https://github.com/JabRef/jabref/issues/11569)
 - We fixed an issue where entries containing dollar signs, backslashes, or unset fields passed to `substring$` caused citation style preview and export to fail. [#12799](https://github.com/JabRef/jabref/issues/12799)
 - We fixed exports to RIS, CSV, HTML, and other template-based formats in native JabKit. [#17408](https://github.com/JabRef/jabref/issues/17408)
@@ -98,7 +98,6 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where closing a library did not free its memory, so a session that opened and closed several libraries kept all of them in memory. [#16948](https://github.com/JabRef/jabref/pull/16948)
 - We fixed an issue where case-sensitive search (`=!`, `==!`, `=~!`) in linked files ignored the casing and matched text in any casing. [#13048](https://github.com/JabRef/jabref/issues/13048)
 - We fixed linked-file full-text search results missing from the entry editor. [#17367](https://github.com/JabRef/jabref/pull/17367)
-- We fixed an issue on Windows where linked files with very long paths opened the file explorer, not the file. [TODO](TODO)
 - We fixed an issue where accepting a backup that adds groups to a library without groups failed with an error. [#17165](https://github.com/JabRef/jabref/pull/17165)
 - We fixed an issue where JabRef closed when a client of the integrated language server disconnected. [#17303](https://github.com/JabRef/jabref/pull/17303)
 - We fixed menu items not showing why they are disabled when a menu was opened for the first time. [#17200](https://github.com/JabRef/jabref/pull/17200)
@@ -139,6 +138,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where the "Backup found" dialog appeared while another library's tab was selected. [#16919](https://github.com/JabRef/jabref/pull/16919)
 - We fixed custom terminal and file browser commands failing when library directories contain spaces. [#12531](https://github.com/JabRef/jabref/issues/12531)
 - We fixed an issue where the "Get fulltext" button showed no progress during "Search full text documents online". [#17224](https://github.com/JabRef/jabref/pull/17224)
+- We fixed an issue where searching with a full DOI link returned no results. [#17348](https://github.com/JabRef/jabref/issues/17348)
+- We fixed an issue on Windows where linked files with very long paths opened the file explorer, not the file. [TODO](TODO)
 - We fixed an issue where accepting an external change to an entry lost its table position, selection, and open entry editor. [#16813](https://github.com/JabRef/jabref/pull/16813)
 - We fixed an issue where backups skipped typed edits and changes merged from a backup were lost on closing. [#16890](https://github.com/JabRef/jabref/pull/16890)
 - We fixed an issue where the consistency check listed the entry types in random order. [#779](https://github.com/JabRef/jabref-koppor/pull/779)
@@ -157,6 +158,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- We fixed an issue where clicking "Generate" in the AUX file import dialog before parsing caused an exception.
 - We fixed an issue where it was hard to distinguish between enabled/disabled status of search buttons in dark mode and added tooltips. [#11569](https://github.com/JabRef/jabref/issues/11569)
 - We fixed an issue where entries containing dollar signs, backslashes, or unset fields passed to `substring$` caused citation style preview and export to fail. [#12799](https://github.com/JabRef/jabref/issues/12799)
 - We fixed exports to RIS, CSV, HTML, and other template-based formats in native JabKit. [#17408](https://github.com/JabRef/jabref/issues/17408)
@@ -218,13 +220,12 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where the "Backup found" dialog appeared while another library's tab was selected. [#16919](https://github.com/JabRef/jabref/pull/16919)
 - We fixed custom terminal and file browser commands failing when library directories contain spaces. [#12531](https://github.com/JabRef/jabref/issues/12531)
 - We fixed an issue where the "Get fulltext" button showed no progress during "Search full text documents online". [#17224](https://github.com/JabRef/jabref/pull/17224)
+- We fixed an issue where searching with a full DOI link returned no results. [#17348](https://github.com/JabRef/jabref/issues/17348)
 - We fixed an issue where backups skipped typed edits and changes merged from a backup were lost on closing. [#16890](https://github.com/JabRef/jabref/pull/16890)
 - We fixed an issue where the preferences search did not scroll to its first match. [#17012](https://github.com/JabRef/jabref/pull/17012)
 - We fixed an issue where failed tasks kept showing as running in the notification center. [#17124](https://github.com/JabRef/jabref/pull/17124)
 - We fixed a `.gitignore` outside a git repository hiding all results in "Search for unlinked local files". [#17141](https://github.com/JabRef/jabref/pull/17141)
 - We fixed an issue where accepting an external change to an entry lost its table position, selection, and open entry editor. [#16813](https://github.com/JabRef/jabref/pull/16813)
-- We fixed an issue where searching with a full DOI link returned no results. [#17348](https://github.com/JabRef/jabref/issues/17348)
-- We fixed an issue where the preferences search did not scroll to its first match. [#17012](https://github.com/JabRef/jabref/pull/17012)
 - We fixed an issue where libraries opened or saved shortly before JabRef was killed were missing from recent libraries. [#16911](https://github.com/JabRef/jabref/pull/16911)
 
 ### Removed
