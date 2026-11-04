@@ -7,6 +7,8 @@ import org.jabref.gui.walkthrough.declarative.WalkthroughNodeIds;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.l10n.Localization;
 
+import com.airhacks.afterburner.injection.Injector;
+
 public class LinkedFilesTab extends AbstractPreferenceTabView<LinkedFilesTabViewModel> {
 
     public LinkedFilesTab() {
@@ -68,7 +70,7 @@ public class LinkedFilesTab extends AbstractPreferenceTabView<LinkedFilesTabView
                         .checkbox(Localization.lang("Show confirmation dialog when deleting attached files"), viewModel.confirmLinkedFileDeleteProperty())
                         .checkbox(Localization.lang("Move deleted files to trash (instead of deleting them)"), viewModel.moveToTrashProperty(),
                                 trash -> {
-                                    if (!NativeDesktop.get().moveToTrashSupported()) {
+                                    if (!Injector.instantiateModelOrService(NativeDesktop.class).moveToTrashSupported()) {
                                         trash.disable();
                                     }
                                 })
