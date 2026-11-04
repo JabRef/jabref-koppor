@@ -127,7 +127,7 @@ public class GeneralTab extends AbstractPreferenceTabView<GeneralTabViewModel> {
                                 autosave -> autosave.help(HelpFile.AUTOSAVE))
                         .checkbox(Localization.lang("Automatically merge external changes (libraries can override this)"), viewModel.synchronizeLocalLibrariesProperty())
                         .checkbox(Localization.lang("Merge conflicted copies left by sync clients (libraries can override this)"), viewModel.mergeConflictedCopiesProperty())
-                        .checkWithField(Localization.lang("Create backup"), viewModel.createBackupProperty(),
+                        .checkWithField(Localization.lang("Create backups"), viewModel.createBackupProperty(),
                                 viewModel.backupDirectoryProperty(),
                                 directory -> directory
                                         .grow()

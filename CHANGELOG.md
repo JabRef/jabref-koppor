@@ -53,6 +53,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 - We changed Writer integration: older JStyle, CSL, and BST citations are no longer managed; no migration is provided. [#14962](https://github.com/JabRef/jabref/issues/14962)
 - We improved OCR failure messages to show the executed command and diagnostic output. [#16679](https://github.com/JabRef/jabref/issues/16679)
+- We renamed the preference "Create backup" to "Create backups", because JabRef keeps multiple backup versions. [#780](https://github.com/JabRef/jabref-koppor/pull/780)
 - We moved the JabRef version display in the Welcome tab onto the "Download development version" line to save space. [#17160](https://github.com/JabRef/jabref/issues/17160)
 - The context window size for AI models unknown to JabRef (e.g., local models) now defaults to 64k tokens instead of 8k. [#17326](https://github.com/JabRef/jabref/pull/17326)
 - We now show which web search fetchers have a saved API key. [#16250](https://github.com/JabRef/jabref/issues/16250)
