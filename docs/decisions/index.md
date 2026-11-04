@@ -11,6 +11,8 @@ For new ADRs, please use [adr-template.md](adr-template.md) as basis.
 More information on MADR is available at <https://adr.github.io/madr/>.
 General information about architectural decision records is available at <https://adr.github.io/>.
 
+- [ADR-0080: Use canonical Writer citation marks across style families](0080-canonical-writer-citations.md)
+
 ## PDF import decisions
 
 * [Track reference-list provenance in PDF metadata merging](0075-track-reference-list-provenance-in-pdf-metadata-merge.md)
