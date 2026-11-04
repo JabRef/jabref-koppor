@@ -99,6 +99,8 @@ class MetaDataOverwriteWithTest {
         metaData.setEncodingExplicitlySupplied(true);
         metaData.putUnknownMetaDataItem("unknown", List.of("value"));
         metaData.setBlgFilePath("user-host", Path.of("/tmp/library.blg"));
+        metaData.setGroupsInLegacyFormat(true);
+        metaData.setSkippedMigrations(List.of("markings"));
         return metaData;
     }
 

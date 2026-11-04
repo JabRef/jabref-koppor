@@ -6,12 +6,13 @@ import java.util.List;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.stage.Modality;
 
 import org.jabref.gui.DialogService;
@@ -34,8 +35,9 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
 
     @FXML private TableView<ConsistencyMessage> tableView;
     @FXML private ComboBox<String> entryTypeCombo;
+    @FXML private RadioButton restrictToBstFieldsRadio;
     @FXML private Label bstStyleLabel;
-    @FXML private Button showAllFieldsButton;
+    @FXML private Label auxFileLabel;
 
     @Inject private StateManager stateManager;
     @Inject private EntryEditor entryEditor;
@@ -65,7 +67,7 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
 
     @FXML
     public void initialize() {
-        entryTypeCombo.getItems().addAll(viewModel.getEntryTypes());
+        entryTypeCombo.setItems(viewModel.getEntryTypes());
         entryTypeCombo.valueProperty().bindBidirectional(viewModel.selectedEntryTypeProperty());
         EasyBind.listen(entryTypeCombo.getEditor().textProperty(), _ -> entryTypeCombo.commitValue());
         entryTypeCombo.getSelectionModel().selectFirst();
@@ -81,10 +83,23 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
 
         tableView.setItems(filteredData);
 
-        bstStyleLabel.textProperty().bind(viewModel.bstStyleNameProperty().map(name -> Localization.lang("Currently selected BST style: '%0'", name)));
-        bstStyleLabel.visibleProperty().bind(viewModel.bstStyleNameProperty().isNotEmpty());
-        showAllFieldsButton.disableProperty().bind(viewModel.bstStyleNameProperty().isEmpty());
+        restrictToBstFieldsRadio.selectedProperty().bindBidirectional(viewModel.restrictToBstFieldsProperty());
+        restrictToBstFieldsRadio.disableProperty().bind(viewModel.bstStyleNameProperty().isEmpty());
+        bstStyleLabel.textProperty().bind(viewModel.bstStyleNameProperty());
 
+        auxFileLabel.textProperty().bind(viewModel.auxFileNameProperty());
+        tableView.setPlaceholder(new Label(Localization.lang("No problems found.")));
+        rebuildColumns();
+        viewModel.reportRevisionProperty().addListener(_ -> rebuildColumns());
+
+        // A hidden column must not keep sorting the rows
+        EasyBind.listen(viewModel.shownFieldsProperty(), _ -> tableView.getSortOrder().removeIf(column -> !column.isVisible()));
+    }
+
+    private void rebuildColumns() {
+        tableView.getSortOrder().clear();
+        tableView.getColumns().forEach(column -> column.visibleProperty().unbind());
+        tableView.getColumns().clear();
         List<Field> reportedFields = viewModel.getReportedFields();
         int columnIndex = 0;
         // [impl->req~ux.consistency.missing-field-columns~1]
@@ -121,9 +136,13 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
 
                     ConsistencySymbol.fromText(item)
                                      .ifPresentOrElse(
-                                             symbol -> setGraphic(symbol.getIcon().getGraphicNode()),
+                                             symbol -> {
+                                                 setGraphic(symbol.getIcon().getGraphicNode());
+                                                 setTooltip(new Tooltip(symbol.getDescription()));
+                                             },
                                              () -> {
                                                  setGraphic(null);
+                                                 setTooltip(null);
                                                  setText(item);
                                              }
                                      );
@@ -162,13 +181,18 @@ public class ConsistencyCheckDialog extends BaseDialog<Void> {
     }
 
     @FXML
-    private void restrictToBstFields() {
-        viewModel.restrictToBstFields();
+    private void browseBstFile() {
+        viewModel.browseBstFile();
     }
 
     @FXML
-    private void showAllFields() {
-        viewModel.showAllFields();
+    private void browseAuxFile() {
+        viewModel.browseAuxFile();
+    }
+
+    @FXML
+    private void showAllEntries() {
+        viewModel.showAllEntries();
     }
 
     @FXML
