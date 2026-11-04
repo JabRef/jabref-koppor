@@ -39,6 +39,8 @@ env:
   # Only PRs neither on a milestone nor merged automatically belong here, e.g. JabRef/jabref PRs from forks.
   PRS: |
     https://github.com/JabRef/jabref/pull/17134
+    # Draft with its branch in JabRef/jabref-koppor, so it is not picked up automatically
+    https://github.com/JabRef/jabref-koppor/pull/786
   # JabRef/jabref-koppor milestone numbers; their open PRs are merged before everything else, milestone by milestone
   # (PRs within one milestone by number). 1 = soon-upstream, 2 = for-upstream.
   MILESTONES: 1 2
@@ -380,8 +382,9 @@ jobs:
             message="Merge $count branches into $TARGET"$'\n'
             while IFS=$'\t' read -r -u 3 ref label suffix; do
               parents+=(-p "$ref")
-              # Without the scheme: a PR URL in a pushed commit message adds a "referenced this pull request" event to the PR.
-              message+=$'\n'"$label ${suffix//https:\/\//}"
+              # Not as URL (even without scheme, GitHub autolinks github.com/.../pull/N): a PR link in a pushed commit
+              # message adds a "referenced this pull request" event to the PR.
+              message+=$'\n'"$label $(printf '%s' "$suffix" | sed -E 's|https://github.com/([^/]+/[^/]+)/pull/([0-9]+)|\1 PR \2|')"
             done 3< "$clean"
             git reset --hard --quiet "$(git commit-tree "HEAD^{tree}" "${parents[@]}" -m "$message")"
             push
