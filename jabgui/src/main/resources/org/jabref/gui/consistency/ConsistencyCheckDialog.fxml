@@ -32,8 +32,8 @@
                     <ToggleGroup fx:id="shownFieldsToggleGroup"/>
                 </fx:define>
                 <RadioButton text="%Show all fields" selected="true" toggleGroup="$shownFieldsToggleGroup"/>
-                <RadioButton fx:id="restrictToBstFieldsRadio" text="%Restrict to fields of .bst style" toggleGroup="$shownFieldsToggleGroup"/>
-                <Button onAction="#browseBstFile" text="%Browse .bst file..."/>
+                <RadioButton fx:id="restrictToBstFieldsRadio" text="%Restrict to fields of bibliography style" toggleGroup="$shownFieldsToggleGroup"/>
+                <Button onAction="#browseBstFile" text="%Browse style file..."/>
                 <Label fx:id="bstStyleLabel" styleClass="text-muted"/>
             </HBox>
             <HBox spacing="10.0" alignment="CENTER_LEFT">
