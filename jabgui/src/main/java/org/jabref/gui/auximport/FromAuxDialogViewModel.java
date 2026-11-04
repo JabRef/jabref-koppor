@@ -95,7 +95,7 @@ public class FromAuxDialogViewModel {
             return files.filter(file -> FileUtil.getFileExtension(file).filter("aux"::equalsIgnoreCase).isPresent())
                         .filter(aux -> Files.exists(aux.resolveSibling(FileUtil.getBaseName(aux) + ".tex")))
                         .max(Comparator.comparing(FromAuxDialogViewModel::lastModified));
-        } catch (IOException | UncheckedIOException e) {
+        } catch (IOException | UncheckedIOException _) {
             return Optional.empty();
         }
     }
