@@ -32,6 +32,7 @@ import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.shared.DatabaseLocation;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.io.FileUtil;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 
@@ -66,7 +67,7 @@ public class FromAuxDialogViewModel {
         selectedLibraryProperty.set(tabContainer.getCurrentLibraryTab().getBibDatabaseContext());
         prefillAuxFile();
         EasyBind.listen(selectedLibraryProperty, (_, _, _) -> {
-            if ((auxFileProperty.get() == null) || auxFileProperty.get().isBlank()) {
+            if (StringUtil.isBlank(auxFileProperty.get())) {
                 prefillAuxFile();
             }
             if (auxParserResult != null) {
@@ -78,9 +79,6 @@ public class FromAuxDialogViewModel {
     /// Fills in the AUX file LaTeX wrote next to the library's .tex files, i.e., in the directory the LaTeX citations tab scans.
     private void prefillAuxFile() {
         BibDatabaseContext context = selectedLibraryProperty.get();
-        if (context == null) {
-            return;
-        }
         Path directory = context.getMetaData().getLatexFileDirectory(preferences.getFilePreferences().getUserAndHost())
                                 .orElse(FileUtil.getInitialDirectory(context, preferences.getFilePreferences().getWorkingDirectory()));
         findAuxFile(directory).ifPresent(aux -> auxFileProperty.set(aux.toAbsolutePath().toString()));
@@ -88,6 +86,7 @@ public class FromAuxDialogViewModel {
 
     /// Returns the AUX file belonging to a .tex file in the given directory.
     /// With `\include`, LaTeX writes one AUX file per included file; the main one is closed last, thus the newest is taken.
+    // [impl->req~import.aux.prefill~1]
     static Optional<Path> findAuxFile(Path directory) {
         if (!Files.isDirectory(directory)) {
             return Optional.empty();

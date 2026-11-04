@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FromAuxDialogViewModelTest {
 
+    // [utest->req~import.aux.prefill~1]
     @Test
     void findsNewestAuxNextToTexFile(@TempDir Path directory) throws Exception {
         Files.createFile(directory.resolve("paper.tex"));
