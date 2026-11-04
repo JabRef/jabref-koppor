@@ -11,6 +11,7 @@ import org.jabref.gui.actions.ActionHelper;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.fieldeditors.LinkedFileViewModel;
 import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.gui.util.EntryLookupsInProgress;
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.importer.FetcherResult;
 import org.jabref.logic.importer.FulltextFetchers;
@@ -100,17 +101,30 @@ public class DownloadFullTextAction extends SimpleCommand {
             @Override
             public Void call() {
                 int count = 0;
-                for (BibEntry entry : entries) {
-                    if (isCancelled()) {
-                        break;
-                    }
+                // Marked here, not before submission, so a task cancelled while queued leaves no spinner behind
+                UiTaskExecutor.runInJavaFXThread(() -> entries.forEach(EntryLookupsInProgress.FULLTEXT::started));
+                try {
+                    for (BibEntry entry : entries) {
+                        if (isCancelled()) {
+                            break;
+                        }
 
-                    BibEntry lookupSnapshot = new BibEntry(entry);
-                    EntryDownload download = new EntryDownload(entry, lookupSnapshot, fullTextFinder.apply(lookupSnapshot));
-                    // Attach right away: a lookup can take minutes, so the user should not wait for the whole selection
-                    uiThread.accept(() -> downloadFullText(download, databaseContext));
-                    updateProgress(++count, entries.size());
-                    updateMessage(Localization.lang("%0/%1 entries", count, entries.size()));
+                        BibEntry lookupSnapshot = new BibEntry(entry);
+                        try {
+                            EntryDownload download = new EntryDownload(entry, lookupSnapshot, fullTextFinder.apply(lookupSnapshot));
+                            // Attach right away: a lookup can take minutes, so the user should not wait for the whole selection
+                            uiThread.accept(() -> downloadFullText(download, databaseContext));
+                        } finally {
+                            count++;
+                            EntryLookupsInProgress.FULLTEXT.finishedLater(entry);
+                        }
+                        updateProgress(count, entries.size());
+                        updateMessage(Localization.lang("%0/%1 entries", count, entries.size()));
+                    }
+                } finally {
+                    // Entries skipped by a cancellation or a failed lookup
+                    List<BibEntry> notLookedUp = entries.subList(count, entries.size());
+                    notLookedUp.forEach(EntryLookupsInProgress.FULLTEXT::finishedLater);
                 }
                 return null;
             }
