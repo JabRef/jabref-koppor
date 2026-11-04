@@ -105,10 +105,15 @@ public class BiblatexStyleScanner {
         String name = styleFile.getFileName().toString();
         String lowerName = name.toLowerCase(Locale.ROOT);
         String base = name.substring(0, name.length() - 4);
-        Path sibling = lowerName.endsWith(".bbx") ? styleFile.resolveSibling(base + ".cbx")
-                       : lowerName.endsWith(".cbx") ? styleFile.resolveSibling(base + ".bbx")
-                       : styleFile;
-        return Optional.of(sibling).filter(file -> !file.equals(styleFile) && Files.isRegularFile(file));
+        String siblingExtension;
+        if (lowerName.endsWith(".bbx")) {
+            siblingExtension = ".cbx";
+        } else if (lowerName.endsWith(".cbx")) {
+            siblingExtension = ".bbx";
+        } else {
+            return Optional.empty();
+        }
+        return Optional.of(styleFile.resolveSibling(base + siblingExtension)).filter(Files::isRegularFile);
     }
 
     private Optional<Path> resolve(Path directory, String fileName) {
