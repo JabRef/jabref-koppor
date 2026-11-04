@@ -12,6 +12,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 ### Added
 
 - We added switching between JStyle, CSL, and BST citation styles within the same Writer document. [#14962](https://github.com/JabRef/jabref/issues/14962)
+- We added a "Directory mapping" preference (Preferences → Linked files) that lets JabRef substitute a mapped directory for a matching path prefix when a linked file's absolute path cannot be found, e.g. when a library is shared between machines whose file directories don't line up. [#16173](https://github.com/JabRef/jabref/pull/16173)
 - We added an option to enable AI provider debugging in expert settings for testing AI features without external API calls. [#17607](https://github.com/JabRef/jabref/pull/17607)
 - We added ISBN extraction from bibliographic pages in PDF books. [#12874](https://github.com/JabRef/jabref/issues/12874)
 - We added a dark appearance variant of the macOS application icon. [#17290](https://github.com/JabRef/jabref/issues/17290)

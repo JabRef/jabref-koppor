@@ -16,6 +16,7 @@ import org.jabref.logic.openoffice.style.BstStyle;
 import org.jabref.logic.openoffice.style.JStyle;
 import org.jabref.logic.openoffice.style.JStyleLoader;
 import org.jabref.logic.openoffice.style.OOStyle;
+import org.jabref.logic.util.io.DirectoryMapping;
 
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterEach;
@@ -109,6 +110,22 @@ class JabRefGuiPreferencesTest {
     @MethodSource("provideTestData")
     void convertListToString(List<String> sampleList, String sampleString) {
         assertEquals(sampleString, JabRefCliPreferences.convertListToString(sampleList));
+    }
+
+    @Test
+    void convertDirectoryMappingsRoundTrip() {
+        List<DirectoryMapping> mappings = List.of(
+                new DirectoryMapping("/old/literature", "/new/literature"),
+                new DirectoryMapping("/old/literature", "D:\\literature"));
+
+        String serialized = JabRefCliPreferences.convertDirectoryMappingsToString(mappings);
+
+        assertEquals(mappings, JabRefCliPreferences.convertStringToDirectoryMappings(serialized));
+    }
+
+    @Test
+    void convertStringToDirectoryMappingsEmptyStringYieldsEmptyList() {
+        assertEquals(List.of(), JabRefCliPreferences.convertStringToDirectoryMappings(""));
     }
 
     @Test

@@ -11,6 +11,7 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.PreferenceTabViewModel;
@@ -18,6 +19,8 @@ import org.jabref.gui.util.DirectoryDialogConfiguration;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.io.AutoLinkPreferences;
+import org.jabref.logic.util.io.DirectoryMapping;
+import org.jabref.logic.util.strings.StringUtil;
 
 import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
 import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
@@ -48,6 +51,8 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
 
     private final BooleanProperty openFileExplorerInFilesDirectory = new SimpleBooleanProperty();
     private final BooleanProperty openFileExplorerInLastDirectory = new SimpleBooleanProperty();
+
+    private final ObservableList<DirectoryMappingItem> directoryMappings = FXCollections.observableArrayList();
 
     private final Validator mainFileDirValidator;
 
@@ -100,6 +105,10 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
         copyLinkedFilesOnTransferProperty.setValue(filePreferences.shouldCopyLinkedFilesOnTransfer());
         moveFilesOnTransferProperty.setValue(filePreferences.shouldMoveLinkedFilesOnTransfer());
 
+        directoryMappings.setAll(filePreferences.getDirectoryMappings().stream()
+                                                 .map(mapping -> new DirectoryMappingItem(mapping.directory(), mapping.mappedDirectory()))
+                                                 .toList());
+
         // Autolink preferences
         switch (autoLinkPreferences.getCitationKeyDependency()) {
             case START ->
@@ -144,6 +153,11 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
         filePreferences.setAdjustFileLinksOnTransfer(adjustLinkedFilesOnTransferProperty.getValue());
         filePreferences.setCopyLinkedFilesOnTransfer(copyLinkedFilesOnTransferProperty.getValue());
         filePreferences.setMoveLinkedFilesOnTransfer(moveFilesOnTransferProperty.getValue());
+
+        filePreferences.setDirectoryMappings(directoryMappings.stream()
+                                                               .filter(item -> StringUtil.isNotBlank(item.getDirectory()) && StringUtil.isNotBlank(item.getMappedDirectory()))
+                                                               .map(item -> new DirectoryMapping(item.getDirectory(), item.getMappedDirectory()))
+                                                               .toList());
     }
 
     ValidationStatus mainFileDirValidationStatus() {
@@ -243,6 +257,18 @@ public class LinkedFilesTabViewModel implements PreferenceTabViewModel {
 
     public BooleanProperty openFileExplorerInLastDirectoryProperty() {
         return openFileExplorerInLastDirectory;
+    }
+
+    public ObservableList<DirectoryMappingItem> getDirectoryMappings() {
+        return directoryMappings;
+    }
+
+    public void addDirectoryMapping() {
+        directoryMappings.add(new DirectoryMappingItem("", ""));
+    }
+
+    public void removeDirectoryMapping(DirectoryMappingItem item) {
+        directoryMappings.remove(item);
     }
 }
 
