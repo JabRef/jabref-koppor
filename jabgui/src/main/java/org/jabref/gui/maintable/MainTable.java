@@ -237,13 +237,7 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
 
         libraryTab.getLoading().addListener((_, _, _) -> updatePlaceholder(placeholderBox, loadingPlaceholder));
 
-        // Matches float to the top (or are the only rows left), so a table scrolled down before searching would show none of them.
-        // Only scroll when the top is actually out of view, so the table does not jump while typing a query
-        libraryTab.searchQueryProperty().addListener((_, _, query) -> query.ifPresent(_ -> {
-            if (!isFirstRowVisible()) {
-                scrollTo(0);
-            }
-        }));
+        model.searchResultsVersionProperty().addListener(_ -> showSearchMatchesIfNoneVisible());
 
         // Enlarging the entry editor shrinks the table; keep the edited entry visible as the lowest row instead of hiding it
         heightProperty().addListener((_, oldHeight, newHeight) -> {
@@ -416,11 +410,23 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         }
     }
 
-    private boolean isFirstRowVisible() {
-        return Optional.ofNullable((VirtualFlow<?>) lookup(".virtual-flow"))
-                       .map(VirtualFlow::getFirstVisibleCell)
-                       .map(cell -> cell.getIndex() == 0)
-                       .orElse(true);
+    /// Search matches are sorted to the top (or are the only rows left), so a table scrolled down before searching shows none of them.
+    /// The table stays where it is as long as at least one match is in view, and otherwise moves the minimal distance, to avoid jumping around while a query is typed.
+    private void showSearchMatchesIfNoneVisible() {
+        Optional.ofNullable((VirtualFlow<?>) lookup(".virtual-flow")).ifPresent(flow -> {
+            int firstVisible = Optional.ofNullable(flow.getFirstVisibleCell()).map(IndexedCell::getIndex).orElse(0);
+            if (firstVisible >= getItems().size() || getItems().get(firstVisible).isMatchedBySearch()) {
+                return;
+            }
+            // Matches are a prefix of the rows, so with a non-match at the top of the viewport, the last match is above it
+            int lastMatch = -1;
+            for (int i = 0; i < firstVisible && getItems().get(i).isMatchedBySearch(); i++) {
+                lastMatch = i;
+            }
+            if (lastMatch >= 0) {
+                flow.scrollTo(lastMatch);
+            }
+        });
     }
 
     private void scrollToNextMatchCategory() {
