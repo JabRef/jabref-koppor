@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
+import org.jabref.logic.quality.consistency.StyleFieldSelection;
 import org.jabref.logic.util.TestEntry;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
@@ -41,7 +42,7 @@ public class BstVMTest {
 
     @Test
     void fieldSelectionIncludesAliasesAndDateParts() {
-        var selection = new BstVM("ENTRY { journal date } {} {}").getFieldSelection().orElseThrow();
+        var selection = StyleFieldSelection.forFieldNames(new BstVM("ENTRY { journal date } {} {}").getEntryFields()).orElseThrow();
 
         assertEquals(List.of(StandardField.JOURNAL, StandardField.JOURNALTITLE, StandardField.YEAR),
                 List.of(StandardField.JOURNAL, StandardField.JOURNALTITLE, StandardField.YEAR, StandardField.TITLE)

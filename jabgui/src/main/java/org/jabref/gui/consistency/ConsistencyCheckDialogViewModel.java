@@ -32,16 +32,19 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.stage.FileChooser;
 
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.FileDialogConfiguration;
 import org.jabref.logic.auxparser.DefaultAuxParser;
+import org.jabref.logic.biblatex.BiblatexStyleScanner;
 import org.jabref.logic.bst.BstVM;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.quality.consistency.BibliographyConsistencyCheck;
 import org.jabref.logic.quality.consistency.ConsistencyMessage;
+import org.jabref.logic.quality.consistency.StyleFieldSelection;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.TaskExecutor;
@@ -257,34 +260,43 @@ public class ConsistencyCheckDialogViewModel extends AbstractViewModel {
         return bstStyleName;
     }
 
+    private static Optional<Predicate<Field>> readStyleFields(Path styleFile) throws IOException {
+        String name = styleFile.getFileName().toString().toLowerCase(Locale.ROOT);
+        Set<String> fieldNames = name.endsWith(".bst")
+                                 ? new BstVM(styleFile).getEntryFields()
+                                 : BiblatexStyleScanner.scanFields(styleFile);
+        return StyleFieldSelection.forFieldNames(fieldNames);
+    }
+
     // [impl->req~ux.consistency.bst-field-columns~1]
     public void browseBstFile() {
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
                 .withInitialDirectory(preferences.getFilePreferences().getWorkingDirectory())
-                .addExtensionFilter(StandardFileType.BST)
-                .withDefaultExtension(StandardFileType.BST)
+                .addExtensionFilter(new FileChooser.ExtensionFilter(Localization.lang("Bibliography style"), "*.bst", "*.bbx", "*.cbx"))
+                .addExtensionFilter(StandardFileType.BST, StandardFileType.BBX, StandardFileType.CBX)
+                .withDefaultExtension(Localization.lang("Bibliography style"))
                 .build();
-        dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(this::loadBstFile);
+        dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(this::loadStyleFile);
     }
 
-    /// Reads the fields of the given style and restricts the columns to them
+    /// Reads the fields of the given `.bst`, `.bbx` or `.cbx` style and restricts the columns to them
     @VisibleForTesting
-    void loadBstFile(Path bstFile) {
+    void loadStyleFile(Path bstFile) {
         cancelBstLoad();
         long generation = ++bstLoadGeneration;
         AtomicBoolean cancelled = new AtomicBoolean();
         bstCancelled = cancelled;
         bstFuture = Optional.ofNullable(BackgroundTask.wrap(() -> {
                                                           checkCancelled(cancelled);
-                                                          return new BstVM(bstFile).getFieldSelection();
+                                                          return readStyleFields(bstFile);
                                                       })
                                                       .onSuccess(selection -> {
                                                           if (cancelled.get() || generation != bstLoadGeneration) {
                                                               return;
                                                           }
                                                           if (selection.isEmpty()) {
-                                                              LOGGER.error("No ENTRY fields in .bst file {}", bstFile);
-                                                              dialogService.showErrorDialogAndWait(Localization.lang("You must select a valid .bst style file."));
+                                                              LOGGER.error("No fields read by style file {}", bstFile);
+                                                              dialogService.showErrorDialogAndWait(Localization.lang("You must select a valid style file."));
                                                               return;
                                                           }
                                                           selectedFields = selection.orElseThrow();
@@ -294,8 +306,8 @@ public class ConsistencyCheckDialogViewModel extends AbstractViewModel {
                                                       })
                                                       .onFailure(exception -> {
                                                           if (!cancelled.get() && generation == bstLoadGeneration) {
-                                                              LOGGER.error("Could not read .bst file {}", bstFile, exception);
-                                                              dialogService.showErrorDialogAndWait(Localization.lang("You must select a valid .bst style file."), exception);
+                                                              LOGGER.error("Could not read style file {}", bstFile, exception);
+                                                              dialogService.showErrorDialogAndWait(Localization.lang("You must select a valid style file."), exception);
                                                           }
                                                       })
                                                       .executeWith(taskExecutor));
