@@ -33,6 +33,7 @@ import org.jabref.gui.DragAndDropDataFormats;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
+import org.jabref.gui.theme.StyleClasses;
 import org.jabref.gui.util.ControlHelper;
 import org.jabref.gui.util.CustomLocalDragboard;
 import org.jabref.gui.util.ValueTableCellFactory;
@@ -114,7 +115,7 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
 
     private Node buildEntryTypesColumn() {
         Label header = new Label(Localization.lang("Entry types"));
-        header.getStyleClass().add("sectionHeader");
+        header.getStyleClass().addAll(StyleClasses.SECTION_HEADER);
 
         entryTypesTable.setMinWidth(Region.USE_PREF_SIZE);
         VBox.setVgrow(entryTypesTable, Priority.ALWAYS);
@@ -122,7 +123,7 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
         addNewEntryType.setPromptText("Type new entry type...");
 
         addNewEntryTypeButton.setPrefSize(20.0, 20.0);
-        addNewEntryTypeButton.getStyleClass().addAll("icon-button", "narrow");
+        addNewEntryTypeButton.getStyleClass().addAll(StyleClasses.NARROW_ICON_BUTTON);
         addNewEntryTypeButton.setGraphic(IconTheme.JabRefIcons.ADD_NOBOX.getGraphicNode());
         addNewEntryTypeButton.setTooltip(new Tooltip(Localization.lang("Add new entry type")));
         addNewEntryTypeButton.setOnAction(_ -> addEntryType());
@@ -134,7 +135,7 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
 
     private Node buildFieldsColumn() {
         Label header = new Label(Localization.lang("Required and optional fields"));
-        header.getStyleClass().add("sectionHeader");
+        header.getStyleClass().addAll(StyleClasses.SECTION_HEADER);
 
         fields.setMinWidth(Region.USE_PREF_SIZE);
         VBox.setVgrow(fields, Priority.ALWAYS);
@@ -144,11 +145,14 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
 
         fieldPropertyCheckComboBox.setPrefWidth(180.0);
 
+        addNewField.setMaxHeight(Double.MAX_VALUE);
+        fieldPropertyCheckComboBox.setMaxHeight(Double.MAX_VALUE);
+
         addNewFieldButton.setPrefWidth(100.0);
         addNewFieldButton.setOnAction(_ -> addNewField());
 
         HBox addFieldRow = new HBox(GAP, addNewField, fieldPropertyCheckComboBox, addNewFieldButton);
-        addFieldRow.setAlignment(Pos.BASELINE_CENTER);
+        addFieldRow.setAlignment(Pos.CENTER_LEFT);
 
         Button resetButton = new Button(Localization.lang("Reset to default"));
         resetButton.setGraphic(IconTheme.JabRefIcons.REFRESH.getGraphicNode());
@@ -157,8 +161,8 @@ public class CustomEntryTypesTab extends AbstractPreferenceTabView<CustomEntryTy
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox bottomRow = new HBox(GAP, new VBox(5.0, addFieldRow), spacer, resetButton);
-        bottomRow.setAlignment(Pos.BASELINE_LEFT);
+        HBox bottomRow = new HBox(GAP, new VBox(4, addFieldRow), spacer, resetButton);
+        bottomRow.setAlignment(Pos.CENTER_LEFT);
 
         VBox column = new VBox(GAP, header, fields, bottomRow);
         HBox.setHgrow(column, Priority.ALWAYS);

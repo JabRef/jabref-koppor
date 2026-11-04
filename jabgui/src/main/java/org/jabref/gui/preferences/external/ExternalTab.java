@@ -5,6 +5,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
@@ -17,6 +18,7 @@ import org.jabref.gui.help.HelpAction;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.push.GuiPushToApplication;
+import org.jabref.gui.theme.StyleClasses;
 import org.jabref.gui.util.ControlHelper;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.help.HelpFile;
@@ -28,8 +30,8 @@ public class ExternalTab extends AbstractPreferenceTabView<ExternalTabViewModel>
 
     // Kept as fields so validation can be attached after the grids are assembled.
     private TextField citeCommand;
-    private TextField customTerminalCommand;
-    private TextField customFileBrowserCommand;
+    private TextArea customTerminalCommand;
+    private TextArea customFileBrowserCommand;
 
     public ExternalTab() {
         this.viewModel = new ExternalTabViewModel(
@@ -82,7 +84,7 @@ public class ExternalTab extends AbstractPreferenceTabView<ExternalTabViewModel>
         citeCommand.textProperty().bindBidirectional(viewModel.citeCommandProperty());
 
         Button citeHelp = new Button();
-        citeHelp.getStyleClass().addAll("icon-button", "narrow");
+        citeHelp.getStyleClass().addAll(StyleClasses.NARROW_ICON_BUTTON);
         citeHelp.setPrefSize(20.0, 20.0);
         new ActionFactory().configureIconButton(
                 StandardActions.HELP_PUSH_TO_APPLICATION,
@@ -105,7 +107,7 @@ public class ExternalTab extends AbstractPreferenceTabView<ExternalTabViewModel>
     }
 
     private Node buildCustomApplicationsGrid() {
-        String dirPlaceholderHint = Localization.lang("Note: Use the placeholder %DIR% for the location of the opened library file.");
+        String dirPlaceholderHint = Localization.lang("Enter the application on the first line and one argument per following line. Use %DIR% for the library directory.");
 
         CheckBox useCustomTerminal = new CheckBox(Localization.lang("Use custom terminal emulator"));
         useCustomTerminal.selectedProperty().bindBidirectional(viewModel.useCustomTerminalProperty());
@@ -137,8 +139,9 @@ public class ExternalTab extends AbstractPreferenceTabView<ExternalTabViewModel>
         return grid;
     }
 
-    private TextField commandField(String tooltip, javafx.beans.property.StringProperty value, CheckBox enabler) {
-        TextField field = new TextField();
+    private TextArea commandField(String tooltip, javafx.beans.property.StringProperty value, CheckBox enabler) {
+        TextArea field = new TextArea();
+        field.setPrefRowCount(3);
         field.textProperty().bindBidirectional(value);
         field.setTooltip(new Tooltip(tooltip));
         field.disableProperty().bind(enabler.selectedProperty().not());

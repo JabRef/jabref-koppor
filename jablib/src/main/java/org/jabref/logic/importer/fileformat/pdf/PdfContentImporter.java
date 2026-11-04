@@ -3,6 +3,7 @@ package org.jabref.logic.importer.fileformat.pdf;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Path;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
@@ -24,6 +26,7 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.ArXivIdentifier;
 import org.jabref.model.entry.identifier.DOI;
+import org.jabref.model.entry.identifier.ISBN;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 
@@ -37,29 +40,34 @@ import org.jspecify.annotations.Nullable;
 
 import static org.jabref.logic.util.strings.StringUtil.isNullOrEmpty;
 
-/// Parses data of the first page of the PDF and creates a BibTeX entry.
+/// Parses book information page and creates a BibTeX entry from validated ISBN.
+/// If no page qualifies, falls back to parsing research paper information from the first page of the PDF and creates a BibTeX entry.
 ///
 /// Currently, Springer, and IEEE formats are supported.
 ///
-/// In case one wants to have a list of {@link BibEntry} matching the bibliography of a PDF,
-/// please see {@link RuleBasedBibliographyPdfImporter}.
+/// In case one wants to have a list of [BibEntry] matching the bibliography of a PDF,
+/// please see [RuleBasedBibliographyPdfImporter].
 ///
-/// If several PDF importers should be tried, use {@link PdfMergeMetadataImporter}.
+/// If several PDF importers should be tried, use [PdfMergeMetadataImporter].
+@NullMarked
 public class PdfContentImporter extends PdfImporter {
 
-    private static final Pattern YEAR_EXTRACT_PATTERN = Pattern.compile("\\d{4}");
+    // Matches four-digit years separated from words and numbers, excluding ranges such as "1999-2005".
+    private static final Pattern YEAR_EXTRACT_PATTERN = Pattern.compile("(?<![\\p{L}\\d])(?<!\\d{4}\\h{0,5}[-–—]\\h{0,5})\\d{4}(?![\\p{L}\\d])(?!\\h*[-–—]\\h*\\d{4}(?!\\d))");
+    private static final int MINIMUM_PLAUSIBLE_YEAR = 1500;
+    private static final Pattern FOUR_DIGITS = Pattern.compile("\\d{4}");
 
     private static final int ARXIV_PREFIX_LENGTH = "arxiv:".length();
 
     // input lines into several lines
-    private String[] lines;
+    private String[] lines = new String[0];
 
     // current index in lines
     private int lineIndex;
 
-    private String curString;
+    private String curString = "";
 
-    private String year;
+    private @Nullable String year;
 
     /// Removes all non-letter characters at the end
     ///
@@ -86,8 +94,25 @@ public class PdfContentImporter extends PdfImporter {
         return result;
     }
 
+    /// Converts an author line as found in a PDF (a "byline") into a BibTeX author list, mapping a trailing `et al.` to `others`.
+    ///
+    /// Neither [org.jabref.logic.importer.AuthorListParser] nor
+    /// [org.jabref.logic.formatter.bibtexfields.NormalizeNamesFormatter] (which delegates to
+    /// [org.jabref.logic.importer.AuthorListParser#normalizeSimply]) can take the byline directly. Both keep BibTeX
+    /// semantics, where a comma separates family and given names: `Smith, John and Doe, Jane` has the same shape as
+    /// `Karen Cooper, Jennifer Donovan and Gary Williamson`. Only this importer knows that its input is a byline and
+    /// thus in "Given Family" order. Measured on the raw bylines of the importer's tests:
+    ///
+    /// | Byline                                                                     | AuthorListParser result                                        |
+    /// |----------------------------------------------------------------------------|----------------------------------------------------------------|
+    /// | `Karen A. Cooper, Jennifer L. Donovan, Andrew L. Waterhouse and Gary Williamson` | 2 persons: "Andrew L. Waterhouse Karen A. Cooper, Jennifer L. Donovan" and "Gary Williamson" |
+    /// | `Karen A. Cooper1, Jennifer L. Donovan2 and Gary Williamson1*`            | 2 persons, affiliation markers kept as part of the family names |
+    /// | `Karen A. Cooper, Jennifer L. Donovan, et al.`                             | 1 garbled person plus `others` (the initials-first heuristic of `normalizeSimply` needs `K. A. Cooper`) |
+    /// | `Anke Lüdeling Merja Kytö` (separated by spaces only)                      | 1 person                                                       |
+    ///
+    /// Hence the byline is split heuristically here; the result is a plain BibTeX list that
+    /// [org.jabref.model.entry.AuthorList#parse] handles afterwards.
     private String streamlineNames(String names) {
-        // TODO: replace with NormalizeNamesFormatter?!
         String res;
         // supported formats:
         //   Matthias Schrepfer1, Johannes Wolf1, Jan Mendling1, and Hajo A. Reijers2
@@ -188,6 +213,26 @@ public class PdfContentImporter extends PdfImporter {
 
     @Override
     public ParserResult importDatabase(Path filePath, PDDocument document) throws IOException {
+        List<String> pageTexts = PdfPageScanner.scanPages(document);
+        Optional<String> bibliographicPages = BibliographicPageDetector.findBibliographicPage(pageTexts);
+        if (bibliographicPages.isEmpty()) {
+            return importPaperContent(document);
+        }
+        List<ISBN> isbns = ISBN.findAllInText(bibliographicPages.orElseThrow());
+        if (isbns.isEmpty()) {
+            return importPaperContent(document);
+        }
+        if (isbns.size() > 1) {
+            ParserResult result = new ParserResult();
+            result.addWarning(Localization.lang("More than one ISBN found: Found %0. Not adding.", isbns.stream().map(ISBN::asString).collect(Collectors.joining(", "))));
+            return result;
+        }
+        BibEntry bookEntry = new BibEntry(StandardEntryType.Book)
+                .withField(StandardField.ISBN, isbns.getFirst().asString());
+        return new ParserResult(List.of(bookEntry));
+    }
+
+    private ParserResult importPaperContent(PDDocument document) throws IOException {
         List<BibEntry> result = new ArrayList<>(1);
         String firstPageContents = PdfUtils.getFirstPageContents(document);
         Optional<String> titleByFontSize = extractTitleFromDocument(document);
@@ -235,7 +280,7 @@ public class PdfContentImporter extends PdfImporter {
             return Math.abs(Xgap) > XspaceThreshold && Math.abs(Ygap) > YspaceThreshold;
         }
 
-        private boolean isUnwantedText(TextPosition previousTextPosition, TextPosition textPosition,
+        private boolean isUnwantedText(@Nullable TextPosition previousTextPosition, @Nullable TextPosition textPosition,
                                        Map<Float, TextPosition> lastPositionMap, float fontSize) {
             // This indicates that the text is at the start of the line, so it is needed.
             if (textPosition == null || previousTextPosition == null) {
@@ -339,6 +384,7 @@ public class PdfContentImporter extends PdfImporter {
     /// the different lines are joined into one and thereby separated by " "
     ///
     /// This method follows the structure typically found in academic paper PDFs:
+    ///
     /// - First, it attempts to detect the title by font size, if available, or by text position.
     /// - Authors are then processed line-by-line until reaching the next section.
     /// - Abstract and keywords, if found, are extracted as they appear on the page.
@@ -509,7 +555,7 @@ public class PdfContentImporter extends PdfImporter {
                 int edslength = "(Eds.)".length();
                 int posWithEditor = pos + edslength + 2; // +2 because of ":" after (Eds.) and the subsequent space
                 if (posWithEditor > curString.length()) {
-                    curString = curString.substring(posWithEditor - 2); // we don't have any spaces after Eds so we substract the 2
+                    curString = curString.substring(posWithEditor - 2); // we don't have any spaces after Eds so we subtract the 2
                 } else {
                     curString = curString.substring(posWithEditor);
                 }
@@ -524,9 +570,7 @@ public class PdfContentImporter extends PdfImporter {
 
                     pages = springerSplit[2].substring(4);
 
-                    if (springerSplit[3].length() >= 4) {
-                        year = springerSplit[3].substring(0, 4);
-                    }
+                    firstPlausibleYear(springerSplit[3]).ifPresent(springerYear -> year = springerYear);
                 }
             } else {
                 doi = getDoi(doi);
@@ -618,7 +662,7 @@ public class PdfContentImporter extends PdfImporter {
         return DOI.findInText(curString).map(DOI::asString).orElse(null);
     }
 
-    private String getArXivId(String arXivId) {
+    private @Nullable String getArXivId(@Nullable String arXivId) {
         if (arXivId != null) {
             return arXivId;
         }
@@ -635,16 +679,35 @@ public class PdfContentImporter extends PdfImporter {
         return arXivId;
     }
 
-    /// Extract the year out of curString (if it is not yet defined)
+    // [impl->req~import.pdf.plausible-year~1]
     private void extractYear() {
         if (year != null) {
             return;
         }
 
-        Matcher m = YEAR_EXTRACT_PATTERN.matcher(curString);
-        if (m.find()) {
-            year = curString.substring(m.start(), m.end());
+        firstPlausibleYear(curString).ifPresent(found -> year = found);
+    }
+
+    /// The first standalone four-digit number that is not part of a range and lies in the plausible year span
+    // [impl->req~import.pdf.plausible-year~1]
+    private static Optional<String> firstPlausibleYear(String text) {
+        Matcher m = YEAR_EXTRACT_PATTERN.matcher(text);
+        while (m.find()) {
+            if (isPlausibleYear(m.group())) {
+                return Optional.of(m.group());
+            }
         }
+        return Optional.empty();
+    }
+
+    // [impl->req~import.pdf.plausible-year~1]
+    private static boolean isPlausibleYear(String candidate) {
+        if (!FOUR_DIGITS.matcher(candidate).matches()) {
+            return false;
+        }
+        int value = Integer.parseInt(candidate);
+        // The upper bound tolerates in-press works dated slightly ahead of the current year
+        return (value >= MINIMUM_PLAUSIBLE_YEAR) && (value <= Year.now().getValue() + 2);
     }
 
     /// PDFTextStripper normally does NOT produce multiple empty lines

@@ -1,5 +1,3 @@
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-
 plugins {
     id("org.jabref.gradle.module")
     id("application")
@@ -12,10 +10,6 @@ version = providers.gradleProperty("projVersion")
     .orElse(providers.environmentVariable("VERSION"))
     .orElse("100.0.0")
     .get()
-
-mainModuleInfo {
-    annotationProcessor("info.picocli.codegen")
-}
 
 application{
     mainClass = "org.jabref.languageserver.cli.ServerCli"
@@ -31,11 +25,6 @@ application{
 }
 
 tasks.test {
-    testLogging {
-        // set options for log level LIFECYCLE
-        events("FAILED")
-        exceptionFormat = TestExceptionFormat.FULL
-    }
     maxParallelForks = 1
 }
 

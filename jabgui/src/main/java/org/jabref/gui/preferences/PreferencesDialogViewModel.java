@@ -25,7 +25,9 @@ import org.jabref.gui.preferences.entryeditor.EntryEditorTab;
 import org.jabref.gui.preferences.export.ExportTab;
 import org.jabref.gui.preferences.external.ExternalTab;
 import org.jabref.gui.preferences.externalfiletypes.ExternalFileTypesTab;
+import org.jabref.gui.preferences.externalstorages.ExternalStoragesTab;
 import org.jabref.gui.preferences.general.GeneralTab;
+import org.jabref.gui.preferences.git.GitTab;
 import org.jabref.gui.preferences.groups.GroupsTab;
 import org.jabref.gui.preferences.journals.JournalAbbreviationsTab;
 import org.jabref.gui.preferences.keybindings.KeyBindingsTab;
@@ -33,6 +35,7 @@ import org.jabref.gui.preferences.linkedfiles.LinkedFilesTab;
 import org.jabref.gui.preferences.nameformatter.NameFormatterTab;
 import org.jabref.gui.preferences.network.NetworkTab;
 import org.jabref.gui.preferences.ocr.OcrTab;
+import org.jabref.gui.preferences.openoffice.OpenOfficeTab;
 import org.jabref.gui.preferences.preview.PreviewTab;
 import org.jabref.gui.preferences.protectedterms.ProtectedTermsTab;
 import org.jabref.gui.preferences.table.TableTab;
@@ -84,6 +87,7 @@ public class PreferencesDialogViewModel extends AbstractViewModel {
                 new CitationKeyPatternTab(),
                 new LinkedFilesTab(),
                 new OcrTab(),
+                new OpenOfficeTab(),
                 new ExportTab(),
                 new AutoCompletionTab(),
                 new ProtectedTermsTab(),
@@ -94,7 +98,9 @@ public class PreferencesDialogViewModel extends AbstractViewModel {
                 new XmpPrivacyTab(),
                 new CustomImporterTab(),
                 new CustomExporterTab(),
-                new NetworkTab()
+                new NetworkTab(),
+                new ExternalStoragesTab(),
+                new GitTab()
         );
     }
 

@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - main-release
+      - black-forest
   pull_request:
   merge_group:
   workflow_dispatch:
@@ -16,6 +17,8 @@ env:
   MedlineAPiKey: ${{ secrets.MedlineApiKey_FOR_TESTS }}
   OpenAlexApiKey: ${{ secrets.OpenAlexApiKey_FOR_TESTS }}
   SpringerNatureAPIKey: ${{ secrets.SPRINGERNATUREAPIKEY_FOR_TESTS }}
+  ScholarApiKey: ${{ secrets.SCHOLARAPIKEY_FOR_TESTS }}
+  CROSSREF_EMAIL: ${{ secrets.CROSSREF_EMAIL_FOR_TESTS }}
   GRADLE_OPTS: -Xmx4g
   JAVA_OPTS: -Xmx4g
 
@@ -36,7 +39,7 @@ jobs:
     steps:
       - name: Create pr_number.txt
         run: echo "${{ github.event.number }}" > pr_number.txt
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: pr_number
           path: pr_number.txt
@@ -48,30 +51,43 @@ jobs:
       run-gradle-ci-requirements: ${{ steps.determine.outputs.run-gradle-ci-requirements }}
       run-gradle-ci-full: ${{ steps.determine.outputs.run-gradle-ci-full }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         if: github.event_name == 'pull_request'
         with:
           fetch-depth: 0
           show-progress: 'false'
       - id: changed-non-workflow-non-markdown-files
         if: github.event_name == 'pull_request'
-        uses: tj-actions/changed-files@v47
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
           files_ignore: |
             .github/workflows/**
             **/*.md
       - id: changed-requirements-docs
         if: github.event_name == 'pull_request'
-        uses: tj-actions/changed-files@v47
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
           files: |
             docs/requirements/**/*.md
       - id: changed-tests-code-workflow
         if: github.event_name == 'pull_request'
-        uses: tj-actions/changed-files@v47
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
           files: |
             .github/workflows/tests-code.yml
+      - id: changed-submodules
+        if: github.event_name == 'pull_request'
+        # `.gitmodules` sets `ignore = all`, which hides submodule pointer bumps from `git diff` and thus from
+        # tj-actions/changed-files. Without this step, a submodule bump skips all tests at PR level and fails
+        # only in the merge queue.
+        shell: bash
+        run: |
+          submodules=$(git config --file .gitmodules --get-regexp '\.path$' | awk '{print $2}')
+          if git diff --quiet --ignore-submodules=none "origin/${{ github.base_ref }}" HEAD -- $submodules; then
+            echo "any_changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "any_changed=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Determine whether Gradle jobs should run
         id: determine
         shell: bash
@@ -79,7 +95,7 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" || "${{ github.event_name }}" == "push" || "${{ github.event_name }}" == "merge_group" ]]; then
             echo "run-gradle-ci-requirements=true" >> "$GITHUB_OUTPUT"
             echo "run-gradle-ci-full=true" >> "$GITHUB_OUTPUT"
-          elif [[ "${{ steps.changed-tests-code-workflow.outputs.any_changed }}" == "true" || "${{ steps.changed-non-workflow-non-markdown-files.outputs.any_changed }}" == "true" ]]; then
+          elif [[ "${{ steps.changed-tests-code-workflow.outputs.any_changed }}" == "true" || "${{ steps.changed-non-workflow-non-markdown-files.outputs.any_changed }}" == "true" || "${{ steps.changed-submodules.outputs.any_changed }}" == "true" ]]; then
             echo "run-gradle-ci-requirements=true" >> "$GITHUB_OUTPUT"
             echo "run-gradle-ci-full=true" >> "$GITHUB_OUTPUT"
           elif [[ "${{ steps.changed-requirements-docs.outputs.any_changed }}" == "true" ]]; then
@@ -98,7 +114,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'true'
           show-progress: 'false'
@@ -112,7 +128,7 @@ jobs:
     # ubuntu-slim doesn't offer docker
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: ./.github/actions/format-java
       # job should fail in case there are changes
       - uses: ./.github/actions/check-formatting
@@ -125,15 +141,15 @@ jobs:
     # too slow on ubuntu-slim
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: 'jabref'
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: 'rmuller/Convert2MarkdownJavadoc'
           path: 'Convert2MarkdownJavadoc'
       - name: Setup JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           java-version: '24'
           distribution: 'corretto'
@@ -154,7 +170,7 @@ jobs:
     if: needs.changes.outputs.run-gradle-ci-full == 'true'
     steps:
       - name: Checkout source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'true'
           show-progress: 'false'
@@ -170,7 +186,7 @@ jobs:
     if: needs.changes.outputs.run-gradle-ci-full == 'true'
     steps:
       - name: Checkout source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'true'
           show-progress: 'false'
@@ -197,7 +213,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'true'
           show-progress: 'false'
@@ -213,16 +229,60 @@ jobs:
     runs-on: ubuntu-slim
     steps:
       - name: Checkout source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'false'
           show-progress: 'false'
       - name: markdownlint-cli2-action
-        uses: DavidAnson/markdownlint-cli2-action@v24
+        uses: DavidAnson/markdownlint-cli2-action@21c1be1b93ad9ed58fa840aacc3f279cde2a72ff # v24
         with:
           globs: |
             *.md
             docs/**/*.md
+
+  yaml:
+    name: YAML
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: 'false'
+          show-progress: 'false'
+      - name: yamllint
+        run: pipx run yamllint==1.38.0 --strict .
+
+  spelling:
+    name: Spellling
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: 'false'
+          show-progress: 'false'
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install textlint
+        run: npm ci
+      - name: textlint
+        run: npm run textlint
+      - name: textlint write-good (changed Markdown files)
+        if: github.event_name == 'pull_request'
+        run: |
+          # Report-only: the existing docs have thousands of findings, so only the Markdown files changed by the PR are checked and the step does not fail.
+          git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+          mapfile -t files < <(git diff --name-only --diff-filter=AM FETCH_HEAD HEAD -- '*.md' ':!CHANGELOG.md')
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No changed Markdown files."
+            exit 0
+          fi
+          npm run textlint:write-good -- "${files[@]}" | sed "s|${GITHUB_WORKSPACE}/||g" || true
+      - name: typos
+        run: pipx run typos==1.50.3
 
   madr:
     name: MADR ADRs
@@ -230,7 +290,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'false'
           show-progress: 'false'
@@ -242,14 +302,17 @@ jobs:
       - name: Cache JBang
         # Combined cache action: restores at start and saves ~/.jbang on a
         # cache miss in the post-job step. A madrlint-specific key keeps this
-        # cache separate from the shared "jbang-" cache used by setup-gradle.
-        uses: actions/cache@v6
+        # cache separate from the other JBang-using jobs.
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: ~/.jbang
           key: ${{ steps.cache-key.outputs.cache_key }}
           restore-keys:
             jbang-madrlint-
-      - uses: actions/setup-java@v5
+      - name: Resolve //DEPS into the cached directory
+        # JBang resolves script dependencies into ~/.m2, which is not cached here.
+        run: echo "JBANG_REPO=$HOME/.jbang/repository" >> "$GITHUB_ENV"
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           distribution: 'corretto'
           java-version: '25'
@@ -287,7 +350,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'false'
           show-progress: 'false'
@@ -296,15 +359,19 @@ jobs:
         shell: bash
         run: |
           echo "cache_key=jbang-heylogs-$(date +%Y-%m)" >> $GITHUB_OUTPUT
-      - name: Use cache
-        uses: actions/cache/restore@v6
+      - name: Cache JBang
+        # Combined cache action: the restore-only variant never wrote the key.
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: ~/.jbang
           key: ${{ steps.cache-key.outputs.cache_key }}
           restore-keys:
             jbang-heylogs-
+      - name: Resolve //DEPS into the cached directory
+        # JBang resolves script dependencies into ~/.m2, which is not cached here.
+        run: echo "JBANG_REPO=$HOME/.jbang/repository" >> "$GITHUB_ENV"
       - name: Setup JBang
-        uses: jbangdev/setup-jbang@main
+        uses: jbangdev/setup-jbang@2b1b465a7b75f4222b81426f23a01e013aa7b95c # v0.1.1
       - name: Lint CHANGELOG.md
         run: |
           # the grep is needed to filter out an error about all h2 containing a version, which is not relevant for us, because we have an "Unreleased" section
@@ -326,14 +393,14 @@ jobs:
     runs-on: ubuntu-slim
     steps:
       - name: Checkout source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'false'
           show-progress: 'false'
           fetch-depth: 0
       - name: Cache clparse jar
         id: cache-clparse
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: /tmp/clparse
           key: clparse-0.9.1
@@ -345,14 +412,14 @@ jobs:
           tar xzvf clparse-0.9.1-x86_64-unknown-linux-musl.tar.gz
       - name: Install clparse
         run: sudo mv /tmp/clparse /usr/local/bin/clparse
-      - uses: awalsh128/cache-apt-pkgs-action@v1.6.3
+      - uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
           packages: jq
           version: 1.0
       - name: Check CHANGELOG.md diff
         run: |
           diff \
-            <(git show origin/main:CHANGELOG.md | clparse --format=json --separator=– - | jq '.releases[] | select(.version != null)') \
+            <(git show "origin/${{ github.base_ref }}":CHANGELOG.md | clparse --format=json --separator=– - | jq '.releases[] | select(.version != null)') \
             <(git show HEAD:CHANGELOG.md | clparse --format=json --separator=– - | jq '.releases[] | select(.version != null)')
 
   javadoc:
@@ -363,7 +430,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'true'
           show-progress: 'false'
@@ -383,7 +450,7 @@ jobs:
         run: echo "Skipping tests because no source-relevant files changed."
       - name: Checkout source
         if: needs.changes.outputs.run-gradle-ci-full == 'true'
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'true'
           show-progress: 'false'
@@ -399,7 +466,7 @@ jobs:
         run: gradle :jabkit:runJabKitPortableSmokeTest
       - name: Prepare format failed test results
         if: needs.changes.outputs.run-gradle-ci-full == 'true' && failure()
-        uses: awalsh128/cache-apt-pkgs-action@v1.6.3
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
           packages: xml-twig-tools xsltproc
           version: 1.0
@@ -428,7 +495,7 @@ jobs:
         run: echo "Skipping Windows tests because no source-relevant files changed."
       - name: Checkout source
         if: needs.changes.outputs.run-gradle-ci-full == 'true'
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'true'
           show-progress: 'false'
@@ -447,14 +514,14 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           submodules: 'true'
           show-progress: 'false'
       - name: Detect changed windows-related classes
         id: changed-windows-related-files
-        uses: tj-actions/changed-files@v47
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
           files: |
             jablib/src/main/java/org/jabref/logic/citationstyle/CSLStyleUtils.java
@@ -474,22 +541,11 @@ jobs:
     if: github.repository_owner == 'JabRef' && needs.changes.outputs.run-gradle-ci-full == 'true'
     name: Database tests
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:13-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-        ports:
-          - 5432:5432
-        # needed because the postgres container does not provide a healthcheck
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Shutdown Ubuntu MySQL
         run: sudo service mysql stop # Shutdown the Default MySQL to save memory, "sudo" is necessary, please do not remove it
       - name: Checkout source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'true'
           show-progress: 'false'
@@ -498,7 +554,6 @@ jobs:
         run: gradle :jablib:databaseTest --rerun-tasks
         env:
           CI: "true"
-          DBMS: "postgresql"
 
   publish:
     needs: changes
@@ -518,10 +573,25 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'false'
           show-progress: 'false'
+      - name: Generate JBang cache key
+        id: cache-key
+        shell: bash
+        run: echo "cache_key=jbang-check-$(date +%Y-%m)" >> $GITHUB_OUTPUT
+      - name: Cache JBang
+        # Shared by the "JBang (main)" and "JBang (PR)" jobs - both build the same scripts,
+        # so they resolve the same dependencies. A PR run restores the entry written on main.
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: ~/.jbang
+          key: ${{ steps.cache-key.outputs.cache_key }}
+          restore-keys:
+            jbang-check-
+      - name: Setup JBang
+        uses: jbangdev/setup-jbang@2b1b465a7b75f4222b81426f23a01e013aa7b95c # v0.1.1
       - uses: ./.github/actions/setup-gradle
       - name: Build JBang scripts and run launchers
         uses: ./.github/actions/jbang-check
@@ -533,16 +603,33 @@ jobs:
     if: github.ref != 'refs/heads/main' && needs.changes.outputs.run-gradle-ci-full == 'true'
     steps:
       - name: Checkout source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'true'
           show-progress: 'false'
+      - name: Generate JBang cache key
+        id: cache-key
+        shell: bash
+        run: echo "cache_key=jbang-check-$(date +%Y-%m)" >> $GITHUB_OUTPUT
+      - name: Cache JBang
+        # Shared by the "JBang (main)" and "JBang (PR)" jobs - both build the same scripts,
+        # so they resolve the same dependencies. A PR run restores the entry written on main.
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: ~/.jbang
+          key: ${{ steps.cache-key.outputs.cache_key }}
+          restore-keys:
+            jbang-check-
+      - name: Setup JBang
+        uses: jbangdev/setup-jbang@2b1b465a7b75f4222b81426f23a01e013aa7b95c # v0.1.1
       - uses: ./.github/actions/setup-gradle
       # Publish jablib to the local Maven repository so the JBang scripts pick up
       # unreleased changes. -PprojVersion=6.0 makes the artifact 6.0-SNAPSHOT
       # (the default would be 0.1.0-SNAPSHOT, which the scripts do not reference).
       - name: Publish jablib to the local Maven repository
-        run: gradle -PprojVersion=6.0 :jablib:publishToMavenLocal
+        # -Dmaven.repo.local: the jbang-check action points JBANG_REPO at ~/.jbang/repository,
+        # so the snapshot has to be published there instead of into ~/.m2.
+        run: gradle -Dmaven.repo.local="$HOME/.jbang/repository" -PprojVersion=6.0 :jablib:publishToMavenLocal
       - name: Build JBang scripts and run launchers
         uses: ./.github/actions/jbang-check
 
@@ -557,12 +644,12 @@ jobs:
         project: [ jablib-examples/maven3/doi-to-bibtex ]
     steps:
       - name: Checkout source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'false'
           show-progress: 'false'
       - name: Set up JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
         with:
           java-version: 25
           distribution: 'corretto'
@@ -603,7 +690,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       - name: Checkout source
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: 'true'
           show-progress: 'false'
@@ -615,7 +702,7 @@ jobs:
           CI: "true"
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           DBMS: "postgresql"
-      - uses: codecov/codecov-action@v7
+      - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         if: (github.ref == 'refs/heads/main') && (steps.checksecrets.outputs.secretspresent == 'YES')
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -631,7 +718,7 @@ jobs:
     name: "Validate requirement coverage"
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           show-progress: 'false'
       - uses: ./.github/actions/setup-gradle
@@ -645,10 +732,10 @@ jobs:
     name: "Validate Gradle Wrapper"
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           show-progress: 'false'
-      - uses: gradle/actions/wrapper-validation@v5
+      - uses: gradle/actions/wrapper-validation@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
 
   # Guards against a committer (e.g. a dependabot wrapper bump) baking CRLF into
   # the committed gradlew.bat blob. .gitattributes stores it as LF and smudges it
@@ -657,7 +744,7 @@ jobs:
     name: "Line endings (gradlew.bat)"
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           show-progress: 'false'
       - name: Ensure gradlew.bat blob has no CRLF

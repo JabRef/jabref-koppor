@@ -12,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.Spinner;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
@@ -33,6 +34,7 @@ import org.jabref.gui.actions.StandardActions;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.preview.PreviewViewer;
+import org.jabref.gui.theme.StyleClasses;
 import org.jabref.gui.util.BindingsHelper;
 import org.jabref.gui.util.FileDialogConfiguration;
 import org.jabref.gui.util.ViewModelListCellFactory;
@@ -91,6 +93,7 @@ public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
         setContent(form()
                 .checkbox(Localization.lang("Show preview as a tab in entry editor"), viewModel.showAsExtraTabProperty())
                 .checkbox(Localization.lang("Show preview in entry table tooltip"), viewModel.showPreviewInEntryTableTooltip())
+                .stackedField(Localization.lang("Entry table tooltip duration in seconds (0 keeps it open)"), buildTooltipDurationSpinner())
                 .checkbox(Localization.lang("Download cover images"), viewModel.shouldDownloadCoversProperty())
                 .button(Localization.lang("Add BST file"), this::selectBstFile)
                 .custom(dualListRegion, lists -> lists
@@ -99,6 +102,13 @@ public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
                 .build());
 
         wireControls();
+    }
+
+    private Spinner<Integer> buildTooltipDurationSpinner() {
+        Spinner<Integer> spinner = new Spinner<>(0, 300, viewModel.tooltipDurationProperty().get());
+        spinner.getValueFactory().valueProperty().bindBidirectional(viewModel.tooltipDurationProperty().asObject());
+        spinner.setMaxWidth(100);
+        return spinner;
     }
 
     @Override
@@ -145,6 +155,7 @@ public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
         previewTab.setClosable(false);
 
         editArea = new CodeArea();
+        editArea.getStyleClass().add("padding-0");
         Tab editTab = new Tab(Localization.lang("Edit"), new VirtualizedScrollPane<>(editArea));
         editTab.setClosable(false);
 
@@ -159,7 +170,7 @@ public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
         readOnlyLabel = new Label(Localization.lang("Read only"));
         resetDefaultButton = new Button();
         resetDefaultButton.setGraphic(IconTheme.JabRefIcons.REFRESH.getGraphicNode());
-        resetDefaultButton.getStyleClass().addAll("icon-button", "narrow");
+        resetDefaultButton.getStyleClass().addAll(StyleClasses.NARROW_ICON_BUTTON);
         resetDefaultButton.setPrefSize(20.0, 20.0);
         resetDefaultButton.setTooltip(new Tooltip(Localization.lang("Reset default preview style")));
         resetDefaultButton.setOnAction(_ -> resetDefaultButtonAction());
@@ -189,7 +200,7 @@ public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
 
     private Label sectionLabel(String text) {
         Label label = new Label(text);
-        label.getStyleClass().add("sectionHeader");
+        label.getStyleClass().addAll(StyleClasses.SECTION_HEADER);
         return label;
     }
 

@@ -16,7 +16,9 @@ class JabRefGuiPreferencesTest {
     private static Stream<Arguments> provideTestData() {
         return Stream.of(
                 Arguments.of(List.of("A", "B", "C", "D"), "A;B;C;D"),
-                Arguments.of(List.of("A", "B", "C", ""), "A;B;C;")
+                Arguments.of(List.of("A", "B", "C", ""), "A;B;C;"),
+                Arguments.of(List.of("a;b", "C:\\Tools\\app.exe"), "a\\;b;C:\\\\Tools\\\\app.exe"),
+                Arguments.of(List.of("a\\", "b"), "a\\\\;b")
         );
     }
 
@@ -46,5 +48,10 @@ class JabRefGuiPreferencesTest {
     @Test
     void convertStringToDirectoryMappingsEmptyStringYieldsEmptyList() {
         assertEquals(List.of(), JabRefCliPreferences.convertStringToDirectoryMappings(""));
+    }
+
+    @Test
+    void convertStringToListPreservesUnescapedBackslashes() {
+        assertEquals(List.of("C:\\Tools\\app.exe"), JabRefCliPreferences.convertStringToList("C:\\Tools\\app.exe"));
     }
 }

@@ -1,9 +1,12 @@
 package org.jabref.gui.openoffice;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -42,6 +45,8 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 
 public class StyleSelectDialogViewModel {
+
+    private static final Pattern STYLE_SEARCH_SEPARATORS = Pattern.compile("[\\p{P}\\s]+");
 
     private final DialogService dialogService;
 
@@ -230,8 +235,23 @@ public class StyleSelectDialogViewModel {
     }
 
     public void setAvailableCslLayoutsFilter(String searchTerm) {
-        filteredAvailableCslLayouts.setPredicate(layout ->
-                searchTerm.isEmpty() || layout.getDisplayName().toLowerCase().contains(searchTerm.toLowerCase()));
+        filteredAvailableCslLayouts.setPredicate(layout -> matchStyleSearch(layout.getDisplayName(), searchTerm));
+    }
+
+    public static boolean matchStyleSearch(String styleName, String searchTerm) {
+        // [impl->req~ux.text-filtering.case-insensitive-separators~1]
+        List<String> searchTerms = STYLE_SEARCH_SEPARATORS.splitAsStream(searchTerm.toLowerCase(Locale.ROOT))
+                                                          .filter(term -> !term.isBlank())
+                                                          .toList();
+
+        if (searchTerms.isEmpty()) {
+            return true;
+        }
+
+        String searchableStyleName = STYLE_SEARCH_SEPARATORS.matcher(styleName.toLowerCase(Locale.ROOT))
+                                                            .replaceAll(" ")
+                                                            .trim();
+        return searchTerms.stream().allMatch(searchableStyleName::contains);
     }
 
     /// Handles importing a custom CSL style file
@@ -378,17 +398,38 @@ public class StyleSelectDialogViewModel {
 
         Optional<Path> path = dialogService.showFileOpenDialog(fileDialogConfiguration);
         path.map(Path::toAbsolutePath).ifPresent(stylePath -> {
-            if (bstStyleLoader.addStyleIfValid(stylePath)) {
-                BstStyle added = new BstStyle(stylePath);
-                BstStyleSelectViewModel vm = new BstStyleSelectViewModel(added);
-                bstStyles.add(vm);
-                selectedBstStyle.setValue(vm);
-                openOfficePreferences.setCurrentStyle(added);
-            } else {
+            if (!stylePath.getFileName().toString().toLowerCase().endsWith(".bst") || !Files.exists(stylePath)) {
                 dialogService.showErrorDialogAndWait(
                         Localization.lang("Invalid style selected"),
-                        Localization.lang("You must select a valid .bst style file."));
+                        Localization.lang("You must select a valid .bst style file.")
+                );
+                return;
             }
+
+            BstStyle bstStyleToAdd;
+            try {
+                bstStyleToAdd = BstStyle.loadExternal(stylePath);
+            } catch (IOException _) {
+                dialogService.showErrorDialogAndWait(
+                        Localization.lang("Invalid style selected"),
+                        Localization.lang("You must select a valid .bst style file.")
+                );
+                return;
+            }
+
+            if (isDuplicate(bstStyleToAdd)) {
+                dialogService.showErrorDialogAndWait(
+                        Localization.lang("Style already available"),
+                        Localization.lang("A style with the same filename already exists. If it is a different style, please rename and import.")
+                );
+                return;
+            }
+
+            bstStyleLoader.addExternalStyle(bstStyleToAdd);
+            BstStyleSelectViewModel vm = new BstStyleSelectViewModel(bstStyleToAdd);
+            bstStyles.add(vm);
+            selectedBstStyle.setValue(vm);
+            openOfficePreferences.setCurrentStyle(bstStyleToAdd);
         });
     }
 
@@ -398,6 +439,15 @@ public class StyleSelectDialogViewModel {
         if (selectedBstStyle.get() != null && selectedBstStyle.get().getBstStyle().equals(style)) {
             selectedBstStyle.setValue(bstStyles.isEmpty() ? null : bstStyles.getFirst());
         }
+    }
+
+    private boolean isDuplicate(BstStyle fileToAdd) {
+        return bstStyleLoader.getStyles().stream()
+                             .anyMatch(existingStyle -> hasSameStyleName(existingStyle, fileToAdd));
+    }
+
+    private boolean hasSameStyleName(BstStyle existingStyle, BstStyle styleToAdd) {
+        return existingStyle.getName().equals(styleToAdd.getName());
     }
 
     // endregion

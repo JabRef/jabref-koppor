@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserFetcher, EntryBasedFetcher, CustomizableKeyFetcher {
+    public static final String FETCHER_NAME = "SemanticScholar";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SemanticScholar.class);
 
@@ -79,7 +80,7 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
                 importerPreferences.getApiKey(getName()).ifPresent(
                         key -> jsoupRequest.header("x-api-key", key));
                 html = jsoupRequest.get();
-            } catch (IOException e) {
+            } catch (IOException _) {
                 LOGGER.info("Error for pdf lookup with DOI");
             }
         }
@@ -160,7 +161,7 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
         return result;
     }
 
-    /// Returns the parser used to convert the response to a list of {@link BibEntry}.
+    /// Returns the parser used to convert the response to a list of [BibEntry].
     @Override
     public Parser getParser() {
         return inputStream -> {
@@ -226,13 +227,13 @@ public class SemanticScholar implements FulltextFetcher, PagedSearchBasedParserF
 
     @Override
     public String getName() {
-        return "SemanticScholar";
+        return FETCHER_NAME;
     }
 
-    /// Looks for hits which are matched by the given {@link BibEntry}.
+    /// Looks for hits which are matched by the given [BibEntry].
     ///
     /// @param entry entry to search bibliographic information for
-    /// @return a list of {@link BibEntry}, which are matched by the query (may be empty)
+    /// @return a list of [BibEntry], which are matched by the query (may be empty)
     /// @throws FetcherException if an error linked to the Fetcher applies
     @Override
     public List<BibEntry> performSearch(@NonNull BibEntry entry) throws FetcherException {

@@ -37,6 +37,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -75,9 +76,12 @@ import org.jabref.logic.l10n.Language;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.layout.format.NameFormatterPreferences;
+import org.jabref.logic.net.CiteDrivePreferences;
 import org.jabref.logic.net.ProxyPreferences;
 import org.jabref.logic.net.ssl.SSLPreferences;
 import org.jabref.logic.net.ssl.TrustStoreManager;
+import org.jabref.logic.ocr.EngineSelection;
+import org.jabref.logic.ocr.OcrLanguage;
 import org.jabref.logic.ocr.OcrPreferences;
 import org.jabref.logic.ocr.PagesWithTextHandling;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
@@ -100,7 +104,6 @@ import org.jabref.logic.util.io.DirectoryMapping;
 import org.jabref.logic.util.io.FileHistory;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.logic.xmp.XmpPreferences;
-import org.jabref.model.ai.embeddings.PredefinedEmbeddingModel;
 import org.jabref.model.ai.llm.AiProvider;
 import org.jabref.model.ai.pipeline.DocumentSplitterKind;
 import org.jabref.model.ai.pipeline.ResponseEngineKind;
@@ -116,15 +119,19 @@ import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.EntryTypeFactory;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.metadata.SelfContainedSaveOrder;
+import org.jabref.model.openoffice.style.CitationType;
 import org.jabref.model.search.SearchDisplayMode;
 import org.jabref.model.search.SearchFlags;
 
 import com.github.javakeyring.Keyring;
 import com.github.javakeyring.PasswordAccessException;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Splitter;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.tobiasdiez.easybind.EasyBind;
 import jakarta.inject.Singleton;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -136,8 +143,8 @@ import org.slf4j.LoggerFactory;
 /// Internally it defines symbols used to pick a value from the `java.util.prefs`
 /// interface and keeps a hashmap with all the default values.
 ///
-/// There are still some similar preferences classes ({@link OpenOfficePreferences} and
-/// {@link SharedDatabasePreferences}) which also use the `java.util.prefs` API.
+/// There are still some similar preferences classes ([OpenOfficePreferences] and
+/// [SharedDatabasePreferences]) which also use the `java.util.prefs` API.
 ///
 /// contents of the defaults HashMap that are defined in this class.
 /// There are more default parameters in this map which belong to separate preference classes.
@@ -255,7 +262,7 @@ public class JabRefCliPreferences implements CliPreferences {
     public static final String CLEANUP_FIELD_FORMATTERS_ENABLED = "CleanUpFormattersEnabled";
     public static final String CLEANUP_FIELD_FORMATTERS = "CleanUpFormatters";
     public static final String NAME_FORMATTER_VALUE = "nameFormatterFormats";
-    public static final String NAME_FORMATER_KEY = "nameFormatterNames";
+    public static final String NAME_FORMATTER_KEY = "nameFormatterNames";
 
     /// The OpenOffice/LibreOffice connection preferences are: OO_PATH main directory for
     /// OO/LO installation, used to detect location on Win/macOS when using manual
@@ -280,9 +287,11 @@ public class JabRefCliPreferences implements CliPreferences {
     public static final String OO_ADD_SPACE_BEFORE = "ooAddSpaceBefore";
     public static final String OO_ADD_SPACE_AFTER = "ooAddSpaceAfter";
     public static final String OO_ZOTERO_COMPATIBILITY_MODE = "ooZoteroCompatibilityMode";
+    public static final String OO_INFER_CSL_STYLE_FROM_DOCUMENT = "ooInferCslStyleFromDocument";
     public static final String OO_EXTERNAL_BST_STYLES = "externalBstStyles";
     public static final String OO_PANDOC_PATH = "ooPandocPath";
     public static final String OO_BST_CITATION_FORMAT = "ooBstCitationFormat";
+    public static final String OO_CITE_SPECIAL_CITATION_TYPE = "ooCiteSpecialCitationType";
 
     // Prefs node for CitationKeyPatterns
     public static final String CITATION_KEY_PATTERNS_NODE = "bibtexkeypatterns";
@@ -298,6 +307,8 @@ public class JabRefCliPreferences implements CliPreferences {
     // String delimiter
     public static final Character STRINGLIST_DELIMITER = ';';
 
+    private static final String DECLINED_CUSTOM_ENTRY_TYPES = "declinedCustomEntryTypes";
+
     // region (Linked)FilePreferences
     private static final String FILES_MAIN_DIRECTORY = "fileDirectory";
     private static final String FILES_STORE_RELATIVE_TO_BIB = "bibLocAsPrimaryDir";
@@ -305,10 +316,11 @@ public class JabRefCliPreferences implements CliPreferences {
     private static final String FILES_IMPORT_NAMEPATTERN = "importFileNamePattern";
     private static final String FILES_IMPORT_DIRPATTERN = "importFileDirPattern";
     private static final String FILES_DOWNLOAD_LINKED = "downloadLinkedFiles";
+    private static final String IMPORT_DIALOG_DOWNLOAD_LINKED_FILES = "importDialogDownloadLinkedFiles";
     private static final String FILES_FULLTEXT_INDEX = "fulltextIndexLinkedFiles";
     private static final String FILES_WORKING_DIRECTORY = "workingDirectory";
 
-    // FixMe: Missplaced
+    // FixMe: Misplaced
     private static final String BACKUP_ENABLED = "createBackup";
     private static final String BACKUP_DIRECTORY = "backupDirectory";
 
@@ -327,6 +339,7 @@ public class JabRefCliPreferences implements CliPreferences {
     // region last files opened
     private static final String LAST_EDITED = "lastEdited";
     private static final String LAST_FOCUSED = "lastFocused";
+    private static final String LAST_SHARED_DATABASES = "lastSharedDatabases";
     private static final String RECENT_DATABASES = "recentDatabases";
     // endregion
 
@@ -339,6 +352,15 @@ public class JabRefCliPreferences implements CliPreferences {
     // PROXY_PASSWORD = "proxyPassword" handled by KeyRing
     private static final String PROXY_PERSIST_PASSWORD = "persistPassword";
     // endregion
+
+    // CiteDrive
+    // RefreshToken
+    private static final String CITE_DRIVE_KEYRING_SERVICE = "org.jabref";
+    private static final String CITE_DRIVE_KEYRING_ACCOUNT = "citedrive";
+    private static final String CITE_DRIVE_ENABLED = "citeDriveEnabled";
+    private static final String CITE_DRIVE_PERSIST_TOKEN = "citeDrivePersistToken";
+    private static final String CITE_DRIVE_API_BASE_URL = "citeDriveApiBaseUrl";
+    private static final String CITE_DRIVE_APP_BASE_URL = "citeDriveAppBaseUrl";
 
     // SSL
     private static final String SSL_TRUSTSTORE_PATH = "truststorePath";
@@ -390,6 +412,7 @@ public class JabRefCliPreferences implements CliPreferences {
     private static final String AI_MISTRAL_AI_API_BASE_URL = "aiMistralAiApiBaseUrl";
     private static final String AI_GEMINI_API_BASE_URL = "aiGeminiApiBaseUrl";
     private static final String AI_HUGGING_FACE_API_BASE_URL = "aiHuggingFaceApiBaseUrl";
+    private static final String AI_ENABLE_DEBUG_PROVIDER = "aiEnableDebugProvider";
     private static final String AI_SUMMARIZATOR_KIND = "aiSummarizatorKind";
     private static final String AI_TOKEN_ESTIMATOR_KIND = "aiTokenEstimatorKind";
     private static final String AI_TEMPERATURE = "aiTemperature";
@@ -412,8 +435,10 @@ public class JabRefCliPreferences implements CliPreferences {
     // endregion
 
     // region OCR preferences
+    private static final String OCR_ENGINE_SELECTION = "ocrEngineSelection";
     private static final String OCR_ENGINE_PATH = "ocrEnginePath";
     private static final String PAGES_WITH_TEXT = "pagesHaveText";
+    private static final String OCR_LANGUAGES = "ocrLanguages";
     // endregion
 
     // region Push to application preferences
@@ -456,6 +481,7 @@ public class JabRefCliPreferences implements CliPreferences {
     private static final String GITHUB_USERNAME_KEY = "githubUsername";
     private static final String GITHUB_REMOTE_URL_KEY = "githubRemoteUrl";
     private static final String GITHUB_REMEMBER_PAT_KEY = "githubRememberPat";
+    private static final String GIT_PULL_INTERVAL_KEY = "gitPullInterval";
     // endregion
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JabRefCliPreferences.class);
@@ -476,6 +502,7 @@ public class JabRefCliPreferences implements CliPreferences {
     private FilePreferences filePreferences;
     private RemotePreferences remotePreferences;
     private ProxyPreferences proxyPreferences;
+    private CiteDrivePreferences citeDrivePreferences;
     private SSLPreferences sslPreferences;
     private SearchPreferences searchPreferences;
     private AutoLinkPreferences autoLinkPreferences;
@@ -555,11 +582,30 @@ public class JabRefCliPreferences implements CliPreferences {
     static List<String> convertStringToList(String toConvert) {
         if (StringUtil.isBlank(toConvert)) {
             // list needs to be mutable in observable preferences
-            // keep consistency with Splitter#splitToList
             return new ArrayList<>();
         }
 
-        return Splitter.on(STRINGLIST_DELIMITER).splitToList(toConvert);
+        List<String> result = new ArrayList<>();
+        StringBuilder element = new StringBuilder();
+        for (int i = 0; i < toConvert.length(); i++) {
+            char character = toConvert.charAt(i);
+            if (character == '\\' && i + 1 < toConvert.length()) {
+                char next = toConvert.charAt(i + 1);
+                if (next == '\\' || next == STRINGLIST_DELIMITER) {
+                    element.append(next);
+                    i++;
+                    continue;
+                }
+            }
+            if (character == STRINGLIST_DELIMITER) {
+                result.add(element.toString());
+                element.setLength(0);
+            } else {
+                element.append(character);
+            }
+        }
+        result.add(element.toString());
+        return result;
     }
 
     /// Directory paths may contain the plain [#STRINGLIST_DELIMITER] character or backslashes (Windows' path
@@ -1006,7 +1052,7 @@ public class JabRefCliPreferences implements CliPreferences {
                             keyring.getPassword(slot.service(), slot.account()),
                             getInternalPreferences().getUserHostInfo().getUserHostString())
                             .decrypt());
-                } catch (PasswordAccessException ex) {
+                } catch (PasswordAccessException _) {
                     LOGGER.debug("No secret stored in keyring for {}/{}", slot.service(), slot.account());
                     result.put(slot, "");
                 }
@@ -1033,7 +1079,7 @@ public class JabRefCliPreferences implements CliPreferences {
                 if (StringUtil.isBlank(entry.getValue())) {
                     try {
                         keyring.deletePassword(slot.service(), slot.account());
-                    } catch (PasswordAccessException ex) {
+                    } catch (PasswordAccessException _) {
                         // already absent, nothing to clear
                     }
                 } else {
@@ -1056,25 +1102,27 @@ public class JabRefCliPreferences implements CliPreferences {
     }
 
     private Object getObject(Observable observable) {
-        if (observable instanceof BooleanProperty booleanProperty) {
-            return booleanProperty.get();
-        } else if (observable instanceof IntegerProperty integerProperty) {
-            return integerProperty.get();
-        } else if (observable instanceof DoubleProperty doubleProperty) {
-            return doubleProperty.get();
-        } else if (observable instanceof StringProperty stringProperty) {
-            return stringProperty.get();
-        } else if (observable instanceof ObservableList<?> observableList) {
-            return observableList;
-        } else if (observable instanceof ObservableSet<?> observableSet) {
-            return observableSet;
-        } else if (observable instanceof ObservableMap<?, ?> observableMap) {
-            return observableMap;
-        } else if (observable instanceof ObjectProperty<?> objectProperty) {
-            return objectProperty.get();
-        }
-
-        return null;
+        return switch (observable) {
+            case BooleanProperty booleanProperty ->
+                    booleanProperty.get();
+            case IntegerProperty integerProperty ->
+                    integerProperty.get();
+            case DoubleProperty doubleProperty ->
+                    doubleProperty.get();
+            case StringProperty stringProperty ->
+                    stringProperty.get();
+            case ObservableList<?> observableList ->
+                    observableList;
+            case ObservableSet<?> observableSet ->
+                    observableSet;
+            case ObservableMap<?, ?> observableMap ->
+                    observableMap;
+            case ObjectProperty<?> objectProperty ->
+                    objectProperty.get();
+            case null,
+                 default ->
+                    null;
+        };
     }
 
     @Override
@@ -1131,6 +1179,7 @@ public class JabRefCliPreferences implements CliPreferences {
     @Override
     public void clear() throws BackingStoreException {
         clearAllBibEntryTypes();
+        removeDeclinedCustomEntryTypes();
         clearCitationKeyPatterns();
         clearTruststoreFromCustomCertificates();
         clearCustomFetcherKeys();
@@ -1140,6 +1189,9 @@ public class JabRefCliPreferences implements CliPreferences {
         initializeAll();
 
         allBindings.forEach(binding -> binding.resetToDefaults().run());
+
+        // CiteDrive preferences are not registered in allBindings (they persist via the keyring), so reset them explicitly.
+        getCiteDrivePreferences().setAll(CiteDrivePreferences.getDefault());
     }
 
     /// Imports Preferences from an XML file.
@@ -1153,6 +1205,9 @@ public class JabRefCliPreferences implements CliPreferences {
         initializeAll();
 
         allBindings.forEach(binding -> binding.importFromStore().run());
+
+        // CiteDrive preferences are not registered in allBindings (the token lives in the keyring), so reload them explicitly.
+        getCiteDrivePreferences().setAll(getCiteDrivePreferencesFromBackingStore(CiteDrivePreferences.getDefault()));
     }
 
     /// Instantiates every preference group so its bindings are registered in [#allBindings] before a bulk reset/import
@@ -1188,15 +1243,29 @@ public class JabRefCliPreferences implements CliPreferences {
         getOpenOfficePreferences(JournalAbbreviationLoader.loadRepository(getAbbreviationPreferences()));
     }
 
-    private static void importPreferencesToBackingStore(Path path) throws JabRefException {
+    private void importPreferencesToBackingStore(Path path) throws JabRefException {
         LOGGER.debug("Importing preferences {}", path.toAbsolutePath());
+        // Importing merges into the current preferences, but the declined decisions must come from the imported file only.
+        // They are restored if the file cannot be imported.
+        Set<String> declinedBeforeImport = getDeclinedCustomEntryTypes();
+        removeDeclinedCustomEntryTypes();
         try (InputStream is = Files.newInputStream(path)) {
             Preferences.importPreferences(is);
         } catch (InvalidPreferencesFormatException | IOException ex) {
+            removeDeclinedCustomEntryTypes();
+            addDeclinedCustomEntryTypes(declinedBeforeImport);
             throw new JabRefException(
                     "Could not import preferences",
                     Localization.lang("Could not import preferences"),
                     ex);
+        }
+    }
+
+    private void removeDeclinedCustomEntryTypes() {
+        try {
+            PREFS_NODE.node(DECLINED_CUSTOM_ENTRY_TYPES).removeNode();
+        } catch (BackingStoreException e) {
+            LOGGER.info("Clearing declined custom entry types failed.", e);
         }
     }
 
@@ -1371,6 +1440,28 @@ public class JabRefCliPreferences implements CliPreferences {
             prefsNodev2.flush();
         } catch (BackingStoreException e) {
             LOGGER.info("Updating stored custom entry types failed.", e);
+        }
+    }
+
+    @Override
+    public Set<String> getDeclinedCustomEntryTypes() {
+        try {
+            return Set.of(PREFS_NODE.node(DECLINED_CUSTOM_ENTRY_TYPES).keys());
+        } catch (BackingStoreException e) {
+            LOGGER.info("Reading declined custom entry types failed.", e);
+            return Set.of();
+        }
+    }
+
+    /// Stores each fingerprint as a key without a value: a key is limited to 80 characters, a value to 8192.
+    @Override
+    public void addDeclinedCustomEntryTypes(Collection<String> declinedEntryTypes) {
+        Preferences node = PREFS_NODE.node(DECLINED_CUSTOM_ENTRY_TYPES);
+        declinedEntryTypes.forEach(declined -> node.put(declined, ""));
+        try {
+            node.flush();
+        } catch (BackingStoreException e) {
+            LOGGER.info("Storing declined custom entry types failed.", e);
         }
     }
 
@@ -1643,6 +1734,97 @@ public class JabRefCliPreferences implements CliPreferences {
         return citationKeyPatternPreferences;
     }
 
+    // region: CiteDrive Preferences
+    @Override
+    public CiteDrivePreferences getCiteDrivePreferences() {
+        if (citeDrivePreferences != null) {
+            return citeDrivePreferences;
+        }
+
+        citeDrivePreferences = getCiteDrivePreferencesFromBackingStore(CiteDrivePreferences.getDefault());
+
+        EasyBind.listen(citeDrivePreferences.persistRefreshTokenProperty(), (_, _, newValue) -> {
+            putBoolean(CITE_DRIVE_PERSIST_TOKEN, newValue);
+            setCiteDriveToken(newValue ? citeDrivePreferences.getRefreshToken() : null);
+        });
+
+        EasyBind.listen(citeDrivePreferences.enabledProperty(), (_, _, newValue) -> putBoolean(CITE_DRIVE_ENABLED, newValue));
+        EasyBind.listen(citeDrivePreferences.apiBaseUrlProperty(), (_, _, newValue) -> put(CITE_DRIVE_API_BASE_URL, newValue));
+        EasyBind.listen(citeDrivePreferences.appBaseUrlProperty(), (_, _, newValue) -> put(CITE_DRIVE_APP_BASE_URL, newValue));
+
+        EasyBind.listen(citeDrivePreferences.getRefreshTokenProperty(), (_, _, newValue) -> {
+            if (citeDrivePreferences.shouldPersistRefreshToken()) {
+                setCiteDriveToken(newValue);
+            }
+        });
+
+        return citeDrivePreferences;
+    }
+
+    private CiteDrivePreferences getCiteDrivePreferencesFromBackingStore(CiteDrivePreferences defaults) {
+        boolean persistToken = getBoolean(CITE_DRIVE_PERSIST_TOKEN, defaults.shouldPersistRefreshToken());
+        String apiBaseUrl = get(CITE_DRIVE_API_BASE_URL, defaults.getApiBaseUrl());
+        return new CiteDrivePreferences(
+                getBoolean(CITE_DRIVE_ENABLED, defaults.isEnabled()),
+                persistToken ? getCiteDriveToken(apiBaseUrl) : null,
+                persistToken,
+                apiBaseUrl,
+                get(CITE_DRIVE_APP_BASE_URL, defaults.getAppBaseUrl())
+        );
+    }
+
+    /// The refresh token lives in the system keyring only: never in the preferences, which can be exported as plain text
+    private @Nullable RefreshToken getCiteDriveToken(String apiBaseUrl) {
+        try (final Keyring keyring = Keyring.create()) {
+            return parseCiteDriveToken(keyring.getPassword(CITE_DRIVE_KEYRING_SERVICE, CITE_DRIVE_KEYRING_ACCOUNT), apiBaseUrl);
+        } catch (PasswordAccessException _) {
+            LOGGER.debug("No CiteDrive token stored in keyring");
+        } catch (Exception ex) {
+            LOGGER.warn("Unable to read CiteDrive token from keyring", ex);
+        }
+        return null;
+    }
+
+    /// If the keyring is not available, the token is kept in memory only (login needed after restart)
+    private void setCiteDriveToken(@Nullable RefreshToken refreshToken) {
+        try (final Keyring keyring = Keyring.create()) {
+            if (refreshToken == null) {
+                keyring.deletePassword(CITE_DRIVE_KEYRING_SERVICE, CITE_DRIVE_KEYRING_ACCOUNT);
+            } else {
+                keyring.setPassword(CITE_DRIVE_KEYRING_SERVICE, CITE_DRIVE_KEYRING_ACCOUNT, serializeCiteDriveToken(refreshToken, citeDrivePreferences.getApiBaseUrl()));
+            }
+        } catch (PasswordAccessException _) {
+            LOGGER.debug("No CiteDrive token stored in keyring, nothing to remove");
+        } catch (Exception ex) {
+            LOGGER.warn("Unable to update CiteDrive token in keyring", ex);
+        }
+    }
+
+    static String serializeCiteDriveToken(RefreshToken refreshToken, String apiBaseUrl) {
+        JSONObject json = refreshToken.toJSONObject();
+        json.put("api_base_url", apiBaseUrl);
+        return json.toJSONString();
+    }
+
+    // [impl->req~citedrive.credentials.server~1]
+    static @Nullable RefreshToken parseCiteDriveToken(@Nullable String json, String apiBaseUrl) {
+        if (StringUtil.isBlank(json)) {
+            return null;
+        }
+
+        try {
+            JSONObject jsonObject = (JSONObject) new JSONParser(JSONParser.MODE_PERMISSIVE).parse(json);
+            if (!apiBaseUrl.equals(jsonObject.get("api_base_url"))) {
+                return null;
+            }
+            return RefreshToken.parse(jsonObject);
+        } catch (ParseException | net.minidev.json.parser.ParseException e) {
+            LOGGER.warn("Invalid CiteDrive refresh token JSON", e);
+            return null;
+        }
+    }
+    // endRegion: CiteDrive Preferences
+
     private @NonNull GlobalCitationKeyPatterns getGlobalCitationKeyPattern(CitationKeyPatternPreferences defaults) {
         GlobalCitationKeyPatterns citationKeyPattern = GlobalCitationKeyPatterns.fromPattern(
                 get(CITATION_KEY_DEFAULT_PATTERN, defaults.getKeyPatterns().getDefaultValue().stringRepresentation()));
@@ -1806,10 +1988,11 @@ public class JabRefCliPreferences implements CliPreferences {
                 get(FILES_IMPORT_NAMEPATTERN, defaultValues.getFileNamePattern()),
                 get(FILES_IMPORT_DIRPATTERN, defaultValues.getFileDirectoryPattern()),
                 getBoolean(FILES_DOWNLOAD_LINKED, defaultValues.shouldDownloadLinkedFiles()),
+                getBoolean(IMPORT_DIALOG_DOWNLOAD_LINKED_FILES, defaultValues.shouldImportDialogDownloadLinkedFiles()),
                 getBoolean(FILES_FULLTEXT_INDEX, defaultValues.shouldFulltextIndexLinkedFiles()),
                 getPath(FILES_WORKING_DIRECTORY, defaultValues.getWorkingDirectory()),
                 getBoolean(BACKUP_ENABLED, defaultValues.shouldCreateBackup()),
-                // Backups should sit in the data directory, because a ".bak" file should survive cache cleanups
+                // Backups should sit in the data directory, because a backup file should survive cache cleanups
                 getPath(BACKUP_DIRECTORY, defaultValues.getBackupDirectory()),
                 getBoolean(FILES_CONFIRM_DELETE_LINKED, defaultValues.confirmDeleteLinkedFile()),
                 // Use fallback method in case AWT is not initialized in headless (JabKit) mode
@@ -1830,6 +2013,7 @@ public class JabRefCliPreferences implements CliPreferences {
         bindString(filePreferences.fileNamePatternProperty(), FILES_IMPORT_NAMEPATTERN, defaultValues.getFileNamePattern());
         bindString(filePreferences.fileDirectoryPatternProperty(), FILES_IMPORT_DIRPATTERN, defaultValues.getFileDirectoryPattern());
         bindBoolean(filePreferences.downloadLinkedFilesProperty(), FILES_DOWNLOAD_LINKED, defaultValues.shouldDownloadLinkedFiles());
+        bindBoolean(filePreferences.importDialogDownloadLinkedFilesProperty(), IMPORT_DIALOG_DOWNLOAD_LINKED_FILES, defaultValues.shouldImportDialogDownloadLinkedFiles());
         bindBoolean(filePreferences.fulltextIndexLinkedFilesProperty(), FILES_FULLTEXT_INDEX, defaultValues.shouldFulltextIndexLinkedFiles());
         bindPath(filePreferences.workingDirectoryProperty(), FILES_WORKING_DIRECTORY, defaultValues.getWorkingDirectory());
         bindBoolean(filePreferences.createBackupProperty(), BACKUP_ENABLED, defaultValues.shouldCreateBackup());
@@ -2112,11 +2296,14 @@ public class JabRefCliPreferences implements CliPreferences {
         lastFilesOpenedPreferences = new LastFilesOpenedPreferences(
                 getStringList(LAST_EDITED).stream().map(Path::of).toList(),
                 getPath(LAST_FOCUSED, defaultValues.getLastFocusedFile()),
+                getStringList(LAST_SHARED_DATABASES),
                 FileHistory.of(getStringList(RECENT_DATABASES).stream().map(Path::of).toList()));
 
         bindPathList(lastFilesOpenedPreferences.getLastFilesOpened(), LAST_EDITED, defaultValues.getLastFilesOpened());
         bindPathList(lastFilesOpenedPreferences.getFileHistory(), RECENT_DATABASES, defaultValues.getFileHistory());
         bindPath(lastFilesOpenedPreferences.lastFocusedFileProperty(), LAST_FOCUSED, defaultValues.getLastFocusedFile());
+        bindCustomList(lastFilesOpenedPreferences.getLastSharedDatabasesOpened(), LAST_SHARED_DATABASES, defaultValues.getLastSharedDatabasesOpened(),
+                JabRefCliPreferences::convertListToString, JabRefCliPreferences::convertStringToList);
 
         return lastFilesOpenedPreferences;
     }
@@ -2131,6 +2318,7 @@ public class JabRefCliPreferences implements CliPreferences {
 
         AiPreferences defaultValues = AiPreferences.getDefault();
         migrateLegacyAiResponseEngineKind(defaultValues);
+        migrateEmbeddingModelName(defaultValues);
 
         aiPreferences = new AiPreferences(
                 getBoolean(AI_ENABLED, defaultValues.getAiFeaturesEnabled()),
@@ -2146,9 +2334,10 @@ public class JabRefCliPreferences implements CliPreferences {
                 get(AI_MISTRAL_AI_API_BASE_URL, defaultValues.getMistralAiApiBaseUrl()),
                 get(AI_GEMINI_API_BASE_URL, defaultValues.getGeminiApiBaseUrl()),
                 get(AI_HUGGING_FACE_API_BASE_URL, defaultValues.getHuggingFaceApiBaseUrl()),
+                getBoolean(AI_ENABLE_DEBUG_PROVIDER, defaultValues.getEnableAiDebugProvider()),
                 SummarizatorKind.safeValueOf(get(AI_SUMMARIZATOR_KIND, defaultValues.getSummarizatorKind().name())),
                 TokenEstimatorKind.safeValueOf(get(AI_TOKEN_ESTIMATOR_KIND, defaultValues.getTokenEstimatorKind().name())),
-                PredefinedEmbeddingModel.safeValueOf(get(AI_EMBEDDING_MODEL, defaultValues.embeddingModelProperty().get().name())),
+                get(AI_EMBEDDING_MODEL, defaultValues.embeddingModelProperty().get()),
                 getDouble(AI_TEMPERATURE, defaultValues.temperatureProperty().get()),
                 getInt(AI_CONTEXT_WINDOW_SIZE, defaultValues.contextWindowSizeProperty().get()),
                 DocumentSplitterKind.safeValueOf(get(AI_DOCUMENT_SPLITTER_KIND, defaultValues.getDocumentSplitterKind().name())),
@@ -2186,9 +2375,11 @@ public class JabRefCliPreferences implements CliPreferences {
         bindString(aiPreferences.geminiApiBaseUrlProperty(), AI_GEMINI_API_BASE_URL, defaultValues.getGeminiApiBaseUrl());
         bindString(aiPreferences.huggingFaceApiBaseUrlProperty(), AI_HUGGING_FACE_API_BASE_URL, defaultValues.getHuggingFaceApiBaseUrl());
 
+        bindBoolean(aiPreferences.enableAiDebugProviderProperty(), AI_ENABLE_DEBUG_PROVIDER, defaultValues.getEnableAiDebugProvider());
+
         bindObject(aiPreferences.summarizatorKindProperty(), AI_SUMMARIZATOR_KIND, defaultValues.getSummarizatorKind(), SummarizatorKind::name, SummarizatorKind::safeValueOf);
         bindObject(aiPreferences.tokenEstimatorKindProperty(), AI_TOKEN_ESTIMATOR_KIND, defaultValues.getTokenEstimatorKind(), TokenEstimatorKind::name, TokenEstimatorKind::safeValueOf);
-        bindObject(aiPreferences.embeddingModelProperty(), AI_EMBEDDING_MODEL, defaultValues.embeddingModelProperty().get(), PredefinedEmbeddingModel::name, PredefinedEmbeddingModel::safeValueOf);
+        bindString(aiPreferences.embeddingModelProperty(), AI_EMBEDDING_MODEL, defaultValues.embeddingModelProperty().get());
         bindDouble(aiPreferences.temperatureProperty(), AI_TEMPERATURE, defaultValues.temperatureProperty().get());
         bindInt(aiPreferences.contextWindowSizeProperty(), AI_CONTEXT_WINDOW_SIZE, defaultValues.contextWindowSizeProperty().get());
 
@@ -2220,6 +2411,17 @@ public class JabRefCliPreferences implements CliPreferences {
             put(AI_RESPONSE_ENGINE_KIND, get(AI_ANSWER_ENGINE_KIND, defaultValues.getResponseEngineKind().name()));
         }
     }
+
+    private void migrateEmbeddingModelName(AiPreferences defaultValues) {
+        String currentModel = get(AI_EMBEDDING_MODEL, "");
+        if ("SENTENCE_TRANSFORMERS_ALL_MINILM_L12_V2".equalsIgnoreCase(currentModel)) {
+            put(AI_EMBEDDING_MODEL, "sentence-transformers/all-MiniLM-L12-v2");
+        } else if ("SENTENCE_TRANSFORMERS_ALL_MINILM_L6_V2".equalsIgnoreCase(currentModel)) {
+            put(AI_EMBEDDING_MODEL, "sentence-transformers/all-MiniLM-L6-v2");
+        } else if (StringUtil.isNotBlank(currentModel) && !currentModel.contains("/")) {
+            put(AI_EMBEDDING_MODEL, defaultValues.getEmbeddingModel());
+        }
+    }
     // endregion
 
     // region OCR preferences
@@ -2230,12 +2432,28 @@ public class JabRefCliPreferences implements CliPreferences {
 
         OcrPreferences defaultValues = OcrPreferences.getDefault();
 
+        List<OcrLanguage> savedLanguages = getStringList(OCR_LANGUAGES).stream()
+                                                                       .map(OcrLanguage::safeValueOf)
+                                                                       .toList();
+
+        List<OcrLanguage> ocrLanguagesToLoad = savedLanguages.isEmpty()
+                                               ? defaultValues.getOcrLanguages()
+                                               : savedLanguages;
+
         ocrPreferences = new OcrPreferences(
                 get(OCR_ENGINE_PATH, defaultValues.getOcrEnginePath()),
-                PagesWithTextHandling.safeValueOf(get(PAGES_WITH_TEXT, defaultValues.getPagesHaveText().name())));
+                PagesWithTextHandling.safeValueOf(get(PAGES_WITH_TEXT, defaultValues.getPagesHaveText().name())),
+                EngineSelection.safeValueOf(get(OCR_ENGINE_SELECTION, defaultValues.getEngineSelection().name())),
+                ocrLanguagesToLoad);
 
         bindString(ocrPreferences.ocrEnginePathProperty(), OCR_ENGINE_PATH, defaultValues.getOcrEnginePath());
         bindObject(ocrPreferences.pagesHaveTextProperty(), PAGES_WITH_TEXT, defaultValues.getPagesHaveText(), PagesWithTextHandling::name, PagesWithTextHandling::safeValueOf);
+        bindObject(ocrPreferences.engineSelectionProperty(), OCR_ENGINE_SELECTION, defaultValues.getEngineSelection(), EngineSelection::name, EngineSelection::safeValueOf);
+
+        ocrPreferences.getOcrLanguages().addListener((ListChangeListener<OcrLanguage>) _ ->
+                putStringList(OCR_LANGUAGES, ocrPreferences.getOcrLanguages().stream()
+                                                           .map(OcrLanguage::getCode)
+                                                           .toList()));
 
         return ocrPreferences;
     }
@@ -2343,10 +2561,10 @@ public class JabRefCliPreferences implements CliPreferences {
         NameFormatterPreferences defaultValues = NameFormatterPreferences.getDefault();
 
         nameFormatterPreferences = new NameFormatterPreferences(
-                convertStringToList(get(NAME_FORMATER_KEY, convertListToString(defaultValues.getNameFormatterKey()))),
+                convertStringToList(get(NAME_FORMATTER_KEY, convertListToString(defaultValues.getNameFormatterKey()))),
                 convertStringToList(get(NAME_FORMATTER_VALUE, convertListToString(defaultValues.getNameFormatterValue()))));
 
-        bindCustomList(nameFormatterPreferences.getNameFormatterKey(), NAME_FORMATER_KEY, defaultValues.getNameFormatterKey(),
+        bindCustomList(nameFormatterPreferences.getNameFormatterKey(), NAME_FORMATTER_KEY, defaultValues.getNameFormatterKey(),
                 JabRefCliPreferences::convertListToString, JabRefCliPreferences::convertStringToList);
         bindCustomList(nameFormatterPreferences.getNameFormatterValue(), NAME_FORMATTER_VALUE, defaultValues.getNameFormatterValue(),
                 JabRefCliPreferences::convertListToString, JabRefCliPreferences::convertStringToList);
@@ -2483,7 +2701,6 @@ public class JabRefCliPreferences implements CliPreferences {
         for (int i = 0; i < names.size(); i++) {
             fetcherApiKeys.add(new FetcherApiKey(
                     names.get(i),
-                    // i < uses.size() ? Boolean.parseBoolean(uses.get(i)) : false
                     (i < uses.size()) && Boolean.parseBoolean(uses.get(i)),
                     i < keys.size() ? keys.get(i) : ""));
         }
@@ -2534,7 +2751,7 @@ public class JabRefCliPreferences implements CliPreferences {
     private PlainCitationParserChoice getDefaultPlainCitationParser(PlainCitationParserChoice defaultPlainCitationParser) {
         try {
             return PlainCitationParserChoice.valueOf(get(IMPORTER_DEFAULT_PLAIN_CITATION_PARSER, defaultPlainCitationParser.name()));
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException _) {
             return defaultPlainCitationParser;
         }
     }
@@ -2586,9 +2803,11 @@ public class JabRefCliPreferences implements CliPreferences {
                 getBoolean(OO_ADD_SPACE_BEFORE, defaultValues.getAddSpaceBefore()),
                 getBoolean(OO_ADD_SPACE_AFTER, defaultValues.getAddSpaceAfter()),
                 getBoolean(OO_ZOTERO_COMPATIBILITY_MODE, defaultValues.getZoteroCompatibilityMode()),
+                getBoolean(OO_INFER_CSL_STYLE_FROM_DOCUMENT, defaultValues.shouldInferCslStyleFromDocument()),
                 getStringList(OO_EXTERNAL_BST_STYLES),
                 get(OO_PANDOC_PATH, defaultValues.getPandocPath()),
-                getBstCitationFormatFromPrefs(defaultValues.getBstCitationFormat()));
+                getBstCitationFormatFromPrefs(defaultValues.getBstCitationFormat()),
+                getCitationTypeFromPrefs(defaultValues.getCiteSpecialCitationType()));
 
         bindString(openOfficePreferences.executablePathProperty(), OO_EXECUTABLE_PATH, defaultValues.getExecutablePath());
         bindBoolean(openOfficePreferences.useAllDatabasesProperty(), OO_USE_ALL_OPEN_BASES, defaultValues.getUseAllDatabases());
@@ -2597,6 +2816,7 @@ public class JabRefCliPreferences implements CliPreferences {
         bindBoolean(openOfficePreferences.addSpaceBeforeProperty(), OO_ADD_SPACE_BEFORE, defaultValues.getAddSpaceBefore());
         bindBoolean(openOfficePreferences.addSpaceAfterProperty(), OO_ADD_SPACE_AFTER, defaultValues.getAddSpaceAfter());
         bindBoolean(openOfficePreferences.zoteroCompatibilityModeProperty(), OO_ZOTERO_COMPATIBILITY_MODE, defaultValues.getZoteroCompatibilityMode());
+        bindBoolean(openOfficePreferences.inferCslStyleFromDocumentProperty(), OO_INFER_CSL_STYLE_FROM_DOCUMENT, defaultValues.shouldInferCslStyleFromDocument());
 
         bindCustomList(openOfficePreferences.getExternalJStyles(), OO_EXTERNAL_STYLE_FILES, defaultValues.getExternalJStyles(),
                 JabRefCliPreferences::convertListToString, JabRefCliPreferences::convertStringToList);
@@ -2610,6 +2830,11 @@ public class JabRefCliPreferences implements CliPreferences {
                 (_, _, newValue) -> put(OO_BST_CITATION_FORMAT, newValue.name()),
                 () -> openOfficePreferences.bstCitationFormatProperty().set(getBstCitationFormatFromPrefs(defaultValues.getBstCitationFormat())),
                 () -> openOfficePreferences.bstCitationFormatProperty().set(defaultValues.getBstCitationFormat()));
+        bindCustom(openOfficePreferences.citeSpecialCitationTypeProperty(), OO_CITE_SPECIAL_CITATION_TYPE,
+                defaultValues.getCiteSpecialCitationType(),
+                (_, _, newValue) -> put(OO_CITE_SPECIAL_CITATION_TYPE, newValue.name()),
+                () -> openOfficePreferences.citeSpecialCitationTypeProperty().set(getCitationTypeFromPrefs(defaultValues.getCiteSpecialCitationType())),
+                () -> openOfficePreferences.citeSpecialCitationTypeProperty().set(defaultValues.getCiteSpecialCitationType()));
         bindString(openOfficePreferences.currentJStyleProperty(), OO_BIBLIOGRAPHY_STYLE_FILE, defaultValues.getCurrentJStyle());
         // currentStyle is persisted as a style path and reconstructed into a CSL style or JStyle on load, so it needs a custom binding.
         bindCustom(openOfficePreferences.currentStyleProperty(), OO_CURRENT_STYLE, defaultValues.getCurrentStyle(),
@@ -2634,16 +2859,20 @@ public class JabRefCliPreferences implements CliPreferences {
             return CSLStyleUtils.createCitationStyleFromFile(currentStylePath)
                                 .orElse(CSLStyleLoader.getDefaultStyle());
         } else if (currentStylePath.endsWith(".bst")) {
-            // Internal BST style (classpath resource path starting with /resource/openoffice/)
-            if (currentStylePath.startsWith("/")) {
-                return BstStyle.createInternal(currentStylePath);
+            try {
+                // Internal BST style (classpath resource path starting with /resource/openoffice/)
+                if (currentStylePath.startsWith("/")) {
+                    return BstStyle.createInternal(currentStylePath);
+                }
+                // External BST style (absolute filesystem path)
+                Path bstPath = Path.of(currentStylePath);
+                if (Files.exists(bstPath)) {
+                    return BstStyle.loadExternal(bstPath);
+                }
+                LOGGER.warn("BST style file not found: {}", currentStylePath);
+            } catch (IOException e) {
+                LOGGER.warn("Could not load BST style: {}", currentStylePath, e);
             }
-            // External BST style (absolute filesystem path)
-            java.nio.file.Path bstPath = java.nio.file.Path.of(currentStylePath);
-            if (java.nio.file.Files.exists(bstPath)) {
-                return new BstStyle(bstPath);
-            }
-            LOGGER.warn("BST style file not found: {}", currentStylePath);
         } else if (journalAbbreviationRepository != null) {
             try {
                 return new JStyle(currentStylePath, getLayoutFormatterPreferences(), journalAbbreviationRepository);
@@ -2658,8 +2887,17 @@ public class JabRefCliPreferences implements CliPreferences {
         String stored = get(OO_BST_CITATION_FORMAT, defaultFormat.name());
         try {
             return BstCitationFormat.valueOf(stored);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException _) {
             return defaultFormat;
+        }
+    }
+
+    private CitationType getCitationTypeFromPrefs(CitationType defaultType) {
+        String stored = get(OO_CITE_SPECIAL_CITATION_TYPE, defaultType.name());
+        try {
+            return CitationType.valueOf(stored);
+        } catch (IllegalArgumentException _) {
+            return defaultType;
         }
     }
     // endregion
@@ -2679,11 +2917,13 @@ public class JabRefCliPreferences implements CliPreferences {
                 rememberPat ? readKeyring(KeyringSlot.GITHUB_PAT).orElse(defaultValues.getPat())
                             : defaultValues.getPat(),
                 get(GITHUB_REMOTE_URL_KEY, defaultValues.getRepositoryUrl()),
-                rememberPat);
+                rememberPat,
+                getInt(GIT_PULL_INTERVAL_KEY, defaultValues.getPullIntervalInMinutes()));
 
         bindString(gitPreferences.usernameProperty(), GITHUB_USERNAME_KEY, defaultValues.getUsername());
         bindString(gitPreferences.repositoryUrlProperty(), GITHUB_REMOTE_URL_KEY, defaultValues.getRepositoryUrl());
         bindToKeyring(gitPreferences.patProperty(), KeyringSlot.GITHUB_PAT, gitPreferences::getPersistPat);
+        bindInt(gitPreferences.pullIntervalInMinutesProperty(), GIT_PULL_INTERVAL_KEY, defaultValues.getPullIntervalInMinutes());
         bindCustom(gitPreferences.rememberPatProperty(), GITHUB_REMEMBER_PAT_KEY, defaultValues.getPersistPat(),
                 (_, _, newValue) -> {
                     putBoolean(GITHUB_REMEMBER_PAT_KEY, newValue);

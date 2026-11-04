@@ -14,12 +14,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.preferences.forms.PreferencesFormBuilder;
 import org.jabref.gui.util.component.HelpButton;
@@ -86,7 +88,7 @@ public class WebSearchTab extends AbstractPreferenceTabView<WebSearchTabViewMode
                                         .checkbox(Localization.lang("Warn about duplicates on import"), viewModel.warnAboutDuplicatesOnImportProperty())
                                         .checkbox(Localization.lang("Download referenced files (PDFs, ...)"), viewModel.shouldDownloadLinkedOnlineFiles())
                                         .checkbox(Localization.lang("Store url for downloaded file"), viewModel.shouldKeepDownloadUrl()),
-                                toggleRow -> toggleRow.styleClass("checkbox-flowpane"))
+                                toggleRow -> toggleRow.styleClass("gap-4"))
                         .checkWithField(Localization.lang("Add imported entries to group"), viewModel.getAddImportedEntries(), viewModel.getAddImportedEntriesGroupName(),
                                 PreferencesFormBuilder.InputElement::grow)
                         .combo(Localization.lang("Default plain citation parser"), viewModel.plainCitationParsers(), viewModel.defaultPlainCitationParserProperty(), PlainCitationParserChoice::getLocalizedName)
@@ -179,8 +181,8 @@ public class WebSearchTab extends AbstractPreferenceTabView<WebSearchTabViewMode
     }
 
     private Node createFetcherNode(WebSearchTabViewModel.FetcherViewModel item) {
-        HBox container = new HBox();
-        container.getStyleClass().add("fetcher-list-cell");
+        HBox container = new HBox(4);
+        container.getStyleClass().addAll("fetcher-list-cell", "padding-4-8", "align-center-left");
         container.setAlignment(Pos.CENTER_LEFT);
 
         CheckBox enabledCheckBox = new CheckBox();
@@ -201,10 +203,25 @@ public class WebSearchTab extends AbstractPreferenceTabView<WebSearchTabViewMode
             helpButton.setVisible(false);
         }
 
-        Button configureButton = new Button(Localization.lang("Configure API key"));
-        configureButton.getStyleClass().add("configure-button");
+        Tooltip configureTooltip = new Tooltip();
+        configureTooltip.textProperty().bind(
+                Bindings.when(item.useCustomApiKeyProperty())
+                        .then(Localization.lang("Edit API key"))
+                        .otherwise(Localization.lang("Configure API key")));
+
+        Button configureButton = new Button();
+        configureButton.getStyleClass().add("icon-button");
+        configureButton.graphicProperty().bind(
+                item.useCustomApiKeyProperty().map(value ->
+                        value
+                        ? IconTheme.JabRefIcons.SUCCESS.getGraphicNode()
+                        : IconTheme.JabRefIcons.MAKE_KEY.getGraphicNode()
+                )
+        );
+
         configureButton.setOnAction(_ -> showApiKeyDialog(item));
         configureButton.setVisible(item.isCustomizable());
+        Tooltip.install(configureButton, configureTooltip);
 
         container.getChildren().addAll(enabledCheckBox, nameLabel, spacer, helpButton, configureButton);
         return container;

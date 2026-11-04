@@ -163,7 +163,7 @@ public class OOTextIntoOO {
             String tagName = isStartTag ? startTagName : endTagName;
             Objects.requireNonNull(tagName);
 
-            // Attibutes parsed into (name,value) pairs.
+            // Attributes parsed into (name,value) pairs.
             List<OOPair<String, String>> attributes = parseAttributes(attributeListPart);
 
             // Handle tags:
@@ -204,8 +204,8 @@ public class OOTextIntoOO {
                     insertParagraphBreak(text, cursor);
                     cursor.collapseToEnd();
                     for (OOPair<String, String> pair : attributes) {
-                        String key = pair.a;
-                        String value = pair.b;
+                        String key = pair.a();
+                        String value = pair.b();
                         switch (key) {
                             case "oo:ParaStyleName":
                                 // <p oo:ParaStyleName="Standard">
@@ -226,8 +226,8 @@ public class OOTextIntoOO {
                     break;
                 case "oo:referenceToPageNumberOfReferenceMark":
                     for (OOPair<String, String> pair : attributes) {
-                        String key = pair.a;
-                        String value = pair.b;
+                        String key = pair.a();
+                        String value = pair.b();
                         switch (key) {
                             case "target" ->
                                     UnoCrossRef.insertReferenceToPageNumberOfReferenceMark(doc, value, cursor);
@@ -244,8 +244,8 @@ public class OOTextIntoOO {
                 case "span":
                     List<OOPair<String, Object>> settings = new ArrayList<>();
                     for (OOPair<String, String> pair : attributes) {
-                        String key = pair.a;
-                        String value = pair.b;
+                        String key = pair.a();
+                        String value = pair.b();
                         switch (key) {
                             case "oo:CharStyleName" ->
                                 // <span oo:CharStyleName="Standard">
@@ -515,13 +515,13 @@ public class OOTextIntoOO {
             ArrayList<Optional<Object>> oldLayer = layers.peek();
             ArrayList<Optional<Object>> newLayer = new ArrayList<>(oldLayer);
             for (OOPair<String, Object> pair : settings) {
-                String name = pair.a;
+                String name = pair.a();
                 Integer index = goodNameToIndex.get(name);
                 if (index == null) {
                     LOGGER.warn("pushLayer: '{}' is not in goodNameToIndex", name);
                     continue;
                 }
-                Object newValue = pair.b;
+                Object newValue = pair.b();
                 newLayer.set(index, Optional.ofNullable(newValue));
             }
             layers.push(newLayer);
@@ -746,7 +746,7 @@ public class OOTextIntoOO {
         } catch (UnknownPropertyException
                  | PropertyVetoException
                  | IllegalArgumentException
-                 | WrappedTargetException ex) {
+                 | WrappedTargetException _) {
             return FAIL;
         }
     }

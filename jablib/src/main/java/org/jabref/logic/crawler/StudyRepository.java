@@ -33,7 +33,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.io.FileNameCleaner;
-import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
@@ -110,7 +109,7 @@ public class StudyRepository {
             gitHandler.createCommitOnCurrentBranch("Save changes before searching.", false);
             gitHandler.checkoutBranch(WORK_BRANCH);
             updateWorkAndSearchBranch();
-        } catch (GitAPIException e) {
+        } catch (GitAPIException _) {
             LOGGER.error("Could not checkout work branch");
         }
         if (Files.notExists(studyDefinitionFile)) {
@@ -132,12 +131,12 @@ public class StudyRepository {
             }
             setUpRepositoryStructureForQueriesAndFetchers();
             gitHandler.createCommitOnCurrentBranch(updateRepositoryStructureMessage, false);
-        } catch (GitAPIException e) {
+        } catch (GitAPIException _) {
             LOGGER.error("Could not checkout search branch.");
         }
         try {
             gitHandler.checkoutBranch(WORK_BRANCH);
-        } catch (GitAPIException e) {
+        } catch (GitAPIException _) {
             LOGGER.error("Could not checkout work branch");
         }
     }
@@ -233,14 +232,12 @@ public class StudyRepository {
 
     /// Persists the result locally and remotely by following the steps:
     /// Precondition: Currently checking out work branch
-    /// <ol>
-    /// - Update the work and search branch
-    /// - Persist the results on the search branch
-    /// - Manually patch the diff of the search branch onto the work branch (as the merging will not work in
-    /// certain cases without a conflict as it is context sensitive. But for this use case we do not need it to be
-    /// context sensitive. So we can just prepend the patch without checking the "context" lines.
-    /// - Update the remote tracking branches of the work and search branch
-    /// </ol>
+    /// 1. Update the work and search branch
+    /// 2. Persist the results on the search branch
+    /// 3. Manually patch the diff of the search branch onto the work branch (as the merging will not work in
+    ///    certain cases without a conflict as it is context sensitive. But for this use case we do not need it to be
+    ///    context sensitive. So we can just prepend the patch without checking the "context" lines.
+    /// 4. Update the remote tracking branches of the work and search branch
     public void persist(List<QueryResult> crawlResults) throws IOException, GitAPIException, SaveException, JabRefException {
         updateWorkAndSearchBranch();
 
@@ -363,7 +360,7 @@ public class StudyRepository {
     /// Input: '"test driven"' as a query entry with id 12348765
     /// Output: '12348765 - test driven'
     ///
-    /// Note that this method might be similar to {@link org.jabref.logic.util.io.FileUtil#getValidFileName(String)} or {@link org.jabref.logic.util.io.FileNameCleaner#cleanFileName(String)}
+    /// Note that this method might be similar to [org.jabref.logic.util.io.FileUtil#getValidFileName(String)] or [org.jabref.logic.util.io.FileNameCleaner#cleanFileName(String)]
     ///
     /// @param query that is trimmed and combined with its query id
     /// @return a unique folder name for any query.
@@ -471,13 +468,9 @@ public class StudyRepository {
     }
 
     private StudyQuery toLockQuery(StudyQuery query, List<String> catalogNames) {
-        Map<String, String> overrides = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        query.getCatalogSpecific().forEach(overrides::putIfAbsent);
-
         Map<String, String> effectiveQueries = new LinkedHashMap<>();
         for (String catalogName : catalogNames) {
-            String override = overrides.get(catalogName);
-            effectiveQueries.put(catalogName, StringUtil.isBlank(override) ? query.getQuery() : override);
+            effectiveQueries.put(catalogName, query.getCatalogOverride(catalogName).orElse(query.getQuery()));
         }
 
         StudyQuery lockQuery = new StudyQuery(query.getQuery());

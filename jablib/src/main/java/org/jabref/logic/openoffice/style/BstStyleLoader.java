@@ -1,5 +1,6 @@
 package org.jabref.logic.openoffice.style;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -43,26 +44,10 @@ public class BstStyleLoader {
         return List.copyOf(all);
     }
 
-    /// Adds a user-supplied `.bst` file if it exists, is not already present, and has the right extension.
-    ///
-    /// @return `true` if the style was added
-    public boolean addStyleIfValid(Path path) {
-        if (!path.getFileName().toString().toLowerCase().endsWith(".bst")) {
-            LOGGER.warn("Not a .bst file: {}", path);
-            return false;
-        }
-        if (!Files.exists(path)) {
-            LOGGER.warn("BST style file does not exist: {}", path);
-            return false;
-        }
-        BstStyle style = new BstStyle(path);
-        if (externalStyles.contains(style)) {
-            LOGGER.info("BST style already in list: {}", path);
-            return false;
-        }
+    /// Adds a user-supplied `.bst` file
+    public void addExternalStyle(BstStyle style) {
         externalStyles.add(style);
         storeExternalStyles();
-        return true;
     }
 
     public boolean removeStyle(BstStyle style) {
@@ -79,7 +64,11 @@ public class BstStyleLoader {
     private void loadInternalStyles() {
         internalStyles.clear();
         for (String resourcePath : INTERNAL_STYLE_PATHS) {
-            internalStyles.add(BstStyle.createInternal(resourcePath));
+            try {
+                internalStyles.add(BstStyle.createInternal(resourcePath));
+            } catch (IOException e) {
+                LOGGER.warn("Could not load internal BST style: {}", resourcePath, e);
+            }
         }
     }
 
@@ -88,7 +77,11 @@ public class BstStyleLoader {
         for (String pathStr : openOfficePreferences.getExternalBstStyles()) {
             Path bstFilePath = Path.of(pathStr);
             if (Files.exists(bstFilePath)) {
-                externalStyles.add(new BstStyle(bstFilePath));
+                try {
+                    externalStyles.add(BstStyle.loadExternal(bstFilePath));
+                } catch (IOException e) {
+                    LOGGER.warn("Could not load BST style file, skipping: {}", pathStr, e);
+                }
             } else {
                 LOGGER.warn("BST style file not found, skipping: {}", pathStr);
             }

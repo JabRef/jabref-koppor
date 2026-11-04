@@ -9,8 +9,6 @@ import java.util.Optional;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.print.PrinterJob;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ClipboardContent;
@@ -31,8 +29,8 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.layout.format.Number;
 import org.jabref.logic.preview.PreviewLayout;
 import org.jabref.logic.util.BackgroundTask;
+import org.jabref.logic.util.OptionalObjectProperty;
 import org.jabref.logic.util.TaskExecutor;
-import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.query.SearchQuery;
@@ -58,7 +56,7 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
     private final DialogService dialogService;
     private final TaskExecutor taskExecutor;
     private final RichHtmlView previewView;
-    private final StringProperty searchQueryProperty;
+    private final OptionalObjectProperty<SearchQuery> activeSearchQueryProperty;
     private final GuiPreferences preferences;
     private final WorkspacePreferences workspacePreferences;
 
@@ -73,26 +71,28 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
     public PreviewViewer(DialogService dialogService,
                          GuiPreferences preferences,
                          TaskExecutor taskExecutor) {
-        this(dialogService, preferences, taskExecutor, new SimpleStringProperty());
+        this(dialogService, preferences, taskExecutor, OptionalObjectProperty.empty());
     }
 
     public PreviewViewer(DialogService dialogService,
                          GuiPreferences preferences,
                          TaskExecutor taskExecutor,
-                         StringProperty searchQueryProperty) {
+                         OptionalObjectProperty<SearchQuery> activeSearchQueryProperty) {
         this.dialogService = dialogService;
         this.clipBoardManager = Injector.instantiateModelOrService(ClipBoardManager.class);
         this.taskExecutor = taskExecutor;
         this.preferences = preferences;
         this.workspacePreferences = preferences.getWorkspacePreferences();
-        this.searchQueryProperty = searchQueryProperty;
-        this.searchQueryProperty.addListener((_, _, _) -> highlightLayoutText());
+        this.activeSearchQueryProperty = activeSearchQueryProperty;
+        this.activeSearchQueryProperty.addListener((_, _, _) -> highlightLayoutText());
 
         this.bookCoverFetcher = new BookCoverFetcher(preferences.getExternalApplicationsPreferences());
 
         getStyleClass().add("preview-viewer");
         setFitToWidth(true);
-        setFitToHeight(true);
+        // The content sizes to its text (see setUseContentHeight below), so forcing it to the
+        // viewport height would clip long previews and hide the vertical scrollbar
+        setFitToHeight(false);
         // Surrounding layouts (preview panel, dialogs) rely on a stable preferred size,
         // not on the content-dependent one of the rendered nodes
         setPrefSize(800, 600);
@@ -226,7 +226,7 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
 
     private void downloadCoverAndRefresh(BibEntry entry, String previewText, long currentUpdateSequence) {
         BackgroundTask.wrap(() -> bookCoverFetcher.downloadCoversForEntry(entry))
-                      .onSuccess((ignored) -> {
+                      .onSuccess(_ -> {
                           if (currentUpdateSequence == updateSequence) {
                               setPreviewText(previewText);
                           }
@@ -295,12 +295,9 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
     }
 
     private String getHighlightedLayoutText() {
-        String queryText = searchQueryProperty.get();
-        if (StringUtil.isNotBlank(queryText)) {
-            SearchQuery searchQuery = new SearchQuery(queryText);
-            return Highlighter.highlightHtml(layoutText, searchQuery);
-        }
-        return layoutText;
+        return activeSearchQueryProperty.get()
+                                        .map(searchQuery -> Highlighter.highlightHtml(layoutText, searchQuery))
+                                        .orElse(layoutText);
     }
 
     public void print() {

@@ -62,12 +62,12 @@ import org.slf4j.LoggerFactory;
 /// ``
 ///
 /// Almost every call to a public method creates a new HTTP connection
-/// (except for {@link #asString(Charset, URLConnection) asString},
+/// (except for [asString][#asString(Charset, URLConnection)],
 /// which uses an already opened connection).
 ///
 /// Nothing is cached.
 ///
-/// Implentation note: This relies on <https://kong.github.io/unirest-java/configuration/> setting `followRedirects` to `true`
+/// Implementation note: This relies on <https://kong.github.io/unirest-java/configuration/> setting `followRedirects` to `true`
 /// and enabling cookie management.
 public class URLDownload {
 

@@ -11,13 +11,10 @@ version = providers.gradleProperty("projVersion")
     .orElse("100.0.0")
     .get()
 
-mainModuleInfo {
-    annotationProcessor("info.picocli.codegen")
-}
-
 testModuleInfo {
     requires("mockwebserver3")
     requires("okhttp3")
+    requires("okio")
     requires("org.apache.pdfbox")
     requires("org.jabref.testsupport")
     requires("org.junit.jupiter.api")

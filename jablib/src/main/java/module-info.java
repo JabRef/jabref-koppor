@@ -1,5 +1,15 @@
+/// Core library of JabRef: the data model (`org.jabref.model`), the business logic
+/// (`org.jabref.logic`) including importers, exporters, fetchers and search, and the
+/// preferences. Has no JavaFX UI; all other modules build on it.
+///
+/// Entry points: [org.jabref.model.database.BibDatabaseContext] (an open library),
+/// [org.jabref.model.entry.BibEntry], [org.jabref.logic.importer.ImportFormatReader],
+/// [org.jabref.logic.exporter.ExporterFactory].
+///
+/// @see <a href="https://devdocs.jabref.org/architecture-and-components.html">Architecture and components</a>
 open module org.jabref.jablib {
     exports org.jabref.model;
+    exports org.jabref.model.undo;
     exports org.jabref.logic;
 
     exports org.jabref.search;
@@ -26,6 +36,7 @@ open module org.jabref.jablib {
     exports org.jabref.logic.os;
     exports org.jabref.logic.quality.consistency;
     exports org.jabref.logic.shared.prefs;
+    exports org.jabref.logic.shared.notifications;
     exports org.jabref.logic.util;
     exports org.jabref.logic.util.io;
     exports org.jabref.logic.xmp;
@@ -115,10 +126,12 @@ open module org.jabref.jablib {
     exports org.jabref.logic.git.preferences;
     exports org.jabref.logic.icore;
     exports org.jabref.model.icore;
+    exports org.jabref.logic.git.merge;
     exports org.jabref.logic.git.merge.planning;
     exports org.jabref.logic.git.merge.execution;
     exports org.jabref.model.sciteTallies;
     exports org.jabref.logic.bibtex.comparator.plausibility;
+    exports org.jabref.logic.citedrive;
     exports org.jabref.logic.ocr;
 
     // region: AI
@@ -157,8 +170,10 @@ open module org.jabref.jablib {
     exports org.jabref.logic.ai.summarization.util;
     exports org.jabref.logic.msc;
     exports org.jabref.logic.ai.models;
+    exports org.jabref.logic.git.diff;
     exports org.jabref.logic.ocr.docling;
     exports org.jabref.model.ocr.docling;
+    exports org.jabref.logic.undo;
     // endregion
 
     requires java.base;
@@ -216,6 +231,11 @@ open module org.jabref.jablib {
     requires transitive org.jsoup;
     requires transitive unirest.java.core;
     requires /*runtime*/ unirest.modules.gson;
+    // endregion
+
+    // region nimbusds / OAuth2
+    requires json.smart;
+    requires transitive nimbusds.oauth2.oidc.sdk;
     // endregion
 
     // region: SQL databases
@@ -278,7 +298,7 @@ open module org.jabref.jablib {
     uses org.apache.lucene.codecs.lucene104.Lucene104Codec;
     requires org.apache.lucene.analysis.common;
     requires transitive org.apache.lucene.core;
-    requires transitive org.apache.lucene.highlighter;
+    requires org.apache.lucene.highlighter;
     requires org.apache.lucene.queryparser;
     // endregion
 
@@ -288,6 +308,9 @@ open module org.jabref.jablib {
 
     // region: jgit
     requires transitive org.eclipse.jgit;
+    requires transitive org.eclipse.jgit.ssh.apache;
+    // ssh-agent / Pageant / Windows OpenSSH agent support, discovered by ssh.apache as a service
+    requires /*runtime*/ org.eclipse.jgit.ssh.apache.agent;
     uses org.eclipse.jgit.transport.SshSessionFactory;
     uses org.eclipse.jgit.lib.Signer;
     // endregion
@@ -296,7 +319,6 @@ open module org.jabref.jablib {
     requires cuid;
     requires com.dd.plist;
     requires io.github.darvil.terminal.textformatter;
-    requires static io.github.eadr;
     requires mslinks;
     requires transitive org.antlr.antlr4.runtime;
     requires org.jooq.jool;
