@@ -206,7 +206,9 @@ class ConsistencyCheckDialogViewModelTest {
         loadBstFile(viewModel, bbx);
 
         assertEquals("my.bbx", viewModel.bstStyleNameProperty().get());
-        assertEquals(List.of(StandardField.JOURNAL), shownFields(viewModel));
+        assertTrue(viewModel.restrictToBstFieldsProperty().get());
+        // An installed TeX distribution adds the fields of biblatex.def, so only the style's own field is asserted
+        assertTrue(shownFields(viewModel).contains(StandardField.JOURNAL));
     }
 
     private void loadBstFile(ConsistencyCheckDialogViewModel viewModel, Path path) throws Exception {
