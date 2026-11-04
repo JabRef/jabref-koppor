@@ -130,9 +130,9 @@ public class BiblatexStyleScanner {
             if (kpsewhich.waitFor(5, TimeUnit.SECONDS) && kpsewhich.exitValue() == 0 && !output.isEmpty()) {
                 return Optional.of(Path.of(output.lines().toList().getFirst()));
             }
-        } catch (IOException e) {
+        } catch (IOException _) {
             LOGGER.debug("kpsewhich is not available, {} is not scanned", fileName);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException _) {
             Thread.currentThread().interrupt();
         }
         return Optional.empty();
