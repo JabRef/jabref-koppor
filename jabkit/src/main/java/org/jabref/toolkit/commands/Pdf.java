@@ -11,6 +11,7 @@ import static picocli.CommandLine.ParentCommand;
 @Command(name = "pdf", description = "Manage PDF metadata.",
         subcommands = {
                 PdfUpdate.class,
+                PdfCheckReferences.class,
                 PdfExtractReferences.class
                 // RemoveComments.class
                 // RemoveEmbedded.class
@@ -25,7 +26,7 @@ class Pdf implements Callable<Integer> {
 
     @Override
     public Integer call() {
-        System.err.println(Localization.lang("Specify a subcommand (update, extract-references)."));
+        System.err.println(Localization.lang("Specify a subcommand (update, check-references, extract-references)."));
         return 2;
     }
 }

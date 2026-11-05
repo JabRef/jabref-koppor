@@ -92,4 +92,25 @@ are parsed correctly by the GitHub Actions runner.
 
 Needs: impl
 
+## JabKit must preserve existing citation keys when overwrite avoidance is enabled
+`req~jabkit.cli.citation-key-avoid-overwrite~1`
+
+For `citationkeys generate`, when the effective overwrite-avoidance preference is enabled, entries
+with an existing citation key retain it, while entries without a key still receive a generated one.
+When overwrite avoidance is disabled, existing keys may be regenerated. See
+[issue 17458](https://github.com/JabRef/jabref/issues/17458).
+
+Needs: impl, utest
+
+## Faults of the reference list printed in a PDF
+`req~jabkit.cli.pdf-check-references~1`
+
+`jabkit pdf check-references FILE` reads the reference list printed in a PDF and reports faults of the underlying bibliographic data, one line per finding, starting with the reference's printed label:
+a DOI given as URL, a missing venue that hints at a wrong entry type, a volume inside a journal name, a URL of an index such as Semantic Scholar instead of the publisher, and fields printed for some references of an entry type but not for the others.
+Unless `--no-online` is given, it additionally reports DOIs that Crossref knows for references printed without one, and words whose capitals were lost, such as "Iot" instead of "IoT".
+
+The command exits with 1 if there are findings, so that CI can fail on them.
+
+Needs: impl, utest
+
 <!-- markdownlint-disable-file MD022 -->
