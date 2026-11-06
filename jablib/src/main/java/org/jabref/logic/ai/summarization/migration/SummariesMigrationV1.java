@@ -132,7 +132,7 @@ public final class SummariesMigrationV1 {
                 return;
             }
 
-            LOGGER.debug("Starting migration of {} summaries from v1 to v2", oldMap.size());
+            LOGGER.atDebug().addArgument(() -> oldMap.size()).log("Starting migration of {} summaries from v1 to v2");
 
             int migratedCount = 0;
             int failedCount = 0;

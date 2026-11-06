@@ -64,7 +64,7 @@ public class DeepJavaEmbeddingModel implements EmbeddingModel, AutoCloseable {
             try {
                 return OptionalInt.of(Integer.parseInt(prop.trim()));
             } catch (NumberFormatException e) {
-                LOGGER.debug("Could not parse maxLength property '{}'", prop, e);
+                LOGGER.error("Could not parse maxLength property '{}'", prop, e);
             }
         }
         return metadataService.getMetadata(modelName)

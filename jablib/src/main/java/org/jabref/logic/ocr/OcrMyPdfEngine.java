@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 /// Implementation of the [OcrEngine] interface using OCRmyPDF.
 public class OcrMyPdfEngine implements OcrEngine {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(OcrMyPdfEngine.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OcrMyPdfEngine.class);
     private final OcrPreferences ocrPreferences;
 
     public OcrMyPdfEngine(OcrPreferences ocrPreferences) {

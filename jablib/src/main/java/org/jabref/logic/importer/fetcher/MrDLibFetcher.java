@@ -135,7 +135,7 @@ public class MrDLibFetcher implements EntryBasedFetcher {
         }
 
         URI uri = builder.build();
-        LOGGER.trace("Request: {}", uri.toString());
+        LOGGER.atTrace().addArgument(() -> uri.toString()).log("Request: {}");
         return uri.toURL();
     }
 }

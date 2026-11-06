@@ -71,7 +71,7 @@ public class AllCitationFetcher implements CitationFetcher {
                     max = max.isEmpty() ? count : Optional.of(Math.max(max.get(), count.get()));
                 }
             } catch (Exception e) {
-                LOGGER.debug("Citation count failed for {}", fetcher.getName(), e);
+                LOGGER.error("Citation count failed for {}", fetcher.getName(), e);
                 lastException = e;
             }
         }
@@ -97,7 +97,7 @@ public class AllCitationFetcher implements CitationFetcher {
                 merger.merge(target, other);
                 anySuccess = true;
             } catch (Exception e) {
-                LOGGER.debug("Fetching from {} failed — continuing", fetcher.getName(), e);
+                LOGGER.error("Fetching from {} failed — continuing", fetcher.getName(), e);
                 lastException = e;
             }
         }

@@ -318,7 +318,7 @@ public class CSLCitationOOAdapter {
                     bibEntryTypesManager);
             LOGGER.debug("Linked {} Zotero citations to JabRef entries", linkedCitations);
         } catch (NoDocumentException | CreationException | Exception e) {
-            LOGGER.warn("Could not link Zotero citations to JabRef entries", e);
+            LOGGER.error("Could not link Zotero citations to JabRef entries", e);
         }
     }
 

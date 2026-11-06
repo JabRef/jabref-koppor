@@ -61,7 +61,7 @@ public class ProtectedTermsParser {
         try (Stream<String> lines = new BufferedReader(new InputStreamReader(inputStream)).lines()) {
             this.terms.addAll(lines.map(this::setDescription).filter(Objects::nonNull).toList());
         } catch (UncheckedIOException e) {
-            LOGGER.warn("Could not read terms from stream", e);
+            LOGGER.error("Could not read terms from stream", e);
         }
     }
 

@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 /// @param bibtex          the BibEntry as BibTeX string (see ADR-0027 for more information, why we don't use a HashMap / JSON)
 public record BibEntryDTO(SharedBibEntryData sharingMetadata, String userComments, String citationKey, String bibtex) implements Comparable<BibEntryDTO> {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(BibEntryDTO.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BibEntryDTO.class);
 
     public BibEntryDTO(BibEntry bibEntry, BibDatabaseMode bibDatabaseMode, FieldPreferences fieldWriterPreferences, BibEntryTypesManager bibEntryTypesManager) {
         this(bibEntry.getSharedBibEntryData(),
@@ -41,7 +41,7 @@ public record BibEntryDTO(SharedBibEntryData sharingMetadata, String userComment
         try {
             bibtexEntryWriter.write(entry, bibWriter, bibDatabaseMode);
         } catch (IOException e) {
-            LOGGER.warn("Problem creating BibTeX entry.", e);
+            LOGGER.error("Problem creating BibTeX entry.", e);
             return "error";
         }
         return rawEntry.toString();

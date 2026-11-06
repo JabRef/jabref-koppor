@@ -327,7 +327,7 @@ public class OOTextIntoOO {
         } catch (UnknownPropertyException |
                  PropertyVetoException |
                  WrappedTargetException ex) {
-            LOGGER.warn("exception caught", ex);
+            LOGGER.error("exception caught", ex);
         }
 
         mpss.setAllPropertiesToDefault();
@@ -390,7 +390,7 @@ public class OOTextIntoOO {
                     CHAR_ESCAPEMENT_HEIGHT
             });
         } catch (UnknownPropertyException ex) {
-            LOGGER.warn("Could not reset escapement format", ex);
+            LOGGER.error("Could not reset escapement format", ex);
         }
     }
 
@@ -563,7 +563,7 @@ public class OOTextIntoOO {
                 mpss.setPropertiesToDefault(delNamesArray);
                 mps.setPropertyValues(namesArray, values.toArray());
             } catch (UnknownPropertyException ex) {
-                LOGGER.warn("UnknownPropertyException in MyPropertyStack.apply", ex);
+                LOGGER.error("UnknownPropertyException in MyPropertyStack.apply", ex);
             } catch (PropertyVetoException _) {
                 LOGGER.warn("PropertyVetoException in MyPropertyStack.apply");
             } catch (WrappedTargetException _) {

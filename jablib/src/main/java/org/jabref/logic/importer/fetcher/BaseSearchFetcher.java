@@ -222,7 +222,7 @@ public class BaseSearchFetcher implements PagedSearchBasedParserFetcher, Customi
             URLDownload urlDownload = getUrlDownload(getValidationUrl(apiKey));
             return isValidKeyResponse(urlDownload.asString());
         } catch (URISyntaxException | MalformedURLException | FetcherException | JSONException e) {
-            LOGGER.debug("BASE API key validation failed", e);
+            LOGGER.error("BASE API key validation failed", e);
             return false;
         }
     }

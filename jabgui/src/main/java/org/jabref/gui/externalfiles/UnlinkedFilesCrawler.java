@@ -101,7 +101,7 @@ public class UnlinkedFilesCrawler extends BackgroundTask<UnlinkedFilesSearchResu
                     relatedEntriesByFile.computeIfAbsent(associatedPath, _ -> new ArrayList<>()).add(entry);
                 }
             } catch (IOException e) {
-                LOGGER.warn("Error finding related files for entry {}", entry.getCitationKey(), e);
+                LOGGER.error("Error finding related files for entry {}", entry.getCitationKey(), e);
             }
         }
 

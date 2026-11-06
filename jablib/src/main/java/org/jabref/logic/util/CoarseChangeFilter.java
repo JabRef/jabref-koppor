@@ -81,7 +81,7 @@ public class CoarseChangeFilter {
         try {
             eventBus.unregister(listener);
         } catch (IllegalArgumentException e) {
-            LOGGER.debug("Listener was not registered before: {}", listener, e);
+            LOGGER.error("Listener was not registered before: {}", listener, e);
         }
     }
 

@@ -184,7 +184,7 @@ public class BSTReferenceMarkManager {
             }
         }
 
-        LOGGER.debug("Read {} existing marks", marksByName.size());
+        LOGGER.atDebug().addArgument(() -> marksByName.size()).log("Read {} existing marks");
     }
 
     public void readAndUpdateExistingMarks() throws WrappedTargetException, NoSuchElementException {
@@ -194,7 +194,7 @@ public class BSTReferenceMarkManager {
             try {
                 updateAllCitationNumbers();
             } catch (Exception | CreationException e) {
-                LOGGER.warn("Error updating citation numbers", e);
+                LOGGER.error("Error updating citation numbers", e);
             }
         }
     }
@@ -433,7 +433,7 @@ public class BSTReferenceMarkManager {
         try {
             rangeComparison = textRangeCompare.compareRegionStarts(second.getRange(), first.getRange());
         } catch (IllegalArgumentException exception) {
-            LOGGER.warn("Error comparing text ranges: {}", exception.getMessage(), exception);
+            LOGGER.error("Error comparing text ranges: {}", exception.getMessage(), exception);
             rangeComparison = 0;
         }
 

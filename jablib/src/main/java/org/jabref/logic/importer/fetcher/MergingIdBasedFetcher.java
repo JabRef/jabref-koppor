@@ -55,8 +55,7 @@ public class MergingIdBasedFetcher {
     }
 
     private void logEntryProcessing(BibEntry entry) {
-        LOGGER.debug("Processing library entry: {}",
-                entry.getCitationKey().orElse("[no key]"));
+        LOGGER.atDebug().addArgument(() -> entry.getCitationKey().orElse("[no key]")).log("Processing library entry: {}");
 
         SUPPORTED_FIELDS.forEach(field ->
                 entry.getField(field).ifPresent(value ->
@@ -84,8 +83,7 @@ public class MergingIdBasedFetcher {
     private Optional<FetcherResult> executeFetch(IdBasedFetcher fetcher, Field field,
                                                  String identifier, BibEntry entryFromLibrary) {
         try {
-            LOGGER.debug("Fetching with {}: {}",
-                    fetcher.getClass().getSimpleName(), identifier);
+            LOGGER.atDebug().addArgument(() -> fetcher.getClass().getSimpleName()).addArgument(identifier).log("Fetching with {}: {}");
             return fetcher.performSearchById(identifier)
                           .map(fetchedEntry -> mergeBibEntries(entryFromLibrary, fetchedEntry));
         } catch (FetcherException e) {

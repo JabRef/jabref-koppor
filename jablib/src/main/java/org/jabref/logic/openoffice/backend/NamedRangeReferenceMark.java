@@ -142,7 +142,7 @@ public class NamedRangeReferenceMark implements NamedRange {
         try {
             return Optional.ofNullable(UnoRuntime.queryInterface(XComponentContext.class, propertySet.getPropertyValue("DefaultContext")));
         } catch (UnknownPropertyException | WrappedTargetException exception) {
-            LOGGER.debug("Could not resolve LibreOffice component context from document", exception);
+            LOGGER.error("Could not resolve LibreOffice component context from document", exception);
             return Optional.empty();
         }
     }

@@ -107,7 +107,7 @@ public class JabRefSrvStateManager extends AbstractSrvStateManager {
                     registerSearchContext(updated);
                 });
             } catch (IOException e) {
-                LOGGER.warn("Could not stat library {} for freshness check", path, e);
+                LOGGER.error("Could not stat library {} for freshness check", path, e);
             }
         }
     }

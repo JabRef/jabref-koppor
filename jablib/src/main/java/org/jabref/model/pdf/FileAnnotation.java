@@ -82,7 +82,7 @@ public class FileAnnotation {
         try {
             return LocalDateTime.parse(dateTimeString, DateTimeFormatter.ofPattern(ANNOTATION_DATE_FORMAT));
         } catch (DateTimeParseException _) {
-            LOGGER.info("Expected a parseable date string! However, this text could not be parsed: {}'", dateTimeString);
+            LOGGER.warn("Expected a parseable date string! However, this text could not be parsed: {}'", dateTimeString);
             return LocalDateTime.now();
         }
     }

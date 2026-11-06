@@ -72,7 +72,7 @@ public class EuropePmcFetcher implements IdBasedParserFetcher, SearchBasedParser
         try {
             JSONObject result = item.getJSONObject("resultList").getJSONArray("result").getJSONObject(0);
 
-            LOGGER.debug(result.toString(2));
+            LOGGER.atDebug().log(() -> result.toString(2));
 
             // Determine entry type from pubTypeList if available
             EntryType entryType = determineEntryType(result);

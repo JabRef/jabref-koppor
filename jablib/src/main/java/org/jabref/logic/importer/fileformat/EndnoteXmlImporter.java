@@ -154,7 +154,7 @@ public class EndnoteXmlImporter extends Importer implements Parser {
                 }
             }
         } catch (XMLStreamException e) {
-            LOGGER.debug("could not parse document", e);
+            LOGGER.error("could not parse document", e);
             return ParserResult.fromError(e);
         }
         return new ParserResult(bibItems);

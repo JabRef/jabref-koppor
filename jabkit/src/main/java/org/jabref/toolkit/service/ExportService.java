@@ -220,7 +220,7 @@ public class ExportService {
                 try {
                     Files.deleteIfExists(temporaryOutput);
                 } catch (IOException ex) {
-                    LOGGER.debug("Unable to delete temporary export file {}", temporaryOutput, ex);
+                    LOGGER.error("Unable to delete temporary export file {}", temporaryOutput, ex);
                 }
             }
         }

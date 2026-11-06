@@ -97,7 +97,7 @@ class CompositeSearchBasedFetcherTest {
                  * and just leads to no additional results in the returned list. Therefore, the test should not fail
                  * due to the fetcher exception
                  */
-                LOGGER.debug("Fetcher {} failed ", fetcher.getName(), e);
+                LOGGER.error("Fetcher {} failed ", fetcher.getName(), e);
             }
         }
     }

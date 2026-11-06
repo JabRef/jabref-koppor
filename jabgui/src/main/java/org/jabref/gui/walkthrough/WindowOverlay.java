@@ -257,7 +257,7 @@ class WindowOverlay {
     /// Detaches the overlay. The pane it drew into belongs to the window and stays.
     public void detach() {
         hide();
-        LOGGER.debug("WindowOverlay detached for window: {}", window.getClass().getSimpleName());
+        LOGGER.atDebug().addArgument(() -> window.getClass().getSimpleName()).log("WindowOverlay detached for window: {}");
     }
 
     private PopOver createPopover(TooltipStep step, Runnable beforeNavigate) {
