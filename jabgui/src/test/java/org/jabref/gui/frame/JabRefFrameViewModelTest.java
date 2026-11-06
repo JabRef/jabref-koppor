@@ -25,14 +25,17 @@ import org.jabref.model.util.FileUpdateMonitor;
 
 import com.airhacks.afterburner.injection.Injector;
 import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.EasyBinding;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -72,6 +75,7 @@ class JabRefFrameViewModelTest extends JavaFxTest {
         when(stateManager.getOpenDatabases()).thenReturn(FXCollections.observableArrayList());
         when(stateManager.getUndoManager(any())).thenReturn(undoManager);
         when(stateManager.getActiveDatabase()).thenReturn(Optional.empty());
+        when(stateManager.getAnyTasksThatWillNotBeRecoveredRunning()).thenReturn(tasksRunning(false));
 
         viewModel = new JabRefFrameViewModel(
                 preferences,
@@ -85,6 +89,11 @@ class JabRefFrameViewModelTest extends JavaFxTest {
                 clipBoardManager,
                 taskExecutor
         );
+    }
+
+    /// [StateManager#getAnyTasksThatWillNotBeRecoveredRunning] returns an [EasyBinding], which cannot be created from a plain property.
+    private static EasyBinding<Boolean> tasksRunning(boolean running) {
+        return EasyBind.reduce(FXCollections.observableArrayList(running), tasks -> tasks.anyMatch(task -> task));
     }
 
     @Test
@@ -129,6 +138,16 @@ class JabRefFrameViewModelTest extends JavaFxTest {
 
         // Then
         verify(dialogService).showCustomDialogAndWait(any());
+    }
+
+    @Test
+    void closeKeepsJabRefOpenWhenUserDeclinesWhileTasksRun() {
+        when(stateManager.getAnyTasksThatWillNotBeRecoveredRunning()).thenReturn(tasksRunning(true));
+        when(dialogService.showBackgroundProgressDialogAndWait(any(), any(), eq(stateManager))).thenReturn(false);
+
+        assertFalse(viewModel.close());
+
+        verify(tabContainer, never()).closeTabs(any(), eq(false));
     }
 
     @Test
