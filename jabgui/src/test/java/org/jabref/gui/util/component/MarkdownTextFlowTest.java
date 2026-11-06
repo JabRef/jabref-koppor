@@ -31,9 +31,9 @@ import org.jabref.gui.ai.chat.JsonCodeBlockFormatter;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.gui.testutils.JavaFxTest;
+import org.jabref.injection.Injector;
 import org.jabref.logic.ai.chatting.util.JsonAnswerFormatter;
 
-import com.airhacks.afterburner.injection.Injector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

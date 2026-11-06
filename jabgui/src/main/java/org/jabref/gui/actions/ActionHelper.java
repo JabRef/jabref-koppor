@@ -15,6 +15,7 @@ import javafx.collections.ObservableList;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.slr.StudyCatalogItem;
 import org.jabref.gui.undo.GuiUndoManager;
+import org.jabref.injection.Injector;
 import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.shared.DatabaseLocation;
@@ -24,7 +25,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.Field;
 
-import com.airhacks.afterburner.injection.Injector;
 import com.tobiasdiez.easybind.EasyBind;
 import com.tobiasdiez.easybind.EasyBinding;
 

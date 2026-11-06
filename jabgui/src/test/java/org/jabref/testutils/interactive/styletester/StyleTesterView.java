@@ -20,7 +20,7 @@ import org.jabref.gui.theme.ThemePreset;
 import org.jabref.gui.util.FileDialogConfiguration;
 import org.jabref.logic.util.StandardFileType;
 
-import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.gui.util.ViewLoader;
 
 public class StyleTesterView {
 

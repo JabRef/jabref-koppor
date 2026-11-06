@@ -17,6 +17,7 @@ import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.entryeditor.EntryEditor;
 import org.jabref.gui.util.BaseDialog;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.quality.consistency.ConsistencyMessage;
 import org.jabref.model.entry.field.Field;
@@ -24,7 +25,6 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.field.SpecialField;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import com.tobiasdiez.easybind.EasyBind;
 import jakarta.inject.Inject;
 
