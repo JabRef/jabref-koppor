@@ -49,7 +49,7 @@ dependencies.constraints {
 
     api("cc.jilt:jilt:1.9.2")
 
-    api("com.dlsc.gemsfx:gemsfx:4.6.0")
+    api("com.dlsc.gemsfx:gemsfx:4.7.0")
     api("com.dlsc.unitfx:unitfx:1.0.10")
     api("com.dlsc.pdfviewfx:pdfviewfx:3.6.0")
     api("com.fasterxml:aalto-xml:1.4.0")
@@ -135,7 +135,7 @@ dependencies.constraints {
     api("org.bouncycastle:bcprov-jdk18on:1.86")
     api("org.controlsfx:controlsfx:11.2.6")
     api("org.eclipse.jgit:org.eclipse.jgit:7.8.0.202609011348-r")
-    api("org.eclipse.jgit:org.eclipse.jgit.ssh.apache:7.8.0.202609011348-r")
+    api("org.eclipse.jgit:org.eclipse.jgit.ssh.apache:7.8.1.202611041320-r")
     api("org.eclipse.jgit:org.eclipse.jgit.ssh.apache.agent:7.8.0.202609011348-r")
     api("org.eclipse.lsp4j:org.eclipse.lsp4j:1.0.0")
     api("org.eclipse.lsp4j:org.eclipse.lsp4j.websocket.jakarta:1.0.0")
