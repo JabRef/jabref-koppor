@@ -60,6 +60,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where Backspace could not be registered as a keyboard shortcut. [#17241](https://github.com/JabRef/jabref/issues/17241)
 - We re-enabled the [Grobid](https://github.com/grobidOrg/grobid) citation fetcher again. It is now reachable via https. [#16668](https://github.com/JabRef/jabref/issues/16668)
 - We fixed an issue where the AI chat lost its scroll position when switching back to an entry. [#17172](https://github.com/JabRef/jabref/pull/17172)
+- We fixed an issue where full text documents for several selected entries were attached only after all searches finished. [koppor#772](https://github.com/JabRef/jabref-koppor/pull/772)
 - We fixed the import dialog to remember its download choice independently of the web search preference. [#16332](https://github.com/JabRef/jabref/issues/16332)
 - We fixed an issue where the same shared database could be opened in a second tab. [#16967](https://github.com/JabRef/jabref/pull/16967)
 - We fixed shared databases failing to open when an entry has no type. [#15658](https://github.com/JabRef/jabref/issues/15658)
