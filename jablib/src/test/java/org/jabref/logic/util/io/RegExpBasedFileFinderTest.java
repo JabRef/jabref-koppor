@@ -58,7 +58,7 @@ class RegExpBasedFileFinderTest {
     }
 
     @Test
-    void findFiles() throws IOException {
+    void findFiles() throws Exception {
         // given
         BibEntry localEntry = new BibEntry(StandardEntryType.Article).withCitationKey("pdfInDatabase");
 
@@ -73,7 +73,7 @@ class RegExpBasedFileFinderTest {
     }
 
     @Test
-    void yearAuthFirstPageFindFiles() throws IOException {
+    void yearAuthFirstPageFindFiles() throws Exception {
         // given
         RegExpBasedFileFinder fileFinder = new RegExpBasedFileFinder("**/[year]_[auth]_[firstpage].*\\\\.[extension]", ',');
 
@@ -86,7 +86,7 @@ class RegExpBasedFileFinderTest {
     }
 
     @Test
-    void findAssociatedFilesFindFileContainingBracketsFromBracketedExpression() throws IOException {
+    void findAssociatedFilesFindFileContainingBracketsFromBracketedExpression() throws Exception {
         BibEntry bibEntry = new BibEntry().withField(StandardField.TITLE, "Regexp from [A-Z]");
 
         RegExpBasedFileFinder fileFinder = new RegExpBasedFileFinder("[TITLE]\\\\.[extension]", ',');
@@ -98,7 +98,7 @@ class RegExpBasedFileFinderTest {
     }
 
     @Test
-    void findAssociatedFilesFindCleanedFileFromBracketedExpression() throws IOException {
+    void findAssociatedFilesFindCleanedFileFromBracketedExpression() throws Exception {
         BibEntry bibEntry = new BibEntry().withField(StandardField.JOURNAL, "ACM/IEEE-CS");
 
         RegExpBasedFileFinder fileFinder = new RegExpBasedFileFinder("[JOURNAL]\\\\.[extension]", ',');
@@ -110,7 +110,7 @@ class RegExpBasedFileFinderTest {
     }
 
     @Test
-    void findAssociatedFilesFindFileContainingParenthesizesFromBracketedExpression() throws IOException {
+    void findAssociatedFilesFindFileContainingParenthesizesFromBracketedExpression() throws Exception {
         BibEntry bibEntry = new BibEntry().withCitationKey("Guo_ICC_2010")
                                           .withField(StandardField.TITLE, "Ferroelectric Metal Organic Framework (MOF)")
                                           .withField(StandardField.AUTHOR, "Guo, M. and Cai, H.-L. and Xiong, R.-G.")
@@ -126,7 +126,7 @@ class RegExpBasedFileFinderTest {
     }
 
     @Test
-    void authorWithDiacritics() throws IOException {
+    void authorWithDiacritics() throws Exception {
         // given
         BibEntry localEntry = new BibEntry(StandardEntryType.Article).withCitationKey("Grazulis2017");
         localEntry.setField(StandardField.YEAR, "2017");
@@ -144,7 +144,7 @@ class RegExpBasedFileFinderTest {
     }
 
     @Test
-    void findFileInSubdirectory() throws IOException {
+    void findFileInSubdirectory() throws Exception {
         // given
         BibEntry localEntry = new BibEntry(StandardEntryType.Article);
         localEntry.setCitationKey("pdfInSubdirectory");
@@ -161,7 +161,7 @@ class RegExpBasedFileFinderTest {
     }
 
     @Test
-    void findFileNonRecursive() throws IOException {
+    void findFileNonRecursive() throws Exception {
         // given
         BibEntry localEntry = new BibEntry(StandardEntryType.Article);
         localEntry.setCitationKey("pdfInSubdirectory");
@@ -186,7 +186,7 @@ class RegExpBasedFileFinderTest {
                 lowercase marker triggers fallback, 2021-07-07,            2021-07-07.pdf,            2021-07-07.pdf, **/.*[date].*\\\\.[extension]
                 no matching file returns empty,     2021-07-07,            ,                          ,               **/.*[DATE].*\\\\.[extension]
             """)
-    void dateFallbackBehavior(String description, String dateValue, String filesToCreate, String expectedFile, String pattern) throws IOException {
+    void dateFallbackBehavior(String description, String dateValue, String filesToCreate, String expectedFile, String pattern) throws Exception {
         // given
         BibEntry localEntry = new BibEntry(StandardEntryType.Article).withField(StandardField.DATE, dateValue);
 
@@ -216,7 +216,7 @@ class RegExpBasedFileFinderTest {
                 bibtex month string,                #jul#, ,   2021-07.pdf
                 bibtex month string+day format,     #jul#, 07, 2021-07-07.pdf
             """)
-    void dateFallbackFromYearMonthFieldsWhenNoDateField(String description, String monthValue, String dayValue, String expectedFile) throws IOException {
+    void dateFallbackFromYearMonthFieldsWhenNoDateField(String description, String monthValue, String dayValue, String expectedFile) throws Exception {
         // given - entry has year+month(+day) fields (no date field)
         BibEntry localEntry = new BibEntry(StandardEntryType.Article).withField(StandardField.YEAR, "2021").withField(StandardField.MONTH, monthValue);
         if (dayValue != null && !dayValue.isBlank()) {
@@ -234,7 +234,7 @@ class RegExpBasedFileFinderTest {
     }
 
     @Test
-    void nonDatePatternUnaffectedByFallbackLogic() throws IOException {
+    void nonDatePatternUnaffectedByFallbackLogic() throws Exception {
         // given - pattern uses [YEAR] not [DATE]; fallback logic should not trigger
         BibEntry localEntry = new BibEntry(StandardEntryType.Article).withField(StandardField.YEAR, "2021");
         Files.createFile(directory.resolve("2021.pdf"));

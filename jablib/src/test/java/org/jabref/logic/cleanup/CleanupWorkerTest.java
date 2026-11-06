@@ -8,8 +8,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
-import javax.xml.transform.TransformerException;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.bibtex.FileFieldWriter;
 import org.jabref.logic.formatter.bibtexfields.HtmlToLatexFormatter;
@@ -93,7 +91,7 @@ class CleanupWorkerTest {
     }
 
     @Test
-    void cleanupXmpMetadataRemovesMetadata() throws IOException, TransformerException {
+    void cleanupXmpMetadataRemovesMetadata() throws Exception {
         Path pdfFile = pdfPath.resolve("test.pdf");
         try (PDDocument doc = new PDDocument()) {
             doc.addPage(new PDPage());
@@ -135,7 +133,7 @@ class CleanupWorkerTest {
     }
 
     @Test
-    void cleanupDoesNothingByDefault(@TempDir Path bibFolder) throws IOException {
+    void cleanupDoesNothingByDefault(@TempDir Path bibFolder) throws Exception {
         BibEntry entry = new BibEntry();
         entry.setCitationKey("Toot");
         entry.setField(StandardField.PDF, "aPdfFile");
@@ -271,7 +269,7 @@ class CleanupWorkerTest {
     }
 
     @Test
-    void cleanupMoveFilesMovesFileFromSubfolder(@TempDir Path bibFolder) throws IOException {
+    void cleanupMoveFilesMovesFileFromSubfolder(@TempDir Path bibFolder) throws Exception {
         CleanupPreferences preset = new CleanupPreferences(CleanupPreferences.CleanupStep.MOVE_PDF);
 
         Path path = bibFolder.resolve("AnotherRandomlyNamedFolder");
@@ -287,7 +285,7 @@ class CleanupWorkerTest {
     }
 
     @Test
-    void cleanupRelativePathsConvertAbsoluteToRelativePath() throws IOException {
+    void cleanupRelativePathsConvertAbsoluteToRelativePath() throws Exception {
         CleanupPreferences preset = new CleanupPreferences(CleanupPreferences.CleanupStep.MAKE_PATHS_RELATIVE);
 
         Path path = pdfPath.resolve("AnotherRandomlyNamedFile");
@@ -302,7 +300,7 @@ class CleanupWorkerTest {
     }
 
     @Test
-    void cleanupRenamePdfRenamesRelativeFile() throws IOException {
+    void cleanupRenamePdfRenamesRelativeFile() throws Exception {
         CleanupPreferences preset = new CleanupPreferences(CleanupPreferences.CleanupStep.RENAME_PDF);
 
         Path path = pdfPath.resolve("AnotherRandomlyNamedFile.tmp");

@@ -81,7 +81,7 @@ class RemoteSetupTest {
     }
 
     @Test
-    void portAlreadyInUse() throws IOException {
+    void portAlreadyInUse() throws Exception {
         assumeFalse(OS.OS_X);
 
         final int port = 34567;
@@ -107,7 +107,7 @@ class RemoteSetupTest {
     }
 
     @Test
-    void pingReturnsFalseForWrongServerListening() throws IOException, InterruptedException {
+    void pingReturnsFalseForWrongServerListening() throws Exception {
         final int port = 34567;
 
         try (ServerSocket socket = new ServerSocket(port)) {
@@ -126,7 +126,7 @@ class RemoteSetupTest {
     }
 
     @Test
-    void pingReturnsFalseForNoServerListening() throws IOException, InterruptedException {
+    void pingReturnsFalseForNoServerListening() throws Exception {
         final int port = 34567;
 
         assertFalse(new RemoteClient(port).ping());

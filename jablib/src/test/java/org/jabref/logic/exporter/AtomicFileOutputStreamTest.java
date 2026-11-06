@@ -53,7 +53,7 @@ class AtomicFileOutputStreamTest {
     private static final String FIVE_THOUSAND_CHARS = "A".repeat(5_000);
 
     @Test
-    void normalSaveWorks(@TempDir Path tempDir) throws IOException {
+    void normalSaveWorks(@TempDir Path tempDir) throws Exception {
         Path out = tempDir.resolve("normal-save.txt");
         Files.writeString(out, FIFTY_CHARS);
 
@@ -68,7 +68,7 @@ class AtomicFileOutputStreamTest {
 
     // [utest->req~logic.exporter.preserve-file-attributes~1]
     @Test
-    void userDefinedAttributesArePreserved(@TempDir Path tempDir) throws IOException {
+    void userDefinedAttributesArePreserved(@TempDir Path tempDir) throws Exception {
         Path out = tempDir.resolve("tagged.txt");
         Files.writeString(out, FIFTY_CHARS);
         byte[] tag = "tagged".getBytes(StandardCharsets.UTF_8);
@@ -90,7 +90,7 @@ class AtomicFileOutputStreamTest {
     // Replacing a read-only file fails on Windows (no DELETE access), independent of attribute preservation
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    void readOnlyFlagDoesNotBlockUserDefinedAttributes(@TempDir Path tempDir) throws IOException {
+    void readOnlyFlagDoesNotBlockUserDefinedAttributes(@TempDir Path tempDir) throws Exception {
         Path out = tempDir.resolve("read-only.txt");
         Files.writeString(out, FIFTY_CHARS);
         byte[] tag = "tagged".getBytes(StandardCharsets.UTF_8);
@@ -111,7 +111,7 @@ class AtomicFileOutputStreamTest {
 
     // [utest->req~logic.exporter.preserve-file-attributes~1]
     @Test
-    void hiddenFlagIsPreserved(@TempDir Path tempDir) throws IOException {
+    void hiddenFlagIsPreserved(@TempDir Path tempDir) throws Exception {
         Path out = tempDir.resolve("hidden.txt");
         Files.writeString(out, FIFTY_CHARS);
         try {
@@ -130,7 +130,7 @@ class AtomicFileOutputStreamTest {
     // [utest->req~logic.exporter.preserve-file-attributes~1]
     @Test
     @EnabledOnOs({OS.LINUX, OS.MAC})
-    void groupIsPreserved(@TempDir Path tempDir) throws IOException, InterruptedException {
+    void groupIsPreserved(@TempDir Path tempDir) throws Exception {
         Path out = tempDir.resolve("grouped.txt");
         Files.writeString(out, FIFTY_CHARS);
         GroupPrincipal defaultGroup = (GroupPrincipal) Files.getAttribute(out, "posix:group");
@@ -156,7 +156,7 @@ class AtomicFileOutputStreamTest {
     // [utest->req~logic.exporter.preserve-file-attributes~1]
     @Test
     @EnabledOnOs(OS.WINDOWS)
-    void aclIsPreservedAndAppliedAfterOtherAttributes(@TempDir Path tempDir) throws IOException {
+    void aclIsPreservedAndAppliedAfterOtherAttributes(@TempDir Path tempDir) throws Exception {
         Path out = tempDir.resolve("acl.txt");
         Files.writeString(out, FIFTY_CHARS);
         byte[] tag = "tagged".getBytes(StandardCharsets.UTF_8);
@@ -193,7 +193,7 @@ class AtomicFileOutputStreamTest {
     // [utest->req~logic.exporter.preserve-file-attributes~1]
     @Test
     @EnabledOnOs(OS.WINDOWS)
-    void clearedArchiveFlagIsPreserved(@TempDir Path tempDir) throws IOException {
+    void clearedArchiveFlagIsPreserved(@TempDir Path tempDir) throws Exception {
         Path out = tempDir.resolve("archive.txt");
         Files.writeString(out, FIFTY_CHARS);
         try {
@@ -211,7 +211,7 @@ class AtomicFileOutputStreamTest {
 
     @Test
     @EnabledOnOs({OS.LINUX, OS.MAC})
-    void saveWorksForTargetAtMaximumFileNameLength(@TempDir Path tempDir) throws IOException {
+    void saveWorksForTargetAtMaximumFileNameLength(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("a".repeat(FileUtil.MAXIMUM_FILE_NAME_LENGTH));
         Files.writeString(targetFile, FIFTY_CHARS);
 
@@ -224,7 +224,7 @@ class AtomicFileOutputStreamTest {
 
     // [utest->req~logic.exporter.concurrent-save-detection~1]
     @Test
-    void interleavedSavesDoNotOverwriteEachOther(@TempDir Path tempDir) throws IOException {
+    void interleavedSavesDoNotOverwriteEachOther(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("simultaneous-save.txt");
         Files.writeString(targetFile, FIFTY_CHARS);
 
@@ -246,7 +246,7 @@ class AtomicFileOutputStreamTest {
     }
 
     @Test
-    void externalChangeOfTargetAbortsSave(@TempDir Path tempDir) throws IOException {
+    void externalChangeOfTargetAbortsSave(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("externally-changed.txt");
         Files.writeString(targetFile, FIFTY_CHARS);
 
@@ -259,7 +259,7 @@ class AtomicFileOutputStreamTest {
     }
 
     @Test
-    void externalCreationOfTargetAbortsSave(@TempDir Path tempDir) throws IOException {
+    void externalCreationOfTargetAbortsSave(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("externally-created.txt");
 
         AtomicFileOutputStream atomicFileOutputStream = new AtomicFileOutputStream(targetFile);
@@ -271,7 +271,7 @@ class AtomicFileOutputStreamTest {
     }
 
     @Test
-    void externalChangeDuringBackupCreationLeavesNoBackupBehind(@TempDir Path tempDir) throws IOException {
+    void externalChangeDuringBackupCreationLeavesNoBackupBehind(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("changed-during-backup.txt");
         Path temporaryFile = tempDir.resolve("changed-during-backup.txt.tmp");
         Files.writeString(targetFile, FIFTY_CHARS);
@@ -298,7 +298,7 @@ class AtomicFileOutputStreamTest {
     }
 
     @Test
-    void inheritedBaselineDetectsChangePredatingStreamCreation(@TempDir Path tempDir) throws IOException {
+    void inheritedBaselineDetectsChangePredatingStreamCreation(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("inherited-baseline.txt");
         Files.writeString(targetFile, FIFTY_CHARS);
         FileSnapshot baseline = FileSnapshot.read(targetFile);
@@ -313,7 +313,7 @@ class AtomicFileOutputStreamTest {
     }
 
     @Test
-    void committedTargetFileStateMatchesFileAfterSuccessfulClose(@TempDir Path tempDir) throws IOException {
+    void committedTargetFileStateMatchesFileAfterSuccessfulClose(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("committed-state.txt");
         Files.writeString(targetFile, FIFTY_CHARS);
 
@@ -326,7 +326,7 @@ class AtomicFileOutputStreamTest {
     }
 
     @Test
-    void externalDeletionOfTargetAbortsSave(@TempDir Path tempDir) throws IOException {
+    void externalDeletionOfTargetAbortsSave(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("externally-deleted.txt");
         Files.writeString(targetFile, FIFTY_CHARS);
 
@@ -339,7 +339,7 @@ class AtomicFileOutputStreamTest {
     }
 
     @Test
-    void failedSingleByteWriteDoesNotCommitTemporaryFile(@TempDir Path tempDir) throws IOException {
+    void failedSingleByteWriteDoesNotCommitTemporaryFile(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("single-byte-write-error.txt");
         Files.writeString(targetFile, FIFTY_CHARS);
         AtomicFileOutputStream atomicFileOutputStream = new AtomicFileOutputStream(
@@ -360,7 +360,7 @@ class AtomicFileOutputStreamTest {
     }
 
     @Test
-    void failedFlushDoesNotCommitTemporaryFile(@TempDir Path tempDir) throws IOException {
+    void failedFlushDoesNotCommitTemporaryFile(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("flush-error.txt");
         Path temporaryFile = tempDir.resolve("flush-error.txt.tmp");
         Files.writeString(targetFile, FIFTY_CHARS);
@@ -390,7 +390,7 @@ class AtomicFileOutputStreamTest {
 
     @Test
         // [utest->req~jabgui.autosaveandbackup.complete-backup~1]
-    void abortedWriteDoesNotCommitPartialContent(@TempDir Path tempDir) throws IOException {
+    void abortedWriteDoesNotCommitPartialContent(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("aborted-write.txt");
         Files.writeString(targetFile, FIFTY_CHARS);
 
@@ -403,7 +403,7 @@ class AtomicFileOutputStreamTest {
     }
 
     @Test
-    void abortDoesNotDeleteExistingBackup(@TempDir Path tempDir) throws IOException {
+    void abortDoesNotDeleteExistingBackup(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("abort.txt");
         AtomicFileOutputStream atomicFileOutputStream = new AtomicFileOutputStream(targetFile);
         Files.writeString(atomicFileOutputStream.getBackup(), FIFTY_CHARS);
@@ -415,7 +415,7 @@ class AtomicFileOutputStreamTest {
 
     @Test
         // [utest->req~jabgui.autosaveandbackup.complete-backup~1]
-    void failedBackupStagingDoesNotReplaceExistingBackup(@TempDir Path tempDir) throws IOException {
+    void failedBackupStagingDoesNotReplaceExistingBackup(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("backup-staging.txt");
         Path temporaryFile = tempDir.resolve("backup-staging.txt.tmp");
         Files.writeString(targetFile, FIFTY_CHARS);
@@ -441,7 +441,7 @@ class AtomicFileOutputStreamTest {
     }
 
     @Test
-    void fallsBackToInPlaceSaveWhenAtomicMoveIsNotSupported(@TempDir Path tempDir) throws IOException {
+    void fallsBackToInPlaceSaveWhenAtomicMoveIsNotSupported(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("atomic-move-not-supported.txt");
         Path temporaryFile = tempDir.resolve("atomic-move-not-supported.txt.tmp");
         Files.writeString(targetFile, FIFTY_CHARS);
@@ -462,7 +462,7 @@ class AtomicFileOutputStreamTest {
     }
 
     @Test
-    void fallsBackToInPlaceSaveAfterMoveRetriesAreExhausted(@TempDir Path tempDir) throws IOException {
+    void fallsBackToInPlaceSaveAfterMoveRetriesAreExhausted(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("atomic-move-fails.txt");
         Path temporaryFile = tempDir.resolve("atomic-move-fails.txt.tmp");
         AtomicInteger moveAttempts = new AtomicInteger();
@@ -487,19 +487,19 @@ class AtomicFileOutputStreamTest {
 
     @Test
     @EnabledOnOs(OS.LINUX)
-    void savePreservesHardLinksOnLinux(@TempDir Path tempDir) throws IOException {
+    void savePreservesHardLinksOnLinux(@TempDir Path tempDir) throws Exception {
         assertSavePreservesHardLinks(tempDir);
     }
 
     @Test
     @EnabledOnOs(OS.MAC)
-    void savePreservesHardLinksOnMacOs(@TempDir Path tempDir) throws IOException {
+    void savePreservesHardLinksOnMacOs(@TempDir Path tempDir) throws Exception {
         assertSavePreservesHardLinks(tempDir);
     }
 
     @Test
     @EnabledOnOs({OS.LINUX, OS.MAC})
-    void savePreservesSymbolicLinks(@TempDir Path tempDir) throws IOException {
+    void savePreservesSymbolicLinks(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("symbolic-link-target.txt");
         Path symbolicLink = tempDir.resolve("symbolic-link.txt");
         Files.writeString(targetFile, FIFTY_CHARS);
@@ -515,7 +515,7 @@ class AtomicFileOutputStreamTest {
 
     @Test
     @EnabledOnOs({OS.LINUX, OS.MAC})
-    void saveReplacesSymbolicLinkWhenBackupAndAtomicMoveAreUnavailable(@TempDir Path tempDir) throws IOException {
+    void saveReplacesSymbolicLinkWhenBackupAndAtomicMoveAreUnavailable(@TempDir Path tempDir) throws Exception {
         Path targetFile = tempDir.resolve("symbolic-link-target.txt");
         Path symbolicLink = tempDir.resolve("symbolic-link.txt");
         Files.writeString(targetFile, FIFTY_CHARS);
@@ -558,7 +558,7 @@ class AtomicFileOutputStreamTest {
     }
 
     @Test
-    void originalContentExistsAtWriteError(@TempDir Path tempDir) throws IOException {
+    void originalContentExistsAtWriteError(@TempDir Path tempDir) throws Exception {
         Path pathToTestFile = tempDir.resolve("error-during-save.txt");
         Files.writeString(pathToTestFile, FIFTY_CHARS);
 

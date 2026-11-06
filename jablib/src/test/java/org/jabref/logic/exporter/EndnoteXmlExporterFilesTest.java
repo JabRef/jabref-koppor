@@ -7,9 +7,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.fileformat.BibtexImporter;
 import org.jabref.logic.importer.fileformat.EndnoteXmlImporter;
@@ -73,7 +70,7 @@ class EndnoteXmlExporterFilesTest {
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    final void performExport(String filename) throws URISyntaxException, IOException, TransformerException, SaveException, ParserConfigurationException {
+    final void performExport(String filename) throws Exception {
         bibFileToExport = Path.of(EndnoteXmlExporterFilesTest.class.getResource(filename).toURI());
         List<BibEntry> entries = bibtexImporter.importDatabase(bibFileToExport).getDatabase().getEntries();
         exporter.export(databaseContext, exportFile, entries);
@@ -94,7 +91,7 @@ class EndnoteXmlExporterFilesTest {
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    final void exportAsEndnoteAndThenImportAsEndnote(String filename) throws IOException, TransformerException, URISyntaxException, SaveException, ParserConfigurationException {
+    final void exportAsEndnoteAndThenImportAsEndnote(String filename) throws Exception {
         bibFileToExport = Path.of(EndnoteXmlExporterFilesTest.class.getResource(filename).toURI());
         List<BibEntry> entries = bibtexImporter.importDatabase(bibFileToExport).getDatabase().getEntries();
 

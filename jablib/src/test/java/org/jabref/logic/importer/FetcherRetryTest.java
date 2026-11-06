@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class FetcherRetryTest {
 
     @Test
-    void retriesRateLimitedOperation() throws FetcherException, MalformedURLException {
+    void retriesRateLimitedOperation() throws Exception {
         AtomicInteger attempts = new AtomicInteger();
         List<Duration> delays = new ArrayList<>();
         FetcherClientException rateLimited = fetcherClientException(FetcherRetry.HTTP_TOO_MANY_REQUESTS);
@@ -39,7 +39,7 @@ class FetcherRetryTest {
     }
 
     @Test
-    void doesNotRetryOtherClientErrors() throws MalformedURLException {
+    void doesNotRetryOtherClientErrors() throws Exception {
         AtomicInteger attempts = new AtomicInteger();
         List<Duration> delays = new ArrayList<>();
         FetcherClientException badRequest = fetcherClientException(HttpURLConnection.HTTP_BAD_REQUEST);
@@ -54,7 +54,7 @@ class FetcherRetryTest {
     }
 
     @Test
-    void stopsAfterMaximumRateLimitRetries() throws MalformedURLException {
+    void stopsAfterMaximumRateLimitRetries() throws Exception {
         AtomicInteger attempts = new AtomicInteger();
         List<Duration> delays = new ArrayList<>();
         FetcherClientException rateLimited = fetcherClientException(FetcherRetry.HTTP_TOO_MANY_REQUESTS);
@@ -69,7 +69,7 @@ class FetcherRetryTest {
     }
 
     @Test
-    void restoresInterruptStatusWhenBackoffIsInterrupted() throws MalformedURLException {
+    void restoresInterruptStatusWhenBackoffIsInterrupted() throws Exception {
         FetcherClientException rateLimited = fetcherClientException(FetcherRetry.HTTP_TOO_MANY_REQUESTS);
         try {
             assertThrows(FetcherException.class, () -> FetcherRetry.executeWithRateLimitRetry(

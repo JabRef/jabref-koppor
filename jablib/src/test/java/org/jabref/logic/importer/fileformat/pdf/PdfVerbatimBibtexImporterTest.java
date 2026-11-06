@@ -1,7 +1,6 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -38,7 +37,7 @@ class PdfVerbatimBibtexImporterTest {
     }
 
     @Test
-    void entryIsFoundWhenPrecededAndFollowedByPageText(@TempDir Path tempDir) throws IOException {
+    void entryIsFoundWhenPrecededAndFollowedByPageText(@TempDir Path tempDir) throws Exception {
         Path file = tempDir.resolve("bibtexWithSurroundingText.pdf");
         writePdf(file, List.of(
                 "Some Paper Title",
@@ -68,7 +67,7 @@ class PdfVerbatimBibtexImporterTest {
     }
 
     @Test
-    void pageWithoutBibtexReturnsNoEntries(@TempDir Path tempDir) throws IOException {
+    void pageWithoutBibtexReturnsNoEntries(@TempDir Path tempDir) throws Exception {
         Path file = tempDir.resolve("noBibtex.pdf");
         writePdf(file, List.of(
                 "Some Paper Title",
@@ -100,14 +99,14 @@ class PdfVerbatimBibtexImporterTest {
     }
 
     @Test
-    void doesNotHandleEncryptedPdfs() throws URISyntaxException {
+    void doesNotHandleEncryptedPdfs() throws Exception {
         Path file = Path.of(PdfVerbatimBibtexImporter.class.getResource("/pdfs/encrypted.pdf").toURI());
         List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
         assertEquals(List.of(), result);
     }
 
     @Test
-    void importTwiceWorksAsExpected() throws URISyntaxException {
+    void importTwiceWorksAsExpected() throws Exception {
         Path file = Path.of(PdfVerbatimBibtexImporterTest.class.getResource("mixedMetadata.pdf").toURI());
         List<BibEntry> result = importer.importDatabase(file).getDatabase().getEntries();
 

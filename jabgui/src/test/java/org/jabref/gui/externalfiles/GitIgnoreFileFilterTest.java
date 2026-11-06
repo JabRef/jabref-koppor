@@ -1,6 +1,5 @@
 package org.jabref.gui.externalfiles;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -13,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GitIgnoreFileFilterTest {
 
     @Test
-    void checkSimpleGitIgnore(@TempDir Path dir) throws IOException {
+    void checkSimpleGitIgnore(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), """
                 *.png
                 """);
@@ -22,7 +21,7 @@ class GitIgnoreFileFilterTest {
     }
 
     @Test
-    void checkSimpleGitIgnoreWithAllowing(@TempDir Path dir) throws IOException {
+    void checkSimpleGitIgnoreWithAllowing(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), """
                 !*.png
                 """);
@@ -31,7 +30,7 @@ class GitIgnoreFileFilterTest {
     }
 
     @Test
-    void checkSimpleGitIgnoreWithOverwritingDefs(@TempDir Path dir) throws IOException {
+    void checkSimpleGitIgnoreWithOverwritingDefs(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), """
                 !*.png
                 *.png
@@ -41,7 +40,7 @@ class GitIgnoreFileFilterTest {
     }
 
     @Test
-    void checkDirectoryGitIgnore(@TempDir Path dir) throws IOException {
+    void checkDirectoryGitIgnore(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), """
                 **/*.png
                 """);
@@ -50,7 +49,7 @@ class GitIgnoreFileFilterTest {
     }
 
     @Test
-    void checkDirectoryGitIgnoreSubDir(@TempDir Path dir) throws IOException {
+    void checkDirectoryGitIgnoreSubDir(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve(".gitignore"), """
                 ignore/.*
                 ignore/*

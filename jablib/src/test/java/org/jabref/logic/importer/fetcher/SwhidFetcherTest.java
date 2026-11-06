@@ -24,7 +24,7 @@ import static org.mockito.Mockito.mock;
 
 @ExternalServicesTest
 @NullMarked
-public class SwhidFetcherTest {
+class SwhidFetcherTest {
 
     private static final String PARMAP_SWHID = "swh:1:dir:2dc0f462d191524530f5612d2935851505af41dd;origin=https://github.com/rdicosmo/parmap;visit=swh:1:snp:2128ed4f25f2d7ae7c8b7950a611d69cf4429063";
 
@@ -47,7 +47,7 @@ public class SwhidFetcherTest {
     }
 
     @Test
-    void performSearchByIdReturnsBibEntryForValidParmapSwhid() throws FetcherException {
+    void performSearchByIdReturnsBibEntryForValidParmapSwhid() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById(PARMAP_SWHID);
 
         assertEquals(Optional.of("Parmap"), fetchedEntry.flatMap(entry -> entry.getField(StandardField.TITLE)));
@@ -60,7 +60,7 @@ public class SwhidFetcherTest {
     }
 
     @Test
-    void performSearchByIdReturnsEmptyForNonExistentSwhid() throws FetcherException {
+    void performSearchByIdReturnsEmptyForNonExistentSwhid() throws Exception {
         String nonExistent = "swh:1:dir:0000000000000000000000000000000000000000";
         Optional<BibEntry> result = fetcher.performSearchById(nonExistent);
         assertTrue(result.isEmpty());

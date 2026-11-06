@@ -1,9 +1,7 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.io.IOException;
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FulltextFetcher;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
@@ -21,7 +19,7 @@ class ACSTest {
 
     @Test
     @DisabledOnCIServer("CI server is unreliable")
-    void findByDOI() throws IOException, FetcherException {
+    void findByDOI() throws Exception {
         // DOI randomly chosen from https://pubs.acs.org/toc/acscii/0/0
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1021/acscentsci.4c00971");
         assertEquals(
@@ -32,13 +30,13 @@ class ACSTest {
 
     @Test
     @DisabledOnCIServer("CI server is unreliable")
-    void notFoundByDOI() throws FetcherException, IOException {
+    void notFoundByDOI() throws Exception {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1021/bk-2006-WWW.ch014");
         assertEquals(Optional.empty(), fetcher.findFullText(entry));
     }
 
     @Test
-    void entityWithoutDoi() throws FetcherException, IOException {
+    void entityWithoutDoi() throws Exception {
         assertEquals(Optional.empty(), fetcher.findFullText(new BibEntry()));
     }
 

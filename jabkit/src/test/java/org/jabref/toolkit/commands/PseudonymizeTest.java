@@ -1,6 +1,5 @@
 package org.jabref.toolkit.commands;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -10,9 +9,9 @@ import org.junit.jupiter.api.io.TempDir;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PseudonymizeTest extends AbstractJabKitTest {
+class PseudonymizeTest extends AbstractJabKitTest {
     @Test
-    public void normalUsage(@TempDir Path tempDir) throws IOException {
+    void normalUsage(@TempDir Path tempDir) throws Exception {
         Path origin = getClassResourceAsPath("origin.bib").toAbsolutePath();
         Path output = tempDir.resolve("new.pseudo.bib");
         Path key = tempDir.resolve("new.pseudo.csv");
@@ -23,7 +22,7 @@ public class PseudonymizeTest extends AbstractJabKitTest {
     }
 
     @Test
-    public void automaticFileCreation(@TempDir Path tempDir) throws IOException {
+    void automaticFileCreation(@TempDir Path tempDir) throws Exception {
         Path origin = getClassResourceAsPath("origin.bib");
         Path copy = tempDir.resolve("origin.bib");
         Files.copy(origin, copy);
@@ -35,7 +34,7 @@ public class PseudonymizeTest extends AbstractJabKitTest {
     }
 
     @Test
-    public void forceUsage(@TempDir Path tempDir) throws IOException {
+    void forceUsage(@TempDir Path tempDir) throws Exception {
         Path origin = getClassResourceAsPath("origin.bib").toAbsolutePath();
         Path output = tempDir.resolve("new.pseudo.bib");
         Path key = tempDir.resolve("new.pseudo.csv");
@@ -47,7 +46,7 @@ public class PseudonymizeTest extends AbstractJabKitTest {
     }
 
     @Test
-    public void noForceUsage(@TempDir Path tempDir) throws IOException {
+    void noForceUsage(@TempDir Path tempDir) throws Exception {
         Path origin = getClassResourceAsPath("origin.bib").toAbsolutePath();
         Path output = tempDir.resolve("new.pseudo.bib");
         Path key = tempDir.resolve("new.pseudo.csv");

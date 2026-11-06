@@ -1,6 +1,5 @@
 package org.jabref.logic.cleanup;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -54,7 +53,7 @@ class RenamePdfCleanupTest {
 
     /// Test for #466
     @Test
-    void cleanupRenamePdfRenamesFileEvenIfOnlyDifferenceIsCase() throws IOException {
+    void cleanupRenamePdfRenamesFileEvenIfOnlyDifferenceIsCase() throws Exception {
         Path path = testFolder.resolve("toot.tmp");
         Files.createFile(path);
 
@@ -74,7 +73,7 @@ class RenamePdfCleanupTest {
     }
 
     @Test
-    void cleanupRenamePdfRenamesWithMultipleFiles() throws IOException {
+    void cleanupRenamePdfRenamesWithMultipleFiles() throws Exception {
         Path path = testFolder.resolve("Toot.tmp");
         Files.createFile(path);
 
@@ -97,7 +96,7 @@ class RenamePdfCleanupTest {
     }
 
     @Test
-    void cleanupRenamePdfRenamesFileStartingWithCitationKey() throws IOException {
+    void cleanupRenamePdfRenamesFileStartingWithCitationKey() throws Exception {
         Path path = testFolder.resolve("Toot.tmp");
         Files.createFile(path);
 
@@ -113,7 +112,7 @@ class RenamePdfCleanupTest {
     }
 
     @Test
-    void cleanupRenamePdfRenamesFileInSameFolder() throws IOException {
+    void cleanupRenamePdfRenamesFileInSameFolder() throws Exception {
         Path path = testFolder.resolve("Toot.pdf");
         Files.createFile(path);
         LinkedFile fileField = new LinkedFile("", Path.of("Toot.pdf"), "PDF");
@@ -128,7 +127,7 @@ class RenamePdfCleanupTest {
     }
 
     @Test
-    void cleanupRenamePdfUsesMutationSchedulerForEntryUpdate() throws IOException {
+    void cleanupRenamePdfUsesMutationSchedulerForEntryUpdate() throws Exception {
         Path path = testFolder.resolve("Toot.pdf");
         Files.createFile(path);
         entry.setField(StandardField.FILE, FileFieldWriter.getStringRepresentation(new LinkedFile("", path.toAbsolutePath(), "PDF")));

@@ -1,13 +1,10 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
 import org.jabref.logic.importer.FetcherClientException;
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
-import org.jabref.logic.importer.ParseException;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.field.StandardField;
@@ -39,7 +36,7 @@ class LibraryOfCongressTest {
     }
 
     @Test
-    void performSearchById() throws FetcherException {
+    void performSearchById() throws Exception {
         BibEntry expected = new BibEntry()
                 .withField(StandardField.ADDRESS, "mau, Burlington, MA")
                 .withField(StandardField.AUTHOR, "West, Matthew")
@@ -59,7 +56,7 @@ class LibraryOfCongressTest {
     }
 
     @Test
-    void parsesAttachedModsBookAsBook() throws IOException, ParseException {
+    void parsesAttachedModsBookAsBook() throws Exception {
         try (InputStream inputStream = LibraryOfCongressTest.class.getResourceAsStream("library_of_congress_2010045158_mods.xml")) {
             assertTrue(inputStream != null);
 
@@ -83,7 +80,7 @@ class LibraryOfCongressTest {
     }
 
     @Test
-    void performSearchByEmptyId() throws FetcherException {
+    void performSearchByEmptyId() throws Exception {
         assertEquals(Optional.empty(), fetcher.performSearchById(""));
     }
 

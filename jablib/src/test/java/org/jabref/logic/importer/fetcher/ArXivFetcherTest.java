@@ -1,6 +1,5 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -172,7 +171,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void supportsAuthorSearchWithLastFirstName() throws FetcherException {
+    void supportsAuthorSearchWithLastFirstName() throws Exception {
         StringJoiner queryBuilder = new StringJoiner("\" AND author:\"", "author:\"", "\"");
         getTestAuthors().forEach(queryBuilder::add);
 
@@ -185,7 +184,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void findFullTextForEmptyEntryResultsEmptyOptional() throws IOException {
+    void findFullTextForEmptyEntryResultsEmptyOptional() throws Exception {
         assertEquals(Optional.empty(), fetcher.findFullText(entry));
     }
 
@@ -195,7 +194,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void findFullTextByDOI() throws IOException {
+    void findFullTextByDOI() throws Exception {
         entry.setField(StandardField.DOI, "10.1529/biophysj.104.047340");
         entry.setField(StandardField.TITLE, "Pause Point Spectra in DNA Constant-Force Unzipping");
 
@@ -203,19 +202,19 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void findFullTextByEprint() throws IOException {
+    void findFullTextByEprint() throws Exception {
         entry.setField(StandardField.EPRINT, "1603.06570");
         assertEquals(Optional.of(URLUtil.create("https://arxiv.org/pdf/1603.06570v1")), fetcher.findFullText(entry));
     }
 
     @Test
-    void findFullTextByEprintWithPrefix() throws IOException {
+    void findFullTextByEprintWithPrefix() throws Exception {
         entry.setField(StandardField.EPRINT, "arXiv:1603.06570");
         assertEquals(Optional.of(URLUtil.create("https://arxiv.org/pdf/1603.06570v1")), fetcher.findFullText(entry));
     }
 
     @Test
-    void findFullTextByEprintWithUnknownDOI() throws IOException {
+    void findFullTextByEprintWithUnknownDOI() throws Exception {
         entry.setField(StandardField.DOI, "10.1529/unknown");
         entry.setField(StandardField.EPRINT, "1603.06570");
 
@@ -223,21 +222,21 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void findFullTextByTitle() throws IOException {
+    void findFullTextByTitle() throws Exception {
         entry.setField(StandardField.TITLE, "Pause Point Spectra in DNA Constant-Force Unzipping");
 
         assertEquals(Optional.of(URLUtil.create("https://arxiv.org/pdf/cond-mat/0406246v1")), fetcher.findFullText(entry));
     }
 
     @Test
-    void findFullTextByTitleWithCurlyBracket() throws IOException {
+    void findFullTextByTitleWithCurlyBracket() throws Exception {
         entry.setField(StandardField.TITLE, "Machine versus {Human} {Attention} in {Deep} {Reinforcement} {Learning} {Tasks}");
 
         assertEquals(Optional.of(URLUtil.create("https://arxiv.org/pdf/2010.15942v3")), fetcher.findFullText(entry));
     }
 
     @Test
-    void findFullTextByTitleWithColonAndJournalWithoutEprint() throws IOException {
+    void findFullTextByTitleWithColonAndJournalWithoutEprint() throws Exception {
         entry.setField(StandardField.TITLE, "Bayes-TrEx: a Bayesian Sampling Approach to Model Transparency by Example");
         entry.setField(StandardField.JOURNAL, "arXiv:2002.10248v4 [cs]");
 
@@ -245,7 +244,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void findFullTextByTitleWithColonAndUrlWithoutEprint() throws IOException {
+    void findFullTextByTitleWithColonAndUrlWithoutEprint() throws Exception {
         entry.setField(StandardField.TITLE, "Bayes-TrEx: a Bayesian Sampling Approach to Model Transparency by Example");
         entry.setField(StandardField.URL, "https://arxiv.org/abs/2002.10248v4");
 
@@ -253,7 +252,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void findFullTextByTitleAndPartOfAuthor() throws IOException {
+    void findFullTextByTitleAndPartOfAuthor() throws Exception {
         entry.setField(StandardField.TITLE, "Pause Point Spectra in DNA Constant-Force Unzipping");
         entry.setField(StandardField.AUTHOR, "Weeks and Lucks");
 
@@ -261,7 +260,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void findFullTextByTitleWithCurlyBracketAndPartOfAuthor() throws IOException {
+    void findFullTextByTitleWithCurlyBracketAndPartOfAuthor() throws Exception {
         entry.setField(StandardField.TITLE, "Machine versus {Human} {Attention} in {Deep} {Reinforcement} {Learning} {Tasks}");
         entry.setField(StandardField.AUTHOR, "Zhang, Ruohan and Guo");
 
@@ -269,19 +268,19 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void notFindFullTextByUnknownDOI() throws IOException {
+    void notFindFullTextByUnknownDOI() throws Exception {
         entry.setField(StandardField.DOI, "10.1529/unknown");
         assertEquals(Optional.empty(), fetcher.findFullText(entry));
     }
 
     @Test
-    void notFindFullTextByUnknownId() throws IOException {
+    void notFindFullTextByUnknownId() throws Exception {
         entry.setField(StandardField.EPRINT, "1234.12345");
         assertEquals(Optional.empty(), fetcher.findFullText(entry));
     }
 
     @Test
-    void findFullTextByDOINotAvailableInCatalog() throws IOException {
+    void findFullTextByDOINotAvailableInCatalog() throws Exception {
         entry.setField(StandardField.DOI, "10.1016/0370-2693(77)90015-6");
         entry.setField(StandardField.TITLE, "Superspace formulation of supergravity");
 
@@ -289,7 +288,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void findFullTextEntityWithoutDoi() throws IOException {
+    void findFullTextEntityWithoutDoi() throws Exception {
         assertEquals(Optional.empty(), fetcher.findFullText(entry));
     }
 
@@ -299,13 +298,13 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void searchEntryByPartOfTitle() throws FetcherException {
+    void searchEntryByPartOfTitle() throws Exception {
         assertEquals(List.of(mainResultPaper),
                 fetcher.performSearch("title=\"the architecture of mr. dLib's\""));
     }
 
     @Test
-    void searchEntryByPartOfTitleWithAcuteAccent() throws FetcherException {
+    void searchEntryByPartOfTitleWithAcuteAccent() throws Exception {
         BibEntry expected = new BibEntry(sliceTheoremPaper)
                 .withCitationKey("https://doi.org/10.48550/arxiv.1405.2249");
 
@@ -314,7 +313,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void searchEntryByOldId() throws FetcherException {
+    void searchEntryByOldId() throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "{H1 Collaboration}")
                 .withField(StandardField.TITLE, "Multi-Electron Production at High Transverse Momenta in ep Collisions at HERA")
@@ -341,17 +340,17 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void searchEntryByIdWith4DigitsAndVersion() throws FetcherException {
+    void searchEntryByIdWith4DigitsAndVersion() throws Exception {
         assertEquals(Optional.of(sliceTheoremPaper), fetcher.performSearchById("1405.2249v1"));
     }
 
     @Test
-    void searchEntryByIdWith4Digits() throws FetcherException {
+    void searchEntryByIdWith4Digits() throws Exception {
         assertEquals(Optional.of(sliceTheoremPaper), fetcher.performSearchById("1405.2249"));
     }
 
     @Test
-    void citationKeyIsAdoptedFromInspireWhenPaperIsIndexedThere() throws FetcherException {
+    void citationKeyIsAdoptedFromInspireWhenPaperIsIndexedThere() throws Exception {
         // 1405.2249 has no manually-assigned (journal) DOI, so ArXivFetcher's own DOI-based
         // enrichment never produces a citation key for it; but it is indexed on INSPIRE, which
         // should supply its curated texkey instead of leaving the entry keyless.
@@ -360,7 +359,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void urlShapedCitationKeyIsLeftUnchangedWhenPaperIsNotIndexedOnInspire() throws FetcherException {
+    void urlShapedCitationKeyIsLeftUnchangedWhenPaperIsNotIndexedOnInspire() throws Exception {
         // 1811.10364 (mainResultPaper, a cs.IR paper) has no manually-assigned DOI, so it ends up
         // with a URL-shaped key from the automatically-assigned arXiv DOI's metadata. It is not
         // indexed on INSPIRE (a physics-only database), so that key is left as-is.
@@ -369,36 +368,36 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void searchEntryByIdWith4DigitsAndPrefix() throws FetcherException {
+    void searchEntryByIdWith4DigitsAndPrefix() throws Exception {
         assertEquals(Optional.of(sliceTheoremPaper), fetcher.performSearchById("arXiv:1405.2249"));
     }
 
     @Test
-    void searchEntryByIdWith4DigitsAndPrefixAndNotTrimmed() throws FetcherException {
+    void searchEntryByIdWith4DigitsAndPrefixAndNotTrimmed() throws Exception {
         assertEquals(Optional.of(sliceTheoremPaper), fetcher.performSearchById("arXiv : 1405. 2249"));
     }
 
     @Test
-    void searchEntryByIdWith5Digits() throws FetcherException {
+    void searchEntryByIdWith5Digits() throws Exception {
         assertEquals(Optional.of(
                         "An Optimal Convergence Theorem for Mean Curvature Flow of Arbitrary Codimension in Hyperbolic Spaces"),
                 fetcher.performSearchById("1503.06747").flatMap(entry -> entry.getField(StandardField.TITLE)));
     }
 
     @Test
-    void searchWithMalformedIdReturnsEmpty() throws FetcherException {
+    void searchWithMalformedIdReturnsEmpty() throws Exception {
         assertEquals(Optional.empty(), fetcher.performSearchById("123412345"));
     }
 
     @Test
-    void searchIdentifierForSlicePaper() throws FetcherException {
+    void searchIdentifierForSlicePaper() throws Exception {
         sliceTheoremPaper.clearField(StandardField.EPRINT);
 
         assertEquals(ArXivIdentifier.parse("1405.2249"), fetcher.findIdentifier(sliceTheoremPaper));
     }
 
     @Test
-    void searchIdentifierForSlicePaperByDoiUrl() throws FetcherException {
+    void searchIdentifierForSlicePaperByDoiUrl() throws Exception {
         sliceTheoremPaper.clearField(StandardField.EPRINT);
         sliceTheoremPaper.setField(StandardField.DOI, "https://doi.org/10.48550/arXiv.1405.2249");
 
@@ -406,22 +405,22 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void searchEmptyId() throws FetcherException {
+    void searchEmptyId() throws Exception {
         assertEquals(Optional.empty(), fetcher.performSearchById(""));
     }
 
     @Test
-    void searchWithHttpUrl() throws FetcherException {
+    void searchWithHttpUrl() throws Exception {
         assertEquals(Optional.of(sliceTheoremPaper), fetcher.performSearchById("https://arxiv.org/abs/1405.2249"));
     }
 
     @Test
-    void searchWithHttpsUrl() throws FetcherException {
+    void searchWithHttpsUrl() throws Exception {
         assertEquals(Optional.of(sliceTheoremPaper), fetcher.performSearchById("https://arxiv.org/abs/1405.2249"));
     }
 
     @Test
-    void searchWithHttpsUrlNotTrimmed() throws FetcherException {
+    void searchWithHttpsUrlNotTrimmed() throws Exception {
         assertEquals(Optional.of(sliceTheoremPaper), fetcher.performSearchById("https : // arxiv . org / abs / 1405 . 2249 "));
     }
 
@@ -440,7 +439,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     /// A phrase is a sequence of terms wrapped in quotes.
     /// Only documents that contain exactly this sequence are returned.
     @Test
-    void supportsPhraseSearch() throws FetcherException {
+    void supportsPhraseSearch() throws Exception {
         List<BibEntry> resultWithPhraseSearch = fetcher.performSearch("title:\"Taxonomy of Distributed\"");
         List<BibEntry> broaderSearchResult = fetcher.performSearch("taxonomy distributed");
 
@@ -456,7 +455,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     /// A phrase is a sequence of terms wrapped in quotes.
     /// Only documents that contain exactly this sequence are returned.
     @Test
-    void supportsPhraseSearchAndMatchesExact() throws FetcherException {
+    void supportsPhraseSearchAndMatchesExact() throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Rafrastara, Fauzi Adi and Deyu, Qi")
                 .withField(StandardField.TITLE, "A Survey and Taxonomy of Distributed Data Mining Research Studies: A Systematic Literature Review")
@@ -480,7 +479,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void supportsBooleanANDSearch() throws FetcherException {
+    void supportsBooleanANDSearch() throws Exception {
         // Example of a robust result, with information from both ArXiv-assigned and user-assigned DOIs
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Büscher, Tobias and Diez, Angel L. and Gompper, Gerhard and Elgeti, Jens")
@@ -511,7 +510,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void retrievePureArxivEntryWhenAllDOIFetchingFails() throws FetcherException {
+    void retrievePureArxivEntryWhenAllDOIFetchingFails() throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Hai Zheng and Po-Yi Ho and Meiling Jiang and Bin Tang and Weirong Liu and Dengjin Li and Xuefeng Yu and Nancy E. Kleckner and Ariel Amir and Chenli Liu")
                 .withField(StandardField.TITLE, "Interrogating the Escherichia coli cell cycle by cell dimension perturbations")
@@ -534,7 +533,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void canReplicateArXivOnlySearchByPassingNullParameter() throws FetcherException {
+    void canReplicateArXivOnlySearchByPassingNullParameter() throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Hai Zheng and Po-Yi Ho and Meiling Jiang and Bin Tang and Weirong Liu and Dengjin Li and Xuefeng Yu and Nancy E. Kleckner and Ariel Amir and Chenli Liu")
                 .withField(StandardField.TITLE, "Interrogating the Escherichia coli cell cycle by cell dimension perturbations")
@@ -553,7 +552,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void retrievePartialResultWhenCannotGetInformationFromUserAssignedDOI() throws FetcherException {
+    void retrievePartialResultWhenCannotGetInformationFromUserAssignedDOI() throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Zheng, Hai and Ho, Po-Yi and Jiang, Meiling and Tang, Bin and Liu, Weirong and Li, Dengjin and Yu, Xuefeng and Kleckner, Nancy E. and Amir, Ariel and Liu, Chenli")
                 .withField(StandardField.TITLE, "Interrogating the Escherichia coli cell cycle by cell dimension perturbations")
@@ -579,7 +578,7 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void retrievePartialResultWhenCannotGetInformationFromArXivAssignedDOI() throws FetcherException {
+    void retrievePartialResultWhenCannotGetInformationFromArXivAssignedDOI() throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Hai Zheng and Po-Yi Ho and Meiling Jiang and Bin Tang and Weirong Liu and Dengjin Li and Xuefeng Yu and Nancy E. Kleckner and Ariel Amir and Chenli Liu")
                 .withField(StandardField.TITLE, "Interrogating the Escherichia coli cell cycle by cell dimension perturbations")
@@ -609,17 +608,17 @@ class ArXivFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchF
     }
 
     @Test
-    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws FetcherException {
+    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws Exception {
         assertTrue(fetcher.performRawSearchQueryPaged("", 0).getContent().isEmpty());
     }
 
     @Test
-    void performRawSearchQueryPagedReturnsResults() throws FetcherException {
+    void performRawSearchQueryPagedReturnsResults() throws Exception {
         assertFalse(fetcher.performRawSearchQueryPaged("machine learning", 0).getContent().isEmpty());
     }
 
     @Test
-    void abstractIsCleanedUp() throws FetcherException {
+    void abstractIsCleanedUp() throws Exception {
         Optional<BibEntry> entry = fetcher.performSearchById("2407.02238");
         String escaped = "{One of the primary areas of interest in High Performance Computing is the improvement of performance of parallel workloads. Nowadays, compilable source code-based optimization tasks that employ deep learning often exploit LLVM Intermediate Representations (IRs) for extracting features from source code. Most such works target specific tasks, or are designed with a pre-defined set of heuristics. So far, pre-trained models are rare in this domain, but the possibilities have been widely discussed. Especially approaches mimicking large-language models (LLMs) have been proposed. But these have prohibitively large training costs. In this paper, we propose MIREncoder, a M}ulti-modal IR-based Auto-Encoder that can be pre-trained to generate a learned embedding space to be used for downstream tasks by machine learning-based approaches. A multi-modal approach enables us to better extract features from compilable programs. It allows us to better model code syntax, semantics and structure. For code-based performance optimizations, these features are very important while making optimization decisions. A pre-trained model/embedding implicitly enables the usage of transfer learning, and helps move away from task-specific trained models. Additionally, a pre-trained model used for downstream performance optimization should itself have reduced overhead, and be easily usable. These considerations have led us to propose a modeling approach that i) understands code semantics and structure, ii) enables use of transfer learning, and iii) is small and simple enough to be easily re-purposed or reused even with low resource availability. Our evaluations will show that our proposed approach can outperform the state of the art while reducing overhead.";
         assertEquals(Optional.of(escaped), entry.get().getField(StandardField.ABSTRACT));

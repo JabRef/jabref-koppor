@@ -4,7 +4,6 @@ import java.io.Reader;
 import java.util.stream.Stream;
 
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -25,7 +24,7 @@ class MathMLParserTest {
 
     @ParameterizedTest
     @MethodSource("tests")
-    void parserConvertsMathMLIntoLatex(String expected, String input) throws XMLStreamException {
+    void parserConvertsMathMLIntoLatex(String expected, String input) throws Exception {
         XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(Reader.of(input));
         assertEquals(expected, MathMLParser.parse(reader));
     }

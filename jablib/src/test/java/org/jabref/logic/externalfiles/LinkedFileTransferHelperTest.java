@@ -1,6 +1,5 @@
 package org.jabref.logic.externalfiles;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
@@ -30,7 +29,7 @@ class LinkedFileTransferHelperTest {
     void check(String testName,
                FileTestConfigurationBuilder fileTestConfigurationBuilder,
                BibTestConfigurationBuilder sourceBibTestConfigurationBuilder,
-               BibTestConfigurationBuilder targetBibTestConfigurationBuilder) throws IOException {
+               BibTestConfigurationBuilder targetBibTestConfigurationBuilder) throws Exception {
         FilePreferences filePreferences = mock(FilePreferences.class);
         BibTestConfiguration sourceBibTestConfiguration = sourceBibTestConfigurationBuilder.tempDir(tempDir).build();
         BibTestConfiguration targetBibTestConfiguration = targetBibTestConfigurationBuilder.tempDir(tempDir).build();

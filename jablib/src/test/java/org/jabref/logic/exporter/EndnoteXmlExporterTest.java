@@ -1,12 +1,8 @@
 package org.jabref.logic.exporter;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.database.BibDatabaseContext;
@@ -57,7 +53,7 @@ class EndnoteXmlExporterTest {
     }
 
     @Test
-    void exportForEmptyEntryList(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void exportForEmptyEntryList(@TempDir Path tempDir) throws Exception {
         Path file = tempDir.resolve("EmptyFile.xml");
 
         exporter.export(databaseContext, file, List.of());

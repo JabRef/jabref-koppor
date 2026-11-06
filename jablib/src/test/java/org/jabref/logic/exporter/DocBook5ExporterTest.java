@@ -1,6 +1,5 @@
 package org.jabref.logic.exporter;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -8,9 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.util.StandardFileType;
@@ -74,7 +70,7 @@ public class DocBook5ExporterTest {
     }
 
     @Test
-    void performExportForSingleEntry(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void performExportForSingleEntry(@TempDir Path testFolder) throws Exception {
         Path path = testFolder.resolve("ThisIsARandomlyNamedFile");
 
         exporter.export(databaseContext, path, entries);

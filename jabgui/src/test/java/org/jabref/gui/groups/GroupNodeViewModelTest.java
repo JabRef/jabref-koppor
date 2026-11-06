@@ -45,6 +45,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -488,8 +489,8 @@ class GroupNodeViewModelTest {
 
         assertEquals(childNode1, foundVm1.getGroupNode());
         assertEquals(childNode2, foundVm2.getGroupNode());
-        assertTrue(foundVm1.getGroupNode() == childNode1);
-        assertTrue(foundVm2.getGroupNode() == childNode2);
+        assertSame(foundVm1.getGroupNode(), childNode1);
+        assertSame(foundVm2.getGroupNode(), childNode2);
     }
 
     @Test

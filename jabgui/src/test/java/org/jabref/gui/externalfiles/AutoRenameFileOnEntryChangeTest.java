@@ -89,7 +89,7 @@ class AutoRenameFileOnEntryChangeTest {
     }
 
     @Test
-    void noFileRenameByDefault() throws IOException {
+    void noFileRenameByDefault() throws Exception {
         Files.createFile(tempDir.resolve("oldKey2081.pdf"));
         entry.setFiles(List.of(new LinkedFile("", "oldKey2081.pdf", "PDF")));
         entry.setField(StandardField.AUTHOR, "newKey");
@@ -99,7 +99,7 @@ class AutoRenameFileOnEntryChangeTest {
     }
 
     @Test
-    void noFileRenameOnEmptyFilePattern() throws IOException {
+    void noFileRenameOnEmptyFilePattern() throws Exception {
         Files.createFile(tempDir.resolve("oldKey2081.pdf"));
         entry.setFiles(List.of(new LinkedFile("", "oldKey2081.pdf", "PDF")));
         when(filePreferences.getFileNamePattern()).thenReturn("");
@@ -111,7 +111,7 @@ class AutoRenameFileOnEntryChangeTest {
     }
 
     @Test
-    void singleFileRenameOnEntryChange() throws IOException {
+    void singleFileRenameOnEntryChange() throws Exception {
         Files.createFile(tempDir.resolve("oldKey2081.pdf"));
         entry.setFiles(List.of(new LinkedFile("", "oldKey2081.pdf", "PDF")));
         when(filePreferences.shouldAutoRenameFilesOnChange()).thenReturn(true);
@@ -128,7 +128,7 @@ class AutoRenameFileOnEntryChangeTest {
     }
 
     @Test
-    void multipleFilesRenameOnEntryChange() throws IOException {
+    void multipleFilesRenameOnEntryChange() throws Exception {
         // create multiple entries
         List<String> fileNames = List.of(
                 "oldKey2081.pdf",
@@ -170,7 +170,7 @@ class AutoRenameFileOnEntryChangeTest {
     }
 
     @Test
-    void shouldHandleFileNameConflicts() throws IOException {
+    void shouldHandleFileNameConflicts() throws Exception {
         // files that may or may not be linked to another entry
         Files.createFile(tempDir.resolve("newKey2081.pdf"));
         Files.createFile(tempDir.resolve("newKey2081 (1).pdf"));
