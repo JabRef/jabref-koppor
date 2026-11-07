@@ -255,6 +255,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed a `.gitignore` outside a git repository hiding all results in "Search for unlinked local files". [#17141](https://github.com/JabRef/jabref/pull/17141)
 - We fixed an issue where accepting an external change to an entry lost its table position, selection, and open entry editor. [#16813](https://github.com/JabRef/jabref/pull/16813)
 - We fixed an issue where libraries opened or saved shortly before JabRef was killed were missing from recent libraries. [#16911](https://github.com/JabRef/jabref/pull/16911)
+- We fixed an issue where the preferences search did not scroll to its first match. [#17012](https://github.com/JabRef/jabref/pull/17012)
 
 ### Removed
 
