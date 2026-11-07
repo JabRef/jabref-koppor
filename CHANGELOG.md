@@ -32,6 +32,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added indentation and syntax highlighting for JSON in AI chat answers. [#17181](https://github.com/JabRef/jabref/pull/17181)
 - We added a warning for shortcuts already in use, allowing users to replace the existing shortcut or keep both. [#17240](https://github.com/JabRef/jabref/issues/17240)
 - We added "Delete" and "Retry" to the context menu of AI chat messages and made user messages retryable. [#17151](https://github.com/JabRef/jabref/pull/17151)
+- We added a list of saved connections to the "Connect to shared database" dialog. [#12948](https://github.com/JabRef/jabref/issues/12948)
 - We added restricting the columns of the consistency check to the fields a biblatex `.bbx` or `.cbx` style uses. [#17710](https://github.com/JabRef/jabref/pull/17710)
 - We added checking bibliography consistency only for entries cited in a LaTeX `.aux` file; a single `.aux` file next to the library is used by default. [#1403](https://github.com/JabRef/jabref-issue-melting-pot/issues/1403)
 - We added checking bibliography consistency only for entries cited in a LaTeX `.aux` file. [#1403](https://github.com/JabRef/jabref-issue-melting-pot/issues/1403)
@@ -58,13 +59,6 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - The JabRef language server now shows entry details on hover and reads `bibliography:` from Markdown front matter. [#17302](https://github.com/JabRef/jabref/pull/17302)
 - We added entry details on hover to the JabRef language server, which now also reads `bibliography:` from Markdown front matter. [#17302](https://github.com/JabRef/jabref/pull/17302)
 - We added restoring of the library tab and entry that were selected when JabRef was closed. [#16911](https://github.com/JabRef/jabref/pull/16911)
-- We added a list of saved connections to the "Connect to shared database" dialog. [#12948](https://github.com/JabRef/jabref/issues/12948)
-- We added restoring of the library tab and entry that were selected when JabRef was closed. [#16911](https://github.com/JabRef/jabref/pull/16911)
-- We added a list of saved connections to the "Connect to shared database" dialog. [#12948](https://github.com/JabRef/jabref/issues/12948)
-- We now focus the citation key field when a newly added entry opens in the entry editor. [#16929](https://github.com/JabRef/jabref/pull/16929)
-- We added creating a new entry by double-clicking the empty space below the last row of the entry table. [#16929](https://github.com/JabRef/jabref/pull/16929)
-- We added a list of saved connections to the "Connect to shared database" dialog. [#12948](https://github.com/JabRef/jabref/issues/12948)
-- We added entry details on hover to the JabRef language server, which now also reads `bibliography:` from Markdown front matter. [#17302](https://github.com/JabRef/jabref/pull/17302)
 
 ### Changed
 
@@ -160,6 +154,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where the "Get fulltext" button showed no progress during "Search full text documents online". [#17224](https://github.com/JabRef/jabref/pull/17224)
 - We fixed an issue where searching with a full DOI link returned no results. [#17348](https://github.com/JabRef/jabref/issues/17348)
 - We fixed an issue where the consistency check reported missing linked files as an inconsistency. [#17309](https://github.com/JabRef/jabref/issues/17309)
+- We fixed an issue where disabling linked-file full-text indexing did not stop ongoing indexing. [#17577](https://github.com/JabRef/jabref/issues/17577)
+- We reduced the flickering of the entry editor when switching between entries with groups or keywords. [#17229](https://github.com/JabRef/jabref/issues/17229)
 - We fixed an issue on Windows where linked files with very long paths opened the file explorer, not the file. [TODO](TODO)
 - We fixed an issue where accepting an external change to an entry lost its table position, selection, and open entry editor. [#16813](https://github.com/JabRef/jabref/pull/16813)
 - We fixed an issue where backups skipped typed edits and changes merged from a backup were lost on closing. [#16890](https://github.com/JabRef/jabref/pull/16890)
@@ -193,6 +189,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed the linked file tooltip showing the old file name after renaming or moving the file. [#9277](https://github.com/JabRef/jabref/issues/9277)
 - We fixed an issue where Backspace could not be registered as a keyboard shortcut. [#17241](https://github.com/JabRef/jabref/issues/17241)
 - We re-enabled the [Grobid](https://github.com/grobidOrg/grobid) citation fetcher again. It is now reachable via https. [#16668](https://github.com/JabRef/jabref/issues/16668)
+- We fixed arXiv fallback title matching on systems using Turkish or Azerbaijani language settings. [#17652](https://github.com/JabRef/jabref/pull/17652)
+- We fixed search and metadata matching in other fetchers on systems using Turkish or Azerbaijani language settings. [#17732](https://github.com/JabRef/jabref/pull/17732)
 - We fixed an issue where the AI chat lost its scroll position when switching back to an entry. [#17172](https://github.com/JabRef/jabref/pull/17172)
 - We fixed the import dialog to remember its download choice independently of the web search preference. [#16332](https://github.com/JabRef/jabref/issues/16332)
 - We fixed an issue where the same shared database could be opened in a second tab. [#16967](https://github.com/JabRef/jabref/pull/16967)
@@ -247,16 +245,14 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where the "Get fulltext" button showed no progress during "Search full text documents online". [#17224](https://github.com/JabRef/jabref/pull/17224)
 - We fixed an issue where searching with a full DOI link returned no results. [#17348](https://github.com/JabRef/jabref/issues/17348)
 - We fixed an issue where the consistency check reported missing linked files as an inconsistency. [#17309](https://github.com/JabRef/jabref/issues/17309)
+- We fixed an issue where disabling linked-file full-text indexing did not stop ongoing indexing. [#17577](https://github.com/JabRef/jabref/issues/17577)
+- We reduced the flickering of the entry editor when switching between entries with groups or keywords. [#17229](https://github.com/JabRef/jabref/issues/17229)
 - We fixed an issue where backups skipped typed edits and changes merged from a backup were lost on closing. [#16890](https://github.com/JabRef/jabref/pull/16890)
 - We fixed an issue where the preferences search did not scroll to its first match. [#17012](https://github.com/JabRef/jabref/pull/17012)
 - We fixed an issue where failed tasks kept showing as running in the notification center. [#17124](https://github.com/JabRef/jabref/pull/17124)
 - We fixed a `.gitignore` outside a git repository hiding all results in "Search for unlinked local files". [#17141](https://github.com/JabRef/jabref/pull/17141)
 - We fixed an issue where accepting an external change to an entry lost its table position, selection, and open entry editor. [#16813](https://github.com/JabRef/jabref/pull/16813)
 - We fixed an issue where libraries opened or saved shortly before JabRef was killed were missing from recent libraries. [#16911](https://github.com/JabRef/jabref/pull/16911)
-- We reduced the flickering of the entry editor when switching between entries with groups or keywords. [#17229](https://github.com/JabRef/jabref/issues/17229)
-- We fixed an issue where libraries opened or saved shortly before JabRef was killed were missing from recent libraries. [#16911](https://github.com/JabRef/jabref/pull/16911)
-- We reduced the flickering of the entry editor when switching between entries with groups or keywords. [#17229](https://github.com/JabRef/jabref/issues/17229)
-- We fixed an issue where the preferences search did not scroll to its first match. [#17012](https://github.com/JabRef/jabref/pull/17012)
 
 ### Removed
 
