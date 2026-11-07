@@ -33,6 +33,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added a warning for shortcuts already in use, allowing users to replace the existing shortcut or keep both. [#17240](https://github.com/JabRef/jabref/issues/17240)
 - We added "Delete" and "Retry" to the context menu of AI chat messages and made user messages retryable. [#17151](https://github.com/JabRef/jabref/pull/17151)
 - We added a list of saved connections to the "Connect to shared database" dialog. [#12948](https://github.com/JabRef/jabref/issues/12948)
+- We added <kbd>Ctrl</kbd> + <kbd>C</kbd> copy support for selected entries in the global search results window. [#17310](https://github.com/JabRef/jabref/issues/17310)
 - We added restricting the columns of the consistency check to the fields a biblatex `.bbx` or `.cbx` style uses. [#17710](https://github.com/JabRef/jabref/pull/17710)
 - We added checking bibliography consistency only for entries cited in a LaTeX `.aux` file; a single `.aux` file next to the library is used by default. [#1403](https://github.com/JabRef/jabref-issue-melting-pot/issues/1403)
 - We added checking bibliography consistency only for entries cited in a LaTeX `.aux` file. [#1403](https://github.com/JabRef/jabref-issue-melting-pot/issues/1403)
@@ -151,6 +152,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where icons kept a large size after lowering the font size until JabRef was restarted. [#17556](https://github.com/JabRef/jabref/issues/17556)
 - We fixed an issue where the "Backup found" dialog appeared while another library's tab was selected. [#16919](https://github.com/JabRef/jabref/pull/16919)
 - We fixed custom terminal and file browser commands failing when library directories contain spaces. [#12531](https://github.com/JabRef/jabref/issues/12531)
+- We fixed line navigation and deletion shortcuts in multiline entry fields and the source editor. [#17256](https://github.com/JabRef/jabref/issues/17256)
 - We fixed an issue where the "Get fulltext" button showed no progress during "Search full text documents online". [#17224](https://github.com/JabRef/jabref/pull/17224)
 - We fixed an issue where searching with a full DOI link returned no results. [#17348](https://github.com/JabRef/jabref/issues/17348)
 - We fixed an issue where the consistency check reported missing linked files as an inconsistency. [#17309](https://github.com/JabRef/jabref/issues/17309)
@@ -243,6 +245,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where icons kept a large size after lowering the font size until JabRef was restarted. [#17556](https://github.com/JabRef/jabref/issues/17556)
 - We fixed an issue where the "Backup found" dialog appeared while another library's tab was selected. [#16919](https://github.com/JabRef/jabref/pull/16919)
 - We fixed custom terminal and file browser commands failing when library directories contain spaces. [#12531](https://github.com/JabRef/jabref/issues/12531)
+- We fixed line navigation and deletion shortcuts in multiline entry fields and the source editor. [#17256](https://github.com/JabRef/jabref/issues/17256)
 - We fixed an issue where the "Get fulltext" button showed no progress during "Search full text documents online". [#17224](https://github.com/JabRef/jabref/pull/17224)
 - We fixed an issue where searching with a full DOI link returned no results. [#17348](https://github.com/JabRef/jabref/issues/17348)
 - We fixed an issue where the consistency check reported missing linked files as an inconsistency. [#17309](https://github.com/JabRef/jabref/issues/17309)
@@ -255,7 +258,6 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed a `.gitignore` outside a git repository hiding all results in "Search for unlinked local files". [#17141](https://github.com/JabRef/jabref/pull/17141)
 - We fixed an issue where accepting an external change to an entry lost its table position, selection, and open entry editor. [#16813](https://github.com/JabRef/jabref/pull/16813)
 - We fixed an issue where libraries opened or saved shortly before JabRef was killed were missing from recent libraries. [#16911](https://github.com/JabRef/jabref/pull/16911)
-- We fixed an issue where the preferences search did not scroll to its first match. [#17012](https://github.com/JabRef/jabref/pull/17012)
 
 ### Removed
 
