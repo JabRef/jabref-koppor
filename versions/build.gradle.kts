@@ -136,7 +136,7 @@ dependencies.constraints {
     api("org.controlsfx:controlsfx:11.2.6")
     api("org.eclipse.jgit:org.eclipse.jgit:7.8.1.202611041320-r")
     api("org.eclipse.jgit:org.eclipse.jgit.ssh.apache:7.8.1.202611041320-r")
-    api("org.eclipse.jgit:org.eclipse.jgit.ssh.apache.agent:7.8.0.202609011348-r")
+    api("org.eclipse.jgit:org.eclipse.jgit.ssh.apache.agent:7.8.1.202611041320-r")
     api("org.eclipse.lsp4j:org.eclipse.lsp4j:1.0.0")
     api("org.eclipse.lsp4j:org.eclipse.lsp4j.websocket.jakarta:1.0.0")
     api("org.fxmisc.flowless:flowless:0.7.4")

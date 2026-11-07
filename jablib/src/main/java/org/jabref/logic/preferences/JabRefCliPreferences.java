@@ -520,6 +520,7 @@ public class JabRefCliPreferences implements CliPreferences {
     private AiPreferences aiPreferences;
     private OcrPreferences ocrPreferences;
     private LastFilesOpenedPreferences lastFilesOpenedPreferences;
+    private @Nullable SharedDatabasePreferences sharedDatabasePreferences;
     private PushToApplicationPreferences pushToApplicationPreferences;
     private GitPreferences gitPreferences;
 
@@ -1186,7 +1187,7 @@ public class JabRefCliPreferences implements CliPreferences {
         clearTruststoreFromCustomCertificates();
         clearCustomFetcherKeys();
         PREFS_NODE.clear();
-        new SharedDatabasePreferences().clear();
+        getSharedDatabasePreferences().clearAllConnections();
 
         initializeAll();
 
@@ -2308,6 +2309,15 @@ public class JabRefCliPreferences implements CliPreferences {
         lastFilesOpenedPreferences.getFileHistory().addListener((ListChangeListener<Path>) _ -> flush());
 
         return lastFilesOpenedPreferences;
+    }
+
+    /// Kept in its own preferences node rather than bound to keys of this one, see [SharedDatabasePreferences]
+    @Override
+    public SharedDatabasePreferences getSharedDatabasePreferences() {
+        if (sharedDatabasePreferences == null) {
+            sharedDatabasePreferences = new SharedDatabasePreferences();
+        }
+        return sharedDatabasePreferences;
     }
     // endregion
 
