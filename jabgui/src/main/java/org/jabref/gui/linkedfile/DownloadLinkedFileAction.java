@@ -159,7 +159,7 @@ public class DownloadLinkedFileAction extends SimpleCommand {
                 () -> downloadTask.messageProperty().set(Localization.lang("Fulltext for a new entry")));
         downloadTask.showToUser(true);
 
-        downloadTask.onFailure(ex -> onFailure(urlDownload, ex)).showsFailureToUser();
+        downloadTask.onFailure(ex -> onFailure(urlDownload, ex)).failureShownByCaller(true);
         downloadTask.onSuccess(destination -> onSuccess(targetDirectory, destination));
 
         taskExecutor.execute(downloadTask);
