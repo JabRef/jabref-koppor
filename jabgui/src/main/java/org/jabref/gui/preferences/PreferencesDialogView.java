@@ -75,8 +75,8 @@ public class PreferencesDialogView extends BaseDialog<PreferencesDialogViewModel
         preferencesTabList.fixedCellSizeProperty().bind(preferences.getWorkspacePreferences().cellSizeProperty());
         preferencesTabList.itemsProperty().bindBidirectional(searchHandler.filteredPreferenceTabsProperty());
         searchBox.textProperty().addListener((_, _, newText) -> {
-            searchHandler.filterTabs(newText.toLowerCase(Locale.ROOT));
             preferencesTabList.getSelectionModel().clearSelection();
+            searchHandler.filterTabs(newText.toLowerCase(Locale.ROOT));
             preferencesTabList.getSelectionModel().selectFirst();
         });
         searchBox.setPromptText(Localization.lang("Search..."));
@@ -122,6 +122,7 @@ public class PreferencesDialogView extends BaseDialog<PreferencesDialogViewModel
     /// viewport" and does not scroll - hence the explicit layout pass.
     /// [javafx.application.Platform#runLater] is no substitute: measured on this dialog, the queued
     /// task still runs before the pulse's layout and sees the same height of 0.
+    // [impl->req~ux.preferences.search-scroll~1]
     private void scrollToSearchMatch(Node match) {
         if (preferencesContainer.getScene() == null) {
             return;
