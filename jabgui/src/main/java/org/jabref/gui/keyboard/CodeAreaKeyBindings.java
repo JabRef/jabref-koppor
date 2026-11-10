@@ -12,6 +12,7 @@ import jfx.incubator.scene.control.richtext.TextPos;
 
 public class CodeAreaKeyBindings {
 
+    // [impl->req~macos.text-editing-shortcuts~1]
     // [impl->req~ux.text-editing.visual-line-navigation~1]
     public static void call(CodeArea codeArea, KeyEvent event, KeyBindingRepository keyBindingRepository) {
         handleMacCursorMovementShortcuts(codeArea, event);
@@ -117,8 +118,47 @@ public class CodeAreaKeyBindings {
                     codeArea.select(offsetToTextPos(codeArea, res.caretPosition));
                     event.consume();
                 }
+                // EDITOR_CENTER_CARET is not handled: the incubator CodeArea has no public API to scroll the viewport, see https://github.com/JabRef/jabref/issues/17771
+                case EDITOR_INSERT_LINE_AFTER -> {
+                    insertLineAfterCaret(codeArea);
+                    event.consume();
+                }
+                case EDITOR_TRANSPOSE_CHARACTERS -> {
+                    if (!codeArea.hasNonEmptySelection()) {
+                        transposeCharacters(codeArea);
+                        event.consume();
+                    }
+                }
             }
         });
+    }
+
+    /// macOS Ctrl+O: inserts a line break at the caret without moving the caret,
+    /// so the caret stays at the end of the first part of the split line.
+    static void insertLineAfterCaret(CodeArea codeArea) {
+        TextPos caret = codeArea.getCaretPosition();
+        if (caret == null || !codeArea.isEditable()) {
+            return;
+        }
+        codeArea.replaceText(caret, caret, "\n");
+        codeArea.select(caret);
+    }
+
+    static void transposeCharacters(CodeArea codeArea) {
+        String text = codeArea.getText();
+        int caret = textPosToOffset(codeArea, codeArea.getCaretPosition());
+        if (caret == 0 || caret >= text.length()) {
+            return;
+        }
+
+        int previousCharacterStart = text.offsetByCodePoints(caret, -1);
+        int nextCharacterEnd = text.offsetByCodePoints(caret, 1);
+        String replacement = text.substring(caret, nextCharacterEnd) + text.substring(previousCharacterStart, caret);
+        codeArea.replaceText(
+                offsetToTextPos(codeArea, previousCharacterStart),
+                offsetToTextPos(codeArea, nextCharacterEnd),
+                replacement);
+        codeArea.select(offsetToTextPos(codeArea, nextCharacterEnd));
     }
 
     private static void handleMacCursorMovementShortcuts(CodeArea codeArea, KeyEvent event) {

@@ -1,6 +1,8 @@
 package org.jabref.gui.keyboard;
 
 import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.control.skin.TextAreaSkin;
 import javafx.scene.control.skin.TextInputControlSkin.Direction;
@@ -12,6 +14,7 @@ import org.jabref.model.util.ResultingStringState;
 
 public class TextInputKeyBindings {
 
+    // [impl->req~macos.text-editing-shortcuts~1]
     // [impl->req~ux.text-editing.line-boundaries~2]
     // [impl->req~ux.text-editing.visual-line-navigation~1]
     public static void call(Scene scene, KeyEvent event, KeyBindingRepository keyBindingRepository) {
@@ -66,6 +69,22 @@ public class TextInputKeyBindings {
                     case EDITOR_END_DOC -> {
                         focusedTextField.end();
                         event.consume();
+                    }
+                    case EDITOR_CENTER_CARET -> {
+                        if (centerCaret(focusedTextField)) {
+                            event.consume();
+                        }
+                    }
+                    case EDITOR_INSERT_LINE_AFTER -> {
+                        if (insertLineAfterCaret(focusedTextField)) {
+                            event.consume();
+                        }
+                    }
+                    case EDITOR_TRANSPOSE_CHARACTERS -> {
+                        if (focusedTextField.getSelection().getLength() == 0) {
+                            transposeCharacters(focusedTextField);
+                            event.consume();
+                        }
                     }
                     case EDITOR_CAPITALIZE -> {
                         int pos = focusedTextField.getCaretPosition();
@@ -123,6 +142,52 @@ public class TextInputKeyBindings {
                 }
             });
         }
+    }
+
+    /// macOS Ctrl+L: scrolls a multi-line [TextArea] so that the caret line is vertically centered, without moving the caret.
+    /// At the beginning and the end of the text, the scrolling stops at the text boundary.
+    ///
+    /// @return true if the text input is a text area whose scroll position was adjusted
+    static boolean centerCaret(TextInputControl textInput) {
+        if (!(textInput instanceof TextArea textArea)
+                || !(textArea.getSkin() instanceof TextAreaSkin skin)
+                || !(textArea.lookup(".scroll-pane") instanceof ScrollPane scrollPane)
+                || (scrollPane.getContent() == null)) {
+            return false;
+        }
+        double scrollTopMax = Math.max(0, scrollPane.getContent().getLayoutBounds().getHeight() - scrollPane.getViewportBounds().getHeight());
+        // Caret bounds are relative to the text area, so they already reflect the current scroll position
+        double scrollTop = textArea.getScrollTop() + skin.getCaretBounds().getCenterY() - (textArea.getHeight() / 2);
+        textArea.setScrollTop(Math.clamp(scrollTop, 0, scrollTopMax));
+        return true;
+    }
+
+    /// macOS Ctrl+O: inserts a line break at the caret without moving the caret.
+    /// Only editable text areas are supported, because single-line fields cannot contain line breaks.
+    ///
+    /// @return true if a line break was inserted
+    static boolean insertLineAfterCaret(TextInputControl textInput) {
+        if (!(textInput instanceof TextArea) || !textInput.isEditable()) {
+            return false;
+        }
+        int caret = textInput.getCaretPosition();
+        textInput.insertText(caret, "\n");
+        textInput.positionCaret(caret);
+        return true;
+    }
+
+    static void transposeCharacters(TextInputControl textInput) {
+        String text = textInput.getText();
+        int caret = textInput.getCaretPosition();
+        if (caret == 0 || caret >= text.length()) {
+            return;
+        }
+
+        int previousCharacterStart = text.offsetByCodePoints(caret, -1);
+        int nextCharacterEnd = text.offsetByCodePoints(caret, 1);
+        String replacement = text.substring(caret, nextCharacterEnd) + text.substring(previousCharacterStart, caret);
+        textInput.replaceText(previousCharacterStart, nextCharacterEnd, replacement);
+        textInput.positionCaret(nextCharacterEnd);
     }
 
     private static void moveCaretUp(TextInputControl control) {
