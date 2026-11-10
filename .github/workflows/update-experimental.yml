@@ -39,8 +39,6 @@ env:
   # Only PRs neither on a milestone nor merged automatically belong here, e.g. JabRef/jabref PRs from forks.
   PRS: |
     https://github.com/JabRef/jabref/pull/17134
-    # Draft with its branch in JabRef/jabref-koppor, so it is not picked up automatically
-    https://github.com/JabRef/jabref-koppor/pull/786
   # JabRef/jabref-koppor milestone numbers; their open PRs are merged before everything else, milestone by milestone
   # (PRs within one milestone by number). 1 = soon-upstream, 2 = for-upstream.
   MILESTONES: 1 2
