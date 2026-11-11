@@ -3,6 +3,7 @@ package org.jabref.gui.keyboard;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import javafx.event.Event;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -15,6 +16,8 @@ import jfx.incubator.scene.control.richtext.LineEnding;
 import jfx.incubator.scene.control.richtext.TextPos;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -144,6 +147,23 @@ class CodeAreaKeyBindingsTest {
     }
 
     @Test
+    @EnabledOnOs(OS.MAC)
+    void optionBackspaceDeletesPreviousWordInCodeArea() {
+        JavaFxExtension.invokeAndWait(() -> {
+            CodeArea area = new CodeArea();
+            area.setText("hello world");
+            Stage stage = new Stage();
+            stage.setScene(new Scene(area));
+            stage.show();
+            area.requestFocus();
+            area.select(TextPos.ofLeading(0, 11));
+            Event.fireEvent(area, new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.BACK_SPACE, false, false, true, false));
+            assertEquals("hello ", area.getText());
+            stage.hide();
+        });
+    }
+
+    @Test
     void transposeCharactersAroundCaret() {
         CodeArea codeArea = new CodeArea();
         codeArea.setText("abcd");
@@ -172,7 +192,10 @@ class CodeAreaKeyBindingsTest {
 
     private static Stream<Arguments> transposeBoundaryData() {
         return Stream.of(
-                Arguments.of("teh", TextPos.ofLeading(0, 3), "the", TextPos.ofLeading(0, 3)),
+                Arguments.of("teh", TextPos.ofLeading(0, 3), "the", TextPos.ofLeading(0, 3)), // spellchecker:disable-line
+                Arguments.of("a\u0301b", TextPos.ofLeading(0, 2), "ba\u0301", TextPos.ofLeading(0, 3)),
+                Arguments.of("a\u0301b", TextPos.ofLeading(0, 3), "ba\u0301", TextPos.ofLeading(0, 3)),
+                Arguments.of("ab\n\ncd", TextPos.ofLeading(1, 0), "a\nb\ncd", TextPos.ofLeading(1, 1)),
                 Arguments.of("ab\ncd", TextPos.ofLeading(0, 2), "ba\ncd", TextPos.ofLeading(0, 2)),
                 Arguments.of("a\nb", TextPos.ofLeading(0, 1), "a\nb", TextPos.ofLeading(0, 1)),
                 Arguments.of("ab\ncd", TextPos.ofLeading(1, 0), "abc\nd", TextPos.ofLeading(1, 0)));
