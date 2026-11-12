@@ -78,7 +78,7 @@ public class BibframeExporter extends Exporter {
             Map.entry("fas", "per"),
             Map.entry("sqi", "alb"),
             Map.entry("bod", "tib"),
-            Map.entry("cym", "wel"),
+            Map.entry("cym", "wel"), // spellchecker:disable-line
             Map.entry("kat", "geo")); // spellchecker:disable-line
 
     public BibframeExporter() {

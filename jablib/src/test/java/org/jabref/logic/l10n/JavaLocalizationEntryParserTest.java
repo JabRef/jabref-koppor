@@ -77,7 +77,7 @@ public class JavaLocalizationEntryParserTest {
                 "int i = 0; // Localization.lang(\"key in trailing line comment\")",
                 "/* Localization.lang(\"key in block comment\") */",
                 "/*\n * Localization.lang(\"key in multi line block comment\")\n */",
-                "/**" + "\n * Localization.lang(\"key in javadoc\")\n */", // Hide fake javadoc from autoformatter
+                "/*" + "*\n * Localization.lang(\"key in javadoc\")\n */", // split so that no tool takes it as Javadoc
                 // unterminated block comment at the end of a file
                 "/* Localization.lang(\"key in unterminated block comment\")");
     }
