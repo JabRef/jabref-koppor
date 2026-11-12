@@ -3,7 +3,6 @@ package org.jabref.gui.fieldeditors.optioneditors.mapbased;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.undo.UndoManager;
@@ -11,8 +10,12 @@ import org.jabref.model.entry.field.Field;
 
 public class CustomFieldEditorViewModel extends StringMapBasedEditorViewModel {
 
-    public CustomFieldEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider,
-                                      FieldCheckers fieldCheckers, UndoManager undoManager, List<String> selectorValues) {
+    public CustomFieldEditorViewModel(
+            Field field,
+            SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers,
+            UndoManager undoManager,
+            List<String> selectorValues) {
         super(field, suggestionProvider, fieldCheckers, undoManager, getMap(selectorValues));
     }
 

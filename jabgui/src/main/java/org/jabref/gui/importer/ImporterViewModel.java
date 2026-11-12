@@ -2,7 +2,6 @@ package org.jabref.gui.importer;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.importer.fileformat.CustomImporter;
 
 public class ImporterViewModel {

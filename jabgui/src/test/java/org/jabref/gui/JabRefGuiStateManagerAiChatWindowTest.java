@@ -1,19 +1,17 @@
 package org.jabref.gui;
 
-import java.util.Optional;
-
-import org.jabref.gui.ai.chat.AiGroupChatWindow;
-import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.StandardField;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+
+import java.util.Optional;
+import org.jabref.gui.ai.chat.AiGroupChatWindow;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.StandardField;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class JabRefGuiStateManagerAiChatWindowTest {
 

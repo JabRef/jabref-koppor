@@ -5,12 +5,12 @@ import org.jabref.logic.util.strings.StringUtil;
 
 /// Helper functions to produce some of the markup as understood by OOTextIntoOO.write
 ///
-/// These do not cover all tags, only those needed to embed markup from Layout and citation marker formatters into citation markers and bibliography.
+/// These do not cover all tags, only those needed to embed markup from Layout and citation marker formatters into
+/// citation markers and bibliography.
 @AllowedToUseLogic("Uses StringUtil temporarily")
 public class OOFormat {
 
-    private OOFormat() {
-    }
+    private OOFormat() {}
 
     /// Mark `ootext` as using a character locale known to OO.
     ///
@@ -18,7 +18,8 @@ public class OOFormat {
     ///
     /// The country part is optional.
     ///
-    /// The territory part is not only optional, the allowed "codes are vendor and browser-specific", so probably best to avoid them if possible.
+    /// The territory part is not only optional, the allowed "codes are vendor and browser-specific", so probably best
+    /// to avoid them if possible.
     ///
     /// @param locale language[-country[-territory]]
     public static OOText setLocale(OOText ootext, String locale) {
@@ -34,11 +35,10 @@ public class OOFormat {
 
     /// Mark `ootext` using a character style `charStyle`
     ///
-    /// @param charStyle Name of a character style known to OO. May be empty for "Standard", which in turn means do not override any properties.
+    /// @param charStyle Name of a character style known to OO. May be empty for "Standard", which in turn means do not
+    /// override any properties.
     public static OOText setCharStyle(OOText ootext, String charStyle) {
-        return OOText.fromString("<span oo:CharStyleName=\"%s\">".formatted(charStyle)
-                + ootext.toString()
-                + "</span>");
+        return OOText.fromString("<span oo:CharStyleName=\"%s\">".formatted(charStyle) + ootext.toString() + "</span>");
     }
 
     /// Mark `ootext` as part of a paragraph with style `paraStyle`

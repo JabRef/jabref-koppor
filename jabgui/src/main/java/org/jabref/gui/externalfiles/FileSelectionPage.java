@@ -1,12 +1,12 @@
 package org.jabref.gui.externalfiles;
 
+import com.tobiasdiez.easybind.EasyBind;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
-
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -30,7 +30,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
+import org.controlsfx.control.CheckTreeView;
+import org.controlsfx.dialog.Wizard;
+import org.controlsfx.dialog.WizardPane;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.SimpleCommand;
@@ -51,11 +53,6 @@ import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
-import com.tobiasdiez.easybind.EasyBind;
-import org.controlsfx.control.CheckTreeView;
-import org.controlsfx.dialog.Wizard;
-import org.controlsfx.dialog.WizardPane;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,10 +99,11 @@ public class FileSelectionPage extends WizardPane {
     private Button showPreviewButton;
     private boolean nextButtonBound = false;
 
-    public FileSelectionPage(StateManager stateManager,
-                             UnlinkedFilesDialogViewModel viewModel,
-                             ImportFormatPreferences importFormatPreferences,
-                             TaskExecutor taskExecutor) {
+    public FileSelectionPage(
+            StateManager stateManager,
+            UnlinkedFilesDialogViewModel viewModel,
+            ImportFormatPreferences importFormatPreferences,
+            TaskExecutor taskExecutor) {
         this.viewModel = viewModel;
         this.stateManager = stateManager;
         this.taskExecutor = taskExecutor;
@@ -200,7 +198,9 @@ public class FileSelectionPage extends WizardPane {
         showPreviewButton.setVisible(false);
         showPreviewButton.setOnAction(_ -> showPreviewPane());
 
-        buttonBar.getChildren().addAll(selectAllButton, unselectAllButton, expandAllButton, collapseAllButton, showPreviewButton);
+        buttonBar
+                .getChildren()
+                .addAll(selectAllButton, unselectAllButton, expandAllButton, collapseAllButton, showPreviewButton);
 
         contentPane.getChildren().addAll(fileCountLabel, splitPane, buttonBar);
 
@@ -212,14 +212,22 @@ public class FileSelectionPage extends WizardPane {
         progressPane.managedProperty().bind(viewModel.taskActiveProperty());
         progressPane.visibleProperty().bind(viewModel.taskActiveProperty());
 
-        unlinkedFilesList.rootProperty().bind(EasyBind.map(viewModel.treeRootProperty(), fileNode -> fileNode.map(fileNodeViewModel -> new RecursiveTreeItem<>(fileNodeViewModel, FileNodeViewModel::getChildren)).orElse(null)));
+        unlinkedFilesList
+                .rootProperty()
+                .bind(EasyBind.map(
+                        viewModel.treeRootProperty(),
+                        fileNode -> fileNode.map(fileNodeViewModel ->
+                                        new RecursiveTreeItem<>(fileNodeViewModel, FileNodeViewModel::getChildren))
+                                .orElse(null)));
 
         EasyBind.subscribe(unlinkedFilesList.rootProperty(), root -> {
             if (root != null) {
                 ((CheckBoxTreeItem<FileNodeViewModel>) root).setSelected(true);
                 root.setExpanded(true);
 
-                EasyBind.bindContent(viewModel.checkedFileListProperty(), unlinkedFilesList.getCheckModel().getCheckedItems());
+                EasyBind.bindContent(
+                        viewModel.checkedFileListProperty(),
+                        unlinkedFilesList.getCheckModel().getCheckedItems());
 
                 updateFileCount(root);
                 refreshPreviewForCurrentSelection();
@@ -232,11 +240,15 @@ public class FileSelectionPage extends WizardPane {
             }
         });
 
-        unlinkedFilesList.getSelectionModel().selectedItemProperty().addListener((_, _, _) ->
-                previewThrottler.schedule(() -> UiTaskExecutor.runNowOrInJavaFXThread(this::refreshPreviewForCurrentSelection)));
+        unlinkedFilesList
+                .getSelectionModel()
+                .selectedItemProperty()
+                .addListener((_, _, _) -> previewThrottler.schedule(
+                        () -> UiTaskExecutor.runNowOrInJavaFXThread(this::refreshPreviewForCurrentSelection)));
         enablePreviewCheckBox.selectedProperty().addListener((_, _, _) -> refreshPreviewForCurrentSelection());
 
-        invalidProperty().bind(Bindings.isEmpty(viewModel.checkedFileListProperty()).or(viewModel.taskActiveProperty()));
+        invalidProperty()
+                .bind(Bindings.isEmpty(viewModel.checkedFileListProperty()).or(viewModel.taskActiveProperty()));
 
         selectAllButton.disableProperty().bind(viewModel.taskActiveProperty());
         unselectAllButton.disableProperty().bind(viewModel.taskActiveProperty());
@@ -254,7 +266,8 @@ public class FileSelectionPage extends WizardPane {
             return;
         }
 
-        TreeItem<FileNodeViewModel> selectedItem = unlinkedFilesList.getSelectionModel().getSelectedItem();
+        TreeItem<FileNodeViewModel> selectedItem =
+                unlinkedFilesList.getSelectionModel().getSelectedItem();
         if ((selectedItem == null) || (selectedItem.getValue() == null)) {
             showPreviewDisabledState(Localization.lang("Select a PDF file to preview"));
             return;
@@ -271,7 +284,8 @@ public class FileSelectionPage extends WizardPane {
         cancelCurrentMetadataTask();
         metadataPreview.setText(Localization.lang("Loading metadata..."));
 
-        BackgroundTask<ParserResult> task = BackgroundTask.wrap(() -> new PdfMergeMetadataImporter(importFormatPreferences).importDatabase(selectedPath));
+        BackgroundTask<ParserResult> task = BackgroundTask.wrap(
+                () -> new PdfMergeMetadataImporter(importFormatPreferences).importDatabase(selectedPath));
         currentMetadataTask = task;
         task.onSuccess(result -> {
             if (currentMetadataTask != task) {
@@ -285,7 +299,9 @@ public class FileSelectionPage extends WizardPane {
                 return;
             }
             LOGGER.warn("Could not extract PDF metadata for {}", selectedPath, exception);
-            metadataPreview.setText(Localization.lang("Could not extract Metadata from: %0", selectedPath.getFileName().toString()));
+            metadataPreview.setText(Localization.lang(
+                    "Could not extract Metadata from: %0",
+                    selectedPath.getFileName().toString()));
         });
         task.executeWith(taskExecutor);
     }
@@ -348,10 +364,22 @@ public class FileSelectionPage extends WizardPane {
         ContextMenu contextMenu = new ContextMenu();
         ActionFactory factory = new ActionFactory();
 
-        contextMenu.getItems().add(factory.createMenuItem(StandardActions.SELECT_ALL, new TreeContextAction(StandardActions.SELECT_ALL)));
-        contextMenu.getItems().add(factory.createMenuItem(StandardActions.UNSELECT_ALL, new TreeContextAction(StandardActions.UNSELECT_ALL)));
-        contextMenu.getItems().add(factory.createMenuItem(StandardActions.EXPAND_ALL, new TreeContextAction(StandardActions.EXPAND_ALL)));
-        contextMenu.getItems().add(factory.createMenuItem(StandardActions.COLLAPSE_ALL, new TreeContextAction(StandardActions.COLLAPSE_ALL)));
+        contextMenu
+                .getItems()
+                .add(factory.createMenuItem(
+                        StandardActions.SELECT_ALL, new TreeContextAction(StandardActions.SELECT_ALL)));
+        contextMenu
+                .getItems()
+                .add(factory.createMenuItem(
+                        StandardActions.UNSELECT_ALL, new TreeContextAction(StandardActions.UNSELECT_ALL)));
+        contextMenu
+                .getItems()
+                .add(factory.createMenuItem(
+                        StandardActions.EXPAND_ALL, new TreeContextAction(StandardActions.EXPAND_ALL)));
+        contextMenu
+                .getItems()
+                .add(factory.createMenuItem(
+                        StandardActions.COLLAPSE_ALL, new TreeContextAction(StandardActions.COLLAPSE_ALL)));
 
         return contextMenu;
     }
@@ -392,17 +420,17 @@ public class FileSelectionPage extends WizardPane {
     private String formatBibEntry(BibEntry entry) {
         StringJoiner joiner = new StringJoiner(System.lineSeparator());
         joiner.add(Localization.lang("Type: %0", entry.getType().getDisplayName()));
-        Comparator<Field> byDisplayOrder = Comparator.comparingInt(FileSelectionPage::priorityIndex)
-                                                     .thenComparing(Field::getName);
+        Comparator<Field> byDisplayOrder =
+                Comparator.comparingInt(FileSelectionPage::priorityIndex).thenComparing(Field::getName);
         entry.getFieldMap().entrySet().stream()
-             .filter(field -> !field.getKey().equals(StandardField.FILE))
-             .sorted(Map.Entry.comparingByKey(byDisplayOrder))
-             .forEach(field -> {
-                 String value = field.getValue();
-                 if (value != null && !value.isBlank()) {
-                     joiner.add(field.getKey().getName() + ": " + value);
-                 }
-             });
+                .filter(field -> !field.getKey().equals(StandardField.FILE))
+                .sorted(Map.Entry.comparingByKey(byDisplayOrder))
+                .forEach(field -> {
+                    String value = field.getValue();
+                    if (value != null && !value.isBlank()) {
+                        joiner.add(field.getKey().getName() + ": " + value);
+                    }
+                });
         return joiner.toString();
     }
 
@@ -442,14 +470,10 @@ public class FileSelectionPage extends WizardPane {
         @Override
         public void execute() {
             switch (command) {
-                case SELECT_ALL ->
-                        unlinkedFilesList.getCheckModel().checkAll();
-                case UNSELECT_ALL ->
-                        unlinkedFilesList.getCheckModel().clearChecks();
-                case EXPAND_ALL ->
-                        expandTree(unlinkedFilesList.getRoot(), true);
-                case COLLAPSE_ALL ->
-                        expandTree(unlinkedFilesList.getRoot(), false);
+                case SELECT_ALL -> unlinkedFilesList.getCheckModel().checkAll();
+                case UNSELECT_ALL -> unlinkedFilesList.getCheckModel().clearChecks();
+                case EXPAND_ALL -> expandTree(unlinkedFilesList.getRoot(), true);
+                case COLLAPSE_ALL -> expandTree(unlinkedFilesList.getRoot(), false);
             }
         }
     }

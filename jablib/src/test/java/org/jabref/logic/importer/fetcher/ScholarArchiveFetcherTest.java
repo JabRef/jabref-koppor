@@ -1,20 +1,18 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.paging.Page;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExternalServicesTest
 class ScholarArchiveFetcherTest {
@@ -49,6 +47,3 @@ class ScholarArchiveFetcherTest {
         assertTrue(result.getContent().isEmpty());
     }
 }
-
-
-

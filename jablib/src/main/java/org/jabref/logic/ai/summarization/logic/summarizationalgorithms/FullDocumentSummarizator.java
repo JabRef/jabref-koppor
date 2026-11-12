@@ -1,13 +1,11 @@
 package org.jabref.logic.ai.summarization.logic.summarizationalgorithms;
 
+import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.data.message.UserMessage;
 import java.util.List;
-
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.templates.AiTemplateRenderer;
 import org.jabref.model.ai.summarization.SummarizatorKind;
-
-import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.data.message.UserMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +30,10 @@ public class FullDocumentSummarizator implements Summarizator {
         String systemMessage = AiTemplateRenderer.renderSummarizationFullDocumentSystemMessage(systemMessageTemplate);
 
         LOGGER.debug("Sending request to AI provider to summarize the full document");
-        String result = chatModel.chat(List.of(
-                new SystemMessage(systemMessage),
-                new UserMessage(text)
-        )).aiMessage().text();
+        String result = chatModel
+                .chat(List.of(new SystemMessage(systemMessage), new UserMessage(text)))
+                .aiMessage()
+                .text();
 
         LOGGER.debug("Full-document summary was generated successfully");
         return result;

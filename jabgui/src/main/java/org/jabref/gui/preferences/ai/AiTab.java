@@ -1,5 +1,9 @@
 package org.jabref.gui.preferences.ai;
 
+import static org.jabref.gui.preferences.forms.FormMetrics.GAP;
+
+import com.airhacks.afterburner.injection.Injector;
+import com.dlsc.unitfx.IntegerInputField;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.IntegerProperty;
@@ -19,7 +23,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.preferences.ai.AiTabViewModel.ConnectionTestState;
@@ -32,11 +35,6 @@ import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.ai.llm.AiProvider;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.dlsc.unitfx.IntegerInputField;
-
-import static org.jabref.gui.preferences.forms.FormMetrics.GAP;
 
 public class AiTab extends AbstractPreferenceTabView<AiTabViewModel> {
 
@@ -74,11 +72,13 @@ public class AiTab extends AbstractPreferenceTabView<AiTabViewModel> {
         TextField embeddingModelMaxChunkSizeField = new TextField();
         embeddingModelMaxChunkSizeField.setEditable(false);
         embeddingModelMaxChunkSizeField.setFocusTraversable(false);
-        embeddingModelMaxChunkSizeField.textProperty().bind(viewModel.selectedEmbeddingModelMaxChunkSizeProperty().asString());
+        embeddingModelMaxChunkSizeField
+                .textProperty()
+                .bind(viewModel.selectedEmbeddingModelMaxChunkSizeProperty().asString());
 
-        setContent(form()
-
-                .section(Localization.lang("General"), general -> general
+        setContent(form().section(
+                        Localization.lang("General"),
+                        general -> general
                                 // [impl->feat~ai.llms.providers~1]
                                 .checkbox(Localization.lang("Enable AI functionality in JabRef"), viewModel.enableAi())
                                 .info(Localization.lang("AI functionality in Jabref includes:"))
@@ -86,104 +86,211 @@ public class AiTab extends AbstractPreferenceTabView<AiTabViewModel> {
                                 .info(Localization.lang("• Summarizing entries."))
                                 .info(Localization.lang("• Turn a citation into a BibTeX or BibLaTeX entry.")),
                         generalSection -> generalSection.help(HelpFile.AI_GENERAL_SETTINGS))
-
-                .section(Localization.lang("Connection"), connection -> connection
-                        .combo(Localization.lang("AI provider"),
-                                viewModel.aiProvidersProperty(),
-                                viewModel.selectedAiProviderProperty(),
-                                AiNamingUtils::getDisplayName,
-                                provider -> provider.disableWhen(viewModel.disableBasicSettingsProperty()))
-                        .field(Localization.lang("Chat model"), buildChatModelCombo(),
-                                chatModel -> chatModel.disableWhen(viewModel.disableBasicSettingsProperty())
-                                                      .validate(viewModel.getChatModelValidationStatus()))
-                        .field(Localization.lang("API key"), PasswordFieldEditor.create(viewModel.apiKeyProperty())
-                                                                                .withRevealButton()
-                                                                                .withClearButton()
-                                                                                .field(),
-                                key -> key.disableWhen(viewModel.disableBasicSettingsProperty())
-                                          .validate(viewModel.getApiTokenValidationStatus()))
-                        // [impl->req~ai.llms.test-connection~1]
-                        .button(Localization.lang("Test connection"), this::testConnection,
-                                test -> test.disableWhen(Bindings.or(viewModel.disableBasicSettingsProperty(),
-                                                    viewModel.connectionTestStateProperty().isEqualTo(ConnectionTestState.TESTING)))
-                                            .configure(this::bindTestConnectionButton))
-                        .custom(buildTestConnectionDetailsArea(),
-                                details -> details.visibleWhen(viewModel.connectionTestDetailsProperty().isNotEmpty())))
-
-                .section(Localization.lang("Expert settings"), expertSettings -> expertSettings
-                                .checkbox(Localization.lang("Customize expert settings"), viewModel.customizeExpertSettingsProperty(),
+                .section(
+                        Localization.lang("Connection"),
+                        connection -> connection
+                                .combo(
+                                        Localization.lang("AI provider"),
+                                        viewModel.aiProvidersProperty(),
+                                        viewModel.selectedAiProviderProperty(),
+                                        AiNamingUtils::getDisplayName,
+                                        provider -> provider.disableWhen(viewModel.disableBasicSettingsProperty()))
+                                .field(
+                                        Localization.lang("Chat model"),
+                                        buildChatModelCombo(),
+                                        chatModel -> chatModel
+                                                .disableWhen(viewModel.disableBasicSettingsProperty())
+                                                .validate(viewModel.getChatModelValidationStatus()))
+                                .field(
+                                        Localization.lang("API key"),
+                                        PasswordFieldEditor.create(viewModel.apiKeyProperty())
+                                                .withRevealButton()
+                                                .withClearButton()
+                                                .field(),
+                                        key -> key.disableWhen(viewModel.disableBasicSettingsProperty())
+                                                .validate(viewModel.getApiTokenValidationStatus()))
+                                // [impl->req~ai.llms.test-connection~1]
+                                .button(
+                                        Localization.lang("Test connection"),
+                                        this::testConnection,
+                                        test -> test.disableWhen(Bindings.or(
+                                                        viewModel.disableBasicSettingsProperty(),
+                                                        viewModel
+                                                                .connectionTestStateProperty()
+                                                                .isEqualTo(ConnectionTestState.TESTING)))
+                                                .configure(this::bindTestConnectionButton))
+                                .custom(
+                                        buildTestConnectionDetailsArea(),
+                                        details -> details.visibleWhen(viewModel
+                                                .connectionTestDetailsProperty()
+                                                .isNotEmpty())))
+                .section(
+                        Localization.lang("Expert settings"),
+                        expertSettings -> expertSettings
+                                .checkbox(
+                                        Localization.lang("Customize expert settings"),
+                                        viewModel.customizeExpertSettingsProperty(),
                                         customize -> customize.disableWhen(viewModel.disableBasicSettingsProperty()))
-                                .group(expert -> expert
-                                                .stringField(Localization.lang("API base URL (used only for LLM)"), viewModel.apiBaseUrlProperty(),
-                                                        baseUrl -> baseUrl.disableWhen(viewModel.disableApiBaseUrlProperty())
-                                                                          .validate(viewModel.getApiBaseUrlValidationStatus()))
-                                                .searchableCombo(Localization.lang("Embedding model"),
+                                .group(
+                                        expert -> expert.stringField(
+                                                        Localization.lang("API base URL (used only for LLM)"),
+                                                        viewModel.apiBaseUrlProperty(),
+                                                        baseUrl -> baseUrl.disableWhen(
+                                                                        viewModel.disableApiBaseUrlProperty())
+                                                                .validate(viewModel.getApiBaseUrlValidationStatus()))
+                                                .searchableCombo(
+                                                        Localization.lang("Embedding model"),
                                                         viewModel.embeddingModelsProperty(),
                                                         viewModel.selectedEmbeddingModelProperty(),
                                                         model -> model != null ? model : "",
-                                                        embedding -> embedding.validate(viewModel.getEmbeddingModelValidationStatus()))
-                                                .field(Localization.lang("Embedding model size"), embeddingModelSizeField)
-                                                .field(Localization.lang("Embedding model maximum chunk size"), embeddingModelMaxChunkSizeField)
-                                                // The six numeric expert settings, as two columns of caption-above-field cells.
+                                                        embedding -> embedding.validate(
+                                                                viewModel.getEmbeddingModelValidationStatus()))
+                                                .field(
+                                                        Localization.lang("Embedding model size"),
+                                                        embeddingModelSizeField)
+                                                .field(
+                                                        Localization.lang("Embedding model maximum chunk size"),
+                                                        embeddingModelMaxChunkSizeField)
+                                                // The six numeric expert settings, as two columns of
+                                                // caption-above-field cells.
                                                 // [impl->feat~ai.expert-settings.chat-inference-global~1]
                                                 // [impl->feat~ai.expert-settings.rag-global~1]
-                                                .columns(expertColumns -> expertColumns
-                                                        .group(leftColumn -> leftColumn
-                                                                .stackedField(Localization.lang("Context window size"), integerField(viewModel.contextWindowSizeProperty()),
-                                                                        windowSize -> windowSize.validate(viewModel.getMessageWindowSizeValidationStatus()))
-                                                                .stackedField(Localization.lang("RAG - maximum results count"), integerField(viewModel.ragMaxResultsCountProperty()),
-                                                                        resultsCount -> resultsCount.validate(viewModel.getRagMaxResultsCountValidationStatus()))
-                                                                .stackedField(Localization.lang("Document splitter - chunk size"), integerField(viewModel.documentSplitterChunkSizeProperty()),
-                                                                        chunkSize -> chunkSize.validate(viewModel.getDocumentSplitterChunkSizeValidationStatus())))
-                                                        .group(rightColumn -> rightColumn
-                                                                .stackedField(Localization.lang("Temperature"), textField(viewModel.temperatureProperty()),
-                                                                        temperature -> temperature.validate(viewModel.getTemperatureTypeValidationStatus())
-                                                                                                  .validate(viewModel.getTemperatureRangeValidationStatus()))
-                                                                .stackedField(Localization.lang("RAG - minimum score"), textField(viewModel.ragMinScoreProperty()),
-                                                                        minScore -> minScore.validate(viewModel.getRagMinScoreTypeValidationStatus())
-                                                                                            .validate(viewModel.getRagMinScoreRangeValidationStatus()))
-                                                                .stackedField(Localization.lang("Document splitter - overlap size"), integerField(viewModel.documentSplitterOverlapSizeProperty()),
-                                                                        overlapSize -> overlapSize.validate(viewModel.getDocumentSplitterOverlapSizeValidationStatus()))))
-                                                .checkbox(Localization.lang("Enable AI provider debugging"), viewModel.enableAiDebugProviderProperty())
-                                                .button(Localization.lang("Reset expert settings to default"), IconTheme.JabRefIcons.REFRESH, viewModel::resetExpertSettings),
+                                                .columns(
+                                                        expertColumns -> expertColumns
+                                                                .group(
+                                                                        leftColumn -> leftColumn
+                                                                                .stackedField(
+                                                                                        Localization.lang(
+                                                                                                "Context window size"),
+                                                                                        integerField(
+                                                                                                viewModel
+                                                                                                        .contextWindowSizeProperty()),
+                                                                                        windowSize ->
+                                                                                                windowSize.validate(
+                                                                                                        viewModel
+                                                                                                                .getMessageWindowSizeValidationStatus()))
+                                                                                .stackedField(
+                                                                                        Localization.lang(
+                                                                                                "RAG - maximum results"
+                                                                                                        + " count"),
+                                                                                        integerField(
+                                                                                                viewModel
+                                                                                                        .ragMaxResultsCountProperty()),
+                                                                                        resultsCount ->
+                                                                                                resultsCount.validate(
+                                                                                                        viewModel
+                                                                                                                .getRagMaxResultsCountValidationStatus()))
+                                                                                .stackedField(
+                                                                                        Localization.lang(
+                                                                                                "Document splitter -"
+                                                                                                        + " chunk"
+                                                                                                        + " size"),
+                                                                                        integerField(
+                                                                                                viewModel
+                                                                                                        .documentSplitterChunkSizeProperty()),
+                                                                                        chunkSize -> chunkSize.validate(
+                                                                                                viewModel
+                                                                                                        .getDocumentSplitterChunkSizeValidationStatus())))
+                                                                .group(
+                                                                        rightColumn -> rightColumn
+                                                                                .stackedField(
+                                                                                        Localization.lang(
+                                                                                                "Temperature"),
+                                                                                        textField(
+                                                                                                viewModel
+                                                                                                        .temperatureProperty()),
+                                                                                        temperature -> temperature
+                                                                                                .validate(
+                                                                                                        viewModel
+                                                                                                                .getTemperatureTypeValidationStatus())
+                                                                                                .validate(
+                                                                                                        viewModel
+                                                                                                                .getTemperatureRangeValidationStatus()))
+                                                                                .stackedField(
+                                                                                        Localization.lang(
+                                                                                                "RAG - minimum score"),
+                                                                                        textField(
+                                                                                                viewModel
+                                                                                                        .ragMinScoreProperty()),
+                                                                                        minScore -> minScore.validate(
+                                                                                                        viewModel
+                                                                                                                .getRagMinScoreTypeValidationStatus())
+                                                                                                .validate(
+                                                                                                        viewModel
+                                                                                                                .getRagMinScoreRangeValidationStatus()))
+                                                                                .stackedField(
+                                                                                        Localization.lang(
+                                                                                                "Document splitter -"
+                                                                                                        + " overlap"
+                                                                                                        + " size"),
+                                                                                        integerField(
+                                                                                                viewModel
+                                                                                                        .documentSplitterOverlapSizeProperty()),
+                                                                                        overlapSize ->
+                                                                                                overlapSize.validate(
+                                                                                                        viewModel
+                                                                                                                .getDocumentSplitterOverlapSizeValidationStatus()))))
+                                                .checkbox(
+                                                        Localization.lang("Enable AI provider debugging"),
+                                                        viewModel.enableAiDebugProviderProperty())
+                                                .button(
+                                                        Localization.lang("Reset expert settings to default"),
+                                                        IconTheme.JabRefIcons.REFRESH,
+                                                        viewModel::resetExpertSettings),
                                         // Disabling the group covers every expert control above; individual controls
                                         // only add their own extra conditions on top.
-                                        expertGroup -> expertGroup.visibleWhen(viewModel.customizeExpertSettingsProperty())
-                                                                  .disableWhen(viewModel.disableExpertSettingsProperty())),
+                                        expertGroup -> expertGroup
+                                                .visibleWhen(viewModel.customizeExpertSettingsProperty())
+                                                .disableWhen(viewModel.disableExpertSettingsProperty())),
                         expertSection -> expertSection.help(HelpFile.AI_EXPERT_SETTINGS))
 
                 // [impl->feat~ai.expert-settings.templates~1]
-                .section(Localization.lang("Templates"), templates -> templates
-                                .custom(buildTemplatesRegion()),
+                .section(
+                        Localization.lang("Templates"),
+                        templates -> templates.custom(buildTemplatesRegion()),
                         templatesSection -> templatesSection.help(HelpFile.AI_TEMPLATES))
-
-                .section(Localization.lang("Miscellaneous"), miscellaneous -> miscellaneous
-                        // [impl->feat~ai.ingestion.automatic-trigger~1]
-                        .checkbox(Localization.lang("Automatically generate embeddings for new entries"), viewModel.autoGenerateEmbeddings(),
-                                embeddings -> embeddings.disableWhen(Bindings.or(aiDisabled, viewModel.disableAutoGenerateEmbeddings())))
-                        // [impl->feat~ai.summarization.entries.auto~1]
-                        .checkbox(Localization.lang("Automatically generate summaries for new entries"), viewModel.autoGenerateSummaries(),
-                                summaries -> summaries.disableWhen(Bindings.or(aiDisabled, viewModel.disableAutoGenerateSummaries())))
-                        .checkbox(Localization.lang("Generate follow-up questions after AI response"), viewModel.generateFollowUpQuestionsProperty(),
-                                followUp -> followUp.disableWhen(viewModel.disableBasicSettingsProperty()))
-                        .field(Localization.lang("Number of follow-up questions"), buildFollowUpQuestionsCountSpinner())
-                        // [impl->feat~ai.response-engines.default~1]
-                        .combo(Localization.lang("Default response engine"),
-                                viewModel.responseEngineKindsProperty(),
-                                viewModel.responseEngineProperty(),
-                                AiNamingUtils::getDisplayName,
-                                engine -> engine.disableWhen(viewModel.disableExpertSettingsProperty()))
-                        // [impl->feat~ai.summarization.algorithm.default~1]
-                        .combo(Localization.lang("Default summarization algorithm"),
-                                viewModel.summarizationAlgorithmsProperty(),
-                                viewModel.summarizationAlgorithmProperty(),
-                                AiNamingUtils::getDisplayName,
-                                algorithm -> algorithm.disableWhen(viewModel.disableExpertSettingsProperty()))
-                        .combo(Localization.lang("Default token estimation algorithm"),
-                                viewModel.tokenEstimationAlgorithmsProperty(),
-                                viewModel.tokenEstimationAlgorithmProperty(),
-                                AiNamingUtils::getDisplayName,
-                                estimator -> estimator.disableWhen(viewModel.disableExpertSettingsProperty())))
+                .section(
+                        Localization.lang("Miscellaneous"),
+                        miscellaneous -> miscellaneous
+                                // [impl->feat~ai.ingestion.automatic-trigger~1]
+                                .checkbox(
+                                        Localization.lang("Automatically generate embeddings for new entries"),
+                                        viewModel.autoGenerateEmbeddings(),
+                                        embeddings -> embeddings.disableWhen(
+                                                Bindings.or(aiDisabled, viewModel.disableAutoGenerateEmbeddings())))
+                                // [impl->feat~ai.summarization.entries.auto~1]
+                                .checkbox(
+                                        Localization.lang("Automatically generate summaries for new entries"),
+                                        viewModel.autoGenerateSummaries(),
+                                        summaries -> summaries.disableWhen(
+                                                Bindings.or(aiDisabled, viewModel.disableAutoGenerateSummaries())))
+                                .checkbox(
+                                        Localization.lang("Generate follow-up questions after AI response"),
+                                        viewModel.generateFollowUpQuestionsProperty(),
+                                        followUp -> followUp.disableWhen(viewModel.disableBasicSettingsProperty()))
+                                .field(
+                                        Localization.lang("Number of follow-up questions"),
+                                        buildFollowUpQuestionsCountSpinner())
+                                // [impl->feat~ai.response-engines.default~1]
+                                .combo(
+                                        Localization.lang("Default response engine"),
+                                        viewModel.responseEngineKindsProperty(),
+                                        viewModel.responseEngineProperty(),
+                                        AiNamingUtils::getDisplayName,
+                                        engine -> engine.disableWhen(viewModel.disableExpertSettingsProperty()))
+                                // [impl->feat~ai.summarization.algorithm.default~1]
+                                .combo(
+                                        Localization.lang("Default summarization algorithm"),
+                                        viewModel.summarizationAlgorithmsProperty(),
+                                        viewModel.summarizationAlgorithmProperty(),
+                                        AiNamingUtils::getDisplayName,
+                                        algorithm -> algorithm.disableWhen(viewModel.disableExpertSettingsProperty()))
+                                .combo(
+                                        Localization.lang("Default token estimation algorithm"),
+                                        viewModel.tokenEstimationAlgorithmsProperty(),
+                                        viewModel.tokenEstimationAlgorithmProperty(),
+                                        AiNamingUtils::getDisplayName,
+                                        estimator -> estimator.disableWhen(viewModel.disableExpertSettingsProperty())))
                 .build());
     }
 
@@ -196,39 +303,29 @@ public class AiTab extends AbstractPreferenceTabView<AiTabViewModel> {
     private void bindTestConnectionButton(Button button) {
         ReadOnlyObjectProperty<ConnectionTestState> state = viewModel.connectionTestStateProperty();
         button.textProperty().bind(state.map(value -> switch (value) {
-            case IDLE ->
-                    Localization.lang("Test connection");
-            case TESTING ->
-                    Localization.lang("Testing...");
-            case SUCCESS ->
-                    Localization.lang("Connection successful");
-            case FAILED ->
-                    Localization.lang("Connection failed");
+            case IDLE -> Localization.lang("Test connection");
+            case TESTING -> Localization.lang("Testing...");
+            case SUCCESS -> Localization.lang("Connection successful");
+            case FAILED -> Localization.lang("Connection failed");
         }));
         button.graphicProperty().bind(state.map(value -> switch (value) {
-            case IDLE ->
-                    null;
-            case TESTING ->
-                    IconTheme.JabRefIcons.REFRESH.getGraphicNode();
-            case SUCCESS ->
-                    IconTheme.JabRefIcons.SUCCESS.getGraphicNode();
-            case FAILED ->
-                    IconTheme.JabRefIcons.ERROR.getGraphicNode();
+            case IDLE -> null;
+            case TESTING -> IconTheme.JabRefIcons.REFRESH.getGraphicNode();
+            case SUCCESS -> IconTheme.JabRefIcons.SUCCESS.getGraphicNode();
+            case FAILED -> IconTheme.JabRefIcons.ERROR.getGraphicNode();
         }));
         BindingsHelper.listen(state, value -> {
             button.getStyleClass().removeAll("text-success", "text-danger");
             switch (value) {
-                case SUCCESS ->
-                        button.getStyleClass().add("text-success");
-                case FAILED ->
-                        button.getStyleClass().add("text-danger");
-                default -> {
-                }
+                case SUCCESS -> button.getStyleClass().add("text-success");
+                case FAILED -> button.getStyleClass().add("text-danger");
+                default -> {}
             }
         });
     }
 
-    /// Read-only text area rather than a label, so that the error message (e.g., the `ollama pull` command) can be copied.
+    /// Read-only text area rather than a label, so that the error message (e.g., the `ollama pull` command) can be
+    /// copied.
     private TextArea buildTestConnectionDetailsArea() {
         TextArea details = new TextArea();
         details.setEditable(false);
@@ -259,8 +356,11 @@ public class AiTab extends AbstractPreferenceTabView<AiTabViewModel> {
         spinner.setEditable(true);
         spinner.setMaxWidth(100.0);
         spinner.setValueFactory(AiTabViewModel.followUpQuestionsCountValueFactory);
-        spinner.getValueFactory().valueProperty().bindBidirectional(viewModel.followUpQuestionsCountProperty().asObject());
-        spinner.disableProperty().bind(viewModel.generateFollowUpQuestionsProperty().not());
+        spinner.getValueFactory()
+                .valueProperty()
+                .bindBidirectional(viewModel.followUpQuestionsCountProperty().asObject());
+        spinner.disableProperty()
+                .bind(viewModel.generateFollowUpQuestionsProperty().not());
         return spinner;
     }
 
@@ -293,22 +393,48 @@ public class AiTab extends AbstractPreferenceTabView<AiTabViewModel> {
     /// One tab per prompt template, plus the two reset buttons underneath.
     private Node buildTemplatesRegion() {
         templatesTabPane = new TabPane();
-        templatesTabPane.getTabs().addAll(
-                // [impl->feat~ai.chat.customize-system-prompt~1]
-                templateTab(Localization.lang("System message for chatting"), viewModel.chattingSystemMessageTemplateProperty(), viewModel::resetChattingSystemMessageTemplate),
-                // [impl->feat~ai.response-engines.embeddings-search.prompt~1]
-                // [impl->feat~ai.response-engines.full-document.prompt~1]
-                templateTab(Localization.lang("User message for chatting"), viewModel.chattingUserMessageTemplateProperty(), viewModel::resetChattingUserMessageTemplate),
-                // [impl->feat~ai.summarization.algorithms.chunked.system-prompt-chunk~1]
-                templateTab(Localization.lang("System message for summarization of a chunk"), viewModel.summarizationChunkSystemMessageTemplateProperty(), viewModel::resetSummarizationChunkSystemMessageTemplate),
-                // [impl->feat~ai.summarization.algorithms.chunked.system-prompt-combine~1]
-                templateTab(Localization.lang("System message for summarization of several chunks"), viewModel.summarizationCombineSystemMessageTemplateProperty(), viewModel::resetSummarizationCombineSystemMessageTemplate),
-                // [impl->feat~ai.summarization.algorithms.full.system-prompt~1]
-                templateTab(Localization.lang("System message for 'full document' summarization"), viewModel.summarizationFullDocumentSystemMessageTemplateProperty(), viewModel::resetSummarizationFullDocumentSystemMessageTemplate),
-                // [impl->feat~ai.citation-parsing.system-prompt-config~1]
-                templateTab(Localization.lang("System message for parsing raw citations"), viewModel.citationParsingSystemMessageTemplateProperty(), viewModel::resetCitationParsingSystemMessageTemplate),
-                templateTab(Localization.lang("Markdown chat export template"), viewModel.markdownChatExportTemplateProperty(), viewModel::resetMarkdownChatExportTemplate),
-                templateTab(Localization.lang("Template for follow-up questions"), viewModel.followUpQuestionsTemplateProperty(), viewModel::resetFollowUpQuestionsTemplate));
+        templatesTabPane
+                .getTabs()
+                .addAll(
+                        // [impl->feat~ai.chat.customize-system-prompt~1]
+                        templateTab(
+                                Localization.lang("System message for chatting"),
+                                viewModel.chattingSystemMessageTemplateProperty(),
+                                viewModel::resetChattingSystemMessageTemplate),
+                        // [impl->feat~ai.response-engines.embeddings-search.prompt~1]
+                        // [impl->feat~ai.response-engines.full-document.prompt~1]
+                        templateTab(
+                                Localization.lang("User message for chatting"),
+                                viewModel.chattingUserMessageTemplateProperty(),
+                                viewModel::resetChattingUserMessageTemplate),
+                        // [impl->feat~ai.summarization.algorithms.chunked.system-prompt-chunk~1]
+                        templateTab(
+                                Localization.lang("System message for summarization of a chunk"),
+                                viewModel.summarizationChunkSystemMessageTemplateProperty(),
+                                viewModel::resetSummarizationChunkSystemMessageTemplate),
+                        // [impl->feat~ai.summarization.algorithms.chunked.system-prompt-combine~1]
+                        templateTab(
+                                Localization.lang("System message for summarization of several chunks"),
+                                viewModel.summarizationCombineSystemMessageTemplateProperty(),
+                                viewModel::resetSummarizationCombineSystemMessageTemplate),
+                        // [impl->feat~ai.summarization.algorithms.full.system-prompt~1]
+                        templateTab(
+                                Localization.lang("System message for 'full document' summarization"),
+                                viewModel.summarizationFullDocumentSystemMessageTemplateProperty(),
+                                viewModel::resetSummarizationFullDocumentSystemMessageTemplate),
+                        // [impl->feat~ai.citation-parsing.system-prompt-config~1]
+                        templateTab(
+                                Localization.lang("System message for parsing raw citations"),
+                                viewModel.citationParsingSystemMessageTemplateProperty(),
+                                viewModel::resetCitationParsingSystemMessageTemplate),
+                        templateTab(
+                                Localization.lang("Markdown chat export template"),
+                                viewModel.markdownChatExportTemplateProperty(),
+                                viewModel::resetMarkdownChatExportTemplate),
+                        templateTab(
+                                Localization.lang("Template for follow-up questions"),
+                                viewModel.followUpQuestionsTemplateProperty(),
+                                viewModel::resetFollowUpQuestionsTemplate));
 
         Button resetCurrent = resetButton(Localization.lang("Reset current template"), this::resetCurrentTemplate);
         Button resetAll = resetButton(Localization.lang("Reset templates to default"), viewModel::resetTemplates);

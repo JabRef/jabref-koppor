@@ -7,35 +7,34 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Optional;
-
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-
 import org.jabref.logic.util.StandardFileType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /// Utility class for handling Citation Style Language (CSL) files.
-/// Contains shared functionality used by both runtime [CSLStyleLoader] and build-time components in `build-support/src/main/java/CitationStyleCatalogGenerator.java`.
+/// Contains shared functionality used by both runtime [CSLStyleLoader] and build-time components in
+/// `build-support/src/main/java/CitationStyleCatalogGenerator.java`.
 public final class CSLStyleUtils {
     private static final String STYLES_ROOT = "/csl-styles";
     private static final XMLInputFactory XML_INPUT_FACTORY = XMLInputFactory.newInstance();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CSLStyleUtils.class);
 
-    /// Style information record (style id, style class, title, numeric nature, bibliography presence, bibliography sort order, bibliography hanging indent) for a citation style.
-    public record StyleInfo(String styleId,
-                            String styleClass,
-                            String title,
-                            String shortTitle,
-                            boolean isNumericStyle,
-                            boolean hasBibliography,
-                            boolean hasBibliographySortOrder,
-                            boolean usesHangingIndent) {
-    }
+    /// Style information record (style id, style class, title, numeric nature, bibliography presence, bibliography sort
+    /// order, bibliography hanging indent) for a citation style.
+    public record StyleInfo(
+            String styleId,
+            String styleClass,
+            String title,
+            String shortTitle,
+            boolean isNumericStyle,
+            boolean hasBibliography,
+            boolean hasBibliographySortOrder,
+            boolean usesHangingIndent) {}
 
     static {
         XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_COALESCING, true);
@@ -94,7 +93,8 @@ public final class CSLStyleUtils {
     /// Creates a CitationStyle from the input stream.
     ///
     /// @return Optional containing the CitationStyle if valid, empty otherwise
-    private static Optional<CitationStyle> createCitationStyleFromSource(InputStream source, String filename, boolean isInternal) {
+    private static Optional<CitationStyle> createCitationStyleFromSource(
+            InputStream source, String filename, boolean isInternal) {
         try {
             String content = new String(source.readAllBytes());
 
@@ -146,7 +146,8 @@ public final class CSLStyleUtils {
 
                     switch (elementName) {
                         case "style" -> {
-                            styleClass = Optional.ofNullable(reader.getAttributeValue(null, "class")).orElse("");
+                            styleClass = Optional.ofNullable(reader.getAttributeValue(null, "class"))
+                                    .orElse("");
                         }
                         case "bibliography" -> {
                             hasBibliography = true;
@@ -159,10 +160,8 @@ public final class CSLStyleUtils {
                                 hasBibliographySortOrder = true;
                             }
                         }
-                        case "citation" ->
-                                hasCitation = true;
-                        case "info" ->
-                                inInfo = true;
+                        case "citation" -> hasCitation = true;
+                        case "info" -> inInfo = true;
                         case "id" -> {
                             if (inInfo) {
                                 styleId = reader.getElementText();

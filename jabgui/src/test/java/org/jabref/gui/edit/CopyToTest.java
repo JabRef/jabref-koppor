@@ -1,12 +1,19 @@
 package org.jabref.gui.edit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.externalfiles.EntryImportHandlerTracker;
@@ -18,19 +25,9 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class CopyToTest {
 
@@ -51,7 +48,8 @@ public class CopyToTest {
     @BeforeEach
     void setUp() {
         this.entry = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.AUTHOR, "Beck, Aaron T. and Epstein, Norman and Brown, Gary and Steer, Robert A.")
+                .withField(
+                        StandardField.AUTHOR, "Beck, Aaron T. and Epstein, Norman and Brown, Gary and Steer, Robert A.")
                 .withField(StandardField.TITLE, "An inventory for measuring clinical anxiety: Psychometric properties.")
                 .withField(StandardField.YEAR, "1988")
                 .withField(StandardField.DOI, "10.1037/0022-006x.56.6.893")
@@ -72,7 +70,8 @@ public class CopyToTest {
         this.selectedEntries = FXCollections.observableArrayList();
         when(stateManager.getSelectedEntries()).thenReturn((ObservableList<BibEntry>) selectedEntries);
 
-        this.sourceDatabaseContext = new BibDatabaseContext(new BibDatabase(List.of(entry, entryWithCrossRef, referencedEntry)));
+        this.sourceDatabaseContext =
+                new BibDatabaseContext(new BibDatabase(List.of(entry, entryWithCrossRef, referencedEntry)));
         this.targetDatabaseContext = new BibDatabaseContext();
 
         CopyToPreferences copyToPreferences = mock(CopyToPreferences.class);
@@ -85,13 +84,24 @@ public class CopyToTest {
         selectedEntries.add(entry);
         when(stateManager.getSelectedEntries()).thenReturn((ObservableList<BibEntry>) selectedEntries);
 
-        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(), preferences.getFilePreferences(),
-                importHandler, sourceDatabaseContext, targetDatabaseContext);
+        copyTo = new CopyTo(
+                dialogService,
+                stateManager,
+                preferences.getCopyToPreferences(),
+                preferences.getFilePreferences(),
+                importHandler,
+                sourceDatabaseContext,
+                targetDatabaseContext);
 
-        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor = ArgumentCaptor.forClass(EntryImportHandlerTracker.class);
+        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor =
+                ArgumentCaptor.forClass(EntryImportHandlerTracker.class);
         copyTo.copyEntriesWithoutCrossRef(selectedEntries, targetDatabaseContext);
 
-        verify(importHandler).importEntriesWithDuplicateCheck(eq(new org.jabref.model.TransferInformation(sourceDatabaseContext, TransferMode.COPY)), eq(selectedEntries), trackerCaptor.capture());
+        verify(importHandler)
+                .importEntriesWithDuplicateCheck(
+                        eq(new org.jabref.model.TransferInformation(sourceDatabaseContext, TransferMode.COPY)),
+                        eq(selectedEntries),
+                        trackerCaptor.capture());
     }
 
     @Test
@@ -99,22 +109,39 @@ public class CopyToTest {
         selectedEntries.add(entryWithCrossRef);
         when(stateManager.getSelectedEntries()).thenReturn((ObservableList<BibEntry>) selectedEntries);
 
-        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(),
-                preferences.getFilePreferences(), importHandler, sourceDatabaseContext, targetDatabaseContext);
+        copyTo = new CopyTo(
+                dialogService,
+                stateManager,
+                preferences.getCopyToPreferences(),
+                preferences.getFilePreferences(),
+                importHandler,
+                sourceDatabaseContext,
+                targetDatabaseContext);
 
-        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor = ArgumentCaptor.forClass(EntryImportHandlerTracker.class);
+        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor =
+                ArgumentCaptor.forClass(EntryImportHandlerTracker.class);
         copyTo.copyEntriesWithCrossRef(selectedEntries, targetDatabaseContext);
 
         List<BibEntry> expectedEntries = new ArrayList<>(selectedEntries);
         expectedEntries.add(referencedEntry);
 
-        verify(importHandler).importEntriesWithDuplicateCheck(eq(new org.jabref.model.TransferInformation(sourceDatabaseContext, TransferMode.COPY)), eq(expectedEntries), trackerCaptor.capture());
+        verify(importHandler)
+                .importEntriesWithDuplicateCheck(
+                        eq(new org.jabref.model.TransferInformation(sourceDatabaseContext, TransferMode.COPY)),
+                        eq(expectedEntries),
+                        trackerCaptor.capture());
     }
 
     @Test
     void executeGetCrossRefEntry() {
-        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(),
-                preferences.getFilePreferences(), importHandler, sourceDatabaseContext, targetDatabaseContext);
+        copyTo = new CopyTo(
+                dialogService,
+                stateManager,
+                preferences.getCopyToPreferences(),
+                preferences.getFilePreferences(),
+                importHandler,
+                sourceDatabaseContext,
+                targetDatabaseContext);
 
         Optional<BibEntry> result = copyTo.getCrossRefEntry(entryWithCrossRef, sourceDatabaseContext);
         assertEquals(Optional.of(referencedEntry), result);
@@ -124,49 +151,89 @@ public class CopyToTest {
     void executeExecuteWithoutCrossRef() {
         selectedEntries.add(entry);
         when(stateManager.getSelectedEntries()).thenReturn((ObservableList<BibEntry>) selectedEntries);
-        when(preferences.getCopyToPreferences().getShouldAskForIncludingCrossReferences()).thenReturn(false);
+        when(preferences.getCopyToPreferences().getShouldAskForIncludingCrossReferences())
+                .thenReturn(false);
 
-        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(),
-                preferences.getFilePreferences(), importHandler, sourceDatabaseContext, targetDatabaseContext);
+        copyTo = new CopyTo(
+                dialogService,
+                stateManager,
+                preferences.getCopyToPreferences(),
+                preferences.getFilePreferences(),
+                importHandler,
+                sourceDatabaseContext,
+                targetDatabaseContext);
 
-        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor = ArgumentCaptor.forClass(EntryImportHandlerTracker.class);
+        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor =
+                ArgumentCaptor.forClass(EntryImportHandlerTracker.class);
         copyTo.execute();
 
-        verify(importHandler).importEntriesWithDuplicateCheck(eq(new org.jabref.model.TransferInformation(sourceDatabaseContext, TransferMode.COPY)), eq(selectedEntries), trackerCaptor.capture());
+        verify(importHandler)
+                .importEntriesWithDuplicateCheck(
+                        eq(new org.jabref.model.TransferInformation(sourceDatabaseContext, TransferMode.COPY)),
+                        eq(selectedEntries),
+                        trackerCaptor.capture());
     }
 
     @Test
     void executeExecuteWithCrossRefAndUserIncludes() {
         selectedEntries.add(entryWithCrossRef);
         when(stateManager.getSelectedEntries()).thenReturn((ObservableList<BibEntry>) selectedEntries);
-        when(preferences.getCopyToPreferences().getShouldAskForIncludingCrossReferences()).thenReturn(true);
-        when(dialogService.showConfirmationDialogWithOptOutAndWait(anyString(), anyString(), anyString(), anyString(), anyString(), any())).thenReturn(true);
+        when(preferences.getCopyToPreferences().getShouldAskForIncludingCrossReferences())
+                .thenReturn(true);
+        when(dialogService.showConfirmationDialogWithOptOutAndWait(
+                        anyString(), anyString(), anyString(), anyString(), anyString(), any()))
+                .thenReturn(true);
 
-        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(),
-                preferences.getFilePreferences(), importHandler, sourceDatabaseContext, targetDatabaseContext);
+        copyTo = new CopyTo(
+                dialogService,
+                stateManager,
+                preferences.getCopyToPreferences(),
+                preferences.getFilePreferences(),
+                importHandler,
+                sourceDatabaseContext,
+                targetDatabaseContext);
 
-        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor = ArgumentCaptor.forClass(EntryImportHandlerTracker.class);
+        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor =
+                ArgumentCaptor.forClass(EntryImportHandlerTracker.class);
         copyTo.execute();
 
         List<BibEntry> expectedEntries = new ArrayList<>(selectedEntries);
         expectedEntries.add(referencedEntry);
 
-        verify(importHandler).importEntriesWithDuplicateCheck(eq(new org.jabref.model.TransferInformation(sourceDatabaseContext, TransferMode.COPY)), eq(expectedEntries), trackerCaptor.capture());
+        verify(importHandler)
+                .importEntriesWithDuplicateCheck(
+                        eq(new org.jabref.model.TransferInformation(sourceDatabaseContext, TransferMode.COPY)),
+                        eq(expectedEntries),
+                        trackerCaptor.capture());
     }
 
     @Test
     void executeWithCrossRefAndUserExcludes() {
         selectedEntries.add(entryWithCrossRef);
         when(stateManager.getSelectedEntries()).thenReturn((ObservableList<BibEntry>) selectedEntries);
-        when(preferences.getCopyToPreferences().getShouldAskForIncludingCrossReferences()).thenReturn(true);
-        when(dialogService.showConfirmationDialogWithOptOutAndWait(anyString(), anyString(), anyString(), anyString(), anyString(), any())).thenReturn(false);
+        when(preferences.getCopyToPreferences().getShouldAskForIncludingCrossReferences())
+                .thenReturn(true);
+        when(dialogService.showConfirmationDialogWithOptOutAndWait(
+                        anyString(), anyString(), anyString(), anyString(), anyString(), any()))
+                .thenReturn(false);
 
-        copyTo = new CopyTo(dialogService, stateManager, preferences.getCopyToPreferences(),
-                preferences.getFilePreferences(), importHandler, sourceDatabaseContext, targetDatabaseContext);
+        copyTo = new CopyTo(
+                dialogService,
+                stateManager,
+                preferences.getCopyToPreferences(),
+                preferences.getFilePreferences(),
+                importHandler,
+                sourceDatabaseContext,
+                targetDatabaseContext);
 
-        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor = ArgumentCaptor.forClass(EntryImportHandlerTracker.class);
+        ArgumentCaptor<EntryImportHandlerTracker> trackerCaptor =
+                ArgumentCaptor.forClass(EntryImportHandlerTracker.class);
         copyTo.execute();
 
-        verify(importHandler).importEntriesWithDuplicateCheck(eq(new org.jabref.model.TransferInformation(sourceDatabaseContext, TransferMode.COPY)), eq(selectedEntries), trackerCaptor.capture());
+        verify(importHandler)
+                .importEntriesWithDuplicateCheck(
+                        eq(new org.jabref.model.TransferInformation(sourceDatabaseContext, TransferMode.COPY)),
+                        eq(selectedEntries),
+                        trackerCaptor.capture());
     }
 }

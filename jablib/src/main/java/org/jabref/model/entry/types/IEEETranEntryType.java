@@ -19,8 +19,8 @@ public enum IEEETranEntryType implements EntryType {
 
     public static Optional<IEEETranEntryType> fromName(String name) {
         return Arrays.stream(IEEETranEntryType.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+                .filter(field -> field.getName().equalsIgnoreCase(name))
+                .findAny();
     }
 
     @Override

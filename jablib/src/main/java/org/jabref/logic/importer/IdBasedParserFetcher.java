@@ -7,10 +7,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +46,10 @@ public interface IdBasedParserFetcher extends IdBasedFetcher, ParserFetcher {
                 return Optional.empty();
             }
             if (fetchedEntries.size() > 1) {
-                LOGGER.info("Fetcher {} found more than one result for identifier {}. We will use the first entry.", getName(), identifier);
+                LOGGER.info(
+                        "Fetcher {} found more than one result for identifier {}. We will use the first entry.",
+                        getName(),
+                        identifier);
             }
             BibEntry entry = fetchedEntries.getFirst();
             doPostCleanup(entry);

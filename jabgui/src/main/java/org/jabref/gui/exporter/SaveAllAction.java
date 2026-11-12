@@ -1,8 +1,9 @@
 package org.jabref.gui.exporter;
 
+import static org.jabref.gui.actions.ActionHelper.needsDatabase;
+
 import java.util.List;
 import java.util.function.Supplier;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -11,8 +12,6 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 
 public class SaveAllAction extends SimpleCommand {
 
@@ -23,7 +22,13 @@ public class SaveAllAction extends SimpleCommand {
     private final BibEntryTypesManager entryTypesManager;
     private final JournalAbbreviationRepository journalAbbreviationRepository;
 
-    public SaveAllAction(Supplier<List<LibraryTab>> tabsSupplier, GuiPreferences preferences, DialogService dialogService, StateManager stateManager, BibEntryTypesManager entryTypesManager, JournalAbbreviationRepository journalAbbreviationRepository) {
+    public SaveAllAction(
+            Supplier<List<LibraryTab>> tabsSupplier,
+            GuiPreferences preferences,
+            DialogService dialogService,
+            StateManager stateManager,
+            BibEntryTypesManager entryTypesManager,
+            JournalAbbreviationRepository journalAbbreviationRepository) {
         this.tabsSupplier = tabsSupplier;
         this.dialogService = dialogService;
         this.preferences = preferences;
@@ -38,7 +43,13 @@ public class SaveAllAction extends SimpleCommand {
         dialogService.notify(Localization.lang("Saving all libraries..."));
 
         for (LibraryTab libraryTab : tabsSupplier.get()) {
-            SaveDatabaseAction saveDatabaseAction = new SaveDatabaseAction(libraryTab, dialogService, preferences, entryTypesManager, stateManager, journalAbbreviationRepository);
+            SaveDatabaseAction saveDatabaseAction = new SaveDatabaseAction(
+                    libraryTab,
+                    dialogService,
+                    preferences,
+                    entryTypesManager,
+                    stateManager,
+                    journalAbbreviationRepository);
             if (saveDatabaseAction.save() == SaveDatabaseAction.SaveResult.FAILURE) {
                 dialogService.notify(Localization.lang("Could not save file."));
             }

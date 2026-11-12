@@ -1,26 +1,24 @@
 package org.jabref.toolkit.commands;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
+import okio.Buffer;
 import org.jabref.logic.exporter.BibDatabaseWriter;
 import org.jabref.logic.exporter.SelfContainedSaveConfiguration;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.metadata.SelfContainedSaveOrder;
-
-import mockwebserver3.MockResponse;
-import mockwebserver3.MockWebServer;
-import okio.Buffer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 
 class PdfExtractReferencesTest extends AbstractJabKitTest {
 
@@ -45,7 +43,8 @@ class PdfExtractReferencesTest extends AbstractJabKitTest {
         // The database writers need a real save configuration; the deep-stub mock's default answer is not usable.
         SelfContainedSaveOrder saveOrder = new SelfContainedSaveOrder(SaveOrder.OrderType.ORIGINAL, List.of());
         when(preferences.getSelfContainedExportConfiguration())
-                .thenReturn(new SelfContainedSaveConfiguration(saveOrder, false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false));
+                .thenReturn(new SelfContainedSaveConfiguration(
+                        saveOrder, false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false));
     }
 
     private String pdfPath(String name) {
@@ -53,7 +52,11 @@ class PdfExtractReferencesTest extends AbstractJabKitTest {
     }
 
     private long entriesOnStdOut() {
-        return commandLine.getStandardOutput().lines().filter(line -> line.startsWith("@")).count();
+        return commandLine
+                .getStandardOutput()
+                .lines()
+                .filter(line -> line.startsWith("@"))
+                .count();
     }
 
     @Test
@@ -67,9 +70,12 @@ class PdfExtractReferencesTest extends AbstractJabKitTest {
     @Test
     void multipleFilesWithOutputDirWriteOneBibPerFile() throws Exception {
         int exitCode = commandLine.executeToLog(
-                "pdf", "extract-references",
-                "--output-dir", outputDir.toString(),
-                pdfPath("ieee-paper.pdf"), pdfPath("ieee-paper-2.pdf"));
+                "pdf",
+                "extract-references",
+                "--output-dir",
+                outputDir.toString(),
+                pdfPath("ieee-paper.pdf"),
+                pdfPath("ieee-paper-2.pdf"));
 
         assertEquals(CommandLine.ExitCode.OK, exitCode);
         assertFileExists(outputDir.resolve("ieee-paper.bib"));
@@ -84,9 +90,7 @@ class PdfExtractReferencesTest extends AbstractJabKitTest {
         Files.copy(Path.of(pdfPath("ieee-paper.pdf")), second);
 
         int exitCode = commandLine.executeToLog(
-                "pdf", "extract-references",
-                "--output-dir", outputDir.toString(),
-                first.toString(), second.toString());
+                "pdf", "extract-references", "--output-dir", outputDir.toString(), first.toString(), second.toString());
 
         assertEquals(CommandLine.ExitCode.OK, exitCode);
         assertFileExists(outputDir.resolve("paper.bib"));
@@ -98,9 +102,7 @@ class PdfExtractReferencesTest extends AbstractJabKitTest {
         Path nestedOutputDir = outputDir.resolve("nested/sub");
 
         int exitCode = commandLine.executeToLog(
-                "pdf", "extract-references",
-                "--output-dir", nestedOutputDir.toString(),
-                pdfPath("ieee-paper.pdf"));
+                "pdf", "extract-references", "--output-dir", nestedOutputDir.toString(), pdfPath("ieee-paper.pdf"));
 
         assertEquals(CommandLine.ExitCode.OK, exitCode);
         assertFileExists(nestedOutputDir.resolve("ieee-paper.bib"));
@@ -113,9 +115,7 @@ class PdfExtractReferencesTest extends AbstractJabKitTest {
         Files.createFile(blockedByFile);
 
         int exitCode = commandLine.executeToLog(
-                "pdf", "extract-references",
-                "--output-dir", blockedByFile.toString(),
-                pdfPath("ieee-paper.pdf"));
+                "pdf", "extract-references", "--output-dir", blockedByFile.toString(), pdfPath("ieee-paper.pdf"));
 
         assertEquals(CommandLine.ExitCode.SOFTWARE, exitCode);
     }
@@ -123,9 +123,12 @@ class PdfExtractReferencesTest extends AbstractJabKitTest {
     @Test
     void outputAndOutputDirTogetherExitUsageError() throws Exception {
         int exitCode = commandLine.executeToLog(
-                "pdf", "extract-references",
-                "--output", outputDir.resolve("out.bib").toString(),
-                "--output-dir", outputDir.toString(),
+                "pdf",
+                "extract-references",
+                "--output",
+                outputDir.resolve("out.bib").toString(),
+                "--output-dir",
+                outputDir.toString(),
                 pdfPath("ieee-paper.pdf"));
 
         assertEquals(CommandLine.ExitCode.USAGE, exitCode);
@@ -146,7 +149,8 @@ class PdfExtractReferencesTest extends AbstractJabKitTest {
                 .body(new Buffer().write(Files.readAllBytes(Path.of(pdfPath("ieee-paper.pdf")))))
                 .build());
 
-        int exitCode = commandLine.executeToLog("pdf", "extract-references", server.url("/ieee-paper.pdf").toString());
+        int exitCode = commandLine.executeToLog(
+                "pdf", "extract-references", server.url("/ieee-paper.pdf").toString());
 
         assertEquals(CommandLine.ExitCode.OK, exitCode);
         assertEquals(5, entriesOnStdOut());
@@ -160,8 +164,10 @@ class PdfExtractReferencesTest extends AbstractJabKitTest {
                 .build());
 
         int exitCode = commandLine.executeToLog(
-                "pdf", "extract-references",
-                "--output-dir", outputDir.toString(),
+                "pdf",
+                "extract-references",
+                "--output-dir",
+                outputDir.toString(),
                 server.url("/papers/mypaper.pdf").toString() + "?version=2");
 
         assertEquals(CommandLine.ExitCode.OK, exitCode);
@@ -174,9 +180,12 @@ class PdfExtractReferencesTest extends AbstractJabKitTest {
         server.enqueue(new MockResponse.Builder().code(404).build());
 
         int exitCode = commandLine.executeToLog(
-                "pdf", "extract-references",
-                "--output-dir", outputDir.toString(),
-                server.url("/missing.pdf").toString(), pdfPath("ieee-paper.pdf"));
+                "pdf",
+                "extract-references",
+                "--output-dir",
+                outputDir.toString(),
+                server.url("/missing.pdf").toString(),
+                pdfPath("ieee-paper.pdf"));
 
         assertEquals(CommandLine.ExitCode.SOFTWARE, exitCode);
         // The download must have been attempted - a URL treated as a plain path never reaches the server.
@@ -187,9 +196,12 @@ class PdfExtractReferencesTest extends AbstractJabKitTest {
     @Test
     void grobidUrlWithoutGrobidModeExitsUsageError() throws Exception {
         int exitCode = commandLine.executeToLog(
-                "pdf", "extract-references",
-                "--mode", "RULE_BASED",
-                "--grobid-url", "http://localhost:1234",
+                "pdf",
+                "extract-references",
+                "--mode",
+                "RULE_BASED",
+                "--grobid-url",
+                "http://localhost:1234",
                 pdfPath("ieee-paper.pdf"));
 
         assertEquals(CommandLine.ExitCode.USAGE, exitCode);

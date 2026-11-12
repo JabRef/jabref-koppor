@@ -1,5 +1,10 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,9 +15,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.Parser;
@@ -23,19 +26,14 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExternalServicesTest
 class OpenAlexFetcherTest {
     // Mirror getApiKey: a blank (unsubstituted) key is absent, so offline tests see the keyless URL.
-    private static final Optional<String> API_KEY = Optional.of(new BuildInfo().openAlexApiKey).filter(key -> !key.isBlank());
+    private static final Optional<String> API_KEY =
+            Optional.of(new BuildInfo().openAlexApiKey).filter(key -> !key.isBlank());
 
     private OpenAlex fetcher;
 
@@ -60,19 +58,18 @@ class OpenAlexFetcherTest {
     @Test
     void parserParsesResultsArray() throws Exception {
         Parser parser = fetcher.getParser();
-        String json = "{" +
-                "\"results\":[{" +
-                "\"type\":\"article\"," +
-                "\"title\":\"Sample Title\"," +
-                "\"publication_year\":2020," +
-                "\"id\":\"https://openalex.org/W12345\"," +
-                "\"ids\":{\"doi\":\"https://doi.org/10.1234/ABC.5678\"}," +
-                "\"authorships\":[{" +
-                "\"author\":{\"display_name\":\"Alice\"}}," +
-                "{\"author\":{\"display_name\":\"Bob\"}}]," +
-                "\"biblio\":{\"volume\":\"12\",\"issue\":\"3\",\"first_page\":\"45\",\"last_page\":\"67\"}," +
-                "\"concepts\":[{\"display_name\":\"Machine Learning\"},{\"display_name\":\"AI\"}]" +
-                "}]}";
+        String json = "{\"results\":[{"
+                + "\"type\":\"article\","
+                + "\"title\":\"Sample Title\","
+                + "\"publication_year\":2020,"
+                + "\"id\":\"https://openalex.org/W12345\","
+                + "\"ids\":{\"doi\":\"https://doi.org/10.1234/ABC.5678\"},"
+                + "\"authorships\":[{"
+                + "\"author\":{\"display_name\":\"Alice\"}},"
+                + "{\"author\":{\"display_name\":\"Bob\"}}],"
+                + "\"biblio\":{\"volume\":\"12\",\"issue\":\"3\",\"first_page\":\"45\",\"last_page\":\"67\"},"
+                + "\"concepts\":[{\"display_name\":\"Machine Learning\"},{\"display_name\":\"AI\"}]"
+                + "}]}";
         InputStream is = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
         List<BibEntry> entries = parser.parseEntries(is);
         assertEquals(1, entries.size());
@@ -81,7 +78,8 @@ class OpenAlexFetcherTest {
         assertEquals("Sample Title", e.getField(StandardField.TITLE).orElse(""));
         assertEquals("2020", e.getField(StandardField.YEAR).orElse(""));
         assertEquals("10.1234/ABC.5678", e.getField(StandardField.DOI).orElse(""));
-        assertEquals("https://openalex.org/W12345", e.getField(StandardField.URL).orElse(""));
+        assertEquals(
+                "https://openalex.org/W12345", e.getField(StandardField.URL).orElse(""));
         assertEquals("Alice and Bob", e.getField(StandardField.AUTHOR).orElse(""));
         assertEquals("12", e.getField(StandardField.VOLUME).orElse(""));
         assertEquals("3", e.getField(StandardField.NUMBER).orElse(""));
@@ -94,16 +92,16 @@ class OpenAlexFetcherTest {
     void parserParsesSingleWorkObject() throws Exception {
         Parser parser = fetcher.getParser();
         String json = """
-                {
-                    "type":"article",
-                    "title":"Single Title",
-                    "publication_year":2019,
-                    "id":"https://openalex.org/W999",
-                    "ids":{"doi":"https://doi.org/10.5555/xyz"},
-                    "authorships":[{"author":{"display_name":"Carol"}}],
-                    "biblio":{"first_page":"1","last_page":"10"}
-                }
-                """;
+            {
+                "type":"article",
+                "title":"Single Title",
+                "publication_year":2019,
+                "id":"https://openalex.org/W999",
+                "ids":{"doi":"https://doi.org/10.5555/xyz"},
+                "authorships":[{"author":{"display_name":"Carol"}}],
+                "biblio":{"first_page":"1","last_page":"10"}
+            }
+            """;
         InputStream is = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
         List<BibEntry> entries = parser.parseEntries(is);
         assertEquals(1, entries.size());
@@ -121,16 +119,14 @@ class OpenAlexFetcherTest {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1145/3503250");
         assertEquals(
                 Optional.of(new URI("https://dl.acm.org/doi/pdf/10.1145/3503250").toURL()),
-                fetcher.findFullText(entry)
-        );
+                fetcher.findFullText(entry));
     }
 
     @Test
     void fullTextFindByDOIAlternate() throws FetcherException, IOException, URISyntaxException {
         assertEquals(
                 Optional.of(new URI("https://www.mdpi.com/2227-9032/9/2/206/pdf?version=1614152367").toURL()),
-                fetcher.findFullText(new BibEntry()
-                        .withField(StandardField.DOI, "10.3390/healthcare9020206")));
+                fetcher.findFullText(new BibEntry().withField(StandardField.DOI, "10.3390/healthcare9020206")));
     }
 
     @Test
@@ -142,8 +138,7 @@ class OpenAlexFetcherTest {
     void fullTextSearchByopenAlexURl() throws IOException, FetcherException, URISyntaxException {
         assertEquals(
                 Optional.of(new URI("https://www.mdpi.com/2227-9032/9/2/206/pdf?version=1614152367").toURL()),
-                fetcher.findFullText(new BibEntry()
-                        .withField(StandardField.URL, "https://openalex.org/W3130362418")));
+                fetcher.findFullText(new BibEntry().withField(StandardField.URL, "https://openalex.org/W3130362418")));
     }
 
     @Test
@@ -158,7 +153,10 @@ class OpenAlexFetcherTest {
     @Test
     void searchByQueryFindsEntry() throws FetcherException {
         BibEntry master = new BibEntry(StandardEntryType.InProceedings)
-                .withField(StandardField.AUTHOR, "Matthew Tancik and Vincent Casser and Xinchen Yan and Sabeek Pradhan and Ben Mildenhall and Pratul P. Srinivasan and Jonathan T. Barron and Henrik Kretzschmar")
+                .withField(
+                        StandardField.AUTHOR,
+                        "Matthew Tancik and Vincent Casser and Xinchen Yan and Sabeek Pradhan and Ben Mildenhall and"
+                                + " Pratul P. Srinivasan and Jonathan T. Barron and Henrik Kretzschmar")
                 .withField(StandardField.TITLE, "Block-NeRF: Scalable Large Scene Neural View Synthesis")
                 .withField(StandardField.DOI, "10.1109/cvpr52688.2022.00807")
                 .withField(StandardField.DATE, "2022-06-01")
@@ -181,10 +179,13 @@ class OpenAlexFetcherTest {
                 .withField(StandardField.AUTHOR, "Haithem Turki and Deva Ramanan and Mahadev Satyanarayanan")
                 .withField(StandardField.DATE, "2022-06-01")
                 .withField(StandardField.DOI, "10.1109/cvpr52688.2022.01258")
-                .withField(StandardField.TITLE, "Mega-NeRF: Scalable Construction of Large-Scale NeRFs for Virtual Fly- Throughs")
+                .withField(
+                        StandardField.TITLE,
+                        "Mega-NeRF: Scalable Construction of Large-Scale NeRFs for Virtual Fly- Throughs")
                 .withField(StandardField.URL, "https://openalex.org/W4313031684");
 
-        List<BibEntry> fetchedEntries = fetcher.performSearch("\"Mega-NeRF: Scalable Construction of Large-Scale NeRFs for Virtual Fly- Throughs\"");
+        List<BibEntry> fetchedEntries = fetcher.performSearch(
+                "\"Mega-NeRF: Scalable Construction of Large-Scale NeRFs for Virtual Fly- Throughs\"");
         fetchedEntries.forEach(entry -> entry.clearField(StandardField.ABSTRACT));
         fetchedEntries.forEach(entry -> entry.clearField(StandardField.PAGES));
         fetchedEntries.forEach(entry -> entry.clearField(StandardField.KEYWORDS));

@@ -1,11 +1,9 @@
 package org.jabref.logic.integrity;
 
 import java.util.Optional;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.Date;
-
 import org.jspecify.annotations.Nullable;
 
 public class DateChecker implements ValueChecker {

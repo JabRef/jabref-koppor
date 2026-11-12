@@ -1,10 +1,8 @@
 package org.jabref.gui.cleanup;
 
 import java.util.EnumSet;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.logic.cleanup.CleanupPreferences;
 
 public class CleanupJournalRelatedViewModel {
@@ -13,10 +11,10 @@ public class CleanupJournalRelatedViewModel {
             CleanupPreferences.CleanupStep.ABBREVIATE_DOTLESS,
             CleanupPreferences.CleanupStep.ABBREVIATE_SHORTEST_UNIQUE,
             CleanupPreferences.CleanupStep.ABBREVIATE_LTWA,
-            CleanupPreferences.CleanupStep.UNABBREVIATE
-    );
+            CleanupPreferences.CleanupStep.UNABBREVIATE);
 
-    public final ObjectProperty<CleanupPreferences.CleanupStep> selectedJournalCleanupOption = new SimpleObjectProperty<>();
+    public final ObjectProperty<CleanupPreferences.CleanupStep> selectedJournalCleanupOption =
+            new SimpleObjectProperty<>();
     public final CleanupPreferences preferences;
 
     public CleanupJournalRelatedViewModel(CleanupPreferences preferences) {
@@ -26,8 +24,8 @@ public class CleanupJournalRelatedViewModel {
 
     private CleanupPreferences.CleanupStep getInitialMethod() {
         return CLEANUP_JOURNAL_METHODS.stream()
-                                      .filter(preferences::isActive)
-                                      .findFirst()
-                                      .orElse(CleanupPreferences.CleanupStep.ABBREVIATE_DEFAULT);
+                .filter(preferences::isActive)
+                .findFirst()
+                .orElse(CleanupPreferences.CleanupStep.ABBREVIATE_DEFAULT);
     }
 }

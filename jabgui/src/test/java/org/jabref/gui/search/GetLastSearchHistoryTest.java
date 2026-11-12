@@ -1,16 +1,14 @@
 package org.jabref.gui.search;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
 import org.jabref.gui.JabRefGuiStateManager;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(JavaFxExtension.class)
 class GetLastSearchHistoryTest {

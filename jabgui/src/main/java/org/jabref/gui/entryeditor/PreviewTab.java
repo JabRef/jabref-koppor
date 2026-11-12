@@ -1,7 +1,6 @@
 package org.jabref.gui.entryeditor;
 
 import javafx.scene.control.SplitPane;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -13,9 +12,7 @@ public class PreviewTab extends TabWithPreviewPanel {
 
     private final SplitPane splitPane;
 
-    public PreviewTab(GuiPreferences preferences,
-                      StateManager stateManager,
-                      PreviewPanel previewPanel) {
+    public PreviewTab(GuiPreferences preferences, StateManager stateManager, PreviewPanel previewPanel) {
         super(stateManager, previewPanel);
 
         setGraphic(IconTheme.JabRefIcons.TOGGLE_ENTRY_PREVIEW.getGraphicNode());

@@ -1,20 +1,5 @@
 package org.jabref.logic.preferences;
 
-import org.jabref.logic.InternalPreferences;
-import org.jabref.model.metadata.UserHostInfo;
-
-import com.github.javakeyring.Keyring;
-import com.github.javakeyring.PasswordAccessException;
-import org.jspecify.annotations.NullMarked;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
-import org.junit.jupiter.api.parallel.ResourceLock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -24,6 +9,20 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.github.javakeyring.Keyring;
+import com.github.javakeyring.PasswordAccessException;
+import org.jabref.logic.InternalPreferences;
+import org.jabref.model.metadata.UserHostInfo;
+import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 /// Tests the migration of keyring secrets from the legacy encrypted location to the new plain-text location,
 /// using the proxy password as the example secret.
@@ -71,7 +70,9 @@ class KeyringMigrationTest {
         try (MockedStatic<Keyring> keyringFactory = Mockito.mockStatic(Keyring.class)) {
             keyringFactory.when(Keyring::create).thenReturn(keyring);
 
-            assertEquals(PLAIN_TEXT, createPreferences(LEGACY_KEY).getProxyPreferences().getPassword());
+            assertEquals(
+                    PLAIN_TEXT,
+                    createPreferences(LEGACY_KEY).getProxyPreferences().getPassword());
             verify(keyring, never()).getPassword(LEGACY_SERVICE, ACCOUNT);
             verify(keyring, never()).setPassword(anyString(), anyString(), anyString());
         }
@@ -86,7 +87,9 @@ class KeyringMigrationTest {
         try (MockedStatic<Keyring> keyringFactory = Mockito.mockStatic(Keyring.class)) {
             keyringFactory.when(Keyring::create).thenReturn(keyring);
 
-            assertEquals(PLAIN_TEXT, createPreferences(LEGACY_KEY).getProxyPreferences().getPassword());
+            assertEquals(
+                    PLAIN_TEXT,
+                    createPreferences(LEGACY_KEY).getProxyPreferences().getPassword());
             verify(keyring).setPassword(NEW_SERVICE, ACCOUNT, PLAIN_TEXT);
             verify(keyring).deletePassword(LEGACY_SERVICE, ACCOUNT);
         }

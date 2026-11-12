@@ -1,21 +1,19 @@
 package org.jabref.http.server.cayw;
 
-import javafx.collections.FXCollections;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import jakarta.ws.rs.core.Application;
+import jakarta.ws.rs.core.Response;
+import javafx.collections.FXCollections;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.jabref.http.SrvStateManager;
 import org.jabref.http.server.ServerTest;
 import org.jabref.http.server.TestBibFile;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
-import jakarta.ws.rs.core.Application;
-import jakarta.ws.rs.core.Response;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CAYWResourceTest extends ServerTest {
 
@@ -48,10 +46,8 @@ class CAYWResourceTest extends ServerTest {
 
     @Test
     void probe_returns_ready() {
-        Response response = target("/better-bibtex/cayw")
-                .queryParam("probe", "1")
-                .request()
-                .get();
+        Response response =
+                target("/better-bibtex/cayw").queryParam("probe", "1").request().get();
         assertEquals(200, response.getStatus());
         assertEquals("ready", response.readEntity(String.class));
         assertEquals("text/plain", response.getHeaderString("Content-Type"));
@@ -69,7 +65,9 @@ class CAYWResourceTest extends ServerTest {
         assertEquals("\\autocite{Author2023test}", response.readEntity(String.class));
         assertEquals("text/plain", response.getHeaderString("Content-Type"));
         assertEquals("nosniff", response.getHeaderString("X-Content-Type-Options"));
-        assertEquals("default-src 'none'; frame-ancestors 'none'; base-uri 'none'", response.getHeaderString("Content-Security-Policy"));
+        assertEquals(
+                "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
+                response.getHeaderString("Content-Security-Policy"));
     }
 
     @Test
@@ -83,7 +81,9 @@ class CAYWResourceTest extends ServerTest {
                 .get();
 
         assertEquals(400, response.getStatus());
-        assertEquals("The 'command' parameter contains invalid characters. Only letters (A–Z, a–z) and '*' are allowed.", response.readEntity(String.class));
+        assertEquals(
+                "The 'command' parameter contains invalid characters. Only letters (A–Z, a–z) and '*' are allowed.",
+                response.readEntity(String.class));
     }
 
     @Test

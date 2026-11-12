@@ -1,14 +1,14 @@
 package org.jabref.gui.maintable.columns;
 
+import com.tobiasdiez.easybind.EasyBind;
 import java.util.Optional;
-
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-
+import org.controlsfx.control.Rating;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.Action;
 import org.jabref.gui.icon.JabRefIcon;
@@ -27,9 +27,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.entry.field.SpecialFieldValue;
-
-import com.tobiasdiez.easybind.EasyBind;
-import org.controlsfx.control.Rating;
 
 /// A column that displays a SpecialField
 public class SpecialFieldColumn extends MainTableColumn<Optional<SpecialFieldValueViewModel>> {
@@ -72,7 +69,8 @@ public class SpecialFieldColumn extends MainTableColumn<Optional<SpecialFieldVal
             } else {
                 new OptionalValueTableCellFactory<BibEntryTableViewModel, SpecialFieldValueViewModel>()
                         .withGraphic((_, value) -> createSpecialFieldIcon(value, fieldAction))
-                        .withMenu((entry, _) -> createSpecialFieldMenu(entry.getEntry(), writerFor(specialField, entry)))
+                        .withMenu(
+                                (entry, _) -> createSpecialFieldMenu(entry.getEntry(), writerFor(specialField, entry)))
                         .install(this);
             }
         }
@@ -106,8 +104,9 @@ public class SpecialFieldColumn extends MainTableColumn<Optional<SpecialFieldVal
             }
         });
 
-        EasyBind.subscribe(ranking.ratingProperty(), rating ->
-                writerFor(SpecialField.RANKING, entry)
+        EasyBind.subscribe(
+                ranking.ratingProperty(),
+                rating -> writerFor(SpecialField.RANKING, entry)
                         .setSpecialFieldValue(entry.getEntry(), SpecialFieldValue.getRating(rating.intValue())));
 
         return ranking;
@@ -117,7 +116,9 @@ public class SpecialFieldColumn extends MainTableColumn<Optional<SpecialFieldVal
         ContextMenu contextMenu = new ContextMenu();
 
         for (SpecialFieldValueViewModel value : specialField.getValues()) {
-            MenuItem menuItem = new MenuItem(value.getMenuString(), value.getIcon().map(JabRefIcon::getGraphicNode).orElse(null));
+            MenuItem menuItem = new MenuItem(
+                    value.getMenuString(),
+                    value.getIcon().map(JabRefIcon::getGraphicNode).orElse(null));
             menuItem.setOnAction(_ -> specialField.setSpecialFieldValue(entry, value.getValue()));
             contextMenu.getItems().add(menuItem);
         }
@@ -129,16 +130,18 @@ public class SpecialFieldColumn extends MainTableColumn<Optional<SpecialFieldVal
     /// several libraries in the global search results, so the journal is a property of the row
     /// rather than of the column.
     private SpecialFieldViewModel writerFor(SpecialField specialField, BibEntryTableViewModel entry) {
-        return new SpecialFieldViewModel(specialField, preferences, stateManager.getUndoManager(entry.getBibDatabaseContext()));
+        return new SpecialFieldViewModel(
+                specialField, preferences, stateManager.getUndoManager(entry.getBibDatabaseContext()));
     }
 
     private Node createSpecialFieldIcon(Optional<SpecialFieldValueViewModel> fieldValue, Action fieldAction) {
-        return fieldValue.flatMap(SpecialFieldValueViewModel::getIcon)
-                         .map(JabRefIcon::getGraphicNode)
-                         .orElseGet(() -> {
-                             Node node = fieldAction.getIcon().orElseThrow().getGraphicNode();
-                             node.getStyleClass().add("empty-special-field");
-                             return node;
-                         });
+        return fieldValue
+                .flatMap(SpecialFieldValueViewModel::getIcon)
+                .map(JabRefIcon::getGraphicNode)
+                .orElseGet(() -> {
+                    Node node = fieldAction.getIcon().orElseThrow().getGraphicNode();
+                    node.getStyleClass().add("empty-special-field");
+                    return node;
+                });
     }
 }

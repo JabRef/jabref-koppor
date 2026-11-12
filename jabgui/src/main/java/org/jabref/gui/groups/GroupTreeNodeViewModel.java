@@ -3,7 +3,6 @@ package org.jabref.gui.groups;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.FieldChange;
@@ -25,7 +24,7 @@ public class GroupTreeNodeViewModel {
 
     @Override
     public String toString() {
-        return "GroupTreeNodeViewModel{" + "node=" + node + '}';
+        return "GroupTreeNodeViewModel{node=" + node + '}';
     }
 
     public GroupTreeNode getNode() {
@@ -49,31 +48,32 @@ public class GroupTreeNodeViewModel {
         String shortDescription = "";
         boolean showDynamic = true;
         shortDescription = switch (group) {
-            case ExplicitGroup explicitGroup ->
-                    GroupDescriptions.getShortDescriptionExplicitGroup(explicitGroup);
+            case ExplicitGroup explicitGroup -> GroupDescriptions.getShortDescriptionExplicitGroup(explicitGroup);
             case KeywordGroup keywordGroup ->
-                    GroupDescriptions.getShortDescriptionKeywordGroup(keywordGroup, showDynamic);
-            case SearchGroup searchGroup ->
-                    GroupDescriptions.getShortDescription(searchGroup, showDynamic);
-            case null,
-                 default ->
-                    GroupDescriptions.getShortDescriptionAllEntriesGroup();
+                GroupDescriptions.getShortDescriptionKeywordGroup(keywordGroup, showDynamic);
+            case SearchGroup searchGroup -> GroupDescriptions.getShortDescription(searchGroup, showDynamic);
+            case null, default -> GroupDescriptions.getShortDescriptionAllEntriesGroup();
         };
         return "<html>" + shortDescription + "</html>";
     }
 
     public boolean canAddEntries(List<BibEntry> entries) {
-        return (getNode().getGroup() instanceof GroupEntryChanger) && !getNode().getGroup().containsAll(entries);
+        return (getNode().getGroup() instanceof GroupEntryChanger)
+                && !getNode().getGroup().containsAll(entries);
     }
 
     public boolean canRemoveEntries(List<BibEntry> entries) {
-        return (getNode().getGroup() instanceof GroupEntryChanger) && getNode().getGroup().containsAny(entries);
+        return (getNode().getGroup() instanceof GroupEntryChanger)
+                && getNode().getGroup().containsAny(entries);
     }
 
     public void sortChildrenByName(boolean recursive) {
-        getNode().sortChildren(
-                (node1, node2) -> node1.getGroup().getName().compareToIgnoreCase(node2.getGroup().getName()),
-                recursive);
+        getNode()
+                .sortChildren(
+                        (node1, node2) -> node1.getGroup()
+                                .getName()
+                                .compareToIgnoreCase(node2.getGroup().getName()),
+                        recursive);
     }
 
     @Override
@@ -103,13 +103,11 @@ public class GroupTreeNodeViewModel {
     }
 
     public boolean canMoveUp() {
-        return (getNode().getPreviousSibling().isPresent())
-                && !(getNode().getGroup() instanceof AllEntriesGroup);
+        return (getNode().getPreviousSibling().isPresent()) && !(getNode().getGroup() instanceof AllEntriesGroup);
     }
 
     public boolean canMoveDown() {
-        return (getNode().getNextSibling().isPresent())
-                && !(getNode().getGroup() instanceof AllEntriesGroup);
+        return (getNode().getNextSibling().isPresent()) && !(getNode().getGroup() instanceof AllEntriesGroup);
     }
 
     public boolean canMoveLeft() {
@@ -119,8 +117,7 @@ public class GroupTreeNodeViewModel {
     }
 
     public boolean canMoveRight() {
-        return (getNode().getPreviousSibling().isPresent())
-                && !(getNode().getGroup() instanceof AllEntriesGroup);
+        return (getNode().getPreviousSibling().isPresent()) && !(getNode().getGroup() instanceof AllEntriesGroup);
     }
 
     public void changeEntriesTo(List<BibEntry> entries, UndoManager undoManager) {

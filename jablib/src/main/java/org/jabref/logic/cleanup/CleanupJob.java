@@ -3,7 +3,6 @@ package org.jabref.logic.cleanup;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-
 import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
 

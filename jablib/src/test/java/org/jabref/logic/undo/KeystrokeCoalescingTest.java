@@ -1,18 +1,16 @@
 package org.jabref.logic.undo;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Optional;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.undo.UndoableFieldChange;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /// A field editor records one change per keystroke, so without a rule Ctrl+Z takes back a letter
 /// rather than a word. These are the cases the rule has to get right.
@@ -35,7 +33,8 @@ class KeystrokeCoalescingTest {
     private void type(StandardField field, String text) {
         for (int length = 1; length <= text.length(); length++) {
             String value = text.substring(0, length);
-            journal.applyEdit(new UndoableFieldChange(entry, field, entry.getField(field).orElse(null), value),
+            journal.applyEdit(
+                    new UndoableFieldChange(entry, field, entry.getField(field).orElse(null), value),
                     EditSource.TYPING);
         }
     }
@@ -134,10 +133,10 @@ class KeystrokeCoalescingTest {
         entry.setField(StandardField.TITLE, "Relativity");
         journal.markUnchanged();
 
-        journal.applyEdit(new UndoableFieldChange(entry, StandardField.TITLE, "Relativity", "Relativit"),
-                EditSource.TYPING);
-        journal.applyEdit(new UndoableFieldChange(entry, StandardField.TITLE, "Relativit", "Relativity"),
-                EditSource.TYPING);
+        journal.applyEdit(
+                new UndoableFieldChange(entry, StandardField.TITLE, "Relativity", "Relativit"), EditSource.TYPING);
+        journal.applyEdit(
+                new UndoableFieldChange(entry, StandardField.TITLE, "Relativit", "Relativity"), EditSource.TYPING);
 
         assertEquals(Optional.of("Relativity"), title());
         assertFalse(journal.canUndo(), "a step that does nothing is on the stack");
@@ -149,8 +148,8 @@ class KeystrokeCoalescingTest {
     @Test
     void aRecordedBlockIsNeverContinued() {
         type("Rela");
-        journal.addEdit("Cleanup", edit ->
-                edit.applyEdit(new UndoableFieldChange(entry, StandardField.YEAR, null, "1905")));
+        journal.addEdit(
+                "Cleanup", edit -> edit.applyEdit(new UndoableFieldChange(entry, StandardField.YEAR, null, "1905")));
         type("tivity");
 
         journal.undo();
@@ -189,7 +188,9 @@ class KeystrokeCoalescingTest {
         journal.applyEdit(new UndoableFieldChange(entry, StandardField.KEYWORDS, "phys", "physics"));
 
         journal.undo();
-        assertEquals(Optional.of("phys"), entry.getField(StandardField.KEYWORDS),
+        assertEquals(
+                Optional.of("phys"),
+                entry.getField(StandardField.KEYWORDS),
                 "the command's change was folded into what was typed");
 
         journal.undo();

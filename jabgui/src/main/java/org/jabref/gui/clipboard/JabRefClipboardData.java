@@ -1,10 +1,8 @@
 package org.jabref.gui.clipboard;
 
 import java.util.Optional;
-
 import org.jabref.gui.StateManager;
 import org.jabref.model.TransferMode;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +10,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 @NullMarked
-public record JabRefClipboardData(
-        String bibDatabaseContextId,
-        TransferMode transferMode
-) {
+public record JabRefClipboardData(String bibDatabaseContextId, TransferMode transferMode) {
     public static final JabRefClipboardData NULL_OBJECT = new JabRefClipboardData("-1", TransferMode.COPY);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JabRefClipboardData.class);
@@ -43,7 +38,8 @@ public record JabRefClipboardData(
 
     public Optional<org.jabref.model.TransferInformation> toTransferInformation(StateManager stateManager) {
         return stateManager.getOpenDatabases().stream()
-                           .filter(context -> context.getUid().equals(bibDatabaseContextId())).findFirst()
-                           .map(context -> new org.jabref.model.TransferInformation(context, transferMode()));
+                .filter(context -> context.getUid().equals(bibDatabaseContextId()))
+                .findFirst()
+                .map(context -> new org.jabref.model.TransferInformation(context, transferMode()));
     }
 }

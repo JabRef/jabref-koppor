@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.scene.paint.Color;
-
 import jfx.incubator.scene.control.richtext.StyleResolver;
 import jfx.incubator.scene.control.richtext.TextPos;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
@@ -22,18 +20,19 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 record TextRun(String text, Optional<Color> color) {
     /// Collects the runs between `start` and `end`, with the colors `resolver` computes from the current theme.
-    static List<TextRun> collect(StyledTextModel model, StyleResolver resolver, TextPos start, TextPos end) throws IOException {
+    static List<TextRun> collect(StyledTextModel model, StyleResolver resolver, TextPos start, TextPos end)
+            throws IOException {
         List<TextRun> runs = new ArrayList<>();
         model.export(start, end, new StyledOutput() {
             @Override
             public void consume(StyledSegment segment) {
                 switch (segment.getType()) {
                     case TEXT -> {
-                        Optional<Color> color = Optional.ofNullable(segment.getStyleAttributeMap(resolver)).map(StyleAttributeMap::getTextColor);
+                        Optional<Color> color = Optional.ofNullable(segment.getStyleAttributeMap(resolver))
+                                .map(StyleAttributeMap::getTextColor);
                         runs.add(new TextRun(segment.getText(), color));
                     }
-                    case LINE_BREAK ->
-                            runs.add(new TextRun("\n", Optional.empty()));
+                    case LINE_BREAK -> runs.add(new TextRun("\n", Optional.empty()));
                     default -> {
                         // Code areas contain no images, paragraph attributes, or document properties
                     }
@@ -41,12 +40,10 @@ record TextRun(String text, Optional<Color> color) {
             }
 
             @Override
-            public void flush() {
-            }
+            public void flush() {}
 
             @Override
-            public void close() {
-            }
+            public void close() {}
         });
         return runs;
     }

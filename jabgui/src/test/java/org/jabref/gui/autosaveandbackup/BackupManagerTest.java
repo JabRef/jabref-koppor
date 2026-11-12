@@ -1,5 +1,13 @@
 package org.jabref.gui.autosaveandbackup;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.DirectoryNotEmptyException;
@@ -9,7 +17,6 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.gui.LibraryTab;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.preferences.CliPreferences;
@@ -24,19 +31,10 @@ import org.jabref.model.groups.event.GroupUpdatedEvent;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.metadata.event.MetaDataChangeSource;
 import org.jabref.model.metadata.event.MetaDataChangedEvent;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class BackupManagerTest {
 
@@ -59,47 +57,61 @@ class BackupManagerTest {
 
     @Test
     void backupFileIsEqualForNonExistingBackup() throws URISyntaxException {
-        Path originalFile = Path.of(BackupManagerTest.class.getResource("no-autosave.bib").toURI());
+        Path originalFile =
+                Path.of(BackupManagerTest.class.getResource("no-autosave.bib").toURI());
         assertFalse(BackupManager.backupFileDiffers(originalFile, backupDir));
     }
 
     @Test
     void backupFileIsEqual() throws URISyntaxException, IOException {
         // Prepare test: Create backup file on "right" path
-        Path source = Path.of(BackupManagerTest.class.getResource("no-changes-backup.bib").toURI());
-        Path target = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(Path.of(BackupManagerTest.class.getResource("no-changes.bib").toURI()), BackupFileType.BACKUP, backupDir);
+        Path source = Path.of(
+                BackupManagerTest.class.getResource("no-changes-backup.bib").toURI());
+        Path target = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(
+                Path.of(BackupManagerTest.class.getResource("no-changes.bib").toURI()),
+                BackupFileType.BACKUP,
+                backupDir);
         Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 
-        Path originalFile = Path.of(BackupManagerTest.class.getResource("no-changes.bib").toURI());
+        Path originalFile =
+                Path.of(BackupManagerTest.class.getResource("no-changes.bib").toURI());
         assertFalse(BackupManager.backupFileDiffers(originalFile, backupDir));
     }
 
     @Test
     void backupFileDiffers() throws URISyntaxException, IOException {
         // Prepare test: Create backup file on "right" path
-        Path source = Path.of(BackupManagerTest.class.getResource("changes-backup.bib").toURI());
-        Path target = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(Path.of(BackupManagerTest.class.getResource("changes.bib").toURI()), BackupFileType.BACKUP, backupDir);
+        Path source = Path.of(
+                BackupManagerTest.class.getResource("changes-backup.bib").toURI());
+        Path target = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(
+                Path.of(BackupManagerTest.class.getResource("changes.bib").toURI()), BackupFileType.BACKUP, backupDir);
         Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 
-        Path originalFile = Path.of(BackupManagerTest.class.getResource("changes.bib").toURI());
+        Path originalFile =
+                Path.of(BackupManagerTest.class.getResource("changes.bib").toURI());
         assertTrue(BackupManager.backupFileDiffers(originalFile, backupDir));
     }
 
     @Test
     void correctBackupFileDeterminedForMultipleBackupFiles() throws URISyntaxException, IOException {
-        Path noChangesBib = Path.of(BackupManagerTest.class.getResource("no-changes.bib").toURI());
-        Path noChangesBibBackup = Path.of(BackupManagerTest.class.getResource("no-changes-backup.bib").toURI());
+        Path noChangesBib =
+                Path.of(BackupManagerTest.class.getResource("no-changes.bib").toURI());
+        Path noChangesBibBackup = Path.of(
+                BackupManagerTest.class.getResource("no-changes-backup.bib").toURI());
 
         // Prepare test: Create backup files on "right" path
         // most recent file does not have any changes
-        Path target = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(noChangesBib, BackupFileType.BACKUP, backupDir);
+        Path target = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(
+                noChangesBib, BackupFileType.BACKUP, backupDir);
         Files.copy(noChangesBibBackup, target, StandardCopyOption.REPLACE_EXISTING);
 
         // create "older" backup files containing changes
         for (int i = 0; i < 10; i++) {
-            Path changesBib = Path.of(BackupManagerTest.class.getResource("changes.bib").toURI());
+            Path changesBib =
+                    Path.of(BackupManagerTest.class.getResource("changes.bib").toURI());
             String timeSuffix = "2020-02-03--00.00.0" + i;
-            String fileName = BackupFileUtil.getUniqueFilePrefix(noChangesBib) + "--no-changes.bib--" + timeSuffix + ".bib";
+            String fileName =
+                    BackupFileUtil.getUniqueFilePrefix(noChangesBib) + "--no-changes.bib--" + timeSuffix + ".bib";
             target = backupDir.resolve(fileName);
             Files.copy(changesBib, target, StandardCopyOption.REPLACE_EXISTING);
         }
@@ -110,10 +122,13 @@ class BackupManagerTest {
 
     @Test
     void backupFileWithNewerTimeStampLeadsToDiff() throws URISyntaxException, IOException {
-        Path changesBib = Path.of(BackupManagerTest.class.getResource("changes.bib").toURI());
-        Path changesBibBackup = Path.of(BackupManagerTest.class.getResource("changes-backup.bib").toURI());
+        Path changesBib =
+                Path.of(BackupManagerTest.class.getResource("changes.bib").toURI());
+        Path changesBibBackup = Path.of(
+                BackupManagerTest.class.getResource("changes-backup.bib").toURI());
 
-        Path target = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(changesBib, BackupFileType.BACKUP, backupDir);
+        Path target =
+                BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(changesBib, BackupFileType.BACKUP, backupDir);
         Files.copy(changesBibBackup, target, StandardCopyOption.REPLACE_EXISTING);
 
         assertTrue(BackupManager.backupFileDiffers(changesBib, backupDir));
@@ -121,10 +136,13 @@ class BackupManagerTest {
 
     @Test
     void backupFileWithOlderTimeStampDoesNotLeadToDiff() throws URISyntaxException, IOException {
-        Path changesBib = Path.of(BackupManagerTest.class.getResource("changes.bib").toURI());
-        Path changesBibBackup = Path.of(BackupManagerTest.class.getResource("changes-backup.bib").toURI());
+        Path changesBib =
+                Path.of(BackupManagerTest.class.getResource("changes.bib").toURI());
+        Path changesBibBackup = Path.of(
+                BackupManagerTest.class.getResource("changes-backup.bib").toURI());
 
-        Path target = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(changesBib, BackupFileType.BACKUP, backupDir);
+        Path target =
+                BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(changesBib, BackupFileType.BACKUP, backupDir);
         Files.copy(changesBibBackup, target, StandardCopyOption.REPLACE_EXISTING);
 
         // Make backup file very old
@@ -140,18 +158,22 @@ class BackupManagerTest {
         Path emptyBackup = BackupManager.getBackupPathForNewBackup(originalFile, backupDir);
         Files.writeString(emptyBackup, "");
 
-        assertEquals(emptyBackup, BackupManager.getLatestBackupPath(originalFile, backupDir).orElseThrow());
+        assertEquals(
+                emptyBackup,
+                BackupManager.getLatestBackupPath(originalFile, backupDir).orElseThrow());
     }
 
     @Test
-        // [utest->req~jabgui.autosaveandbackup.complete-backup~1]
+    // [utest->req~jabgui.autosaveandbackup.complete-backup~1]
     void restoringAnEmptyBackupLeavesTheOriginalFileUnchanged(@TempDir Path tempDir) throws IOException {
         Path originalFile = tempDir.resolve("library.bib");
         Files.writeString(originalFile, "@article{existing}");
         Path emptyBackup = BackupManager.getBackupPathForNewBackup(originalFile, backupDir);
         Files.writeString(emptyBackup, "");
 
-        assertEquals(new BackupManager.RestoreResult.Empty(emptyBackup), BackupManager.restoreBackup(originalFile, backupDir));
+        assertEquals(
+                new BackupManager.RestoreResult.Empty(emptyBackup),
+                BackupManager.restoreBackup(originalFile, backupDir));
 
         assertEquals("@article{existing}", Files.readString(originalFile));
     }
@@ -160,7 +182,9 @@ class BackupManagerTest {
     void missingBackupIncludesTheOriginalFilePath(@TempDir Path tempDir) {
         Path originalFile = tempDir.resolve("library.bib");
 
-        assertEquals(new BackupManager.RestoreResult.NotFound(originalFile), BackupManager.restoreBackup(originalFile, backupDir));
+        assertEquals(
+                new BackupManager.RestoreResult.NotFound(originalFile),
+                BackupManager.restoreBackup(originalFile, backupDir));
     }
 
     @Test
@@ -200,7 +224,8 @@ class BackupManagerTest {
                 preferences);
         manager.listen(new MetaDataChangedEvent(new MetaData(), MetaDataChangeSource.LOCAL));
 
-        BackupManager.shutdown(databaseContext, filePreferences.getBackupDirectory(), filePreferences.shouldCreateBackup());
+        BackupManager.shutdown(
+                databaseContext, filePreferences.getBackupDirectory(), filePreferences.shouldCreateBackup());
 
         List<Path> files = Files.list(backupDir).toList();
         assertEquals(List.of(), files);

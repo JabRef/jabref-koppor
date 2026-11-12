@@ -6,7 +6,9 @@ import java.net.URL;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
-
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.importer.FetcherClientException;
 import org.jabref.logic.importer.FetcherException;
@@ -19,10 +21,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.BiblatexSoftwareField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.identifier.SWHID;
-
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +32,13 @@ public class SwhidFetcher implements IdBasedFetcher {
 
     public static final String FETCHER_NAME = "Software Heritage";
     private static final Logger LOGGER = LoggerFactory.getLogger(SwhidFetcher.class);
-    private static final String API_URL = "https://archive.softwareheritage.org/api/1/raw-intrinsic-metadata/citation/swhid/";
+    private static final String API_URL =
+            "https://archive.softwareheritage.org/api/1/raw-intrinsic-metadata/citation/swhid/";
     private static final String USER_AGENT = "JabRef";
 
     // Software Heritage allows 120 requests per hour for anonymous users
-    static final FetcherRateLimiter RATE_LIMITER = FetcherRateLimiter.ofRequestsPerInterval(FETCHER_NAME, 120, Duration.ofHours(1));
+    static final FetcherRateLimiter RATE_LIMITER =
+            FetcherRateLimiter.ofRequestsPerInterval(FETCHER_NAME, 120, Duration.ofHours(1));
     private final ImportFormatPreferences importFormatPreferences;
 
     public SwhidFetcher(ImportFormatPreferences importFormatPreferences) {
@@ -84,7 +84,8 @@ public class SwhidFetcher implements IdBasedFetcher {
         try {
             URLDownload urlDownload = new URLDownload(url);
             // Software Heritage uses anti-bot protection that blocks default browser user agents.
-            // Explicitly setting the user-Agent to JabRef identifies us as an API client and allows retrieving the JSON response.
+            // Explicitly setting the user-Agent to JabRef identifies us as an API client and allows retrieving the JSON
+            // response.
             urlDownload.addHeader("User-Agent", USER_AGENT);
             String response = urlDownload.asString();
 
@@ -112,8 +113,8 @@ public class SwhidFetcher implements IdBasedFetcher {
             return Optional.of(entry);
         } catch (FetcherClientException e) {
             boolean isNotFound = e.getHttpResponse()
-                                  .map(response -> response.statusCode() == 404)
-                                  .orElse(false);
+                    .map(response -> response.statusCode() == 404)
+                    .orElse(false);
             if (isNotFound) {
                 LOGGER.debug("No citation metadata found for SWHID: {}", canonicalSwhid, e);
                 return Optional.empty();

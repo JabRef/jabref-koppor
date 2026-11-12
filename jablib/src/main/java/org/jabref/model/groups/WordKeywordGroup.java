@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.FieldChange;
@@ -18,7 +17,6 @@ import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.EntryTypeFactory;
 import org.jabref.model.util.ListUtil;
-
 import org.jspecify.annotations.NonNull;
 
 /// Matches entries if a given field contains a specified word.
@@ -29,9 +27,14 @@ public class WordKeywordGroup extends KeywordGroup implements GroupEntryChanger 
     private final SearchStrategy searchStrategy;
     private final boolean onlySplitWordsAtSeparator;
 
-    public WordKeywordGroup(String name, GroupHierarchyType context, Field searchField,
-                            String searchExpression, boolean caseSensitive, Character keywordSeparator,
-                            boolean onlySplitWordsAtSeparator) {
+    public WordKeywordGroup(
+            String name,
+            GroupHierarchyType context,
+            Field searchField,
+            String searchExpression,
+            boolean caseSensitive,
+            Character keywordSeparator,
+            boolean onlySplitWordsAtSeparator) {
         super(name, context, searchField, searchExpression, caseSensitive);
 
         this.keywordSeparator = keywordSeparator;
@@ -118,18 +121,31 @@ public class WordKeywordGroup extends KeywordGroup implements GroupEntryChanger 
 
     @Override
     public AbstractGroup deepCopy() {
-        return new WordKeywordGroup(getName(), getHierarchicalContext(), searchField, searchExpression,
-                caseSensitive, keywordSeparator, onlySplitWordsAtSeparator);
+        return new WordKeywordGroup(
+                getName(),
+                getHierarchicalContext(),
+                searchField,
+                searchExpression,
+                caseSensitive,
+                keywordSeparator,
+                onlySplitWordsAtSeparator);
     }
 
     public WordKeywordGroup withKeywordSeparator(Character newKeywordSeparator) {
-        return new WordKeywordGroup(getName(), getHierarchicalContext(), searchField, searchExpression,
-                caseSensitive, newKeywordSeparator, onlySplitWordsAtSeparator);
+        return new WordKeywordGroup(
+                getName(),
+                getHierarchicalContext(),
+                searchField,
+                searchExpression,
+                caseSensitive,
+                newKeywordSeparator,
+                onlySplitWordsAtSeparator);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(),
+        return Objects.hash(
+                getName(),
                 getHierarchicalContext(),
                 searchField,
                 searchExpression,
@@ -168,16 +184,14 @@ public class WordKeywordGroup extends KeywordGroup implements GroupEntryChanger 
         Set<EntryType> searchWords;
 
         TypeSearchStrategy() {
-            searchWords = KeywordList.parse(searchExpression, keywordSeparator)
-                                     .stream()
-                                     .map(word -> EntryTypeFactory.parse(word.get()))
-                                     .collect(Collectors.toSet());
+            searchWords = KeywordList.parse(searchExpression, keywordSeparator).stream()
+                    .map(word -> EntryTypeFactory.parse(word.get()))
+                    .collect(Collectors.toSet());
         }
 
         @Override
         public boolean contains(BibEntry entry) {
-            return searchWords.stream()
-                              .anyMatch(word -> entry.getType().equals(word));
+            return searchWords.stream().anyMatch(word -> entry.getType().equals(word));
         }
     }
 

@@ -1,7 +1,6 @@
 package org.jabref.logic.git.merge.planning.util;
 
 import java.util.Objects;
-
 import org.jabref.model.entry.field.Field;
 
 public final class MergeFieldUtil {

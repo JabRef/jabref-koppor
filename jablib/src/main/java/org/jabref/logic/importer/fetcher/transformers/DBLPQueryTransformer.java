@@ -1,7 +1,6 @@
 package org.jabref.logic.importer.fetcher.transformers;
 
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

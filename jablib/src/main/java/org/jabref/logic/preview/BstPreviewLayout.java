@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.jabref.logic.bst.BstVM;
 import org.jabref.logic.cleanup.ConvertToBibtexCleanup;
 import org.jabref.logic.formatter.bibtexfields.RemoveNewlinesFormatter;
@@ -23,8 +23,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.strings.LatexToUnicodeAdapter;
-
-import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -57,8 +55,12 @@ public final class BstPreviewLayout implements PreviewLayout {
     private final Path path;
     private String source;
     private final String name;
-    @Nullable private BstVM bstVM;
-    @Nullable private String error;
+
+    @Nullable
+    private BstVM bstVM;
+
+    @Nullable
+    private String error;
 
     /// Private constructor used by [of(BstStyle)] for pre-built internal styles.
     private BstPreviewLayout(Path path, String source, @Nullable BstVM bstVM, @Nullable String error) {
@@ -114,12 +116,12 @@ public final class BstPreviewLayout implements PreviewLayout {
             return new BstPreviewLayout(Path.of(styleName), source, vm, null);
         } catch (IOException e) {
             LOGGER.error("Could not load internal BST style for preview: {}", resourcePath, e);
-            return new BstPreviewLayout(Path.of(styleName), "", null,
-                    Localization.lang("Error opening file '%0'", styleName));
+            return new BstPreviewLayout(
+                    Path.of(styleName), "", null, Localization.lang("Error opening file '%0'", styleName));
         } catch (ParseCancellationException e) {
             LOGGER.warn("Could not parse internal BST style for preview: {}", resourcePath, e);
-            return new BstPreviewLayout(Path.of(styleName), "", null,
-                    Localization.lang("Error parsing file '%0'", styleName));
+            return new BstPreviewLayout(
+                    Path.of(styleName), "", null, Localization.lang("Error parsing file '%0'", styleName));
         }
     }
 
@@ -141,10 +143,12 @@ public final class BstPreviewLayout implements PreviewLayout {
         // Remove all comments
         result = COMMENT_PATTERN.matcher(result).replaceAll("");
         // Remove all LaTeX comments
-        // The RemoveLatexCommandsFormatter keeps the words inside latex environments. Therefore, we remove them manually
+        // The RemoveLatexCommandsFormatter keeps the words inside latex environments. Therefore, we remove them
+        // manually
         result = result.replace("\\begin{thebibliography}{1}", "");
         result = result.replace("\\end{thebibliography}", "");
-        // The RemoveLatexCommandsFormatter keeps the word inside the latex command, but we want to remove that completely
+        // The RemoveLatexCommandsFormatter keeps the word inside the latex command, but we want to remove that
+        // completely
         result = BIBITEM_PATTERN.matcher(result).replaceAll("");
         // We want to replace \\newblock by a space instead of completely removing it
         result = result.replace("\\newblock", " ");
@@ -211,8 +215,8 @@ public final class BstPreviewLayout implements PreviewLayout {
             }
 
             output.append("<span style=\"font-variant: small-caps\">")
-                  .append(input, contentStart, groupEnd)
-                  .append("</span>");
+                    .append(input, contentStart, groupEnd)
+                    .append("</span>");
             index = groupEnd + 1;
         }
         return output.toString();
@@ -235,7 +239,8 @@ public final class BstPreviewLayout implements PreviewLayout {
                 index++;
                 continue;
             }
-            if ((commandEnd >= input.length()) || (!Character.isWhitespace(input.charAt(commandEnd)) && (input.charAt(commandEnd) != '}'))) {
+            if ((commandEnd >= input.length())
+                    || (!Character.isWhitespace(input.charAt(commandEnd)) && (input.charAt(commandEnd) != '}'))) {
                 output.append(input.charAt(index));
                 index++;
                 continue;
@@ -249,8 +254,8 @@ public final class BstPreviewLayout implements PreviewLayout {
             }
 
             output.append("<span style=\"font-variant: small-caps\">")
-                  .append(input, contentStart, groupEnd)
-                  .append("</span>");
+                    .append(input, contentStart, groupEnd)
+                    .append("</span>");
             index = groupEnd + 1;
         }
         return output.toString();

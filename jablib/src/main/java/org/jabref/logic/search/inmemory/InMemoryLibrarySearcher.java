@@ -1,14 +1,12 @@
 package org.jabref.logic.search.inmemory;
 
 import java.util.List;
-
 import org.jabref.logic.search.LibrarySearcher;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +39,8 @@ public class InMemoryLibrarySearcher implements LibrarySearcher {
             LOGGER.warn("In-memory searcher does not support FULLTEXT search; matching against metadata only");
         }
         return databaseContext.getDatabase().getEntries().stream()
-                              .filter(entry -> matchesParsedQuery(entry, query))
-                              .toList();
+                .filter(entry -> matchesParsedQuery(entry, query))
+                .toList();
     }
 
     /// Test a single entry against a query without iterating the library.

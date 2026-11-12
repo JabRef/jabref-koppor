@@ -11,7 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.util.StringConverter;
-
+import org.controlsfx.control.CheckComboBox;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.util.ControlHelper;
@@ -20,11 +20,10 @@ import org.jabref.logic.ocr.EngineSelection;
 import org.jabref.logic.ocr.OcrLanguage;
 import org.jabref.logic.ocr.PagesWithTextHandling;
 
-import org.controlsfx.control.CheckComboBox;
-
 public class OcrTab extends AbstractPreferenceTabView<OcrTabViewModel> {
     public OcrTab() {
-        this.viewModel = new OcrTabViewModel(dialogService, preferences.getFilePreferences(), preferences.getOcrPreferences(), taskExecutor);
+        this.viewModel = new OcrTabViewModel(
+                dialogService, preferences.getFilePreferences(), preferences.getOcrPreferences(), taskExecutor);
         buildView();
     }
 
@@ -34,20 +33,22 @@ public class OcrTab extends AbstractPreferenceTabView<OcrTabViewModel> {
     }
 
     private void buildView() {
-        setContent(form()
-
-                .section(Localization.lang("OCR engine"), engine -> engine
-                        .combo(Localization.lang("Engine selection"),
-                                viewModel.engineOptions(), viewModel.selectedEngineProperty(), EngineSelection::getDisplayName)
-                        .custom(buildEnginePathRow()))
-
-                .section(Localization.lang("OCR languages"), languages -> languages
-                        .custom(buildLanguagesRow()))
-
-                .section(Localization.lang("Handling of pre-existing text"), scanned -> scanned
-                        .combo(Localization.lang("OCR for pre-existing text"),
-                                viewModel.pagesHaveTextOptions(), viewModel.selectedPagesHaveTextProperty(), PagesWithTextHandling::getDisplayName))
-
+        setContent(form().section(
+                        Localization.lang("OCR engine"),
+                        engine -> engine.combo(
+                                        Localization.lang("Engine selection"),
+                                        viewModel.engineOptions(),
+                                        viewModel.selectedEngineProperty(),
+                                        EngineSelection::getDisplayName)
+                                .custom(buildEnginePathRow()))
+                .section(Localization.lang("OCR languages"), languages -> languages.custom(buildLanguagesRow()))
+                .section(
+                        Localization.lang("Handling of pre-existing text"),
+                        scanned -> scanned.combo(
+                                Localization.lang("OCR for pre-existing text"),
+                                viewModel.pagesHaveTextOptions(),
+                                viewModel.selectedPagesHaveTextProperty(),
+                                PagesWithTextHandling::getDisplayName))
                 .build());
     }
 
@@ -58,11 +59,14 @@ public class OcrTab extends AbstractPreferenceTabView<OcrTabViewModel> {
         HBox.setHgrow(ocrEnginePath, Priority.ALWAYS);
 
         Button autoDetectButton = ControlHelper.narrowIconButton(
-                IconTheme.JabRefIcons.SEARCH, Localization.lang("Auto-detect the engine's path"), viewModel::autoDetectEnginePath);
+                IconTheme.JabRefIcons.SEARCH,
+                Localization.lang("Auto-detect the engine's path"),
+                viewModel::autoDetectEnginePath);
         Button browseButton = ControlHelper.narrowIconButton(
                 IconTheme.JabRefIcons.FOLDER, Localization.lang("Browse engine path"), viewModel::browseEnginePath);
 
-        HBox row = new HBox(8.0, new Label(Localization.lang("Engine path")), ocrEnginePath, browseButton, autoDetectButton);
+        HBox row = new HBox(
+                8.0, new Label(Localization.lang("Engine path")), ocrEnginePath, browseButton, autoDetectButton);
         row.setAlignment(Pos.CENTER_LEFT);
         return row;
     }
@@ -84,11 +88,13 @@ public class OcrTab extends AbstractPreferenceTabView<OcrTabViewModel> {
         });
 
         items.stream()
-             .filter(viewModel.selectedOcrLanguagesProperty()::contains)
-             .forEach(languagesCombo.getCheckModel()::check);
+                .filter(viewModel.selectedOcrLanguagesProperty()::contains)
+                .forEach(languagesCombo.getCheckModel()::check);
 
         languagesCombo.getCheckModel().getCheckedItems().addListener((InvalidationListener) _ -> {
-            viewModel.selectedOcrLanguagesProperty().setAll(languagesCombo.getCheckModel().getCheckedItems());
+            viewModel
+                    .selectedOcrLanguagesProperty()
+                    .setAll(languagesCombo.getCheckModel().getCheckedItems());
         });
 
         HBox.setHgrow(languagesCombo, Priority.ALWAYS);

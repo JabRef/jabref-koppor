@@ -1,39 +1,5 @@
 package org.jabref.gui.util.component;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.function.Consumer;
-import java.util.regex.Pattern;
-
-import javafx.beans.Observable;
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.NodeOrientation;
-import javafx.geometry.Pos;
-import javafx.geometry.VPos;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Separator;
-import javafx.scene.input.KeyCode;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
-
-import org.jabref.gui.DialogService;
-import org.jabref.gui.clipboard.ClipBoardManager;
-import org.jabref.gui.edit.OpenBrowserAction;
-import org.jabref.gui.preferences.GuiPreferences;
-import org.jabref.gui.util.SelectableTextFlow;
-
 import com.airhacks.afterburner.injection.Injector;
 import com.vladsch.flexmark.ast.BlockQuote;
 import com.vladsch.flexmark.ast.BulletList;
@@ -67,6 +33,37 @@ import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.ast.NodeVisitor;
 import com.vladsch.flexmark.util.ast.VisitHandler;
 import com.vladsch.flexmark.util.data.MutableDataSet;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
+import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.NodeOrientation;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Separator;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import org.jabref.gui.DialogService;
+import org.jabref.gui.clipboard.ClipBoardManager;
+import org.jabref.gui.edit.OpenBrowserAction;
+import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.gui.util.SelectableTextFlow;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -98,15 +95,13 @@ public class MarkdownTextFlow extends SelectableTextFlow {
 
     /// Text and its optional CSS style class within a formatted code block.
     @NullMarked
-    public record CodeBlockSegment(String text, String styleClass) {
-    }
+    public record CodeBlockSegment(String text, String styleClass) {}
 
     public MarkdownTextFlow(Pane parent) {
         super(parent);
         this.setNodeOrientation(NodeOrientation.LEFT_TO_RIGHT);
         this.getStyleClass().add("markdown-textflow");
-        MutableDataSet options = new MutableDataSet()
-                .set(Parser.EXTENSIONS, List.of(TablesExtension.create()));
+        MutableDataSet options = new MutableDataSet().set(Parser.EXTENSIONS, List.of(TablesExtension.create()));
         this.parser = Parser.builder(options).build();
         this.htmlRenderer = HtmlRenderer.builder(options).build();
         setOnKeyPressed(event -> {
@@ -170,10 +165,10 @@ public class MarkdownTextFlow extends SelectableTextFlow {
 
     public static void defaultHyperlinkHandler(String url) {
         new OpenBrowserAction(
-                url,
-                Injector.instantiateModelOrService(DialogService.class),
-                Injector.instantiateModelOrService(GuiPreferences.class)
-                        .getExternalApplicationsPreferences()).execute();
+                        url,
+                        Injector.instantiateModelOrService(DialogService.class),
+                        Injector.instantiateModelOrService(GuiPreferences.class).getExternalApplicationsPreferences())
+                .execute();
     }
 
     private void addTextNode(@Nullable String content, @Nullable Node astNode, String... styleClasses) {
@@ -194,12 +189,21 @@ public class MarkdownTextFlow extends SelectableTextFlow {
 
     /// Adds the nodes for a code block, using the configured formatter when applicable.
     private void addCodeBlockNodes(String content, Node codeBlock) {
-        codeBlockFormatter.format(content).ifPresentOrElse(segments -> {
-            formattedCodeBlocks.add(codeBlock);
-            for (CodeBlockSegment segment : segments) {
-                addTextNode(segment.text(), codeBlock, "markdown-code-block", "font-monospace", segment.styleClass());
-            }
-        }, () -> addTextNode(content, codeBlock, "markdown-code-block", "font-monospace"));
+        codeBlockFormatter
+                .format(content)
+                .ifPresentOrElse(
+                        segments -> {
+                            formattedCodeBlocks.add(codeBlock);
+                            for (CodeBlockSegment segment : segments) {
+                                addTextNode(
+                                        segment.text(),
+                                        codeBlock,
+                                        "markdown-code-block",
+                                        "font-monospace",
+                                        segment.styleClass());
+                            }
+                        },
+                        () -> addTextNode(content, codeBlock, "markdown-code-block", "font-monospace"));
     }
 
     private void addHyperlinkNode(String text, String url, Node astNode, String... styleClasses) {
@@ -237,12 +241,12 @@ public class MarkdownTextFlow extends SelectableTextFlow {
 
         if (!super.isSelectionActive()) {
             getChildren().stream()
-                         .filter(MarkdownAwareTable.class::isInstance)
-                         .map(MarkdownAwareTable.class::cast)
-                         .flatMap(table -> table.cells.stream())
-                         .filter(SelectableTextFlow::isSelectionActive)
-                         .findFirst()
-                         .ifPresent(MarkdownTextFlow::copySelectedText);
+                    .filter(MarkdownAwareTable.class::isInstance)
+                    .map(MarkdownAwareTable.class::cast)
+                    .flatMap(table -> table.cells.stream())
+                    .filter(SelectableTextFlow::isSelectionActive)
+                    .findFirst()
+                    .ifPresent(MarkdownTextFlow::copySelectedText);
             return;
         }
 
@@ -256,7 +260,8 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             String renderedText = segment.text();
             Node astNode = segment.astNode();
 
-            // Layout indices count an embedded hyperlink or table as a single character, see SelectableTextFlow#getTextFlowContent()
+            // Layout indices count an embedded hyperlink or table as a single character, see
+            // SelectableTextFlow#getTextFlowContent()
             int segmentLength = segment.layoutLength();
             int segmentStart = currentPos;
             int segmentEnd = currentPos + segmentLength;
@@ -301,8 +306,7 @@ public class MarkdownTextFlow extends SelectableTextFlow {
     /// one node per token, but copied as a single block. `layoutLength` is the length the segment
     /// takes in the layout indices: a hyperlink or a table counts as a single character.
     @NullMarked
-    private record CopySegment(String text, @Nullable Node astNode, int layoutLength) {
-    }
+    private record CopySegment(String text, @Nullable Node astNode, int layoutLength) {}
 
     /// Removes the newlines Flexmark adds around the content of a code block (`\n` at the beginning,
     /// `\n\n` at the end), keeping blank lines that are part of the code.
@@ -342,8 +346,7 @@ public class MarkdownTextFlow extends SelectableTextFlow {
                     renderedText = "\uFFFC";
                     astNode = table.astNode;
                 }
-                case null,
-                     default -> {
+                case null, default -> {
                     continue;
                 }
             }
@@ -352,7 +355,12 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             boolean isText = fxNode instanceof Text;
 
             // The newline nodes between blocks carry the block's node as well, but are copied as newlines.
-            if (isText && pendingIsText && !pending.isEmpty() && (astNode != null) && (astNode == pendingNode) && !pendingIsNewlineMarker) {
+            if (isText
+                    && pendingIsText
+                    && !pending.isEmpty()
+                    && (astNode != null)
+                    && (astNode == pendingNode)
+                    && !pendingIsNewlineMarker) {
                 pending.append(renderedText);
                 continue;
             }
@@ -385,13 +393,11 @@ public class MarkdownTextFlow extends SelectableTextFlow {
         }
         return switch (astNode) {
             case Heading heading ->
-                    "#".repeat(heading.getLevel()) + " " + heading.getText().toString().trim();
-            case Code code ->
-                    "`" + code.getChildChars() + "`";
-            case Emphasis emphasis ->
-                    "*" + emphasis.getChildChars() + "*";
-            case StrongEmphasis strongEmphasis ->
-                    "**" + strongEmphasis.getChildChars() + "**";
+                "#".repeat(heading.getLevel()) + " "
+                        + heading.getText().toString().trim();
+            case Code code -> "`" + code.getChildChars() + "`";
+            case Emphasis emphasis -> "*" + emphasis.getChildChars() + "*";
+            case StrongEmphasis strongEmphasis -> "**" + strongEmphasis.getChildChars() + "**";
             case Link link -> {
                 String linkText = link.getText().toString();
                 String url = link.getUrl().toString();
@@ -419,13 +425,10 @@ public class MarkdownTextFlow extends SelectableTextFlow {
                 yield openingFence + info + "\n" + fencedCodeBlock.getContentChars() + closingFence;
             }
             case IndentedCodeBlock indentedCodeBlock ->
-                    indentedCodeBlock.getChars().toString();
-            case BlockQuote _ ->
-                    renderedText;
-            case TableBlock tableBlock ->
-                    tableBlock.getChars().toString().stripTrailing();
-            case null,
-                 default -> {
+                indentedCodeBlock.getChars().toString();
+            case BlockQuote _ -> renderedText;
+            case TableBlock tableBlock -> tableBlock.getChars().toString().stripTrailing();
+            case null, default -> {
                 if (BULLET_LIST_PATTERN.matcher(renderedText).matches()) {
                     yield renderedText.replace(UNICODE_BULLET, "-");
                 } else if (NUMBERED_LIST_PATTERN.matcher(renderedText).matches()) {
@@ -463,8 +466,7 @@ public class MarkdownTextFlow extends SelectableTextFlow {
                     new VisitHandler<>(BlockQuote.class, this::visit),
                     new VisitHandler<>(HtmlInline.class, this::visit),
                     new VisitHandler<>(HtmlBlock.class, this::visit),
-                    new VisitHandler<>(TableBlock.class, this::visit)
-            );
+                    new VisitHandler<>(TableBlock.class, this::visit));
         }
 
         void render(Node node) {
@@ -605,7 +607,8 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             addNewlinesBetweenBlocks(quote);
 
             for (Node child : quote.getChildren()) {
-                if (child.getPrevious() instanceof TableBlock || child instanceof TableBlock && child.getPrevious() instanceof Paragraph) {
+                if (child.getPrevious() instanceof TableBlock
+                        || child instanceof TableBlock && child.getPrevious() instanceof Paragraph) {
                     addTextNode("\n>\n", quote, "markdown-blockquote-marker");
                 }
                 if (child instanceof Paragraph) {
@@ -661,7 +664,10 @@ public class MarkdownTextFlow extends SelectableTextFlow {
                 }
             }
 
-            int columnCount = rows.stream().mapToInt(row -> row.stream().mapToInt(TableCell::getSpan).sum()).max().orElse(0);
+            int columnCount = rows.stream()
+                    .mapToInt(row -> row.stream().mapToInt(TableCell::getSpan).sum())
+                    .max()
+                    .orElse(0);
             MarkdownAwareTable grid = new MarkdownAwareTable(table);
             for (int column = 0; column < columnCount; column++) {
                 ColumnConstraints constraints = new ColumnConstraints();
@@ -696,24 +702,19 @@ public class MarkdownTextFlow extends SelectableTextFlow {
         private StackPane renderTableCell(TableCell cell, MarkdownAwareTable grid) {
             StackPane pane = renderTableContent(cell, grid);
             MarkdownTextFlow flow = grid.cells.getLast();
-            flow.setTextAlignment(switch (cell.getAlignment()) {
-                case RIGHT ->
-                        TextAlignment.RIGHT;
-                case CENTER ->
-                        TextAlignment.CENTER;
-                case null,
-                     default ->
-                        TextAlignment.LEFT;
-            });
-            flow.getStyleClass().add(switch (cell.getAlignment()) {
-                case RIGHT ->
-                        "markdown-table-cell-right";
-                case CENTER ->
-                        "markdown-table-cell-center";
-                case null,
-                     default ->
-                        "markdown-table-cell-left";
-            });
+            flow.setTextAlignment(
+                    switch (cell.getAlignment()) {
+                        case RIGHT -> TextAlignment.RIGHT;
+                        case CENTER -> TextAlignment.CENTER;
+                        case null, default -> TextAlignment.LEFT;
+                    });
+            flow.getStyleClass()
+                    .add(
+                            switch (cell.getAlignment()) {
+                                case RIGHT -> "markdown-table-cell-right";
+                                case CENTER -> "markdown-table-cell-center";
+                                case null, default -> "markdown-table-cell-left";
+                            });
             if (cell.isHeader()) {
                 pane.getStyleClass().add("bold");
             }
@@ -754,14 +755,24 @@ public class MarkdownTextFlow extends SelectableTextFlow {
             List<Observable> dependencies = new ArrayList<>();
             dependencies.add(widthProperty());
             prefixes.forEach(prefix -> dependencies.add(prefix.layoutBoundsProperty()));
-            grid.prefWidthProperty().bind(Bindings.createDoubleBinding(
-                    () -> Math.max(0, getWidth() - prefixes.stream().mapToDouble(prefix -> prefix.getLayoutBounds().getWidth()).sum()),
-                    dependencies.toArray(Observable[]::new)));
+            grid.prefWidthProperty()
+                    .bind(Bindings.createDoubleBinding(
+                            () -> Math.max(
+                                    0,
+                                    getWidth()
+                                            - prefixes.stream()
+                                                    .mapToDouble(prefix -> prefix.getLayoutBounds()
+                                                            .getWidth())
+                                                    .sum()),
+                            dependencies.toArray(Observable[]::new)));
         }
 
         private String listContinuationPrefix(Node node) {
             if (node.getParent() instanceof ListItem item) {
-                return " ".repeat(2 * Math.max(0, listIndentationLevel - 1) + item.getOpeningMarker().length() + 1);
+                return " "
+                        .repeat(2 * Math.max(0, listIndentationLevel - 1)
+                                + item.getOpeningMarker().length()
+                                + 1);
             }
             return "";
         }
@@ -803,8 +814,12 @@ public class MarkdownTextFlow extends SelectableTextFlow {
                 newlineCount = 2;
             } else if (currentBlock instanceof ListBlock && listIndentationLevel == 0) {
                 newlineCount = 2;
-            } else if (previousBlock instanceof FencedCodeBlock || previousBlock instanceof IndentedCodeBlock || previousBlock instanceof TableBlock ||
-                    currentBlock instanceof FencedCodeBlock || currentBlock instanceof IndentedCodeBlock || currentBlock instanceof TableBlock) {
+            } else if (previousBlock instanceof FencedCodeBlock
+                    || previousBlock instanceof IndentedCodeBlock
+                    || previousBlock instanceof TableBlock
+                    || currentBlock instanceof FencedCodeBlock
+                    || currentBlock instanceof IndentedCodeBlock
+                    || currentBlock instanceof TableBlock) {
                 newlineCount = 2;
             }
 
@@ -846,7 +861,9 @@ public class MarkdownTextFlow extends SelectableTextFlow {
 
         @Override
         public double getBaselineOffset() {
-            return cells.isEmpty() ? super.getBaselineOffset() : cells.getFirst().getParent().getBaselineOffset();
+            return cells.isEmpty()
+                    ? super.getBaselineOffset()
+                    : cells.getFirst().getParent().getBaselineOffset();
         }
     }
 }

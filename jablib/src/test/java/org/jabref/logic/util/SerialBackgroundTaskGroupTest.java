@@ -1,5 +1,14 @@
 package org.jabref.logic.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -10,18 +19,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @NullMarked
 class SerialBackgroundTaskGroupTest {
@@ -97,11 +96,9 @@ class SerialBackgroundTaskGroupTest {
                     releaseCleanup.join();
                 });
                 assertTrue(cleanupStarted.await(5, TimeUnit.SECONDS));
-                group.submit(_ -> {
-                });
+                group.submit(_ -> {});
                 verify(executor, never()).execute(any());
-                Future<?> waiting = waiters.submit(() -> group.closeAndWait(() -> {
-                }));
+                Future<?> waiting = waiters.submit(() -> group.closeAndWait(() -> {}));
                 assertFalse(waiting.isDone());
                 releaseCleanup.complete(null);
                 waiting.get(5, TimeUnit.SECONDS);
@@ -120,10 +117,8 @@ class SerialBackgroundTaskGroupTest {
             return CompletableFuture.completedFuture(null);
         });
         SerialBackgroundTaskGroup group = new SerialBackgroundTaskGroup(executor);
-        group.submit(_ -> {
-        });
-        group.submit(_ -> {
-        });
+        group.submit(_ -> {});
+        group.submit(_ -> {});
         assertEquals(1, submitted.size());
         submitted.getFirst().call();
         assertEquals(2, submitted.size());
@@ -149,12 +144,10 @@ class SerialBackgroundTaskGroupTest {
                 });
                 assertTrue(started.await(5, TimeUnit.SECONDS));
                 group.cancelAndRunWhenIdle(() -> cleanupRan.set(true));
-                group.close(() -> {
-                });
+                group.close(() -> {});
                 group.cancel();
                 release.complete(null);
-                group.closeAndWait(() -> {
-                });
+                group.closeAndWait(() -> {});
                 assertTrue(cleanupRan.get());
             } finally {
                 release.complete(null);
@@ -168,8 +161,7 @@ class SerialBackgroundTaskGroupTest {
         SerialBackgroundTaskGroup group = new SerialBackgroundTaskGroup(executor);
         long generation = group.generation();
         group.cancel();
-        group.submit(generation, _ -> {
-        });
+        group.submit(generation, _ -> {});
         verify(executor, never()).execute(any());
     }
 

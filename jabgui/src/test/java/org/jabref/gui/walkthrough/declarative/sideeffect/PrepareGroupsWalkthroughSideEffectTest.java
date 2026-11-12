@@ -1,25 +1,22 @@
 package org.jabref.gui.walkthrough.declarative.sideeffect;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 import java.util.Optional;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.sidepane.SidePaneType;
 import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.gui.testutils.JavaFxTest;
 import org.jabref.gui.walkthrough.Walkthrough;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @NullMarked
 class PrepareGroupsWalkthroughSideEffectTest extends JavaFxTest {
@@ -33,8 +30,8 @@ class PrepareGroupsWalkthroughSideEffectTest extends JavaFxTest {
     @Test
     void makesGroupsPaneVisibleAndRestoresSearchField() {
         ObservableList<SidePaneType> visibleSidePanes = FXCollections.observableArrayList();
-        PrepareGroupsWalkthroughSideEffect sideEffect = new PrepareGroupsWalkthroughSideEffect(
-                stateManager(visibleSidePanes), () -> Optional.of(searchField));
+        PrepareGroupsWalkthroughSideEffect sideEffect =
+                new PrepareGroupsWalkthroughSideEffect(stateManager(visibleSidePanes), () -> Optional.of(searchField));
 
         JavaFxExtension.invokeAndWait(() -> {
             searchField.setText("no matching entries");
@@ -53,8 +50,8 @@ class PrepareGroupsWalkthroughSideEffectTest extends JavaFxTest {
     @Test
     void keepsGroupsPaneVisibleWhenItWasAlreadyVisible() {
         ObservableList<SidePaneType> visibleSidePanes = FXCollections.observableArrayList(SidePaneType.GROUPS);
-        PrepareGroupsWalkthroughSideEffect sideEffect = new PrepareGroupsWalkthroughSideEffect(
-                stateManager(visibleSidePanes), () -> Optional.of(searchField));
+        PrepareGroupsWalkthroughSideEffect sideEffect =
+                new PrepareGroupsWalkthroughSideEffect(stateManager(visibleSidePanes), () -> Optional.of(searchField));
 
         JavaFxExtension.invokeAndWait(() -> {
             sideEffect.forward(mock(Walkthrough.class));

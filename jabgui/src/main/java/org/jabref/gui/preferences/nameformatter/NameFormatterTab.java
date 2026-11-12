@@ -12,7 +12,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.StandardActions;
 import org.jabref.gui.help.HelpAction;
@@ -41,9 +40,7 @@ public class NameFormatterTab extends AbstractPreferenceTabView<NameFormatterTab
     }
 
     private void buildView() {
-        setContent(form()
-                .custom(buildFormatterEditor())
-                .build());
+        setContent(form().custom(buildFormatterEditor()).build());
     }
 
     /// The formatter table with its "add formatter" input row, and a slim button column
@@ -82,10 +79,14 @@ public class NameFormatterTab extends AbstractPreferenceTabView<NameFormatterTab
 
         Button help = new Button();
         help.setPrefSize(25.0, 25.0);
-        new ActionFactory().configureIconButton(
-                StandardActions.HELP_NAME_FORMATTER,
-                new HelpAction(HelpFile.CUSTOM_EXPORTS_NAME_FORMATTER, dialogService, preferences.getExternalApplicationsPreferences()),
-                help);
+        new ActionFactory()
+                .configureIconButton(
+                        StandardActions.HELP_NAME_FORMATTER,
+                        new HelpAction(
+                                HelpFile.CUSTOM_EXPORTS_NAME_FORMATTER,
+                                dialogService,
+                                preferences.getExternalApplicationsPreferences()),
+                        help);
 
         Button add = new Button();
         add.getStyleClass().addAll(StyleClasses.NARROW_ICON_BUTTON);
@@ -116,7 +117,8 @@ public class NameFormatterTab extends AbstractPreferenceTabView<NameFormatterTab
         nameColumn.setEditable(true);
         nameColumn.setOnEditCommit(event -> event.getRowValue().setName(event.getNewValue()));
 
-        TableColumn<NameFormatterItemModel, String> formatColumn = new TableColumn<>(Localization.lang("Format string"));
+        TableColumn<NameFormatterItemModel, String> formatColumn =
+                new TableColumn<>(Localization.lang("Format string"));
         formatColumn.setMinWidth(50.0);
         formatColumn.setPrefWidth(368.0);
         formatColumn.setReorderable(false);
@@ -137,8 +139,8 @@ public class NameFormatterTab extends AbstractPreferenceTabView<NameFormatterTab
         new ValueTableCellFactory<NameFormatterItemModel, String>()
                 .withGraphic(_ -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
                 .withTooltip(name -> Localization.lang("Remove formatter '%0'", name))
-                .withOnMouseClickedEvent(_ -> _ ->
-                        viewModel.removeFormatter(table.getFocusModel().getFocusedItem()))
+                .withOnMouseClickedEvent(_ ->
+                        _ -> viewModel.removeFormatter(table.getFocusModel().getFocusedItem()))
                 .install(actionsColumn);
 
         table.getColumns().add(nameColumn);

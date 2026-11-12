@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
-
 import org.apache.xmpbox.XMPMetadata;
 import org.apache.xmpbox.xml.DomXmpParser;
 import org.apache.xmpbox.xml.XmpParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// XMPUtilShared provides support for reading [org.jabref.logic.xmp.XmpUtilReader] and writing [org.jabref.logic.xmp.XmpUtilWriter] BibTeX data as XMP metadata
+/// XMPUtilShared provides support for reading [org.jabref.logic.xmp.XmpUtilReader] and writing
+/// [org.jabref.logic.xmp.XmpUtilWriter] BibTeX data as XMP metadata
 /// in PDF-documents.
 public class XmpUtilShared {
 
@@ -36,7 +36,8 @@ public class XmpUtilShared {
             meta = DOM_XMP_PARSER.parse(is);
             return meta;
         } catch (XmpParsingException e) {
-            // bad style to catch Exception but as this is called in a loop we do not want to break here when any schema encounters an error
+            // bad style to catch Exception but as this is called in a loop we do not want to break here when any schema
+            // encounters an error
             throw new IOException(e);
         }
     }

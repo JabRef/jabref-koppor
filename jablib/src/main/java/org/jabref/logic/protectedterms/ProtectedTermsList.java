@@ -8,9 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Objects;
-
 import org.jabref.logic.os.OS;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +23,11 @@ public class ProtectedTermsList implements Comparable<ProtectedTermsList> {
     private final boolean internalList;
     private boolean enabled;
 
-    public ProtectedTermsList(@NonNull String description,
-                              @NonNull List<String> termList,
-                              @NonNull String location,
-                              boolean internalList) {
+    public ProtectedTermsList(
+            @NonNull String description,
+            @NonNull List<String> termList,
+            @NonNull String location,
+            boolean internalList) {
         this.description = description;
         this.termsList = termList;
         this.location = location;
@@ -89,8 +88,8 @@ public class ProtectedTermsList implements Comparable<ProtectedTermsList> {
 
         Path p = Path.of(location);
         String s = OS.NEWLINE + term;
-        try (BufferedWriter writer = Files.newBufferedWriter(p, StandardCharsets.UTF_8,
-                create ? StandardOpenOption.CREATE : StandardOpenOption.APPEND)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(
+                p, StandardCharsets.UTF_8, create ? StandardOpenOption.CREATE : StandardOpenOption.APPEND)) {
             writer.write(s);
             termsList.add(term);
         } catch (IOException ioe) {

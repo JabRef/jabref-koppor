@@ -1,23 +1,5 @@
 package org.jabref.logic.remote;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-
-import org.jabref.logic.os.OS;
-import org.jabref.logic.remote.client.RemoteClient;
-import org.jabref.logic.remote.server.RemoteListenerServerManager;
-import org.jabref.logic.remote.server.RemoteMessageHandler;
-import org.jabref.support.DisabledOnCIServer;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
-import org.junit.jupiter.api.parallel.ResourceLock;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -25,6 +7,22 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import org.jabref.logic.os.OS;
+import org.jabref.logic.remote.client.RemoteClient;
+import org.jabref.logic.remote.server.RemoteListenerServerManager;
+import org.jabref.logic.remote.server.RemoteMessageHandler;
+import org.jabref.support.DisabledOnCIServer;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.api.parallel.ResourceLock;
 
 @DisabledOnCIServer("Tests fails sporadically on CI server")
 @Execution(ExecutionMode.SAME_THREAD)
@@ -113,12 +111,14 @@ class RemoteSetupTest {
         try (ServerSocket socket = new ServerSocket(port)) {
             // Setup dummy server always answering "whatever"
             new Thread(() -> {
-                try (Socket message = socket.accept(); OutputStream os = message.getOutputStream()) {
-                    os.write("whatever".getBytes(StandardCharsets.UTF_8));
-                } catch (IOException _) {
-                    // Ignored
-                }
-            }).start();
+                        try (Socket message = socket.accept();
+                                OutputStream os = message.getOutputStream()) {
+                            os.write("whatever".getBytes(StandardCharsets.UTF_8));
+                        } catch (IOException _) {
+                            // Ignored
+                        }
+                    })
+                    .start();
             Thread.sleep(100);
 
             assertFalse(new RemoteClient(port).ping());

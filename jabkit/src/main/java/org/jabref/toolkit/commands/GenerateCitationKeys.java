@@ -1,11 +1,14 @@
 package org.jabref.toolkit.commands;
 
+import static picocli.CommandLine.Command;
+import static picocli.CommandLine.Mixin;
+import static picocli.CommandLine.Option;
+import static picocli.CommandLine.ParentCommand;
+
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.Callable;
-
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.logic.citationkeypattern.CitationKeyGenerator;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.citationkeypattern.GlobalCitationKeyPatterns;
@@ -21,15 +24,9 @@ import org.jabref.toolkit.exception.ExportServiceException;
 import org.jabref.toolkit.exception.ImportServiceException;
 import org.jabref.toolkit.service.ExportService;
 import org.jabref.toolkit.service.ImportService;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import picocli.CommandLine;
-
-import static picocli.CommandLine.Command;
-import static picocli.CommandLine.Mixin;
-import static picocli.CommandLine.Option;
-import static picocli.CommandLine.ParentCommand;
 
 @Command(name = "generate", description = "Generate citation keys for entries in a .bib file.")
 class GenerateCitationKeys implements Callable<Integer> {
@@ -55,7 +52,10 @@ class GenerateCitationKeys implements Callable<Integer> {
     @Option(names = "--warn-before-overwrite", description = "Warn before overwriting existing citation keys")
     private Boolean warnBeforeOverwrite;
 
-    @Option(names = "--suffix", description = "Key suffix strategy: ALWAYS, SECOND_WITH_A, SECOND_WITH_B", converter = KeySuffixConverter.class)
+    @Option(
+            names = "--suffix",
+            description = "Key suffix strategy: ALWAYS, SECOND_WITH_A, SECOND_WITH_B",
+            converter = KeySuffixConverter.class)
     private CitationKeyPatternPreferences.KeySuffix keySuffix;
 
     @Option(names = "--regex", description = "Regular expression for key pattern matching")
@@ -83,9 +83,7 @@ class GenerateCitationKeys implements Callable<Integer> {
     public Integer call() throws ImportServiceException, ExportServiceException {
         Path inputFile = inputOption.getInputFile(parentCommand.getParent().cliPreferences);
         ParserResult parserResult = ImportService.importBibTexFile(
-                inputFile,
-                parentCommand.getParent().cliPreferences,
-                sharedOptions.porcelain);
+                inputFile, parentCommand.getParent().cliPreferences, sharedOptions.porcelain);
 
         BibDatabaseContext databaseContext = parserResult.getDatabaseContext();
 
@@ -102,7 +100,8 @@ class GenerateCitationKeys implements Callable<Integer> {
             }
         }
 
-        ExportService exportService = ExportService.create(parentCommand.getParent().cliPreferences, sharedOptions.porcelain);
+        ExportService exportService =
+                ExportService.create(parentCommand.getParent().cliPreferences, sharedOptions.porcelain);
         if (outputFile != null) {
             exportService.saveDatabase(parserResult.getDatabase(), outputFile);
         } else {
@@ -112,20 +111,25 @@ class GenerateCitationKeys implements Callable<Integer> {
     }
 
     private @NonNull CitationKeyPatternPreferences getCitationKeyPatternPreferences() {
-        CitationKeyPatternPreferences existingPreferences = parentCommand.getParent().cliPreferences.getCitationKeyPatternPreferences();
+        CitationKeyPatternPreferences existingPreferences =
+                parentCommand.getParent().cliPreferences.getCitationKeyPatternPreferences();
 
         return new CitationKeyPatternPreferences(
                 transliterate != null ? transliterate : existingPreferences.shouldTransliterateFieldsForCitationKey(),
                 avoidOverwrite != null ? avoidOverwrite : existingPreferences.shouldAvoidOverwriteCiteKey(),
-                warnBeforeOverwrite != null ? warnBeforeOverwrite : existingPreferences.shouldWarnBeforeOverwriteCiteKey(),
-                generateBeforeSaving != null ? generateBeforeSaving : existingPreferences.shouldGenerateCiteKeysBeforeSaving(),
+                warnBeforeOverwrite != null
+                        ? warnBeforeOverwrite
+                        : existingPreferences.shouldWarnBeforeOverwriteCiteKey(),
+                generateBeforeSaving != null
+                        ? generateBeforeSaving
+                        : existingPreferences.shouldGenerateCiteKeysBeforeSaving(),
                 keySuffix != null ? keySuffix : existingPreferences.getKeySuffix(),
                 keyPatternRegex != null ? keyPatternRegex : existingPreferences.getKeyPatternRegex(),
                 keyPatternReplacement != null ? keyPatternReplacement : existingPreferences.getKeyPatternReplacement(),
                 unwantedCharacters != null ? unwantedCharacters : existingPreferences.getUnwantedCharacters(),
                 getKeyPatterns(keyPatterns, existingPreferences.getKeyPatterns()),
-                new SimpleObjectProperty<>(keywordDelimiter != null ? keywordDelimiter : existingPreferences.getKeywordSeparator())
-        );
+                new SimpleObjectProperty<>(
+                        keywordDelimiter != null ? keywordDelimiter : existingPreferences.getKeywordSeparator()));
     }
 
     /// Creates keyPatterns from preferences and --key-patterns option
@@ -133,17 +137,19 @@ class GenerateCitationKeys implements Callable<Integer> {
     /// @param keyPatternsOption      patterns submitted by a user via --key-patterns option
     /// @param keyPatternsPreferences patterns from preferences
     /// @return keyPatterns from preferences or overridden by user-supplied patterns
-    private GlobalCitationKeyPatterns getKeyPatterns(@Nullable Map<String, String> keyPatternsOption, GlobalCitationKeyPatterns keyPatternsPreferences) {
+    private GlobalCitationKeyPatterns getKeyPatterns(
+            @Nullable Map<String, String> keyPatternsOption, GlobalCitationKeyPatterns keyPatternsPreferences) {
         GlobalCitationKeyPatterns patternsCopy = pattern != null
-                                                 ? GlobalCitationKeyPatterns.fromPattern(pattern)
-                                                 : new GlobalCitationKeyPatterns(keyPatternsPreferences.getDefaultValue());
+                ? GlobalCitationKeyPatterns.fromPattern(pattern)
+                : new GlobalCitationKeyPatterns(keyPatternsPreferences.getDefaultValue());
         if (keyPatternsOption == null) {
             return patternsCopy;
         }
         keyPatternsOption.forEach((type, pattern) -> {
             EntryType passedEntryType = EntryTypeFactory.parse(type);
             if (passedEntryType instanceof UnknownEntryType) {
-                System.err.println(Localization.lang("The default entry type will be used since the invalid key was passed."));
+                System.err.println(
+                        Localization.lang("The default entry type will be used since the invalid key was passed."));
             }
             patternsCopy.addCitationKeyPattern(passedEntryType, pattern);
         });

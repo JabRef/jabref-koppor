@@ -1,5 +1,11 @@
 package org.jabref.logic.git.merge;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -7,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.jabref.logic.git.conflicts.ThreeWayEntryConflict;
 import org.jabref.logic.git.merge.MergeOutcome.Merged;
 import org.jabref.logic.git.merge.MergeOutcome.Refused;
@@ -18,7 +23,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -26,12 +30,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class BibFileMergerTest {
 
@@ -82,12 +80,14 @@ class BibFileMergerTest {
     @TempDir
     private Path tempDir;
 
-    private final ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+    private final ImportFormatPreferences importFormatPreferences =
+            mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
     private BibFileMerger merger;
 
     @BeforeEach
     void setUp() {
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .thenReturn(',');
         merger = new BibFileMerger(importFormatPreferences);
     }
 
@@ -139,7 +139,10 @@ class BibFileMergerTest {
     void appliesEntryTypeChangedInOther() throws IOException {
         Path current = version("current", BASE);
 
-        MergeOutcome outcome = merger.merge(version("base", BASE), current, version("other", BASE.replace("@Article{Smith2020", "@Book{Smith2020")));
+        MergeOutcome outcome = merger.merge(
+                version("base", BASE),
+                current,
+                version("other", BASE.replace("@Article{Smith2020", "@Book{Smith2020")));
 
         assertEquals(new Merged(List.of()), outcome);
         assertEquals(List.of(smithAs(StandardEntryType.Book), DOE_ENTRY), entriesOf(current));
@@ -176,7 +179,8 @@ class BibFileMergerTest {
                 version("other", "% Changed note about Smith\n" + BASE));
 
         assertEquals(new Merged(List.of()), outcome);
-        assertEquals("% Changed note about Smith\n", entriesOf(current).getFirst().getUserComments());
+        assertEquals(
+                "% Changed note about Smith\n", entriesOf(current).getFirst().getUserComments());
     }
 
     @Test
@@ -279,7 +283,8 @@ class BibFileMergerTest {
         String duplicateStrings = "@String{jot = {Journal of Tests}}\n@String{jot = {Other Journal}}\n\n" + BASE;
         Path current = version("current", duplicateStrings);
 
-        MergeOutcome outcome = merger.merge(version("base", duplicateStrings), current, version("other", duplicateStrings));
+        MergeOutcome outcome =
+                merger.merge(version("base", duplicateStrings), current, version("other", duplicateStrings));
 
         assertEquals(List.of(Reason.PARSER_WARNINGS), reasons(outcome));
         assertEquals(duplicateStrings, Files.readString(current));
@@ -356,7 +361,10 @@ class BibFileMergerTest {
             """;
         Path current = version("current", content, StandardCharsets.ISO_8859_1);
 
-        MergeOutcome outcome = merger.merge(version("base", content, StandardCharsets.ISO_8859_1), current, version("other", content, StandardCharsets.ISO_8859_1));
+        MergeOutcome outcome = merger.merge(
+                version("base", content, StandardCharsets.ISO_8859_1),
+                current,
+                version("other", content, StandardCharsets.ISO_8859_1));
 
         assertEquals(List.of(Reason.UNATTACHED_COMMENT), reasons(outcome));
         assertEquals(content, Files.readString(current, StandardCharsets.ISO_8859_1));
@@ -372,7 +380,10 @@ class BibFileMergerTest {
     }
 
     private List<BibEntry> entriesOf(Path file) throws IOException {
-        return new BibtexImporter(importFormatPreferences, new DummyFileUpdateMonitor()).importDatabase(file).getDatabase().getEntries();
+        return new BibtexImporter(importFormatPreferences, new DummyFileUpdateMonitor())
+                .importDatabase(file)
+                .getDatabase()
+                .getEntries();
     }
 
     private static BibEntry smithAs(StandardEntryType type) {
@@ -382,11 +393,16 @@ class BibFileMergerTest {
     }
 
     private static List<String> conflictingKeys(MergeOutcome outcome) {
-        return assertInstanceOf(Merged.class, outcome).conflicts().stream().map(ThreeWayEntryConflict::citationKey).toList();
+        return assertInstanceOf(Merged.class, outcome).conflicts().stream()
+                .map(ThreeWayEntryConflict::citationKey)
+                .toList();
     }
 
     /// The refusals of the CURRENT version; identical versions are refused three times for the same reason
     private static List<Reason> reasons(MergeOutcome outcome) {
-        return assertInstanceOf(Refused.class, outcome).refusals().stream().map(Refusal::reason).distinct().toList();
+        return assertInstanceOf(Refused.class, outcome).refusals().stream()
+                .map(Refusal::reason)
+                .distinct()
+                .toList();
     }
 }

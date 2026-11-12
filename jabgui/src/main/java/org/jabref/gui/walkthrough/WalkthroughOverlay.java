@@ -1,13 +1,12 @@
 package org.jabref.gui.walkthrough;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
 import javafx.scene.Node;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.walkthrough.declarative.WindowResolver;
 import org.jabref.gui.walkthrough.declarative.sideeffect.SideEffectExecutor;
@@ -22,8 +21,6 @@ import org.jabref.gui.walkthrough.utils.WalkthroughResolver.WalkthroughResult;
 import org.jabref.gui.walkthrough.utils.WalkthroughReverter;
 import org.jabref.gui.walkthrough.utils.WalkthroughScroller;
 import org.jabref.logic.l10n.Localization;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -58,10 +55,7 @@ public class WalkthroughOverlay {
         cleanUp();
 
         switch (step) {
-            case SideEffect(
-                    String title,
-                    WalkthroughSideEffect sideEffect
-            ) -> {
+            case SideEffect(String title, WalkthroughSideEffect sideEffect) -> {
                 LOGGER.debug("Executing side effect for step: {}", title);
 
                 if (sideEffectExecutor.executeForward(sideEffect, walkthrough)) {
@@ -75,9 +69,7 @@ public class WalkthroughOverlay {
             case VisibleComponent component -> {
                 WindowResolver windowResolver = component.windowResolver().orElse(() -> Optional.of(stage));
                 resolver = new WalkthroughResolver(
-                        windowResolver,
-                        component.nodeResolver().orElse(null),
-                        this::handleResolutionResult);
+                        windowResolver, component.nodeResolver().orElse(null), this::handleResolutionResult);
                 resolver.startResolution();
             }
         }
@@ -128,7 +120,9 @@ public class WalkthroughOverlay {
         if (result.wasSuccessful()) {
             displayWalkthroughStep(result);
         } else {
-            LOGGER.error("Failed to resolve node for step '{}'. Reverting.", walkthrough.getCurrentStep().title());
+            LOGGER.error(
+                    "Failed to resolve node for step '{}'. Reverting.",
+                    walkthrough.getCurrentStep().title());
             reverter.findAndUndo();
         }
         resolver = null;
@@ -151,24 +145,21 @@ public class WalkthroughOverlay {
 
         Optional<WalkthroughPane> pane = WalkthroughPane.of(resolvedWindow);
         if (pane.isEmpty()) {
-            LOGGER.error("Window '{}' cannot host a walkthrough pane, so step '{}' cannot be shown. Reverting.",
-                    resolvedWindow.getClass().getSimpleName(), component.title());
+            LOGGER.error(
+                    "Window '{}' cannot host a walkthrough pane, so step '{}' cannot be shown. Reverting.",
+                    resolvedWindow.getClass().getSimpleName(),
+                    component.title());
             reverter.findAndUndo();
             return;
         }
 
-        highlighter.applyHighlight(
-                component.highlight().orElse(null),
-                resolvedWindow.getScene(),
-                resolvedNode);
-        WindowOverlay overlay = overlays.computeIfAbsent(resolvedWindow,
-                window -> new WindowOverlay(window, pane.orElseThrow(), walkthrough));
+        highlighter.applyHighlight(component.highlight().orElse(null), resolvedWindow.getScene(), resolvedNode);
+        WindowOverlay overlay = overlays.computeIfAbsent(
+                resolvedWindow, window -> new WindowOverlay(window, pane.orElseThrow(), walkthrough));
 
         switch (component) {
-            case TooltipStep tooltip ->
-                    overlay.showTooltip(tooltip, resolvedNode, this::prepareForNavigation);
-            case PanelStep panel ->
-                    overlay.showPanel(panel, resolvedNode, this::prepareForNavigation);
+            case TooltipStep tooltip -> overlay.showTooltip(tooltip, resolvedNode, this::prepareForNavigation);
+            case PanelStep panel -> overlay.showPanel(panel, resolvedNode, this::prepareForNavigation);
         }
 
         reverter.attach(resolvedWindow, resolvedNode);

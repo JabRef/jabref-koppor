@@ -4,11 +4,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.InternalField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +23,7 @@ public class FieldWriter {
 
     private final FieldPreferences preferences;
 
-    private record BracePosition(int index, int line, int column) {
-    }
+    private record BracePosition(int index, int line, int column) {}
 
     public FieldWriter(FieldPreferences preferences) {
         this.preferences = preferences;
@@ -55,11 +52,9 @@ public class FieldWriter {
                     openBraces.push(new FieldWriter.BracePosition(i, line, i - lastLineIndex + 1));
                 } else if (item == '}') {
                     if (openBraces.isEmpty()) {
-                        errors.add(Localization.lang("Unbalanced '}' at line %0, column %1 (index %2): in '%3'.",
-                                line + 1,
-                                i - lastLineIndex + 1,
-                                i,
-                                getContextSnippet(text, i)));
+                        errors.add(Localization.lang(
+                                "Unbalanced '}' at line %0, column %1 (index %2): in '%3'.",
+                                line + 1, i - lastLineIndex + 1, i, getContextSnippet(text, i)));
                     } else {
                         openBraces.pop();
                     }
@@ -69,7 +64,8 @@ public class FieldWriter {
 
         while (!openBraces.isEmpty()) {
             FieldWriter.BracePosition lastOpenBrace = openBraces.pop();
-            errors.add(Localization.lang("Unbalanced '{' at line %0, column %1 (index %2): in '%3'.",
+            errors.add(Localization.lang(
+                    "Unbalanced '{' at line %0, column %1 (index %2): in '%3'.",
                     lastOpenBrace.line() + 1,
                     lastOpenBrace.column(),
                     lastOpenBrace.index(),
@@ -151,7 +147,8 @@ public class FieldWriter {
 
     /// Formats the content of a field.
     ///
-    /// @param field   the name of the field - used to trigger different serializations, e.g., turning off resolution for some strings
+    /// @param field   the name of the field - used to trigger different serializations, e.g., turning off resolution
+    /// for some strings
     /// @param content the content of the field
     /// @return a formatted string suitable for output
     public String write(Field field, String content) {
@@ -171,7 +168,8 @@ public class FieldWriter {
 
     /// This method handles # in the field content to get valid bibtex strings
     ///
-    /// For instance, `#jan# - #feb#` gets  `jan #{ - } # feb` (see @link{org.jabref.logic.bibtex.LatexFieldFormatterTests#makeHashEnclosedWordsRealStringsInMonthField()})
+    /// For instance, `#jan# - #feb#` gets  `jan #{ - } # feb` (see
+    /// @link{org.jabref.logic.bibtex.LatexFieldFormatterTests#makeHashEnclosedWordsRealStringsInMonthField()})
     private String formatAndResolveStrings(String content) {
         content = content.replace("##", "");
 
@@ -194,7 +192,8 @@ public class FieldWriter {
 
                 if (pos2 == -1) {
                     pos1 = content.length();
-                    LOGGER.warn("The character {} is not allowed in BibTeX strings unless escaped as in '\\\\{}'. "
+                    LOGGER.warn(
+                            "The character {} is not allowed in BibTeX strings unless escaped as in '\\\\{}'. "
                                     + "In JabRef, use pairs of # characters to indicate a string. "
                                     + "Field value: {}",
                             BIBTEX_STRING_START_END_SYMBOL,
@@ -210,8 +209,7 @@ public class FieldWriter {
                 // We check that the string label is not empty. That means
                 // an occurrence of ## will simply be ignored. Should it instead
                 // cause an error message?
-                writeStringLabel(stringBuilder, content, pos1 + 1, pos2, pos1 == pivot,
-                        (pos2 + 1) == content.length());
+                writeStringLabel(stringBuilder, content, pos1 + 1, pos2, pos1 == pivot, (pos2 + 1) == content.length());
             }
 
             if (pos2 > -1) {
@@ -266,7 +264,8 @@ public class FieldWriter {
     /// @param endPos        the position in text where the text to add ends
     /// @param isFirst       true if the label to write is the first one to write
     /// @param isLast        true if the label to write is the last one to write
-    private void writeStringLabel(StringBuilder stringBuilder, String text, int startPos, int endPos, boolean isFirst, boolean isLast) {
+    private void writeStringLabel(
+            StringBuilder stringBuilder, String text, int startPos, int endPos, boolean isFirst, boolean isLast) {
         String line = (isFirst ? "" : " # ") + text.substring(startPos, endPos) + (isLast ? "" : " # ");
         stringBuilder.append(line);
     }

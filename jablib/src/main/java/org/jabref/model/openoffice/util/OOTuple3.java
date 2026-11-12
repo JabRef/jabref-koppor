@@ -17,4 +17,3 @@ public class OOTuple3<A, B, C> {
         this.c = c;
     }
 }
-

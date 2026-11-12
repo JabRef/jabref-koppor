@@ -1,7 +1,6 @@
 package org.jabref.toolkit.exception;
 
 import org.jabref.logic.JabRefException;
-
 import org.jspecify.annotations.NullMarked;
 
 /// CLI-Exceptions that will be handled by PicoCLI and presented to the user (a localizable message is mandatory).

@@ -1,25 +1,23 @@
 package org.jabref.gui.bibtexhighlighter;
 
-import java.util.List;
-
-import org.jabref.gui.StateManager;
-import org.jabref.gui.preferences.GuiPreferences;
-import org.jabref.gui.search.SearchType;
-import org.jabref.logic.search.SearchPreferences;
-import org.jabref.logic.util.OptionalObjectProperty;
-
-import com.airhacks.afterburner.injection.Injector;
-import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
-import jfx.incubator.scene.control.richtext.model.CodeTextModel;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.airhacks.afterburner.injection.Injector;
+import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
+import java.util.List;
+import jfx.incubator.scene.control.richtext.model.CodeTextModel;
+import org.jabref.gui.StateManager;
+import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.gui.search.SearchType;
+import org.jabref.logic.search.SearchPreferences;
+import org.jabref.logic.util.OptionalObjectProperty;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class BibTeXHighlighterTest {
 
@@ -91,7 +89,8 @@ class BibTeXHighlighterTest {
         for (int index = 0; index < 5; index++) {
             when(model.getPlainText(index)).thenReturn("line" + index);
         }
-        when(syntaxHighlighter.computeHighlightRegions("line0\nline1\nline2\nline3\nline4")).thenReturn(List.of());
+        when(syntaxHighlighter.computeHighlightRegions("line0\nline1\nline2\nline3\nline4"))
+                .thenReturn(List.of());
 
         highlighter.createRichParagraph(model, 4);
 

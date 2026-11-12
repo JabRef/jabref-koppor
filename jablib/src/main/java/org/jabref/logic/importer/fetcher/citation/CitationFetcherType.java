@@ -54,27 +54,24 @@ public enum CitationFetcherType {
 
         return switch (citationFetcherName) {
             case ALL ->
-                    new AllCitationFetcher(
-                            importerPreferences,
-                            importFormatPreferences,
-                            citationKeyPatternPreferences,
-                            grobidPreferences,
-                            aiPreferences,
-                            chatModel);
+                new AllCitationFetcher(
+                        importerPreferences,
+                        importFormatPreferences,
+                        citationKeyPatternPreferences,
+                        grobidPreferences,
+                        aiPreferences,
+                        chatModel);
             case CROSSREF ->
-                    new CrossRefCitationFetcher(
-                            importerPreferences,
-                            importFormatPreferences,
-                            citationKeyPatternPreferences,
-                            grobidPreferences,
-                            aiPreferences,
-                            chatModel);
-            case OPEN_ALEX ->
-                    new OpenAlex(importerPreferences);
-            case OPEN_CITATIONS ->
-                    new OpenCitationsFetcher(importerPreferences);
-            case SEMANTIC_SCHOLAR ->
-                    new SemanticScholarCitationFetcher(importerPreferences);
+                new CrossRefCitationFetcher(
+                        importerPreferences,
+                        importFormatPreferences,
+                        citationKeyPatternPreferences,
+                        grobidPreferences,
+                        aiPreferences,
+                        chatModel);
+            case OPEN_ALEX -> new OpenAlex(importerPreferences);
+            case OPEN_CITATIONS -> new OpenCitationsFetcher(importerPreferences);
+            case SEMANTIC_SCHOLAR -> new SemanticScholarCitationFetcher(importerPreferences);
         };
     }
 }

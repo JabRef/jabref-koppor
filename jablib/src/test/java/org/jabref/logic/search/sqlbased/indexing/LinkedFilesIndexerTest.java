@@ -1,5 +1,12 @@
 package org.jabref.logic.search.sqlbased.indexing;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -10,7 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
+import org.apache.lucene.index.IndexReader;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.search.sqlbased.LuceneIndexer;
@@ -20,8 +27,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import org.apache.lucene.index.IndexReader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,13 +35,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Mockito;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("embeddedPostgres")
@@ -67,8 +65,7 @@ public class LinkedFilesIndexerTest {
 
     @Test
     void cancelledStartupSkipsGatheringEntries() {
-        BackgroundTask<Void> task = BackgroundTask.wrap(() -> {
-        });
+        BackgroundTask<Void> task = BackgroundTask.wrap(() -> {});
         task.cancel(false);
         indexer.updateOnStart(task);
         verify(context, never()).getEntries();
@@ -87,8 +84,7 @@ public class LinkedFilesIndexerTest {
         });
         when(second.getFiles()).thenReturn(List.of());
         when(context.getEntries()).thenReturn(List.of(first, second));
-        BackgroundTask<Void> task = BackgroundTask.wrap(() -> {
-        });
+        BackgroundTask<Void> task = BackgroundTask.wrap(() -> {});
         try (ExecutorService workers = Executors.newVirtualThreadPerTaskExecutor()) {
             try {
                 Future<?> indexing = workers.submit(() -> indexer.updateOnStart(task));
@@ -107,7 +103,8 @@ public class LinkedFilesIndexerTest {
     void exampleThesisIndex() throws IOException {
         // given
         BibEntry entry = new BibEntry(StandardEntryType.PhdThesis)
-                .withFiles(List.of(new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.PDF.getName())));
+                .withFiles(List.of(
+                        new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.PDF.getName())));
 
         // when
         indexer.addToIndex(List.of(entry), mock(BackgroundTask.class));
@@ -123,7 +120,8 @@ public class LinkedFilesIndexerTest {
     void dontIndexNonPdf() throws IOException {
         // given
         BibEntry entry = new BibEntry(StandardEntryType.PhdThesis)
-                .withFiles(List.of(new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.AUX.getName())));
+                .withFiles(List.of(
+                        new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.AUX.getName())));
 
         // when
         indexer.addToIndex(List.of(entry), mock(BackgroundTask.class));
@@ -139,7 +137,10 @@ public class LinkedFilesIndexerTest {
     void dontIndexOnlineLinks() throws IOException {
         // given
         BibEntry entry = new BibEntry(StandardEntryType.PhdThesis)
-                .withFiles(List.of(new LinkedFile("Example Thesis", "https://raw.githubusercontent.com/JabRef/jabref/main/src/test/resources/pdfs/thesis-example.pdf", StandardFileType.PDF.getName())));
+                .withFiles(List.of(new LinkedFile(
+                        "Example Thesis",
+                        "https://raw.githubusercontent.com/JabRef/jabref/main/src/test/resources/pdfs/thesis-example.pdf",
+                        StandardFileType.PDF.getName())));
 
         // when
         indexer.addToIndex(List.of(entry), mock(BackgroundTask.class));
@@ -156,7 +157,8 @@ public class LinkedFilesIndexerTest {
         // given
         BibEntry entry = new BibEntry(StandardEntryType.PhdThesis)
                 .withCitationKey("Example2017")
-                .withFiles(List.of(new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.PDF.getName())));
+                .withFiles(List.of(
+                        new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.PDF.getName())));
 
         // when
         indexer.addToIndex(List.of(entry), mock(BackgroundTask.class));
@@ -189,7 +191,8 @@ public class LinkedFilesIndexerTest {
         // given
         BibEntry exampleThesis = new BibEntry(StandardEntryType.PhdThesis)
                 .withCitationKey("ExampleThesis2017")
-                .withFiles(List.of(new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.PDF.getName())));
+                .withFiles(List.of(
+                        new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.PDF.getName())));
 
         // when
         indexer.addToIndex(List.of(exampleThesis), mock(BackgroundTask.class));
@@ -219,7 +222,8 @@ public class LinkedFilesIndexerTest {
         // given
         BibEntry entry = new BibEntry(StandardEntryType.PhdThesis)
                 .withCitationKey("Example2017")
-                .withFiles(List.of(new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.PDF.getName())));
+                .withFiles(List.of(
+                        new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.PDF.getName())));
 
         indexer.addToIndex(List.of(entry), mock(BackgroundTask.class));
 

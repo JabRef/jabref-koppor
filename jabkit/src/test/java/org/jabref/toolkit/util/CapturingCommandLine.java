@@ -2,7 +2,6 @@ package org.jabref.toolkit.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-
 import picocli.CommandLine;
 
 /// A CommandLine subclass to decorate the original CommandLine that captures test relevant information.

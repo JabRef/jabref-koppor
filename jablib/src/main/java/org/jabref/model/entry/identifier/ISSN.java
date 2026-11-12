@@ -4,10 +4,8 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NonNull;
 
 public class ISSN implements Identifier {
@@ -40,7 +38,8 @@ public class ISSN implements Identifier {
     }
 
     public boolean isValidChecksum() {
-        // Check that the control digit is correct, see e.g. https://en.wikipedia.org/wiki/International_Standard_Serial_Number
+        // Check that the control digit is correct, see e.g.
+        // https://en.wikipedia.org/wiki/International_Standard_Serial_Number
         int sum = 0;
         for (int pos = 0; pos <= 7; pos++) {
             char c = issnString.charAt(pos);

@@ -1,5 +1,6 @@
 package org.jabref.logic.util;
 
+import ai.djl.util.Progress;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -7,16 +8,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.l10n.Localization;
-
-import ai.djl.util.Progress;
 
 /// Convenient class for managing ETA for background tasks.
 ///
@@ -24,8 +21,7 @@ import ai.djl.util.Progress;
 /// periodically updates the ETA.
 public class ProgressCounter implements Progress {
 
-    private record ProgressMessage(int maxTime, String message) {
-    }
+    private record ProgressMessage(int maxTime, String message) {}
 
     // The list should be sorted by ProgressMessage.maxTime, smaller first.
     private static final List<ProgressMessage> PROGRESS_MESSAGES = List.of(
@@ -34,8 +30,7 @@ public class ProgressCounter implements Progress {
             new ProgressMessage(30, Localization.lang("Estimated time left: 30 seconds.")),
             new ProgressMessage(60, Localization.lang("Estimated time left: approx. 1 minute.")),
             new ProgressMessage(120, Localization.lang("Estimated time left: approx. 2 minutes.")),
-            new ProgressMessage(Integer.MAX_VALUE, Localization.lang("Estimated time left: more than 2 minutes."))
-    );
+            new ProgressMessage(Integer.MAX_VALUE, Localization.lang("Estimated time left: more than 2 minutes.")));
 
     private static final Duration PERIODIC_UPDATE_DURATION = Duration.ofSeconds(PROGRESS_MESSAGES.getFirst().maxTime);
 

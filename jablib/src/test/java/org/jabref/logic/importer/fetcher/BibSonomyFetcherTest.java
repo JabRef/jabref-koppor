@@ -1,14 +1,20 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FetcherServerException;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -24,21 +30,12 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 // [utest->feat~fetchers.bibsonomy~1]
 class BibSonomyFetcherTest {
@@ -51,17 +48,22 @@ class BibSonomyFetcherTest {
 
     @BeforeEach
     void setUp() {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        ImportFormatPreferences importFormatPreferences =
+                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .thenReturn(',');
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class);
         when(importerPreferences.getApiKeys()).thenReturn(FXCollections.emptyObservableSet());
-        when(importerPreferences.getApiKey(BibSonomyFetcher.FETCHER_NAME)).thenReturn(Optional.of(buildInfo.bibSonomyUsername + ":" + buildInfo.bibSonomyApiKey));
+        when(importerPreferences.getApiKey(BibSonomyFetcher.FETCHER_NAME))
+                .thenReturn(Optional.of(buildInfo.bibSonomyUsername + ":" + buildInfo.bibSonomyApiKey));
         fetcher = new BibSonomyFetcher(importFormatPreferences, importerPreferences);
     }
 
-    /// The live tests need the `BibSonomyUsername` and `BibSonomyApiKey` environment variables at build time and are skipped without them
+    /// The live tests need the `BibSonomyUsername` and `BibSonomyApiKey` environment variables at build time and are
+    /// skipped without them
     private void assumeCredentialsAvailable() {
-        assumeTrue(BibSonomyFetcher.hasUsernameAndApiKey(buildInfo.bibSonomyUsername + ":" + buildInfo.bibSonomyApiKey));
+        assumeTrue(
+                BibSonomyFetcher.hasUsernameAndApiKey(buildInfo.bibSonomyUsername + ":" + buildInfo.bibSonomyApiKey));
     }
 
     @Test
@@ -70,20 +72,25 @@ class BibSonomyFetcherTest {
     }
 
     @ParameterizedTest
-    @CsvSource(delimiter = '|', value = {
-            "learning                          | search=learning&start=0&end=50",
-            "learning year=2015                | search=learning&tags=sys%3Ayear%3A2015&start=0&end=50",
-            "learning year-range=2010-2012     | search=learning&tags=sys%3Ayear%3A2010-2012&start=0&end=50",
-            "title=foo OR year=2015            | search=foo&start=0&end=50",
-            "year=2015 OR year=2017            | search=&start=0&end=50",
-            "learning AND NOT year=2015        | search=learning&start=0&end=50"
-    })
-    void yearIsSentAsSystemTagOnlyIfRequired(String query, String expectedParameters) throws MalformedURLException, URISyntaxException {
+    @CsvSource(
+            delimiter = '|',
+            value = {
+                "learning                          | search=learning&start=0&end=50",
+                "learning year=2015                | search=learning&tags=sys%3Ayear%3A2015&start=0&end=50",
+                "learning year-range=2010-2012     | search=learning&tags=sys%3Ayear%3A2010-2012&start=0&end=50",
+                "title=foo OR year=2015            | search=foo&start=0&end=50",
+                "year=2015 OR year=2017            | search=&start=0&end=50",
+                "learning AND NOT year=2015        | search=learning&start=0&end=50"
+            })
+    void yearIsSentAsSystemTagOnlyIfRequired(String query, String expectedParameters)
+            throws MalformedURLException, URISyntaxException {
         SearchQuery searchQuery = new SearchQuery(query);
         SearchQueryVisitor visitor = new SearchQueryVisitor(searchQuery.getSearchFlags());
 
-        assertEquals("https://www.bibsonomy.org/api/posts?resourcetype=publication&format=bibtex&" + expectedParameters,
-                fetcher.getURLForQuery(visitor.visitStart(searchQuery.getContext())).toString());
+        assertEquals(
+                "https://www.bibsonomy.org/api/posts?resourcetype=publication&format=bibtex&" + expectedParameters,
+                fetcher.getURLForQuery(visitor.visitStart(searchQuery.getContext()))
+                        .toString());
     }
 
     @Test
@@ -99,13 +106,16 @@ class BibSonomyFetcherTest {
                 .withField(StandardField.NUMBER, "8")
                 .withField(StandardField.PAGES, "101615")
                 .withField(StandardField.DOI, "10.1016/j.patter.2026.101615");
-        // Fields such as keywords or biburl belong to the user who posted the entry and may change, so only the bibliographic fields are compared
+        // Fields such as keywords or biburl belong to the user who posted the entry and may change, so only the
+        // bibliographic fields are compared
         List<Field> bibliographicFields = List.copyOf(expected.getFields());
 
-        BibEntry firstEntry = fetcher.performSearch("From data to value in multimodal learning").getFirst();
+        BibEntry firstEntry = fetcher.performSearch("From data to value in multimodal learning")
+                .getFirst();
 
         assertEquals(expected.getType(), firstEntry.getType());
-        assertEquals(bibliographicFields.stream().map(expected::getField).toList(),
+        assertEquals(
+                bibliographicFields.stream().map(expected::getField).toList(),
                 bibliographicFields.stream().map(firstEntry::getField).toList());
     }
 
@@ -113,12 +123,15 @@ class BibSonomyFetcherTest {
     @ExternalServicesTest
     void searchReturnsEntriesWithoutInternalFields() throws FetcherException {
         assumeCredentialsAvailable();
-        List<Field> internalFields = List.of(FieldFactory.parseField("added-at"), FieldFactory.parseField("interhash"), FieldFactory.parseField("intrahash"));
+        List<Field> internalFields = List.of(
+                FieldFactory.parseField("added-at"),
+                FieldFactory.parseField("interhash"),
+                FieldFactory.parseField("intrahash"));
 
         List<Field> foundInternalFields = fetcher.performSearch("From data to value in multimodal learning").stream()
-                                                 .flatMap(entry -> entry.getFields().stream())
-                                                 .filter(internalFields::contains)
-                                                 .toList();
+                .flatMap(entry -> entry.getFields().stream())
+                .filter(internalFields::contains)
+                .toList();
 
         assertEquals(List.of(), foundInternalFields);
     }
@@ -174,10 +187,20 @@ class BibSonomyFetcherTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"added-at", "interhash", "intrahash", "timestamp", "priority", "citeulike-article-id", "description"})
+    @ValueSource(
+            strings = {
+                "added-at",
+                "interhash",
+                "intrahash",
+                "timestamp",
+                "priority",
+                "citeulike-article-id",
+                "description"
+            })
     void cleanupRemovesInternalField(String fieldName) {
-        BibEntry entry = new BibEntry().withField(StandardField.TITLE, "Tagging")
-                                       .withField(FieldFactory.parseField(fieldName), "internal value");
+        BibEntry entry = new BibEntry()
+                .withField(StandardField.TITLE, "Tagging")
+                .withField(FieldFactory.parseField(fieldName), "internal value");
 
         fetcher.doPostCleanup(entry);
 
@@ -186,10 +209,12 @@ class BibSonomyFetcherTest {
 
     @Test
     void cleanupKeepsLinksToThePublication() {
-        BibEntry entry = new BibEntry().withField(StandardField.URL, "https://example.org/paper")
-                                       .withField(FieldFactory.parseField("biburl"), "https://www.bibsonomy.org/bibtex/abc/jabref-test-user");
-        BibEntry expected = new BibEntry().withField(StandardField.URL, "https://example.org/paper")
-                                          .withField(FieldFactory.parseField("biburl"), "https://www.bibsonomy.org/bibtex/abc/jabref-test-user");
+        BibEntry entry = new BibEntry()
+                .withField(StandardField.URL, "https://example.org/paper")
+                .withField(FieldFactory.parseField("biburl"), "https://www.bibsonomy.org/bibtex/abc/jabref-test-user");
+        BibEntry expected = new BibEntry()
+                .withField(StandardField.URL, "https://example.org/paper")
+                .withField(FieldFactory.parseField("biburl"), "https://www.bibsonomy.org/bibtex/abc/jabref-test-user");
 
         fetcher.doPostCleanup(entry);
 
@@ -200,7 +225,16 @@ class BibSonomyFetcherTest {
     void parsesAndCleansRealResponse() throws IOException, ParseException {
         BibEntry expected = new BibEntry(StandardEntryType.Misc)
                 .withCitationKey("shen2005folksonomy")
-                .withField(StandardField.ABSTRACT, "Folksonomy is an emerging technology that works to classify the information over WWW through tagging the bookmarks, photos or other web-based contents. It is understood to be organized by every user while not limited to the authors of the contents and the professional editors. This study surveyed the folksonomy as a complex network. The result indicates that the network, which is composed of the tags from the folksonomy, displays both properties of small world and scale-free. However, the statistics only shows a local and static slice of the vast body of folksonomy which is still evolving.")
+                .withField(
+                        StandardField.ABSTRACT,
+                        "Folksonomy is an emerging technology that works to classify the information over WWW through"
+                                + " tagging the bookmarks, photos or other web-based contents. It is understood to be"
+                                + " organized by every user while not limited to the authors of the contents and the"
+                                + " professional editors. This study surveyed the folksonomy as a complex network. The"
+                                + " result indicates that the network, which is composed of the tags from the"
+                                + " folksonomy, displays both properties of small world and scale-free. However, the"
+                                + " statistics only shows a local and static slice of the vast body of folksonomy"
+                                + " which is still evolving.")
                 .withField(StandardField.AUTHOR, "Shen, Kaikai and Wu, Lide")
                 .withField(StandardField.EPRINT, "cs.IR/0509072")
                 .withField(StandardField.KEYWORDS, "tagging, folksonomy, tagora, d4.1, networks, statistics")
@@ -232,8 +266,10 @@ class BibSonomyFetcherTest {
 
     @Test
     void removeDuplicatePostsKeepsFirstPostOfEachPublication() {
-        BibEntry firstPost = new BibEntry().withField(StandardField.TITLE, "first post").withField(INTERHASH, "same");
-        BibEntry secondPost = new BibEntry().withField(StandardField.TITLE, "second post").withField(INTERHASH, "same");
+        BibEntry firstPost =
+                new BibEntry().withField(StandardField.TITLE, "first post").withField(INTERHASH, "same");
+        BibEntry secondPost =
+                new BibEntry().withField(StandardField.TITLE, "second post").withField(INTERHASH, "same");
 
         assertEquals(List.of(firstPost), BibSonomyFetcher.removeDuplicatePosts(List.of(firstPost, secondPost)));
     }
@@ -243,7 +279,9 @@ class BibSonomyFetcherTest {
         BibEntry laterPublication = new BibEntry().withField(INTERHASH, "z");
         BibEntry earlierPublication = new BibEntry().withField(INTERHASH, "a");
 
-        assertEquals(List.of(laterPublication, earlierPublication), BibSonomyFetcher.removeDuplicatePosts(List.of(laterPublication, earlierPublication)));
+        assertEquals(
+                List.of(laterPublication, earlierPublication),
+                BibSonomyFetcher.removeDuplicatePosts(List.of(laterPublication, earlierPublication)));
     }
 
     @Test
@@ -251,14 +289,16 @@ class BibSonomyFetcherTest {
         BibEntry firstPost = new BibEntry().withField(StandardField.TITLE, "same");
         BibEntry secondPost = new BibEntry().withField(StandardField.TITLE, "same");
 
-        assertEquals(List.of(firstPost, secondPost), BibSonomyFetcher.removeDuplicatePosts(List.of(firstPost, secondPost)));
+        assertEquals(
+                List.of(firstPost, secondPost), BibSonomyFetcher.removeDuplicatePosts(List.of(firstPost, secondPost)));
     }
 
     @Test
     void removeDuplicatePostsReducesRealResponseToOnePostPerPublication() throws IOException, ParseException {
         List<BibEntry> uniquePosts = BibSonomyFetcher.removeDuplicatePosts(parseRealResponse());
 
-        assertEquals(List.of(Optional.of("shen2005folksonomy"), Optional.of("journals/patterns/TangJX26")),
+        assertEquals(
+                List.of(Optional.of("shen2005folksonomy"), Optional.of("journals/patterns/TangJX26")),
                 uniquePosts.stream().map(BibEntry::getCitationKey).toList());
     }
 
@@ -290,7 +330,8 @@ class BibSonomyFetcherTest {
     void searchWithoutCredentialsThrows() {
         ImporterPreferences noKeyPreferences = mock(ImporterPreferences.class);
         when(noKeyPreferences.getApiKey(BibSonomyFetcher.FETCHER_NAME)).thenReturn(Optional.empty());
-        BibSonomyFetcher fetcherWithoutKey = new BibSonomyFetcher(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), noKeyPreferences);
+        BibSonomyFetcher fetcherWithoutKey =
+                new BibSonomyFetcher(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), noKeyPreferences);
 
         assertThrows(FetcherException.class, () -> fetcherWithoutKey.performSearch("machine learning"));
     }
@@ -300,24 +341,35 @@ class BibSonomyFetcherTest {
     void searchWithMalformedKeyAsksForCredentials(String key) {
         ImporterPreferences malformedKeyPreferences = mock(ImporterPreferences.class);
         when(malformedKeyPreferences.getApiKey(BibSonomyFetcher.FETCHER_NAME)).thenReturn(Optional.of(key));
-        BibSonomyFetcher fetcherWithMalformedKey = new BibSonomyFetcher(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), malformedKeyPreferences);
+        BibSonomyFetcher fetcherWithMalformedKey = new BibSonomyFetcher(
+                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), malformedKeyPreferences);
 
-        FetcherException exception = assertThrows(FetcherException.class, () -> fetcherWithMalformedKey.performSearch("machine learning"));
+        FetcherException exception =
+                assertThrows(FetcherException.class, () -> fetcherWithMalformedKey.performSearch("machine learning"));
 
-        assertEquals("BibSonomy needs your username and API key. Enter them as 'username:apikey' in Preferences > Web search > BibSonomy.", exception.getLocalizedMessage());
+        assertEquals(
+                "BibSonomy needs your username and API key. Enter them as 'username:apikey' in Preferences > Web"
+                        + " search > BibSonomy.",
+                exception.getLocalizedMessage());
     }
 
     @Test
     @ExternalServicesTest
     void searchWithWrongCredentialsDoesNotShowThem() {
         ImporterPreferences wrongKeyPreferences = mock(ImporterPreferences.class);
-        when(wrongKeyPreferences.getApiKey(BibSonomyFetcher.FETCHER_NAME)).thenReturn(Optional.of("jabref-test-user:not-a-real-api-key"));
-        BibSonomyFetcher fetcherWithWrongKey = new BibSonomyFetcher(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), wrongKeyPreferences);
+        when(wrongKeyPreferences.getApiKey(BibSonomyFetcher.FETCHER_NAME))
+                .thenReturn(Optional.of("jabref-test-user:not-a-real-api-key"));
+        BibSonomyFetcher fetcherWithWrongKey = new BibSonomyFetcher(
+                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), wrongKeyPreferences);
 
-        FetcherException exception = assertThrows(FetcherException.class, () -> fetcherWithWrongKey.performSearch("machine learning"));
+        FetcherException exception =
+                assertThrows(FetcherException.class, () -> fetcherWithWrongKey.performSearch("machine learning"));
 
-        // BibSonomy's load balancer sometimes answers 503 before the credentials are checked, which says nothing about the credentials
+        // BibSonomy's load balancer sometimes answers 503 before the credentials are checked, which says nothing about
+        // the credentials
         assumeFalse(exception instanceof FetcherServerException);
-        assertEquals("BibSonomy rejected the username or API key. Check them in Preferences > Web search > BibSonomy.", exception.getLocalizedMessage());
+        assertEquals(
+                "BibSonomy rejected the username or API key. Check them in Preferences > Web search > BibSonomy.",
+                exception.getLocalizedMessage());
     }
 }

@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.formatter.casechanger.TitleCaseFormatter;
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
@@ -25,7 +24,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +89,8 @@ public class IsiImporter extends Importer {
     }
 
     public static void processSubSup(Map<Field, String> map) {
-        Field[] subsup = {StandardField.TITLE, StandardField.ABSTRACT, StandardField.COMMENT, new UnknownField("notes")};
+        Field[] subsup = {StandardField.TITLE, StandardField.ABSTRACT, StandardField.COMMENT, new UnknownField("notes")
+        };
 
         for (Field aSubsup : subsup) {
             if (map.containsKey(aSubsup)) {
@@ -211,10 +210,10 @@ public class IsiImporter extends Importer {
                             type = StandardEntryType.InProceedings;
                         }
                     }
-                    case "JO" ->
-                            hm.put(StandardField.BOOKTITLE, value);
+                    case "JO" -> hm.put(StandardField.BOOKTITLE, value);
                     case "AU" -> {
-                        String author = IsiImporter.isiAuthorsConvert(EOL_PATTERN.matcher(value).replaceAll(" and "));
+                        String author = IsiImporter.isiAuthorsConvert(
+                                EOL_PATTERN.matcher(value).replaceAll(" and "));
 
                         // if there is already someone there then append with "and"
                         if (hm.get(StandardField.AUTHOR) != null) {
@@ -223,12 +222,10 @@ public class IsiImporter extends Importer {
                         hm.put(StandardField.AUTHOR, author);
                     }
                     case "TI" ->
-                            hm.put(StandardField.TITLE, EOL_PATTERN.matcher(value).replaceAll(" "));
-                    case "SO",
-                         "JA" ->
-                            hm.put(StandardField.JOURNAL, EOL_PATTERN.matcher(value).replaceAll(" "));
-                    case "ID",
-                         "KW" -> {
+                        hm.put(StandardField.TITLE, EOL_PATTERN.matcher(value).replaceAll(" "));
+                    case "SO", "JA" ->
+                        hm.put(StandardField.JOURNAL, EOL_PATTERN.matcher(value).replaceAll(" "));
+                    case "ID", "KW" -> {
                         value = EOL_PATTERN.matcher(value).replaceAll(" ");
                         String existingKeywords = hm.get(StandardField.KEYWORDS);
                         if ((existingKeywords == null) || existingKeywords.contains(value)) {
@@ -239,12 +236,10 @@ public class IsiImporter extends Importer {
                         hm.put(StandardField.KEYWORDS, existingKeywords);
                     }
                     case "AB" ->
-                            hm.put(StandardField.ABSTRACT, EOL_PATTERN.matcher(value).replaceAll(" "));
-                    case "BP",
-                         "BR",
-                         "SP",
-                         "AR" ->
-                            pages = new StringBuilder(value);
+                        hm.put(
+                                StandardField.ABSTRACT,
+                                EOL_PATTERN.matcher(value).replaceAll(" "));
+                    case "BP", "BR", "SP", "AR" -> pages = new StringBuilder(value);
                     case "EP" -> {
                         int detpos = value.indexOf(' ');
 
@@ -254,18 +249,12 @@ public class IsiImporter extends Importer {
                         }
                         pages.append("--").append(value);
                     }
-                    case "PS" ->
-                            pages = new StringBuilder(IsiImporter.parsePages(value));
-                    case "IS" ->
-                            hm.put(StandardField.NUMBER, value);
-                    case "PY" ->
-                            hm.put(StandardField.YEAR, value);
-                    case "VL" ->
-                            hm.put(StandardField.VOLUME, value);
-                    case "PU" ->
-                            hm.put(StandardField.PUBLISHER, value);
-                    case "DI" ->
-                            hm.put(StandardField.DOI, value);
+                    case "PS" -> pages = new StringBuilder(IsiImporter.parsePages(value));
+                    case "IS" -> hm.put(StandardField.NUMBER, value);
+                    case "PY" -> hm.put(StandardField.YEAR, value);
+                    case "VL" -> hm.put(StandardField.VOLUME, value);
+                    case "PU" -> hm.put(StandardField.PUBLISHER, value);
+                    case "DI" -> hm.put(StandardField.DOI, value);
                     case "PD" -> {
                         String month = IsiImporter.parseMonth(value);
                         if (month != null) {
@@ -282,7 +271,9 @@ public class IsiImporter extends Importer {
                         }
                     }
                     case "CR" ->
-                            hm.put(new UnknownField("CitedReferences"), EOL_PATTERN.matcher(value).replaceAll(" ; ").trim());
+                        hm.put(
+                                new UnknownField("CitedReferences"),
+                                EOL_PATTERN.matcher(value).replaceAll(" ; ").trim());
                     default -> {
                         // Preserve all other entries except
                         if ("ER".equals(beg) || "EF".equals(beg) || "VR".equals(beg) || "FN".equals(beg)) {
@@ -351,8 +342,10 @@ public class IsiImporter extends Importer {
                     return month.get().getJabRefFormat();
                 }
             } catch (NumberFormatException e) {
-                LOGGER.info("The import file in ISI format cannot parse part of the content in PD into integers " +
-                        "(If there is no month or PD displayed in the imported entity, this may be the reason)", e);
+                LOGGER.info(
+                        "The import file in ISI format cannot parse part of the content in PD into integers (If there"
+                                + " is no month or PD displayed in the imported entity, this may be the reason)",
+                        e);
             }
         }
         return null;
@@ -360,7 +353,8 @@ public class IsiImporter extends Importer {
 
     /// Will expand ISI first names.
     ///
-    /// Fixed bug from: <a href="http://sourceforge.net/tracker/index.php?func=detail&aid=1542552&group_id=92314&atid=600306">...</a>
+    /// Fixed bug from: <a
+    /// href="http://sourceforge.net/tracker/index.php?func=detail&aid=1542552&group_id=92314&atid=600306">...</a>
     public static String isiAuthorConvert(String author) {
         String[] s = author.split(",");
         if (s.length != 2) {

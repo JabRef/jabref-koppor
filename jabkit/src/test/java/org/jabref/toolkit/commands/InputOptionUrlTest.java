@@ -1,9 +1,15 @@
 package org.jabref.toolkit.commands;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
+import okhttp3.HttpUrl;
 import org.jabref.logic.importer.fileformat.BibtexImporter;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
@@ -11,19 +17,11 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.support.BibEntryAssert;
 import org.jabref.toolkit.exception.CliExceptionHandler;
-
-import mockwebserver3.MockResponse;
-import mockwebserver3.MockWebServer;
-import okhttp3.HttpUrl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /// Verifies that the `FILE`/`--input` argument shared by all `jabkit` commands (see [InputOption])
 /// also accepts an http(s)/ftp URL, downloading it to a local temporary file first.
@@ -33,11 +31,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class InputOptionUrlTest extends AbstractJabKitTest {
 
     private static final String BIBTEX_CONTENT = """
-            @Article{Darwin1888,
-              author = {Darwin, Charles},
-              title  = {Origin of Species},
-              year   = {1888},
-            }""";
+        @Article{Darwin1888,
+          author = {Darwin, Charles},
+          title  = {Origin of Species},
+          year   = {1888},
+        }\
+        """;
 
     private MockWebServer server;
 
@@ -59,7 +58,8 @@ class InputOptionUrlTest extends AbstractJabKitTest {
         HttpUrl url = server.url("/references.bib");
         Path outputPath = tempDir.resolve("output");
 
-        int exitCode = commandLine.executeToLog("convert",
+        int exitCode = commandLine.executeToLog(
+                "convert",
                 "--input=" + url,
                 "--input-format=bibtex",
                 "--output-format=bibtex",
@@ -75,11 +75,8 @@ class InputOptionUrlTest extends AbstractJabKitTest {
         HttpUrl url = server.url("/references.bib");
         Path outputPath = tempDir.resolve("output");
 
-        int exitCode = commandLine.executeToLog("convert",
-                url.toString(),
-                "--input-format=bibtex",
-                "--output-format=bibtex",
-                "--output=" + outputPath);
+        int exitCode = commandLine.executeToLog(
+                "convert", url.toString(), "--input-format=bibtex", "--output-format=bibtex", "--output=" + outputPath);
 
         assertEquals(CommandLine.ExitCode.OK, exitCode);
         assertDarwin1888Entry(outputPath);
@@ -91,7 +88,8 @@ class InputOptionUrlTest extends AbstractJabKitTest {
         String url = server.url("/references.bib").toString().replaceFirst("^http://", "HTTP://");
         Path outputPath = tempDir.resolve("output");
 
-        int exitCode = commandLine.executeToLog("convert",
+        int exitCode = commandLine.executeToLog(
+                "convert",
                 "--input=" + url,
                 "--input-format=bibtex",
                 "--output-format=bibtex",
@@ -106,10 +104,8 @@ class InputOptionUrlTest extends AbstractJabKitTest {
         server.enqueue(new MockResponse.Builder().code(404).build());
         HttpUrl url = server.url("/missing.bib");
 
-        int exitCode = commandLine.executeToLog("convert",
-                "--input=" + url,
-                "--input-format=bibtex",
-                "--output-format=bibtex");
+        int exitCode = commandLine.executeToLog(
+                "convert", "--input=" + url, "--input-format=bibtex", "--output-format=bibtex");
 
         assertEquals(CommandLine.ExitCode.SOFTWARE, exitCode);
         assertTrue(commandLine.getErrorOutput().contains("Problem downloading"));
@@ -120,10 +116,8 @@ class InputOptionUrlTest extends AbstractJabKitTest {
         server.enqueue(new MockResponse.Builder().code(404).build());
         String urlWithCredentials = server.url("/missing.bib").toString().replaceFirst("://", "://user:secret@");
 
-        int exitCode = commandLine.executeToLog("convert",
-                "--input=" + urlWithCredentials,
-                "--input-format=bibtex",
-                "--output-format=bibtex");
+        int exitCode = commandLine.executeToLog(
+                "convert", "--input=" + urlWithCredentials, "--input-format=bibtex", "--output-format=bibtex");
 
         assertEquals(CommandLine.ExitCode.SOFTWARE, exitCode);
         assertTrue(commandLine.getErrorOutput().contains("Problem downloading"));
@@ -133,10 +127,8 @@ class InputOptionUrlTest extends AbstractJabKitTest {
     @Test
     void invalidLocalPathExitsWithUsageError() {
         // The NUL character is rejected by java.nio.file.Path on every platform.
-        int exitCode = commandLine.executeToLog("convert",
-                "--input=invalid\u0000path",
-                "--input-format=bibtex",
-                "--output-format=bibtex");
+        int exitCode = commandLine.executeToLog(
+                "convert", "--input=invalid\u0000path", "--input-format=bibtex", "--output-format=bibtex");
 
         assertEquals(CommandLine.ExitCode.USAGE, exitCode);
         assertTrue(commandLine.getErrorOutput().contains("Invalid input path"));

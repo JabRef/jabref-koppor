@@ -2,11 +2,9 @@ package org.jabref.model.undo;
 
 import java.util.List;
 import java.util.Objects;
-
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.event.EntriesEventSource;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Insertion of entries into the library.
@@ -21,7 +19,8 @@ import org.jspecify.annotations.NullMarked;
 /// the group that happens to be selected, which the listener in `LibraryTab` decides by
 /// looking for [EntriesEventSource#UNDO].
 @NullMarked
-public record UndoableInsertEntries(BibDatabase database, List<BibEntry> entries, EntriesEventSource source) implements BibChange {
+public record UndoableInsertEntries(BibDatabase database, List<BibEntry> entries, EntriesEventSource source)
+        implements BibChange {
 
     public UndoableInsertEntries {
         entries = List.copyOf(entries);

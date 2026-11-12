@@ -4,7 +4,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Supplier;
-
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
@@ -16,11 +15,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
-
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.fieldeditors.contextmenu.EditorContextAction;
 import org.jabref.gui.keyboard.KeyBindingRepository;
-
 import org.jspecify.annotations.NonNull;
 
 public class EditorTextArea extends TextArea implements Initializable, ContextMenuAddable {
@@ -171,11 +168,16 @@ public class EditorTextArea extends TextArea implements Initializable, ContextMe
 
                 // Get the current text area
                 Node node = (Node) event.getSource();
-                KeyEvent newEvent = new KeyEvent(node,
-                        event.getTarget(), event.getEventType(),
-                        event.getCharacter(), event.getText(),
-                        event.getCode(), event.isShiftDown(),
-                        true, event.isAltDown(),
+                KeyEvent newEvent = new KeyEvent(
+                        node,
+                        event.getTarget(),
+                        event.getEventType(),
+                        event.getCharacter(),
+                        event.getText(),
+                        event.getCode(),
+                        event.isShiftDown(),
+                        true,
+                        event.isAltDown(),
                         event.isMetaDown());
 
                 node.fireEvent(newEvent);

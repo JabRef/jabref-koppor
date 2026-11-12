@@ -1,8 +1,13 @@
 package org.jabref.logic.importer;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.importer.fileformat.BibframeImporter;
 import org.jabref.logic.importer.fileformat.BiblioscapeImporter;
@@ -22,18 +27,11 @@ import org.jabref.logic.importer.fileformat.RepecNepImporter;
 import org.jabref.logic.importer.fileformat.RisImporter;
 import org.jabref.logic.importer.fileformat.pdf.PdfMergeMetadataImporter;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ResourceLock("Localization.lang")
 public class ImporterTest {
@@ -79,10 +77,13 @@ public class ImporterTest {
     }
 
     public static Stream<Importer> instancesToTest() {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        ImportFormatPreferences importFormatPreferences =
+                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .thenReturn(',');
         CitationKeyPatternPreferences citationKeyPatternPreferences = mock(CitationKeyPatternPreferences.class);
-        when(citationKeyPatternPreferences.getUnwantedCharacters()).thenReturn(CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS);
+        when(citationKeyPatternPreferences.getUnwantedCharacters())
+                .thenReturn(CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS);
         return Stream.of(
                 // all classes implementing {@link Importer}
                 // sorted alphabetically
@@ -102,7 +103,6 @@ public class ImporterTest {
                 new OvidImporter(),
                 new PdfMergeMetadataImporter(importFormatPreferences),
                 new RepecNepImporter(importFormatPreferences),
-                new RisImporter()
-        );
+                new RisImporter());
     }
 }

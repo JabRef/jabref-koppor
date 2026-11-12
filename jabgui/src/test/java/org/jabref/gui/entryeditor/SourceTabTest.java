@@ -1,8 +1,14 @@
 package org.jabref.gui.entryeditor;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
@@ -13,7 +19,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-
+import jfx.incubator.scene.control.richtext.CodeArea;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.keyboard.KeyBinding;
@@ -33,21 +39,12 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.support.DisabledOnCIServer;
-
-import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
-import jfx.incubator.scene.control.richtext.CodeArea;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(JavaFxExtension.class)
 class SourceTabTest {
@@ -77,14 +74,15 @@ class SourceTabTest {
             when(stateManager.activeTabProperty()).thenReturn(OptionalObjectProperty.empty());
             keyBindingRepository = new KeyBindingRepository(List.of(), List.of());
             keyBindingRepository.put(KeyBinding.SAVE_LIBRARY, "Ctrl+S");
-            ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-            when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+            ImportFormatPreferences importFormatPreferences =
+                    mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+            when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                    .thenReturn(',');
             fieldPreferences = mock(FieldPreferences.class);
             when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
             entryTypesManager = mock(BibEntryTypesManager.class);
 
             sourceTab = new SourceTab(
-
                     fieldPreferences,
                     importFormatPreferences,
                     new DummyFileUpdateMonitor(),
@@ -92,13 +90,8 @@ class SourceTabTest {
                     entryTypesManager,
                     keyBindingRepository,
                     stateManager,
-                    new BibTeXSyntaxHighlighter()
-            );
-            pane = new TabPane(
-                    new Tab("main area", area),
-                    new Tab("other tab", new Label("some text")),
-                    sourceTab
-            );
+                    new BibTeXSyntaxHighlighter());
+            pane = new TabPane(new Tab("main area", area), new Tab("other tab", new Label("some text")), sourceTab);
             scene = new Scene(pane);
             this.stage = stage;
 
@@ -122,7 +115,9 @@ class SourceTabTest {
             activeDatabase.set(Optional.of(database));
 
             assertEquals(Localization.lang("%0 source", mode.getFormattedName()), sourceTab.getText());
-            assertEquals(Localization.lang("Show/edit %0 source", mode.getFormattedName()), sourceTab.getTooltip().getText());
+            assertEquals(
+                    Localization.lang("Show/edit %0 source", mode.getFormattedName()),
+                    sourceTab.getTooltip().getText());
         });
     }
 
@@ -133,7 +128,9 @@ class SourceTabTest {
             activeDatabase.set(Optional.empty());
 
             assertEquals(Localization.lang("Source"), sourceTab.getText());
-            assertEquals(Localization.lang("Show/edit source"), sourceTab.getTooltip().getText());
+            assertEquals(
+                    Localization.lang("Show/edit source"),
+                    sourceTab.getTooltip().getText());
         });
     }
 
@@ -232,10 +229,14 @@ class SourceTabTest {
 
             // Simulate the selection model having advanced before the deferred tab refresh runs.
             sourceTab.currentEntryProperty().set(secondEntry);
-            Event.fireEvent(sourceArea, new KeyEvent(KeyEvent.KEY_PRESSED, "s", "S", KeyCode.S, false, true, false, false));
+            Event.fireEvent(
+                    sourceArea, new KeyEvent(KeyEvent.KEY_PRESSED, "s", "S", KeyCode.S, false, true, false, false));
 
-            assertEquals("Edited first entry", firstEntry.getField(StandardField.TITLE).orElseThrow());
-            assertEquals("Second entry", secondEntry.getField(StandardField.TITLE).orElseThrow());
+            assertEquals(
+                    "Edited first entry",
+                    firstEntry.getField(StandardField.TITLE).orElseThrow());
+            assertEquals(
+                    "Second entry", secondEntry.getField(StandardField.TITLE).orElseThrow());
         });
     }
 
@@ -283,12 +284,12 @@ class SourceTabTest {
             assertTrue(sourceArea.isFocused());
             sourceArea.clear();
             sourceArea.appendText("""
-                    @Book{new,
-                      author  = {Old author},
-                      title   = {New title},
-                      journal = {New journal},
-                    }
-                    """);
+                @Book{new,
+                  author  = {Old author},
+                  title   = {New title},
+                  journal = {New journal},
+                }
+                """);
             // Focus loss stores the visible source
             pane.requestFocus();
             assertFalse(sourceArea.isFocused());

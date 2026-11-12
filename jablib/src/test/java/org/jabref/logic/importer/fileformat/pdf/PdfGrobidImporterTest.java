@@ -1,28 +1,26 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.util.GrobidPreferences;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExternalServicesTest
 class PdfGrobidImporterTest {
@@ -35,8 +33,10 @@ class PdfGrobidImporterTest {
         when(grobidPreferences.isGrobidEnabled()).thenReturn(true);
         when(grobidPreferences.getGrobidURL()).thenReturn("http://grobid.jabref.org:8070");
 
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        ImportFormatPreferences importFormatPreferences =
+                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .thenReturn(',');
         when(importFormatPreferences.grobidPreferences()).thenReturn(grobidPreferences);
 
         importer = new PdfGrobidImporter(importFormatPreferences);
@@ -50,7 +50,8 @@ class PdfGrobidImporterTest {
     @Test
     @Disabled("Currently does not return anything")
     void importEntries() throws URISyntaxException {
-        Path file = Path.of(PdfGrobidImporterTest.class.getResource("LNCS-minimal.pdf").toURI());
+        Path file = Path.of(
+                PdfGrobidImporterTest.class.getResource("LNCS-minimal.pdf").toURI());
         List<BibEntry> bibEntries = importer.importDatabase(file).getDatabase().getEntries();
 
         // TODO: Rewrite using our logic of full BibEntries
@@ -63,13 +64,16 @@ class PdfGrobidImporterTest {
 
     @Test
     void isRecognizedFormat() throws IOException, URISyntaxException {
-        Path file = Path.of(PdfGrobidImporterTest.class.getResource("annotated.pdf").toURI());
+        Path file =
+                Path.of(PdfGrobidImporterTest.class.getResource("annotated.pdf").toURI());
         assertTrue(importer.isRecognizedFormat(file));
     }
 
     @Test
     void isRecognizedFormatReject() throws IOException, URISyntaxException {
-        Path file = Path.of(PdfGrobidImporterTest.class.getResource("../BibtexImporter.examples.bib").toURI());
+        Path file = Path.of(PdfGrobidImporterTest.class
+                .getResource("../BibtexImporter.examples.bib")
+                .toURI());
         assertFalse(importer.isRecognizedFormat(file));
     }
 

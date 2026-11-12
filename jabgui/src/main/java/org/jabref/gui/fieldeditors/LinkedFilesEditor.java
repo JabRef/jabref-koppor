@@ -1,9 +1,12 @@
 package org.jabref.gui.fieldeditors;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
+import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleObjectProperty;
@@ -35,7 +38,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.DragAndDropDataFormats;
 import org.jabref.gui.StateManager;
@@ -67,11 +69,6 @@ import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
-import jakarta.inject.Inject;
-
 public class LinkedFilesEditor extends VBox implements FieldEditorFX {
 
     // Upper bound on how many rows the ListView grows to before it starts scrolling internally,
@@ -80,12 +77,16 @@ public class LinkedFilesEditor extends VBox implements FieldEditorFX {
 
     @FXML
     private ListView<LinkedFileViewModel> listView;
+
     @FXML
     private HBox buttonRow;
+
     @FXML
     private TextField noFilePlaceholder;
+
     @FXML
     private JabRefIconView fulltextFetcher;
+
     @FXML
     private ProgressIndicator progressIndicator;
 
@@ -97,16 +98,22 @@ public class LinkedFilesEditor extends VBox implements FieldEditorFX {
 
     @Inject
     private DialogService dialogService;
+
     @Inject
     private GuiPreferences preferences;
+
     @Inject
     private BibEntryTypesManager bibEntryTypesManager;
+
     @Inject
     private JournalAbbreviationRepository abbreviationRepository;
+
     @Inject
     private TaskExecutor taskExecutor;
+
     @Inject
     private FileUpdateMonitor fileUpdateMonitor;
+
     @Inject
     private StateManager stateManager;
 
@@ -117,22 +124,22 @@ public class LinkedFilesEditor extends VBox implements FieldEditorFX {
     private ContextMenu activeContextMenu = null;
     private ContextMenuFactory contextMenuFactory;
 
-    public LinkedFilesEditor(Field field,
-                             BibDatabaseContext databaseContext,
-                             SuggestionProvider<?> suggestionProvider,
-                             FieldCheckers fieldCheckers,
-                             UndoManager undoManager) {
+    public LinkedFilesEditor(
+            Field field,
+            BibDatabaseContext databaseContext,
+            SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers,
+            UndoManager undoManager) {
         this.field = field;
         this.databaseContext = databaseContext;
         this.suggestionProvider = suggestionProvider;
         this.fieldCheckers = fieldCheckers;
         this.undoManager = undoManager;
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
 
-        // Bind directly to the view model's underlying list (not a wrapper): viewModel.getFiles() rather than viewModel.filesProperty()
+        // Bind directly to the view model's underlying list (not a wrapper): viewModel.getFiles() rather than
+        // viewModel.filesProperty()
         // a wrapper like viewModel.filesProperty() (SimpleListProperty): JavaFX's Bindings.bindContentBidirectional
         // dispatches change events based on list instance identity (change.getList()), so wrapping the list
         // causes an identity mismatch that silently breaks live synchronization.
@@ -149,8 +156,7 @@ public class LinkedFilesEditor extends VBox implements FieldEditorFX {
                 taskExecutor,
                 fieldCheckers,
                 preferences,
-                undoManager
-        );
+                undoManager);
 
         this.contextMenuFactory = new ContextMenuFactory(
                 dialogService,
@@ -161,13 +167,14 @@ public class LinkedFilesEditor extends VBox implements FieldEditorFX {
                 taskExecutor,
                 fileUpdateMonitor,
                 undoManager,
-                stateManager
-        );
+                stateManager);
 
         new ViewModelListCellFactory<LinkedFileViewModel>()
-                .withTooltipText(linkedFile -> linkedFile.linkProperty().flatMap(_ ->
-                        linkedFile.descriptionProperty().map(_ -> linkedFile.getDescriptionAndLink())))
-                .withPseudoClass(PseudoClass.getPseudoClass("auto-found"), LinkedFileViewModel::isAutomaticallyFoundProperty)
+                .withTooltipText(linkedFile -> linkedFile
+                        .linkProperty()
+                        .flatMap(_ -> linkedFile.descriptionProperty().map(_ -> linkedFile.getDescriptionAndLink())))
+                .withPseudoClass(
+                        PseudoClass.getPseudoClass("auto-found"), LinkedFileViewModel::isAutomaticallyFoundProperty)
                 .withGraphic(this::createFileDisplay)
                 .withOnMouseClickedEvent(this::handleItemMouseClick)
                 .setOnDragDetected(this::handleOnDragDetected)
@@ -183,17 +190,20 @@ public class LinkedFilesEditor extends VBox implements FieldEditorFX {
         // The list's own insets (CSS padding/border) must be added on top: they are not part of the viewport, and
         // leaving them out makes the viewport a few pixels shorter than the rows, which shows a vertical scrollbar
         // and, since that bar narrows the viewport, a horizontal one as well.
-        listView.prefHeightProperty().bind(Bindings.createDoubleBinding(
-                () -> listView.getItems().isEmpty()
-                      ? 0
-                      : Math.min(listView.getItems().size(), MAX_VISIBLE_ROWS) * listView.getFixedCellSize() + verticalInsets(listView),
-                listView.getItems(),
-                listView.fixedCellSizeProperty(),
-                listView.insetsProperty()));
-        listView.maxHeightProperty().bind(Bindings.createDoubleBinding(
-                () -> MAX_VISIBLE_ROWS * listView.getFixedCellSize() + verticalInsets(listView),
-                listView.fixedCellSizeProperty(),
-                listView.insetsProperty()));
+        listView.prefHeightProperty()
+                .bind(Bindings.createDoubleBinding(
+                        () -> listView.getItems().isEmpty()
+                                ? 0
+                                : Math.min(listView.getItems().size(), MAX_VISIBLE_ROWS) * listView.getFixedCellSize()
+                                        + verticalInsets(listView),
+                        listView.getItems(),
+                        listView.fixedCellSizeProperty(),
+                        listView.insetsProperty()));
+        listView.maxHeightProperty()
+                .bind(Bindings.createDoubleBinding(
+                        () -> MAX_VISIBLE_ROWS * listView.getFixedCellSize() + verticalInsets(listView),
+                        listView.fixedCellSizeProperty(),
+                        listView.insetsProperty()));
         // Allow the list to collapse completely when there are no files; the button row below stays visible.
         listView.setMinHeight(0);
 
@@ -205,9 +215,13 @@ public class LinkedFilesEditor extends VBox implements FieldEditorFX {
         BooleanBinding noFiles = Bindings.isEmpty(listView.getItems());
         noFilePlaceholder.visibleProperty().bind(noFiles);
         noFilePlaceholder.managedProperty().bind(noFiles);
-        buttonRow.paddingProperty().bind(Bindings.when(noFiles).then(Insets.EMPTY).otherwise(new Insets(0, 0, 0, 4)));
+        buttonRow
+                .paddingProperty()
+                .bind(Bindings.when(noFiles).then(Insets.EMPTY).otherwise(new Insets(0, 0, 0, 4)));
 
-        fulltextFetcher.visibleProperty().bind(viewModel.fulltextLookupInProgressProperty().not());
+        fulltextFetcher
+                .visibleProperty()
+                .bind(viewModel.fulltextLookupInProgressProperty().not());
         progressIndicator.visibleProperty().bind(viewModel.fulltextLookupInProgressProperty());
 
         setUpKeyBindings();
@@ -218,7 +232,8 @@ public class LinkedFilesEditor extends VBox implements FieldEditorFX {
     }
 
     private void handleOnDragOver(LinkedFileViewModel originalItem, DragEvent event) {
-        if ((event.getGestureSource() != originalItem) && event.getDragboard().hasContent(DragAndDropDataFormats.LINKED_FILE)) {
+        if ((event.getGestureSource() != originalItem)
+                && event.getDragboard().hasContent(DragAndDropDataFormats.LINKED_FILE)) {
             event.acceptTransferModes(TransferMode.MOVE);
         }
     }
@@ -271,7 +286,8 @@ public class LinkedFilesEditor extends VBox implements FieldEditorFX {
         Text link = new Text();
         link.textProperty().bind(linkedFile.linkProperty());
         link.getStyleClass().setAll("file-row-text");
-        EasyBind.subscribe(linkedFile.isAutomaticallyFoundProperty(), found -> link.pseudoClassStateChanged(opacity, found));
+        EasyBind.subscribe(
+                linkedFile.isAutomaticallyFoundProperty(), found -> link.pseudoClassStateChanged(opacity, found));
 
         Text desc = new Text();
         desc.textProperty().bind(linkedFile.descriptionProperty());
@@ -286,7 +302,8 @@ public class LinkedFilesEditor extends VBox implements FieldEditorFX {
         label.textProperty().bind(linkedFile.linkProperty());
         label.getStyleClass().add("file-row-text");
         label.textOverrunProperty().setValue(OverrunStyle.LEADING_ELLIPSIS);
-        EasyBind.subscribe(linkedFile.isAutomaticallyFoundProperty(), found -> label.pseudoClassStateChanged(opacity, found));
+        EasyBind.subscribe(
+                linkedFile.isAutomaticallyFoundProperty(), found -> label.pseudoClassStateChanged(opacity, found));
 
         HBox info = new HBox(8);
         HBox.setHgrow(info, Priority.ALWAYS);
@@ -296,7 +313,8 @@ public class LinkedFilesEditor extends VBox implements FieldEditorFX {
         info.getChildren().setAll(label, progressIndicator);
 
         Button acceptAutoLinkedFile = ControlHelper.iconButton(IconTheme.JabRefIcons.AUTO_LINKED_FILE);
-        acceptAutoLinkedFile.setTooltip(new Tooltip(Localization.lang("This file was found automatically. Do you want to link it to this entry?")));
+        acceptAutoLinkedFile.setTooltip(new Tooltip(
+                Localization.lang("This file was found automatically. Do you want to link it to this entry?")));
         acceptAutoLinkedFile.visibleProperty().bind(linkedFile.isAutomaticallyFoundProperty());
         acceptAutoLinkedFile.managedProperty().bind(linkedFile.isAutomaticallyFoundProperty());
         acceptAutoLinkedFile.setOnAction(_ -> linkedFile.acceptAsLinked());
@@ -309,11 +327,17 @@ public class LinkedFilesEditor extends VBox implements FieldEditorFX {
         WriteMetadataToSinglePdfAction writeMetadataToSinglePdfAction = new WriteMetadataToSinglePdfAction(
                 linkedFile.getFile(),
                 bibEntry.getValueOrElse(new BibEntry()),
-                databaseContext, dialogService, preferences.getFieldPreferences(),
-                preferences.getFilePreferences(), preferences.getXmpPreferences(), abbreviationRepository, bibEntryTypesManager,
-                taskExecutor
-        );
-        writeMetadataToPdf.disableProperty().bind(writeMetadataToSinglePdfAction.executableProperty().not());
+                databaseContext,
+                dialogService,
+                preferences.getFieldPreferences(),
+                preferences.getFilePreferences(),
+                preferences.getXmpPreferences(),
+                abbreviationRepository,
+                bibEntryTypesManager,
+                taskExecutor);
+        writeMetadataToPdf
+                .disableProperty()
+                .bind(writeMetadataToSinglePdfAction.executableProperty().not());
         writeMetadataToPdf.setOnAction(_ -> writeMetadataToSinglePdfAction.execute());
 
         Button parsePdfMetadata = ControlHelper.iconButton(IconTheme.JabRefIcons.PDF_METADATA_READ);
@@ -335,28 +359,67 @@ public class LinkedFilesEditor extends VBox implements FieldEditorFX {
     private void setUpKeyBindings() {
         KeyBindingDispatcher keyBindingDispatcher = new KeyBindingDispatcher(preferences.getKeyBindingRepository())
                 .on(KeyBinding.DELETE_ENTRY, this::deleteAttachedFilesWithConfirmation)
-                .onConditionally(KeyBinding.RENAME_FILE_TO_NAME, () -> executeOnSelectedFile(selectedFile ->
-                        new ContextAction(StandardActions.RENAME_FILE_TO_NAME, selectedFile, databaseContext, bibEntry, preferences, viewModel).execute()))
-                .onConditionally(KeyBinding.OPEN_FILE, () -> executeOnSelectedFile(selectedFile ->
-                        new ContextAction(StandardActions.OPEN_FILE, selectedFile, databaseContext, bibEntry, preferences, viewModel).execute()))
-                .onConditionally(KeyBinding.PERFORM_OCR, () -> executeOnSelectedFile(selectedFile ->
-                        new OcrLinkedFileAction(
-                                selectedFile.getFile(),
-                                selectedFile.getLinkedEntries(),
-                                databaseContext,
-                                dialogService,
-                                preferences,
-                                taskExecutor,
-                                fileUpdateMonitor,
-                                undoManager,
-                                stateManager
-                        ).execute()))
-                .onConditionally(KeyBinding.OPEN_FOLDER, () -> executeOnSelectedFile(selectedFile ->
-                        new ContextAction(StandardActions.OPEN_FOLDER, selectedFile, databaseContext, bibEntry, preferences, viewModel).execute()))
-                .onConditionally(KeyBinding.OPEN_CLOSE_ENTRY_EDITOR, () -> executeOnSelectedFile(selectedFile ->
-                        new ContextAction(StandardActions.EDIT_FILE_LINK, selectedFile, databaseContext, bibEntry, preferences, viewModel).execute()))
-                .onConditionally(KeyBinding.COPY, () -> executeOnSelectedFile(selectedFile ->
-                        new CopyLinkedFilesAction(selectedFile.getFile(), dialogService, databaseContext, preferences.getFilePreferences()).execute()));
+                .onConditionally(
+                        KeyBinding.RENAME_FILE_TO_NAME,
+                        () -> executeOnSelectedFile(selectedFile -> new ContextAction(
+                                        StandardActions.RENAME_FILE_TO_NAME,
+                                        selectedFile,
+                                        databaseContext,
+                                        bibEntry,
+                                        preferences,
+                                        viewModel)
+                                .execute()))
+                .onConditionally(
+                        KeyBinding.OPEN_FILE,
+                        () -> executeOnSelectedFile(selectedFile -> new ContextAction(
+                                        StandardActions.OPEN_FILE,
+                                        selectedFile,
+                                        databaseContext,
+                                        bibEntry,
+                                        preferences,
+                                        viewModel)
+                                .execute()))
+                .onConditionally(
+                        KeyBinding.PERFORM_OCR,
+                        () -> executeOnSelectedFile(selectedFile -> new OcrLinkedFileAction(
+                                        selectedFile.getFile(),
+                                        selectedFile.getLinkedEntries(),
+                                        databaseContext,
+                                        dialogService,
+                                        preferences,
+                                        taskExecutor,
+                                        fileUpdateMonitor,
+                                        undoManager,
+                                        stateManager)
+                                .execute()))
+                .onConditionally(
+                        KeyBinding.OPEN_FOLDER,
+                        () -> executeOnSelectedFile(selectedFile -> new ContextAction(
+                                        StandardActions.OPEN_FOLDER,
+                                        selectedFile,
+                                        databaseContext,
+                                        bibEntry,
+                                        preferences,
+                                        viewModel)
+                                .execute()))
+                .onConditionally(
+                        KeyBinding.OPEN_CLOSE_ENTRY_EDITOR,
+                        () -> executeOnSelectedFile(selectedFile -> new ContextAction(
+                                        StandardActions.EDIT_FILE_LINK,
+                                        selectedFile,
+                                        databaseContext,
+                                        bibEntry,
+                                        preferences,
+                                        viewModel)
+                                .execute()))
+                .onConditionally(
+                        KeyBinding.COPY,
+                        () -> executeOnSelectedFile(selectedFile -> new CopyLinkedFilesAction(
+                                        selectedFile.getFile(),
+                                        dialogService,
+                                        databaseContext,
+                                        preferences.getFilePreferences())
+                                .execute()));
 
         listView.addEventFilter(KeyEvent.KEY_PRESSED, keyBindingDispatcher::handle);
     }
@@ -366,16 +429,21 @@ public class LinkedFilesEditor extends VBox implements FieldEditorFX {
     /// @return whether a file was selected
     private boolean executeOnSelectedFile(Consumer<LinkedFileViewModel> action) {
         return Optional.ofNullable(listView.getSelectionModel().getSelectedItem())
-                       .map(selectedFile -> {
-                           action.accept(selectedFile);
-                           return true;
-                       })
-                       .orElse(false);
+                .map(selectedFile -> {
+                    action.accept(selectedFile);
+                    return true;
+                })
+                .orElse(false);
     }
 
     private void deleteAttachedFilesWithConfirmation() {
-        new DeleteFileAction(dialogService, preferences.getFilePreferences(), databaseContext,
-                viewModel, listView.getSelectionModel().getSelectedItems()).execute();
+        new DeleteFileAction(
+                        dialogService,
+                        preferences.getFilePreferences(),
+                        databaseContext,
+                        viewModel,
+                        listView.getSelectionModel().getSelectedItems())
+                .execute();
     }
 
     public LinkedFilesEditorViewModel getViewModel() {
@@ -398,13 +466,16 @@ public class LinkedFilesEditor extends VBox implements FieldEditorFX {
         // A selected suggestion (file found in the file directory, not yet linked) is what the user wants to add,
         // so "+" links it directly instead of asking for a new file link.
         List<LinkedFileViewModel> selectedSuggestions = listView.getSelectionModel().getSelectedItems().stream()
-                                                                .filter(LinkedFileViewModel::isAutomaticallyFound)
-                                                                .toList();
+                .filter(LinkedFileViewModel::isAutomaticallyFound)
+                .toList();
         if (!selectedSuggestions.isEmpty()) {
             selectedSuggestions.forEach(LinkedFileViewModel::acceptAsLinked);
             return;
         }
-        dialogService.showCustomDialogAndWait(new LinkedFileEditDialog()).filter(file -> !file.isEmpty()).ifPresent(newLinkedFile -> viewModel.addNewLinkedFile(newLinkedFile));
+        dialogService
+                .showCustomDialogAndWait(new LinkedFileEditDialog())
+                .filter(file -> !file.isEmpty())
+                .ifPresent(newLinkedFile -> viewModel.addNewLinkedFile(newLinkedFile));
     }
 
     @FXML

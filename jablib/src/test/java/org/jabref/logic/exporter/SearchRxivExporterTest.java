@@ -1,21 +1,19 @@
 package org.jabref.logic.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import org.jabref.model.study.Study;
 import org.jabref.model.study.StudyCatalog;
 import org.jabref.model.study.StudyQuery;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SearchRxivExporterTest {
 
@@ -49,15 +47,15 @@ class SearchRxivExporterTest {
         }
         ObjectMapper mapper = new ObjectMapper();
         JsonNode expected = mapper.readTree("""
-                {
-                  "search_string": "artificial intelligence AND health",
-                  "platform": "ieee",
-                  "authors": [{"name": "John Doe"}],
-                  "record_info": {},
-                  "date": {},
-                  "database": []
-                }
-                """);
+            {
+              "search_string": "artificial intelligence AND health",
+              "platform": "ieee",
+              "authors": [{"name": "John Doe"}],
+              "record_info": {},
+              "date": {},
+              "database": []
+            }
+            """);
 
         assertEquals(expected, mapper.readTree(Files.readString(file)));
     }
@@ -69,8 +67,7 @@ class SearchRxivExporterTest {
                 "Test Study",
                 List.of("What is AI?"),
                 List.of(new StudyQuery("machine learning")),
-                List.of(new StudyCatalog("IEEE", true),
-                        new StudyCatalog("ACM", true)));
+                List.of(new StudyCatalog("IEEE", true), new StudyCatalog("ACM", true)));
 
         exporter.export(study, tempDir);
 
@@ -81,11 +78,12 @@ class SearchRxivExporterTest {
 
     @ParameterizedTest
     @CsvSource(textBlock = """
-            'a/b:c*d'         , IEEE, IEEE-a_b_c_d-0.json
-            '   '             , IEEE, IEEE-query-0.json
-            'machine learning', IEEE, 'IEEE-machine learning-0.json'
-            """)
-    void exportProducesExpectedFileName(String query, String database, String expectedFileName, @TempDir Path tempDir) throws Exception {
+        'a/b:c*d'         , IEEE, IEEE-a_b_c_d-0.json
+        '   '             , IEEE, IEEE-query-0.json
+        'machine learning', IEEE, 'IEEE-machine learning-0.json'
+        """)
+    void exportProducesExpectedFileName(String query, String database, String expectedFileName, @TempDir Path tempDir)
+            throws Exception {
         Study study = new Study(
                 List.of("John Doe"),
                 "Test Study",

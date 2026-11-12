@@ -1,5 +1,6 @@
 package org.jabref.logic.importer.fetcher;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -9,7 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
-
+import kong.unirest.core.UnirestException;
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
@@ -25,13 +30,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import com.google.common.annotations.VisibleForTesting;
-import kong.unirest.core.UnirestException;
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,7 +145,9 @@ public class BiodiversityLibrary implements SearchBasedParserFetcher, Customizab
                 entry.setField(StandardField.PUBLISHER, itemsDetails.optString("HoldingInstitution", ""));
                 entry.setField(StandardField.LANGUAGE, itemsDetails.optString("Language", ""));
                 entry.setField(StandardField.URL, itemsDetails.optString("ItemUrl", ""));
-                if (itemsDetails.has("Date") && !entry.hasField(StandardField.DATE) && !entry.hasField(StandardField.YEAR)) {
+                if (itemsDetails.has("Date")
+                        && !entry.hasField(StandardField.DATE)
+                        && !entry.hasField(StandardField.YEAR)) {
                     entry.setField(StandardField.DATE, itemsDetails.getString("Date"));
                 }
             }
@@ -187,11 +187,10 @@ public class BiodiversityLibrary implements SearchBasedParserFetcher, Customizab
 
         // input: list of { "Name": "Author name,"}
         return IntStream.range(0, authors.length())
-                        .mapToObj(authors::getJSONObject)
-                        .map(author -> new Author(
-                                author.optString("Name", ""), "", "", "", ""))
-                        .collect(AuthorList.collect())
-                        .getAsFirstLastNamesWithAnd();
+                .mapToObj(authors::getJSONObject)
+                .map(author -> new Author(author.optString("Name", ""), "", "", "", ""))
+                .collect(AuthorList.collect())
+                .getAsFirstLastNamesWithAnd();
     }
 
     @Override
@@ -230,7 +229,8 @@ public class BiodiversityLibrary implements SearchBasedParserFetcher, Customizab
         BiodiversityLibraryTransformer transformer = new BiodiversityLibraryTransformer();
         uriBuilder.addParameter("op", "PublicationSearch");
         uriBuilder.addParameter("searchtype", "C");
-        uriBuilder.addParameter("searchterm", transformer.transformSearchQuery(query).orElse(""));
+        uriBuilder.addParameter(
+                "searchterm", transformer.transformSearchQuery(query).orElse(""));
         return uriBuilder.build().toURL();
     }
 }

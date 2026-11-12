@@ -1,5 +1,7 @@
 package org.jabref.gui.duplicationFinder;
 
+import static org.jabref.gui.actions.ActionHelper.needsDatabase;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,11 +14,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -36,8 +36,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.undo.UndoableInsertEntries;
 import org.jabref.model.undo.UndoableRemoveEntries;
-
-import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 
 public class DuplicateSearch extends SimpleCommand {
 
@@ -62,12 +60,13 @@ public class DuplicateSearch extends SimpleCommand {
     private DuplicateResolverResult rememberedDecision;
     private Future<?> duplicateSearchTask;
 
-    public DuplicateSearch(Supplier<LibraryTab> tabSupplier,
-                           DialogService dialogService,
-                           StateManager stateManager,
-                           GuiPreferences preferences,
-                           BibEntryTypesManager entryTypesManager,
-                           TaskExecutor taskExecutor) {
+    public DuplicateSearch(
+            Supplier<LibraryTab> tabSupplier,
+            DialogService dialogService,
+            StateManager stateManager,
+            GuiPreferences preferences,
+            BibEntryTypesManager entryTypesManager,
+            TaskExecutor taskExecutor) {
         this.tabSupplier = tabSupplier;
         this.dialogService = dialogService;
         this.stateManager = stateManager;
@@ -80,7 +79,8 @@ public class DuplicateSearch extends SimpleCommand {
 
     @Override
     public void execute() {
-        BibDatabaseContext database = stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
+        BibDatabaseContext database =
+                stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
         dialogService.notify(Localization.lang("Searching for duplicates..."));
 
         List<BibEntry> entries = database.getEntries();
@@ -95,12 +95,14 @@ public class DuplicateSearch extends SimpleCommand {
             return;
         }
 
-        duplicateCountObservable.addListener((_, _, newValue) -> UiTaskExecutor.runAndWaitInJavaFXThread(() -> duplicateTotal.set(newValue)));
+        duplicateCountObservable.addListener(
+                (_, _, newValue) -> UiTaskExecutor.runAndWaitInJavaFXThread(() -> duplicateTotal.set(newValue)));
 
-        duplicateSearchTask = HeadlessExecutorService.INSTANCE.executeInterruptibleTask(() -> searchPossibleDuplicates(entries, database.getMode()), "DuplicateSearcher");
+        duplicateSearchTask = HeadlessExecutorService.INSTANCE.executeInterruptibleTask(
+                () -> searchPossibleDuplicates(entries, database.getMode()), "DuplicateSearcher");
         BackgroundTask.wrap(this::verifyDuplicates)
-                      .onSuccess(this::handleDuplicates)
-                      .executeWith(taskExecutor);
+                .onSuccess(this::handleDuplicates)
+                .executeWith(taskExecutor);
     }
 
     private void searchPossibleDuplicates(List<BibEntry> entries, BibDatabaseMode databaseMode) {
@@ -151,7 +153,9 @@ public class DuplicateSearch extends SimpleCommand {
                     askAboutExact = true;
                 }
 
-                DuplicateResolverType resolverType = askAboutExact ? DuplicateResolverType.DUPLICATE_SEARCH_WITH_EXACT : DuplicateResolverType.DUPLICATE_SEARCH;
+                DuplicateResolverType resolverType = askAboutExact
+                        ? DuplicateResolverType.DUPLICATE_SEARCH_WITH_EXACT
+                        : DuplicateResolverType.DUPLICATE_SEARCH;
 
                 // Increment only when a pair is actually shown to the user
                 duplicateProgress.set(duplicateProgress.getValue() + 1);
@@ -162,18 +166,25 @@ public class DuplicateSearch extends SimpleCommand {
         return result;
     }
 
-    private void askResolveStrategy(DuplicateSearchResult result, BibEntry first, BibEntry second, DuplicateResolverType resolverType) {
-        DuplicateResolverDialog dialog = new DuplicateResolverDialog(first, second, resolverType, stateManager, dialogService, preferences);
+    private void askResolveStrategy(
+            DuplicateSearchResult result, BibEntry first, BibEntry second, DuplicateResolverType resolverType) {
+        DuplicateResolverDialog dialog =
+                new DuplicateResolverDialog(first, second, resolverType, stateManager, dialogService, preferences);
 
-        dialog.titleProperty().bind(Bindings.concat(dialog.getTitle()).concat(" (").concat(duplicateProgress).concat("/").concat(duplicateTotal).concat(")"));
+        dialog.titleProperty()
+                .bind(Bindings.concat(dialog.getTitle())
+                        .concat(" (")
+                        .concat(duplicateProgress)
+                        .concat("/")
+                        .concat(duplicateTotal)
+                        .concat(")"));
 
         DuplicateResolverResult resolverResult;
 
         if (preferences.getMergeDialogPreferences().shouldMergeApplyToAllEntries() && rememberedDecision != null) {
             resolverResult = rememberedDecision;
         } else {
-            resolverResult = dialogService.showCustomDialogAndWait(dialog)
-                                          .orElse(DuplicateResolverResult.BREAK);
+            resolverResult = dialogService.showCustomDialogAndWait(dialog).orElse(DuplicateResolverResult.BREAK);
 
             if (preferences.getMergeDialogPreferences().shouldMergeApplyToAllEntries()) {
                 rememberedDecision = resolverResult;
@@ -183,7 +194,12 @@ public class DuplicateSearch extends SimpleCommand {
         applyDecisionToResult(result, first, second, resolverResult, dialog);
     }
 
-    private void applyDecisionToResult(DuplicateSearchResult result, BibEntry first, BibEntry second, DuplicateResolverResult resolverResult, DuplicateResolverDialog dialog) {
+    private void applyDecisionToResult(
+            DuplicateSearchResult result,
+            BibEntry first,
+            BibEntry second,
+            DuplicateResolverResult resolverResult,
+            DuplicateResolverDialog dialog) {
         if ((resolverResult == DuplicateResolverResult.KEEP_LEFT)
                 || (resolverResult == DuplicateResolverResult.AUTOREMOVE_EXACT)) {
             result.remove(second);

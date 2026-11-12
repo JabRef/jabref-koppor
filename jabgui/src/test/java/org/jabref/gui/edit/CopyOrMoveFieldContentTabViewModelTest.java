@@ -1,10 +1,16 @@
 package org.jabref.gui.edit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.dlsc.gemsfx.infocenter.Notification;
+import com.dlsc.gemsfx.infocenter.NotificationGroup;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.Notifications;
 import org.jabref.gui.StateManager;
@@ -14,19 +20,10 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.undo.CompoundEdit;
-
-import com.dlsc.gemsfx.infocenter.Notification;
-import com.dlsc.gemsfx.infocenter.NotificationGroup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(JavaFxExtension.class)
 class CopyOrMoveFieldContentTabViewModelTest {
@@ -46,16 +43,17 @@ class CopyOrMoveFieldContentTabViewModelTest {
                 .withField(StandardField.YEAR, "2015")
                 .withField(StandardField.DATE, "2014");
 
-        entryB = new BibEntry(BibEntry.DEFAULT_TYPE)
-                .withField(StandardField.DATE, "1998");
+        entryB = new BibEntry(BibEntry.DEFAULT_TYPE).withField(StandardField.DATE, "1998");
         bibDatabase = new BibDatabase();
         when(stateManager.getSelectedEntries()).thenReturn(FXCollections.observableArrayList(entryA, entryB));
 
         when(dialogService.getNotificationGroups()).thenReturn(List.of(notificationGroup));
         doAnswer(invocation -> {
-            notificationGroup.getNotifications().add(invocation.getArgument(0));
-            return null;
-        }).when(dialogService).notify(any(Notifications.UiNotification.class));
+                    notificationGroup.getNotifications().add(invocation.getArgument(0));
+                    return null;
+                })
+                .when(dialogService)
+                .notify(any(Notifications.UiNotification.class));
 
         copyOrMoveFieldContentTabViewModel = newTwoFieldsViewModel(entryA, entryB);
     }
@@ -69,9 +67,15 @@ class CopyOrMoveFieldContentTabViewModelTest {
         copyOrMoveFieldContentTabViewModel.overwriteFieldContentProperty().set(true);
         copyOrMoveFieldContentTabViewModel.copyValue();
 
-        assertEquals(Optional.of("2015"), entryA.getField(StandardField.DATE), "YEAR field is not copied correctly to the DATE field");
+        assertEquals(
+                Optional.of("2015"),
+                entryA.getField(StandardField.DATE),
+                "YEAR field is not copied correctly to the DATE field");
         assertEquals(Optional.of("2015"), entryA.getField(StandardField.YEAR), "YEAR field should not have changed");
-        assertEquals(Optional.of("1998"), entryB.getField(StandardField.DATE), "DATE field should not have changed because the YEAR field is blank e.g it doesn't exist");
+        assertEquals(
+                Optional.of("1998"),
+                entryB.getField(StandardField.DATE),
+                "DATE field should not have changed because the YEAR field is blank e.g it doesn't exist");
     }
 
     @Test
@@ -94,7 +98,8 @@ class CopyOrMoveFieldContentTabViewModelTest {
 
         copyOrMoveFieldContentTabViewModel.swapValues();
 
-        assertEquals(List.of(Optional.of("2014"), Optional.of("2015")),
+        assertEquals(
+                List.of(Optional.of("2014"), Optional.of("2015")),
                 List.of(entryA.getField(StandardField.YEAR), entryA.getField(StandardField.DATE)),
                 "YEAR and DATE values didn't swap");
     }
@@ -125,10 +130,6 @@ class CopyOrMoveFieldContentTabViewModelTest {
 
     private CopyOrMoveFieldContentTabViewModel newTwoFieldsViewModel(BibEntry... selectedEntries) {
         return new CopyOrMoveFieldContentTabViewModel(
-                bibDatabase,
-                List.of(selectedEntries),
-                mock(CompoundEdit.class),
-                dialogService,
-                stateManager);
+                bibDatabase, List.of(selectedEntries), mock(CompoundEdit.class), dialogService, stateManager);
     }
 }

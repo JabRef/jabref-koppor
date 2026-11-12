@@ -9,8 +9,7 @@ public class GetContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetContext.class);
 
-    private GetContext() {
-    }
+    private GetContext() {}
 
     /// Get the text belonging to cursor with up to charBefore and charAfter characters of context.
     ///
@@ -19,10 +18,8 @@ public class GetContext {
     /// @param charBefore Number of characters requested.
     /// @param charAfter  Number of characters requested.
     /// @param htmlMarkup If true, the text belonging to the reference mark is surrounded by bold html tag.
-    public static String getCursorStringWithContext(XTextCursor cursor,
-                                                    int charBefore,
-                                                    int charAfter,
-                                                    boolean htmlMarkup) {
+    public static String getCursorStringWithContext(
+            XTextCursor cursor, int charBefore, int charAfter, boolean htmlMarkup) {
 
         String citPart = cursor.getString();
 
@@ -62,9 +59,7 @@ public class GetContext {
 
         String result = cursor.getString();
         if (htmlMarkup) {
-            result = result.substring(0, addedBefore)
-                    + "<b>" + citPart + "</b>"
-                    + result.substring(lengthWithBefore);
+            result = result.substring(0, addedBefore) + "<b>" + citPart + "</b>" + result.substring(lengthWithBefore);
         }
         return result.trim();
     }

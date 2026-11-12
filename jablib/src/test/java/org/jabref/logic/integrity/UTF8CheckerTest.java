@@ -1,18 +1,16 @@
 package org.jabref.logic.integrity;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.StandardField;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.ResourceLock;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.StandardField;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
 
 @ResourceLock("Localization.lang")
 class UTF8CheckerTest {
@@ -39,7 +37,9 @@ class UTF8CheckerTest {
         UTF8Checker checker = new UTF8Checker(Charset.forName("GBK"));
         String NonUTF8 = new String("你好，这条语句使用GBK字符集".getBytes(StandardCharsets.UTF_8), GBK);
         entry.setField(StandardField.MONTH, NonUTF8);
-        assertEquals(List.of(new IntegrityMessage("Non-UTF-8 encoded field found", entry, StandardField.MONTH)), checker.check(entry));
+        assertEquals(
+                List.of(new IntegrityMessage("Non-UTF-8 encoded field found", entry, StandardField.MONTH)),
+                checker.check(entry));
     }
 
     /// To check the UTF8Checker.UTF8EncodingChecker

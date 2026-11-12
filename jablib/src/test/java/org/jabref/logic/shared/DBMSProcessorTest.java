@@ -1,5 +1,12 @@
 package org.jabref.logic.shared;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,7 +24,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.shared.exception.OfflineLockException;
 import org.jabref.logic.shared.exception.SharedEntryNotPresentException;
 import org.jabref.model.entry.BibEntry;
@@ -27,19 +33,11 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.support.DatabaseTest;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @DatabaseTest
 @Execution(ExecutionMode.SAME_THREAD)
@@ -101,7 +99,8 @@ class DBMSProcessorTest {
             }
         }
 
-        Map<String, String> expectedFieldMap = expectedEntry.getFieldMap().entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey().getName(), Map.Entry::getValue));
+        Map<String, String> expectedFieldMap = expectedEntry.getFieldMap().entrySet().stream()
+                .collect(Collectors.toMap(entry -> entry.getKey().getName(), Map.Entry::getValue));
 
         assertEquals(expectedFieldMap, actualFieldMap);
     }
@@ -127,7 +126,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-        // [utest->req~shared-database.missing-entry-type~1]
+    // [utest->req~shared-database.missing-entry-type~1]
     void nullEntryTypeFallsBackToMiscWhenSharedEntriesAreRead() throws SQLException {
         try (Statement statement = dbmsConnection.getConnection().createStatement()) {
             statement.executeUpdate("INSERT INTO jabref.entry (entrytype) VALUES (NULL)");
@@ -151,34 +150,38 @@ class DBMSProcessorTest {
         Connection connection = dbmsConnection.getConnection();
         connection.createStatement().executeUpdate("CREATE SCHEMA IF NOT EXISTS jabref");
         connection.createStatement().executeUpdate("""
-                    CREATE TABLE jabref."ENTRY" (
-                        "SHARED_ID" SERIAL PRIMARY KEY,
-                        "TYPE" VARCHAR,
-                        "VERSION" INTEGER DEFAULT 1
-                    )
-                """);
+                CREATE TABLE jabref."ENTRY" (
+                    "SHARED_ID" SERIAL PRIMARY KEY,
+                    "TYPE" VARCHAR,
+                    "VERSION" INTEGER DEFAULT 1
+                )
+            """);
         connection.createStatement().executeUpdate("""
-                    CREATE TABLE jabref."FIELD" (
-                        "ENTRY_SHARED_ID" INTEGER,
-                        "NAME" VARCHAR,
-                        "VALUE" TEXT
-                    )
-                """);
+                CREATE TABLE jabref."FIELD" (
+                    "ENTRY_SHARED_ID" INTEGER,
+                    "NAME" VARCHAR,
+                    "VALUE" TEXT
+                )
+            """);
         connection.createStatement().executeUpdate("""
-                    CREATE TABLE jabref."METADATA" (
-                        "KEY" VARCHAR,
-                        "VALUE" TEXT
-                    )
-                """);
-        connection.createStatement().executeUpdate("INSERT INTO jabref.\"ENTRY\" (\"TYPE\", \"VERSION\") VALUES ('article', 3)");
+                CREATE TABLE jabref."METADATA" (
+                    "KEY" VARCHAR,
+                    "VALUE" TEXT
+                )
+            """);
+        connection
+                .createStatement()
+                .executeUpdate("INSERT INTO jabref.\"ENTRY\" (\"TYPE\", \"VERSION\") VALUES ('article', 3)");
         connection.createStatement().executeUpdate("INSERT INTO jabref.\"FIELD\" VALUES (1, 'author', 'Ada Lovelace')");
-        connection.createStatement().executeUpdate("INSERT INTO jabref.\"METADATA\" VALUES ('databaseType', 'bibtex;')");
+        connection
+                .createStatement()
+                .executeUpdate("INSERT INTO jabref.\"METADATA\" VALUES ('databaseType', 'bibtex;')");
 
         // The database set up by @BeforeEach is still empty, so setting up again migrates
         dbmsProcessor.setupSharedDatabase();
 
-        BibEntry expectedEntry = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.AUTHOR, "Ada Lovelace");
+        BibEntry expectedEntry =
+                new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "Ada Lovelace");
         expectedEntry.getSharedBibEntryData().setSharedId(1);
         expectedEntry.getSharedBibEntryData().setVersion(3);
         assertEquals(List.of(expectedEntry), dbmsProcessor.getSharedEntries());
@@ -198,7 +201,9 @@ class DBMSProcessorTest {
         return new BibEntry(StandardEntryType.InProceedings)
                 .withField(StandardField.AUTHOR, "Wirthlin, Michael J and Hutchings, Brad L and Gilson, Kent L")
                 .withField(StandardField.TITLE, "The nano processor: a low resource reconfigurable processor")
-                .withField(StandardField.BOOKTITLE, "FPGAs for Custom Computing Machines, 1994. Proceedings. IEEE Workshop on")
+                .withField(
+                        StandardField.BOOKTITLE,
+                        "FPGAs for Custom Computing Machines, 1994. Proceedings. IEEE Workshop on")
                 .withField(StandardField.YEAR, "1994")
                 .withCitationKey("nanoproc1994");
     }
@@ -214,7 +219,8 @@ class DBMSProcessorTest {
         expectedEntry.clearField(StandardField.BOOKTITLE);
         dbmsProcessor.updateEntry(expectedEntry);
 
-        Optional<BibEntry> actualEntry = dbmsProcessor.getSharedEntry(expectedEntry.getSharedBibEntryData().getSharedIdAsInt());
+        Optional<BibEntry> actualEntry = dbmsProcessor.getSharedEntry(
+                expectedEntry.getSharedBibEntryData().getSharedIdAsInt());
         assertEquals(Optional.of(expectedEntry), actualEntry);
     }
 
@@ -228,7 +234,8 @@ class DBMSProcessorTest {
         // Update field should now find the entry
         dbmsProcessor.updateEntry(expectedEntry);
 
-        Optional<BibEntry> actualEntry = dbmsProcessor.getSharedEntry(expectedEntry.getSharedBibEntryData().getSharedIdAsInt());
+        Optional<BibEntry> actualEntry = dbmsProcessor.getSharedEntry(
+                expectedEntry.getSharedBibEntryData().getSharedIdAsInt());
         assertEquals(Optional.of(expectedEntry), actualEntry);
     }
 
@@ -269,8 +276,8 @@ class DBMSProcessorTest {
         expectedBibEntry.getSharedBibEntryData().setVersion(0);
         dbmsProcessor.updateEntry(expectedBibEntry);
 
-        Optional<BibEntry> actualBibEntryOptional = dbmsProcessor
-                .getSharedEntry(expectedBibEntry.getSharedBibEntryData().getSharedIdAsInt());
+        Optional<BibEntry> actualBibEntryOptional = dbmsProcessor.getSharedEntry(
+                expectedBibEntry.getSharedBibEntryData().getSharedIdAsInt());
 
         assertEquals(Optional.of(expectedBibEntry), actualBibEntryOptional);
     }
@@ -358,7 +365,8 @@ class DBMSProcessorTest {
         bibEntry = getBibEntryExampleWithEmptyFields();
         bibEntry.getSharedBibEntryData().setSharedId(1);
 
-        Optional<BibEntry> actualBibEntryOptional = dbmsProcessor.getSharedEntry(bibEntry.getSharedBibEntryData().getSharedIdAsInt());
+        Optional<BibEntry> actualBibEntryOptional =
+                dbmsProcessor.getSharedEntry(bibEntry.getSharedBibEntryData().getSharedIdAsInt());
 
         assertEquals(Optional.of(bibEntry), actualBibEntryOptional);
     }
@@ -392,7 +400,8 @@ class DBMSProcessorTest {
     void getSharedMetaData() throws SQLException {
         insertMetaData("databaseType", "bibtex;", dbmsConnection);
         insertMetaData("protectedFlag", "true;", dbmsConnection);
-        insertMetaData("saveActions", "enabled;\nauthor[capitalize,html_to_latex]\ntitle[title_case]\n;", dbmsConnection);
+        insertMetaData(
+                "saveActions", "enabled;\nauthor[capitalize,html_to_latex]\ntitle[title_case]\n;", dbmsConnection);
         insertMetaData("saveOrderConfig", "specified;author;false;title;false;year;true;", dbmsConnection);
 
         Map<String, String> expectedMetaData = getMetaDataExample();
@@ -412,7 +421,7 @@ class DBMSProcessorTest {
     }
 
     @Test
-        // [utest->req~shared-database.atomic-metadata-snapshots~1]
+    // [utest->req~shared-database.atomic-metadata-snapshots~1]
     void setSharedMetaDataIsAtomicAcrossConnections() throws Exception {
         SequencedMap<String, String> metadata = new LinkedHashMap<>();
         metadata.put("firstMetadataKey", "first metadata value");
@@ -420,7 +429,7 @@ class DBMSProcessorTest {
 
         DatabaseConnection observerDatabaseConnection = dbmsConnection.openNewConnection();
         try (Connection observerConnection = observerDatabaseConnection.getConnection();
-             ExecutorService writerExecutor = Executors.newVirtualThreadPerTaskExecutor()) {
+                ExecutorService writerExecutor = Executors.newVirtualThreadPerTaskExecutor()) {
             DBMSProcessor observerProcessor = new DBMSProcessor(observerDatabaseConnection);
             createMetadataWriteBarrier(observerConnection);
             acquireMetadataWriteLock(observerConnection);
@@ -457,20 +466,20 @@ class DBMSProcessorTest {
     private static void createMetadataWriteBarrier(Connection connection) throws SQLException {
         try (var statement = connection.createStatement()) {
             statement.execute("""
-                    CREATE FUNCTION jabref.pause_second_metadata_write() RETURNS trigger AS $$
-                    BEGIN
-                        IF NEW.key = 'secondMetadataKey' THEN
-                            PERFORM pg_advisory_xact_lock(%d);
-                        END IF;
-                        RETURN NEW;
-                    END;
-                    $$ LANGUAGE plpgsql;
-                    """.formatted(METADATA_ATOMICITY_LOCK_ID));
+                CREATE FUNCTION jabref.pause_second_metadata_write() RETURNS trigger AS $$
+                BEGIN
+                    IF NEW.key = 'secondMetadataKey' THEN
+                        PERFORM pg_advisory_xact_lock(%d);
+                    END IF;
+                    RETURN NEW;
+                END;
+                $$ LANGUAGE plpgsql;
+                """.formatted(METADATA_ATOMICITY_LOCK_ID));
             statement.execute("""
-                    CREATE TRIGGER pause_second_metadata_write
-                    BEFORE INSERT OR UPDATE ON jabref.metadata
-                    FOR EACH ROW EXECUTE FUNCTION jabref.pause_second_metadata_write();
-                    """);
+                CREATE TRIGGER pause_second_metadata_write
+                BEFORE INSERT OR UPDATE ON jabref.metadata
+                FOR EACH ROW EXECUTE FUNCTION jabref.pause_second_metadata_write();
+                """);
         }
     }
 
@@ -481,14 +490,15 @@ class DBMSProcessorTest {
         }
     }
 
-    private static boolean awaitWriterBlockedOnMetadataWrite(Connection connection) throws SQLException, InterruptedException {
+    private static boolean awaitWriterBlockedOnMetadataWrite(Connection connection)
+            throws SQLException, InterruptedException {
         try (var statement = connection.prepareStatement("""
-                SELECT EXISTS (
-                    SELECT 1
-                    FROM pg_locks
-                    WHERE locktype = 'advisory' AND objid = ? AND NOT granted
-                )
-                """)) {
+            SELECT EXISTS (
+                SELECT 1
+                FROM pg_locks
+                WHERE locktype = 'advisory' AND objid = ? AND NOT granted
+            )
+            """)) {
             statement.setInt(1, METADATA_ATOMICITY_LOCK_ID);
             for (int attempt = 0; attempt < 100; attempt++) {
                 try (ResultSet resultSet = statement.executeQuery()) {
@@ -565,11 +575,13 @@ class DBMSProcessorTest {
         }
         dbmsProcessor.insertEntries(entries);
 
-        try (ResultSet resultSet = dbmsConnection.getConnection().createStatement().executeQuery("SELECT count(*) AS cnt FROM entry")) {
+        try (ResultSet resultSet =
+                dbmsConnection.getConnection().createStatement().executeQuery("SELECT count(*) AS cnt FROM entry")) {
             resultSet.next();
             assertEquals(3000, resultSet.getInt("cnt"));
         }
-        try (ResultSet resultSet = dbmsConnection.getConnection().createStatement().executeQuery("SELECT count(*) AS cnt FROM field")) {
+        try (ResultSet resultSet =
+                dbmsConnection.getConnection().createStatement().executeQuery("SELECT count(*) AS cnt FROM field")) {
             resultSet.next();
             assertEquals(3000 * 8, resultSet.getInt("cnt"));
         }
@@ -579,8 +591,9 @@ class DBMSProcessorTest {
     void insertMultipleEntries() throws SQLException {
         List<BibEntry> entries = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            entries.add(new BibEntry(StandardEntryType.Article).withField(StandardField.JOURNAL, "journal " + i)
-                                                               .withField(StandardField.ISSUE, Integer.toString(i)));
+            entries.add(new BibEntry(StandardEntryType.Article)
+                    .withField(StandardField.JOURNAL, "journal " + i)
+                    .withField(StandardField.ISSUE, Integer.toString(i)));
         }
         entries.get(3).setType(StandardEntryType.Thesis);
         dbmsProcessor.insertEntries(entries);
@@ -614,16 +627,18 @@ class DBMSProcessorTest {
                 while (fieldResultSet.next()) {
                     int sharedId = fieldResultSet.getInt("ENTRY_SHARED_ID");
                     actualFieldMap.putIfAbsent(sharedId, new HashMap<>());
-                    actualFieldMap.get(sharedId).put(
-                            fieldResultSet.getString("NAME"),
-                            fieldResultSet.getString("VALUE"));
+                    actualFieldMap
+                            .get(sharedId)
+                            .put(fieldResultSet.getString("NAME"), fieldResultSet.getString("VALUE"));
                 }
             }
         }
         Map<Integer, Map<String, String>> expectedFieldMap = entries.stream()
-                                                                    .collect(Collectors.toMap(bibEntry -> bibEntry.getSharedBibEntryData().getSharedIdAsInt(),
-                                                                            bibEntry -> bibEntry.getFieldMap().entrySet().stream()
-                                                                                                .collect(Collectors.toMap(entry -> entry.getKey().getName(), Map.Entry::getValue))));
+                .collect(Collectors.toMap(
+                        bibEntry -> bibEntry.getSharedBibEntryData().getSharedIdAsInt(),
+                        bibEntry -> bibEntry.getFieldMap().entrySet().stream()
+                                .collect(
+                                        Collectors.toMap(entry -> entry.getKey().getName(), Map.Entry::getValue))));
 
         assertEquals(expectedFieldMap, actualFieldMap);
     }
@@ -642,7 +657,10 @@ class DBMSProcessorTest {
     private void insertMetaData(String key, String value, DBMSConnection dbmsConnection) {
         assertDoesNotThrow(() -> {
             // TODO: maybe use a prepared statement here
-            dbmsConnection.getConnection().createStatement().executeUpdate("INSERT INTO metadata (\"key\", value) VALUES ('" + key + "', '" + value + "');");
+            dbmsConnection
+                    .getConnection()
+                    .createStatement()
+                    .executeUpdate("INSERT INTO metadata (\"key\", value) VALUES ('" + key + "', '" + value + "');");
         });
     }
 
@@ -653,20 +671,25 @@ class DBMSProcessorTest {
 
         // Another client adds a field, which increments the version
         DBMSProcessor otherClient = new DBMSProcessor(connectorTest.getTestDBMSConnection());
-        BibEntry entryOfOtherClient = otherClient.getSharedEntry(sharedEntry.getSharedBibEntryData().getSharedIdAsInt()).orElseThrow();
+        BibEntry entryOfOtherClient = otherClient
+                .getSharedEntry(sharedEntry.getSharedBibEntryData().getSharedIdAsInt())
+                .orElseThrow();
         entryOfOtherClient.setField(StandardField.DOI, "10.1000/182");
         otherClient.updateEntry(entryOfOtherClient);
         assertEquals(2, entryOfOtherClient.getSharedBibEntryData().getVersion());
 
         // The stale local copy neither knows the field nor the version
         sharedEntry.setField(StandardField.TITLE, "Changed while stale");
-        OfflineLockException refusal = assertThrows(OfflineLockException.class, () -> dbmsProcessor.updateEntry(sharedEntry));
+        OfflineLockException refusal =
+                assertThrows(OfflineLockException.class, () -> dbmsProcessor.updateEntry(sharedEntry));
 
         assertEquals(entryOfOtherClient, refusal.getSharedBibEntry());
         assertEquals(1, sharedEntry.getSharedBibEntryData().getVersion());
         // Nothing of the refused update reached the database - in particular, the field the
         // stale copy lacks was not deleted
-        assertEquals(Optional.of(entryOfOtherClient), dbmsProcessor.getSharedEntry(sharedEntry.getSharedBibEntryData().getSharedIdAsInt()));
+        assertEquals(
+                Optional.of(entryOfOtherClient),
+                dbmsProcessor.getSharedEntry(sharedEntry.getSharedBibEntryData().getSharedIdAsInt()));
     }
 
     @Test
@@ -675,7 +698,9 @@ class DBMSProcessorTest {
         dbmsProcessor.insertEntry(sharedEntry);
 
         DBMSProcessor otherClient = new DBMSProcessor(connectorTest.getTestDBMSConnection());
-        BibEntry entryOfOtherClient = otherClient.getSharedEntry(sharedEntry.getSharedBibEntryData().getSharedIdAsInt()).orElseThrow();
+        BibEntry entryOfOtherClient = otherClient
+                .getSharedEntry(sharedEntry.getSharedBibEntryData().getSharedIdAsInt())
+                .orElseThrow();
         otherClient.updateEntry(entryOfOtherClient);
 
         dbmsProcessor.updateEntry(sharedEntry);
@@ -686,8 +711,8 @@ class DBMSProcessorTest {
     @Test
     void insertEntriesIsAtomic() throws SQLException {
         // PostgreSQL rejects NUL characters in text, which fails the field insert after the entry insert
-        BibEntry invalidEntry = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.TITLE, "contains\u0000nul");
+        BibEntry invalidEntry =
+                new BibEntry(StandardEntryType.Article).withField(StandardField.TITLE, "contains\u0000nul");
 
         assertThrows(SQLException.class, () -> dbmsProcessor.insertEntry(invalidEntry));
 

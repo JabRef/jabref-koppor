@@ -1,5 +1,7 @@
 package org.jabref.logic.openoffice.style;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -7,7 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.openoffice.ootext.OOText;
@@ -20,14 +21,12 @@ import org.jabref.model.openoffice.style.CitationType;
 import org.jabref.model.openoffice.style.NonUniqueCitationMarker;
 import org.jabref.model.openoffice.style.PageInfo;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 class OOBibStyleTestHelper {
     // Minimal implementation for CitationMarkerNumericEntry
     static class CitationMarkerNumericEntryImpl implements CitationMarkerNumericEntry {
 
         // The number encoding "this entry is unresolved" for the constructor.
-        public final static int UNRESOLVED_ENTRY_NUMBER = 0;
+        public static final int UNRESOLVED_ENTRY_NUMBER = 0;
 
         private final String citationKey;
         private final Optional<Integer> num;
@@ -35,9 +34,7 @@ class OOBibStyleTestHelper {
 
         public CitationMarkerNumericEntryImpl(String citationKey, int num, Optional<OOText> pageInfo) {
             this.citationKey = citationKey;
-            this.num = num == UNRESOLVED_ENTRY_NUMBER
-                       ? Optional.empty()
-                       : Optional.of(num);
+            this.num = num == UNRESOLVED_ENTRY_NUMBER ? Optional.empty() : Optional.of(num);
             this.pageInfo = PageInfo.normalizePageInfo(pageInfo);
         }
 
@@ -84,25 +81,20 @@ class OOBibStyleTestHelper {
     /// Reproduce old method
     ///
     /// @param inList true means label for the bibliography
-    static String runGetNumCitationMarker2a(JStyle style,
-                                            List<Integer> num, int minGroupingCount, boolean inList) {
+    static String runGetNumCitationMarker2a(JStyle style, List<Integer> num, int minGroupingCount, boolean inList) {
         if (inList) {
             if (num.size() != 1) {
-                throw new IllegalArgumentException("Numeric label for the bibliography with " + num.size() + " numbers?");
+                throw new IllegalArgumentException(
+                        "Numeric label for the bibliography with " + num.size() + " numbers?");
             }
             int n = num.getFirst();
             CitationMarkerNumericBibEntryImpl x =
-                    new CitationMarkerNumericBibEntryImpl("key",
-                            n == 0 ? Optional.empty() : Optional.of(n));
+                    new CitationMarkerNumericBibEntryImpl("key", n == 0 ? Optional.empty() : Optional.of(n));
             return style.getNumCitationMarkerForBibliography(x).toString();
         } else {
-            List<CitationMarkerNumericEntry> input =
-                    num.stream()
-                       .map(n ->
-                               new CitationMarkerNumericEntryImpl("key" + n,
-                                       n,
-                                       Optional.empty()))
-                       .collect(Collectors.toList());
+            List<CitationMarkerNumericEntry> input = num.stream()
+                    .map(n -> new CitationMarkerNumericEntryImpl("key" + n, n, Optional.empty()))
+                    .collect(Collectors.toList());
             return style.getNumCitationMarker2(input, minGroupingCount).toString();
         }
     }
@@ -115,9 +107,7 @@ class OOBibStyleTestHelper {
         return new CitationMarkerNumericEntryImpl(key, num, pageInfo);
     }
 
-    static String runGetNumCitationMarker2b(JStyle style,
-                                            int minGroupingCount,
-                                            CitationMarkerNumericEntry... s) {
+    static String runGetNumCitationMarker2b(JStyle style, int minGroupingCount, CitationMarkerNumericEntry... s) {
         List<CitationMarkerNumericEntry> input = Stream.of(s).collect(Collectors.toList());
         OOText res = style.getNumCitationMarker2(input, minGroupingCount);
         return res.toString();
@@ -130,11 +120,12 @@ class OOBibStyleTestHelper {
     /*
      * begin helper
      */
-    static CitationMarkerEntry makeCitationMarkerEntry(BibEntry entry,
-                                                       BibDatabase database,
-                                                       String uniqueLetterQ,
-                                                       String pageInfoQ,
-                                                       boolean isFirstAppearanceOfSource) {
+    static CitationMarkerEntry makeCitationMarkerEntry(
+            BibEntry entry,
+            BibDatabase database,
+            String uniqueLetterQ,
+            String pageInfoQ,
+            boolean isFirstAppearanceOfSource) {
         if (entry.getCitationKey().isEmpty()) {
             throw new IllegalArgumentException("entry.getCitationKey() is empty");
         }
@@ -150,14 +141,15 @@ class OOBibStyleTestHelper {
 
     /// @implNote Similar to old API. pageInfo is new, and unlimAuthors is
     /// replaced with isFirstAppearanceOfSource
-    static String getCitationMarker2ab(JStyle style,
-                                       List<BibEntry> entries,
-                                       Map<BibEntry, BibDatabase> entryDBMap,
-                                       boolean inParenthesis,
-                                       String[] uniquefiers,
-                                       Boolean[] isFirstAppearanceOfSource,
-                                       String[] pageInfo,
-                                       NonUniqueCitationMarker nonUniqueCitationMarker) {
+    static String getCitationMarker2ab(
+            JStyle style,
+            List<BibEntry> entries,
+            Map<BibEntry, BibDatabase> entryDBMap,
+            boolean inParenthesis,
+            String[] uniquefiers,
+            Boolean[] isFirstAppearanceOfSource,
+            String[] pageInfo,
+            NonUniqueCitationMarker nonUniqueCitationMarker) {
         if (uniquefiers == null) {
             uniquefiers = new String[entries.size()];
             Arrays.fill(uniquefiers, null);
@@ -173,26 +165,24 @@ class OOBibStyleTestHelper {
         List<CitationMarkerEntry> citationMarkerEntries = new ArrayList<>(entries.size());
         for (int i = 0; i < entries.size(); i++) {
             BibEntry entry = entries.get(i);
-            CitationMarkerEntry e = makeCitationMarkerEntry(entry,
-                    entryDBMap.get(entry),
-                    uniquefiers[i],
-                    pageInfo[i],
-                    isFirstAppearanceOfSource[i]);
+            CitationMarkerEntry e = makeCitationMarkerEntry(
+                    entry, entryDBMap.get(entry), uniquefiers[i], pageInfo[i], isFirstAppearanceOfSource[i]);
             citationMarkerEntries.add(e);
         }
-        return style.createCitationMarker(citationMarkerEntries,
-                inParenthesis,
-                nonUniqueCitationMarker).toString();
+        return style.createCitationMarker(citationMarkerEntries, inParenthesis, nonUniqueCitationMarker)
+                .toString();
     }
 
-    static String getCitationMarker2(JStyle style,
-                                     List<BibEntry> entries,
-                                     Map<BibEntry, BibDatabase> entryDBMap,
-                                     boolean inParenthesis,
-                                     String[] uniquefiers,
-                                     Boolean[] isFirstAppearanceOfSource,
-                                     String[] pageInfo) {
-        return getCitationMarker2ab(style,
+    static String getCitationMarker2(
+            JStyle style,
+            List<BibEntry> entries,
+            Map<BibEntry, BibDatabase> entryDBMap,
+            boolean inParenthesis,
+            String[] uniquefiers,
+            Boolean[] isFirstAppearanceOfSource,
+            String[] pageInfo) {
+        return getCitationMarker2ab(
+                style,
                 entries,
                 entryDBMap,
                 inParenthesis,
@@ -202,13 +192,14 @@ class OOBibStyleTestHelper {
                 NonUniqueCitationMarker.THROWS);
     }
 
-    static String getCitationMarkerForType(JStyle style,
-                                           List<BibEntry> entries,
-                                           Map<BibEntry, BibDatabase> entryDBMap,
-                                           CitationType citationType,
-                                           String[] uniquefiers,
-                                           Boolean[] isFirstAppearanceOfSource,
-                                           String[] pageInfo) {
+    static String getCitationMarkerForType(
+            JStyle style,
+            List<BibEntry> entries,
+            Map<BibEntry, BibDatabase> entryDBMap,
+            CitationType citationType,
+            String[] uniquefiers,
+            Boolean[] isFirstAppearanceOfSource,
+            String[] pageInfo) {
         if (uniquefiers == null) {
             uniquefiers = new String[entries.size()];
             Arrays.fill(uniquefiers, null);
@@ -224,26 +215,24 @@ class OOBibStyleTestHelper {
         List<CitationMarkerEntry> citationMarkerEntries = new ArrayList<>(entries.size());
         for (int i = 0; i < entries.size(); i++) {
             BibEntry entry = entries.get(i);
-            CitationMarkerEntry citationMarkerEntry = makeCitationMarkerEntry(entry,
-                    entryDBMap.get(entry),
-                    uniquefiers[i],
-                    pageInfo[i],
-                    isFirstAppearanceOfSource[i]);
+            CitationMarkerEntry citationMarkerEntry = makeCitationMarkerEntry(
+                    entry, entryDBMap.get(entry), uniquefiers[i], pageInfo[i], isFirstAppearanceOfSource[i]);
             citationMarkerEntries.add(citationMarkerEntry);
         }
-        return style.createCitationMarker(citationMarkerEntries,
-                citationType,
-                NonUniqueCitationMarker.THROWS).toString();
+        return style.createCitationMarker(citationMarkerEntries, citationType, NonUniqueCitationMarker.THROWS)
+                .toString();
     }
 
-    static String getCitationMarker2b(JStyle style,
-                                      List<BibEntry> entries,
-                                      Map<BibEntry, BibDatabase> entryDBMap,
-                                      boolean inParenthesis,
-                                      String[] uniquefiers,
-                                      Boolean[] isFirstAppearanceOfSource,
-                                      String[] pageInfo) {
-        return getCitationMarker2ab(style,
+    static String getCitationMarker2b(
+            JStyle style,
+            List<BibEntry> entries,
+            Map<BibEntry, BibDatabase> entryDBMap,
+            boolean inParenthesis,
+            String[] uniquefiers,
+            Boolean[] isFirstAppearanceOfSource,
+            String[] pageInfo) {
+        return getCitationMarker2ab(
+                style,
                 entries,
                 entryDBMap,
                 inParenthesis,
@@ -259,80 +248,99 @@ class OOBibStyleTestHelper {
 
     static void testGetNumCitationMarkerExtra(JStyle style) {
         // Identical numeric entries are joined.
-        assertEquals("[1; 2]", runGetNumCitationMarker2b(style, 3,
-                numEntry("x1", 1, null),
-                numEntry("x2", 2, null),
-                numEntry("x1", 2, null),
-                numEntry("x2", 1, null)));
+        assertEquals(
+                "[1; 2]",
+                runGetNumCitationMarker2b(
+                        style,
+                        3,
+                        numEntry("x1", 1, null),
+                        numEntry("x2", 2, null),
+                        numEntry("x1", 2, null),
+                        numEntry("x2", 1, null)));
 
         // ... unless minGroupingCount <= 0
-        assertEquals("[1; 1; 2; 2]", runGetNumCitationMarker2b(style, 0,
-                numEntry("x1", 1, null),
-                numEntry("x2", 2, null),
-                numEntry("x1", 2, null),
-                numEntry("x2", 1, null)));
+        assertEquals(
+                "[1; 1; 2; 2]",
+                runGetNumCitationMarker2b(
+                        style,
+                        0,
+                        numEntry("x1", 1, null),
+                        numEntry("x2", 2, null),
+                        numEntry("x1", 2, null),
+                        numEntry("x2", 1, null)));
 
         // ... or have different pageInfos
-        assertEquals("[1; p1a; 1; p1b; 2; p2; 3]", runGetNumCitationMarker2b(style, 1,
-                numEntry("x1", 1, "p1a"),
-                numEntry("x1", 1, "p1b"),
-                numEntry("x2", 2, "p2"),
-                numEntry("x2", 2, "p2"),
-                numEntry("x3", 3, null),
-                numEntry("x3", 3, null)));
+        assertEquals(
+                "[1; p1a; 1; p1b; 2; p2; 3]",
+                runGetNumCitationMarker2b(
+                        style,
+                        1,
+                        numEntry("x1", 1, "p1a"),
+                        numEntry("x1", 1, "p1b"),
+                        numEntry("x2", 2, "p2"),
+                        numEntry("x2", 2, "p2"),
+                        numEntry("x3", 3, null),
+                        numEntry("x3", 3, null)));
 
         // Consecutive numbers can become a range ...
-        assertEquals("[1-3]", runGetNumCitationMarker2b(style, 1,
-                numEntry("x1", 1, null),
-                numEntry("x2", 2, null),
-                numEntry("x3", 3, null)));
+        assertEquals(
+                "[1-3]",
+                runGetNumCitationMarker2b(
+                        style, 1, numEntry("x1", 1, null), numEntry("x2", 2, null), numEntry("x3", 3, null)));
 
         // ... unless minGroupingCount is too high
-        assertEquals("[1; 2; 3]", runGetNumCitationMarker2b(style, 4,
-                numEntry("x1", 1, null),
-                numEntry("x2", 2, null),
-                numEntry("x3", 3, null)));
+        assertEquals(
+                "[1; 2; 3]",
+                runGetNumCitationMarker2b(
+                        style, 4, numEntry("x1", 1, null), numEntry("x2", 2, null), numEntry("x3", 3, null)));
 
         // ... or if minGroupingCount <= 0
-        assertEquals("[1; 2; 3]", runGetNumCitationMarker2b(style, 0,
-                numEntry("x1", 1, null),
-                numEntry("x2", 2, null),
-                numEntry("x3", 3, null)));
+        assertEquals(
+                "[1; 2; 3]",
+                runGetNumCitationMarker2b(
+                        style, 0, numEntry("x1", 1, null), numEntry("x2", 2, null), numEntry("x3", 3, null)));
 
         // ... a pageInfo needs to be emitted
-        assertEquals("[1; p1; 2-3]", runGetNumCitationMarker2b(style, 1,
-                numEntry("x1", 1, "p1"),
-                numEntry("x2", 2, null),
-                numEntry("x3", 3, null)));
+        assertEquals(
+                "[1; p1; 2-3]",
+                runGetNumCitationMarker2b(
+                        style, 1, numEntry("x1", 1, "p1"), numEntry("x2", 2, null), numEntry("x3", 3, null)));
 
         // null and "" pageInfos are taken as equal.
         // Due to trimming, "   " is the same as well.
-        assertEquals("[1]", runGetNumCitationMarker2b(style, 1,
-                numEntry("x1", 1, ""),
-                numEntry("x1", 1, null),
-                numEntry("x1", 1, "  ")));
+        assertEquals(
+                "[1]",
+                runGetNumCitationMarker2b(
+                        style, 1, numEntry("x1", 1, ""), numEntry("x1", 1, null), numEntry("x1", 1, "  ")));
 
         // pageInfos are trimmed
-        assertEquals("[1; p1]", runGetNumCitationMarker2b(style, 1,
-                numEntry("x1", 1, "p1"),
-                numEntry("x1", 1, " p1"),
-                numEntry("x1", 1, "p1 ")));
+        assertEquals(
+                "[1; p1]",
+                runGetNumCitationMarker2b(
+                        style, 1, numEntry("x1", 1, "p1"), numEntry("x1", 1, " p1"), numEntry("x1", 1, "p1 ")));
 
         // The citation numbers come out sorted
-        assertEquals("[3-5; 7; 10-12]", runGetNumCitationMarker2b(style, 1,
-                numEntry("x12", 12, null),
-                numEntry("x7", 7, null),
-                numEntry("x3", 3, null),
-                numEntry("x4", 4, null),
-                numEntry("x11", 11, null),
-                numEntry("x10", 10, null),
-                numEntry("x5", 5, null)));
+        assertEquals(
+                "[3-5; 7; 10-12]",
+                runGetNumCitationMarker2b(
+                        style,
+                        1,
+                        numEntry("x12", 12, null),
+                        numEntry("x7", 7, null),
+                        numEntry("x3", 3, null),
+                        numEntry("x4", 4, null),
+                        numEntry("x11", 11, null),
+                        numEntry("x10", 10, null),
+                        numEntry("x5", 5, null)));
 
         // pageInfos are sorted together with the numbers
         // (but they inhibit ranges where they are, even if they are identical,
         //  but not empty-or-null)
-        assertEquals("[3; p3; 4; p4; 5; p5; 7; p7; 10; px; 11; px; 12; px]",
-                runGetNumCitationMarker2b(style, 1,
+        assertEquals(
+                "[3; p3; 4; p4; 5; p5; 7; p7; 10; px; 11; px; 12; px]",
+                runGetNumCitationMarker2b(
+                        style,
+                        1,
                         numEntry("x12", 12, "px"),
                         numEntry("x7", 7, "p7"),
                         numEntry("x3", 3, "p3"),
@@ -342,45 +350,42 @@ class OOBibStyleTestHelper {
                         numEntry("x5", 5, "p5")));
 
         // pageInfo sorting (for the same number)
-        assertEquals("[1; 1; a; 1; b]",
-                runGetNumCitationMarker2b(style, 1,
-                        numEntry("x1", 1, ""),
-                        numEntry("x1", 1, "b"),
-                        numEntry("x1", 1, "a")));
+        assertEquals(
+                "[1; 1; a; 1; b]",
+                runGetNumCitationMarker2b(
+                        style, 1, numEntry("x1", 1, ""), numEntry("x1", 1, "b"), numEntry("x1", 1, "a")));
 
         // pageInfo sorting (for the same number) is not numeric.
-        assertEquals("[1; p100; 1; p20; 1; p9]",
-                runGetNumCitationMarker2b(style, 1,
-                        numEntry("x1", 1, "p20"),
-                        numEntry("x1", 1, "p9"),
-                        numEntry("x1", 1, "p100")));
+        assertEquals(
+                "[1; p100; 1; p20; 1; p9]",
+                runGetNumCitationMarker2b(
+                        style, 1, numEntry("x1", 1, "p20"), numEntry("x1", 1, "p9"), numEntry("x1", 1, "p100")));
 
-        assertEquals("[1-3]",
-                runGetNumCitationMarker2b(style, 1,
-                        numEntry("x1", 1, null),
-                        numEntry("x2", 2, null),
-                        numEntry("x3", 3, null)));
+        assertEquals(
+                "[1-3]",
+                runGetNumCitationMarker2b(
+                        style, 1, numEntry("x1", 1, null), numEntry("x2", 2, null), numEntry("x3", 3, null)));
 
-        assertEquals("[1; 2; 3]",
-                runGetNumCitationMarker2b(style, 5,
-                        numEntry("x1", 1, null),
-                        numEntry("x2", 2, null),
-                        numEntry("x3", 3, null)));
+        assertEquals(
+                "[1; 2; 3]",
+                runGetNumCitationMarker2b(
+                        style, 5, numEntry("x1", 1, null), numEntry("x2", 2, null), numEntry("x3", 3, null)));
 
-        assertEquals("[1; 2; 3]",
-                runGetNumCitationMarker2b(style, -1,
-                        numEntry("x1", 1, null),
-                        numEntry("x2", 2, null),
-                        numEntry("x3", 3, null)));
+        assertEquals(
+                "[1; 2; 3]",
+                runGetNumCitationMarker2b(
+                        style, -1, numEntry("x1", 1, null), numEntry("x2", 2, null), numEntry("x3", 3, null)));
 
-        assertEquals("[1; 3; 12]",
-                runGetNumCitationMarker2b(style, 1,
-                        numEntry("x1", 1, null),
-                        numEntry("x12", 12, null),
-                        numEntry("x3", 3, null)));
+        assertEquals(
+                "[1; 3; 12]",
+                runGetNumCitationMarker2b(
+                        style, 1, numEntry("x1", 1, null), numEntry("x12", 12, null), numEntry("x3", 3, null)));
 
-        assertEquals("[3-5; 7; 10-12]",
-                runGetNumCitationMarker2b(style, 1,
+        assertEquals(
+                "[3-5; 7; 10-12]",
+                runGetNumCitationMarker2b(
+                        style,
+                        1,
                         numEntry("x12", 12, ""),
                         numEntry("x7", 7, ""),
                         numEntry("x3", 3, ""),

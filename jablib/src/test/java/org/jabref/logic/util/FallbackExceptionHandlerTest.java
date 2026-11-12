@@ -1,22 +1,24 @@
 package org.jabref.logic.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @NullMarked
 class FallbackExceptionHandlerTest {
 
     private final List<Throwable> reported = new ArrayList<>();
-    private final FallbackExceptionHandler handler = new FallbackExceptionHandler((exception, _) -> reported.add(exception));
+    private final FallbackExceptionHandler handler =
+            new FallbackExceptionHandler((exception, _) -> reported.add(exception));
 
     @Test
     void sshdExecutorShutdownIsNotReported() {
-        handler.uncaughtException(Thread.currentThread(), exceptionThrownBy("org.apache.sshd.common.util.ValidateUtils", "Executor has been shut down"));
+        handler.uncaughtException(
+                Thread.currentThread(),
+                exceptionThrownBy("org.apache.sshd.common.util.ValidateUtils", "Executor has been shut down"));
 
         assertEquals(List.of(), reported);
     }
@@ -32,7 +34,8 @@ class FallbackExceptionHandlerTest {
 
     private static IllegalStateException exceptionThrownBy(String className, String message) {
         IllegalStateException exception = new IllegalStateException(message);
-        exception.setStackTrace(new StackTraceElement[] {new StackTraceElement(className, "createFormattedException", null, 1)});
+        exception.setStackTrace(
+                new StackTraceElement[] {new StackTraceElement(className, "createFormattedException", null, 1)});
         return exception;
     }
 }

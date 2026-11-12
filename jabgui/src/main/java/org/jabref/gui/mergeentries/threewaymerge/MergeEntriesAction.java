@@ -2,7 +2,6 @@ package org.jabref.gui.mergeentries.threewaymerge;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionHelper;
@@ -64,10 +63,14 @@ public class MergeEntriesAction extends SimpleCommand {
         dialog.setTitle(Localization.lang("Merge entries"));
 
         Optional<EntriesMergeResult> mergeResultOpt = dialogService.showCustomDialogAndWait(dialog);
-        mergeResultOpt.ifPresentOrElse(entriesMergeResult -> {
-            new MergeTwoEntriesAction(entriesMergeResult, stateManager, stateManager.getUndoManager(databaseContext)).execute();
+        mergeResultOpt.ifPresentOrElse(
+                entriesMergeResult -> {
+                    new MergeTwoEntriesAction(
+                                    entriesMergeResult, stateManager, stateManager.getUndoManager(databaseContext))
+                            .execute();
 
-            dialogService.notify(Localization.lang("Merged entries"));
-        }, () -> dialogService.notify(Localization.lang("Canceled merging entries")));
+                    dialogService.notify(Localization.lang("Merged entries"));
+                },
+                () -> dialogService.notify(Localization.lang("Canceled merging entries")));
     }
 }

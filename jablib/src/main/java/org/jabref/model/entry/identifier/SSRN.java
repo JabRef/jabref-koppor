@@ -4,19 +4,20 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.util.URLUtil;
-
 import org.jspecify.annotations.NonNull;
 
 /// Represents an SSRN article, identified by its abstract ID.
 @AllowedToUseLogic("Because URL utility is needed")
 public class SSRN extends EprintIdentifier {
 
-    private static final String SSRN_URL_REGEX = "(https?://)?(papers\\.)?ssrn\\.com/(sol3/papers.cfm\\?)?abstract(_id)?=(?<id>\\d+)";
-    private static final Pattern SSRN_URL_FULL_MATCH = Pattern.compile("^" + SSRN_URL_REGEX + "$", Pattern.CASE_INSENSITIVE);
-    private static final Pattern SSRN_URL_MATCH = Pattern.compile(SSRN_URL_REGEX, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+    private static final String SSRN_URL_REGEX =
+            "(https?://)?(papers\\.)?ssrn\\.com/(sol3/papers.cfm\\?)?abstract(_id)?=(?<id>\\d+)";
+    private static final Pattern SSRN_URL_FULL_MATCH =
+            Pattern.compile("^" + SSRN_URL_REGEX + "$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern SSRN_URL_MATCH =
+            Pattern.compile(SSRN_URL_REGEX, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
     private final Integer abstractId;
 

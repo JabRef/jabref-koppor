@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.citationkeypattern.GlobalCitationKeyPatterns;
 import org.jabref.logic.exporter.MetaDataSerializer;
 import org.jabref.logic.importer.ParserResult;
@@ -15,7 +14,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.BibtexString;
 import org.jabref.model.metadata.MetaData;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Everything written to a `.bib` file that the merge takes from `current` as it is, because
@@ -41,7 +39,9 @@ record NonEntryContent(
         BibDatabase database = version.getDatabase();
         MetaData metaData = version.getMetaData();
         return new NonEntryContent(
-                database.getEntries().stream().filter(entry -> entry.getCitationKey().isEmpty()).toList(),
+                database.getEntries().stream()
+                        .filter(entry -> entry.getCitationKey().isEmpty())
+                        .toList(),
                 database.getStringValues().stream().collect(Collectors.toMap(BibtexString::getName, string -> string)),
                 database.getPreamble().orElse(""),
                 database.getEpilog(),

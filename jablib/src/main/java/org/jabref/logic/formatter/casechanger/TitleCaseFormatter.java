@@ -1,11 +1,9 @@
 package org.jabref.logic.formatter.casechanger;
 
 import java.util.stream.Collectors;
-
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.jspecify.annotations.NonNull;
 
 public class TitleCaseFormatter extends Formatter {
@@ -25,26 +23,25 @@ public class TitleCaseFormatter extends Formatter {
     /// Does not change words starting with "{"
     @Override
     public String format(@NonNull String input) {
-        return StringUtil.getStringAsSentences(input)
-                         .stream()
-                         .map(sentence -> {
-                             Title title = new Title(sentence);
+        return StringUtil.getStringAsSentences(input).stream()
+                .map(sentence -> {
+                    Title title = new Title(sentence);
 
-                             title.getWords().stream().filter(Word::isSmallerWord).forEach(Word::toLowerCase);
-                             title.getWords().stream().filter(Word::isLargerWord).forEach(Word::toUpperFirstTitle);
+                    title.getWords().stream().filter(Word::isSmallerWord).forEach(Word::toLowerCase);
+                    title.getWords().stream().filter(Word::isLargerWord).forEach(Word::toUpperFirstTitle);
 
-                             title.getFirstWord().ifPresent(Word::toUpperFirstTitle);
-                             title.getLastWord().ifPresent(Word::toUpperFirstTitle);
+                    title.getFirstWord().ifPresent(Word::toUpperFirstTitle);
+                    title.getLastWord().ifPresent(Word::toUpperFirstTitle);
 
-                             for (int i = 0; i < (title.getWords().size() - 2); i++) {
-                                 if (title.getWords().get(i).endsWithColon()) {
-                                     title.getWords().get(i + 1).toUpperFirstTitle();
-                                 }
-                             }
+                    for (int i = 0; i < (title.getWords().size() - 2); i++) {
+                        if (title.getWords().get(i).endsWithColon()) {
+                            title.getWords().get(i + 1).toUpperFirstTitle();
+                        }
+                    }
 
-                             return title.toString();
-                         })
-                         .collect(Collectors.joining(" "));
+                    return title.toString();
+                })
+                .collect(Collectors.joining(" "));
     }
 
     @Override

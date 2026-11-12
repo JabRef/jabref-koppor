@@ -11,11 +11,9 @@ import java.util.concurrent.CancellationException;
 import java.util.function.BooleanSupplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +29,8 @@ import org.slf4j.LoggerFactory;
 public class DefaultAuxParser implements AuxParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultAuxParser.class);
 
-    private static final Pattern CITE_PATTERN = Pattern.compile("\\\\(citation|abx@aux@cite)(\\{\\d+\\})?\\{(?<citationkey>.+)\\}");
+    private static final Pattern CITE_PATTERN =
+            Pattern.compile("\\\\(citation|abx@aux@cite)(\\{\\d+\\})?\\{(?<citationkey>.+)\\}");
     private static final Pattern INPUT_PATTERN = Pattern.compile("\\\\@input\\{(.+)\\}");
 
     private final BibDatabase masterDatabase;
@@ -75,7 +74,8 @@ public class DefaultAuxParser implements AuxParser {
         }
     }
 
-    private void readFiles(Path auxFile, AuxParserResult result, boolean failOnReadError, BooleanSupplier cancelled) throws IOException {
+    private void readFiles(Path auxFile, AuxParserResult result, boolean failOnReadError, BooleanSupplier cancelled)
+            throws IOException {
         auxFile = auxFile.toAbsolutePath().normalize();
         // nested AUX files
         List<Path> fileList = new ArrayList<>(1);
@@ -167,7 +167,8 @@ public class DefaultAuxParser implements AuxParser {
         // Copy database definitions
         if (result.getGeneratedBibDatabase().hasEntries()) {
             result.getGeneratedBibDatabase().copyPreamble(masterDatabase);
-            result.insertStrings(masterDatabase.getUsedStrings(result.getGeneratedBibDatabase().getEntries()));
+            result.insertStrings(masterDatabase.getUsedStrings(
+                    result.getGeneratedBibDatabase().getEntries()));
         }
     }
 
@@ -179,7 +180,9 @@ public class DefaultAuxParser implements AuxParser {
         List<BibEntry> entriesToInsert = new ArrayList<>();
         for (BibEntry entry : entries) {
             entry.getField(StandardField.CROSSREF).ifPresent(crossref -> {
-                if (result.getGeneratedBibDatabase().getEntryByCitationKey(crossref).isEmpty()) {
+                if (result.getGeneratedBibDatabase()
+                        .getEntryByCitationKey(crossref)
+                        .isEmpty()) {
                     Optional<BibEntry> refEntry = masterDatabase.getEntryByCitationKey(crossref);
 
                     if (refEntry.isPresent()) {

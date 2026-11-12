@@ -2,13 +2,10 @@ package org.jabref.http;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javafx.beans.property.SimpleBooleanProperty;
-
 import org.jabref.logic.search.NoOpSearchBackend;
 import org.jabref.logic.search.SearchContext;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,10 +43,10 @@ public abstract class AbstractSrvStateManager implements SrvStateManager {
             return context;
         }
         assert false : "No SearchContext registered for database '" + database.getUid() + "'";
-        LOGGER.error("No SearchContext registered for database '{}'. Returning inert fallback. A context must be registered via setSearchContext before the database is served.", database.getUid());
-        return new SearchContext(
-                new SimpleBooleanProperty(false),
-                NoOpSearchBackend::new,
-                NoOpSearchBackend::new);
+        LOGGER.error(
+                "No SearchContext registered for database '{}'. Returning inert fallback. A context must be registered"
+                        + " via setSearchContext before the database is served.",
+                database.getUid());
+        return new SearchContext(new SimpleBooleanProperty(false), NoOpSearchBackend::new, NoOpSearchBackend::new);
     }
 }

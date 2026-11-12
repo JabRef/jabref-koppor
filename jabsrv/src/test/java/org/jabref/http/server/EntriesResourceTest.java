@@ -1,19 +1,20 @@
 package org.jabref.http.server;
 
-import java.util.List;
-import java.util.stream.Stream;
-
-import org.jabref.http.server.resources.EntriesResource;
-import org.jabref.logic.UiCommand;
-import org.jabref.logic.UiMessageHandler;
-import org.jabref.logic.importer.util.MediaTypes;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.List;
+import java.util.stream.Stream;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.jabref.http.server.resources.EntriesResource;
+import org.jabref.logic.UiCommand;
+import org.jabref.logic.UiMessageHandler;
+import org.jabref.logic.importer.util.MediaTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,9 +22,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EntriesResourceTest extends ServerTest {
 
@@ -126,8 +124,8 @@ class EntriesResourceTest extends ServerTest {
     @Test
     void importCslJsonConvertsEntryType() {
         Response response = postCslJson(TestBibFile.GENERAL_SERVER_TEST.id, """
-                {"type":"paper-conference","title":"A paper","container-title":"Proc. of Test"}
-                """);
+            {"type":"paper-conference","title":"A paper","container-title":"Proc. of Test"}
+            """);
 
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
         UiCommand.AppendBibTeXToLibrary command = (UiCommand.AppendBibTeXToLibrary) captureSingleCommand();
@@ -167,9 +165,8 @@ class EntriesResourceTest extends ServerTest {
     void importToUnknownLibraryInStandaloneModeReturns400(String mediaType, String body) throws Exception {
         useStandaloneMode();
 
-        Response response = target("/libraries/does-not-exist/entries")
-                .request()
-                .post(Entity.entity(body, mediaType));
+        Response response =
+                target("/libraries/does-not-exist/entries").request().post(Entity.entity(body, mediaType));
 
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }

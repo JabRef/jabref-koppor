@@ -1,5 +1,9 @@
 package org.jabref.logic.importer.fileformat;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -10,16 +14,11 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.jabref.logic.importer.ImportException;
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.support.BibEntryAssert;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ImporterTestEngine {
 
@@ -30,8 +29,7 @@ public class ImporterTestEngine {
     /// @throws IOException if there is a problem when trying to read the files in the file system
     public static Collection<String> getTestFiles(Predicate<String> fileNamePredicate) throws IOException {
         try (Stream<Path> stream = Files.list(Path.of(TEST_RESOURCES))) {
-            return stream
-                    .map(path -> path.getFileName().toString())
+            return stream.map(path -> path.getFileName().toString())
                     .filter(fileNamePredicate)
                     .filter(name -> !"pdf".equals(name)) // There is a `pdf` in {@link TEST_RESOURCES}.
                     .collect(Collectors.toList());
@@ -46,7 +44,8 @@ public class ImporterTestEngine {
         assertFalse(importer.isRecognizedFormat(getPath(fileName)));
     }
 
-    public static void testImportEntries(Importer importer, String fileName, String fileType) throws IOException, ImportException {
+    public static void testImportEntries(Importer importer, String fileName, String fileType)
+            throws IOException, ImportException {
         ParserResult parserResult = importer.importDatabase(getPath(fileName));
         if (parserResult.isInvalid()) {
             throw new ImportException(parserResult.getErrorMessage());
@@ -64,8 +63,8 @@ public class ImporterTestEngine {
     }
 
     public static void testImportMalformedFiles(Importer importer, String fileName) throws IOException {
-        List<BibEntry> entries = importer.importDatabase(getPath(fileName)).getDatabase()
-                                         .getEntries();
+        List<BibEntry> entries =
+                importer.importDatabase(getPath(fileName)).getDatabase().getEntries();
         assertEquals(entries, new ArrayList<BibEntry>());
     }
 }

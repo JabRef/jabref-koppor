@@ -1,19 +1,17 @@
 package org.jabref.logic.integrity;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @ResourceLock("Localization.lang")
 class PersonNamesCheckerTest {
@@ -39,36 +37,31 @@ class PersonNamesCheckerTest {
 
     private static Stream<String> provideValidNames() {
         return Stream.of(
-                "Kolb, Stefan",                     // single [Name, Firstname]
-                "Kolb, Stefan and Harrer, Simon",   // multiple [Name, Firstname]
-                "Stefan Kolb",                      // single [Firstname Name]
-                "Stefan Kolb and Simon Harrer",     // multiple [Firstname Name]
-
-                "M. J. Gotay",                      // second name in front
-
-                "{JabRef}",                         // corporate name in brackets
-                "{JabRef} and Stefan Kolb",         // mixed corporate name with name
+                "Kolb, Stefan", // single [Name, Firstname]
+                "Kolb, Stefan and Harrer, Simon", // multiple [Name, Firstname]
+                "Stefan Kolb", // single [Firstname Name]
+                "Stefan Kolb and Simon Harrer", // multiple [Firstname Name]
+                "M. J. Gotay", // second name in front
+                "{JabRef}", // corporate name in brackets
+                "{JabRef} and Stefan Kolb", // mixed corporate name with name
                 "{JabRef} and Kolb, Stefan",
-
-                "hugo Para{\\~n}os",                // tilde in name
-
+                "hugo Para{\\~n}os", // tilde in name
                 "Kolb, Stefan\n               and Harrer, Simon", // value wrapped over several lines
-
-                "John\u2003Smith",             // em space (Unicode whitespace) between names
-                "\u00A0Kolb, Stefan\u2009"    // leading/trailing Unicode whitespace
-        );
+                "John\u2003Smith", // em space (Unicode whitespace) between names
+                "\u00A0Kolb, Stefan\u2009" // leading/trailing Unicode whitespace
+                );
     }
 
     @Test
     void complainAboutPersonStringWithTwoManyCommas() {
-        assertEquals(Optional.of("Names are not in the standard BibTeX format."),
+        assertEquals(
+                Optional.of("Names are not in the standard BibTeX format."),
                 checker.checkValue("Test1, Test2, Test3, Test4, Test5, Test6"));
     }
 
     @Test
     void institutionalAuthorWithSpaceInListDoesNotTriggerWarnings() {
-        assertEquals(Optional.empty(),
-                checker.checkValue("Last, F. I. and {Institutional Author}"));
+        assertEquals(Optional.empty(), checker.checkValue("Last, F. I. and {Institutional Author}"));
     }
 
     @ParameterizedTest
@@ -84,11 +77,7 @@ class PersonNamesCheckerTest {
     }
 
     private static Stream<String> provideCorrectFormats() {
-        return Stream.of(
-                "",
-                "Knuth",
-                "Donald E. Knuth and Kurt Cobain and A. Einstein",
-                "   Knuth, Donald E. ");
+        return Stream.of("", "Knuth", "Donald E. Knuth and Kurt Cobain and A. Einstein", "   Knuth, Donald E. ");
     }
 
     private static Stream<String> provideIncorrectFormats() {

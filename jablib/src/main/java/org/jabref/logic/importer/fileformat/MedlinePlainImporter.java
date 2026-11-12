@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.cleanup.DoiCleanup;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.Importer;
@@ -24,7 +23,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NonNull;
 
 /// Importer for the MEDLINE Plain format.
@@ -70,7 +68,8 @@ public class MedlinePlainImporter extends Importer {
         // (i.e., PubMed Unique Identifier, PubMed Central Identifier, PubMed Central Release)
         String str;
         while ((str = bufferedReader.readLine()) != null) {
-            if (PMID_PATTERN.matcher(str).find() || PMC_PATTERN.matcher(str).find()
+            if (PMID_PATTERN.matcher(str).find()
+                    || PMC_PATTERN.matcher(str).find()
                     || PMCR_PATTERN.matcher(str).find()) {
                 return true;
             }
@@ -83,10 +82,15 @@ public class MedlinePlainImporter extends Importer {
         List<BibEntry> bibitems = new ArrayList<>();
 
         // use optional here, so that no exception will be thrown if the file is empty
-        String linesAsString = reader.lines().reduce((line, nextline) -> line + "\n" + nextline).orElse("");
+        String linesAsString = reader.lines()
+                .reduce((line, nextline) -> line + "\n" + nextline)
+                .orElse("");
 
-        String[] entries = linesAsString.replace("\u2013", "-").replace("\u2014", "--").replace("\u2015", "--")
-                                        .split("\\n\\n");
+        String[] entries = linesAsString
+                .replace("\u2013", "-")
+                .replace("\u2014", "--")
+                .replace("\u2015", "--")
+                .split("\\n\\n");
 
         for (String entry1 : entries) {
             if (entry1.isBlank() || !entry1.contains("-")) {
@@ -98,7 +102,8 @@ public class MedlinePlainImporter extends Importer {
             StringBuilder editor = new StringBuilder();
             StringBuilder comment = new StringBuilder();
             Map<Field, String> fieldConversionMap = new HashMap<>();
-            String keywordSeparator = importFormatPreferences.bibEntryPreferences().getKeywordSeparator() + " ";
+            String keywordSeparator =
+                    importFormatPreferences.bibEntryPreferences().getKeywordSeparator() + " ";
 
             String[] lines = entry1.split("\n");
 
@@ -189,34 +194,36 @@ public class MedlinePlainImporter extends Importer {
                 }
 
                 switch (label) {
-                    case "IRAD",
-                         "IR",
-                         "FIR" ->
-                            fieldConversionMap.merge(new UnknownField("investigator"), value, (a, b) -> a + ", " + b);
+                    case "IRAD", "IR", "FIR" ->
+                        fieldConversionMap.merge(new UnknownField("investigator"), value, (a, b) -> a + ", " + b);
                     case "MH" -> {
                         String meshString = String.join(keywordSeparator, parseMeshTerm(value));
-                        fieldConversionMap.merge(StandardField.KEYWORDS, meshString,
+                        fieldConversionMap.merge(
+                                StandardField.KEYWORDS,
+                                meshString,
                                 (existing, newVal) -> existing + keywordSeparator + newVal);
                     }
                     case "OT" ->
-                            fieldConversionMap.merge(StandardField.KEYWORDS, value,
-                                    (existing, newVal) -> existing + keywordSeparator + newVal);
+                        fieldConversionMap.merge(
+                                StandardField.KEYWORDS,
+                                value,
+                                (existing, newVal) -> existing + keywordSeparator + newVal);
                     case "CON",
-                         "CIN",
-                         "EIN",
-                         "EFR",
-                         "CRI",
-                         "CRF",
-                         "PRIN",
-                         "PROF",
-                         "RPI",
-                         "RPF",
-                         "RIN",
-                         "ROF",
-                         "UIN",
-                         "UOF",
-                         "SPIN",
-                         "ORI" -> {
+                            "CIN",
+                            "EIN",
+                            "EFR",
+                            "CRI",
+                            "CRF",
+                            "PRIN",
+                            "PROF",
+                            "RPI",
+                            "RPF",
+                            "RIN",
+                            "ROF",
+                            "UIN",
+                            "UOF",
+                            "SPIN",
+                            "ORI" -> {
                         if (!comment.isEmpty()) {
                             comment.append("\n");
                         }
@@ -246,27 +253,19 @@ public class MedlinePlainImporter extends Importer {
     private EntryType addSourceType(String value, EntryType type) {
         String val = value.toLowerCase(Locale.ENGLISH);
         return switch (val) {
-            case "book" ->
-                    StandardEntryType.Book;
+            case "book" -> StandardEntryType.Book;
             case "journal article",
-                 "classical article",
-                 "corrected and republished article",
-                 "historical article",
-                 "introductory journal article",
-                 "newspaper article" ->
-                    StandardEntryType.Article;
-            case "clinical conference",
-                 "consensus development conference",
-                 "consensus development conference, nih" ->
-                    StandardEntryType.Conference;
-            case "technical report" ->
-                    StandardEntryType.TechReport;
-            case "editorial" ->
-                    StandardEntryType.InProceedings;
-            case "overall" ->
-                    StandardEntryType.Proceedings;
-            default ->
-                    type;
+                    "classical article",
+                    "corrected and republished article",
+                    "historical article",
+                    "introductory journal article",
+                    "newspaper article" -> StandardEntryType.Article;
+            case "clinical conference", "consensus development conference", "consensus development conference, nih" ->
+                StandardEntryType.Conference;
+            case "technical report" -> StandardEntryType.TechReport;
+            case "editorial" -> StandardEntryType.InProceedings;
+            case "overall" -> StandardEntryType.Proceedings;
+            default -> type;
         };
     }
 

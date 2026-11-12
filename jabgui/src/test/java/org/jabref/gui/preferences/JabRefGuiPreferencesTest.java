@@ -1,17 +1,15 @@
 package org.jabref.gui.preferences;
 
-import java.util.List;
-import java.util.Set;
-
-import org.jabref.gui.entryeditor.EntryEditorTabModel;
-import org.jabref.gui.preview.PreviewPreferences;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Set;
+import org.jabref.gui.entryeditor.EntryEditorTabModel;
+import org.jabref.gui.preview.PreviewPreferences;
+import org.junit.jupiter.api.Test;
 
 class JabRefGuiPreferencesTest {
 
@@ -37,17 +35,15 @@ class JabRefGuiPreferencesTest {
     @Test
     void storedTabOrderIsApplied() {
         List<EntryEditorTabModel> ordered = JabRefGuiPreferences.applyStoredTabOrder(
-                List.of(PREVIEW, MAIN, SOURCE),
-                List.of("SOURCE", "ALL_FIELDS"));
+                List.of(PREVIEW, MAIN, SOURCE), List.of("SOURCE", "ALL_FIELDS"));
 
         assertEquals(List.of(PREVIEW, SOURCE, MAIN), ordered);
     }
 
     @Test
     void tabsUnknownToStoredOrderAreAppendedInDefaultOrder() {
-        List<EntryEditorTabModel> ordered = JabRefGuiPreferences.applyStoredTabOrder(
-                List.of(PREVIEW, MAIN, SOURCE),
-                List.of("SOURCE"));
+        List<EntryEditorTabModel> ordered =
+                JabRefGuiPreferences.applyStoredTabOrder(List.of(PREVIEW, MAIN, SOURCE), List.of("SOURCE"));
 
         assertEquals(List.of(PREVIEW, SOURCE, MAIN), ordered);
     }
@@ -58,8 +54,7 @@ class JabRefGuiPreferencesTest {
         EntryEditorTabModel second = new EntryEditorTabModel.CustomizedFieldsTab("General", List.of("doi"));
 
         List<EntryEditorTabModel> ordered = JabRefGuiPreferences.applyStoredTabOrder(
-                List.of(PREVIEW, MAIN, first, second),
-                List.of("custom:General", "ALL_FIELDS"));
+                List.of(PREVIEW, MAIN, first, second), List.of("custom:General", "ALL_FIELDS"));
 
         // The stored-order entry consumes the first duplicate; the second survives at the end.
         assertEquals(List.of(PREVIEW, first, MAIN, second), ordered);
@@ -69,20 +64,20 @@ class JabRefGuiPreferencesTest {
     @Test
     void parseCustomTabsReadsPlainStringsAndExtractObjects() {
         assertEquals(
-                List.of(new EntryEditorTabModel.CustomizedFieldsTab(
-                        "My tab", List.of("author", "doi"), Set.of("doi"))),
-                JabRefGuiPreferences.parseCustomTabs(
-                        """
-                                {"My tab":["author",{"pattern":"doi","extract":true}]}
-                                """));
+                List.of(new EntryEditorTabModel.CustomizedFieldsTab("My tab", List.of("author", "doi"), Set.of("doi"))),
+                JabRefGuiPreferences.parseCustomTabs("""
+                    {"My tab":["author",{"pattern":"doi","extract":true}]}
+                    """));
     }
 
     @Test
     void migrateLegacyWindowsConsoleCommandKeepsExecutableWithSpaces() {
         List<String> expected = List.of("C:\\Program Files\\ConEmu\\ConEmu64.exe", "/single", "/dir", "%DIR");
 
-        assertEquals(expected, JabRefGuiPreferences.migrateLegacyCommand(
-                "C:\\Program Files\\ConEmu\\ConEmu64.exe /single /dir \"%DIR\"", expected));
+        assertEquals(
+                expected,
+                JabRefGuiPreferences.migrateLegacyCommand(
+                        "C:\\Program Files\\ConEmu\\ConEmu64.exe /single /dir \"%DIR\"", expected));
     }
 
     @Test
@@ -100,8 +95,10 @@ class JabRefGuiPreferencesTest {
         when(preferences.hasKey(CONSOLE_COMMAND_ARGUMENTS)).thenReturn(true);
         when(preferences.getStringList(CONSOLE_COMMAND_ARGUMENTS)).thenReturn(command);
 
-        assertEquals(command, JabRefGuiPreferences.getCommandArguments(
-                preferences, CONSOLE_COMMAND_ARGUMENTS, CONSOLE_COMMAND, List.of()));
+        assertEquals(
+                command,
+                JabRefGuiPreferences.getCommandArguments(
+                        preferences, CONSOLE_COMMAND_ARGUMENTS, CONSOLE_COMMAND, List.of()));
         verify(preferences).getStringList(CONSOLE_COMMAND_ARGUMENTS);
     }
 
@@ -112,8 +109,10 @@ class JabRefGuiPreferencesTest {
         when(preferences.hasKey(CONSOLE_COMMAND)).thenReturn(true);
         when(preferences.get(CONSOLE_COMMAND, "")).thenReturn("terminal '--title=a;b'");
 
-        assertEquals(command, JabRefGuiPreferences.getCommandArguments(
-                preferences, CONSOLE_COMMAND_ARGUMENTS, CONSOLE_COMMAND, List.of()));
+        assertEquals(
+                command,
+                JabRefGuiPreferences.getCommandArguments(
+                        preferences, CONSOLE_COMMAND_ARGUMENTS, CONSOLE_COMMAND, List.of()));
         verify(preferences).putStringList(CONSOLE_COMMAND_ARGUMENTS, command);
     }
 }

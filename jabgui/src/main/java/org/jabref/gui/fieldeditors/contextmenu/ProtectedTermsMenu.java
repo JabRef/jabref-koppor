@@ -1,12 +1,11 @@
 package org.jabref.gui.fieldeditors.contextmenu;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.util.Optional;
-
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextInputControl;
-
 import org.jabref.gui.actions.Action;
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.SimpleCommand;
@@ -18,8 +17,6 @@ import org.jabref.logic.formatter.casechanger.UnprotectTermsFormatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.protectedterms.ProtectedTermsList;
 import org.jabref.logic.protectedterms.ProtectedTermsLoader;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 
 class ProtectedTermsMenu extends Menu {
@@ -67,7 +64,8 @@ class ProtectedTermsMenu extends Menu {
             String selectedText = textInputControl.getSelectedText();
             String firstStr = "{";
             String lastStr = "}";
-            // If the selected text contains spaces at the beginning and end, then add spaces before or after the brackets
+            // If the selected text contains spaces at the beginning and end, then add spaces before or after the
+            // brackets
             if (selectedText.startsWith(" ")) {
                 firstStr = " {";
             }
@@ -139,20 +137,23 @@ class ProtectedTermsMenu extends Menu {
         this.textInputControl = textInputControl;
         FORMATTER = new ProtectTermsFormatter(Injector.instantiateModelOrService(ProtectedTermsLoader.class));
 
-        getItems().addAll(factory.createMenuItem(protectSelectionActionInformation, new ProtectSelectionAction()),
-                getExternalFilesMenu(),
-                new SeparatorMenuItem(),
-                factory.createMenuItem(() -> Localization.lang("Format field"), new FormatFieldAction()),
-                factory.createMenuItem(unprotectSelectionActionInformation, new UnprotectSelectionAction()));
+        getItems()
+                .addAll(
+                        factory.createMenuItem(protectSelectionActionInformation, new ProtectSelectionAction()),
+                        getExternalFilesMenu(),
+                        new SeparatorMenuItem(),
+                        factory.createMenuItem(() -> Localization.lang("Format field"), new FormatFieldAction()),
+                        factory.createMenuItem(unprotectSelectionActionInformation, new UnprotectSelectionAction()));
     }
 
     private Menu getExternalFilesMenu() {
         Menu protectedTermsMenu = factory.createSubMenu(() -> Localization.lang("Add selected text to list"));
         ProtectedTermsLoader loader = Injector.instantiateModelOrService(ProtectedTermsLoader.class);
         loader.getProtectedTermsLists().stream()
-              .filter(list -> !list.isInternalList())
-              .forEach(list -> protectedTermsMenu.getItems().add(
-                      factory.createMenuItem(list::getDescription, new AddToProtectedTermsAction(list))));
+                .filter(list -> !list.isInternalList())
+                .forEach(list -> protectedTermsMenu
+                        .getItems()
+                        .add(factory.createMenuItem(list::getDescription, new AddToProtectedTermsAction(list))));
 
         if (protectedTermsMenu.getItems().isEmpty()) {
             MenuItem emptyItem = new MenuItem(Localization.lang("No list enabled"));

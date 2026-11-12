@@ -1,7 +1,6 @@
 package org.jabref.logic.journals;
 
 import java.util.List;
-
 import javafx.util.Pair;
 
 public record JournalInformation(
@@ -10,6 +9,4 @@ public record JournalInformation(
         String hIndex,
         String issn,
         List<Pair<Integer, Double>> worksCount,
-        List<Pair<Integer, Double>> citedByCount
-) {
-}
+        List<Pair<Integer, Double>> citedByCount) {}

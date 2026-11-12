@@ -1,23 +1,21 @@
 package org.jabref.toolkit.commands;
 
-import java.nio.file.Path;
-import java.util.concurrent.Callable;
-
-import org.jabref.logic.l10n.Localization;
-import org.jabref.toolkit.converter.CygWinPathConverter;
-import org.jabref.toolkit.exception.ImportServiceException;
-
 import static picocli.CommandLine.Command;
 import static picocli.CommandLine.Mixin;
 import static picocli.CommandLine.Option;
 import static picocli.CommandLine.Parameters;
 import static picocli.CommandLine.ParentCommand;
 
-@Command(name = "check", description = "Check the integrity and consistency of a library.",
-        subcommands = {
-                CheckConsistency.class,
-                CheckIntegrity.class
-        })
+import java.nio.file.Path;
+import java.util.concurrent.Callable;
+import org.jabref.logic.l10n.Localization;
+import org.jabref.toolkit.converter.CygWinPathConverter;
+import org.jabref.toolkit.exception.ImportServiceException;
+
+@Command(
+        name = "check",
+        description = "Check the integrity and consistency of a library.",
+        subcommands = {CheckConsistency.class, CheckIntegrity.class})
 class Check implements Callable<Integer> {
 
     /// Output formats accepted by `--output-format`. Kept lowercase so they can also serve as
@@ -35,11 +33,18 @@ class Check implements Callable<Integer> {
 
     /// Optional positional input file. When supplied directly to `check` (without a
     /// `consistency` or `integrity` subcommand), both checks run against it.
-    @Parameters(index = "0", arity = "0..1", paramLabel = "FILE", converter = CygWinPathConverter.class,
+    @Parameters(
+            index = "0",
+            arity = "0..1",
+            paramLabel = "FILE",
+            converter = CygWinPathConverter.class,
             description = "Input file. When given without a subcommand, both the consistency and integrity checks run.")
     private Path inputFile;
 
-    @Option(names = {"--output-format"}, description = "Output format: csv, errorformat, github-actions or txt", defaultValue = FORMAT_ERRORFORMAT)
+    @Option(
+            names = {"--output-format"},
+            description = "Output format: csv, errorformat, github-actions or txt",
+            defaultValue = FORMAT_ERRORFORMAT)
     private String outputFormat;
 
     @Override

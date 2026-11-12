@@ -7,7 +7,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-
+import org.fxmisc.richtext.StyleClassedTextArea;
 import org.jabref.gui.mergeentries.threewaymerge.diffhighlighter.DiffHighlighter;
 import org.jabref.gui.mergeentries.threewaymerge.diffhighlighter.SplitDiffHighlighter;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -16,29 +16,30 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import org.fxmisc.richtext.StyleClassedTextArea;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public final class GitEntryChangeDetailsView extends AnchorPane {
 
-    public GitEntryChangeDetailsView(BibEntry oldEntry,
-                                     BibEntry newEntry,
-                                     BibDatabaseContext oldDatabaseContext,
-                                     BibDatabaseContext newDatabaseContext,
-                                     GuiPreferences preferences,
-                                     BibEntryTypesManager entryTypesManager,
-                                     String oldVersionLabel,
-                                     String newVersionLabel,
-                                     DiffHighlighter.BasicDiffMethod diffMethod) {
+    public GitEntryChangeDetailsView(
+            BibEntry oldEntry,
+            BibEntry newEntry,
+            BibDatabaseContext oldDatabaseContext,
+            BibDatabaseContext newDatabaseContext,
+            GuiPreferences preferences,
+            BibEntryTypesManager entryTypesManager,
+            String oldVersionLabel,
+            String newVersionLabel,
+            DiffHighlighter.BasicDiffMethod diffMethod) {
         Label committedVersion = new Label(oldVersionLabel);
         committedVersion.getStyleClass().addAll(StyleClasses.CHANGE_VIEW_HEADER);
         Label savedFile = new Label(newVersionLabel);
         savedFile.getStyleClass().addAll(StyleClasses.CHANGE_VIEW_HEADER);
 
-        StyleClassedTextArea oldSourceArea = createConfiguredTextArea(oldEntry, oldDatabaseContext, preferences, entryTypesManager);
-        StyleClassedTextArea newSourceArea = createConfiguredTextArea(newEntry, newDatabaseContext, preferences, entryTypesManager);
+        StyleClassedTextArea oldSourceArea =
+                createConfiguredTextArea(oldEntry, oldDatabaseContext, preferences, entryTypesManager);
+        StyleClassedTextArea newSourceArea =
+                createConfiguredTextArea(newEntry, newDatabaseContext, preferences, entryTypesManager);
         new SplitDiffHighlighter(oldSourceArea, newSourceArea, diffMethod).highlight();
 
         ScrollPane leftScrollPane = createScrollPane(oldSourceArea);
@@ -56,16 +57,18 @@ public final class GitEntryChangeDetailsView extends AnchorPane {
         setAllAnchorsAndAttachChild(resultContainer);
     }
 
-    private StyleClassedTextArea createConfiguredTextArea(BibEntry entry,
-                                                          BibDatabaseContext databaseContext,
-                                                          GuiPreferences preferences,
-                                                          BibEntryTypesManager entryTypesManager) {
+    private StyleClassedTextArea createConfiguredTextArea(
+            BibEntry entry,
+            BibDatabaseContext databaseContext,
+            GuiPreferences preferences,
+            BibEntryTypesManager entryTypesManager) {
         StyleClassedTextArea textArea = new StyleClassedTextArea();
         textArea.setEditable(false);
         textArea.setWrapText(false);
         textArea.setAutoHeight(true);
         textArea.getStyleClass().add("lib-change-text-area");
-        textArea.replaceText(entry.getStringRepresentation(entry, databaseContext.getMode(), entryTypesManager, preferences.getFieldPreferences()));
+        textArea.replaceText(entry.getStringRepresentation(
+                entry, databaseContext.getMode(), entryTypesManager, preferences.getFieldPreferences()));
         textArea.moveTo(0, 0);
         textArea.showParagraphAtTop(0);
         return textArea;

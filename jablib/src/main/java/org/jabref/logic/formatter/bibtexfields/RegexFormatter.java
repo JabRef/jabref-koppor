@@ -5,10 +5,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +26,8 @@ public class RegexFormatter extends Formatter {
     private static final String REGEX_CAPTURING_GROUP = "regex";
     private static final String REPLACEMENT_CAPTURING_GROUP = "replacement";
 
-    /// Matches a valid argument to the constructor. Two capturing groups are used to parse the [RegexFormatter#regex] and [RegexFormatter#replacement] used in [RegexFormatter#format(String)]
+    /// Matches a valid argument to the constructor. Two capturing groups are used to parse the [RegexFormatter#regex]
+    /// and [RegexFormatter#replacement] used in [RegexFormatter#format(String)]
     private static final Pattern CONSTRUCTOR_ARGUMENT = Pattern.compile(
             "^\\(\"(?<" + REGEX_CAPTURING_GROUP + ">.*?)\" *?, *?\"(?<" + REPLACEMENT_CAPTURING_GROUP + ">.*)\"\\)$");
 
@@ -49,7 +48,8 @@ public class RegexFormatter extends Formatter {
         Matcher constructorArgument = CONSTRUCTOR_ARGUMENT.matcher(input);
         if (constructorArgument.matches()) {
             regex = constructorArgument.group(REGEX_CAPTURING_GROUP).replace(PLACEHOLDER_FOR_QUOTE_SIGN, "\"");
-            replacement = constructorArgument.group(REPLACEMENT_CAPTURING_GROUP).replace(PLACEHOLDER_FOR_QUOTE_SIGN, "\"");
+            replacement =
+                    constructorArgument.group(REPLACEMENT_CAPTURING_GROUP).replace(PLACEHOLDER_FOR_QUOTE_SIGN, "\"");
         } else {
             regex = null;
             replacement = null;
@@ -78,7 +78,8 @@ public class RegexFormatter extends Formatter {
         try {
             workingString = workingString.replaceAll(regex, replacement);
         } catch (PatternSyntaxException e) {
-            LOGGER.warn("There is a syntax error in the regular expression \"{}\" used by the regex modifier", regex, e);
+            LOGGER.warn(
+                    "There is a syntax error in the regular expression \"{}\" used by the regex modifier", regex, e);
             return input;
         }
 

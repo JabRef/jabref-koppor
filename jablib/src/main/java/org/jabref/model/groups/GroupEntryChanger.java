@@ -2,7 +2,6 @@ package org.jabref.model.groups;
 
 import java.util.Collection;
 import java.util.List;
-
 import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
 

@@ -1,16 +1,14 @@
 package org.jabref.gui.entryeditor;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UserSpecificCommentField;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FieldListSectionsTest {
 
@@ -27,20 +25,21 @@ class FieldListSectionsTest {
 
         List<FieldListSections.Section> sections = FieldListSections.partition(ordered);
 
-        assertEquals(List.of(
+        assertEquals(
+                List.of(
                         FieldListSections.SectionType.MAIN,
                         FieldListSections.SectionType.IDENTIFIERS,
                         FieldListSections.SectionType.FILES_AND_LINKS,
                         FieldListSections.SectionType.COMMENTS),
                 sections.stream().map(FieldListSections.Section::type).toList());
-        assertEquals(List.of(InternalField.KEY_FIELD, StandardField.AUTHOR, StandardField.TITLE),
+        assertEquals(
+                List.of(InternalField.KEY_FIELD, StandardField.AUTHOR, StandardField.TITLE),
                 List.copyOf(sections.getFirst().fields()));
-        assertEquals(List.of(StandardField.DOI, StandardField.ISBN),
+        assertEquals(
+                List.of(StandardField.DOI, StandardField.ISBN),
                 List.copyOf(sections.get(1).fields()));
-        assertEquals(List.of(StandardField.FILE),
-                List.copyOf(sections.get(2).fields()));
-        assertEquals(List.of(StandardField.COMMENT),
-                List.copyOf(sections.get(3).fields()));
+        assertEquals(List.of(StandardField.FILE), List.copyOf(sections.get(2).fields()));
+        assertEquals(List.of(StandardField.COMMENT), List.copyOf(sections.get(3).fields()));
     }
 
     @Test
@@ -48,19 +47,22 @@ class FieldListSectionsTest {
         List<FieldListSections.Section> sections =
                 FieldListSections.partition(List.of(StandardField.AUTHOR, StandardField.TITLE));
 
-        assertEquals(List.of(FieldListSections.SectionType.MAIN),
+        assertEquals(
+                List.of(FieldListSections.SectionType.MAIN),
                 sections.stream().map(FieldListSections.Section::type).toList());
     }
 
     @Test
     void userSpecificCommentFieldBelongsToCommentsSection() {
-        assertEquals(FieldListSections.SectionType.COMMENTS,
+        assertEquals(
+                FieldListSections.SectionType.COMMENTS,
                 FieldListSections.sectionOf(new UserSpecificCommentField("koppor")));
     }
 
     @Test
     void subtractKeepsCandidateOrderAndRemovesShownFields() {
-        assertEquals(List.of(StandardField.EDITOR, StandardField.SERIES),
+        assertEquals(
+                List.of(StandardField.EDITOR, StandardField.SERIES),
                 List.copyOf(FieldListSections.subtract(
                         List.of(StandardField.EDITOR, StandardField.VOLUME, StandardField.SERIES),
                         List.of(StandardField.VOLUME, StandardField.AUTHOR))));
@@ -68,31 +70,28 @@ class FieldListSectionsTest {
 
     @Test
     void bibliometricsAndMetaFieldsBelongToTheirSections() {
-        assertEquals(FieldListSections.SectionType.BIBLIOMETRY,
-                FieldListSections.sectionOf(StandardField.CITATIONCOUNT));
-        assertEquals(FieldListSections.SectionType.BIBLIOMETRY,
-                FieldListSections.sectionOf(StandardField.ICORERANKING));
-        assertEquals(FieldListSections.SectionType.META,
-                FieldListSections.sectionOf(StandardField.GROUPS));
-        assertEquals(FieldListSections.SectionType.META,
-                FieldListSections.sectionOf(StandardField.CROSSREF));
-        assertEquals(FieldListSections.SectionType.META,
-                FieldListSections.sectionOf(SpecialField.RANKING));
+        assertEquals(
+                FieldListSections.SectionType.BIBLIOMETRY, FieldListSections.sectionOf(StandardField.CITATIONCOUNT));
+        assertEquals(
+                FieldListSections.SectionType.BIBLIOMETRY, FieldListSections.sectionOf(StandardField.ICORERANKING));
+        assertEquals(FieldListSections.SectionType.META, FieldListSections.sectionOf(StandardField.GROUPS));
+        assertEquals(FieldListSections.SectionType.META, FieldListSections.sectionOf(StandardField.CROSSREF));
+        assertEquals(FieldListSections.SectionType.META, FieldListSections.sectionOf(SpecialField.RANKING));
     }
 
     @Test
     void metaChipsOfferManualFieldsAndSpecialFieldsButNoTimestamps() {
         List<Field> metaChips = List.copyOf(FieldListSections.fieldsOf(FieldListSections.SectionType.META));
 
-        assertEquals(List.of(StandardField.CROSSREF, StandardField.GROUPS, StandardField.OWNER),
-                metaChips.subList(0, 3));
+        assertEquals(
+                List.of(StandardField.CROSSREF, StandardField.GROUPS, StandardField.OWNER), metaChips.subList(0, 3));
         assertEquals(List.of(SpecialField.values()), metaChips.subList(3, metaChips.size()));
     }
 
     @Test
     void fieldsOfIdentifiersStartsWithDoiAndCollectsAllIdentifierFields() {
-        List<Field> identifierFields = List.copyOf(
-                FieldListSections.fieldsOf(FieldListSections.SectionType.IDENTIFIERS));
+        List<Field> identifierFields =
+                List.copyOf(FieldListSections.fieldsOf(FieldListSections.SectionType.IDENTIFIERS));
 
         assertEquals(StandardField.DOI, identifierFields.getFirst());
         assertEquals(9, identifierFields.size());
@@ -100,9 +99,7 @@ class FieldListSectionsTest {
 
     @Test
     void urlAndUrlDateBelongToFilesAndLinksSection() {
-        assertEquals(FieldListSections.SectionType.FILES_AND_LINKS,
-                FieldListSections.sectionOf(StandardField.URL));
-        assertEquals(FieldListSections.SectionType.FILES_AND_LINKS,
-                FieldListSections.sectionOf(StandardField.URLDATE));
+        assertEquals(FieldListSections.SectionType.FILES_AND_LINKS, FieldListSections.sectionOf(StandardField.URL));
+        assertEquals(FieldListSections.SectionType.FILES_AND_LINKS, FieldListSections.sectionOf(StandardField.URLDATE));
     }
 }

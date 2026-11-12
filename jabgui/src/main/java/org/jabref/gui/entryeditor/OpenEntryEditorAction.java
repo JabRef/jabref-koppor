@@ -1,7 +1,6 @@
 package org.jabref.gui.entryeditor;
 
 import java.util.function.Supplier;
-
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionHelper;
@@ -16,7 +15,8 @@ public class OpenEntryEditorAction extends SimpleCommand {
         this.tabSupplier = tabSupplier;
         this.stateManager = stateManager;
 
-        this.executable.bind(ActionHelper.needsEntriesSelected(stateManager).and(stateManager.getEditorShowing().not()));
+        this.executable.bind(ActionHelper.needsEntriesSelected(stateManager)
+                .and(stateManager.getEditorShowing().not()));
     }
 
     public void execute() {

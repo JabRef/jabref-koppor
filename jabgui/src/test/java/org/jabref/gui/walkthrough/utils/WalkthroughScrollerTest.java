@@ -1,20 +1,17 @@
 package org.jabref.gui.walkthrough.utils;
 
-import java.util.concurrent.atomic.AtomicReference;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.concurrent.atomic.AtomicReference;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
 import org.jabref.gui.testutils.JavaFxExtension;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @NullMarked
 @ExtendWith(JavaFxExtension.class)

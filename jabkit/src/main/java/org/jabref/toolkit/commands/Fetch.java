@@ -1,11 +1,15 @@
 package org.jabref.toolkit.commands;
 
+import static picocli.CommandLine.Command;
+import static picocli.CommandLine.Mixin;
+import static picocli.CommandLine.Option;
+import static picocli.CommandLine.ParentCommand;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.SearchBasedFetcher;
 import org.jabref.logic.importer.WebFetchers;
@@ -14,22 +18,15 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.toolkit.exception.CliException;
 import org.jabref.toolkit.service.ExportService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
-
-import static picocli.CommandLine.Command;
-import static picocli.CommandLine.Mixin;
-import static picocli.CommandLine.Option;
-import static picocli.CommandLine.ParentCommand;
 
 @Command(name = "fetch", description = "Fetch entries from a provider.")
 class Fetch implements Callable<Integer> {
     private static final Logger LOGGER = LoggerFactory.getLogger(Fetch.class);
 
-    record Provider(String name, String query) {
-    }
+    record Provider(String name, String query) {}
 
     @ParentCommand
     private JabKit argumentProcessor;
@@ -52,12 +49,12 @@ class Fetch implements Callable<Integer> {
                 argumentProcessor.cliPreferences.getImportFormatPreferences(),
                 argumentProcessor.cliPreferences.getImporterPreferences());
         SearchBasedFetcher selectedFetcher = fetchers.stream()
-                                                     .filter(fetcher -> fetcher.getName().equalsIgnoreCase(provider))
-                                                     .findFirst()
-                                                     .orElseThrow(() -> new CliException(
-                                                             "Could not find fetcher '" + provider + "'",
-                                                             Localization.lang("Could not find fetcher '%0'", provider),
-                                                             CommandLine.ExitCode.USAGE));
+                .filter(fetcher -> fetcher.getName().equalsIgnoreCase(provider))
+                .findFirst()
+                .orElseThrow(() -> new CliException(
+                        "Could not find fetcher '" + provider + "'",
+                        Localization.lang("Could not find fetcher '%0'", provider),
+                        CommandLine.ExitCode.USAGE));
 
         if (!sharedOptions.porcelain) {
             System.out.println(Localization.lang("Running query '%0' with fetcher '%1'.", query, provider));
@@ -76,9 +73,8 @@ class Fetch implements Callable<Integer> {
             }
 
             if (outputFile != null) {
-                ExportService.create(argumentProcessor.cliPreferences, sharedOptions.porcelain).saveDatabase(
-                        new BibDatabase(matches),
-                        outputFile);
+                ExportService.create(argumentProcessor.cliPreferences, sharedOptions.porcelain)
+                        .saveDatabase(new BibDatabase(matches), outputFile);
             } else {
                 System.out.println(matches.stream().map(BibEntry::toString).collect(Collectors.joining("\n\n")));
             }

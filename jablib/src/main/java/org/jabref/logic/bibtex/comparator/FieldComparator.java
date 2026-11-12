@@ -6,7 +6,6 @@ import java.text.RuleBasedCollator;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
-
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.AuthorList;
 import org.jabref.model.entry.BibEntry;
@@ -24,7 +23,11 @@ public class FieldComparator implements Comparator<BibEntry> {
     private static final Collator COLLATOR = getCollator();
 
     enum FieldType {
-        NAME, TYPE, YEAR, MONTH, OTHER
+        NAME,
+        TYPE,
+        YEAR,
+        MONTH,
+        OTHER
     }
 
     private final OrFields fields;
@@ -72,16 +75,16 @@ public class FieldComparator implements Comparator<BibEntry> {
 
     private Optional<String> getFieldValue(BibEntry entry) {
         return fields.getFields().stream()
-                     .map(entry::getFieldOrAliasLatexFree)
-                     .flatMap(Optional::stream)
-                     .findFirst();
+                .map(entry::getFieldOrAliasLatexFree)
+                .flatMap(Optional::stream)
+                .findFirst();
     }
 
     private Optional<String> getFieldValueRaw(BibEntry entry) {
         return fields.getFields().stream()
-                     .map(entry::getField)
-                     .flatMap(Optional::stream)
-                     .findFirst();
+                .map(entry::getField)
+                .flatMap(Optional::stream)
+                .findFirst();
     }
 
     @Override

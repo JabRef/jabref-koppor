@@ -5,7 +5,6 @@ import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.function.Consumer;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -28,8 +27,7 @@ public class SerialBackgroundTaskGroup {
     private boolean closed;
     private boolean scheduled;
 
-    private record Work(long generation, Consumer<BackgroundTask<?>> action) {
-    }
+    private record Work(long generation, Consumer<BackgroundTask<?>> action) {}
 
     private static final class SchedulingState {
         private boolean rescheduleRequested;

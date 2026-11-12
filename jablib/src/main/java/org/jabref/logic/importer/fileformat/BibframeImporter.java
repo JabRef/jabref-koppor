@@ -14,13 +14,11 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
@@ -29,7 +27,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,8 +154,10 @@ public class BibframeImporter extends Importer {
             }
             Optional<XmlNode> work = object(first(instance, BF, "instanceOf"), resources);
             if (work.isEmpty()) {
-                work = descriptions.stream().filter(element -> isType(element, "Work"))
-                                   .filter(element -> linksTo(element, instance)).findFirst();
+                work = descriptions.stream()
+                        .filter(element -> isType(element, "Work"))
+                        .filter(element -> linksTo(element, instance))
+                        .findFirst();
             }
             entries.add(readEntry(instance, work, resources));
         }
@@ -180,12 +179,14 @@ public class BibframeImporter extends Importer {
 
     private static boolean linksTo(XmlNode work, XmlNode instance) {
         String uri = instance.getAttributeNS(RDF, "about");
-        return !uri.isEmpty() && children(work, BF, "hasInstance").stream()
-                                                                  .anyMatch(link -> uri.equals(link.getAttributeNS(RDF, "resource")));
+        return !uri.isEmpty()
+                && children(work, BF, "hasInstance").stream()
+                        .anyMatch(link -> uri.equals(link.getAttributeNS(RDF, "resource")));
     }
 
     private static BibEntry readEntry(XmlNode instance, Optional<XmlNode> work, Map<String, XmlNode> resources) {
-        BibEntry entry = new BibEntry(work.map(element -> inferEntryType(element, resources)).orElse(StandardEntryType.Misc));
+        BibEntry entry = new BibEntry(
+                work.map(element -> inferEntryType(element, resources)).orElse(StandardEntryType.Misc));
 
         Optional<XmlNode> title = object(first(instance, BF, "title"), resources)
                 .or(() -> work.flatMap(element -> object(first(element, BF, "title"), resources)));
@@ -195,7 +196,9 @@ public class BibframeImporter extends Importer {
         work.ifPresent(element -> {
             readContributions(entry, element, resources);
             readLanguage(entry, element, resources);
-            put(entry, StandardField.ABSTRACT,
+            put(
+                    entry,
+                    StandardField.ABSTRACT,
                     object(first(element, BF, "summary"), resources).flatMap(summary -> value(summary, RDFS, "label")));
             readHost(entry, element, resources);
             readSeries(entry, element, resources);
@@ -215,8 +218,9 @@ public class BibframeImporter extends Importer {
                 putIfAbsent(entry, StandardField.ADDRESS, value(activity, BFLC, "simplePlace"));
                 putIfAbsent(entry, StandardField.PUBLISHER, value(activity, BFLC, "simpleAgent"));
                 Optional<String> date = value(activity, BFLC, "simpleDate").or(() -> value(activity, BF, "date"));
-                date.filter(text -> text.length() >= 4 && text.substring(0, 4).chars().allMatch(Character::isDigit))
-                    .ifPresent(text -> putIfAbsent(entry, StandardField.YEAR, Optional.of(text.substring(0, 4))));
+                date.filter(text -> text.length() >= 4
+                                && text.substring(0, 4).chars().allMatch(Character::isDigit))
+                        .ifPresent(text -> putIfAbsent(entry, StandardField.YEAR, Optional.of(text.substring(0, 4))));
             });
         }
         readIdentifiers(entry, instance, resources);
@@ -232,7 +236,7 @@ public class BibframeImporter extends Importer {
             language.flatMap(element -> value(element, BF, "code"))
                     .ifPresent(code -> put(entry, StandardField.LANGUAGE, Optional.of(code)));
             String uri = language.map(element -> element.getAttributeNS(RDF, "about"))
-                                 .orElseGet(() -> property.getAttributeNS(RDF, "resource"));
+                    .orElseGet(() -> property.getAttributeNS(RDF, "resource"));
             if (entry.getField(StandardField.LANGUAGE).isEmpty() && uri.contains("/")) {
                 put(entry, StandardField.LANGUAGE, Optional.of(uri.substring(uri.lastIndexOf('/') + 1)));
             }
@@ -245,12 +249,12 @@ public class BibframeImporter extends Importer {
 
     private static boolean hasJournalHost(XmlNode work, Map<String, XmlNode> resources) {
         return children(work, BF, "relation").stream()
-                                             .map(property -> object(Optional.of(property), resources))
-                                             .flatMap(Optional::stream)
-                                             .filter(BibframeImporter::isPartOf)
-                                             .map(relation -> object(first(relation, BF, "associatedResource"), resources))
-                                             .flatMap(Optional::stream)
-                                             .anyMatch(host -> isSerialHost(host, resources));
+                .map(property -> object(Optional.of(property), resources))
+                .flatMap(Optional::stream)
+                .filter(BibframeImporter::isPartOf)
+                .map(relation -> object(first(relation, BF, "associatedResource"), resources))
+                .flatMap(Optional::stream)
+                .anyMatch(host -> isSerialHost(host, resources));
     }
 
     private static StandardEntryType inferEntryType(XmlNode work, Map<String, XmlNode> resources) {
@@ -269,8 +273,9 @@ public class BibframeImporter extends Importer {
     }
 
     private static boolean hasType(XmlNode resource, String localName) {
-        return is(resource, BF, localName) || children(resource, RDF, "type").stream()
-                                                                             .anyMatch(type -> (BF + localName).equals(type.getAttributeNS(RDF, "resource")));
+        return is(resource, BF, localName)
+                || children(resource, RDF, "type").stream()
+                        .anyMatch(type -> (BF + localName).equals(type.getAttributeNS(RDF, "resource")));
     }
 
     private static boolean isPartOf(XmlNode relation) {
@@ -281,17 +286,22 @@ public class BibframeImporter extends Importer {
 
     private static void readHost(BibEntry entry, XmlNode work, Map<String, XmlNode> resources) {
         for (XmlNode property : children(work, BF, "relation")) {
-            Optional<XmlNode> relation = object(Optional.of(property), resources).filter(BibframeImporter::isPartOf);
-            Optional<XmlNode> host = relation.flatMap(element -> object(first(element, BF, "associatedResource"), resources));
+            Optional<XmlNode> relation =
+                    object(Optional.of(property), resources).filter(BibframeImporter::isPartOf);
+            Optional<XmlNode> host =
+                    relation.flatMap(element -> object(first(element, BF, "associatedResource"), resources));
             host.filter(element -> isSerialHost(element, resources)).ifPresent(element -> {
-                putIfAbsent(entry, StandardField.JOURNAL,
+                putIfAbsent(
+                        entry,
+                        StandardField.JOURNAL,
                         object(first(element, BF, "title"), resources).flatMap(title -> value(title, BF, "mainTitle")));
                 readIdentifier(entry, element, resources, "Issn", StandardField.ISSN);
             });
             host.flatMap(element -> object(first(element, BF, "hasInstance"), resources))
-                .flatMap(element -> value(element, BF, "part"))
-                .filter(part -> part.startsWith("pages:"))
-                .ifPresent(part -> putIfAbsent(entry, StandardField.PAGES, Optional.of(part.substring("pages:".length()))));
+                    .flatMap(element -> value(element, BF, "part"))
+                    .filter(part -> part.startsWith("pages:"))
+                    .ifPresent(part ->
+                            putIfAbsent(entry, StandardField.PAGES, Optional.of(part.substring("pages:".length()))));
         }
     }
 
@@ -299,10 +309,11 @@ public class BibframeImporter extends Importer {
         for (XmlNode property : children(work, BF, "relation")) {
             Optional<XmlNode> relation = object(Optional.of(property), resources);
             if (relation.flatMap(element -> first(element, BF, "relationship"))
-                        .flatMap(element -> object(Optional.of(element), resources)
-                                .map(resource -> resource.getAttributeNS(RDF, "about"))
-                                .or(() -> Optional.of(element.getAttributeNS(RDF, "resource"))))
-                        .filter(uri -> uri.endsWith("/series")).isEmpty()) {
+                    .flatMap(element -> object(Optional.of(element), resources)
+                            .map(resource -> resource.getAttributeNS(RDF, "about"))
+                            .or(() -> Optional.of(element.getAttributeNS(RDF, "resource"))))
+                    .filter(uri -> uri.endsWith("/series"))
+                    .isEmpty()) {
                 continue;
             }
             relation.flatMap(element -> object(first(element, BF, "associatedResource"), resources))
@@ -312,21 +323,23 @@ public class BibframeImporter extends Importer {
         }
     }
 
-    private static void readLinkedFiles(BibEntry entry, XmlNode work, XmlNode primaryInstance, Map<String, XmlNode> resources) {
+    private static void readLinkedFiles(
+            BibEntry entry, XmlNode work, XmlNode primaryInstance, Map<String, XmlNode> resources) {
         List<LinkedFile> files = children(work, BF, "hasInstance").stream()
-                                                                  .map(property -> object(Optional.of(property), resources))
-                                                                  .flatMap(Optional::stream)
-                                                                  .filter(instance -> instance != primaryInstance
-                                                                          && (isSecondaryInstance(instance) || hasType(instance, "Electronic")))
-                                                                  .map(instance -> locator(instance, resources).map(uri -> {
-                                                                      String title = object(first(instance, BF, "title"), resources)
-                                                                              .flatMap(element -> value(element, BF, "mainTitle")).orElse("");
-                                                                      String fileType = uri.toLowerCase(Locale.ROOT).endsWith(".pdf")
-                                                                                        ? StandardFileType.PDF.getName() : "";
-                                                                      return new LinkedFile(title, uri, fileType);
-                                                                  }))
-                                                                  .flatMap(Optional::stream)
-                                                                  .toList();
+                .map(property -> object(Optional.of(property), resources))
+                .flatMap(Optional::stream)
+                .filter(instance -> instance != primaryInstance
+                        && (isSecondaryInstance(instance) || hasType(instance, "Electronic")))
+                .map(instance -> locator(instance, resources).map(uri -> {
+                    String title = object(first(instance, BF, "title"), resources)
+                            .flatMap(element -> value(element, BF, "mainTitle"))
+                            .orElse("");
+                    String fileType =
+                            uri.toLowerCase(Locale.ROOT).endsWith(".pdf") ? StandardFileType.PDF.getName() : "";
+                    return new LinkedFile(title, uri, fileType);
+                }))
+                .flatMap(Optional::stream)
+                .toList();
         if (!files.isEmpty()) {
             entry.withFiles(files);
         }
@@ -334,7 +347,7 @@ public class BibframeImporter extends Importer {
 
     private static boolean isSecondaryInstance(XmlNode instance) {
         return children(instance, RDF, "type").stream()
-                                              .anyMatch(type -> (BFLC + "SecondaryInstance").equals(type.getAttributeNS(RDF, "resource")));
+                .anyMatch(type -> (BFLC + "SecondaryInstance").equals(type.getAttributeNS(RDF, "resource")));
     }
 
     private static void readContributions(BibEntry entry, XmlNode work, Map<String, XmlNode> resources) {
@@ -348,10 +361,13 @@ public class BibframeImporter extends Importer {
                                 .orElseGet(() -> element.getAttributeNS(RDF, "resource")));
                 Optional<String> name = object(first(contribution, BF, "agent"), resources)
                         .flatMap(agent -> value(agent, RDFS, "label"));
-                Optional<StandardField> field = role.filter(uri -> uri.endsWith("/aut") || "aut".equals(uri)).map(_ -> StandardField.AUTHOR)
-                                                    .or(() -> role.filter(uri -> uri.endsWith("/edt") || "edt".equals(uri))
-                                                                  .map(_ -> StandardField.EDITOR));
-                field.ifPresent(selectedField -> name.ifPresent(text -> names.computeIfAbsent(selectedField, _ -> new ArrayList<>()).add(text)));
+                Optional<StandardField> field = role.filter(uri -> uri.endsWith("/aut") || "aut".equals(uri))
+                        .map(_ -> StandardField.AUTHOR)
+                        .or(() -> role.filter(uri -> uri.endsWith("/edt") || "edt".equals(uri))
+                                .map(_ -> StandardField.EDITOR));
+                field.ifPresent(selectedField ->
+                        name.ifPresent(text -> names.computeIfAbsent(selectedField, _ -> new ArrayList<>())
+                                .add(text)));
             });
         }
         names.forEach((field, values) -> entry.withField(field, values.stream().collect(Collectors.joining(" and "))));
@@ -363,38 +379,41 @@ public class BibframeImporter extends Importer {
         readIdentifier(entry, resource, resources, "Doi", StandardField.DOI);
     }
 
-    private static void readIdentifier(BibEntry entry, XmlNode resource, Map<String, XmlNode> resources,
-                                       String type, StandardField field) {
+    private static void readIdentifier(
+            BibEntry entry, XmlNode resource, Map<String, XmlNode> resources, String type, StandardField field) {
         children(resource, BF, "identifiedBy").stream()
-                                              .map(property -> object(Optional.of(property), resources))
-                                              .flatMap(Optional::stream)
-                                              .filter(identifier -> isType(identifier, type))
-                                              .map(identifier -> value(identifier, RDF, "value"))
-                                              .flatMap(Optional::stream)
-                                              .findFirst().ifPresent(value -> putIfAbsent(entry, field, Optional.of(value)));
+                .map(property -> object(Optional.of(property), resources))
+                .flatMap(Optional::stream)
+                .filter(identifier -> isType(identifier, type))
+                .map(identifier -> value(identifier, RDF, "value"))
+                .flatMap(Optional::stream)
+                .findFirst()
+                .ifPresent(value -> putIfAbsent(entry, field, Optional.of(value)));
     }
 
     private static boolean hasIdentifier(XmlNode resource, String type, Map<String, XmlNode> resources) {
         return children(resource, BF, "identifiedBy").stream()
-                                                     .map(property -> object(Optional.of(property), resources))
-                                                     .flatMap(Optional::stream)
-                                                     .anyMatch(identifier -> isType(identifier, type));
+                .map(property -> object(Optional.of(property), resources))
+                .flatMap(Optional::stream)
+                .anyMatch(identifier -> isType(identifier, type));
     }
 
     private static Optional<String> locator(XmlNode resource, Map<String, XmlNode> resources) {
         Optional<XmlNode> property = first(resource, BF, "electronicLocator")
                 .or(() -> children(resource, BF, "supplementaryContent").stream()
-                                                                        .map(content -> object(Optional.of(content), resources))
-                                                                        .flatMap(Optional::stream)
-                                                                        .map(content -> first(content, BF, "electronicLocator"))
-                                                                        .flatMap(Optional::stream).findFirst());
+                        .map(content -> object(Optional.of(content), resources))
+                        .flatMap(Optional::stream)
+                        .map(content -> first(content, BF, "electronicLocator"))
+                        .flatMap(Optional::stream)
+                        .findFirst());
         return property.flatMap(element -> {
             String uri = element.getAttributeNS(RDF, "resource");
             if (!uri.isBlank()) {
                 return Optional.of(uri);
             }
-            return object(Optional.of(element), resources).flatMap(locatorNode -> value(locatorNode, RDF, "value"))
-                                                          .or(() -> Optional.of(element.getTextContent().trim()).filter(text -> !text.isBlank()));
+            return object(Optional.of(element), resources)
+                    .flatMap(locatorNode -> value(locatorNode, RDF, "value"))
+                    .or(() -> Optional.of(element.getTextContent().trim()).filter(text -> !text.isBlank()));
         });
     }
 
@@ -409,19 +428,22 @@ public class BibframeImporter extends Importer {
     }
 
     private static Optional<String> value(XmlNode parent, String namespace, String localName) {
-        return first(parent, namespace, localName).map(element -> element.getTextContent().trim())
-                                                  .filter(text -> !text.isBlank());
+        return first(parent, namespace, localName)
+                .map(element -> element.getTextContent().trim())
+                .filter(text -> !text.isBlank());
     }
 
     private static Optional<XmlNode> object(Optional<XmlNode> property, Map<String, XmlNode> resources) {
-        return property.flatMap(element -> children(element).stream().findFirst()
-                                                            .or(() -> Optional.ofNullable(resources.get(element.getAttributeNS(RDF, "resource")))));
+        return property.flatMap(element -> children(element).stream()
+                .findFirst()
+                .or(() -> Optional.ofNullable(resources.get(element.getAttributeNS(RDF, "resource")))));
     }
 
     private static boolean isType(XmlNode element, String localName) {
-        return is(element, BF, localName) || is(element, RDF, "Description")
-                && children(element, RDF, "type").stream()
-                                                 .anyMatch(type -> (BF + localName).equals(type.getAttributeNS(RDF, "resource")));
+        return is(element, BF, localName)
+                || is(element, RDF, "Description")
+                        && children(element, RDF, "type").stream()
+                                .anyMatch(type -> (BF + localName).equals(type.getAttributeNS(RDF, "resource")));
     }
 
     private static boolean is(XmlNode element, String namespace, String localName) {
@@ -433,7 +455,9 @@ public class BibframeImporter extends Importer {
     }
 
     private static List<XmlNode> children(XmlNode parent, String namespace, String localName) {
-        return children(parent).stream().filter(element -> is(element, namespace, localName)).toList();
+        return children(parent).stream()
+                .filter(element -> is(element, namespace, localName))
+                .toList();
     }
 
     private static List<XmlNode> children(XmlNode parent) {
@@ -451,8 +475,10 @@ public class BibframeImporter extends Importer {
             namespace = Optional.ofNullable(reader.getNamespaceURI()).orElse("");
             localName = reader.getLocalName();
             for (int i = 0; i < reader.getAttributeCount(); i++) {
-                String attributeNamespace = Optional.ofNullable(reader.getAttributeNamespace(i)).orElse("");
-                attributes.put(new QName(attributeNamespace, reader.getAttributeLocalName(i)), reader.getAttributeValue(i));
+                String attributeNamespace =
+                        Optional.ofNullable(reader.getAttributeNamespace(i)).orElse("");
+                attributes.put(
+                        new QName(attributeNamespace, reader.getAttributeLocalName(i)), reader.getAttributeValue(i));
             }
         }
 

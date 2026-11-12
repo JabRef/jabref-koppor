@@ -2,20 +2,19 @@ package org.jabref.gui.preferences.nameformatter;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.logic.layout.format.NameFormatterPreferences;
 import org.jabref.logic.util.strings.StringUtil;
 
 public class NameFormatterTabViewModel implements PreferenceTabViewModel {
 
-    private final ListProperty<NameFormatterItemModel> formatterListProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<NameFormatterItemModel> formatterListProperty =
+            new SimpleListProperty<>(FXCollections.observableArrayList());
     private final StringProperty addFormatterNameProperty = new SimpleStringProperty();
     private final StringProperty addFormatterStringProperty = new SimpleStringProperty();
 
@@ -56,8 +55,8 @@ public class NameFormatterTabViewModel implements PreferenceTabViewModel {
     }
 
     public void addFormatter() {
-        if (!StringUtil.isNullOrEmpty(addFormatterNameProperty.getValue()) &&
-                !StringUtil.isNullOrEmpty(addFormatterStringProperty.getValue())) {
+        if (!StringUtil.isNullOrEmpty(addFormatterNameProperty.getValue())
+                && !StringUtil.isNullOrEmpty(addFormatterStringProperty.getValue())) {
             formatterListProperty.add(new NameFormatterItemModel(
                     addFormatterNameProperty.getValue(), addFormatterStringProperty.getValue()));
 

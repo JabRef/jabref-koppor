@@ -1,7 +1,10 @@
 package org.jabref.logic.importer.fetcher.isbntobibtex;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
+import java.util.Optional;
 import org.jabref.logic.importer.FetcherClientException;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -11,15 +14,10 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
 
 @Disabled
 @ExternalServicesTest
@@ -36,7 +34,8 @@ class EbookDeIsbnFetcherTest extends AbstractIsbnFetcherTest {
                 .withField(StandardField.DATE, "2018-01-15")
                 .withField(new UnknownField("ean"), "9780134685991")
                 .withField(StandardField.ISBN, "0134685997")
-                .withField(StandardField.URL, "https://www.ebook.de/de/product/28983211/joshua_bloch_effective_java.html");
+                .withField(
+                        StandardField.URL, "https://www.ebook.de/de/product/28983211/joshua_bloch_effective_java.html");
 
         fetcher = new EbookDeIsbnFetcher(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS));
     }
@@ -69,18 +68,23 @@ class EbookDeIsbnFetcherTest extends AbstractIsbnFetcherTest {
                 .withField(StandardField.TITLE, "Fundamentals of Business Process Management")
                 .withField(StandardField.PUBLISHER, "Springer Berlin Heidelberg")
                 .withField(StandardField.YEAR, "2019")
-                .withField(StandardField.AUTHOR, "Dumas, Marlon and Rosa, Marcello La and Mendling, Jan and Reijers, Hajo A.")
+                .withField(
+                        StandardField.AUTHOR,
+                        "Dumas, Marlon and Rosa, Marcello La and Mendling, Jan and Reijers, Hajo A.")
                 .withField(StandardField.DATE, "2019-02-01")
                 .withField(StandardField.PAGETOTAL, "560")
                 .withField(new UnknownField("ean"), "9783662585856")
                 .withField(StandardField.ISBN, "3662585855")
-                .withField(StandardField.URL, "https://www.ebook.de/de/product/35805105/marlon_dumas_marcello_la_rosa_jan_mendling_hajo_a_reijers_fundamentals_of_business_process_management.html");
+                .withField(
+                        StandardField.URL,
+                        "https://www.ebook.de/de/product/35805105/marlon_dumas_marcello_la_rosa_jan_mendling_hajo_a_reijers_fundamentals_of_business_process_management.html");
 
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("3662585855");
         assertEquals(Optional.of(bibEntry), fetchedEntry);
     }
 
-    /// This test searches for a valid ISBN. See https://www.amazon.de/dp/3728128155/?tag=jabref-21 However, this ISBN is
+    /// This test searches for a valid ISBN. See https://www.amazon.de/dp/3728128155/?tag=jabref-21 However, this ISBN
+    /// is
     /// not available on ebook.de.
     @Test
     void searchForValidButNotFoundISBN() {

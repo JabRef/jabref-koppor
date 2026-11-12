@@ -1,5 +1,9 @@
 package org.jabref.logic.browserext;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -8,13 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-
-import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BrowserExtensionBridgeClientTest {
 
@@ -58,8 +57,9 @@ class BrowserExtensionBridgeClientTest {
         try {
             int port = server.getAddress().getPort();
             Files.writeString(discoveryDir.resolve("jabext-experimental.json"), """
-                    {"name":"jabext-experimental","displayName":"JabRef Browser Extension (experimental)","port":%d,"tokenFile":"%s","protocolVersion":1}
-                    """.formatted(port, tokenFile.toString().replace("\\", "\\\\")));
+                {"name":"jabext-experimental","displayName":"JabRef Browser Extension (experimental)","port":%d,"tokenFile":"%s","protocolVersion":1}
+                """.formatted(
+                            port, tokenFile.toString().replace("\\", "\\\\")));
 
             BrowserExtensionBridgeClient client = new BrowserExtensionBridgeClient(discoveryDir);
             Optional<BrowserExtensionBridgeClient.MathSciNetOpenResult> result = client.openMathSciNet("619693");

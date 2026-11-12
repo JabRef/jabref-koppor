@@ -1,18 +1,16 @@
 package org.jabref.model.entry.identifier;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.net.URI;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.jabref.logic.util.URLUtil;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SSRNTest {
     private static Stream<Arguments> provideTestData() {
@@ -26,8 +24,7 @@ public class SSRNTest {
                 Arguments.of(true, "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4904445"),
                 Arguments.of(true, "  https://ssrn.com/abstract=4904445    "),
                 Arguments.of(true, "  https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4904445     "),
-                Arguments.of(true, "http://ssrn.com/abstract=4904445")
-        );
+                Arguments.of(true, "http://ssrn.com/abstract=4904445"));
     }
 
     /// @param findInText if the input should be found when passing through "find in text"
@@ -48,7 +45,8 @@ public class SSRNTest {
 
     @Test
     public void findInText() {
-        Optional<SSRN> parsed = SSRN.parse("The example paper (https://ssrn.com/abstract=4904445) should be found within this text");
+        Optional<SSRN> parsed =
+                SSRN.parse("The example paper (https://ssrn.com/abstract=4904445) should be found within this text");
         assertTrue(parsed.isPresent());
         assertEquals("4904445", parsed.get().asString());
     }

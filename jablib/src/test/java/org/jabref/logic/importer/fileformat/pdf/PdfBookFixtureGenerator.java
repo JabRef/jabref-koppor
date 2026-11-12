@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -17,22 +16,21 @@ final class PdfBookFixtureGenerator {
 
     private static final int PAGE_COUNT = 10;
     private static final String IMPRINT = """
-            УДК 371.388:53
-            ББК 22.3я72
-            Навчальний приклад для перевірки імпорту
-            Видавництво: умовний навчальний приклад
-            Усі права захищені.
-            Підписано до друку 01.01.2026. Наклад 100 пр.
-            © Навчальний приклад, 2026
-            """;
+        УДК 371.388:53
+        ББК 22.3я72
+        Навчальний приклад для перевірки імпорту
+        Видавництво: умовний навчальний приклад
+        Усі права захищені.
+        Підписано до друку 01.01.2026. Наклад 100 пр.
+        © Навчальний приклад, 2026
+        """;
     private static final String DISTRACTOR = """
-            Chapter discussion
-            For further reading, see another book: ISBN 978-0-13-468599-1.
-            This identifier belongs to the referenced work.
-            """;
+        Chapter discussion
+        For further reading, see another book: ISBN 978-0-13-468599-1.
+        This identifier belongs to the referenced work.
+        """;
 
-    private PdfBookFixtureGenerator() {
-    }
+    private PdfBookFixtureGenerator() {}
 
     public static void main(String[] args) throws IOException {
         if (args.length != 2) {
@@ -48,17 +46,20 @@ final class PdfBookFixtureGenerator {
         writeFixture(fontPath, outputDirectory.resolve("front-imprint.pdf"), Map.of(2, validImprint));
         writeFixture(fontPath, outputDirectory.resolve("back-imprint.pdf"), Map.of(9, validImprint));
         writeFixture(fontPath, outputDirectory.resolve("imprint-without-isbn.pdf"), Map.of(2, IMPRINT));
-        writeFixture(fontPath, outputDirectory.resolve("imprint-invalid-isbn.pdf"),
+        writeFixture(
+                fontPath,
+                outputDirectory.resolve("imprint-invalid-isbn.pdf"),
                 Map.of(2, IMPRINT + "ISBN 978-966-08-0000-8"));
-        writeFixture(fontPath, outputDirectory.resolve("imprint-with-distractor.pdf"),
+        writeFixture(
+                fontPath,
+                outputDirectory.resolve("imprint-with-distractor.pdf"),
                 Map.of(2, validImprint, 3, DISTRACTOR));
-        writeFixture(fontPath, outputDirectory.resolve("imprint-multiple-isbns.pdf"),
-                Map.of(2, IMPRINT + """
-                        ISBN-10: 0-596-52068-9
-                        ISBN-13: 978-0-596-52068-7
-                        ISBN-13: 978-0-13-468599-1
-                        Repeated identifier: 9780596520687
-                        """));
+        writeFixture(fontPath, outputDirectory.resolve("imprint-multiple-isbns.pdf"), Map.of(2, IMPRINT + """
+            ISBN-10: 0-596-52068-9
+            ISBN-13: 978-0-596-52068-7
+            ISBN-13: 978-0-13-468599-1
+            Repeated identifier: 9780596520687
+            """));
         writeFixture(fontPath, outputDirectory.resolve("ordinary-text-isbn.pdf"), Map.of(3, DISTRACTOR));
     }
 
@@ -103,4 +104,3 @@ final class PdfBookFixtureGenerator {
         }
     }
 }
-

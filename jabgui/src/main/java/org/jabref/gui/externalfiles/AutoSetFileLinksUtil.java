@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
@@ -28,7 +27,6 @@ import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,14 +61,18 @@ public class AutoSetFileLinksUtil {
     private final FileFinder preConfiguredFileFinder;
     private final FileFinder brokenLinkedFileNameBasedFileFinder;
 
-    public AutoSetFileLinksUtil(BibDatabaseContext databaseContext,
-                                ExternalApplicationsPreferences externalApplicationsPreferences,
-                                FilePreferences filePreferences,
-                                AutoLinkPreferences autoLinkPreferences) {
+    public AutoSetFileLinksUtil(
+            BibDatabaseContext databaseContext,
+            ExternalApplicationsPreferences externalApplicationsPreferences,
+            FilePreferences filePreferences,
+            AutoLinkPreferences autoLinkPreferences) {
         this(databaseContext.getFileDirectories(filePreferences), externalApplicationsPreferences, autoLinkPreferences);
     }
 
-    private AutoSetFileLinksUtil(List<Path> directories, ExternalApplicationsPreferences externalApplicationsPreferences, AutoLinkPreferences autoLinkPreferences) {
+    private AutoSetFileLinksUtil(
+            List<Path> directories,
+            ExternalApplicationsPreferences externalApplicationsPreferences,
+            AutoLinkPreferences autoLinkPreferences) {
         this.directories = directories;
         this.autoLinkPreferences = autoLinkPreferences;
         this.externalApplicationsPreferences = externalApplicationsPreferences;
@@ -79,7 +81,8 @@ public class AutoSetFileLinksUtil {
     }
 
     /// [impl->req~logic.externalfiles.file-transfer.auto-link~1]
-    public LinkFilesResult linkAssociatedFiles(List<BibEntry> entries, BiConsumer<List<LinkedFile>, BibEntry> onAddLinkedFile) {
+    public LinkFilesResult linkAssociatedFiles(
+            List<BibEntry> entries, BiConsumer<List<LinkedFile>, BibEntry> onAddLinkedFile) {
         LinkFilesResult result = new LinkFilesResult();
 
         for (BibEntry entry : entries) {
@@ -98,7 +101,8 @@ public class AutoSetFileLinksUtil {
     ///   - Prolog: we only consider the file with a unique name
     ///       - if a file's name is found multiple times in Part A, we do not consider it in Step 1
     ///       - if a file's name is found multiple times in Part B, we do not consider it in Step 2
-    ///   - Step 1. try to auto link each broken linked file with Part A at first. For unlinked files left in Part A, if no
+    ///   - Step 1. try to auto link each broken linked file with Part A at first. For unlinked files left in Part A, if
+    /// no
     ///         linked file with same name exists, add them
     ///       - why `add`: Part A are found mainly by CitationKey, which has strong connection to the entry, so we are
     ///                    confident that we should add them automatically
@@ -107,7 +111,8 @@ public class AutoSetFileLinksUtil {
     ///                    but different extension. We skip those files.
     ///       - one trick: we accumulate Part B after Step 1, so Part A does not affect those broken linked files we use
     ///                    to query Part B
-    private void doLinkAssociatedFiles(BibEntry entry, BiConsumer<List<LinkedFile>, BibEntry> onAddLinkedFile, LinkFilesResult result) {
+    private void doLinkAssociatedFiles(
+            BibEntry entry, BiConsumer<List<LinkedFile>, BibEntry> onAddLinkedFile, LinkFilesResult result) {
         boolean entryUpdated = false;
 
         // Step 1: try matched files based on CitationKey configured by user
@@ -118,12 +123,14 @@ public class AutoSetFileLinksUtil {
             onAddLinkedFile.accept(newLinkedFiles, entry);
         }
         // Add left unlinked files as new linked files
-        Set<String> linkedFileNames = entry.getFiles().stream().map(LinkedFile::getLink)
-                                           .map(FileUtil::getBaseName).collect(Collectors.toSet());
+        Set<String> linkedFileNames = entry.getFiles().stream()
+                .map(LinkedFile::getLink)
+                .map(FileUtil::getBaseName)
+                .collect(Collectors.toSet());
         List<LinkedFile> filesToAdd = files.entrySet().stream()
-                                           .filter(mapEntry -> !linkedFileNames.contains(mapEntry.getKey()))
-                                           .map(Map.Entry::getValue)
-                                           .toList();
+                .filter(mapEntry -> !linkedFileNames.contains(mapEntry.getKey()))
+                .map(Map.Entry::getValue)
+                .toList();
         if (!filesToAdd.isEmpty()) {
             entryUpdated = true;
             newLinkedFiles = new ArrayList<>(entry.getFiles());
@@ -160,8 +167,11 @@ public class AutoSetFileLinksUtil {
             if (isBrokenLinkedFile(linkedFile)
                     && files.containsKey(fileName)
                     && extension.isPresent()
-                    && extension.get().equalsIgnoreCase(FileUtil.getFileExtension(files.get(fileName).getLink()).orElse(""))
-            ) {
+                    && extension
+                            .get()
+                            .equalsIgnoreCase(FileUtil.getFileExtension(
+                                            files.get(fileName).getLink())
+                                    .orElse(""))) {
                 linkedFile.setLink(files.get(fileName).getLink());
                 updated.add(linkedFile);
                 files.remove(fileName);
@@ -184,7 +194,8 @@ public class AutoSetFileLinksUtil {
         return files;
     }
 
-    private Map<String, LinkedFile> findAssociatedNotLinkedFilesWithUniqueName(BibEntry entry, FileFinder finder) throws IOException {
+    private Map<String, LinkedFile> findAssociatedNotLinkedFilesWithUniqueName(BibEntry entry, FileFinder finder)
+            throws IOException {
         Collection<LinkedFile> files = findAssociatedNotLinkedFilesWithFinder(entry, finder, getConfiguredExtensions());
 
         Set<String> toBeRemoved = new HashSet<>();
@@ -216,12 +227,16 @@ public class AutoSetFileLinksUtil {
     public Collection<LinkedFile> findAssociatedNotLinkedFiles(BibEntry entry) throws IOException {
         // Find the associated files
         List<String> extensions = getConfiguredExtensions();
-        LOGGER.debug("Searching for associated not linked files with extensions {} in directories {}", extensions, directories);
+        LOGGER.debug(
+                "Searching for associated not linked files with extensions {} in directories {}",
+                extensions,
+                directories);
         return Stream.concat(
-                             findAssociatedNotLinkedFilesWithFinder(entry, preConfiguredFileFinder, extensions).stream(),
-                             findAssociatedNotLinkedFilesWithFinder(entry, brokenLinkedFileNameBasedFileFinder, extensions).stream())
-                     .distinct()
-                     .toList();
+                        findAssociatedNotLinkedFilesWithFinder(entry, preConfiguredFileFinder, extensions).stream(),
+                        findAssociatedNotLinkedFilesWithFinder(entry, brokenLinkedFileNameBasedFileFinder, extensions)
+                                .stream())
+                .distinct()
+                .toList();
     }
 
     public Collection<LinkedFile> findAssociatedNotLinkedFilesWithFinder(
@@ -230,15 +245,13 @@ public class AutoSetFileLinksUtil {
         List<Path> associatedFiles = finder.findAssociatedFiles(entry, directories, extensions);
 
         // Collect the linked files that are not broken
-        List<Path> linkedFiles =
-                entry.getFiles().stream()
-                     .map(file -> file.findIn(directories))
-                     .flatMap(Optional::stream)
-                     .toList();
+        List<Path> linkedFiles = entry.getFiles().stream()
+                .map(file -> file.findIn(directories))
+                .flatMap(Optional::stream)
+                .toList();
 
         // Only keep associated files that are not linked
-        return associatedFiles
-                .stream()
+        return associatedFiles.stream()
                 .filter(associatedFile -> !isFileAlreadyLinked(associatedFile, linkedFiles))
                 .map(this::buildLinkedFileFromPath)
                 .toList();
@@ -269,21 +282,21 @@ public class AutoSetFileLinksUtil {
 
     private String checkAndGetFileType(Path associatedFile) {
         return FileUtil.getFileExtension(associatedFile)
-                       .flatMap(extension -> getFileTypes().stream()
-                                                           .filter(type -> type.getExtension().equalsIgnoreCase(extension))
-                                                           .findFirst())
-                       .map(ExternalFileType::getName).orElse("");
+                .flatMap(extension -> getFileTypes().stream()
+                        .filter(type -> type.getExtension().equalsIgnoreCase(extension))
+                        .findFirst())
+                .map(ExternalFileType::getName)
+                .orElse("");
     }
 
     private static boolean isFileAlreadyLinked(Path foundFile, List<Path> linkedFiles) {
-        return linkedFiles.stream()
-                          .anyMatch(linked -> {
-                              try {
-                                  return Files.isSameFile(linked, foundFile);
-                              } catch (IOException e) {
-                                  LOGGER.debug("Unable to check file identity, assuming no identity", e);
-                                  return false;
-                              }
-                          });
+        return linkedFiles.stream().anyMatch(linked -> {
+            try {
+                return Files.isSameFile(linked, foundFile);
+            } catch (IOException e) {
+                LOGGER.debug("Unable to check file identity, assuming no identity", e);
+                return false;
+            }
+        });
     }
 }

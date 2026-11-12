@@ -2,9 +2,7 @@ package org.jabref.logic.bst;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 

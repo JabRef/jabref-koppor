@@ -1,7 +1,6 @@
 package org.jabref.logic.util;
 
 import java.util.List;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked

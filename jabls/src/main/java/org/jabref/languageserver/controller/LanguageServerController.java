@@ -5,7 +5,6 @@ import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.remote.server.RemoteMessageHandler;
 import org.jabref.model.entry.BibEntryTypesManager;
-
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +18,13 @@ public class LanguageServerController implements AutoCloseable {
     private final JournalAbbreviationRepository abbreviationRepository;
     private final BibEntryTypesManager bibEntryTypesManager;
 
-    @Nullable private LspLauncher lspLauncher;
+    @Nullable
+    private LspLauncher lspLauncher;
 
-    public LanguageServerController(CliPreferences cliPreferences, JournalAbbreviationRepository abbreviationRepository, BibEntryTypesManager bibEntryTypesManager) {
+    public LanguageServerController(
+            CliPreferences cliPreferences,
+            JournalAbbreviationRepository abbreviationRepository,
+            BibEntryTypesManager bibEntryTypesManager) {
         this.cliPreferences = cliPreferences;
         this.abbreviationRepository = abbreviationRepository;
         this.bibEntryTypesManager = bibEntryTypesManager;
@@ -34,7 +37,8 @@ public class LanguageServerController implements AutoCloseable {
             return;
         }
 
-        lspLauncher = new LspLauncher(messageHandler, cliPreferences, abbreviationRepository, bibEntryTypesManager, port);
+        lspLauncher =
+                new LspLauncher(messageHandler, cliPreferences, abbreviationRepository, bibEntryTypesManager, port);
         // This enqueues the thread to run in the background
         // The JVM will take care of running it at some point in time in the future
         // Thus, we cannot check directly if it really runs

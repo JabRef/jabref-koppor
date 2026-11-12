@@ -2,7 +2,6 @@ package org.jabref.gui.entryeditor;
 
 import java.util.Optional;
 import java.util.function.Predicate;
-
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.TextInputControl;
@@ -10,11 +9,11 @@ import javafx.scene.control.TextInputControl;
 /// Pure, stateless DOM traversal helpers shared by [EntryEditorFocusUtils].
 final class EntryEditorFocusTraversal {
 
-    private EntryEditorFocusTraversal() {
-    }
+    private EntryEditorFocusTraversal() {}
 
     static Optional<Node> findFirstTextInputById(Parent parent, String id) {
-        return findFirstMatching(parent, node -> node instanceof TextInputControl textInput && id.equalsIgnoreCase(textInput.getId()));
+        return findFirstMatching(
+                parent, node -> node instanceof TextInputControl textInput && id.equalsIgnoreCase(textInput.getId()));
     }
 
     static Optional<Node> findFirstTextInput(Parent parent) {

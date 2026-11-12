@@ -1,14 +1,12 @@
 package org.jabref.gui.util.comparator;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Optional;
 import org.jabref.gui.specialfields.SpecialFieldValueViewModel;
 import org.jabref.model.entry.field.SpecialFieldValue;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RankingFieldComparatorTest {
 

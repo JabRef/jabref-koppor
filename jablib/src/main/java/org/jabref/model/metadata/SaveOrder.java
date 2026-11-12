@@ -3,10 +3,8 @@ package org.jabref.model.metadata;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,8 +80,7 @@ public class SaveOrder {
             return true;
         }
         if (o instanceof SaveOrder that) {
-            return Objects.equals(sortCriteria, that.sortCriteria) &&
-                    Objects.equals(orderType, that.orderType);
+            return Objects.equals(sortCriteria, that.sortCriteria) && Objects.equals(orderType, that.orderType);
         }
         return false;
     }
@@ -95,9 +92,7 @@ public class SaveOrder {
 
     @Override
     public String toString() {
-        return "SaveOrderConfig{" + "orderType=" + orderType.toString() +
-                ", sortCriteria=" + sortCriteria +
-                '}';
+        return "SaveOrderConfig{orderType=" + orderType.toString() + ", sortCriteria=" + sortCriteria + '}';
     }
 
     /// Outputs the current configuration to be consumed later by the constructor
@@ -113,8 +108,7 @@ public class SaveOrder {
         return res;
     }
 
-    public record
-    SortCriterion(Field field, boolean descending) {
+    public record SortCriterion(Field field, boolean descending) {
         /// Given field sorted ascending
         public SortCriterion(Field field) {
             this(field, false);
@@ -128,9 +122,7 @@ public class SaveOrder {
 
         @Override
         public @NonNull String toString() {
-            return "SortCriterion{" + "field='" + field + '\'' +
-                    ", descending=" + descending +
-                    '}';
+            return "SortCriterion{field='" + field + '\'' + ", descending=" + descending + '}';
         }
     }
 

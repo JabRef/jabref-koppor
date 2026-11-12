@@ -3,11 +3,9 @@ package org.jabref.gui.bibtexhighlighter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-
 import javafx.scene.Node;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.DataFormat;
-
 import jfx.incubator.scene.control.richtext.StyleResolver;
 import jfx.incubator.scene.control.richtext.TextPos;
 import jfx.incubator.scene.control.richtext.model.DataFormatHandler;
@@ -20,7 +18,8 @@ import org.jspecify.annotations.NullMarked;
 /// Exports BibTeX source using JavaFX's RTF writer with a monospace font.
 @NullMarked
 public class BibTeXRtfExportFormatHandler extends DataFormatHandler {
-    private static final StyleAttributeMap MONOSPACE = StyleAttributeMap.builder().setFontFamily("monospaced").build();
+    private static final StyleAttributeMap MONOSPACE =
+            StyleAttributeMap.builder().setFontFamily("monospaced").build();
 
     public BibTeXRtfExportFormatHandler() {
         super(DataFormat.RTF);
@@ -38,7 +37,8 @@ public class BibTeXRtfExportFormatHandler extends DataFormatHandler {
     }
 
     @Override
-    public void save(StyledTextModel model, StyleResolver resolver, TextPos start, TextPos end, OutputStream out) throws IOException {
+    public void save(StyledTextModel model, StyleResolver resolver, TextPos start, TextPos end, OutputStream out)
+            throws IOException {
         String rtf = (String) copy(model, resolver, start, end);
         out.write(rtf.getBytes(StandardCharsets.US_ASCII));
         out.flush();

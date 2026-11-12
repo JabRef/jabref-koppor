@@ -10,7 +10,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
-
 import org.jabref.http.server.cayw.CitationProperties;
 import org.jabref.http.server.cayw.LocatorType;
 import org.jabref.logic.l10n.Localization;

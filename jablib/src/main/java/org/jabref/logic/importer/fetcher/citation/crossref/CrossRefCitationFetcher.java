@@ -7,7 +7,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
@@ -27,14 +26,14 @@ import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
-/// Uses [CrossRef's REST API](https://www.crossref.org/documentation/retrieve-metadata/rest-api/) for getting paper information
+/// Uses [CrossRef's REST API](https://www.crossref.org/documentation/retrieve-metadata/rest-api/) for getting paper
+/// information
 ///
 /// Example URL: <https://api.crossref.org/works/10.47397/tb/44-3/tb138kopp-jabref>
 public class CrossRefCitationFetcher implements CitationFetcher {
@@ -91,35 +90,38 @@ public class CrossRefCitationFetcher implements CitationFetcher {
 
         PlainCitationParserChoice parserChoice = importerPreferences.getDefaultPlainCitationParser();
         final PlainCitationParser parser = parserChoice == PlainCitationParserChoice.LLM
-                                           ? PlainCitationParserFactory.getLlmPlainCitationParser(importFormatPreferences, aiPreferences, chatModel)
-                                           : PlainCitationParserFactory.getPlainCitationParser(parserChoice, citationKeyPatternPreferences, grobidPreferences, importFormatPreferences);
+                ? PlainCitationParserFactory.getLlmPlainCitationParser(
+                        importFormatPreferences, aiPreferences, chatModel)
+                : PlainCitationParserFactory.getPlainCitationParser(
+                        parserChoice, citationKeyPatternPreferences, grobidPreferences, importFormatPreferences);
 
         try (InputStream stream = new URLDownload(uri.get().toString()).asInputStream()) {
             JsonNode node = mapper.readTree(stream);
-            LOGGER.atDebug()
-                  .addKeyValue("payload", node)
-                  .log("Received JSON");
+            LOGGER.atDebug().addKeyValue("payload", node).log("Received JSON");
             JsonNode references = node.at("/message/reference");
-            return references.valueStream()
-                             .map(Unchecked.function(reference -> {
-                                 JsonNode doiNode = reference.at("/DOI");
-                                 if (doiNode.isMissingNode() && !reference.at("/key").isMissingNode()) {
-                                     return getBibEntryFromData(reference);
-                                 }
-                                 JsonNode unstructured = reference.at("/unstructured");
-                                 if (doiNode.isMissingNode()) {
-                                     if (unstructured.isMissingNode()) {
-                                         LOGGER.error("Reference has neither DOI nor unstructured text: {}", reference);
-                                         return new BibEntry()
-                                                 .withField(StandardField.NOTE, "Could not retrieve reference information from CrossRef")
-                                                 .withChanged(true);
-                                     }
-                                     return getBibEntryFromText(parser, unstructured.asString());
-                                 } else {
-                                     return getBibEntryFromDoi(doiNode.asString(), unstructured);
-                                 }
-                             }))
-                             .toList();
+            return references
+                    .valueStream()
+                    .map(Unchecked.function(reference -> {
+                        JsonNode doiNode = reference.at("/DOI");
+                        if (doiNode.isMissingNode() && !reference.at("/key").isMissingNode()) {
+                            return getBibEntryFromData(reference);
+                        }
+                        JsonNode unstructured = reference.at("/unstructured");
+                        if (doiNode.isMissingNode()) {
+                            if (unstructured.isMissingNode()) {
+                                LOGGER.error("Reference has neither DOI nor unstructured text: {}", reference);
+                                return new BibEntry()
+                                        .withField(
+                                                StandardField.NOTE,
+                                                "Could not retrieve reference information from CrossRef")
+                                        .withChanged(true);
+                            }
+                            return getBibEntryFromText(parser, unstructured.asString());
+                        } else {
+                            return getBibEntryFromDoi(doiNode.asString(), unstructured);
+                        }
+                    }))
+                    .toList();
         } catch (MalformedURLException e) {
             throw new FetcherException("Could not construct correct URL", e);
         } catch (IOException e) {
@@ -161,30 +163,26 @@ public class CrossRefCitationFetcher implements CitationFetcher {
     private BibEntry getBibEntryFromText(PlainCitationParser parser, String unstructured) {
         try {
             return parser.parsePlainCitation(unstructured)
-                         .orElseGet(() -> new BibEntry()
-                                 .withField(StandardField.NOTE, unstructured)
-                                 .withChanged(true));
+                    .orElseGet(() -> new BibEntry()
+                            .withField(StandardField.NOTE, unstructured)
+                            .withChanged(true));
         } catch (FetcherException e) {
             LOGGER.warn("Could not get bib entry from text {}", unstructured, e);
-            return new BibEntry()
-                    .withField(StandardField.NOTE, unstructured)
-                    .withChanged(true);
+            return new BibEntry().withField(StandardField.NOTE, unstructured).withChanged(true);
         }
     }
 
     private BibEntry getBibEntryFromDoi(String referenceDoi, JsonNode unstructured) throws FetcherException {
         // Determine the doi using CrossRef
         // In case no BibEntry found for the doi, just return a BibEntry using the doi
-        return crossRefForDoi.performSearchById(referenceDoi)
-                             .orElseGet(() -> {
-                                 BibEntry bibEntry = new BibEntry()
-                                         .withField(StandardField.DOI, referenceDoi)
-                                         .withChanged(true);
-                                 if (!unstructured.isMissingNode()) {
-                                     bibEntry.setField(StandardField.NOTE, unstructured.asText());
-                                 }
-                                 return bibEntry;
-                             });
+        return crossRefForDoi.performSearchById(referenceDoi).orElseGet(() -> {
+            BibEntry bibEntry =
+                    new BibEntry().withField(StandardField.DOI, referenceDoi).withChanged(true);
+            if (!unstructured.isMissingNode()) {
+                bibEntry.setField(StandardField.NOTE, unstructured.asText());
+            }
+            return bibEntry;
+        });
     }
 
     /// Crossref has no citation count feature
@@ -196,8 +194,9 @@ public class CrossRefCitationFetcher implements CitationFetcher {
     // Clone of org.jabref.logic.importer.FulltextFetchers.findDoiForEntry
     private void findDoiForEntry(BibEntry clonedEntry) {
         try {
-            crossRefForDoi.findIdentifier(clonedEntry)
-                          .ifPresent(e -> clonedEntry.setField(StandardField.DOI, e.asString()));
+            crossRefForDoi
+                    .findIdentifier(clonedEntry)
+                    .ifPresent(e -> clonedEntry.setField(StandardField.DOI, e.asString()));
         } catch (FetcherException e) {
             LOGGER.debug("Failed to find DOI", e);
         }

@@ -1,5 +1,10 @@
 package org.jabref.gui.importer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -9,9 +14,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.TreeSet;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.logic.importer.FetcherException;
@@ -20,7 +23,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,13 +30,9 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 class BookCoverFetcherTest {
-    private final ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
+    private final ExternalApplicationsPreferences externalApplicationsPreferences =
+            mock(ExternalApplicationsPreferences.class);
     private final BookCoverFetcher bookCoverFetcher = new BookCoverFetcher(externalApplicationsPreferences);
     private MockedStatic<Directories> mockedDirectories;
     // A valid isbn that has a downloadable cover
@@ -57,7 +55,9 @@ class BookCoverFetcherTest {
         badCoverPath = Directories.getCoverDirectory().resolve("isbn-" + badIsbn + ".jpg");
         badNotAvailablePath = Directories.getCoverDirectory().resolve("isbn-" + badIsbn + ".not-available");
 
-        when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
+        when(externalApplicationsPreferences.getExternalFileTypes())
+                .thenReturn(
+                        FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
     }
 
     @AfterEach
@@ -139,7 +139,8 @@ class BookCoverFetcherTest {
 
         assertTrue(Files.notExists(badCoverPath));
         assertTrue(Files.exists(badNotAvailablePath));
-        Instant fileTimeAfterAttempt = Files.getLastModifiedTime(badNotAvailablePath).toInstant();
+        Instant fileTimeAfterAttempt =
+                Files.getLastModifiedTime(badNotAvailablePath).toInstant();
         // We pad with a few second since the file system might not be precise
         assertTrue(now.minusSeconds(10).isBefore(fileTimeAfterAttempt));
     }
@@ -152,13 +153,16 @@ class BookCoverFetcherTest {
     void modificationTimeDoesNotChangeWhenLessThan24Hours() throws IOException, FetcherException {
         Files.createFile(badNotAvailablePath);
         // Set the last modification time of the file to be 23 hours ago
-        Files.setLastModifiedTime(badNotAvailablePath, FileTime.from(Instant.now().minus(23, ChronoUnit.HOURS)));
-        Instant fileTimeBeforeAttempt = Files.getLastModifiedTime(badNotAvailablePath).toInstant();
+        Files.setLastModifiedTime(
+                badNotAvailablePath, FileTime.from(Instant.now().minus(23, ChronoUnit.HOURS)));
+        Instant fileTimeBeforeAttempt =
+                Files.getLastModifiedTime(badNotAvailablePath).toInstant();
 
         bookCoverFetcher.downloadCoversForEntry(badEntry);
 
         assertTrue(Files.notExists(badCoverPath));
-        Instant fileTimeAfterAttempt = Files.getLastModifiedTime(badNotAvailablePath).toInstant();
+        Instant fileTimeAfterAttempt =
+                Files.getLastModifiedTime(badNotAvailablePath).toInstant();
         assertEquals(fileTimeAfterAttempt, fileTimeBeforeAttempt);
     }
 

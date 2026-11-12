@@ -1,11 +1,10 @@
 package org.jabref.http.server.cayw;
 
+import static java.util.function.Predicate.not;
+
 import java.util.Optional;
 import java.util.StringJoiner;
-
 import org.jspecify.annotations.Nullable;
-
-import static java.util.function.Predicate.not;
 
 public class CitationProperties {
 
@@ -15,8 +14,7 @@ public class CitationProperties {
     private @Nullable String suffix;
     private boolean omitAuthor;
 
-    public CitationProperties() {
-    }
+    public CitationProperties() {}
 
     public void setLocatorType(@Nullable LocatorType locatorType) {
         this.locatorType = locatorType;
@@ -49,9 +47,7 @@ public class CitationProperties {
     }
 
     public Optional<String> getPrefix() {
-        return Optional.ofNullable(prefix)
-                       .map(String::strip)
-                       .filter(not(String::isEmpty));
+        return Optional.ofNullable(prefix).map(String::strip).filter(not(String::isEmpty));
     }
 
     public CitationProperties withPrefix(@Nullable String prefix) {
@@ -64,9 +60,7 @@ public class CitationProperties {
     }
 
     public Optional<String> getSuffix() {
-        return Optional.ofNullable(suffix)
-                       .map(String::strip)
-                       .filter(not(String::isEmpty));
+        return Optional.ofNullable(suffix).map(String::strip).filter(not(String::isEmpty));
     }
 
     public CitationProperties withSuffix(@Nullable String suffix) {

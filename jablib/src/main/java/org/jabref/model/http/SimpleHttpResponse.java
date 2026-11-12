@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
-
 import org.jsoup.HttpStatusException;
 
 public record SimpleHttpResponse(int statusCode, String responseMessage, String responseBody) {
@@ -28,11 +27,10 @@ public record SimpleHttpResponse(int statusCode, String responseMessage, String 
 
     @Override
     public String toString() {
-        return "SimpleHttpResponse{" +
-                "statusCode=" + statusCode +
-                ", responseMessage='" + responseMessage + '\'' +
-                ", responseBody='" + responseBody + '\'' +
-                '}';
+        return "SimpleHttpResponse{statusCode="
+                + statusCode + ", responseMessage='"
+                + responseMessage + '\'' + ", responseBody='"
+                + responseBody + '\'' + '}';
     }
 
     private static int getStatusCode(HttpURLConnection connection) {

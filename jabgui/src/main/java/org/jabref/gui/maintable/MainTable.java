@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javafx.collections.ListChangeListener;
 import javafx.css.PseudoClass;
 import javafx.geometry.Pos;
@@ -34,7 +33,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-
 import org.jabref.architecture.AllowedToUseClassGetResource;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.DragAndDropDataFormats;
@@ -76,7 +74,6 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,10 +81,14 @@ import org.slf4j.LoggerFactory;
 @AllowedToUseClassGetResource("JavaFX internally handles the passed URLs properly.")
 public class MainTable extends TableView<BibEntryTableViewModel> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainTable.class);
-    private static final PseudoClass MATCHING_SEARCH_AND_GROUPS = PseudoClass.getPseudoClass("matching-search-and-groups");
-    private static final PseudoClass MATCHING_SEARCH_NOT_GROUPS = PseudoClass.getPseudoClass("matching-search-not-groups");
-    private static final PseudoClass MATCHING_GROUPS_NOT_SEARCH = PseudoClass.getPseudoClass("matching-groups-not-search");
-    private static final PseudoClass NOT_MATCHING_SEARCH_AND_GROUPS = PseudoClass.getPseudoClass("not-matching-search-and-groups");
+    private static final PseudoClass MATCHING_SEARCH_AND_GROUPS =
+            PseudoClass.getPseudoClass("matching-search-and-groups");
+    private static final PseudoClass MATCHING_SEARCH_NOT_GROUPS =
+            PseudoClass.getPseudoClass("matching-search-not-groups");
+    private static final PseudoClass MATCHING_GROUPS_NOT_SEARCH =
+            PseudoClass.getPseudoClass("matching-groups-not-search");
+    private static final PseudoClass NOT_MATCHING_SEARCH_AND_GROUPS =
+            PseudoClass.getPseudoClass("not-matching-search-and-groups");
 
     private final LibraryTab libraryTab;
     private final StateManager stateManager;
@@ -108,19 +109,20 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
     private boolean citationMergeMode = false;
 
     /// There is one maintable instance per library tab
-    public MainTable(MainTableDataModel model,
-                     LibraryTab libraryTab,
-                     LibraryTabContainer tabContainer,
-                     @NonNull BibDatabaseContext database,
-                     GuiPreferences preferences,
-                     DialogService dialogService,
-                     StateManager stateManager,
-                     KeyBindingRepository keyBindingRepository,
-                     JournalAbbreviationRepository journalAbbreviationRepository,
-                     ClipBoardManager clipBoardManager,
-                     BibEntryTypesManager entryTypesManager,
-                     TaskExecutor taskExecutor,
-                     ImportHandler importHandler) {
+    public MainTable(
+            MainTableDataModel model,
+            LibraryTab libraryTab,
+            LibraryTabContainer tabContainer,
+            @NonNull BibDatabaseContext database,
+            GuiPreferences preferences,
+            DialogService dialogService,
+            StateManager stateManager,
+            KeyBindingRepository keyBindingRepository,
+            JournalAbbreviationRepository journalAbbreviationRepository,
+            ClipBoardManager clipBoardManager,
+            BibEntryTypesManager entryTypesManager,
+            TaskExecutor taskExecutor,
+            ImportHandler importHandler) {
         super();
         this.libraryTab = libraryTab;
         this.stateManager = stateManager;
@@ -131,7 +133,10 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         this.taskExecutor = taskExecutor;
         this.filePreferences = preferences.getFilePreferences();
         this.importHandler = importHandler;
-        this.clipboardContentGenerator = new ClipboardContentGenerator(preferences.getPreviewPreferences(), preferences.getLayoutFormatterPreferences(), journalAbbreviationRepository);
+        this.clipboardContentGenerator = new ClipboardContentGenerator(
+                preferences.getPreviewPreferences(),
+                preferences.getLayoutFormatterPreferences(),
+                journalAbbreviationRepository);
 
         MainTablePreferences mainTablePreferences = preferences.getMainTablePreferences();
 
@@ -151,7 +156,8 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
                 stateManager,
                 taskExecutor);
 
-        this.columnPreferencesApplier = new ColumnPreferencesApplier(this, mainTableColumnFactory, mainTablePreferences);
+        this.columnPreferencesApplier =
+                new ColumnPreferencesApplier(this, mainTableColumnFactory, mainTablePreferences);
         columnPreferencesApplier.bind();
 
         new ViewModelTableRowFactory<BibEntryTableViewModel>()
@@ -170,10 +176,18 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
                         journalAbbreviationRepository,
                         entryTypesManager,
                         importHandler))
-                .withPseudoClass(MATCHING_SEARCH_AND_GROUPS, entry -> entry.matchCategory().isEqualTo(MatchCategory.MATCHING_SEARCH_AND_GROUPS))
-                .withPseudoClass(MATCHING_SEARCH_NOT_GROUPS, entry -> entry.matchCategory().isEqualTo(MatchCategory.MATCHING_SEARCH_NOT_GROUPS))
-                .withPseudoClass(MATCHING_GROUPS_NOT_SEARCH, entry -> entry.matchCategory().isEqualTo(MatchCategory.MATCHING_GROUPS_NOT_SEARCH))
-                .withPseudoClass(NOT_MATCHING_SEARCH_AND_GROUPS, entry -> entry.matchCategory().isEqualTo(MatchCategory.NOT_MATCHING_SEARCH_AND_GROUPS))
+                .withPseudoClass(
+                        MATCHING_SEARCH_AND_GROUPS,
+                        entry -> entry.matchCategory().isEqualTo(MatchCategory.MATCHING_SEARCH_AND_GROUPS))
+                .withPseudoClass(
+                        MATCHING_SEARCH_NOT_GROUPS,
+                        entry -> entry.matchCategory().isEqualTo(MatchCategory.MATCHING_SEARCH_NOT_GROUPS))
+                .withPseudoClass(
+                        MATCHING_GROUPS_NOT_SEARCH,
+                        entry -> entry.matchCategory().isEqualTo(MatchCategory.MATCHING_GROUPS_NOT_SEARCH))
+                .withPseudoClass(
+                        NOT_MATCHING_SEARCH_AND_GROUPS,
+                        entry -> entry.matchCategory().isEqualTo(MatchCategory.NOT_MATCHING_SEARCH_AND_GROUPS))
                 .setOnDragDetected(this::handleOnDragDetected)
                 .setOnDragDropped(this::handleOnDragDropped)
                 .setOnDragOver(this::handleOnDragOver)
@@ -186,7 +200,8 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         // force match category column to be the first sort order, (match_category column is always the first column)
         this.getSortOrder().addFirst(getColumns().getFirst());
         this.getSortOrder().addListener((ListChangeListener<TableColumn<BibEntryTableViewModel, ?>>) _ -> {
-            if (this.getSortOrder().isEmpty() || !this.getSortOrder().getFirst().equals(getColumns().getFirst())) {
+            if (this.getSortOrder().isEmpty()
+                    || !this.getSortOrder().getFirst().equals(getColumns().getFirst())) {
                 this.getSortOrder().addFirst(getColumns().getFirst());
             }
         });
@@ -220,26 +235,33 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
 
         updatePlaceholder(placeholderBox, loadingPlaceholder);
 
-        database.getDatabase().getEntries().addListener((ListChangeListener<BibEntry>) _ -> updatePlaceholder(placeholderBox, loadingPlaceholder));
+        database.getDatabase().getEntries().addListener((ListChangeListener<BibEntry>)
+                _ -> updatePlaceholder(placeholderBox, loadingPlaceholder));
 
-        this.getItems().addListener((ListChangeListener<BibEntryTableViewModel>) _ -> updatePlaceholder(placeholderBox, loadingPlaceholder));
+        this.getItems().addListener((ListChangeListener<BibEntryTableViewModel>)
+                _ -> updatePlaceholder(placeholderBox, loadingPlaceholder));
 
         libraryTab.getLoading().addListener((_, _, _) -> updatePlaceholder(placeholderBox, loadingPlaceholder));
 
         model.searchResultsVersionProperty().addListener(_ -> showSearchMatchesIfNoneVisible());
 
         // Enable sorting
-        // Workaround for a JavaFX bug: https://bugs.openjdk.org/browse/JDK-8301761 (The sorting of the SortedList can become invalid)
-        // The default comparator of the SortedList does not consider the insertion index of entries that are equal according to the comparator.
-        // When two entries are equal based on the comparator, the entry that was inserted first should be considered smaller.
+        // Workaround for a JavaFX bug: https://bugs.openjdk.org/browse/JDK-8301761 (The sorting of the SortedList can
+        // become invalid)
+        // The default comparator of the SortedList does not consider the insertion index of entries that are equal
+        // according to the comparator.
+        // When two entries are equal based on the comparator, the entry that was inserted first should be considered
+        // smaller.
         this.setSortPolicy(_ -> true);
-        model.getEntriesFilteredAndSorted().comparatorProperty().bind(
-                this.comparatorProperty().map(MainTable::thenComparingByInsertionOrder));
+        model.getEntriesFilteredAndSorted()
+                .comparatorProperty()
+                .bind(this.comparatorProperty().map(MainTable::thenComparingByInsertionOrder));
 
         UiTaskExecutor.runInJavaFXThread(columnPreferencesApplier::applySortOrder);
 
         // Store visual state
-        this.columnPreferencesRecorder = new ColumnPreferencesRecorder(this, mainTablePreferences.getColumnPreferences());
+        this.columnPreferencesRecorder =
+                new ColumnPreferencesRecorder(this, mainTablePreferences.getColumnPreferences());
         columnPreferencesRecorder.bind();
 
         setupKeyBindings(keyBindingRepository);
@@ -258,7 +280,8 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         new MainTableHeaderContextMenu(this, mainTableColumnFactory, tabContainer, dialogService).show(true);
     }
 
-    /// This is called, if a user starts typing some characters into the keyboard with focus on main table. The [MainTable] will scroll to the cell with the same starting column value and typed string
+    /// This is called, if a user starts typing some characters into the keyboard with focus on main table. The
+    /// [MainTable] will scroll to the cell with the same starting column value and typed string
     /// If the user presses any other special key as well, e.g. alt or shift we don't jump
     ///
     /// @param sortedColumn The sorted column in [MainTable]
@@ -280,17 +303,18 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         lastKeyPressTime = System.currentTimeMillis();
 
         this.getItems().stream()
-            .filter(item -> Optional.ofNullable(sortedColumn.getCellObservableValue(item).getValue())
-                                    .map(Object::toString)
-                                    .orElse("")
-                                    .toLowerCase()
-                                    .startsWith(columnSearchTerm))
-            .findFirst()
-            .ifPresent(item -> {
-                getSelectionModel().clearSelection();
-                getSelectionModel().select(item);
-                scrollTo(item);
-            });
+                .filter(item -> Optional.ofNullable(
+                                sortedColumn.getCellObservableValue(item).getValue())
+                        .map(Object::toString)
+                        .orElse("")
+                        .toLowerCase()
+                        .startsWith(columnSearchTerm))
+                .findFirst()
+                .ifPresent(item -> {
+                    getSelectionModel().clearSelection();
+                    getSelectionModel().select(item);
+                    scrollTo(item);
+                });
     }
 
     public void clearAndSelect(@NonNull BibEntry bibEntry) {
@@ -317,10 +341,10 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         } else {
             // select new entries
             List<Integer> indices = bibEntries.stream()
-                                              .flatMap(bibEntry -> findEntry(bibEntry).stream())
-                                              .map(entry -> getItems().indexOf(entry))
-                                              .filter(index -> index >= 0)
-                                              .toList();
+                    .flatMap(bibEntry -> findEntry(bibEntry).stream())
+                    .map(entry -> getItems().indexOf(entry))
+                    .filter(index -> index >= 0)
+                    .toList();
 
             if (!indices.isEmpty()) {
                 // For multiple selections, clear once then select all
@@ -338,14 +362,18 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
     }
 
     /// If the entries are equal according to the comparator, compare them by their index in the database.
-    /// The comparison should ideally be based on the database index, but retrieving the index takes log(n), see [org.jabref.model.database.BibDatabase#indexOf].
+    /// The comparison should ideally be based on the database index, but retrieving the index takes log(n), see
+    /// [org.jabref.model.database.BibDatabase#indexOf].
     /// Using the entry ID is also valid since IDs are monotonically increasing.
-    private static Comparator<BibEntryTableViewModel> thenComparingByInsertionOrder(Comparator<BibEntryTableViewModel> comparator) {
+    private static Comparator<BibEntryTableViewModel> thenComparingByInsertionOrder(
+            Comparator<BibEntryTableViewModel> comparator) {
         return comparator.thenComparing(entry -> entry.getEntry().getId());
     }
 
-    /// Search matches are sorted to the top (or are the only rows left), so a table scrolled down before searching shows none of them.
-    /// The table stays where it is as long as at least one match is in view, and otherwise moves the minimal distance, to avoid jumping around while a query is typed.
+    /// Search matches are sorted to the top (or are the only rows left), so a table scrolled down before searching
+    /// shows none of them.
+    /// The table stays where it is as long as at least one match is in view, and otherwise moves the minimal distance,
+    /// to avoid jumping around while a query is typed.
     private void showSearchMatchesIfNoneVisible() {
         if (!(getSkin() instanceof MainTableSkin skin)) {
             return;
@@ -354,7 +382,8 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         Optional.ofNullable(flow.getFirstVisibleCell())
                 .map(IndexedCell::getIndex)
                 // A cell not (yet) bound to a row reports -1
-                .filter(firstVisible -> firstVisible >= 0 && firstVisible < getItems().size())
+                .filter(firstVisible ->
+                        firstVisible >= 0 && firstVisible < getItems().size())
                 .filter(firstVisible -> !getItems().get(firstVisible).isMatchedBySearch())
                 .ifPresent(firstVisible -> scrollToLastMatchAbove(flow, firstVisible));
     }
@@ -373,8 +402,8 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         }
         // The last visible cell may be cut off, therefore it is not counted
         int fullyVisibleRows = Optional.ofNullable(flow.getLastVisibleCell())
-                                       .map(cell -> Math.max(1, cell.getIndex() - firstVisible))
-                                       .orElse(1);
+                .map(cell -> Math.max(1, cell.getIndex() - firstVisible))
+                .orElse(1);
         flow.scrollToTop(Math.max(0, lastMatch - fullyVisibleRows + 1));
     }
 
@@ -404,7 +433,8 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         MatchCategory currentMatchCategory = selectedEntry.matchCategory().get();
         for (int i = getSelectionModel().getSelectedIndex(); i >= 0; i--) {
             if (getItems().get(i).matchCategory().get() != currentMatchCategory) {
-                MatchCategory targetMatchCategory = getItems().get(i).matchCategory().get();
+                MatchCategory targetMatchCategory =
+                        getItems().get(i).matchCategory().get();
                 // found the previous category, scroll to the first entry of that category
                 while ((i >= 0) && getItems().get(i).matchCategory().get() == targetMatchCategory) {
                     i--;
@@ -423,9 +453,12 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         EditAction cutAction = new EditAction(StandardActions.CUT, () -> libraryTab, stateManager);
         EditAction deleteAction = new EditAction(StandardActions.DELETE_ENTRY, () -> libraryTab, stateManager);
         OpenUrlAction openUrlAction = new OpenUrlAction(dialogService, stateManager, preferences);
-        OpenSelectedEntriesFilesAction openSelectedEntriesFilesActionFileAction = new OpenSelectedEntriesFilesAction(dialogService, stateManager, preferences, taskExecutor);
-        MergeWithFetchedEntryAction mergeWithFetchedEntryAction = new MergeWithFetchedEntryAction(dialogService, stateManager, taskExecutor, preferences);
-        LookupIdentifierAction<DOI> lookupIdentifierAction = new LookupIdentifierAction<>(new CrossRef(preferences.getImporterPreferences()), stateManager, dialogService, taskExecutor);
+        OpenSelectedEntriesFilesAction openSelectedEntriesFilesActionFileAction =
+                new OpenSelectedEntriesFilesAction(dialogService, stateManager, preferences, taskExecutor);
+        MergeWithFetchedEntryAction mergeWithFetchedEntryAction =
+                new MergeWithFetchedEntryAction(dialogService, stateManager, taskExecutor, preferences);
+        LookupIdentifierAction<DOI> lookupIdentifierAction = new LookupIdentifierAction<>(
+                new CrossRef(preferences.getImporterPreferences()), stateManager, dialogService, taskExecutor);
 
         KeyBindingDispatcher keyBindingDispatcher = new KeyBindingDispatcher(keyBindings)
                 .on(KeyBinding.SELECT_FIRST_ENTRY, this::clearAndSelectFirst)
@@ -443,9 +476,7 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
 
         this.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.ENTER) {
-                getSelectedEntries().stream()
-                                    .findFirst()
-                                    .ifPresent(libraryTab::showAndEdit);
+                getSelectedEntries().stream().findFirst().ifPresent(libraryTab::showAndEdit);
                 event.consume();
                 return;
             }
@@ -481,24 +512,32 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         event.consume();
     }
 
-    private void handleOnDragEntered(TableRow<BibEntryTableViewModel> row, BibEntryTableViewModel entry, MouseDragEvent event) {
-        // Support the following gesture to select entries: click on one row -> hold mouse button -> move over other rows
-        // We need to select all items between the starting row and the row where the user currently hovers the mouse over
-        // It is not enough to just select the currently hovered row since then sometimes rows are not marked selected if the user moves to fast
+    private void handleOnDragEntered(
+            TableRow<BibEntryTableViewModel> row, BibEntryTableViewModel entry, MouseDragEvent event) {
+        // Support the following gesture to select entries: click on one row -> hold mouse button -> move over other
+        // rows
+        // We need to select all items between the starting row and the row where the user currently hovers the mouse
+        // over
+        // It is not enough to just select the currently hovered row since then sometimes rows are not marked selected
+        // if the user moves to fast
         @SuppressWarnings("unchecked")
         TableRow<BibEntryTableViewModel> sourceRow = (TableRow<BibEntryTableViewModel>) event.getGestureSource();
         getSelectionModel().selectRange(sourceRow.getIndex(), row.getIndex());
     }
 
-    private void handleOnDragExited(TableRow<BibEntryTableViewModel> row, BibEntryTableViewModel entry, DragEvent dragEvent) {
+    private void handleOnDragExited(
+            TableRow<BibEntryTableViewModel> row, BibEntryTableViewModel entry, DragEvent dragEvent) {
         ControlHelper.removeDroppingPseudoClasses(row);
     }
 
-    private void handleOnDragDetected(TableRow<BibEntryTableViewModel> row, BibEntryTableViewModel entry, MouseEvent event) {
+    private void handleOnDragDetected(
+            TableRow<BibEntryTableViewModel> row, BibEntryTableViewModel entry, MouseEvent event) {
         // Start drag'n'drop
         row.startFullDrag();
 
-        List<BibEntry> entries = getSelectionModel().getSelectedItems().stream().map(BibEntryTableViewModel::getEntry).collect(Collectors.toList());
+        List<BibEntry> entries = getSelectionModel().getSelectedItems().stream()
+                .map(BibEntryTableViewModel::getEntry)
+                .collect(Collectors.toList());
 
         ClipboardContent content;
         try {
@@ -521,14 +560,15 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         event.consume();
     }
 
-    private void handleOnDragDropped(TableRow<BibEntryTableViewModel> row, BibEntryTableViewModel target, DragEvent event) {
+    private void handleOnDragDropped(
+            TableRow<BibEntryTableViewModel> row, BibEntryTableViewModel target, DragEvent event) {
         boolean success = false;
 
         if (event.getDragboard().hasFiles()) {
             List<Path> files = event.getDragboard().getFiles().stream()
-                                    .map(File::toPath)
-                                    .map(FileUtil::resolveIfShortcut)
-                                    .collect(Collectors.toList());
+                    .map(File::toPath)
+                    .map(FileUtil::resolveIfShortcut)
+                    .collect(Collectors.toList());
 
             // Depending on the pressed modifier, move/copy/link files to drop target
             // Modifiers do not work on macOS: https://bugs.openjdk.org/browse/JDK-8264172
@@ -537,13 +577,11 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
             switch (ControlHelper.getDroppingMouseLocation(row, event)) {
                 // Different actions depending on where the user releases the drop in the target row
                 // - Bottom + top -> import entries
-                case TOP,
-                     BOTTOM ->
-                        importHandler.importDroppedFiles(files, transferMode);
+                case TOP, BOTTOM -> importHandler.importDroppedFiles(files, transferMode);
                 // - Center -> modify entry: link files to entry
                 case CENTER -> {
-                    Map<Boolean, List<Path>> partitionedFiles = files.stream()
-                                                                     .collect(Collectors.partitioningBy(importHandler::canImportAsBibEntry));
+                    Map<Boolean, List<Path>> partitionedFiles =
+                            files.stream().collect(Collectors.partitioningBy(importHandler::canImportAsBibEntry));
                     List<Path> importableFiles = partitionedFiles.get(true);
                     List<Path> otherFiles = partitionedFiles.get(false);
 
@@ -570,9 +608,9 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
 
         if (event.getDragboard().hasFiles()) {
             List<Path> files = event.getDragboard().getFiles().stream()
-                                    .map(File::toPath)
-                                    .map(FileUtil::resolveIfShortcut)
-                                    .toList();
+                    .map(File::toPath)
+                    .map(FileUtil::resolveIfShortcut)
+                    .toList();
             importHandler.importDroppedFiles(files, event.getTransferMode());
             success = true;
         }
@@ -596,9 +634,7 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
     }
 
     public List<BibEntry> getSelectedEntries() {
-        return getSelectionModel()
-                .getSelectedItems()
-                .stream()
+        return getSelectionModel().getSelectedItems().stream()
                 .map(BibEntryTableViewModel::getEntry)
                 .collect(Collectors.toList());
     }
@@ -649,9 +685,7 @@ public class MainTable extends TableView<BibEntryTableViewModel> {
         List<Path> fileDirectories = database.getFileDirectories(filePreferences);
 
         if (fileDirectories.isEmpty()) {
-            dialogService.notify(
-                    Localization.lang("File directory is not set or does not exist.")
-            );
+            dialogService.notify(Localization.lang("File directory is not set or does not exist."));
             LibraryPropertiesAction libraryPropertiesAction = new LibraryPropertiesAction(stateManager);
             libraryPropertiesAction.execute();
             return;

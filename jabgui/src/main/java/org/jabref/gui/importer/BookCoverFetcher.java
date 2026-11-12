@@ -11,7 +11,6 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.gui.externalfiletype.CustomExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
@@ -26,7 +25,6 @@ import org.jabref.logic.util.Directories;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.identifier.ISBN;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,14 +33,16 @@ public class BookCoverFetcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BookCoverFetcher.class);
 
-    private static final Pattern URL_JSON_PATTERN = Pattern.compile("^\\s*\\{\\s*\"url\"\\s*:\\s*\"([^\"]*)\"\\s*\\}\\s*$");
+    private static final Pattern URL_JSON_PATTERN =
+            Pattern.compile("^\\s*\\{\\s*\"url\"\\s*:\\s*\"([^\"]*)\"\\s*\\}\\s*$");
 
     private static final String URL_FETCHER_URL = "https://bookcover.longitood.com/bookcover/";
     private static final String IMAGE_FALLBACK_URL = "https://covers.openlibrary.org/b/isbn/";
     private static final String IMAGE_FALLBACK_SUFFIX = "-L.jpg?default=false";
     private static final Integer IMAGE_DOWNLOAD_COOLDOWN_HOURS = 24;
 
-    private static final CustomExternalFileType NOT_AVAILABLE_FILE_TYPE = new CustomExternalFileType("", "not-available", "", "", "", IconTheme.JabRefIcons.FILE);
+    private static final CustomExternalFileType NOT_AVAILABLE_FILE_TYPE =
+            new CustomExternalFileType("", "not-available", "", "", "", IconTheme.JabRefIcons.FILE);
 
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
 
@@ -51,7 +51,8 @@ public class BookCoverFetcher {
     }
 
     public Optional<Path> getDownloadedCoverForEntry(BibEntry entry) {
-        return entry.getISBN().flatMap(isbn -> findExistingImage("isbn-" + isbn.asString(), Directories.getCoverDirectory()));
+        return entry.getISBN()
+                .flatMap(isbn -> findExistingImage("isbn-" + isbn.asString(), Directories.getCoverDirectory()));
     }
 
     public void downloadCoversForEntry(BibEntry entry) {
@@ -62,7 +63,8 @@ public class BookCoverFetcher {
         final String name = "isbn-" + isbn.asString();
         if (findExistingImage(name, directory).isEmpty()) {
             Optional<Duration> timeSincePreviousAttempt = timeSincePreviousAttempt(name, directory);
-            if (timeSincePreviousAttempt.isPresent() && timeSincePreviousAttempt.get().toHours() < IMAGE_DOWNLOAD_COOLDOWN_HOURS) {
+            if (timeSincePreviousAttempt.isPresent()
+                    && timeSincePreviousAttempt.get().toHours() < IMAGE_DOWNLOAD_COOLDOWN_HOURS) {
                 LOGGER.info("Skipped download attempt for {}, attempted less than 24 hours ago", name);
                 return;
             }
@@ -108,12 +110,14 @@ public class BookCoverFetcher {
             return;
         }
 
-        ExternalFileType inferredFileType = download
-                .getMimeType().flatMap(mime -> ExternalFileTypes.getExternalFileTypeByMimeType(mime, externalApplicationsPreferences))
+        ExternalFileType inferredFileType = download.getMimeType()
+                .flatMap(mime -> ExternalFileTypes.getExternalFileTypeByMimeType(mime, externalApplicationsPreferences))
                 .filter(fileType -> fileType.getMimeType().startsWith("image/"))
-                .or(() -> FileUtil.getFileNameFromUrl(url).flatMap(FileUtil::getFileExtension)
-                                  .flatMap(ext -> ExternalFileTypes.getExternalFileTypeByExt(ext, externalApplicationsPreferences))
-                                  .filter(fileType -> fileType.getMimeType().startsWith("image/")))
+                .or(() -> FileUtil.getFileNameFromUrl(url)
+                        .flatMap(FileUtil::getFileExtension)
+                        .flatMap(
+                                ext -> ExternalFileTypes.getExternalFileTypeByExt(ext, externalApplicationsPreferences))
+                        .filter(fileType -> fileType.getMimeType().startsWith("image/")))
                 .orElse(StandardExternalFileType.JPG);
 
         Optional<Path> destinationOptional = resolveNameWithType(directory, name, inferredFileType);
@@ -172,9 +176,10 @@ public class BookCoverFetcher {
 
     private Optional<Path> findExistingImage(final String name, final Path directory) {
         return externalApplicationsPreferences.getExternalFileTypes().stream()
-                                              .filter(fileType -> fileType.getMimeType().startsWith("image/"))
-                                              .flatMap(fileType -> resolveNameWithType(directory, name, fileType).stream())
-                                              .filter(Files::exists).findFirst();
+                .filter(fileType -> fileType.getMimeType().startsWith("image/"))
+                .flatMap(fileType -> resolveNameWithType(directory, name, fileType).stream())
+                .filter(Files::exists)
+                .findFirst();
     }
 
     private static Optional<Path> resolveNameWithType(Path directory, String name, ExternalFileType fileType) {

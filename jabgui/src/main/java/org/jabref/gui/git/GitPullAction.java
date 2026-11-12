@@ -1,11 +1,14 @@
 package org.jabref.gui.git;
 
+import static org.jabref.logic.git.merge.execution.GitMergeApplier.applyAutoPlan;
+import static org.jabref.logic.git.merge.execution.GitMergeApplier.applyResolved;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
-
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionHelper;
@@ -25,13 +28,8 @@ import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.jabref.logic.git.merge.execution.GitMergeApplier.applyAutoPlan;
-import static org.jabref.logic.git.merge.execution.GitMergeApplier.applyResolved;
 
 public class GitPullAction extends SimpleCommand {
 
@@ -43,11 +41,12 @@ public class GitPullAction extends SimpleCommand {
     private final TaskExecutor taskExecutor;
     private final GitHandlerRegistry gitHandlerRegistry;
 
-    public GitPullAction(DialogService dialogService,
-                         StateManager stateManager,
-                         GuiPreferences guiPreferences,
-                         TaskExecutor taskExecutor,
-                         GitHandlerRegistry gitHandlerRegistry) {
+    public GitPullAction(
+            DialogService dialogService,
+            StateManager stateManager,
+            GuiPreferences guiPreferences,
+            TaskExecutor taskExecutor,
+            GitHandlerRegistry gitHandlerRegistry) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.guiPreferences = guiPreferences;
@@ -62,9 +61,7 @@ public class GitPullAction extends SimpleCommand {
         Optional<BibDatabaseContext> activeDatabaseOpt = stateManager.getActiveDatabase();
         if (activeDatabaseOpt.isEmpty()) {
             dialogService.showErrorDialogAndWait(
-                    Localization.lang("No library open"),
-                    Localization.lang("Please open a library before pulling.")
-            );
+                    Localization.lang("No library open"), Localization.lang("Please open a library before pulling."));
             return;
         }
 
@@ -73,23 +70,21 @@ public class GitPullAction extends SimpleCommand {
         if (bibFilePathOpt.isEmpty()) {
             dialogService.showErrorDialogAndWait(
                     Localization.lang("No library file path"),
-                    Localization.lang("Cannot pull from Git: No file is associated with this library.")
-            );
+                    Localization.lang("Cannot pull from Git: No file is associated with this library."));
             return;
         }
 
         Path bibFilePath = bibFilePathOpt.get();
 
-        GitStatusViewModel gitStatusViewModel = GitStatusViewModel.fromPathAndContext(stateManager, taskExecutor, gitHandlerRegistry, bibFilePath);
+        GitStatusViewModel gitStatusViewModel =
+                GitStatusViewModel.fromPathAndContext(stateManager, taskExecutor, gitHandlerRegistry, bibFilePath);
 
-        BackgroundTask
-                .wrap(() -> prepareMergeResult(activeDatabase, bibFilePath, gitHandlerRegistry))
+        BackgroundTask.wrap(() -> prepareMergeResult(activeDatabase, bibFilePath, gitHandlerRegistry))
                 .onSuccess(pullPlanOpt -> {
                     if (pullPlanOpt.isEmpty()) {
                         dialogService.showInformationDialogAndWait(
                                 Localization.lang("Git Pull"),
-                                Localization.lang("Already up to date or local branch is ahead.")
-                        );
+                                Localization.lang("Already up to date or local branch is ahead."));
                         return;
                     }
 
@@ -106,7 +101,8 @@ public class GitPullAction extends SimpleCommand {
                     int manualResolvedCount;
                     if (!conflicts.isEmpty()) {
                         // resolve via GUI (strategy jumps to FX thread internally; safe to call from background)
-                        GitConflictResolverStrategy resolver = new GuiGitConflictResolverStrategy(new GitConflictResolverDialog(dialogService, guiPreferences, stateManager));
+                        GitConflictResolverStrategy resolver = new GuiGitConflictResolverStrategy(
+                                new GitConflictResolverDialog(dialogService, guiPreferences, stateManager));
                         List<BibEntry> resolved = resolver.resolveConflicts(conflicts);
                         if (resolved.isEmpty()) {
                             dialogService.notify(Localization.lang("Pull canceled."));
@@ -119,37 +115,32 @@ public class GitPullAction extends SimpleCommand {
                     }
 
                     BackgroundTask.wrap(() -> saveAndFinalize(bibFilePath, activeDatabase, pullPlan))
-                                  .onSuccess(finalizeResult -> {
-                                      gitStatusViewModel.refresh(bibFilePath);
-                                      if (finalizeResult.isFastForward()) {
-                                          dialogService.showInformationDialogAndWait(
-                                                  Localization.lang("Git Pull"),
-                                                  Localization.lang("Fast-forwarded to remote.")
-                                          );
-                                      } else {
-                                          StringJoiner joiner = new StringJoiner(" ");
-                                          joiner.add(Localization.lang(
-                                                  "Auto-applied changes: %0 new, %1 modified, %2 deleted.",
-                                                  String.valueOf(autoNewCount),
-                                                  String.valueOf(autoModifiedCount),
-                                                  String.valueOf(autoDeletedCount)
-                                          ));
-                                          if (manualResolvedCount > 0) {
-                                              joiner.add(Localization.lang(
-                                                      "%0 conflicts resolved.",
-                                                      String.valueOf(manualResolvedCount)
-                                              ));
-                                          }
-                                          String stats = joiner.toString();
+                            .onSuccess(finalizeResult -> {
+                                gitStatusViewModel.refresh(bibFilePath);
+                                if (finalizeResult.isFastForward()) {
+                                    dialogService.showInformationDialogAndWait(
+                                            Localization.lang("Git Pull"),
+                                            Localization.lang("Fast-forwarded to remote."));
+                                } else {
+                                    StringJoiner joiner = new StringJoiner(" ");
+                                    joiner.add(Localization.lang(
+                                            "Auto-applied changes: %0 new, %1 modified, %2 deleted.",
+                                            String.valueOf(autoNewCount),
+                                            String.valueOf(autoModifiedCount),
+                                            String.valueOf(autoDeletedCount)));
+                                    if (manualResolvedCount > 0) {
+                                        joiner.add(Localization.lang(
+                                                "%0 conflicts resolved.", String.valueOf(manualResolvedCount)));
+                                    }
+                                    String stats = joiner.toString();
 
-                                          dialogService.showInformationDialogAndWait(
-                                                  Localization.lang("Git Pull"),
-                                                  Localization.lang("Merged and updated.") + " " + stats
-                                          );
-                                      }
-                                  })
-                                  .onFailure(this::showPullError)
-                                  .executeWith(taskExecutor);
+                                    dialogService.showInformationDialogAndWait(
+                                            Localization.lang("Git Pull"),
+                                            Localization.lang("Merged and updated.") + " " + stats);
+                                }
+                            })
+                            .onFailure(this::showPullError)
+                            .executeWith(taskExecutor);
                 })
                 .onFailure(this::showPullError)
                 .executeWith(taskExecutor);
@@ -159,39 +150,36 @@ public class GitPullAction extends SimpleCommand {
     ///
     /// @return An Optional containing the PullPlan if a merge is needed,
     ///         or Optional.empty() if the local library is already up-to-date or ahead of the remote branch.
-    private Optional<PullPlan> prepareMergeResult(BibDatabaseContext databaseContext, Path bibPath, GitHandlerRegistry registry) throws IOException, GitAPIException, JabRefException {
+    private Optional<PullPlan> prepareMergeResult(
+            BibDatabaseContext databaseContext, Path bibPath, GitHandlerRegistry registry)
+            throws IOException, GitAPIException, JabRefException {
         GitSyncService gitSyncService = GitSyncService.create(guiPreferences.getImportFormatPreferences(), registry);
         return gitSyncService.prepareMerge(databaseContext, bibPath);
     }
 
-    private BookkeepingResult saveAndFinalize(Path bibPath, BibDatabaseContext databaseContext, PullPlan pullPlan) throws IOException, GitAPIException, JabRefException {
+    private BookkeepingResult saveAndFinalize(Path bibPath, BibDatabaseContext databaseContext, PullPlan pullPlan)
+            throws IOException, GitAPIException, JabRefException {
         GitFileWriter.write(bibPath, databaseContext, guiPreferences.getImportFormatPreferences());
-        GitSyncService gitSyncService = GitSyncService.create(guiPreferences.getImportFormatPreferences(), gitHandlerRegistry);
+        GitSyncService gitSyncService =
+                GitSyncService.create(guiPreferences.getImportFormatPreferences(), gitHandlerRegistry);
         return gitSyncService.finalizeMerge(bibPath, pullPlan);
     }
 
     private void showPullError(Throwable exception) {
         LOGGER.warn("Git pull failed", exception);
         if (exception instanceof JabRefException e) {
-            dialogService.showErrorDialogAndWait(
-                    Localization.lang("Git Pull Failed"),
-                    e.getLocalizedMessage()
-            );
+            dialogService.showErrorDialogAndWait(Localization.lang("Git Pull Failed"), e.getLocalizedMessage());
         } else if (exception instanceof GitAPIException e) {
             dialogService.showErrorDialogAndWait(
                     Localization.lang("Git Pull Failed"),
-                    Localization.lang("An unexpected Git error occurred: %0", e.getLocalizedMessage())
-            );
+                    Localization.lang("An unexpected Git error occurred: %0", e.getLocalizedMessage()));
         } else if (exception instanceof IOException e) {
             dialogService.showErrorDialogAndWait(
-                    Localization.lang("Git Pull Failed"),
-                    Localization.lang("I/O error: %0", e.getLocalizedMessage())
-            );
+                    Localization.lang("Git Pull Failed"), Localization.lang("I/O error: %0", e.getLocalizedMessage()));
         } else {
             dialogService.showErrorDialogAndWait(
                     Localization.lang("Git Pull Failed"),
-                    Localization.lang("Unexpected error: %0", exception.getLocalizedMessage())
-            );
+                    Localization.lang("Unexpected error: %0", exception.getLocalizedMessage()));
         }
     }
 }

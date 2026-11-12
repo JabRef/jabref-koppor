@@ -5,10 +5,7 @@ import org.jabref.model.ai.summarization.SummarizatorKind;
 
 // [impl->feat~ai.summarization.algorithms~1]
 public interface Summarizator {
-    String summarize(
-            ChatModel chatModel,
-            String text
-    ) throws InterruptedException;
+    String summarize(ChatModel chatModel, String text) throws InterruptedException;
 
     SummarizatorKind getKind();
 }

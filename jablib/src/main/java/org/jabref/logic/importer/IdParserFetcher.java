@@ -8,10 +8,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.identifier.Identifier;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +33,8 @@ public interface IdParserFetcher<T extends Identifier> extends IdFetcher<T>, Par
 
     /// Extracts the identifier from the list of fetched entries.
     ///
-    /// @param inputEntry     the entry for which we are searching the identifier (can be used to find the closest match in the result)
+    /// @param inputEntry     the entry for which we are searching the identifier (can be used to find the closest match
+    /// in the result)
     /// @param fetchedEntries list of entries returned by the web service
     Optional<T> extractIdentifier(BibEntry inputEntry, List<BibEntry> fetchedEntries) throws FetcherException;
 
@@ -51,9 +50,10 @@ public interface IdParserFetcher<T extends Identifier> extends IdFetcher<T>, Par
         try {
             return FetcherRetry.executeWithRateLimitRetry(() -> fetchIdentifier(entry, urlForEntry));
         } catch (FetcherClientException exception) {
-            if (exception.getHttpResponse()
-                         .map(response -> response.statusCode() == HttpURLConnection.HTTP_NOT_FOUND)
-                         .orElse(false)) {
+            if (exception
+                    .getHttpResponse()
+                    .map(response -> response.statusCode() == HttpURLConnection.HTTP_NOT_FOUND)
+                    .orElse(false)) {
                 return Optional.empty();
             }
             throw exception;

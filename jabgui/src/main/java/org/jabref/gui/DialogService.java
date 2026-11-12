@@ -1,5 +1,7 @@
 package org.jabref.gui;
 
+import com.dlsc.gemsfx.infocenter.Notification;
+import com.dlsc.gemsfx.infocenter.NotificationGroup;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -7,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.print.PrinterJob;
@@ -17,41 +18,50 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.util.DirectoryDialogConfiguration;
 import org.jabref.gui.util.FileDialogConfiguration;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.util.NotificationService;
-
-import com.dlsc.gemsfx.infocenter.Notification;
-import com.dlsc.gemsfx.infocenter.NotificationGroup;
 import org.jspecify.annotations.NullMarked;
 
 /// This interface provides methods to create dialogs and show them to the user.
 @NullMarked
 public interface DialogService extends NotificationService {
 
-    /// This will create and display new [javafx.scene.control.ChoiceDialog] of type T with a default choice and a collection of possible choices
+    /// This will create and display new [javafx.scene.control.ChoiceDialog] of type T with a default choice and a
+    /// collection of possible choices
     ///
-    /// @implNote The implementation should accept `null` for `defaultChoice`, but callers should use [#showChoiceDialogAndWait(String, String, String, Collection)].
-    <T> Optional<T> showChoiceDialogAndWait(String title, String content, String okButtonLabel, T defaultChoice, Collection<T> choices);
+    /// @implNote The implementation should accept `null` for `defaultChoice`, but callers should use
+    /// [#showChoiceDialogAndWait(String, String, String, Collection)].
+    <T> Optional<T> showChoiceDialogAndWait(
+            String title, String content, String okButtonLabel, T defaultChoice, Collection<T> choices);
 
-    /// This will create and display new [javafx.scene.control.ChoiceDialog] of type T with a collection of possible choices
-    default <T> Optional<T> showChoiceDialogAndWait(String title, String content, String okButtonLabel, Collection<T> choices) {
+    /// This will create and display new [javafx.scene.control.ChoiceDialog] of type T with a collection of possible
+    /// choices
+    default <T> Optional<T> showChoiceDialogAndWait(
+            String title, String content, String okButtonLabel, Collection<T> choices) {
         return showChoiceDialogAndWait(title, content, okButtonLabel, null, choices);
     }
 
-    <T> Optional<T> showEditableChoiceDialogAndWait(String title, String content, String okButtonLabel, T defaultChoice, Collection<T> choices, StringConverter<T> converter);
+    <T> Optional<T> showEditableChoiceDialogAndWait(
+            String title,
+            String content,
+            String okButtonLabel,
+            T defaultChoice,
+            Collection<T> choices,
+            StringConverter<T> converter);
 
-    default <T> Optional<T> showEditableChoiceDialogAndWait(String title, String content, String okButtonLabel, Collection<T> choices, StringConverter<T> converter) {
+    default <T> Optional<T> showEditableChoiceDialogAndWait(
+            String title, String content, String okButtonLabel, Collection<T> choices, StringConverter<T> converter) {
         return showEditableChoiceDialogAndWait(title, content, okButtonLabel, null, choices, converter);
     }
 
     /// This will create and display new [javafx.scene.control.TextInputDialog] with a text fields to enter data
     Optional<String> showInputDialogAndWait(String title, String content);
 
-    /// This will create and display new [javafx.scene.control.TextInputDialog] with a text field with a default value to enter data
+    /// This will create and display new [javafx.scene.control.TextInputDialog] with a text field with a default value
+    /// to enter data
     Optional<String> showInputDialogWithDefaultAndWait(String title, String content, String defaultValue);
 
     /// This will create and display a new information dialog.
@@ -126,8 +136,8 @@ public interface DialogService extends NotificationService {
     /// Moreover, the dialog contains a opt-out checkbox with the given text to support "Do not ask again"-behaviour.
     ///
     /// @return true if the use clicked "YES" otherwise false
-    boolean showConfirmationDialogWithOptOutAndWait(String title, String content,
-                                                    String optOutMessage, Consumer<Boolean> optOutAction);
+    boolean showConfirmationDialogWithOptOutAndWait(
+            String title, String content, String optOutMessage, Consumer<Boolean> optOutAction);
 
     /// Create and display a new confirmation dialog.
     /// It will include a blue question icon on the left and
@@ -136,11 +146,16 @@ public interface DialogService extends NotificationService {
     /// Moreover, the dialog contains a opt-out checkbox with the given text to support "Do not ask again"-behaviour.
     ///
     /// @return true if the use clicked "YES" otherwise false
-    boolean showConfirmationDialogWithOptOutAndWait(String title, String content,
-                                                    String okButtonLabel, String cancelButtonLabel,
-                                                    String optOutMessage, Consumer<Boolean> optOutAction);
+    boolean showConfirmationDialogWithOptOutAndWait(
+            String title,
+            String content,
+            String okButtonLabel,
+            String cancelButtonLabel,
+            String optOutMessage,
+            Consumer<Boolean> optOutAction);
 
-    /// This will create and display new [org.controlsfx.control.textfield.CustomPasswordField] that doesn't show the text, and two buttons
+    /// This will create and display new [org.controlsfx.control.textfield.CustomPasswordField] that doesn't show the
+    /// text, and two buttons
     /// one cancel and one ok.
     ///
     /// @return the entered password if pressed "OK", null otherwise
@@ -161,8 +176,8 @@ public interface DialogService extends NotificationService {
     /// [ButtonType]s.
     ///
     /// @return Optional with the pressed Button as ButtonType
-    Optional<ButtonType> showCustomButtonDialogAndWait(Alert.AlertType type, String title, String content,
-                                                       ButtonType... buttonTypes);
+    Optional<ButtonType> showCustomButtonDialogAndWait(
+            Alert.AlertType type, String title, String content, ButtonType... buttonTypes);
 
     /// This will create and display a new dialog showing a custom [DialogPane]
     /// using custom [ButtonType]s, and attaches optional [javafx.scene.control.Tooltip]s to the buttons.
@@ -171,11 +186,12 @@ public interface DialogService extends NotificationService {
     ///
     /// @return Optional with the pressed Button as ButtonType
 
-    Optional<ButtonType> showCustomButtonDialogWithTooltipsAndWait(Alert.AlertType type,
-                                                                   String title,
-                                                                   String content,
-                                                                   Map<ButtonType, String> tooltips,
-                                                                   ButtonType... buttonTypes);
+    Optional<ButtonType> showCustomButtonDialogWithTooltipsAndWait(
+            Alert.AlertType type,
+            String title,
+            String content,
+            Map<ButtonType, String> tooltips,
+            ButtonType... buttonTypes);
 
     /// This will create and display a new dialog showing a custom [DialogPane]
     /// and using custom [ButtonType]s.
@@ -213,12 +229,14 @@ public interface DialogService extends NotificationService {
     /// @param title        title of the dialog
     /// @param content      message to show below the list of background tasks
     /// @param stateManager The [StateManager] which contains the background tasks
-    <V> Optional<ButtonType> showBackgroundProgressDialogAndWait(String title, String content, StateManager stateManager);
+    <V> Optional<ButtonType> showBackgroundProgressDialogAndWait(
+            String title, String content, StateManager stateManager);
 
     /// Shows a new file save dialog. The method doesn't return until the
     /// displayed file save dialog is dismissed. The return value specifies the
     /// file chosen by the user or an empty [Optional] if no selection has been made.
-    /// After a file was selected, the given file dialog configuration is updated with the selected extension type (if any).
+    /// After a file was selected, the given file dialog configuration is updated with the selected extension type (if
+    /// any).
     ///
     /// @return the selected file or an empty [Optional] if no file has been selected
     Optional<Path> showFileSaveDialog(FileDialogConfiguration fileDialogConfiguration);
@@ -227,7 +245,8 @@ public interface DialogService extends NotificationService {
     /// displayed open dialog is dismissed. The return value specifies
     /// the file chosen by the user or an empty [Optional] if no selection has been
     /// made.
-    /// After a file was selected, the given file dialog configuration is updated with the selected extension type (if any).
+    /// After a file was selected, the given file dialog configuration is updated with the selected extension type (if
+    /// any).
     ///
     /// @return the selected file or an empty [Optional] if no file has been selected
     Optional<Path> showFileOpenDialog(FileDialogConfiguration fileDialogConfiguration);
@@ -269,7 +288,8 @@ public interface DialogService extends NotificationService {
     /// @return false if the user opts to cancel printing
     boolean showPrintDialog(PrinterJob job);
 
-    /// Shows a new dialog that list all files contained in the given archive and which lets the user select one of these
+    /// Shows a new dialog that list all files contained in the given archive and which lets the user select one of
+    /// these
     /// files. The method doesn't return until the displayed open dialog is dismissed. The return value specifies the
     /// file chosen by the user or an empty [Optional] if no selection has been made.
     ///

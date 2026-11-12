@@ -11,7 +11,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-
+import org.controlsfx.control.SearchableComboBox;
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.StandardActions;
 import org.jabref.gui.help.HelpAction;
@@ -23,8 +23,6 @@ import org.jabref.gui.util.ControlHelper;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.l10n.Localization;
-
-import org.controlsfx.control.SearchableComboBox;
 
 public class ExternalTab extends AbstractPreferenceTabView<ExternalTabViewModel> {
 
@@ -48,22 +46,31 @@ public class ExternalTab extends AbstractPreferenceTabView<ExternalTabViewModel>
     }
 
     private void buildView() {
-        setContent(form()
-
-                .section(Localization.lang("Sending of emails"), emails -> emails
-                        .stringField(Localization.lang("Subject for sending an email with references"), viewModel.eMailReferenceSubjectProperty())
-                        .stringField(Localization.lang("Email address for sending to Kindle"), viewModel.kindleEmailProperty())
-                        .checkbox(Localization.lang("Automatically open folders of attached files"), viewModel.autoOpenAttachedFoldersProperty()))
-
-                .section(Localization.lang("Push applications"), push -> push
-                        .custom(buildPushGrid(), grid -> grid
-                                .validate(viewModel.citeCommandValidationStatus(), citeCommand)))
-
-                .section(Localization.lang("Custom applications"), applications -> applications
-                        .custom(buildCustomApplicationsGrid(), grid -> grid
-                                .validate(viewModel.terminalCommandValidationStatus(), customTerminalCommand)
-                                .validate(viewModel.fileBrowserCommandValidationStatus(), customFileBrowserCommand)))
-
+        setContent(form().section(
+                        Localization.lang("Sending of emails"),
+                        emails -> emails.stringField(
+                                        Localization.lang("Subject for sending an email with references"),
+                                        viewModel.eMailReferenceSubjectProperty())
+                                .stringField(
+                                        Localization.lang("Email address for sending to Kindle"),
+                                        viewModel.kindleEmailProperty())
+                                .checkbox(
+                                        Localization.lang("Automatically open folders of attached files"),
+                                        viewModel.autoOpenAttachedFoldersProperty()))
+                .section(
+                        Localization.lang("Push applications"),
+                        push -> push.custom(
+                                buildPushGrid(),
+                                grid -> grid.validate(viewModel.citeCommandValidationStatus(), citeCommand)))
+                .section(
+                        Localization.lang("Custom applications"),
+                        applications -> applications.custom(
+                                buildCustomApplicationsGrid(),
+                                grid -> grid.validate(
+                                                viewModel.terminalCommandValidationStatus(), customTerminalCommand)
+                                        .validate(
+                                                viewModel.fileBrowserCommandValidationStatus(),
+                                                customFileBrowserCommand)))
                 .build());
     }
 
@@ -77,7 +84,10 @@ public class ExternalTab extends AbstractPreferenceTabView<ExternalTabViewModel>
         pushToApplicationCombo.itemsProperty().bind(viewModel.pushToApplicationsListProperty());
         pushToApplicationCombo.valueProperty().bindBidirectional(viewModel.selectedPushToApplication());
 
-        Button applicationSettings = ControlHelper.narrowIconButton(IconTheme.JabRefIcons.PREFERENCES, Localization.lang("Application settings"), viewModel::pushToApplicationSettings);
+        Button applicationSettings = ControlHelper.narrowIconButton(
+                IconTheme.JabRefIcons.PREFERENCES,
+                Localization.lang("Application settings"),
+                viewModel::pushToApplicationSettings);
 
         citeCommand = new TextField();
         citeCommand.setPrefWidth(300.0);
@@ -86,11 +96,18 @@ public class ExternalTab extends AbstractPreferenceTabView<ExternalTabViewModel>
         Button citeHelp = new Button();
         citeHelp.getStyleClass().addAll(StyleClasses.NARROW_ICON_BUTTON);
         citeHelp.setPrefSize(20.0, 20.0);
-        new ActionFactory().configureIconButton(
-                StandardActions.HELP_PUSH_TO_APPLICATION,
-                new HelpAction(HelpFile.PUSH_TO_APPLICATION, dialogService, preferences.getExternalApplicationsPreferences()),
-                citeHelp);
-        Button resetCite = ControlHelper.narrowIconButton(IconTheme.JabRefIcons.REFRESH, Localization.lang("Reset to default"), viewModel::resetCiteCommandToDefault);
+        new ActionFactory()
+                .configureIconButton(
+                        StandardActions.HELP_PUSH_TO_APPLICATION,
+                        new HelpAction(
+                                HelpFile.PUSH_TO_APPLICATION,
+                                dialogService,
+                                preferences.getExternalApplicationsPreferences()),
+                        citeHelp);
+        Button resetCite = ControlHelper.narrowIconButton(
+                IconTheme.JabRefIcons.REFRESH,
+                Localization.lang("Reset to default"),
+                viewModel::resetCiteCommandToDefault);
 
         GridPane grid = new GridPane();
         grid.setHgap(4.0);
@@ -107,16 +124,20 @@ public class ExternalTab extends AbstractPreferenceTabView<ExternalTabViewModel>
     }
 
     private Node buildCustomApplicationsGrid() {
-        String dirPlaceholderHint = Localization.lang("Enter the application on the first line and one argument per following line. Use %DIR% for the library directory.");
+        String dirPlaceholderHint = Localization.lang(
+                "Enter the application on the first line and one argument per following line. Use %DIR% for the"
+                        + " library directory.");
 
         CheckBox useCustomTerminal = new CheckBox(Localization.lang("Use custom terminal emulator"));
         useCustomTerminal.selectedProperty().bindBidirectional(viewModel.useCustomTerminalProperty());
-        customTerminalCommand = commandField(dirPlaceholderHint, viewModel.customTerminalCommandProperty(), useCustomTerminal);
+        customTerminalCommand =
+                commandField(dirPlaceholderHint, viewModel.customTerminalCommandProperty(), useCustomTerminal);
         Button terminalBrowse = browseButton(useCustomTerminal, viewModel::customTerminalBrowse);
 
         CheckBox useCustomFileBrowser = new CheckBox(Localization.lang("Use custom file browser"));
         useCustomFileBrowser.selectedProperty().bindBidirectional(viewModel.useCustomFileBrowserProperty());
-        customFileBrowserCommand = commandField(dirPlaceholderHint, viewModel.customFileBrowserCommandProperty(), useCustomFileBrowser);
+        customFileBrowserCommand =
+                commandField(dirPlaceholderHint, viewModel.customFileBrowserCommandProperty(), useCustomFileBrowser);
         Button fileBrowserBrowse = browseButton(useCustomFileBrowser, viewModel::customFileBrowserBrowse);
 
         GridPane grid = new GridPane();

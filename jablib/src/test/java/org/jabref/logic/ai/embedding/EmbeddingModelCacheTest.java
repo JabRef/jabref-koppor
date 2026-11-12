@@ -1,12 +1,5 @@
 package org.jabref.logic.ai.embedding;
 
-import org.jabref.logic.ai.preferences.AiPreferences;
-import org.jabref.logic.util.NotificationService;
-import org.jabref.logic.util.TaskExecutor;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
@@ -14,6 +7,12 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import org.jabref.logic.ai.preferences.AiPreferences;
+import org.jabref.logic.util.NotificationService;
+import org.jabref.logic.util.TaskExecutor;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class EmbeddingModelCacheTest {
 
@@ -31,7 +30,8 @@ class EmbeddingModelCacheTest {
         taskExecutor = mock(TaskExecutor.class);
         when(taskExecutor.execute(any())).thenReturn(mock(java.util.concurrent.Future.class));
 
-        cache = new EmbeddingModelCache(aiPreferences, notificationService, taskExecutor, mock(EmbeddingModelMetadataService.class));
+        cache = new EmbeddingModelCache(
+                aiPreferences, notificationService, taskExecutor, mock(EmbeddingModelMetadataService.class));
     }
 
     @Test

@@ -1,7 +1,5 @@
 package org.jabref.model.openoffice.uno;
 
-import java.util.Optional;
-
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.document.XDocumentProperties;
 import com.sun.star.document.XDocumentPropertiesSupplier;
@@ -10,6 +8,7 @@ import com.sun.star.frame.XFrame;
 import com.sun.star.lang.DisposedException;
 import com.sun.star.lang.WrappedTargetException;
 import com.sun.star.text.XTextDocument;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +16,7 @@ public class UnoTextDocument {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UnoTextDocument.class);
 
-    private UnoTextDocument() {
-    }
+    private UnoTextDocument() {}
 
     /// @return True if we cannot reach the current document.
     public static boolean isDocumentConnectionMissing(XTextDocument doc) {
@@ -75,8 +73,7 @@ public class UnoTextDocument {
 
     static Optional<XDocumentProperties> getDocumentProperties(XTextDocument doc) {
         return Optional.ofNullable(doc)
-                       .flatMap(e -> UnoCast.cast(XDocumentPropertiesSupplier.class, e))
-                       .map(XDocumentPropertiesSupplier::getDocumentProperties);
+                .flatMap(e -> UnoCast.cast(XDocumentPropertiesSupplier.class, e))
+                .map(XDocumentPropertiesSupplier::getDocumentProperties);
     }
 }
-

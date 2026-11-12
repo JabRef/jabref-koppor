@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 
@@ -15,9 +14,8 @@ public final class EntryTriples {
     public final Map<String, BibEntry> localMap;
     public final Map<String, BibEntry> remoteMap;
 
-    private EntryTriples(Map<String, BibEntry> baseMap,
-                         Map<String, BibEntry> localMap,
-                         Map<String, BibEntry> remoteMap) {
+    private EntryTriples(
+            Map<String, BibEntry> baseMap, Map<String, BibEntry> localMap, Map<String, BibEntry> remoteMap) {
         this.baseMap = baseMap;
         this.localMap = localMap;
         this.remoteMap = remoteMap;
@@ -25,21 +23,17 @@ public final class EntryTriples {
 
     public static EntryTriples from(BibDatabaseContext base, BibDatabaseContext local, BibDatabaseContext remote) {
         return new EntryTriples(
-                getCitationKeyToEntryMap(base),
-                getCitationKeyToEntryMap(local),
-                getCitationKeyToEntryMap(remote)
-        );
+                getCitationKeyToEntryMap(base), getCitationKeyToEntryMap(local), getCitationKeyToEntryMap(remote));
     }
 
     public static Map<String, BibEntry> getCitationKeyToEntryMap(BibDatabaseContext context) {
         return context.getDatabase().getEntries().stream()
-                      .filter(entry -> entry.getCitationKey().isPresent())
-                      .collect(Collectors.toMap(
-                              entry -> entry.getCitationKey().get(),
-                              Function.identity(),
-                              (_, replacement) -> replacement,
-                              LinkedHashMap::new
-                      ));
+                .filter(entry -> entry.getCitationKey().isPresent())
+                .collect(Collectors.toMap(
+                        entry -> entry.getCitationKey().get(),
+                        Function.identity(),
+                        (_, replacement) -> replacement,
+                        LinkedHashMap::new));
     }
 
     // TODO(merge/analyze): Entry key source & the role of BibDatabaseDiff

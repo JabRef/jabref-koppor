@@ -3,12 +3,10 @@ package org.jabref.logic.layout.format;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.layout.LayoutFormatter;
 import org.jabref.logic.util.strings.UnicodeLigaturesMap;
-
 import org.jspecify.annotations.NonNull;
 
 public class ReplaceUnicodeLigaturesFormatter extends Formatter implements LayoutFormatter {

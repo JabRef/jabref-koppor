@@ -1,5 +1,10 @@
 package org.jabref.model.database;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,23 +14,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
-
 import javafx.collections.ListChangeListener;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibtexString;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.event.EventListenerTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BibDatabaseTest {
 
@@ -130,9 +127,8 @@ class BibDatabaseTest {
 
     @Test
     void removeManyEntriesReplacesEntriesList() {
-        List<BibEntry> entriesToDelete = IntStream.range(0, 11)
-                                                  .mapToObj(_ -> new BibEntry())
-                                                  .toList();
+        List<BibEntry> entriesToDelete =
+                IntStream.range(0, 11).mapToObj(_ -> new BibEntry()).toList();
         BibEntry remainingEntry = new BibEntry();
         database.insertEntries(entriesToDelete);
         database.insertEntry(remainingEntry);
@@ -450,8 +446,7 @@ class BibDatabaseTest {
 
     @Test
     void getUsedStrings() {
-        BibEntry entry = new BibEntry()
-                .withField(StandardField.AUTHOR, "#AAA#");
+        BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "#AAA#");
         BibtexString tripleA = new BibtexString("AAA", "Some other #BBB#");
         BibtexString tripleB = new BibtexString("BBB", "Some more text");
         BibtexString tripleC = new BibtexString("CCC", "Even more text");
@@ -470,8 +465,7 @@ class BibDatabaseTest {
 
     @Test
     void getUsedStringsSingleString() {
-        BibEntry entry = new BibEntry()
-                .withField(StandardField.AUTHOR, "#AAA#");
+        BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "#AAA#");
         BibtexString tripleA = new BibtexString("AAA", "Some other text");
         BibtexString tripleB = new BibtexString("BBB", "Some more text");
         List<BibtexString> strings = new ArrayList<>(1);
@@ -487,8 +481,7 @@ class BibDatabaseTest {
 
     @Test
     void getUsedStringsNoString() {
-        BibEntry entry = new BibEntry()
-                .withField(StandardField.AUTHOR, "Oscar Gustafsson");
+        BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "Oscar Gustafsson");
         BibtexString string = new BibtexString("AAA", "Some other text");
         database.addString(string);
         database.insertEntry(entry);
@@ -602,8 +595,7 @@ class BibDatabaseTest {
     @Test
     void crossrefChangeUpdatesCitationIndex() {
         BibDatabase database = new BibDatabase();
-        BibEntry parent = new BibEntry(StandardEntryType.Proceedings)
-                .withCitationKey("TestParent");
+        BibEntry parent = new BibEntry(StandardEntryType.Proceedings).withCitationKey("TestParent");
         BibEntry child = new BibEntry(StandardEntryType.InProceedings);
 
         database.insertEntry(parent);
@@ -614,7 +606,9 @@ class BibDatabaseTest {
 
         // verify the child was actually added to the citationIndex
         Set<BibEntry> indexedChildren = database.getEntriesForCitationKey("TestParent");
-        assertTrue(indexedChildren.contains(child), "The citationIndex should contain the child entry under the parent's key");
+        assertTrue(
+                indexedChildren.contains(child),
+                "The citationIndex should contain the child entry under the parent's key");
     }
 
     @Test
@@ -631,15 +625,20 @@ class BibDatabaseTest {
         child.setField(StandardField.CROSSREF, "ParentA");
 
         // ensure it is in the first parent set
-        assertTrue(database.getEntriesForCitationKey("ParentA").contains(child), "Child should be indexed under ParentA");
+        assertTrue(
+                database.getEntriesForCitationKey("ParentA").contains(child), "Child should be indexed under ParentA");
 
         // first rename of parent
         parent.setCitationKey("ParentB");
-        assertTrue(database.getEntriesForCitationKey("ParentB").contains(child), "Child should have moved to the ParentB index set");
+        assertTrue(
+                database.getEntriesForCitationKey("ParentB").contains(child),
+                "Child should have moved to the ParentB index set");
 
         // second rename of parent
         parent.setCitationKey("ParentC");
-        assertTrue(database.getEntriesForCitationKey("ParentC").contains(child), "Child should have moved to the ParentC index set");
+        assertTrue(
+                database.getEntriesForCitationKey("ParentC").contains(child),
+                "Child should have moved to the ParentC index set");
     }
 
     @Test
@@ -652,8 +651,10 @@ class BibDatabaseTest {
         child.setField(StandardField.RELATED, " ParentA ,   ParentB ");
 
         // verify all keys have child
-        assertTrue(database.getEntriesForCitationKey("ParentA").contains(child), "Child should be indexed under ParentA");
-        assertTrue(database.getEntriesForCitationKey("ParentB").contains(child), "Child should be indexed under ParentB");
+        assertTrue(
+                database.getEntriesForCitationKey("ParentA").contains(child), "Child should be indexed under ParentA");
+        assertTrue(
+                database.getEntriesForCitationKey("ParentB").contains(child), "Child should be indexed under ParentB");
     }
 
     @Test
@@ -669,8 +670,13 @@ class BibDatabaseTest {
         child.setField(StandardField.RELATED, "ParentC, ParentB");
 
         // verify if the change is done in  the child related multiple entry field
-        assertTrue(database.getEntriesForCitationKey("ParentC").contains(child), "Child should be in the new ParentC set");
-        assertTrue(database.getEntriesForCitationKey("ParentB").contains(child), "Child should still be in the ParentB set");
-        assertFalse(database.getEntriesForCitationKey("ParentA").contains(child), "Child should be removed from the old ParentA set");
+        assertTrue(
+                database.getEntriesForCitationKey("ParentC").contains(child), "Child should be in the new ParentC set");
+        assertTrue(
+                database.getEntriesForCitationKey("ParentB").contains(child),
+                "Child should still be in the ParentB set");
+        assertFalse(
+                database.getEntriesForCitationKey("ParentA").contains(child),
+                "Child should be removed from the old ParentA set");
     }
 }

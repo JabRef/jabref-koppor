@@ -1,20 +1,5 @@
 package org.jabref.logic.citedrive;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import org.jabref.logic.JabRefException;
-import org.jabref.logic.l10n.Localization;
-import org.jabref.logic.net.CiteDrivePreferences;
-import org.jabref.logic.remote.RemotePreferences;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
@@ -37,13 +22,27 @@ import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import org.jabref.logic.JabRefException;
+import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.net.CiteDrivePreferences;
+import org.jabref.logic.remote.RemotePreferences;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /// OAuth 2.0 authorization code flow with PKCE against CiteDrive.
 ///
-/// The browser redirects back to JabRef's HTTP server ([org.jabref.logic.citedrive.OAuthSessionRegistry] receives the code).
+/// The browser redirects back to JabRef's HTTP server ([org.jabref.logic.citedrive.OAuthSessionRegistry] receives the
+/// code).
 @NullMarked
 public class CiteDriveOAuthService {
 
@@ -65,46 +64,71 @@ public class CiteDriveOAuthService {
 
     /// @param authorizationPageOpener shows the CiteDrive login page to the user (in the browser)
     /// @param callbackServerEnabler   makes the HTTP server receiving the browser redirect run; false if it stays off
-    public CiteDriveOAuthService(RemotePreferences remotePreferences,
-                                 CiteDrivePreferences citeDrivePreferences,
-                                 OAuthSessionRegistry sessionRegistry,
-                                 Consumer<URI> authorizationPageOpener,
-                                 BooleanSupplier callbackServerEnabler) {
-        this(remotePreferences, citeDrivePreferences, sessionRegistry, authorizationPageOpener, callbackServerEnabler,
-                citeDrivePreferences::getAuthorizationEndpoint, citeDrivePreferences::getTokenEndpoint, HTTPRequest::send);
+    public CiteDriveOAuthService(
+            RemotePreferences remotePreferences,
+            CiteDrivePreferences citeDrivePreferences,
+            OAuthSessionRegistry sessionRegistry,
+            Consumer<URI> authorizationPageOpener,
+            BooleanSupplier callbackServerEnabler) {
+        this(
+                remotePreferences,
+                citeDrivePreferences,
+                sessionRegistry,
+                authorizationPageOpener,
+                callbackServerEnabler,
+                citeDrivePreferences::getAuthorizationEndpoint,
+                citeDrivePreferences::getTokenEndpoint,
+                HTTPRequest::send);
     }
 
     @VisibleForTesting
-    public CiteDriveOAuthService(RemotePreferences remotePreferences,
-                                 CiteDrivePreferences citeDrivePreferences,
-                                 OAuthSessionRegistry sessionRegistry,
-                                 Consumer<URI> authorizationPageOpener,
-                                 BooleanSupplier callbackServerEnabler,
-                                 URI authEndpoint,
-                                 URI tokenEndpoint) {
-        this(remotePreferences, citeDrivePreferences, sessionRegistry, authorizationPageOpener, callbackServerEnabler,
-                () -> authEndpoint, () -> tokenEndpoint, HTTPRequest::send);
+    public CiteDriveOAuthService(
+            RemotePreferences remotePreferences,
+            CiteDrivePreferences citeDrivePreferences,
+            OAuthSessionRegistry sessionRegistry,
+            Consumer<URI> authorizationPageOpener,
+            BooleanSupplier callbackServerEnabler,
+            URI authEndpoint,
+            URI tokenEndpoint) {
+        this(
+                remotePreferences,
+                citeDrivePreferences,
+                sessionRegistry,
+                authorizationPageOpener,
+                callbackServerEnabler,
+                () -> authEndpoint,
+                () -> tokenEndpoint,
+                HTTPRequest::send);
     }
 
     @VisibleForTesting
-    CiteDriveOAuthService(RemotePreferences remotePreferences,
-                          CiteDrivePreferences citeDrivePreferences,
-                          OAuthSessionRegistry sessionRegistry,
-                          Consumer<URI> authorizationPageOpener,
-                          BooleanSupplier callbackServerEnabler,
-                          TokenRequestSender tokenRequestSender) {
-        this(remotePreferences, citeDrivePreferences, sessionRegistry, authorizationPageOpener, callbackServerEnabler,
-                citeDrivePreferences::getAuthorizationEndpoint, citeDrivePreferences::getTokenEndpoint, tokenRequestSender);
+    CiteDriveOAuthService(
+            RemotePreferences remotePreferences,
+            CiteDrivePreferences citeDrivePreferences,
+            OAuthSessionRegistry sessionRegistry,
+            Consumer<URI> authorizationPageOpener,
+            BooleanSupplier callbackServerEnabler,
+            TokenRequestSender tokenRequestSender) {
+        this(
+                remotePreferences,
+                citeDrivePreferences,
+                sessionRegistry,
+                authorizationPageOpener,
+                callbackServerEnabler,
+                citeDrivePreferences::getAuthorizationEndpoint,
+                citeDrivePreferences::getTokenEndpoint,
+                tokenRequestSender);
     }
 
-    private CiteDriveOAuthService(RemotePreferences remotePreferences,
-                                  CiteDrivePreferences citeDrivePreferences,
-                                  OAuthSessionRegistry sessionRegistry,
-                                  Consumer<URI> authorizationPageOpener,
-                                  BooleanSupplier callbackServerEnabler,
-                                  Supplier<URI> authEndpoint,
-                                  Supplier<URI> tokenEndpoint,
-                                  TokenRequestSender tokenRequestSender) {
+    private CiteDriveOAuthService(
+            RemotePreferences remotePreferences,
+            CiteDrivePreferences citeDrivePreferences,
+            OAuthSessionRegistry sessionRegistry,
+            Consumer<URI> authorizationPageOpener,
+            BooleanSupplier callbackServerEnabler,
+            Supplier<URI> authEndpoint,
+            Supplier<URI> tokenEndpoint,
+            TokenRequestSender tokenRequestSender) {
         this.remotePreferences = remotePreferences;
         this.citeDrivePreferences = citeDrivePreferences;
         this.sessionRegistry = sessionRegistry;
@@ -119,9 +143,11 @@ public class CiteDriveOAuthService {
     ///
     /// [impl->req~citedrive.login~1]
     ///
-    /// Fails if the HTTP server receiving the browser redirect is disabled, or if the user does not finish logging in in time.
+    /// Fails if the HTTP server receiving the browser redirect is disabled, or if the user does not finish logging in
+    /// in time.
     public CompletableFuture<Optional<AccessToken>> authorizeInteractive() {
-        return authorizeInteractive(snapshotConfiguration()).thenApply(session -> session.map(AuthorizedSession::accessToken));
+        return authorizeInteractive(snapshotConfiguration())
+                .thenApply(session -> session.map(AuthorizedSession::accessToken));
     }
 
     private CompletableFuture<Optional<AuthorizedSession>> authorizeInteractive(ServerConfiguration configuration) {
@@ -131,7 +157,8 @@ public class CiteDriveOAuthService {
         if (!remotePreferences.shouldEnableHttpServer() && !callbackServerEnabler.getAsBoolean()) {
             return CompletableFuture.failedFuture(new JabRefException(
                     "HTTP server disabled",
-                    Localization.lang("Logging in to CiteDrive needs the HTTP server. Please enable it in the preferences.")));
+                    Localization.lang(
+                            "Logging in to CiteDrive needs the HTTP server. Please enable it in the preferences.")));
         }
 
         String state = UUID.randomUUID().toString();
@@ -157,11 +184,13 @@ public class CiteDriveOAuthService {
     }
 
     /// Also stores the refresh token
-    private Optional<AuthorizedSession> exchangeCodeForToken(String code, CodeVerifier codeVerifier, ServerConfiguration configuration) {
+    private Optional<AuthorizedSession> exchangeCodeForToken(
+            String code, CodeVerifier codeVerifier, ServerConfiguration configuration) {
         if (configuration.revision() != citeDrivePreferences.getServerRevision()) {
             return Optional.empty();
         }
-        AuthorizationGrant codeGrant = new AuthorizationCodeGrant(new AuthorizationCode(code), configuration.callbackUri(), codeVerifier);
+        AuthorizationGrant codeGrant =
+                new AuthorizationCodeGrant(new AuthorizationCode(code), configuration.callbackUri(), codeVerifier);
         TokenResponse response;
         try {
             response = sendTokenRequest(configuration.tokenEndpoint(), codeGrant);
@@ -171,14 +200,18 @@ public class CiteDriveOAuthService {
         }
         if (!response.indicatesSuccess()) {
             TokenErrorResponse errorResponse = response.toErrorResponse();
-            LOGGER.error("Could not receive token {}", errorResponse.getErrorObject().toJSONObject());
+            LOGGER.error(
+                    "Could not receive token {}", errorResponse.getErrorObject().toJSONObject());
             return Optional.empty();
         }
         AccessTokenResponse successResponse = response.toSuccessResponse();
-        if (!citeDrivePreferences.updateRefreshToken(configuration.revision(), Optional.ofNullable(successResponse.getTokens().getRefreshToken()))) {
+        if (!citeDrivePreferences.updateRefreshToken(
+                configuration.revision(),
+                Optional.ofNullable(successResponse.getTokens().getRefreshToken()))) {
             return Optional.empty();
         }
-        return Optional.of(configuration.authorizedSession(successResponse.getTokens().getAccessToken()));
+        return Optional.of(
+                configuration.authorizedSession(successResponse.getTokens().getAccessToken()));
     }
 
     /// Refreshes the access token using the stored refresh token.
@@ -206,10 +239,12 @@ public class CiteDriveOAuthService {
                 }
                 cachedRefreshToken = Optional.ofNullable(citeDrivePreferences.getRefreshToken());
             }
-            return cachedRefreshToken.map(refreshToken -> CompletableFuture.supplyAsync(() -> refreshToken(refreshToken, configuration))
-                                                                           .thenCompose(session -> session.map(value -> CompletableFuture.completedFuture(Optional.of(value)))
-                                                                                                          .orElseGet(() -> authorizeInteractive(configuration))))
-                                     .orElseGet(() -> authorizeInteractive(configuration));
+            return cachedRefreshToken
+                    .map(refreshToken -> CompletableFuture.supplyAsync(() -> refreshToken(refreshToken, configuration))
+                            .thenCompose(session -> session.map(
+                                            value -> CompletableFuture.completedFuture(Optional.of(value)))
+                                    .orElseGet(() -> authorizeInteractive(configuration))))
+                    .orElseGet(() -> authorizeInteractive(configuration));
         });
     }
 
@@ -232,7 +267,8 @@ public class CiteDriveOAuthService {
         if (!response.indicatesSuccess()) {
             var error = response.toErrorResponse().getErrorObject();
             LOGGER.warn("Refresh token failed: {}", error.toJSONObject());
-            if (OAuth2Error.INVALID_GRANT.getCode().equals(error.getCode()) && error.getHTTPStatusCode() == HTTPResponse.SC_BAD_REQUEST) {
+            if (OAuth2Error.INVALID_GRANT.getCode().equals(error.getCode())
+                    && error.getHTTPStatusCode() == HTTPResponse.SC_BAD_REQUEST) {
                 citeDrivePreferences.updateRefreshToken(configuration.revision(), Optional.empty());
                 return Optional.empty();
             }
@@ -240,16 +276,20 @@ public class CiteDriveOAuthService {
         }
 
         AccessTokenResponse successResponse = response.toSuccessResponse();
-        Optional<RefreshToken> newRefreshToken = Optional.ofNullable(successResponse.getTokens().getRefreshToken()).or(() -> Optional.of(refreshToken));
+        Optional<RefreshToken> newRefreshToken = Optional.ofNullable(
+                        successResponse.getTokens().getRefreshToken())
+                .or(() -> Optional.of(refreshToken));
         if (!citeDrivePreferences.updateRefreshToken(configuration.revision(), newRefreshToken)) {
             throw new CompletionException(loginFailure("CiteDrive server configuration changed"));
         }
-        return Optional.of(configuration.authorizedSession(successResponse.getTokens().getAccessToken()));
+        return Optional.of(
+                configuration.authorizedSession(successResponse.getTokens().getAccessToken()));
     }
 
     // [impl->req~citedrive.token.timeout~1]
     private TokenResponse sendTokenRequest(URI endpoint, AuthorizationGrant grant) throws IOException, ParseException {
-        HTTPRequest request = new TokenRequest.Builder(endpoint, CLIENT_ID, grant).build().toHTTPRequest();
+        HTTPRequest request =
+                new TokenRequest.Builder(endpoint, CLIENT_ID, grant).build().toHTTPRequest();
         request.setConnectTimeout(CONNECT_TIMEOUT_MILLIS);
         request.setReadTimeout(READ_TIMEOUT_MILLIS);
         request.setFollowRedirects(false);
@@ -258,8 +298,13 @@ public class CiteDriveOAuthService {
 
     private ServerConfiguration snapshotConfiguration() {
         synchronized (citeDrivePreferences) {
-            return new ServerConfiguration(citeDrivePreferences.getServerRevision(), authEndpoint.get(), tokenEndpoint.get(),
-                    getCallBackUri(), citeDrivePreferences.getPushEndpoint(), citeDrivePreferences.getImportPage());
+            return new ServerConfiguration(
+                    citeDrivePreferences.getServerRevision(),
+                    authEndpoint.get(),
+                    tokenEndpoint.get(),
+                    getCallBackUri(),
+                    citeDrivePreferences.getPushEndpoint(),
+                    citeDrivePreferences.getImportPage());
         }
     }
 
@@ -269,8 +314,7 @@ public class CiteDriveOAuthService {
 
     /// An access token can only be uploaded to the address captured with its authentication operation.
     @NullMarked
-    public record AuthorizedSession(AccessToken accessToken, URI pushEndpoint, URI importPage) {
-    }
+    public record AuthorizedSession(AccessToken accessToken, URI pushEndpoint, URI importPage) {}
 
     @FunctionalInterface
     @NullMarked
@@ -279,7 +323,8 @@ public class CiteDriveOAuthService {
     }
 
     @NullMarked
-    private record ServerConfiguration(long revision, URI authEndpoint, URI tokenEndpoint, URI callbackUri, URI pushEndpoint, URI importPage) {
+    private record ServerConfiguration(
+            long revision, URI authEndpoint, URI tokenEndpoint, URI callbackUri, URI pushEndpoint, URI importPage) {
         boolean isSecure() {
             return CiteDrivePreferences.isSecureUrl(authEndpoint.toString())
                     && CiteDrivePreferences.isSecureUrl(tokenEndpoint.toString())

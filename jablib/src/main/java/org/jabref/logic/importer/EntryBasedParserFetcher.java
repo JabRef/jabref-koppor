@@ -6,9 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.LoggerFactory;
 

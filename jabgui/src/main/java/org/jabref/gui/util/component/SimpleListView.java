@@ -1,7 +1,6 @@
 package org.jabref.gui.util.component;
 
 import java.util.function.Function;
-
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -11,7 +10,8 @@ import javafx.scene.layout.HBox;
 
 /// A list view that is implemented using a combobox with customizable items.
 ///
-/// An equivalent to this component would be to use an [HBox] with [javafx.beans.binding.Bindings#bindContent], but unfortunately, that does not work well and makes duplicate nodes.
+/// An equivalent to this component would be to use an [HBox] with [javafx.beans.binding.Bindings#bindContent], but
+/// unfortunately, that does not work well and makes duplicate nodes.
 public class SimpleListView<T> extends HBox {
     private final ListProperty<T> itemsProperty = new SimpleListProperty<>();
     private final ObjectProperty<Function<T, Node>> rendererProperty = new SimpleObjectProperty<>();

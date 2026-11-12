@@ -1,22 +1,22 @@
 package org.jabref.model.metadata;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class UserHostInfoTest {
 
     @ParameterizedTest
     @CsvSource({
-            "user, host, user-host",
-            "user, '', user",
-            "user-with-hyphen, host, user-with-hyphen-host",
-            "user, host-with-hyphen, user-host-with-hyphen",
-            "complex-user-name, complex-host-name, complex-user-name-complex-host-name"
+        "user, host, user-host",
+        "user, '', user",
+        "user-with-hyphen, host, user-with-hyphen-host",
+        "user, host-with-hyphen, user-host-with-hyphen",
+        "complex-user-name, complex-host-name, complex-user-name-complex-host-name"
     })
     void getUserHostString(String user, String host, String expected) {
         UserHostInfo userHostInfo = new UserHostInfo(user, host);
@@ -25,11 +25,11 @@ class UserHostInfoTest {
 
     @ParameterizedTest
     @CsvSource({
-            "user-host, user, host",
-            "user, user, ''",
-            "user-with-hyphen-host, user-with-hyphen, host",
-            "user-host-with-hyphen, user-host-with, hyphen",
-            "complex-user-name-complex-host-name, complex-user-name-complex-host, name"
+        "user-host, user, host",
+        "user, user, ''",
+        "user-with-hyphen-host, user-with-hyphen, host",
+        "user-host-with-hyphen, user-host-with, hyphen",
+        "complex-user-name-complex-host-name, complex-user-name-complex-host, name"
     })
     void parse(String userHostString, String expectedUser, String expectedHost) {
         UserHostInfo userHostInfo = UserHostInfo.parse(userHostString);

@@ -1,5 +1,9 @@
 package org.jabref.model.metadata;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
@@ -8,9 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javafx.beans.value.ObservableValue;
-
 import org.jabref.logic.citationkeypattern.CitationKeyPattern;
 import org.jabref.logic.cleanup.FieldFormatterCleanupActions;
 import org.jabref.logic.journals.AbbreviationType;
@@ -22,13 +24,8 @@ import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.metadata.SaveOrder.OrderType;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /// Guards [MetaData#overwriteWith] against silently dropping a setting: an undone metadata change
 /// restores what the copy kept, so a field the copy misses is lost work, not a cosmetic slip.
@@ -50,8 +47,11 @@ class MetaDataOverwriteWithTest {
         target.overwriteWith(source);
 
         for (Field field : copiedFields()) {
-            assertEquals(valueOf(field, source), valueOf(field, target),
-                    "MetaData.overwriteWith does not copy '%s'; extend it when adding a field".formatted(field.getName()));
+            assertEquals(
+                    valueOf(field, source),
+                    valueOf(field, target),
+                    "MetaData.overwriteWith does not copy '%s'; extend it when adding a field"
+                            .formatted(field.getName()));
         }
     }
 
@@ -66,7 +66,9 @@ class MetaDataOverwriteWithTest {
         assertFalse(fields.isEmpty(), "reflection found no fields; the test no longer tests anything");
 
         for (Field field : fields) {
-            assertNotEquals(valueOf(field, untouched), valueOf(field, source),
+            assertNotEquals(
+                    valueOf(field, untouched),
+                    valueOf(field, source),
                     "'%s' is left at its default here, so the copy of it is never tested".formatted(field.getName()));
         }
     }
@@ -80,8 +82,11 @@ class MetaDataOverwriteWithTest {
         metaData.setGitAutoPull(true);
         metaData.setGitAutoCommit(true);
         metaData.setGitAutoPush(true);
-        metaData.setCiteKeyPattern(new CitationKeyPattern("[auth]", CitationKeyPattern.Category.AUTHOR_RELATED),
-                Map.of(StandardEntryType.Article, new CitationKeyPattern("[auth][year]", CitationKeyPattern.Category.AUTHOR_RELATED)));
+        metaData.setCiteKeyPattern(
+                new CitationKeyPattern("[auth]", CitationKeyPattern.Category.AUTHOR_RELATED),
+                Map.of(
+                        StandardEntryType.Article,
+                        new CitationKeyPattern("[auth][year]", CitationKeyPattern.Category.AUTHOR_RELATED)));
         metaData.setSaveActions(new FieldFormatterCleanupActions(true, List.of()));
         metaData.setMode(BibDatabaseMode.BIBLATEX);
         metaData.setLibraryAbbreviationType(AbbreviationType.DOTLESS);

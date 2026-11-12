@@ -2,7 +2,6 @@ package org.jabref.logic.externalfiles;
 
 import java.io.IOException;
 import java.nio.file.Path;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.OpenDatabase;

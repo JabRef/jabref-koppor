@@ -2,7 +2,6 @@ package org.jabref.logic.git;
 
 import java.net.URISyntaxException;
 import java.util.Optional;
-
 import org.eclipse.jgit.errors.NotSupportedException;
 import org.eclipse.jgit.errors.TransportException;
 import org.eclipse.jgit.transport.PushConnection;
@@ -22,12 +21,15 @@ public class GitHubRepositoryAccessChecker {
             URIish remote = new URIish(repositoryUrl);
             if (!"https".equalsIgnoreCase(remote.getScheme())
                     || !"github.com".equalsIgnoreCase(remote.getHost())
-                    || Optional.ofNullable(remote.getPath()).filter(GitHubRepositoryAccessChecker::isRepositoryPath).isEmpty()) {
+                    || Optional.ofNullable(remote.getPath())
+                            .filter(GitHubRepositoryAccessChecker::isRepositoryPath)
+                            .isEmpty()) {
                 return GitHubRepositoryAccess.INVALID_REPOSITORY_URL;
             }
 
             try (Transport transport = Transport.open(remote)) {
-                transport.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, personalAccessToken));
+                transport.setCredentialsProvider(
+                        new UsernamePasswordCredentialsProvider(username, personalAccessToken));
                 try (PushConnection ignored = transport.openPush()) {
                     return GitHubRepositoryAccess.WRITE_ACCESS;
                 }
@@ -52,8 +54,6 @@ public class GitHubRepositoryAccessChecker {
         }
 
         String[] pathSegments = normalizedPath.split("/", -1);
-        return pathSegments.length == 2
-                && !pathSegments[0].isBlank()
-                && !pathSegments[1].isBlank();
+        return pathSegments.length == 2 && !pathSegments[0].isBlank() && !pathSegments[1].isBlank();
     }
 }

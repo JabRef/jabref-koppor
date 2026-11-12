@@ -3,10 +3,8 @@ package org.jabref.logic.preferences;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 
@@ -19,11 +17,12 @@ public class TimestampPreferences {
     private final Field timestampField;
     private final String timestampFormat;
 
-    public TimestampPreferences(boolean addCreationDate,
-                                boolean addModificationDate,
-                                boolean updateTimestamp,
-                                Field timestampField,
-                                String timestampFormat) {
+    public TimestampPreferences(
+            boolean addCreationDate,
+            boolean addModificationDate,
+            boolean updateTimestamp,
+            Field timestampField,
+            String timestampFormat) {
         this.addCreationDate = new SimpleBooleanProperty(addCreationDate);
         this.addModificationDate = new SimpleBooleanProperty(addModificationDate);
         this.updateTimestamp = updateTimestamp;
@@ -33,12 +32,12 @@ public class TimestampPreferences {
 
     private TimestampPreferences() {
         this(
-                false,                   // addCreationDate
-                false,                   // addModificationDate
-                false,                   // updateTimestamp
+                false, // addCreationDate
+                false, // addModificationDate
+                false, // updateTimestamp
                 StandardField.TIMESTAMP, // timestampField
-                "yyyy-MM-dd"             // timestampFormat, must follow ISO-8601 because: https://xkcd.com/1179/
-        );
+                "yyyy-MM-dd" // timestampFormat, must follow ISO-8601 because: https://xkcd.com/1179/
+                );
     }
 
     public static TimestampPreferences getDefault() {

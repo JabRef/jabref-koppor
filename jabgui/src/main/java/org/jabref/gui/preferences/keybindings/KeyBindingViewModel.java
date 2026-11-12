@@ -1,7 +1,6 @@
 package org.jabref.gui.preferences.keybindings;
 
 import java.util.Optional;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -9,7 +8,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.gui.keyboard.KeyBinding;
@@ -93,8 +91,11 @@ public class KeyBindingViewModel {
         // validate the shortcut is no modifier key
 
         KeyCode code = evt.getCode();
-        if (code.isModifierKey() || (code == KeyCode.SPACE) || (code == KeyCode.TAB)
-                || (code == KeyCode.ENTER) || (code == KeyCode.UNDEFINED)) {
+        if (code.isModifierKey()
+                || (code == KeyCode.SPACE)
+                || (code == KeyCode.TAB)
+                || (code == KeyCode.ENTER)
+                || (code == KeyCode.UNDEFINED)) {
             return false;
         }
 

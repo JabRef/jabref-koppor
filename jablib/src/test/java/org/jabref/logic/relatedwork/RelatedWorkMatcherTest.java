@@ -1,12 +1,17 @@
 package org.jabref.logic.relatedwork;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.database.DuplicateCheck;
 import org.jabref.model.database.BibDatabaseContext;
@@ -15,14 +20,7 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 
 class RelatedWorkMatcherTest {
 
@@ -36,16 +34,23 @@ class RelatedWorkMatcherTest {
                 new BibEntry(StandardEntryType.Article),
                 linkedFile,
                 "They are facing several challenges in this transformation described along the BAPO framework [80].",
-                createFilePreferences()
-        );
+                createFilePreferences());
 
         RelatedWorkMatchResult matchedResult = matchResults.getFirst();
 
         assertEquals(1, matchResults.size());
-        assertEquals("They are facing several challenges in this transformation described along the BAPO framework.", matchedResult.contextText());
+        assertEquals(
+                "They are facing several challenges in this transformation described along the BAPO framework.",
+                matchedResult.contextText());
         assertEquals("[80]", matchedResult.citationKey());
-        assertEquals("[80] Frank van der Linden, Klaus Schmid, and Eelco Rommes. 2007. Software product lines in action - the best industrial practice in product line engineering. Springer.",
-                matchedResult.parsedReference().orElseThrow().getField(StandardField.COMMENT).orElseThrow());
+        assertEquals(
+                "[80] Frank van der Linden, Klaus Schmid, and Eelco Rommes. 2007. Software product lines in action -"
+                        + " the best industrial practice in product line engineering. Springer.",
+                matchedResult
+                        .parsedReference()
+                        .orElseThrow()
+                        .getField(StandardField.COMMENT)
+                        .orElseThrow());
         assertFalse(matchedResult.hasMatchedLibraryEntry());
     }
 
@@ -54,13 +59,12 @@ class RelatedWorkMatcherTest {
         LinkedFile linkedFile = createLinkedFile();
         RelatedWorkReferenceResolver resolver = new RelatedWorkReferenceResolver();
         RelatedWorkMatcher matcher = new RelatedWorkMatcher(
-                new RelatedWorkTextParser(),
-                resolver,
-                new DuplicateCheck(new BibEntryTypesManager())
-        );
+                new RelatedWorkTextParser(), resolver, new DuplicateCheck(new BibEntryTypesManager()));
         BibDatabaseContext databaseContext = new BibDatabaseContext();
-        Map<String, BibEntry> referencesByMarker = resolver.parseReferences(linkedFile, new BibDatabaseContext(), createFilePreferences());
-        BibEntry existingLibraryEntry = Optional.ofNullable(referencesByMarker.get("[80]")).orElseThrow();
+        Map<String, BibEntry> referencesByMarker =
+                resolver.parseReferences(linkedFile, new BibDatabaseContext(), createFilePreferences());
+        BibEntry existingLibraryEntry =
+                Optional.ofNullable(referencesByMarker.get("[80]")).orElseThrow();
         databaseContext.getDatabase().insertEntry(existingLibraryEntry);
 
         List<RelatedWorkMatchResult> matchedResults = matcher.matchRelatedWork(
@@ -68,8 +72,7 @@ class RelatedWorkMatcherTest {
                 new BibEntry(StandardEntryType.Article),
                 linkedFile,
                 "They are facing several challenges in this transformation described along the BAPO framework [80].",
-                createFilePreferences()
-        );
+                createFilePreferences());
 
         RelatedWorkMatchResult matchedResult = matchedResults.getFirst();
 
@@ -86,8 +89,7 @@ class RelatedWorkMatcherTest {
                 new BibEntry(StandardEntryType.Article),
                 linkedFile,
                 "This text has no citation markers.",
-                createFilePreferences()
-        );
+                createFilePreferences());
 
         assertTrue(matchResults.isEmpty());
     }
@@ -105,17 +107,13 @@ class RelatedWorkMatcherTest {
                 .withField(StandardField.PAGES, "123-145");
         RelatedWorkReferenceResolver resolver = new RelatedWorkReferenceResolver() {
             @Override
-            public Map<String, BibEntry> parseReferences(LinkedFile linkedFile,
-                                                         BibDatabaseContext databaseContext,
-                                                         FilePreferences filePreferences) {
+            public Map<String, BibEntry> parseReferences(
+                    LinkedFile linkedFile, BibDatabaseContext databaseContext, FilePreferences filePreferences) {
                 return Map.of("[1]", parsedReference);
             }
         };
         RelatedWorkMatcher matcher = new RelatedWorkMatcher(
-                new RelatedWorkTextParser(),
-                resolver,
-                new DuplicateCheck(new BibEntryTypesManager())
-        );
+                new RelatedWorkTextParser(), resolver, new DuplicateCheck(new BibEntryTypesManager()));
         BibEntry existingLibraryEntry = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Smith, John and Brown, Alice")
                 .withField(StandardField.TITLE, "Sustainable Agriculture Methods for Tropical Regions")
@@ -132,15 +130,20 @@ class RelatedWorkMatcherTest {
                 new BibEntry(StandardEntryType.Article),
                 new LinkedFile("", "main.pdf", "PDF"),
                 "A short related work sentence [1].",
-                createFilePreferences()
-        );
+                createFilePreferences());
 
         RelatedWorkMatchResult matchResult = matchResults.getFirst();
 
         assertEquals(1, matchResults.size());
         assertEquals("A short related work sentence.", matchResult.contextText());
         assertEquals("[1]", matchResult.citationKey());
-        assertEquals("123-145", matchResult.parsedReference().orElseThrow().getField(StandardField.PAGES).orElseThrow());
+        assertEquals(
+                "123-145",
+                matchResult
+                        .parsedReference()
+                        .orElseThrow()
+                        .getField(StandardField.PAGES)
+                        .orElseThrow());
         assertSame(existingLibraryEntry, matchResult.matchedLibraryBibEntry().orElseThrow());
     }
 
@@ -152,8 +155,7 @@ class RelatedWorkMatcherTest {
         return new RelatedWorkMatcher(
                 new RelatedWorkTextParser(),
                 new RelatedWorkReferenceResolver(),
-                new DuplicateCheck(new BibEntryTypesManager())
-        );
+                new DuplicateCheck(new BibEntryTypesManager()));
     }
 
     private LinkedFile createLinkedFile() throws URISyntaxException {

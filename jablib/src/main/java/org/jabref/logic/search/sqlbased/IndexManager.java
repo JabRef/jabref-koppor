@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
-
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.search.LinkedFilesIndexManager;
 import org.jabref.logic.search.sqlbased.indexing.BibFieldsIndexer;
@@ -35,7 +34,6 @@ import org.jabref.model.search.event.IndexRemovedEvent;
 import org.jabref.model.search.event.IndexStartedEvent;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResults;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,19 +49,21 @@ public class IndexManager {
     private final ConcurrentHashMap<String, PendingFieldUpdates> pendingFieldsByEntry = new ConcurrentHashMap<>();
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    private record PendingFieldUpdates(BibEntry entry, Set<Field> fields) {
-    }
+    private record PendingFieldUpdates(BibEntry entry, Set<Field> fields) {}
 
-    public IndexManager(BibDatabaseContext databaseContext,
-                        TaskExecutor executor,
-                        CliPreferences preferences,
-                        PostgresServer postgresServer) {
+    public IndexManager(
+            BibDatabaseContext databaseContext,
+            TaskExecutor executor,
+            CliPreferences preferences,
+            PostgresServer postgresServer) {
         this.taskExecutor = executor;
         this.databaseContext = databaseContext;
 
-        bibFieldsIndexer = new BibFieldsIndexer(preferences.getBibEntryPreferences(), databaseContext, postgresServer.getConnection());
+        bibFieldsIndexer = new BibFieldsIndexer(
+                preferences.getBibEntryPreferences(), databaseContext, postgresServer.getConnection());
         this.bibFieldsSearcher = new BibFieldsSearcher(postgresServer.getConnection(), bibFieldsIndexer.getTable());
-        this.linkedFilesIndexManager = new LinkedFilesIndexManager(databaseContext, taskExecutor, preferences.getFilePreferences());
+        this.linkedFilesIndexManager =
+                new LinkedFilesIndexManager(databaseContext, taskExecutor, preferences.getFilePreferences());
         this.indexUpdateThrottler = taskExecutor.createThrottler(700);
         updateOnStart();
     }
@@ -76,8 +76,8 @@ public class IndexManager {
                 return null;
             }
         }.willBeRecoveredAutomatically(true)
-         .onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexStartedEvent()))
-         .executeWith(taskExecutor);
+                .onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexStartedEvent()))
+                .executeWith(taskExecutor);
     }
 
     public void addToIndex(List<BibEntry> entries) {
@@ -88,7 +88,7 @@ public class IndexManager {
                 return null;
             }
         }.onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexAddedOrUpdatedEvent(entries)))
-         .executeWith(taskExecutor);
+                .executeWith(taskExecutor);
         linkedFilesIndexManager.addToIndex(entries);
     }
 
@@ -100,7 +100,7 @@ public class IndexManager {
                 return null;
             }
         }.onFinished(() -> this.databaseContext.getDatabase().postEvent(new IndexRemovedEvent(entries)))
-         .executeWith(taskExecutor);
+                .executeWith(taskExecutor);
         linkedFilesIndexManager.removeFromIndex(entries);
     }
 
@@ -153,9 +153,10 @@ public class IndexManager {
                             }
                             return null;
                         }
-                    }.onFinished(() -> this.databaseContext.getDatabase()
-                                                           .postEvent(new IndexAddedOrUpdatedEvent(List.of(pendingEntry))))
-                     .executeWith(taskExecutor);
+                    }.onFinished(() -> this.databaseContext
+                                    .getDatabase()
+                                    .postEvent(new IndexAddedOrUpdatedEvent(List.of(pendingEntry))))
+                            .executeWith(taskExecutor);
                 }
             });
         });
@@ -248,14 +249,13 @@ public class IndexManager {
                     LOGGER.info("Deleting out-of-date fulltext search index at {}.", directory);
 
                     try (Stream<Path> indexPath = Files.walk(directory)) {
-                        indexPath.sorted(Comparator.reverseOrder())
-                                 .forEach(file -> {
-                                     try {
-                                         Files.deleteIfExists(file);
-                                     } catch (IOException e) {
-                                         LOGGER.error("Could not delete file {}", file, e);
-                                     }
-                                 });
+                        indexPath.sorted(Comparator.reverseOrder()).forEach(file -> {
+                            try {
+                                Files.deleteIfExists(file);
+                            } catch (IOException e) {
+                                LOGGER.error("Could not delete file {}", file, e);
+                            }
+                        });
                     } catch (IOException e) {
                         LOGGER.error("Could not read directory {}", directory, e);
                     }

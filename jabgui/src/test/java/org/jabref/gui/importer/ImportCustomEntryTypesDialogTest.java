@@ -1,11 +1,21 @@
 package org.jabref.gui.importer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+import com.airhacks.afterburner.injection.Injector;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -13,7 +23,7 @@ import javafx.scene.control.DialogPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
+import org.controlsfx.control.CheckListView;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.importer.actions.CheckForNewEntryTypesAction;
 import org.jabref.gui.importer.actions.OpenDatabaseAction;
@@ -33,24 +43,11 @@ import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.types.BiblatexNonStandardEntryType;
 import org.jabref.model.entry.types.UnknownEntryType;
-
-import com.airhacks.afterburner.injection.Injector;
-import org.controlsfx.control.CheckListView;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 
 /// Drives the dialog itself, so that the wiring between the check lists and the view model is covered, too.
 @NullMarked
@@ -58,10 +55,10 @@ class ImportCustomEntryTypesDialogTest extends JavaFxTest {
 
     private static final BibDatabaseMode MODE = BibDatabaseMode.BIBLATEX;
 
-    private static final BibEntryType MANUSCRIPT_FROM_FILE = parse(
-            "jabref-entrytype: manuscript: req[library;location;shelfmark] opt[origin;scribe]");
-    private static final BibEntryType AUDIO_FROM_FILE = parse(
-            "jabref-entrytype: audio: req[author;date;publisher;title] opt[url;urldate]");
+    private static final BibEntryType MANUSCRIPT_FROM_FILE =
+            parse("jabref-entrytype: manuscript: req[library;location;shelfmark] opt[origin;scribe]");
+    private static final BibEntryType AUDIO_FROM_FILE =
+            parse("jabref-entrytype: audio: req[author;date;publisher;title] opt[url;urldate]");
 
     private CliPreferences preferences;
     private BibEntryTypesManager entryTypesManager;
@@ -95,10 +92,13 @@ class ImportCustomEntryTypesDialogTest extends JavaFxTest {
     @Test
     void unknownTypesAndDifferentCustomizationsAreShownSeparately() {
         interact(() -> {
-            assertEquals(List.of(MANUSCRIPT_FROM_FILE), List.copyOf(unknownTypes().getItems()));
-            assertEquals(List.of(AUDIO_FROM_FILE), differentCustomizations().getItems().stream()
-                                                                            .map(BibEntryTypePrefsAndFileViewModel::customTypeFromFile)
-                                                                            .toList());
+            assertEquals(
+                    List.of(MANUSCRIPT_FROM_FILE), List.copyOf(unknownTypes().getItems()));
+            assertEquals(
+                    List.of(AUDIO_FROM_FILE),
+                    differentCustomizations().getItems().stream()
+                            .map(BibEntryTypePrefsAndFileViewModel::customTypeFromFile)
+                            .toList());
             assertTrue(differentCustomizationBox().isVisible());
         });
     }
@@ -113,7 +113,8 @@ class ImportCustomEntryTypesDialogTest extends JavaFxTest {
             buttonOf(ButtonType.OK).fire();
         });
 
-        assertEquals(List.of(AUDIO_FROM_FILE, MANUSCRIPT_FROM_FILE),
+        assertEquals(
+                List.of(AUDIO_FROM_FILE, MANUSCRIPT_FROM_FILE),
                 List.copyOf(entryTypesManager.getAllCustomizedTypes(MODE)));
         verify(preferences).storeCustomEntryTypesRepository(entryTypesManager);
         assertFalse(entryTypesManager.isDifferentCustomOrModifiedType(AUDIO_FROM_FILE, MODE));
@@ -124,16 +125,16 @@ class ImportCustomEntryTypesDialogTest extends JavaFxTest {
     void reopeningLibraryAfterImportDoesNotShowCustomEntryTypesDialog(@TempDir Path tempDir) throws Exception {
         Path library = tempDir.resolve("custom-entry-types.bib");
         Files.writeString(library, """
-                @Manuscript{example,
-                  library = {Archive},
-                }
+            @Manuscript{example,
+              library = {Archive},
+            }
 
-                @Comment{jabref-meta: databaseType:biblatex;}
+            @Comment{jabref-meta: databaseType:biblatex;}
 
-                @Comment{jabref-entrytype: audio: req[author;date;publisher;title] opt[url;urldate]}
+            @Comment{jabref-entrytype: audio: req[author;date;publisher;title] opt[url;urldate]}
 
-                @Comment{jabref-entrytype: manuscript: req[library;location;shelfmark] opt[origin;scribe]}
-                """);
+            @Comment{jabref-entrytype: manuscript: req[library;location;shelfmark] opt[origin;scribe]}
+            """);
         when(preferences.getLibraryPreferences()).thenReturn(LibraryPreferences.getDefault());
 
         BibtexParser parser = new BibtexParser(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS));
@@ -173,8 +174,9 @@ class ImportCustomEntryTypesDialogTest extends JavaFxTest {
 
         assertEquals(List.of(AUDIO_FROM_FILE), List.copyOf(entryTypesManager.getAllCustomizedTypes(MODE)));
         assertEquals(Optional.empty(), entryTypesManager.enrich(new UnknownEntryType("manuscript"), MODE));
-        verify(preferences).addDeclinedCustomEntryTypes(List.of(
-                CustomEntryTypeDecision.fingerprint(MANUSCRIPT_FROM_FILE, Optional.empty(), MODE)));
+        verify(preferences)
+                .addDeclinedCustomEntryTypes(
+                        List.of(CustomEntryTypeDecision.fingerprint(MANUSCRIPT_FROM_FILE, Optional.empty(), MODE)));
     }
 
     @Test
@@ -186,7 +188,9 @@ class ImportCustomEntryTypesDialogTest extends JavaFxTest {
         });
 
         assertEquals(List.of(), List.copyOf(entryTypesManager.getAllCustomizedTypes(MODE)));
-        assertTrue(entryTypesManager.enrich(BiblatexNonStandardEntryType.Audio, MODE).isPresent());
+        assertTrue(entryTypesManager
+                .enrich(BiblatexNonStandardEntryType.Audio, MODE)
+                .isPresent());
         verify(preferences, never()).storeCustomEntryTypesRepository(entryTypesManager);
         verify(preferences, never()).addDeclinedCustomEntryTypes(any());
     }
@@ -198,7 +202,8 @@ class ImportCustomEntryTypesDialogTest extends JavaFxTest {
 
     @SuppressWarnings("unchecked")
     private CheckListView<BibEntryTypePrefsAndFileViewModel> differentCustomizations() {
-        return (CheckListView<BibEntryTypePrefsAndFileViewModel>) dialogPane().lookup("#differentCustomizationCheckList");
+        return (CheckListView<BibEntryTypePrefsAndFileViewModel>)
+                dialogPane().lookup("#differentCustomizationCheckList");
     }
 
     private VBox differentCustomizationBox() {

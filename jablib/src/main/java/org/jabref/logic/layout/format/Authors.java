@@ -1,15 +1,14 @@
 package org.jabref.logic.layout.format;
 
+import static java.util.function.Predicate.not;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.layout.AbstractParamLayoutFormatter;
 import org.jabref.model.entry.Author;
 import org.jabref.model.entry.AuthorList;
-
-import static java.util.function.Predicate.not;
 
 /// Versatile author name formatter that takes arguments to control the formatting style.
 public class Authors extends AbstractParamLayoutFormatter {
@@ -150,7 +149,8 @@ public class Authors extends AbstractParamLayoutFormatter {
                 abbrDots = false;
                 lastFirstSeparator = ", ";
             }
-        } else if (Authors.SEPARATORS.contains(key.trim().toLowerCase(Locale.ROOT)) || Authors.LAST_SEPARATORS.contains(key.trim().toLowerCase(Locale.ROOT))) {
+        } else if (Authors.SEPARATORS.contains(key.trim().toLowerCase(Locale.ROOT))
+                || Authors.LAST_SEPARATORS.contains(key.trim().toLowerCase(Locale.ROOT))) {
             // AuthorSep = [Comma | And | Colon | Semicolon | sep=<string>]
             // AuthorLastSep = [And | Comma | Colon | Semicolon | Amp | Oxford | lastsep=<string>]
 
@@ -252,10 +252,14 @@ public class Authors extends AbstractParamLayoutFormatter {
 
     private void addSingleName(StringBuilder sb, Author a, boolean firstFirst) {
         StringBuilder lastNameSB = new StringBuilder();
-        a.getNamePrefix().filter(not(String::isEmpty)).ifPresent(von -> lastNameSB.append(von).append(' '));
+        a.getNamePrefix()
+                .filter(not(String::isEmpty))
+                .ifPresent(von -> lastNameSB.append(von).append(' '));
         a.getFamilyName().ifPresent(lastNameSB::append);
         String jrSeparator = " ";
-        a.getNameSuffix().filter(not(String::isEmpty)).ifPresent(jr -> lastNameSB.append(jrSeparator).append(jr));
+        a.getNameSuffix()
+                .filter(not(String::isEmpty))
+                .ifPresent(jr -> lastNameSB.append(jrSeparator).append(jr));
 
         String firstNameResult = "";
         if (a.getGivenName().isPresent()) {

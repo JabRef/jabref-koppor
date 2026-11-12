@@ -1,5 +1,13 @@
 package org.jabref.gui.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.airhacks.afterburner.injection.Injector;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -8,31 +16,21 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.logic.util.SerialBackgroundTaskGroup;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(JavaFxExtension.class)
 @NullMarked
 class UiTaskExecutorTest {
 
     @Test
-    void runAndWaitInJavaFXThreadWithFailurePropagationPropagatesBackgroundThreadFailure() throws InterruptedException, ExecutionException {
+    void runAndWaitInJavaFXThreadWithFailurePropagationPropagatesBackgroundThreadFailure()
+            throws InterruptedException, ExecutionException {
         try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
             Future<ExecutionException> future = executor.submit(() -> assertThrows(
                     ExecutionException.class,

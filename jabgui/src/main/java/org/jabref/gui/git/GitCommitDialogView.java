@@ -1,12 +1,13 @@
 package org.jabref.gui.git;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
+import jakarta.inject.Inject;
 import java.util.List;
-
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.collab.DatabaseChange;
@@ -20,32 +21,44 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
-import jakarta.inject.Inject;
-
 public class GitCommitDialogView extends BaseDialog<Void> {
 
-    @FXML private TextArea commitMessage;
-    @FXML private ButtonType commitButton;
-    @FXML private ButtonType commitAndPushButton;
-    @FXML private ButtonType showDiffButtonType;
+    @FXML
+    private TextArea commitMessage;
+
+    @FXML
+    private ButtonType commitButton;
+
+    @FXML
+    private ButtonType commitAndPushButton;
+
+    @FXML
+    private ButtonType showDiffButtonType;
 
     private GitCommitDialogViewModel viewModel;
 
-    @Inject private StateManager stateManager;
-    @Inject private DialogService dialogService;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private GitHandlerRegistry gitHandlerRegistry;
-    @Inject private GuiPreferences preferences;
-    @Inject private FileUpdateMonitor fileUpdateMonitor;
+    @Inject
+    private StateManager stateManager;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private GitHandlerRegistry gitHandlerRegistry;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private FileUpdateMonitor fileUpdateMonitor;
 
     private final ControlsFxVisualizer visualizer = new ControlsFxVisualizer();
 
     public GitCommitDialogView() {
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
         ControlHelper.setAction(showDiffButtonType, getDialogPane(), _ -> showDiff());
     }
 
@@ -85,21 +98,17 @@ public class GitCommitDialogView extends BaseDialog<Void> {
     // [impl->req~git.commit.preview-current-library~1]
     @FXML
     private void showDiff() {
-        viewModel.diffTask()
-                 .onSuccess(this::openDiffDialog)
-                 .onFailure(ex -> dialogService.showErrorDialogAndWait(
-                         Localization.lang("Git diff failed"),
-                         ex.getMessage(),
-                         ex
-                 ))
-                 .executeWith(taskExecutor);
+        viewModel
+                .diffTask()
+                .onSuccess(this::openDiffDialog)
+                .onFailure(ex ->
+                        dialogService.showErrorDialogAndWait(Localization.lang("Git diff failed"), ex.getMessage(), ex))
+                .executeWith(taskExecutor);
     }
 
     private void openDiffDialog(GitCommitDialogViewModel.DiffDatabases diffDatabases) {
         List<DatabaseChange> changes = DatabaseChangeList.compareAndGetChanges(
-                diffDatabases.headDatabase(),
-                diffDatabases.workingTreeDatabase(),
-                null);
+                diffDatabases.headDatabase(), diffDatabases.workingTreeDatabase(), null);
 
         dialogService.showCustomDialogAndWait(
                 new GitDiffDialogView(changes, diffDatabases.headDatabase(), diffDatabases.workingTreeDatabase()));

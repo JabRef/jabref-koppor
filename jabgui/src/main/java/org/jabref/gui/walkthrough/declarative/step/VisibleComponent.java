@@ -3,7 +3,6 @@ package org.jabref.gui.walkthrough.declarative.step;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
-
 import org.jabref.gui.walkthrough.declarative.NodeResolver;
 import org.jabref.gui.walkthrough.declarative.Trigger;
 import org.jabref.gui.walkthrough.declarative.WindowResolver;

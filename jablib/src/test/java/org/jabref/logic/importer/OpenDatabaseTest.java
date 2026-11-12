@@ -1,5 +1,8 @@
 package org.jabref.logic.importer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -7,20 +10,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
-
 import org.jabref.logic.LibraryPreferences;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 class OpenDatabaseTest {
 
@@ -35,11 +33,16 @@ class OpenDatabaseTest {
     private final FileUpdateMonitor fileMonitor = new DummyFileUpdateMonitor();
 
     OpenDatabaseTest() throws URISyntaxException {
-        bibNoHeader = Path.of(OpenDatabaseTest.class.getResource("headerless.bib").toURI());
-        bibWrongHeader = Path.of(OpenDatabaseTest.class.getResource("wrong-header.bib").toURI());
-        bibHeader = Path.of(OpenDatabaseTest.class.getResource("encoding-header.bib").toURI());
-        bibHeaderAndSignature = Path.of(OpenDatabaseTest.class.getResource("jabref-header.bib").toURI());
-        bibEncodingWithoutNewline = Path.of(OpenDatabaseTest.class.getResource("encodingWithoutNewline.bib").toURI());
+        bibNoHeader =
+                Path.of(OpenDatabaseTest.class.getResource("headerless.bib").toURI());
+        bibWrongHeader =
+                Path.of(OpenDatabaseTest.class.getResource("wrong-header.bib").toURI());
+        bibHeader = Path.of(
+                OpenDatabaseTest.class.getResource("encoding-header.bib").toURI());
+        bibHeaderAndSignature =
+                Path.of(OpenDatabaseTest.class.getResource("jabref-header.bib").toURI());
+        bibEncodingWithoutNewline = Path.of(
+                OpenDatabaseTest.class.getResource("encodingWithoutNewline.bib").toURI());
     }
 
     @BeforeEach
@@ -105,8 +108,10 @@ class OpenDatabaseTest {
     /// Test for #669
     @Test
     void correctlyParseEncodingWithoutNewline() throws IOException {
-        ParserResult result = OpenDatabase.loadDatabase(bibEncodingWithoutNewline, importFormatPreferences, fileMonitor);
-        assertEquals(StandardCharsets.US_ASCII, result.getMetaData().getEncoding().get());
+        ParserResult result =
+                OpenDatabase.loadDatabase(bibEncodingWithoutNewline, importFormatPreferences, fileMonitor);
+        assertEquals(
+                StandardCharsets.US_ASCII, result.getMetaData().getEncoding().get());
 
         BibDatabase db = result.getDatabase();
         assertEquals(Optional.of("testPreamble"), db.getPreamble());

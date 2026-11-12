@@ -1,20 +1,17 @@
 package org.jabref.logic.integrity;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 
 public class DoiDuplicationChecker implements DatabaseChecker {
 
@@ -23,14 +20,17 @@ public class DoiDuplicationChecker implements DatabaseChecker {
         ObservableList<BibEntry> bibEntries = database.getEntries();
         BiMap<DOI, List<BibEntry>> duplicateMap = HashBiMap.create(bibEntries.size());
         for (BibEntry bibEntry : bibEntries) {
-            bibEntry.getDOI().ifPresent(doi ->
-                    duplicateMap.computeIfAbsent(doi, _ -> new ArrayList<>()).add(bibEntry));
+            bibEntry.getDOI()
+                    .ifPresent(doi -> duplicateMap
+                            .computeIfAbsent(doi, _ -> new ArrayList<>())
+                            .add(bibEntry));
         }
 
         return duplicateMap.inverse().keySet().stream()
-                           .filter(list -> list.size() > 1)
-                           .flatMap(Collection::stream)
-                           .map(item -> new IntegrityMessage(Localization.lang("Same DOI used in multiple entries"), item, StandardField.DOI))
-                           .collect(Collectors.toList());
+                .filter(list -> list.size() > 1)
+                .flatMap(Collection::stream)
+                .map(item -> new IntegrityMessage(
+                        Localization.lang("Same DOI used in multiple entries"), item, StandardField.DOI))
+                .collect(Collectors.toList());
     }
 }

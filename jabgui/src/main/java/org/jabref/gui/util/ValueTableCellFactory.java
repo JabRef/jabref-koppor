@@ -3,7 +3,6 @@ package org.jabref.gui.util;
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
-
 import javafx.beans.binding.BooleanExpression;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -16,7 +15,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.util.Callback;
-
 import org.jabref.logic.util.strings.StringUtil;
 
 /// Constructs a [TableCell] based on the value of the cell and a bunch of specified converter methods.
@@ -73,12 +71,14 @@ public class ValueTableCellFactory<S, T> implements Callback<TableColumn<S, T>, 
         return this;
     }
 
-    public ValueTableCellFactory<S, T> withOnMouseClickedEvent(BiFunction<S, T, EventHandler<? super MouseEvent>> toOnMouseClickedEvent) {
+    public ValueTableCellFactory<S, T> withOnMouseClickedEvent(
+            BiFunction<S, T, EventHandler<? super MouseEvent>> toOnMouseClickedEvent) {
         this.toOnMouseClickedEvent = toOnMouseClickedEvent;
         return this;
     }
 
-    public ValueTableCellFactory<S, T> withOnMouseClickedEvent(Function<T, EventHandler<? super MouseEvent>> toOnMouseClickedEvent) {
+    public ValueTableCellFactory<S, T> withOnMouseClickedEvent(
+            Function<T, EventHandler<? super MouseEvent>> toOnMouseClickedEvent) {
         this.toOnMouseClickedEvent = (_, value) -> toOnMouseClickedEvent.apply(value);
         return this;
     }
@@ -115,7 +115,10 @@ public class ValueTableCellFactory<S, T> implements Callback<TableColumn<S, T>, 
             protected void updateItem(T item, boolean empty) {
                 super.updateItem(item, empty);
 
-                if (empty || (item == null) || (getTableRow() == null) || (getTableRow().getItem() == null)) {
+                if (empty
+                        || (item == null)
+                        || (getTableRow() == null)
+                        || (getTableRow().getItem() == null)) {
                     setText(null);
                     setGraphic(null);
                     setOnMouseClicked(null);
@@ -159,10 +162,14 @@ public class ValueTableCellFactory<S, T> implements Callback<TableColumn<S, T>, 
                     setOnMouseEntered(_ -> {
                         int rowIndex = getTableRow().getIndex();
                         int totalItems = getTableView().getItems().size();
-                        boolean forceShow = showTooltipRegardlessOfTruncation != null && showTooltipRegardlessOfTruncation.getAsBoolean();
-                        // tooltip is != null even for empty lines. Not easy to fix, therefore, there is a check if the current line is a real entry.
-                        // The tooltip is shown when the cell's text is truncated, or when the caller says it should always be shown
-                        // (e.g. the "show entry preview in tooltip" preference is enabled, in which case the tooltip is the only
+                        boolean forceShow = showTooltipRegardlessOfTruncation != null
+                                && showTooltipRegardlessOfTruncation.getAsBoolean();
+                        // tooltip is != null even for empty lines. Not easy to fix, therefore, there is a check if the
+                        // current line is a real entry.
+                        // The tooltip is shown when the cell's text is truncated, or when the caller says it should
+                        // always be shown
+                        // (e.g. the "show entry preview in tooltip" preference is enabled, in which case the tooltip is
+                        // the only
                         // place the preview is ever visible — it must show even when the title itself isn't cut off).
                         if (tooltip != null && rowIndex < totalItems && (isTextTruncated() || forceShow)) {
                             setTooltip(tooltip.apply(rowItem, item));

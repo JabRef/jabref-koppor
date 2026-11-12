@@ -3,24 +3,28 @@ package org.jabref.gui.desktop.os;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
-
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 
-/// This class contains macOS (OSX) specific implementations for file directories and file/application open handling methods.
+/// This class contains macOS (OSX) specific implementations for file directories and file/application open handling
+/// methods.
 ///
-/// We cannot use a static logger instance here in this class as the Logger first needs to be configured in the [JabKit#initLogging].
+/// We cannot use a static logger instance here in this class as the Logger first needs to be configured in the
+/// [JabKit#initLogging].
 /// The configuration of tinylog will become immutable as soon as the first log entry is issued.
 /// https://tinylog.org/v2/configuration/
 @AllowedToUseAwt("Requires AWT to open a file")
 public class OSX extends NativeDesktop {
 
     @Override
-    public void openFile(String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException {
-        Optional<ExternalFileType> type = ExternalFileTypes.getExternalFileTypeByExt(fileType, externalApplicationsPreferences);
+    public void openFile(
+            String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences)
+            throws IOException {
+        Optional<ExternalFileType> type =
+                ExternalFileTypes.getExternalFileTypeByExt(fileType, externalApplicationsPreferences);
         if (type.isPresent() && !type.get().getOpenWithApplication().isEmpty()) {
             openFileWithApplication(filePath, type.get().getOpenWithApplication());
         } else {
@@ -37,8 +41,9 @@ public class OSX extends NativeDesktop {
     @Override
     public void openFileWithApplication(String filePath, String application) throws IOException {
         // Use "-a <application>" if the app is specified, and just "open <filename>" otherwise:
-        String[] cmd = (application != null) && !application.isEmpty() ? new String[] {"/usr/bin/open", "-a",
-                application, filePath} : new String[] {"/usr/bin/open", filePath};
+        String[] cmd = (application != null) && !application.isEmpty()
+                ? new String[] {"/usr/bin/open", "-a", application, filePath}
+                : new String[] {"/usr/bin/open", filePath};
         new ProcessBuilder(cmd).start();
     }
 

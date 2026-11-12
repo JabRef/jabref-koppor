@@ -1,17 +1,15 @@
 package org.jabref.http.server;
 
-import java.util.EnumSet;
-
-import org.jabref.http.server.resources.EntryResource;
-
-import jakarta.ws.rs.core.Application;
-import jakarta.ws.rs.core.Response;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import jakarta.ws.rs.core.Application;
+import jakarta.ws.rs.core.Response;
+import java.util.EnumSet;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.jabref.http.server.resources.EntryResource;
+import org.junit.jupiter.api.Test;
 
 class EntryResourceTest extends ServerTest {
 
@@ -69,13 +67,14 @@ class EntryResourceTest extends ServerTest {
                 .get(String.class);
 
         String expected = """
-                [
-                  {
-                    "fileName": "Files2026.pdf",
-                    "parentCitationKey": "Files2026",
-                    "path": "Files2026.pdf"
-                  }
-                ]""";
+            [
+              {
+                "fileName": "Files2026.pdf",
+                "parentCitationKey": "Files2026",
+                "path": "Files2026.pdf"
+              }
+            ]\
+            """;
         assertEquals(expected, response);
     }
 

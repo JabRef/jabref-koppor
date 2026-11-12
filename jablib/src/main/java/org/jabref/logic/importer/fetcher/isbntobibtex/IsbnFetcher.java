@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.importer.EntryBasedFetcher;
 import org.jabref.logic.importer.FetcherException;
@@ -18,7 +17,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.ISBN;
 import org.jabref.model.util.OptionalUtil;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +70,8 @@ public class IsbnFetcher implements EntryBasedFetcher, IdBasedFetcher {
                 throw ex;
             }
         } finally {
-            // do not move the iterator in the loop as this would always return a new one and thus create and endless loop
+            // do not move the iterator in the loop as this would always return a new one and thus create and endless
+            // loop
             Iterator<AbstractIsbnFetcher> iterator = retryIsbnFetcher.iterator();
             while (bibEntry.isEmpty() && iterator.hasNext()) {
                 LOGGER.debug("Trying using the alternate ISBN fetchers to find an entry.");

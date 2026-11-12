@@ -1,14 +1,11 @@
 package org.jabref.gui.preferences;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.util.List;
-
 import javafx.scene.Node;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.forms.PreferencesFormBuilder;
 import org.jabref.logic.util.TaskExecutor;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 

@@ -2,10 +2,8 @@ package org.jabref.gui.entryeditor;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
@@ -33,10 +31,10 @@ public class JumpToFieldViewModel extends AbstractViewModel {
         }
 
         return suggestedFields(entry).stream()
-                                     .map(Field::getName)
-                                     .distinct()
-                                     .sorted()
-                                     .toList();
+                .map(Field::getName)
+                .distinct()
+                .sorted()
+                .toList();
     }
 
     /// `true` when jumping to `fieldName` would add a field the entry editor does not offer,

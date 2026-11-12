@@ -1,13 +1,16 @@
 package org.jabref.gui;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.airhacks.afterburner.injection.Injector;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.input.Clipboard;
-
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.testutils.JavaFxTest;
 import org.jabref.logic.bibtex.FieldPreferences;
@@ -21,15 +24,9 @@ import org.jabref.model.entry.BibtexString;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jooq.lambda.Unchecked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class ClipBoardManagerTest extends JavaFxTest {
 
@@ -55,17 +52,18 @@ class ClipBoardManagerTest extends JavaFxTest {
         interact(() -> {
             clipboard.set(Clipboard.getSystemClipboard());
         });
-        clipBoardManager = new ClipBoardManager(stateManager, clipboard.get(), mock(java.awt.datatransfer.Clipboard.class));
+        clipBoardManager =
+                new ClipBoardManager(stateManager, clipboard.get(), mock(java.awt.datatransfer.Clipboard.class));
     }
 
     @Test
     void copyStringBibEntry() throws IOException {
         String expected = """
-                @Article{,
-                  author  = {Claudepierre, S. G.},
-                  journal = {IEEE},
-                }
-                """;
+            @Article{,
+              author  = {Claudepierre, S. G.},
+              journal = {IEEE},
+            }
+            """;
 
         BibEntry bibEntry = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.JOURNAL, "IEEE")
@@ -89,13 +87,13 @@ class ClipBoardManagerTest extends JavaFxTest {
     @Test
     void copyStringBibEntryWithStringConstants() throws IOException {
         String expected = """
-                @String{grl = "Geophys. Res. Lett."}
+            @String{grl = "Geophys. Res. Lett."}
 
-                @Article{,
-                  author  = {Claudepierre, S. G.},
-                  journal = {grl},
-                }
-                """;
+            @Article{,
+              author  = {Claudepierre, S. G.},
+              journal = {grl},
+            }
+            """;
         BibEntry bibEntry = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.JOURNAL, "grl")
                 .withField(StandardField.AUTHOR, "Claudepierre, S. G.")

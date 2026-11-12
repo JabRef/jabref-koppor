@@ -3,7 +3,6 @@ package org.jabref.gui.icon;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javafx.css.CssMetaData;
 import javafx.css.StyleOrigin;
 import javafx.css.Styleable;
@@ -11,7 +10,6 @@ import javafx.css.StyleableProperty;
 import javafx.css.converter.PaintConverter;
 import javafx.css.converter.SizeConverter;
 import javafx.scene.paint.Paint;
-
 import tools.maran.svgnode.SvgNode;
 
 /// Renders an SVG path as an icon that follows the same theme CSS as Ikonli font icons, so SVG icons need no
@@ -38,7 +36,8 @@ public class JabRefSvgIcon extends SvgNode {
                 /// otherwise repaint the icon; withholding the property is the way to keep it.
                 @Override
                 public boolean isSettable(JabRefSvgIcon node) {
-                    return node.colorProperty().getStyleOrigin() != StyleOrigin.USER && !node.colorProperty().isBound();
+                    return node.colorProperty().getStyleOrigin() != StyleOrigin.USER
+                            && !node.colorProperty().isBound();
                 }
 
                 @Override

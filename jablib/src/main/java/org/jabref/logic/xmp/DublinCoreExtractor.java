@@ -8,7 +8,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-
+import org.apache.xmpbox.schema.DublinCoreSchema;
+import org.apache.xmpbox.type.BadFieldValueException;
 import org.jabref.logic.bibtex.TypedBibEntry;
 import org.jabref.logic.formatter.casechanger.UnprotectTermsFormatter;
 import org.jabref.logic.util.strings.StringUtil;
@@ -23,9 +24,6 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryTypeFactory;
-
-import org.apache.xmpbox.schema.DublinCoreSchema;
-import org.apache.xmpbox.type.BadFieldValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,12 +74,11 @@ public class DublinCoreExtractor {
         List<String> dates = dcSchema.getUnqualifiedSequenceValueList("date");
         if ((dates != null) && !dates.isEmpty()) {
             String date = dates.getFirst().trim();
-            Date.parse(date)
-                .ifPresent(dateValue -> {
-                    dateValue.getDay().ifPresent(day -> bibEntry.setField(StandardField.DAY, Integer.toString(day)));
-                    dateValue.getMonth().ifPresent(bibEntry::setMonth);
-                    dateValue.getYear().ifPresent(year -> bibEntry.setField(StandardField.YEAR, Integer.toString(year)));
-                });
+            Date.parse(date).ifPresent(dateValue -> {
+                dateValue.getDay().ifPresent(day -> bibEntry.setField(StandardField.DAY, Integer.toString(day)));
+                dateValue.getMonth().ifPresent(bibEntry::setMonth);
+                dateValue.getYear().ifPresent(year -> bibEntry.setField(StandardField.YEAR, Integer.toString(year)));
+            });
         }
     }
 
@@ -149,9 +146,7 @@ public class DublinCoreExtractor {
         };
         List<String> relationships = dcSchema.getRelations();
         if (relationships != null) {
-            relationships.stream()
-                         .filter(isBibTeXElement)
-                         .forEach(splitBibTeXElement);
+            relationships.stream().filter(isBibTeXElement).forEach(splitBibTeXElement);
         }
     }
 
@@ -232,7 +227,8 @@ public class DublinCoreExtractor {
     ///
     /// To understand how to get hold of a DublinCore have a look in the test cases for XMPUtil.
     ///
-    /// The BibEntry is build by mapping individual fields in the dublin core (like creator, title, subject) to fields in
+    /// The BibEntry is build by mapping individual fields in the dublin core (like creator, title, subject) to fields
+    /// in
     /// a bibtex bibEntry. In case special "bibtex/" entries are contained, the normal dublin core fields take
     /// precedence. For instance, the dublin core date takes precedence over bibtex/month.
     ///
@@ -322,8 +318,7 @@ public class DublinCoreExtractor {
 
     /// BibTeX: language; DC: dc:language
     private void fillLanguages(String languages) {
-        Arrays.stream(languages.split(","))
-              .forEach(dcSchema::addLanguage);
+        Arrays.stream(languages.split(",")).forEach(dcSchema::addLanguage);
     }
 
     /// BibTeX: Rights (Custom Field); DC: dc:rights
@@ -359,7 +354,8 @@ public class DublinCoreExtractor {
     ///
     /// The opposite method is [#extractBibtexEntry()].
     ///
-    /// A similar method for writing the DocumentInformationItem (DII) is `#writeDocumentInformation(PDDocument,BibEntry,BibDatabase,XmpPreferences)`
+    /// A similar method for writing the DocumentInformationItem (DII) is
+    /// `#writeDocumentInformation(PDDocument,BibEntry,BibDatabase,XmpPreferences)`
     public void fillDublinCoreSchema() {
         // Query privacy filter settings
         boolean useXmpPrivacyFilter = xmpPreferences.shouldUseXmpPrivacyFilter();
@@ -371,39 +367,29 @@ public class DublinCoreExtractor {
                 continue;
             }
 
-            String value = unprotectTermsFormatter.format(bibEntry.getField(field).get());
+            String value =
+                    unprotectTermsFormatter.format(bibEntry.getField(field).get());
             if (field instanceof StandardField standardField) {
                 switch (standardField) {
-                    case EDITOR ->
-                            this.fillContributor(value);
-                    case AUTHOR ->
-                            this.fillCreator(value);
-                    case YEAR ->
-                            this.fillDate();
-                    case ABSTRACT ->
-                            this.fillDescription(value);
-                    case DOI ->
-                            this.fillIdentifier(value);
-                    case PUBLISHER ->
-                            this.fillPublisher(value);
-                    case KEYWORDS ->
-                            this.fillKeywords(value);
-                    case TITLE ->
-                            this.fillTitle(value);
-                    case LANGUAGE ->
-                            this.fillLanguages(value);
+                    case EDITOR -> this.fillContributor(value);
+                    case AUTHOR -> this.fillCreator(value);
+                    case YEAR -> this.fillDate();
+                    case ABSTRACT -> this.fillDescription(value);
+                    case DOI -> this.fillIdentifier(value);
+                    case PUBLISHER -> this.fillPublisher(value);
+                    case KEYWORDS -> this.fillKeywords(value);
+                    case TITLE -> this.fillTitle(value);
+                    case LANGUAGE -> this.fillLanguages(value);
                     case FILE -> {
                         // we do not write the "file" field, because the file is the PDF itself
                     }
-                    case DAY,
-                         MONTH -> {
+                    case DAY, MONTH -> {
                         // we do not write day and month separately if dc:year can be used
                         if (!bibEntry.hasField(StandardField.YEAR)) {
                             this.fillCustomField(field);
                         }
                     }
-                    default ->
-                            this.fillCustomField(field);
+                    default -> this.fillCustomField(field);
                 }
             } else {
                 if (DC_COVERAGE.equals(field.getName())) {

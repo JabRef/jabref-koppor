@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -13,7 +12,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
-
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.logic.l10n.Localization;
@@ -29,16 +27,18 @@ public class ExternalApplicationsPreferences {
     private final BooleanProperty useCustomFileBrowser;
     private final ObjectProperty<List<String>> customFileBrowserCommand;
     private final StringProperty kindleEmail;
-    private final ObservableSet<ExternalFileType> externalFileTypes = FXCollections.observableSet(new TreeSet<>(Comparator.comparing(ExternalFileType::getName)));
+    private final ObservableSet<ExternalFileType> externalFileTypes =
+            FXCollections.observableSet(new TreeSet<>(Comparator.comparing(ExternalFileType::getName)));
 
-    public ExternalApplicationsPreferences(String eMailSubject,
-                                           boolean shouldAutoOpenEmailAttachmentsFolder,
-                                           Set<ExternalFileType> externalFileTypes,
-                                           boolean useCustomTerminal,
-                                           List<String> customTerminalCommand,
-                                           boolean useCustomFileBrowser,
-                                           List<String> customFileBrowserCommand,
-                                           String kindleEmail) {
+    public ExternalApplicationsPreferences(
+            String eMailSubject,
+            boolean shouldAutoOpenEmailAttachmentsFolder,
+            Set<ExternalFileType> externalFileTypes,
+            boolean useCustomTerminal,
+            List<String> customTerminalCommand,
+            boolean useCustomFileBrowser,
+            List<String> customFileBrowserCommand,
+            String kindleEmail) {
 
         this.eMailSubject = new SimpleStringProperty(eMailSubject);
         this.shouldAutoOpenEmailAttachmentsFolder = new SimpleBooleanProperty(shouldAutoOpenEmailAttachmentsFolder);
@@ -52,17 +52,17 @@ public class ExternalApplicationsPreferences {
 
     private ExternalApplicationsPreferences() {
         this(
-                Localization.lang("References"),                                             // eMailSubject
-                OS.WINDOWS,                                                                  // shouldAutoOpenEmailAttachmentsFolder
-                Set.copyOf(ExternalFileTypes.getDefaultExternalFileTypes()),                 // externalFileTypes
-                false,                                                                       // useCustomTerminal
-                OS.WINDOWS ? List.of("C:\\Program Files\\ConEmu\\ConEmu64.exe", "/single", "/dir", "%DIR")
-                           : List.of(),                                                       // customTerminalCommand
-                false,                                                                       // useCustomFileBrowser
-                OS.WINDOWS ? List.of("explorer.exe", "/select,", "%DIR")
-                           : List.of(),                                                       // customFileBrowserCommand
-                ""                                                                           // kindleEmail
-        );
+                Localization.lang("References"), // eMailSubject
+                OS.WINDOWS, // shouldAutoOpenEmailAttachmentsFolder
+                Set.copyOf(ExternalFileTypes.getDefaultExternalFileTypes()), // externalFileTypes
+                false, // useCustomTerminal
+                OS.WINDOWS
+                        ? List.of("C:\\Program Files\\ConEmu\\ConEmu64.exe", "/single", "/dir", "%DIR")
+                        : List.of(), // customTerminalCommand
+                false, // useCustomFileBrowser
+                OS.WINDOWS ? List.of("explorer.exe", "/select,", "%DIR") : List.of(), // customFileBrowserCommand
+                "" // kindleEmail
+                );
     }
 
     public static ExternalApplicationsPreferences getDefault() {

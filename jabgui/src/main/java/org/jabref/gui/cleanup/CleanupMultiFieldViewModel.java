@@ -1,10 +1,8 @@
 package org.jabref.gui.cleanup;
 
 import java.util.EnumSet;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-
 import org.jabref.logic.cleanup.CleanupPreferences;
 
 public class CleanupMultiFieldViewModel {
@@ -17,8 +15,7 @@ public class CleanupMultiFieldViewModel {
             CleanupPreferences.CleanupStep.CONVERT_TO_BIBLATEX,
             CleanupPreferences.CleanupStep.CONVERT_TO_BIBTEX,
             CleanupPreferences.CleanupStep.CONVERT_TIMESTAMP_TO_CREATIONDATE,
-            CleanupPreferences.CleanupStep.CONVERT_TIMESTAMP_TO_MODIFICATIONDATE
-    );
+            CleanupPreferences.CleanupStep.CONVERT_TIMESTAMP_TO_MODIFICATIONDATE);
 
     public final BooleanProperty doiSelected = new SimpleBooleanProperty();
     public final BooleanProperty arXivDoiSelected = new SimpleBooleanProperty();
@@ -36,37 +33,31 @@ public class CleanupMultiFieldViewModel {
         urlSelected.set(preferences.isActive(CleanupPreferences.CleanupStep.CLEAN_UP_URL));
         bibTexSelected.set(preferences.isActive(CleanupPreferences.CleanupStep.CONVERT_TO_BIBTEX));
         bibLaTexSelected.set(preferences.isActive(CleanupPreferences.CleanupStep.CONVERT_TO_BIBLATEX));
-        timestampToCreationSelected.set(preferences.isActive(CleanupPreferences.CleanupStep.CONVERT_TIMESTAMP_TO_CREATIONDATE));
-        timestampToModificationSelected.set(preferences.isActive(CleanupPreferences.CleanupStep.CONVERT_TIMESTAMP_TO_MODIFICATIONDATE));
+        timestampToCreationSelected.set(
+                preferences.isActive(CleanupPreferences.CleanupStep.CONVERT_TIMESTAMP_TO_CREATIONDATE));
+        timestampToModificationSelected.set(
+                preferences.isActive(CleanupPreferences.CleanupStep.CONVERT_TIMESTAMP_TO_MODIFICATIONDATE));
 
-        bibTexSelected.addListener(
-                (_, _, newVal) -> {
-                    if (newVal) {
-                        bibLaTexSelected.set(false);
-                    }
-                }
-        );
-        bibLaTexSelected.addListener(
-                (_, _, newVal) -> {
-                    if (newVal) {
-                        bibTexSelected.set(false);
-                    }
-                }
-        );
-        timestampToCreationSelected.addListener(
-                (_, _, newVal) -> {
-                    if (newVal) {
-                        timestampToModificationSelected.set(false);
-                    }
-                }
-        );
-        timestampToModificationSelected.addListener(
-                (_, _, newVal) -> {
-                    if (newVal) {
-                        timestampToCreationSelected.set(false);
-                    }
-                }
-        );
+        bibTexSelected.addListener((_, _, newVal) -> {
+            if (newVal) {
+                bibLaTexSelected.set(false);
+            }
+        });
+        bibLaTexSelected.addListener((_, _, newVal) -> {
+            if (newVal) {
+                bibTexSelected.set(false);
+            }
+        });
+        timestampToCreationSelected.addListener((_, _, newVal) -> {
+            if (newVal) {
+                timestampToModificationSelected.set(false);
+            }
+        });
+        timestampToModificationSelected.addListener((_, _, newVal) -> {
+            if (newVal) {
+                timestampToCreationSelected.set(false);
+            }
+        });
     }
 
     public EnumSet<CleanupPreferences.CleanupStep> getSelectedJobs() {

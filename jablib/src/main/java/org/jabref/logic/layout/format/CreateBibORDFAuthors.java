@@ -37,7 +37,9 @@ public class CreateBibORDFAuthors implements LayoutFormatter {
         sb.append("<bibo:contribution>\n");
         sb.append("  <bibo:Contribution>\n");
         sb.append("    <bibo:role rdf:resource=\"http://purl.org/ontology/bibo/roles/author\" />\n");
-        sb.append("    <bibo:contributor><foaf:Person foaf:name=\"").append(author).append("\"/></bibo:contributor>\n");
+        sb.append("    <bibo:contributor><foaf:Person foaf:name=\"")
+                .append(author)
+                .append("\"/></bibo:contributor>\n");
         sb.append("    <bibo:position>").append(position).append("</bibo:position>\n");
         sb.append("  </bibo:Contribution>\n");
         sb.append("</bibo:contribution>\n");

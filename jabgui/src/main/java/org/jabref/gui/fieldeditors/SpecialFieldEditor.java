@@ -1,10 +1,10 @@
 package org.jabref.gui.fieldeditors;
 
+import com.tobiasdiez.easybind.EasyBind;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -14,7 +14,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-
+import org.controlsfx.control.Rating;
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.gui.specialfields.SpecialFieldValueViewModel;
 import org.jabref.gui.specialfields.SpecialFieldViewModel;
@@ -24,9 +24,6 @@ import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.entry.field.SpecialFieldValue;
-
-import com.tobiasdiez.easybind.EasyBind;
-import org.controlsfx.control.Rating;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -66,7 +63,8 @@ public class SpecialFieldEditor extends HBox implements FieldEditorFX {
         if (specialField == SpecialField.RANKING) {
             Rating rating = createRatingControl();
             getChildren().add(rating);
-            valueApplier = value -> rating.setRating(value.map(SpecialFieldValue::toRating).orElse(0));
+            valueApplier = value ->
+                    rating.setRating(value.map(SpecialFieldValue::toRating).orElse(0));
         } else if (specialField.isSingleValueField()) {
             ToggleButton toggle = createToggleControl();
             getChildren().add(toggle);
@@ -75,9 +73,9 @@ public class SpecialFieldEditor extends HBox implements FieldEditorFX {
             ToggleGroup group = new ToggleGroup();
             getChildren().addAll(createToggleGroupControls(group));
             valueApplier = value -> group.getToggles().stream()
-                                         .filter(toggle -> value.map(toggle.getUserData()::equals).orElse(false))
-                                         .findFirst()
-                                         .ifPresentOrElse(group::selectToggle, () -> group.selectToggle(null));
+                    .filter(toggle -> value.map(toggle.getUserData()::equals).orElse(false))
+                    .findFirst()
+                    .ifPresentOrElse(group::selectToggle, () -> group.selectToggle(null));
         }
     }
 
@@ -102,7 +100,8 @@ public class SpecialFieldEditor extends HBox implements FieldEditorFX {
     }
 
     private ToggleButton createToggleControl() {
-        SpecialFieldValueViewModel value = new SpecialFieldValueViewModel(specialField.getValues().getFirst());
+        SpecialFieldValueViewModel value =
+                new SpecialFieldValueViewModel(specialField.getValues().getFirst());
         ToggleButton toggle = new ToggleButton();
         toggle.setGraphic(viewModel.getIcon().getGraphicNode());
         toggle.getStyleClass().add("icon-button");
@@ -147,9 +146,9 @@ public class SpecialFieldEditor extends HBox implements FieldEditorFX {
 
     private SpecialFieldValue clearValue() {
         return specialField.getValues().stream()
-                           .filter(value -> value.getFieldValue().isEmpty())
-                           .findFirst()
-                           .orElseThrow();
+                .filter(value -> value.getFieldValue().isEmpty())
+                .findFirst()
+                .orElseThrow();
     }
 
     @Override

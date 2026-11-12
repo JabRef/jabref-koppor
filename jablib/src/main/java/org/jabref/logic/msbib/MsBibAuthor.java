@@ -17,7 +17,6 @@ public class MsBibAuthor {
 
         StringBuilder sb = new StringBuilder();
         author.getGivenName().ifPresent(firstNames -> {
-
             String[] names = firstNames.split(" ");
             for (int i = 1; i < names.length; i++) {
                 sb.append(names[i]);

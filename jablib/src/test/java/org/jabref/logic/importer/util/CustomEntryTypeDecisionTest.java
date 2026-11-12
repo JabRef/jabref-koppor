@@ -1,20 +1,18 @@
 package org.jabref.logic.importer.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.BibEntryTypeBuilder;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.BiblatexNonStandardEntryType;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @NullMarked
 class CustomEntryTypeDecisionTest {
@@ -31,7 +29,10 @@ class CustomEntryTypeDecisionTest {
         String manyFields = IntStream.range(0, 2000).mapToObj(i -> "field" + i).collect(Collectors.joining(";"));
         BibEntryType longType = parse("jabref-entrytype: longtype: req[title] opt[" + manyFields + "]");
 
-        assertEquals(64, CustomEntryTypeDecision.fingerprint(longType, Optional.of(longType), MODE).length());
+        assertEquals(
+                64,
+                CustomEntryTypeDecision.fingerprint(longType, Optional.of(longType), MODE)
+                        .length());
     }
 
     @Test
@@ -41,7 +42,8 @@ class CustomEntryTypeDecisionTest {
         BibEntryType stored = parse("jabref-entrytype: audio: req[title] opt[doi;url]");
         BibEntryType storedReordered = parse("jabref-entrytype: audio: req[title] opt[url;doi]");
 
-        assertEquals(CustomEntryTypeDecision.fingerprint(inFile, Optional.of(stored), MODE),
+        assertEquals(
+                CustomEntryTypeDecision.fingerprint(inFile, Optional.of(stored), MODE),
                 CustomEntryTypeDecision.fingerprint(reordered, Optional.of(storedReordered), MODE));
     }
 
@@ -59,7 +61,8 @@ class CustomEntryTypeDecisionTest {
                 .withImportantFields(StandardField.URL, StandardField.URLDATE)
                 .build();
 
-        assertNotEquals(CustomEntryTypeDecision.fingerprint(urlDateAsDetail, Optional.empty(), MODE),
+        assertNotEquals(
+                CustomEntryTypeDecision.fingerprint(urlDateAsDetail, Optional.empty(), MODE),
                 CustomEntryTypeDecision.fingerprint(urlDateAsImportant, Optional.empty(), MODE));
     }
 
@@ -68,7 +71,8 @@ class CustomEntryTypeDecisionTest {
         BibEntryType externalField = parse("jabref-entrytype-v2: person: req[name] opt[orcid|EXTERNAL]");
         BibEntryType verbatimField = parse("jabref-entrytype-v2: person: req[name] opt[orcid|VERBATIM]");
 
-        assertNotEquals(CustomEntryTypeDecision.fingerprint(externalField, Optional.empty(), MODE),
+        assertNotEquals(
+                CustomEntryTypeDecision.fingerprint(externalField, Optional.empty(), MODE),
                 CustomEntryTypeDecision.fingerprint(verbatimField, Optional.empty(), MODE));
     }
 
@@ -76,7 +80,9 @@ class CustomEntryTypeDecisionTest {
     void differentStoredDefinitionChangesTheFingerprint() {
         BibEntryType inFile = parse("jabref-entrytype: audio: req[author] opt[url]");
 
-        assertNotEquals(CustomEntryTypeDecision.fingerprint(inFile, Optional.empty(), MODE),
-                CustomEntryTypeDecision.fingerprint(inFile, Optional.of(parse("jabref-entrytype: audio: req[title] opt[url]")), MODE));
+        assertNotEquals(
+                CustomEntryTypeDecision.fingerprint(inFile, Optional.empty(), MODE),
+                CustomEntryTypeDecision.fingerprint(
+                        inFile, Optional.of(parse("jabref-entrytype: audio: req[title] opt[url]")), MODE));
     }
 }

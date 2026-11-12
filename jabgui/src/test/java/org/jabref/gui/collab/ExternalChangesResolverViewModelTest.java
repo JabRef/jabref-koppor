@@ -1,18 +1,16 @@
 package org.jabref.gui.collab;
 
-import java.util.List;
-
-import org.jabref.gui.collab.entryadd.EntryAdd;
-import org.jabref.gui.collab.entrychange.EntryChange;
-import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.entry.BibEntry;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+import org.jabref.gui.collab.entryadd.EntryAdd;
+import org.jabref.gui.collab.entrychange.EntryChange;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibEntry;
+import org.junit.jupiter.api.Test;
 
 class ExternalChangesResolverViewModelTest {
 

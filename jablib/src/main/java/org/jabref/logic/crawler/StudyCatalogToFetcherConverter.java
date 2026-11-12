@@ -3,7 +3,6 @@ package org.jabref.logic.crawler;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.SearchBasedFetcher;
@@ -16,9 +15,10 @@ class StudyCatalogToFetcherConverter {
     private final ImportFormatPreferences importFormatPreferences;
     private final ImporterPreferences importerPreferences;
 
-    public StudyCatalogToFetcherConverter(List<StudyCatalog> libraryEntries,
-                                          ImportFormatPreferences importFormatPreferences,
-                                          ImporterPreferences importerPreferences) {
+    public StudyCatalogToFetcherConverter(
+            List<StudyCatalog> libraryEntries,
+            ImportFormatPreferences importFormatPreferences,
+            ImporterPreferences importerPreferences) {
         this.libraryEntries = libraryEntries;
         this.importFormatPreferences = importFormatPreferences;
         this.importerPreferences = importerPreferences;
@@ -26,7 +26,8 @@ class StudyCatalogToFetcherConverter {
 
     /// Returns a list of instances of all active library fetchers.
     ///
-    /// A fetcher is considered active if there exists an library entry of the library the fetcher is associated with that is enabled.
+    /// A fetcher is considered active if there exists an library entry of the library the fetcher is associated with
+    /// that is enabled.
     ///
     /// @return Instances of all active fetchers defined in the study definition.
     public List<SearchBasedFetcher> getActiveFetchers() {
@@ -39,20 +40,22 @@ class StudyCatalogToFetcherConverter {
     /// @return List of fetcher instances
     private List<SearchBasedFetcher> getFetchersFromLibraryEntries(List<StudyCatalog> libraryEntries) {
         return libraryEntries.parallelStream()
-                             .map(this::createFetcherFromLibraryEntry)
-                             .flatMap(Optional::stream)
-                             .toList();
+                .map(this::createFetcherFromLibraryEntry)
+                .flatMap(Optional::stream)
+                .toList();
     }
 
-    /// Transforms a library entry into a SearchBasedFetcher instance. This only works if the library entry specifies a supported fetcher.
+    /// Transforms a library entry into a SearchBasedFetcher instance. This only works if the library entry specifies a
+    /// supported fetcher.
     ///
     /// @param studyCatalog the entry that will be converted
     /// @return An instance of the fetcher defined by the library entry.
     private Optional<SearchBasedFetcher> createFetcherFromLibraryEntry(StudyCatalog studyCatalog) {
-        Set<SearchBasedFetcher> searchBasedFetchers = WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences);
+        Set<SearchBasedFetcher> searchBasedFetchers =
+                WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences);
         String libraryNameFromFetcher = studyCatalog.getName();
         return searchBasedFetchers.stream()
-                                  .filter(searchBasedFetcher -> searchBasedFetcher.getName().equalsIgnoreCase(libraryNameFromFetcher))
-                                  .findAny();
+                .filter(searchBasedFetcher -> searchBasedFetcher.getName().equalsIgnoreCase(libraryNameFromFetcher))
+                .findAny();
     }
 }

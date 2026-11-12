@@ -1,16 +1,14 @@
 package org.jabref.logic.ai.ingestion.logic.ingestion;
 
-import java.nio.file.Path;
-import java.util.List;
-
-import org.jabref.logic.ai.ingestion.logic.documentsplitting.DocumentSplitter;
-import org.jabref.logic.ai.ingestion.logic.parsing.UniversalContentParser;
-import org.jabref.logic.l10n.Localization;
-
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingStore;
+import java.nio.file.Path;
+import java.util.List;
+import org.jabref.logic.ai.ingestion.logic.documentsplitting.DocumentSplitter;
+import org.jabref.logic.ai.ingestion.logic.parsing.UniversalContentParser;
+import org.jabref.logic.l10n.Localization;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,16 +25,8 @@ public class FileIngestor {
     public FileIngestor(
             EmbeddingStore<TextSegment> embeddingStore,
             EmbeddingModel embeddingModel,
-            DocumentSplitter documentSplitter
-    ) {
-        this(
-                new UniversalContentParser(),
-                new TextIngestor(
-                        embeddingStore,
-                        embeddingModel,
-                        documentSplitter
-                )
-        );
+            DocumentSplitter documentSplitter) {
+        this(new UniversalContentParser(), new TextIngestor(embeddingStore, embeddingModel, documentSplitter));
     }
 
     FileIngestor(UniversalContentParser universalFileParser, TextIngestor textIngestor) {
@@ -52,8 +42,14 @@ public class FileIngestor {
         }
 
         if (pages.isEmpty() || pages.stream().allMatch(String::isBlank)) {
-            LOGGER.error("Unable to generate embeddings for file \"{}\", because JabRef was unable to extract text from the file", path);
-            throw new RuntimeException(Localization.lang("Unable to generate embeddings for file '%0', because JabRef was unable to extract text from the file", path.toString()));
+            LOGGER.error(
+                    "Unable to generate embeddings for file \"{}\", because JabRef was unable to extract text from the"
+                            + " file",
+                    path);
+            throw new RuntimeException(Localization.lang(
+                    "Unable to generate embeddings for file '%0', because JabRef was unable to extract text from the"
+                            + " file",
+                    path.toString()));
         }
 
         int pageNumber = 1;
@@ -66,10 +62,7 @@ public class FileIngestor {
                 Metadata pageMetadata = metadata.copy();
                 pageMetadata.put(PAGE_NUMBER_METADATA_KEY, pageNumber);
 
-                textIngestor.ingest(
-                        pageMetadata,
-                        pageText
-                );
+                textIngestor.ingest(pageMetadata, pageText);
             }
             pageNumber++;
         }

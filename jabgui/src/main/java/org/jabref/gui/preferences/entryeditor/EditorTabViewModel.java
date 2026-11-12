@@ -4,14 +4,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.entryeditor.EntryEditorTabModel;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -34,10 +31,7 @@ public class EditorTabViewModel {
 
     public static EditorTabViewModel fromModel(EntryEditorTabModel model) {
         return switch (model) {
-            case EntryEditorTabModel.BuiltInTab(
-                    EntryEditorTabModel.BuiltIn type,
-                    boolean visible
-            ) -> {
+            case EntryEditorTabModel.BuiltInTab(EntryEditorTabModel.BuiltIn type, boolean visible) -> {
                 EditorTabViewModel tab = new EditorTabViewModel(type, "");
                 tab.visible.set(visible);
                 yield tab;

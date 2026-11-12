@@ -2,7 +2,6 @@ package org.jabref.model;
 
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -22,10 +21,14 @@ import org.jspecify.annotations.Nullable;
 /// @param oldValue what the field held before, or `null` when it had no value
 /// @param newValue what the field holds now, or `null` when it was removed
 @NullMarked
-public record FieldChange(BibEntry entry, Field field, @Nullable String oldValue, @Nullable String newValue) {
+public record FieldChange(
+        BibEntry entry,
+        Field field,
+        @Nullable String oldValue,
+        @Nullable String newValue) {
     @Override
     public String toString() {
-        return "FieldChange [entry=" + entry.getCitationKey().orElse("") + ", field=" + field + ", oldValue="
-                + oldValue + ", newValue=" + newValue + "]";
+        return "FieldChange [entry=" + entry.getCitationKey().orElse("") + ", field=" + field + ", oldValue=" + oldValue
+                + ", newValue=" + newValue + "]";
     }
 }

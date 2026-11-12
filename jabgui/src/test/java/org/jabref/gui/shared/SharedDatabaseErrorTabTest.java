@@ -1,25 +1,22 @@
 package org.jabref.gui.shared;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.net.ConnectException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
-
 import org.jabref.gui.testutils.JavaFxTest;
 import org.jabref.logic.shared.DBMSConnectionProperties;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @NullMarked
 class SharedDatabaseErrorTabTest extends JavaFxTest {
@@ -56,7 +53,8 @@ class SharedDatabaseErrorTabTest extends JavaFxTest {
 
     @Test
     void messageShowsTheRootCauseOfAWrappedError() {
-        interact(() -> tab.showError(new SQLException("The connection attempt failed.", new ConnectException("Connection refused"))));
+        interact(() -> tab.showError(
+                new SQLException("The connection attempt failed.", new ConnectException("Connection refused"))));
 
         assertEquals("Connection refused", message().getText());
     }
@@ -78,12 +76,15 @@ class SharedDatabaseErrorTabTest extends JavaFxTest {
         DBMSConnectionProperties expertProperties = mock(DBMSConnectionProperties.class);
         when(expertProperties.isUseExpertMode()).thenReturn(true);
         when(expertProperties.getDatabase()).thenReturn("stale");
-        when(expertProperties.getJdbcUrl()).thenReturn("jdbc:postgresql://db.example.org/literature?user=alice&password=secret");
+        when(expertProperties.getJdbcUrl())
+                .thenReturn("jdbc:postgresql://db.example.org/literature?user=alice&password=secret");
 
         interact(() -> tab = new SharedDatabaseErrorTab(null, expertProperties));
 
         assertEquals("literature", tab.getText());
-        assertEquals("Could not connect to literature.", ((Label) tab.getContent().lookup(".welcome-header-label")).getText());
+        assertEquals(
+                "Could not connect to literature.",
+                ((Label) tab.getContent().lookup(".welcome-header-label")).getText());
     }
 
     @Test

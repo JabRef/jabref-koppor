@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.formatter.bibtexfields.NormalizeDateFormatter;
 import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
@@ -82,14 +81,15 @@ public class URLCleanup implements CleanupJob {
 
             if (dateTermsMatcher.find()) {
                 String term = dateTermsMatcher.group();
-                newNoteFieldValue = newNoteFieldValue
-                        .replace(term, "");
+                newNoteFieldValue = newNoteFieldValue.replace(term, "");
                 if (dateMatcher.find()) {
                     String date = dateMatcher.group();
                     String formattedDate = formatter.format(date);
                     newNoteFieldValue = newNoteFieldValue
-                            .replace(date, "").trim()
-                            .replaceAll("^,|,$", "").trim(); // either starts or ends with a comma
+                            .replace(date, "")
+                            .trim()
+                            .replaceAll("^,|,$", "")
+                            .trim(); // either starts or ends with a comma
 
                     // Same approach with the URL cleanup.
                     if (entry.hasField(URLDATE_FIELD)) {

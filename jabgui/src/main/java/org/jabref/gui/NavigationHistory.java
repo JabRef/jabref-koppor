@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.jabref.model.entry.BibEntry;
 
 /// Manages the navigation history of viewed entries using two stacks.

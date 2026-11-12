@@ -11,7 +11,6 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
-
 import org.jabref.logic.exporter.SaveConfiguration;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.Importer;
@@ -21,7 +20,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseModeDetection;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +63,7 @@ public class BibtexImporter extends Importer {
         decoder.onMalformedInput(CodingErrorAction.REPLACE);
 
         try (InputStreamReader inputStreamReader = new InputStreamReader(filePath, decoder);
-             BufferedReader reader = new BufferedReader(inputStreamReader)) {
+                BufferedReader reader = new BufferedReader(inputStreamReader)) {
             ParserResult parserResult = this.importDatabase(reader);
             parserResult.getMetaData().setEncoding(result.encoding());
             parserResult.getMetaData().setEncodingExplicitlySupplied(result.encodingExplicitlySupplied());
@@ -81,7 +79,8 @@ public class BibtexImporter extends Importer {
         return getEncodingResult(filePath).encoding();
     }
 
-    /// Determines the encoding of the supplied BibTeX file. If a JabRef encoding information is present, this information is used.
+    /// Determines the encoding of the supplied BibTeX file. If a JabRef encoding information is present, this
+    /// information is used.
     /// If there is none present, [com.ibm.icu.text.CharsetDetector#CharsetDetector()] is used.
     private static EncodingResult getEncodingResult(Path filePath) throws IOException {
         // We want to check if there is a JabRef encoding heading in the file, because that would tell us
@@ -114,8 +113,7 @@ public class BibtexImporter extends Importer {
         return new EncodingResult(encoding, encodingExplicitlySupplied);
     }
 
-    public record EncodingResult(Charset encoding, boolean encodingExplicitlySupplied) {
-    }
+    public record EncodingResult(Charset encoding, boolean encodingExplicitlySupplied) {}
 
     /// This method does not set the metadata encoding information. The caller needs to set the encoding of the supplied
     /// reader manually to the metadata
@@ -128,8 +126,11 @@ public class BibtexImporter extends Importer {
 
     /// Postprocessing for imported entries that normalizes keyword separators to the library's delimiter.
     private void normalizeKeywordDelimiters(ParserResult result) {
-        Character separator = result.getDatabaseContext().getKeywordSeparator(importFormatPreferences.bibEntryPreferences().getKeywordSeparator());
-        KeywordImportNormalizer.normalizeKeywords(result.getDatabase().getEntries(), importFormatPreferences.bibEntryPreferences(), separator);
+        Character separator = result.getDatabaseContext()
+                .getKeywordSeparator(
+                        importFormatPreferences.bibEntryPreferences().getKeywordSeparator());
+        KeywordImportNormalizer.normalizeKeywords(
+                result.getDatabase().getEntries(), importFormatPreferences.bibEntryPreferences(), separator);
     }
 
     @Override

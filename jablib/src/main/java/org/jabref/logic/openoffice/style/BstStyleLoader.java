@@ -5,9 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jabref.logic.openoffice.OpenOfficePreferences;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +19,8 @@ public class BstStyleLoader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BstStyleLoader.class);
 
-    private static final List<String> INTERNAL_STYLE_PATHS = List.of(
-            BstStyle.INTERNAL_IEEETRAN_PATH,
-            BstStyle.INTERNAL_ABBRV_PATH,
-            BstStyle.INTERNAL_APA_PATH
-    );
+    private static final List<String> INTERNAL_STYLE_PATHS =
+            List.of(BstStyle.INTERNAL_IEEETRAN_PATH, BstStyle.INTERNAL_ABBRV_PATH, BstStyle.INTERNAL_APA_PATH);
 
     private final OpenOfficePreferences openOfficePreferences;
     private final List<BstStyle> internalStyles = new ArrayList<>();
@@ -89,9 +84,7 @@ public class BstStyleLoader {
     }
 
     private void storeExternalStyles() {
-        List<String> paths = externalStyles.stream()
-                                           .map(BstStyle::getPath)
-                                           .toList();
+        List<String> paths = externalStyles.stream().map(BstStyle::getPath).toList();
         openOfficePreferences.setExternalBstStyles(paths);
     }
 }

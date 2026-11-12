@@ -1,22 +1,5 @@
 package org.jabref.gui.autosaveandbackup;
 
-import java.util.List;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import org.jabref.gui.dialogs.AutosaveUiManager;
-import org.jabref.logic.util.CoarseChangeFilter;
-import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.database.event.AutosaveEvent;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.event.FieldChangedEvent;
-import org.jabref.model.entry.field.StandardField;
-
-import org.jspecify.annotations.NullMarked;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,6 +11,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import org.jabref.gui.dialogs.AutosaveUiManager;
+import org.jabref.logic.util.CoarseChangeFilter;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.database.event.AutosaveEvent;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.event.FieldChangedEvent;
+import org.jabref.model.entry.field.StandardField;
+import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 @NullMarked
 class AutosaveManagerTest {

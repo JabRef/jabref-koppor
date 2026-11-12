@@ -1,5 +1,7 @@
 package org.jabref.gui.preferences.table;
 
+import static org.jabref.gui.preferences.forms.FormMetrics.GAP;
+
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
@@ -10,7 +12,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.actions.StandardActions;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.maintable.MainTableColumnModel;
@@ -21,8 +22,6 @@ import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.gui.walkthrough.declarative.WalkthroughNodeIds;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.l10n.Localization;
-
-import static org.jabref.gui.preferences.forms.FormMetrics.GAP;
 
 public class TableTab extends AbstractPreferenceTabView<TableTabViewModel> {
 
@@ -44,40 +43,60 @@ public class TableTab extends AbstractPreferenceTabView<TableTabViewModel> {
     }
 
     private void buildView() {
-        setContent(form()
-
-                .section(Localization.lang("Columns"), columns -> columns
-                        .custom(buildColumnsRegion(), region -> region
-                                .validate(viewModel.columnsListValidationStatus(), columnsList))
-                        .checkbox(Localization.lang("Enable special fields"), viewModel.specialFieldsEnabledProperty(),
-                                specialFields -> specialFields.help(StandardActions.HELP_SPECIAL_FIELDS, HelpFile.SPECIAL_FIELDS))
-                        .checkbox(Localization.lang("Show extra columns"), viewModel.extraFileColumnsEnabledProperty())
-                        .checkbox(Localization.lang("Fit table horizontally on screen"), viewModel.autoResizeColumnsProperty()))
-
-                .section(Localization.lang("Format of author and editor names"), nameFormat -> nameFormat
-                        .columns(sideBySide -> sideBySide
-                                .group(order -> order
-                                        .label(Localization.lang("Order"))
-                                        .group(choices -> choices
-                                                        .radioGroup(choice -> choice
-                                                                .radio(Localization.lang("Natbib style"), viewModel.namesNatbibProperty())
-                                                                .radio(Localization.lang("Show names unchanged"), viewModel.nameAsIsProperty())
-                                                                .radio(Localization.lang("Show 'Firstname Lastname'"), viewModel.nameFirstLastProperty())
-                                                                .radio(Localization.lang("Show 'Lastname, Firstname'"), viewModel.nameLastFirstProperty())),
-                                                indent -> indent.styleClass("padding-left-12").spacing(4.0)))
+        setContent(form().section(
+                        Localization.lang("Columns"),
+                        columns -> columns.custom(
+                                        buildColumnsRegion(),
+                                        region -> region.validate(viewModel.columnsListValidationStatus(), columnsList))
+                                .checkbox(
+                                        Localization.lang("Enable special fields"),
+                                        viewModel.specialFieldsEnabledProperty(),
+                                        specialFields -> specialFields.help(
+                                                StandardActions.HELP_SPECIAL_FIELDS, HelpFile.SPECIAL_FIELDS))
+                                .checkbox(
+                                        Localization.lang("Show extra columns"),
+                                        viewModel.extraFileColumnsEnabledProperty())
+                                .checkbox(
+                                        Localization.lang("Fit table horizontally on screen"),
+                                        viewModel.autoResizeColumnsProperty()))
+                .section(
+                        Localization.lang("Format of author and editor names"),
+                        nameFormat -> nameFormat.columns(sideBySide -> sideBySide
+                                .group(order -> order.label(Localization.lang("Order"))
+                                        .group(
+                                                choices -> choices.radioGroup(choice -> choice.radio(
+                                                                Localization.lang("Natbib style"),
+                                                                viewModel.namesNatbibProperty())
+                                                        .radio(
+                                                                Localization.lang("Show names unchanged"),
+                                                                viewModel.nameAsIsProperty())
+                                                        .radio(
+                                                                Localization.lang("Show 'Firstname Lastname'"),
+                                                                viewModel.nameFirstLastProperty())
+                                                        .radio(
+                                                                Localization.lang("Show 'Lastname, Firstname'"),
+                                                                viewModel.nameLastFirstProperty())),
+                                                indent -> indent.styleClass("padding-left-12")
+                                                        .spacing(4.0)))
                                 .group(abbreviation -> abbreviation
                                         .label(Localization.lang("Abbreviations"))
-                                        .group(choices -> choices
-                                                        .radioGroup(choice -> choice
-                                                                .radio(Localization.lang("Do not abbreviate names"), viewModel.abbreviationDisabledProperty())
-                                                                .radio(Localization.lang("Abbreviate names"), viewModel.abbreviationEnabledProperty())
-                                                                .radio(Localization.lang("Show last names only"), viewModel.abbreviationLastNameOnlyProperty())),
+                                        .group(
+                                                choices -> choices.radioGroup(choice -> choice.radio(
+                                                                Localization.lang("Do not abbreviate names"),
+                                                                viewModel.abbreviationDisabledProperty())
+                                                        .radio(
+                                                                Localization.lang("Abbreviate names"),
+                                                                viewModel.abbreviationEnabledProperty())
+                                                        .radio(
+                                                                Localization.lang("Show last names only"),
+                                                                viewModel.abbreviationLastNameOnlyProperty())),
                                                 indent -> indent.styleClass("padding-left-12")
-                                                                .spacing(4.0)
-                                                                // Natbib and "unchanged" render names verbatim,
-                                                                // so abbreviation does not apply.
-                                                                .disableWhen(viewModel.namesNatbibProperty().or(viewModel.nameAsIsProperty()))))))
-
+                                                        .spacing(4.0)
+                                                        // Natbib and "unchanged" render names verbatim,
+                                                        // so abbreviation does not apply.
+                                                        .disableWhen(viewModel
+                                                                .namesNatbibProperty()
+                                                                .or(viewModel.nameAsIsProperty()))))))
                 .build());
     }
 
@@ -87,17 +106,31 @@ public class TableTab extends AbstractPreferenceTabView<TableTabViewModel> {
 
         ComboBox<MainTableColumnModel> addColumnName = buildAddColumnCombo();
         HBox.setHgrow(addColumnName, Priority.ALWAYS);
-        HBox addRow = new HBox(4.0,
+        HBox addRow = new HBox(
+                4.0,
                 addColumnName,
-                ControlHelper.narrowIconButton(IconTheme.JabRefIcons.ADD_NOBOX, Localization.lang("Add custom column"), viewModel::insertColumnInList));
+                ControlHelper.narrowIconButton(
+                        IconTheme.JabRefIcons.ADD_NOBOX,
+                        Localization.lang("Add custom column"),
+                        viewModel::insertColumnInList));
 
         VBox listWithAddRow = new VBox(4.0, columnsList, addRow);
         HBox.setHgrow(listWithAddRow, Priority.ALWAYS);
 
-        VBox reorderButtons = new VBox(GAP,
-                ControlHelper.narrowIconButton(IconTheme.JabRefIcons.LIST_MOVE_UP, Localization.lang("Sort column one step upwards"), viewModel::moveColumnUp),
-                ControlHelper.narrowIconButton(IconTheme.JabRefIcons.LIST_MOVE_DOWN, Localization.lang("Sort column one step downwards"), viewModel::moveColumnDown),
-                ControlHelper.narrowIconButton(IconTheme.JabRefIcons.REFRESH, Localization.lang("Update to current column order"), viewModel::fillColumnList));
+        VBox reorderButtons = new VBox(
+                GAP,
+                ControlHelper.narrowIconButton(
+                        IconTheme.JabRefIcons.LIST_MOVE_UP,
+                        Localization.lang("Sort column one step upwards"),
+                        viewModel::moveColumnUp),
+                ControlHelper.narrowIconButton(
+                        IconTheme.JabRefIcons.LIST_MOVE_DOWN,
+                        Localization.lang("Sort column one step downwards"),
+                        viewModel::moveColumnDown),
+                ControlHelper.narrowIconButton(
+                        IconTheme.JabRefIcons.REFRESH,
+                        Localization.lang("Update to current column order"),
+                        viewModel::fillColumnList));
         reorderButtons.setAlignment(Pos.CENTER);
 
         return new HBox(4.0, listWithAddRow, reorderButtons);
@@ -127,8 +160,8 @@ public class TableTab extends AbstractPreferenceTabView<TableTabViewModel> {
         new ValueTableCellFactory<MainTableColumnModel, String>()
                 .withGraphic(_ -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
                 .withTooltip(name -> Localization.lang("Remove column") + " " + name)
-                .withOnMouseClickedEvent(_ -> _ ->
-                        viewModel.removeColumn(columnsList.getFocusModel().getFocusedItem()))
+                .withOnMouseClickedEvent(_ ->
+                        _ -> viewModel.removeColumn(columnsList.getFocusModel().getFocusedItem()))
                 .install(actionsColumn);
 
         columnsList.getColumns().add(nameColumn);

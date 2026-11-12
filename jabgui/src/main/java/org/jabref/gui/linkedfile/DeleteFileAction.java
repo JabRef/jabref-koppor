@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.collections.FXCollections;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -13,7 +12,6 @@ import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.desktop.os.NativeDesktop;
@@ -26,7 +24,6 @@ import org.jabref.logic.FilePreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.LinkedFile;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -44,11 +41,12 @@ public class DeleteFileAction extends SimpleCommand {
     private final List<LinkedFileViewModel> filesToDelete;
     private boolean success = false;
 
-    public DeleteFileAction(DialogService dialogService,
-                            FilePreferences filePreferences,
-                            BibDatabaseContext databaseContext,
-                            @Nullable LinkedFilesEditorViewModel viewModel,
-                            List<LinkedFileViewModel> filesToDelete) {
+    public DeleteFileAction(
+            DialogService dialogService,
+            FilePreferences filePreferences,
+            BibDatabaseContext databaseContext,
+            @Nullable LinkedFilesEditorViewModel viewModel,
+            List<LinkedFileViewModel> filesToDelete) {
         this.dialogService = dialogService;
         this.filePreferences = filePreferences;
         this.databaseContext = databaseContext;
@@ -57,10 +55,11 @@ public class DeleteFileAction extends SimpleCommand {
     }
 
     /// Called when the user wants to delete a complete entry.
-    public DeleteFileAction(DialogService dialogService,
-                            FilePreferences filePreferences,
-                            BibDatabaseContext databaseContext,
-                            List<LinkedFileViewModel> filesToDelete) {
+    public DeleteFileAction(
+            DialogService dialogService,
+            FilePreferences filePreferences,
+            BibDatabaseContext databaseContext,
+            List<LinkedFileViewModel> filesToDelete) {
         this(dialogService, filePreferences, databaseContext, null, filesToDelete);
     }
 
@@ -88,8 +87,8 @@ public class DeleteFileAction extends SimpleCommand {
 
         // Undo covers the bibliography, not the file system: it can put the link back, and the
         // file it points at stays wherever this dialog leaves it.
-        dialogDescription = Localization.lang("How should these files be handled?")
-                + "\n" + Localization.lang("Undo does not restore files removed from disk.");
+        dialogDescription = Localization.lang("How should these files be handled?") + "\n"
+                + Localization.lang("Undo does not restore files removed from disk.");
         if (numberOfLinkedFiles != 1) {
             dialogTitle = Localization.lang("Delete %0 files", numberOfLinkedFiles);
         } else {
@@ -97,12 +96,14 @@ public class DeleteFileAction extends SimpleCommand {
             Optional<Path> file = linkedFile.findIn(databaseContext, filePreferences);
             if (file.isPresent()) {
                 Path path = file.get();
-                dialogTitle = Localization.lang("Delete '%0'", path.getFileName().toString());
+                dialogTitle =
+                        Localization.lang("Delete '%0'", path.getFileName().toString());
             } else {
                 LOGGER.warn("Could not find file {}", linkedFile.getLink());
                 dialogService.notify(Localization.lang("Error accessing file '%0'.", linkedFile.getLink()));
 
-                // We can trigger deletion of "all" files from the entry (no deletion on disk), because in this case, there is only one files
+                // We can trigger deletion of "all" files from the entry (no deletion on disk), because in this case,
+                // there is only one files
                 assert numberOfLinkedFiles == 1;
                 deleteFiles(false);
 
@@ -145,7 +146,8 @@ public class DeleteFileAction extends SimpleCommand {
         header.setWrapText(true);
         header.getStyleClass().addAll("delete-files-dialog", "padding-12");
 
-        ListView<LinkedFileViewModel> filesToDeleteList = new ListView<>(FXCollections.observableArrayList(filesToDelete));
+        ListView<LinkedFileViewModel> filesToDeleteList =
+                new ListView<>(FXCollections.observableArrayList(filesToDelete));
         new ViewModelListCellFactory<LinkedFileViewModel>()
                 .withText(item -> item.getFile().getLink())
                 .install(filesToDeleteList);
@@ -201,7 +203,8 @@ public class DeleteFileAction extends SimpleCommand {
             success = true;
         } catch (IOException ex) {
             success = false;
-            dialogService.showErrorDialogAndWait(Localization.lang("Cannot delete file '%0'", theFile), Localization.lang("File permission error"));
+            dialogService.showErrorDialogAndWait(
+                    Localization.lang("Cannot delete file '%0'", theFile), Localization.lang("File permission error"));
             LOGGER.warn("Error while deleting: {}", linkedFile, ex);
         }
     }

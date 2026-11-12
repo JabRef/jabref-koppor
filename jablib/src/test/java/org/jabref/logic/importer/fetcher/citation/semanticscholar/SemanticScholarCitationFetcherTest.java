@@ -1,21 +1,5 @@
 package org.jabref.logic.importer.fetcher.citation.semanticscholar;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.jabref.logic.importer.FetcherException;
-import org.jabref.logic.importer.ImporterPreferences;
-import org.jabref.logic.importer.fetcher.SemanticScholar;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.StandardField;
-import org.jabref.model.entry.types.StandardEntryType;
-import org.jabref.support.ExternalServicesTest;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.mockito.Answers;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -25,6 +9,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
+import org.jabref.logic.importer.FetcherException;
+import org.jabref.logic.importer.ImporterPreferences;
+import org.jabref.logic.importer.fetcher.SemanticScholar;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.StandardField;
+import org.jabref.model.entry.types.StandardEntryType;
+import org.jabref.support.ExternalServicesTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 
 @ExternalServicesTest
 class SemanticScholarCitationFetcherTest {
@@ -59,8 +57,7 @@ class SemanticScholarCitationFetcherTest {
 
     @Test
     void getReferencesRestricted() {
-        BibEntry entry = new BibEntry()
-                .withField(StandardField.DOI, "10.47397/tb/44-3/tb138kopp-jabref");
+        BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.47397/tb/44-3/tb138kopp-jabref");
         assertThrows(FetcherException.class, () -> fetcher.getReferences(entry));
     }
 
@@ -88,7 +85,8 @@ class SemanticScholarCitationFetcherTest {
     void getCitationsLooksUpApiKeyUnderSemanticScholarFetcherName() {
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(importerPreferences.getApiKey(SemanticScholar.FETCHER_NAME)).thenReturn(Optional.empty());
-        SemanticScholarCitationFetcher fetcherWithMockedPreferences = new SemanticScholarCitationFetcher(importerPreferences);
+        SemanticScholarCitationFetcher fetcherWithMockedPreferences =
+                new SemanticScholarCitationFetcher(importerPreferences);
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1016/j.appet.2007.05.004");
 
         try {
@@ -105,7 +103,8 @@ class SemanticScholarCitationFetcherTest {
     void getReferencesLooksUpApiKeyUnderSemanticScholarFetcherName() {
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(importerPreferences.getApiKey(SemanticScholar.FETCHER_NAME)).thenReturn(Optional.empty());
-        SemanticScholarCitationFetcher fetcherWithMockedPreferences = new SemanticScholarCitationFetcher(importerPreferences);
+        SemanticScholarCitationFetcher fetcherWithMockedPreferences =
+                new SemanticScholarCitationFetcher(importerPreferences);
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1016/j.appet.2007.05.004");
 
         try {
@@ -122,7 +121,8 @@ class SemanticScholarCitationFetcherTest {
     void getCitationCountLooksUpApiKeyUnderSemanticScholarFetcherName() {
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(importerPreferences.getApiKey(SemanticScholar.FETCHER_NAME)).thenReturn(Optional.empty());
-        SemanticScholarCitationFetcher fetcherWithMockedPreferences = new SemanticScholarCitationFetcher(importerPreferences);
+        SemanticScholarCitationFetcher fetcherWithMockedPreferences =
+                new SemanticScholarCitationFetcher(importerPreferences);
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1016/j.appet.2007.05.004");
 
         try {

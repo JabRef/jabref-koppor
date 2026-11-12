@@ -2,7 +2,6 @@ package org.jabref.logic.importer.fetcher;
 
 import java.net.URISyntaxException;
 import java.util.Optional;
-
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.importer.IdBasedParserFetcher;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -24,7 +23,9 @@ public abstract class AbstractIsbnFetcher implements IdBasedParserFetcher {
     }
 
     /// @throws URISyntaxException if the ISBN is invalid
-    /// @implNote We could have created a new exception (which causes much implementation efforts) or we could have used "FetcherException", which is currently more used for I/O errors than syntax errors (thus also more WTF). Moreover, a ISBN is "kind of" an URI (even if the isbn: prefix is missing)
+    /// @implNote We could have created a new exception (which causes much implementation efforts) or we could have used
+    /// "FetcherException", which is currently more used for I/O errors than syntax errors (thus also more WTF).
+    /// Moreover, a ISBN is "kind of" an URI (even if the isbn: prefix is missing)
     protected void ensureThatIsbnIsValid(String identifier) throws URISyntaxException {
         ISBN isbn = new ISBN(identifier);
         if (!isbn.isValid()) {

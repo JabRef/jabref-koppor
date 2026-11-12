@@ -1,8 +1,7 @@
 package org.jabref.model.entry;
 
-import java.util.Objects;
-
 import com.google.common.base.MoreObjects;
+import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /// Stores all information needed to manage entries on a shared (SQL) database.
@@ -61,9 +60,9 @@ public class SharedBibEntryData implements Comparable<SharedBibEntryData> {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                          .add("sharedId", sharedIdAsString)
-                          .add("version", version)
-                          .toString();
+                .add("sharedId", sharedIdAsString)
+                .add("version", version)
+                .toString();
     }
 
     @Override

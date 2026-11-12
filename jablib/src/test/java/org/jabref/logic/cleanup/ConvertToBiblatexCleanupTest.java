@@ -1,16 +1,14 @@
 package org.jabref.logic.cleanup;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Optional;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ConvertToBiblatexCleanupTest {
 
@@ -101,14 +99,7 @@ class ConvertToBiblatexCleanupTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "2011-11",
-            "2011-11-11",
-            "2010/2011",
-            "0030 BC",
-            "-0876",
-            "2004-22"
-    })
+    @ValueSource(strings = {"2011-11", "2011-11-11", "2010/2011", "0030 BC", "-0876", "2004-22"})
     void fallbackDateParsing_shouldAcceptTypicalBibLatexValues(String fakeYear) {
         BibEntry entry = new BibEntry().withField(StandardField.YEAR, fakeYear);
 

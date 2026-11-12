@@ -15,8 +15,7 @@ import org.slf4j.LoggerFactory;
 public class BstPurifier {
     private static final Logger LOGGER = LoggerFactory.getLogger(BstPurifier.class);
 
-    private BstPurifier() {
-    }
+    private BstPurifier() {}
 
     public static String purify(String toPurify) {
         StringBuilder sb = new StringBuilder();

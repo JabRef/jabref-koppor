@@ -3,7 +3,6 @@ package org.jabref.logic.importer.fileformat.pdf;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Picks the page of a book that carries its bibliographic block: the imprint page behind the title page,
@@ -34,14 +33,18 @@ final class BibliographicPageDetector {
     private static final Pattern BBK = Pattern.compile("(?<!\\p{L})(BBK|ББК)\\s*\\d", FLAGS);
 
     private static final Pattern COPYRIGHT = Pattern.compile("©|\\(c\\)\\s*\\d{4}|copyright", FLAGS);
-    private static final Pattern RIGHTS_RESERVED = Pattern.compile("all rights reserved|усі права захищені|все права защищены|alle rechte vorbehalten", FLAGS);
+    private static final Pattern RIGHTS_RESERVED =
+            Pattern.compile("all rights reserved|усі права захищені|все права защищены|alle rechte vorbehalten", FLAGS);
     private static final Pattern PUBLISHER = Pattern.compile("publish(ed|er|ing)|видавництв|издательств|verlag", FLAGS);
-    private static final Pattern PRINT_DETAILS = Pattern.compile("printed in|підписано до друку|подписано в печать|наклад\\s*\\d|тираж\\s*\\d", FLAGS);
+    private static final Pattern PRINT_DETAILS =
+            Pattern.compile("printed in|підписано до друку|подписано в печать|наклад\\s*\\d|тираж\\s*\\d", FLAGS);
 
-    private static final List<Pattern> SIGNALS = List.of(ISBN, UDC, BBK, COPYRIGHT, RIGHTS_RESERVED, PUBLISHER, PRINT_DETAILS);
+    private static final List<Pattern> SIGNALS =
+            List.of(ISBN, UDC, BBK, COPYRIGHT, RIGHTS_RESERVED, PUBLISHER, PRINT_DETAILS);
 
     private static final Pattern REFERENCE_LIST_HEADING = Pattern.compile(
-            "\\A\\s*(references|bibliography|literature|works cited|література|литература|список .*(джерел|літератури|литературы))\\s*$",
+            "\\A\\s*(references|bibliography|literature|works cited|література|литература|список"
+                    + " .*(джерел|літератури|литературы))\\s*$",
             FLAGS | Pattern.MULTILINE);
 
     private static final Pattern ABSTRACT_HEADING = Pattern.compile("^\\h*abstract\\h*$", FLAGS | Pattern.MULTILINE);
@@ -50,8 +53,7 @@ final class BibliographicPageDetector {
             "^\\h*ACM\\h+Reference\\h+Format\\h*:[\\s\\S]*?\\bIn\\s+[^.]*\\b(conference|proceedings)\\b",
             FLAGS | Pattern.MULTILINE);
 
-    private BibliographicPageDetector() {
-    }
+    private BibliographicPageDetector() {}
 
     /// Returns the text of the page that is most likely the book's bibliographic page.
     ///
@@ -59,8 +61,8 @@ final class BibliographicPageDetector {
     /// @return the accepted page text, or an empty Optional if no page qualifies
     static Optional<String> findBibliographicPage(List<String> pageTexts) {
         return pageTexts.stream()
-                        .filter(pageText -> score(pageText) >= MIN_SIGNALS)
-                        .reduce((best, pageText) -> score(pageText) > score(best) ? pageText : best);
+                .filter(pageText -> score(pageText) >= MIN_SIGNALS)
+                .reduce((best, pageText) -> score(pageText) > score(best) ? pageText : best);
     }
 
     private static int score(String pageText) {
@@ -70,8 +72,8 @@ final class BibliographicPageDetector {
             return 0;
         }
         return (int) SIGNALS.stream()
-                            .filter(signal -> signal.matcher(pageText).find())
-                            .count();
+                .filter(signal -> signal.matcher(pageText).find())
+                .count();
     }
 
     // [impl->req~import.pdf.conference-article-exclusion~1]

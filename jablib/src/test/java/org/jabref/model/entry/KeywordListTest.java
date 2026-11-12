@@ -1,15 +1,14 @@
 package org.jabref.model.entry;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class KeywordListTest {
 
@@ -29,49 +28,45 @@ class KeywordListTest {
 
     @Test
     void parseOneWordReturnsOneKeyword() {
-        assertEquals(new KeywordList("keywordOne"),
-                KeywordList.parse("keywordOne", ','));
+        assertEquals(new KeywordList("keywordOne"), KeywordList.parse("keywordOne", ','));
     }
 
     @Test
     void parseTwoWordReturnsTwoKeywords() {
-        assertEquals(new KeywordList("keywordOne", "keywordTwo"),
-                KeywordList.parse("keywordOne, keywordTwo", ','));
+        assertEquals(new KeywordList("keywordOne", "keywordTwo"), KeywordList.parse("keywordOne, keywordTwo", ','));
     }
 
     @Test
     void parseTwoWordReturnsTwoKeywordsWithoutSpace() {
-        assertEquals(new KeywordList("keywordOne", "keywordTwo"),
-                KeywordList.parse("keywordOne,keywordTwo", ','));
+        assertEquals(new KeywordList("keywordOne", "keywordTwo"), KeywordList.parse("keywordOne,keywordTwo", ','));
     }
 
     @Test
     void parseTwoWordReturnsTwoKeywordsWithDifferentDelimiter() {
-        assertEquals(new KeywordList("keywordOne", "keywordTwo"),
-                KeywordList.parse("keywordOne| keywordTwo", '|'));
+        assertEquals(new KeywordList("keywordOne", "keywordTwo"), KeywordList.parse("keywordOne| keywordTwo", '|'));
     }
 
     @Test
     void parseWordsWithWhitespaceReturnsOneKeyword() {
-        assertEquals(new KeywordList("keyword and one"),
-                KeywordList.parse("keyword and one", ','));
+        assertEquals(new KeywordList("keyword and one"), KeywordList.parse("keyword and one", ','));
     }
 
     @Test
     void parseWordsWithWhitespaceAndCommaReturnsTwoKeyword() {
-        assertEquals(new KeywordList("keyword and one", "and two"),
-                KeywordList.parse("keyword and one, and two", ','));
+        assertEquals(new KeywordList("keyword and one", "and two"), KeywordList.parse("keyword and one, and two", ','));
     }
 
     @Test
     void parseIgnoresDuplicates() {
-        assertEquals(new KeywordList("keywordOne", "keywordTwo"),
+        assertEquals(
+                new KeywordList("keywordOne", "keywordTwo"),
                 KeywordList.parse("keywordOne, keywordTwo, keywordOne", ','));
     }
 
     @Test
     void parseTakeDelimiterNotRegexWhite() {
-        assertEquals(new KeywordList("keywordOne keywordTwo", "keywordThree"),
+        assertEquals(
+                new KeywordList("keywordOne keywordTwo", "keywordThree"),
                 KeywordList.parse("keywordOne keywordTwoskeywordThree", 's'));
     }
 
@@ -87,37 +82,43 @@ class KeywordListTest {
 
     @Test
     void parseWithMultipleDelimitersSingleKeyword() {
-        assertEquals(new KeywordList("keywordOne"),
+        assertEquals(
+                new KeywordList("keywordOne"),
                 KeywordList.parseWithMultipleDelimiters("keywordOne", List.of(';', ',')));
     }
 
     @Test
     void parseWithMultipleDelimitersWithSemicolonDelimiter() {
-        assertEquals(new KeywordList("keywordOne", "keywordTwo"),
+        assertEquals(
+                new KeywordList("keywordOne", "keywordTwo"),
                 KeywordList.parseWithMultipleDelimiters("keywordOne; keywordTwo", List.of(';', ',')));
     }
 
     @Test
     void parseWithMultipleDelimitersWithCommaDelimiter() {
-        assertEquals(new KeywordList("keywordOne", "keywordTwo"),
+        assertEquals(
+                new KeywordList("keywordOne", "keywordTwo"),
                 KeywordList.parseWithMultipleDelimiters("keywordOne, keywordTwo", List.of(';', ',')));
     }
 
     @Test
     void parseWithMultipleDelimitersSplitsOnAllConfiguredDelimiters() {
-        assertEquals(new KeywordList("keywordOne", "keywordTwo", "keywordThree"),
+        assertEquals(
+                new KeywordList("keywordOne", "keywordTwo", "keywordThree"),
                 KeywordList.parseWithMultipleDelimiters("keywordOne, keywordTwo; keywordThree", List.of(';', ',')));
     }
 
     @Test
     void parseWithMultipleDelimitersDoesNotSplitConfiguredDelimitersInsideBraces() {
-        assertEquals(new KeywordList("test1", "{2,1}", "test3"),
+        assertEquals(
+                new KeywordList("test1", "{2,1}", "test3"),
                 KeywordList.parseWithMultipleDelimiters("test1; {2,1}; test3", List.of(';', ',')));
     }
 
     @Test
     void parseWithMultipleDelimitersDoesNotSplitEscapedConfiguredDelimiters() {
-        assertEquals(new KeywordList("keyword#one", "keywordTwo"),
+        assertEquals(
+                new KeywordList("keyword#one", "keywordTwo"),
                 KeywordList.parseWithMultipleDelimiters("keyword\\#one; keywordTwo", List.of(';', '#')));
     }
 
@@ -132,7 +133,9 @@ class KeywordListTest {
     void parseWithMultipleDelimitersHierarchicalChain() {
         Keyword expected = Keyword.of(List.of("Parent", "Node", "Child"));
 
-        assertEquals(new KeywordList(expected), KeywordList.parseWithMultipleDelimiters("Parent > Node > Child", List.of(';', ',')));
+        assertEquals(
+                new KeywordList(expected),
+                KeywordList.parseWithMultipleDelimiters("Parent > Node > Child", List.of(';', ',')));
     }
 
     @Test
@@ -140,7 +143,8 @@ class KeywordListTest {
         Keyword expectedOne = Keyword.of(List.of("Parent1", "Node1", "Child1"));
         Keyword expectedTwo = Keyword.of(List.of("Parent2", "Node2", "Child2"));
 
-        assertEquals(new KeywordList(expectedOne, expectedTwo),
+        assertEquals(
+                new KeywordList(expectedOne, expectedTwo),
                 KeywordList.parse("Parent1 > Node1 > Child1, Parent2 > Node2 > Child2", ','));
     }
 
@@ -162,7 +166,9 @@ class KeywordListTest {
 
     @Test
     void mergeTwoListsOfKeywordsShouldReturnTheKeywordsMerged() {
-        assertEquals(new KeywordList("Figma", "Adobe", "JabRef", "Eclipse", "JetBrains"), KeywordList.merge("Figma, Adobe, JetBrains, Eclipse", "Adobe, JabRef", ','));
+        assertEquals(
+                new KeywordList("Figma", "Adobe", "JabRef", "Eclipse", "JetBrains"),
+                KeywordList.merge("Figma, Adobe, JetBrains, Eclipse", "Adobe, JabRef", ','));
     }
 
     private static Stream<Arguments> parseKeywordWithEscapedDelimiterDoesNotSplitKeyword() {
@@ -172,8 +178,7 @@ class KeywordListTest {
                 Arguments.of("keyword\\\\, keywordTwo", new KeywordList("keyword\\", "keywordTwo")),
                 Arguments.of("keyword\\,one > sub", new KeywordList(Keyword.of(List.of("keyword,one", "sub")))),
                 Arguments.of("one\\,two\\,three, four", new KeywordList("one,two,three", "four")),
-                Arguments.of("keywordOne\\\\", new KeywordList("keywordOne\\"))
-        );
+                Arguments.of("keywordOne\\\\", new KeywordList("keywordOne\\")));
     }
 
     @ParameterizedTest
@@ -184,13 +189,16 @@ class KeywordListTest {
 
     private static Stream<Arguments> serializeKeywordWithNonEscapedDelimiterJoinsKeywordsCorrectly() {
         return Stream.of(
-                Arguments.of(List.of(new Keyword("keyword,one"), new Keyword("keywordTwo")), "keyword\\,one,keywordTwo"),
-                Arguments.of(List.of(new Keyword("keywordOne,"), new Keyword("keywordTwo")), "keywordOne\\,,keywordTwo"),
-                Arguments.of(List.of(Keyword.of(List.of("keyword\\")), Keyword.of(List.of("keywordTwo"))), "keyword\\\\,keywordTwo"),
+                Arguments.of(
+                        List.of(new Keyword("keyword,one"), new Keyword("keywordTwo")), "keyword\\,one,keywordTwo"),
+                Arguments.of(
+                        List.of(new Keyword("keywordOne,"), new Keyword("keywordTwo")), "keywordOne\\,,keywordTwo"),
+                Arguments.of(
+                        List.of(Keyword.of(List.of("keyword\\")), Keyword.of(List.of("keywordTwo"))),
+                        "keyword\\\\,keywordTwo"),
                 Arguments.of(List.of(Keyword.of(List.of("keyword,one", "sub"))), "keyword\\,one > sub"),
                 Arguments.of(List.of(new Keyword("one,two,three"), new Keyword("four")), "one\\,two\\,three,four"),
-                Arguments.of(List.of(new Keyword("keywordOne\\")), "keywordOne\\\\")
-        );
+                Arguments.of(List.of(new Keyword("keywordOne\\")), "keywordOne\\\\"));
     }
 
     @ParameterizedTest
@@ -221,7 +229,8 @@ class KeywordListTest {
 
     @Test
     void serializeWithSpacesEscapesEmbeddedDelimiterAndKeepsReadableSeparatorSpacing() {
-        assertEquals("keyword\\,one, keywordTwo",
+        assertEquals(
+                "keyword\\,one, keywordTwo",
                 KeywordList.serializeWithSpaces(List.of(new Keyword("keyword,one"), new Keyword("keywordTwo")), ','));
     }
 }

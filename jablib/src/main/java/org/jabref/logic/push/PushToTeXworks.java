@@ -1,7 +1,6 @@
 package org.jabref.logic.push;
 
 import java.nio.file.Path;
-
 import org.jabref.logic.util.NotificationService;
 
 public class PushToTeXworks extends AbstractPushToApplication {
@@ -23,7 +22,9 @@ public class PushToTeXworks extends AbstractPushToApplication {
 
     @Override
     public String[] getCommandLine(String keyString) {
-        return new String[] {commandPath, "--insert-text", "%s%s%s".formatted(getCitePrefix(), keyString, getCiteSuffix())};
+        return new String[] {
+            commandPath, "--insert-text", "%s%s%s".formatted(getCitePrefix(), keyString, getCiteSuffix())
+        };
     }
 
     @Override

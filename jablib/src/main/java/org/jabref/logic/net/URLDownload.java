@@ -30,10 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-
+import kong.unirest.core.HttpResponse;
+import kong.unirest.core.Unirest;
+import kong.unirest.core.UnirestException;
 import org.jabref.logic.importer.FetcherClientException;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FetcherServerException;
@@ -43,10 +44,6 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.http.SimpleHttpResponse;
-
-import kong.unirest.core.HttpResponse;
-import kong.unirest.core.Unirest;
-import kong.unirest.core.UnirestException;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -67,11 +64,13 @@ import org.slf4j.LoggerFactory;
 ///
 /// Nothing is cached.
 ///
-/// Implementation note: This relies on <https://kong.github.io/unirest-java/configuration/> setting `followRedirects` to `true`
+/// Implementation note: This relies on <https://kong.github.io/unirest-java/configuration/> setting `followRedirects`
+/// to `true`
 /// and enabling cookie management.
 public class URLDownload {
 
-    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:151.0) Gecko/20100101 Firefox/151.0";
+    public static final String USER_AGENT =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:151.0) Gecko/20100101 Firefox/151.0";
     private static final Logger LOGGER = LoggerFactory.getLogger(URLDownload.class);
     private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(30);
     private static final int MAX_RETRIES = 3;
@@ -132,7 +131,8 @@ public class URLDownload {
             do {
                 // @formatter:on
                 retries++;
-                HttpResponse<String> response = Unirest.head(urlToCheck).headers(parameters).asString();
+                HttpResponse<String> response =
+                        Unirest.head(urlToCheck).headers(parameters).asString();
                 // Check if we have redirects, e.g. arxiv will give otherwise content type HTML for the original url
                 // We need to do it "manually", because ".followRedirects(true)" only works for GET not for HEAD
                 locationHeader = response.getHeaders().getFirst("location");
@@ -141,7 +141,11 @@ public class URLDownload {
                 }
                 // while loop, because there could be multiple redirects
             } while (!StringUtil.isNullOrEmpty(locationHeader) && retries <= MAX_RETRIES);
-            contentType = Unirest.head(urlToCheck).headers(parameters).asString().getHeaders().getFirst("Content-Type");
+            contentType = Unirest.head(urlToCheck)
+                    .headers(parameters)
+                    .asString()
+                    .getHeaders()
+                    .getFirst("Content-Type");
             if ((contentType != null) && !contentType.isEmpty()) {
                 return Optional.of(contentType);
             }
@@ -151,7 +155,12 @@ public class URLDownload {
 
         // Use GET request as alternative if no HEAD request is available
         try {
-            contentType = Unirest.get(source.toString()).headers(parameters).asString().getHeaders().get("Content-Type").getFirst();
+            contentType = Unirest.get(source.toString())
+                    .headers(parameters)
+                    .asString()
+                    .getHeaders()
+                    .get("Content-Type")
+                    .getFirst();
             if (!StringUtil.isNullOrEmpty(contentType)) {
                 return Optional.of(contentType);
             }
@@ -178,7 +187,8 @@ public class URLDownload {
     ///
     /// @return the status code of the response
     public boolean canBeReached() throws UnirestException {
-        int statusCode = Unirest.head(source.toString()).headers(parameters).asString().getStatus();
+        int statusCode =
+                Unirest.head(source.toString()).headers(parameters).asString().getStatus();
         return (statusCode >= 200) && (statusCode < 300);
     }
 
@@ -220,7 +230,7 @@ public class URLDownload {
     /// @return the downloaded string
     private static String asString(Charset encoding, URLConnection connection) throws FetcherException {
         try (InputStream input = new BufferedInputStream(connection.getInputStream());
-             Writer output = new StringWriter()) {
+                Writer output = new StringWriter()) {
             copy(input, output, encoding);
             return output.toString();
         } catch (IOException e) {
@@ -263,7 +273,8 @@ public class URLDownload {
             return asInputStream(httpURLConnection);
         }
         try {
-            return new ProgressInputStream(new BufferedInputStream(connection.getInputStream()), connection.getContentLengthLong());
+            return new ProgressInputStream(
+                    new BufferedInputStream(connection.getInputStream()), connection.getContentLengthLong());
         } catch (IOException e) {
             throw new FetcherException("Error getting input stream", e);
         }
@@ -305,7 +316,8 @@ public class URLDownload {
         // Take everything after the last '/' as name + extension
         String fileNameWithExtension = sourcePath.substring(sourcePath.lastIndexOf('/') + 1);
         String fileName = "jabref-" + FileUtil.getBaseName(fileNameWithExtension);
-        String extension = "." + FileUtil.getFileExtension(fileNameWithExtension).orElse("tmp");
+        String extension =
+                "." + FileUtil.getFileExtension(fileNameWithExtension).orElse("tmp");
 
         // Create temporary file and download to it
         Path file;
@@ -322,7 +334,7 @@ public class URLDownload {
 
     @Override
     public String toString() {
-        return "URLDownload{" + "source=" + this.source + '}';
+        return "URLDownload{source=" + this.source + '}';
     }
 
     private static void copy(InputStream in, Writer out, Charset encoding) throws IOException {
@@ -370,7 +382,8 @@ public class URLDownload {
                         LOGGER.warn("importerPreferences not set, but call to Unpaywall");
                     } else {
                         Optional<String> apiKey = importerPreferences.getApiKey(UnpaywallFetcher.FETCHER_NAME);
-                        if (StringUtil.isBlank(apiKey)) { // No checking for enablement of Unpaywall, because used differently
+                        if (StringUtil.isBlank(
+                                apiKey)) { // No checking for enablement of Unpaywall, because used differently
                             LOGGER.warn("No email configured for Unpaywall");
                         } else {
                             newUrl = newUrl.replace("<INSERT_YOUR_EMAIL>", apiKey.get());
@@ -389,7 +402,10 @@ public class URLDownload {
             } else if (status >= 400) {
                 // in case of an error, propagate the error message
                 SimpleHttpResponse httpResponse = new SimpleHttpResponse(httpURLConnection);
-                LOGGER.info("{}: {}", FetcherException.getRedactedUrl(this.source.toString()), toLoggableResponse(httpResponse));
+                LOGGER.info(
+                        "{}: {}",
+                        FetcherException.getRedactedUrl(this.source.toString()),
+                        toLoggableResponse(httpResponse));
                 if (status < 500) {
                     throw new FetcherClientException(this.source, httpResponse);
                 } else {
@@ -401,7 +417,9 @@ public class URLDownload {
     }
 
     private SimpleHttpResponse toLoggableResponse(SimpleHttpResponse response) {
-        return logResponseBody ? response : new SimpleHttpResponse(response.statusCode(), response.responseMessage(), "");
+        return logResponseBody
+                ? response
+                : new SimpleHttpResponse(response.statusCode(), response.responseMessage(), "");
     }
 
     private URLConnection getUrlConnection() throws IOException {

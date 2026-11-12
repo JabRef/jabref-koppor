@@ -2,7 +2,6 @@ package org.jabref.gui.maintable;
 
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
@@ -15,11 +14,11 @@ import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Similar to [ExtractReferencesAction]. This action creates a new library, the other action "just" appends to the current library
+/// Similar to [ExtractReferencesAction]. This action creates a new library, the other action "just" appends to the
+/// current library
 ///
 ///
 /// - Mode choice A: online or offline
@@ -52,10 +51,13 @@ public abstract class NewLibraryFromPdfAction extends SimpleCommand {
     public void execute() {
         final FileDialogConfiguration.Builder builder = new FileDialogConfiguration.Builder();
         builder.withDefaultExtension(StandardFileType.PDF);
-        // Sensible default for the directory to start browsing is the directory of the currently opened library. The pdf storage dir seems not to be feasible, because extracting references from a PDF itself can be done by the context menu of the respective entry.
-        stateManager.getActiveDatabase()
-                    .flatMap(BibDatabaseContext::getDatabasePath)
-                    .ifPresent(path -> builder.withInitialDirectory(path.getParent()));
+        // Sensible default for the directory to start browsing is the directory of the currently opened library. The
+        // pdf storage dir seems not to be feasible, because extracting references from a PDF itself can be done by the
+        // context menu of the respective entry.
+        stateManager
+                .getActiveDatabase()
+                .flatMap(BibDatabaseContext::getDatabasePath)
+                .ifPresent(path -> builder.withInitialDirectory(path.getParent()));
         FileDialogConfiguration fileDialogConfiguration = builder.build();
 
         LOGGER.trace("Opening file dialog with configuration: {}", fileDialogConfiguration);
@@ -64,13 +66,13 @@ public abstract class NewLibraryFromPdfAction extends SimpleCommand {
             LOGGER.trace("Selected file: {}", path);
             Callable<ParserResult> parserResultCallable = getParserResultCallable(path);
             BackgroundTask.wrap(parserResultCallable)
-                          .withInitialMessage(Localization.lang("Processing PDF(s)"))
-                          .onFailure(dialogService::showErrorDialogAndWait)
-                          .onSuccess(result -> {
-                              LOGGER.trace("Finished processing PDF(s): {}", result);
-                              libraryTabContainer.addTab(result.getDatabaseContext(), true);
-                          })
-                          .executeWith(taskExecutor);
+                    .withInitialMessage(Localization.lang("Processing PDF(s)"))
+                    .onFailure(dialogService::showErrorDialogAndWait)
+                    .onSuccess(result -> {
+                        LOGGER.trace("Finished processing PDF(s): {}", result);
+                        libraryTabContainer.addTab(result.getDatabaseContext(), true);
+                    })
+                    .executeWith(taskExecutor);
         });
     }
 

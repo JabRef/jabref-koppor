@@ -1,5 +1,6 @@
 package org.jabref.logic.l10n;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,10 +22,7 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javafx.fxml.FXMLLoader;
-
-import com.airhacks.afterburner.views.ViewLoader;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Answers;
 import org.mockito.MockedStatic;
@@ -42,18 +40,18 @@ public class LocalizationParser {
     public static SortedSet<LocalizationEntry> findMissingKeys() throws IOException {
         Set<String> englishKeys = getEnglishKeys();
         return findLocalizationEntriesInFiles().stream()
-                                               .filter(entry -> !englishKeys.contains(entry.getKey()))
-                                               .collect(Collectors.toCollection(TreeSet::new));
+                .filter(entry -> !englishKeys.contains(entry.getKey()))
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     /// Returns all keys declared in the English properties file which are not used in the sources.
     public static SortedSet<String> findObsolete() throws IOException {
         Set<String> keysInSourceFiles = findLocalizationEntriesInFiles().stream()
-                                                                        .map(LocalizationEntry::getKey)
-                                                                        .collect(Collectors.toSet());
+                .map(LocalizationEntry::getKey)
+                .collect(Collectors.toSet());
         return getEnglishKeys().stream()
-                               .filter(key -> !keysInSourceFiles.contains(key))
-                               .collect(Collectors.toCollection(TreeSet::new));
+                .filter(key -> !keysInSourceFiles.contains(key))
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     private static Set<LocalizationEntry> findLocalizationEntriesInFiles() throws IOException {
@@ -80,9 +78,9 @@ public class LocalizationParser {
     /// @param sourceDirectory the module relative directory to walk, e.g. `src/main/java`
     /// @param extension       only files having this file name extension are parsed
     /// @param extractor       extracts the localization entries of a single file
-    private static Set<LocalizationEntry> findInModules(String sourceDirectory,
-                                                        String extension,
-                                                        Function<Path, Collection<LocalizationEntry>> extractor) throws IOException {
+    private static Set<LocalizationEntry> findInModules(
+            String sourceDirectory, String extension, Function<Path, Collection<LocalizationEntry>> extractor)
+            throws IOException {
         Set<LocalizationEntry> result = new HashSet<>();
         for (String module : MODULES) {
             Path root = Path.of("..", module).resolve(sourceDirectory).normalize();
@@ -92,8 +90,8 @@ public class LocalizationParser {
             // Files.walk holds a directory handle, thus the stream needs to be closed
             try (Stream<Path> paths = Files.walk(root)) {
                 paths.filter(path -> path.toString().endsWith(extension))
-                     .map(extractor)
-                     .forEach(result::addAll);
+                        .map(extractor)
+                        .forEach(result::addAll);
             }
         }
         return result;
@@ -103,14 +101,13 @@ public class LocalizationParser {
     private static SortedSet<String> getEnglishKeys() {
         Properties properties = getProperties(ENGLISH_PROPERTIES_FILE);
         return properties.keySet().stream()
-                         .map(Object::toString)
-                         .map(String::trim)
-                         .map(key -> key
-                                 // escape keys to make them comparable
-                                 .replace("\\", "\\\\")
-                                 .replace("\n", "\\n")
-                         )
-                         .collect(Collectors.toCollection(TreeSet::new));
+                .map(Object::toString)
+                .map(String::trim)
+                .map(key -> key
+                        // escape keys to make them comparable
+                        .replace("\\", "\\\\")
+                        .replace("\n", "\\n"))
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     public static Properties getProperties(String path) {
@@ -119,7 +116,8 @@ public class LocalizationParser {
             throw new IllegalArgumentException("Could not find the properties file " + path);
         }
         Properties properties = new Properties();
-        try (inputStream; InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+        try (inputStream;
+                InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
             properties.load(reader);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -147,8 +145,8 @@ public class LocalizationParser {
         }
         String content = String.join("\n", lines);
         return parser.apply(content).stream()
-                     .map(key -> new LocalizationEntry(path, key))
-                     .toList();
+                .map(key -> new LocalizationEntry(path, key))
+                .toList();
     }
 
     /// Loads the fxml file and returns all used language resources.
@@ -195,22 +193,25 @@ public class LocalizationParser {
             viewLoader.close();
         }
 
-        return result.stream()
-                     .map(key -> new LocalizationEntry(path, key))
-                     .toList();
+        return result.stream().map(key -> new LocalizationEntry(path, key)).toList();
     }
 
     private static void setStaticLoad(FXMLLoader loader) {
         // Somebody decided to make "setStaticLoad" package-private, so let's use reflection
         //
         // Issues in JFX:
-        //   - https://bugs.openjdk.java.net/browse/JDK-8159005 "SceneBuilder needs public access to FXMLLoader setStaticLoad" --> call for "request from community users with use cases"
+        //   - https://bugs.openjdk.java.net/browse/JDK-8159005 "SceneBuilder needs public access to FXMLLoader
+        // setStaticLoad" --> call for "request from community users with use cases"
         //   - https://bugs.openjdk.java.net/browse/JDK-8127532 "FXMLLoader#setStaticLoad is deprecated"
         try {
             Method method = FXMLLoader.class.getDeclaredMethod("setStaticLoad", boolean.class);
             method.setAccessible(true);
             method.invoke(loader, true);
-        } catch (SecurityException | NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        } catch (SecurityException
+                | NoSuchMethodException
+                | IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.fetcher.CrossRef;
 import org.jabref.logic.l10n.Localization;
@@ -12,7 +11,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.toolkit.exception.ExportServiceException;
 import org.jabref.toolkit.service.ExportService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -69,7 +67,8 @@ class DoiToBibtex implements Callable<Integer> {
             entries.add(entry.get());
         }
 
-        ExportService.create(argumentProcessor.cliPreferences, sharedOptions.porcelain).printBibEntriesToStdOut(entries);
+        ExportService.create(argumentProcessor.cliPreferences, sharedOptions.porcelain)
+                .printBibEntriesToStdOut(entries);
         return CommandLine.ExitCode.OK;
     }
 }

@@ -1,7 +1,7 @@
 package org.jabref.gui.commonfxcontrols;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import java.util.Collection;
-
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
@@ -11,7 +11,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.input.KeyEvent;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.ValueTableCellFactory;
 import org.jabref.logic.citationkeypattern.AbstractCitationKeyPatterns;
@@ -20,13 +19,16 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.types.EntryType;
 
-import com.airhacks.afterburner.views.ViewLoader;
-
 public class CitationKeyPatternsPanel extends TableView<CitationKeyPatternsPanelItemModel> {
 
-    @FXML public TableColumn<CitationKeyPatternsPanelItemModel, EntryType> entryTypeColumn;
-    @FXML public TableColumn<CitationKeyPatternsPanelItemModel, String> patternColumn;
-    @FXML public TableColumn<CitationKeyPatternsPanelItemModel, EntryType> actionsColumn;
+    @FXML
+    public TableColumn<CitationKeyPatternsPanelItemModel, EntryType> entryTypeColumn;
+
+    @FXML
+    public TableColumn<CitationKeyPatternsPanelItemModel, String> patternColumn;
+
+    @FXML
+    public TableColumn<CitationKeyPatternsPanelItemModel, EntryType> actionsColumn;
 
     private CitationKeyPatternsPanelViewModel viewModel;
 
@@ -36,15 +38,11 @@ public class CitationKeyPatternsPanel extends TableView<CitationKeyPatternsPanel
 
     public CitationKeyPatternsPanel() {
         super();
-        this.patterns = FXCollections.observableArrayList(
-                CitationKeyPattern.getAllPatterns().stream()
-                                  .map(CitationKeyPattern::stringRepresentation)
-                                  .toList()
-        );
+        this.patterns = FXCollections.observableArrayList(CitationKeyPattern.getAllPatterns().stream()
+                .map(CitationKeyPattern::stringRepresentation)
+                .toList());
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @FXML
@@ -59,17 +57,16 @@ public class CitationKeyPatternsPanel extends TableView<CitationKeyPatternsPanel
         new ValueTableCellFactory<CitationKeyPatternsPanelItemModel, EntryType>()
                 .withText(EntryType::getDisplayName)
                 .install(entryTypeColumn);
-        this.setOnSort(_ ->
-                viewModel.patternListProperty().sort(CitationKeyPatternsPanelViewModel.defaultOnTopComparator));
+        this.setOnSort(
+                _ -> viewModel.patternListProperty().sort(CitationKeyPatternsPanelViewModel.defaultOnTopComparator));
 
         patternColumn.setSortable(true);
         patternColumn.setReorderable(false);
         patternColumn.setCellValueFactory(cellData -> cellData.getValue().pattern());
         patternColumn.setCellFactory(_ -> new CitationKeyPatternSuggestionCell(patterns));
         patternColumn.setEditable(true);
-        patternColumn.setOnEditCommit(
-                (TableColumn.CellEditEvent<CitationKeyPatternsPanelItemModel, String> event) ->
-                        event.getRowValue().setPattern(event.getNewValue()));
+        patternColumn.setOnEditCommit((TableColumn.CellEditEvent<CitationKeyPatternsPanelItemModel, String> event) ->
+                event.getRowValue().setPattern(event.getNewValue()));
 
         actionsColumn.setSortable(false);
         actionsColumn.setReorderable(false);
@@ -116,8 +113,10 @@ public class CitationKeyPatternsPanel extends TableView<CitationKeyPatternsPanel
 
         lastKeyPressTime = System.currentTimeMillis();
 
-        this.getItems().stream().filter(item -> item.getEntryType().getName().toLowerCase().startsWith(tableSearchTerm))
-            .findFirst().ifPresent(this::scrollTo);
+        this.getItems().stream()
+                .filter(item -> item.getEntryType().getName().toLowerCase().startsWith(tableSearchTerm))
+                .findFirst()
+                .ifPresent(this::scrollTo);
     }
 
     private static class HighlightTableRow extends TableRow<CitationKeyPatternsPanelItemModel> {
@@ -132,7 +131,8 @@ public class CitationKeyPatternsPanel extends TableView<CitationKeyPatternsPanel
             // Reapply the style only for the default entry type row
             if (item != null
                     && item.getEntryType() != null
-                    && CitationKeyPatternsPanelViewModel.ENTRY_TYPE_DEFAULT_NAME.equals(item.getEntryType().getName())) {
+                    && CitationKeyPatternsPanelViewModel.ENTRY_TYPE_DEFAULT_NAME.equals(
+                            item.getEntryType().getName())) {
                 getStyleClass().add(DEFAULT_ROW_STYLE_CLASS);
             }
         }

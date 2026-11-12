@@ -11,10 +11,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Optional;
-
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.core.JacksonException;
@@ -41,20 +39,18 @@ public class BrowserExtensionBridgeClient {
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(10);
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private final HttpClient httpClient = HttpClient.newBuilder()
-                                                    .connectTimeout(REQUEST_TIMEOUT)
-                                                    .build();
+    private final HttpClient httpClient =
+            HttpClient.newBuilder().connectTimeout(REQUEST_TIMEOUT).build();
     private final Path discoveryDirectory;
 
     /// Result of a successful `/v1/mathscinet/open` call.
     ///
-    /// @param action either `"opened"` (a new tab was created) or `"focused"` (an existing, extension-owned tab was reused)
+    /// @param action either `"opened"` (a new tab was created) or `"focused"` (an existing, extension-owned tab was
+    /// reused)
     /// @param tabId  the browser's id for the tab, for diagnostics only
-    public record MathSciNetOpenResult(String action, int tabId) {
-    }
+    public record MathSciNetOpenResult(String action, int tabId) {}
 
-    private record Discovery(int port, String token) {
-    }
+    private record Discovery(int port, String token) {}
 
     public BrowserExtensionBridgeClient() {
         this(defaultDiscoveryDirectory());
@@ -80,15 +76,18 @@ public class BrowserExtensionBridgeClient {
         String requestBody = MAPPER.createObjectNode().put("mrNumber", mrNumber).toString();
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                                             .uri(new URI("http://127.0.0.1:%d/v1/mathscinet/open".formatted(bridge.port())))
-                                             .header("Authorization", "Bearer " + bridge.token())
-                                             .header("Content-Type", "application/json")
-                                             .timeout(REQUEST_TIMEOUT)
-                                             .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                                             .build();
+                    .uri(new URI("http://127.0.0.1:%d/v1/mathscinet/open".formatted(bridge.port())))
+                    .header("Authorization", "Bearer " + bridge.token())
+                    .header("Content-Type", "application/json")
+                    .timeout(REQUEST_TIMEOUT)
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
-                LOGGER.warn("MathSciNet browser sync request failed with HTTP {}: {}", response.statusCode(), response.body());
+                LOGGER.warn(
+                        "MathSciNet browser sync request failed with HTTP {}: {}",
+                        response.statusCode(),
+                        response.body());
                 return Optional.empty();
             }
             JsonNode json = MAPPER.readTree(response.body());
@@ -121,7 +120,8 @@ public class BrowserExtensionBridgeClient {
                 LOGGER.warn("Browser-extension bridge discovery file {} missing port/tokenFile", discoveryFile);
                 return Optional.empty();
             }
-            String token = Files.readString(Path.of(tokenFile.asString()), StandardCharsets.UTF_8).strip();
+            String token = Files.readString(Path.of(tokenFile.asString()), StandardCharsets.UTF_8)
+                    .strip();
             return Optional.of(new Discovery(port.asInt(), token));
         } catch (IOException | JacksonException e) {
             LOGGER.debug("Could not read browser-extension bridge discovery file {}", discoveryFile, e);
@@ -141,8 +141,8 @@ public class BrowserExtensionBridgeClient {
         if (OS.WINDOWS) {
             String appData = System.getenv("APPDATA");
             Path base = StringUtil.isBlank(appData)
-                        ? Path.of(System.getProperty("user.home"), "AppData", "Roaming")
-                        : Path.of(appData);
+                    ? Path.of(System.getProperty("user.home"), "AppData", "Roaming")
+                    : Path.of(appData);
             return base.resolve("JabRef");
         }
         if (OS.OS_X) {
@@ -150,8 +150,8 @@ public class BrowserExtensionBridgeClient {
         }
         String xdgConfigHome = System.getenv("XDG_CONFIG_HOME");
         Path base = StringUtil.isBlank(xdgConfigHome)
-                    ? Path.of(System.getProperty("user.home"), ".config")
-                    : Path.of(xdgConfigHome);
+                ? Path.of(System.getProperty("user.home"), ".config")
+                : Path.of(xdgConfigHome);
         return base.resolve("jabref");
     }
 }

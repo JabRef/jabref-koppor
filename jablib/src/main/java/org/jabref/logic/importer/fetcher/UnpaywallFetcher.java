@@ -6,7 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
-
+import kong.unirest.core.UnirestException;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FulltextFetcher;
 import org.jabref.logic.importer.ImporterPreferences;
@@ -17,8 +17,6 @@ import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import kong.unirest.core.UnirestException;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +25,9 @@ import tools.jackson.databind.ObjectMapper;
 
 /// Fetcher for [Unpaywall](https://unpaywall.org/)
 ///
-/// Currently only used for storing an "API key" to be able to cope with URLs appearing at web server answers such as `Paper or abstract available at https://api.unpaywall.org/v2/10.47397/tb/44-3/tb138kopp-jabref?email=<INSERT_YOUR_EMAIL>`
+/// Currently only used for storing an "API key" to be able to cope with URLs appearing at web server answers such as
+/// `Paper or abstract available at
+/// https://api.unpaywall.org/v2/10.47397/tb/44-3/tb138kopp-jabref?email=<INSERT_YOUR_EMAIL>`
 public class UnpaywallFetcher implements SearchBasedFetcher, CustomizableKeyFetcher, FulltextFetcher {
     public static final String FETCHER_NAME = "Unpaywall";
 
@@ -66,9 +66,7 @@ public class UnpaywallFetcher implements SearchBasedFetcher, CustomizableKeyFetc
 
         try (InputStream stream = new URLDownload(url).asInputStream()) {
             JsonNode node = mapper.readTree(stream);
-            LOGGER.atDebug()
-                  .addKeyValue("payload", node)
-                  .log("Received JSON");
+            LOGGER.atDebug().addKeyValue("payload", node).log("Received JSON");
             String pdfUrl = node.at("/best_oa_location/url_for_pdf").asString();
             if (pdfUrl == null) {
                 return Optional.empty();
@@ -90,9 +88,7 @@ public class UnpaywallFetcher implements SearchBasedFetcher, CustomizableKeyFetc
     }
 
     private static @NonNull String getUrl(String doi, String email) {
-        return URL_PATTERN
-                .replace("<DOI>", doi)
-                .replace("<EMAIL>", email);
+        return URL_PATTERN.replace("<DOI>", doi).replace("<EMAIL>", email);
     }
 
     @Override

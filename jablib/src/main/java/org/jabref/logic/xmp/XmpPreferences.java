@@ -2,14 +2,12 @@ package org.jabref.logic.xmp;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
-
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 
@@ -29,13 +27,16 @@ public class XmpPreferences {
 
     private XmpPreferences() {
         this(
-                false,                                     // Don't use XMP privacy filter
+                false, // Don't use XMP privacy filter
                 new HashSet<>(DEFAULT_XMP_PRIVACY_FILTER), // Default XMP privacy filter fields (mutable copy)
-                new SimpleObjectProperty<>(',')            // Default keyword separator
-        );
+                new SimpleObjectProperty<>(',') // Default keyword separator
+                );
     }
 
-    public XmpPreferences(boolean useXmpPrivacyFilter, Set<Field> xmpPrivacyFilter, ReadOnlyObjectProperty<Character> keywordSeparatorProperty) {
+    public XmpPreferences(
+            boolean useXmpPrivacyFilter,
+            Set<Field> xmpPrivacyFilter,
+            ReadOnlyObjectProperty<Character> keywordSeparatorProperty) {
         this.useXmpPrivacyFilter = new SimpleBooleanProperty(useXmpPrivacyFilter);
         this.xmpPrivacyFilter = FXCollections.observableSet(new HashSet<>(xmpPrivacyFilter));
         this.keywordSeparator = new SimpleObjectProperty<>();

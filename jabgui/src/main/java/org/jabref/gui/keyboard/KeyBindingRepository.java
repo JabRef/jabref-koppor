@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.MapProperty;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.collections.FXCollections;
@@ -33,7 +32,8 @@ public class KeyBindingRepository {
     }
 
     public KeyBindingRepository(List<String> bindNames, List<String> bindings) {
-        this.bindings = new SimpleMapProperty<>(FXCollections.observableMap(new TreeMap<>(Comparator.comparing(KeyBinding::getLocalization))));
+        this.bindings = new SimpleMapProperty<>(
+                FXCollections.observableMap(new TreeMap<>(Comparator.comparing(KeyBinding::getLocalization))));
 
         if ((bindNames.isEmpty()) || (bindings.isEmpty()) || (bindNames.size() != bindings.size())) {
             // Use default key bindings
@@ -92,7 +92,9 @@ public class KeyBindingRepository {
     }
 
     private Optional<KeyBinding> getKeyBinding(String key) {
-        return Arrays.stream(KeyBinding.values()).filter(b -> b.getConstant().equals(key)).findFirst();
+        return Arrays.stream(KeyBinding.values())
+                .filter(b -> b.getConstant().equals(key))
+                .findFirst();
     }
 
     public void resetToDefault(String key) {
@@ -122,17 +124,15 @@ public class KeyBindingRepository {
     /// Used if the same key could be used by multiple actions
     private Set<KeyBinding> mapToKeyBindings(KeyEvent keyEvent) {
         return Arrays.stream(KeyBinding.values())
-                     .filter(binding -> checkKeyCombinationEquality(binding, keyEvent))
-                     .collect(Collectors.toSet());
+                .filter(binding -> checkKeyCombinationEquality(binding, keyEvent))
+                .collect(Collectors.toSet());
     }
 
     /// Checks if the given KeyEvent matches the given KeyBinding.
     ///
     /// Used if a keyboard shortcut leads to multiple actions (e.g., ESC for closing a dialog and clearing the search).
     public boolean matches(KeyEvent event, KeyBinding keyBinding) {
-        return mapToKeyBindings(event)
-                .stream()
-                .anyMatch(binding -> binding == keyBinding);
+        return mapToKeyBindings(event).stream().anyMatch(binding -> binding == keyBinding);
     }
 
     public Optional<KeyCombination> getKeyCombination(KeyBinding bindName) {
@@ -151,9 +151,9 @@ public class KeyBindingRepository {
     public List<KeyBinding> findConflictingKeyBindings(KeyBinding keyBinding, KeyEvent keyEvent) {
         // [impl->req~ux.keybindings.duplicate-warning~1]
         return bindings.keySet().stream()
-                       .filter(other -> other != keyBinding)
-                       .filter(other -> checkKeyCombinationEquality(other, keyEvent))
-                       .toList();
+                .filter(other -> other != keyBinding)
+                .filter(other -> checkKeyCombinationEquality(other, keyEvent))
+                .toList();
     }
 
     /// Check if the given KeyBinding equals the given keyEvent
@@ -162,8 +162,9 @@ public class KeyBindingRepository {
     /// @param keyEvent as KeEvent
     /// @return true if matching, else false
     public boolean checkKeyCombinationEquality(KeyBinding binding, KeyEvent keyEvent) {
-        return getKeyCombination(binding).filter(combination -> checkKeyCombinationEquality(combination, keyEvent))
-                                         .isPresent();
+        return getKeyCombination(binding)
+                .filter(combination -> checkKeyCombinationEquality(combination, keyEvent))
+                .isPresent();
     }
 
     public List<String> getBindNames() {

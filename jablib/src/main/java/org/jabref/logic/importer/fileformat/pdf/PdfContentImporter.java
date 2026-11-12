@@ -1,5 +1,9 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
+import static org.jabref.logic.util.strings.StringUtil.isNullOrEmpty;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Path;
@@ -16,7 +20,9 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.text.TextPosition;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
@@ -29,19 +35,12 @@ import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.identifier.ISBN;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Strings;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
-import org.apache.pdfbox.text.TextPosition;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-import static org.jabref.logic.util.strings.StringUtil.isNullOrEmpty;
-
 /// Parses book information page and creates a BibTeX entry from validated ISBN.
-/// If no page qualifies, falls back to parsing research paper information from the first page of the PDF and creates a BibTeX entry.
+/// If no page qualifies, falls back to parsing research paper information from the first page of the PDF and creates a
+/// BibTeX entry.
 ///
 /// Currently, Springer, and IEEE formats are supported.
 ///
@@ -53,7 +52,8 @@ import static org.jabref.logic.util.strings.StringUtil.isNullOrEmpty;
 public class PdfContentImporter extends PdfImporter {
 
     // Matches four-digit years separated from words and numbers, excluding ranges such as "1999-2005".
-    private static final Pattern YEAR_EXTRACT_PATTERN = Pattern.compile("(?<![\\p{L}\\d])(?<!\\d{4}\\h{0,5}[-–—]\\h{0,5})\\d{4}(?![\\p{L}\\d])(?!\\h*[-–—]\\h*\\d{4}(?!\\d))");
+    private static final Pattern YEAR_EXTRACT_PATTERN = Pattern.compile(
+            "(?<![\\p{L}\\d])(?<!\\d{4}\\h{0,5}[-–—]\\h{0,5})\\d{4}(?![\\p{L}\\d])(?!\\h*[-–—]\\h*\\d{4}(?!\\d))");
     private static final int MINIMUM_PLAUSIBLE_YEAR = 1500;
     private static final Pattern FOUR_DIGITS = Pattern.compile("\\d{4}");
 
@@ -94,7 +94,8 @@ public class PdfContentImporter extends PdfImporter {
         return result;
     }
 
-    /// Converts an author line as found in a PDF (a "byline") into a BibTeX author list, mapping a trailing `et al.` to `others`.
+    /// Converts an author line as found in a PDF (a "byline") into a BibTeX author list, mapping a trailing `et al.` to
+    /// `others`.
     ///
     /// Neither [org.jabref.logic.importer.AuthorListParser] nor
     /// [org.jabref.logic.formatter.bibtexfields.NormalizeNamesFormatter] (which delegates to
@@ -103,12 +104,17 @@ public class PdfContentImporter extends PdfImporter {
     /// `Karen Cooper, Jennifer Donovan and Gary Williamson`. Only this importer knows that its input is a byline and
     /// thus in "Given Family" order. Measured on the raw bylines of the importer's tests:
     ///
-    /// | Byline                                                                     | AuthorListParser result                                        |
+    /// | Byline                                                                     | AuthorListParser result
+    ///                              |
     /// |----------------------------------------------------------------------------|----------------------------------------------------------------|
-    /// | `Karen A. Cooper, Jennifer L. Donovan, Andrew L. Waterhouse and Gary Williamson` | 2 persons: "Andrew L. Waterhouse Karen A. Cooper, Jennifer L. Donovan" and "Gary Williamson" |
-    /// | `Karen A. Cooper1, Jennifer L. Donovan2 and Gary Williamson1*`            | 2 persons, affiliation markers kept as part of the family names |
-    /// | `Karen A. Cooper, Jennifer L. Donovan, et al.`                             | 1 garbled person plus `others` (the initials-first heuristic of `normalizeSimply` needs `K. A. Cooper`) |
-    /// | `Anke Lüdeling Merja Kytö` (separated by spaces only)                      | 1 person                                                       |
+    /// | `Karen A. Cooper, Jennifer L. Donovan, Andrew L. Waterhouse and Gary Williamson` | 2 persons: "Andrew L.
+    /// Waterhouse Karen A. Cooper, Jennifer L. Donovan" and "Gary Williamson" |
+    /// | `Karen A. Cooper1, Jennifer L. Donovan2 and Gary Williamson1*`            | 2 persons, affiliation markers
+    /// kept as part of the family names |
+    /// | `Karen A. Cooper, Jennifer L. Donovan, et al.`                             | 1 garbled person plus `others`
+    /// (the initials-first heuristic of `normalizeSimply` needs `K. A. Cooper`) |
+    /// | `Anke Lüdeling Merja Kytö` (separated by spaces only)                      | 1 person
+    ///                              |
     ///
     /// Hence the byline is split heuristically here; the result is a plain BibTeX list that
     /// [org.jabref.model.entry.AuthorList#parse] handles afterwards.
@@ -191,7 +197,8 @@ public class PdfContentImporter extends PdfImporter {
                         } else {
                             res = res.concat(" and ");
                         }
-                        if ("et".equalsIgnoreCase(splitNames[i]) && (splitNames.length > (i + 1))
+                        if ("et".equalsIgnoreCase(splitNames[i])
+                                && (splitNames.length > (i + 1))
                                 && "al.".equalsIgnoreCase(splitNames[i + 1])) {
                             res = res.concat("others");
                             break;
@@ -199,7 +206,7 @@ public class PdfContentImporter extends PdfImporter {
                             res = res.concat(splitNames[i]).concat(" ");
                             workedOnFirstOrMiddle = true;
                         }
-                    }  // do nothing, just increment i at the end of this iteration
+                    } // do nothing, just increment i at the end of this iteration
                 }
                 i++;
             } while (i < splitNames.length);
@@ -224,7 +231,9 @@ public class PdfContentImporter extends PdfImporter {
         }
         if (isbns.size() > 1) {
             ParserResult result = new ParserResult();
-            result.addWarning(Localization.lang("More than one ISBN found: Found %0. Not adding.", isbns.stream().map(ISBN::asString).collect(Collectors.joining(", "))));
+            result.addWarning(Localization.lang(
+                    "More than one ISBN found: Found %0. Not adding.",
+                    isbns.stream().map(ISBN::asString).collect(Collectors.joining(", "))));
             return result;
         }
         BibEntry bookEntry = new BibEntry(StandardEntryType.Book)
@@ -280,8 +289,11 @@ public class PdfContentImporter extends PdfImporter {
             return Math.abs(Xgap) > XspaceThreshold && Math.abs(Ygap) > YspaceThreshold;
         }
 
-        private boolean isUnwantedText(@Nullable TextPosition previousTextPosition, @Nullable TextPosition textPosition,
-                                       Map<Float, TextPosition> lastPositionMap, float fontSize) {
+        private boolean isUnwantedText(
+                @Nullable TextPosition previousTextPosition,
+                @Nullable TextPosition textPosition,
+                Map<Float, TextPosition> lastPositionMap,
+                float fontSize) {
             // This indicates that the text is at the start of the line, so it is needed.
             if (textPosition == null || previousTextPosition == null) {
                 return false;
@@ -301,8 +313,7 @@ public class PdfContentImporter extends PdfImporter {
         }
 
         @NullMarked
-        private record TitleCandidate(float fontSize, int pageIndex, String text) {
-        }
+        private record TitleCandidate(float fontSize, int pageIndex, String text) {}
 
         private Optional<String> findLargestFontText() {
             List<TitleCandidate> candidates = new ArrayList<>();
@@ -314,15 +325,16 @@ public class PdfContentImporter extends PdfImporter {
             // happen to use the title's font size) go to the earlier page instead of being
             // concatenated across pages.
             candidates.sort(Comparator.comparing(TitleCandidate::fontSize, Comparator.reverseOrder())
-                                      .thenComparing(TitleCandidate::pageIndex));
+                    .thenComparing(TitleCandidate::pageIndex));
             return candidates.stream()
-                             .map(TitleCandidate::text)
-                             .filter(this::isLegalTitle)
-                             .findFirst()
-                             .or(() -> candidates.stream().map(TitleCandidate::text).findFirst());
+                    .map(TitleCandidate::text)
+                    .filter(this::isLegalTitle)
+                    .findFirst()
+                    .or(() -> candidates.stream().map(TitleCandidate::text).findFirst());
         }
 
-        private void collectCandidates(List<TextPosition> textPositions, int pageIndex, List<TitleCandidate> candidates) {
+        private void collectCandidates(
+                List<TextPosition> textPositions, int pageIndex, List<TitleCandidate> candidates) {
             Map<Float, StringBuilder> fontSizeTextMap = new TreeMap<>(Collections.reverseOrder());
             Map<Float, TextPosition> lastPositionMap = new HashMap<>();
             TextPosition previousTextPosition = null;
@@ -341,7 +353,8 @@ public class PdfContentImporter extends PdfImporter {
                 previousTextPosition = textPosition;
             }
             for (Map.Entry<Float, StringBuilder> entry : fontSizeTextMap.entrySet()) {
-                candidates.add(new TitleCandidate(entry.getKey(), pageIndex, entry.getValue().toString().trim()));
+                candidates.add(new TitleCandidate(
+                        entry.getKey(), pageIndex, entry.getValue().toString().trim()));
             }
         }
 
@@ -359,8 +372,8 @@ public class PdfContentImporter extends PdfImporter {
             // font size is only a fallback basis, because text drawn at "Tf 1" and blown up via
             // the text matrix reports a bogus font size in pt.
             float xSpaceThreshold = Float.isFinite(widthOfSpace) && widthOfSpace > 0
-                                    ? 0.25F * widthOfSpace
-                                    : 0.15F * previous.getFontSizeInPt();
+                    ? 0.25F * widthOfSpace
+                    : 0.15F * previous.getFontSizeInPt();
             float ySpaceThreshold = previous.getFontSizeInPt();
             float xGap = current.getXDirAdj() - (previous.getXDirAdj() + previous.getWidthDirAdj());
             float yGap = current.getYDirAdj() - (previous.getYDirAdj() - previous.getHeightDir());
@@ -396,11 +409,13 @@ public class PdfContentImporter extends PdfImporter {
     ///
     /// @param firstpageContents The raw content of the PDF's first page, which may contain metadata and main content.
     /// @param lineSeparator     The line separator used to format and unify line breaks in the text content.
-    /// @param titleByFontSize   An optional title string determined by font size; if provided, this overrides the default title parsing.
+    /// @param titleByFontSize   An optional title string determined by font size; if provided, this overrides the
+    /// default title parsing.
     /// @return An [Optional] containing a [BibEntry] with the parsed bibliographic data if extraction
     /// is successful. Otherwise, an empty [Optional].
     @VisibleForTesting
-    Optional<BibEntry> getEntryFromPDFContent(String firstpageContents, String lineSeparator, Optional<String> titleByFontSize) {
+    Optional<BibEntry> getEntryFromPDFContent(
+            String firstpageContents, String lineSeparator, Optional<String> titleByFontSize) {
         String firstpageContentsUnifiedLineBreaks = StringUtil.unifyLineBreaks(firstpageContents, lineSeparator);
 
         lines = firstpageContentsUnifiedLineBreaks.split(lineSeparator);
@@ -477,7 +492,7 @@ public class PdfContentImporter extends PdfImporter {
             } else {
                 if (!"".equals(curString)) {
                     author = author.concat(" and ").concat(curString);
-                }  // if lines[i] is "and" then "" is returned by streamlineNames -> do nothing
+                } // if lines[i] is "and" then "" is returned by streamlineNames -> do nothing
             }
             lineIndex++;
         }
@@ -487,12 +502,14 @@ public class PdfContentImporter extends PdfImporter {
         // then, abstract and keywords follow
         while (lineIndex < lines.length) {
             curString = lines[lineIndex];
-            if ((curString.length() >= "Abstract".length()) && "Abstract".equalsIgnoreCase(curString.substring(0, "Abstract".length()))) {
+            if ((curString.length() >= "Abstract".length())
+                    && "Abstract".equalsIgnoreCase(curString.substring(0, "Abstract".length()))) {
                 if (curString.length() == "Abstract".length()) {
                     // only word "abstract" found -- skip line
                     curString = "";
                 } else {
-                    curString = curString.substring("Abstract".length() + 1).trim().concat(System.lineSeparator());
+                    curString =
+                            curString.substring("Abstract".length() + 1).trim().concat(System.lineSeparator());
                 }
                 lineIndex++;
                 // fillCurStringWithNonEmptyLines() cannot be used as that uses " " as line separator
@@ -503,7 +520,8 @@ public class PdfContentImporter extends PdfImporter {
                 }
                 abstractT = curString.trim();
                 lineIndex++;
-            } else if ((curString.length() >= "Keywords".length()) && "Keywords".equalsIgnoreCase(curString.substring(0, "Keywords".length()))) {
+            } else if ((curString.length() >= "Keywords".length())
+                    && "Keywords".equalsIgnoreCase(curString.substring(0, "Keywords".length()))) {
                 if (curString.length() == "Keywords".length()) {
                     // only word "Keywords" found -- skip line
                     curString = "";
@@ -555,7 +573,8 @@ public class PdfContentImporter extends PdfImporter {
                 int edslength = "(Eds.)".length();
                 int posWithEditor = pos + edslength + 2; // +2 because of ":" after (Eds.) and the subsequent space
                 if (posWithEditor > curString.length()) {
-                    curString = curString.substring(posWithEditor - 2); // we don't have any spaces after Eds so we subtract the 2
+                    curString = curString.substring(
+                            posWithEditor - 2); // we don't have any spaces after Eds so we subtract the 2
                 } else {
                     curString = curString.substring(posWithEditor);
                 }
@@ -630,7 +649,8 @@ public class PdfContentImporter extends PdfImporter {
             entry.setField(StandardField.EPRINTTYPE, "arXiv");
 
             // Quick workaround to avoid wrong year and number parsing
-            number = null; // "Germany" in org.jabref.logic.importer.fileformat.PdfContentImporterTest.extractArXivFromPage
+            number = null; // "Germany" in
+                           // org.jabref.logic.importer.fileformat.PdfContentImporterTest.extractArXivFromPage
             year = null; // "2408" in org.jabref.logic.importer.fileformat.PdfContentImporterTest.extractArXivFromPage
         }
         if (series != null) {
@@ -786,6 +806,8 @@ public class PdfContentImporter extends PdfImporter {
 
     @Override
     public String getDescription() {
-        return Localization.lang("This importer parses data of the first page of the PDF and creates a BibTeX entry. Currently, Springer and IEEE formats are supported.");
+        return Localization.lang(
+                "This importer parses data of the first page of the PDF and creates a BibTeX entry. Currently,"
+                        + " Springer and IEEE formats are supported.");
     }
 }

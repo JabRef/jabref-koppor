@@ -4,17 +4,16 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.search.query.BaseQueryNode;
 import org.jabref.model.search.query.NotNode;
 import org.jabref.model.search.query.OperatorNode;
 import org.jabref.model.search.query.SearchQueryNode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// In case the transformer contains state for a query transformation (such as the [IEEEQueryTransformer]), it has to be noted at the JavaDoc.
+/// In case the transformer contains state for a query transformation (such as the [IEEEQueryTransformer]), it has to be
+/// noted at the JavaDoc.
 /// Otherwise, a single instance QueryTransformer can be used.
 public abstract class AbstractQueryTransformer {
     public static final String NO_EXPLICIT_FIELD = "default";
@@ -36,9 +35,9 @@ public abstract class AbstractQueryTransformer {
         }
 
         String result = query.children().stream()
-                             .map(this::transform)
-                             .flatMap(Optional::stream)
-                             .collect(Collectors.joining(delimiter, "(", ")"));
+                .map(this::transform)
+                .flatMap(Optional::stream)
+                .collect(Collectors.joining(delimiter, "(", ")"));
         if ("()".equals(result)) {
             return Optional.empty();
         }
@@ -186,8 +185,7 @@ public abstract class AbstractQueryTransformer {
             case NotNode notQueryNode -> {
                 return transform(notQueryNode);
             }
-            case null,
-                 default -> {
+            case null, default -> {
                 LOGGER.error("Unsupported case when transforming the query:\n {}", query);
                 return Optional.empty();
             }
@@ -195,7 +193,8 @@ public abstract class AbstractQueryTransformer {
     }
 
     /// Parses the given query string into a complex query using lucene.
-    /// Note: For unique fields, the alphabetically and numerically first instance in the query string is used in the complex query.
+    /// Note: For unique fields, the alphabetically and numerically first instance in the query string is used in the
+    /// complex query.
     ///
     /// @param queryNode The first search node
     /// @return A query string containing all fields that are contained in the original lucene query and

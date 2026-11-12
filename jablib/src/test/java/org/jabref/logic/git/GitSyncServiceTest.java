@@ -1,12 +1,32 @@
 package org.jabref.logic.git;
 
+import static org.jabref.logic.git.merge.execution.GitMergeApplier.applyAutoPlan;
+import static org.jabref.logic.git.merge.execution.GitMergeApplier.applyResolved;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.internal.storage.file.WindowCache;
+import org.eclipse.jgit.lib.ConfigConstants;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.RepositoryCache;
+import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.WindowCacheConfig;
+import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.util.SystemReader;
 import org.jabref.logic.git.conflicts.GitConflictResolverStrategy;
 import org.jabref.logic.git.conflicts.ThreeWayEntryConflict;
 import org.jabref.logic.git.io.GitFileReader;
@@ -21,19 +41,6 @@ import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.internal.storage.file.WindowCache;
-import org.eclipse.jgit.lib.ConfigConstants;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.RepositoryCache;
-import org.eclipse.jgit.lib.StoredConfig;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.storage.file.WindowCacheConfig;
-import org.eclipse.jgit.transport.RefSpec;
-import org.eclipse.jgit.transport.URIish;
-import org.eclipse.jgit.util.SystemReader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,15 +49,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Answers;
-
-import static org.jabref.logic.git.merge.execution.GitMergeApplier.applyAutoPlan;
-import static org.jabref.logic.git.merge.execution.GitMergeApplier.applyResolved;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("git")
@@ -83,42 +81,42 @@ class GitSyncServiceTest {
     // In the future, consider replacing with structured BibEntry construction
     // to improve semantic robustness and avoid syntax errors.
     private final String initialContent = """
-                @article{a,
-                  author = {don't know the author},
-                  doi = {xya},
-                }
-
-                @article{b,
-                  author = {don't know the author},
-                  doi = {xyz},
-                }
-            """;
-
-    // Alice modifies a
-    private final String aliceUpdatedContent = """
-                @article{a,
-                  author = {author-a},
-                  doi = {xya},
-                }
-
-                @article{b,
-                  author = {don't know the author},
-                  doi = {xyz},
-                }
-            """;
-
-    // Bob reorders a and b
-    private final String bobUpdatedContent = """
-            @article{b,
-              author = {author-b},
-              doi = {xyz},
-            }
-
             @article{a,
               author = {don't know the author},
               doi = {xya},
             }
-            """;
+
+            @article{b,
+              author = {don't know the author},
+              doi = {xyz},
+            }
+        """;
+
+    // Alice modifies a
+    private final String aliceUpdatedContent = """
+            @article{a,
+              author = {author-a},
+              doi = {xya},
+            }
+
+            @article{b,
+              author = {don't know the author},
+              doi = {xyz},
+            }
+        """;
+
+    // Bob reorders a and b
+    private final String bobUpdatedContent = """
+        @article{b,
+          author = {author-b},
+          doi = {xyz},
+        }
+
+        @article{a,
+          author = {don't know the author},
+          doi = {xya},
+        }
+        """;
 
     /// Creates a commit graph with a base commit, one modification by Alice and one modification by Bob
     ///
@@ -130,7 +128,8 @@ class GitSyncServiceTest {
         SystemReader.setInstance(new NoopGitSystemReader());
 
         importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .thenReturn(',');
 
         gitConflictResolverStrategy = mock(GitConflictResolverStrategy.class);
         GitPreferences gitPreferences = mock(GitPreferences.class);
@@ -141,17 +140,17 @@ class GitSyncServiceTest {
         // create fake remote repo
         remoteDir = tempDir.resolve("remote.git");
         remoteGit = Git.init()
-                       .setBare(true)
-                       .setInitialBranch("main")
-                       .setDirectory(remoteDir.toFile())
-                       .call();
+                .setBare(true)
+                .setInitialBranch("main")
+                .setDirectory(remoteDir.toFile())
+                .call();
 
         // Alice init local repository
         aliceDir = tempDir.resolve("alice");
         aliceGit = Git.init()
-                      .setInitialBranch("main")
-                      .setDirectory(aliceDir.toFile())
-                      .call();
+                .setInitialBranch("main")
+                .setDirectory(aliceDir.toFile())
+                .call();
 
         this.library = aliceDir.resolve("library.bib");
 
@@ -173,18 +172,18 @@ class GitSyncServiceTest {
         // Bob clone remote
         bobDir = tempDir.resolve("bob");
         bobGit = Git.cloneRepository()
-                    .setURI(remoteDir.toUri().toString())
-                    .setDirectory(bobDir.toFile())
-                    .setBranchesToClone(List.of("refs/heads/main"))
-                    .setBranch("main")
-                    .call();
+                .setURI(remoteDir.toUri().toString())
+                .setDirectory(bobDir.toFile())
+                .setBranchesToClone(List.of("refs/heads/main"))
+                .setBranch("main")
+                .call();
 
         Path bobLibrary = bobDir.resolve("library.bib");
         bobCommit = writeAndCommit(bobUpdatedContent, "Exchange a with b", bob, bobLibrary, bobGit);
         bobGit.push()
-              .setRemote("origin")
-              .setRefSpecs(new RefSpec("refs/heads/main:refs/heads/main"))
-              .call();
+                .setRemote("origin")
+                .setRefSpecs(new RefSpec("refs/heads/main:refs/heads/main"))
+                .call();
 
         // back to Alice's branch, fetch remote
         aliceCommit = writeAndCommit(aliceUpdatedContent, "Fix author of a", alice, library, aliceGit);
@@ -236,16 +235,16 @@ class GitSyncServiceTest {
         String merged = Files.readString(library);
 
         String expected = """
-                @article{a,
-                  author = {author-a},
-                  doi = {xya},
-                }
+            @article{a,
+              author = {author-a},
+              doi = {xya},
+            }
 
-                @article{b,
-                  author = {author-b},
-                  doi = {xyz},
-                }
-                """;
+            @article{b,
+              author = {author-b},
+              doi = {xyz},
+            }
+            """;
 
         assertEquals(normalize(expected), normalize(merged));
     }
@@ -263,26 +262,31 @@ class GitSyncServiceTest {
         GitFileWriter.write(library, context, importFormatPreferences);
 
         BookkeepingResult bookkeepingResult = syncService.finalizeMerge(library, pullPlan.orElse(null));
-        assertEquals(BookkeepingResult.Kind.NEW_COMMIT, bookkeepingResult.kind(), "Expected bookkeeping to create a new commit");
+        assertEquals(
+                BookkeepingResult.Kind.NEW_COMMIT,
+                bookkeepingResult.kind(),
+                "Expected bookkeeping to create a new commit");
 
         PushResult pushResult = syncService.push(context, library);
         assertEquals(new PushResult(true, false), pushResult, "Expected pushResult to indicate a successful push");
 
         aliceGit.fetch().setRemote("origin").call();
-        String pushedContent = GitFileReader
-                .readFileFromCommit(aliceGit, aliceGit.log().setMaxCount(1).call().iterator().next(), Path.of("library.bib"))
+        String pushedContent = GitFileReader.readFileFromCommit(
+                        aliceGit,
+                        aliceGit.log().setMaxCount(1).call().iterator().next(),
+                        Path.of("library.bib"))
                 .orElseThrow(() -> new IllegalStateException("Expected file 'library.bib' not found in commit"));
         String expected = """
-                @article{a,
-                  author = {author-a},
-                  doi = {xya},
-                }
+            @article{a,
+              author = {author-a},
+              doi = {xya},
+            }
 
-                @article{b,
-                  author = {author-b},
-                  doi = {xyz},
-                }
-                """;
+            @article{b,
+              author = {author-b},
+              doi = {xyz},
+            }
+            """;
 
         assertEquals(normalize(expected), normalize(pushedContent));
         RevCommit head = aliceGit.log().setMaxCount(1).call().iterator().next();
@@ -296,14 +300,14 @@ class GitSyncServiceTest {
         Path localLibrary = localDirectory.resolve("library.bib");
 
         try (Git emptyRemote = Git.init()
-                                  .setBare(true)
-                                  .setInitialBranch("main")
-                                  .setDirectory(emptyRemoteDirectory.toFile())
-                                  .call();
-             Git localGit = Git.init()
-                               .setInitialBranch("main")
-                               .setDirectory(localDirectory.toFile())
-                               .call()) {
+                        .setBare(true)
+                        .setInitialBranch("main")
+                        .setDirectory(emptyRemoteDirectory.toFile())
+                        .call();
+                Git localGit = Git.init()
+                        .setInitialBranch("main")
+                        .setDirectory(localDirectory.toFile())
+                        .call()) {
             RevCommit localCommit = writeAndCommit(initialContent, "Initial commit", alice, localLibrary, localGit);
             localGit.remoteAdd()
                     .setName("origin")
@@ -312,8 +316,13 @@ class GitSyncServiceTest {
             localGit.getRepository().updateRef("refs/remotes/origin/main").link("refs/heads/main");
 
             StoredConfig config = localGit.getRepository().getConfig();
-            config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, "main", ConfigConstants.CONFIG_KEY_REMOTE, "origin");
-            config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, "main", ConfigConstants.CONFIG_KEY_MERGE, Constants.R_HEADS + "main");
+            config.setString(
+                    ConfigConstants.CONFIG_BRANCH_SECTION, "main", ConfigConstants.CONFIG_KEY_REMOTE, "origin");
+            config.setString(
+                    ConfigConstants.CONFIG_BRANCH_SECTION,
+                    "main",
+                    ConfigConstants.CONFIG_KEY_MERGE,
+                    Constants.R_HEADS + "main");
             config.save();
 
             GitPreferences gitPreferences = mock(GitPreferences.class);
@@ -335,39 +344,39 @@ class GitSyncServiceTest {
 
         Path bobLibrary = bobDir.resolve("library.bib");
         String bobEntry = """
-                      @article{b,
-                      author = {author-b},
-                      doi = {xyz},
-                    }
+                  @article{b,
+                  author = {author-b},
+                  doi = {xyz},
+                }
 
-                    @article{a,
-                      author = {don't know the author},
-                      doi = {xya},
-                    }
+                @article{a,
+                  author = {don't know the author},
+                  doi = {xya},
+                }
 
-                    @article{c,
-                      author = {bob-c},
-                      title = {Title C},
-                    }
-                """;
+                @article{c,
+                  author = {bob-c},
+                  title = {Title C},
+                }
+            """;
         writeAndCommit(bobEntry, "Bob adds article-c", bob, bobLibrary, bobGit);
         bobGit.push().setRemote("origin").call();
         String aliceEntry = """
-                    @article{a,
-                      author = {author-a},
-                      doi = {xya},
-                    }
+                @article{a,
+                  author = {author-a},
+                  doi = {xya},
+                }
 
-                    @article{b,
-                      author = {don't know the author},
-                      doi = {xyz},
-                    }
+                @article{b,
+                  author = {don't know the author},
+                  doi = {xyz},
+                }
 
-                    @article{c,
-                      author = {alice-c},
-                      title = {Title C},
-                    }
-                """;
+                @article{c,
+                  author = {alice-c},
+                  title = {Title C},
+                }
+            """;
         writeAndCommit(aliceEntry, "Alice adds conflicting article-c", alice, library, aliceGit);
         aliceGit.fetch().setRemote("origin").call();
 
@@ -392,47 +401,48 @@ class GitSyncServiceTest {
             return List.of(resolved);
         });
 
-        List<BibEntry> resolvedEntries = resolver.resolveConflicts(pullPlan.get().conflicts());
+        List<BibEntry> resolvedEntries =
+                resolver.resolveConflicts(pullPlan.get().conflicts());
         verify(resolver).resolveConflicts(anyList());
         applyResolved(context, resolvedEntries);
 
         GitFileWriter.write(library, context, importFormatPreferences);
         BookkeepingResult bookkeepingResult = syncService.finalizeMerge(library, pullPlan.orElse(null));
-        assertEquals(BookkeepingResult.Kind.NEW_COMMIT, bookkeepingResult.kind(), "Expected bookkeeping to create a new commit");
+        assertEquals(
+                BookkeepingResult.Kind.NEW_COMMIT,
+                bookkeepingResult.kind(),
+                "Expected bookkeeping to create a new commit");
 
         String mergedText = Files.readString(library);
 
         String expectedMerged = """
-                    @article{a,
-                      author = {author-a},
-                      doi = {xya},
-                    }
+                @article{a,
+                  author = {author-a},
+                  doi = {xya},
+                }
 
-                    @article{b,
-                      author = {author-b},
-                      doi = {xyz},
-                    }
+                @article{b,
+                  author = {author-b},
+                  doi = {xyz},
+                }
 
-                    @article{c,
-                      author = {alice-c + bob-c},
-                      title = {Title C},
-                    }
-                """;
+                @article{c,
+                  author = {alice-c + bob-c},
+                  title = {Title C},
+                }
+            """;
         assertEquals(normalize(expectedMerged), normalize(mergedText), "Merged content did not match expected result");
     }
 
     @Test
     void readFromCommits() throws Exception {
-        String base = GitFileReader
-                .readFileFromCommit(aliceGit, baseCommit, Path.of("library.bib"))
+        String base = GitFileReader.readFileFromCommit(aliceGit, baseCommit, Path.of("library.bib"))
                 .orElseThrow(() -> new IllegalStateException("Base version of library.bib not found"));
 
-        String local = GitFileReader
-                .readFileFromCommit(aliceGit, aliceCommit, Path.of("library.bib"))
+        String local = GitFileReader.readFileFromCommit(aliceGit, aliceCommit, Path.of("library.bib"))
                 .orElseThrow(() -> new IllegalStateException("Local version of library.bib not found"));
 
-        String remote = GitFileReader
-                .readFileFromCommit(aliceGit, bobCommit, Path.of("library.bib"))
+        String remote = GitFileReader.readFileFromCommit(aliceGit, bobCommit, Path.of("library.bib"))
                 .orElseThrow(() -> new IllegalStateException("Remote version of library.bib not found"));
 
         assertEquals(initialContent, base);
@@ -440,14 +450,13 @@ class GitSyncServiceTest {
         assertEquals(bobUpdatedContent, remote);
     }
 
-    private RevCommit writeAndCommit(String content, String message, PersonIdent author, Path library, Git git) throws Exception {
+    private RevCommit writeAndCommit(String content, String message, PersonIdent author, Path library, Git git)
+            throws Exception {
         Files.writeString(library, content, StandardCharsets.UTF_8);
-        String relativePath = git.getRepository().getWorkTree().toPath().relativize(library).toString();
+        String relativePath =
+                git.getRepository().getWorkTree().toPath().relativize(library).toString();
         git.add().addFilepattern(relativePath).call();
-        return git.commit()
-                  .setAuthor(author)
-                  .setMessage(message)
-                  .call();
+        return git.commit().setAuthor(author).setMessage(message).call();
     }
 
     private String normalize(String s) {
@@ -460,7 +469,11 @@ class GitSyncServiceTest {
     private static void configureTracking(Git git, String branch, String remote) throws IOException {
         StoredConfig config = git.getRepository().getConfig();
         config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, branch, ConfigConstants.CONFIG_KEY_REMOTE, remote);
-        config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, branch, ConfigConstants.CONFIG_KEY_MERGE, Constants.R_HEADS + branch);
+        config.setString(
+                ConfigConstants.CONFIG_BRANCH_SECTION,
+                branch,
+                ConfigConstants.CONFIG_KEY_MERGE,
+                Constants.R_HEADS + branch);
         config.save();
     }
 }

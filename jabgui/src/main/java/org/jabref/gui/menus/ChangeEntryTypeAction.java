@@ -1,7 +1,6 @@
 package org.jabref.gui.menus;
 
 import java.util.List;
-
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.undo.UndoManager;
@@ -23,8 +22,9 @@ public class ChangeEntryTypeAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        undoManager.addEdit(Localization.lang("Change entry type"), edit ->
-                entries.forEach(entry -> {
+        undoManager.addEdit(
+                Localization.lang("Change entry type"),
+                edit -> entries.forEach(entry -> {
                     EntryType oldType = entry.getType();
                     if (entry.setType(type).isPresent()) {
                         edit.addEdit(new UndoableChangeType(entry, oldType, type));

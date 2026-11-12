@@ -1,8 +1,17 @@
 package org.jabref.gui.importer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.externalfiles.ImportHandler;
@@ -16,28 +25,18 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Answers;
 import org.mockito.MockedConstruction;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockConstruction;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @NullMarked
 class ImportEntriesViewModelTest {
     @ParameterizedTest
     @CsvSource({"true, true", "true, false", "false, true", "false, false"})
-    void importRemembersDialogChoiceAndPassesItToHandlerWithoutChangingWebSearch(boolean choice, boolean webSearchChoice) {
+    void importRemembersDialogChoiceAndPassesItToHandlerWithoutChangingWebSearch(
+            boolean choice, boolean webSearchChoice) {
         // [utest->req~import.dialog.download-linked-files~1]
         FilePreferences files = FilePreferences.getDefault();
         files.setDownloadLinkedFiles(webSearchChoice);
@@ -49,9 +48,16 @@ class ImportEntriesViewModelTest {
         List<BibEntry> entries = List.of(new BibEntry());
         ImportEntriesViewModel viewModel = new ImportEntriesViewModel(
                 BackgroundTask.wrap(() -> new ParserResult(entries)),
-                new CurrentThreadTaskExecutor(), database, mock(DialogService.class),
-                new JabRefUndoManager(), preferences, mock(StateManager.class),
-                new BibEntryTypesManager(), new DummyFileUpdateMonitor(), Optional.empty(), Optional.empty());
+                new CurrentThreadTaskExecutor(),
+                database,
+                mock(DialogService.class),
+                new JabRefUndoManager(),
+                preferences,
+                mock(StateManager.class),
+                new BibEntryTypesManager(),
+                new DummyFileUpdateMonitor(),
+                Optional.empty(),
+                Optional.empty());
         viewModel.selectedDbProperty().set(database);
         assertEquals(!choice, viewModel.shouldDownloadLinkedFiles());
 
@@ -89,9 +95,16 @@ class ImportEntriesViewModelTest {
         List<BibEntry> entries = List.of(new BibEntry());
         ImportEntriesViewModel viewModel = new ImportEntriesViewModel(
                 BackgroundTask.wrap(() -> new ParserResult(entries)),
-                new CurrentThreadTaskExecutor(), database, mock(DialogService.class),
-                new JabRefUndoManager(), preferences, mock(StateManager.class),
-                new BibEntryTypesManager(), new DummyFileUpdateMonitor(), Optional.empty(), Optional.empty());
+                new CurrentThreadTaskExecutor(),
+                database,
+                mock(DialogService.class),
+                new JabRefUndoManager(),
+                preferences,
+                mock(StateManager.class),
+                new BibEntryTypesManager(),
+                new DummyFileUpdateMonitor(),
+                Optional.empty(),
+                Optional.empty());
         viewModel.selectedDbProperty().set(database);
 
         // DOI searches have no SearchBasedFetcher, so the source must be selected explicitly.

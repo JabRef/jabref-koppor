@@ -1,8 +1,10 @@
 package org.jabref.gui.importer.fetcher;
 
+import static org.jabref.gui.actions.ActionHelper.needsDatabase;
+import static org.jabref.gui.actions.ActionHelper.needsEntriesSelected;
+
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.Action;
@@ -22,12 +24,8 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.identifier.Identifier;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableFieldChange;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.jabref.gui.actions.ActionHelper.needsDatabase;
-import static org.jabref.gui.actions.ActionHelper.needsEntriesSelected;
 
 public class LookupIdentifierAction<T extends Identifier> extends SimpleCommand {
 
@@ -38,17 +36,16 @@ public class LookupIdentifierAction<T extends Identifier> extends SimpleCommand 
     private final DialogService dialogService;
     private final TaskExecutor taskExecutor;
 
-    public LookupIdentifierAction(IdFetcher<T> fetcher,
-                                  StateManager stateManager,
-                                  DialogService dialogService,
-                                  TaskExecutor taskExecutor) {
+    public LookupIdentifierAction(
+            IdFetcher<T> fetcher, StateManager stateManager, DialogService dialogService, TaskExecutor taskExecutor) {
         this.fetcher = fetcher;
         this.stateManager = stateManager;
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
 
         this.executable.bind(needsDatabase(this.stateManager).and(needsEntriesSelected(this.stateManager)));
-        this.statusMessage.bind(BindingsHelper.ifThenElse(executable, "", Localization.lang("This operation requires one or more entries to be selected.")));
+        this.statusMessage.bind(BindingsHelper.ifThenElse(
+                executable, "", Localization.lang("This operation requires one or more entries to be selected.")));
     }
 
     @Override
@@ -66,8 +63,8 @@ public class LookupIdentifierAction<T extends Identifier> extends SimpleCommand 
 
         try {
             BackgroundTask.wrap(() -> lookupIdentifiers(undoManager, selectedEntries))
-                          .onSuccess(dialogService::notify)
-                          .executeWith(taskExecutor);
+                    .onSuccess(dialogService::notify)
+                    .executeWith(taskExecutor);
         } catch (Exception e) {
             LOGGER.error("Problem running ID Worker", e);
         }
@@ -96,7 +93,8 @@ public class LookupIdentifierAction<T extends Identifier> extends SimpleCommand 
             }
             undoManager.addEdit(compoundEdit.toChangeSet());
         }
-        return Localization.lang("Determined %0 for %1 entries", fetcher.getIdentifierName(), Integer.toString(foundCount));
+        return Localization.lang(
+                "Determined %0 for %1 entries", fetcher.getIdentifierName(), Integer.toString(foundCount));
     }
 
     /// Looks the identifier up for one entry and writes it, unless the entry already has one.
@@ -129,7 +127,8 @@ public class LookupIdentifierAction<T extends Identifier> extends SimpleCommand 
     }
 
     private void notifyProgress(int count, String totalCount, int foundCount) {
-        String statusMessage = Localization.lang("Looking up %0... - entry %1 out of %2 - found %3",
+        String statusMessage = Localization.lang(
+                "Looking up %0... - entry %1 out of %2 - found %3",
                 fetcher.getIdentifierName(), Integer.toString(count), totalCount, Integer.toString(foundCount));
         UiTaskExecutor.runInJavaFXThread(() -> dialogService.notify(statusMessage));
     }

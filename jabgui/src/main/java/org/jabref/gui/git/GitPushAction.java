@@ -3,7 +3,7 @@ package org.jabref.gui.git;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
-
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionHelper;
@@ -17,8 +17,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
-
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +29,12 @@ public class GitPushAction extends SimpleCommand {
     private final TaskExecutor taskExecutor;
     private final GitHandlerRegistry gitHandlerRegistry;
 
-    public GitPushAction(DialogService dialogService,
-                         StateManager stateManager,
-                         GuiPreferences guiPreferences,
-                         TaskExecutor taskExecutor,
-                         GitHandlerRegistry handlerRegistry) {
+    public GitPushAction(
+            DialogService dialogService,
+            StateManager stateManager,
+            GuiPreferences guiPreferences,
+            TaskExecutor taskExecutor,
+            GitHandlerRegistry handlerRegistry) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.guiPreferences = guiPreferences;
@@ -50,9 +49,7 @@ public class GitPushAction extends SimpleCommand {
         Optional<BibDatabaseContext> activeDatabaseOpt = stateManager.getActiveDatabase();
         if (activeDatabaseOpt.isEmpty()) {
             dialogService.showErrorDialogAndWait(
-                    Localization.lang("No library open"),
-                    Localization.lang("Please open a library before pushing.")
-            );
+                    Localization.lang("No library open"), Localization.lang("Please open a library before pushing."));
             return;
         }
 
@@ -61,8 +58,7 @@ public class GitPushAction extends SimpleCommand {
         if (bibFilePathOpt.isEmpty()) {
             dialogService.showErrorDialogAndWait(
                     Localization.lang("No library file path"),
-                    Localization.lang("Cannot push to Git: No file is associated with this library.")
-            );
+                    Localization.lang("Cannot push to Git: No file is associated with this library."));
             return;
         }
 
@@ -72,30 +68,32 @@ public class GitPushAction extends SimpleCommand {
         GitStatusViewModel gitStatusViewModel =
                 GitStatusViewModel.fromPathAndContext(stateManager, taskExecutor, gitHandlerRegistry, bibFilePath);
 
-        BackgroundTask
-                .wrap(() -> doPush(activeDatabase, bibFilePath, gitStatusViewModel, gitHandlerRegistry))
+        BackgroundTask.wrap(() -> doPush(activeDatabase, bibFilePath, gitStatusViewModel, gitHandlerRegistry))
                 .onSuccess(result -> {
-                    LOGGER.info("Git push completed for {}. Successful: {}, no operation: {}", bibFilePath, result.successful(), result.noop());
+                    LOGGER.info(
+                            "Git push completed for {}. Successful: {}, no operation: {}",
+                            bibFilePath,
+                            result.successful(),
+                            result.noop());
                     if (result.noop()) {
                         dialogService.showInformationDialogAndWait(
                                 Localization.lang("Git Push"),
-                                Localization.lang("Nothing to push. Local branch is up to date.")
-                        );
+                                Localization.lang("Nothing to push. Local branch is up to date."));
                     } else if (result.successful()) {
                         dialogService.showInformationDialogAndWait(
-                                Localization.lang("Git Push"),
-                                Localization.lang("Pushed successfully.")
-                        );
+                                Localization.lang("Git Push"), Localization.lang("Pushed successfully."));
                     }
                 })
                 .onFailure(this::showPushError)
                 .executeWith(taskExecutor);
     }
 
-    private PushResult doPush(BibDatabaseContext databaseContext,
-                              Path bibPath,
-                              GitStatusViewModel gitStatusViewModel,
-                              GitHandlerRegistry registry) throws IOException, GitAPIException, JabRefException {
+    private PushResult doPush(
+            BibDatabaseContext databaseContext,
+            Path bibPath,
+            GitStatusViewModel gitStatusViewModel,
+            GitHandlerRegistry registry)
+            throws IOException, GitAPIException, JabRefException {
         GitSyncService syncService = GitSyncService.create(guiPreferences.getImportFormatPreferences(), registry);
         PushResult result = syncService.push(databaseContext, bibPath);
 
@@ -109,25 +107,19 @@ public class GitPushAction extends SimpleCommand {
         LOGGER.warn("Git push failed", ex);
         switch (ex) {
             case JabRefException e ->
-                    dialogService.showErrorDialogAndWait(
-                            Localization.lang("Git push failed"),
-                            e.getLocalizedMessage()
-                    );
+                dialogService.showErrorDialogAndWait(Localization.lang("Git push failed"), e.getLocalizedMessage());
             case GitAPIException e ->
-                    dialogService.showErrorDialogAndWait(
-                            Localization.lang("Git push failed"),
-                            Localization.lang("An unexpected Git error occurred: %0", e.getLocalizedMessage())
-                    );
+                dialogService.showErrorDialogAndWait(
+                        Localization.lang("Git push failed"),
+                        Localization.lang("An unexpected Git error occurred: %0", e.getLocalizedMessage()));
             case IOException e ->
-                    dialogService.showErrorDialogAndWait(
-                            Localization.lang("Git push failed"),
-                            Localization.lang("I/O error: %0", e.getLocalizedMessage())
-                    );
+                dialogService.showErrorDialogAndWait(
+                        Localization.lang("Git push failed"),
+                        Localization.lang("I/O error: %0", e.getLocalizedMessage()));
             default ->
-                    dialogService.showErrorDialogAndWait(
-                            Localization.lang("Git push failed"),
-                            Localization.lang("Unexpected error: %0", ex.getMessage())
-                    );
+                dialogService.showErrorDialogAndWait(
+                        Localization.lang("Git push failed"),
+                        Localization.lang("Unexpected error: %0", ex.getMessage()));
         }
     }
 }

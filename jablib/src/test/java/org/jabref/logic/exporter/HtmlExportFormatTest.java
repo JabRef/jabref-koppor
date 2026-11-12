@@ -1,22 +1,22 @@
 package org.jabref.logic.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,9 +25,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("exporter")
@@ -39,7 +36,8 @@ public class HtmlExportFormatTest {
 
     @BeforeEach
     void setUp() {
-        exportFormat = new TemplateExporter("HTML",
+        exportFormat = new TemplateExporter(
+                "HTML",
                 "html",
                 "html",
                 "",
@@ -62,7 +60,8 @@ public class HtmlExportFormatTest {
     }
 
     @Test
-    void emitWellFormedHtml(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void emitWellFormedHtml(@TempDir Path testFolder)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path path = testFolder.resolve("ThisIsARandomlyNamedFile");
         exportFormat.export(databaseContext, path, entries);
         List<String> lines = Files.readAllLines(path);

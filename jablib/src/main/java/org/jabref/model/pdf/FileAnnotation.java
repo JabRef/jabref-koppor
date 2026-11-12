@@ -5,7 +5,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.slf4j.Logger;
@@ -33,8 +32,13 @@ public class FileAnnotation {
     /// @param pageNumber     The page of the pdf where the annotation occurs
     /// @param content        the actual content of the annotation
     /// @param annotationType the type of the annotation
-    public FileAnnotation(final String author, final LocalDateTime timeModified, final int pageNumber,
-                          final String content, final FileAnnotationType annotationType, final Optional<FileAnnotation> linkedFileAnnotation) {
+    public FileAnnotation(
+            final String author,
+            final LocalDateTime timeModified,
+            final int pageNumber,
+            final String content,
+            final FileAnnotationType annotationType,
+            final Optional<FileAnnotation> linkedFileAnnotation) {
         this.author = author;
         this.timeModified = timeModified;
         this.page = pageNumber;
@@ -48,9 +52,13 @@ public class FileAnnotation {
     /// @param annotation The actual annotation that holds the information
     /// @param pageNumber The page of the pdf where the annotation occurs
     public FileAnnotation(final PDAnnotation annotation, final int pageNumber) {
-        this(annotation.getCOSObject().getString(COSName.T),
+        this(
+                annotation.getCOSObject().getString(COSName.T),
                 extractModifiedTime(annotation.getModifiedDate()),
-                pageNumber, annotation.getContents(), FileAnnotationType.parse(annotation), Optional.empty());
+                pageNumber,
+                annotation.getContents(),
+                FileAnnotationType.parse(annotation),
+                Optional.empty());
     }
 
     /// For creating a FileAnnotation that has a connection to another FileAnnotation. Needed when creating a text
@@ -60,8 +68,13 @@ public class FileAnnotation {
     /// @param pageNumber           The page of the pdf where the annotation occurs
     /// @param linkedFileAnnotation The corresponding note of a marked text area.
     public FileAnnotation(final PDAnnotation annotation, final int pageNumber, FileAnnotation linkedFileAnnotation) {
-        this(annotation.getCOSObject().getString(COSName.T), extractModifiedTime(annotation.getModifiedDate()),
-                pageNumber, annotation.getContents(), FileAnnotationType.parse(annotation), Optional.of(linkedFileAnnotation));
+        this(
+                annotation.getCOSObject().getString(COSName.T),
+                extractModifiedTime(annotation.getModifiedDate()),
+                pageNumber,
+                annotation.getContents(),
+                FileAnnotationType.parse(annotation),
+                Optional.of(linkedFileAnnotation));
     }
 
     /// Parses a String into a LocalDateTime.
@@ -82,7 +95,8 @@ public class FileAnnotation {
         try {
             return LocalDateTime.parse(dateTimeString, DateTimeFormatter.ofPattern(ANNOTATION_DATE_FORMAT));
         } catch (DateTimeParseException _) {
-            LOGGER.info("Expected a parseable date string! However, this text could not be parsed: {}'", dateTimeString);
+            LOGGER.info(
+                    "Expected a parseable date string! However, this text could not be parsed: {}'", dateTimeString);
             return LocalDateTime.now();
         }
     }

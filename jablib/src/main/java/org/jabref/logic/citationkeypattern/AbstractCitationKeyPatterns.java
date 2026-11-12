@@ -5,9 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.jabref.model.entry.types.EntryType;
-
 import org.jspecify.annotations.NonNull;
 
 /// A small table, where an entry type is associated with a citation key pattern.
@@ -24,10 +22,7 @@ public abstract class AbstractCitationKeyPatterns {
 
     @Override
     public String toString() {
-        return "AbstractCitationKeyPattern{" +
-                "defaultPattern='" + defaultPattern + '\'' +
-                ", data='" + data + '\'' +
-                "}";
+        return "AbstractCitationKeyPattern{defaultPattern='" + defaultPattern + '\'' + ", data='" + data + '\'' + "}";
     }
 
     @Override

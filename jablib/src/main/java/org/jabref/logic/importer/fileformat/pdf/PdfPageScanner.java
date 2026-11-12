@@ -3,10 +3,8 @@ package org.jabref.logic.importer.fileformat.pdf;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.jabref.logic.util.PdfUtils;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.jabref.logic.util.PdfUtils;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -16,8 +14,7 @@ final class PdfPageScanner {
     private static final int MIN_PAGES_PER_END = 3; // even if 5% is only 1 scan at least 3
     private static final int MAX_PAGES_PER_END = 10; // scan at most 10
 
-    private PdfPageScanner() {
-    }
+    private PdfPageScanner() {}
 
     /// Extracts text from candidate pages at the beginning and end of a PDF.
     static List<String> scanPages(PDDocument document) throws IOException {

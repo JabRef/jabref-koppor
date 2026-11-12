@@ -1,5 +1,6 @@
 package org.jabref.gui.fieldeditors;
 
+import com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -8,11 +9,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -26,18 +25,25 @@ import org.jabref.logic.undo.UndoManager;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.field.Field;
-
-import com.vladsch.flexmark.html2md.converter.FlexmarkHtmlConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MarkdownEditor extends SimpleEditor {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarkdownEditor.class);
-    private final FlexmarkHtmlConverter flexmarkHtmlConverter = FlexmarkHtmlConverter.builder().build();
+    private final FlexmarkHtmlConverter flexmarkHtmlConverter =
+            FlexmarkHtmlConverter.builder().build();
     private final BibDatabaseContext databaseContext;
     private final FilePreferences filePreferences;
 
-    public MarkdownEditor(Field field, SuggestionProvider<?> suggestionProvider, FieldCheckers fieldCheckers, GuiPreferences preferences, UndoManager undoManager, UndoAction undoAction, RedoAction redoAction, BibDatabaseContext bibDatabaseContext) {
+    public MarkdownEditor(
+            Field field,
+            SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers,
+            GuiPreferences preferences,
+            UndoManager undoManager,
+            UndoAction undoAction,
+            RedoAction redoAction,
+            BibDatabaseContext bibDatabaseContext) {
         super(field, suggestionProvider, fieldCheckers, preferences, true, undoManager, undoAction, redoAction);
         this.databaseContext = bibDatabaseContext;
         this.filePreferences = preferences.getFilePreferences();
@@ -72,7 +78,8 @@ public class MarkdownEditor extends SimpleEditor {
 
     private void enableDragOver(EditorTextArea textArea) {
         textArea.setOnDragOver(event -> {
-            if (event.getGestureSource() != textArea && (event.getDragboard().hasImage() || event.getDragboard().hasFiles())) {
+            if (event.getGestureSource() != textArea
+                    && (event.getDragboard().hasImage() || event.getDragboard().hasFiles())) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
             event.consume();
@@ -97,7 +104,8 @@ public class MarkdownEditor extends SimpleEditor {
         });
     }
 
-    /// Inserts Markdown Link for a file dropped into the editor, copying file to the database file directory if necessary
+    /// Inserts Markdown Link for a file dropped into the editor, copying file to the database file directory if
+    /// necessary
     ///
     /// @param file     is the file that is dropped into the editor
     /// @param textArea is the Editor text area
@@ -117,7 +125,8 @@ public class MarkdownEditor extends SimpleEditor {
             return true;
         }
         Path destination = fileDir.get().resolve(file.getName());
-        String relativePathString = FileUtil.relativize(destination, fileDirList).toString();
+        String relativePathString =
+                FileUtil.relativize(destination, fileDirList).toString();
         try {
             Files.copy(file.toPath(), destination);
             insertMarkdownText(relativePathString, textArea);

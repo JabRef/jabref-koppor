@@ -1,10 +1,14 @@
 package org.jabref.model.metadata;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.google.common.eventbus.Subscribe;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupHierarchyType;
@@ -12,14 +16,8 @@ import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.groups.event.GroupUpdatedEvent;
 import org.jabref.model.metadata.event.MetaDataChangeSource;
 import org.jabref.model.metadata.event.MetaDataChangedEvent;
-
-import com.google.common.eventbus.Subscribe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MetaDataTest {
 
@@ -142,7 +140,9 @@ class MetaDataTest {
 
         metaData.setEncoding(StandardCharsets.ISO_8859_1);
 
-        assertEquals(List.of(MetaDataChangeSource.LOCAL), events.stream().map(MetaDataChangedEvent::getSource).toList());
+        assertEquals(
+                List.of(MetaDataChangeSource.LOCAL),
+                events.stream().map(MetaDataChangedEvent::getSource).toList());
     }
 
     /// The two doors a recorded change goes through say so, which is what lets the modified marker
@@ -151,17 +151,20 @@ class MetaDataTest {
     void theDoorsARecordedChangeGoesThroughReportTheJournal() {
         List<MetaDataChangedEvent> events = collectMetaDataEvents();
 
-        metaData.setGroups(GroupTreeNode.fromGroup(new ExplicitGroup("All", GroupHierarchyType.INDEPENDENT, ',')),
+        metaData.setGroups(
+                GroupTreeNode.fromGroup(new ExplicitGroup("All", GroupHierarchyType.INDEPENDENT, ',')),
                 MetaDataChangeSource.JOURNAL);
         MetaData other = new MetaData();
         other.setMode(BibDatabaseMode.BIBLATEX);
         metaData.overwriteWith(other, MetaDataChangeSource.JOURNAL);
         metaData.clearGroups(MetaDataChangeSource.JOURNAL);
 
-        assertEquals(List.of(), events.stream()
-                                      .map(MetaDataChangedEvent::getSource)
-                                      .filter(source -> source != MetaDataChangeSource.JOURNAL)
-                                      .toList());
+        assertEquals(
+                List.of(),
+                events.stream()
+                        .map(MetaDataChangedEvent::getSource)
+                        .filter(source -> source != MetaDataChangeSource.JOURNAL)
+                        .toList());
         assertFalse(events.isEmpty(), "the doors were silent");
     }
 

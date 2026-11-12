@@ -1,10 +1,8 @@
 package org.jabref.model.undo;
 
 import java.util.List;
-
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibtexString;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Replaces a library's string constants as a whole, which is how the library properties dialog
@@ -14,7 +12,8 @@ import org.jspecify.annotations.NullMarked;
 /// single constant and, being a single value, verifies it before writing. This one is a collection
 /// and applies unconditionally; see [BibChange#apply].
 @NullMarked
-public record UndoableReplaceStrings(BibDatabase database, List<BibtexString> before, List<BibtexString> after) implements BibChange {
+public record UndoableReplaceStrings(BibDatabase database, List<BibtexString> before, List<BibtexString> after)
+        implements BibChange {
 
     public UndoableReplaceStrings {
         before = List.copyOf(before);

@@ -1,8 +1,9 @@
 package org.jabref.logic.ai.summarization.exporters;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.Instant;
 import java.util.List;
-
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.model.ai.AiMetadata;
 import org.jabref.model.ai.llm.AiProvider;
@@ -12,27 +13,24 @@ import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 class AiSummaryExporterTest {
 
     private static final String MARKDOWN_TEMPLATE = """
-            # AI Summary Export
+        # AI Summary Export
 
-            **Provider:** $metadata.aiProvider
-            **Model:** $metadata.model
+        **Provider:** $metadata.aiProvider
+        **Model:** $metadata.model
 
-            ## Summary
+        ## Summary
 
-            #foreach( $msg in $messages )
-            $msg.content
-            #end
-            """;
+        #foreach( $msg in $messages )
+        $msg.content
+        #end
+        """;
 
     private AiMetadata metadata;
     private BibEntry entry;
@@ -50,8 +48,7 @@ class AiSummaryExporterTest {
         FieldPreferences fieldPreferences = new FieldPreferences(true, List.of(), List.of());
         return List.of(
                 new AiSummaryMarkdownExporter(entryTypesManager, fieldPreferences, MARKDOWN_TEMPLATE),
-                new AiSummaryJsonExporter(entryTypesManager, fieldPreferences)
-        );
+                new AiSummaryJsonExporter(entryTypesManager, fieldPreferences));
     }
 
     @ParameterizedTest
@@ -65,8 +62,8 @@ class AiSummaryExporterTest {
     @ParameterizedTest
     @MethodSource("exporters")
     void summaryWithSpecialCharactersAppearsInExport(AiSummaryExporter exporter) {
-        AiSummary specialSummary = new AiSummary(metadata, SummarizatorKind.CHUNKED,
-                "Results show \"significant\" improvement & <better> outcomes.");
+        AiSummary specialSummary = new AiSummary(
+                metadata, SummarizatorKind.CHUNKED, "Results show \"significant\" improvement & <better> outcomes.");
 
         String result = exporter.export(metadata, entry, BibDatabaseMode.BIBTEX, specialSummary);
 

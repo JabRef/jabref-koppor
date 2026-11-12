@@ -1,20 +1,18 @@
 package org.jabref.logic.importer.fetcher.isbntobibtex;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
+import java.util.Optional;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.fetcher.AbstractIsbnFetcherTest;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 class LOBIDIsbnFetcherTest extends AbstractIsbnFetcherTest {
 
@@ -23,7 +21,9 @@ class LOBIDIsbnFetcherTest extends AbstractIsbnFetcherTest {
     @BeforeEach
     void setUp() {
         bibEntryEffectiveJava = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.TITLE, "Effective Java(TM) Programming Language Guide (2nd Edition) (The Java Series)")
+                .withField(
+                        StandardField.TITLE,
+                        "Effective Java(TM) Programming Language Guide (2nd Edition) (The Java Series)")
                 .withField(StandardField.PUBLISHER, "Prentice Hall PTR")
                 .withField(StandardField.YEAR, "2007")
                 .withField(StandardField.AUTHOR, "Bloch, Joshua")
@@ -58,13 +58,23 @@ class LOBIDIsbnFetcherTest extends AbstractIsbnFetcherTest {
     @Override
     public void authorsAreCorrectlyFormatted() throws FetcherException {
         BibEntry article = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.AUTHOR, "Nichols, Catherine and Blume, Eugen and Hamburger Bahnhof - Museum für Gegenwart - Berlin and Nationalgalerie (Berlin) and DruckVerlag Kettler GmbH")
-                .withField(StandardField.ABSTRACT, "Impresum: \"Diese Publikation erscheint anlässlich der Ausstellung Das Kapital. Schuld-Territorium-Utopie. Eine Ausstellung der Nationalgalerie im Hamburger Bahnhof - Museum für Gegenwart - Berlin, 2. Juli-6. November 2016\"")
+                .withField(
+                        StandardField.AUTHOR,
+                        "Nichols, Catherine and Blume, Eugen and Hamburger Bahnhof - Museum für Gegenwart - Berlin and"
+                                + " Nationalgalerie (Berlin) and DruckVerlag Kettler GmbH")
+                .withField(
+                        StandardField.ABSTRACT,
+                        "Impresum: \"Diese Publikation erscheint anlässlich der Ausstellung Das Kapital."
+                                + " Schuld-Territorium-Utopie. Eine Ausstellung der Nationalgalerie im Hamburger"
+                                + " Bahnhof - Museum für Gegenwart - Berlin, 2. Juli-6. November 2016\"")
                 .withField(StandardField.PUBLISHER, "Verlag Kettler")
                 .withField(StandardField.DATE, "2016")
                 .withField(StandardField.EDITION, "1. Auflage")
                 .withField(StandardField.ISBN, "9783862065752")
-                .withField(StandardField.KEYWORDS, "Cathrine Nichols, Eugen Blume, Staatliche Museen zu Berlin, Beuys, Joseph: Das Kapital Raum 1970-1977, Kunst, Kapitalismus (Motiv), Geschichte")
+                .withField(
+                        StandardField.KEYWORDS,
+                        "Cathrine Nichols, Eugen Blume, Staatliche Museen zu Berlin, Beuys, Joseph: Das Kapital Raum"
+                                + " 1970-1977, Kunst, Kapitalismus (Motiv), Geschichte")
                 .withField(StandardField.LANGUAGE, "Deutsch")
                 .withField(StandardField.LOCATION, "Dortmund")
                 .withField(StandardField.TITLE, "Das Kapital")

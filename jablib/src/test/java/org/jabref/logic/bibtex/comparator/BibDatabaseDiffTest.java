@@ -1,18 +1,16 @@
 package org.jabref.logic.bibtex.comparator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class BibDatabaseDiffTest {
 
@@ -85,7 +83,10 @@ class BibDatabaseDiffTest {
         // two different entries between the databases
         assertEquals(2, diff.getEntryDifferences().size(), "incorrect amount of different entries");
 
-        assertEquals(entryOne, diff.getEntryDifferences().getFirst().originalEntry(), "there is another value as originalEntry");
+        assertEquals(
+                entryOne,
+                diff.getEntryDifferences().getFirst().originalEntry(),
+                "there is another value as originalEntry");
         assertNull(diff.getEntryDifferences().getFirst().newEntry(), "newEntry is not null");
         assertEquals(entryTwo, diff.getEntryDifferences().get(1).newEntry(), "there is another value as newEntry");
         assertNull(diff.getEntryDifferences().get(1).originalEntry(), "originalEntry is not null");
@@ -104,11 +105,15 @@ class BibDatabaseDiffTest {
         // three different entries between the databases
         assertEquals(3, diff.getEntryDifferences().size(), "incorrect amount of different entries");
 
-        assertEquals(entryOne, diff.getEntryDifferences().getFirst().originalEntry(), "there is another value as originalEntry");
+        assertEquals(
+                entryOne,
+                diff.getEntryDifferences().getFirst().originalEntry(),
+                "there is another value as originalEntry");
         assertNull(diff.getEntryDifferences().getFirst().newEntry(), "newEntry is not null");
         assertEquals(entryTwo, diff.getEntryDifferences().get(1).newEntry(), "there is another value as newEntry");
         assertNull(diff.getEntryDifferences().get(1).originalEntry(), "originalEntry is not null");
-        assertEquals(entryThree, diff.getEntryDifferences().get(2).newEntry(), "there is another value as newEntry [2]");
+        assertEquals(
+                entryThree, diff.getEntryDifferences().get(2).newEntry(), "there is another value as newEntry [2]");
         assertNull(diff.getEntryDifferences().get(2).originalEntry(), "originalEntry is not null [2]");
     }
 
@@ -130,7 +135,10 @@ class BibDatabaseDiffTest {
         // two different entries between the databases
         assertEquals(1, diff.getEntryDifferences().size(), "incorrect amount of different entries");
 
-        assertEquals(entryOne, diff.getEntryDifferences().getFirst().originalEntry(), "there is another value as originalEntry");
+        assertEquals(
+                entryOne,
+                diff.getEntryDifferences().getFirst().originalEntry(),
+                "there is another value as originalEntry");
         assertEquals(entryTwo, diff.getEntryDifferences().getFirst().newEntry(), "there is another value as newEntry");
     }
 

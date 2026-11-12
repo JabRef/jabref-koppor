@@ -1,5 +1,6 @@
 package org.jabref.logic.importer.fetcher;
 
+import com.google.common.base.Strings;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,7 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+import kong.unirest.core.UnirestException;
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.PagedSearchBasedParserFetcher;
@@ -27,12 +31,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import com.google.common.base.Strings;
-import kong.unirest.core.UnirestException;
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,14 +51,23 @@ public class SpringerNatureWebFetcher implements PagedSearchBasedParserFetcher, 
         this.importerPreferences = importerPreferences;
     }
 
-    /// Convert a JSONObject obtained from <a href="https://dev.springernature.com/docs/api-endpoints/metadata-api/?source=jabref">the Metadata API</a> to a BibEntry
+    /// Convert a JSONObject obtained from <a
+    /// href="https://dev.springernature.com/docs/api-endpoints/metadata-api/?source=jabref">the Metadata API</a> to a
+    /// BibEntry
     ///
     /// @param springerJsonEntry the JSONObject from search results
     /// @return the converted BibEntry
     public static BibEntry parseSpringerJSONtoBibtex(JSONObject springerJsonEntry) {
         // Fields that are directly accessible at the top level Json object
-        Field[] singleFieldStrings = {StandardField.ISSN, StandardField.VOLUME, StandardField.ABSTRACT, StandardField.DOI, StandardField.TITLE, StandardField.NUMBER,
-                StandardField.PUBLISHER};
+        Field[] singleFieldStrings = {
+            StandardField.ISSN,
+            StandardField.VOLUME,
+            StandardField.ABSTRACT,
+            StandardField.DOI,
+            StandardField.TITLE,
+            StandardField.NUMBER,
+            StandardField.PUBLISHER
+        };
 
         BibEntry entry = new BibEntry();
         Field nametype;
@@ -105,9 +112,12 @@ public class SpringerNatureWebFetcher implements PagedSearchBasedParserFetcher, 
         }
 
         // Page numbers
-        if (springerJsonEntry.has("startingPage") && !springerJsonEntry.getString("startingPage").isEmpty()) {
-            if (springerJsonEntry.has("endingPage") && !springerJsonEntry.getString("endingPage").isEmpty()) {
-                entry.setField(StandardField.PAGES,
+        if (springerJsonEntry.has("startingPage")
+                && !springerJsonEntry.getString("startingPage").isEmpty()) {
+            if (springerJsonEntry.has("endingPage")
+                    && !springerJsonEntry.getString("endingPage").isEmpty()) {
+                entry.setField(
+                        StandardField.PAGES,
                         springerJsonEntry.getString("startingPage") + "--" + springerJsonEntry.getString("endingPage"));
             } else {
                 entry.setField(StandardField.PAGES, springerJsonEntry.getString("startingPage"));
@@ -190,8 +200,10 @@ public class SpringerNatureWebFetcher implements PagedSearchBasedParserFetcher, 
     /// @param pageNumber the number of the page indexed from 0
     /// @return URL
     @Override
-    public URL getURLForQuery(BaseQueryNode queryNode, int pageNumber) throws URISyntaxException, MalformedURLException {
-        String transformedQuery = new SpringerQueryTransformer().transformSearchQuery(queryNode).orElse("");
+    public URL getURLForQuery(BaseQueryNode queryNode, int pageNumber)
+            throws URISyntaxException, MalformedURLException {
+        String transformedQuery =
+                new SpringerQueryTransformer().transformSearchQuery(queryNode).orElse("");
         return buildSearchURL(transformedQuery, pageNumber);
     }
 
@@ -210,7 +222,8 @@ public class SpringerNatureWebFetcher implements PagedSearchBasedParserFetcher, 
         URIBuilder uriBuilder = new URIBuilder(API_URL);
         uriBuilder.addParameter("q", rawQuery); // Search query
         importerPreferences.getApiKey(getName()).ifPresent(key -> uriBuilder.addParameter("api_key", key)); // API key
-        uriBuilder.addParameter("s", String.valueOf(getPageSize() * pageNumber + 1)); // Start entry, starts indexing at 1
+        uriBuilder.addParameter(
+                "s", String.valueOf(getPageSize() * pageNumber + 1)); // Start entry, starts indexing at 1
         uriBuilder.addParameter("p", String.valueOf(getPageSize())); // Page size
         return uriBuilder.build().toURL();
     }
@@ -220,7 +233,8 @@ public class SpringerNatureWebFetcher implements PagedSearchBasedParserFetcher, 
         complexSearchQuery.getAuthors().forEach(author -> searchTerms.add("name:" + author));
         complexSearchQuery.getTitlePhrases().forEach(title -> searchTerms.add("title:" + title));
         complexSearchQuery.getJournal().ifPresent(journal -> searchTerms.add("journal:" + journal));
-        // Since Springer API does not support year range search, we ignore formYear and toYear and use "singleYear" only
+        // Since Springer API does not support year range search, we ignore formYear and toYear and use "singleYear"
+        // only
         complexSearchQuery.getSingleYear().ifPresent(year -> searchTerms.add("date:" + year + "*"));
         searchTerms.addAll(complexSearchQuery.getDefaultFieldPhrases());
         return String.join(" AND ", searchTerms);
@@ -229,7 +243,9 @@ public class SpringerNatureWebFetcher implements PagedSearchBasedParserFetcher, 
     @Override
     public Parser getParser() {
         return inputStream -> {
-            String response = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining(OS.NEWLINE));
+            String response = new BufferedReader(new InputStreamReader(inputStream))
+                    .lines()
+                    .collect(Collectors.joining(OS.NEWLINE));
             JSONObject jsonObject = new JSONObject(response);
 
             List<BibEntry> entries = new ArrayList<>();

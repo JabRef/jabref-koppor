@@ -1,17 +1,15 @@
 package org.jabref.logic.ai.preferences;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
-
 import javafx.beans.property.Property;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /// Guards [AiPreferences#copyFrom(AiPreferences)] against silently dropping values: the AI
 /// preferences tab commits every edit to a dialog-scoped working copy and relies on `copyFrom`
@@ -57,8 +55,11 @@ class AiPreferencesCopyFromTest {
         target.copyFrom(source);
 
         for (Field field : propertyFields) {
-            assertEquals(propertyOf(source, field).getValue(), propertyOf(target, field).getValue(),
-                    "AiPreferences.copyFrom does not copy '%s'; extend copyFrom when adding a preference".formatted(field.getName()));
+            assertEquals(
+                    propertyOf(source, field).getValue(),
+                    propertyOf(target, field).getValue(),
+                    "AiPreferences.copyFrom does not copy '%s'; extend copyFrom when adding a preference"
+                            .formatted(field.getName()));
         }
     }
 
@@ -72,8 +73,10 @@ class AiPreferencesCopyFromTest {
 
         target.copyFrom(source);
 
-        assertFalse((Boolean) propertyOf(target, field).getValue(),
-                "'%s' captures the session's startup state and must not be overwritten by copyFrom".formatted(NOT_COPIED));
+        assertFalse(
+                (Boolean) propertyOf(target, field).getValue(),
+                "'%s' captures the session's startup state and must not be overwritten by copyFrom"
+                        .formatted(NOT_COPIED));
     }
 
     /// All JavaFX property fields of [AiPreferences] except [#NOT_COPIED].
@@ -108,22 +111,20 @@ class AiPreferencesCopyFromTest {
     /// A value of the property's type that differs from `current`, so that a copy is observable.
     private static Object differentValue(String fieldName, Object current) {
         return switch (current) {
-            case Boolean value ->
-                    !value;
-            case String value ->
-                    value + "-changed";
-            case Integer value ->
-                    value + 1;
-            case Double value ->
-                    value + 0.25;
+            case Boolean value -> !value;
+            case String value -> value + "-changed";
+            case Integer value -> value + 1;
+            case Double value -> value + 0.25;
             case Enum<?> value -> {
                 Object[] constants = value.getDeclaringClass().getEnumConstants();
                 yield constants[(value.ordinal() + 1) % constants.length];
             }
             case null ->
-                    throw new AssertionError("property '%s' holds null by default; teach differentValue() its type".formatted(fieldName));
+                throw new AssertionError(
+                        "property '%s' holds null by default; teach differentValue() its type".formatted(fieldName));
             default ->
-                    throw new AssertionError("property '%s' holds a %s; teach differentValue() this type".formatted(fieldName, current.getClass()));
+                throw new AssertionError("property '%s' holds a %s; teach differentValue() this type"
+                        .formatted(fieldName, current.getClass()));
         };
     }
 }

@@ -14,7 +14,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.UUID;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.JabRefException;
@@ -30,7 +29,6 @@ import org.jabref.logic.util.Directories;
 import org.jabref.logic.util.io.BackupFileUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.metadata.MetaData;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -131,7 +129,8 @@ public class BibDatabaseContext {
         return database;
     }
 
-    /// The keyword separator of this library, falling back to the given separator (typically the global preference) when the library does not declare one
+    /// The keyword separator of this library, falling back to the given separator (typically the global preference)
+    /// when the library does not declare one
     public Character getKeywordSeparator(Character fallbackKeywordSeparator) {
         return metaData.getKeywordSeparator().orElse(fallbackKeywordSeparator);
     }
@@ -147,9 +146,10 @@ public class BibDatabaseContext {
     /// Returns whether this .bib file belongs to a [org.jabref.model.study.Study]
     public boolean isStudy() {
         return this.getDatabasePath()
-                   .map(path -> Crawler.FILENAME_STUDY_RESULT_BIB.equals(path.getFileName().toString()) &&
-                           Files.exists(path.resolveSibling(StudyRepository.STUDY_DEFINITION_FILE_NAME)))
-                   .orElse(false);
+                .map(path -> Crawler.FILENAME_STUDY_RESULT_BIB.equals(
+                                path.getFileName().toString())
+                        && Files.exists(path.resolveSibling(StudyRepository.STUDY_DEFINITION_FILE_NAME)))
+                .orElse(false);
     }
 
     /// Look up the directories set up for this database.
@@ -197,11 +197,11 @@ public class BibDatabaseContext {
     /// @return fixed-size record containing absolute paths (if configured)
     public FileDirectories getAllFileDirectories(FilePreferences preferences) {
         Path userFileDirectory = metaData.getUserFileDirectory(preferences.getUserAndHost())
-                                         .map(this::getFileDirectoryPath)
-                                         .orElse(null);
+                .map(this::getFileDirectoryPath)
+                .orElse(null);
         Path librarySpecificFileDirectory = metaData.getLibrarySpecificFileDirectory()
-                                                    .map(this::getFileDirectoryPath)
-                                                    .orElse(null);
+                .map(this::getFileDirectoryPath)
+                .orElse(null);
 
         Path bibOrMainFileDirectory;
 
@@ -212,11 +212,7 @@ public class BibDatabaseContext {
             bibOrMainFileDirectory = preferences.getMainFileDirectory().orElse(null);
         }
 
-        return new FileDirectories(
-                userFileDirectory,
-                librarySpecificFileDirectory,
-                bibOrMainFileDirectory
-        );
+        return new FileDirectories(userFileDirectory, librarySpecificFileDirectory, bibOrMainFileDirectory);
     }
 
     public Optional<Path> getDatabaseDirectory() {
@@ -234,9 +230,7 @@ public class BibDatabaseContext {
     ///
     /// @return the path - or an empty optional, if none of the directories exists
     public Optional<Path> getFirstExistingFileDir(FilePreferences preferences) {
-        return getFileDirectories(preferences).stream()
-                                              .filter(Files::exists)
-                                              .findFirst();
+        return getFileDirectories(preferences).stream().filter(Files::exists).findFirst();
     }
 
     /// @return The absolute path for the given directory
@@ -249,10 +243,10 @@ public class BibDatabaseContext {
         // If this path is relative, we try to interpret it as relative to the file path of this BIB file:
         return getDatabasePath()
                 .map(databaseFile -> Optional.ofNullable(databaseFile.getParent())
-                                             .orElse(Path.of(""))
-                                             .resolve(path)
-                                             .normalize()
-                                             .toAbsolutePath())
+                        .orElse(Path.of(""))
+                        .resolve(path)
+                        .normalize()
+                        .toAbsolutePath())
                 .orElse(path);
     }
 
@@ -299,7 +293,8 @@ public class BibDatabaseContext {
 
         if (getDatabasePath().isPresent()) {
             Path databasePath = getDatabasePath().get();
-            // Eventually, this leads to filenames as "40daf3b0--fuu.bib--2022-09-04--01.36.25.bib" --> "--" is used as separator between "groups"
+            // Eventually, this leads to filenames as "40daf3b0--fuu.bib--2022-09-04--01.36.25.bib" --> "--" is used as
+            // separator between "groups"
             String fileName = BackupFileUtil.getUniqueFilePrefix(databasePath) + "--" + databasePath.getFileName();
             indexPath = appData.resolve(fileName);
             LOGGER.debug("Index path for {} is {}", getDatabasePath().get(), indexPath);
@@ -311,7 +306,8 @@ public class BibDatabaseContext {
         return indexPath;
     }
 
-    public static BibDatabaseContext of(Reader bibContentReader, ImportFormatPreferences importFormatPreferences) throws JabRefException {
+    public static BibDatabaseContext of(Reader bibContentReader, ImportFormatPreferences importFormatPreferences)
+            throws JabRefException {
         BibtexParser parser = new BibtexParser(importFormatPreferences);
         try {
             ParserResult result = parser.parse(bibContentReader);
@@ -321,11 +317,13 @@ public class BibDatabaseContext {
         }
     }
 
-    public static BibDatabaseContext of(String bibContent, ImportFormatPreferences importFormatPreferences) throws JabRefException {
+    public static BibDatabaseContext of(String bibContent, ImportFormatPreferences importFormatPreferences)
+            throws JabRefException {
         return of(Reader.of(bibContent), importFormatPreferences);
     }
 
-    public static BibDatabaseContext of(InputStream bibContentStream, ImportFormatPreferences importFormatPreferences) throws JabRefException {
+    public static BibDatabaseContext of(InputStream bibContentStream, ImportFormatPreferences importFormatPreferences)
+            throws JabRefException {
         try (Reader reader = new BufferedReader(new InputStreamReader(bibContentStream))) {
             return of(reader, importFormatPreferences);
         } catch (IOException e) {
@@ -339,14 +337,13 @@ public class BibDatabaseContext {
 
     @Override
     public String toString() {
-        return "BibDatabaseContext{" +
-                "metaData=" + metaData +
-                ", mode=" + getMode() +
-                ", databasePath=" + getDatabasePath() +
-                ", biblatexMode=" + isBiblatexMode() +
-                ", uid= " + getUid() +
-                ", fulltextIndexPath=" + getFulltextIndexPath() +
-                '}';
+        return "BibDatabaseContext{metaData="
+                + metaData + ", mode="
+                + getMode() + ", databasePath="
+                + getDatabasePath() + ", biblatexMode="
+                + isBiblatexMode() + ", uid= "
+                + getUid() + ", fulltextIndexPath="
+                + getFulltextIndexPath() + '}';
     }
 
     @Override
@@ -357,10 +354,16 @@ public class BibDatabaseContext {
         if (!(o instanceof BibDatabaseContext that)) {
             return false;
         }
-        return Objects.equals(database, that.database) && Objects.equals(metaData, that.metaData) && Objects.equals(path, that.path) && location == that.location;
+        return Objects.equals(database, that.database)
+                && Objects.equals(metaData, that.metaData)
+                && Objects.equals(path, that.path)
+                && location == that.location;
     }
 
-    /// @implNote This implementation needs to be consistent with equals. That means, as soon as a new entry is added to the database, two different instances of BibDatabaseContext are not equal - and thus, the hashCode also needs to change. This has the drawback, that one cannot create HashMaps from the BiDatabaseContext anymore, as the hashCode changes as soon as a new entry is added.
+    /// @implNote This implementation needs to be consistent with equals. That means, as soon as a new entry is added to
+    /// the database, two different instances of BibDatabaseContext are not equal - and thus, the hashCode also needs to
+    /// change. This has the drawback, that one cannot create HashMaps from the BiDatabaseContext anymore, as the
+    /// hashCode changes as soon as a new entry is added.
     @Override
     public int hashCode() {
         return Objects.hash(database, metaData, path, location);

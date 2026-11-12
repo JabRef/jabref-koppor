@@ -2,10 +2,8 @@ package org.jabref.gui.undo;
 
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
-
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.undo.JabRefUndoManager;
-
 import org.jspecify.annotations.NullMarked;
 
 /// The journal, plus the JavaFX properties the menus bind to.

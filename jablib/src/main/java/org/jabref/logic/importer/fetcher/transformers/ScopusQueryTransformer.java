@@ -86,18 +86,12 @@ public class ScopusQueryTransformer extends YearRangeByFilteringQueryTransformer
     @Override
     protected Optional<String> handleOtherField(String fieldAsString, String term) {
         return switch (fieldAsString.toLowerCase(Locale.ROOT)) {
-            case "abstract" ->
-                    Optional.of("ABS(" + term + ")");
-            case "keywords" ->
-                    Optional.of("KEY(" + term + ")");
-            case "affiliation" ->
-                    Optional.of("AFFIL(" + term + ")");
-            case "issn" ->
-                    Optional.of("ISSN(" + term + ")");
-            case "isbn" ->
-                    Optional.of("ISBN(" + term + ")");
-            default ->
-                    super.handleOtherField(fieldAsString, term);
+            case "abstract" -> Optional.of("ABS(" + term + ")");
+            case "keywords" -> Optional.of("KEY(" + term + ")");
+            case "affiliation" -> Optional.of("AFFIL(" + term + ")");
+            case "issn" -> Optional.of("ISSN(" + term + ")");
+            case "isbn" -> Optional.of("ISBN(" + term + ")");
+            default -> super.handleOtherField(fieldAsString, term);
         };
     }
 }

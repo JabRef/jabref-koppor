@@ -1,7 +1,7 @@
 package org.jabref.gui.walkthrough.utils;
 
+import com.sun.javafx.scene.NodeHelper;
 import java.util.function.BooleanSupplier;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.InvalidationListener;
@@ -10,8 +10,6 @@ import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.stage.Window;
 import javafx.util.Duration;
-
-import com.sun.javafx.scene.NodeHelper;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -23,7 +21,10 @@ public class WalkthroughUtils {
     }
 
     public static boolean cannotPositionNode(@Nullable Node node) {
-        return node == null || node.getScene() == null || !isNodeVisible(node) || node.getBoundsInLocal().isEmpty();
+        return node == null
+                || node.getScene() == null
+                || !isNodeVisible(node)
+                || node.getBoundsInLocal().isEmpty();
     }
 
     public interface DebouncedInvalidationListener extends InvalidationListener {
@@ -144,7 +145,8 @@ public class WalkthroughUtils {
     /// Attaches a listener to the global window list that fires on every window change
     /// until a stop condition is met.
     ///
-    /// @param stopCondition A supplier that should return true when the listener should be detached (as well as run anything interesting for the actual callee).
+    /// @param stopCondition A supplier that should return true when the listener should be detached (as well as run
+    /// anything interesting for the actual callee).
     /// @return A runnable that can be used to detach the listener prematurely.
     public static Runnable onWindowChangedUntil(@NonNull BooleanSupplier stopCondition) {
         ListChangeListener<Window> listener = new ListChangeListener<>() {

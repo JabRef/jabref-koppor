@@ -1,12 +1,11 @@
 package org.jabref.gui.search;
 
 import java.util.List;
-
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
-
+import org.controlsfx.control.textfield.CustomTextField;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.SimpleCommand;
@@ -14,23 +13,31 @@ import org.jabref.gui.actions.StandardActions;
 import org.jabref.gui.fieldeditors.contextmenu.EditorContextAction;
 import org.jabref.logic.l10n.Localization;
 
-import org.controlsfx.control.textfield.CustomTextField;
-
 public class SearchFieldRightClickMenu {
     public static ContextMenu create(StateManager stateManager, CustomTextField searchField) {
         ActionFactory factory = new ActionFactory();
         ContextMenu contextMenu = new ContextMenu();
 
-        contextMenu.getItems().addAll(
-                factory.createContextMenuItem(StandardActions.UNDO, new EditorContextAction(StandardActions.UNDO, searchField)),
-                factory.createContextMenuItem(StandardActions.REDO, new EditorContextAction(StandardActions.REDO, searchField)),
-                factory.createContextMenuItem(StandardActions.CUT, new EditorContextAction(StandardActions.CUT, searchField)),
-                factory.createContextMenuItem(StandardActions.COPY, new EditorContextAction(StandardActions.COPY, searchField)),
-                factory.createContextMenuItem(StandardActions.PASTE, new EditorContextAction(StandardActions.PASTE, searchField)),
-                factory.createContextMenuItem(StandardActions.DELETE, new EditorContextAction(StandardActions.DELETE, searchField)),
-                factory.createContextMenuItem(StandardActions.SELECT_ALL, new EditorContextAction(StandardActions.SELECT_ALL, searchField)),
-                new SeparatorMenuItem(),
-                createSearchFromHistorySubMenu(stateManager, searchField));
+        contextMenu
+                .getItems()
+                .addAll(
+                        factory.createContextMenuItem(
+                                StandardActions.UNDO, new EditorContextAction(StandardActions.UNDO, searchField)),
+                        factory.createContextMenuItem(
+                                StandardActions.REDO, new EditorContextAction(StandardActions.REDO, searchField)),
+                        factory.createContextMenuItem(
+                                StandardActions.CUT, new EditorContextAction(StandardActions.CUT, searchField)),
+                        factory.createContextMenuItem(
+                                StandardActions.COPY, new EditorContextAction(StandardActions.COPY, searchField)),
+                        factory.createContextMenuItem(
+                                StandardActions.PASTE, new EditorContextAction(StandardActions.PASTE, searchField)),
+                        factory.createContextMenuItem(
+                                StandardActions.DELETE, new EditorContextAction(StandardActions.DELETE, searchField)),
+                        factory.createContextMenuItem(
+                                StandardActions.SELECT_ALL,
+                                new EditorContextAction(StandardActions.SELECT_ALL, searchField)),
+                        new SeparatorMenuItem(),
+                        createSearchFromHistorySubMenu(stateManager, searchField));
         return contextMenu;
     }
 

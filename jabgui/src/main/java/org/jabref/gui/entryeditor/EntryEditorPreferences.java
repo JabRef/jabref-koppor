@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -15,7 +14,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.importer.fetcher.citation.CitationCountFetcherType;
 import org.jabref.logic.importer.fetcher.citation.CitationFetcherType;
 
@@ -55,31 +53,32 @@ public class EntryEditorPreferences {
 
     private EntryEditorPreferences() {
         this(
-                getDefaultTabModels(),                     // Default Entry Editor Tabs
-                true,                                      // Open editor when a new entry is
-                false,                                     // Show BibTeX source by default
-                true,                                      // Show validation messages
-                true,                                      // Allow integers in 'edition' filed in BibTeX mode
-                true,                                      // Automatically search and show unlinked files in the entry editor
-                JournalPopupEnabled.DISABLED,              // Fetch journal information online to show
-                CitationFetcherType.SEMANTIC_SCHOLAR,      // Citation Fetcher Type
+                getDefaultTabModels(), // Default Entry Editor Tabs
+                true, // Open editor when a new entry is
+                false, // Show BibTeX source by default
+                true, // Show validation messages
+                true, // Allow integers in 'edition' filed in BibTeX mode
+                true, // Automatically search and show unlinked files in the entry editor
+                JournalPopupEnabled.DISABLED, // Fetch journal information online to show
+                CitationFetcherType.SEMANTIC_SCHOLAR, // Citation Fetcher Type
                 CitationCountFetcherType.SEMANTIC_SCHOLAR, // Citation Count Fetcher Type
-                true,                                      // Show user comments field
-                0.5                                        // Preview Width Divider Position
-        );
+                true, // Show user comments field
+                0.5 // Preview Width Divider Position
+                );
     }
 
-    public EntryEditorPreferences(List<EntryEditorTabModel> tabModels,
-                                  boolean shouldOpenOnNewEntry,
-                                  boolean showSourceTabByDefault,
-                                  boolean enableValidation,
-                                  boolean allowIntegerEditionBibtex,
-                                  boolean autolinkFilesEnabled,
-                                  JournalPopupEnabled journalPopupEnabled,
-                                  CitationFetcherType citationFetcherType,
-                                  CitationCountFetcherType citationCountFetcherType,
-                                  boolean showUserCommentsFields,
-                                  double previewWidthDividerPosition) {
+    public EntryEditorPreferences(
+            List<EntryEditorTabModel> tabModels,
+            boolean shouldOpenOnNewEntry,
+            boolean showSourceTabByDefault,
+            boolean enableValidation,
+            boolean allowIntegerEditionBibtex,
+            boolean autolinkFilesEnabled,
+            JournalPopupEnabled journalPopupEnabled,
+            CitationFetcherType citationFetcherType,
+            CitationCountFetcherType citationCountFetcherType,
+            boolean showUserCommentsFields,
+            double previewWidthDividerPosition) {
         this.tabModels = FXCollections.observableArrayList(tabModels);
         this.shouldOpenOnNewEntry = new SimpleBooleanProperty(shouldOpenOnNewEntry);
         this.showSourceTabByDefault = new SimpleBooleanProperty(showSourceTabByDefault);
@@ -95,8 +94,8 @@ public class EntryEditorPreferences {
 
     private static List<EntryEditorTabModel> getDefaultTabModels() {
         return Arrays.stream(EntryEditorTabModel.BuiltIn.values())
-                     .<EntryEditorTabModel>map(tab -> new EntryEditorTabModel.BuiltInTab(tab, true))
-                     .collect(Collectors.toCollection(ArrayList::new));
+                .<EntryEditorTabModel>map(tab -> new EntryEditorTabModel.BuiltInTab(tab, true))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public static EntryEditorPreferences getDefault() {
@@ -109,10 +108,11 @@ public class EntryEditorPreferences {
 
     public boolean isTabVisible(EntryEditorTabModel.BuiltIn key) {
         return tabModels.stream()
-                        .anyMatch(model -> model instanceof EntryEditorTabModel.BuiltInTab(
-                                EntryEditorTabModel.BuiltIn type,
-                                boolean visible
-                        ) && type == key && visible);
+                .anyMatch(model -> model
+                                instanceof
+                                EntryEditorTabModel.BuiltInTab(EntryEditorTabModel.BuiltIn type, boolean visible)
+                        && type == key
+                        && visible);
     }
 
     public ObservableValue<Boolean> tabVisibleProperty(EntryEditorTabModel.BuiltIn tabModel) {
@@ -121,10 +121,8 @@ public class EntryEditorPreferences {
 
     public void setTabVisible(EntryEditorTabModel.BuiltIn key, boolean show) {
         for (int i = 0; i < tabModels.size(); i++) {
-            if (tabModels.get(i) instanceof EntryEditorTabModel.BuiltInTab(
-                    EntryEditorTabModel.BuiltIn type,
-                    boolean _
-            ) && type == key) {
+            if (tabModels.get(i) instanceof EntryEditorTabModel.BuiltInTab(EntryEditorTabModel.BuiltIn type, boolean _)
+                    && type == key) {
                 tabModels.set(i, tabModels.get(i).withVisible(show));
                 return;
             }

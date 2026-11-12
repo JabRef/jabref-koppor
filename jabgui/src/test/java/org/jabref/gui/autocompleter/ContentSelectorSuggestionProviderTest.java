@@ -1,18 +1,16 @@
 package org.jabref.gui.autocompleter;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import org.jabref.model.database.BibDatabase;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.StandardField;
-
-import org.junit.jupiter.api.Test;
-
 import static org.jabref.gui.autocompleter.AutoCompleterUtil.getRequest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import org.jabref.model.database.BibDatabase;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.StandardField;
+import org.junit.jupiter.api.Test;
 
 class ContentSelectorSuggestionProviderTest {
 

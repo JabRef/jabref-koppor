@@ -1,5 +1,8 @@
 package org.jabref.gui.groups;
 
+import com.google.common.eventbus.Subscribe;
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.EasyObservableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -9,7 +12,6 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.WeakInvalidationListener;
 import javafx.beans.binding.Bindings;
@@ -23,7 +25,6 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.input.Dragboard;
 import javafx.scene.paint.Color;
-
 import org.jabref.gui.DragAndDropDataFormats;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
@@ -64,10 +65,6 @@ import org.jabref.model.search.event.IndexAddedOrUpdatedEvent;
 import org.jabref.model.search.event.IndexClosedEvent;
 import org.jabref.model.search.event.IndexRemovedEvent;
 import org.jabref.model.search.event.IndexStartedEvent;
-
-import com.google.common.eventbus.Subscribe;
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.EasyObservableList;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -102,12 +99,16 @@ public class GroupNodeViewModel {
     private final TaskExecutor taskExecutor;
     private final CustomLocalDragboard localDragBoard;
     private final GuiPreferences preferences;
+
     @SuppressWarnings("FieldCanBeLocal")
     private final ObservableList<BibEntry> entriesList;
+
     private final ListChangeListener<BibEntry> databaseChangeListener = this::onDatabaseChanged;
     private final SearchIndexListener searchIndexListener = new SearchIndexListener();
+
     @SuppressWarnings("FieldCanBeLocal")
     private final InvalidationListener onInvalidatedGroup = _ -> refreshGroup();
+
     private final List<Future<?>> searchIndexFutures = Collections.synchronizedList(new ArrayList<>());
     private @Nullable BackgroundTask<List<BibEntry>> currentUpdateTask;
     private @Nullable Future<?> currentUpdateFuture;
@@ -116,12 +117,13 @@ public class GroupNodeViewModel {
     private boolean matchedEntriesUpdatePending;
     private boolean disposed;
 
-    public GroupNodeViewModel(@NonNull BibDatabaseContext databaseContext,
-                              @NonNull StateManager stateManager,
-                              @NonNull TaskExecutor taskExecutor,
-                              @NonNull GroupTreeNode groupNode,
-                              @NonNull CustomLocalDragboard localDragBoard,
-                              @NonNull GuiPreferences preferences) {
+    public GroupNodeViewModel(
+            @NonNull BibDatabaseContext databaseContext,
+            @NonNull StateManager stateManager,
+            @NonNull TaskExecutor taskExecutor,
+            @NonNull GroupTreeNode groupNode,
+            @NonNull CustomLocalDragboard localDragBoard,
+            @NonNull GuiPreferences preferences) {
         this.databaseContext = databaseContext;
         this.taskExecutor = taskExecutor;
         this.stateManager = stateManager;
@@ -129,14 +131,16 @@ public class GroupNodeViewModel {
         this.localDragBoard = localDragBoard;
         this.preferences = preferences;
 
-        displayName = new SimpleObjectProperty<>(new LatexToUnicodeFormatter().format(localizedName(groupNode.getGroup())));
+        displayName =
+                new SimpleObjectProperty<>(new LatexToUnicodeFormatter().format(localizedName(groupNode.getGroup())));
         isRoot = groupNode.isRoot();
         if (groupNode.getGroup() instanceof AutomaticGroup automaticGroup) {
-            children = automaticGroup.createSubgroups(this.databaseContext.getDatabase().getEntries())
-                                     .stream()
-                                     .map(this::toViewModel)
-                                     .sorted((group1, group2) -> group1.getDisplayName().compareToIgnoreCase(group2.getDisplayName()))
-                                     .collect(Collectors.toCollection(FXCollections::observableArrayList));
+            children = automaticGroup
+                    .createSubgroups(this.databaseContext.getDatabase().getEntries())
+                    .stream()
+                    .map(this::toViewModel)
+                    .sorted((group1, group2) -> group1.getDisplayName().compareToIgnoreCase(group2.getDisplayName()))
+                    .collect(Collectors.toCollection(FXCollections::observableArrayList));
         } else {
             children = EasyBind.mapBacked(groupNode.getChildren(), this::toViewModel);
         }
@@ -144,7 +148,8 @@ public class GroupNodeViewModel {
             databaseContext.getMetaData().groupsBinding().addListener(new WeakInvalidationListener(onInvalidatedGroup));
         } else if (groupNode.getGroup() instanceof SearchGroup searchGroup) {
             SearchContext searchContext = stateManager.getSearchContext(databaseContext);
-            searchGroup.setMatchedEntries(searchContext.search(searchGroup.getSearchQuery()).getMatchedEntries());
+            searchGroup.setMatchedEntries(
+                    searchContext.search(searchGroup.getSearchQuery()).getMatchedEntries());
             refreshGroup();
             databaseContext.getMetaData().groupsBinding().invalidate();
         }
@@ -155,14 +160,19 @@ public class GroupNodeViewModel {
         expandedProperty.addListener((_, _, newValue) -> groupNode.getGroup().setExpanded(newValue));
 
         // Register listener
-        // The wrapper created by the FXCollections will set a weak listener on the wrapped list. This weak listener gets garbage collected. Hence, we need to maintain a reference to this list.
+        // The wrapper created by the FXCollections will set a weak listener on the wrapped list. This weak listener
+        // gets garbage collected. Hence, we need to maintain a reference to this list.
         entriesList = databaseContext.getDatabase().getEntries();
         entriesList.addListener(databaseChangeListener);
 
-        EasyObservableList<Boolean> selectedEntriesMatchStatus = EasyBind.map(stateManager.getSelectedEntries(), groupNode::matches);
+        EasyObservableList<Boolean> selectedEntriesMatchStatus =
+                EasyBind.map(stateManager.getSelectedEntries(), groupNode::matches);
         anySelectedEntriesMatched = selectedEntriesMatchStatus.anyMatch(matched -> matched);
         // 'all' returns 'true' for empty streams, so this has to be checked explicitly
-        allSelectedEntriesMatched = selectedEntriesMatchStatus.isEmptyBinding().not().and(selectedEntriesMatchStatus.allMatch(matched -> matched));
+        allSelectedEntriesMatched = selectedEntriesMatchStatus
+                .isEmptyBinding()
+                .not()
+                .and(selectedEntriesMatchStatus.allMatch(matched -> matched));
 
         this.databaseContext.getDatabase().registerListener(searchIndexListener);
 
@@ -171,7 +181,13 @@ public class GroupNodeViewModel {
         }
     }
 
-    public GroupNodeViewModel(BibDatabaseContext databaseContext, StateManager stateManager, TaskExecutor taskExecutor, AbstractGroup group, CustomLocalDragboard localDragboard, GuiPreferences preferences) {
+    public GroupNodeViewModel(
+            BibDatabaseContext databaseContext,
+            StateManager stateManager,
+            TaskExecutor taskExecutor,
+            AbstractGroup group,
+            CustomLocalDragboard localDragboard,
+            GuiPreferences preferences) {
         this(databaseContext, stateManager, taskExecutor, new GroupTreeNode(group), localDragboard, preferences);
     }
 
@@ -184,8 +200,19 @@ public class GroupNodeViewModel {
         return group.getName();
     }
 
-    static GroupNodeViewModel getAllEntriesGroup(BibDatabaseContext newDatabase, StateManager stateManager, TaskExecutor taskExecutor, CustomLocalDragboard localDragBoard, GuiPreferences preferences) {
-        return new GroupNodeViewModel(newDatabase, stateManager, taskExecutor, GroupsFactory.createAllEntriesGroup(), localDragBoard, preferences);
+    static GroupNodeViewModel getAllEntriesGroup(
+            BibDatabaseContext newDatabase,
+            StateManager stateManager,
+            TaskExecutor taskExecutor,
+            CustomLocalDragboard localDragBoard,
+            GuiPreferences preferences) {
+        return new GroupNodeViewModel(
+                newDatabase,
+                stateManager,
+                taskExecutor,
+                GroupsFactory.createAllEntriesGroup(),
+                localDragBoard,
+                preferences);
     }
 
     private GroupNodeViewModel toViewModel(GroupTreeNode child) {
@@ -274,15 +301,14 @@ public class GroupNodeViewModel {
             matchedEntriesSnapshot = Set.copyOf(matchedEntries);
         }
 
-        return "GroupNodeViewModel{" +
-                "displayName='" + displayName + '\'' +
-                ", isRoot=" + isRoot +
-                ", icon='" + getIcon() + '\'' +
-                ", children=" + children +
-                ", databaseContext=" + databaseContext +
-                ", groupNode=" + groupNode +
-                ", matchedEntries=" + matchedEntriesSnapshot +
-                '}';
+        return "GroupNodeViewModel{displayName='"
+                + displayName + '\'' + ", isRoot="
+                + isRoot + ", icon='"
+                + getIcon() + '\'' + ", children="
+                + children + ", databaseContext="
+                + databaseContext + ", groupNode="
+                + groupNode + ", matchedEntries="
+                + matchedEntriesSnapshot + '}';
     }
 
     @Override
@@ -292,8 +318,7 @@ public class GroupNodeViewModel {
 
     public JabRefIcon getIcon() {
         Optional<String> iconName = groupNode.getGroup().getIconName();
-        return iconName.flatMap(this::parseIcon)
-                       .orElseGet(this::createDefaultIcon);
+        return iconName.flatMap(this::parseIcon).orElseGet(this::createDefaultIcon);
     }
 
     private JabRefIcon createDefaultIcon() {
@@ -302,8 +327,7 @@ public class GroupNodeViewModel {
     }
 
     private Optional<JabRefIcon> parseIcon(String iconCode) {
-        return IconTheme.findGroupIcon(iconCode)
-                        .map(icon -> icon.withColor(getColor()));
+        return IconTheme.findGroupIcon(iconCode).map(icon -> icon.withColor(getColor()));
     }
 
     public ObservableList<GroupNodeViewModel> getChildren() {
@@ -420,12 +444,12 @@ public class GroupNodeViewModel {
         }
 
         matchedEntriesUpdateInProgress = true;
-        BackgroundTask<List<BibEntry>> updateTask = BackgroundTask
-                .wrap(() -> {
+        BackgroundTask<List<BibEntry>> updateTask = BackgroundTask.wrap(() -> {
                     if (disposed || Thread.currentThread().isInterrupted()) {
                         return List.<BibEntry>of();
                     }
-                    List<BibEntry> entriesSnapshot = databaseContext.getDatabase().getEntriesSnapshot();
+                    List<BibEntry> entriesSnapshot =
+                            databaseContext.getDatabase().getEntriesSnapshot();
                     List<BibEntry> matched = new ArrayList<>();
                     for (BibEntry entry : entriesSnapshot) {
                         if (disposed || Thread.currentThread().isInterrupted()) {
@@ -501,9 +525,7 @@ public class GroupNodeViewModel {
     private void replaceMatchedEntries(List<BibEntry> entries) {
         synchronized (matchedEntriesLock) {
             matchedEntries.clear();
-            entries.stream()
-                   .map(BibEntry::getId)
-                   .forEach(matchedEntries::add);
+            entries.stream().map(BibEntry::getId).forEach(matchedEntries::add);
             matchedEntriesCount.set(matchedEntries.size());
         }
     }
@@ -533,8 +555,7 @@ public class GroupNodeViewModel {
     }
 
     public Optional<GroupNodeViewModel> findGroupNodeViewModel(GroupTreeNode targetNode) {
-        return findGroupNodeViewModelByIdentity(targetNode)
-                .or(() -> findGroupNodeViewModelByEquality(targetNode));
+        return findGroupNodeViewModelByIdentity(targetNode).or(() -> findGroupNodeViewModelByEquality(targetNode));
     }
 
     private Optional<GroupNodeViewModel> findGroupNodeViewModelByIdentity(GroupTreeNode targetNode) {
@@ -563,7 +584,8 @@ public class GroupNodeViewModel {
         return Optional.empty();
     }
 
-    /// Decides if the content stored in the given [Dragboard] can be dropped on the given target row. Currently, the following sources are allowed:
+    /// Decides if the content stored in the given [Dragboard] can be dropped on the given target row. Currently, the
+    /// following sources are allowed:
     ///
     /// - another group (will be added as subgroup on drop)
     /// - entries if the group implements [GroupEntryChanger] (will be assigned to group on drop)
@@ -612,12 +634,9 @@ public class GroupNodeViewModel {
             // Bottom + top -> insert source row before / after this row
             // Center -> add as child
             switch (mouseLocation) {
-                case BOTTOM ->
-                        this.moveTo(targetParent.get(), targetIndex + 1);
-                case CENTER ->
-                        this.moveTo(target);
-                case TOP ->
-                        this.moveTo(targetParent.get(), targetIndex);
+                case BOTTOM -> this.moveTo(targetParent.get(), targetIndex + 1);
+                case CENTER -> this.moveTo(target);
+                case TOP -> this.moveTo(targetParent.get(), targetIndex);
             }
         } else {
             // No parent = root -> just add
@@ -639,9 +658,9 @@ public class GroupNodeViewModel {
 
     public boolean hasSimilarSearchGroup(SearchGroup searchGroup) {
         return getChildren().stream()
-                            .filter(child -> child.getGroupNode().getGroup() instanceof SearchGroup)
-                            .map(child -> (SearchGroup) child.getGroupNode().getGroup())
-                            .anyMatch(group -> group.equals(searchGroup));
+                .filter(child -> child.getGroupNode().getGroup() instanceof SearchGroup)
+                .map(child -> (SearchGroup) child.getGroupNode().getGroup())
+                .anyMatch(group -> group.equals(searchGroup));
     }
 
     public boolean hasAllSuggestedGroups() {
@@ -653,145 +672,138 @@ public class GroupNodeViewModel {
         AbstractGroup group = groupNode.getGroup();
         return switch (group) {
             case AllEntriesGroup _,
-                 SearchGroup _,
-                 AutomaticKeywordGroup _,
-                 AutomaticPersonsGroup _,
-                 AutomaticDateGroup _,
-                 DateGroup _,
-                 AutomaticEntryTypeGroup _,
-                 EntryTypeGroup _,
-                 TexGroup _,
-                 MissingKeywordGroup _ ->
-                    false;
-            case ExplicitGroup _ ->
-                    true;
-            case LastNameGroup _,
-                 RegexKeywordGroup _ ->
-                    groupNode.getParent()
-                             .map(GroupTreeNode::getGroup)
-                             .map(groupParent -> groupParent instanceof AutomaticKeywordGroup || groupParent instanceof AutomaticPersonsGroup)
-                             .orElse(false);
+                    SearchGroup _,
+                    AutomaticKeywordGroup _,
+                    AutomaticPersonsGroup _,
+                    AutomaticDateGroup _,
+                    DateGroup _,
+                    AutomaticEntryTypeGroup _,
+                    EntryTypeGroup _,
+                    TexGroup _,
+                    MissingKeywordGroup _ -> false;
+            case ExplicitGroup _ -> true;
+            case LastNameGroup _, RegexKeywordGroup _ ->
+                groupNode
+                        .getParent()
+                        .map(GroupTreeNode::getGroup)
+                        .map(groupParent -> groupParent instanceof AutomaticKeywordGroup
+                                || groupParent instanceof AutomaticPersonsGroup)
+                        .orElse(false);
             case KeywordGroup _ ->
                 // also covers WordKeywordGroup
-                    true;
-            case null ->
-                    throw new IllegalArgumentException("Group cannot be null");
+                true;
+            case null -> throw new IllegalArgumentException("Group cannot be null");
             default ->
-                    throw new UnsupportedOperationException("canAddEntriesIn method not yet implemented in group: " + group.getClass().getName());
+                throw new UnsupportedOperationException("canAddEntriesIn method not yet implemented in group: "
+                        + group.getClass().getName());
         };
     }
 
     public boolean canBeDragged() {
         AbstractGroup group = groupNode.getGroup();
         return switch (group) {
-            case AllEntriesGroup _ ->
-                    false;
+            case AllEntriesGroup _ -> false;
             case ExplicitGroup _,
-                 SearchGroup _,
-                 AutomaticKeywordGroup _,
-                 AutomaticPersonsGroup _,
-                 AutomaticDateGroup _,
-                 AutomaticEntryTypeGroup _,
-                 EntryTypeGroup _,
-                 TexGroup _ ->
-                    true;
+                    SearchGroup _,
+                    AutomaticKeywordGroup _,
+                    AutomaticPersonsGroup _,
+                    AutomaticDateGroup _,
+                    AutomaticEntryTypeGroup _,
+                    EntryTypeGroup _,
+                    TexGroup _ -> true;
             case KeywordGroup _ ->
                 // KeywordGroup is parent of LastNameGroup, RegexKeywordGroup and WordKeywordGroup
-                    groupNode.getParent()
-                             .map(GroupTreeNode::getGroup)
-                             .map(groupParent ->
-                                     !(groupParent instanceof AutomaticKeywordGroup || groupParent instanceof AutomaticPersonsGroup))
-                             .orElse(false);
+                groupNode
+                        .getParent()
+                        .map(GroupTreeNode::getGroup)
+                        .map(groupParent -> !(groupParent instanceof AutomaticKeywordGroup
+                                || groupParent instanceof AutomaticPersonsGroup))
+                        .orElse(false);
 
-            case null ->
-                    throw new IllegalArgumentException("Group cannot be null");
+            case null -> throw new IllegalArgumentException("Group cannot be null");
             default ->
-                    throw new UnsupportedOperationException("canBeDragged method not yet implemented in group: " + group.getClass().getName());
+                throw new UnsupportedOperationException("canBeDragged method not yet implemented in group: "
+                        + group.getClass().getName());
         };
     }
 
     public boolean canAddGroupsIn() {
         AbstractGroup group = groupNode.getGroup();
         return switch (group) {
-            case AllEntriesGroup _,
-                 ExplicitGroup _,
-                 SearchGroup _,
-                 TexGroup _ ->
-                    true;
+            case AllEntriesGroup _, ExplicitGroup _, SearchGroup _, TexGroup _ -> true;
             case AutomaticKeywordGroup _,
-                 AutomaticPersonsGroup _,
-                 AutomaticDateGroup _,
-                 DateGroup _,
-                 AutomaticEntryTypeGroup _,
-                 EntryTypeGroup _ ->
-                    false;
+                    AutomaticPersonsGroup _,
+                    AutomaticDateGroup _,
+                    DateGroup _,
+                    AutomaticEntryTypeGroup _,
+                    EntryTypeGroup _ -> false;
             case KeywordGroup _ ->
                 // KeywordGroup is parent of LastNameGroup, RegexKeywordGroup and WordKeywordGroup
-                    groupNode.getParent()
-                             .map(GroupTreeNode::getGroup)
-                             .map(groupParent -> !(groupParent instanceof AutomaticKeywordGroup || groupParent instanceof AutomaticPersonsGroup))
-                             .orElse(false);
-            case null ->
-                    throw new IllegalArgumentException("Group cannot be null");
+                groupNode
+                        .getParent()
+                        .map(GroupTreeNode::getGroup)
+                        .map(groupParent -> !(groupParent instanceof AutomaticKeywordGroup
+                                || groupParent instanceof AutomaticPersonsGroup))
+                        .orElse(false);
+            case null -> throw new IllegalArgumentException("Group cannot be null");
             default ->
-                    throw new UnsupportedOperationException("canAddGroupsIn method not yet implemented in group: " + group.getClass().getName());
+                throw new UnsupportedOperationException("canAddGroupsIn method not yet implemented in group: "
+                        + group.getClass().getName());
         };
     }
 
     public boolean canRemove() {
         AbstractGroup group = groupNode.getGroup();
         return switch (group) {
-            case AllEntriesGroup _ ->
-                    false;
+            case AllEntriesGroup _ -> false;
             case ExplicitGroup _,
-                 SearchGroup _,
-                 AutomaticKeywordGroup _,
-                 AutomaticPersonsGroup _,
-                 AutomaticDateGroup _,
-                 AutomaticEntryTypeGroup _,
-                 DateGroup _,
-                 EntryTypeGroup _,
-                 TexGroup _ ->
-                    true;
+                    SearchGroup _,
+                    AutomaticKeywordGroup _,
+                    AutomaticPersonsGroup _,
+                    AutomaticDateGroup _,
+                    AutomaticEntryTypeGroup _,
+                    DateGroup _,
+                    EntryTypeGroup _,
+                    TexGroup _ -> true;
             case KeywordGroup _ ->
                 // KeywordGroup is parent of LastNameGroup, RegexKeywordGroup and WordKeywordGroup
-                    groupNode.getParent()
-                             .map(GroupTreeNode::getGroup)
-                             .map(groupParent -> !(groupParent instanceof AutomaticKeywordGroup || groupParent instanceof AutomaticPersonsGroup))
-                             .orElse(false);
-            case null ->
-                    throw new IllegalArgumentException("Group cannot be null");
+                groupNode
+                        .getParent()
+                        .map(GroupTreeNode::getGroup)
+                        .map(groupParent -> !(groupParent instanceof AutomaticKeywordGroup
+                                || groupParent instanceof AutomaticPersonsGroup))
+                        .orElse(false);
+            case null -> throw new IllegalArgumentException("Group cannot be null");
             default ->
-                    throw new UnsupportedOperationException("canRemove method not yet implemented in group: " + group.getClass().getName());
+                throw new UnsupportedOperationException("canRemove method not yet implemented in group: "
+                        + group.getClass().getName());
         };
     }
 
     public boolean isEditable() {
         AbstractGroup group = groupNode.getGroup();
         return switch (group) {
-            case AllEntriesGroup _,
-                 DateGroup _,
-                 EntryTypeGroup _ ->
-                    false;
+            case AllEntriesGroup _, DateGroup _, EntryTypeGroup _ -> false;
             case ExplicitGroup _,
-                 SearchGroup _,
-                 AutomaticKeywordGroup _,
-                 AutomaticPersonsGroup _,
-                 AutomaticDateGroup _,
-                 AutomaticEntryTypeGroup _,
-                 TexGroup _ ->
-                    true;
+                    SearchGroup _,
+                    AutomaticKeywordGroup _,
+                    AutomaticPersonsGroup _,
+                    AutomaticDateGroup _,
+                    AutomaticEntryTypeGroup _,
+                    TexGroup _ -> true;
             case KeywordGroup _ ->
                 // KeywordGroup is parent of LastNameGroup, RegexKeywordGroup and WordKeywordGroup
-                    groupNode.getParent()
-                             .map(GroupTreeNode::getGroup)
-                             .map(groupParent -> !(groupParent instanceof AutomaticKeywordGroup || groupParent instanceof AutomaticPersonsGroup))
-                             .orElse(false);
+                groupNode
+                        .getParent()
+                        .map(GroupTreeNode::getGroup)
+                        .map(groupParent -> !(groupParent instanceof AutomaticKeywordGroup
+                                || groupParent instanceof AutomaticPersonsGroup))
+                        .orElse(false);
 
-            case null ->
-                    throw new IllegalArgumentException("Group cannot be null");
+            case null -> throw new IllegalArgumentException("Group cannot be null");
             default ->
-                    throw new UnsupportedOperationException("isEditable method not yet implemented in group: " + group.getClass().getName());
+                throw new UnsupportedOperationException("isEditable method not yet implemented in group: "
+                        + group.getClass().getName());
         };
     }
 
@@ -809,8 +821,7 @@ public class GroupNodeViewModel {
     private boolean isMatchEffective(GroupNodeViewModel vm, BibEntry entry) {
         GroupTreeNode node = vm.groupNode;
         return switch (node.getGroup().getHierarchicalContext()) {
-            case INDEPENDENT ->
-                    node.matches(entry);
+            case INDEPENDENT -> node.matches(entry);
 
             case INCLUDING -> {
                 if (node.getGroup().contains(entry)) {
@@ -850,7 +861,8 @@ public class GroupNodeViewModel {
             }
             if (groupNode.getGroup() instanceof SearchGroup searchGroup) {
                 SearchContext searchContext = stateManager.getSearchContext(databaseContext);
-                searchGroup.setMatchedEntries(searchContext.search(searchGroup.getSearchQuery()).getMatchedEntries());
+                searchGroup.setMatchedEntries(
+                        searchContext.search(searchGroup.getSearchQuery()).getMatchedEntries());
                 refreshGroup();
                 databaseContext.getMetaData().groupsBinding().invalidate();
             }
@@ -871,7 +883,8 @@ public class GroupNodeViewModel {
                         if (disposed || Thread.currentThread().isInterrupted()) {
                             return null;
                         }
-                        searchGroup.updateMatches(entry, searchContext.isEntryMatched(entry, searchGroup.getSearchQuery()));
+                        searchGroup.updateMatches(
+                                entry, searchContext.isEntryMatched(entry, searchGroup.getSearchQuery()));
                     }
                     return null;
                 });

@@ -1,7 +1,9 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
+import java.util.List;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.entry.BibEntry;
@@ -9,13 +11,9 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 @ExternalServicesTest
 class DBLPFetcherTest {
@@ -31,17 +29,20 @@ class DBLPFetcherTest {
         entry.setType(StandardEntryType.Article);
         entry.setCitationKey("DBLP:journals/stt/GeigerHL16");
         entry.setField(StandardField.TITLE, """
-                Process Engine Benchmarking with Betsy in the Context of {ISO/IEC}
-                                  Quality Standards""");
+            Process Engine Benchmarking with Betsy in the Context of {ISO/IEC}
+                              Quality Standards\
+            """);
         entry.setField(StandardField.AUTHOR, """
-                Matthias Geiger and
-                                  Simon Harrer and
-                                  J{\\\"{o}}rg Lenhard""");
+            Matthias Geiger and
+                              Simon Harrer and
+                              J{\\\"{o}}rg Lenhard\
+            """);
         entry.setField(StandardField.JOURNAL, "Softwaretechnik-Trends");
         entry.setField(StandardField.VOLUME, "36");
         entry.setField(StandardField.NUMBER, "2");
         entry.setField(StandardField.YEAR, "2016");
-        entry.setField(StandardField.URL,
+        entry.setField(
+                StandardField.URL,
                 "https://fb-swt.gi.de/fileadmin/FB/SWT/Softwaretechnik-Trends/Verzeichnis/Band_36_Heft_2/beitrag_2.pdf");
         entry.setField(new UnknownField("biburl"), "https://dblp.org/rec/journals/stt/GeigerHL16.bib");
         entry.setField(new UnknownField("bibsource"), "dblp computer science bibliography, https://dblp.org");
@@ -49,7 +50,8 @@ class DBLPFetcherTest {
 
     @Test
     void findSingleEntry() throws FetcherException {
-        // In Lucene curly brackets are used for range queries, therefore they have to be escaped using "". See https://lucene.apache.org/core/5_4_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html
+        // In Lucene curly brackets are used for range queries, therefore they have to be escaped using "". See
+        // https://lucene.apache.org/core/5_4_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html
         String query = "Process Engine Benchmarking with Betsy in the Context of \"{ISO/IEC}\" Quality Standards";
         List<BibEntry> result = dblpFetcher.performSearch(query);
 
@@ -58,7 +60,8 @@ class DBLPFetcherTest {
 
     @Test
     void findSingleEntryUsingComplexOperators() throws FetcherException {
-        String query = "geiger harrer betsy$ softw.trends"; // -wirtz Negative operators do no longer work,  see issue https://github.com/JabRef/jabref/issues/2890
+        String query = "geiger harrer betsy$ softw.trends"; // -wirtz Negative operators do no longer work,  see issue
+                                                            // https://github.com/JabRef/jabref/issues/2890
         List<BibEntry> result = dblpFetcher.performSearch(query);
 
         assertEquals(List.of(entry), result);

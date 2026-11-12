@@ -26,7 +26,8 @@ final class StyleSheetDataUrl extends StyleSheet {
 
     @Override
     void reload() {
-        StyleSheetFile.getDataUrl(url).ifPresentOrElse(createdUrl -> dataUrl = createdUrl, () -> dataUrl = DATA_URL_PREFIX);
+        StyleSheetFile.getDataUrl(url)
+                .ifPresentOrElse(createdUrl -> dataUrl = createdUrl, () -> dataUrl = DATA_URL_PREFIX);
     }
 
     @Override

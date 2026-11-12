@@ -1,7 +1,9 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
+import java.util.List;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.entry.BibEntry;
@@ -9,13 +11,9 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 @ExternalServicesTest
 class INSPIREFetcherTest {
@@ -24,7 +22,8 @@ class INSPIREFetcherTest {
 
     @BeforeEach
     void setUp() {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        ImportFormatPreferences importFormatPreferences =
+                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
         fetcher = new INSPIREFetcher(importFormatPreferences);
     }
 
@@ -33,7 +32,9 @@ class INSPIREFetcherTest {
         BibEntry master = new BibEntry(StandardEntryType.MastersThesis)
                 .withCitationKey("Diez:2013fdp")
                 .withField(StandardField.AUTHOR, "Diez, Tobias")
-                .withField(StandardField.TITLE, "Slice theorem for Fréchet group actions and covariant symplectic field theory")
+                .withField(
+                        StandardField.TITLE,
+                        "Slice theorem for Fréchet group actions and covariant symplectic field theory")
                 .withField(StandardField.SCHOOL, "Leipzig U.")
                 .withField(StandardField.YEAR, "2013")
                 .withField(StandardField.EPRINT, "1405.2249")

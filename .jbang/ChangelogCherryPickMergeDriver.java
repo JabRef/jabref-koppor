@@ -1,4 +1,6 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 25+
+//DEPS org.jspecify:jspecify:1.0.1
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,11 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.jspecify.annotations.NullMarked;
-
-//JAVA 25+
-//DEPS org.jspecify:jspecify:1.0.1
 
 /// Git merge driver for `CHANGELOG.md` when a change is ported between `main` and `black-forest`
 /// (see `.github/workflows/port-to-other-branch.yml`).
@@ -32,7 +30,8 @@ import org.jspecify.annotations.NullMarked;
 /// - [heylogs](https://github.com/nbbrd/heylogs) and [clparse](https://github.com/marcaddeo/clparse)
 ///   only read a changelog (lint, extract a version); neither merges.
 /// - Generators such as [git-cliff](https://github.com/orhun/git-cliff) or
-///   [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) derive entries from commit
+///   [conventional-changelog](https://github.com/conventional-changelog/conventional-changelog) derive entries from
+/// commit
 ///   messages; JabRef writes its entries by hand in the PR, so there is nothing to generate from.
 ///
 /// The same logic is proposed upstream as a `--cherry-pick` mode of maven-flow/changelog-merge-driver
@@ -66,15 +65,16 @@ public class ChangelogCherryPickMergeDriver {
         if (merged.isEmpty()) {
             // Not a plain entry change - leave the decision (and the conflict markers) to Git's own three-way merge
             int conflicts = new ProcessBuilder("git", "merge-file", ours.toString(), base.toString(), theirs.toString())
-                    .inheritIO().start().waitFor();
+                    .inheritIO()
+                    .start()
+                    .waitFor();
             System.exit(conflicts == 0 ? 0 : 1);
         }
         Files.writeString(ours, merged.orElseThrow());
     }
 
     /// Everything before the "Unreleased" heading, the sections below it, and everything from the next version on.
-    record Changelog(List<String> head, LinkedHashMap<String, List<String>> sections, List<String> tail) {
-    }
+    record Changelog(List<String> head, LinkedHashMap<String, List<String>> sections, List<String> tail) {}
 
     static Optional<String> merge(String baseText, String oursText, String theirsText) {
         Optional<Changelog> base = parse(baseText);
@@ -83,7 +83,8 @@ public class ChangelogCherryPickMergeDriver {
         if (base.isEmpty() || ours.isEmpty() || theirs.isEmpty()) {
             return Optional.empty();
         }
-        if (!base.get().head().equals(theirs.get().head()) || !base.get().tail().equals(theirs.get().tail())) {
+        if (!base.get().head().equals(theirs.get().head())
+                || !base.get().tail().equals(theirs.get().tail())) {
             // The commit touched a released version, the link references, or the header
             return Optional.empty();
         }
@@ -92,7 +93,9 @@ public class ChangelogCherryPickMergeDriver {
         ours.get().sections().forEach((heading, items) -> result.put(heading, new ArrayList<>(items)));
 
         List<String> headings = new ArrayList<>(theirs.get().sections().keySet());
-        base.get().sections().keySet().stream().filter(heading -> !headings.contains(heading)).forEach(headings::add);
+        base.get().sections().keySet().stream()
+                .filter(heading -> !headings.contains(heading))
+                .forEach(headings::add);
         for (String heading : headings) {
             List<String> baseItems = base.get().sections().getOrDefault(heading, List.of());
             List<String> theirItems = theirs.get().sections().getOrDefault(heading, List.of());
@@ -127,7 +130,8 @@ public class ChangelogCherryPickMergeDriver {
     }
 
     /// Keeps the Keep-a-Changelog section order when a section only exists on the incoming side.
-    private static void insertInSectionOrder(LinkedHashMap<String, List<String>> sections, String heading, List<String> items) {
+    private static void insertInSectionOrder(
+            LinkedHashMap<String, List<String>> sections, String heading, List<String> items) {
         int rank = SECTION_ORDER.indexOf(heading);
         LinkedHashMap<String, List<String>> reordered = new LinkedHashMap<>();
         boolean inserted = false;
@@ -157,7 +161,8 @@ public class ChangelogCherryPickMergeDriver {
         }
         if (!lines.get(firstVersion).equals(UNRELEASED_HEADING)) {
             // A freshly released branch has no "Unreleased" section yet; ported entries open it
-            return Optional.of(new Changelog(lines.subList(0, firstVersion), new LinkedHashMap<>(), lines.subList(firstVersion, lines.size())));
+            return Optional.of(new Changelog(
+                    lines.subList(0, firstVersion), new LinkedHashMap<>(), lines.subList(firstVersion, lines.size())));
         }
         int end = firstVersion + 1;
         while (end < lines.size() && !lines.get(end).startsWith("## ")) {
@@ -202,58 +207,61 @@ public class ChangelogCherryPickMergeDriver {
 
     private static void selfTest() {
         String base = """
-                # Changelog
-                
-                ## [Unreleased]
-                
-                ### Added
-                
-                - We added feature A. [#1](https://github.com/JabRef/jabref/issues/1)
-                
-                ### Fixed
-                
-                - We fixed the old bug. [#2](https://github.com/JabRef/jabref/issues/2)
-                
-                ## [6.0] - 2026-01-01
-                
-                [Unreleased]: https://github.com/JabRef/jabref/compare/v6.0...HEAD
-                """;
-        String theirs = base
-                .replace("- We added feature A. [#1](https://github.com/JabRef/jabref/issues/1)\n",
-                        "- We added feature A. [#1](https://github.com/JabRef/jabref/issues/1)\n- We added feature B. [#3](https://github.com/JabRef/jabref/issues/3)\n")
-                .replace("### Fixed\n\n", "### Fixed\n\n- We fixed the crash. [#4](https://github.com/JabRef/jabref/issues/4)\n")
+            # Changelog
+
+            ## [Unreleased]
+
+            ### Added
+
+            - We added feature A. [#1](https://github.com/JabRef/jabref/issues/1)
+
+            ### Fixed
+
+            - We fixed the old bug. [#2](https://github.com/JabRef/jabref/issues/2)
+
+            ## [6.0] - 2026-01-01
+
+            [Unreleased]: https://github.com/JabRef/jabref/compare/v6.0...HEAD
+            """;
+        String theirs = base.replace(
+                        "- We added feature A. [#1](https://github.com/JabRef/jabref/issues/1)\n",
+                        "- We added feature A. [#1](https://github.com/JabRef/jabref/issues/1)\n"
+                                + "- We added feature B. [#3](https://github.com/JabRef/jabref/issues/3)\n")
+                .replace(
+                        "### Fixed\n\n",
+                        "### Fixed\n\n- We fixed the crash. [#4](https://github.com/JabRef/jabref/issues/4)\n")
                 .replace("- We fixed the old bug. [#2](https://github.com/JabRef/jabref/issues/2)\n", "");
         String ours = """
-                # Changelog
-                
-                ## [Unreleased]
-                
-                ### Fixed
-                
-                - We fixed something on stable only. [#9](https://github.com/JabRef/jabref/issues/9)
-                
-                ## [6.0] - 2026-01-01
-                
-                [Unreleased]: https://github.com/JabRef/jabref/compare/v6.0...HEAD
-                """;
+            # Changelog
+
+            ## [Unreleased]
+
+            ### Fixed
+
+            - We fixed something on stable only. [#9](https://github.com/JabRef/jabref/issues/9)
+
+            ## [6.0] - 2026-01-01
+
+            [Unreleased]: https://github.com/JabRef/jabref/compare/v6.0...HEAD
+            """;
         String expected = """
-                # Changelog
-                
-                ## [Unreleased]
-                
-                ### Added
-                
-                - We added feature B. [#3](https://github.com/JabRef/jabref/issues/3)
-                
-                ### Fixed
-                
-                - We fixed something on stable only. [#9](https://github.com/JabRef/jabref/issues/9)
-                - We fixed the crash. [#4](https://github.com/JabRef/jabref/issues/4)
-                
-                ## [6.0] - 2026-01-01
-                
-                [Unreleased]: https://github.com/JabRef/jabref/compare/v6.0...HEAD
-                """;
+            # Changelog
+
+            ## [Unreleased]
+
+            ### Added
+
+            - We added feature B. [#3](https://github.com/JabRef/jabref/issues/3)
+
+            ### Fixed
+
+            - We fixed something on stable only. [#9](https://github.com/JabRef/jabref/issues/9)
+            - We fixed the crash. [#4](https://github.com/JabRef/jabref/issues/4)
+
+            ## [6.0] - 2026-01-01
+
+            [Unreleased]: https://github.com/JabRef/jabref/compare/v6.0...HEAD
+            """;
         String actual = merge(base, ours, theirs).orElseThrow();
         if (!expected.equals(actual)) {
             throw new AssertionError("Unexpected merge result:\n" + actual);
@@ -261,15 +269,24 @@ public class ChangelogCherryPickMergeDriver {
         if (!merge(base, ours, theirs.replace("HEAD", "stable")).isEmpty()) {
             throw new AssertionError("A change outside [Unreleased] must fall back to git merge-file");
         }
-        String released = ours.replace("## [Unreleased]\n\n### Fixed\n\n- We fixed something on stable only. [#9](https://github.com/JabRef/jabref/issues/9)\n\n", "");
+        String released = ours.replace(
+                "## [Unreleased]\n\n"
+                        + "### Fixed\n\n"
+                        + "- We fixed something on stable only. [#9](https://github.com/JabRef/jabref/issues/9)\n\n",
+                "");
         String opened = merge(base, released, theirs).orElseThrow();
-        if (!opened.contains("## [Unreleased]\n\n### Added\n\n- We added feature B.") || !opened.contains("- We fixed the crash. [#4](https://github.com/JabRef/jabref/issues/4)\n\n## [6.0] - 2026-01-01")) {
+        if (!opened.contains("## [Unreleased]\n\n### Added\n\n- We added feature B.")
+                || !opened.contains("- We fixed the crash. [#4](https://github.com/JabRef/jabref/issues/4)\n\n"
+                        + "## [6.0] - 2026-01-01")) {
             throw new AssertionError("A branch without [Unreleased] must get the section created:\n" + opened);
         }
-        String duplicated = base.replace("- We fixed the old bug. [#2](https://github.com/JabRef/jabref/issues/2)\n", "- We fixed the old bug. [#2](https://github.com/JabRef/jabref/issues/2)\n".repeat(2));
+        String duplicated = base.replace(
+                "- We fixed the old bug. [#2](https://github.com/JabRef/jabref/issues/2)\n",
+                "- We fixed the old bug. [#2](https://github.com/JabRef/jabref/issues/2)\n".repeat(2));
         String oneCopyDropped = merge(duplicated, duplicated, base).orElseThrow();
         if (!oneCopyDropped.equals(base)) {
-            throw new AssertionError("Dropping one of two equal entries must remove exactly one copy:\n" + oneCopyDropped);
+            throw new AssertionError(
+                    "Dropping one of two equal entries must remove exactly one copy:\n" + oneCopyDropped);
         }
         if (!actual.equals(merge(base, actual, theirs).orElseThrow())) {
             throw new AssertionError("Applying the same change twice must be a no-op");

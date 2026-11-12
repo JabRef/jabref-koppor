@@ -1,5 +1,11 @@
 package org.jabref.logic.importer.fileformat;
 
+import com.google.common.base.CaseFormat;
+import com.google.common.base.Enums;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.CookieHandler;
@@ -13,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.Parser;
@@ -23,14 +29,6 @@ import org.jabref.model.entry.AuthorList;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import com.google.common.base.CaseFormat;
-import com.google.common.base.Enums;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -95,7 +93,8 @@ public class ACMPortalParser implements Parser {
             if (jsonElement.isJsonObject()) {
                 JsonArray items = jsonElement.getAsJsonObject().getAsJsonArray("items");
                 for (JsonElement item : items) {
-                    for (Map.Entry<String, JsonElement> entry : item.getAsJsonObject().entrySet()) {
+                    for (Map.Entry<String, JsonElement> entry :
+                            item.getAsJsonObject().entrySet()) {
                         bibEntries.add(parseBibEntry(entry.getValue().toString()));
                     }
                 }
@@ -125,7 +124,8 @@ public class ACMPortalParser implements Parser {
             type = StandardEntryType.Conference;
         } else {
             String upperUnderscoreTypeStr = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, typeStr);
-            type = Enums.getIfPresent(StandardEntryType.class, upperUnderscoreTypeStr).or(StandardEntryType.Article);
+            type = Enums.getIfPresent(StandardEntryType.class, upperUnderscoreTypeStr)
+                    .or(StandardEntryType.Article);
         }
         return type;
     }
@@ -149,7 +149,8 @@ public class ACMPortalParser implements Parser {
         if (jsonObject.has("issued")) {
             JsonObject issued = jsonObject.get("issued").getAsJsonObject();
             if (issued.has("date-parts")) {
-                JsonArray dateArray = issued.get("date-parts").getAsJsonArray().get(0).getAsJsonArray();
+                JsonArray dateArray =
+                        issued.get("date-parts").getAsJsonArray().get(0).getAsJsonArray();
                 StandardField[] dateField = {StandardField.YEAR, StandardField.MONTH, StandardField.DAY};
                 for (int i = 0; i < dateArray.size(); i++) {
                     bibEntry.setField(dateField[i], dateArray.get(i).getAsString());
@@ -162,11 +163,13 @@ public class ACMPortalParser implements Parser {
         }
 
         if (jsonObject.has("collection-title")) {
-            bibEntry.setField(StandardField.SERIES, jsonObject.get("collection-title").getAsString());
+            bibEntry.setField(
+                    StandardField.SERIES, jsonObject.get("collection-title").getAsString());
         }
 
         if (jsonObject.has("container-title")) {
-            bibEntry.setField(StandardField.BOOKTITLE, jsonObject.get("container-title").getAsString());
+            bibEntry.setField(
+                    StandardField.BOOKTITLE, jsonObject.get("container-title").getAsString());
         }
 
         if (jsonObject.has("DOI")) {
@@ -174,7 +177,8 @@ public class ACMPortalParser implements Parser {
         }
 
         if (jsonObject.has("event-place")) {
-            bibEntry.setField(StandardField.LOCATION, jsonObject.get("event-place").getAsString());
+            bibEntry.setField(
+                    StandardField.LOCATION, jsonObject.get("event-place").getAsString());
         }
 
         if (jsonObject.has("ISBN")) {
@@ -188,7 +192,8 @@ public class ACMPortalParser implements Parser {
         }
 
         if (jsonObject.has("number-of-pages")) {
-            bibEntry.setField(StandardField.PAGETOTAL, jsonObject.get("number-of-pages").getAsString());
+            bibEntry.setField(
+                    StandardField.PAGETOTAL, jsonObject.get("number-of-pages").getAsString());
         }
 
         if (jsonObject.has("page")) {
@@ -196,11 +201,13 @@ public class ACMPortalParser implements Parser {
         }
 
         if (jsonObject.has("publisher")) {
-            bibEntry.setField(StandardField.PUBLISHER, jsonObject.get("publisher").getAsString());
+            bibEntry.setField(
+                    StandardField.PUBLISHER, jsonObject.get("publisher").getAsString());
         }
 
         if (jsonObject.has("publisher-place")) {
-            bibEntry.setField(StandardField.ADDRESS, jsonObject.get("publisher-place").getAsString());
+            bibEntry.setField(
+                    StandardField.ADDRESS, jsonObject.get("publisher-place").getAsString());
         }
 
         if (jsonObject.has("title")) {

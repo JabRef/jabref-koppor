@@ -1,16 +1,14 @@
 package org.jabref.gui.walkthrough.declarative.sideeffect;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.jabref.gui.LibraryTab;
-
-import org.jspecify.annotations.NullMarked;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
+import org.jabref.gui.LibraryTab;
+import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.Test;
 
 @NullMarked
 class OpenLibrarySideEffectTest {

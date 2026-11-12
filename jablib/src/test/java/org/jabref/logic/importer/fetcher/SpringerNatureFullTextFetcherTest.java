@@ -1,10 +1,12 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.util.Optional;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.util.BuildInfo;
 import org.jabref.logic.util.URLUtil;
@@ -12,13 +14,8 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.DisabledOnCIServer;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExternalServicesTest
 class SpringerNatureFullTextFetcherTest {
@@ -30,7 +27,8 @@ class SpringerNatureFullTextFetcherTest {
     @BeforeEach
     void setUp() {
         Optional<String> apiKey = Optional.of(new BuildInfo().springerNatureAPIKey);
-        when(importerPreferences.getApiKey(SpringerNatureFullTextFetcher.FETCHER_NAME)).thenReturn(apiKey);
+        when(importerPreferences.getApiKey(SpringerNatureFullTextFetcher.FETCHER_NAME))
+                .thenReturn(apiKey);
         when(importerPreferences.getApiKeys()).thenReturn(FXCollections.emptyObservableSet());
         finder = new SpringerNatureFullTextFetcher(importerPreferences);
         entry = new BibEntry();

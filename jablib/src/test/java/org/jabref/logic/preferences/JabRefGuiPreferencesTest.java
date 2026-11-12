@@ -1,14 +1,13 @@
 package org.jabref.logic.preferences;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JabRefGuiPreferencesTest {
     private static Stream<Arguments> provideTestData() {
@@ -16,8 +15,7 @@ class JabRefGuiPreferencesTest {
                 Arguments.of(List.of("A", "B", "C", "D"), "A;B;C;D"),
                 Arguments.of(List.of("A", "B", "C", ""), "A;B;C;"),
                 Arguments.of(List.of("a;b", "C:\\Tools\\app.exe"), "a\\;b;C:\\\\Tools\\\\app.exe"),
-                Arguments.of(List.of("a\\", "b"), "a\\\\;b")
-        );
+                Arguments.of(List.of("a\\", "b"), "a\\\\;b"));
     }
 
     @ParameterizedTest

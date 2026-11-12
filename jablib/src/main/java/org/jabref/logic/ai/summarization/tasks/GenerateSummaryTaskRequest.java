@@ -10,6 +10,4 @@ public record GenerateSummaryTaskRequest(
         ChatModel chatModel,
         Summarizator summarizator,
         FullBibEntry fullEntry,
-        boolean regenerate
-) {
-}
+        boolean regenerate) {}

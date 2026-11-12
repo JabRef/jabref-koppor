@@ -1,7 +1,6 @@
 package org.jabref.logic.layout.format;
 
 import java.util.List;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -13,8 +12,8 @@ public class NameFormatterPreferences {
     private NameFormatterPreferences() {
         this(
                 List.of(), // Name formatter keys
-                List.of()  // Name formatter values
-        );
+                List.of() // Name formatter values
+                );
     }
 
     public NameFormatterPreferences(List<String> nameFormatterKey, List<String> nameFormatterValue) {

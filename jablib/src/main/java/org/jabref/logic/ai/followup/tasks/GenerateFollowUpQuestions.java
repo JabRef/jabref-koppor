@@ -1,15 +1,13 @@
 package org.jabref.logic.ai.followup.tasks;
 
+import dev.langchain4j.data.message.UserMessage;
 import java.util.List;
-
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.ai.templates.AiTemplateRenderer;
 import org.jabref.logic.ai.util.LlmResponseParser;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BackgroundTask;
-
-import dev.langchain4j.data.message.UserMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,11 +20,7 @@ public class GenerateFollowUpQuestions extends BackgroundTask<List<String>> {
     private final String aiResponse;
 
     public GenerateFollowUpQuestions(
-            ChatModel chatModel,
-            AiPreferences aiPreferences,
-            String userMessage,
-            String aiResponse
-    ) {
+            ChatModel chatModel, AiPreferences aiPreferences, String userMessage, String aiResponse) {
         this.chatModel = chatModel;
         this.aiPreferences = aiPreferences;
         this.userMessage = userMessage;
@@ -41,19 +35,18 @@ public class GenerateFollowUpQuestions extends BackgroundTask<List<String>> {
                 aiPreferences.getFollowUpQuestionsTemplate(),
                 userMessage,
                 aiResponse,
-                aiPreferences.getFollowUpQuestionsCount()
-        );
+                aiPreferences.getFollowUpQuestionsCount());
 
         LOGGER.debug("Generating follow-up questions for conversation");
 
-        String responseText = chatModel.chat(List.of(new UserMessage(prompt))).aiMessage().text();
+        String responseText =
+                chatModel.chat(List.of(new UserMessage(prompt))).aiMessage().text();
 
         LOGGER.debug("Received follow-up questions response: {}", responseText);
 
-        List<String> questions = LlmResponseParser.extractNumberedList(responseText)
-                                                  .stream()
-                                                  .limit(aiPreferences.getFollowUpQuestionsCount())
-                                                  .toList();
+        List<String> questions = LlmResponseParser.extractNumberedList(responseText).stream()
+                .limit(aiPreferences.getFollowUpQuestionsCount())
+                .toList();
 
         LOGGER.debug("Generated {} follow-up questions", questions.size());
 

@@ -1,12 +1,16 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportCleanup;
@@ -14,18 +18,12 @@ import org.jabref.logic.importer.SearchBasedFetcher;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /// Defines the set of capability tests that each tests a given search capability, e.g. author based search.
 /// The idea is to code the capabilities of a fetcher into Java code.
-/// This way, a) the capabilities of a fetcher are checked automatically (because they can change from time-to-time by the provider)
+/// This way, a) the capabilities of a fetcher are checked automatically (because they can change from time-to-time by
+/// the provider)
 /// and b) the queries sent to the fetchers can be debugged directly without a route through to some fetcher code.
 interface SearchBasedFetcherCapabilityTest {
 
@@ -57,11 +55,11 @@ interface SearchBasedFetcherCapabilityTest {
         when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.observableArrayList());
         ImportCleanup.targeting(BibDatabaseMode.BIBTEX, fieldPreferences).doPostCleanup(result);
         List<String> differentYearsInResult = result.stream()
-                                                    .map(bibEntry -> bibEntry.getField(StandardField.YEAR))
-                                                    .filter(Optional::isPresent)
-                                                    .map(Optional::get)
-                                                    .distinct()
-                                                    .collect(Collectors.toList());
+                .map(bibEntry -> bibEntry.getField(StandardField.YEAR))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .distinct()
+                .collect(Collectors.toList());
 
         assertEquals(List.of(getTestYear().toString()), differentYearsInResult);
     }
@@ -78,18 +76,19 @@ interface SearchBasedFetcherCapabilityTest {
         when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.observableArrayList());
         ImportCleanup.targeting(BibDatabaseMode.BIBTEX, fieldPreferences).doPostCleanup(result);
         List<String> differentYearsInResult = result.stream()
-                                                    .map(bibEntry -> bibEntry.getField(StandardField.YEAR))
-                                                    .filter(Optional::isPresent)
-                                                    .map(Optional::get)
-                                                    .distinct()
-                                                    .toList();
+                .map(bibEntry -> bibEntry.getField(StandardField.YEAR))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .distinct()
+                .toList();
         assertFalse(result.isEmpty());
         assertTrue(yearsInYearRange.containsAll(differentYearsInResult));
     }
 
     /// Test whether the library API supports journal based search.
     ///
-    /// WARNING: the error while merging information from user-assigned DOI (more specifically, "10.1016/j.geomphys.2012.09.009")
+    /// WARNING: the error while merging information from user-assigned DOI (more specifically,
+    /// "10.1016/j.geomphys.2012.09.009")
     /// is related to a failed read by the Bibtex Parser (title is formatted in a weird way)
     @Test
     default void supportsJournalSearch() throws FetcherException {

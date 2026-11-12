@@ -1,5 +1,18 @@
 package org.jabref.gui.dialogs;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.airhacks.afterburner.injection.Injector;
 import java.io.IOException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
@@ -8,11 +21,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.scene.layout.StackPane;
-
+import org.controlsfx.control.HyperlinkLabel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefGuiStateManager;
 import org.jabref.gui.LibraryTab;
@@ -42,9 +54,6 @@ import org.jabref.model.entry.BibtexString;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.airhacks.afterburner.injection.Injector;
-import org.controlsfx.control.HyperlinkLabel;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
@@ -53,18 +62,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Answers;
 import org.mockito.InOrder;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @NullMarked
 class BackupUIManagerTest extends JavaFxTest {
@@ -95,7 +92,8 @@ class BackupUIManagerTest extends JavaFxTest {
         Path originalFile = tempDir.resolve("library.bib");
         Files.createDirectory(originalFile);
         Files.writeString(originalFile.resolve("existing-file"), "existing content");
-        Path backupFile = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(originalFile, BackupFileType.BACKUP, backupDir);
+        Path backupFile = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(
+                originalFile, BackupFileType.BACKUP, backupDir);
         Files.writeString(backupFile, "@article{backup}");
         LibraryTabContainer tabContainer = mock(LibraryTabContainer.class);
         when(tabContainer.getLibraryTabs()).thenReturn(FXCollections.emptyObservableList());
@@ -108,10 +106,11 @@ class BackupUIManagerTest extends JavaFxTest {
                 mock(FileUpdateMonitor.class),
                 new JabRefGuiStateManager()));
 
-        verify(dialogService).showErrorDialogAndWait(
-                eq(Localization.lang("Restore backup")),
-                eq(Localization.lang("Could not restore the backup file '%0'.", backupFile)),
-                any(DirectoryNotEmptyException.class));
+        verify(dialogService)
+                .showErrorDialogAndWait(
+                        eq(Localization.lang("Restore backup")),
+                        eq(Localization.lang("Could not restore the backup file '%0'.", backupFile)),
+                        any(DirectoryNotEmptyException.class));
     }
 
     /// The review runs while the library is still being opened, so no tab exists for it yet and the active tab may be
@@ -131,8 +130,10 @@ class BackupUIManagerTest extends JavaFxTest {
                 });
         // Sealed, so deep stubs cannot mock it
         PreviewPreferences previewPreferences = preferences.getPreviewPreferences();
-        doReturn(new TextBasedPreviewLayout("", mock(LayoutFormatterPreferences.class), mock(JournalAbbreviationRepository.class)))
-                .when(previewPreferences).getSelectedPreviewLayout();
+        doReturn(new TextBasedPreviewLayout(
+                        "", mock(LayoutFormatterPreferences.class), mock(JournalAbbreviationRepository.class)))
+                .when(previewPreferences)
+                .getSelectedPreviewLayout();
         Injector.setModelOrService(DialogService.class, dialogService);
         Injector.setModelOrService(GuiPreferences.class, preferences);
         Injector.setModelOrService(BibEntryTypesManager.class, new BibEntryTypesManager());
@@ -141,20 +142,21 @@ class BackupUIManagerTest extends JavaFxTest {
 
         Path originalFile = tempDir.resolve("library.bib");
         Files.writeString(originalFile, "@Article{original, title = {Original}}");
-        Path backupFile = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(originalFile, BackupFileType.BACKUP, backupDir);
+        Path backupFile = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(
+                originalFile, BackupFileType.BACKUP, backupDir);
         Files.writeString(backupFile, """
-                @Article{original,
-                  title = {Original},
-                }
-                @Article{added,
-                  title = {Added},
-                }
+            @Article{original,
+              title = {Original},
+            }
+            @Article{added,
+              title = {Added},
+            }
 
-                @Comment{jabref-meta: grouping:
-                0 AllEntriesGroup:;
-                1 StaticGroup:TODO\\;0\\;1\\;0x8a8a8aff\\;\\;\\;;
-                }
-                """);
+            @Comment{jabref-meta: grouping:
+            0 AllEntriesGroup:;
+            1 StaticGroup:TODO\\;0\\;1\\;0x8a8a8aff\\;\\;\\;;
+            }
+            """);
 
         LibraryTabContainer tabContainer = mock(LibraryTabContainer.class);
         when(tabContainer.getLibraryTabs()).thenReturn(FXCollections.emptyObservableList());
@@ -170,7 +172,11 @@ class BackupUIManagerTest extends JavaFxTest {
 
         BibDatabaseContext restored = result.orElseThrow().getDatabaseContext();
         assertEquals(2, restored.getDatabase().getEntryCount());
-        assertEquals(List.of("TODO"), restored.getMetaData().getGroups().orElseThrow().getChildren().stream().map(GroupTreeNode::getName).toList());
+        assertEquals(
+                List.of("TODO"),
+                restored.getMetaData().getGroups().orElseThrow().getChildren().stream()
+                        .map(GroupTreeNode::getName)
+                        .toList());
     }
 
     @Test
@@ -182,7 +188,10 @@ class BackupUIManagerTest extends JavaFxTest {
 
         Path originalFile = tempDir.resolve("library.bib");
         Files.writeString(originalFile, "@article{original}");
-        Files.writeString(BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(originalFile, BackupFileType.BACKUP, backupDir), "@article{backup}");
+        Files.writeString(
+                BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(
+                        originalFile, BackupFileType.BACKUP, backupDir),
+                "@article{backup}");
 
         LibraryTab affectedTab = tabFor(originalFile);
         LibraryTab otherTab = tabFor(tempDir.resolve("other.bib"));
@@ -210,7 +219,9 @@ class BackupUIManagerTest extends JavaFxTest {
         Path innerFile = tempDir.resolve("inner.bib");
         for (Path file : List.of(outerFile, innerFile)) {
             Files.writeString(file, "@article{original}");
-            Files.writeString(BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(file, BackupFileType.BACKUP, backupDir), "@article{backup}");
+            Files.writeString(
+                    BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(file, BackupFileType.BACKUP, backupDir),
+                    "@article{backup}");
         }
         LibraryTab outerTab = tabFor(outerFile);
         LibraryTab innerTab = tabFor(innerFile);
@@ -218,16 +229,22 @@ class BackupUIManagerTest extends JavaFxTest {
         when(tabContainer.getLibraryTabs()).thenReturn(FXCollections.observableArrayList(outerTab, innerTab));
         AtomicInteger calls = new AtomicInteger();
         StateManager stateManager = new JabRefGuiStateManager();
-        when(dialogService.showCustomDialogAndWait(any(BackupResolverDialog.class))).thenAnswer(_ -> {
-            if (calls.getAndIncrement() == 0) {
-                BackupUIManager.showRestoreBackupDialog(dialogService, tabContainer, innerFile, preferences,
-                        mock(FileUpdateMonitor.class), stateManager);
-            }
-            return Optional.of(BackupResolverDialog.IGNORE_BACKUP);
-        });
+        when(dialogService.showCustomDialogAndWait(any(BackupResolverDialog.class)))
+                .thenAnswer(_ -> {
+                    if (calls.getAndIncrement() == 0) {
+                        BackupUIManager.showRestoreBackupDialog(
+                                dialogService,
+                                tabContainer,
+                                innerFile,
+                                preferences,
+                                mock(FileUpdateMonitor.class),
+                                stateManager);
+                    }
+                    return Optional.of(BackupResolverDialog.IGNORE_BACKUP);
+                });
 
-        interact(() -> BackupUIManager.showRestoreBackupDialog(dialogService, tabContainer, outerFile, preferences,
-                mock(FileUpdateMonitor.class), stateManager));
+        interact(() -> BackupUIManager.showRestoreBackupDialog(
+                dialogService, tabContainer, outerFile, preferences, mock(FileUpdateMonitor.class), stateManager));
 
         InOrder order = inOrder(tabContainer, dialogService);
         order.verify(tabContainer).showLibraryTab(outerTab);
@@ -243,7 +260,10 @@ class BackupUIManagerTest extends JavaFxTest {
         when(preferences.getFilePreferences().getBackupDirectory()).thenReturn(backupDir);
         Path originalFile = tempDir.resolve("library.bib");
         Files.writeString(originalFile, "@article{original}");
-        Files.writeString(BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(originalFile, BackupFileType.BACKUP, backupDir), "@article{backup}");
+        Files.writeString(
+                BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(
+                        originalFile, BackupFileType.BACKUP, backupDir),
+                "@article{backup}");
 
         LibraryTab affectedTab = tabFor(originalFile);
         LibraryTab otherTab = tabFor(tempDir.resolve("shared.bib"));
@@ -251,24 +271,28 @@ class BackupUIManagerTest extends JavaFxTest {
         when(tabContainer.getLibraryTabs()).thenReturn(FXCollections.observableArrayList(affectedTab, otherTab));
         StateManager stateManager = new JabRefGuiStateManager();
         doAnswer(invocation -> {
-            LibraryTab tab = invocation.getArgument(0);
-            stateManager.activeTabProperty().set(Optional.of(tab));
-            return null;
-        }).when(tabContainer).showLibraryTab(any());
+                    LibraryTab tab = invocation.getArgument(0);
+                    stateManager.activeTabProperty().set(Optional.of(tab));
+                    return null;
+                })
+                .when(tabContainer)
+                .showLibraryTab(any());
         AtomicReference<LibraryTab> selectionDuringDialog = new AtomicReference<>();
-        when(dialogService.showCustomDialogAndWait(any(BackupResolverDialog.class))).thenAnswer(_ -> {
-            tabContainer.showLibraryTab(otherTab);
-            Object nestedLoop = new Object();
-            Platform.runLater(() -> {
-                selectionDuringDialog.set(stateManager.activeTabProperty().get().orElseThrow());
-                Platform.exitNestedEventLoop(nestedLoop, null);
-            });
-            Platform.enterNestedEventLoop(nestedLoop);
-            return Optional.of(BackupResolverDialog.IGNORE_BACKUP);
-        });
+        when(dialogService.showCustomDialogAndWait(any(BackupResolverDialog.class)))
+                .thenAnswer(_ -> {
+                    tabContainer.showLibraryTab(otherTab);
+                    Object nestedLoop = new Object();
+                    Platform.runLater(() -> {
+                        selectionDuringDialog.set(
+                                stateManager.activeTabProperty().get().orElseThrow());
+                        Platform.exitNestedEventLoop(nestedLoop, null);
+                    });
+                    Platform.enterNestedEventLoop(nestedLoop);
+                    return Optional.of(BackupResolverDialog.IGNORE_BACKUP);
+                });
 
-        interact(() -> BackupUIManager.showRestoreBackupDialog(dialogService, tabContainer, originalFile, preferences,
-                mock(FileUpdateMonitor.class), stateManager));
+        interact(() -> BackupUIManager.showRestoreBackupDialog(
+                dialogService, tabContainer, originalFile, preferences, mock(FileUpdateMonitor.class), stateManager));
 
         assertEquals(affectedTab, selectionDuringDialog.get());
         interact(() -> tabContainer.showLibraryTab(otherTab));
@@ -287,24 +311,27 @@ class BackupUIManagerTest extends JavaFxTest {
     void backupResolverDialogShowsLibraryAndBackupSizes(@TempDir Path tempDir) throws IOException {
         Path originalFile = tempDir.resolve("library.bib");
         Files.write(originalFile, new byte[1024]);
-        Path backupFile = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(originalFile, BackupFileType.BACKUP, tempDir.resolve("backups"));
+        Path backupFile = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(
+                originalFile, BackupFileType.BACKUP, tempDir.resolve("backups"));
         Files.write(backupFile, new byte[2048]);
 
         AtomicReference<@Nullable String> dialogContent = new AtomicReference<>();
         interact(() -> {
-            BackupResolverDialog dialog = new BackupResolverDialog(originalFile, backupFile.getParent(), mock(ExternalApplicationsPreferences.class));
+            BackupResolverDialog dialog = new BackupResolverDialog(
+                    originalFile, backupFile.getParent(), mock(ExternalApplicationsPreferences.class));
             StackPane content = (StackPane) dialog.getDialogPane().getContent();
             HyperlinkLabel hyperlink = (HyperlinkLabel) content.getChildren().getFirst();
             dialogContent.set(hyperlink.getText());
         });
 
         assertEquals("""
-                A backup file for 'library.bib' was found at [%s]
-                Current library size: 1 KB
-                Backup size: 2 KB
-                This could indicate that JabRef did not shut down cleanly last time the file was used.
+            A backup file for 'library.bib' was found at [%s]
+            Current library size: 1 KB
+            Backup size: 2 KB
+            This could indicate that JabRef did not shut down cleanly last time the file was used.
 
-                Do you want to recover the library from the backup file?""".formatted(backupFile.getFileName()), dialogContent.get());
+            Do you want to recover the library from the backup file?\
+            """.formatted(backupFile.getFileName()), dialogContent.get());
     }
 
     /// A conflict-aborted original produces an invalid, empty result. Reviewing the backup merges content into that
@@ -363,8 +390,10 @@ class BackupUIManagerTest extends JavaFxTest {
                 });
 
         PreviewPreferences previewPreferences = preferences.getPreviewPreferences();
-        doReturn(new TextBasedPreviewLayout("", mock(LayoutFormatterPreferences.class), mock(JournalAbbreviationRepository.class)))
-                .when(previewPreferences).getSelectedPreviewLayout();
+        doReturn(new TextBasedPreviewLayout(
+                        "", mock(LayoutFormatterPreferences.class), mock(JournalAbbreviationRepository.class)))
+                .when(previewPreferences)
+                .getSelectedPreviewLayout();
         Injector.setModelOrService(DialogService.class, dialogService);
         Injector.setModelOrService(GuiPreferences.class, preferences);
         Injector.setModelOrService(BibEntryTypesManager.class, new BibEntryTypesManager());
@@ -373,16 +402,17 @@ class BackupUIManagerTest extends JavaFxTest {
 
         Path originalFile = tempDir.resolve("library.bib");
         Files.writeString(originalFile, "@Article{original, title = {Original}}");
-        Path backupFile = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(originalFile, BackupFileType.BACKUP, backupDir);
+        Path backupFile = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(
+                originalFile, BackupFileType.BACKUP, backupDir);
         Files.writeString(backupFile, """
-                @Article{original,
-                  title = {Original},
-                }
-                @Article{added,
-                  title = {Added},
-                }
+            @Article{original,
+              title = {Original},
+            }
+            @Article{added,
+              title = {Added},
+            }
 
-                """);
+            """);
 
         Optional<ParserResult> result = BackupUIManager.showRestoreBackupDialog(
                 dialogService,
@@ -413,8 +443,10 @@ class BackupUIManagerTest extends JavaFxTest {
                 });
 
         PreviewPreferences previewPreferences = preferences.getPreviewPreferences();
-        doReturn(new TextBasedPreviewLayout("", mock(LayoutFormatterPreferences.class), mock(JournalAbbreviationRepository.class)))
-                .when(previewPreferences).getSelectedPreviewLayout();
+        doReturn(new TextBasedPreviewLayout(
+                        "", mock(LayoutFormatterPreferences.class), mock(JournalAbbreviationRepository.class)))
+                .when(previewPreferences)
+                .getSelectedPreviewLayout();
         Injector.setModelOrService(DialogService.class, dialogService);
         Injector.setModelOrService(GuiPreferences.class, preferences);
         Injector.setModelOrService(BibEntryTypesManager.class, new BibEntryTypesManager());
@@ -423,16 +455,17 @@ class BackupUIManagerTest extends JavaFxTest {
 
         Path originalFile = tempDir.resolve("library.bib");
         Files.writeString(originalFile, "@Article{original, title = {Original}}");
-        Path backupFile = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(originalFile, BackupFileType.BACKUP, backupDir);
+        Path backupFile = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(
+                originalFile, BackupFileType.BACKUP, backupDir);
         Files.writeString(backupFile, """
-                @Article{original,
-                  title = {Original},
-                }
-                @Article{added,
-                  title = {Added},
-                }
+            @Article{original,
+              title = {Original},
+            }
+            @Article{added,
+              title = {Added},
+            }
 
-                """);
+            """);
 
         Optional<ParserResult> result = BackupUIManager.showRestoreBackupDialog(
                 dialogService,

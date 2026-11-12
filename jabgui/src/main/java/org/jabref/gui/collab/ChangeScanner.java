@@ -3,7 +3,6 @@ package org.jabref.gui.collab;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -12,7 +11,6 @@ import org.jabref.logic.importer.OpenDatabase;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,13 +22,15 @@ public class ChangeScanner {
 
     private final DatabaseChangeResolverFactory databaseChangeResolverFactory;
 
-    public ChangeScanner(BibDatabaseContext database,
-                         DialogService dialogService,
-                         GuiPreferences preferences,
-                         StateManager stateManager) {
+    public ChangeScanner(
+            BibDatabaseContext database,
+            DialogService dialogService,
+            GuiPreferences preferences,
+            StateManager stateManager) {
         this.database = database;
         this.preferences = preferences;
-        this.databaseChangeResolverFactory = new DatabaseChangeResolverFactory(dialogService, database, preferences, stateManager);
+        this.databaseChangeResolverFactory =
+                new DatabaseChangeResolverFactory(dialogService, database, preferences, stateManager);
     }
 
     public List<DatabaseChange> scanForChanges() {
@@ -48,7 +48,8 @@ public class ChangeScanner {
 
     public List<DatabaseChange> getDatabaseChanges(Path fileToCompare) throws IOException {
         ImportFormatPreferences importFormatPreferences = preferences.getImportFormatPreferences();
-        ParserResult result = OpenDatabase.loadDatabase(fileToCompare, importFormatPreferences, new DummyFileUpdateMonitor());
+        ParserResult result =
+                OpenDatabase.loadDatabase(fileToCompare, importFormatPreferences, new DummyFileUpdateMonitor());
 
         if (result.isInvalid() || result.isEmpty()) {
             return List.of();

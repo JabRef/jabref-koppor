@@ -20,6 +20,7 @@
 /// is one keystroke of a run ([org.jabref.logic.undo.EditSource#TYPING]) so that a run becomes one
 /// step, ending it with `endStep()` when it moves on. Everything else is a step of its own.
 ///
-/// @see <a href="https://devdocs.jabref.org/decisions/0070-split-the-undo-manager-into-recording-and-gui-layers.html">ADR-0070</a>
+/// @see <a
+/// href="https://devdocs.jabref.org/decisions/0070-split-the-undo-manager-into-recording-and-gui-layers.html">ADR-0070</a>
 
 package org.jabref.logic.undo;

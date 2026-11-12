@@ -2,14 +2,11 @@ package org.jabref.gui.maintable;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javafx.beans.InvalidationListener;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-
 import org.jabref.gui.maintable.columns.MainTableColumn;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,12 +45,13 @@ public class ColumnPreferencesRecorder {
     ///
     /// [ColumnPreferencesApplier] compares with the same projection. If both directions used different ones, a change
     /// written by one direction would be reverted by the other.
-    static List<MainTableColumnModel> toPersistedModels(List<? extends TableColumn<BibEntryTableViewModel, ?>> columns) {
+    static List<MainTableColumnModel> toPersistedModels(
+            List<? extends TableColumn<BibEntryTableViewModel, ?>> columns) {
         return columns.stream()
-                      .filter(col -> col instanceof MainTableColumn<?>)
-                      .map(column -> ((MainTableColumn<?>) column).getModel())
-                      .filter(MainTableColumnModel::isConfigurable)
-                      .collect(Collectors.toList());
+                .filter(col -> col instanceof MainTableColumn<?>)
+                .map(column -> ((MainTableColumn<?>) column).getModel())
+                .filter(MainTableColumnModel::isConfigurable)
+                .collect(Collectors.toList());
     }
 
     /// Stores shown columns, their width and their [TableColumn.SortType] in preferences.

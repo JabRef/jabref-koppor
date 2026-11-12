@@ -1,22 +1,31 @@
 package org.jabref.model.entry;
 
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.util.Optional;
+import java.util.stream.Stream;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
 class MonthTest {
 
     @ParameterizedTest
-    @MethodSource({"parseShortName", "parseBibtexName", "parseFullName", "parseTwoDigitNumber", "parseNumber", "parseShortNameGerman", "parseFullNameGerman", "parseShortNameGermanLowercase", "parseSpecialCases"})
+    @MethodSource({
+        "parseShortName",
+        "parseBibtexName",
+        "parseFullName",
+        "parseTwoDigitNumber",
+        "parseNumber",
+        "parseShortNameGerman",
+        "parseFullNameGerman",
+        "parseShortNameGermanLowercase",
+        "parseSpecialCases"
+    })
     void parseCorrectly(Optional<Month> expected, String input) {
         assertEquals(expected, Month.parse(input));
     }
@@ -34,8 +43,7 @@ class MonthTest {
                 arguments(Optional.of(Month.SEPTEMBER), "sep"),
                 arguments(Optional.of(Month.OCTOBER), "oct"),
                 arguments(Optional.of(Month.NOVEMBER), "nov"),
-                arguments(Optional.of(Month.DECEMBER), "dec")
-        );
+                arguments(Optional.of(Month.DECEMBER), "dec"));
     }
 
     private static Stream<Arguments> parseBibtexName() {
@@ -51,8 +59,7 @@ class MonthTest {
                 arguments(Optional.of(Month.SEPTEMBER), "#sep#"),
                 arguments(Optional.of(Month.OCTOBER), "#oct#"),
                 arguments(Optional.of(Month.NOVEMBER), "#nov#"),
-                arguments(Optional.of(Month.DECEMBER), "#dec#")
-        );
+                arguments(Optional.of(Month.DECEMBER), "#dec#"));
     }
 
     private static Stream<Arguments> parseFullName() {
@@ -68,8 +75,7 @@ class MonthTest {
                 arguments(Optional.of(Month.SEPTEMBER), "September"),
                 arguments(Optional.of(Month.OCTOBER), "October"),
                 arguments(Optional.of(Month.NOVEMBER), "November"),
-                arguments(Optional.of(Month.DECEMBER), "December")
-        );
+                arguments(Optional.of(Month.DECEMBER), "December"));
     }
 
     private static Stream<Arguments> parseTwoDigitNumber() {
@@ -85,8 +91,7 @@ class MonthTest {
                 arguments(Optional.of(Month.SEPTEMBER), "09"),
                 arguments(Optional.of(Month.OCTOBER), "10"),
                 arguments(Optional.of(Month.NOVEMBER), "11"),
-                arguments(Optional.of(Month.DECEMBER), "12")
-        );
+                arguments(Optional.of(Month.DECEMBER), "12"));
     }
 
     private static Stream<Arguments> parseNumber() {
@@ -102,8 +107,7 @@ class MonthTest {
                 arguments(Optional.of(Month.SEPTEMBER), "9"),
                 arguments(Optional.of(Month.OCTOBER), "10"),
                 arguments(Optional.of(Month.NOVEMBER), "11"),
-                arguments(Optional.of(Month.DECEMBER), "12")
-        );
+                arguments(Optional.of(Month.DECEMBER), "12"));
     }
 
     private static Stream<Arguments> parseShortNameGerman() {
@@ -120,8 +124,7 @@ class MonthTest {
                 arguments(Optional.of(Month.SEPTEMBER), "Sep"),
                 arguments(Optional.of(Month.OCTOBER), "Okt"),
                 arguments(Optional.of(Month.NOVEMBER), "Nov"),
-                arguments(Optional.of(Month.DECEMBER), "Dez")
-        );
+                arguments(Optional.of(Month.DECEMBER), "Dez"));
     }
 
     private static Stream<Arguments> parseFullNameGerman() {
@@ -138,8 +141,7 @@ class MonthTest {
                 arguments(Optional.of(Month.SEPTEMBER), "September"),
                 arguments(Optional.of(Month.OCTOBER), "Oktober"),
                 arguments(Optional.of(Month.NOVEMBER), "November"),
-                arguments(Optional.of(Month.DECEMBER), "Dezember")
-        );
+                arguments(Optional.of(Month.DECEMBER), "Dezember"));
     }
 
     private static Stream<Arguments> parseShortNameGermanLowercase() {
@@ -156,8 +158,7 @@ class MonthTest {
                 arguments(Optional.of(Month.SEPTEMBER), "sep"),
                 arguments(Optional.of(Month.OCTOBER), "okt"),
                 arguments(Optional.of(Month.NOVEMBER), "nov"),
-                arguments(Optional.of(Month.DECEMBER), "dez")
-        );
+                arguments(Optional.of(Month.DECEMBER), "dez"));
     }
 
     private static Stream<Arguments> parseSpecialCases() {
@@ -166,8 +167,7 @@ class MonthTest {
                 arguments(Optional.empty(), "3.2"),
                 arguments(Optional.empty(), "#test#"),
                 arguments(Optional.empty(), "8,"),
-                arguments(Optional.empty(), "")
-        );
+                arguments(Optional.empty(), ""));
     }
 
     @ParameterizedTest
@@ -202,8 +202,7 @@ class MonthTest {
                 arguments(Optional.of(Month.NOVEMBER), "nov"),
                 arguments(Optional.of(Month.NOVEMBER), "november"),
                 arguments(Optional.of(Month.DECEMBER), "dez"),
-                arguments(Optional.of(Month.DECEMBER), "dezember")
-        );
+                arguments(Optional.of(Month.DECEMBER), "dezember"));
     }
 
     @ParameterizedTest
@@ -229,8 +228,7 @@ class MonthTest {
                 arguments(Optional.of(Month.NOVEMBER), 11),
                 arguments(Optional.of(Month.DECEMBER), 12),
                 arguments(Optional.empty(), 13),
-                arguments(Optional.empty(), 14)
-        );
+                arguments(Optional.empty(), 14));
     }
 
     @ParameterizedTest
@@ -246,8 +244,7 @@ class MonthTest {
                 arguments(Optional.of(Month.JANUARY), "JAN"),
                 arguments(Optional.empty(), ""),
                 arguments(Optional.empty(), "dez"),
-                arguments(Optional.empty(), "+*ç%&/()=.,:;-${}![]^'?~¦@#°§¬|¢äüö")
-        );
+                arguments(Optional.empty(), "+*ç%&/()=.,:;-${}![]^'?~¦@#°§¬|¢äüö"));
     }
 
     @ParameterizedTest
@@ -269,8 +266,7 @@ class MonthTest {
                 arguments("sep", Month.SEPTEMBER),
                 arguments("oct", Month.OCTOBER),
                 arguments("nov", Month.NOVEMBER),
-                arguments("dec", Month.DECEMBER)
-        );
+                arguments("dec", Month.DECEMBER));
     }
 
     @ParameterizedTest
@@ -292,8 +288,7 @@ class MonthTest {
                 arguments("#sep#", Month.SEPTEMBER),
                 arguments("#oct#", Month.OCTOBER),
                 arguments("#nov#", Month.NOVEMBER),
-                arguments("#dec#", Month.DECEMBER)
-        );
+                arguments("#dec#", Month.DECEMBER));
     }
 
     @ParameterizedTest
@@ -315,8 +310,7 @@ class MonthTest {
                 arguments(9, Month.SEPTEMBER),
                 arguments(10, Month.OCTOBER),
                 arguments(11, Month.NOVEMBER),
-                arguments(12, Month.DECEMBER)
-        );
+                arguments(12, Month.DECEMBER));
     }
 
     @ParameterizedTest
@@ -338,8 +332,7 @@ class MonthTest {
                 arguments("September", Month.SEPTEMBER),
                 arguments("October", Month.OCTOBER),
                 arguments("November", Month.NOVEMBER),
-                arguments("December", Month.DECEMBER)
-        );
+                arguments("December", Month.DECEMBER));
     }
 
     @ParameterizedTest
@@ -361,30 +354,20 @@ class MonthTest {
                 arguments("09", Month.SEPTEMBER),
                 arguments("10", Month.OCTOBER),
                 arguments("11", Month.NOVEMBER),
-                arguments("12", Month.DECEMBER)
-        );
+                arguments("12", Month.DECEMBER));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "6",
-            "12",
-            "#jun#",
-            "#jul#",
-    })
+    @ValueSource(
+            strings = {
+                "6", "12", "#jun#", "#jul#",
+            })
     void isStrictFormat(String input) {
         assertTrue(Month.isStrictFormat(input));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "June",
-            "July",
-            "jun",
-            "NotAMonth",
-            "#not#strict#format#",
-            "''"
-    })
+    @ValueSource(strings = {"June", "July", "jun", "NotAMonth", "#not#strict#format#", "''"})
     void isNotStrictFormat(String input) {
         assertFalse(Month.isStrictFormat(input));
     }

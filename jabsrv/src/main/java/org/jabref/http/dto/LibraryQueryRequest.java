@@ -1,7 +1,6 @@
 package org.jabref.http.dto;
 
 import java.util.List;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 

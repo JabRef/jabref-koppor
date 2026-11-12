@@ -1,14 +1,12 @@
 package org.jabref.gui.util;
 
-import javafx.beans.binding.BooleanBinding;
-
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.StandardField;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import javafx.beans.binding.BooleanBinding;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.StandardField;
+import org.junit.jupiter.api.Test;
 
 class EntryLookupsInProgressTest {
 
@@ -43,7 +41,8 @@ class EntryLookupsInProgressTest {
         entry.setField(StandardField.DOI, "10.1000/xyz");
 
         assertTrue(lookups.inProgress(entry).get());
-        assertFalse(lookups.inProgress(new BibEntry().withField(StandardField.DOI, "10.1000/xyz")).get());
+        assertFalse(lookups.inProgress(new BibEntry().withField(StandardField.DOI, "10.1000/xyz"))
+                .get());
     }
 
     @Test

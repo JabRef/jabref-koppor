@@ -1,9 +1,11 @@
 package org.jabref.gui.integrity;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import com.airhacks.afterburner.views.ViewLoaderResult;
+import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
@@ -16,7 +18,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
-
+import org.controlsfx.control.table.TableFilter;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -28,28 +30,42 @@ import org.jabref.logic.JabRefException;
 import org.jabref.logic.integrity.IntegrityMessage;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.FieldTextMapper;
-
-import com.airhacks.afterburner.views.ViewLoader;
-import com.airhacks.afterburner.views.ViewLoaderResult;
-import jakarta.inject.Inject;
-import org.controlsfx.control.table.TableFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class IntegrityCheckDialog extends BaseDialog<Void> {
     private static final Logger LOGGER = LoggerFactory.getLogger(IntegrityCheckDialog.class);
 
-    @FXML private TableView<IntegrityMessage> messagesTable;
-    @FXML private TableColumn<IntegrityMessage, String> keyColumn;
-    @FXML private TableColumn<IntegrityMessage, String> fieldColumn;
-    @FXML private TableColumn<IntegrityMessage, String> messageColumn;
-    @FXML private MenuButton keyFilterButton;
-    @FXML private MenuButton fieldFilterButton;
-    @FXML private MenuButton messageFilterButton;
-    @FXML private VBox dialogVBox;
+    @FXML
+    private TableView<IntegrityMessage> messagesTable;
 
-    @Inject private EntryEditor entryEditor;
-    @Inject private StateManager stateManager;
+    @FXML
+    private TableColumn<IntegrityMessage, String> keyColumn;
+
+    @FXML
+    private TableColumn<IntegrityMessage, String> fieldColumn;
+
+    @FXML
+    private TableColumn<IntegrityMessage, String> messageColumn;
+
+    @FXML
+    private MenuButton keyFilterButton;
+
+    @FXML
+    private MenuButton fieldFilterButton;
+
+    @FXML
+    private MenuButton messageFilterButton;
+
+    @FXML
+    private VBox dialogVBox;
+
+    @Inject
+    private EntryEditor entryEditor;
+
+    @Inject
+    private StateManager stateManager;
+
     private final List<IntegrityMessage> messages;
     private final LibraryTab libraryTab;
     private final DialogService dialogService;
@@ -66,9 +82,7 @@ public class IntegrityCheckDialog extends BaseDialog<Void> {
         this.setTitle(Localization.lang("Check integrity"));
         this.initModality(Modality.NONE);
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
     }
 
     private void handleRowClick(IntegrityMessage message, MouseEvent event) {
@@ -97,17 +111,19 @@ public class IntegrityCheckDialog extends BaseDialog<Void> {
                 .withOnMouseClickedEvent(this::handleRowClick)
                 .install(messagesTable);
         messagesTable.setItems(viewModel.getMessages());
-        keyColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().entry().getCitationKey().orElse("")));
-        fieldColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(FieldTextMapper.getDisplayName(row.getValue().field())));
-        messageColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(row.getValue().message()));
+        keyColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(
+                row.getValue().entry().getCitationKey().orElse("")));
+        fieldColumn.setCellValueFactory(row -> new ReadOnlyStringWrapper(
+                FieldTextMapper.getDisplayName(row.getValue().field())));
+        messageColumn.setCellValueFactory(
+                row -> new ReadOnlyStringWrapper(row.getValue().message()));
 
         new ValueTableCellFactory<IntegrityMessage, String>()
                 .withText(Function.identity())
                 .withTooltip(Function.identity())
                 .install(messageColumn);
 
-        tableFilter = TableFilter.forTableView(messagesTable)
-                                 .apply();
+        tableFilter = TableFilter.forTableView(messagesTable).apply();
 
         addMessageColumnFilter(keyColumn, keyFilterButton);
         addMessageColumnFilter(fieldColumn, fieldFilterButton);
@@ -116,7 +132,8 @@ public class IntegrityCheckDialog extends BaseDialog<Void> {
         loadBibLogSettingsPane();
     }
 
-    private void addMessageColumnFilter(TableColumn<IntegrityMessage, String> messageColumn, MenuButton messageFilterButton) {
+    private void addMessageColumnFilter(
+            TableColumn<IntegrityMessage, String> messageColumn, MenuButton messageFilterButton) {
         tableFilter.getColumnFilter(messageColumn).ifPresent(_ -> {
             ContextMenu messageContextMenu = messageColumn.getContextMenu();
             if (messageContextMenu != null) {
@@ -158,10 +175,7 @@ public class IntegrityCheckDialog extends BaseDialog<Void> {
                 LOGGER.error("Failed to get controller from ViewLoader");
                 return;
             }
-            bibLogSettingsPane.initializeViewModel(
-                    libraryTab.getBibDatabaseContext(),
-                    this::reloadBlgWarnings
-            );
+            bibLogSettingsPane.initializeViewModel(libraryTab.getBibDatabaseContext(), this::reloadBlgWarnings);
             dialogVBox.getChildren().add(1, settingsNode);
             reloadBlgWarnings();
         } catch (JabRefException e) {
@@ -185,7 +199,8 @@ public class IntegrityCheckDialog extends BaseDialog<Void> {
         List<IntegrityMessage> newWarnings = new ArrayList<>(bibLogSettingsPane.getBlgWarnings());
 
         if (newWarnings.isEmpty() && bibLogSettingsPane.wasBlgFileManuallySelected()) {
-            dialogService.notify(Localization.lang("No warnings found. Please check if the .blg file matches the current library."));
+            dialogService.notify(
+                    Localization.lang("No warnings found. Please check if the .blg file matches the current library."));
         }
 
         messages.removeAll(blgWarnings);

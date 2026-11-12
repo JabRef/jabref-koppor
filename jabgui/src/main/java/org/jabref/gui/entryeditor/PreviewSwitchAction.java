@@ -1,14 +1,17 @@
 package org.jabref.gui.entryeditor;
 
+import static org.jabref.gui.actions.ActionHelper.needsDatabase;
+
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.preview.PreviewControls;
 
-import static org.jabref.gui.actions.ActionHelper.needsDatabase;
-
 public class PreviewSwitchAction extends SimpleCommand {
 
-    public enum Direction { PREVIOUS, NEXT }
+    public enum Direction {
+        PREVIOUS,
+        NEXT
+    }
 
     private final PreviewControls previewControls;
     private final Direction direction;

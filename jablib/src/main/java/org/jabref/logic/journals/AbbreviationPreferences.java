@@ -1,7 +1,6 @@
 package org.jabref.logic.journals;
 
 import java.util.List;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -13,9 +12,8 @@ public class AbbreviationPreferences {
     private final BooleanProperty useFJournalField;
     private final BooleanProperty shouldEnableMscKeywordDescriptions;
 
-    public AbbreviationPreferences(List<String> externalJournalLists,
-                                   boolean useFJournalField,
-                                   boolean shouldEnableMscKeywordDescriptions) {
+    public AbbreviationPreferences(
+            List<String> externalJournalLists, boolean useFJournalField, boolean shouldEnableMscKeywordDescriptions) {
         this.externalJournalLists = FXCollections.observableArrayList(externalJournalLists);
         this.useFJournalField = new SimpleBooleanProperty(useFJournalField);
         this.shouldEnableMscKeywordDescriptions = new SimpleBooleanProperty(shouldEnableMscKeywordDescriptions);
@@ -24,9 +22,9 @@ public class AbbreviationPreferences {
     private AbbreviationPreferences() {
         this(
                 List.of(), // externalJournalLists
-                true,      // useFJournalField
-                false      // Enable MSC codes as Keyword
-        );
+                true, // useFJournalField
+                false // Enable MSC codes as Keyword
+                );
     }
 
     public static AbbreviationPreferences getDefault() {

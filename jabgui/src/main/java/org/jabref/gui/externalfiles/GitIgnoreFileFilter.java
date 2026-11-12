@@ -1,5 +1,7 @@
 package org.jabref.gui.externalfiles;
 
+import static java.util.function.Predicate.not;
+
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
@@ -9,11 +11,8 @@ import java.nio.file.PathMatcher;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.util.function.Predicate.not;
 
 public class GitIgnoreFileFilter implements DirectoryStream.Filter<Path> {
 
@@ -31,30 +30,30 @@ public class GitIgnoreFileFilter implements DirectoryStream.Filter<Path> {
             // we did not find any gitignore, set baseDir to provided path and use default ignores
             this.baseDir = path;
             gitIgnorePatterns = Set.of(".git", ".DS_Store", "desktop.ini", "Thumbs.db").stream()
-                                   // duplicate code as below
-                                   .map(line -> "glob:" + line)
-                                   .map(matcherString -> FileSystems.getDefault().getPathMatcher(matcherString))
-                                   .collect(Collectors.toSet());
+                    // duplicate code as below
+                    .map(line -> "glob:" + line)
+                    .map(matcherString -> FileSystems.getDefault().getPathMatcher(matcherString))
+                    .collect(Collectors.toSet());
         } else {
             this.baseDir = currentPath;
             Path gitIgnore = currentPath.resolve(".gitignore");
             Set<PathMatcher> patterns;
             try {
                 patterns = Files.readAllLines(gitIgnore).stream()
-                                .map(String::trim)
-                                .filter(not(String::isEmpty))
-                                .filter(line -> !line.startsWith("#"))
-                                // expand patterns so that leading "**/" also matches files in the base directory
-                                .flatMap(line -> {
-                                    if (line.startsWith("**/")) {
-                                        return Stream.of(line, line.substring(3));
-                                    }
-                                    return Stream.of(line);
-                                })
-                                // convert to Java syntax for Glob patterns
-                                .map(line -> "glob:" + line)
-                                .map(matcherString -> FileSystems.getDefault().getPathMatcher(matcherString))
-                                .collect(Collectors.toSet());
+                        .map(String::trim)
+                        .filter(not(String::isEmpty))
+                        .filter(line -> !line.startsWith("#"))
+                        // expand patterns so that leading "**/" also matches files in the base directory
+                        .flatMap(line -> {
+                            if (line.startsWith("**/")) {
+                                return Stream.of(line, line.substring(3));
+                            }
+                            return Stream.of(line);
+                        })
+                        // convert to Java syntax for Glob patterns
+                        .map(line -> "glob:" + line)
+                        .map(matcherString -> FileSystems.getDefault().getPathMatcher(matcherString))
+                        .collect(Collectors.toSet());
                 // we want to ignore ".gitignore" itself
                 patterns.add(FileSystems.getDefault().getPathMatcher("glob:.gitignore"));
             } catch (IOException e) {
@@ -70,11 +69,13 @@ public class GitIgnoreFileFilter implements DirectoryStream.Filter<Path> {
         // Match patterns relative to baseDir because .gitignore patterns are applied relative to their location
         Path relative = safeRelativize(baseDir, path);
         // We assume that git does not stop at a pattern, but tries all. We implement that behavior
-        return gitIgnorePatterns.stream().noneMatch(filter ->
-                // for patterns like "*.png" or ".gitignore"
-                filter.matches(relative.getFileName()) ||
-                        // for patterns like "ignore/*" or "**/*.png"
-                        filter.matches(relative));
+        return gitIgnorePatterns.stream()
+                .noneMatch(filter ->
+                        // for patterns like "*.png" or ".gitignore"
+                        filter.matches(relative.getFileName())
+                                ||
+                                // for patterns like "ignore/*" or "**/*.png"
+                                filter.matches(relative));
     }
 
     private static Path safeRelativize(Path base, Path child) {

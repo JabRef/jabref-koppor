@@ -1,14 +1,12 @@
 package org.jabref.gui.theme;
 
 import java.util.List;
-
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -46,11 +44,12 @@ public class ThemePreviewView extends HBox {
             return;
         }
         List<ThemeColorScheme> schemes = colorScheme == ThemeColorScheme.FOLLOW_SYSTEM
-                                         ? List.of(ThemeColorScheme.DARK, ThemeColorScheme.LIGHT)
-                                         : List.of(colorScheme);
+                ? List.of(ThemeColorScheme.DARK, ThemeColorScheme.LIGHT)
+                : List.of(colorScheme);
         for (ThemeColorScheme scheme : schemes) {
             theme.getPreview(scheme).ifPresent(url -> {
-                ImageView preview = new ImageView(new Image(url.toExternalForm(), PREVIEW_WIDTH, PREVIEW_HEIGHT, true, true, true));
+                ImageView preview =
+                        new ImageView(new Image(url.toExternalForm(), PREVIEW_WIDTH, PREVIEW_HEIGHT, true, true, true));
                 preview.setFitWidth(PREVIEW_WIDTH);
                 preview.setFitHeight(PREVIEW_HEIGHT);
                 preview.setPreserveRatio(true);

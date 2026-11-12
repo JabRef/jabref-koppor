@@ -1,7 +1,6 @@
 package org.jabref.logic.bibtex.comparator.plausibility;
 
 import java.util.Optional;
-
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldProperty;
 import org.jabref.model.entry.field.InternalField;

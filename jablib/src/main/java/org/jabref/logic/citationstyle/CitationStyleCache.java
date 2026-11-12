@@ -1,14 +1,13 @@
 package org.jabref.logic.citationstyle;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.google.common.eventbus.Subscribe;
 import org.jabref.logic.preview.PreviewLayout;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.event.EntriesRemovedEvent;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.event.EntryChangedEvent;
-
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.google.common.eventbus.Subscribe;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -21,7 +20,8 @@ public class CitationStyleCache {
     private final LoadingCache<BibEntry, String> citationStyleCache;
 
     // In case null, return empty preview.
-    @Nullable private PreviewLayout citationStyle;
+    @Nullable
+    private PreviewLayout citationStyle;
 
     public CitationStyleCache(BibDatabaseContext databaseContext) {
         citationStyleCache = Caffeine.newBuilder().maximumSize(CACHE_SIZE).build(entry -> {

@@ -4,7 +4,10 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
+import org.eclipse.lsp4j.DocumentLink;
+import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.jabref.languageserver.util.LspParserHandler;
 import org.jabref.languageserver.util.LspRangeUtil;
 import org.jabref.logic.FilePreferences;
@@ -14,11 +17,6 @@ import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
-
-import org.eclipse.lsp4j.DocumentLink;
-import org.eclipse.lsp4j.Location;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +43,14 @@ public class BibDefinitionProvider extends DefinitionProvider {
 
         ParserResult parserResult = parserResultOpt.get();
 
-        for (Map.Entry<BibEntry, ParserResult.Range> entry : parserResult.getArticleRanges().entrySet()) {
+        for (Map.Entry<BibEntry, ParserResult.Range> entry :
+                parserResult.getArticleRanges().entrySet()) {
             BibEntry bibEntry = entry.getKey();
             ParserResult.Range range = entry.getValue();
-            if (bibEntry.getField(StandardField.FILE).isPresent() && LspRangeUtil.isPositionInRange(position, LspRangeUtil.convertToLspRange(range))) {
-                Range fileFieldRange = LspRangeUtil.convertToLspRange(parserResult.getFieldRange(bibEntry, StandardField.FILE));
+            if (bibEntry.getField(StandardField.FILE).isPresent()
+                    && LspRangeUtil.isPositionInRange(position, LspRangeUtil.convertToLspRange(range))) {
+                Range fileFieldRange =
+                        LspRangeUtil.convertToLspRange(parserResult.getFieldRange(bibEntry, StandardField.FILE));
                 if (!LspRangeUtil.isPositionInRange(position, fileFieldRange)) {
                     return List.of();
                 }
@@ -63,20 +64,22 @@ public class BibDefinitionProvider extends DefinitionProvider {
                 String fileField = content.substring(offsetStart, offsetEnd);
                 int startIndex = offsetStart + fileField.indexOf(fileString.get());
 
-                Map<LinkedFile, org.jabref.model.util.Range> fileRangeMap = FileFieldParser.parseToPosition(fileString.get());
-                for (Map.Entry<LinkedFile, org.jabref.model.util.Range> linkedFileRangeEntry : fileRangeMap.entrySet()) {
+                Map<LinkedFile, org.jabref.model.util.Range> fileRangeMap =
+                        FileFieldParser.parseToPosition(fileString.get());
+                for (Map.Entry<LinkedFile, org.jabref.model.util.Range> linkedFileRangeEntry :
+                        fileRangeMap.entrySet()) {
                     LinkedFile linkedFile = linkedFileRangeEntry.getKey();
                     org.jabref.model.util.Range rangeInFileString = linkedFileRangeEntry.getValue();
                     int start = startIndex + rangeInFileString.start();
                     int end = start + rangeInFileString.end();
                     Range linkRange = LspRangeUtil.convertToLspRange(content, start, end);
                     if (LspRangeUtil.isPositionInRange(position, linkRange)) {
-                        Optional<Path> filePath = FileUtil.find(parserResult.getDatabaseContext(), linkedFile.getLink(), preferences);
+                        Optional<Path> filePath =
+                                FileUtil.find(parserResult.getDatabaseContext(), linkedFile.getLink(), preferences);
                         if (LOGGER.isDebugEnabled() && filePath.isEmpty()) {
                             LOGGER.debug("filePath is empty");
                         }
-                        return filePath
-                                .map(p -> List.of(new Location(p.toUri().toString(), EMPTY_RANGE)))
+                        return filePath.map(p -> List.of(new Location(p.toUri().toString(), EMPTY_RANGE)))
                                 .orElse(List.of());
                     }
                 }

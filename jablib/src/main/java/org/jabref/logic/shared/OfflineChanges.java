@@ -1,5 +1,11 @@
 package org.jabref.logic.shared;
 
+import static java.util.Objects.requireNonNullElse;
+
+import com.google.common.hash.Hashing;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -13,23 +19,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Stream;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.event.EntriesEventSource;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.types.EntryTypeFactory;
-
-import com.google.common.hash.Hashing;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParseException;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.util.Objects.requireNonNullElse;
 
 /// Local changes that have not reached the shared database because the connection was down.
 /// Kept in memory and mirrored to one file per database, so that they survive a restart and are
@@ -49,7 +47,8 @@ public class OfflineChanges {
             // Sorted, so that the file content is stable across sessions
             Map<String, String> fields = new TreeMap<>();
             entry.getFieldMap().forEach((field, value) -> fields.put(field.getName(), value));
-            return new EntryState(entry.getSharedBibEntryData().getVersion(), entry.getType().getName(), fields);
+            return new EntryState(
+                    entry.getSharedBibEntryData().getVersion(), entry.getType().getName(), fields);
         }
 
         public BibEntry toBibEntry() {
@@ -61,7 +60,8 @@ public class OfflineChanges {
         /// Restores this state on the given entry without triggering synchronization
         public void applyTo(BibEntry entry) {
             entry.setType(EntryTypeFactory.parse(entryType), EntriesEventSource.SHARED);
-            fields.forEach((name, value) -> entry.setField(FieldFactory.parseField(name), value, EntriesEventSource.SHARED));
+            fields.forEach(
+                    (name, value) -> entry.setField(FieldFactory.parseField(name), value, EntriesEventSource.SHARED));
             for (Field field : entry.getFields()) {
                 if (!fields.containsKey(field.getName())) {
                     entry.clearField(field, EntriesEventSource.SHARED);
@@ -79,17 +79,19 @@ public class OfflineChanges {
     /// @param metaDataBase       the shared metadata as last known before the recorded metadata was
     ///                       changed - the merge base for [#mergeMetaDataInto]
     /// @param lastSharedMetaData the last complete metadata snapshot received from the shared database
-    public record Recorded(Map<Integer, EntryState> changedEntries,
-                           Map<String, EntryState> newEntries,
-                           Map<Integer, Integer> removedEntries,
-                           @Nullable Map<String, String> metaData,
-                           @Nullable Map<String, String> metaDataBase,
-                           @Nullable Map<String, String> lastSharedMetaData) {
-        public Recorded(Map<Integer, EntryState> changedEntries,
-                        Map<String, EntryState> newEntries,
-                        Map<Integer, Integer> removedEntries,
-                        @Nullable Map<String, String> metaData,
-                        @Nullable Map<String, String> metaDataBase) {
+    public record Recorded(
+            Map<Integer, EntryState> changedEntries,
+            Map<String, EntryState> newEntries,
+            Map<Integer, Integer> removedEntries,
+            @Nullable Map<String, String> metaData,
+            @Nullable Map<String, String> metaDataBase,
+            @Nullable Map<String, String> lastSharedMetaData) {
+        public Recorded(
+                Map<Integer, EntryState> changedEntries,
+                Map<String, EntryState> newEntries,
+                Map<Integer, Integer> removedEntries,
+                @Nullable Map<String, String> metaData,
+                @Nullable Map<String, String> metaDataBase) {
             this(changedEntries, newEntries, removedEntries, metaData, metaDataBase, null);
         }
 
@@ -106,10 +108,10 @@ public class OfflineChanges {
             Map<String, String> base = requireNonNullElse(metaDataBase, Map.of());
             Map<String, String> merged = new LinkedHashMap<>(sharedMetaData);
             Stream.concat(base.keySet().stream(), recorded.keySet().stream())
-                  .distinct()
-                  .filter(key -> !Objects.equals(recorded.get(key), base.get(key)))
-                  .forEach(key -> Optional.ofNullable(recorded.get(key))
-                                          .ifPresentOrElse(value -> merged.put(key, value), () -> merged.remove(key)));
+                    .distinct()
+                    .filter(key -> !Objects.equals(recorded.get(key), base.get(key)))
+                    .forEach(key -> Optional.ofNullable(recorded.get(key))
+                            .ifPresentOrElse(value -> merged.put(key, value), () -> merged.remove(key)));
             return merged;
         }
     }
@@ -170,8 +172,9 @@ public class OfflineChanges {
     /// in expert mode), hashed so that the name is file-system safe
     static String fileName(DatabaseConnectionProperties properties) {
         String identity = properties.isUseExpertMode()
-                          ? properties.getJdbcUrl()
-                          : properties.getUser() + "@" + properties.getHost() + ":" + properties.getPort() + "/" + properties.getDatabase();
+                ? properties.getJdbcUrl()
+                : properties.getUser() + "@" + properties.getHost() + ":" + properties.getPort() + "/"
+                        + properties.getDatabase();
         return Hashing.sha256().hashString(identity, StandardCharsets.UTF_8) + ".json";
     }
 
@@ -187,7 +190,9 @@ public class OfflineChanges {
             newEntries.put(entry.getId(), EntryState.of(entry));
         } else {
             // The base version is the one of the first change - the entry cannot move on while offline
-            changedEntries.merge(sharedId, EntryState.of(entry),
+            changedEntries.merge(
+                    sharedId,
+                    EntryState.of(entry),
                     (first, latest) -> new EntryState(first.baseVersion(), latest.entryType(), latest.fields()));
         }
         save();
@@ -212,7 +217,11 @@ public class OfflineChanges {
             if (sharedId != -1) {
                 EntryState recordedChange = changedEntries.remove(sharedId);
                 // The version of the first offline change, if any - the entry cannot move on while offline
-                removedEntries.put(sharedId, recordedChange == null ? entry.getSharedBibEntryData().getVersion() : recordedChange.baseVersion());
+                removedEntries.put(
+                        sharedId,
+                        recordedChange == null
+                                ? entry.getSharedBibEntryData().getVersion()
+                                : recordedChange.baseVersion());
             }
         }
         save();
@@ -220,7 +229,8 @@ public class OfflineChanges {
 
     /// @param base the shared metadata as last known - kept from the first record, the metadata
     ///             cannot move on while offline
-    public synchronized void recordMetaData(Map<String, String> serializedMetaData, @Nullable Map<String, String> base) {
+    public synchronized void recordMetaData(
+            Map<String, String> serializedMetaData, @Nullable Map<String, String> base) {
         reload();
         if (metaData == null) {
             metaDataBase = base;
@@ -301,7 +311,13 @@ public class OfflineChanges {
     }
 
     private Recorded snapshot() {
-        return new Recorded(new LinkedHashMap<>(changedEntries), new LinkedHashMap<>(newEntries), new LinkedHashMap<>(removedEntries), metaData, metaDataBase, lastSharedMetaData);
+        return new Recorded(
+                new LinkedHashMap<>(changedEntries),
+                new LinkedHashMap<>(newEntries),
+                new LinkedHashMap<>(removedEntries),
+                metaData,
+                metaDataBase,
+                lastSharedMetaData);
     }
 
     private void save() {

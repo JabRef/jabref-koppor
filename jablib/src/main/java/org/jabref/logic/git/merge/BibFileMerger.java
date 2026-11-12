@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.jabref.logic.git.conflicts.ThreeWayEntryConflict;
 import org.jabref.logic.git.io.GitFileWriter;
 import org.jabref.logic.git.merge.execution.GitMergeApplier;
@@ -18,7 +17,6 @@ import org.jabref.logic.importer.fileformat.BibtexImporter;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Merges three versions of a `.bib` file the way a Git merge driver needs it: the merge result
@@ -51,7 +49,10 @@ public final class BibFileMerger {
         ParserResult currentVersion = parse(current);
         ParserResult otherVersion = parse(other);
 
-        List<Refusal> refusals = MergePreconditions.check(baseVersion, currentVersion, otherVersion,
+        List<Refusal> refusals = MergePreconditions.check(
+                baseVersion,
+                currentVersion,
+                otherVersion,
                 importFormatPreferences.citationKeyPatternPreferences().getKeyPatterns());
         if (!refusals.isEmpty()) {
             return new MergeOutcome.Refused(refusals);
@@ -70,11 +71,14 @@ public final class BibFileMerger {
     }
 
     /// @return the entries that keep their `current` version, because the sides changed them differently
-    private static List<ThreeWayEntryConflict> applyChangesOfOther(BibDatabaseContext base, BibDatabaseContext current, BibDatabaseContext other) {
+    private static List<ThreeWayEntryConflict> applyChangesOfOther(
+            BibDatabaseContext base, BibDatabaseContext current, BibDatabaseContext other) {
         MergeAnalysis fields = SemanticMergeAnalyzer.analyze(base, current, other);
-        List<ThreeWayEntryConflict> propertyConflicts = EntryPropertyMerge.merge(base, current, other, citationKeys(fields.conflicts()));
+        List<ThreeWayEntryConflict> propertyConflicts =
+                EntryPropertyMerge.merge(base, current, other, citationKeys(fields.conflicts()));
         GitMergeApplier.applyAutoPlan(current, fields.autoPlan().without(citationKeys(propertyConflicts)));
-        return Stream.concat(fields.conflicts().stream(), propertyConflicts.stream()).toList();
+        return Stream.concat(fields.conflicts().stream(), propertyConflicts.stream())
+                .toList();
     }
 
     private static Set<String> citationKeys(List<ThreeWayEntryConflict> conflicts) {

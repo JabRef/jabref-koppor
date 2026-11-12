@@ -1,19 +1,16 @@
 package org.jabref.model.groups;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javafx.collections.FXCollections;
-
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.types.StandardEntryType;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javafx.collections.FXCollections;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.types.StandardEntryType;
+import org.junit.jupiter.api.Test;
 
 class AutomaticEntryTypeGroupTest {
 
@@ -44,9 +41,9 @@ class AutomaticEntryTypeGroupTest {
         assertEquals(Set.of(StandardEntryType.Article.getName(), StandardEntryType.Book.getName()), names);
 
         GroupTreeNode articleNode = nodes.stream()
-                                         .filter(n -> StandardEntryType.Article.getName().equals(n.getName()))
-                                         .findFirst()
-                                         .orElseThrow();
+                .filter(n -> StandardEntryType.Article.getName().equals(n.getName()))
+                .findFirst()
+                .orElseThrow();
 
         var matches = articleNode.findMatches(List.of(article1, article2, book));
         assertEquals(2, matches.size());

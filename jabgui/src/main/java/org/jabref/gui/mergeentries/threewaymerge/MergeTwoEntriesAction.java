@@ -2,7 +2,6 @@ package org.jabref.gui.mergeentries.threewaymerge;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.actions.StandardActions;
@@ -18,7 +17,8 @@ public class MergeTwoEntriesAction extends SimpleCommand {
     private final StateManager stateManager;
     private final UndoManager undoManager;
 
-    public MergeTwoEntriesAction(EntriesMergeResult entriesMergeResult, StateManager stateManager, UndoManager undoManager) {
+    public MergeTwoEntriesAction(
+            EntriesMergeResult entriesMergeResult, StateManager stateManager, UndoManager undoManager) {
         this.entriesMergeResult = entriesMergeResult;
         this.stateManager = stateManager;
         this.undoManager = undoManager;
@@ -32,7 +32,8 @@ public class MergeTwoEntriesAction extends SimpleCommand {
 
         BibDatabaseContext databaseContext = stateManager.getActiveDatabase().get();
         BibDatabase database = databaseContext.getDatabase();
-        List<BibEntry> entriesToRemove = Arrays.asList(entriesMergeResult.originalLeftEntry(), entriesMergeResult.originalRightEntry());
+        List<BibEntry> entriesToRemove =
+                Arrays.asList(entriesMergeResult.originalLeftEntry(), entriesMergeResult.originalRightEntry());
         BibEntry mergedEntry = entriesMergeResult.mergedEntry();
 
         undoManager.addEdit(StandardActions.MERGE_ENTRIES.getText(), edit -> {
@@ -41,8 +42,12 @@ public class MergeTwoEntriesAction extends SimpleCommand {
         });
 
         stateManager.setSelectedEntries(List.of(mergedEntry));
-        stateManager.activeTabProperty().get()
-                    .filter(tab -> databaseContext.getUid().equals(tab.getBibDatabaseContext().getUid()))
-                    .ifPresent(tab -> tab.clearAndSelect(mergedEntry));
+        stateManager
+                .activeTabProperty()
+                .get()
+                .filter(tab -> databaseContext
+                        .getUid()
+                        .equals(tab.getBibDatabaseContext().getUid()))
+                .ifPresent(tab -> tab.clearAndSelect(mergedEntry));
     }
 }

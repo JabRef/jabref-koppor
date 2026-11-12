@@ -1,11 +1,9 @@
 package org.jabref.model.entry.event;
 
 import java.util.Objects;
-
 import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -25,7 +23,12 @@ public class FieldChangedEvent extends EntryChangedEvent {
     /// @param field    Name of field which has been changed
     /// @param oldValue old field value
     /// @param newValue new field value
-    public FieldChangedEvent(EntriesEventSource source, BibEntry bibEntry, Field field, @Nullable String oldValue, @Nullable String newValue) {
+    public FieldChangedEvent(
+            EntriesEventSource source,
+            BibEntry bibEntry,
+            Field field,
+            @Nullable String oldValue,
+            @Nullable String newValue) {
         super(bibEntry, source);
         this.field = field;
         this.oldValue = oldValue;

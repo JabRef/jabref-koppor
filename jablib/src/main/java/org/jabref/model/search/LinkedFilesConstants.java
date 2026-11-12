@@ -2,7 +2,6 @@ package org.jabref.model.search;
 
 import java.util.List;
 import java.util.Map;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
@@ -29,7 +28,8 @@ public enum LinkedFilesConstants {
     public static final List<String> PDF_FIELDS = List.of(CONTENT.toString(), ANNOTATIONS.toString());
 
     /// The case-preserving counterpart of each entry of [#PDF_FIELDS], in the same order.
-    public static final List<String> CASE_SENSITIVE_PDF_FIELDS = List.of(CONTENT_CASE_SENSITIVE.toString(), ANNOTATIONS_CASE_SENSITIVE.toString());
+    public static final List<String> CASE_SENSITIVE_PDF_FIELDS =
+            List.of(CONTENT_CASE_SENSITIVE.toString(), ANNOTATIONS_CASE_SENSITIVE.toString());
 
     /// [EnglishAnalyzer] lowercases and stems, so the case of the indexed text is lost.
     /// The case-sensitive fields are therefore only tokenized - nothing else.
@@ -42,8 +42,11 @@ public enum LinkedFilesConstants {
 
     public static final Analyzer LINKED_FILES_ANALYZER = new PerFieldAnalyzerWrapper(
             new EnglishAnalyzer(),
-            Map.of(CONTENT_CASE_SENSITIVE.toString(), CASE_PRESERVING_ANALYZER,
-                    ANNOTATIONS_CASE_SENSITIVE.toString(), CASE_PRESERVING_ANALYZER));
+            Map.of(
+                    CONTENT_CASE_SENSITIVE.toString(),
+                    CASE_PRESERVING_ANALYZER,
+                    ANNOTATIONS_CASE_SENSITIVE.toString(),
+                    CASE_PRESERVING_ANALYZER));
 
     private final String field;
 

@@ -1,12 +1,11 @@
 package org.jabref.gui.openoffice;
 
+import com.sun.star.lang.DisposedException;
 import org.jabref.gui.DialogService;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.openoffice.NoDocumentFoundException;
 import org.jabref.model.openoffice.uno.NoDocumentException;
-
-import com.sun.star.lang.DisposedException;
 
 class OOError extends JabRefException {
 
@@ -40,10 +39,7 @@ class OOError extends JabRefException {
      */
 
     public static OOError from(JabRefException err) {
-        return new OOError(
-                Localization.lang("JabRefException"),
-                err.getLocalizedMessage(),
-                err);
+        return new OOError(Localization.lang("JabRefException"), err.getLocalizedMessage(), err);
     }
 
     // For DisposedException
@@ -79,10 +75,7 @@ class OOError extends JabRefException {
     }
 
     public static OOError fromMisc(Exception err) {
-        return new OOError(
-                "Exception",
-                err.getMessage(),
-                err);
+        return new OOError("Exception", err.getMessage(), err);
     }
 
     /*
@@ -109,8 +102,7 @@ class OOError extends JabRefException {
     // noDataBaseIsOpenForExport
     public static OOError noDataBaseIsOpenForExport() {
         return new OOError(
-                Localization.lang("No database is open"),
-                Localization.lang("Please open a library before exporting."));
+                Localization.lang("No database is open"), Localization.lang("Please open a library before exporting."));
     }
 
     // noDataBaseIsOpenForExport
@@ -122,25 +114,30 @@ class OOError extends JabRefException {
 
     // noValidStyleSelected
     public static OOError noValidStyleSelected() {
-        return new OOError(Localization.lang("No valid style file defined"),
+        return new OOError(
+                Localization.lang("No valid style file defined"),
                 Localization.lang("No citation style is selected for citation.")
                         + "\n"
                         + Localization.lang("Please select one before citing.")
                         + "\n"
-                        + Localization.lang("You must select either a valid style file,"
-                        + " or use one of the default styles."));
+                        + Localization.lang(
+                                "You must select either a valid style file, or use one of the default styles."));
     }
 
     // noEntriesSelectedForCitation
     public static OOError noEntriesSelectedForCitation() {
-        return new OOError(Localization.lang("No entries selected for citation"),
+        return new OOError(
+                Localization.lang("No entries selected for citation"),
                 Localization.lang("No library entries are selected for citation.")
                         + "\n"
                         + Localization.lang("Please select some from the library before citing."));
     }
 
     public static OOError bstStyleDoesNotDefineCitationFormat() {
-        return new OOError(Localization.lang("No citation format defined"),
-                Localization.lang("The selected BST style does not define any citation format for style-defined citations.\nPlease choose either numeric or author-year."));
+        return new OOError(
+                Localization.lang("No citation format defined"),
+                Localization.lang(
+                        "The selected BST style does not define any citation format for style-defined citations.\n"
+                                + "Please choose either numeric or author-year."));
     }
 }

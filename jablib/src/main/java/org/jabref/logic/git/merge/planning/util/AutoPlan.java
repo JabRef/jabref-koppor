@@ -2,7 +2,6 @@ package org.jabref.logic.git.merge.planning.util;
 
 import java.util.List;
 import java.util.Map;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 
@@ -26,13 +25,14 @@ public final class AutoPlan {
     ///
     ///  - We mutate the supplied collections (fieldPatches/newEntries/deletedEntryKeys).
     ///  - This method is side-effect free for all other state.
-    public static void generateAutoPlanForKey(String key,
-                                              BibEntry baseEntry,
-                                              BibEntry localEntry,
-                                              BibEntry remoteEntry,
-                                              Map<String, Map<Field, String>> fieldPatches,
-                                              List<BibEntry> newEntries,
-                                              List<String> deletedEntryKeys) {
+    public static void generateAutoPlanForKey(
+            String key,
+            BibEntry baseEntry,
+            BibEntry localEntry,
+            BibEntry remoteEntry,
+            Map<String, Map<Field, String>> fieldPatches,
+            List<BibEntry> newEntries,
+            List<String> deletedEntryKeys) {
 
         // base == null cases:
         if (baseEntry == null) {

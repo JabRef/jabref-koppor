@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
@@ -35,8 +34,8 @@ public class UTF8Checker implements EntryChecker {
         for (Map.Entry<Field, String> field : entry.getFieldMap().entrySet()) {
             boolean utfOnly = UTF8EncodingChecker(field.getValue().getBytes(charset));
             if (!utfOnly) {
-                results.add(new IntegrityMessage(Localization.lang("Non-UTF-8 encoded field found"), entry,
-                        field.getKey()));
+                results.add(new IntegrityMessage(
+                        Localization.lang("Non-UTF-8 encoded field found"), entry, field.getKey()));
             }
         }
         return results;

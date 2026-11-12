@@ -5,7 +5,6 @@ import java.util.Locale;
 import java.util.Optional;
 
 public enum BiblatexSoftwareEntryType implements EntryType {
-
     Dataset("Dataset"),
     SoftwareVersion("SoftwareVersion"),
     SoftwareModule("SoftwareModule"),
@@ -19,8 +18,8 @@ public enum BiblatexSoftwareEntryType implements EntryType {
 
     public static Optional<BiblatexSoftwareEntryType> fromName(String name) {
         return Arrays.stream(BiblatexSoftwareEntryType.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+                .filter(field -> field.getName().equalsIgnoreCase(name))
+                .findAny();
     }
 
     @Override

@@ -1,5 +1,9 @@
 package org.jabref.logic.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,18 +11,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
-
+import javafx.collections.FXCollections;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-
-import javafx.collections.FXCollections;
-
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -27,10 +27,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
 import org.xml.sax.SAXException;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("exporter")
@@ -59,7 +55,13 @@ public class ExporterTest {
         Files.createFile(tmpFile);
         exportFormat.export(new BibDatabaseContext(), tmpFile, List.of());
         if (exportFormat instanceof BibframeExporter) {
-            assertEquals("rdf:RDF", DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(tmpFile.toFile()).getDocumentElement().getTagName());
+            assertEquals(
+                    "rdf:RDF",
+                    DocumentBuilderFactory.newInstance()
+                            .newDocumentBuilder()
+                            .parse(tmpFile.toFile())
+                            .getDocumentElement()
+                            .getTagName());
         } else {
             assertEquals(List.of(), Files.readAllLines(tmpFile));
         }

@@ -3,7 +3,6 @@ package org.jabref.logic.ai.ingestion.logic.parsing;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked

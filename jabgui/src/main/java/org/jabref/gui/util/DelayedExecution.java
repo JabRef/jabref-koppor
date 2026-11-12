@@ -2,7 +2,6 @@ package org.jabref.gui.util;
 
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
-
 import org.jspecify.annotations.NonNull;
 
 /// Executes a runnable after a specified duration. It uses a [PauseTransition] to

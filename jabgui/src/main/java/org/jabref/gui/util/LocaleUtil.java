@@ -5,7 +5,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Locale;
-
 import org.jspecify.annotations.Nullable;
 
 public final class LocaleUtil {
@@ -18,9 +17,8 @@ public final class LocaleUtil {
             return "";
         }
 
-        return instant
-                .atZone(ZoneId.systemDefault())
+        return instant.atZone(ZoneId.systemDefault())
                 .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-                                         .withLocale(Locale.getDefault()));
+                        .withLocale(Locale.getDefault()));
     }
 }

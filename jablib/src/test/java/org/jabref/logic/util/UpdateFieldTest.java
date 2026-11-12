@@ -1,24 +1,22 @@
 package org.jabref.logic.util;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-
-import org.jabref.logic.preferences.OwnerPreferences;
-import org.jabref.logic.preferences.TimestampPreferences;
-import org.jabref.model.FieldChange;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.StandardField;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import org.jabref.logic.preferences.OwnerPreferences;
+import org.jabref.logic.preferences.TimestampPreferences;
+import org.jabref.model.FieldChange;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.StandardField;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class UpdateFieldTest {
 
@@ -263,8 +261,12 @@ class UpdateFieldTest {
         BibEntry entry2 = new BibEntry();
         entry2.setField(StandardField.OWNER, initialOwner);
 
-        assertEquals(Optional.of(initialOwner), entry.getField(StandardField.OWNER), "Owner field for entry is not present");
-        assertEquals(Optional.of(initialOwner), entry2.getField(StandardField.OWNER), "Owner field for entry2 is not present");
+        assertEquals(
+                Optional.of(initialOwner), entry.getField(StandardField.OWNER), "Owner field for entry is not present");
+        assertEquals(
+                Optional.of(initialOwner),
+                entry2.getField(StandardField.OWNER),
+                "Owner field for entry2 is not present");
 
         Collection<BibEntry> bibs = Arrays.asList(entry, entry2);
 
@@ -272,8 +274,12 @@ class UpdateFieldTest {
         TimestampPreferences timestampPreferences = createTimestampPreference();
         UpdateField.setAutomaticFields(bibs, ownerPreferences, timestampPreferences);
 
-        assertEquals(Optional.of(initialOwner), entry.getField(StandardField.OWNER), "entry has new value for owner field");
-        assertEquals(Optional.of(initialOwner), entry2.getField(StandardField.OWNER), "entry2 has new value for owner field");
+        assertEquals(
+                Optional.of(initialOwner), entry.getField(StandardField.OWNER), "entry has new value for owner field");
+        assertEquals(
+                Optional.of(initialOwner),
+                entry2.getField(StandardField.OWNER),
+                "entry2 has new value for owner field");
     }
 
     private OwnerPreferences createOwnerPreference(boolean useOwner, boolean overwriteOwner) {

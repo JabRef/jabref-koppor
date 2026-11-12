@@ -1,13 +1,16 @@
 package org.jabref.gui.git;
 
+import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
+import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
+import de.saxsys.mvvmfx.utils.validation.Validator;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.Predicate;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
@@ -28,12 +31,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabaseContext;
-
-import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
-import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
-import de.saxsys.mvvmfx.utils.validation.Validator;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +57,13 @@ public class GitShareToGitHubDialogViewModel extends AbstractViewModel {
             DialogService dialogService,
             TaskExecutor taskExecutor,
             GitHandlerRegistry gitHandlerRegistry) {
-        this(gitPreferences, stateManager, dialogService, taskExecutor, gitHandlerRegistry, new GitHubRepositoryAccessChecker());
+        this(
+                gitPreferences,
+                stateManager,
+                dialogService,
+                taskExecutor,
+                gitHandlerRegistry,
+                new GitHubRepositoryAccessChecker());
     }
 
     GitShareToGitHubDialogViewModel(
@@ -80,16 +83,14 @@ public class GitShareToGitHubDialogViewModel extends AbstractViewModel {
         repositoryUrlValidator = new FunctionBasedValidator<>(
                 repositoryUrlProperty,
                 githubHttpsUrlValidator(),
-                ValidationMessage.error(Localization.lang("Please enter a valid HTTPS GitHub repository URL"))
-        );
+                ValidationMessage.error(Localization.lang("Please enter a valid HTTPS GitHub repository URL")));
     }
 
     /// @implNote `close` Is a runnable to make testing easier
     public void shareToGitHub(Runnable close) {
         // We store the settings because "Share" implies that the settings should be used as typed
         this.storeSettings();
-        BackgroundTask
-                .wrap(() -> {
+        BackgroundTask.wrap(() -> {
                     this.doShareToGitHub();
                     return null;
                 })
@@ -103,14 +104,14 @@ public class GitShareToGitHubDialogViewModel extends AbstractViewModel {
                     if (e instanceof JabRefException jabRefException) {
                         message = jabRefException.getLocalizedMessage();
                     } else if (GitExceptionUtil.isLockFailure(e)) {
-                        message = Localization.lang("The Git repository is locked. Close other Git, JabRef, or IDE processes and try again.");
+                        message = Localization.lang(
+                                "The Git repository is locked. Close other Git, JabRef, or IDE processes and try"
+                                        + " again.");
                     } else {
-                        message = Localization.lang("Could not share this library to GitHub. Please check the repository and try again.");
+                        message = Localization.lang(
+                                "Could not share this library to GitHub. Please check the repository and try again.");
                     }
-                    dialogService.showErrorDialogAndWait(
-                            Localization.lang("GitHub share failed"),
-                            message
-                    );
+                    dialogService.showErrorDialogAndWait(Localization.lang("GitHub share failed"), message);
                 })
                 .executeWith(taskExecutor);
     }
@@ -125,11 +126,13 @@ public class GitShareToGitHubDialogViewModel extends AbstractViewModel {
         BibDatabaseContext activeDatabase = activeDatabaseOpt.get();
         Optional<Path> bibFilePathOpt = activeDatabase.getDatabasePath();
         if (bibFilePathOpt.isEmpty()) {
-            throw new JabRefException(Localization.lang("No library file path. Please save the library to a file first."));
+            throw new JabRefException(
+                    Localization.lang("No library file path. Please save the library to a file first."));
         }
 
         if (StringUtil.isBlank(gitPreferences.getUsername()) || StringUtil.isBlank(gitPreferences.getPat())) {
-            throw new JabRefException(Localization.lang("No GitHub credentials. Please configure them in Preferences > Git."));
+            throw new JabRefException(
+                    Localization.lang("No GitHub credentials. Please configure them in Preferences > Git."));
         }
 
         // We don't get a new preference object (and re-use the existing one instead), because of ADR-0016
@@ -139,13 +142,16 @@ public class GitShareToGitHubDialogViewModel extends AbstractViewModel {
 
         Path bibPath = GitHandler.resolveToRealPath(bibFilePathOpt.get());
         GitInitService.initRepoAndSetRemote(bibPath, url, gitHandlerRegistry);
-        GitHandler handler = gitHandlerRegistry.fromAnyPath(bibPath)
-                                               .orElseThrow(() -> new JabRefException(
-                                                       "Could not resolve the Git repository for the current library",
-                                                       Localization.lang("Could not set up the Git repository for this library. Please check the repository location and try again.")));
+        GitHandler handler = gitHandlerRegistry
+                .fromAnyPath(bibPath)
+                .orElseThrow(() -> new JabRefException(
+                        "Could not resolve the Git repository for the current library",
+                        Localization.lang("Could not set up the Git repository for this library. Please check the"
+                                + " repository location and try again.")));
         GitStatusSnapshot status = GitStatusChecker.checkStatusAndFetch(handler);
         if (status.syncStatus() == SyncStatus.BEHIND) {
-            throw new JabRefException(Localization.lang("Remote repository is not empty. Please pull changes before pushing."));
+            throw new JabRefException(
+                    Localization.lang("Remote repository is not empty. Please pull changes before pushing."));
         }
         handler.createCommitOnCurrentBranch(Localization.lang("Share library to GitHub"), false);
         if (status.syncStatus() == SyncStatus.REMOTE_EMPTY) {
@@ -165,14 +171,16 @@ public class GitShareToGitHubDialogViewModel extends AbstractViewModel {
 
     public void checkGitHubAccess() {
         // [impl->req~git.share.personal-access-token-verification~1]
-        BackgroundTask
-                .wrap(() -> gitHubRepositoryAccessChecker.check(repositoryUrlProperty.get().trim(), gitPreferences.getUsername(), gitPreferences.getPat()))
+        BackgroundTask.wrap(() -> gitHubRepositoryAccessChecker.check(
+                        repositoryUrlProperty.get().trim(), gitPreferences.getUsername(), gitPreferences.getPat()))
                 .onSuccess(this::showGitHubAccessResult)
                 .onFailure(e -> {
                     LOGGER.debug("Could not check GitHub repository access", e);
                     dialogService.showErrorDialogAndWait(
                             Localization.lang("GitHub access"),
-                            Localization.lang("Could not connect to GitHub. Please check your network connection and try again."));
+                            Localization.lang(
+                                    "Could not connect to GitHub. Please check your network connection and try"
+                                            + " again."));
                 })
                 .executeWith(taskExecutor);
     }
@@ -181,21 +189,16 @@ public class GitShareToGitHubDialogViewModel extends AbstractViewModel {
         String title = Localization.lang("GitHub access");
         switch (access) {
             case WRITE_ACCESS ->
-                    dialogService.showInformationDialogAndWait(
-                            title,
-                            Localization.lang("Personal access token has push access to this repository."));
+                dialogService.showInformationDialogAndWait(
+                        title, Localization.lang("Personal access token has push access to this repository."));
             case INVALID_TOKEN ->
-                    dialogService.showErrorDialogAndWait(
-                            title,
-                            Localization.lang("Personal access token is invalid."));
+                dialogService.showErrorDialogAndWait(title, Localization.lang("Personal access token is invalid."));
             case REPOSITORY_NOT_ACCESSIBLE ->
-                    dialogService.showErrorDialogAndWait(
-                            title,
-                            Localization.lang("The personal access token cannot push to this repository."));
+                dialogService.showErrorDialogAndWait(
+                        title, Localization.lang("The personal access token cannot push to this repository."));
             case INVALID_REPOSITORY_URL ->
-                    dialogService.showErrorDialogAndWait(
-                            title,
-                            Localization.lang("Please enter a valid GitHub repository URL."));
+                dialogService.showErrorDialogAndWait(
+                        title, Localization.lang("Please enter a valid GitHub repository URL."));
         }
     }
 

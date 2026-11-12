@@ -1,14 +1,12 @@
 package org.jabref.logic.layout.format;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.stream.Stream;
-
 import org.jabref.logic.layout.ParamLayoutFormatter;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class WrapContentTest {
 
@@ -33,7 +31,6 @@ class WrapContentTest {
                 Arguments.of(null, null, "Eds.,Ed."),
                 Arguments.of("", "", "Eds.,Ed."),
                 Arguments.of("Bob Bruce and Jolly Jumper", "Bob Bruce and Jolly Jumper", ""),
-                Arguments.of("Bob Bruce and Jolly Jumper", "Bob Bruce and Jolly Jumper", "Eds.")
-        );
+                Arguments.of("Bob Bruce and Jolly Jumper", "Bob Bruce and Jolly Jumper", "Eds."));
     }
 }

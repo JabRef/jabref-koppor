@@ -6,10 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
-
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.util.DirectoryDialogConfiguration;
@@ -28,25 +26,26 @@ public class CopyLinkedFilesAction extends SimpleCommand {
 
     private final BiFunction<Path, Path, Path> resolvePathFilename = (dir, file) -> dir.resolve(file.getFileName());
 
-    public CopyLinkedFilesAction(LinkedFile linkedFile,
-                                 DialogService dialogService,
-                                 BibDatabaseContext databaseContext,
-                                 FilePreferences filePreferences) {
+    public CopyLinkedFilesAction(
+            LinkedFile linkedFile,
+            DialogService dialogService,
+            BibDatabaseContext databaseContext,
+            FilePreferences filePreferences) {
         this(List.of(linkedFile), dialogService, databaseContext, filePreferences);
     }
 
-    public CopyLinkedFilesAction(Collection<LinkedFile> linkedFiles,
-                                 DialogService dialogService,
-                                 BibDatabaseContext databaseContext,
-                                 FilePreferences filePreferences) {
+    public CopyLinkedFilesAction(
+            Collection<LinkedFile> linkedFiles,
+            DialogService dialogService,
+            BibDatabaseContext databaseContext,
+            FilePreferences filePreferences) {
         this.linkedFiles = new ArrayList<>(linkedFiles);
         this.dialogService = dialogService;
         this.databaseContext = databaseContext;
         this.filePreferences = filePreferences;
 
         this.executable.bind(Bindings.createBooleanBinding(
-                () -> this.linkedFiles.stream().allMatch(this::isLocalExisting),
-                dependencies(this.linkedFiles)));
+                () -> this.linkedFiles.stream().allMatch(this::isLocalExisting), dependencies(this.linkedFiles)));
     }
 
     @Override
@@ -86,7 +85,8 @@ public class CopyLinkedFilesAction extends SimpleCommand {
             if (copiedFiles == 1) {
                 dialogService.notify(Localization.lang("Successfully copied %0 file(s) to %1.", copiedFiles, target));
             } else {
-                dialogService.notify(Localization.lang("Could not copy file to %0, maybe the file is already existing?", target));
+                dialogService.notify(
+                        Localization.lang("Could not copy file to %0, maybe the file is already existing?", target));
             }
         } else {
             if (failedCount == 0) {

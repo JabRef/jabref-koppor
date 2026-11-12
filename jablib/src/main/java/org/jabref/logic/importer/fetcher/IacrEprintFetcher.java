@@ -6,7 +6,6 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FulltextFetcher;
 import org.jabref.logic.importer.IdBasedFetcher;
@@ -19,7 +18,6 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +29,8 @@ public class IacrEprintFetcher implements FulltextFetcher, IdBasedFetcher {
 
     private static final Pattern WITHOUT_LETTERS_SPACE = Pattern.compile("[^0-9/]");
 
-    private static final Predicate<String> IDENTIFIER_PREDICATE = Pattern.compile("\\d{4}/\\d{3,5}").asPredicate();
+    private static final Predicate<String> IDENTIFIER_PREDICATE =
+            Pattern.compile("\\d{4}/\\d{3,5}").asPredicate();
     private static final String CITATION_URL_PREFIX = "https://eprint.iacr.org/";
     private static final String DESCRIPTION_URL_PREFIX = "https://eprint.iacr.org/";
     private static final String FULLTEXT_URL_PREFIX = "https://eprint.iacr.org/";
@@ -45,7 +44,8 @@ public class IacrEprintFetcher implements FulltextFetcher, IdBasedFetcher {
 
     @Override
     public Optional<BibEntry> performSearchById(String identifier) throws FetcherException {
-        String identifierWithoutLettersAndSpaces = WITHOUT_LETTERS_SPACE.matcher(identifier).replaceAll(" ").trim();
+        String identifierWithoutLettersAndSpaces =
+                WITHOUT_LETTERS_SPACE.matcher(identifier).replaceAll(" ").trim();
 
         if (!IDENTIFIER_PREDICATE.test(identifierWithoutLettersAndSpaces)) {
             throw new FetcherException(Localization.lang("Invalid identifier: '%0'.", identifier));
@@ -169,7 +169,8 @@ public class IacrEprintFetcher implements FulltextFetcher, IdBasedFetcher {
             String fulltextLinkAsInHtml = getRequiredValueBetween(startOfFulltextLink, ".pdf", descriptiveHtml);
             // There is an additional "\n           href=\"/archive/" we have to remove - and for some reason,
             // getRequiredValueBetween refuses to match across the line break.
-            fulltextLinkAsInHtml = fulltextLinkAsInHtml.replaceFirst(".*href=\"/", "").trim();
+            fulltextLinkAsInHtml =
+                    fulltextLinkAsInHtml.replaceFirst(".*href=\"/", "").trim();
             String fulltextLink = FULLTEXT_URL_PREFIX + fulltextLinkAsInHtml + ".pdf";
             return Optional.of(URLUtil.create(fulltextLink));
         }

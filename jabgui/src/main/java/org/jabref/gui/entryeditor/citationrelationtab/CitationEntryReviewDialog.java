@@ -1,5 +1,7 @@
 package org.jabref.gui.entryeditor.citationrelationtab;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.google.common.eventbus.Subscribe;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -17,7 +19,6 @@ import java.util.SequencedSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
 import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -41,7 +42,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -77,9 +77,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UserSpecificCommentField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.undo.UndoableChangeType;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.google.common.eventbus.Subscribe;
 import org.jspecify.annotations.NullMarked;
 
 /// GUI to shows one entry with its type and fields editable, so that the
@@ -93,7 +90,8 @@ public class CitationEntryReviewDialog extends BaseDialog<CitationEntryReviewDia
         PREVIOUS,
         /// Leave this entry out and continue with the next one. On the last entry, the chosen entries are added.
         SKIP,
-        /// Add this entry with its edits and continue with the next one. On the last entry, the chosen entries are added.
+        /// Add this entry with its edits and continue with the next one. On the last entry, the chosen entries are
+        /// added.
         NEXT,
         /// End the review without adding any entry.
         CANCEL
@@ -117,7 +115,8 @@ public class CitationEntryReviewDialog extends BaseDialog<CitationEntryReviewDia
     private static final Pattern NON_ALPHANUMERIC = Pattern.compile("[^a-z0-9]");
 
     /// Fields without an editor in the review. The file editor's actions change the library and files on disk
-    /// directly, which neither skipping the entry nor ending the review could undo; files are attached after the import.
+    /// directly, which neither skipping the entry nor ending the review could undo; files are attached after the
+    /// import.
     private static final Set<Field> FIELDS_NOT_REVIEWED = Set.of(StandardField.FILE);
 
     /// Multiline fields the user has focused, and thereby expanded. The rows are rebuilt after a chip
@@ -168,42 +167,49 @@ public class CitationEntryReviewDialog extends BaseDialog<CitationEntryReviewDia
     /// @param databaseContext   library the entry is reviewed for
     /// @param entryTypesManager source of the selectable entry types
     /// @param preferences       preferences the field editors are built from
-    /// @param stateManager      source of the library's autocompletion suggestions, and of the undo state the undo actions bind to
+    /// @param stateManager      source of the library's autocompletion suggestions, and of the undo state the undo
+    /// actions bind to
     /// @param dialogService     service the preview and the undo actions report through
     /// @param taskExecutor      executor the preview renders on
-    public CitationEntryReviewDialog(BibEntry entry,
-                                     int position,
-                                     int total,
-                                     BibDatabaseContext databaseContext,
-                                     BibEntryTypesManager entryTypesManager,
-                                     GuiPreferences preferences,
-                                     StateManager stateManager,
-                                     DialogService dialogService,
-                                     TaskExecutor taskExecutor) {
+    public CitationEntryReviewDialog(
+            BibEntry entry,
+            int position,
+            int total,
+            BibDatabaseContext databaseContext,
+            BibEntryTypesManager entryTypesManager,
+            GuiPreferences preferences,
+            StateManager stateManager,
+            DialogService dialogService,
+            TaskExecutor taskExecutor) {
         this.entry = entry;
         this.databaseContext = databaseContext;
         this.entryTypesManager = entryTypesManager;
         this.preferences = preferences;
         this.journalAbbreviationRepository = Injector.instantiateModelOrService(JournalAbbreviationRepository.class);
-        this.suggestionProviders = stateManager.activeTabProperty().get()
-                                               .map(LibraryTab::getSuggestionProviders)
-                                               .orElse(new SuggestionProviders());
+        this.suggestionProviders = stateManager
+                .activeTabProperty()
+                .get()
+                .map(LibraryTab::getSuggestionProviders)
+                .orElse(new SuggestionProviders());
         this.undoAction = createUndoAction(dialogService, stateManager);
         this.redoAction = createRedoAction(dialogService, stateManager);
         this.previewViewer = new PreviewViewer(dialogService, preferences, taskExecutor);
-        String defaultOwner = NON_ALPHANUMERIC.matcher(
-                preferences.getOwnerPreferences().getDefaultOwner().toLowerCase(Locale.ROOT)).replaceAll("-");
+        String defaultOwner = NON_ALPHANUMERIC
+                .matcher(preferences.getOwnerPreferences().getDefaultOwner().toLowerCase(Locale.ROOT))
+                .replaceAll("-");
         this.userSpecificCommentField = new UserSpecificCommentField(defaultOwner);
 
         setTitle(Localization.lang("Review entry %0 of %1", position, total));
 
-        ButtonType previousButtonType = new ButtonType(Localization.lang("Previous entry"), ButtonBar.ButtonData.BACK_PREVIOUS);
+        ButtonType previousButtonType =
+                new ButtonType(Localization.lang("Previous entry"), ButtonBar.ButtonData.BACK_PREVIOUS);
         ButtonType skipButtonType = new ButtonType(Localization.lang("Skip entry"), ButtonBar.ButtonData.OTHER);
         // On the last entry there is no next one; moving on imports the chosen entries
         ButtonType nextButtonType = position == total
-                                    ? new ButtonType(Localization.lang("Import entries"), ButtonBar.ButtonData.OK_DONE)
-                                    : new ButtonType(Localization.lang("Next entry"), ButtonBar.ButtonData.NEXT_FORWARD);
-        ButtonType cancelButtonType = new ButtonType(Localization.lang("End review without imports"), ButtonBar.ButtonData.CANCEL_CLOSE);
+                ? new ButtonType(Localization.lang("Import entries"), ButtonBar.ButtonData.OK_DONE)
+                : new ButtonType(Localization.lang("Next entry"), ButtonBar.ButtonData.NEXT_FORWARD);
+        ButtonType cancelButtonType =
+                new ButtonType(Localization.lang("End review without imports"), ButtonBar.ButtonData.CANCEL_CLOSE);
         getDialogPane().getButtonTypes().setAll(previousButtonType, skipButtonType, nextButtonType, cancelButtonType);
         getDialogPane().lookupButton(previousButtonType).setDisable(position == 1);
 
@@ -212,8 +218,10 @@ public class CitationEntryReviewDialog extends BaseDialog<CitationEntryReviewDia
         getDialogPane().setPrefSize(DIALOG_PREF_WIDTH, DIALOG_PREF_HEIGHT);
 
         // Registered after the first build, so that neither reacts while the dialog is still being set up
-        entryTypeCombo.valueProperty().addListener((_, _, selectedType) ->
-                Optional.ofNullable(selectedType).ifPresent(this::applyEntryType));
+        entryTypeCombo
+                .valueProperty()
+                .addListener((_, _, selectedType) ->
+                        Optional.ofNullable(selectedType).ifPresent(this::applyEntryType));
         entry.registerListener(this);
         setOnHidden(_ -> {
             entry.unregisterListener(this);
@@ -245,10 +253,12 @@ public class CitationEntryReviewDialog extends BaseDialog<CitationEntryReviewDia
 
     /// Fills the entry type combo box with the types of the library's mode
     private void setUpEntryTypeCombo() {
-        entryTypeCombo.getItems().setAll(entryTypesManager.getAllTypes(databaseContext.getMode()).stream()
-                                                          .map(BibEntryType::getType)
-                                                          .sorted(Comparator.comparing(EntryType::getDisplayName))
-                                                          .toList());
+        entryTypeCombo
+                .getItems()
+                .setAll(entryTypesManager.getAllTypes(databaseContext.getMode()).stream()
+                        .map(BibEntryType::getType)
+                        .sorted(Comparator.comparing(EntryType::getDisplayName))
+                        .toList());
         new ViewModelListCellFactory<EntryType>()
                 .withText(EntryType::getDisplayName)
                 .install(entryTypeCombo);
@@ -290,8 +300,7 @@ public class CitationEntryReviewDialog extends BaseDialog<CitationEntryReviewDia
     /// sections they belong to.
     ///
     /// @param label label shown in front of the editor
-    private record FieldRow(Field field, Label label, FieldEditorFX editor) {
-    }
+    private record FieldRow(Field field, Label label, FieldEditorFX editor) {}
 
     /// Builds the rows of the fields to show, replacing the rows of the previous run
     private void setupFieldArea() {
@@ -302,16 +311,16 @@ public class CitationEntryReviewDialog extends BaseDialog<CitationEntryReviewDia
         Map<FieldListSections.SectionType, List<FieldRow>> rowsPerSection =
                 new EnumMap<>(FieldListSections.SectionType.class);
         for (Field field : determineFieldsToShow()) {
-            rowsPerSection.computeIfAbsent(FieldListSections.sectionOf(field), _ -> new ArrayList<>())
-                          .add(createFieldRow(field));
+            rowsPerSection
+                    .computeIfAbsent(FieldListSections.sectionOf(field), _ -> new ArrayList<>())
+                    .add(createFieldRow(field));
         }
 
         layoutMainFields(rowsPerSection.getOrDefault(FieldListSections.SectionType.MAIN, List.of()));
         fieldArea.getChildren().setAll(fieldGrid, createMainChipBar());
         for (FieldListSections.SectionType type : FieldListSections.SectionType.values()) {
             if (type != FieldListSections.SectionType.MAIN) {
-                fieldArea.getChildren().add(
-                        createSectionPane(type, rowsPerSection.getOrDefault(type, List.of())));
+                fieldArea.getChildren().add(createSectionPane(type, rowsPerSection.getOrDefault(type, List.of())));
             }
         }
         editors.forEach(this::applyNaturalHeight);
@@ -324,15 +333,13 @@ public class CitationEntryReviewDialog extends BaseDialog<CitationEntryReviewDia
         entryTypesManager.enrich(entry.getType(), databaseContext.getMode()).ifPresent(entryType -> {
             entryType.getRequiredFields().forEach(orFields -> fields.addAll(orFields.getFields()));
             entryType.getImportantOptionalFields().stream()
-                     .filter(setFields::contains)
-                     .forEach(fields::add);
+                    .filter(setFields::contains)
+                    .forEach(fields::add);
             entryType.getDetailOptionalNotDeprecatedFields(databaseContext.getMode()).stream()
-                     .filter(setFields::contains)
-                     .forEach(fields::add);
+                    .filter(setFields::contains)
+                    .forEach(fields::add);
         });
-        setFields.stream()
-                 .sorted(Comparator.comparing(Field::getName))
-                 .forEach(fields::add);
+        setFields.stream().sorted(Comparator.comparing(Field::getName)).forEach(fields::add);
         fields.addAll(fieldsShownWithoutValue);
         fields.removeIf(field -> field instanceof InternalField);
         fields.removeAll(FIELDS_NOT_REVIEWED);
@@ -468,13 +475,10 @@ public class CitationEntryReviewDialog extends BaseDialog<CitationEntryReviewDia
                     }
                 });
             }
-            case TextField textField ->
-                    textField.setPrefHeight(Region.USE_COMPUTED_SIZE);
+            case TextField textField -> textField.setPrefHeight(Region.USE_COMPUTED_SIZE);
             case Parent parent ->
-                    parent.getChildrenUnmodifiable().forEach(child -> normalizeInputHeights(field, child));
-            case null,
-                 default -> {
-            }
+                parent.getChildrenUnmodifiable().forEach(child -> normalizeInputHeights(field, child));
+            case null, default -> {}
         }
     }
 
@@ -485,7 +489,7 @@ public class CitationEntryReviewDialog extends BaseDialog<CitationEntryReviewDia
         EntryType previousType = entry.getType();
         // When the combo box only follows an undo or redo, the entry already has the type, so nothing is recorded
         entry.setType(selectedType)
-             .ifPresent(_ -> reviewUndoManager.addEdit(new UndoableChangeType(entry, previousType, selectedType)));
+                .ifPresent(_ -> reviewUndoManager.addEdit(new UndoableChangeType(entry, previousType, selectedType)));
         setupFieldArea();
     }
 
@@ -501,16 +505,16 @@ public class CitationEntryReviewDialog extends BaseDialog<CitationEntryReviewDia
                     .forEach(field -> chips.getChildren().add(createAddChip(field)));
 
             List<Field> secondaryFields = mainGroupChipFields(
-                    entryType.getDetailOptionalNotDeprecatedFields(databaseContext.getMode())).toList();
+                            entryType.getDetailOptionalNotDeprecatedFields(databaseContext.getMode()))
+                    .toList();
             if (secondaryFields.isEmpty()) {
                 return;
             }
             if (showSecondaryOptionalChips) {
                 secondaryFields.forEach(field -> chips.getChildren().add(createAddChip(field)));
             }
-            Hyperlink toggle = new Hyperlink(showSecondaryOptionalChips
-                                             ? Localization.lang("Show less")
-                                             : Localization.lang("Show more"));
+            Hyperlink toggle = new Hyperlink(
+                    showSecondaryOptionalChips ? Localization.lang("Show less") : Localization.lang("Show more"));
             toggle.setOnAction(_ -> {
                 showSecondaryOptionalChips = !showSecondaryOptionalChips;
                 setupFieldArea();
@@ -538,8 +542,8 @@ public class CitationEntryReviewDialog extends BaseDialog<CitationEntryReviewDia
     /// @param candidates fields a chip could be offered for
     private Stream<Field> fieldsWithoutRow(Collection<Field> candidates) {
         return candidates.stream()
-                         .filter(field -> !editors.containsKey(field))
-                         .filter(field -> !FIELDS_NOT_REVIEWED.contains(field));
+                .filter(field -> !editors.containsKey(field))
+                .filter(field -> !FIELDS_NOT_REVIEWED.contains(field));
     }
 
     private Button createAddChip(Field field) {
@@ -647,10 +651,11 @@ public class CitationEntryReviewDialog extends BaseDialog<CitationEntryReviewDia
 
     private Optional<Field> findFieldOfFocusedEditor() {
         return Optional.ofNullable(getDialogPane().getScene().getFocusOwner())
-                       .flatMap(focusOwner -> editors.entrySet().stream()
-                                                     .filter(fieldAndEditor -> isSameOrDescendant(focusOwner, fieldAndEditor.getValue().getNode()))
-                                                     .map(Map.Entry::getKey)
-                                                     .findFirst());
+                .flatMap(focusOwner -> editors.entrySet().stream()
+                        .filter(fieldAndEditor -> isSameOrDescendant(
+                                focusOwner, fieldAndEditor.getValue().getNode()))
+                        .map(Map.Entry::getKey)
+                        .findFirst());
     }
 
     /// @param node     node to start from

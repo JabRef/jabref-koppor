@@ -1,5 +1,7 @@
 package org.jabref.model.database;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -20,10 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.bibtex.FieldWriter;
 import org.jabref.logic.util.strings.StringUtil;
@@ -39,9 +39,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.FieldProperty;
 import org.jabref.model.entry.field.StandardField;
-
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -57,7 +54,8 @@ public class BibDatabase {
     private static final int BATCH_REPLACEMENT_THRESHOLD = 10;
 
     /// State attributes
-    private final ObservableList<BibEntry> entries = FXCollections.synchronizedObservableList(FXCollections.observableArrayList(BibEntry::getObservables));
+    private final ObservableList<BibEntry> entries =
+            FXCollections.synchronizedObservableList(FXCollections.observableArrayList(BibEntry::getObservables));
 
     // BibEntryId to BibEntry
     private final Map<String, BibEntry> entryIdToBibEntry = new HashMap<>();
@@ -69,12 +67,14 @@ public class BibDatabase {
     // Reverse index for citation links
     private final Map<String, Set<BibEntry>> citationIndex = new ConcurrentHashMap<>();
 
-    @Nullable private String preamble;
+    @Nullable
+    private String preamble;
 
     // All file contents below the last entry in the file
     private String epilog = "";
 
-    @Nullable private String sharedDatabaseID;
+    @Nullable
+    private String sharedDatabaseID;
 
     private String newLineSeparator = System.lineSeparator();
 
@@ -132,13 +132,16 @@ public class BibDatabase {
         for (BibEntry e : getEntries()) {
             allFields.addAll(e.getFields());
         }
-        return allFields.stream().filter(field -> !FieldFactory.isInternalField(field))
-                        .collect(Collectors.toSet());
+        return allFields.stream()
+                .filter(field -> !FieldFactory.isInternalField(field))
+                .collect(Collectors.toSet());
     }
 
     /// Returns the entry with the given citation key.
     public synchronized Optional<BibEntry> getEntryByCitationKey(String key) {
-        return entries.stream().filter(entry -> Objects.equals(entry.getCitationKey().orElse(null), key)).findFirst();
+        return entries.stream()
+                .filter(entry -> Objects.equals(entry.getCitationKey().orElse(null), key))
+                .findFirst();
     }
 
     /// Collects entries having the specified citation key and returns these entries as list.
@@ -192,7 +195,11 @@ public class BibDatabase {
         // is only correct when every new id is higher than the last one in the list.
         // [impl->req~import.entries.sorted-by-id~1]
         List<BibEntry> sortedNewEntries = sortEntriesById(newEntries);
-        if (entries.isEmpty() || entries.getLast().getId().compareTo(sortedNewEntries.getFirst().getId()) < 0) {
+        if (entries.isEmpty()
+                || entries.getLast()
+                                .getId()
+                                .compareTo(sortedNewEntries.getFirst().getId())
+                        < 0) {
             entries.addAll(sortedNewEntries);
         } else if (sortedNewEntries.size() <= BATCH_REPLACEMENT_THRESHOLD) {
             insertSmallBatch(sortedNewEntries);
@@ -201,10 +208,9 @@ public class BibDatabase {
             entries.setAll(mergeSortedEntries(sortedNewEntries));
         }
         newEntries.forEach(entry -> {
-                    entryIdToBibEntry.put(entry.getId(), entry);
-                    indexEntry(entry);
-                }
-        );
+            entryIdToBibEntry.put(entry.getId(), entry);
+            indexEntry(entry);
+        });
     }
 
     private List<BibEntry> sortEntriesById(List<BibEntry> newEntries) {
@@ -311,8 +317,8 @@ public class BibDatabase {
 
         if (useBatchReplacement) {
             List<BibEntry> entriesAfterDeletion = entries.stream()
-                                                         .filter(entry -> !idsToBeDeleted.contains(entry.getId()))
-                                                         .toList();
+                    .filter(entry -> !idsToBeDeleted.contains(entry.getId()))
+                    .toList();
             if ((entries.size() - entriesAfterDeletion.size()) > BATCH_REPLACEMENT_THRESHOLD) {
                 entries.setAll(entriesAfterDeletion);
             } else {
@@ -326,7 +332,8 @@ public class BibDatabase {
 
     private void forEachCitationKey(BibEntry entry, Consumer<String> keyConsumer) {
         for (Field field : entry.getFields()) {
-            if (field.getProperties().contains(FieldProperty.SINGLE_ENTRY_LINK) || field.getProperties().contains(FieldProperty.MULTIPLE_ENTRY_LINK)) {
+            if (field.getProperties().contains(FieldProperty.SINGLE_ENTRY_LINK)
+                    || field.getProperties().contains(FieldProperty.MULTIPLE_ENTRY_LINK)) {
                 List<ParsedEntryLink> parsedLinks = entry.getEntryLinkList(field, this);
 
                 for (ParsedEntryLink link : parsedLinks) {
@@ -351,9 +358,11 @@ public class BibDatabase {
     }
 
     private void indexEntry(BibEntry entry) {
-        forEachCitationKey(entry, key ->
-                citationIndex.computeIfAbsent(key, _ -> ConcurrentHashMap.newKeySet()).add(entry)
-        );
+        forEachCitationKey(
+                entry,
+                key -> citationIndex
+                        .computeIfAbsent(key, _ -> ConcurrentHashMap.newKeySet())
+                        .add(entry));
     }
 
     private void removeEntryFromIndex(BibEntry entry) {
@@ -372,8 +381,7 @@ public class BibDatabase {
     /// If the preamble text consists only of whitespace, then also an empty optional is returned.
     @NonNull
     public synchronized Optional<String> getPreamble() {
-        return Optional.ofNullable(preamble)
-                       .filter(StringUtil::isNotBlank);
+        return Optional.ofNullable(preamble).filter(StringUtil::isNotBlank);
     }
 
     /// Sets the database's preamble.
@@ -429,7 +437,9 @@ public class BibDatabase {
 
     /// Returns the string with the given name/label
     public Optional<BibtexString> getStringByName(String name) {
-        return getStringValues().stream().filter(string -> string.getName().equals(name)).findFirst();
+        return getStringValues().stream()
+                .filter(string -> string.getName().equals(name))
+                .findFirst();
     }
 
     /// Returns the number of strings.
@@ -451,7 +461,8 @@ public class BibDatabase {
 
     /// Returns true if a string with the given label already exists.
     public synchronized boolean hasStringByName(String label) {
-        return stringToBibtexString.values().stream().anyMatch(value -> value.getName().equals(label));
+        return stringToBibtexString.values().stream()
+                .anyMatch(value -> value.getName().equals(label));
     }
 
     /// Resolves any references to strings contained in this field content,
@@ -482,9 +493,12 @@ public class BibDatabase {
     /// Take the given collection of BibEntry and resolve any string
     /// references.
     ///
-    /// @param entriesToResolve A collection of BibtexEntries in which all strings of the form `#xxx#` will be resolved against the hash map of string references stored in the database.
-    /// @param inPlace          If inPlace is true then the given BibtexEntries will be modified, if false then copies of the BibtexEntries are made before resolving the strings.
-    /// @return a list of bibtexentries, with all strings resolved. It is dependent on the value of inPlace whether copies are made or the given BibtexEntries are modified.
+    /// @param entriesToResolve A collection of BibtexEntries in which all strings of the form `#xxx#` will be resolved
+    /// against the hash map of string references stored in the database.
+    /// @param inPlace          If inPlace is true then the given BibtexEntries will be modified, if false then copies
+    /// of the BibtexEntries are made before resolving the strings.
+    /// @return a list of bibtexentries, with all strings resolved. It is dependent on the value of inPlace whether
+    /// copies are made or the given BibtexEntries are modified.
     public List<BibEntry> resolveForStrings(@NonNull Collection<BibEntry> entriesToResolve, boolean inPlace) {
         List<BibEntry> results = new ArrayList<>(entriesToResolve.size());
 
@@ -496,8 +510,10 @@ public class BibDatabase {
 
     /// Take the given BibEntry and resolve any string references.
     ///
-    /// @param entry   A BibEntry in which all strings of the form #xxx# will be resolved against the hash map of string references stored in the database.
-    /// @param inPlace If inPlace is true then the given BibEntry will be modified, if false then a copy is made using close made before  resolving the strings.
+    /// @param entry   A BibEntry in which all strings of the form #xxx# will be resolved against the hash map of string
+    /// references stored in the database.
+    /// @param inPlace If inPlace is true then the given BibEntry will be modified, if false then a copy is made using
+    /// close made before  resolving the strings.
     /// @return a BibEntry with all string references resolved. It is
     /// dependent on the value of inPlace whether a copy is made or the
     /// given BibtexEntries is modified.
@@ -520,7 +536,8 @@ public class BibDatabase {
     /// care not to follow a circular reference pattern.
     /// If the string is undefined, returns null.
     @NonNull
-    private Optional<String> resolveString(@NonNull String label, @NonNull Set<String> usedIds, @NonNull Set<String> allUsedIds) {
+    private Optional<String> resolveString(
+            @NonNull String label, @NonNull Set<String> usedIds, @NonNull Set<String> allUsedIds) {
         for (BibtexString string : stringToBibtexString.values()) {
             if (string.getName().equalsIgnoreCase(label)) {
                 // First, check if this string label has been resolved
@@ -639,8 +656,8 @@ public class BibDatabase {
     private void updateCitationIndexForFieldChange(FieldChangedEvent event) {
         Field field = event.getField();
         // check if field changed was single entry or multiple entry link
-        boolean isLinkedField = field.getProperties().contains(FieldProperty.SINGLE_ENTRY_LINK) ||
-                field.getProperties().contains(FieldProperty.MULTIPLE_ENTRY_LINK);
+        boolean isLinkedField = field.getProperties().contains(FieldProperty.SINGLE_ENTRY_LINK)
+                || field.getProperties().contains(FieldProperty.MULTIPLE_ENTRY_LINK);
 
         if (isLinkedField) {
             BibEntry entry = event.getBibEntry();
@@ -657,7 +674,8 @@ public class BibDatabase {
                         if (referenceEntries != null) {
                             // remove entry using unique id to prevent duplicate child entries
                             // due to changed hashcodes when field in child is changed
-                            referenceEntries.removeIf(referenceEntry -> referenceEntry.getId().equals(entry.getId()));
+                            referenceEntries.removeIf(
+                                    referenceEntry -> referenceEntry.getId().equals(entry.getId()));
                             if (referenceEntries.isEmpty()) {
                                 citationIndex.remove(oldKey);
                             }
@@ -671,7 +689,9 @@ public class BibDatabase {
                 for (String rawKey : newValue.split(",")) {
                     if (!StringUtil.isBlank(rawKey)) {
                         String newKey = rawKey.trim();
-                        citationIndex.computeIfAbsent(newKey, _ -> ConcurrentHashMap.newKeySet()).add(entry);
+                        citationIndex
+                                .computeIfAbsent(newKey, _ -> ConcurrentHashMap.newKeySet())
+                                .add(entry);
                     }
                 }
             }
@@ -715,9 +735,9 @@ public class BibDatabase {
     /// Returns the number of occurrences of the given citation key in this database.
     public long getNumberOfCitationKeyOccurrences(String key) {
         return entries.stream()
-                      .flatMap(entry -> entry.getCitationKey().stream())
-                      .filter(key::equals)
-                      .count();
+                .flatMap(entry -> entry.getCitationKey().stream())
+                .filter(key::equals)
+                .count();
     }
 
     /// Checks if there is more than one occurrence of the citation key.

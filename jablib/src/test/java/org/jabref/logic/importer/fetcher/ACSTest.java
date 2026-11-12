@@ -1,8 +1,9 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 import java.util.Optional;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FulltextFetcher;
 import org.jabref.logic.util.URLUtil;
@@ -10,10 +11,7 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.DisabledOnCIServer;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExternalServicesTest
 class ACSTest {
@@ -26,8 +24,7 @@ class ACSTest {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1021/acscentsci.4c00971");
         assertEquals(
                 Optional.of(URLUtil.create("https://pubs.acs.org/doi/pdf/10.1021/acscentsci.4c00971")),
-                fetcher.findFullText(entry)
-        );
+                fetcher.findFullText(entry));
     }
 
     @Test

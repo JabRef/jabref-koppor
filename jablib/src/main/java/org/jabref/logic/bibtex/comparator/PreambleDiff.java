@@ -2,7 +2,6 @@ package org.jabref.logic.bibtex.comparator;
 
 import java.util.Objects;
 import java.util.Optional;
-
 import org.jabref.model.database.BibDatabaseContext;
 
 public class PreambleDiff {
@@ -53,9 +52,8 @@ public class PreambleDiff {
 
     @Override
     public String toString() {
-        return "PreambleDiff{" +
-                "originalPreamble='" + originalPreamble + '\'' +
-                ", newPreamble='" + newPreamble + '\'' +
-                '}';
+        return "PreambleDiff{originalPreamble='"
+                + originalPreamble + '\'' + ", newPreamble='"
+                + newPreamble + '\'' + '}';
     }
 }

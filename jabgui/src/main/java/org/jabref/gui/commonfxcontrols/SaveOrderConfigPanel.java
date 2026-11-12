@@ -1,7 +1,7 @@
 package org.jabref.gui.commonfxcontrols;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import java.util.List;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
@@ -16,7 +16,6 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIconView;
 import org.jabref.gui.theme.StyleClasses;
@@ -25,21 +24,26 @@ import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.Field;
 
-import com.airhacks.afterburner.views.ViewLoader;
-
 public class SaveOrderConfigPanel extends VBox {
-    @FXML private RadioButton exportInSpecifiedOrder;
-    @FXML private RadioButton exportInTableOrder;
-    @FXML private RadioButton exportInOriginalOrder;
-    @FXML private GridPane sortCriterionList;
-    @FXML private Button addButton;
+    @FXML
+    private RadioButton exportInSpecifiedOrder;
+
+    @FXML
+    private RadioButton exportInTableOrder;
+
+    @FXML
+    private RadioButton exportInOriginalOrder;
+
+    @FXML
+    private GridPane sortCriterionList;
+
+    @FXML
+    private Button addButton;
 
     private SaveOrderConfigPanelViewModel viewModel;
 
     public SaveOrderConfigPanel() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @FXML
@@ -71,13 +75,13 @@ public class SaveOrderConfigPanel extends VBox {
 
     private void createCriterionRow(SortCriterionViewModel criterionViewModel, int row) {
         sortCriterionList.getChildren().stream()
-                         .filter(item -> GridPane.getRowIndex(item) >= row)
-                         .forEach(item -> {
-                             GridPane.setRowIndex(item, GridPane.getRowIndex(item) + 1);
-                             if (item instanceof Label label) {
-                                 label.setText(String.valueOf(GridPane.getRowIndex(item) + 1));
-                             }
-                         });
+                .filter(item -> GridPane.getRowIndex(item) >= row)
+                .forEach(item -> {
+                    GridPane.setRowIndex(item, GridPane.getRowIndex(item) + 1);
+                    if (item instanceof Label label) {
+                        label.setText(String.valueOf(GridPane.getRowIndex(item) + 1));
+                    }
+                });
 
         Label label = new Label(String.valueOf(row + 1));
         sortCriterionList.add(label, 0, row);
@@ -127,25 +131,27 @@ public class SaveOrderConfigPanel extends VBox {
 
     private void clearCriterionRow(int row) {
         List<Node> criterionRow = sortCriterionList.getChildren().stream()
-                                                   .filter(item -> GridPane.getRowIndex(item) == row)
-                                                   .toList();
+                .filter(item -> GridPane.getRowIndex(item) == row)
+                .toList();
         sortCriterionList.getChildren().removeAll(criterionRow);
 
         sortCriterionList.getChildren().stream()
-                         .filter(item -> GridPane.getRowIndex(item) > row)
-                         .forEach(item -> {
-                             GridPane.setRowIndex(item, GridPane.getRowIndex(item) - 1);
-                             if (item instanceof Label label) {
-                                 label.setText(String.valueOf(GridPane.getRowIndex(item) + 1));
-                             }
-                         });
+                .filter(item -> GridPane.getRowIndex(item) > row)
+                .forEach(item -> {
+                    GridPane.setRowIndex(item, GridPane.getRowIndex(item) - 1);
+                    if (item instanceof Label label) {
+                        label.setText(String.valueOf(GridPane.getRowIndex(item) + 1));
+                    }
+                });
     }
 
     public void setCriteriaLimit(int limit) {
         addButton.disableProperty().unbind();
-        addButton.disableProperty().bind(
-                Bindings.createBooleanBinding(
-                        () -> viewModel.sortCriteriaProperty().size() >= limit || !exportInSpecifiedOrder.selectedProperty().get(),
+        addButton
+                .disableProperty()
+                .bind(Bindings.createBooleanBinding(
+                        () -> viewModel.sortCriteriaProperty().size() >= limit
+                                || !exportInSpecifiedOrder.selectedProperty().get(),
                         viewModel.sortCriteriaProperty().sizeProperty(),
                         exportInSpecifiedOrder.selectedProperty()));
     }

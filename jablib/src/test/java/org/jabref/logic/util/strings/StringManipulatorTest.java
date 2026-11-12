@@ -1,21 +1,19 @@
 package org.jabref.logic.util.strings;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.stream.Stream;
-
 import org.jabref.model.util.ResultingStringState;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 class StringManipulatorTest {
 
     @ParameterizedTest
     @MethodSource("killLineTestData")
-        // [utest->req~ux.text-editing.line-boundaries~2]
+    // [utest->req~ux.text-editing.line-boundaries~2]
     void killLinePreservesFollowingLines(String text, int caretPosition, String expectedText) {
         ResultingStringState result = StringManipulator.killLine(caretPosition, text);
 
@@ -167,7 +165,8 @@ class StringManipulatorTest {
 
     @ParameterizedTest
     @MethodSource("wordBoundaryTestData")
-    void getNextWordBoundary(String text, int caretPosition, int expectedPosition, StringManipulator.Direction direction) {
+    void getNextWordBoundary(
+            String text, int caretPosition, int expectedPosition, StringManipulator.Direction direction) {
         int result = StringManipulator.getNextWordBoundary(caretPosition, text, direction);
         assertEquals(expectedPosition, result);
     }

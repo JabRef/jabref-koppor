@@ -2,9 +2,7 @@ package org.jabref.gui.undo;
 
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
-
 import org.jabref.logic.undo.JabRefUndoManager;
-
 import org.jspecify.annotations.NullMarked;
 
 /// A [GuiUndoManager] with a real journal and no JavaFX thread.

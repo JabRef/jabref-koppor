@@ -27,15 +27,12 @@
 package org.jabref.gui.autocompleter;
 
 import java.util.Collection;
-
 import javafx.beans.value.ChangeListener;
 import javafx.scene.control.TextInputControl;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-
-import org.jabref.gui.util.UiTaskExecutor;
-
 import org.controlsfx.control.textfield.AutoCompletionBinding;
+import org.jabref.gui.util.UiTaskExecutor;
 
 /// Represents a binding between a text input control and an auto-completion popup
 /// This class is a slightly modified version of [impl.org.controlsfx.autocompletion.AutoCompletionTextFieldBinding]
@@ -63,25 +60,28 @@ public class AutoCompletionTextInputBinding<T> extends AutoCompletionBinding<T> 
 
     /// Creates a new auto-completion binding between the given textInputControl
     /// and the given suggestion provider.
-    private AutoCompletionTextInputBinding(final TextInputControl textInputControl,
-                                           Callback<ISuggestionRequest, Collection<T>> suggestionProvider) {
+    private AutoCompletionTextInputBinding(
+            final TextInputControl textInputControl, Callback<ISuggestionRequest, Collection<T>> suggestionProvider) {
 
-        this(textInputControl,
+        this(
+                textInputControl,
                 suggestionProvider,
                 AutoCompletionTextInputBinding.defaultStringConverter(),
                 new ReplaceStrategy());
     }
 
-    private AutoCompletionTextInputBinding(final TextInputControl textInputControl,
-                                           final Callback<ISuggestionRequest, Collection<T>> suggestionProvider,
-                                           final StringConverter<T> converter) {
+    private AutoCompletionTextInputBinding(
+            final TextInputControl textInputControl,
+            final Callback<ISuggestionRequest, Collection<T>> suggestionProvider,
+            final StringConverter<T> converter) {
         this(textInputControl, suggestionProvider, converter, new ReplaceStrategy());
     }
 
-    private AutoCompletionTextInputBinding(final TextInputControl textInputControl,
-                                           final Callback<ISuggestionRequest, Collection<T>> suggestionProvider,
-                                           final StringConverter<T> converter,
-                                           final AutoCompletionStrategy inputAnalyzer) {
+    private AutoCompletionTextInputBinding(
+            final TextInputControl textInputControl,
+            final Callback<ISuggestionRequest, Collection<T>> suggestionProvider,
+            final StringConverter<T> converter,
+            final AutoCompletionStrategy inputAnalyzer) {
 
         super(textInputControl, suggestionProvider, converter);
         this.converter = converter;
@@ -106,20 +106,32 @@ public class AutoCompletionTextInputBinding<T> extends AutoCompletionBinding<T> 
         };
     }
 
-    public static <T> void autoComplete(TextInputControl textArea, Callback<ISuggestionRequest, Collection<T>> suggestionProvider) {
+    public static <T> void autoComplete(
+            TextInputControl textArea, Callback<ISuggestionRequest, Collection<T>> suggestionProvider) {
         new AutoCompletionTextInputBinding<>(textArea, suggestionProvider);
     }
 
-    public static <T> void autoComplete(TextInputControl textArea, Callback<ISuggestionRequest, Collection<T>> suggestionProvider, StringConverter<T> converter) {
+    public static <T> void autoComplete(
+            TextInputControl textArea,
+            Callback<ISuggestionRequest, Collection<T>> suggestionProvider,
+            StringConverter<T> converter) {
         new AutoCompletionTextInputBinding<>(textArea, suggestionProvider, converter);
     }
 
-    public static <T> AutoCompletionTextInputBinding<T> autoComplete(TextInputControl textArea, Callback<ISuggestionRequest, Collection<T>> suggestionProvider, StringConverter<T> converter, AutoCompletionStrategy inputAnalyzer) {
+    public static <T> AutoCompletionTextInputBinding<T> autoComplete(
+            TextInputControl textArea,
+            Callback<ISuggestionRequest, Collection<T>> suggestionProvider,
+            StringConverter<T> converter,
+            AutoCompletionStrategy inputAnalyzer) {
         return new AutoCompletionTextInputBinding<>(textArea, suggestionProvider, converter, inputAnalyzer);
     }
 
-    public static <T> AutoCompletionTextInputBinding<T> autoComplete(TextInputControl textArea, Callback<ISuggestionRequest, Collection<T>> suggestionProvider, AutoCompletionStrategy inputAnalyzer) {
-        return autoComplete(textArea, suggestionProvider, AutoCompletionTextInputBinding.defaultStringConverter(), inputAnalyzer);
+    public static <T> AutoCompletionTextInputBinding<T> autoComplete(
+            TextInputControl textArea,
+            Callback<ISuggestionRequest, Collection<T>> suggestionProvider,
+            AutoCompletionStrategy inputAnalyzer) {
+        return autoComplete(
+                textArea, suggestionProvider, AutoCompletionTextInputBinding.defaultStringConverter(), inputAnalyzer);
     }
 
     private void setUserInputText(String newText) {

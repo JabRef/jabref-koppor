@@ -1,25 +1,25 @@
 package org.jabref.toolkit.commands;
 
-import java.nio.file.Path;
-import java.util.concurrent.Callable;
-import java.util.prefs.BackingStoreException;
-
-import org.jabref.logic.JabRefException;
-import org.jabref.logic.l10n.Localization;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import static picocli.CommandLine.Command;
 import static picocli.CommandLine.Mixin;
 import static picocli.CommandLine.Parameters;
 import static picocli.CommandLine.ParentCommand;
 
-@Command(name = "preferences", description = "Manage JabKit preferences.",
+import java.nio.file.Path;
+import java.util.concurrent.Callable;
+import java.util.prefs.BackingStoreException;
+import org.jabref.logic.JabRefException;
+import org.jabref.logic.l10n.Localization;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Command(
+        name = "preferences",
+        description = "Manage JabKit preferences.",
         subcommands = {
-                Preferences.PreferencesReset.class,
-                Preferences.PreferencesImport.class,
-                Preferences.PreferencesExport.class
+            Preferences.PreferencesReset.class,
+            Preferences.PreferencesImport.class,
+            Preferences.PreferencesExport.class
         })
 class Preferences implements Callable<Integer> {
     private static final Logger LOGGER = LoggerFactory.getLogger(Preferences.class);

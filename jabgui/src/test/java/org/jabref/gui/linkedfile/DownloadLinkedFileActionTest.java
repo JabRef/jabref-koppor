@@ -1,5 +1,10 @@
 package org.jabref.gui.linkedfile;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -10,9 +15,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
@@ -25,17 +28,11 @@ import org.jabref.logic.xmp.XmpPreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class DownloadLinkedFileActionTest {
 
@@ -46,16 +43,18 @@ class DownloadLinkedFileActionTest {
 
     private final BibDatabaseContext databaseContext = mock(BibDatabaseContext.class);
     private final DialogService dialogService = mock(DialogService.class);
-    private final ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
+    private final ExternalApplicationsPreferences externalApplicationsPreferences =
+            mock(ExternalApplicationsPreferences.class);
     private final FilePreferences filePreferences = mock(FilePreferences.class);
     private final GuiPreferences preferences = mock(GuiPreferences.class);
 
     @BeforeEach
     void setUp(@TempDir Path tempFolder) throws IOException {
-        entry = new BibEntry()
-                .withCitationKey("asdf");
+        entry = new BibEntry().withCitationKey("asdf");
 
-        when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
+        when(externalApplicationsPreferences.getExternalFileTypes())
+                .thenReturn(
+                        FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
         when(preferences.getExternalApplicationsPreferences()).thenReturn(externalApplicationsPreferences);
         when(preferences.getFilePreferences()).thenReturn(filePreferences);
         when(preferences.getXmpPreferences()).thenReturn(mock(XmpPreferences.class));

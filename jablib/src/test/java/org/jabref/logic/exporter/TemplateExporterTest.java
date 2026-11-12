@@ -1,18 +1,20 @@
 package org.jabref.logic.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,10 +25,6 @@ import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @NullMarked
 @Execution(ExecutionMode.SAME_THREAD)
@@ -50,21 +48,27 @@ class TemplateExporterTest {
         layoutDirectory = Files.createDirectory(directory.resolve("layouts"));
         outputDirectory = Files.createDirectory(directory.resolve("output"));
         output = outputDirectory.resolve("references.txt");
-        entries = List.of(new BibEntry().withField(StandardField.AUTHOR, "Doe, Jane").withField(StandardField.TITLE, "Exported title"));
+        entries = List.of(new BibEntry()
+                .withField(StandardField.AUTHOR, "Doe, Jane")
+                .withField(StandardField.TITLE, "Exported title"));
         databaseContext = new BibDatabaseContext(new BibDatabase(entries));
-        exporter = new TemplateExporter("Test", layoutDirectory.resolve("custom.layout").toString(), "txt",
-                LayoutFormatterPreferences.getDefault(), SaveOrder.getDefaultSaveOrder());
+        exporter = new TemplateExporter(
+                "Test",
+                layoutDirectory.resolve("custom.layout").toString(),
+                "txt",
+                LayoutFormatterPreferences.getDefault(),
+                SaveOrder.getDefaultSaveOrder());
         exporter.setCustomExport(true);
     }
 
     // [utest->req~logic.exporter.preserve-output-on-template-failure~1]
     @ParameterizedTest
     @CsvSource(textBlock = """
-            true,  false
-            true,  true
-            false, false
-            false, true
-            """)
+        true,  false
+        true,  true
+        false, false
+        false, true
+        """)
     void missingLayoutDoesNotCommitOutput(boolean existingOutput, boolean writeHeader) throws IOException {
         if (existingOutput) {
             Files.write(output, ORIGINAL_CONTENT);
@@ -73,9 +77,11 @@ class TemplateExporterTest {
             Files.writeString(layoutDirectory.resolve("custom.begin.layout"), "Partial header\n".repeat(2048));
         }
 
-        IOException exception = assertThrows(IOException.class, () -> exporter.export(databaseContext, output, entries));
+        IOException exception =
+                assertThrows(IOException.class, () -> exporter.export(databaseContext, output, entries));
 
-        assertEquals("Cannot find layout file: '" + layoutDirectory.resolve("custom.layout") + "'.", exception.getMessage());
+        assertEquals(
+                "Cannot find layout file: '" + layoutDirectory.resolve("custom.layout") + "'.", exception.getMessage());
         if (existingOutput) {
             assertArrayEquals(ORIGINAL_CONTENT, Files.readAllBytes(output));
         }
@@ -107,11 +113,11 @@ class TemplateExporterTest {
 
     @ParameterizedTest
     @CsvSource(textBlock = """
-            true,  false
-            true,  true
-            false, false
-            false, true
-            """)
+        true,  false
+        true,  true
+        false, false
+        false, true
+        """)
     void successfulExportCommitsCompleteOutput(boolean existingOutput, boolean optionalLayouts) throws IOException {
         if (existingOutput) {
             Files.write(output, ORIGINAL_CONTENT);
@@ -124,7 +130,8 @@ class TemplateExporterTest {
 
         exporter.export(databaseContext, output, entries);
 
-        assertEquals(optionalLayouts ? "Header\nExported title\nFooter\n" : "Exported title\n", Files.readString(output));
+        assertEquals(
+                optionalLayouts ? "Header\nExported title\nFooter\n" : "Exported title\n", Files.readString(output));
         try (Stream<Path> files = Files.list(outputDirectory)) {
             assertEquals(List.of(output), files.toList());
         }

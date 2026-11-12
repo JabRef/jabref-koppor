@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.Supplier;
-
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
@@ -17,8 +17,6 @@ import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.study.Study;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,20 +28,23 @@ import org.slf4j.LoggerFactory;
 ///
 /// Needs to inherit [ExistingStudySearchAction], because that action implements the real crawling.
 ///
-/// There is the hook [StartNewStudyAction#crawlPreparation(Path)], which is used by [ExistingStudySearchAction#crawl()].
+/// There is the hook [StartNewStudyAction#crawlPreparation(Path)], which is used by
+/// [ExistingStudySearchAction#crawl()].
 public class StartNewStudyAction extends ExistingStudySearchAction {
     private static final Logger LOGGER = LoggerFactory.getLogger(StartNewStudyAction.class);
 
     Study newStudy;
 
-    public StartNewStudyAction(LibraryTabContainer tabContainer,
-                               Supplier<OpenDatabaseAction> openDatabaseActionSupplier,
-                               FileUpdateMonitor fileUpdateMonitor,
-                               TaskExecutor taskExecutor,
-                               CliPreferences preferences,
-                               StateManager stateManager,
-                               DialogService dialogService) {
-        super(tabContainer,
+    public StartNewStudyAction(
+            LibraryTabContainer tabContainer,
+            Supplier<OpenDatabaseAction> openDatabaseActionSupplier,
+            FileUpdateMonitor fileUpdateMonitor,
+            TaskExecutor taskExecutor,
+            CliPreferences preferences,
+            StateManager stateManager,
+            DialogService dialogService) {
+        super(
+                tabContainer,
                 openDatabaseActionSupplier,
                 dialogService,
                 fileUpdateMonitor,
@@ -56,7 +57,8 @@ public class StartNewStudyAction extends ExistingStudySearchAction {
     @Override
     protected void crawlPreparation(Path studyRepositoryRoot) throws IOException, GitAPIException {
         StudyYamlParser studyYAMLParser = new StudyYamlParser();
-        studyYAMLParser.writeStudyYamlFile(newStudy, studyRepositoryRoot.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME));
+        studyYAMLParser.writeStudyYamlFile(
+                newStudy, studyRepositoryRoot.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME));
 
         // When execution reaches this point, the user created a new study.
         // The GitHandler is already called to initialize the repository with one single commit "Initial commit".

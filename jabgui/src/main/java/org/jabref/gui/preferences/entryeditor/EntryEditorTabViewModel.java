@@ -1,10 +1,10 @@
 package org.jabref.gui.preferences.entryeditor;
 
+import com.tobiasdiez.easybind.EasyBind;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -14,7 +14,6 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.entryeditor.EntryEditorPreferences;
 import org.jabref.gui.entryeditor.EntryEditorTabModel;
@@ -29,8 +28,6 @@ import org.jabref.logic.util.Directories;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.logic.util.strings.StringUtil;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +43,8 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
     private final BooleanProperty journalPopupProperty = new SimpleBooleanProperty();
     private final BooleanProperty autoLinkEnabledProperty = new SimpleBooleanProperty();
     private final BooleanProperty enableMscKeywordDescriptionsProperty = new SimpleBooleanProperty();
-    private final ObjectProperty<CitationCountFetcherType> citationCountFetcherTypeProperty = new SimpleObjectProperty<>();
+    private final ObjectProperty<CitationCountFetcherType> citationCountFetcherTypeProperty =
+            new SimpleObjectProperty<>();
     private final ListProperty<CitationCountFetcherType> citationCountFetcherTypes =
             new SimpleListProperty<>(FXCollections.observableArrayList(CitationCountFetcherType.values()));
 
@@ -61,11 +59,12 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
     private final TaskExecutor taskExecutor;
     private boolean mscKeywordDescriptionsInitialized;
 
-    public EntryEditorTabViewModel(DialogService dialogService,
-                                   EntryEditorPreferences entryEditorPreferences,
-                                   MrDlibPreferences mrDlibPreferences,
-                                   AbbreviationPreferences abbreviationPreferences,
-                                   TaskExecutor taskExecutor) {
+    public EntryEditorTabViewModel(
+            DialogService dialogService,
+            EntryEditorPreferences entryEditorPreferences,
+            MrDlibPreferences mrDlibPreferences,
+            AbbreviationPreferences abbreviationPreferences,
+            TaskExecutor taskExecutor) {
         this.dialogService = dialogService;
         this.entryEditorPreferences = entryEditorPreferences;
         this.mrDlibPreferences = mrDlibPreferences;
@@ -80,16 +79,17 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
         // The Preview tab is configured via the "show preview as a separate tab" preference, not here,
         // so it is omitted from the configurable tab list (its model visibility bit is unused).
         tabs.setAll(entryEditorPreferences.getTabModels().stream()
-                                          .filter(model -> !model.isPreview())
-                                          .map(EditorTabViewModel::fromModel)
-                                          .toList());
+                .filter(model -> !model.isPreview())
+                .map(EditorTabViewModel::fromModel)
+                .toList());
 
         openOnNewEntryProperty.setValue(entryEditorPreferences.shouldOpenOnNewEntry());
         defaultSourceProperty.setValue(entryEditorPreferences.showSourceTabByDefault());
         acceptRecommendationsProperty.setValue(mrDlibPreferences.shouldAcceptRecommendations());
         enableValidationProperty.setValue(entryEditorPreferences.shouldEnableValidation());
         allowIntegerEditionProperty.setValue(entryEditorPreferences.shouldAllowIntegerEditionBibtex());
-        journalPopupProperty.setValue(entryEditorPreferences.shouldEnableJournalPopup() == EntryEditorPreferences.JournalPopupEnabled.ENABLED);
+        journalPopupProperty.setValue(entryEditorPreferences.shouldEnableJournalPopup()
+                == EntryEditorPreferences.JournalPopupEnabled.ENABLED);
         autoLinkEnabledProperty.setValue(entryEditorPreferences.autoLinkFilesEnabled());
         enableMscKeywordDescriptionsProperty.setValue(abbreviationPreferences.shouldEnableMscKeywordDescriptions());
         citationCountFetcherTypeProperty.setValue(entryEditorPreferences.getCitationCountFetcherType());
@@ -99,9 +99,9 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
     /// Restores the default tab set: every built-in tab visible in default order, no custom tabs.
     public void resetToDefaults() {
         tabs.setAll(EntryEditorPreferences.getDefault().getTabModels().stream()
-                                          .filter(model -> !model.isPreview())
-                                          .map(EditorTabViewModel::fromModel)
-                                          .toList());
+                .filter(model -> !model.isPreview())
+                .map(EditorTabViewModel::fromModel)
+                .toList());
     }
 
     /// Adds a custom tab with the given name, or returns the existing tab when one with that name
@@ -112,8 +112,8 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
         }
         String trimmed = name.trim();
         Optional<EditorTabViewModel> existing = tabs.stream()
-                                                    .filter(tab -> tab.getDisplayName().equalsIgnoreCase(trimmed))
-                                                    .findFirst();
+                .filter(tab -> tab.getDisplayName().equalsIgnoreCase(trimmed))
+                .findFirst();
         if (existing.isPresent()) {
             return existing;
         }
@@ -150,8 +150,9 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
     /// pattern and the field names it captures is not detected.
     public boolean isFieldPatternDuplicated(String pattern) {
         return tabs.stream()
-                   .filter(tab -> containsIgnoreCase(tab.getFieldPatterns(), pattern))
-                   .count() > 1;
+                        .filter(tab -> containsIgnoreCase(tab.getFieldPatterns(), pattern))
+                        .count()
+                > 1;
     }
 
     private static boolean containsIgnoreCase(List<String> patterns, String pattern) {
@@ -164,9 +165,10 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
         entryEditorPreferences.setShowSourceTabByDefault(defaultSourceProperty.getValue());
         entryEditorPreferences.setEnableValidation(enableValidationProperty.getValue());
         entryEditorPreferences.setAllowIntegerEditionBibtex(allowIntegerEditionProperty.getValue());
-        entryEditorPreferences.setEnableJournalPopup(journalPopupProperty.getValue()
-                                                     ? EntryEditorPreferences.JournalPopupEnabled.ENABLED
-                                                     : EntryEditorPreferences.JournalPopupEnabled.DISABLED);
+        entryEditorPreferences.setEnableJournalPopup(
+                journalPopupProperty.getValue()
+                        ? EntryEditorPreferences.JournalPopupEnabled.ENABLED
+                        : EntryEditorPreferences.JournalPopupEnabled.DISABLED);
         entryEditorPreferences.setAutoLinkFilesEnabled(autoLinkEnabledProperty.getValue());
         mrDlibPreferences.setAcceptRecommendations(acceptRecommendationsProperty.getValue());
         entryEditorPreferences.setCitationCountFetcherType(citationCountFetcherTypeProperty.getValue());
@@ -176,8 +178,8 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
         // setValues()) stays in front, everything else takes the working copy's order and content.
         List<EntryEditorTabModel> newModels = new ArrayList<>();
         entryEditorPreferences.getTabModels().stream()
-                              .filter(EntryEditorTabModel::isPreview)
-                              .forEach(newModels::add);
+                .filter(EntryEditorTabModel::isPreview)
+                .forEach(newModels::add);
         tabs.stream().map(EditorTabViewModel::toModel).forEach(newModels::add);
         entryEditorPreferences.getTabModels().setAll(newModels);
     }
@@ -238,7 +240,8 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
         if (Boolean.TRUE.equals(newValue)) {
             boolean accepted = dialogService.showConfirmationDialogAndWait(
                     Localization.lang("License agreement for MSC codes"),
-                    Localization.lang("The MSC codes are provided under the Creative Commons Attribution-ShareAlike-NonCommercial 4.0 International License.")
+                    Localization.lang("The MSC codes are provided under the Creative Commons"
+                                    + " Attribution-ShareAlike-NonCommercial 4.0 International License.")
                             + "\n\n"
                             + Localization.lang("By enabling this feature, you agree to the terms of this license.")
                             + "\n"
@@ -263,14 +266,14 @@ public class EntryEditorTabViewModel implements PreferenceTabViewModel {
         dialogService.notify(Localization.lang("Downloading MSC codes..."));
 
         BackgroundTask.wrap(() -> {
-                          MscCodeLoader.downloadAndConvert(URLUtil.create(MscCodeLoader.MSC_CSV_URL), mscMvFile);
-                          return null;
-                      })
-                      .onSuccess(_ -> dialogService.notify(Localization.lang("MSC codes downloaded successfully.")))
-                      .onFailure(e -> {
-                          LOGGER.error("Error downloading MSC codes", e);
-                          dialogService.showErrorDialogAndWait(Localization.lang("Error downloading MSC codes"), e);
-                      })
-                      .executeWith(taskExecutor);
+                    MscCodeLoader.downloadAndConvert(URLUtil.create(MscCodeLoader.MSC_CSV_URL), mscMvFile);
+                    return null;
+                })
+                .onSuccess(_ -> dialogService.notify(Localization.lang("MSC codes downloaded successfully.")))
+                .onFailure(e -> {
+                    LOGGER.error("Error downloading MSC codes", e);
+                    dialogService.showErrorDialogAndWait(Localization.lang("Error downloading MSC codes"), e);
+                })
+                .executeWith(taskExecutor);
     }
 }

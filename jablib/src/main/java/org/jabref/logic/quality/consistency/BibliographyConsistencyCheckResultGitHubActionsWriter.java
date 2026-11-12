@@ -5,7 +5,6 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.util.GitHubActionsEscape;
 import org.jabref.model.database.BibDatabaseMode;
@@ -16,7 +15,8 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.OrFields;
 
 /// Outputs the findings in the
-/// [GitHub Actions workflow command format](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-error-message)
+/// [GitHub Actions workflow command
+/// format](https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-error-message)
 /// (`::error file=...,line=...,col=...::message`), so that findings show up as annotations on
 /// pull requests when `jabkit` runs inside a GitHub Actions workflow.
 public class BibliographyConsistencyCheckResultGitHubActionsWriter extends BibliographyConsistencyCheckResultWriter {
@@ -24,13 +24,14 @@ public class BibliographyConsistencyCheckResultGitHubActionsWriter extends Bibli
     private final ParserResult parserResult;
     private final Path inputFile;
 
-    public BibliographyConsistencyCheckResultGitHubActionsWriter(BibliographyConsistencyCheck.Result result,
-                                                                 Writer writer,
-                                                                 boolean isPorcelain,
-                                                                 BibEntryTypesManager entryTypesManager,
-                                                                 BibDatabaseMode bibDatabaseMode,
-                                                                 ParserResult parserResult,
-                                                                 Path inputFile) {
+    public BibliographyConsistencyCheckResultGitHubActionsWriter(
+            BibliographyConsistencyCheck.Result result,
+            Writer writer,
+            boolean isPorcelain,
+            BibEntryTypesManager entryTypesManager,
+            BibDatabaseMode bibDatabaseMode,
+            ParserResult parserResult,
+            Path inputFile) {
         super(result, writer, isPorcelain, entryTypesManager, bibDatabaseMode);
         this.parserResult = parserResult;
         this.inputFile = inputFile;
@@ -46,35 +47,48 @@ public class BibliographyConsistencyCheckResultGitHubActionsWriter extends Bibli
         String keyPrefix = citationKey.isEmpty() ? "" : citationKey + ": ";
         List<OrFields> missingRequiredFields = entryTypeReport.getMissingRequiredFields(bibEntry);
         for (OrFields missingRequiredField : missingRequiredFields) {
-            write(parserResult.getCompleteEntryIndicator(bibEntry), citationKey, missingRequiredField,
-                    "%srequired field '%s' is missing".formatted(keyPrefix, FieldFactory.serializeOrFields(missingRequiredField)));
+            write(
+                    parserResult.getCompleteEntryIndicator(bibEntry),
+                    citationKey,
+                    missingRequiredField,
+                    "%srequired field '%s' is missing"
+                            .formatted(keyPrefix, FieldFactory.serializeOrFields(missingRequiredField)));
         }
         for (Field field : entryTypeReport.differingFields()) {
             Optional<String> value = bibEntry.getField(field);
             if (value.isPresent()) {
-                if (!entryTypeReport.requiredFields().contains(field) && !entryTypeReport.optionalFields().contains(field)) {
-                    write(parserResult.getFieldRange(bibEntry, field), citationKey, new OrFields(field),
+                if (!entryTypeReport.requiredFields().contains(field)
+                        && !entryTypeReport.optionalFields().contains(field)) {
+                    write(
+                            parserResult.getFieldRange(bibEntry, field),
+                            citationKey,
+                            new OrFields(field),
                             "%sunknown field '%s' for entry type %s".formatted(keyPrefix, field.getName(), entryType));
                 }
             } else if (missingRequiredFields.stream().noneMatch(orFields -> orFields.contains(field))) {
-                write(parserResult.getCompleteEntryIndicator(bibEntry), citationKey, new OrFields(field),
-                        "%sfield '%s' is absent but used by other entries of entry type %s".formatted(keyPrefix, field.getName(), entryType));
+                write(
+                        parserResult.getCompleteEntryIndicator(bibEntry),
+                        citationKey,
+                        new OrFields(field),
+                        "%sfield '%s' is absent but used by other entries of entry type %s"
+                                .formatted(keyPrefix, field.getName(), entryType));
             }
         }
     }
 
-    private void write(ParserResult.Range range, String citationKey, OrFields fields, String message) throws IOException {
+    private void write(ParserResult.Range range, String citationKey, OrFields fields, String message)
+            throws IOException {
         String fieldName = FieldFactory.serializeOrFields(fields);
         String title = citationKey.isEmpty() ? fieldName : citationKey + ":" + fieldName;
-        writer.append("::error file=%s,line=%d,col=%d,title=%s::%s%n".formatted(
-                GitHubActionsEscape.property(inputFile.toString()),
-                range.startLine(),
-                range.startColumn(),
-                GitHubActionsEscape.property(title),
-                GitHubActionsEscape.data(message)));
+        writer.append("::error file=%s,line=%d,col=%d,title=%s::%s%n"
+                .formatted(
+                        GitHubActionsEscape.property(inputFile.toString()),
+                        range.startLine(),
+                        range.startColumn(),
+                        GitHubActionsEscape.property(title),
+                        GitHubActionsEscape.data(message)));
     }
 
     @Override
-    public void close() throws IOException {
-    }
+    public void close() throws IOException {}
 }

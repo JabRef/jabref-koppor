@@ -2,7 +2,6 @@ package org.jabref.gui.entryeditor.fileannotationtab;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.formatter.bibtexfields.RemoveHyphenatedNewlinesFormatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.pdf.FileAnnotation;

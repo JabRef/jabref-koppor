@@ -1,13 +1,11 @@
 package org.jabref.gui.util.component;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.List;
-
 import org.jabref.logic.ai.chatting.util.JsonAnswerFormatter;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [utest->feat~ai.chat.json-highlighting~1]
 @NullMarked
@@ -15,7 +13,8 @@ class JsonHighlighterTest {
 
     @Test
     void tokenizeStylesKeysValuesAndPunctuation() {
-        assertEquals(List.of(
+        assertEquals(
+                List.of(
                         new JsonHighlighter.Segment("{", "json-punctuation"),
                         new JsonHighlighter.Segment("\"a\"", "json-key"),
                         new JsonHighlighter.Segment(":", "json-punctuation"),
@@ -39,13 +38,20 @@ class JsonHighlighterTest {
 
     @Test
     void tokenizeKeepsTheTextCompleteWithSupplementaryCharacters() {
-        String json = JsonAnswerFormatter.leadingJson("{\"a\": \"\uD83D\uDE00\", \"b\": 1}").orElseThrow().json();
-        assertEquals(json, JsonHighlighter.tokenize(json).stream().map(JsonHighlighter.Segment::text).reduce("", String::concat));
+        String json = JsonAnswerFormatter.leadingJson("{\"a\": \"\uD83D\uDE00\", \"b\": 1}")
+                .orElseThrow()
+                .json();
+        assertEquals(
+                json,
+                JsonHighlighter.tokenize(json).stream()
+                        .map(JsonHighlighter.Segment::text)
+                        .reduce("", String::concat));
     }
 
     @Test
     void tokenizeStylesQuotationsInsideStrings() {
-        assertEquals(List.of(
+        assertEquals(
+                List.of(
                         new JsonHighlighter.Segment("\"a ", "json-string"),
                         new JsonHighlighter.Segment("\\\"b\\\"", "json-string-quotation"),
                         new JsonHighlighter.Segment(" \\\\ c\"", "json-string")),
@@ -55,6 +61,10 @@ class JsonHighlighterTest {
     @Test
     void tokenizeKeepsTheTextComplete() {
         String json = "{\n  \"a\": [1, null]\n}";
-        assertEquals(json, JsonHighlighter.tokenize(json).stream().map(JsonHighlighter.Segment::text).reduce("", String::concat));
+        assertEquals(
+                json,
+                JsonHighlighter.tokenize(json).stream()
+                        .map(JsonHighlighter.Segment::text)
+                        .reduce("", String::concat));
     }
 }

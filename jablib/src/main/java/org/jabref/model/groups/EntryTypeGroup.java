@@ -1,7 +1,6 @@
 package org.jabref.model.groups;
 
 import java.util.Objects;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.EntryType;
 

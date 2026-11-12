@@ -1,5 +1,6 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -7,7 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jabref.architecture.AllowedToUseApacheCommonsLang3;
 import org.jabref.logic.citationkeypattern.CitationKeyGenerator;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
@@ -24,10 +26,6 @@ import org.jabref.model.entry.Date;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -39,7 +37,8 @@ import org.slf4j.LoggerFactory;
 ///
 /// To extract a [BibEntry] matching the PDF, see [PdfContentImporter].
 ///
-/// TODO: This class is similar to [org.jabref.logic.importer.plaincitation.RuleBasedPlainCitationParser], we need to unify them.
+/// TODO: This class is similar to [org.jabref.logic.importer.plaincitation.RuleBasedPlainCitationParser], we need to
+/// unify them.
 @AllowedToUseApacheCommonsLang3("Fastest method to count spaces in a string")
 public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporter implements PlainCitationParser {
 
@@ -51,7 +50,8 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
     private static final Pattern PAGES = Pattern.compile(", pp\\. (\\d+--?\\d+)\\.?(.*)");
     private static final Pattern PAGE = Pattern.compile(", p\\. (\\d+)(.*)");
     private static final Pattern SERIES = Pattern.compile(", ser\\. ([^.,]+)(.*)");
-    private static final Pattern MONTH_RANGE_AND_YEAR = Pattern.compile(", ([A-Z][a-z]{2,7}\\.?)-[A-Z][a-z]{2,7}\\.? (\\d+)(.*)");
+    private static final Pattern MONTH_RANGE_AND_YEAR =
+            Pattern.compile(", ([A-Z][a-z]{2,7}\\.?)-[A-Z][a-z]{2,7}\\.? (\\d+)(.*)");
     private static final Pattern MONTH_AND_YEAR = Pattern.compile(", ([A-Z][a-z]{2,7}\\.? \\d+),? ?(.*)");
     private static final Pattern VOLUME = Pattern.compile(", vol\\. (\\d+)(.*)");
     private static final Pattern NO = Pattern.compile(", no\\. (\\d+)(.*)");
@@ -60,7 +60,9 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
     private static final Pattern AUTHORS_AND_TITLE_AT_BEGINNING = Pattern.compile("^([^“]+), “(.*?)(”,|,”) ");
     private static final Pattern TITLE = Pattern.compile("“(.*?)”, (.*)");
 
-    @Nullable private final CitationKeyPatternPreferences citationKeyPatternPreferences;
+    @Nullable
+    private final CitationKeyPatternPreferences citationKeyPatternPreferences;
+
     private final NormalizeUnicodeFormatter normalizeUnicodeFormatter = new NormalizeUnicodeFormatter();
 
     public RuleBasedBibliographyPdfImporter() {
@@ -86,7 +88,9 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
         return Localization.lang("Reads the references from the 'References' section of a PDF file.");
     }
 
-    /// Online Grobid implementation: [org.jabref.logic.importer.util.GrobidService#processReferences(java.nio.file.Path, org.jabref.logic.importer.ImportFormatPreferences)]
+    /// Online Grobid implementation:
+    /// [org.jabref.logic.importer.util.GrobidService#processReferences(java.nio.file.Path,
+    /// org.jabref.logic.importer.ImportFormatPreferences)]
     @Override
     public ParserResult importDatabase(Path filePath, PDDocument document) throws IOException {
         String contents;
@@ -100,23 +104,23 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
         }
 
         // Generate citation keys for result
-        CitationKeyGenerator citationKeyGenerator = new CitationKeyGenerator(parserResult.getDatabaseContext(), citationKeyPatternPreferences);
+        CitationKeyGenerator citationKeyGenerator =
+                new CitationKeyGenerator(parserResult.getDatabaseContext(), citationKeyPatternPreferences);
         parserResult.getDatabase().getEntries().forEach(citationKeyGenerator::generateAndSetKey);
 
         return parserResult;
     }
 
     @VisibleForTesting
-    record IntermediateData(String number, String reference) {
-    }
+    record IntermediateData(String number, String reference) {}
 
     /// In: `[1] ...\n...\n...[2]...\n...\n...\n[3]...`
     public List<BibEntry> getEntriesFromPDFContent(String contents) {
         List<IntermediateData> referencesStrings = getIntermediateData(contents);
 
         return referencesStrings.stream()
-                                .map(data -> parsePlainCitation(data.number(), data.reference()))
-                                .toList();
+                .map(data -> parsePlainCitation(data.number(), data.reference()))
+                .toList();
     }
 
     @VisibleForTesting
@@ -135,13 +139,13 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
         return Optional.of(parsePlainCitation("0", reference));
     }
 
-    /// Example: `J. Knaster et al., “Overview of the IFMIF/EVEDA project”, Nucl. Fusion, vol. 57, p. 102016, 2017. doi:10.1088/ 1741-4326/aa6a6a`
+    /// Example: `J. Knaster et al., “Overview of the IFMIF/EVEDA project”, Nucl. Fusion, vol. 57, p. 102016, 2017.
+    /// doi:10.1088/ 1741-4326/aa6a6a`
     @VisibleForTesting
     BibEntry parsePlainCitation(String number, String reference) {
         reference = normalizeUnicodeFormatter.format(reference);
         String originalReference = "[" + number + "] " + reference;
-        BibEntry result = new BibEntry(StandardEntryType.Article)
-                .withCitationKey(number);
+        BibEntry result = new BibEntry(StandardEntryType.Article).withCitationKey(number);
 
         reference = reference
                 .replace(".-", "-")
@@ -161,8 +165,10 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
             }
         }
 
-        // J. Knaster et al., “Overview of the IFMIF/EVEDA project”, Nucl. Fusion, vol. 57, p. 102016, 2017. doi:10.1088/ 1741-4326/aa6a6a
-        // Y. Shimosaki et al., “Lattice design for 5 MeV – 125 mA CW RFQ operation in LIPAc”, in Proc. IPAC’19, Mel- bourne, Australia, May 2019, pp. 977-979. doi:10.18429/ JACoW-IPAC2019-MOPTS051
+        // J. Knaster et al., “Overview of the IFMIF/EVEDA project”, Nucl. Fusion, vol. 57, p. 102016, 2017.
+        // doi:10.1088/ 1741-4326/aa6a6a
+        // Y. Shimosaki et al., “Lattice design for 5 MeV – 125 mA CW RFQ operation in LIPAc”, in Proc. IPAC’19, Mel-
+        // bourne, Australia, May 2019, pp. 977-979. doi:10.18429/ JACoW-IPAC2019-MOPTS051
         int pos = reference.indexOf("doi:");
         if (pos >= 0) {
             String doi = reference.substring(pos + "doi:".length()).trim();
@@ -174,7 +180,8 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
         reference = updateEntryAndReferenceIfMatches(reference, PAGES, result, StandardField.PAGES).newReference;
 
         // J. Knaster et al., “Overview of the IFMIF/EVEDA project”, Nucl. Fusion, vol. 57, p. 102016
-        // Y. Shimosaki et al., “Lattice design for 5 MeV – 125 mA CW RFQ operation in LIPAc”, in Proc. IPAC’19, Mel- bourne, Australia, May 2019
+        // Y. Shimosaki et al., “Lattice design for 5 MeV – 125 mA CW RFQ operation in LIPAc”, in Proc. IPAC’19, Mel-
+        // bourne, Australia, May 2019
         reference = updateEntryAndReferenceIfMatches(reference, PAGE, result, StandardField.PAGES).newReference;
 
         reference = updateEntryAndReferenceIfMatches(reference, SERIES, result, StandardField.SERIES).newReference;
@@ -182,11 +189,13 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
         Matcher matcher = MONTH_RANGE_AND_YEAR.matcher(reference);
         if (matcher.find()) {
             // strip out second monthp
-            reference = reference.substring(0, matcher.start()) + ", " + matcher.group(1) + " " + matcher.group(2) + matcher.group(3);
+            reference = reference.substring(0, matcher.start()) + ", " + matcher.group(1) + " " + matcher.group(2)
+                    + matcher.group(3);
         }
 
         // J. Knaster et al., “Overview of the IFMIF/EVEDA project”, Nucl. Fusion, vol. 57
-        // Y. Shimosaki et al., “Lattice design for 5 MeV – 125 mA CW RFQ operation in LIPAc”, in Proc. IPAC’19, Mel- bourne, Australia, May 2019
+        // Y. Shimosaki et al., “Lattice design for 5 MeV – 125 mA CW RFQ operation in LIPAc”, in Proc. IPAC’19, Mel-
+        // bourne, Australia, May 2019
         matcher = MONTH_AND_YEAR.matcher(reference);
         if (matcher.find()) {
             Optional<Date> parsedDate = Date.parse(matcher.group(1));
@@ -207,7 +216,8 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
         }
 
         // J. Knaster et al., “Overview of the IFMIF/EVEDA project”, Nucl. Fusion, vol. 57, p. 102016, 2017.
-        // Y. Shimosaki et al., “Lattice design for 5 MeV – 125 mA CW RFQ operation in LIPAc”, in Proc. IPAC’19, Mel- bourne, Australia, May 2019, pp. 977-979
+        // Y. Shimosaki et al., “Lattice design for 5 MeV – 125 mA CW RFQ operation in LIPAc”, in Proc. IPAC’19, Mel-
+        // bourne, Australia, May 2019, pp. 977-979
         matcher = YEAR_AT_END.matcher(reference);
         if (matcher.find()) {
             result.setField(StandardField.YEAR, matcher.group(1));
@@ -217,8 +227,10 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
         reference = updateEntryAndReferenceIfMatches(reference, YEAR, result, StandardField.YEAR).newReference;
 
         // J. Knaster et al., “Overview of the IFMIF/EVEDA project”, Nucl. Fusion, vol. 57
-        // Y. Shimosaki et al., “Lattice design for 5 MeV – 125 mA CW RFQ operation in LIPAc”, in Proc. IPAC’19, Mel- bourne, Australia
-        EntryUpdateResult entryUpdateResult = updateEntryAndReferenceIfMatches(reference, VOLUME, result, StandardField.VOLUME);
+        // Y. Shimosaki et al., “Lattice design for 5 MeV – 125 mA CW RFQ operation in LIPAc”, in Proc. IPAC’19, Mel-
+        // bourne, Australia
+        EntryUpdateResult entryUpdateResult =
+                updateEntryAndReferenceIfMatches(reference, VOLUME, result, StandardField.VOLUME);
         boolean volumeFound = entryUpdateResult.modified;
         reference = entryUpdateResult.newReference;
 
@@ -227,14 +239,16 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
         reference = entryUpdateResult.newReference;
 
         // J. Knaster et al., “Overview of the IFMIF/EVEDA project”, Nucl. Fusion
-        // Y. Shimosaki et al., “Lattice design for 5 MeV – 125 mA CW RFQ operation in LIPAc”, in Proc. IPAC’19, Mel- bourne, Australia
+        // Y. Shimosaki et al., “Lattice design for 5 MeV – 125 mA CW RFQ operation in LIPAc”, in Proc. IPAC’19, Mel-
+        // bourne, Australia
         matcher = AUTHORS_AND_TITLE_AT_BEGINNING.matcher(reference);
         if (matcher.find()) {
             String authors = matcher.group(1).replaceAll("et al\\.?", "and others");
 
             // Alternative: AuthorList.fixAuthorFirstNameFirst(authors) only
             // However, this does not work with special cases. Thus, we do a simple transformation only.
-            String fixedAuthors = AuthorListParser.normalizeSimply(authors).orElseGet(() -> AuthorList.fixAuthorFirstNameFirst(authors));
+            String fixedAuthors = AuthorListParser.normalizeSimply(authors)
+                    .orElseGet(() -> AuthorList.fixAuthorFirstNameFirst(authors));
 
             result.setField(StandardField.AUTHOR, fixedAuthors);
             result.setField(StandardField.TITLE, matcher.group(2).replaceAll("et al\\.?", "and others"));
@@ -285,7 +299,8 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
             }
             if (lastDot > offset) {
                 String textAfterDot = bookTitle.substring(offset + lastDot + 1).trim();
-                // We use Apache Commons here, because it is fastest - see table at https://stackoverflow.com/a/35242882/873282
+                // We use Apache Commons here, because it is fastest - see table at
+                // https://stackoverflow.com/a/35242882/873282
                 if (!textAfterDot.contains("http") && (StringUtils.countMatches(textAfterDot, ' ') <= 1)) {
                     bookTitle = bookTitle.substring(0, offset + lastDot).trim();
                     if (bookTitle.startsWith("in ")) {
@@ -314,7 +329,8 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
                 result.setField(StandardField.NOTE, reference);
                 result.setType(StandardEntryType.TechReport);
             } else {
-                LOGGER.debug("Falling back to journal even if no volume and no number was found. Reference: {}", reference);
+                LOGGER.debug(
+                        "Falling back to journal even if no volume and no number was found. Reference: {}", reference);
                 result.setField(StandardField.JOURNAL, reference);
             }
         } else {
@@ -332,9 +348,10 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
         return result;
     }
 
-    /// @param pattern A pattern matching two groups: The first one to take, the second one to leave at the end of the string
-    private static EntryUpdateResult updateEntryAndReferenceIfMatches(String reference, Pattern pattern, BibEntry result, Field
-            field) {
+    /// @param pattern A pattern matching two groups: The first one to take, the second one to leave at the end of the
+    /// string
+    private static EntryUpdateResult updateEntryAndReferenceIfMatches(
+            String reference, Pattern pattern, BibEntry result, Field field) {
         Matcher matcher;
         matcher = pattern.matcher(reference);
         if (!matcher.find()) {
@@ -346,6 +363,5 @@ public class RuleBasedBibliographyPdfImporter extends BibliographyFromPdfImporte
         return new EntryUpdateResult(true, reference);
     }
 
-    private record EntryUpdateResult(boolean modified, String newReference) {
-    }
+    private record EntryUpdateResult(boolean modified, String newReference) {}
 }

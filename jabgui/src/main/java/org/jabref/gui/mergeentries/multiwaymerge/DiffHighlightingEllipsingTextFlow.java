@@ -1,7 +1,7 @@
 package org.jabref.gui.mergeentries.multiwaymerge;
 
+import com.tobiasdiez.easybind.EasyObservableValue;
 import java.util.List;
-
 import javafx.beans.DefaultProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -12,15 +12,12 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-
 import org.jabref.gui.mergeentries.DiffMode;
-
-import com.tobiasdiez.easybind.EasyObservableValue;
 
 @DefaultProperty("children")
 public class DiffHighlightingEllipsingTextFlow extends TextFlow {
 
-    private final static String DEFAULT_ELLIPSIS_STRING = "...";
+    private static final String DEFAULT_ELLIPSIS_STRING = "...";
     private StringProperty ellipsisString;
 
     private final ObservableList<Node> allChildren = FXCollections.observableArrayList();
@@ -31,7 +28,8 @@ public class DiffHighlightingEllipsingTextFlow extends TextFlow {
     private final EasyObservableValue<String> comparisonString;
     private final ObjectProperty<DiffMode> diffMode;
 
-    public DiffHighlightingEllipsingTextFlow(String fullText, EasyObservableValue<String> comparisonString, ObjectProperty<DiffMode> diffMode) {
+    public DiffHighlightingEllipsingTextFlow(
+            String fullText, EasyObservableValue<String> comparisonString, ObjectProperty<DiffMode> diffMode) {
         this.fullText = fullText;
         allChildren.addListener(listChangeListener);
         widthProperty().addListener(sizeChangeListener);
@@ -91,7 +89,9 @@ public class DiffHighlightingEllipsingTextFlow extends TextFlow {
                     // all Texts are displayed, let's make sure all chars are as well
                     Node lastChildAsShown = super.getChildren().getLast();
                     Node lastChild = allChildren.getLast();
-                    if (lastChildAsShown instanceof Text text && text.getText().length() < ((Text) lastChild).getText().length()) {
+                    if (lastChildAsShown instanceof Text text
+                            && text.getText().length()
+                                    < ((Text) lastChild).getText().length()) {
                         text.setText(((Text) lastChild).getText());
                     } else {
                         // nothing to fill the space with
@@ -133,12 +133,9 @@ public class DiffHighlightingEllipsingTextFlow extends TextFlow {
                     text.getStyleClass().add("text-unchanged");
                     yield List.of(text);
                 }
-                case WORD ->
-                        DiffHighlighting.generateDiffHighlighting(comparisonString.get(), fullText, " ");
-                case CHARACTER ->
-                        DiffHighlighting.generateDiffHighlighting(comparisonString.get(), fullText, "");
-                default ->
-                        throw new UnsupportedOperationException("Not implemented " + diffMode.getValue());
+                case WORD -> DiffHighlighting.generateDiffHighlighting(comparisonString.get(), fullText, " ");
+                case CHARACTER -> DiffHighlighting.generateDiffHighlighting(comparisonString.get(), fullText, "");
+                default -> throw new UnsupportedOperationException("Not implemented " + diffMode.getValue());
             };
             allChildren.addAll(highlightedText);
         } else {

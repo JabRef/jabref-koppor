@@ -1,8 +1,11 @@
 package org.jabref.gui.externalfiles;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+
 import java.nio.file.Path;
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefGuiStateManager;
 import org.jabref.gui.StateManager;
@@ -12,15 +15,10 @@ import org.jabref.logic.undo.UndoManager;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 class FindUnlinkedFilesActionTest {
 
@@ -33,10 +31,17 @@ class FindUnlinkedFilesActionTest {
     private StateManager stateManager;
     private FindUnlinkedFilesAction action;
 
-    @Mock private GuiPreferences preferences;
-    @Mock private TaskExecutor taskExecutor;
-    @Mock private UndoManager undoManager;
-    @Mock private FileUpdateMonitor fileUpdateMonitor;
+    @Mock
+    private GuiPreferences preferences;
+
+    @Mock
+    private TaskExecutor taskExecutor;
+
+    @Mock
+    private UndoManager undoManager;
+
+    @Mock
+    private FileUpdateMonitor fileUpdateMonitor;
 
     @BeforeEach
     void setUp() {

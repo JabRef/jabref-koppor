@@ -16,7 +16,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
-
 import org.jabref.logic.citationkeypattern.BracketedPattern;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
@@ -40,14 +39,17 @@ class RegExpBasedFileFinder implements FileFinder {
         this.keywordDelimiter = keywordDelimiter;
     }
 
-    /// Creates a Pattern that matches the file name corresponding to the last element of `fileParts` with any bracketed patterns expanded.
+    /// Creates a Pattern that matches the file name corresponding to the last element of `fileParts` with any bracketed
+    /// patterns expanded.
     ///
     /// @throws IOException throws an IOException if a PatternSyntaxException occurs
-    private Pattern createFileNamePattern(String[] fileParts, String extensionRegExp, BibEntry entry) throws IOException {
+    private Pattern createFileNamePattern(String[] fileParts, String extensionRegExp, BibEntry entry)
+            throws IOException {
         // Protect the extension marker so that it isn't treated as a bracketed pattern
         String filePart = fileParts[fileParts.length - 1].replace("[extension]", EXT_MARKER);
 
-        // We need to supply a custom function to deal with the content of a bracketed expression and expandBracketContent is the default function
+        // We need to supply a custom function to deal with the content of a bracketed expression and
+        // expandBracketContent is the default function
         Function<String, String> expandBracket = BracketedPattern.expandBracketContent(keywordDelimiter, entry, null);
         // but, we want to post-process the expanded content so that it can be used as a regex for finding a file name
         Function<String, String> bracketToFileNameRegex = expandBracket.andThen(RegExpBasedFileFinder::toFileNameRegex);
@@ -60,18 +62,24 @@ class RegExpBasedFileFinder implements FileFinder {
         try {
             return Pattern.compile('^' + fileNamePattern + '$', Pattern.CASE_INSENSITIVE);
         } catch (PatternSyntaxException e) {
-            throw new IOException("There is a syntax error in the regular expression %s used to search for files".formatted(fileNamePattern), e);
+            throw new IOException(
+                    "There is a syntax error in the regular expression %s used to search for files"
+                            .formatted(fileNamePattern),
+                    e);
         }
     }
 
-    /// Helper method for both exact matching (if the file name were not created by JabRef) and cleaned file name matching.
+    /// Helper method for both exact matching (if the file name were not created by JabRef) and cleaned file name
+    /// matching.
     ///
     /// @param expandedContent the expanded content of a bracketed expression
-    /// @return a String representation of a regex matching the expanded content and the expanded content cleaned for file name use
+    /// @return a String representation of a regex matching the expanded content and the expanded content cleaned for
+    /// file name use
     private static String toFileNameRegex(String expandedContent) {
         String cleanedContent = FileNameCleaner.cleanFileName(expandedContent);
-        return expandedContent.equals(cleanedContent) ? Pattern.quote(expandedContent) :
-               "(" + Pattern.quote(expandedContent) + ")|(" + Pattern.quote(cleanedContent) + ")";
+        return expandedContent.equals(cleanedContent)
+                ? Pattern.quote(expandedContent)
+                : "(" + Pattern.quote(expandedContent) + ")|(" + Pattern.quote(cleanedContent) + ")";
     }
 
     /// Method for searching for files using regexp. A list of extensions and directories can be
@@ -82,7 +90,8 @@ class RegExpBasedFileFinder implements FileFinder {
     /// @param directories The root directories to search.
     /// @return A list of files paths matching the given criteria.
     @Override
-    public List<Path> findAssociatedFiles(BibEntry entry, List<Path> directories, List<String> extensions) throws IOException {
+    public List<Path> findAssociatedFiles(BibEntry entry, List<Path> directories, List<String> extensions)
+            throws IOException {
         String extensionRegExp = '(' + String.join("|", extensions) + ')';
         Matcher dateMatcher = DATE_MARKER_PATTERN.matcher(this.regExp);
         if (dateMatcher.find()) {
@@ -112,23 +121,26 @@ class RegExpBasedFileFinder implements FileFinder {
     /// @return date candidates in decreasing specificity, or an empty list if no date information is available
     private List<String> getDateFallbackCandidates(BibEntry entry) {
         Optional<String> year = entry.getField(StandardField.YEAR);
-        Optional<String> month = entry.getField(StandardField.MONTH).map(rawMonth -> Month.parse(rawMonth).map(Month::getTwoDigitNumber).orElse(rawMonth));
+        Optional<String> month = entry.getField(StandardField.MONTH)
+                .map(rawMonth ->
+                        Month.parse(rawMonth).map(Month::getTwoDigitNumber).orElse(rawMonth));
         Optional<String> day = entry.getField(StandardField.DAY);
 
-        Optional<String> date = entry.getField(StandardField.DATE).or(() -> {
-                                         if (year.isEmpty()) {
-                                             return Optional.empty();
-                                         }
-                                         if (month.isPresent() && day.isPresent()) {
-                                             return Optional.of(year.get() + "-" + month.get() + "-" + day.get());
-                                         }
-                                         if (month.isPresent()) {
-                                             return Optional.of(year.get() + "-" + month.get());
-                                         }
-                                         return year;
-                                     })
-                                     // Handle date ranges (e.g. "2021-01-01/2021-12-31") — use only the start date
-                                     .map(d -> d.contains("/") ? d.substring(0, d.indexOf('/')) : d);
+        Optional<String> date = entry.getField(StandardField.DATE)
+                .or(() -> {
+                    if (year.isEmpty()) {
+                        return Optional.empty();
+                    }
+                    if (month.isPresent() && day.isPresent()) {
+                        return Optional.of(year.get() + "-" + month.get() + "-" + day.get());
+                    }
+                    if (month.isPresent()) {
+                        return Optional.of(year.get() + "-" + month.get());
+                    }
+                    return year;
+                })
+                // Handle date ranges (e.g. "2021-01-01/2021-12-31") — use only the start date
+                .map(d -> d.contains("/") ? d.substring(0, d.indexOf('/')) : d);
 
         if (date.isEmpty()) {
             return new ArrayList<>();
@@ -163,7 +175,9 @@ class RegExpBasedFileFinder implements FileFinder {
     /// - .* Anything else is taken to be a Regular expression.
     ///
     /// @param entry non-null
-    /// @param dirs  A set of root directories to start the search from. Paths are returned relative to these directories if relative is set to true. These directories will not be expanded or anything. Use the file attribute for this.
+    /// @param dirs  A set of root directories to start the search from. Paths are returned relative to these
+    /// directories if relative is set to true. These directories will not be expanded or anything. Use the file
+    /// attribute for this.
     /// @return Will return the first file found to match the given criteria or
     /// null if none was found.
     private List<Path> findFile(BibEntry entry, List<Path> dirs, String extensionRegExp) throws IOException {
@@ -176,7 +190,9 @@ class RegExpBasedFileFinder implements FileFinder {
 
     /// The actual work-horse. Will find absolute filepaths starting from the
     /// given directory using the given regular expression string for search.
-    private List<Path> findFile(final BibEntry entry, final Path directory, final String file, final String extensionRegExp) throws IOException {
+    private List<Path> findFile(
+            final BibEntry entry, final Path directory, final String file, final String extensionRegExp)
+            throws IOException {
         List<Path> resultFiles = new ArrayList<>();
 
         String fileName = file;
@@ -222,7 +238,9 @@ class RegExpBasedFileFinder implements FileFinder {
                     final Path rootDirectory = currentDirectory;
                     try (Stream<Path> pathStream = Files.walk(currentDirectory, 1)) {
                         List<Path> subDirs = pathStream
-                                .filter(path -> isSubDirectory(rootDirectory, path))  // We only want to transverse directories (and not the current one; this is already done below)
+                                .filter(path -> isSubDirectory(rootDirectory, path)) // We only want to transverse
+                                                                                     // directories (and not the current
+                                                                                     // one; this is already done below)
                                 .toList();
 
                         for (Path subDir : subDirs) {
@@ -238,7 +256,9 @@ class RegExpBasedFileFinder implements FileFinder {
                     final Path rootDirectory = currentDirectory;
                     try (Stream<Path> pathStream = Files.walk(currentDirectory)) {
                         List<Path> subDirs = pathStream
-                                .filter(path -> isSubDirectory(rootDirectory, path))  // We only want to transverse directories (and not the current one; this is already done below)
+                                .filter(path -> isSubDirectory(rootDirectory, path)) // We only want to transverse
+                                                                                     // directories (and not the current
+                                                                                     // one; this is already done below)
                                 .toList();
 
                         for (Path subDir : subDirs) {
@@ -253,7 +273,8 @@ class RegExpBasedFileFinder implements FileFinder {
 
         // Last step: check if the given file can be found in this directory
         Pattern toMatch = createFileNamePattern(fileParts, extensionRegExp, entry);
-        BiPredicate<Path, BasicFileAttributes> matcher = (path, _) -> toMatch.matcher(path.getFileName().toString()).matches();
+        BiPredicate<Path, BasicFileAttributes> matcher =
+                (path, _) -> toMatch.matcher(path.getFileName().toString()).matches();
         try (Stream<Path> pathStream = Files.find(currentDirectory, 1, matcher, FileVisitOption.FOLLOW_LINKS)) {
             resultFiles.addAll(pathStream.toList());
         } catch (UncheckedIOException uncheckedIOException) {

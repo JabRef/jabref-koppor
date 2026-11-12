@@ -11,19 +11,19 @@ import org.jspecify.annotations.NullMarked;
 /// Implementations carry no user-facing text. A description exists only at the granularity a
 /// user acts in, as the name of the enclosing [ChangeSet].
 @NullMarked
-public sealed interface BibChange permits
-        ChangeSet,
-        UndoableInsertEntries,
-        UndoableRemoveEntries,
-        UndoableChangeType,
-        UndoableFieldChange,
-        UndoableGroupTreeChange,
-        UndoableMetaDataChange,
-        UndoablePreambleChange,
-        UndoableStringChange,
-        UndoableReplaceStrings,
-        UndoableInsertString,
-        UndoableRemoveString {
+public sealed interface BibChange
+        permits ChangeSet,
+                UndoableInsertEntries,
+                UndoableRemoveEntries,
+                UndoableChangeType,
+                UndoableFieldChange,
+                UndoableGroupTreeChange,
+                UndoableMetaDataChange,
+                UndoablePreambleChange,
+                UndoableStringChange,
+                UndoableReplaceStrings,
+                UndoableInsertString,
+                UndoableRemoveString {
 
     /// The change that reverses this one.
     ///

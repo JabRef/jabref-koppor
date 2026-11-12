@@ -1,9 +1,9 @@
 package org.jabref.languageserver;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 class ExtensionSettingsTest {
 
@@ -11,20 +11,20 @@ class ExtensionSettingsTest {
     void copyFromJsonObject() {
         ExtensionSettings settings = ExtensionSettings.getDefaultSettings();
         settings.copyFromJsonObject(new com.google.gson.JsonParser().parse("""
-                {
-                  "jabref": {
-                    "consistencyCheck": {
-                      "enabled": false,
-                      "required": false,
-                      "optional": false,
-                      "unknown": false
-                    },
-                    "integrityCheck": {
-                      "enabled": false
-                    }
-                  }
+            {
+              "jabref": {
+                "consistencyCheck": {
+                  "enabled": false,
+                  "required": false,
+                  "optional": false,
+                  "unknown": false
+                },
+                "integrityCheck": {
+                  "enabled": false
                 }
-                """).getAsJsonObject());
+              }
+            }
+            """).getAsJsonObject());
 
         assertFalse(settings.isConsistencyCheck());
         assertFalse(settings.isConsistencyCheckRequired());
@@ -37,14 +37,14 @@ class ExtensionSettingsTest {
     void copyFromJsonObjectPartial() {
         ExtensionSettings settings = ExtensionSettings.getDefaultSettings();
         settings.copyFromJsonObject(new com.google.gson.JsonParser().parse("""
-                {
-                  "jabref": {
-                    "consistencyCheck": {
-                      "enabled": false
-                    }
-                  }
+            {
+              "jabref": {
+                "consistencyCheck": {
+                  "enabled": false
                 }
-                """).getAsJsonObject());
+              }
+            }
+            """).getAsJsonObject());
 
         assertFalse(settings.isConsistencyCheck());
         assertTrue(settings.isConsistencyCheckRequired());

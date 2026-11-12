@@ -1,13 +1,14 @@
 package org.jabref.logic.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
@@ -15,7 +16,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -23,9 +23,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("exporter")
@@ -50,7 +47,8 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportForNoEntriesWritesNothing(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportForNoEntriesWritesNothing(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path file = tempFile.resolve("ThisIsARandomlyNamedFile");
         Files.createFile(file);
         hayagrivaYamlExporter.export(databaseContext, tempFile, List.of());
@@ -58,7 +56,8 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsCorrectContent(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorrectContent(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -83,7 +82,8 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsCorporateAuthorWithoutBraces(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorporateAuthorWithoutBraces(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("examplekey")
                 .withField(StandardField.AUTHOR, "{Some company} and M{\\\"u}ller, Hans");
@@ -92,18 +92,15 @@ class HayagrivaYamlExporterTest {
         Files.createFile(file);
         hayagrivaYamlExporter.export(databaseContext, file, List.of(entry));
 
-        List<String> expected = List.of(
-                "examplekey:",
-                "  type: article",
-                "  author:",
-                "    - Some company",
-                "    - Müller, Hans");
+        List<String> expected =
+                List.of("examplekey:", "  type: article", "  author:", "    - Some company", "    - Müller, Hans");
 
         assertEquals(expected, Files.readAllLines(file));
     }
 
     @Test
-    final void exportsCorrectMultipleAuthors(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorrectMultipleAuthors(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author and Other One")
@@ -129,7 +126,8 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void formatsContentCorrect(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void formatsContentCorrect(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Misc)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -154,7 +152,8 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    void passesModifiedCharset(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void passesModifiedCharset(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "谷崎 潤一郎")
@@ -179,7 +178,8 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    void passesModifiedCharsetNull(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void passesModifiedCharsetNull(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "谷崎 潤一郎")
@@ -203,7 +203,8 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsCorrectParentField(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorrectParentField(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -232,7 +233,8 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsMultipleEntriesAsSingleYamlDocument(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsMultipleEntriesAsSingleYamlDocument(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry first = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("first")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -271,7 +273,8 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsDoiNestedUnderSerialNumber(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsDoiNestedUnderSerialNumber(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -299,7 +302,8 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsIsbnNestedUnderSerialNumber(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsIsbnNestedUnderSerialNumber(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Book)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -327,7 +331,8 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsIssnNestedUnderSerialNumber(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsIssnNestedUnderSerialNumber(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -354,4 +359,3 @@ class HayagrivaYamlExporterTest {
         assertEquals(expected, Files.readAllLines(file));
     }
 }
-

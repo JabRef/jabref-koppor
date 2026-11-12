@@ -1,7 +1,6 @@
 package org.jabref.logic.integrity;
 
 import java.util.List;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
@@ -14,9 +13,12 @@ public class BibTeXEntryTypeChecker implements EntryChecker {
     @Override
     public List<IntegrityMessage> check(BibEntry entry) {
         if (EntryTypeFactory.isExclusiveBiblatex(entry.getType())) {
-            return List.of(
-                    new IntegrityMessage(Localization.lang("Entry type %0 is only defined for Biblatex but not for BibTeX", entry.getType().getDisplayName()), entry, InternalField.KEY_FIELD)
-            );
+            return List.of(new IntegrityMessage(
+                    Localization.lang(
+                            "Entry type %0 is only defined for Biblatex but not for BibTeX",
+                            entry.getType().getDisplayName()),
+                    entry,
+                    InternalField.KEY_FIELD));
         }
         return List.of();
     }

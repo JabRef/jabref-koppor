@@ -1,12 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 21+
+//RUNTIME_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS org.eclipse.jgit:org.eclipse.jgit.pgm:7.8.1.202611041320-r
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-//JAVA 21+
-//RUNTIME_OPTIONS --enable-native-access=ALL-UNNAMED
-
-//DEPS org.eclipse.jgit:org.eclipse.jgit.pgm:7.8.1.202611041320-r
 
 public class CloneJabRef {
     static void main(String[] args) throws Exception {
@@ -22,7 +20,9 @@ public class CloneJabRef {
             return;
         }
 
-        String[] jGitArgs = {"clone", "https://github.com/JabRef/jabref.git", "--recurse-submodules", targetDir.toString()};
+        String[] jGitArgs = {
+            "clone", "https://github.com/JabRef/jabref.git", "--recurse-submodules", targetDir.toString()
+        };
         org.eclipse.jgit.pgm.Main.main(jGitArgs);
 
         System.out.println("JabRef code available at: " + targetDir);

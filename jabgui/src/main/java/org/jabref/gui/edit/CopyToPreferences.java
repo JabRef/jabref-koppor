@@ -16,7 +16,7 @@ public class CopyToPreferences {
         this(
                 true, // shouldAskForIncludingCrossReferences
                 false // shouldIncludeCrossReferences
-        );
+                );
     }
 
     public static CopyToPreferences getDefault() {

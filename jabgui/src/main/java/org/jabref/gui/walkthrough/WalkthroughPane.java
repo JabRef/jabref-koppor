@@ -1,21 +1,20 @@
 package org.jabref.gui.walkthrough;
 
 import java.util.Optional;
-
 import javafx.beans.InvalidationListener;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.PopupWindow;
 import javafx.stage.Window;
-
 import org.jspecify.annotations.NullMarked;
 
 /// The layer a walkthrough draws into: an initially empty pane covering a whole window, on top of that
 /// window's regular content. Panels, tooltips and highlight effects are added here and removed again.
 ///
 /// A window adds its pane where it is built and keeps it for its lifetime, as a child of a parent the window
-/// already has -- never as a replacement for the scene root, see [Where overlays are rendered](https://devdocs.jabref.org/code-howtos/walkthrough.html#where-overlays-are-rendered).
+/// already has -- never as a replacement for the scene root, see [Where overlays are
+/// rendered](https://devdocs.jabref.org/code-howtos/walkthrough.html#where-overlays-are-rendered).
 ///
 /// @implNote The pane is unmanaged. In the main window and in dialogs it sizes itself to the scene rather
 /// than to its parent, so that one rule covers a pane that fills the window and a dialog pane that is the
@@ -89,20 +88,21 @@ public final class WalkthroughPane extends StackPane {
     /// a walkthrough draws on it. Empty for any other window built outside JabRef.
     public static Optional<WalkthroughPane> of(Window window) {
         Optional<Scene> scene = Optional.ofNullable(window.getScene());
-        Optional<WalkthroughPane> existing = scene.map(currentScene -> currentScene.getProperties().get(SCENE_PROPERTY_KEY))
-                                                  .map(WalkthroughPane.class::cast);
+        Optional<WalkthroughPane> existing = scene.map(
+                        currentScene -> currentScene.getProperties().get(SCENE_PROPERTY_KEY))
+                .map(WalkthroughPane.class::cast);
         if (existing.isPresent() || !(window instanceof PopupWindow)) {
             return existing;
         }
         // A popup's root is the Pane that PopupWindow builds around its content.
         return scene.map(Scene::getRoot)
-                    .filter(Pane.class::isInstance)
-                    .map(Pane.class::cast)
-                    .map(root -> {
-                        WalkthroughPane pane = new WalkthroughPane(Extent.NONE);
-                        root.getChildren().add(pane);
-                        return pane;
-                    });
+                .filter(Pane.class::isInstance)
+                .map(Pane.class::cast)
+                .map(root -> {
+                    WalkthroughPane pane = new WalkthroughPane(Extent.NONE);
+                    root.getChildren().add(pane);
+                    return pane;
+                });
     }
 
     private void fitToScene() {

@@ -1,13 +1,16 @@
 package org.jabref.logic.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.jabref.logic.importer.fileformat.BibframeImporter;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
@@ -15,7 +18,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -23,11 +25,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import org.xmlunit.builder.DiffBuilder;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // [utest->req~export.bibframe.rdfxml~1]
 @NullMarked
@@ -38,32 +35,38 @@ class BibframeExporterTest {
     @Test
     void officialFixturesRetainMappedFieldsOnExportAndImport(@TempDir Path directory) throws Exception {
         for (String name : List.of("book", "article")) {
-            Path fixture = Path.of(BibframeExporterTest.class.getResource(
-                    "/org/jabref/logic/importer/bibframe/" + name + ".rdf").toURI());
-            BibEntry original = importer.importDatabase(fixture).getDatabase().getEntries().getFirst();
+            Path fixture = Path.of(BibframeExporterTest.class
+                    .getResource("/org/jabref/logic/importer/bibframe/" + name + ".rdf")
+                    .toURI());
+            BibEntry original =
+                    importer.importDatabase(fixture).getDatabase().getEntries().getFirst();
             Path output = directory.resolve(name + ".rdf");
 
             exporter.export(new BibDatabaseContext(), output, List.of(original));
-            BibEntry restored = importer.importDatabase(output).getDatabase().getEntries().getFirst();
+            BibEntry restored =
+                    importer.importDatabase(output).getDatabase().getEntries().getFirst();
 
             assertEquals(original, restored);
 
             Path reexported = directory.resolve(name + "-reexported.rdf");
             exporter.export(new BibDatabaseContext(), reexported, List.of(restored));
             assertFalse(DiffBuilder.compare(Files.readString(output))
-                                   .withTest(Files.readString(reexported))
-                                   .ignoreWhitespace()
-                                   .checkForSimilar()
-                                   .build().hasDifferences());
+                    .withTest(Files.readString(reexported))
+                    .ignoreWhitespace()
+                    .checkForSimilar()
+                    .build()
+                    .hasDifferences());
         }
     }
 
     @Test
     void identifiersAreStableAndIndependentOfCitationKeys(@TempDir Path directory) throws SaveException, IOException {
         BibEntry first = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.TITLE, "A book").withCitationKey("first-key");
+                .withField(StandardField.TITLE, "A book")
+                .withCitationKey("first-key");
         BibEntry second = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.TITLE, "A book").withCitationKey("other-key");
+                .withField(StandardField.TITLE, "A book")
+                .withCitationKey("other-key");
         Path firstFile = directory.resolve("first.rdf");
         Path secondFile = directory.resolve("second.rdf");
 
@@ -76,8 +79,10 @@ class BibframeExporterTest {
     @Test
     void identifiersIgnoreFieldsOutsideTheExportedMapping(@TempDir Path directory) throws SaveException, IOException {
         BibEntry first = new BibEntry(StandardEntryType.Book).withField(StandardField.TITLE, "A book");
-        BibEntry second = new BibEntry(StandardEntryType.Book).withField(StandardField.TITLE, "A book")
-                                                              .withField(StandardField.NOTE, "Local note").withField(StandardField.FILE, "local.pdf");
+        BibEntry second = new BibEntry(StandardEntryType.Book)
+                .withField(StandardField.TITLE, "A book")
+                .withField(StandardField.NOTE, "Local note")
+                .withField(StandardField.FILE, "local.pdf");
         Path firstFile = directory.resolve("first.rdf");
         Path secondFile = directory.resolve("second.rdf");
 
@@ -96,7 +101,8 @@ class BibframeExporterTest {
         Path output = directory.resolve("article.rdf");
 
         exporter.export(new BibDatabaseContext(), output, List.of(article));
-        BibEntry restored = importer.importDatabase(output).getDatabase().getEntries().getFirst();
+        BibEntry restored =
+                importer.importDatabase(output).getDatabase().getEntries().getFirst();
 
         assertEquals(article, restored);
     }
@@ -109,19 +115,20 @@ class BibframeExporterTest {
         Path output = directory.resolve("article.rdf");
 
         exporter.export(new BibDatabaseContext(), output, List.of(article));
-        BibEntry restored = importer.importDatabase(output).getDatabase().getEntries().getFirst();
+        BibEntry restored =
+                importer.importDatabase(output).getDatabase().getEntries().getFirst();
 
         assertEquals(article, restored);
     }
 
     @Test
     void articleWithoutHostFieldsRetainsType(@TempDir Path directory) throws SaveException, IOException {
-        BibEntry article = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.TITLE, "An article");
+        BibEntry article = new BibEntry(StandardEntryType.Article).withField(StandardField.TITLE, "An article");
         Path output = directory.resolve("article.rdf");
 
         exporter.export(new BibDatabaseContext(), output, List.of(article));
-        BibEntry restored = importer.importDatabase(output).getDatabase().getEntries().getFirst();
+        BibEntry restored =
+                importer.importDatabase(output).getDatabase().getEntries().getFirst();
 
         assertEquals(article, restored);
     }
@@ -136,7 +143,8 @@ class BibframeExporterTest {
 
         exporter.export(new BibDatabaseContext(), output, List.of(book));
 
-        assertEquals(List.of(book), importer.importDatabase(output).getDatabase().getEntries());
+        assertEquals(
+                List.of(book), importer.importDatabase(output).getDatabase().getEntries());
     }
 
     @Test
@@ -149,7 +157,8 @@ class BibframeExporterTest {
         exporter.export(new BibDatabaseContext(), output, List.of(book));
 
         assertFalse(Files.readString(output).contains("Volltext"));
-        assertEquals(List.of(book), importer.importDatabase(output).getDatabase().getEntries());
+        assertEquals(
+                List.of(book), importer.importDatabase(output).getDatabase().getEntries());
     }
 
     @Test
@@ -177,8 +186,8 @@ class BibframeExporterTest {
 
         exporter.export(new BibDatabaseContext(), output, List.of(book));
 
-        assertTrue(Files.readString(output).contains(
-                "<bf:date rdf:datatype=\"http://id.loc.gov/datatypes/edtf\">2023</bf:date>"));
+        assertTrue(Files.readString(output)
+                .contains("<bf:date rdf:datatype=\"http://id.loc.gov/datatypes/edtf\">2023</bf:date>"));
     }
 
     @Test
@@ -191,15 +200,13 @@ class BibframeExporterTest {
 
             exporter.export(new BibDatabaseContext(), output, List.of(book));
             String xml = Files.readString(output);
-            BibEntry restored = importer.importDatabase(output).getDatabase().getEntries().getFirst();
+            BibEntry restored =
+                    importer.importDatabase(output).getDatabase().getEntries().getFirst();
 
             String expected = switch (language) {
-                case "English" ->
-                        "eng";
-                case "Deutsch" ->
-                        "ger";
-                default ->
-                        "English, Japanese";
+                case "English" -> "eng";
+                case "Deutsch" -> "ger";
+                default -> "English, Japanese";
             };
             assertEquals(book.withField(StandardField.LANGUAGE, expected), restored);
             assertFalse(xml.contains("/languages/English"));
@@ -210,38 +217,45 @@ class BibframeExporterTest {
     @Test
     void escapesXmlAndKeepsTwoEntriesSeparate(@TempDir Path directory)
             throws SaveException, IOException, ParserConfigurationException, SAXException {
-        BibEntry first = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.TITLE, "A < B & \"C\"");
-        BibEntry second = new BibEntry(StandardEntryType.Book)
-                .withField(StandardField.TITLE, "Second book");
+        BibEntry first = new BibEntry(StandardEntryType.Book).withField(StandardField.TITLE, "A < B & \"C\"");
+        BibEntry second = new BibEntry(StandardEntryType.Book).withField(StandardField.TITLE, "Second book");
         Path output = directory.resolve("multiple.rdf");
 
         exporter.export(new BibDatabaseContext(), output, List.of(first, second));
 
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(output.toFile());
+        Document document =
+                DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(output.toFile());
         assertEquals(2, document.getElementsByTagName("bf:Work").getLength());
         assertEquals(2, document.getElementsByTagName("bf:Instance").getLength());
         for (int index = 0; index < 2; index++) {
             Element work = (Element) document.getElementsByTagName("bf:Work").item(index);
-            Element instance = (Element) document.getElementsByTagName("bf:Instance").item(index);
-            assertEquals(instance.getAttribute("rdf:about"),
+            Element instance =
+                    (Element) document.getElementsByTagName("bf:Instance").item(index);
+            assertEquals(
+                    instance.getAttribute("rdf:about"),
                     ((Element) work.getElementsByTagName("bf:hasInstance").item(0)).getAttribute("rdf:resource"));
-            assertEquals(work.getAttribute("rdf:about"),
+            assertEquals(
+                    work.getAttribute("rdf:about"),
                     ((Element) instance.getElementsByTagName("bf:instanceOf").item(0)).getAttribute("rdf:resource"));
         }
-        assertNotEquals(((Element) document.getElementsByTagName("bf:Work").item(0)).getAttribute("rdf:about"),
+        assertNotEquals(
+                ((Element) document.getElementsByTagName("bf:Work").item(0)).getAttribute("rdf:about"),
                 ((Element) document.getElementsByTagName("bf:Work").item(1)).getAttribute("rdf:about"));
-        assertEquals(List.of(first, second), importer.importDatabase(output).getDatabase().getEntries());
+        assertEquals(
+                List.of(first, second),
+                importer.importDatabase(output).getDatabase().getEntries());
         assertFalse(Files.readString(output).contains("first-key"));
     }
 
     @Test
-    void emptyInputWritesValidRdf(@TempDir Path directory) throws SaveException, IOException, ParserConfigurationException, SAXException {
+    void emptyInputWritesValidRdf(@TempDir Path directory)
+            throws SaveException, IOException, ParserConfigurationException, SAXException {
         Path output = directory.resolve("empty.rdf");
 
         exporter.export(new BibDatabaseContext(), output, List.of());
 
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(output.toFile());
+        Document document =
+                DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(output.toFile());
         assertEquals("rdf:RDF", document.getDocumentElement().getTagName());
         assertEquals(0, importer.importDatabase(output).getDatabase().getEntryCount());
     }

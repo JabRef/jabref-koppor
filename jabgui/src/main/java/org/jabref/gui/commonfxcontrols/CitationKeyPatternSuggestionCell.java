@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import javafx.application.Platform;
 import javafx.geometry.Bounds;
 import javafx.scene.control.ContextMenu;
@@ -15,7 +14,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Window;
-
 import org.jabref.logic.citationkeypattern.CitationKeyPattern;
 import org.jabref.logic.l10n.Localization;
 
@@ -80,8 +78,8 @@ public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<Citatio
                     suggestionsList.hide();
                 } else {
                     List<String> filteredEntries = citationKeyPatterns.stream()
-                                                                      .filter(e -> e.toLowerCase().contains(enteredText.toLowerCase()))
-                                                                      .toList();
+                            .filter(e -> e.toLowerCase().contains(enteredText.toLowerCase()))
+                            .toList();
 
                     if (!filteredEntries.isEmpty()) {
                         populatePopup(filteredEntries);
@@ -125,7 +123,8 @@ public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<Citatio
             }
 
             if (!menuItems.isEmpty()) {
-                Platform.runLater(() -> heightOfMenuItem = (int) menuItems.getFirst().getContent().getBoundsInLocal().getHeight());
+                Platform.runLater(() -> heightOfMenuItem = (int)
+                        menuItems.getFirst().getContent().getBoundsInLocal().getHeight());
             }
 
             suggestionsList.getItems().clear();
@@ -159,15 +158,14 @@ public class CitationKeyPatternSuggestionCell extends TextFieldTableCell<Citatio
 
             Map<CitationKeyPattern.Category, List<CitationKeyPattern>> categorizedPatterns =
                     CitationKeyPattern.getAllPatterns().stream()
-                                      .collect(Collectors.groupingBy(CitationKeyPattern::getCategory));
+                            .collect(Collectors.groupingBy(CitationKeyPattern::getCategory));
 
             Map<CitationKeyPattern.Category, String> categoryNames = Map.of(
                     CitationKeyPattern.Category.AUTHOR_RELATED, Localization.lang("Author related"),
                     CitationKeyPattern.Category.EDITOR_RELATED, Localization.lang("Editor related"),
                     CitationKeyPattern.Category.TITLE_RELATED, Localization.lang("Title related"),
                     CitationKeyPattern.Category.OTHER_FIELDS, Localization.lang("Other fields"),
-                    CitationKeyPattern.Category.BIBENTRY_FIELDS, Localization.lang("Entry fields")
-            );
+                    CitationKeyPattern.Category.BIBENTRY_FIELDS, Localization.lang("Entry fields"));
 
             for (Map.Entry<CitationKeyPattern.Category, String> entry : categoryNames.entrySet()) {
                 CitationKeyPattern.Category category = entry.getKey();

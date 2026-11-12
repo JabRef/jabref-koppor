@@ -1,26 +1,23 @@
 package org.jabref.gui.maintable;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-
-import org.jabref.gui.maintable.columns.MainTableColumn;
-import org.jabref.gui.testutils.JavaFxExtension;
-import org.jabref.model.entry.field.SpecialField;
-import org.jabref.model.entry.field.StandardField;
-
-import org.jspecify.annotations.NullMarked;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import org.jabref.gui.maintable.columns.MainTableColumn;
+import org.jabref.gui.testutils.JavaFxExtension;
+import org.jabref.model.entry.field.SpecialField;
+import org.jabref.model.entry.field.StandardField;
+import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 @NullMarked
 @ExtendWith(JavaFxExtension.class)
@@ -39,14 +36,16 @@ class ColumnPreferencesApplierTest {
     void setUp() {
         titleColumn = new MainTableColumnModel(MainTableColumnModel.Type.NORMALFIELD, StandardField.TITLE.getName());
         yearColumn = new MainTableColumnModel(MainTableColumnModel.Type.NORMALFIELD, StandardField.YEAR.getName());
-        relevanceColumn = new MainTableColumnModel(MainTableColumnModel.Type.SPECIALFIELD, SpecialField.RANKING.getName());
+        relevanceColumn =
+                new MainTableColumnModel(MainTableColumnModel.Type.SPECIALFIELD, SpecialField.RANKING.getName());
 
         columnPreferences = new ColumnPreferences(List.of(titleColumn, yearColumn), List.of(titleColumn));
         mainTablePreferences = new MainTablePreferences(columnPreferences, false, false);
         table = new TableView<>();
 
         columnFactory = mock(MainTableColumnFactory.class);
-        when(columnFactory.createColumn(any(MainTableColumnModel.class))).thenAnswer(invocation -> new MainTableColumn<>((MainTableColumnModel) invocation.getArgument(0)));
+        when(columnFactory.createColumn(any(MainTableColumnModel.class)))
+                .thenAnswer(invocation -> new MainTableColumn<>((MainTableColumnModel) invocation.getArgument(0)));
         when(columnFactory.createColumns()).thenAnswer(_ -> createColumns(columnPreferences.getColumns()));
 
         // Same order as in MainTable, so that the write-back of the table is part of every test
@@ -58,7 +57,9 @@ class ColumnPreferencesApplierTest {
 
     @Test
     void bindShowsConfiguredColumnsAfterMatchCategoryColumn() {
-        assertEquals(MainTableColumnModel.Type.MATCH_CATEGORY, modelOf(table.getColumns().getFirst()).getType());
+        assertEquals(
+                MainTableColumnModel.Type.MATCH_CATEGORY,
+                modelOf(table.getColumns().getFirst()).getType());
         assertEquals(List.of(titleColumn, yearColumn), visibleColumns());
     }
 
@@ -101,12 +102,15 @@ class ColumnPreferencesApplierTest {
         table.getSortOrder().setAll(List.of(table.getColumns().getFirst(), yearColumnInFirstTable));
 
         assertEquals(List.of(yearColumn), visibleSortOrder(secondTable.table()));
-        assertEquals(TableColumn.SortType.DESCENDING, findColumn(secondTable.table(), yearColumn).getSortType());
+        assertEquals(
+                TableColumn.SortType.DESCENDING,
+                findColumn(secondTable.table(), yearColumn).getSortType());
     }
 
     @Test
     void keepsExistingColumnsWhenAddingAnotherConfiguredColumn() {
-        TableColumn<BibEntryTableViewModel, ?> originalTitleColumn = table.getColumns().get(1);
+        TableColumn<BibEntryTableViewModel, ?> originalTitleColumn =
+                table.getColumns().get(1);
 
         columnPreferences.setColumns(List.of(titleColumn, yearColumn, relevanceColumn));
 
@@ -140,8 +144,12 @@ class ColumnPreferencesApplierTest {
 
     @Test
     void tableSurvivesRoundTripThroughPreferences() {
-        TableColumn<BibEntryTableViewModel, ?> yearTableColumn = table.getColumns().get(2);
-        List<TableColumn<BibEntryTableViewModel, ?>> expectedColumns = List.of(table.getColumns().getFirst(), yearTableColumn, table.getColumns().get(1));
+        TableColumn<BibEntryTableViewModel, ?> yearTableColumn =
+                table.getColumns().get(2);
+        List<TableColumn<BibEntryTableViewModel, ?>> expectedColumns = List.of(
+                table.getColumns().getFirst(),
+                yearTableColumn,
+                table.getColumns().get(1));
 
         // Reordering by drag and drop, as JavaFX does it
         table.getColumns().remove(yearTableColumn);
@@ -177,22 +185,25 @@ class ColumnPreferencesApplierTest {
     }
 
     /// Mirrors [MainTableColumnFactory#createColumns()]
-    private static List<TableColumn<BibEntryTableViewModel, ?>> createColumns(List<MainTableColumnModel> configuredColumns) {
+    private static List<TableColumn<BibEntryTableViewModel, ?>> createColumns(
+            List<MainTableColumnModel> configuredColumns) {
         List<TableColumn<BibEntryTableViewModel, ?>> columns = new ArrayList<>();
         columns.add(new MainTableColumn<>(new MainTableColumnModel(MainTableColumnModel.Type.MATCH_CATEGORY)));
         configuredColumns.stream()
-                         .filter(MainTableColumnModel::isConfigurable)
-                         .forEach(model -> columns.add(new MainTableColumn<>(model)));
+                .filter(MainTableColumnModel::isConfigurable)
+                .forEach(model -> columns.add(new MainTableColumn<>(model)));
         return columns;
     }
 
     private BoundTable newBoundTable() {
         TableView<BibEntryTableViewModel> additionalTable = new TableView<>();
-        ColumnPreferencesApplier additionalApplier = new ColumnPreferencesApplier(additionalTable, columnFactory, mainTablePreferences);
+        ColumnPreferencesApplier additionalApplier =
+                new ColumnPreferencesApplier(additionalTable, columnFactory, mainTablePreferences);
         additionalApplier.bind();
         additionalApplier.applySortOrder();
 
-        ColumnPreferencesRecorder additionalRecorder = new ColumnPreferencesRecorder(additionalTable, columnPreferences);
+        ColumnPreferencesRecorder additionalRecorder =
+                new ColumnPreferencesRecorder(additionalTable, columnPreferences);
         additionalRecorder.bind();
         return new BoundTable(additionalTable, additionalApplier, additionalRecorder);
     }
@@ -201,13 +212,13 @@ class ColumnPreferencesApplierTest {
         return ((MainTableColumn<?>) column).getModel();
     }
 
-    private static TableColumn<BibEntryTableViewModel, ?> findColumn(TableView<BibEntryTableViewModel> table,
-                                                                     MainTableColumnModel model) {
+    private static TableColumn<BibEntryTableViewModel, ?> findColumn(
+            TableView<BibEntryTableViewModel> table, MainTableColumnModel model) {
         return table.getColumns().stream()
-                    .filter(column -> column instanceof MainTableColumn<?> mainTableColumn
-                            && model.equals(mainTableColumn.getModel()))
-                    .findFirst()
-                    .orElseThrow();
+                .filter(column -> column instanceof MainTableColumn<?> mainTableColumn
+                        && model.equals(mainTableColumn.getModel()))
+                .findFirst()
+                .orElseThrow();
     }
 
     private List<MainTableColumnModel> visibleColumns() {
@@ -226,8 +237,8 @@ class ColumnPreferencesApplierTest {
         return ColumnPreferencesRecorder.toPersistedModels(table.getSortOrder());
     }
 
-    private record BoundTable(TableView<BibEntryTableViewModel> table,
-                              ColumnPreferencesApplier applier,
-                              ColumnPreferencesRecorder recorder) {
-    }
+    private record BoundTable(
+            TableView<BibEntryTableViewModel> table,
+            ColumnPreferencesApplier applier,
+            ColumnPreferencesRecorder recorder) {}
 }

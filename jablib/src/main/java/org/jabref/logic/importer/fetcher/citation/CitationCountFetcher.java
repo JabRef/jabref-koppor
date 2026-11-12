@@ -1,10 +1,8 @@
 package org.jabref.logic.importer.fetcher.citation;
 
 import java.util.Optional;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked

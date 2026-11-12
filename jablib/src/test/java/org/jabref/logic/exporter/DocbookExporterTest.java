@@ -1,22 +1,22 @@
 package org.jabref.logic.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -24,9 +24,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("exporter")
@@ -50,11 +47,13 @@ public class DocbookExporterTest {
     }
 
     @Test
-    void corruptedTitleBraces(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void corruptedTitleBraces(@TempDir Path testFolder)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path tmpFile = testFolder.resolve("testBraces");
 
         BibEntry entry = new BibEntry();
-        entry.setField(StandardField.TITLE, "Peptidomics of the larval {{{D}rosophila melanogaster}} central nervous system.");
+        entry.setField(
+                StandardField.TITLE, "Peptidomics of the larval {{{D}rosophila melanogaster}} central nervous system.");
 
         List<BibEntry> entries = List.of(entry);
 
@@ -62,15 +61,22 @@ public class DocbookExporterTest {
 
         List<String> lines = Files.readAllLines(tmpFile);
         assertEquals(20, lines.size());
-        assertEquals("   <citetitle pubwork=\"article\">Peptidomics of the larval Drosophila melanogaster central nervous system.</citetitle>", lines.get(9));
+        assertEquals(
+                "   <citetitle pubwork=\"article\">Peptidomics of the larval Drosophila melanogaster central nervous"
+                        + " system.</citetitle>",
+                lines.get(9));
     }
 
     @Test
-    void corruptedTitleUnicode(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void corruptedTitleUnicode(@TempDir Path testFolder)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path tmpFile = testFolder.resolve("testBraces");
 
         BibEntry entry = new BibEntry();
-        entry.setField(StandardField.TITLE, "Insect neuropeptide bursicon homodimers induce innate immune and stress genes during molting by activating the {NF}-$\\kappa$B transcription factor Relish.");
+        entry.setField(
+                StandardField.TITLE,
+                "Insect neuropeptide bursicon homodimers induce innate immune and stress genes during molting by"
+                        + " activating the {NF}-$\\kappa$B transcription factor Relish.");
 
         List<BibEntry> entries = List.of(entry);
 
@@ -78,6 +84,10 @@ public class DocbookExporterTest {
 
         List<String> lines = Files.readAllLines(tmpFile);
         assertEquals(20, lines.size());
-        assertEquals("   <citetitle pubwork=\"article\">Insect neuropeptide bursicon homodimers induce innate immune and stress genes during molting by activating the NF&#45;&#954;B transcription factor Relish.</citetitle>", lines.get(9));
+        assertEquals(
+                "   <citetitle pubwork=\"article\">Insect neuropeptide bursicon homodimers induce innate immune and"
+                        + " stress genes during molting by activating the NF&#45;&#954;B transcription factor"
+                        + " Relish.</citetitle>",
+                lines.get(9));
     }
 }

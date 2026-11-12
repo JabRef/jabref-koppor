@@ -2,11 +2,9 @@ package org.jabref.logic.exporter;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.jabref.logic.bibtex.comparator.FieldComparator;
 import org.jabref.logic.bibtex.comparator.FieldComparatorStack;
 import org.jabref.logic.layout.format.GetOpenOfficeType;
@@ -18,7 +16,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -145,17 +142,22 @@ class OpenDocumentRepresentation {
             for (BibEntry e : entries) {
                 row = result.createElement("table:table-row");
                 addTableCell(result, row, getField(e, InternalField.KEY_FIELD));
-                addTableCell(result, row, new GetOpenOfficeType().format(e.getType().getName()));
+                addTableCell(
+                        result, row, new GetOpenOfficeType().format(e.getType().getName()));
                 addTableCell(result, row, getField(e, StandardField.ADDRESS));
                 addTableCell(result, row, getField(e, StandardField.ASSIGNEE));
                 addTableCell(result, row, getField(e, StandardField.ANNOTE));
-                addTableCell(result, row, getField(e, StandardField.AUTHOR)); // new AuthorLastFirst().format(getField(e, StandardField.AUTHOR_FIELD)));
+                addTableCell(result, row, getField(e, StandardField.AUTHOR)); // new
+                                                                              // AuthorLastFirst().format(getField(e,
+                                                                              // StandardField.AUTHOR_FIELD)));
                 addTableCell(result, row, getField(e, StandardField.BOOKTITLE));
                 addTableCell(result, row, getField(e, StandardField.CHAPTER));
                 addTableCell(result, row, getField(e, StandardField.DAY));
                 addTableCell(result, row, getField(e, StandardField.DAYFILED));
                 addTableCell(result, row, getField(e, StandardField.EDITION));
-                addTableCell(result, row, getField(e, StandardField.EDITOR)); // new AuthorLastFirst().format(getField(e, StandardField.EDITOR_FIELD)));
+                addTableCell(result, row, getField(e, StandardField.EDITOR)); // new
+                                                                              // AuthorLastFirst().format(getField(e,
+                                                                              // StandardField.EDITOR_FIELD)));
                 addTableCell(result, row, getField(e, StandardField.HOWPUBLISHED));
                 addTableCell(result, row, getField(e, StandardField.INSTITUTION));
                 addTableCell(result, row, getField(e, StandardField.JOURNAL));
@@ -171,7 +173,11 @@ class OpenDocumentRepresentation {
                 addTableCell(result, row, getField(e, StandardField.REVISION));
                 addTableCell(result, row, getField(e, StandardField.SCHOOL));
                 addTableCell(result, row, getField(e, StandardField.SERIES));
-                addTableCell(result, row, new NonSpaceWhitespaceRemover().format(new RemoveBrackets().format(getField(e, StandardField.TITLE))));
+                addTableCell(
+                        result,
+                        row,
+                        new NonSpaceWhitespaceRemover()
+                                .format(new RemoveBrackets().format(getField(e, StandardField.TITLE))));
                 addTableCell(result, row, getField(e, new UnknownField("reporttype")));
                 addTableCell(result, row, getField(e, StandardField.VOLUME));
                 addTableCell(result, row, getField(e, StandardField.YEAR));

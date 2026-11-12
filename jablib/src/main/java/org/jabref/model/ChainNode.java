@@ -1,7 +1,6 @@
 package org.jabref.model;
 
 import java.util.Optional;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -36,7 +35,8 @@ public abstract class ChainNode<T extends ChainNode<T>> {
 
     /// Constructs a chain node without parent and no child.
     ///
-    /// @param derivingClass class deriving from TreeNode&lt;T>. It should always be "T.class". We need this parameter since it is hard to get this information by other means.
+    /// @param derivingClass class deriving from TreeNode&lt;T>. It should always be "T.class". We need this parameter
+    /// since it is hard to get this information by other means.
     public ChainNode(Class<T> derivingClass) {
         parent = null;
         child = null;

@@ -1,12 +1,10 @@
 package org.jabref.logic;
 
 import java.nio.file.Path;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.Version;
 import org.jabref.model.metadata.UserHostInfo;
@@ -21,19 +19,20 @@ public class InternalPreferences {
 
     private InternalPreferences() {
         this(
-                Version.parse(""),                                     // No ignored version
-                true,                                                  // Version check enabled
-                Path.of(System.getProperty("user.home")),              // Preferences export path
-                OS.getUserHostInfo(System.getProperty("user.name")),   // User and host
-                false                                                  // Memory stick mode
-        );
+                Version.parse(""), // No ignored version
+                true, // Version check enabled
+                Path.of(System.getProperty("user.home")), // Preferences export path
+                OS.getUserHostInfo(System.getProperty("user.name")), // User and host
+                false // Memory stick mode
+                );
     }
 
-    public InternalPreferences(Version ignoredVersion,
-                               boolean versionCheck,
-                               Path exportPath,
-                               UserHostInfo userHostInfo,
-                               boolean memoryStickMode) {
+    public InternalPreferences(
+            Version ignoredVersion,
+            boolean versionCheck,
+            Path exportPath,
+            UserHostInfo userHostInfo,
+            boolean memoryStickMode) {
         this.ignoredVersion = new SimpleObjectProperty<>(ignoredVersion);
         this.versionCheckEnabled = new SimpleBooleanProperty(versionCheck);
         this.lastPreferencesExportPath = new SimpleObjectProperty<>(exportPath);

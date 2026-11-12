@@ -3,15 +3,12 @@ package org.jabref.model.groups;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.SearchMatcher;
-
 import org.jspecify.annotations.NonNull;
 
 /// Base class for all groups.
@@ -35,14 +32,13 @@ public abstract class AbstractGroup implements SearchMatcher {
 
     @Override
     public String toString() {
-        return "AbstractGroup{" +
-                "name='" + name.getValue() + '\'' +
-                ", context=" + context +
-                ", color=" + color +
-                ", isExpanded=" + isExpanded +
-                ", description=" + description +
-                ", iconName=" + iconName +
-                '}';
+        return "AbstractGroup{name='"
+                + name.getValue() + '\'' + ", context="
+                + context + ", color="
+                + color + ", isExpanded="
+                + isExpanded + ", description="
+                + description + ", iconName="
+                + iconName + '}';
     }
 
     @Override
@@ -54,7 +50,8 @@ public abstract class AbstractGroup implements SearchMatcher {
             return false;
         }
         AbstractGroup that = (AbstractGroup) other;
-        return Objects.equals(this.name.getValue(), that.name.getValue()) && Objects.equals(this.description, that.description)
+        return Objects.equals(this.name.getValue(), that.name.getValue())
+                && Objects.equals(this.description, that.description)
                 && Objects.equals(this.context, that.context);
     }
 

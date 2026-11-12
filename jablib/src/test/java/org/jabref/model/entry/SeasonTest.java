@@ -1,14 +1,13 @@
 package org.jabref.model.entry;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class SeasonTest {
 
@@ -27,8 +26,7 @@ class SeasonTest {
                 arguments(Optional.of(Season.SPRING), "Spring"),
                 arguments(Optional.of(Season.SUMMER), "Summer"),
                 arguments(Optional.of(Season.AUTUMN), "Autumn"),
-                arguments(Optional.of(Season.WINTER), "Winter")
-        );
+                arguments(Optional.of(Season.WINTER), "Winter"));
     }
 
     private static Stream<Arguments> parseNumber() {
@@ -36,8 +34,7 @@ class SeasonTest {
                 arguments(Optional.of(Season.SPRING), "21"),
                 arguments(Optional.of(Season.SUMMER), "22"),
                 arguments(Optional.of(Season.AUTUMN), "23"),
-                arguments(Optional.of(Season.WINTER), "24")
-        );
+                arguments(Optional.of(Season.WINTER), "24"));
     }
 
     private static Stream<Arguments> parseNameGerman() {
@@ -46,8 +43,7 @@ class SeasonTest {
                 arguments(Optional.of(Season.SUMMER), "sommer"),
                 arguments(Optional.of(Season.AUTUMN), "herbst"),
                 // Since 'winter' is the same as in English, it will not be passed to 'parseGermanSeason'
-                arguments(Optional.of(Season.WINTER), "winter")
-        );
+                arguments(Optional.of(Season.WINTER), "winter"));
     }
 
     private static Stream<Arguments> parseSpecialCases() {
@@ -56,8 +52,7 @@ class SeasonTest {
                 arguments(Optional.empty(), ".24"),
                 arguments(Optional.empty(), "2.4"),
                 arguments(Optional.empty(), "24."),
-                arguments(Optional.empty(), "")
-        );
+                arguments(Optional.empty(), ""));
     }
 
     @ParameterizedTest
@@ -75,8 +70,7 @@ class SeasonTest {
                 arguments(Optional.of(Season.AUTUMN), 23),
                 arguments(Optional.of(Season.WINTER), 24),
                 arguments(Optional.empty(), 25),
-                arguments(Optional.empty(), 26)
-        );
+                arguments(Optional.empty(), 26));
     }
 
     @ParameterizedTest
@@ -93,8 +87,7 @@ class SeasonTest {
                 arguments(Optional.of(Season.SPRING), "frühling"),
                 arguments(Optional.of(Season.SUMMER), "sommer"),
                 arguments(Optional.of(Season.AUTUMN), "herbst"),
-                arguments(Optional.of(Season.WINTER), "winter")
-        );
+                arguments(Optional.of(Season.WINTER), "winter"));
     }
 
     @ParameterizedTest
@@ -108,8 +101,7 @@ class SeasonTest {
                 arguments(21, Season.SPRING),
                 arguments(22, Season.SUMMER),
                 arguments(23, Season.AUTUMN),
-                arguments(24, Season.WINTER)
-        );
+                arguments(24, Season.WINTER));
     }
 
     @ParameterizedTest
@@ -123,7 +115,6 @@ class SeasonTest {
                 arguments("spring", Season.SPRING),
                 arguments("summer", Season.SUMMER),
                 arguments("autumn", Season.AUTUMN),
-                arguments("winter", Season.WINTER)
-        );
+                arguments("winter", Season.WINTER));
     }
 }

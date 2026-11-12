@@ -1,5 +1,6 @@
 package org.jabref.gui.dialogs;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
@@ -7,11 +8,9 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.control.ButtonType;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.LibraryTabContainer;
@@ -34,8 +33,6 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,18 +41,17 @@ public class BackupUIManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(BackupUIManager.class);
     private static final Deque<BackupDialogOwner> OPEN_DIALOGS = new ArrayDeque<>();
 
-    private record BackupDialogOwner(LibraryTabContainer tabContainer, Path path) {
-    }
+    private record BackupDialogOwner(LibraryTabContainer tabContainer, Path path) {}
 
-    private BackupUIManager() {
-    }
+    private BackupUIManager() {}
 
-    public static Optional<ParserResult> showRestoreBackupDialog(DialogService dialogService,
-                                                                 LibraryTabContainer tabContainer,
-                                                                 Path originalPath,
-                                                                 GuiPreferences preferences,
-                                                                 FileUpdateMonitor fileUpdateMonitor,
-                                                                 StateManager stateManager) {
+    public static Optional<ParserResult> showRestoreBackupDialog(
+            DialogService dialogService,
+            LibraryTabContainer tabContainer,
+            Path originalPath,
+            GuiPreferences preferences,
+            FileUpdateMonitor fileUpdateMonitor,
+            StateManager stateManager) {
         Optional<ButtonType> actionOpt = showBackupResolverDialog(
                 dialogService,
                 tabContainer,
@@ -65,50 +61,50 @@ public class BackupUIManager {
                 preferences.getFilePreferences().getBackupDirectory());
         return actionOpt.flatMap(action -> {
             if (action == BackupResolverDialog.RESTORE_FROM_BACKUP) {
-                BackupManager.RestoreResult result = BackupManager.restoreBackup(originalPath, preferences.getFilePreferences().getBackupDirectory());
+                BackupManager.RestoreResult result = BackupManager.restoreBackup(
+                        originalPath, preferences.getFilePreferences().getBackupDirectory());
                 switch (result) {
-                    case BackupManager.RestoreResult.Empty(
-                            Path backupPath
-                    ) ->
-                            dialogService.showErrorDialogAndWait(
-                                    Localization.lang("Restore backup"),
-                                    Localization.lang("The backup file '%0' is empty and was not restored.", backupPath));
-                    case BackupManager.RestoreResult.Failed(
-                            Path backupPath,
-                            IOException exception
-                    ) ->
-                            dialogService.showErrorDialogAndWait(
-                                    Localization.lang("Restore backup"),
-                                    Localization.lang("Could not restore the backup file '%0'.", backupPath),
-                                    exception);
-                    case BackupManager.RestoreResult.NotFound(
-                            Path missingOriginalPath
-                    ) ->
-                            dialogService.showErrorDialogAndWait(
-                                    Localization.lang("Restore backup"),
-                                    Localization.lang("No backup file was found for '%0'.", missingOriginalPath));
-                    case BackupManager.RestoreResult.Restored _ -> {
-                    }
+                    case BackupManager.RestoreResult.Empty(Path backupPath) ->
+                        dialogService.showErrorDialogAndWait(
+                                Localization.lang("Restore backup"),
+                                Localization.lang("The backup file '%0' is empty and was not restored.", backupPath));
+                    case BackupManager.RestoreResult.Failed(Path backupPath, IOException exception) ->
+                        dialogService.showErrorDialogAndWait(
+                                Localization.lang("Restore backup"),
+                                Localization.lang("Could not restore the backup file '%0'.", backupPath),
+                                exception);
+                    case BackupManager.RestoreResult.NotFound(Path missingOriginalPath) ->
+                        dialogService.showErrorDialogAndWait(
+                                Localization.lang("Restore backup"),
+                                Localization.lang("No backup file was found for '%0'.", missingOriginalPath));
+                    case BackupManager.RestoreResult.Restored _ -> {}
                 }
                 return Optional.empty();
             } else if (action == BackupResolverDialog.REVIEW_BACKUP) {
-                return showReviewBackupDialog(dialogService, tabContainer, originalPath, preferences, fileUpdateMonitor, stateManager);
+                return showReviewBackupDialog(
+                        dialogService, tabContainer, originalPath, preferences, fileUpdateMonitor, stateManager);
             }
             return Optional.empty();
         });
     }
 
-    private static Optional<ButtonType> showBackupResolverDialog(DialogService dialogService,
-                                                                 LibraryTabContainer tabContainer,
-                                                                 StateManager stateManager,
-                                                                 ExternalApplicationsPreferences externalApplicationsPreferences,
-                                                                 Path originalPath,
-                                                                 Path backupDir) {
-        return UiTaskExecutor.runInJavaFXThread(() -> showForLibrary(tabContainer, stateManager, originalPath,
-                () -> dialogService.showCustomDialogAndWait(new BackupResolverDialog(originalPath, backupDir, externalApplicationsPreferences))));
+    private static Optional<ButtonType> showBackupResolverDialog(
+            DialogService dialogService,
+            LibraryTabContainer tabContainer,
+            StateManager stateManager,
+            ExternalApplicationsPreferences externalApplicationsPreferences,
+            Path originalPath,
+            Path backupDir) {
+        return UiTaskExecutor.runInJavaFXThread(() -> showForLibrary(
+                tabContainer,
+                stateManager,
+                originalPath,
+                () -> dialogService.showCustomDialogAndWait(
+                        new BackupResolverDialog(originalPath, backupDir, externalApplicationsPreferences))));
     }
 
-    private static <T> T showForLibrary(LibraryTabContainer tabContainer, StateManager stateManager, Path path, Supplier<T> showDialog) {
+    private static <T> T showForLibrary(
+            LibraryTabContainer tabContainer, StateManager stateManager, Path path, Supplier<T> showDialog) {
         BackupDialogOwner owner = new BackupDialogOwner(tabContainer, path);
         OPEN_DIALOGS.push(owner);
         // Let the action that selected another tab finish before restoring the dialog's library.
@@ -137,12 +133,12 @@ public class BackupUIManager {
     private static void raiseTabOf(LibraryTabContainer tabContainer, Path originalPath) {
         Path absolutePath = originalPath.toAbsolutePath();
         Optional<LibraryTab> libraryTab = tabContainer.getLibraryTabs().stream()
-                                                      .filter(tab -> tab.getBibDatabaseContext()
-                                                                        .getDatabasePath()
-                                                                        .map(Path::toAbsolutePath)
-                                                                        .filter(absolutePath::equals)
-                                                                        .isPresent())
-                                                      .findFirst();
+                .filter(tab -> tab.getBibDatabaseContext()
+                        .getDatabasePath()
+                        .map(Path::toAbsolutePath)
+                        .filter(absolutePath::equals)
+                        .isPresent())
+                .findFirst();
         libraryTab.ifPresent(tabContainer::showLibraryTab);
     }
 
@@ -157,35 +153,52 @@ public class BackupUIManager {
             ImportFormatPreferences importFormatPreferences = preferences.getImportFormatPreferences();
 
             // The database of the originalParserResult will be modified
-            ParserResult originalParserResult = OpenDatabase.loadDatabase(originalPath, importFormatPreferences, fileUpdateMonitor);
+            ParserResult originalParserResult =
+                    OpenDatabase.loadDatabase(originalPath, importFormatPreferences, fileUpdateMonitor);
             // This will be modified by using the `DatabaseChangesResolverDialog`.
             BibDatabaseContext originalDatabase = originalParserResult.getDatabaseContext();
 
-            Path backupPath = BackupFileUtil.getPathOfLatestExistingBackupFile(originalPath, preferences.getFilePreferences().getBackupDirectory()).orElseThrow();
-            BibDatabaseContext backupDatabase = OpenDatabase.loadDatabase(backupPath, importFormatPreferences, new DummyFileUpdateMonitor()).getDatabaseContext();
+            Path backupPath = BackupFileUtil.getPathOfLatestExistingBackupFile(
+                            originalPath, preferences.getFilePreferences().getBackupDirectory())
+                    .orElseThrow();
+            BibDatabaseContext backupDatabase = OpenDatabase.loadDatabase(
+                            backupPath, importFormatPreferences, new DummyFileUpdateMonitor())
+                    .getDatabaseContext();
 
-            DatabaseChangeResolverFactory changeResolverFactory = new DatabaseChangeResolverFactory(dialogService, originalDatabase, preferences, stateManager);
+            DatabaseChangeResolverFactory changeResolverFactory =
+                    new DatabaseChangeResolverFactory(dialogService, originalDatabase, preferences, stateManager);
 
             return UiTaskExecutor.runInJavaFXThread(() -> {
-                List<DatabaseChange> changes = DatabaseChangeList.compareAndGetChanges(originalDatabase, backupDatabase, changeResolverFactory);
+                List<DatabaseChange> changes = DatabaseChangeList.compareAndGetChanges(
+                        originalDatabase, backupDatabase, changeResolverFactory);
                 DatabaseChangesResolverDialog reviewBackupDialog = new DatabaseChangesResolverDialog(
-                        changes,
-                        originalDatabase, Localization.lang("Review backup")
-                );
-                Optional<Boolean> allChangesResolved = showForLibrary(tabContainer, stateManager, originalPath,
+                        changes, originalDatabase, Localization.lang("Review backup"));
+                Optional<Boolean> allChangesResolved = showForLibrary(
+                        tabContainer,
+                        stateManager,
+                        originalPath,
                         () -> dialogService.showCustomDialogAndWait(reviewBackupDialog));
                 if (allChangesResolved.orElse(false)) {
                     List<DatabaseChange> resolvedChanges = reviewBackupDialog.getResolvedChanges();
-                    // The library is still being opened, so no tab exists for it yet - the active tab (if any) belongs to another
+                    // The library is still being opened, so no tab exists for it yet - the active tab (if any) belongs
+                    // to another
                     // library. Its change monitor is set up when the tab is created.
-                    stateManager.getUndoManager(originalDatabase).addEdit(Localization.lang("Merged external changes"), edit ->
-                            resolvedChanges.stream().filter(DatabaseChange::isAccepted).forEach(change -> change.applyChange(edit)));
+                    stateManager
+                            .getUndoManager(originalDatabase)
+                            .addEdit(
+                                    Localization.lang("Merged external changes"),
+                                    edit -> resolvedChanges.stream()
+                                            .filter(DatabaseChange::isAccepted)
+                                            .forEach(change -> change.applyChange(edit)));
 
-                    // In case any change of the backup is accepted, the in-memory file differs from the file on disk (which is not the backup file)
-                    // This does NOT return the original ParserResult, but a modified version with all changes accepted or rejected
+                    // In case any change of the backup is accepted, the in-memory file differs from the file on disk
+                    // (which is not the backup file)
+                    // This does NOT return the original ParserResult, but a modified version with all changes accepted
+                    // or rejected
                     markRecoveredIfContentRestored(originalParserResult);
 
-                    // The tab gets a new database context along with its own journal, meaning the undo step won't mark it as changed
+                    // The tab gets a new database context along with its own journal, meaning the undo step won't mark
+                    // it as changed
                     if (resolvedChanges.stream().anyMatch(DatabaseChange::isAccepted)) {
                         originalParserResult.setChangedOnMigration(true);
                     }
@@ -193,7 +206,8 @@ public class BackupUIManager {
                 }
 
                 // In case not all changes are resolved, start from scratch
-                return showRestoreBackupDialog(dialogService, tabContainer, originalPath, preferences, fileUpdateMonitor, stateManager);
+                return showRestoreBackupDialog(
+                        dialogService, tabContainer, originalPath, preferences, fileUpdateMonitor, stateManager);
             });
         } catch (IOException e) {
             LOGGER.error("Error while loading backup or current database", e);

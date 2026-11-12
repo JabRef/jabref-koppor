@@ -3,14 +3,6 @@ package org.jabref.logic.git.status;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
-
-import org.jabref.logic.JabRefException;
-import org.jabref.logic.git.GitHandler;
-import org.jabref.logic.git.io.GitRevisionLocator;
-import org.jabref.logic.git.preferences.GitPreferences;
-import org.jabref.logic.git.util.GitExceptionUtil;
-import org.jabref.logic.l10n.Localization;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LsRemoteCommand;
 import org.eclipse.jgit.api.Status;
@@ -20,6 +12,12 @@ import org.eclipse.jgit.lib.BranchConfig;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.jabref.logic.JabRefException;
+import org.jabref.logic.git.GitHandler;
+import org.jabref.logic.git.io.GitRevisionLocator;
+import org.jabref.logic.git.preferences.GitPreferences;
+import org.jabref.logic.git.util.GitExceptionUtil;
+import org.jabref.logic.l10n.Localization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +37,7 @@ public class GitStatusChecker {
                     SyncStatus.UNKNOWN,
                     !GitStatusSnapshot.CONFLICT,
                     !GitStatusSnapshot.UNCOMMITTED,
-                    Optional.empty()
-            );
+                    Optional.empty());
         }
     }
 
@@ -69,8 +66,7 @@ public class GitStatusChecker {
                     syncStatus,
                     hasConflict,
                     hasUncommittedChanges,
-                    Optional.ofNullable(localHead).map(ObjectId::getName)
-            );
+                    Optional.ofNullable(localHead).map(ObjectId::getName));
         } catch (IOException | GitAPIException | JGitInternalException e) {
             throw translateStatusFailure(e);
         }
@@ -78,14 +74,13 @@ public class GitStatusChecker {
 
     public static GitStatusSnapshot checkStatus(Path anyPathInsideRepo, GitPreferences gitPreferences) {
         return GitHandler.fromAnyPath(anyPathInsideRepo, gitPreferences)
-                         .map(GitStatusChecker::checkStatus)
-                         .orElse(new GitStatusSnapshot(
-                                 !GitStatusSnapshot.TRACKING,
-                                 SyncStatus.UNTRACKED,
-                                 !GitStatusSnapshot.CONFLICT,
-                                 !GitStatusSnapshot.UNCOMMITTED,
-                                 Optional.empty()
-                         ));
+                .map(GitStatusChecker::checkStatus)
+                .orElse(new GitStatusSnapshot(
+                        !GitStatusSnapshot.TRACKING,
+                        SyncStatus.UNTRACKED,
+                        !GitStatusSnapshot.CONFLICT,
+                        !GitStatusSnapshot.UNCOMMITTED,
+                        Optional.empty()));
     }
 
     public static GitStatusSnapshot checkStatusAndFetch(GitHandler gitHandler) throws JabRefException {
@@ -114,7 +109,8 @@ public class GitStatusChecker {
         }
     }
 
-    private static SyncStatus determineSyncStatus(Repository repo, ObjectId localHead, ObjectId remoteHead) throws IOException {
+    private static SyncStatus determineSyncStatus(Repository repo, ObjectId localHead, ObjectId remoteHead)
+            throws IOException {
         if (localHead == null || remoteHead == null) {
             LOGGER.debug("localHead or remoteHead null");
             return SyncStatus.UNKNOWN;
@@ -140,9 +136,7 @@ public class GitStatusChecker {
 
     public static boolean isRemoteEmpty(GitHandler gitHandler) throws IOException, GitAPIException {
         try (Git git = Git.open(gitHandler.getRepositoryPathAsFile())) {
-            LsRemoteCommand lsRemoteCommand = git.lsRemote()
-                                                 .setRemote("origin")
-                                                 .setHeads(true);
+            LsRemoteCommand lsRemoteCommand = git.lsRemote().setRemote("origin").setHeads(true);
             gitHandler.getCredentialsProvider().ifPresent(lsRemoteCommand::setCredentialsProvider);
             Iterable<Ref> heads = lsRemoteCommand.call();
             boolean empty = (heads == null) || !heads.iterator().hasNext();
@@ -160,18 +154,22 @@ public class GitStatusChecker {
         if (GitExceptionUtil.isLockFailure(exception)) {
             return new JabRefException(
                     "Failed to check Git status because the repository is locked",
-                    Localization.lang("The Git repository is locked. Close other Git, JabRef, or IDE processes and try again."),
+                    Localization.lang(
+                            "The Git repository is locked. Close other Git, JabRef, or IDE processes and try again."),
                     exception);
         }
         if (GitExceptionUtil.isMissingObjectFailure(exception)) {
             return new JabRefException(
                     "Failed to check Git status because the repository is incomplete or corrupted",
-                    Localization.lang("The local Git repository is incomplete or corrupted. Remove the broken .git directory in that folder or choose another folder, then try again."),
+                    Localization.lang(
+                            "The local Git repository is incomplete or corrupted. Remove the broken .git directory in"
+                                    + " that folder or choose another folder, then try again."),
                     exception);
         }
         return new JabRefException(
                 "Failed to check Git status",
-                Localization.lang("Could not read the Git repository status. Please check the repository and try again."),
+                Localization.lang(
+                        "Could not read the Git repository status. Please check the repository and try again."),
                 exception);
     }
 }

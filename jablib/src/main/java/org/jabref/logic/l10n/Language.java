@@ -7,7 +7,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
 import org.jspecify.annotations.NonNull;
 
 /// Contains all supported languages.
@@ -50,7 +49,8 @@ public enum Language {
     }
 
     public static Optional<Locale> convertToSupportedLocale(@NonNull Language language) {
-        // Very important to split languages like pt_BR into two parts, because otherwise the country would be treated lowercase and create problems in loading
+        // Very important to split languages like pt_BR into two parts, because otherwise the country would be treated
+        // lowercase and create problems in loading
         String[] languageParts = language.getId().split("_");
         Locale locale;
         if (languageParts.length == 1) {
@@ -66,9 +66,9 @@ public enum Language {
 
     public static Language getLanguageFor(String languageString) {
         return Stream.of(Language.values())
-                     .filter(language -> language.getId().equalsIgnoreCase(languageString))
-                     .findFirst()
-                     .orElse(Language.ENGLISH);
+                .filter(language -> language.getId().equalsIgnoreCase(languageString))
+                .findFirst()
+                .orElse(Language.ENGLISH);
     }
 
     public String getDisplayName() {
@@ -81,8 +81,8 @@ public enum Language {
 
     public static List<Language> getSorted() {
         return Arrays.stream(values())
-                     .sorted(Comparator.comparing(language -> removeNonLatinCharacters(language.getDisplayName())))
-                     .toList();
+                .sorted(Comparator.comparing(language -> removeNonLatinCharacters(language.getDisplayName())))
+                .toList();
     }
 
     private static String removeNonLatinCharacters(String input) {

@@ -1,9 +1,15 @@
 package org.jabref.gui.fieldeditors;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -17,23 +23,16 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(JavaFxExtension.class)
 class LinkedFileViewModelMoveFileTest {
 
-    @TempDir Path tempDir;
+    @TempDir
+    Path tempDir;
 
     private BibDatabaseContext databaseContext;
     private GuiPreferences preferences;
@@ -73,7 +72,8 @@ class LinkedFileViewModelMoveFileTest {
         Files.createFile(sourceFile);
 
         LinkedFile linkedFile = new LinkedFile("desc", sourceFile, "pdf");
-        LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
+        LinkedFileViewModel viewModel =
+                new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
 
         viewModel.moveToDirectory(destinationDir);
 
@@ -90,11 +90,13 @@ class LinkedFileViewModelMoveFileTest {
 
         LinkedFile linkedFile = new LinkedFile("desc", sourceFile, "pdf");
 
-        LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
+        LinkedFileViewModel viewModel =
+                new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
 
         viewModel.moveToDirectory(destinationDir);
 
-        String targetDirectoryName = FileUtil.createDirNameFromPattern(databaseContext.getDatabase(), entry, "[entrytype]");
+        String targetDirectoryName =
+                FileUtil.createDirNameFromPattern(databaseContext.getDatabase(), entry, "[entrytype]");
         Path movedFile = destinationDir.resolve(targetDirectoryName).resolve("test.pdf");
         assertTrue(Files.exists(movedFile));
         assertFalse(Files.exists(sourceFile));
@@ -105,20 +107,22 @@ class LinkedFileViewModelMoveFileTest {
         Path missingFile = sourceDir.resolve("missing.pdf");
         LinkedFile linkedFile = new LinkedFile("desc", missingFile, "pdf");
 
-        LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
+        LinkedFileViewModel viewModel =
+                new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
 
         viewModel.moveToDirectory(destinationDir);
 
-        verify(dialogService).showErrorDialogAndWait(
-                eq(Localization.lang("File not found")),
-                eq(Localization.lang("Could not find file '%0'.", linkedFile.getLink()))
-        );
+        verify(dialogService)
+                .showErrorDialogAndWait(
+                        eq(Localization.lang("File not found")),
+                        eq(Localization.lang("Could not find file '%0'.", linkedFile.getLink())));
     }
 
     @Test
     void isInDirectoryReturnsTrueForCurrentCurrentDirectoryAndPattern() throws IOException {
         when(filePreferences.getFileDirectoryPattern()).thenReturn("[entrytype]");
-        String targetDirectoryName = FileUtil.createDirNameFromPattern(databaseContext.getDatabase(), entry, "[entrytype]");
+        String targetDirectoryName =
+                FileUtil.createDirNameFromPattern(databaseContext.getDatabase(), entry, "[entrytype]");
 
         Path existingFile = destinationDir.resolve(targetDirectoryName).resolve("test.pdf");
         Files.createDirectories(existingFile.getParent());
@@ -126,7 +130,8 @@ class LinkedFileViewModelMoveFileTest {
 
         LinkedFile linkedFile = new LinkedFile("desc", existingFile, "pdf");
 
-        LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
+        LinkedFileViewModel viewModel =
+                new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
 
         assertTrue(viewModel.isInCurrentDirectory(destinationDir));
     }
@@ -137,7 +142,8 @@ class LinkedFileViewModelMoveFileTest {
         Files.createFile(existingFile);
         LinkedFile linkedFile = new LinkedFile("desc", existingFile, "pdf");
 
-        LinkedFileViewModel viewModel = new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
+        LinkedFileViewModel viewModel =
+                new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
 
         assertFalse(viewModel.isInCurrentDirectory(destinationDir));
     }

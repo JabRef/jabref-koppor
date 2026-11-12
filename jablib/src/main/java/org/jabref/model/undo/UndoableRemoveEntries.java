@@ -2,11 +2,9 @@ package org.jabref.model.undo;
 
 import java.util.List;
 import java.util.Objects;
-
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.event.EntriesEventSource;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Removal of entries from the library. See [UndoableInsertEntries] on why the entry objects are
@@ -17,7 +15,8 @@ import org.jspecify.annotations.NullMarked;
 /// auto-assign them to the currently selected group. Removal itself is always reported as a
 /// local change.
 @NullMarked
-public record UndoableRemoveEntries(BibDatabase database, List<BibEntry> entries, EntriesEventSource reinsertSource) implements BibChange {
+public record UndoableRemoveEntries(BibDatabase database, List<BibEntry> entries, EntriesEventSource reinsertSource)
+        implements BibChange {
 
     public UndoableRemoveEntries {
         entries = List.copyOf(entries);

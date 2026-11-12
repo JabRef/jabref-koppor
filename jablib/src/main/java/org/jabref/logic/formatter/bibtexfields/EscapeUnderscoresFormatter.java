@@ -1,10 +1,8 @@
 package org.jabref.logic.formatter.bibtexfields;
 
 import java.util.regex.Pattern;
-
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 
 public class EscapeUnderscoresFormatter extends Formatter {

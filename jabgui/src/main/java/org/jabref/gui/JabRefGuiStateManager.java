@@ -1,5 +1,8 @@
 package org.jabref.gui;
 
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.EasyBinding;
+import com.tobiasdiez.easybind.PreboundBinding;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,7 +10,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-
 import javafx.beans.Observable;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
@@ -23,7 +25,6 @@ import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.util.Pair;
-
 import org.jabref.gui.ai.chat.AiGroupChatWindow;
 import org.jabref.gui.search.SearchType;
 import org.jabref.gui.sidepane.SidePaneType;
@@ -40,10 +41,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.search.query.SearchQuery;
-
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.EasyBinding;
-import com.tobiasdiez.easybind.PreboundBinding;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -75,22 +72,33 @@ public class JabRefGuiStateManager extends AbstractSrvStateManager implements St
     private final OptionalObjectProperty<BibDatabaseContext> activeDatabase = OptionalObjectProperty.empty();
     private final OptionalObjectProperty<LibraryTab> activeTab = OptionalObjectProperty.empty();
     private final ObservableList<BibEntry> selectedEntries = FXCollections.observableArrayList();
-    private final ObservableMap<String, ObservableList<GroupTreeNode>> selectedGroups = FXCollections.observableHashMap();
+    private final ObservableMap<String, ObservableList<GroupTreeNode>> selectedGroups =
+            FXCollections.observableHashMap();
     private final OptionalObjectProperty<SearchQuery> activeSearchQuery = OptionalObjectProperty.empty();
     private final OptionalObjectProperty<SearchQuery> activeGlobalSearchQuery = OptionalObjectProperty.empty();
     private final StringProperty searchQueryProperty = new SimpleStringProperty();
     private final IntegerProperty searchResultSize = new SimpleIntegerProperty(0);
     private final IntegerProperty globalSearchResultSize = new SimpleIntegerProperty(0);
     private final OptionalObjectProperty<Node> focusOwner = OptionalObjectProperty.empty();
-    private final ObservableList<Pair<BackgroundTask<?>, Task<?>>> backgroundTasksPairs = FXCollections.observableArrayList(task -> new Observable[] {task.getValue().progressProperty(), task.getValue().runningProperty()});
+    private final ObservableList<Pair<BackgroundTask<?>, Task<?>>> backgroundTasksPairs =
+            FXCollections.observableArrayList(task -> new Observable[] {
+                task.getValue().progressProperty(), task.getValue().runningProperty()
+            });
     private final ObservableList<Task<?>> backgroundTasks = EasyBind.map(backgroundTasksPairs, Pair::getValue);
-    private final FilteredList<Pair<BackgroundTask<?>, Task<?>>> runningBackgroundTasksPairs = new FilteredList<>(backgroundTasksPairs, pair -> pair.getValue().isRunning());
-    private final ObservableList<Task<?>> runningBackgroundTasks = EasyBind.map(runningBackgroundTasksPairs, Pair::getValue);
-    private final EasyBinding<Boolean> anyTasksThatWillNotBeRecoveredRunning = EasyBind.reduce(backgroundTasksPairs, tasks -> tasks.anyMatch(task -> !task.getKey().willBeRecoveredAutomatically() && task.getValue().isRunning()));
+    private final FilteredList<Pair<BackgroundTask<?>, Task<?>>> runningBackgroundTasksPairs =
+            new FilteredList<>(backgroundTasksPairs, pair -> pair.getValue().isRunning());
+    private final ObservableList<Task<?>> runningBackgroundTasks =
+            EasyBind.map(runningBackgroundTasksPairs, Pair::getValue);
+    private final EasyBinding<Boolean> anyTasksThatWillNotBeRecoveredRunning = EasyBind.reduce(
+            backgroundTasksPairs,
+            tasks -> tasks.anyMatch(task -> !task.getKey().willBeRecoveredAutomatically()
+                    && task.getValue().isRunning()));
     private final ObservableMap<String, DialogWindowState> dialogWindowStates = FXCollections.observableHashMap();
     private final ObservableList<SidePaneType> visibleSidePanes = FXCollections.observableArrayList();
     private final ObservableList<String> searchHistory = FXCollections.observableArrayList();
-    /// Keyed by [BibDatabaseContext#getUid()] instead of [BibDatabaseContext], because [BibDatabaseContext#equals(Object)] (and the matching [BibDatabaseContext#hashCode()]) change with the library content and cannot be used as [HashMap] keys.
+    /// Keyed by [BibDatabaseContext#getUid()] instead of [BibDatabaseContext], because
+    /// [BibDatabaseContext#equals(Object)] (and the matching [BibDatabaseContext#hashCode()]) change with the library
+    /// content and cannot be used as [HashMap] keys.
     private final Map<String, Map<String, AiGroupChatWindow>> groupAiChatWindows = new HashMap<>();
     private final BooleanProperty editorShowing = new SimpleBooleanProperty(false);
     private final OptionalObjectProperty<Walkthrough> activeWalkthrough = OptionalObjectProperty.empty();
@@ -173,7 +181,9 @@ public class JabRefGuiStateManager extends AbstractSrvStateManager implements St
     @Override
     @NullMarked
     public void setSelectedGroups(BibDatabaseContext context, List<GroupTreeNode> newSelectedGroups) {
-        selectedGroups.computeIfAbsent(context.getUid(), _ -> FXCollections.observableArrayList()).setAll(newSelectedGroups);
+        selectedGroups
+                .computeIfAbsent(context.getUid(), _ -> FXCollections.observableArrayList())
+                .setAll(newSelectedGroups);
     }
 
     @Override
@@ -183,7 +193,9 @@ public class JabRefGuiStateManager extends AbstractSrvStateManager implements St
 
     @Override
     public void clearSelectedGroups(BibDatabaseContext context) {
-        selectedGroups.computeIfAbsent(context.getUid(), _ -> FXCollections.observableArrayList()).clear();
+        selectedGroups
+                .computeIfAbsent(context.getUid(), _ -> FXCollections.observableArrayList())
+                .clear();
     }
 
     @Override
@@ -254,10 +266,9 @@ public class JabRefGuiStateManager extends AbstractSrvStateManager implements St
     public List<String> getAllDatabasePaths() {
         List<String> list = new ArrayList<>();
         getOpenDatabases().stream()
-                          .map(BibDatabaseContext::getDatabasePath)
-                          .forEachOrdered(pathOptional -> pathOptional.ifPresentOrElse(
-                                  path -> list.add(path.toAbsolutePath().toString()),
-                                  () -> list.add("")));
+                .map(BibDatabaseContext::getDatabasePath)
+                .forEachOrdered(pathOptional -> pathOptional.ifPresentOrElse(
+                        path -> list.add(path.toAbsolutePath().toString()), () -> list.add("")));
         return list;
     }
 
@@ -299,13 +310,15 @@ public class JabRefGuiStateManager extends AbstractSrvStateManager implements St
     @Override
     public Optional<AiGroupChatWindow> getAiChatWindowForGroup(BibDatabaseContext context, String groupName) {
         return Optional.ofNullable(groupAiChatWindows.get(context.getUid()))
-                       .flatMap(innerMap -> Optional.ofNullable(innerMap.get(groupName)));
+                .flatMap(innerMap -> Optional.ofNullable(innerMap.get(groupName)));
     }
 
     @Override
-    public void setAiChatWindowForGroup(BibDatabaseContext context, String groupName, AiGroupChatWindow aiGroupChatWindow) {
-        groupAiChatWindows.computeIfAbsent(context.getUid(), _ -> new HashMap<>())
-                          .put(groupName, aiGroupChatWindow);
+    public void setAiChatWindowForGroup(
+            BibDatabaseContext context, String groupName, AiGroupChatWindow aiGroupChatWindow) {
+        groupAiChatWindows
+                .computeIfAbsent(context.getUid(), _ -> new HashMap<>())
+                .put(groupName, aiGroupChatWindow);
     }
 
     @Override

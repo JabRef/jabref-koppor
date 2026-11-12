@@ -1,15 +1,14 @@
 package org.jabref.gui.undo;
 
+import static org.jabref.gui.actions.ActionHelper.needsUndo;
+
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.undo.UndoStep;
-
 import org.jspecify.annotations.NullMarked;
-
-import static org.jabref.gui.actions.ActionHelper.needsUndo;
 
 /// Undoes the last change made to the library the user is looking at.
 ///
@@ -39,20 +38,24 @@ public class UndoAction extends SimpleCommand {
 
         // A command holding the library is asked about before the stacks: a suspension makes
         // canUndo() false as well, and "nothing to undo" would then be untrue.
-        undoManager.suspendedBy().ifPresentOrElse(
-                command -> dialogService.notify(Localization.lang("Cannot undo while %0 is running", command)),
-                () -> undo(undoManager));
+        undoManager
+                .suspendedBy()
+                .ifPresentOrElse(
+                        command -> dialogService.notify(Localization.lang("Cannot undo while %0 is running", command)),
+                        () -> undo(undoManager));
     }
 
     private void undo(GuiUndoManager undoManager) {
-        undoManager.undo().ifPresentOrElse(
-                step -> dialogService.notify(message(step)),
-                () -> dialogService.notify(Localization.lang("Nothing to undo") + '.'));
+        undoManager
+                .undo()
+                .ifPresentOrElse(
+                        step -> dialogService.notify(message(step)),
+                        () -> dialogService.notify(Localization.lang("Nothing to undo") + '.'));
     }
 
     private static String message(UndoStep step) {
         return step.complete()
-               ? Localization.lang("Undone: %0", step.name())
-               : Localization.lang("Undone: %0 (some changes could not be applied)", step.name());
+                ? Localization.lang("Undone: %0", step.name())
+                : Localization.lang("Undone: %0 (some changes could not be applied)", step.name());
     }
 }

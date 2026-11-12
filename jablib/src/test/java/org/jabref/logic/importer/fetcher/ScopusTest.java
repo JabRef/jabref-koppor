@@ -1,13 +1,19 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
@@ -18,19 +24,10 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.paging.Page;
 import org.jabref.model.search.query.SearchQueryNode;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExternalServicesTest
 @Disabled("Requires Elsevier/Scopus API key - enable locally with valid key")
@@ -122,8 +119,8 @@ class ScopusTest implements SearchBasedFetcherCapabilityTest, PagedSearchFetcher
         // Check that essential fields are populated
         assertNotEquals(Optional.empty(), firstEntry.getField(StandardField.TITLE));
         // Scopus entries should have DOI or URL
-        assertTrue(firstEntry.getField(StandardField.DOI).isPresent() ||
-                firstEntry.getField(StandardField.URL).isPresent());
+        assertTrue(firstEntry.getField(StandardField.DOI).isPresent()
+                || firstEntry.getField(StandardField.URL).isPresent());
     }
 
     @Test

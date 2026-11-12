@@ -1,15 +1,13 @@
 package org.jabref.logic.util;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import java.util.Optional;
-
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.event.BibDatabaseContextChangedEvent;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.entry.field.Field;
-
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,15 +53,20 @@ public class CoarseChangeFilter {
             // If editing has started
             boolean isNewEdit = lastFieldChanged.isEmpty() || lastEntryChanged.isEmpty();
 
-            boolean isChangedField = lastFieldChanged.filter(f -> !f.equals(fieldChange.getField())).isPresent();
-            boolean isChangedEntry = lastEntryChanged.filter(e -> !e.equals(fieldChange.getBibEntry())).isPresent();
+            boolean isChangedField = lastFieldChanged
+                    .filter(f -> !f.equals(fieldChange.getField()))
+                    .isPresent();
+            boolean isChangedEntry = lastEntryChanged
+                    .filter(e -> !e.equals(fieldChange.getBibEntry()))
+                    .isPresent();
             boolean isEditChanged = !isNewEdit && (isChangedField || isChangedEntry);
             // Only deltas of 1 when typing in manually, major change means pasting something (more than one character)
             boolean isMajorChange = fieldChange.charactersChangedCount() > 1;
 
             fieldChange.setFiltered(!(isEditChanged || isMajorChange));
             // Post each FieldChangedEvent - even the ones being marked as "filtered"
-            // Explanation at https://github.com/JabRef/jabref/pull/6868. - especially necessary for BackupManager and AutoSaveManager
+            // Explanation at https://github.com/JabRef/jabref/pull/6868. - especially necessary for BackupManager and
+            // AutoSaveManager
             eventBus.post(fieldChange);
 
             lastFieldChanged = Optional.of(fieldChange.getField());

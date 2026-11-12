@@ -8,7 +8,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.cleanup.MoveFieldCleanup;
 import org.jabref.logic.formatter.bibtexfields.ClearFormatter;
@@ -33,16 +36,15 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.paging.Page;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NonNull;
 
-/// Fetches data from the SAO/NASA Astrophysics Data System (<a href="https://ui.adsabs.harvard.edu/">https://ui.adsabs.harvard.edu/</a>)
+/// Fetches data from the SAO/NASA Astrophysics Data System (<a
+/// href="https://ui.adsabs.harvard.edu/">https://ui.adsabs.harvard.edu/</a>)
 public class AstrophysicsDataSystem
-        implements IdBasedParserFetcher, PagedSearchBasedParserFetcher, EntryBasedParserFetcher, CustomizableKeyFetcher {
+        implements IdBasedParserFetcher,
+                PagedSearchBasedParserFetcher,
+                EntryBasedParserFetcher,
+                CustomizableKeyFetcher {
     public static final String FETCHER_NAME = "SAO/NASA ADS";
 
     private static final String API_SEARCH_URL = "https://api.adsabs.harvard.edu/v1/search/query";
@@ -51,7 +53,8 @@ public class AstrophysicsDataSystem
     private final ImportFormatPreferences importFormatPreferences;
     private final ImporterPreferences importerPreferences;
 
-    public AstrophysicsDataSystem(@NonNull ImportFormatPreferences importFormatPreferences, ImporterPreferences importerPreferences) {
+    public AstrophysicsDataSystem(
+            @NonNull ImportFormatPreferences importFormatPreferences, ImporterPreferences importerPreferences) {
         this.importFormatPreferences = importFormatPreferences;
         this.importerPreferences = importerPreferences;
     }
@@ -76,8 +79,10 @@ public class AstrophysicsDataSystem
     /// @param queryList the list that contains the parsed nodes
     /// @return URL which points to a search request for given query
     @Override
-    public URL getURLForQuery(BaseQueryNode queryList, int pageNumber) throws URISyntaxException, MalformedURLException {
-        return buildSearchURL(new DefaultQueryTransformer().transformSearchQuery(queryList).orElse(""), pageNumber);
+    public URL getURLForQuery(BaseQueryNode queryList, int pageNumber)
+            throws URISyntaxException, MalformedURLException {
+        return buildSearchURL(
+                new DefaultQueryTransformer().transformSearchQuery(queryList).orElse(""), pageNumber);
     }
 
     private URL buildSearchURL(String query, int pageNumber) throws URISyntaxException, MalformedURLException {
@@ -99,9 +104,9 @@ public class AstrophysicsDataSystem
         Optional<String> author = entry.getFieldOrAlias(StandardField.AUTHOR).map(a -> "author:\"" + a + "\"");
 
         if (title.isPresent()) {
-            stringBuilder.append(title.get())
-                         .append(author.map(s -> " AND " + s)
-                                       .orElse(""));
+            stringBuilder
+                    .append(title.get())
+                    .append(author.map(s -> " AND " + s).orElse(""));
         } else {
             stringBuilder.append(author.orElse(""));
         }
@@ -118,7 +123,7 @@ public class AstrophysicsDataSystem
     /// @return URL which points to a search URL for given identifier
     @Override
     public URL getUrlForIdentifier(String identifier) throws URISyntaxException, MalformedURLException {
-        String query = "doi:\"" + identifier + "\" OR " + "bibcode:\"" + identifier + "\"";
+        String query = "doi:\"" + identifier + "\" OR bibcode:\"" + identifier + "\"";
         URIBuilder builder = new URIBuilder(API_SEARCH_URL);
         builder.addParameter("q", query);
         builder.addParameter("fl", "bibcode");
@@ -143,21 +148,22 @@ public class AstrophysicsDataSystem
         // Move adsurl to url field
         new MoveFieldCleanup(new UnknownField("adsurl"), StandardField.URL).cleanup(entry);
         entry.getField(StandardField.ABSTRACT)
-             .filter("Not Available <P />"::equals)
-             .ifPresent(_ -> entry.clearField(StandardField.ABSTRACT));
+                .filter("Not Available <P />"::equals)
+                .ifPresent(_ -> entry.clearField(StandardField.ABSTRACT));
 
         entry.getField(StandardField.ABSTRACT)
-             .map(abstractText -> abstractText.replace("<P />", ""))
-             .map(abstractText -> abstractText.replace("\\textbackslash", ""))
-             .map(String::trim)
-             .ifPresent(abstractText -> entry.setField(StandardField.ABSTRACT, abstractText));
+                .map(abstractText -> abstractText.replace("<P />", ""))
+                .map(abstractText -> abstractText.replace("\\textbackslash", ""))
+                .map(String::trim)
+                .ifPresent(abstractText -> entry.setField(StandardField.ABSTRACT, abstractText));
         // The fetcher adds some garbage (number of found entries etc before)
         entry.setCommentsBeforeEntry("");
     }
 
     @Override
     public List<BibEntry> performSearch(@NonNull BibEntry entry) throws FetcherException {
-        if (entry.getFieldOrAlias(StandardField.TITLE).isEmpty() && entry.getFieldOrAlias(StandardField.AUTHOR).isEmpty()) {
+        if (entry.getFieldOrAlias(StandardField.TITLE).isEmpty()
+                && entry.getFieldOrAlias(StandardField.AUTHOR).isEmpty()) {
             return List.of();
         }
 
@@ -211,16 +217,22 @@ public class AstrophysicsDataSystem
             return Optional.empty();
         }
         if (fetchedEntries.size() > 1) {
-            LOGGER.info("Fetcher {} found more than one result for identifier {}. We will use the first entry.", getName(), identifier);
+            LOGGER.info(
+                    "Fetcher {} found more than one result for identifier {}. We will use the first entry.",
+                    getName(),
+                    identifier);
         }
         BibEntry entry = fetchedEntries.getFirst();
         return Optional.of(entry);
     }
 
     /// @param identifiers bibcodes for which bibentries should be fetched
-    /// @return list of bibentries matching the bibcodes. Can be empty and differ in size to the size of requested bibcodes
+    /// @return list of bibentries matching the bibcodes. Can be empty and differ in size to the size of requested
+    /// bibcodes
     private List<BibEntry> performSearchByIds(Collection<String> identifiers) throws FetcherException {
-        List<String> ids = identifiers.stream().filter(identifier -> !StringUtil.isBlank(identifier)).collect(Collectors.toList());
+        List<String> ids = identifiers.stream()
+                .filter(identifier -> !StringUtil.isBlank(identifier))
+                .collect(Collectors.toList());
         if (ids.isEmpty()) {
             return List.of();
         }
@@ -235,7 +247,9 @@ public class AstrophysicsDataSystem
         try {
             String postData = buildPostData(ids);
             URLDownload download = new URLDownload(urLforExport);
-            importerPreferences.getApiKey(getName()).ifPresent(key -> download.addHeader("Authorization", "Bearer " + key));
+            importerPreferences
+                    .getApiKey(getName())
+                    .ifPresent(key -> download.addHeader("Authorization", "Bearer " + key));
             download.addHeader("ContentType", "application/json");
             download.setPostData(postData);
             String content = download.asString();
@@ -304,7 +318,9 @@ public class AstrophysicsDataSystem
     @Override
     public URLDownload getUrlDownload(URL url) {
         URLDownload urlDownload = new URLDownload(url);
-        importerPreferences.getApiKey(getName()).ifPresent(key -> urlDownload.addHeader("Authorization", "Bearer " + key));
+        importerPreferences
+                .getApiKey(getName())
+                .ifPresent(key -> urlDownload.addHeader("Authorization", "Bearer " + key));
         return urlDownload;
     }
 }

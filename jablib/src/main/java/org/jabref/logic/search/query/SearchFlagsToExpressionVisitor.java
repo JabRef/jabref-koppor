@@ -1,21 +1,19 @@
 package org.jabref.logic.search.query;
 
-import java.util.EnumSet;
-import java.util.List;
-
-import org.jabref.model.search.SearchFlags;
-import org.jabref.search.SearchBaseVisitor;
-import org.jabref.search.SearchParser;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import static org.jabref.model.search.SearchFlags.CASE_INSENSITIVE;
 import static org.jabref.model.search.SearchFlags.CASE_SENSITIVE;
 import static org.jabref.model.search.SearchFlags.EXACT_MATCH;
 import static org.jabref.model.search.SearchFlags.INEXACT_MATCH;
 import static org.jabref.model.search.SearchFlags.NEGATION;
 import static org.jabref.model.search.SearchFlags.REGULAR_EXPRESSION;
+
+import java.util.EnumSet;
+import java.util.List;
+import org.jabref.model.search.SearchFlags;
+import org.jabref.search.SearchBaseVisitor;
+import org.jabref.search.SearchParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /// Tests are located in `org.jabref.logic.search.query.SearchQueryFlagsConversionTest`
 public class SearchFlagsToExpressionVisitor extends SearchBaseVisitor<String> {
@@ -87,7 +85,9 @@ public class SearchFlagsToExpressionVisitor extends SearchBaseVisitor<String> {
         if (isRegularExpression) {
             searchFlags.add(REGULAR_EXPRESSION);
         } else {
-            if (operator == SearchParser.EQUAL || operator == SearchParser.CONTAINS || operator == SearchParser.NEQUAL) {
+            if (operator == SearchParser.EQUAL
+                    || operator == SearchParser.CONTAINS
+                    || operator == SearchParser.NEQUAL) {
                 searchFlags.add(INEXACT_MATCH);
             } else if (operator == SearchParser.EEQUAL || operator == SearchParser.MATCHES) {
                 searchFlags.add(EXACT_MATCH);

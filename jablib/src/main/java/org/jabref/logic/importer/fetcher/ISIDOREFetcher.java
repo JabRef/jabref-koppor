@@ -1,5 +1,6 @@
 package org.jabref.logic.importer.fetcher;
 
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.PushbackInputStream;
 import java.net.MalformedURLException;
@@ -9,11 +10,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.PagedSearchBasedParserFetcher;
 import org.jabref.logic.importer.Parser;
@@ -24,9 +24,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import jakarta.ws.rs.core.MediaType;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,10 +94,13 @@ public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
     }
 
     @Override
-    public URL getURLForQuery(BaseQueryNode queryNode, int pageNumber) throws URISyntaxException, MalformedURLException {
+    public URL getURLForQuery(BaseQueryNode queryNode, int pageNumber)
+            throws URISyntaxException, MalformedURLException {
         ISIDOREQueryTransformer queryTransformer = new ISIDOREQueryTransformer();
-        String transformedQuery = queryTransformer.transformSearchQuery(queryNode).orElse("");
-        URIBuilder uriBuilder = new URIBuilder(buildSearchURL(transformedQuery, pageNumber).toURI());
+        String transformedQuery =
+                queryTransformer.transformSearchQuery(queryNode).orElse("");
+        URIBuilder uriBuilder =
+                new URIBuilder(buildSearchURL(transformedQuery, pageNumber).toURI());
         queryTransformer.getParameterMap().forEach(uriBuilder::addParameter);
 
         URL url = uriBuilder.build().toURL();
@@ -142,13 +142,37 @@ public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
     }
 
     private BibEntry xmlItemToBibEntry(Element itemElement) {
-        return new BibEntry(getType(itemElement.getElementsByTagName("types").item(0).getChildNodes()))
-                .withField(StandardField.TITLE, itemElement.getElementsByTagName("title").item(0).getTextContent().replace("\"", ""))
-                .withField(StandardField.AUTHOR, getAuthor(itemElement.getElementsByTagName("enrichedCreators").item(0)))
-                .withField(StandardField.YEAR, itemElement.getElementsByTagName("date").item(0).getChildNodes().item(1).getTextContent().substring(0, 4))
+        return new BibEntry(getType(
+                        itemElement.getElementsByTagName("types").item(0).getChildNodes()))
+                .withField(
+                        StandardField.TITLE,
+                        itemElement
+                                .getElementsByTagName("title")
+                                .item(0)
+                                .getTextContent()
+                                .replace("\"", ""))
+                .withField(
+                        StandardField.AUTHOR,
+                        getAuthor(itemElement
+                                .getElementsByTagName("enrichedCreators")
+                                .item(0)))
+                .withField(
+                        StandardField.YEAR,
+                        itemElement
+                                .getElementsByTagName("date")
+                                .item(0)
+                                .getChildNodes()
+                                .item(1)
+                                .getTextContent()
+                                .substring(0, 4))
                 .withField(StandardField.JOURNAL, getJournal(itemElement.getElementsByTagName("dc:source")))
-                .withField(StandardField.PUBLISHER, getPublishers(itemElement.getElementsByTagName("publishers").item(0)))
-                .withField(StandardField.DOI, getDOI(itemElement.getElementsByTagName("ore").item(0).getChildNodes()));
+                .withField(
+                        StandardField.PUBLISHER,
+                        getPublishers(
+                                itemElement.getElementsByTagName("publishers").item(0)))
+                .withField(
+                        StandardField.DOI,
+                        getDOI(itemElement.getElementsByTagName("ore").item(0).getChildNodes()));
     }
 
     private String getDOI(NodeList list) {
@@ -187,14 +211,19 @@ public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
         // For some reason the author field sometimes has extra numbers and letters.
         StringJoiner stringJoiner = new StringJoiner(" and ");
         for (int i = 1; i < itemElement.getChildNodes().getLength(); i += 2) {
-            String next = removeNumbers(itemElement.getChildNodes().item(i).getTextContent()).replaceAll("\\s+", " ");
+            String next = removeNumbers(itemElement.getChildNodes().item(i).getTextContent())
+                    .replaceAll("\\s+", " ");
             next = next.replace("\n", "");
             if (next.isBlank()) {
                 continue;
             }
             stringJoiner.add(next);
         }
-        return stringJoiner.toString().substring(0, stringJoiner.length()).trim().replaceAll("\\s+", " ");
+        return stringJoiner
+                .toString()
+                .substring(0, stringJoiner.length())
+                .trim()
+                .replaceAll("\\s+", " ");
     }
 
     /// Remove numbers from a string and everything after the number, (helps with the author field).
@@ -220,7 +249,8 @@ public class ISIDOREFetcher implements PagedSearchBasedParserFetcher {
             if (itemElement.getChildNodes().item(i).getTextContent().isBlank()) {
                 continue;
             }
-            stringJoiner.add(itemElement.getChildNodes().item(i).getTextContent().trim());
+            stringJoiner.add(
+                    itemElement.getChildNodes().item(i).getTextContent().trim());
         }
         return stringJoiner.toString();
     }

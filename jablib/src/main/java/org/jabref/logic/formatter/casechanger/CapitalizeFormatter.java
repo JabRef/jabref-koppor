@@ -2,7 +2,6 @@ package org.jabref.logic.formatter.casechanger;
 
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 
 public class CapitalizeFormatter extends Formatter {
@@ -17,7 +16,8 @@ public class CapitalizeFormatter extends Formatter {
         return "capitalize";
     }
 
-    /// Converts the first character of each word of the given string to a upper case (and all others to lower case), but does not change words starting with "{"
+    /// Converts the first character of each word of the given string to a upper case (and all others to lower case),
+    /// but does not change words starting with "{"
     @Override
     public String format(@NonNull String input) {
         Title title = new Title(input);

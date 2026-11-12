@@ -1,25 +1,5 @@
 package org.jabref.gui.fieldeditors.contextmenu;
 
-import java.nio.file.Path;
-import java.util.Optional;
-
-import javafx.beans.property.SimpleStringProperty;
-
-import org.jabref.gui.actions.StandardActions;
-import org.jabref.gui.fieldeditors.LinkedFileViewModel;
-import org.jabref.gui.fieldeditors.LinkedFilesEditorViewModel;
-import org.jabref.gui.preferences.GuiPreferences;
-import org.jabref.gui.testutils.JavaFxExtension;
-import org.jabref.logic.FilePreferences;
-import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.LinkedFile;
-
-import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Answers;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +10,23 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
+import java.nio.file.Path;
+import java.util.Optional;
+import javafx.beans.property.SimpleStringProperty;
+import org.jabref.gui.actions.StandardActions;
+import org.jabref.gui.fieldeditors.LinkedFileViewModel;
+import org.jabref.gui.fieldeditors.LinkedFilesEditorViewModel;
+import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.gui.testutils.JavaFxExtension;
+import org.jabref.logic.FilePreferences;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.LinkedFile;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 
 @ExtendWith(JavaFxExtension.class)
 class ContextActionTest {
@@ -49,8 +46,8 @@ class ContextActionTest {
 
         ContextAction action = newAction(StandardActions.RENAME_FILE_TO_PATTERN, fileViewModel);
 
-        assertFalse(action.isExecutable(),
-                "RENAME_FILE_TO_PATTERN should be disabled when suggested name equals original");
+        assertFalse(
+                action.isExecutable(), "RENAME_FILE_TO_PATTERN should be disabled when suggested name equals original");
     }
 
     @Test
@@ -182,9 +179,8 @@ class ContextActionTest {
         return newAction(actionType, fileViewModel, mock(LinkedFilesEditorViewModel.class));
     }
 
-    private static ContextAction newAction(StandardActions actionType,
-                                           LinkedFileViewModel fileViewModel,
-                                           LinkedFilesEditorViewModel editorViewModel) {
+    private static ContextAction newAction(
+            StandardActions actionType, LinkedFileViewModel fileViewModel, LinkedFilesEditorViewModel editorViewModel) {
         GuiPreferences guiPreferences = mock(GuiPreferences.class, Answers.RETURNS_DEEP_STUBS);
         FilePreferences filePreferences = mock(FilePreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(guiPreferences.getFilePreferences()).thenReturn(filePreferences);
@@ -193,13 +189,7 @@ class ContextActionTest {
         ObservableOptionalValue<BibEntry> bibEntryOptional = mockEmptyBibEntryOptional();
 
         return new ContextAction(
-                actionType,
-                fileViewModel,
-                databaseContext,
-                bibEntryOptional,
-                guiPreferences,
-                editorViewModel
-        );
+                actionType, fileViewModel, databaseContext, bibEntryOptional, guiPreferences, editorViewModel);
     }
 
     private static ObservableOptionalValue<BibEntry> mockEmptyBibEntryOptional() {

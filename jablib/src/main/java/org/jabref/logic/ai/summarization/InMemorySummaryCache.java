@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
-
 import org.jabref.logic.ai.summarization.repositories.SummariesRepository;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 import org.jabref.model.ai.summarization.AiSummary;
@@ -21,8 +20,7 @@ import org.jabref.model.entry.BibEntry;
 /// Thread-safe: all map operations are protected by a synchronized wrapper.
 public class InMemorySummaryCache {
 
-    private record CachedEntry(AiSummary summary, FullBibEntry fullEntry) {
-    }
+    private record CachedEntry(AiSummary summary, FullBibEntry fullEntry) {}
 
     // IdentityHashMap: compares keys by reference (==), NOT by equals()/hashCode().
     // This is exactly what we need — two BibEntry objects with the same citation key are distinct
@@ -64,8 +62,7 @@ public class InMemorySummaryCache {
                 return;
             }
 
-            cached.fullEntry().toAiSummaryIdentifier()
-                  .ifPresent(id -> repository.set(id, cached.summary()));
+            cached.fullEntry().toAiSummaryIdentifier().ifPresent(id -> repository.set(id, cached.summary()));
         });
     }
 }

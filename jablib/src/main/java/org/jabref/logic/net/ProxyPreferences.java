@@ -1,7 +1,6 @@
 package org.jabref.logic.net;
 
 import java.util.Objects;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,13 +16,14 @@ public class ProxyPreferences {
     private final StringProperty password;
     private final BooleanProperty persistPassword;
 
-    public ProxyPreferences(Boolean useProxy,
-                            String hostname,
-                            String port,
-                            Boolean useAuthentication,
-                            String username,
-                            String password,
-                            boolean persistPassword) {
+    public ProxyPreferences(
+            Boolean useProxy,
+            String hostname,
+            String port,
+            Boolean useAuthentication,
+            String username,
+            String password,
+            boolean persistPassword) {
         this.useProxy = new SimpleBooleanProperty(useProxy);
         this.hostname = new SimpleStringProperty(hostname);
         this.port = new SimpleStringProperty(port);
@@ -36,14 +36,14 @@ public class ProxyPreferences {
     // Creates object with default preference values
     private ProxyPreferences() {
         this(
-                false,      // useProxy: Whether to enable proxy usage
-                "",         // proxyHostname: The hostname of proxy
-                "80",       // proxyPort: Port number on which the proxy is listening
-                false,      // useAuthentication: Whether proxy authentication should be enabled
-                "",         // proxyUsername: Username for proxy authentication (if enabled)
-                "",         // proxyPassword: Password for proxy authentication (if enabled)
-                false       // persistPassword: Whether the proxy password should be saved/persisted
-        );
+                false, // useProxy: Whether to enable proxy usage
+                "", // proxyHostname: The hostname of proxy
+                "80", // proxyPort: Port number on which the proxy is listening
+                false, // useAuthentication: Whether proxy authentication should be enabled
+                "", // proxyUsername: Username for proxy authentication (if enabled)
+                "", // proxyPassword: Password for proxy authentication (if enabled)
+                false // persistPassword: Whether the proxy password should be saved/persisted
+                );
     }
 
     public static ProxyPreferences getDefault() {

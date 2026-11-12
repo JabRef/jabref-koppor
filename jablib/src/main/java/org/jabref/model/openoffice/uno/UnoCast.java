@@ -1,13 +1,11 @@
 package org.jabref.model.openoffice.uno;
 
-import java.util.Optional;
-
 import com.sun.star.uno.UnoRuntime;
+import java.util.Optional;
 
 public class UnoCast {
 
-    private UnoCast() {
-    }
+    private UnoCast() {}
 
     /// cast : short for Optional.ofNullable(UnoRuntime.queryInterface(...))
     ///

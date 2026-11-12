@@ -1,7 +1,6 @@
 package org.jabref.gui.collab.entrychange;
 
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.collab.DatabaseChange;
@@ -22,7 +21,12 @@ public final class EntryChangeResolver extends DatabaseChangeResolver {
     private final GuiPreferences preferences;
     private final StateManager stateManager;
 
-    public EntryChangeResolver(EntryChange entryChange, DialogService dialogService, BibDatabaseContext databaseContext, GuiPreferences preferences, StateManager stateManager) {
+    public EntryChangeResolver(
+            EntryChange entryChange,
+            DialogService dialogService,
+            BibDatabaseContext databaseContext,
+            GuiPreferences preferences,
+            StateManager stateManager) {
         super(dialogService);
         this.entryChange = entryChange;
         this.databaseContext = databaseContext;
@@ -32,20 +36,17 @@ public final class EntryChangeResolver extends DatabaseChangeResolver {
 
     @Override
     public Optional<DatabaseChange> askUserToResolveChange() {
-        MergeEntriesDialog mergeEntriesDialog = new MergeEntriesDialog(entryChange.getOldEntry(), entryChange.getNewEntry(), preferences, stateManager);
+        MergeEntriesDialog mergeEntriesDialog =
+                new MergeEntriesDialog(entryChange.getOldEntry(), entryChange.getNewEntry(), preferences, stateManager);
         mergeEntriesDialog.setLeftHeaderText(Localization.lang("In JabRef"));
         mergeEntriesDialog.setRightHeaderText(Localization.lang("On disk"));
-        mergeEntriesDialog.configureDiff(new ShowDiffConfig(ThreeWayMergeToolbar.DiffView.SPLIT, BasicDiffMethod.WORDS));
+        mergeEntriesDialog.configureDiff(
+                new ShowDiffConfig(ThreeWayMergeToolbar.DiffView.SPLIT, BasicDiffMethod.WORDS));
 
-        return dialogService.showCustomDialogAndWait(mergeEntriesDialog)
-                            .map(this::mapMergeResultToExternalChange);
+        return dialogService.showCustomDialogAndWait(mergeEntriesDialog).map(this::mapMergeResultToExternalChange);
     }
 
     private EntryChange mapMergeResultToExternalChange(EntriesMergeResult entriesMergeResult) {
-        return new EntryChange(
-                entryChange.getOldEntry(),
-                entriesMergeResult.mergedEntry(),
-                databaseContext
-        );
+        return new EntryChange(entryChange.getOldEntry(), entriesMergeResult.mergedEntry(), databaseContext);
     }
 }

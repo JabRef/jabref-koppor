@@ -2,7 +2,6 @@ package org.jabref.logic.layout.format;
 
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.layout.LayoutFormatter;
-
 import org.jspecify.annotations.NonNull;
 
 /// JournalAbbreviator formats the given text in an abbreviated form according to the journal abbreviation lists.

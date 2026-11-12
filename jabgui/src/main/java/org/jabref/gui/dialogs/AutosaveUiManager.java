@@ -1,5 +1,6 @@
 package org.jabref.gui.dialogs;
 
+import com.google.common.eventbus.Subscribe;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -8,8 +9,6 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.model.database.event.AutosaveEvent;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import com.google.common.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,14 +19,22 @@ public class AutosaveUiManager {
 
     private final SaveDatabaseAction saveDatabaseAction;
 
-    public AutosaveUiManager(LibraryTab libraryTab, DialogService dialogService, GuiPreferences preferences, BibEntryTypesManager entryTypesManager, StateManager stateManager, JournalAbbreviationRepository journalAbbreviationRepository) {
-        this.saveDatabaseAction = new SaveDatabaseAction(libraryTab, dialogService, preferences, entryTypesManager, stateManager, journalAbbreviationRepository);
+    public AutosaveUiManager(
+            LibraryTab libraryTab,
+            DialogService dialogService,
+            GuiPreferences preferences,
+            BibEntryTypesManager entryTypesManager,
+            StateManager stateManager,
+            JournalAbbreviationRepository journalAbbreviationRepository) {
+        this.saveDatabaseAction = new SaveDatabaseAction(
+                libraryTab, dialogService, preferences, entryTypesManager, stateManager, journalAbbreviationRepository);
     }
 
     @Subscribe
     public void listen(AutosaveEvent event) {
         try {
-            // Autosave runs while the user types, committing and pushing here would produce a stream of near identical commits
+            // Autosave runs while the user types, committing and pushing here would produce a stream of near identical
+            // commits
             this.saveDatabaseAction.saveWithoutGitAutoCommit(SaveDatabaseAction.SaveDatabaseMode.SILENT);
         } catch (Throwable e) {
             LOGGER.error("Problem occurred while saving.", e);

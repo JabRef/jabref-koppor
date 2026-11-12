@@ -1,12 +1,11 @@
 package org.jabref.model.entry.field;
 
-import java.util.stream.Stream;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FieldTextMapperTest {
 
@@ -17,8 +16,7 @@ class FieldTextMapperTest {
                 Arguments.of("Citation Key", InternalField.KEY_FIELD),
                 Arguments.of("Entry Type", InternalField.TYPE_HEADER),
                 Arguments.of("JabRef-internal-id", InternalField.INTERNAL_ID_FIELD),
-                Arguments.of("myField", new UnknownField("myField"))
-        );
+                Arguments.of("myField", new UnknownField("myField")));
     }
 
     @ParameterizedTest

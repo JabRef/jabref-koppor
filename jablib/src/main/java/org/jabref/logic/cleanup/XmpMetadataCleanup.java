@@ -6,9 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.xml.transform.TransformerException;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.l10n.Localization;
@@ -19,7 +17,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,14 +41,16 @@ public class XmpMetadataCleanup implements CleanupJob {
         for (LinkedFile file : files) {
             Optional<Path> filePath = file.findIn(databaseContext, filePreferences);
             filePath.ifPresent(path -> {
-                // We need to check if a file has metadata to avoid performing the cleanup operation on all entries containing a linked file and to accurately report the FieldChange list.
+                // We need to check if a file has metadata to avoid performing the cleanup operation on all entries
+                // containing a linked file and to accurately report the FieldChange list.
                 if (XmpUtilShared.hasMetadata(path)) {
                     try {
                         XmpUtilWriter.removeXmpMetadata(path);
                         changed.set(true);
                     } catch (IOException | TransformerException e) {
                         LOGGER.error("Problem removing XMP metadata from file {}", path, e);
-                        failures.add(new JabRefException(Localization.lang("Problem removing XMP metadata from file: %0", path.toString()), e));
+                        failures.add(new JabRefException(
+                                Localization.lang("Problem removing XMP metadata from file: %0", path.toString()), e));
                     }
                 }
             });
@@ -64,8 +63,7 @@ public class XmpMetadataCleanup implements CleanupJob {
                     StandardField.FILE,
                     // IntelliJ warning can be ignored since File field is always present if changed is true
                     entry.getField(StandardField.FILE).get(),
-                    entry.getField(StandardField.FILE).get()
-            ));
+                    entry.getField(StandardField.FILE).get()));
         }
         return List.of();
     }

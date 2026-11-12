@@ -1,5 +1,11 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
@@ -9,9 +15,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javafx.collections.FXCollections;
-
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.fetcher.transformers.BaseSearchQueryTransformer;
@@ -24,21 +30,12 @@ import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.OperatorNode;
 import org.jabref.model.search.query.SearchQueryNode;
-
-import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @NullMarked
 class BaseSearchFetcherTest {
@@ -65,9 +62,8 @@ class BaseSearchFetcherTest {
         URL url = fetcher.getURLForQuery(queryNode, 0);
 
         Map<String, String> params = new URIBuilder(url.toURI())
-                .getQueryParams()
-                .stream()
-                .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue, (v1, _) -> v1));
+                .getQueryParams().stream()
+                        .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue, (v1, _) -> v1));
 
         assertEquals("PerformSearch", params.get("func"));
         assertEquals("json", params.get("format"));
@@ -106,9 +102,7 @@ class BaseSearchFetcherTest {
         SearchQueryNode yearRangeNode = new SearchQueryNode(Optional.of(new UnknownField("year-range")), "2020-2022");
         SearchQueryNode titleNode = new SearchQueryNode(Optional.of(StandardField.TITLE), "quantum");
 
-        OperatorNode andNode = new OperatorNode(
-                OperatorNode.Operator.AND,
-                List.of(yearRangeNode, titleNode));
+        OperatorNode andNode = new OperatorNode(OperatorNode.Operator.AND, List.of(yearRangeNode, titleNode));
 
         assertEquals(
                 Optional.of("(dcyear:2020 OR dcyear:2021 OR dcyear:2022) AND dctitle:quantum"),
@@ -118,10 +112,10 @@ class BaseSearchFetcherTest {
     @Test
     void parserReturnsEmptyListOnErrorResponse() throws ParseException {
         String json = """
-                {
-                  "error": "invalid key"
-                }
-                """;
+            {
+              "error": "invalid key"
+            }
+            """;
         InputStream inputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
         List<BibEntry> entries = fetcher.getParser().parseEntries(inputStream);
 
@@ -144,23 +138,23 @@ class BaseSearchFetcherTest {
     @Test
     void parserParsesArticleEntryFromLiveResponseShape() throws ParseException {
         String json = """
-                {
-                  "response": {
-                    "docs": [
-                      {
-                        "dctitle": "A Study on Reference Management",
-                        "dcyear": 2023,
-                        "dcpublisher": ["Springer"],
-                        "dcdoi": ["10.1000/example.doi"],
-                        "dclink": "https://example.org/paper",
-                        "dccreator": ["Doe, Jane", "Smith, John"],
-                        "dcsubject": ["bibliography", "software"],
-                        "dctypenorm": ["121"]
-                      }
-                    ]
+            {
+              "response": {
+                "docs": [
+                  {
+                    "dctitle": "A Study on Reference Management",
+                    "dcyear": 2023,
+                    "dcpublisher": ["Springer"],
+                    "dcdoi": ["10.1000/example.doi"],
+                    "dclink": "https://example.org/paper",
+                    "dccreator": ["Doe, Jane", "Smith, John"],
+                    "dcsubject": ["bibliography", "software"],
+                    "dctypenorm": ["121"]
                   }
-                }
-                """;
+                ]
+              }
+            }
+            """;
         InputStream inputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
         List<BibEntry> entries = fetcher.getParser().parseEntries(inputStream);
 
@@ -178,19 +172,19 @@ class BaseSearchFetcherTest {
     @Test
     void parserParsesLegacyNestedResultShape() throws ParseException {
         String json = """
-                {
-                  "response": {
-                    "result": {
-                      "docs": [
-                        {
-                          "dctitle": "Nested response entry",
-                          "dctypenorm": ["121"]
-                        }
-                      ]
+            {
+              "response": {
+                "result": {
+                  "docs": [
+                    {
+                      "dctitle": "Nested response entry",
+                      "dctypenorm": ["121"]
                     }
-                  }
+                  ]
                 }
-                """;
+              }
+            }
+            """;
         InputStream inputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
         List<BibEntry> entries = fetcher.getParser().parseEntries(inputStream);
 
@@ -201,17 +195,17 @@ class BaseSearchFetcherTest {
     @Test
     void parserDefaultsToMiscWhenNoTypeCode() throws ParseException {
         String json = """
-                {
-                  "response": {
-                    "docs": [
-                      {
-                        "dctitle": "Untyped Document",
-                        "dcyear": "2020"
-                      }
-                    ]
+            {
+              "response": {
+                "docs": [
+                  {
+                    "dctitle": "Untyped Document",
+                    "dcyear": "2020"
                   }
-                }
-                """;
+                ]
+              }
+            }
+            """;
         InputStream inputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
         List<BibEntry> entries = fetcher.getParser().parseEntries(inputStream);
 
@@ -248,25 +242,24 @@ class BaseSearchFetcherTest {
                 Arguments.of("6", StandardEntryType.Software),
                 Arguments.of("7", StandardEntryType.Dataset),
                 Arguments.of("F", StandardEntryType.Misc),
-                Arguments.of("f", StandardEntryType.Misc)
-        );
+                Arguments.of("f", StandardEntryType.Misc));
     }
 
     @ParameterizedTest
     @MethodSource("provideTypeCodes")
     void parserMapsTypeCodeToCorrectEntryType(String typeCode, EntryType expectedType) throws ParseException {
         String json = """
-                {
-                  "response": {
-                    "docs": [
-                      {
-                        "dctitle": "Sample Title",
-                        "dctypenorm": ["%s"]
-                      }
-                    ]
+            {
+              "response": {
+                "docs": [
+                  {
+                    "dctitle": "Sample Title",
+                    "dctypenorm": ["%s"]
                   }
-                }
-                """.formatted(typeCode);
+                ]
+              }
+            }
+            """.formatted(typeCode);
 
         InputStream inputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
         List<BibEntry> entries = fetcher.getParser().parseEntries(inputStream);
@@ -280,9 +273,8 @@ class BaseSearchFetcherTest {
         URL url = fetcher.getValidationUrl("dummy-test-key");
 
         Map<String, String> params = new URIBuilder(url.toURI())
-                .getQueryParams()
-                .stream()
-                .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue, (v1, _) -> v1));
+                .getQueryParams().stream()
+                        .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue, (v1, _) -> v1));
 
         assertEquals("PerformSearch", params.get("func"));
         assertEquals("json", params.get("format"));
@@ -294,20 +286,20 @@ class BaseSearchFetcherTest {
     @Test
     void isValidKeyResponseReturnsFalseWhenErrorFieldPresent() {
         assertFalse(fetcher.isValidKeyResponse("""
-                {
-                  "error": "invalid key"
-                }
-                """));
+            {
+              "error": "invalid key"
+            }
+            """));
     }
 
     @Test
     void isValidKeyResponseReturnsTrueForSuccessfulResponse() {
         assertTrue(fetcher.isValidKeyResponse("""
-                {
-                  "response": {
-                    "docs": []
-                  }
-                }
-                """));
+            {
+              "response": {
+                "docs": []
+              }
+            }
+            """));
     }
 }

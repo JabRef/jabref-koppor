@@ -1,20 +1,17 @@
 package org.jabref.gui.preferences;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.testutils.JavaFxExtension;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @NullMarked
 @ExtendWith(JavaFxExtension.class)
@@ -29,7 +26,9 @@ class PreferencesSearchHandlerTest {
     @BeforeEach
     void setUp() {
         autosaveNode = new Label();
-        generalTab = tab("General", new SearchableElement("Show welcome tab", new Label()),
+        generalTab = tab(
+                "General",
+                new SearchableElement("Show welcome tab", new Label()),
                 new SearchableElement("Autosave local libraries", autosaveNode),
                 new SearchableElement("Autosave interval", new Label()));
         columnNamesNode = new Label();
@@ -41,7 +40,8 @@ class PreferencesSearchHandlerTest {
     void firstMatchIsTheFirstDeclaredMatchingElement() {
         handler.filterTabs("autosave");
 
-        assertEquals(List.of(generalTab), handler.filteredPreferenceTabsProperty().get());
+        assertEquals(
+                List.of(generalTab), handler.filteredPreferenceTabsProperty().get());
         assertEquals(autosaveNode, handler.firstMatch(generalTab).orElseThrow());
         assertTrue(handler.firstMatch(tableTab).isEmpty());
     }
@@ -71,7 +71,9 @@ class PreferencesSearchHandlerTest {
         VBox hiddenRegion = new VBox(hiddenMatch);
         hiddenRegion.setVisible(false);
         new VBox(hiddenRegion, visibleMatch);
-        PreferencesTab aiTab = tab("AI", new SearchableElement("Reset expert settings to default", hiddenMatch),
+        PreferencesTab aiTab = tab(
+                "AI",
+                new SearchableElement("Reset expert settings to default", hiddenMatch),
                 new SearchableElement("Default response engine", visibleMatch));
 
         PreferencesSearchHandler aiHandler = new PreferencesSearchHandler(List.of(aiTab));
@@ -86,7 +88,9 @@ class PreferencesSearchHandlerTest {
         Label visibleMatch = new Label();
         VBox expertRegion = new VBox(expertMatch);
         new VBox(expertRegion, visibleMatch);
-        PreferencesTab aiTab = tab("AI", new SearchableElement("Reset expert settings to default", expertMatch),
+        PreferencesTab aiTab = tab(
+                "AI",
+                new SearchableElement("Reset expert settings to default", expertMatch),
                 new SearchableElement("Default response engine", visibleMatch));
 
         PreferencesSearchHandler aiHandler = new PreferencesSearchHandler(List.of(aiTab));
@@ -114,12 +118,10 @@ class PreferencesSearchHandlerTest {
             }
 
             @Override
-            public void setValues() {
-            }
+            public void setValues() {}
 
             @Override
-            public void storeSettings() {
-            }
+            public void storeSettings() {}
 
             @Override
             public boolean validateSettings() {

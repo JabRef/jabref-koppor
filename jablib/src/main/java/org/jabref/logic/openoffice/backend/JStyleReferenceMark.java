@@ -7,9 +7,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.jabref.model.openoffice.style.CitationType;
-
 import org.jspecify.annotations.NonNull;
 
 /// How and what is encoded in reference mark names under JabRef 5.2.
@@ -22,8 +20,7 @@ class JStyleReferenceMark {
             // citationType is "1".."3" (JabRef 5.2) or "4".."6" (partial markers, see #7861)
             Pattern.compile(BIB_CITATION + "(\\d*)_([1-6])_(.*)");
 
-    private JStyleReferenceMark() {
-    }
+    private JStyleReferenceMark() {}
 
     /// This is what we get back from parsing a refMarkName.
     public static class ParsedMarkName {
@@ -44,41 +41,29 @@ class JStyleReferenceMark {
     /// Integer representation was written into the document in JabRef52, keep it for compatibility.
     private static CitationType citationTypeFromInt(int code) {
         return switch (code) {
-            case 1 ->
-                    CitationType.AUTHORYEAR_PAR;
-            case 2 ->
-                    CitationType.AUTHORYEAR_INTEXT;
-            case 3 ->
-                    CitationType.INVISIBLE_CIT;
-            case 4 ->
-                    CitationType.AUTHORYEAR_NOPAR;
-            case 5 ->
-                    CitationType.AUTHOR_ONLY;
-            case 6 ->
-                    CitationType.YEAR_ONLY;
-            default ->
-                    throw new IllegalArgumentException("Invalid CitationType code");
+            case 1 -> CitationType.AUTHORYEAR_PAR;
+            case 2 -> CitationType.AUTHORYEAR_INTEXT;
+            case 3 -> CitationType.INVISIBLE_CIT;
+            case 4 -> CitationType.AUTHORYEAR_NOPAR;
+            case 5 -> CitationType.AUTHOR_ONLY;
+            case 6 -> CitationType.YEAR_ONLY;
+            default -> throw new IllegalArgumentException("Invalid CitationType code");
         };
     }
 
     private static int citationTypeToInt(CitationType type) {
         return switch (type) {
-            case AUTHORYEAR_PAR ->
-                    1;
-            case AUTHORYEAR_INTEXT ->
-                    2;
-            case INVISIBLE_CIT ->
-                    3;
-            case AUTHORYEAR_NOPAR ->
-                    4;
-            case AUTHOR_ONLY ->
-                    5;
-            case YEAR_ONLY ->
-                    6;
+            case AUTHORYEAR_PAR -> 1;
+            case AUTHORYEAR_INTEXT -> 2;
+            case INVISIBLE_CIT -> 3;
+            case AUTHORYEAR_NOPAR -> 4;
+            case AUTHOR_ONLY -> 5;
+            case YEAR_ONLY -> 6;
         };
     }
 
-    /// Produce a reference mark name for JabRef for the given citationType and list citation keys that does not yet appear among the reference marks of the document.
+    /// Produce a reference mark name for JabRef for the given citationType and list citation keys that does not yet
+    /// appear among the reference marks of the document.
     ///
     /// The first occurrence of citationKeys gets no serial number, the second gets 0, the third 1 ...
     /// Or the first unused in this series, after removals.
@@ -87,9 +72,8 @@ class JStyleReferenceMark {
     /// @param citationKeys Identifies the cited sources.
     /// @param citationType Encodes the effect of withText and inParenthesis options.
     ///
-    public static String getUniqueMarkName(Set<String> usedNames,
-                                           List<String> citationKeys,
-                                           CitationType citationType) {
+    public static String getUniqueMarkName(
+            Set<String> usedNames, List<String> citationKeys, CitationType citationType) {
 
         String citationKeysPart = String.join(",", citationKeys);
 
@@ -129,7 +113,7 @@ class JStyleReferenceMark {
     /// @param names The list to be filtered.
     public static List<String> filterIsJabRefReferenceMarkName(List<String> names) {
         return names.stream()
-                    .filter(JStyleReferenceMark::isJabRefReferenceMarkName)
-                    .collect(Collectors.toList());
+                .filter(JStyleReferenceMark::isJabRefReferenceMarkName)
+                .collect(Collectors.toList());
     }
 }

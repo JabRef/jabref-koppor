@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
@@ -24,7 +23,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import tools.jackson.core.JacksonException;
@@ -54,32 +52,56 @@ public class HayagrivaImporter extends Importer {
             Map.entry("reference", StandardEntryType.Reference),
             Map.entry("report", StandardEntryType.Report),
             Map.entry("thesis", StandardEntryType.Thesis),
-            Map.entry("web", StandardEntryType.Online)
-    );
+            Map.entry("web", StandardEntryType.Online));
 
     /// All entry types of the Hayagriva specification
     /// (<https://github.com/typst/hayagriva/blob/main/docs/file-format.md#entry-type>); used for
     /// format recognition. Types without a BibTeX equivalent in [#TYPES_MAP] are imported as
     /// [StandardEntryType#Misc].
     private static final Set<String> RECOGNIZED_TYPES = Set.of(
-            "anthology", "anthos", "article", "artwork", "audio", "blog", "book", "case",
-            "chapter", "conference", "entry", "exhibition", "legislation", "manuscript", "misc",
-            "newspaper", "original", "patent", "performance", "periodical", "post", "proceedings",
-            "reference", "report", "repository", "scene", "thesis", "thread", "video", "web"
-    );
+            "anthology",
+            "anthos",
+            "article",
+            "artwork",
+            "audio",
+            "blog",
+            "book",
+            "case",
+            "chapter",
+            "conference",
+            "entry",
+            "exhibition",
+            "legislation",
+            "manuscript",
+            "misc",
+            "newspaper",
+            "original",
+            "patent",
+            "performance",
+            "periodical",
+            "post",
+            "proceedings",
+            "reference",
+            "report",
+            "repository",
+            "scene",
+            "thesis",
+            "thread",
+            "video",
+            "web");
 
     private static final Set<String> JOURNAL_PARENT_TYPES = Set.of("periodical", "newspaper", "blog");
     private static final Set<String> BOOKTITLE_PARENT_TYPES = Set.of("proceedings", "anthology", "conference");
-    private static final Set<EntryType> BOOK_PART_TYPES = Set.of(StandardEntryType.InBook, StandardEntryType.InCollection, StandardEntryType.InProceedings);
+    private static final Set<EntryType> BOOK_PART_TYPES =
+            Set.of(StandardEntryType.InBook, StandardEntryType.InCollection, StandardEntryType.InProceedings);
 
     /// Generous room for leading comments plus the first entry, whose `type` key conventionally
     /// appears within its first few lines.
     private static final int MAX_LOOKAHEAD_CHARS = 3_000;
     private static final Pattern TYPE_LINE_PATTERN = Pattern.compile("^\\s*type:\\s*\"?'?([A-Za-z-]+)\"?'?\\s*$");
 
-    private static final YAMLMapper MAPPER = YAMLMapper.builder()
-                                                       .disable(StreamReadFeature.AUTO_CLOSE_SOURCE)
-                                                       .build();
+    private static final YAMLMapper MAPPER =
+            YAMLMapper.builder().disable(StreamReadFeature.AUTO_CLOSE_SOURCE).build();
 
     @Override
     public ParserResult importDatabase(BufferedReader input) throws IOException {
@@ -124,16 +146,24 @@ public class HayagrivaImporter extends Importer {
         scalarText(entryNode.get("page-range")).ifPresent(pages -> bibEntry.setField(StandardField.PAGES, pages));
         scalarText(entryNode.get("chapter")).ifPresent(chapter -> bibEntry.setField(StandardField.CHAPTER, chapter));
         scalarText(entryNode.get("edition")).ifPresent(edition -> bibEntry.setField(StandardField.EDITION, edition));
-        scalarText(entryNode.get("publisher")).ifPresent(publisher -> bibEntry.setField(StandardField.PUBLISHER, publisher));
+        scalarText(entryNode.get("publisher"))
+                .ifPresent(publisher -> bibEntry.setField(StandardField.PUBLISHER, publisher));
         scalarText(entryNode.get("location")).ifPresent(location -> bibEntry.setField(StandardField.ADDRESS, location));
-        scalarText(entryNode.get("organization")).ifPresent(organization -> bibEntry.setField(StandardField.INSTITUTION, organization));
+        scalarText(entryNode.get("organization"))
+                .ifPresent(organization -> bibEntry.setField(StandardField.INSTITUTION, organization));
         scalarText(entryNode.get("note")).ifPresent(note -> bibEntry.setField(StandardField.NOTE, note));
-        scalarText(entryNode.get("abstract")).ifPresent(abstractText -> bibEntry.setField(StandardField.ABSTRACT, abstractText));
-        scalarText(entryNode.get("language")).ifPresent(language -> bibEntry.setField(StandardField.LANGUAGE, language));
-        scalarText(entryNode.get("page-total")).ifPresent(pageTotal -> bibEntry.setField(StandardField.PAGETOTAL, pageTotal));
-        scalarText(entryNode.get("volume-total")).ifPresent(volumeTotal -> bibEntry.setField(StandardField.VOLUMES, volumeTotal));
-        scalarText(entryNode.get("runtime")).ifPresent(runtime -> bibEntry.setField(new UnknownField("runtime"), runtime));
-        scalarText(entryNode.get("time-range")).ifPresent(timeRange -> bibEntry.setField(new UnknownField("time-range"), timeRange));
+        scalarText(entryNode.get("abstract"))
+                .ifPresent(abstractText -> bibEntry.setField(StandardField.ABSTRACT, abstractText));
+        scalarText(entryNode.get("language"))
+                .ifPresent(language -> bibEntry.setField(StandardField.LANGUAGE, language));
+        scalarText(entryNode.get("page-total"))
+                .ifPresent(pageTotal -> bibEntry.setField(StandardField.PAGETOTAL, pageTotal));
+        scalarText(entryNode.get("volume-total"))
+                .ifPresent(volumeTotal -> bibEntry.setField(StandardField.VOLUMES, volumeTotal));
+        scalarText(entryNode.get("runtime"))
+                .ifPresent(runtime -> bibEntry.setField(new UnknownField("runtime"), runtime));
+        scalarText(entryNode.get("time-range"))
+                .ifPresent(timeRange -> bibEntry.setField(new UnknownField("time-range"), timeRange));
 
         applyAffiliated(bibEntry, entryNode.get("affiliated"));
 
@@ -147,7 +177,8 @@ public class HayagrivaImporter extends Importer {
                 bibEntry.setField(StandardField.EPRINT, arxiv);
                 bibEntry.setField(StandardField.EPRINTTYPE, "arxiv");
             });
-            scalarText(serialNumber.get("serial")).ifPresent(serial -> setIfAbsent(bibEntry, StandardField.NUMBER, serial));
+            scalarText(serialNumber.get("serial"))
+                    .ifPresent(serial -> setIfAbsent(bibEntry, StandardField.NUMBER, serial));
         } else {
             // A bare serial number (an RFC number, a court docket, a version string, ...) has no
             // dedicated BibTeX field; number is the closest match, but an explicit issue wins
@@ -175,24 +206,31 @@ public class HayagrivaImporter extends Importer {
             if (!parent.isObject()) {
                 continue;
             }
-            String parentType = scalarText(parent.get("type")).map(type -> type.toLowerCase(Locale.ROOT)).orElse("");
+            String parentType = scalarText(parent.get("type"))
+                    .map(type -> type.toLowerCase(Locale.ROOT))
+                    .orElse("");
 
             StandardField targetField;
             if (JOURNAL_PARENT_TYPES.contains(parentType)) {
                 targetField = StandardField.JOURNAL;
             } else if ("book".equals(parentType)) {
-                targetField = BOOK_PART_TYPES.contains(bibEntry.getType()) ? StandardField.BOOKTITLE : StandardField.SERIES;
+                targetField =
+                        BOOK_PART_TYPES.contains(bibEntry.getType()) ? StandardField.BOOKTITLE : StandardField.SERIES;
             } else if (BOOKTITLE_PARENT_TYPES.contains(parentType)) {
                 targetField = StandardField.BOOKTITLE;
             } else {
-                targetField = bibEntry.getType() == StandardEntryType.Article ? StandardField.JOURNAL : StandardField.BOOKTITLE;
+                targetField = bibEntry.getType() == StandardEntryType.Article
+                        ? StandardField.JOURNAL
+                        : StandardField.BOOKTITLE;
             }
 
             formattedText(parent.get("title")).ifPresent(title -> setIfAbsent(bibEntry, targetField, title));
             if (targetField == StandardField.JOURNAL) {
-                scalarText(parent.get("volume")).ifPresent(volume -> setIfAbsent(bibEntry, StandardField.VOLUME, volume));
+                scalarText(parent.get("volume"))
+                        .ifPresent(volume -> setIfAbsent(bibEntry, StandardField.VOLUME, volume));
                 scalarText(parent.get("issue")).ifPresent(issue -> setIfAbsent(bibEntry, StandardField.NUMBER, issue));
-                scalarText(parent.get("publisher")).ifPresent(publisher -> setIfAbsent(bibEntry, StandardField.PUBLISHER, publisher));
+                scalarText(parent.get("publisher"))
+                        .ifPresent(publisher -> setIfAbsent(bibEntry, StandardField.PUBLISHER, publisher));
             }
         }
     }
@@ -208,9 +246,10 @@ public class HayagrivaImporter extends Importer {
             if (!affiliation.isObject()) {
                 continue;
             }
-            scalarText(affiliation.get("role")).ifPresent(role ->
-                    persons(affiliation.get("names")).ifPresent(names ->
-                            bibEntry.setField(FieldFactory.parseField(role.toLowerCase(Locale.ROOT)), names)));
+            scalarText(affiliation.get("role"))
+                    .ifPresent(role -> persons(affiliation.get("names"))
+                            .ifPresent(names ->
+                                    bibEntry.setField(FieldFactory.parseField(role.toLowerCase(Locale.ROOT)), names)));
         }
     }
 
@@ -227,9 +266,9 @@ public class HayagrivaImporter extends Importer {
         }
         List<JsonNode> personNodes = node.isArray() ? List.copyOf(node.values()) : List.of(node);
         String formatted = personNodes.stream()
-                                      .map(this::formatPerson)
-                                      .flatMap(Optional::stream)
-                                      .collect(Collectors.joining(" and "));
+                .map(this::formatPerson)
+                .flatMap(Optional::stream)
+                .collect(Collectors.joining(" and "));
         return formatted.isEmpty() ? Optional.empty() : Optional.of(formatted);
     }
 
@@ -297,13 +336,15 @@ public class HayagrivaImporter extends Importer {
             char[] lookahead = new char[MAX_LOOKAHEAD_CHARS];
             int filled = 0;
             int charsRead;
-            while (filled < MAX_LOOKAHEAD_CHARS && (charsRead = input.read(lookahead, filled, MAX_LOOKAHEAD_CHARS - filled)) != -1) {
+            while (filled < MAX_LOOKAHEAD_CHARS
+                    && (charsRead = input.read(lookahead, filled, MAX_LOOKAHEAD_CHARS - filled)) != -1) {
                 filled += charsRead;
             }
 
             return new String(lookahead, 0, filled).lines().anyMatch(line -> {
                 Matcher matcher = TYPE_LINE_PATTERN.matcher(line);
-                return matcher.matches() && RECOGNIZED_TYPES.contains(matcher.group(1).toLowerCase(Locale.ROOT));
+                return matcher.matches()
+                        && RECOGNIZED_TYPES.contains(matcher.group(1).toLowerCase(Locale.ROOT));
             });
         } finally {
             input.reset();
@@ -326,9 +367,10 @@ public class HayagrivaImporter extends Importer {
         }
 
         for (JsonNode entryNode : root.values()) {
-            if (entryNode.isObject() && scalarText(entryNode.get("type"))
-                    .map(type -> RECOGNIZED_TYPES.contains(type.toLowerCase(Locale.ROOT)))
-                    .orElse(false)) {
+            if (entryNode.isObject()
+                    && scalarText(entryNode.get("type"))
+                            .map(type -> RECOGNIZED_TYPES.contains(type.toLowerCase(Locale.ROOT)))
+                            .orElse(false)) {
                 return true;
             }
         }

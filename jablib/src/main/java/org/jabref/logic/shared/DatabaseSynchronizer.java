@@ -1,7 +1,6 @@
 package org.jabref.logic.shared;
 
 import java.sql.SQLException;
-
 import org.jabref.model.entry.BibEntry;
 
 public interface DatabaseSynchronizer {

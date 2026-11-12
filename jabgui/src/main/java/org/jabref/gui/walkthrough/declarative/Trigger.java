@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
-
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -20,12 +19,10 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
-
 import org.jabref.gui.fieldeditors.LinkedFilesEditor;
 import org.jabref.gui.fieldeditors.LinkedFilesEditorViewModel;
 import org.jabref.gui.util.DelayedExecution;
 import org.jabref.gui.walkthrough.utils.WalkthroughUtils;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +92,8 @@ public interface Trigger {
             /// conditions are met.
             ///
             /// @param node       The node to attach the trigger to.
-            /// @param onNavigate A function that wraps the original event handler. It takes a Supplier representing the original action and returns the result of that action.
+            /// @param onNavigate A function that wraps the original event handler. It takes a Supplier representing the
+            /// original action and returns the result of that action.
             /// @return A cleanup runnable that detaches the trigger.
             Runnable create(Node node, Function<Supplier<?>, ?> onNavigate);
         }
@@ -132,9 +130,10 @@ public interface Trigger {
 
                 final EventDispatcher newDispatcher = (event, tail) -> {
                     EventType<? extends Event> eventType = event.getEventType();
-                    if (eventType == MouseEvent.MOUSE_CLICKED            // Catch all
-                            || eventType == MouseEvent.MOUSE_RELEASED    // MenuItem on ContextWindow hide upon MOUSE_RELEASED, catch ACTION is too late
-                            || eventType == ActionEvent.ACTION) {        // Buttons, especially Buttons on DialogPane
+                    if (eventType == MouseEvent.MOUSE_CLICKED // Catch all
+                            || eventType == MouseEvent.MOUSE_RELEASED // MenuItem on ContextWindow hide upon
+                                                                      // MOUSE_RELEASED, catch ACTION is too late
+                            || eventType == ActionEvent.ACTION) { // Buttons, especially Buttons on DialogPane
                         node.setEventDispatcher(originalDispatcher);
                         Supplier<Event> originalAction = () -> originalDispatcher.dispatchEvent(event, tail);
                         return (Event) onNavigate.apply(originalAction);
@@ -235,7 +234,8 @@ public interface Trigger {
             setGenerator((node, onNavigate) -> {
                 final EventDispatcher originalDispatcher = node.getEventDispatcher();
                 final EventDispatcher newDispatcher = (event, tail) -> {
-                    if (event.getEventType() == MouseEvent.MOUSE_PRESSED && ((MouseEvent) event).getButton() == javafx.scene.input.MouseButton.SECONDARY) {
+                    if (event.getEventType() == MouseEvent.MOUSE_PRESSED
+                            && ((MouseEvent) event).getButton() == javafx.scene.input.MouseButton.SECONDARY) {
                         node.setEventDispatcher(originalDispatcher);
                         Supplier<Event> originalAction = () -> originalDispatcher.dispatchEvent(event, tail);
                         return (Event) onNavigate.apply(originalAction);
@@ -264,7 +264,8 @@ public interface Trigger {
                     }
                 };
 
-                @SuppressWarnings("unchecked") ObservableList<Object> items = (ObservableList<Object>) listView.getItems();
+                @SuppressWarnings("unchecked")
+                ObservableList<Object> items = (ObservableList<Object>) listView.getItems();
                 items.addListener(listener);
 
                 return () -> items.removeListener(listener);
@@ -310,15 +311,15 @@ public interface Trigger {
                         navigationRaceCleanups.forEach(Runnable::run);
                         navigationRaceCleanups.clear();
 
-                         /*
-                            Replace this line with `onNavigate.run` WILL LEAD TO [IndexOutOfBoundsException] when JavaFX performs layout
-                            calculation on the dialog pane opened by [org.jabref.gui.preferences.ShowPreferencesAction].
-                            It seems that directly listening to MOUSE_PRESSED event (which is necessary)
-                            triggered a race condition between the walkthrough replacing the new window's scene root
-                            (which it no longer does, see [org.jabref.gui.walkthrough.WalkthroughPane]) and JavaFX
-                            performing layout. The delay is kept because the step's own layout still races the dialog's.
-                            You cannot catch this exception because it occurs directly in the `jdk.internals` package.
-                          */
+                        /*
+                          Replace this line with `onNavigate.run` WILL LEAD TO [IndexOutOfBoundsException] when JavaFX performs layout
+                          calculation on the dialog pane opened by [org.jabref.gui.preferences.ShowPreferencesAction].
+                          It seems that directly listening to MOUSE_PRESSED event (which is necessary)
+                          triggered a race condition between the walkthrough replacing the new window's scene root
+                          (which it no longer does, see [org.jabref.gui.walkthrough.WalkthroughPane]) and JavaFX
+                          performing layout. The delay is kept because the step's own layout still races the dialog's.
+                          You cannot catch this exception because it occurs directly in the `jdk.internals` package.
+                        */
                         new DelayedExecution(NAVIGATION_DELAY, onNavigate).start();
                     }
                 };

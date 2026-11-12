@@ -4,15 +4,14 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.jabref.logic.git.GitHandler;
 import org.jabref.logic.git.preferences.GitPreferences;
-
 import org.jspecify.annotations.NonNull;
 
 /// A registry that manages [GitHandler] instances per Git repository.
 ///
-/// Ensures that each Git repository (identified by its root path) has a single `GitHandler` instance shared across the application.
+/// Ensures that each Git repository (identified by its root path) has a single `GitHandler` instance shared across the
+/// application.
 ///
 /// Usage:
 ///

@@ -1,16 +1,14 @@
 package org.jabref.model.openoffice.uno;
 
-import java.util.Optional;
-
 import com.sun.star.text.XFootnote;
 import com.sun.star.text.XTextContent;
 import com.sun.star.text.XTextRange;
 import com.sun.star.text.XTextRangeCompare;
+import java.util.Optional;
 
 public class UnoTextRange {
 
-    private UnoTextRange() {
-    }
+    private UnoTextRange() {}
 
     /// If original is in a footnote, return a range containing the corresponding footnote marker.
     ///
@@ -38,7 +36,8 @@ public class UnoTextRange {
         if (!comparables(a, b)) {
             throw new java.lang.IllegalArgumentException("compareStarts: got incomparable regions");
         }
-        final XTextRangeCompare compare = UnoCast.cast(XTextRangeCompare.class, a.getText()).get();
+        final XTextRangeCompare compare =
+                UnoCast.cast(XTextRangeCompare.class, a.getText()).get();
         return compareStartsUnsafe(compare, a, b);
     }
 
@@ -48,7 +47,8 @@ public class UnoTextRange {
         if (!comparables(a, b)) {
             throw new java.lang.IllegalArgumentException("compareEnds: got incomparable regions");
         }
-        final XTextRangeCompare compare = UnoCast.cast(XTextRangeCompare.class, a.getText()).get();
+        final XTextRangeCompare compare =
+                UnoCast.cast(XTextRangeCompare.class, a.getText()).get();
         return -1 * compare.compareRegionEnds(a, b);
     }
 
@@ -67,7 +67,8 @@ public class UnoTextRange {
         if (!comparables(a, b)) {
             throw new java.lang.IllegalArgumentException("compareStartsThenEnds: got incomparable regions");
         }
-        final XTextRangeCompare compare = UnoCast.cast(XTextRangeCompare.class, a.getText()).get();
+        final XTextRangeCompare compare =
+                UnoCast.cast(XTextRangeCompare.class, a.getText()).get();
         return compareStartsThenEndsUnsafe(compare, a, b);
     }
 }

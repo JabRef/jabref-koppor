@@ -7,11 +7,9 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
@@ -31,7 +29,6 @@ import org.jabref.model.FieldChange;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.undo.CompoundEdit;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -67,8 +64,7 @@ public class CleanupDialogViewModel extends AbstractViewModel {
             UndoManager undoManager,
             @Nullable Supplier<LibraryTab> tabSupplier,
             @Nullable TaskExecutor taskExecutor,
-            JournalAbbreviationRepository journalAbbreviationRepository
-    ) {
+            JournalAbbreviationRepository journalAbbreviationRepository) {
         this.databaseContext = databaseContext;
         this.preferences = preferences;
         this.dialogService = dialogService;
@@ -92,25 +88,26 @@ public class CleanupDialogViewModel extends AbstractViewModel {
             return;
         }
 
-        List<BibEntry> entriesToProcess = targetEntries.isEmpty() ? List.copyOf(stateManager.getSelectedEntries()) : targetEntries;
+        List<BibEntry> entriesToProcess =
+                targetEntries.isEmpty() ? List.copyOf(stateManager.getSelectedEntries()) : targetEntries;
 
         if (entriesToProcess.isEmpty()) { // None selected. Inform the user to select entries first.
-            dialogService.showInformationDialogAndWait(Localization.lang("Clean up entry"), Localization.lang("First select entries to clean up.")
-            );
+            dialogService.showInformationDialogAndWait(
+                    Localization.lang("Clean up entry"), Localization.lang("First select entries to clean up."));
             return;
         }
 
         modifiedEntriesCount = 0;
 
-        if (selectedTab.selectedJobs().contains(CleanupPreferences.CleanupStep.RENAME_PDF) && preferences.getAutoLinkPreferences().shouldAskAutoNamingPdfs()) {
+        if (selectedTab.selectedJobs().contains(CleanupPreferences.CleanupStep.RENAME_PDF)
+                && preferences.getAutoLinkPreferences().shouldAskAutoNamingPdfs()) {
             boolean confirmed = dialogService.showConfirmationDialogWithOptOutAndWait(
                     Localization.lang("Autogenerate PDF Names"),
                     Localization.lang("Auto-generating PDF-Names does not support undo. Continue?"),
                     Localization.lang("Autogenerate PDF Names"),
                     Localization.lang("Cancel"),
                     Localization.lang("Do not ask again"),
-                    optOut -> preferences.getAutoLinkPreferences().setAskAutoNamingPdfs(!optOut)
-            );
+                    optOut -> preferences.getAutoLinkPreferences().setAskAutoNamingPdfs(!optOut));
             if (!confirmed) {
                 return;
             }
@@ -123,7 +120,9 @@ public class CleanupDialogViewModel extends AbstractViewModel {
         }
 
         if (selectedTab.isFormatterTab()) {
-            preferences.getCleanupPreferences().setFieldFormatterCleanups(updatedPreferences.getFieldFormatterCleanups());
+            preferences
+                    .getCleanupPreferences()
+                    .setFieldFormatterCleanups(updatedPreferences.getFieldFormatterCleanups());
         }
 
         CleanupPreferences cleanupPreset = new CleanupPreferences(EnumSet.copyOf(selectedTab.selectedJobs()));
@@ -136,8 +135,7 @@ public class CleanupDialogViewModel extends AbstractViewModel {
                     cleanupWithProgress(cleanupPreset, entriesToProcess, this);
                     return null;
                 }
-            }
-                    .onSuccess(_ -> {
+            }.onSuccess(_ -> {
                         if (showFeedback) {
                             showResults();
                         }
@@ -157,18 +155,18 @@ public class CleanupDialogViewModel extends AbstractViewModel {
     ///
     /// @param mutationScheduler routes BibEntry field mutations to the correct thread
     /// @return true iff entry was modified
-    private boolean doCleanup(CleanupPreferences preset,
-                              BibEntry entry,
-                              CompoundEdit compoundEdit,
-                              List<JabRefException> failures,
-                              Consumer<Runnable> mutationScheduler) {
+    private boolean doCleanup(
+            CleanupPreferences preset,
+            BibEntry entry,
+            CompoundEdit compoundEdit,
+            List<JabRefException> failures,
+            Consumer<Runnable> mutationScheduler) {
         CleanupWorker cleaner = new CleanupWorker(
                 databaseContext,
                 preferences.getFilePreferences(),
                 preferences.getTimestampPreferences(),
                 preferences.getAbbreviationPreferences().shouldUseFJournalField(),
-                journalAbbreviationRepository
-        );
+                journalAbbreviationRepository);
 
         List<FieldChange> changes = cleaner.cleanup(preset, entry, mutationScheduler);
 
@@ -180,7 +178,8 @@ public class CleanupDialogViewModel extends AbstractViewModel {
     }
 
     private void showResults() {
-        dialogService.notify(Localization.lang("%0 entry(s) needed a clean up", Integer.toString(modifiedEntriesCount)));
+        dialogService.notify(
+                Localization.lang("%0 entry(s) needed a clean up", Integer.toString(modifiedEntriesCount)));
     }
 
     private void cleanup(CleanupPreferences cleanupPreferences, List<BibEntry> entries) {
@@ -201,9 +200,8 @@ public class CleanupDialogViewModel extends AbstractViewModel {
         }
     }
 
-    private void cleanupWithProgress(CleanupPreferences cleanupPreferences,
-                                     List<BibEntry> entries,
-                                     BackgroundTask<?> task) {
+    private void cleanupWithProgress(
+            CleanupPreferences cleanupPreferences, List<BibEntry> entries, BackgroundTask<?> task) {
         int count = entries.size();
         if (count > 1) {
             task.showToUser(true);
@@ -222,14 +220,14 @@ public class CleanupDialogViewModel extends AbstractViewModel {
                 // BibEntry uses ObservableMap which fires FX listeners on mutation.
                 // Heavy computation stays on this background thread; only field mutations are dispatched
                 // to the FX thread via UiTaskExecutor::runAndWaitInJavaFXThread (blocking).
-                if (doCleanup(cleanupPreferences, entries.get(i), edit, failures, UiTaskExecutor::runAndWaitInJavaFXThread)) {
+                if (doCleanup(
+                        cleanupPreferences, entries.get(i), edit, failures, UiTaskExecutor::runAndWaitInJavaFXThread)) {
                     modifiedEntriesCount++;
                 }
 
                 task.updateProgress(i, count);
-                task.updateMessage(Localization.lang("%0 of %1 entries cleaned up.",
-                        String.valueOf(i + 1),
-                        String.valueOf(count)));
+                task.updateMessage(Localization.lang(
+                        "%0 of %1 entries cleaned up.", String.valueOf(i + 1), String.valueOf(count)));
             }
         });
 
@@ -242,11 +240,9 @@ public class CleanupDialogViewModel extends AbstractViewModel {
 
     private void showFailures(List<JabRefException> failures) {
         String message = failures.stream()
-                                 .map(exception -> "- " + exception.getLocalizedMessage())
-                                 .collect(Collectors.joining("\n"));
+                .map(exception -> "- " + exception.getLocalizedMessage())
+                .collect(Collectors.joining("\n"));
 
-        Platform.runLater(() ->
-                dialogService.showErrorDialogAndWait(Localization.lang("File Move Errors"), message)
-        );
+        Platform.runLater(() -> dialogService.showErrorDialogAndWait(Localization.lang("File Move Errors"), message));
     }
 }

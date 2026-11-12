@@ -2,10 +2,8 @@ package org.jabref.gui.fieldeditors;
 
 import java.util.List;
 import java.util.Optional;
-
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
-
 import org.jabref.gui.DragAndDropDataFormats;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.logic.integrity.FieldCheckers;
@@ -22,12 +20,13 @@ public class GroupsEditor extends TagsEditor {
     private final GroupsEditorViewModel viewModel;
     private Optional<BibEntry> bibEntry = Optional.empty();
 
-    public GroupsEditor(Field field,
-                        SuggestionProvider<?> suggestionProvider,
-                        FieldCheckers fieldCheckers,
-                        BibEntryPreferences bibEntryPreferences,
-                        BibDatabaseContext databaseContext,
-                        UndoManager undoManager) {
+    public GroupsEditor(
+            Field field,
+            SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers,
+            BibEntryPreferences bibEntryPreferences,
+            BibDatabaseContext databaseContext,
+            UndoManager undoManager) {
 
         super(field, suggestionProvider, fieldCheckers, undoManager);
 

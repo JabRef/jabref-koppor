@@ -1,13 +1,5 @@
 package org.jabref.http.dto;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import jakarta.inject.Inject;
@@ -17,6 +9,13 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.MessageBodyReader;
 import jakarta.ws.rs.ext.Provider;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 
 /// Reads `application/json` request bodies into POJOs via Gson so resources can declare strongly-typed parameters.
 @Provider
@@ -38,12 +37,14 @@ public class GsonMessageBodyReader implements MessageBodyReader<Object> {
     }
 
     @Override
-    public Object readFrom(Class<Object> type,
-                           Type genericType,
-                           Annotation[] annotations,
-                           MediaType mediaType,
-                           MultivaluedMap<String, String> httpHeaders,
-                           InputStream entityStream) throws IOException {
+    public Object readFrom(
+            Class<Object> type,
+            Type genericType,
+            Annotation[] annotations,
+            MediaType mediaType,
+            MultivaluedMap<String, String> httpHeaders,
+            InputStream entityStream)
+            throws IOException {
         try (Reader reader = new InputStreamReader(entityStream, StandardCharsets.UTF_8)) {
             Object result = gson.fromJson(reader, genericType);
             if (result == null) {

@@ -1,11 +1,11 @@
 package org.jabref.logic.shared;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 class DBMSConnectionPropertiesTest {
 
@@ -60,10 +60,19 @@ class DBMSConnectionPropertiesTest {
 
     @Test
     void propertiesWithoutHostAreComparable() {
-        DBMSConnectionProperties withoutHost = new DBMSConnectionPropertiesBuilder().setType(DBMSType.POSTGRESQL).createDBMSConnectionProperties();
-        DBMSConnectionProperties withHost = new DBMSConnectionPropertiesBuilder().setType(DBMSType.POSTGRESQL).setHost("localhost").createDBMSConnectionProperties();
+        DBMSConnectionProperties withoutHost = new DBMSConnectionPropertiesBuilder()
+                .setType(DBMSType.POSTGRESQL)
+                .createDBMSConnectionProperties();
+        DBMSConnectionProperties withHost = new DBMSConnectionPropertiesBuilder()
+                .setType(DBMSType.POSTGRESQL)
+                .setHost("localhost")
+                .createDBMSConnectionProperties();
 
-        assertEquals(withoutHost, new DBMSConnectionPropertiesBuilder().setType(DBMSType.POSTGRESQL).createDBMSConnectionProperties());
+        assertEquals(
+                withoutHost,
+                new DBMSConnectionPropertiesBuilder()
+                        .setType(DBMSType.POSTGRESQL)
+                        .createDBMSConnectionProperties());
         assertNotEquals(withoutHost, withHost);
         assertNotEquals(withHost, withoutHost);
     }
@@ -71,14 +80,31 @@ class DBMSConnectionPropertiesTest {
     @Test
     void sameDatabaseRegardlessOfEntryMode() {
         DBMSConnectionProperties fields = new DBMSConnectionPropertiesBuilder()
-                .setType(DBMSType.POSTGRESQL).setHost("Db.Example.org").setPort(5432).setDatabase("jabref").setUser("alice").setPassword("x")
+                .setType(DBMSType.POSTGRESQL)
+                .setHost("Db.Example.org")
+                .setPort(5432)
+                .setDatabase("jabref")
+                .setUser("alice")
+                .setPassword("x")
                 .createDBMSConnectionProperties();
         DBMSConnectionProperties url = new DBMSConnectionPropertiesBuilder()
-                .setType(DBMSType.POSTGRESQL).setHost("").setPort(5432).setDatabase("").setUser("alice").setPassword("y").setUseSSL(true)
-                .setExpertMode(true).setJdbcUrl("jdbc:postgresql://db.example.org/jabref?sslmode=verify-full")
+                .setType(DBMSType.POSTGRESQL)
+                .setHost("")
+                .setPort(5432)
+                .setDatabase("")
+                .setUser("alice")
+                .setPassword("y")
+                .setUseSSL(true)
+                .setExpertMode(true)
+                .setJdbcUrl("jdbc:postgresql://db.example.org/jabref?sslmode=verify-full")
                 .createDBMSConnectionProperties();
         DBMSConnectionProperties otherDatabase = new DBMSConnectionPropertiesBuilder()
-                .setType(DBMSType.POSTGRESQL).setHost("db.example.org").setPort(5432).setDatabase("other").setUser("alice").setPassword("x")
+                .setType(DBMSType.POSTGRESQL)
+                .setHost("db.example.org")
+                .setPort(5432)
+                .setDatabase("other")
+                .setUser("alice")
+                .setPassword("x")
                 .createDBMSConnectionProperties();
 
         assertTrue(DBMSConnectionProperties.isSameDatabase(fields, url));

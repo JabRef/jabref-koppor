@@ -1,14 +1,13 @@
 package org.jabref.toolkit.commands;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /// Collects various tests
 /// Better use a more specific test class per command. See [SearchTest] for an example.
@@ -21,7 +20,8 @@ class JabKitTest extends AbstractJabKitTest {
 
         Path outputBib = tempDir.resolve("output.bib").toAbsolutePath();
 
-        List<String> args = List.of("generate-bib-from-aux", "--aux", auxFile, "--input", fullBib, "--output", outputBib.toString());
+        List<String> args = List.of(
+                "generate-bib-from-aux", "--aux", auxFile, "--input", fullBib, "--output", outputBib.toString());
 
         commandLine.execute(args.toArray(String[]::new));
 
@@ -39,8 +39,12 @@ class JabKitTest extends AbstractJabKitTest {
         int executionResult = commandLine.executeToLog(args.toArray(String[]::new));
 
         String output = commandLine.getStandardOutput();
-        assertTrue(output.contains("Checking consistency for entry type 1 of 1\n"), "Expected output to contain sentence: Checking consistency for entry type 1 of 1");
-        assertTrue(output.contains("Consistency check completed"), "Expected output to contain sentence: Consistency check completed");
+        assertTrue(
+                output.contains("Checking consistency for entry type 1 of 1\n"),
+                "Expected output to contain sentence: Checking consistency for entry type 1 of 1");
+        assertTrue(
+                output.contains("Consistency check completed"),
+                "Expected output to contain sentence: Consistency check completed");
         assertEquals(0, executionResult);
     }
 
@@ -81,7 +85,8 @@ class JabKitTest extends AbstractJabKitTest {
         Path testBib = getClassResourceAsPath("origin.bib");
         String testBibFile = testBib.toAbsolutePath().toString();
 
-        List<String> args = List.of("check", "consistency", testBibFile, "--output-format", "github-actions", "--porcelain");
+        List<String> args =
+                List.of("check", "consistency", testBibFile, "--output-format", "github-actions", "--porcelain");
 
         int executionResult = commandLine.executeToLog(args.toArray(String[]::new));
 

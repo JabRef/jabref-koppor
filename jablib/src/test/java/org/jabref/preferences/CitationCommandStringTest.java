@@ -1,15 +1,13 @@
 package org.jabref.preferences;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.stream.Stream;
-
 import org.jabref.logic.push.CitationCommandString;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CitationCommandStringTest {
 
@@ -20,28 +18,12 @@ class CitationCommandStringTest {
 
     public static Stream<Arguments> from() {
         return Stream.of(
-                Arguments.of(
-                        new CitationCommandString("\\cite{", ",", "}"),
-                        "\\cite{key1,key2}"
-                ),
-                Arguments.of(
-                        new CitationCommandString("\\cite{", ",", "}"),
-                        "\\cite"
-                ),
+                Arguments.of(new CitationCommandString("\\cite{", ",", "}"), "\\cite{key1,key2}"),
+                Arguments.of(new CitationCommandString("\\cite{", ",", "}"), "\\cite"),
                 // We could do better, but this is very seldom
-                Arguments.of(
-                        new CitationCommandString("\\cite[key1,key]{", ",", "}"),
-                        "\\cite[key1,key]"
-                ),
-                Arguments.of(
-                        new CitationCommandString("", "", ""),
-                        "key1key2"
-                ),
-                Arguments.of(
-                        new CitationCommandString("key2,key1{", ",", "}"),
-                        "key2,key1"
-                )
-        );
+                Arguments.of(new CitationCommandString("\\cite[key1,key]{", ",", "}"), "\\cite[key1,key]"),
+                Arguments.of(new CitationCommandString("", "", ""), "key1key2"),
+                Arguments.of(new CitationCommandString("key2,key1{", ",", "}"), "key2,key1"));
     }
 
     @ParameterizedTest

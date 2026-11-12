@@ -1,5 +1,6 @@
 package org.jabref.logic.citationkeypattern;
 
+import com.google.common.annotations.VisibleForTesting;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -8,27 +9,27 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-import com.google.common.annotations.VisibleForTesting;
-
 public class CitationKeyPatternPreferences {
 
     public enum KeySuffix {
-        ALWAYS,         // CiteKeyA, CiteKeyB, CiteKeyC ...
-        SECOND_WITH_A,  // CiteKey, CiteKeyA, CiteKeyB ...
-        SECOND_WITH_B   // CiteKey, CiteKeyB, CiteKeyC ...
+        ALWAYS, // CiteKeyA, CiteKeyB, CiteKeyC ...
+        SECOND_WITH_A, // CiteKey, CiteKeyA, CiteKeyB ...
+        SECOND_WITH_B // CiteKey, CiteKeyB, CiteKeyC ...
     }
 
     /// List of unwanted characters. These will be removed at the end.
     /// Note that `+` is a wanted character to indicate "et al." in authorsAlpha.
     /// Example: `ABC+`. See `org.jabref.logic.citationkeypattern.BracketedPatternTest#authorsAlpha()` for examples.
     ///
-    /// Should never be used directly - use [CitationKeyPatternPreferences#getUnwantedCharacters()] instead, which respects the user's preferences
+    /// Should never be used directly - use [CitationKeyPatternPreferences#getUnwantedCharacters()] instead, which
+    /// respects the user's preferences
     ///
     /// See also #DISALLOWED_CHARACTERS
     @VisibleForTesting
     public static final String DEFAULT_UNWANTED_CHARACTERS = "-`ʹ:!;?^$";
 
-    private static final GlobalCitationKeyPatterns DEFAULT_CITATION_KEY_PATTERN = GlobalCitationKeyPatterns.fromPattern("[auth][year]");
+    private static final GlobalCitationKeyPatterns DEFAULT_CITATION_KEY_PATTERN =
+            GlobalCitationKeyPatterns.fromPattern("[auth][year]");
 
     private static final SimpleObjectProperty<Character> DEFAULT_KEYWORD_SEPARATOR = new SimpleObjectProperty<>(',');
 
@@ -44,18 +45,20 @@ public class CitationKeyPatternPreferences {
     private final SimpleObjectProperty<Character> keywordSeparator;
 
     /// @param keywordSeparator should always be org.jabref.model.entry.BibEntryPreferences#keywordSeparator
-    public CitationKeyPatternPreferences(boolean shouldTransliterateFieldsForCitationKey,
-                                         boolean shouldAvoidOverwriteCiteKey,
-                                         boolean shouldWarnBeforeOverwriteCiteKey,
-                                         boolean shouldGenerateCiteKeysBeforeSaving,
-                                         KeySuffix keySuffix,
-                                         String keyPatternRegex,
-                                         String keyPatternReplacement,
-                                         String unwantedCharacters,
-                                         GlobalCitationKeyPatterns keyPatterns,
-                                         ReadOnlyObjectProperty<Character> keywordSeparator) {
+    public CitationKeyPatternPreferences(
+            boolean shouldTransliterateFieldsForCitationKey,
+            boolean shouldAvoidOverwriteCiteKey,
+            boolean shouldWarnBeforeOverwriteCiteKey,
+            boolean shouldGenerateCiteKeysBeforeSaving,
+            KeySuffix keySuffix,
+            String keyPatternRegex,
+            String keyPatternReplacement,
+            String unwantedCharacters,
+            GlobalCitationKeyPatterns keyPatterns,
+            ReadOnlyObjectProperty<Character> keywordSeparator) {
 
-        this.shouldTransliterateFieldsForCitationKey = new SimpleBooleanProperty(shouldTransliterateFieldsForCitationKey);
+        this.shouldTransliterateFieldsForCitationKey =
+                new SimpleBooleanProperty(shouldTransliterateFieldsForCitationKey);
         this.shouldAvoidOverwriteCiteKey = new SimpleBooleanProperty(shouldAvoidOverwriteCiteKey);
         this.shouldWarnBeforeOverwriteCiteKey = new SimpleBooleanProperty(shouldWarnBeforeOverwriteCiteKey);
         this.shouldGenerateCiteKeysBeforeSaving = new SimpleBooleanProperty(shouldGenerateCiteKeysBeforeSaving);
@@ -71,17 +74,17 @@ public class CitationKeyPatternPreferences {
 
     private CitationKeyPatternPreferences() {
         this(
-                false,                        // shouldTransliterateFieldsForCitationKey
-                false,                        // shouldAvoidOverwriteCiteKey
-                true,                         // shouldWarnBeforeOverwriteCiteKey
-                false,                        // shouldGenerateCiteKeysBeforeSaving
+                false, // shouldTransliterateFieldsForCitationKey
+                false, // shouldAvoidOverwriteCiteKey
+                true, // shouldWarnBeforeOverwriteCiteKey
+                false, // shouldGenerateCiteKeysBeforeSaving
                 KeySuffix.SECOND_WITH_A,
-                "",                           // keyPatternRegex
-                "",                           // keyPatternReplacement
+                "", // keyPatternRegex
+                "", // keyPatternReplacement
                 DEFAULT_UNWANTED_CHARACTERS,
                 DEFAULT_CITATION_KEY_PATTERN,
-                new SimpleObjectProperty<>()  // keywordDelimiter
-        );
+                new SimpleObjectProperty<>() // keywordDelimiter
+                );
 
         this.keywordSeparator.bind(DEFAULT_KEYWORD_SEPARATOR);
     }

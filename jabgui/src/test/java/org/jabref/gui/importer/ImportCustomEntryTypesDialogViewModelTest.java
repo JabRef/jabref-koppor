@@ -1,10 +1,18 @@
 package org.jabref.gui.importer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import org.jabref.logic.importer.util.MetaDataParser;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.database.BibDatabaseMode;
@@ -14,19 +22,9 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.BiblatexNonStandardEntryType;
 import org.jabref.model.entry.types.UnknownEntryType;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /// Tests for the dialog offering to store the custom entry types of a just opened library.
 ///
@@ -39,10 +37,10 @@ class ImportCustomEntryTypesDialogViewModelTest {
 
     private static final BibDatabaseMode MODE = BibDatabaseMode.BIBLATEX;
 
-    private static final BibEntryType MANUSCRIPT_FROM_FILE = parse(
-            "jabref-entrytype: manuscript: req[library;location;shelfmark] opt[origin;scribe]");
-    private static final BibEntryType AUDIO_FROM_FILE = parse(
-            "jabref-entrytype: audio: req[author;date;publisher;title] opt[url;urldate]");
+    private static final BibEntryType MANUSCRIPT_FROM_FILE =
+            parse("jabref-entrytype: manuscript: req[library;location;shelfmark] opt[origin;scribe]");
+    private static final BibEntryType AUDIO_FROM_FILE =
+            parse("jabref-entrytype: audio: req[author;date;publisher;title] opt[url;urldate]");
 
     private BibEntryTypesManager entryTypesManager;
     private CliPreferences preferences;
@@ -59,7 +57,8 @@ class ImportCustomEntryTypesDialogViewModelTest {
         declinedDecisions = new HashSet<>();
         when(preferences.getDeclinedCustomEntryTypes()).thenAnswer(_ -> Set.copyOf(declinedDecisions));
         doAnswer(invocation -> declinedDecisions.addAll(invocation.getArgument(0)))
-                .when(preferences).addDeclinedCustomEntryTypes(any());
+                .when(preferences)
+                .addDeclinedCustomEntryTypes(any());
     }
 
     private ImportCustomEntryTypesDialogViewModel viewModelFor(List<BibEntryType> typesInFile) {
@@ -79,9 +78,11 @@ class ImportCustomEntryTypesDialogViewModelTest {
         ImportCustomEntryTypesDialogViewModel viewModel = viewModelFor(List.of(AUDIO_FROM_FILE));
 
         assertEquals(List.of(), List.copyOf(viewModel.newTypes()));
-        assertEquals(List.of(AUDIO_FROM_FILE), viewModel.differentCustomizations().stream()
-                                                        .map(BibEntryTypePrefsAndFileViewModel::customTypeFromFile)
-                                                        .toList());
+        assertEquals(
+                List.of(AUDIO_FROM_FILE),
+                viewModel.differentCustomizations().stream()
+                        .map(BibEntryTypePrefsAndFileViewModel::customTypeFromFile)
+                        .toList());
     }
 
     @Test
@@ -100,7 +101,8 @@ class ImportCustomEntryTypesDialogViewModelTest {
 
         viewModel.importBibEntryTypes(List.of(MANUSCRIPT_FROM_FILE), List.of());
 
-        assertEquals(Optional.of(MANUSCRIPT_FROM_FILE), entryTypesManager.enrich(new UnknownEntryType("manuscript"), MODE));
+        assertEquals(
+                Optional.of(MANUSCRIPT_FROM_FILE), entryTypesManager.enrich(new UnknownEntryType("manuscript"), MODE));
         verify(preferences).storeCustomEntryTypesRepository(entryTypesManager);
     }
 
@@ -129,7 +131,8 @@ class ImportCustomEntryTypesDialogViewModelTest {
 
         assertEquals(List.of(), List.copyOf(secondStart.newTypes()));
         assertEquals(List.of(), List.copyOf(secondStart.differentCustomizations()));
-        assertFalse(typesInFile.stream().anyMatch(type -> entryTypesManager.isDifferentCustomOrModifiedType(type, MODE)));
+        assertFalse(
+                typesInFile.stream().anyMatch(type -> entryTypesManager.isDifferentCustomOrModifiedType(type, MODE)));
     }
 
     @Test
@@ -143,7 +146,8 @@ class ImportCustomEntryTypesDialogViewModelTest {
 
         assertEquals(List.of(), List.copyOf(secondStart.newTypes()));
         assertEquals(List.of(), List.copyOf(secondStart.differentCustomizations()));
-        assertEquals(Optional.of(MANUSCRIPT_FROM_FILE), entryTypesManager.enrich(new UnknownEntryType("manuscript"), MODE));
+        assertEquals(
+                Optional.of(MANUSCRIPT_FROM_FILE), entryTypesManager.enrich(new UnknownEntryType("manuscript"), MODE));
         assertEquals(List.of(MANUSCRIPT_FROM_FILE), List.copyOf(entryTypesManager.getAllCustomizedTypes(MODE)));
     }
 
@@ -155,8 +159,14 @@ class ImportCustomEntryTypesDialogViewModelTest {
 
         assertEquals(List.of(), List.copyOf(entryTypesManager.getAllCustomizedTypes(MODE)));
         verify(preferences, never()).storeCustomEntryTypesRepository(entryTypesManager);
-        assertEquals(List.of(), List.copyOf(viewModelFor(List.of(AUDIO_FROM_FILE, MANUSCRIPT_FROM_FILE)).newTypes()));
-        assertEquals(List.of(), List.copyOf(viewModelFor(List.of(AUDIO_FROM_FILE, MANUSCRIPT_FROM_FILE)).differentCustomizations()));
+        assertEquals(
+                List.of(),
+                List.copyOf(viewModelFor(List.of(AUDIO_FROM_FILE, MANUSCRIPT_FROM_FILE))
+                        .newTypes()));
+        assertEquals(
+                List.of(),
+                List.copyOf(viewModelFor(List.of(AUDIO_FROM_FILE, MANUSCRIPT_FROM_FILE))
+                        .differentCustomizations()));
     }
 
     @Test
@@ -176,30 +186,38 @@ class ImportCustomEntryTypesDialogViewModelTest {
 
         ImportCustomEntryTypesDialogViewModel viewModel = viewModelFor(List.of(AUDIO_FROM_FILE));
 
-        assertEquals(List.of(AUDIO_FROM_FILE), viewModel.differentCustomizations().stream()
-                                                        .map(BibEntryTypePrefsAndFileViewModel::customTypeFromFile)
-                                                        .toList());
+        assertEquals(
+                List.of(AUDIO_FROM_FILE),
+                viewModel.differentCustomizations().stream()
+                        .map(BibEntryTypePrefsAndFileViewModel::customTypeFromFile)
+                        .toList());
     }
 
     @Test
     void declinedTypeIsOfferedAgainWhenOnlyStoredFieldPrioritiesChange() {
-        entryTypesManager.addCustomOrModifiedType(new BibEntryTypeBuilder()
-                .withType(BiblatexNonStandardEntryType.Audio)
-                .withRequiredFields(StandardField.AUTHOR)
-                .withImportantFields(StandardField.URL)
-                .withDetailFields(StandardField.URLDATE)
-                .build(), MODE);
+        entryTypesManager.addCustomOrModifiedType(
+                new BibEntryTypeBuilder()
+                        .withType(BiblatexNonStandardEntryType.Audio)
+                        .withRequiredFields(StandardField.AUTHOR)
+                        .withImportantFields(StandardField.URL)
+                        .withDetailFields(StandardField.URLDATE)
+                        .build(),
+                MODE);
         viewModelFor(List.of(AUDIO_FROM_FILE)).importBibEntryTypes(List.of(), List.of());
-        entryTypesManager.addCustomOrModifiedType(new BibEntryTypeBuilder()
-                .withType(BiblatexNonStandardEntryType.Audio)
-                .withRequiredFields(StandardField.AUTHOR)
-                .withImportantFields(StandardField.URL, StandardField.URLDATE)
-                .build(), MODE);
+        entryTypesManager.addCustomOrModifiedType(
+                new BibEntryTypeBuilder()
+                        .withType(BiblatexNonStandardEntryType.Audio)
+                        .withRequiredFields(StandardField.AUTHOR)
+                        .withImportantFields(StandardField.URL, StandardField.URLDATE)
+                        .build(),
+                MODE);
 
         ImportCustomEntryTypesDialogViewModel viewModel = viewModelFor(List.of(AUDIO_FROM_FILE));
 
-        assertEquals(List.of(AUDIO_FROM_FILE), viewModel.differentCustomizations().stream()
-                                                        .map(BibEntryTypePrefsAndFileViewModel::customTypeFromFile)
-                                                        .toList());
+        assertEquals(
+                List.of(AUDIO_FROM_FILE),
+                viewModel.differentCustomizations().stream()
+                        .map(BibEntryTypePrefsAndFileViewModel::customTypeFromFile)
+                        .toList());
     }
 }

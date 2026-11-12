@@ -1,7 +1,6 @@
 package org.jabref.model.pdf;
 
 import java.util.Locale;
-
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +42,9 @@ public enum FileAnnotationType {
         try {
             return FileAnnotationType.valueOf(annotation.getSubtype().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException _) {
-            LOGGER.info("FileAnnotationType {} is not supported and was converted into 'Unknown'!", annotation.getSubtype());
+            LOGGER.info(
+                    "FileAnnotationType {} is not supported and was converted into 'Unknown'!",
+                    annotation.getSubtype());
             return UNKNOWN;
         }
     }

@@ -2,7 +2,6 @@ package org.jabref.logic.formatter.casechanger;
 
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 
 /// Remove {} braces around words in case they appear balanced
@@ -12,7 +11,8 @@ public class UnprotectTermsFormatter extends Formatter {
 
     @Override
     public String format(@NonNull String text) {
-        // similar implementation at {@link org.jabref.logic.formatter.bibtexfields.RemoveBracesFormatter.hasNegativeBraceCount}
+        // similar implementation at {@link
+        // org.jabref.logic.formatter.bibtexfields.RemoveBracesFormatter.hasNegativeBraceCount}
         if (text.isEmpty()) {
             return text;
         }
@@ -41,8 +41,7 @@ public class UnprotectTermsFormatter extends Formatter {
 
     @Override
     public String getDescription() {
-        return Localization.lang(
-                "Removes all balanced {} braces around words.");
+        return Localization.lang("Removes all balanced {} braces around words.");
     }
 
     @Override

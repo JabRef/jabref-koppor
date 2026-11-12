@@ -1,7 +1,10 @@
 package org.jabref.gui.actions;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.Subscription;
+import de.saxsys.mvvmfx.utils.commands.Command;
 import java.util.Optional;
-
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
@@ -13,15 +16,9 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
 import javafx.stage.WindowEvent;
-
+import org.controlsfx.control.action.ActionUtils;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.logic.util.strings.StringUtil;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.Subscription;
-import de.saxsys.mvvmfx.utils.commands.Command;
-import org.controlsfx.control.action.ActionUtils;
 
 /// Helper class to create and style controls according to an [Action].
 public class ActionFactory {
@@ -48,7 +45,8 @@ public class ActionFactory {
         return menuItem;
     }
 
-    /// Shows the action's long text (its description and, for a [SimpleCommand], its status message) as tooltip on the menu row.
+    /// Shows the action's long text (its description and, for a [SimpleCommand], its status message) as tooltip on the
+    /// menu row.
     ///
     /// [MenuItem] has no tooltip property, unlike the buttons [ActionUtils] configures from the same text.
     /// The row node only exists once the menu has been shown and is recreated when the menu's items change,
@@ -67,7 +65,8 @@ public class ActionFactory {
         tooltip.textProperty().bind(jabRefAction.longTextProperty());
 
         Runnable updateTooltip = () -> {
-            // The row is not disabled itself (only styled as such), so it still receives the mouse events a tooltip needs
+            // The row is not disabled itself (only styled as such), so it still receives the mouse events a tooltip
+            // needs
             Optional.ofNullable(menuItem.getStyleableNode()).ifPresent(row -> {
                 // Installing adds the mouse handlers again, so remove any earlier installation first
                 Tooltip.uninstall(row, tooltip);
@@ -82,8 +81,10 @@ public class ActionFactory {
         Optional.ofNullable(menuItem.getParentPopup())
                 .ifPresent(popup -> popup.addEventHandler(WindowEvent.WINDOW_SHOWN, onPopupShown));
         ChangeListener<ContextMenu> parentPopupListener = (_, oldPopup, newPopup) -> {
-            Optional.ofNullable(oldPopup).ifPresent(popup -> popup.removeEventHandler(WindowEvent.WINDOW_SHOWN, onPopupShown));
-            Optional.ofNullable(newPopup).ifPresent(popup -> popup.addEventHandler(WindowEvent.WINDOW_SHOWN, onPopupShown));
+            Optional.ofNullable(oldPopup)
+                    .ifPresent(popup -> popup.removeEventHandler(WindowEvent.WINDOW_SHOWN, onPopupShown));
+            Optional.ofNullable(newPopup)
+                    .ifPresent(popup -> popup.addEventHandler(WindowEvent.WINDOW_SHOWN, onPopupShown));
         };
         menuItem.parentPopupProperty().addListener(parentPopupListener);
         Subscription textSubscription = EasyBind.subscribe(tooltip.textProperty(), _ -> updateTooltip.run());
@@ -170,7 +171,8 @@ public class ActionFactory {
     }
 
     public Button createIconButton(Action action, Command command) {
-        Button button = ActionUtils.createButton(new JabRefAction(action, command, keyBindingRepository), ActionUtils.ActionTextBehavior.HIDE);
+        Button button = ActionUtils.createButton(
+                new JabRefAction(action, command, keyBindingRepository), ActionUtils.ActionTextBehavior.HIDE);
 
         initButton(action, button);
 
@@ -180,9 +182,7 @@ public class ActionFactory {
     public ButtonBase configureIconButton(Action action, Command command, ButtonBase button) {
         ActionUtils.unconfigureButton(button);
         ActionUtils.configureButton(
-                new JabRefAction(action, command, keyBindingRepository),
-                button,
-                ActionUtils.ActionTextBehavior.HIDE);
+                new JabRefAction(action, command, keyBindingRepository), button, ActionUtils.ActionTextBehavior.HIDE);
 
         initButton(action, button);
 

@@ -1,7 +1,6 @@
 package org.jabref.gui.preferences;
 
 import java.util.List;
-
 import javafx.scene.Node;
 
 /// A prefsTab is a component displayed in the PreferenceDialog.

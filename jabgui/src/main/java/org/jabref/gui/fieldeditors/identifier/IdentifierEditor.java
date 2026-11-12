@@ -1,14 +1,21 @@
 package org.jabref.gui.fieldeditors.identifier;
 
-import java.util.Optional;
+import static org.jabref.model.entry.field.StandardField.DOI;
+import static org.jabref.model.entry.field.StandardField.EPRINT;
+import static org.jabref.model.entry.field.StandardField.ISBN;
+import static org.jabref.model.entry.field.StandardField.ISSN;
+import static org.jabref.model.entry.field.StandardField.MR_NUMBER;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
+import java.util.Optional;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.autocompleter.SuggestionProvider;
@@ -25,35 +32,45 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldTextMapper;
 
-import com.airhacks.afterburner.injection.Injector;
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
-import static org.jabref.model.entry.field.StandardField.DOI;
-import static org.jabref.model.entry.field.StandardField.EPRINT;
-import static org.jabref.model.entry.field.StandardField.ISBN;
-import static org.jabref.model.entry.field.StandardField.ISSN;
-import static org.jabref.model.entry.field.StandardField.MR_NUMBER;
-
 public class IdentifierEditor extends HBox implements FieldEditorFX {
 
-    @FXML private BaseIdentifierEditorViewModel<?> viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private Button shortenDOIButton;
-    @FXML private Button fetchInformationByIdentifierButton;
-    @FXML private Button lookupIdentifierButton;
-    @FXML private ToggleButton syncWithBrowserToggle;
+    @FXML
+    private BaseIdentifierEditorViewModel<?> viewModel;
 
-    @Inject private DialogService dialogService;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private GuiPreferences preferences;
-    @Inject private StateManager stateManager;
+    @FXML
+    private EditorTextField textField;
+
+    @FXML
+    private Button shortenDOIButton;
+
+    @FXML
+    private Button fetchInformationByIdentifierButton;
+
+    @FXML
+    private Button lookupIdentifierButton;
+
+    @FXML
+    private ToggleButton syncWithBrowserToggle;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private StateManager stateManager;
+
     private Optional<BibEntry> entry = Optional.empty();
 
-    public IdentifierEditor(Field field,
-                            SuggestionProvider<?> suggestionProvider,
-                            FieldCheckers fieldCheckers,
-                            UndoManager undoManager) {
+    public IdentifierEditor(
+            Field field,
+            SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers,
+            UndoManager undoManager) {
 
         // Viewloader must be called after the viewmodel is loaded,
         // but we need the injected vars to create the viewmodels.
@@ -61,34 +78,67 @@ public class IdentifierEditor extends HBox implements FieldEditorFX {
 
         switch (field) {
             case DOI ->
-                    this.viewModel = new DoiIdentifierEditorViewModel(suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
+                this.viewModel = new DoiIdentifierEditorViewModel(
+                        suggestionProvider,
+                        fieldCheckers,
+                        dialogService,
+                        taskExecutor,
+                        preferences,
+                        undoManager,
+                        stateManager);
             case ISBN ->
-                    this.viewModel = new ISBNIdentifierEditorViewModel(suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
+                this.viewModel = new ISBNIdentifierEditorViewModel(
+                        suggestionProvider,
+                        fieldCheckers,
+                        dialogService,
+                        taskExecutor,
+                        preferences,
+                        undoManager,
+                        stateManager);
             case ISSN ->
-                    this.viewModel = new ISSNIdentifierEditorViewModel(suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
+                this.viewModel = new ISSNIdentifierEditorViewModel(
+                        suggestionProvider,
+                        fieldCheckers,
+                        dialogService,
+                        taskExecutor,
+                        preferences,
+                        undoManager,
+                        stateManager);
             case EPRINT ->
-                    this.viewModel = new EprintIdentifierEditorViewModel(suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
+                this.viewModel = new EprintIdentifierEditorViewModel(
+                        suggestionProvider,
+                        fieldCheckers,
+                        dialogService,
+                        taskExecutor,
+                        preferences,
+                        undoManager,
+                        stateManager);
             case MR_NUMBER ->
-                    this.viewModel = new MathSciNetIdentifierEditorViewModel(suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
+                this.viewModel = new MathSciNetIdentifierEditorViewModel(
+                        suggestionProvider,
+                        fieldCheckers,
+                        dialogService,
+                        taskExecutor,
+                        preferences,
+                        undoManager,
+                        stateManager);
 
             // TODO: Add support for PMID
-            case null,
-                 default -> {
+            case null, default -> {
                 assert field != null;
-                throw new IllegalStateException("Unable to instantiate a view model for identifier field editor '%s'".formatted(FieldTextMapper.getDisplayName(field)));
+                throw new IllegalStateException("Unable to instantiate a view model for identifier field editor '%s'"
+                        .formatted(FieldTextMapper.getDisplayName(field)));
             }
         }
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
 
         textField.setId(field.getName());
         textField.textProperty().bindBidirectional(viewModel.textProperty());
         syncWithBrowserToggle.setSelected(viewModel.getSyncWithBrowser());
 
-        fetchInformationByIdentifierButton.setTooltip(
-                new Tooltip(Localization.lang("Get bibliographic data from %0", FieldTextMapper.getDisplayName(field))));
+        fetchInformationByIdentifierButton.setTooltip(new Tooltip(
+                Localization.lang("Get bibliographic data from %0", FieldTextMapper.getDisplayName(field))));
         lookupIdentifierButton.setTooltip(
                 new Tooltip(Localization.lang("Look up %0", FieldTextMapper.getDisplayName(field))));
         shortenDOIButton.setTooltip(
@@ -96,7 +146,8 @@ public class IdentifierEditor extends HBox implements FieldEditorFX {
 
         textField.initContextMenu(new DefaultMenu(textField), preferences.getKeyBindingRepository());
 
-        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
+        new EditorValidator(preferences)
+                .configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
 
         // whether a button is shown or disabled is done in .fmxl
     }

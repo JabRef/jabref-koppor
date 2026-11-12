@@ -12,7 +12,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.cleanup.MoveFieldCleanup;
 import org.jabref.logic.formatter.bibtexfields.RemoveEnclosingBracesFormatter;
@@ -37,10 +39,6 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.BaseQueryNode;
 import org.jabref.model.search.query.OperatorNode;
 import org.jabref.model.search.query.SearchQueryNode;
-
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NullMarked;
 
 /// Fetches data from the Zentralblatt Math ([zbmath.org](https://www.zbmath.org/))
@@ -56,10 +54,8 @@ public class ZbMATH implements SearchBasedParserFetcher, IdBasedParserFetcher, E
 
     // The zbMATH REST document API is documented at:
     // https://github.com/zbMATHOpen/zbRestApiClient/blob/master/docs/DocumentApi.md
-    private static final String DOCUMENT_SEARCH_URL =
-            "https://api.zbmath.org/v1/document/_search";
-    private static final String DOCUMENT_URL =
-            "https://api.zbmath.org/v1/document/";
+    private static final String DOCUMENT_SEARCH_URL = "https://api.zbmath.org/v1/document/_search";
+    private static final String DOCUMENT_URL = "https://api.zbmath.org/v1/document/";
 
     private final ImportFormatPreferences preferences;
 
@@ -96,7 +92,8 @@ public class ZbMATH implements SearchBasedParserFetcher, IdBasedParserFetcher, E
     public URL getURLForQuery(BaseQueryNode queryNode) throws URISyntaxException, MalformedURLException {
         String searchQuery = new ZbMathQueryTransformer()
                 .transformSearchQuery(queryNode)
-                .orElseThrow(() -> new URISyntaxException(String.valueOf(queryNode), "Cannot transform query for zbMATH"));
+                .orElseThrow(
+                        () -> new URISyntaxException(String.valueOf(queryNode), "Cannot transform query for zbMATH"));
         return getURLForSearchQuery(searchQuery, "200");
     }
 
@@ -138,9 +135,7 @@ public class ZbMATH implements SearchBasedParserFetcher, IdBasedParserFetcher, E
         }
 
         List<BibEntry> candidates = getBibEntries(urlForQuery);
-        return findBestMatchingEntry(entry, candidates)
-                .map(List::of)
-                .orElse(List.of());
+        return findBestMatchingEntry(entry, candidates).map(List::of).orElse(List.of());
     }
 
     private URL getURLForSearchQuery(String searchQuery, String resultCount)
@@ -155,15 +150,16 @@ public class ZbMATH implements SearchBasedParserFetcher, IdBasedParserFetcher, E
     private String buildSearchQuery(BibEntry entry) {
         List<BaseQueryNode> searchNodes = new ArrayList<>();
         entry.getFieldOrAlias(StandardField.TITLE)
-             .ifPresent(title -> addSearchNode(searchNodes, StandardField.TITLE, title));
+                .ifPresent(title -> addSearchNode(searchNodes, StandardField.TITLE, title));
         entry.getFieldOrAlias(StandardField.AUTHOR)
-             .map(AuthorList::parse)
-             .ifPresent(authors -> authors.getAuthors()
-                                          .forEach(author -> addSearchNode(searchNodes, StandardField.AUTHOR, author.getNamePrefixAndFamilyName())));
+                .map(AuthorList::parse)
+                .ifPresent(authors -> authors.getAuthors()
+                        .forEach(author ->
+                                addSearchNode(searchNodes, StandardField.AUTHOR, author.getNamePrefixAndFamilyName())));
         entry.getFieldOrAlias(StandardField.JOURNAL)
-             .ifPresent(journal -> addSearchNode(searchNodes, StandardField.JOURNAL, journal));
+                .ifPresent(journal -> addSearchNode(searchNodes, StandardField.JOURNAL, journal));
         entry.getFieldOrAlias(StandardField.YEAR)
-             .ifPresent(year -> addSearchNode(searchNodes, StandardField.YEAR, year));
+                .ifPresent(year -> addSearchNode(searchNodes, StandardField.YEAR, year));
         if (searchNodes.isEmpty()) {
             return "";
         }
@@ -239,8 +235,7 @@ public class ZbMATH implements SearchBasedParserFetcher, IdBasedParserFetcher, E
                 .filter(language -> !StringUtil.isBlank(language))
                 .ifPresent(language -> entry.setField(StandardField.LANGUAGE, language));
 
-        Optional.ofNullable(entryJson.optJSONObject("source"))
-                .ifPresent(source -> parseSource(entry, source));
+        Optional.ofNullable(entryJson.optJSONObject("source")).ifPresent(source -> parseSource(entry, source));
 
         JSONArray links = entryJson.optJSONArray("links");
         if (links != null) {
@@ -279,16 +274,11 @@ public class ZbMATH implements SearchBasedParserFetcher, IdBasedParserFetcher, E
             return StandardEntryType.Misc;
         }
         return switch (documentType.optString("code")) {
-            case "j" ->
-                    StandardEntryType.Article;
-            case "a" ->
-                    StandardEntryType.InCollection;
-            case "b" ->
-                    StandardEntryType.Book;
-            case "p" ->
-                    StandardEntryType.Unpublished;
-            default ->
-                    StandardEntryType.Misc;
+            case "j" -> StandardEntryType.Article;
+            case "a" -> StandardEntryType.InCollection;
+            case "b" -> StandardEntryType.Book;
+            case "p" -> StandardEntryType.Unpublished;
+            default -> StandardEntryType.Misc;
         };
     }
 
@@ -312,8 +302,8 @@ public class ZbMATH implements SearchBasedParserFetcher, IdBasedParserFetcher, E
                         .filter(isbnEntries -> !isbnEntries.isEmpty())
                         .map(isbnEntries -> isbnEntries.optJSONObject(0))
                         .ifPresent(firstIsbn -> Optional.of(firstIsbn.optString("number"))
-                                                        .filter(value -> !StringUtil.isBlank(value))
-                                                        .ifPresent(value -> entry.withField(StandardField.ISBN, value)));
+                                .filter(value -> !StringUtil.isBlank(value))
+                                .ifPresent(value -> entry.withField(StandardField.ISBN, value)));
 
                 Optional.of(firstBook.optString("publisher"))
                         .filter(value -> !StringUtil.isBlank(value))
@@ -376,15 +366,16 @@ public class ZbMATH implements SearchBasedParserFetcher, IdBasedParserFetcher, E
         }
 
         List<ScoredEntry> scoredEntries = candidates.stream()
-                                                    .map(candidate -> new ScoredEntry(candidate, scoreCandidate(inputEntry, candidate)))
-                                                    .filter(scoredEntry -> scoredEntry.score >= MIN_CONFIDENCE)
-                                                    .sorted((left, right) -> Double.compare(right.score, left.score))
-                                                    .toList();
+                .map(candidate -> new ScoredEntry(candidate, scoreCandidate(inputEntry, candidate)))
+                .filter(scoredEntry -> scoredEntry.score >= MIN_CONFIDENCE)
+                .sorted((left, right) -> Double.compare(right.score, left.score))
+                .toList();
         if (scoredEntries.isEmpty()) {
             return Optional.empty();
         }
 
-        if (scoredEntries.size() > 1 && Math.abs(scoredEntries.getFirst().score - scoredEntries.get(1).score) < AMBIGUITY_DELTA) {
+        if (scoredEntries.size() > 1
+                && Math.abs(scoredEntries.getFirst().score - scoredEntries.get(1).score) < AMBIGUITY_DELTA) {
             return Optional.empty();
         }
 
@@ -394,41 +385,41 @@ public class ZbMATH implements SearchBasedParserFetcher, IdBasedParserFetcher, E
     private double scoreCandidate(BibEntry inputEntry, BibEntry candidate) {
         double score = 0.0;
 
-        Optional<String> inputTitle = inputEntry.getFieldOrAlias(StandardField.TITLE)
-                                                .filter(value -> !StringUtil.isBlank(value));
+        Optional<String> inputTitle =
+                inputEntry.getFieldOrAlias(StandardField.TITLE).filter(value -> !StringUtil.isBlank(value));
         if (inputTitle.isPresent()) {
-            Optional<String> candidateTitle = candidate.getField(StandardField.TITLE)
-                                                       .filter(value -> !StringUtil.isBlank(value));
+            Optional<String> candidateTitle =
+                    candidate.getField(StandardField.TITLE).filter(value -> !StringUtil.isBlank(value));
             if (candidateTitle.isEmpty()) {
                 return 0.0;
             }
 
-            double titleSimilarity = new StringSimilarity().similarity(
-                    normalizeForTitleMatching(inputTitle.get()),
-                    normalizeForTitleMatching(candidateTitle.get())
-            );
+            double titleSimilarity = new StringSimilarity()
+                    .similarity(
+                            normalizeForTitleMatching(inputTitle.get()),
+                            normalizeForTitleMatching(candidateTitle.get()));
             if (titleSimilarity < MIN_TITLE_SIMILARITY) {
                 return 0.0;
             }
             score += 0.7 * titleSimilarity;
         }
 
-        Optional<String> inputYear = inputEntry.getFieldOrAlias(StandardField.YEAR)
-                                               .filter(value -> !StringUtil.isBlank(value));
+        Optional<String> inputYear =
+                inputEntry.getFieldOrAlias(StandardField.YEAR).filter(value -> !StringUtil.isBlank(value));
         if (inputYear.isPresent()) {
-            Optional<String> candidateYear = candidate.getField(StandardField.YEAR)
-                                                      .filter(value -> !StringUtil.isBlank(value));
+            Optional<String> candidateYear =
+                    candidate.getField(StandardField.YEAR).filter(value -> !StringUtil.isBlank(value));
             if (candidateYear.isEmpty() || !inputYear.get().equals(candidateYear.get())) {
                 return 0.0;
             }
             score += 0.15;
         }
 
-        Optional<String> inputAuthor = inputEntry.getFieldOrAlias(StandardField.AUTHOR)
-                                                 .filter(value -> !StringUtil.isBlank(value));
+        Optional<String> inputAuthor =
+                inputEntry.getFieldOrAlias(StandardField.AUTHOR).filter(value -> !StringUtil.isBlank(value));
         if (inputAuthor.isPresent()) {
-            Optional<String> candidateAuthor = candidate.getField(StandardField.AUTHOR)
-                                                        .filter(value -> !StringUtil.isBlank(value));
+            Optional<String> candidateAuthor =
+                    candidate.getField(StandardField.AUTHOR).filter(value -> !StringUtil.isBlank(value));
             if (candidateAuthor.isEmpty()) {
                 return 0.0;
             }
@@ -445,22 +436,21 @@ public class ZbMATH implements SearchBasedParserFetcher, IdBasedParserFetcher, E
 
     private double familyNameOverlap(String inputAuthors, String candidateAuthors) {
         Set<String> inputFamilyNames = AuthorList.parse(inputAuthors).getAuthors().stream()
-                                                 .map(author -> author.getFamilyName().orElse(""))
-                                                 .map(ZbMATH::normalizeForTitleMatching)
-                                                 .filter(value -> !StringUtil.isBlank(value))
-                                                 .collect(Collectors.toSet());
+                .map(author -> author.getFamilyName().orElse(""))
+                .map(ZbMATH::normalizeForTitleMatching)
+                .filter(value -> !StringUtil.isBlank(value))
+                .collect(Collectors.toSet());
         if (inputFamilyNames.isEmpty()) {
             return 0.0;
         }
 
         Set<String> candidateFamilyNames = AuthorList.parse(candidateAuthors).getAuthors().stream()
-                                                     .map(author -> author.getFamilyName().orElse(""))
-                                                     .map(ZbMATH::normalizeForTitleMatching)
-                                                     .filter(value -> !StringUtil.isBlank(value))
-                                                     .collect(Collectors.toSet());
-        long overlap = inputFamilyNames.stream()
-                                       .filter(candidateFamilyNames::contains)
-                                       .count();
+                .map(author -> author.getFamilyName().orElse(""))
+                .map(ZbMATH::normalizeForTitleMatching)
+                .filter(value -> !StringUtil.isBlank(value))
+                .collect(Collectors.toSet());
+        long overlap =
+                inputFamilyNames.stream().filter(candidateFamilyNames::contains).count();
         return (double) overlap / inputFamilyNames.size();
     }
 
@@ -471,6 +461,5 @@ public class ZbMATH implements SearchBasedParserFetcher, IdBasedParserFetcher, E
         return normalizedTitle.trim().toLowerCase(Locale.ROOT);
     }
 
-    private record ScoredEntry(BibEntry entry, double score) {
-    }
+    private record ScoredEntry(BibEntry entry, double score) {}
 }

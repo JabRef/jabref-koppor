@@ -1,15 +1,5 @@
 package org.jabref.model;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
-
-import org.jabref.support.TreeNodeTestData;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -17,6 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import org.jabref.support.TreeNodeTestData;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class TreeNodeTest {
 
@@ -59,7 +57,8 @@ class TreeNodeTest {
 
     @Test
     void getIndexedPathFromRootComplexPath() {
-        assertEquals(Arrays.asList(2, 1, 0), TreeNodeTestData.getNodeInComplexTree().getIndexedPathFromRoot());
+        assertEquals(
+                Arrays.asList(2, 1, 0), TreeNodeTestData.getNodeInComplexTree().getIndexedPathFromRoot());
     }
 
     @Test
@@ -621,7 +620,9 @@ class TreeNodeTest {
         TreeNodeTestData.TreeNodeMock node = childB.addChild(new TreeNodeTestData.TreeNodeMock("A"));
         TreeNodeTestData.TreeNodeMock childA = root.addChild(new TreeNodeTestData.TreeNodeMock("A"));
 
-        assertEquals(Arrays.asList(root, node, childA), root.findChildrenSatisfying(treeNode -> "A".equals(treeNode.getName())));
+        assertEquals(
+                Arrays.asList(root, node, childA),
+                root.findChildrenSatisfying(treeNode -> "A".equals(treeNode.getName())));
     }
 
     private static class WrongTreeNodeImplementation extends TreeNode<TreeNodeTestData.TreeNodeMock> {

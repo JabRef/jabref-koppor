@@ -12,20 +12,21 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.layout.format.LatexToUnicodeFormatter;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Class for working with <a href="https://en.wikipedia.org/wiki/Digital_object_identifier">Digital object identifiers (DOIs)</a> and <a href="http://shortdoi.org">Short DOIs</a>
-@AllowedToUseLogic("because we want to have this class 'smart' an be able to parse obscure DOIs, too. For this, we need the LatexToUnicodeformatter.")
+/// Class for working with <a href="https://en.wikipedia.org/wiki/Digital_object_identifier">Digital object identifiers
+/// (DOIs)</a> and <a href="http://shortdoi.org">Short DOIs</a>
+@AllowedToUseLogic(
+        "because we want to have this class 'smart' an be able to parse obscure DOIs, too. For this, we need the"
+                + " LatexToUnicodeformatter.")
 @NullMarked
 public class DOI implements Identifier {
 
@@ -38,74 +39,90 @@ public class DOI implements Identifier {
 
     // Regex
     // (see http://www.doi.org/doi_handbook/2_Numbering.html)
-    private static final String DOI_EXP = "(?:urn:)?"       // optional urn
-            + "(?:doi:)?"                                   // optional doi
-            + "(?<" + DOI_GROUP + ">"                       // begin named group
-            + "10"                                          // directory indicator
-            + "(?:\\.[0-9]+)+"                              // registrant codes
-            + "[/:%]"                                       // divider
-            + "(?:.+)"                                      // suffix alphanumeric string
-            + ")";                                          // end named group
-    private static final String FIND_DOI_EXP = "(?:urn:)?"  // optional urn
-            + "(?:doi:)?"                                   // optional doi
-            + "(?<" + DOI_GROUP + ">"                       // begin named group
-            + "10"                                          // directory indicator
-            + "(?:\\.[0-9]+)+"                              // registrant codes
-            + "[/:]"                                        // divider
-            + "(?:[^\\s,]+[^,;(\\.\\s)])"                   // suffix alphanumeric without " "/"," and not ending on "."/","/";"
-            + ")";                                          // end named group
+    private static final String DOI_EXP = "(?:urn:)?" // optional urn
+            + "(?:doi:)?" // optional doi
+            + "(?<" + DOI_GROUP + ">" // begin named group
+            + "10" // directory indicator
+            + "(?:\\.[0-9]+)+" // registrant codes
+            + "[/:%]" // divider
+            + "(?:.+)" // suffix alphanumeric string
+            + ")"; // end named group
+    private static final String FIND_DOI_EXP = "(?:urn:)?" // optional urn
+            + "(?:doi:)?" // optional doi
+            + "(?<" + DOI_GROUP + ">" // begin named group
+            + "10" // directory indicator
+            + "(?:\\.[0-9]+)+" // registrant codes
+            + "[/:]" // divider
+            + "(?:[^\\s,]+[^,;(\\.\\s)])" // suffix alphanumeric without " "/"," and not ending on "."/","/";"
+            + ")"; // end named group
 
     // Regex (Short DOI)
-    private static final String SHORT_DOI_SHORTCUT = "^\\s*(?:https?://)?(?:www\\.)?(?:doi\\.org/)(?<" + DOI_GROUP + ">[a-z0-9]{4,10})\\s*$"; // eg https://doi.org/bfrhmx
-    private static final String IN_TEXT_SHORT_DOI_SHORTCUT = "(?:https?://)?(?:www\\.)?(?:doi\\.org/)(?<" + DOI_GROUP + ">[a-z0-9]{4,10})"; // eg https://doi.org/bfrhmx somewhere in the text
-    private static final String SHORT_DOI_EXP_PREFIX = "^(?:"   // can begin with...
-            + "\\s*(?:https?://)?(?:www\\.)?"                   // optional url parts "http(s)://"+"www."
-            + "[a-zA-Z\\.]*doi[a-zA-Z\\.]*"                     //  eg "dx.doi." or "doi.acm." or "doi." if with url, must include "doi", otherwise too ambiguous
-            + "\\.[a-zA-Z]{2,10}/)?";                           // ".org" or ".de" or ".academy"
-    private static final String SHORT_DOI_EXP = "(?:"           // begin "any one of these"
-            + "(?:[\\s/]?(?:(?:urn:)|(?:doi:)|(?:urn:doi:)))"   // "doi:10/12ab" or " urn:10/12ab" or "/urn:doi:/10/12ab" ...
-            + "|(?:\\s?/?)"                                     // or "/10/12ab" or " /10/12ab" or "10/12ab" or " 10/12ab"
-            + ")"                                               // end "any one of these"
-            + "(?<" + DOI_GROUP + ">"                           // begin named group
-            + "10"                                              // directory indicator
-            + "[/%:]"                                           // divider
-            + "[a-zA-Z0-9]{3,}"                                 // at least 3 characters
-            + ")"                                               // end named group
-            + "\\s*$";                                          // must be the end
-    private static final String FIND_SHORT_DOI_EXP = "(?:"          // begin "any one of these" (but not none of those!)
-            + "(?:(?:www\\.)?doi\\.org/)"                           // either doi.org
-            + "|"                                                   // or any of the following with doi.org or not...
-            + "(?:(?:doi.org/)?(?:(?:urn:)|(?:doi:)|(?:urn:doi:)))" // "doi:10/12ab" or " urn:10/12ab" or "/urn:doi:/10/12ab" or "doi.org/doi:10/12ab"...
-            + ")"                                                   // end "any one of these"
-            + "(?<" + DOI_GROUP + ">"                               // begin named group
-            + "10"                                                  // directory indicator
-            + "[/%:]"                                               // divider
-            + "[a-zA-Z0-9]{3,}"                                     // at least 3 characters
-            + ")";                                                  // end named group
+    private static final String SHORT_DOI_SHORTCUT = "^\\s*(?:https?://)?(?:www\\.)?(?:doi\\.org/)(?<" + DOI_GROUP
+            + ">[a-z0-9]{4,10})\\s*$"; // eg https://doi.org/bfrhmx
+    private static final String IN_TEXT_SHORT_DOI_SHORTCUT = "(?:https?://)?(?:www\\.)?(?:doi\\.org/)(?<" + DOI_GROUP
+            + ">[a-z0-9]{4,10})"; // eg https://doi.org/bfrhmx somewhere in the text
+    private static final String SHORT_DOI_EXP_PREFIX = "^(?:" // can begin with...
+            + "\\s*(?:https?://)?(?:www\\.)?" // optional url parts "http(s)://"+"www."
+            + "[a-zA-Z\\.]*doi[a-zA-Z\\.]*" //  eg "dx.doi." or "doi.acm." or "doi." if with url, must include "doi",
+                                            // otherwise too ambiguous
+            + "\\.[a-zA-Z]{2,10}/)?"; // ".org" or ".de" or ".academy"
+    private static final String SHORT_DOI_EXP = "(?:" // begin "any one of these"
+            + "(?:[\\s/]?(?:(?:urn:)|(?:doi:)|(?:urn:doi:)))" // "doi:10/12ab" or " urn:10/12ab" or "/urn:doi:/10/12ab"
+                                                              // ...
+            + "|(?:\\s?/?)" // or "/10/12ab" or " /10/12ab" or "10/12ab" or " 10/12ab"
+            + ")" // end "any one of these"
+            + "(?<" + DOI_GROUP + ">" // begin named group
+            + "10" // directory indicator
+            + "[/%:]" // divider
+            + "[a-zA-Z0-9]{3,}" // at least 3 characters
+            + ")" // end named group
+            + "\\s*$"; // must be the end
+    private static final String FIND_SHORT_DOI_EXP = "(?:" // begin "any one of these" (but not none of those!)
+            + "(?:(?:www\\.)?doi\\.org/)" // either doi.org
+            + "|" // or any of the following with doi.org or not...
+            + "(?:(?:doi.org/)?(?:(?:urn:)|(?:doi:)|(?:urn:doi:)))" // "doi:10/12ab" or " urn:10/12ab" or
+                                                                    // "/urn:doi:/10/12ab" or "doi.org/doi:10/12ab"...
+            + ")" // end "any one of these"
+            + "(?<" + DOI_GROUP + ">" // begin named group
+            + "10" // directory indicator
+            + "[/%:]" // divider
+            + "[a-zA-Z0-9]{3,}" // at least 3 characters
+            + ")"; // end named group
 
     private static final String HTTP_EXP = "https?://[^\\s]+?" + DOI_EXP;
     private static final String SHORT_DOI_HTTP_EXP = "https?://[^\\s]+?" + SHORT_DOI_EXP;
     // Pattern
-    private static final Pattern DOI_RESOLVER_PREFIX = Pattern.compile("^https?://(?:www\\.|dx\\.)?doi\\.org(?::[0-9]+)?/", Pattern.CASE_INSENSITIVE);
+    private static final Pattern DOI_RESOLVER_PREFIX =
+            Pattern.compile("^https?://(?:www\\.|dx\\.)?doi\\.org(?::[0-9]+)?/", Pattern.CASE_INSENSITIVE);
     // Matches doi.org links with optional scheme and port, e.g., "doi.org/", "https://dx.doi.org:443/"
-    private static final Pattern DOI_RESOLVER_LINK = Pattern.compile("^(?:https?://)?(?:www\\.|dx\\.)?doi\\.org(?::[0-9]+)?/", Pattern.CASE_INSENSITIVE);
-    private static final Pattern EXACT_DOI_PATT = Pattern.compile("^(?:https?://[^\\s]+?)?" + DOI_EXP + "$", Pattern.CASE_INSENSITIVE);
-    private static final Pattern FIND_DOI_PATT = Pattern.compile("(?:https?://[^\\s]+?)?" + FIND_DOI_EXP, Pattern.CASE_INSENSITIVE);
+    private static final Pattern DOI_RESOLVER_LINK =
+            Pattern.compile("^(?:https?://)?(?:www\\.|dx\\.)?doi\\.org(?::[0-9]+)?/", Pattern.CASE_INSENSITIVE);
+    private static final Pattern EXACT_DOI_PATT =
+            Pattern.compile("^(?:https?://[^\\s]+?)?" + DOI_EXP + "$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern FIND_DOI_PATT =
+            Pattern.compile("(?:https?://[^\\s]+?)?" + FIND_DOI_EXP, Pattern.CASE_INSENSITIVE);
     // Pattern (short DOI)
-    private static final Pattern EXACT_SHORT_DOI_SHORTCUT = Pattern.compile(SHORT_DOI_SHORTCUT, Pattern.CASE_INSENSITIVE); // eg doi.org/bfrhmx (no "10/")
-    private static final Pattern FIND_SHORT_DOI_SHORTCUT = Pattern.compile(IN_TEXT_SHORT_DOI_SHORTCUT, Pattern.CASE_INSENSITIVE); // eg doi.org/bfrhmx (no "10/")
-    private static final Pattern EXACT_SHORT_DOI_PATT = Pattern.compile(SHORT_DOI_EXP_PREFIX + SHORT_DOI_EXP, Pattern.CASE_INSENSITIVE);
-    private static final Pattern FIND_SHORT_DOI_PATT = Pattern.compile("(?:https?://[^\\s]+?)?" + FIND_SHORT_DOI_EXP, Pattern.CASE_INSENSITIVE);
+    private static final Pattern EXACT_SHORT_DOI_SHORTCUT =
+            Pattern.compile(SHORT_DOI_SHORTCUT, Pattern.CASE_INSENSITIVE); // eg doi.org/bfrhmx (no "10/")
+    private static final Pattern FIND_SHORT_DOI_SHORTCUT =
+            Pattern.compile(IN_TEXT_SHORT_DOI_SHORTCUT, Pattern.CASE_INSENSITIVE); // eg doi.org/bfrhmx (no "10/")
+    private static final Pattern EXACT_SHORT_DOI_PATT =
+            Pattern.compile(SHORT_DOI_EXP_PREFIX + SHORT_DOI_EXP, Pattern.CASE_INSENSITIVE);
+    private static final Pattern FIND_SHORT_DOI_PATT =
+            Pattern.compile("(?:https?://[^\\s]+?)?" + FIND_SHORT_DOI_EXP, Pattern.CASE_INSENSITIVE);
 
     // See https://www.baeldung.com/java-regex-s-splus for explanation of \\s+
-    // See https://stackoverflow.com/questions/3203190/regex-any-ascii-character for the regexp that includes ASCII characters only
-    // Another reference for regexp for ASCII characters: https://howtodoinjava.com/java/regex/java-clean-ascii-text-non-printable-chars/
-    private static final String CHARS_TO_REMOVE = "[\\s+" // remove white space characters, i.e, \t, \n, \x0B, \f, \r . + is a greedy quantifier
-            + "\\\\"            // remove backslashes
-            + "{}"              // remove curly brackets
-            + "\\[\\]`|"        // remove square brackets, backticks, and pipes
-            + "[^\\x00-\\x7F]"  // strips off all non-ASCII characters
-            + "]";
+    // See https://stackoverflow.com/questions/3203190/regex-any-ascii-character for the regexp that includes ASCII
+    // characters only
+    // Another reference for regexp for ASCII characters:
+    // https://howtodoinjava.com/java/regex/java-clean-ascii-text-non-printable-chars/
+    private static final String CHARS_TO_REMOVE =
+            "[\\s+" // remove white space characters, i.e, \t, \n, \x0B, \f, \r . + is a greedy quantifier
+                    + "\\\\" // remove backslashes
+                    + "{}" // remove curly brackets
+                    + "\\[\\]`|" // remove square brackets, backticks, and pipes
+                    + "[^\\x00-\\x7F]" // strips off all non-ASCII characters
+                    + "]";
 
     // DOI
     private final String doi;
@@ -162,7 +179,8 @@ public class DOI implements Identifier {
             LatexToUnicodeFormatter formatter = new LatexToUnicodeFormatter();
             String cleanedDOI = removeTrackingParameters(doi);
             cleanedDOI = URLDecoder.decode(cleanedDOI, StandardCharsets.UTF_8);
-            // needs to be handled before LatexToUnicode, because otherwise `^` will be treated as conversion superscript
+            // needs to be handled before LatexToUnicode, because otherwise `^` will be treated as conversion
+            // superscript
             cleanedDOI = cleanedDOI.replaceAll("\\^", "");
             cleanedDOI = formatter.format(cleanedDOI);
             cleanedDOI = cleanedDOI.replaceAll(CHARS_TO_REMOVE, "");
@@ -181,8 +199,7 @@ public class DOI implements Identifier {
     }
 
     /// The decoded identifier and its original representation in a DOI link.
-    public record LinkSearchTerms(String decoded, String encoded) {
-    }
+    public record LinkSearchTerms(String decoded, String encoded) {}
 
     /// Extracts DOI link search terms without applying lossy DOI cleanup.
     public static Optional<LinkSearchTerms> extractLinkSearchTerms(String text) {
@@ -198,7 +215,8 @@ public class DOI implements Identifier {
         String lowerCase = input.toLowerCase(Locale.ROOT);
         if (lowerCase.startsWith("doi.org/")) {
             input = "https://" + input;
-        } else if (!lowerCase.startsWith("doi:") && !DOI_RESOLVER_PREFIX.matcher(input).find()) {
+        } else if (!lowerCase.startsWith("doi:")
+                && !DOI_RESOLVER_PREFIX.matcher(input).find()) {
             return Optional.empty();
         }
         try {
@@ -217,7 +235,8 @@ public class DOI implements Identifier {
             Matcher shortMatcher = EXACT_SHORT_DOI_PATT.matcher(decoded);
             if (shortMatcher.matches()) {
                 Matcher encodedMatcher = EXACT_SHORT_DOI_PATT.matcher(input);
-                String encoded = encodedMatcher.matches() ? encodedMatcher.group(DOI_GROUP) : shortMatcher.group(DOI_GROUP);
+                String encoded =
+                        encodedMatcher.matches() ? encodedMatcher.group(DOI_GROUP) : shortMatcher.group(DOI_GROUP);
                 return Optional.of(new LinkSearchTerms(shortMatcher.group(DOI_GROUP), encoded));
             }
             return Optional.empty();
@@ -227,10 +246,12 @@ public class DOI implements Identifier {
         }
     }
 
-    /// Removes the query (e.g., `?utm_source=newsletter`) and the fragment (e.g., `#section`) from a doi.org link (with or without `https://`),
+    /// Removes the query (e.g., `?utm_source=newsletter`) and the fragment (e.g., `#section`) from a doi.org link (with
+    /// or without `https://`),
     /// because they are not part of the DOI.
     ///
-    /// Only DOI resolver URLs (such as `https://doi.org/...`) are changed. Other URLs may carry the DOI inside the query
+    /// Only DOI resolver URLs (such as `https://doi.org/...`) are changed. Other URLs may carry the DOI inside the
+    /// query
     /// (e.g., `https://www.scitepress.org/Link.aspx?doi=10.5220/0010404301780189`) and are returned unchanged.
     /// Call this before URL decoding, because an encoded `%3F` or `%23` is a valid part of a DOI.
     private static String removeTrackingParameters(String doi) {
@@ -276,8 +297,7 @@ public class DOI implements Identifier {
 
     /// Result of locating a DOI inside a text: the parsed DOI string plus the
     /// matched region (which may include a URL or `doi:` prefix).
-    private record DoiTextMatch(String doi, int start, int end) {
-    }
+    private record DoiTextMatch(String doi, int start, int end) {}
 
     private static String removeReplacementCharacters(String text) {
         return text.replaceAll("[�]", "");
@@ -291,14 +311,15 @@ public class DOI implements Identifier {
         // re-prefixed with "10/" so the {@link DOI} constructor accepts it directly via
         // EXACT_SHORT_DOI_PATT instead of having to re-derive the URL form.
         return Stream.of(
-                             firstMatch(FIND_DOI_PATT, text, m -> m.group(DOI_GROUP)),
-                             firstMatch(FIND_SHORT_DOI_PATT, text, m -> m.group(DOI_GROUP)),
-                             firstMatch(FIND_SHORT_DOI_SHORTCUT, text, m -> "10/" + m.group(DOI_GROUP)))
-                     .flatMap(Optional::stream)
-                     .min(Comparator.comparingInt(DoiTextMatch::start));
+                        firstMatch(FIND_DOI_PATT, text, m -> m.group(DOI_GROUP)),
+                        firstMatch(FIND_SHORT_DOI_PATT, text, m -> m.group(DOI_GROUP)),
+                        firstMatch(FIND_SHORT_DOI_SHORTCUT, text, m -> "10/" + m.group(DOI_GROUP)))
+                .flatMap(Optional::stream)
+                .min(Comparator.comparingInt(DoiTextMatch::start));
     }
 
-    private static Optional<DoiTextMatch> firstMatch(Pattern pattern, String text, Function<Matcher, String> doiExtractor) {
+    private static Optional<DoiTextMatch> firstMatch(
+            Pattern pattern, String text, Function<Matcher, String> doiExtractor) {
         Matcher matcher = pattern.matcher(text);
         if (matcher.find()) {
             return Optional.of(new DoiTextMatch(doiExtractor.apply(matcher), matcher.start(), matcher.end()));
@@ -308,9 +329,7 @@ public class DOI implements Identifier {
 
     @Override
     public String toString() {
-        return "DOI{" +
-                "doi='" + doi + '\'' +
-                '}';
+        return "DOI{doi='" + doi + '\'' + '}';
     }
 
     /// Return the plain DOI/Short DOI
@@ -330,7 +349,8 @@ public class DOI implements Identifier {
 
     /// Return a URI presentation for the DOI/Short DOI
     ///
-    /// TODO: Bad design, because Optional is used for Exception handling. Should be rewritten to throw a malformed URL exception.
+    /// TODO: Bad design, because Optional is used for Exception handling. Should be rewritten to throw a malformed URL
+    /// exception.
     ///
     /// @return an encoded URI representation of the DOI/Short DOI
     @Override

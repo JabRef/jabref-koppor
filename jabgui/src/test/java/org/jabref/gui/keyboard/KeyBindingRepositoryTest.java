@@ -1,21 +1,18 @@
 package org.jabref.gui.keyboard;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
-
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-
 import org.jabref.gui.testutils.JavaFxExtension;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(JavaFxExtension.class)
 class KeyBindingRepositoryTest {
@@ -24,20 +21,21 @@ class KeyBindingRepositoryTest {
                 // Correctly mapped
                 Arguments.of(
                         List.of(KeyBinding.MERGE_ENTRIES, KeyBinding.NEW_TECHREPORT, KeyBinding.PASTE),
-                        List.of("shortcut+1", "alt+2", "shift+3")
-                ),
+                        List.of("shortcut+1", "alt+2", "shift+3")),
 
                 // Defaults on faulty data
                 Arguments.of(
                         List.of(KeyBinding.MERGE_ENTRIES, KeyBinding.NEW_TECHREPORT, KeyBinding.PASTE),
-                        List.of(KeyBinding.MERGE_ENTRIES.getDefaultKeyBinding(), KeyBinding.NEW_TECHREPORT.getDefaultKeyBinding())
-                ));
+                        List.of(
+                                KeyBinding.MERGE_ENTRIES.getDefaultKeyBinding(),
+                                KeyBinding.NEW_TECHREPORT.getDefaultKeyBinding())));
     }
 
     @ParameterizedTest
     @MethodSource("provideTestData")
     void parseStringLists(List<KeyBinding> keybindings, List<String> bindings) {
-        List<String> bindNames = keybindings.stream().map(KeyBinding::getConstant).toList();
+        List<String> bindNames =
+                keybindings.stream().map(KeyBinding::getConstant).toList();
         KeyBindingRepository keyBindingRepository = new KeyBindingRepository(bindNames, bindings);
 
         assertEquals(keyBindingRepository.get(bindNames.getFirst()), bindings.getFirst());
@@ -87,7 +85,10 @@ class KeyBindingRepositoryTest {
     @Test
     void findsAllBindingsSharingTheCombination() {
         KeyBindingRepository repo = new KeyBindingRepository(
-                List.of(KeyBinding.MERGE_ENTRIES.getConstant(), KeyBinding.NEW_TECHREPORT.getConstant(), KeyBinding.PASTE.getConstant()),
+                List.of(
+                        KeyBinding.MERGE_ENTRIES.getConstant(),
+                        KeyBinding.NEW_TECHREPORT.getConstant(),
+                        KeyBinding.PASTE.getConstant()),
                 List.of("alt+A", "alt+A", "shift+B"));
         KeyEvent altA = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.A, false, false, true, false);
 
@@ -100,7 +101,10 @@ class KeyBindingRepositoryTest {
     @Test
     void findsBindingsSharingEscape() {
         KeyBindingRepository repo = new KeyBindingRepository(
-                List.of(KeyBinding.CLOSE.getConstant(), KeyBinding.CLEAR_SEARCH.getConstant(), KeyBinding.PASTE.getConstant()),
+                List.of(
+                        KeyBinding.CLOSE.getConstant(),
+                        KeyBinding.CLEAR_SEARCH.getConstant(),
+                        KeyBinding.PASTE.getConstant()),
                 List.of("Esc", "Esc", "shift+B"));
         KeyEvent escape = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.ESCAPE, false, false, false, false);
 

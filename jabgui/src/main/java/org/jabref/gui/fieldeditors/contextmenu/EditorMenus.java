@@ -1,14 +1,14 @@
 package org.jabref.gui.fieldeditors.contextmenu;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.tobiasdiez.easybind.EasyBind;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
-
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.StandardActions;
@@ -19,12 +19,10 @@ import org.jabref.logic.formatter.bibtexfields.NormalizeNamesFormatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
 
-import com.airhacks.afterburner.injection.Injector;
-import com.tobiasdiez.easybind.EasyBind;
-
 /// Provides context menus for the text fields of the entry editor. Note that we use [Supplier] to prevent an early
 /// instantiation of the menus. Therefore, they are attached to each text field but instantiation happens on the first
-/// right-click of the user in that field. The late instantiation is done by [EditorTextArea#initContextMenu][org.jabref.gui.fieldeditors.EditorTextArea#initContextMenu(java.util.function.Supplier, org.jabref.gui.keyboard.KeyBindingRepository)].
+/// right-click of the user in that field. The late instantiation is done by
+/// [EditorTextArea#initContextMenu][org.jabref.gui.fieldeditors.EditorTextArea#initContextMenu(java.util.function.Supplier, org.jabref.gui.keyboard.KeyBindingRepository)].
 public class EditorMenus {
 
     /// The default context menu with a specific menu for normalizing person names regarding to BibTex rules.
@@ -34,8 +32,10 @@ public class EditorMenus {
     public static Supplier<List<MenuItem>> getNameMenu(final TextInputControl textInput) {
         return () -> {
             MenuItem normalizeNames = new MenuItem(Localization.lang("Normalize to BibTeX name format"));
-            EasyBind.subscribe(textInput.textProperty(), value -> normalizeNames.setDisable(StringUtil.isNullOrEmpty(value)));
-            normalizeNames.setOnAction(_ -> textInput.setText(new NormalizeNamesFormatter().format(textInput.getText())));
+            EasyBind.subscribe(
+                    textInput.textProperty(), value -> normalizeNames.setDisable(StringUtil.isNullOrEmpty(value)));
+            normalizeNames.setOnAction(
+                    _ -> textInput.setText(new NormalizeNamesFormatter().format(textInput.getText())));
             List<MenuItem> menuItems = new ArrayList<>(6);
             menuItems.add(normalizeNames);
             menuItems.addAll(new DefaultMenu(textInput).get());
@@ -51,8 +51,12 @@ public class EditorMenus {
         return () -> {
             ActionFactory factory = new ActionFactory();
             ClipBoardManager clipBoardManager = Injector.instantiateModelOrService(ClipBoardManager.class);
-            MenuItem copyDoiMenuItem = factory.createMenuItem(StandardActions.COPY_DOI, new CopyDoiUrlAction(textField, StandardActions.COPY_DOI, dialogService, clipBoardManager));
-            MenuItem copyDoiUrlMenuItem = factory.createMenuItem(StandardActions.COPY_DOI_URL, new CopyDoiUrlAction(textField, StandardActions.COPY_DOI_URL, dialogService, clipBoardManager));
+            MenuItem copyDoiMenuItem = factory.createMenuItem(
+                    StandardActions.COPY_DOI,
+                    new CopyDoiUrlAction(textField, StandardActions.COPY_DOI, dialogService, clipBoardManager));
+            MenuItem copyDoiUrlMenuItem = factory.createMenuItem(
+                    StandardActions.COPY_DOI_URL,
+                    new CopyDoiUrlAction(textField, StandardActions.COPY_DOI_URL, dialogService, clipBoardManager));
             List<MenuItem> menuItems = new ArrayList<>();
             menuItems.add(copyDoiMenuItem);
             menuItems.add(copyDoiUrlMenuItem);

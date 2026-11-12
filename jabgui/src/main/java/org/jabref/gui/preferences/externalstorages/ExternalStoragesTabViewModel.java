@@ -1,18 +1,16 @@
 package org.jabref.gui.preferences.externalstorages;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-
-import org.jabref.gui.preferences.PreferenceTabViewModel;
-import org.jabref.logic.l10n.Localization;
-import org.jabref.logic.net.CiteDrivePreferences;
-
 import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
 import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
 import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
 import de.saxsys.mvvmfx.utils.validation.Validator;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import org.jabref.gui.preferences.PreferenceTabViewModel;
+import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.net.CiteDrivePreferences;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -39,10 +37,11 @@ public class ExternalStoragesTabViewModel implements PreferenceTabViewModel {
         return new FunctionBasedValidator<>(
                 url,
                 CiteDrivePreferences::isSecureUrl,
-                ValidationMessage.error("%s > %s %n %n %s".formatted(
-                        Localization.lang("External storages"),
-                        fieldName,
-                        Localization.lang("Please enter a valid HTTPS URL"))));
+                ValidationMessage.error("%s > %s %n %n %s"
+                        .formatted(
+                                Localization.lang("External storages"),
+                                fieldName,
+                                Localization.lang("Please enter a valid HTTPS URL"))));
     }
 
     @Override
@@ -57,13 +56,16 @@ public class ExternalStoragesTabViewModel implements PreferenceTabViewModel {
     public void storeSettings() {
         citeDrivePreferences.setEnabled(citeDriveEnabledProperty.getValue());
         citeDrivePreferences.setPersistRefreshToken(rememberCiteDriveLoginProperty.getValue());
-        citeDrivePreferences.setApiBaseUrl(citeDriveApiBaseUrlProperty.getValue().trim());
-        citeDrivePreferences.setAppBaseUrl(citeDriveAppBaseUrlProperty.getValue().trim());
+        citeDrivePreferences.setApiBaseUrl(
+                citeDriveApiBaseUrlProperty.getValue().trim());
+        citeDrivePreferences.setAppBaseUrl(
+                citeDriveAppBaseUrlProperty.getValue().trim());
     }
 
     @Override
     public boolean validateSettings() {
-        return apiBaseUrlValidator.getValidationStatus().isValid() && appBaseUrlValidator.getValidationStatus().isValid();
+        return apiBaseUrlValidator.getValidationStatus().isValid()
+                && appBaseUrlValidator.getValidationStatus().isValid();
     }
 
     /// Back to JabRef's own CiteDrive addresses

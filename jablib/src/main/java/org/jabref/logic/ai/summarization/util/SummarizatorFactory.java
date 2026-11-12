@@ -15,19 +15,14 @@ public final class SummarizatorFactory {
             SummarizatorKind summarizatorKind,
             String summarizationChunkSystemMessageTemplate,
             String summarizationCombineSystemMessageTemplate,
-            String summarizationFullDocumentSystemMessageTemplate
-    ) {
+            String summarizationFullDocumentSystemMessageTemplate) {
         return switch (summarizatorKind) {
             case SummarizatorKind.CHUNKED ->
-                    new ChunkedSummarizator(
-                            summarizationChunkSystemMessageTemplate,
-                            summarizationCombineSystemMessageTemplate
-                    );
+                new ChunkedSummarizator(
+                        summarizationChunkSystemMessageTemplate, summarizationCombineSystemMessageTemplate);
 
             case SummarizatorKind.FULL_DOCUMENT ->
-                    new FullDocumentSummarizator(
-                            summarizationFullDocumentSystemMessageTemplate
-                    );
+                new FullDocumentSummarizator(summarizationFullDocumentSystemMessageTemplate);
         };
     }
 
@@ -37,7 +32,6 @@ public final class SummarizatorFactory {
                 aiPreferences.getSummarizatorKind(),
                 aiPreferences.getSummarizationChunkSystemMessageTemplate(),
                 aiPreferences.getSummarizationCombineSystemMessageTemplate(),
-                aiPreferences.getSummarizationFullDocumentSystemMessageTemplate()
-        );
+                aiPreferences.getSummarizationFullDocumentSystemMessageTemplate());
     }
 }

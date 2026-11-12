@@ -13,7 +13,9 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.regex.Pattern;
-
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.formatter.bibtexfields.ClearFormatter;
 import org.jabref.logic.formatter.bibtexfields.HtmlToLatexFormatter;
@@ -36,10 +38,6 @@ import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.OptionalUtil;
-
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,8 +52,10 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DoiFetcher.class);
 
-    // 1000 request per 5 minutes. See https://support.datacite.org/docs/is-there-a-rate-limit-for-making-requests-against-the-datacite-apis
-    private static final FetcherRateLimiter DATA_CITE_DCN_RATE_LIMITER = FetcherRateLimiter.ofRequestsPerInterval("DataCite", 1000, Duration.ofMinutes(5));
+    // 1000 request per 5 minutes. See
+    // https://support.datacite.org/docs/is-there-a-rate-limit-for-making-requests-against-the-datacite-apis
+    private static final FetcherRateLimiter DATA_CITE_DCN_RATE_LIMITER =
+            FetcherRateLimiter.ofRequestsPerInterval("DataCite", 1000, Duration.ofMinutes(5));
 
     /*
      * By default, it seems that CrossRef DOI Content Negotiation responses are returned by their API pools, more specifically the public one
@@ -64,12 +64,17 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
      * to default to 50 request / second. However, because of its dynamic nature, this rate could change between API calls, so we need to update it
      * atomically when that happens (as multiple threads might access it at the same time)
      */
-    private static final FetcherRateLimiter CROSSREF_DCN_RATE_LIMITER = FetcherRateLimiter.ofRequestsPerSecond("Crossref", 50.0);
+    private static final FetcherRateLimiter CROSSREF_DCN_RATE_LIMITER =
+            FetcherRateLimiter.ofRequestsPerSecond("Crossref", 50.0);
 
-    private static final FieldFormatterCleanup NORMALIZE_PAGES = new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter());
-    private static final FieldFormatterCleanup CLEAR_URL = new FieldFormatterCleanup(StandardField.URL, new ClearFormatter());
-    private static final FieldFormatterCleanup HTML_TO_LATEX_TITLE = new FieldFormatterCleanup(StandardField.TITLE, new HtmlToLatexFormatter());
-    private static final FieldFormatterCleanup NORMALIZE_MONTH = new FieldFormatterCleanup(StandardField.MONTH, new NormalizeMonthFormatter());
+    private static final FieldFormatterCleanup NORMALIZE_PAGES =
+            new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter());
+    private static final FieldFormatterCleanup CLEAR_URL =
+            new FieldFormatterCleanup(StandardField.URL, new ClearFormatter());
+    private static final FieldFormatterCleanup HTML_TO_LATEX_TITLE =
+            new FieldFormatterCleanup(StandardField.TITLE, new HtmlToLatexFormatter());
+    private static final FieldFormatterCleanup NORMALIZE_MONTH =
+            new FieldFormatterCleanup(StandardField.MONTH, new NormalizeMonthFormatter());
 
     private final ImportFormatPreferences preferences;
 
@@ -118,7 +123,7 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
     @Override
     public Optional<BibEntry> performSearchById(String identifier) throws FetcherException {
         DOI doi = DOI.parse(identifier)
-                     .orElseThrow(() -> new FetcherException(Localization.lang("Invalid DOI: '%0'.", identifier)));
+                .orElseThrow(() -> new FetcherException(Localization.lang("Invalid DOI: '%0'.", identifier)));
 
         URL doiURL;
         try {
@@ -163,15 +168,23 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
             // Output warnings in case of inconsistencies. Compare as parsed DOIs so a mere
             // difference in the http(s) prefix (or letter case) is not reported as a mismatch,
             // while still distinguishing a missing field from a present-but-unparsable value.
-            entry.getField(StandardField.DOI).ifPresentOrElse(
-                    fetchedDoi -> DOI.parse(fetchedDoi).ifPresentOrElse(
-                            entryDoi -> {
-                                if (!entryDoi.equals(doi)) {
-                                    LOGGER.warn("Fetched entry's DOI {} is different from requested DOI {}", entryDoi.asString(), identifier);
-                                }
-                            },
-                            () -> LOGGER.warn("Fetched entry contains invalid DOI field value {} (requested {})", fetchedDoi, identifier)),
-                    () -> LOGGER.warn("Fetched entry does not contain doi field {}", identifier));
+            entry.getField(StandardField.DOI)
+                    .ifPresentOrElse(
+                            fetchedDoi -> DOI.parse(fetchedDoi)
+                                    .ifPresentOrElse(
+                                            entryDoi -> {
+                                                if (!entryDoi.equals(doi)) {
+                                                    LOGGER.warn(
+                                                            "Fetched entry's DOI {} is different from requested DOI {}",
+                                                            entryDoi.asString(),
+                                                            identifier);
+                                                }
+                                            },
+                                            () -> LOGGER.warn(
+                                                    "Fetched entry contains invalid DOI field value {} (requested {})",
+                                                    fetchedDoi,
+                                                    identifier)),
+                            () -> LOGGER.warn("Fetched entry does not contain doi field {}", identifier));
 
             if (isAPSJournal(entry, doi) && !entry.hasField(StandardField.PAGES)) {
                 setPageNumbersBasedOnDoi(entry, doi);
@@ -193,7 +206,8 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
     private synchronized void updateCrossrefAPIRate(URLConnection existingConnection) {
         try {
             // Assuming this field is given in seconds
-            String xRateLimitInterval = existingConnection.getHeaderField("X-Rate-Limit-Interval").replaceAll("[^\\.0123456789]", "");
+            String xRateLimitInterval =
+                    existingConnection.getHeaderField("X-Rate-Limit-Interval").replaceAll("[^\\.0123456789]", "");
             String xRateLimit = existingConnection.getHeaderField("X-Rate-Limit-Limit");
 
             double newRate = Double.parseDouble(xRateLimit) / Double.parseDouble(xRateLimitInterval);
@@ -225,9 +239,8 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
     public Optional<String> getAgency(DOI doi) throws FetcherException, MalformedURLException {
         Optional<String> agency = Optional.empty();
         try {
-            URLDownload download = getUrlDownload(
-                    URLUtil.create(DOI.AGENCY_RESOLVER + "/" + URLEncoder.encode(doi.asString(),
-                            StandardCharsets.UTF_8)));
+            URLDownload download = getUrlDownload(URLUtil.create(
+                    DOI.AGENCY_RESOLVER + "/" + URLEncoder.encode(doi.asString(), StandardCharsets.UTF_8)));
             JSONObject response = new JSONArray(download.asString()).getJSONObject(0);
             if (response != null) {
                 agency = Optional.ofNullable(response.optString("RA"));
@@ -254,6 +267,7 @@ public class DoiFetcher implements IdBasedFetcher, EntryBasedFetcher {
         String doiString = doi.asString();
         String suffix = doiString.substring(doiString.lastIndexOf('/') + 1);
         String organizationId = doiString.substring(doiString.indexOf('.') + 1, doiString.indexOf('/'));
-        return APS_JOURNAL_ORG_DOI_ID.equals(organizationId) && APS_SUFFIX_PATTERN.matcher(suffix).matches();
+        return APS_JOURNAL_ORG_DOI_ID.equals(organizationId)
+                && APS_SUFFIX_PATTERN.matcher(suffix).matches();
     }
 }

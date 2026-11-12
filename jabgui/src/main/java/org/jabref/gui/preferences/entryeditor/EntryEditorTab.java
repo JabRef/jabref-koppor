@@ -1,5 +1,9 @@
 package org.jabref.gui.preferences.entryeditor;
 
+import static org.jabref.gui.preferences.forms.FormMetrics.GAP;
+
+import com.airhacks.afterburner.injection.Injector;
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -25,7 +29,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-
+import org.controlsfx.control.textfield.TextFields;
 import org.jabref.gui.DragAndDropDataFormats;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.entryeditor.EntryEditorTabModel;
@@ -40,12 +44,6 @@ import org.jabref.logic.importer.fetcher.citation.CitationCountFetcherType;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.tobiasdiez.easybind.EasyBind;
-import org.controlsfx.control.textfield.TextFields;
-
-import static org.jabref.gui.preferences.forms.FormMetrics.GAP;
 
 public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabViewModel> {
 
@@ -64,7 +62,8 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
                 preferences.getMrDlibPreferences(),
                 preferences.getAbbreviationPreferences(),
                 taskExecutor);
-        this.localDragboard = Injector.instantiateModelOrService(StateManager.class).getLocalDragboard();
+        this.localDragboard =
+                Injector.instantiateModelOrService(StateManager.class).getLocalDragboard();
         buildView();
     }
 
@@ -74,24 +73,31 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
     }
 
     private void buildView() {
-        setContent(form()
-
-                .checkbox(Localization.lang("Open editor when a new entry is created"), viewModel.openOnNewEntryProperty())
-                .checkbox(Localization.lang("Automatically search and show unlinked files in the entry editor"), viewModel.autoLinkFilesEnabledProperty())
+        setContent(form().checkbox(
+                        Localization.lang("Open editor when a new entry is created"),
+                        viewModel.openOnNewEntryProperty())
+                .checkbox(
+                        Localization.lang("Automatically search and show unlinked files in the entry editor"),
+                        viewModel.autoLinkFilesEnabledProperty())
                 .checkbox(Localization.lang("Show validation messages"), viewModel.enableValidationProperty())
-                .checkbox(Localization.lang("Allow integers in 'edition' field in BibTeX mode"), viewModel.allowIntegerEditionProperty())
-                .checkbox(Localization.lang("Fetch journal information online to show"), viewModel.journalPopupProperty())
-                .checkbox(Localization.lang("Enable MSC keyword descriptions"), viewModel.enableMscKeywordDescriptionsProperty())
+                .checkbox(
+                        Localization.lang("Allow integers in 'edition' field in BibTeX mode"),
+                        viewModel.allowIntegerEditionProperty())
+                .checkbox(
+                        Localization.lang("Fetch journal information online to show"), viewModel.journalPopupProperty())
+                .checkbox(
+                        Localization.lang("Enable MSC keyword descriptions"),
+                        viewModel.enableMscKeywordDescriptionsProperty())
                 .checkbox(Localization.lang("Show BibTeX source by default"), viewModel.defaultSourceProperty())
-                .checkbox(Localization.lang("Accept recommendations from Mr. DLib"), viewModel.acceptRecommendationsProperty())
-
-                .combo(Localization.lang("Citation count fetcher:"),
+                .checkbox(
+                        Localization.lang("Accept recommendations from Mr. DLib"),
+                        viewModel.acceptRecommendationsProperty())
+                .combo(
+                        Localization.lang("Citation count fetcher:"),
                         viewModel.citationCountFetcherTypes(),
-                        viewModel.citationCountFetcherTypeProperty(), CitationCountFetcherType::getName)
-
-                .section(Localization.lang("Editor tabs"), tabs -> tabs
-                        .custom(buildTabConfigRegion()))
-
+                        viewModel.citationCountFetcherTypeProperty(),
+                        CitationCountFetcherType::getName)
+                .section(Localization.lang("Editor tabs"), tabs -> tabs.custom(buildTabConfigRegion()))
                 .build());
     }
 
@@ -161,7 +167,8 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
         TableColumn<EditorTabViewModel, String> nameColumn = new TableColumn<>(Localization.lang("Tabs"));
         nameColumn.setSortable(false);
         nameColumn.setReorderable(false);
-        nameColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().getDisplayName()));
+        nameColumn.setCellValueFactory(
+                cellData -> new ReadOnlyStringWrapper(cellData.getValue().getDisplayName()));
 
         TableColumn<EditorTabViewModel, EditorTabViewModel> actionsColumn = new TableColumn<>();
         actionsColumn.setMinWidth(40.0);
@@ -185,8 +192,10 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
         tabsTable.setItems(viewModel.getTabs());
 
         new ViewModelTableRowFactory<EditorTabViewModel>()
-                .setOnDragDetected((_, tab, event) -> handleOnDragDetected(tabsTable, DragAndDropDataFormats.ENTRY_EDITOR_TAB, EditorTabViewModel.class, tab, event))
-                .setOnDragDropped((row, _, event) -> handleOnDragDropped(tabsTable, EditorTabViewModel.class, row, event))
+                .setOnDragDetected((_, tab, event) -> handleOnDragDetected(
+                        tabsTable, DragAndDropDataFormats.ENTRY_EDITOR_TAB, EditorTabViewModel.class, tab, event))
+                .setOnDragDropped(
+                        (row, _, event) -> handleOnDragDropped(tabsTable, EditorTabViewModel.class, row, event))
                 .setOnDragOver((row, _, event) -> handleOnDragOver(DragAndDropDataFormats.ENTRY_EDITOR_TAB, row, event))
                 .setOnDragExited((row, _, _) -> ControlHelper.removeDroppingPseudoClasses(row))
                 .install(tabsTable);
@@ -206,9 +215,10 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
             fieldsPlaceholder.setText(Localization.lang("This tab has no fields yet."));
         } else {
             fieldsTable.setItems(FXCollections.emptyObservableList());
-            fieldsPlaceholder.setText(tab == null
-                                      ? Localization.lang("Select a tab to configure its fields.")
-                                      : Localization.lang("The content of built-in tabs is fixed."));
+            fieldsPlaceholder.setText(
+                    tab == null
+                            ? Localization.lang("Select a tab to configure its fields.")
+                            : Localization.lang("The content of built-in tabs is fixed."));
         }
         addFieldName.clear();
     }
@@ -234,18 +244,25 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
         TextFields.bindAutoCompletion(
                 addFieldName,
                 FieldFactory.getAllFieldsWithOutInternal().stream()
-                            .map(Field::getName)
-                            .sorted()
-                            .toList());
+                        .map(Field::getName)
+                        .sorted()
+                        .toList());
 
         Button addFieldButton = new Button(Localization.lang("Add"));
         addFieldButton.setOnAction(_ -> addField());
 
-        addFieldName.disableProperty().bind(EasyBind.map(tabsTable.getSelectionModel().selectedItemProperty(),
-                tab -> (tab == null) || !tab.isCustom()));
-        addFieldButton.disableProperty().bind(addFieldName.disabledProperty().or(addFieldName.textProperty().isEmpty()));
+        addFieldName
+                .disableProperty()
+                .bind(EasyBind.map(
+                        tabsTable.getSelectionModel().selectedItemProperty(), tab -> (tab == null) || !tab.isCustom()));
+        addFieldButton
+                .disableProperty()
+                .bind(addFieldName
+                        .disabledProperty()
+                        .or(addFieldName.textProperty().isEmpty()));
 
-        Label regexInfo = new Label(Localization.lang("A field name can also be a regular expression, e.g. \"comment-.*\"."));
+        Label regexInfo =
+                new Label(Localization.lang("A field name can also be a regular expression, e.g. \"comment-.*\"."));
         regexInfo.getStyleClass().add("italic");
 
         Button resetButton = new Button(Localization.lang("Reset to default tabs"));
@@ -285,8 +302,8 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
                 // The tooltip lives on the cell: a disabled checkbox is mouse-transparent, so a
                 // tooltip on the checkbox itself would never show for always-extracted patterns.
                 .withTooltip(pattern -> EntryEditorTabModel.CustomizedFieldsTab.appearsOnMainTab(pattern)
-                                        ? Localization.lang("If checked, the field is not shown in the \"Main\" tab anymore.")
-                                        : Localization.lang("Field not contained in the \"Main\" tab."))
+                        ? Localization.lang("If checked, the field is not shown in the \"Main\" tab anymore.")
+                        : Localization.lang("Field not contained in the \"Main\" tab."))
                 .install(extractColumn);
 
         TableColumn<String, String> warningColumn = new TableColumn<>();
@@ -298,11 +315,11 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
         warningColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue()));
         new ValueTableCellFactory<String, String>()
                 .withGraphic(pattern -> viewModel.isFieldPatternDuplicated(pattern)
-                                        ? IconTheme.JabRefIcons.WARNING.getGraphicNode()
-                                        : null)
+                        ? IconTheme.JabRefIcons.WARNING.getGraphicNode()
+                        : null)
                 .withTooltip(pattern -> viewModel.isFieldPatternDuplicated(pattern)
-                                        ? Localization.lang("The field is contained in multiple tabs.")
-                                        : null)
+                        ? Localization.lang("The field is contained in multiple tabs.")
+                        : null)
                 .install(warningColumn);
 
         TableColumn<String, String> actionsColumn = new TableColumn<>();
@@ -330,7 +347,8 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
         fieldsTable.getColumns().add(actionsColumn);
 
         new ViewModelTableRowFactory<String>()
-                .setOnDragDetected((_, pattern, event) -> handleOnDragDetected(fieldsTable, DragAndDropDataFormats.FIELD, String.class, pattern, event))
+                .setOnDragDetected((_, pattern, event) ->
+                        handleOnDragDetected(fieldsTable, DragAndDropDataFormats.FIELD, String.class, pattern, event))
                 .setOnDragDropped((row, _, event) -> handleOnDragDropped(fieldsTable, String.class, row, event))
                 .setOnDragOver((row, _, event) -> handleOnDragOver(DragAndDropDataFormats.FIELD, row, event))
                 .setOnDragExited((row, _, _) -> ControlHelper.removeDroppingPseudoClasses(row))
@@ -385,7 +403,8 @@ public class EntryEditorTab extends AbstractPreferenceTabView<EntryEditorTabView
 
     // region Drag & drop row reordering
 
-    private <T> void handleOnDragDetected(TableView<T> table, DataFormat format, Class<T> type, T item, MouseEvent event) {
+    private <T> void handleOnDragDetected(
+            TableView<T> table, DataFormat format, Class<T> type, T item, MouseEvent event) {
         ClipboardContent content = new ClipboardContent();
         Dragboard dragboard = table.startDragAndDrop(TransferMode.MOVE);
         content.put(format, "");

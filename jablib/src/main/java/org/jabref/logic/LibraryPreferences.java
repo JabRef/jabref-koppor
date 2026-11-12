@@ -6,7 +6,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseMode;
 
@@ -18,11 +17,12 @@ public class LibraryPreferences {
     private final BooleanProperty addImportedEntries;
     private final StringProperty addImportedEntriesGroupName;
 
-    public LibraryPreferences(BibDatabaseMode defaultBibDatabaseMode,
-                              boolean alwaysReformatOnSave,
-                              boolean autoSave,
-                              boolean addImportedEntries,
-                              String addImportedEntriesGroupName) {
+    public LibraryPreferences(
+            BibDatabaseMode defaultBibDatabaseMode,
+            boolean alwaysReformatOnSave,
+            boolean autoSave,
+            boolean addImportedEntries,
+            String addImportedEntriesGroupName) {
         this.defaultBibDatabaseMode = new SimpleObjectProperty<>(defaultBibDatabaseMode);
         this.alwaysReformatOnSave = new SimpleBooleanProperty(alwaysReformatOnSave);
         this.autoSave = new SimpleBooleanProperty(autoSave);
@@ -33,11 +33,11 @@ public class LibraryPreferences {
     private LibraryPreferences() {
         this(
                 BibDatabaseMode.BIBTEX,
-                false,                                // alwaysReformatOnSave
-                false,                                // autoSave
-                false,                                // addImportedEntries
+                false, // alwaysReformatOnSave
+                false, // autoSave
+                false, // addImportedEntries
                 Localization.lang("Imported entries") // addImportedEntriesGroupName
-        );
+                );
     }
 
     public static LibraryPreferences getDefault() {

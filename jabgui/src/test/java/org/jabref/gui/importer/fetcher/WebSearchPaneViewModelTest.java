@@ -1,25 +1,5 @@
 package org.jabref.gui.importer.fetcher;
 
-import java.util.Optional;
-
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-
-import org.jabref.gui.DialogService;
-import org.jabref.gui.StateManager;
-import org.jabref.gui.importer.ImportEntriesDialog;
-import org.jabref.gui.preferences.GuiPreferences;
-import org.jabref.logic.importer.SearchBasedFetcher;
-import org.jabref.model.database.BibDatabaseContext;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.InOrder;
-import org.mockito.MockedConstruction;
-import org.mockito.Mockito;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,6 +8,23 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import org.jabref.gui.DialogService;
+import org.jabref.gui.StateManager;
+import org.jabref.gui.importer.ImportEntriesDialog;
+import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.logic.importer.SearchBasedFetcher;
+import org.jabref.model.database.BibDatabaseContext;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.InOrder;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
 
 class WebSearchPaneViewModelTest {
 
@@ -114,7 +111,8 @@ class WebSearchPaneViewModelTest {
     @Test
     void queryConsistingOfInvalidDOIIsValid() {
         viewModel.queryProperty().setValue("101.1007/JHEP02(2023)082");
-        // There is currently no interpretation of nearly-valid identifiers, therefore, this is considered as "regular" search term
+        // There is currently no interpretation of nearly-valid identifiers, therefore, this is considered as "regular"
+        // search term
         assertTrue(viewModel.queryValidationStatus().validProperty().getValue());
     }
 

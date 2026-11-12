@@ -1,7 +1,6 @@
 package org.jabref.logic.util;
 
 import java.nio.file.Path;
-
 import org.jabref.logic.os.OS;
 
 /// Returns the base directory used for the packaged application.

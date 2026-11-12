@@ -1,5 +1,8 @@
 package org.jabref.model.texparser;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,10 +11,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 
 public class LatexParserResults {
     private final Map<Path, LatexParserResult> parsedTexFiles;

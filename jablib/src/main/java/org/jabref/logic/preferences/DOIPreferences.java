@@ -16,9 +16,9 @@ public class DOIPreferences {
 
     private DOIPreferences() {
         this(
-                false,            // useCustom
+                false, // useCustom
                 "https://doi.org" // defaultBaseURI
-        );
+                );
     }
 
     public static DOIPreferences getDefault() {

@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Optional;
-
-import org.jabref.logic.JabRefException;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -16,12 +13,15 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.jabref.logic.JabRefException;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class GitFileReader {
-    public static Optional<String> readFileFromCommit(Git git, RevCommit commit, Path relativePath) throws JabRefException {
-        // ref: https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/api/ReadFileFromCommit.java
+    public static Optional<String> readFileFromCommit(Git git, RevCommit commit, Path relativePath)
+            throws JabRefException {
+        // ref:
+        // https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/api/ReadFileFromCommit.java
         // 1. get commit-pointing tree
         Repository repository = git.getRepository();
         RevTree commitTree = commit.getTree();

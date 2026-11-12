@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,20 +44,18 @@ public class JsonAnswerFormatter {
     /// Models sometimes put a line break into a string without escaping it; that is accepted, and the
     /// formatted JSON escapes it again.
     private static final JsonMapper MAPPER = JsonMapper.builder()
-                                                       .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
-                                                       .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-                                                       .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
-                                                       .build();
+            .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+            .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+            .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
+            .build();
 
     private static final ObjectWriter WRITER = MAPPER.writer().with(prettyPrinter());
 
-    private JsonAnswerFormatter() {
-    }
+    private JsonAnswerFormatter() {}
 
     /// A JSON object or array at the beginning of a text, indented, together with whatever the text
     /// continues with. Models often follow their JSON up with an explanation in prose.
-    public record LeadingJson(String json, String rest) {
-    }
+    public record LeadingJson(String json, String rest) {}
 
     /// Returns the JSON object or array the given text starts with, or empty if it starts with
     /// something else or the JSON is malformed.
@@ -105,11 +102,13 @@ public class JsonAnswerFormatter {
             return Optional.empty();
         }
 
-        return JSON_LINE_START.matcher(markdown).results()
-                              .map(MatchResult::start)
-                              .filter(start -> start > 0)
-                              .flatMap(start -> formatTrailingJson(markdown, start))
-                              .findFirst();
+        return JSON_LINE_START
+                .matcher(markdown)
+                .results()
+                .map(MatchResult::start)
+                .filter(start -> start > 0)
+                .flatMap(start -> formatTrailingJson(markdown, start))
+                .findFirst();
     }
 
     private static Stream<String> formatTrailingJson(String markdown, int start) {
@@ -130,6 +129,7 @@ public class JsonAnswerFormatter {
         return new DefaultPrettyPrinter()
                 .withObjectIndenter(indenter)
                 .withArrayIndenter(indenter)
-                .withSeparators(Separators.createDefaultInstance().withObjectNameValueSpacing(Separators.Spacing.AFTER));
+                .withSeparators(
+                        Separators.createDefaultInstance().withObjectNameValueSpacing(Separators.Spacing.AFTER));
     }
 }

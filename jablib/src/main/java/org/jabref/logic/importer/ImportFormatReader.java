@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.importer.fileformat.BibframeImporter;
 import org.jabref.logic.importer.fileformat.BiblioscapeImporter;
@@ -44,7 +43,6 @@ import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabases;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,10 +63,11 @@ public class ImportFormatReader {
     private final CitationKeyPatternPreferences citationKeyPatternPreferences;
     private final BibtexImporter bibtexImporter;
 
-    public ImportFormatReader(ImporterPreferences importerPreferences,
-                              ImportFormatPreferences importFormatPreferences,
-                              CitationKeyPatternPreferences citationKeyPatternPreferences,
-                              FileUpdateMonitor fileUpdateMonitor) {
+    public ImportFormatReader(
+            ImporterPreferences importerPreferences,
+            ImportFormatPreferences importFormatPreferences,
+            CitationKeyPatternPreferences citationKeyPatternPreferences,
+            FileUpdateMonitor fileUpdateMonitor) {
         this.importerPreferences = importerPreferences;
         this.importFormatPreferences = importFormatPreferences;
         this.fileUpdateMonitor = fileUpdateMonitor;
@@ -151,14 +150,13 @@ public class ImportFormatReader {
     /// Checks whether at least one registered importer supports the file extension.
     public boolean hasImporterForFile(Path filePath) {
         return FileUtil.getFileExtension(filePath)
-                       .map(extension -> importers.stream().anyMatch(importer -> importer.supportsFileExtension(extension)))
-                       .orElse(false);
+                .map(extension -> importers.stream().anyMatch(importer -> importer.supportsFileExtension(extension)))
+                .orElse(false);
     }
 
     /// @param format       The name of the format used
     /// @param parserResult The resulting data
-    public record ImportResult(String format, ParserResult parserResult) {
-    }
+    public record ImportResult(String format, ParserResult parserResult) {}
 
     /// Tries to import a file by iterating through the available import filters,
     /// and keeping the import that seems most promising.
@@ -170,8 +168,7 @@ public class ImportFormatReader {
         ImportResult importResult = importWithAutoDetection(
                 importer -> importer.importDatabase(filePath),
                 importer -> importer.isRecognizedFormat(filePath),
-                () -> OpenDatabase.loadDatabase(filePath, importFormatPreferences, fileUpdateMonitor)
-        );
+                () -> OpenDatabase.loadDatabase(filePath, importFormatPreferences, fileUpdateMonitor));
         importResult.parserResult.setPath(filePath);
         return importResult;
     }
@@ -228,7 +225,8 @@ public class ImportFormatReader {
     private ImportResult importWithAutoDetection(
             CheckedFunction<Importer, ParserResult> importDatabase,
             CheckedFunction<Importer, Boolean> isRecognizedFormat,
-            CheckedSupplier<ParserResult> importUsingBibtex) throws ImportException {
+            CheckedSupplier<ParserResult> importUsingBibtex)
+            throws ImportException {
         // stores ref to best result, gets updated at the next loop
         List<BibEntry> bestResult = null;
         int bestResultFieldCount = 0;
@@ -244,18 +242,23 @@ public class ImportFormatReader {
             }
             try {
                 if (!isRecognizedFormat.apply(importer) || importer instanceof ReferImporter) {
-                    // Refer/BibIX is recognized by a `%0 ` line, which real EndNote files carry as well, so auto detection
-                    // would route them here instead of to the EndNote importer. Refer/BibIX therefore has to be picked by the user.
+                    // Refer/BibIX is recognized by a `%0 ` line, which real EndNote files carry as well, so auto
+                    // detection
+                    // would route them here instead of to the EndNote importer. Refer/BibIX therefore has to be picked
+                    // by the user.
                     continue;
                 }
                 ParserResult parserResult = importDatabase.apply(importer);
                 List<BibEntry> entries = parserResult.getDatabase().getEntries();
                 BibDatabases.purgeEmptyEntries(entries);
 
-                // Sometimes, an importer detects garbage as valid entries. Thus, a simple count of entries is not sufficient.
+                // Sometimes, an importer detects garbage as valid entries. Thus, a simple count of entries is not
+                // sufficient.
                 // Instead, we count the number of fields in all entries as heuristic.
                 // Alternatively, we could also consider the number of characters in all entries.
-                int fieldCount = entries.stream().mapToInt(entry -> entry.getFields().size()).sum();
+                int fieldCount = entries.stream()
+                        .mapToInt(entry -> entry.getFields().size())
+                        .sum();
 
                 if (fieldCount > bestResultFieldCount) {
                     bestResult = entries;
@@ -278,7 +281,8 @@ public class ImportFormatReader {
         // If all other importers fail, try to read the file as BibTeX
         try {
             ParserResult parserResult = importUsingBibtex.apply();
-            if (parserResult.getDatabase().hasEntries() || !parserResult.getDatabase().hasNoStrings()) {
+            if (parserResult.getDatabase().hasEntries()
+                    || !parserResult.getDatabase().hasNoStrings()) {
                 return new ImportResult(ImportFormatReader.BIBTEX_FORMAT, parserResult);
             } else {
                 throw new ImportException(parserResult.getErrorMessage());

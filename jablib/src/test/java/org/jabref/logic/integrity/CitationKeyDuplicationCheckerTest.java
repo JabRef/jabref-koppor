@@ -1,26 +1,25 @@
 package org.jabref.logic.integrity;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ResourceLock("Localization.lang")
 class CitationKeyDuplicationCheckerTest {
 
     @Test
     void emptyCitationKey() {
-        BibEntry entry = new BibEntry().withField(InternalField.KEY_FIELD, "")
-                                       .withField(StandardField.AUTHOR, "Knuth")
-                                       .withField(StandardField.YEAR, "2014");
+        BibEntry entry = new BibEntry()
+                .withField(InternalField.KEY_FIELD, "")
+                .withField(StandardField.AUTHOR, "Knuth")
+                .withField(StandardField.YEAR, "2014");
         BibDatabase bibDatabase = new BibDatabase(List.of(entry));
         CitationKeyDuplicationChecker checker = new CitationKeyDuplicationChecker(bibDatabase);
 
@@ -30,12 +29,14 @@ class CitationKeyDuplicationCheckerTest {
 
     @Test
     void hasDuplicateCitationKey() {
-        BibEntry entry = new BibEntry().withField(InternalField.KEY_FIELD, "Knuth2014")
-                                       .withField(StandardField.AUTHOR, "Knuth")
-                                       .withField(StandardField.YEAR, "2014");
-        BibEntry entry2 = new BibEntry().withField(InternalField.KEY_FIELD, "Knuth2014")
-                                        .withField(StandardField.AUTHOR, "Knuth")
-                                        .withField(StandardField.YEAR, "2014");
+        BibEntry entry = new BibEntry()
+                .withField(InternalField.KEY_FIELD, "Knuth2014")
+                .withField(StandardField.AUTHOR, "Knuth")
+                .withField(StandardField.YEAR, "2014");
+        BibEntry entry2 = new BibEntry()
+                .withField(InternalField.KEY_FIELD, "Knuth2014")
+                .withField(StandardField.AUTHOR, "Knuth")
+                .withField(StandardField.YEAR, "2014");
         BibDatabase bibDatabase = new BibDatabase(List.of(entry, entry2));
         CitationKeyDuplicationChecker checker = new CitationKeyDuplicationChecker(bibDatabase);
 

@@ -1,13 +1,11 @@
 package org.jabref.gui.externalfiles;
 
 import java.nio.file.Path;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.paint.Color;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
 
@@ -34,12 +32,9 @@ public class ImportFilesResultItemViewModel {
         this.message.setValue(message);
         this.status = status;
         switch (status) {
-            case SUCCESS ->
-                    this.icon.setValue(IconTheme.JabRefIcons.CHECK.withColor(Color.GREEN));
-            case WARNING ->
-                    this.icon.setValue(IconTheme.JabRefIcons.WARNING);
-            case FAILURE ->
-                    this.icon.setValue(IconTheme.JabRefIcons.WARNING.withColor(Color.RED));
+            case SUCCESS -> this.icon.setValue(IconTheme.JabRefIcons.CHECK.withColor(Color.GREEN));
+            case WARNING -> this.icon.setValue(IconTheme.JabRefIcons.WARNING);
+            case FAILURE -> this.icon.setValue(IconTheme.JabRefIcons.WARNING.withColor(Color.RED));
         }
     }
 

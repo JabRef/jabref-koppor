@@ -3,7 +3,6 @@ package org.jabref.logic.push;
 import java.util.Optional;
 
 public enum PushApplications {
-
     EMACS("emacs", "Emacs"),
     LYX("lyx", "LyX/Kile"),
     TEXMAKER("texmaker", "Texmaker"),

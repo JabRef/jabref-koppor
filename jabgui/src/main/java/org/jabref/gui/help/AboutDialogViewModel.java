@@ -5,12 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.clipboard.ClipBoardManager;
@@ -19,7 +17,6 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.URLs;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BuildInfo;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +35,11 @@ public class AboutDialogViewModel extends AbstractViewModel {
     private final ReadOnlyStringWrapper developmentVersion = new ReadOnlyStringWrapper();
     private final ClipBoardManager clipBoardManager;
 
-    public AboutDialogViewModel(@NonNull DialogService dialogService,
-                                @NonNull GuiPreferences preferences,
-                                @NonNull ClipBoardManager clipBoardManager,
-                                BuildInfo buildInfo) {
+    public AboutDialogViewModel(
+            @NonNull DialogService dialogService,
+            @NonNull GuiPreferences preferences,
+            @NonNull ClipBoardManager clipBoardManager,
+            BuildInfo buildInfo) {
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.clipBoardManager = clipBoardManager;
@@ -52,18 +50,25 @@ public class AboutDialogViewModel extends AbstractViewModel {
             isDevelopmentVersion.set(false);
         } else {
             isDevelopmentVersion.set(true);
-            String dev = new ArrayList<>(Arrays.asList(versionParts)).stream().filter(string -> !string.equals(versionParts[0])).collect(
-                    Collectors.joining("--"));
+            String dev = new ArrayList<>(Arrays.asList(versionParts))
+                    .stream().filter(string -> !string.equals(versionParts[0])).collect(Collectors.joining("--"));
             developmentVersion.set(dev);
         }
         maintainers.set(buildInfo.maintainers);
         license.set(Localization.lang("License") + ":");
         changelogUrl = buildInfo.version.getChangelogUrl();
 
-        String javafx_version = System.getProperty("javafx.runtime.version", BuildInfo.UNKNOWN_VERSION).toLowerCase(Locale.ROOT);
+        String javafx_version = System.getProperty("javafx.runtime.version", BuildInfo.UNKNOWN_VERSION)
+                .toLowerCase(Locale.ROOT);
 
-        versionInfo = "JabRef %s%n%s %s %s %nJava %s %nJavaFX %s".formatted(buildInfo.version, BuildInfo.OS,
-                BuildInfo.OS_VERSION, BuildInfo.OS_ARCH, BuildInfo.JAVA_VERSION, javafx_version);
+        versionInfo = "JabRef %s%n%s %s %s %nJava %s %nJavaFX %s"
+                .formatted(
+                        buildInfo.version,
+                        BuildInfo.OS,
+                        BuildInfo.OS_VERSION,
+                        BuildInfo.OS_ARCH,
+                        BuildInfo.JAVA_VERSION,
+                        javafx_version);
     }
 
     public String getDevelopmentVersion() {

@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.model.FieldChange;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Collects the changes of one user action so they undo as one step.

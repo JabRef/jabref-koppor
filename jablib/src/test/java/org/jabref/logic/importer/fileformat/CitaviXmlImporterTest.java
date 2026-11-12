@@ -1,5 +1,7 @@
 package org.jabref.logic.importer.fileformat;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -10,16 +12,12 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import org.jabref.model.entry.BibEntry;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CitaviXmlImporterTest {
 
@@ -41,18 +39,18 @@ class CitaviXmlImporterTest {
     @Test
     void importPreservesCitationKey(@TempDir Path tempDir) throws IOException {
         String xml = """
-                <?xml version="1.0" encoding="utf-8"?>
-                <CitaviExchangeData Version="6.0.0.0">
-                  <References>
-                    <Reference id="abc-123">
-                      <ReferenceType>Book</ReferenceType>
-                      <Title>Some Title</Title>
-                      <Year>2020</Year>
-                      <CitationKey>Har97</CitationKey>
-                    </Reference>
-                  </References>
-                </CitaviExchangeData>
-                """;
+            <?xml version="1.0" encoding="utf-8"?>
+            <CitaviExchangeData Version="6.0.0.0">
+              <References>
+                <Reference id="abc-123">
+                  <ReferenceType>Book</ReferenceType>
+                  <Title>Some Title</Title>
+                  <Year>2020</Year>
+                  <CitationKey>Har97</CitationKey>
+                </Reference>
+              </References>
+            </CitaviExchangeData>
+            """;
 
         List<BibEntry> entries = importFromXml(xml, tempDir);
 
@@ -63,17 +61,17 @@ class CitaviXmlImporterTest {
     @Test
     void importIgnoresEmptyCitationKey(@TempDir Path tempDir) throws IOException {
         String xml = """
-                <?xml version="1.0" encoding="utf-8"?>
-                <CitaviExchangeData Version="6.0.0.0">
-                  <References>
-                    <Reference id="abc-123">
-                      <ReferenceType>Book</ReferenceType>
-                      <Title>Some Title</Title>
-                      <CitationKey></CitationKey>
-                    </Reference>
-                  </References>
-                </CitaviExchangeData>
-                """;
+            <?xml version="1.0" encoding="utf-8"?>
+            <CitaviExchangeData Version="6.0.0.0">
+              <References>
+                <Reference id="abc-123">
+                  <ReferenceType>Book</ReferenceType>
+                  <Title>Some Title</Title>
+                  <CitationKey></CitationKey>
+                </Reference>
+              </References>
+            </CitaviExchangeData>
+            """;
 
         List<BibEntry> entries = importFromXml(xml, tempDir);
 
@@ -84,17 +82,17 @@ class CitaviXmlImporterTest {
     @Test
     void importStripsWhitespaceFromCitationKey(@TempDir Path tempDir) throws IOException {
         String xml = """
-                <?xml version="1.0" encoding="utf-8"?>
-                <CitaviExchangeData Version="6.0.0.0">
-                  <References>
-                    <Reference id="abc-123">
-                      <ReferenceType>Book</ReferenceType>
-                      <Title>Some Title</Title>
-                      <CitationKey>Doe 2021</CitationKey>
-                    </Reference>
-                  </References>
-                </CitaviExchangeData>
-                """;
+            <?xml version="1.0" encoding="utf-8"?>
+            <CitaviExchangeData Version="6.0.0.0">
+              <References>
+                <Reference id="abc-123">
+                  <ReferenceType>Book</ReferenceType>
+                  <Title>Some Title</Title>
+                  <CitationKey>Doe 2021</CitationKey>
+                </Reference>
+              </References>
+            </CitaviExchangeData>
+            """;
 
         List<BibEntry> entries = importFromXml(xml, tempDir);
 
@@ -105,17 +103,17 @@ class CitaviXmlImporterTest {
     @Test
     void importStripsDisallowedCharactersFromCitationKey(@TempDir Path tempDir) throws IOException {
         String xml = """
-                <?xml version="1.0" encoding="utf-8"?>
-                <CitaviExchangeData Version="6.0.0.0">
-                  <References>
-                    <Reference id="abc-123">
-                      <ReferenceType>Book</ReferenceType>
-                      <Title>Some Title</Title>
-                      <CitationKey>Smith,2020</CitationKey>
-                    </Reference>
-                  </References>
-                </CitaviExchangeData>
-                """;
+            <?xml version="1.0" encoding="utf-8"?>
+            <CitaviExchangeData Version="6.0.0.0">
+              <References>
+                <Reference id="abc-123">
+                  <ReferenceType>Book</ReferenceType>
+                  <Title>Some Title</Title>
+                  <CitationKey>Smith,2020</CitationKey>
+                </Reference>
+              </References>
+            </CitaviExchangeData>
+            """;
 
         List<BibEntry> entries = importFromXml(xml, tempDir);
 

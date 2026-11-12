@@ -1,5 +1,13 @@
 package org.jabref.gui.maintable;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.tobiasdiez.easybind.EasyBind;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -10,7 +18,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
@@ -23,7 +30,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-
 import org.jabref.gui.groups.GroupsPreferences;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.testutils.JavaFxExtension;
@@ -47,17 +53,8 @@ import org.jabref.model.search.SearchDisplayMode;
 import org.jabref.model.search.event.IndexAddedOrUpdatedEvent;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResults;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(JavaFxExtension.class)
 class MainTableDataModelTest {
@@ -65,12 +62,15 @@ class MainTableDataModelTest {
     @Test
     void additionToObservableMapTriggersUpdate() {
         BibDatabaseContext bibDatabaseContext = new BibDatabaseContext();
-        ObservableList<BibEntry> entries = FXCollections.synchronizedObservableList(FXCollections.observableArrayList(BibEntry::getObservables));
+        ObservableList<BibEntry> entries =
+                FXCollections.synchronizedObservableList(FXCollections.observableArrayList(BibEntry::getObservables));
         ObservableList<BibEntry> allEntries = FXCollections.unmodifiableObservableList(entries);
-        NameDisplayPreferences nameDisplayPreferences = new NameDisplayPreferences(NameDisplayPreferences.DisplayStyle.AS_IS, NameDisplayPreferences.AbbreviationStyle.FULL);
-        SimpleObjectProperty<MainTableFieldValueFormatter> fieldValueFormatter = new SimpleObjectProperty<>(new MainTableFieldValueFormatter(nameDisplayPreferences, bibDatabaseContext));
-        ObservableList<BibEntryTableViewModel> entriesViewModel = EasyBind.mapBacked(allEntries, entry ->
-                new BibEntryTableViewModel(entry, bibDatabaseContext, fieldValueFormatter));
+        NameDisplayPreferences nameDisplayPreferences = new NameDisplayPreferences(
+                NameDisplayPreferences.DisplayStyle.AS_IS, NameDisplayPreferences.AbbreviationStyle.FULL);
+        SimpleObjectProperty<MainTableFieldValueFormatter> fieldValueFormatter = new SimpleObjectProperty<>(
+                new MainTableFieldValueFormatter(nameDisplayPreferences, bibDatabaseContext));
+        ObservableList<BibEntryTableViewModel> entriesViewModel = EasyBind.mapBacked(
+                allEntries, entry -> new BibEntryTableViewModel(entry, bibDatabaseContext, fieldValueFormatter));
         FilteredList<BibEntryTableViewModel> entriesFiltered = new FilteredList<>(entriesViewModel);
         IntegerProperty resultSize = new SimpleIntegerProperty();
         resultSize.bind(Bindings.size(entriesFiltered));
@@ -85,18 +85,24 @@ class MainTableDataModelTest {
         BibEntry bibEntryAuthorT = new BibEntry().withField(StandardField.AUTHOR, "T");
         entries.add(bibEntryAuthorT);
 
-        List<BibEntry> result = entriesFilteredAndSorted.stream().map(BibEntryTableViewModel::getEntry).toList();
+        List<BibEntry> result = entriesFilteredAndSorted.stream()
+                .map(BibEntryTableViewModel::getEntry)
+                .toList();
         assertEquals(List.of(bibEntryAuthorT), result);
 
         BibEntry bibEntryNothingToZ = new BibEntry();
         entries.add(bibEntryNothingToZ);
-        result = entriesFilteredAndSorted.stream().map(BibEntryTableViewModel::getEntry).toList();
+        result = entriesFilteredAndSorted.stream()
+                .map(BibEntryTableViewModel::getEntry)
+                .toList();
         assertEquals(List.of(bibEntryNothingToZ, bibEntryAuthorT), result);
 
         changed[0] = false;
         bibEntryNothingToZ.setField(StandardField.AUTHOR, "Z");
         assertTrue(changed[0]);
-        result = entriesFilteredAndSorted.stream().map(BibEntryTableViewModel::getEntry).toList();
+        result = entriesFilteredAndSorted.stream()
+                .map(BibEntryTableViewModel::getEntry)
+                .toList();
         assertEquals(List.of(bibEntryAuthorT, bibEntryNothingToZ), result);
     }
 
@@ -104,20 +110,17 @@ class MainTableDataModelTest {
     void sequentialSearchWithNoMatchesClearsPreviousSearchMatches() {
         BibDatabaseContext bibDatabaseContext = new BibDatabaseContext();
 
-        BibEntry bibEntryA = new BibEntry()
-                .withCitationKey("A")
-                .withField(StandardField.AUTHOR, "Alice");
+        BibEntry bibEntryA = new BibEntry().withCitationKey("A").withField(StandardField.AUTHOR, "Alice");
 
-        BibEntry bibEntryB = new BibEntry()
-                .withCitationKey("B")
-                .withField(StandardField.AUTHOR, "Bob");
+        BibEntry bibEntryB = new BibEntry().withCitationKey("B").withField(StandardField.AUTHOR, "Bob");
 
         bibDatabaseContext.getDatabase().insertEntries(List.of(bibEntryA, bibEntryB));
 
         GuiPreferences preferences = mock(GuiPreferences.class);
         when(preferences.getGroupsPreferences()).thenReturn(GroupsPreferences.getDefault());
-        when(preferences.getSearchPreferences()).thenReturn(
-                new SearchPreferences(SearchDisplayMode.FILTER, false, false, false, false, false, false, 0, 0, 0));
+        when(preferences.getSearchPreferences())
+                .thenReturn(new SearchPreferences(
+                        SearchDisplayMode.FILTER, false, false, false, false, false, false, 0, 0, 0));
         when(preferences.getNameDisplayPreferences()).thenReturn(NameDisplayPreferences.getDefault());
 
         SimpleBooleanProperty usePostgres = new SimpleBooleanProperty(false);
@@ -128,7 +131,8 @@ class MainTableDataModelTest {
 
         CurrentThreadTaskExecutor taskExecutor = new CurrentThreadTaskExecutor();
 
-        SimpleListProperty<GroupTreeNode> selectedGroups = new SimpleListProperty<>(FXCollections.observableArrayList());
+        SimpleListProperty<GroupTreeNode> selectedGroups =
+                new SimpleListProperty<>(FXCollections.observableArrayList());
         OptionalObjectProperty<SearchQuery> searchQueryProperty = OptionalObjectProperty.empty();
         IntegerProperty resultSize = new SimpleIntegerProperty();
 
@@ -148,7 +152,9 @@ class MainTableDataModelTest {
             // First search matches Alice only.
             searchQueryProperty.setValue(Optional.of(new SearchQuery("author=Alice")));
 
-            assertEquals(Set.of(bibEntryA.getId()), model.searchResultsProperty().get().orElseThrow().getMatchedEntries());
+            assertEquals(
+                    Set.of(bibEntryA.getId()),
+                    model.searchResultsProperty().get().orElseThrow().getMatchedEntries());
             assertTrue(vmA.isMatchedBySearch());
             assertFalse(vmB.isMatchedBySearch());
             assertTrue(vmA.isVisibleBySearch());
@@ -169,12 +175,15 @@ class MainTableDataModelTest {
     @Test
     void searchResultsVersionBumpsOncePerAppliedQueryAndNotAfterUnbind() throws Exception {
         BibDatabaseContext bibDatabaseContext = new BibDatabaseContext();
-        bibDatabaseContext.getDatabase().insertEntries(List.of(new BibEntry().withCitationKey("A").withField(StandardField.AUTHOR, "Alice")));
+        bibDatabaseContext
+                .getDatabase()
+                .insertEntries(List.of(new BibEntry().withCitationKey("A").withField(StandardField.AUTHOR, "Alice")));
 
         GuiPreferences preferences = mock(GuiPreferences.class);
         when(preferences.getGroupsPreferences()).thenReturn(GroupsPreferences.getDefault());
-        when(preferences.getSearchPreferences()).thenReturn(
-                new SearchPreferences(SearchDisplayMode.FLOAT, false, false, false, false, false, false, 0, 0, 0));
+        when(preferences.getSearchPreferences())
+                .thenReturn(new SearchPreferences(
+                        SearchDisplayMode.FLOAT, false, false, false, false, false, false, 0, 0, 0));
         when(preferences.getNameDisplayPreferences()).thenReturn(NameDisplayPreferences.getDefault());
 
         SearchContext searchContext = new SearchContext(
@@ -215,59 +224,42 @@ class MainTableDataModelTest {
     void overlappingSearchCompletionKeepsLatestResults() throws Exception {
         BibDatabaseContext bibDatabaseContext = new BibDatabaseContext();
 
-        BibEntry quantumEntry = new BibEntry()
-                .withCitationKey("quantum")
-                .withField(StandardField.TITLE, "Quantum Physics");
+        BibEntry quantumEntry =
+                new BibEntry().withCitationKey("quantum").withField(StandardField.TITLE, "Quantum Physics");
 
-        BibEntry organicEntry = new BibEntry()
-                .withCitationKey("organic")
-                .withField(StandardField.TITLE, "Organic Chemistry");
+        BibEntry organicEntry =
+                new BibEntry().withCitationKey("organic").withField(StandardField.TITLE, "Organic Chemistry");
 
-        bibDatabaseContext.getDatabase().insertEntries(
-                List.of(quantumEntry, organicEntry));
+        bibDatabaseContext.getDatabase().insertEntries(List.of(quantumEntry, organicEntry));
 
         GuiPreferences preferences = mock(GuiPreferences.class);
-        when(preferences.getGroupsPreferences())
-                .thenReturn(GroupsPreferences.getDefault());
+        when(preferences.getGroupsPreferences()).thenReturn(GroupsPreferences.getDefault());
         when(preferences.getSearchPreferences())
                 .thenReturn(new SearchPreferences(
-                        SearchDisplayMode.FILTER,
-                        false,
-                        false,
-                        false,
-                        false,
-                        false,
-                        false,
-                        0,
-                        0,
-                        0));
-        when(preferences.getNameDisplayPreferences())
-                .thenReturn(NameDisplayPreferences.getDefault());
+                        SearchDisplayMode.FILTER, false, false, false, false, false, false, 0, 0, 0));
+        when(preferences.getNameDisplayPreferences()).thenReturn(NameDisplayPreferences.getDefault());
 
         CompletableFuture<Void> firstSearchInProgress = new CompletableFuture<>();
         CompletableFuture<Void> allowFirstSearchToFinish = new CompletableFuture<>();
 
         SimpleBooleanProperty usePostgres = new SimpleBooleanProperty(false);
-        SearchContext searchContext = new SearchContext(
-                usePostgres,
-                () -> new InMemorySearchBackend(
-                        bibDatabaseContext,
-                        new BibEntryPreferences(',')),
-                () -> new InMemorySearchBackend(
-                        bibDatabaseContext,
-                        new BibEntryPreferences(','))) {
-            @Override
-            public SearchResults search(SearchQuery query) {
-                SearchResults results = super.search(query);
+        SearchContext searchContext =
+                new SearchContext(
+                        usePostgres,
+                        () -> new InMemorySearchBackend(bibDatabaseContext, new BibEntryPreferences(',')),
+                        () -> new InMemorySearchBackend(bibDatabaseContext, new BibEntryPreferences(','))) {
+                    @Override
+                    public SearchResults search(SearchQuery query) {
+                        SearchResults results = super.search(query);
 
-                if (query.getSearchExpression().contains("Quantum")) {
-                    firstSearchInProgress.complete(null);
-                    allowFirstSearchToFinish.join();
-                }
+                        if (query.getSearchExpression().contains("Quantum")) {
+                            firstSearchInProgress.complete(null);
+                            allowFirstSearchToFinish.join();
+                        }
 
-                return results;
-            }
-        };
+                        return results;
+                    }
+                };
 
         ExecutorService executorService = Executors.newFixedThreadPool(2);
         List<Future<?>> submittedTasks = new ArrayList<>();
@@ -286,8 +278,7 @@ class MainTableDataModelTest {
         SimpleListProperty<GroupTreeNode> selectedGroups =
                 new SimpleListProperty<>(FXCollections.observableArrayList());
 
-        OptionalObjectProperty<SearchQuery> searchQueryProperty =
-                OptionalObjectProperty.empty();
+        OptionalObjectProperty<SearchQuery> searchQueryProperty = OptionalObjectProperty.empty();
 
         IntegerProperty resultSize = new SimpleIntegerProperty();
 
@@ -307,13 +298,11 @@ class MainTableDataModelTest {
                 model.getViewModelByCitationKey("organic").orElseThrow();
 
         try {
-            searchQueryProperty.setValue(
-                    Optional.of(new SearchQuery("title=Quantum")));
+            searchQueryProperty.setValue(Optional.of(new SearchQuery("title=Quantum")));
 
             firstSearchInProgress.get(5, TimeUnit.SECONDS);
 
-            searchQueryProperty.setValue(
-                    Optional.of(new SearchQuery("title=Organic")));
+            searchQueryProperty.setValue(Optional.of(new SearchQuery("title=Organic")));
 
             assertEquals(2, submittedTasks.size());
 
@@ -323,7 +312,9 @@ class MainTableDataModelTest {
             assertFalse(quantumViewModel.isMatchedBySearch());
             assertTrue(organicViewModel.isMatchedBySearch());
             assertEquals(1, resultSize.get());
-            assertEquals(Set.of(organicEntry.getId()), model.searchResultsProperty().get().orElseThrow().getMatchedEntries());
+            assertEquals(
+                    Set.of(organicEntry.getId()),
+                    model.searchResultsProperty().get().orElseThrow().getMatchedEntries());
 
             allowFirstSearchToFinish.complete(null);
             submittedTasks.getFirst().get(5, TimeUnit.SECONDS);
@@ -331,7 +322,9 @@ class MainTableDataModelTest {
             assertFalse(quantumViewModel.isMatchedBySearch());
             assertTrue(organicViewModel.isMatchedBySearch());
             assertEquals(1, resultSize.get());
-            assertEquals(Set.of(organicEntry.getId()), model.searchResultsProperty().get().orElseThrow().getMatchedEntries());
+            assertEquals(
+                    Set.of(organicEntry.getId()),
+                    model.searchResultsProperty().get().orElseThrow().getMatchedEntries());
         } finally {
             allowFirstSearchToFinish.complete(null);
             executorService.shutdownNow();
@@ -342,36 +335,28 @@ class MainTableDataModelTest {
     void selectingGroupUpdatesMatchesAndVisibility() {
         BibDatabaseContext bibDatabaseContext = new BibDatabaseContext();
 
-        BibEntry bibEntryA = new BibEntry()
-                .withCitationKey("A")
-                .withField(StandardField.AUTHOR, "Alice");
+        BibEntry bibEntryA = new BibEntry().withCitationKey("A").withField(StandardField.AUTHOR, "Alice");
 
-        BibEntry bibEntryB = new BibEntry()
-                .withCitationKey("B")
-                .withField(StandardField.AUTHOR, "Bob");
+        BibEntry bibEntryB = new BibEntry().withCitationKey("B").withField(StandardField.AUTHOR, "Bob");
 
         bibDatabaseContext.getDatabase().insertEntries(List.of(bibEntryA, bibEntryB));
 
         GuiPreferences preferences = mock(GuiPreferences.class);
         when(preferences.getGroupsPreferences()).thenReturn(GroupsPreferences.getDefault());
-        when(preferences.getSearchPreferences()).thenReturn(
-                new SearchPreferences(SearchDisplayMode.FILTER, false, false, false, false, false, false, 0, 0, 0));
+        when(preferences.getSearchPreferences())
+                .thenReturn(new SearchPreferences(
+                        SearchDisplayMode.FILTER, false, false, false, false, false, false, 0, 0, 0));
         when(preferences.getNameDisplayPreferences()).thenReturn(NameDisplayPreferences.getDefault());
 
         CurrentThreadTaskExecutor taskExecutor = new CurrentThreadTaskExecutor();
 
-        SimpleListProperty<GroupTreeNode> selectedGroups = new SimpleListProperty<>(FXCollections.observableArrayList());
+        SimpleListProperty<GroupTreeNode> selectedGroups =
+                new SimpleListProperty<>(FXCollections.observableArrayList());
         OptionalObjectProperty<SearchQuery> searchQueryProperty = OptionalObjectProperty.empty();
         IntegerProperty resultSize = new SimpleIntegerProperty();
 
         MainTableDataModel model = new MainTableDataModel(
-                bibDatabaseContext,
-                preferences,
-                taskExecutor,
-                null,
-                selectedGroups,
-                searchQueryProperty,
-                resultSize);
+                bibDatabaseContext, preferences, taskExecutor, null, selectedGroups, searchQueryProperty, resultSize);
 
         BibEntryTableViewModel vmA = model.getViewModelByCitationKey("A").orElseThrow();
         BibEntryTableViewModel vmB = model.getViewModelByCitationKey("B").orElseThrow();
@@ -395,8 +380,9 @@ class MainTableDataModelTest {
 
         GuiPreferences preferences = mock(GuiPreferences.class);
         when(preferences.getGroupsPreferences()).thenReturn(GroupsPreferences.getDefault());
-        when(preferences.getSearchPreferences()).thenReturn(
-                new SearchPreferences(SearchDisplayMode.FILTER, false, false, false, false, false, false, 0, 0, 0));
+        when(preferences.getSearchPreferences())
+                .thenReturn(new SearchPreferences(
+                        SearchDisplayMode.FILTER, false, false, false, false, false, false, 0, 0, 0));
         when(preferences.getNameDisplayPreferences()).thenReturn(NameDisplayPreferences.getDefault());
 
         List<BackgroundTask<?>> groupMatchTasks = new ArrayList<>();
@@ -406,7 +392,8 @@ class MainTableDataModelTest {
             return CompletableFuture.completedFuture(null);
         });
 
-        SimpleListProperty<GroupTreeNode> selectedGroups = new SimpleListProperty<>(FXCollections.observableArrayList());
+        SimpleListProperty<GroupTreeNode> selectedGroups =
+                new SimpleListProperty<>(FXCollections.observableArrayList());
         MainTableDataModel model = new MainTableDataModel(
                 bibDatabaseContext,
                 preferences,
@@ -440,8 +427,9 @@ class MainTableDataModelTest {
 
         GuiPreferences preferences = mock(GuiPreferences.class);
         when(preferences.getGroupsPreferences()).thenReturn(GroupsPreferences.getDefault());
-        when(preferences.getSearchPreferences()).thenReturn(
-                new SearchPreferences(SearchDisplayMode.FILTER, false, false, false, false, false, false, 0, 0, 0));
+        when(preferences.getSearchPreferences())
+                .thenReturn(new SearchPreferences(
+                        SearchDisplayMode.FILTER, false, false, false, false, false, false, 0, 0, 0));
         when(preferences.getNameDisplayPreferences()).thenReturn(NameDisplayPreferences.getDefault());
 
         SearchContext searchContext = new SearchContext(
@@ -455,7 +443,8 @@ class MainTableDataModelTest {
             return CompletableFuture.completedFuture(null);
         });
 
-        SimpleListProperty<GroupTreeNode> selectedGroups = new SimpleListProperty<>(FXCollections.observableArrayList());
+        SimpleListProperty<GroupTreeNode> selectedGroups =
+                new SimpleListProperty<>(FXCollections.observableArrayList());
         OptionalObjectProperty<SearchQuery> searchQueryProperty = OptionalObjectProperty.empty();
         IntegerProperty resultSize = new SimpleIntegerProperty();
         MainTableDataModel model = new MainTableDataModel(
@@ -497,21 +486,21 @@ class MainTableDataModelTest {
         Platform.runLater(() -> {
             BibDatabaseContext bibDatabaseContext = new BibDatabaseContext();
 
-            BibEntry matchingEntry = new BibEntry()
-                    .withCitationKey("matching")
-                    .withField(StandardField.AUTHOR, "Alice");
-            BibEntry nonMatchingEntry = new BibEntry()
-                    .withCitationKey("nonMatching")
-                    .withField(StandardField.AUTHOR, "Bob");
+            BibEntry matchingEntry =
+                    new BibEntry().withCitationKey("matching").withField(StandardField.AUTHOR, "Alice");
+            BibEntry nonMatchingEntry =
+                    new BibEntry().withCitationKey("nonMatching").withField(StandardField.AUTHOR, "Bob");
             bibDatabaseContext.getDatabase().insertEntries(List.of(matchingEntry, nonMatchingEntry));
 
             GuiPreferences preferences = mock(GuiPreferences.class);
             when(preferences.getGroupsPreferences()).thenReturn(GroupsPreferences.getDefault());
-            when(preferences.getSearchPreferences()).thenReturn(
-                    new SearchPreferences(SearchDisplayMode.FILTER, false, false, false, false, false, false, 0, 0, 0));
+            when(preferences.getSearchPreferences())
+                    .thenReturn(new SearchPreferences(
+                            SearchDisplayMode.FILTER, false, false, false, false, false, false, 0, 0, 0));
             when(preferences.getNameDisplayPreferences()).thenReturn(NameDisplayPreferences.getDefault());
 
-            SimpleListProperty<GroupTreeNode> selectedGroups = new SimpleListProperty<>(FXCollections.observableArrayList());
+            SimpleListProperty<GroupTreeNode> selectedGroups =
+                    new SimpleListProperty<>(FXCollections.observableArrayList());
             MainTableDataModel model = new MainTableDataModel(
                     bibDatabaseContext,
                     preferences,
@@ -525,8 +514,8 @@ class MainTableDataModelTest {
             bibDatabaseContext.getDatabase().removeEntry(matchingEntry);
 
             visibleEntries.addAll(model.getEntriesFilteredAndSorted().stream()
-                                       .map(BibEntryTableViewModel::getEntry)
-                                       .toList());
+                    .map(BibEntryTableViewModel::getEntry)
+                    .toList());
         });
         JavaFxExtension.awaitEvents();
 
@@ -534,7 +523,8 @@ class MainTableDataModelTest {
     }
 
     private static GroupTreeNode getKeywordGroup(Field field, String searchExpression) {
-        return GroupTreeNode.fromGroup(new WordKeywordGroup(searchExpression, GroupHierarchyType.INDEPENDENT, field, searchExpression, true, ',', false));
+        return GroupTreeNode.fromGroup(new WordKeywordGroup(
+                searchExpression, GroupHierarchyType.INDEPENDENT, field, searchExpression, true, ',', false));
     }
 
     private static <V> void executeTask(BackgroundTask<V> task) throws Exception {

@@ -2,7 +2,6 @@ package org.jabref.gui.collab;
 
 import java.util.List;
 import java.util.Optional;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.ObjectProperty;
@@ -11,10 +10,8 @@ import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.collab.entrychange.EntryChange;
-
 import org.jspecify.annotations.NonNull;
 
 public class ExternalChangesResolverViewModel extends AbstractViewModel {
@@ -24,7 +21,8 @@ public class ExternalChangesResolverViewModel extends AbstractViewModel {
     /// Because visible changes list will be bound to the UI, certain changes can be removed. This list is used to keep
     /// track of changes even when they're removed from the UI and to expose the final resolved change set.
     private final ObservableList<DatabaseChange> changes = FXCollections.observableArrayList();
-    /// Only a merge can leave a change accepted yet different from disk; accepted changes are the disk version by definition.
+    /// Only a merge can leave a change accepted yet different from disk; accepted changes are the disk version by
+    /// definition.
     private boolean mergedResultDiffersFromDisk;
     private final ObjectProperty<DatabaseChange> selectedChange = new SimpleObjectProperty<>();
     private final ReadOnlyBooleanWrapper areAllChangesResolved = new ReadOnlyBooleanWrapper(false);
@@ -38,7 +36,9 @@ public class ExternalChangesResolverViewModel extends AbstractViewModel {
 
         updateResolutionState();
         canAskUserToResolveChange = Bindings.createBooleanBinding(
-                () -> getSelectedChange().flatMap(DatabaseChange::getExternalChangeResolver).isPresent(),
+                () -> getSelectedChange()
+                        .flatMap(DatabaseChange::getExternalChangeResolver)
+                        .isPresent(),
                 selectedChange);
     }
 
@@ -98,7 +98,8 @@ public class ExternalChangesResolverViewModel extends AbstractViewModel {
 
     public void denyChange() {
         getSelectedChange().ifPresent(selectedChange -> {
-            // The change objects outlive this dialog: a cancelled review re-opens on the same list, so an earlier accept must not stick
+            // The change objects outlive this dialog: a cancelled review re-opens on the same list, so an earlier
+            // accept must not stick
             selectedChange.setAccepted(false);
             getVisibleChanges().remove(selectedChange);
             updateResolutionState();

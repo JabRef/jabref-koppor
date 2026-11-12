@@ -1,9 +1,8 @@
 package org.jabref.gui.autocompleter;
 
+import com.google.common.base.Equivalence;
 import java.util.Comparator;
 import java.util.stream.Stream;
-
-import com.google.common.base.Equivalence;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
 
 public class EmptySuggestionProvider extends SuggestionProvider<String> {

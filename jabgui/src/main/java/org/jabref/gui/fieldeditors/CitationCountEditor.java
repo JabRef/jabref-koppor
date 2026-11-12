@@ -1,7 +1,9 @@
 package org.jabref.gui.fieldeditors;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import java.util.List;
-
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
@@ -9,7 +11,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.autocompleter.SuggestionProvider;
@@ -26,26 +27,39 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldTextMapper;
 
-import com.airhacks.afterburner.injection.Injector;
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 public class CitationCountEditor extends HBox implements FieldEditorFX {
-    @FXML private CitationCountEditorViewModel viewModel;
-    @FXML private EditorTextField textField;
-    @FXML private Button fetchCitationCountButton;
-    @FXML private ComboBox<CitationCountFetcherType> fetcherComboBox;
+    @FXML
+    private CitationCountEditorViewModel viewModel;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private StateManager stateManager;
-    @Inject private SearchCitationsRelationsService searchCitationsRelationsService;
+    @FXML
+    private EditorTextField textField;
 
-    public CitationCountEditor(Field field,
-                               SuggestionProvider<?> suggestionProvider,
-                               FieldCheckers fieldCheckers,
-                               UndoManager undoManager) {
+    @FXML
+    private Button fetchCitationCountButton;
+
+    @FXML
+    private ComboBox<CitationCountFetcherType> fetcherComboBox;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private StateManager stateManager;
+
+    @Inject
+    private SearchCitationsRelationsService searchCitationsRelationsService;
+
+    public CitationCountEditor(
+            Field field,
+            SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers,
+            UndoManager undoManager) {
         Injector.registerExistingAndInject(this);
         this.viewModel = new CitationCountEditorViewModel(
                 field,
@@ -58,9 +72,7 @@ public class CitationCountEditor extends HBox implements FieldEditorFX {
                 preferences,
                 searchCitationsRelationsService);
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
 
         textField.setId(field.getName());
         textField.textProperty().bindBidirectional(viewModel.textProperty());
@@ -75,10 +87,11 @@ public class CitationCountEditor extends HBox implements FieldEditorFX {
         new ViewModelListCellFactory<CitationCountFetcherType>()
                 .withText(CitationCountFetcherType::getName)
                 .install(fetcherComboBox);
-        fetcherComboBox.valueProperty().bindBidirectional(
-                preferences.getEntryEditorPreferences().citationCountFetcherTypeProperty()
-        );
-        new EditorValidator(preferences).configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
+        fetcherComboBox
+                .valueProperty()
+                .bindBidirectional(preferences.getEntryEditorPreferences().citationCountFetcherTypeProperty());
+        new EditorValidator(preferences)
+                .configureValidation(viewModel.getFieldValidator().getValidationStatus(), textField);
     }
 
     @FXML

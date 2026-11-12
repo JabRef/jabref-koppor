@@ -8,11 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.util.Range;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,12 +46,18 @@ public class FileFieldParser {
     public static List<LinkedFile> parse(String value) {
         // We need state to have a more clean code. Thus, we instantiate the class and then return the result
         FileFieldParser fileFieldParser = new FileFieldParser(value);
-        return fileFieldParser.parse().stream().map(LinkedFilePosition::linkedFile).collect(Collectors.toList());
+        return fileFieldParser.parse().stream()
+                .map(LinkedFilePosition::linkedFile)
+                .collect(Collectors.toList());
     }
 
     public static Map<LinkedFile, Range> parseToPosition(String value) {
         FileFieldParser fileFieldParser = new FileFieldParser(value);
-        return fileFieldParser.parse().stream().collect(HashMap::new, (map, position) -> map.put(position.linkedFile(), position.range()), HashMap::putAll);
+        return fileFieldParser.parse().stream()
+                .collect(
+                        HashMap::new,
+                        (map, position) -> map.put(position.linkedFile(), position.range()),
+                        HashMap::putAll);
     }
 
     private List<LinkedFilePosition> parse() {
@@ -66,7 +70,8 @@ public class FileFieldParser {
         if (LinkedFile.isOnlineLink(value.trim())) {
             // needs to be modifiable
             try {
-                return List.of(new LinkedFilePosition(new LinkedFile(URLUtil.create(value), ""), new Range(0, value.length() - 1)));
+                return List.of(new LinkedFilePosition(
+                        new LinkedFile(URLUtil.create(value), ""), new Range(0, value.length() - 1)));
             } catch (MalformedURLException e) {
                 LOGGER.error("invalid url", e);
                 return files;
@@ -103,7 +108,8 @@ public class FileFieldParser {
                 charactersOfCurrentElement.append(c);
                 inXmlChar = false;
             } else if (!escaped && (c == ':')) {
-                if ((linkedFileData.size() == 1) && // we already parsed the description
+                if ((linkedFileData.size() == 1)
+                        && // we already parsed the description
                         (charactersOfCurrentElement.length() == 1)) { // we parsed one character
                     // special case of Windows paths
                     // Example: ":c:\test.pdf:PDF"
@@ -192,15 +198,18 @@ public class FileFieldParser {
         }
 
         // link is the only mandatory field
-        if (field.getDescription().isEmpty() && field.getLink().isEmpty() && !field.getFileType().isEmpty()) {
+        if (field.getDescription().isEmpty()
+                && field.getLink().isEmpty()
+                && !field.getFileType().isEmpty()) {
             field = new LinkedFile("", Path.of(field.getFileType()), "");
-        } else if (!field.getDescription().isEmpty() && field.getLink().isEmpty() && field.getFileType().isEmpty()) {
+        } else if (!field.getDescription().isEmpty()
+                && field.getLink().isEmpty()
+                && field.getFileType().isEmpty()) {
             field = new LinkedFile("", Path.of(field.getDescription()), "");
         }
         entry.clear();
         return field;
     }
 
-    private record LinkedFilePosition(LinkedFile linkedFile, Range range) {
-    }
+    private record LinkedFilePosition(LinkedFile linkedFile, Range range) {}
 }

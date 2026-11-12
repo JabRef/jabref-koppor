@@ -1,13 +1,12 @@
 package org.jabref.model.texparser;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 
 public class LatexParserResult {
 
@@ -59,11 +58,8 @@ public class LatexParserResult {
 
     @Override
     public String toString() {
-        return "TexParserResult{path=%s, citations=%s, nestedFiles=%s, bibFiles=%s}".formatted(
-                this.path,
-                this.citations,
-                this.nestedFiles,
-                this.bibFiles);
+        return "TexParserResult{path=%s, citations=%s, nestedFiles=%s, bibFiles=%s}"
+                .formatted(this.path, this.citations, this.nestedFiles, this.bibFiles);
     }
 
     @Override

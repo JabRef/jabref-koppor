@@ -3,17 +3,17 @@ package org.jabref.gui.keyboard;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
-
 import javafx.scene.input.KeyEvent;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Maps key bindings to the actions a view runs for them.
 ///
 /// An event is consumed only if the registered action handled it.
-/// All other events stay unconsumed, so they still reach the focused control, the event handlers of the parent nodes, and the menu accelerators of the window.
+/// All other events stay unconsumed, so they still reach the focused control, the event handlers of the parent nodes,
+/// and the menu accelerators of the window.
 ///
-/// See the "Keyboard shortcuts" section of the [JavaFX code howto](https://devdocs.jabref.org/code-howtos/javafx.html) for when to use an event filter or an event handler.
+/// See the "Keyboard shortcuts" section of the [JavaFX code howto](https://devdocs.jabref.org/code-howtos/javafx.html)
+/// for when to use an event filter or an event handler.
 @NullMarked
 public class KeyBindingDispatcher {
 
@@ -50,12 +50,14 @@ public class KeyBindingDispatcher {
         return this;
     }
 
-    /// Runs the action registered for the key binding of the given event and consumes the event if the action handled it.
+    /// Runs the action registered for the key binding of the given event and consumes the event if the action handled
+    /// it.
     public void handle(KeyEvent event) {
-        boolean handled = keyBindingRepository.mapToKeyBinding(event)
-                                              .map(actions::get)
-                                              .map(BooleanSupplier::getAsBoolean)
-                                              .orElse(false);
+        boolean handled = keyBindingRepository
+                .mapToKeyBinding(event)
+                .map(actions::get)
+                .map(BooleanSupplier::getAsBoolean)
+                .orElse(false);
         if (handled) {
             event.consume();
         }

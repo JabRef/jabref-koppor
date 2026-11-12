@@ -1,10 +1,8 @@
 package org.jabref.gui.exporter;
 
 import java.nio.file.Path;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.util.FileDialogConfiguration;
@@ -12,7 +10,6 @@ import org.jabref.logic.exporter.TemplateExporter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.StandardFileType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +29,8 @@ public class CreateModifyExporterDialogViewModel extends AbstractViewModel {
     private final StringProperty layoutFile = new SimpleStringProperty("");
     private final StringProperty extension = new SimpleStringProperty("");
 
-    public CreateModifyExporterDialogViewModel(ExporterViewModel exporter,
-                                               DialogService dialogService,
-                                               CliPreferences preferences) {
+    public CreateModifyExporterDialogViewModel(
+            ExporterViewModel exporter, DialogService dialogService, CliPreferences preferences) {
         this.dialogService = dialogService;
         this.preferences = preferences;
 
@@ -53,7 +49,9 @@ public class CreateModifyExporterDialogViewModel extends AbstractViewModel {
         }
 
         // Check that there are no empty strings.
-        if (layoutFile.get().isEmpty() || name.get().isEmpty() || extension.get().isEmpty()
+        if (layoutFile.get().isEmpty()
+                || name.get().isEmpty()
+                || extension.get().isEmpty()
                 || !layoutFile.get().endsWith(".layout")) {
             LOGGER.info("One of the fields is empty or invalid.");
             return null;
@@ -72,14 +70,17 @@ public class CreateModifyExporterDialogViewModel extends AbstractViewModel {
 
     public void browse() {
         String fileDir = layoutFile.getValue().isEmpty()
-                         ? preferences.getExportPreferences().getExportWorkingDirectory().toString()
-                         : layoutFile.getValue();
+                ? preferences.getExportPreferences().getExportWorkingDirectory().toString()
+                : layoutFile.getValue();
 
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
                 .addExtensionFilter(Localization.lang("Custom layout file"), StandardFileType.LAYOUT)
                 .withDefaultExtension(Localization.lang("Custom layout file"), StandardFileType.LAYOUT)
-                .withInitialDirectory(fileDir).build();
-        dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(f -> layoutFile.set(f.toAbsolutePath().toString()));
+                .withInitialDirectory(fileDir)
+                .build();
+        dialogService
+                .showFileOpenDialog(fileDialogConfiguration)
+                .ifPresent(f -> layoutFile.set(f.toAbsolutePath().toString()));
     }
 
     public StringProperty getName() {

@@ -1,12 +1,9 @@
 package org.jabref.gui.undo;
 
 import java.util.Optional;
-
 import javafx.beans.property.ReadOnlyBooleanProperty;
-
 import org.jabref.logic.undo.UndoManager;
 import org.jabref.logic.undo.UndoStep;
-
 import org.jspecify.annotations.NullMarked;
 
 /// The undo journal as the GUI needs it: the stacks can be driven, and their state can be

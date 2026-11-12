@@ -1,12 +1,11 @@
 package org.jabref.gui.walkthrough.utils;
 
+import com.sun.javafx.scene.NodeHelper;
 import java.util.Optional;
-
 import javafx.beans.value.ChangeListener;
 import javafx.scene.Node;
 import javafx.stage.Window;
 import javafx.util.Duration;
-
 import org.jabref.gui.util.DelayedExecution;
 import org.jabref.gui.walkthrough.Walkthrough;
 import org.jabref.gui.walkthrough.declarative.WindowResolver;
@@ -15,8 +14,6 @@ import org.jabref.gui.walkthrough.declarative.sideeffect.WalkthroughSideEffect;
 import org.jabref.gui.walkthrough.declarative.step.SideEffect;
 import org.jabref.gui.walkthrough.declarative.step.VisibleComponent;
 import org.jabref.gui.walkthrough.declarative.step.WalkthroughStep;
-
-import com.sun.javafx.scene.NodeHelper;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -55,9 +52,10 @@ public class WalkthroughReverter {
     private @Nullable Node resolvedNode;
     private @Nullable DelayedExecution reversion;
 
-    public WalkthroughReverter(@NonNull Walkthrough walkthrough,
-                               @NonNull Window fallbackWindow,
-                               @NonNull SideEffectExecutor sideEffectExecutor) {
+    public WalkthroughReverter(
+            @NonNull Walkthrough walkthrough,
+            @NonNull Window fallbackWindow,
+            @NonNull SideEffectExecutor sideEffectExecutor) {
         this.walkthrough = walkthrough;
         this.fallbackWindow = fallbackWindow;
         this.sideEffectExecutor = sideEffectExecutor;
@@ -71,7 +69,9 @@ public class WalkthroughReverter {
 
         windowShowingListener = (_, wasShowing, isShowing) -> {
             if (wasShowing && !isShowing) {
-                LOGGER.debug("Window for step '{}' closed. Reverting.", walkthrough.getCurrentStep().title());
+                LOGGER.debug(
+                        "Window for step '{}' closed. Reverting.",
+                        walkthrough.getCurrentStep().title());
                 if (reversion != null) {
                     reversion.cancel();
                 }
@@ -84,7 +84,9 @@ public class WalkthroughReverter {
         if (this.resolvedNode != null) {
             nodeVisibleListener = (_, wasVisible, isVisible) -> {
                 if (wasVisible && !isVisible) {
-                    LOGGER.debug("Node for step '{}' is no longer visible. Reverting.", walkthrough.getCurrentStep().title());
+                    LOGGER.debug(
+                            "Node for step '{}' is no longer visible. Reverting.",
+                            walkthrough.getCurrentStep().title());
                     if (reversion != null) {
                         reversion.cancel();
                     }
@@ -134,15 +136,19 @@ public class WalkthroughReverter {
                         continue;
                     }
                     Window activeWindow = window.orElse(fallbackWindow);
-                    if (activeWindow.getScene() != null &&
-                            (component.nodeResolver().isEmpty() || component.nodeResolver().get().resolve(activeWindow.getScene()).isPresent())) {
+                    if (activeWindow.getScene() != null
+                            && (component.nodeResolver().isEmpty()
+                                    || component
+                                            .nodeResolver()
+                                            .get()
+                                            .resolve(activeWindow.getScene())
+                                            .isPresent())) {
                         LOGGER.info("Reverting to step {} from step {}", i, from);
                         walkthrough.goToStep(i);
                         return;
                     }
                 }
-                case SideEffect _ ->
-                        undo(i);
+                case SideEffect _ -> undo(i);
             }
         }
 
@@ -152,10 +158,7 @@ public class WalkthroughReverter {
 
     private void undo(int stepIndex) {
         WalkthroughStep step = walkthrough.getStepAtIndex(stepIndex);
-        if (step instanceof SideEffect(
-                String title,
-                WalkthroughSideEffect sideEffect
-        )) {
+        if (step instanceof SideEffect(String title, WalkthroughSideEffect sideEffect)) {
             if (!sideEffectExecutor.executeBackward(sideEffect, walkthrough)) {
                 LOGGER.warn("Failed to revert side effect {}: {}", title, sideEffect.description());
             }

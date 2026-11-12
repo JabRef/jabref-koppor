@@ -23,8 +23,10 @@ public enum HelpFile {
     OPENOFFICE_LIBREOFFICE("cite/openofficeintegration"),
     FETCHER_ACM("collect/import-using-online-bibliographic-database#acm-portal"),
     FETCHER_BIBSONOMY("collect/import-using-online-bibliographic-database#bibsonomy"),
-    FETCHER_BIODIVERSITY_HERITAGE_LIBRARY("collect/import-using-online-bibliographic-database#bibliotheksverbund-bayern-bvb"),
-    FETCHER_COLLECTION_OF_COMPUTER_SCIENCE_BIBLIOGRAPHIES("collect/import-using-online-bibliographic-database#collection-of-computer-science-bibliographies-ccsb"),
+    FETCHER_BIODIVERSITY_HERITAGE_LIBRARY(
+            "collect/import-using-online-bibliographic-database#bibliotheksverbund-bayern-bvb"),
+    FETCHER_COLLECTION_OF_COMPUTER_SCIENCE_BIBLIOGRAPHIES(
+            "collect/import-using-online-bibliographic-database#collection-of-computer-science-bibliographies-ccsb"),
     FETCHER_CROSSREF("collect/import-using-online-bibliographic-database#crossref-unpaywalll"),
     FETCHER_DBLP("collect/import-using-online-bibliographic-database#dblp"),
     FETCHER_DOAB("collect/import-using-online-bibliographic-database#doab"),

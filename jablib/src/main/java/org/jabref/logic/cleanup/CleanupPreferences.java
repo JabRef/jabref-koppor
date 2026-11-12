@@ -4,7 +4,6 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -34,9 +33,9 @@ public class CleanupPreferences {
 
     private CleanupPreferences() {
         this(
-                EnumSet.copyOf(DEFAULT_ACTIVE_JOBS),  // copy to prevent mutation of static field
-                DEFAULT_FIELD_FORMATTER_CLEANUPS      // Default field formatter cleanups (disabled)
-        );
+                EnumSet.copyOf(DEFAULT_ACTIVE_JOBS), // copy to prevent mutation of static field
+                DEFAULT_FIELD_FORMATTER_CLEANUPS // Default field formatter cleanups (disabled)
+                );
     }
 
     public CleanupPreferences(Set<CleanupStep> activeJobs) {

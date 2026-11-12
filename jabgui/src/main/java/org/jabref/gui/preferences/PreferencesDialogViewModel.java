@@ -1,17 +1,16 @@
 package org.jabref.gui.preferences;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.prefs.BackingStoreException;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.ai.AiTab;
@@ -47,8 +46,6 @@ import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,8 +97,7 @@ public class PreferencesDialogViewModel extends AbstractViewModel {
                 new CustomExporterTab(),
                 new NetworkTab(),
                 new ExternalStoragesTab(),
-                new GitTab()
-        );
+                new GitTab());
     }
 
     public ObservableList<PreferencesTab> getPreferenceTabs() {
@@ -112,7 +108,8 @@ public class PreferencesDialogViewModel extends AbstractViewModel {
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
                 .addExtensionFilter(StandardFileType.XML)
                 .withDefaultExtension(StandardFileType.XML)
-                .withInitialDirectory(preferences.getInternalPreferences().getLastPreferencesExportPath()).build();
+                .withInitialDirectory(preferences.getInternalPreferences().getLastPreferencesExportPath())
+                .build();
 
         Optional<Path> importFileOpt = dialogService.showFileOpenDialog(fileDialogConfiguration);
         if (importFileOpt.isPresent()) {
@@ -137,17 +134,16 @@ public class PreferencesDialogViewModel extends AbstractViewModel {
                 .withInitialDirectory(preferences.getInternalPreferences().getLastPreferencesExportPath())
                 .build();
 
-        dialogService.showFileSaveDialog(fileDialogConfiguration)
-                     .ifPresent(exportFile -> {
-                         try {
-                             storeAllSettings();
-                             preferences.exportPreferences(exportFile);
-                             preferences.getInternalPreferences().setLastPreferencesExportPath(exportFile);
-                         } catch (JabRefException ex) {
-                             LOGGER.warn(ex.getMessage(), ex);
-                             dialogService.showErrorDialogAndWait(Localization.lang("Export preferences"), ex);
-                         }
-                     });
+        dialogService.showFileSaveDialog(fileDialogConfiguration).ifPresent(exportFile -> {
+            try {
+                storeAllSettings();
+                preferences.exportPreferences(exportFile);
+                preferences.getInternalPreferences().setLastPreferencesExportPath(exportFile);
+            } catch (JabRefException ex) {
+                LOGGER.warn(ex.getMessage(), ex);
+                dialogService.showErrorDialogAndWait(Localization.lang("Export preferences"), ex);
+            }
+        });
     }
 
     public void showPreferences() {
@@ -202,7 +198,8 @@ public class PreferencesDialogViewModel extends AbstractViewModel {
         preferences.flush();
 
         if (!restartWarnings.isEmpty()) {
-            dialogService.showWarningDialogAndWait(Localization.lang("Restart required"),
+            dialogService.showWarningDialogAndWait(
+                    Localization.lang("Restart required"),
                     String.join(",\n", restartWarnings)
                             + "\n\n"
                             + Localization.lang("You must restart JabRef for this to come into effect."));

@@ -2,12 +2,10 @@ package org.jabref.logic.integrity;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
-
 import org.jspecify.annotations.NonNull;
 
 public class CitationKeyDuplicationChecker implements EntryChecker {

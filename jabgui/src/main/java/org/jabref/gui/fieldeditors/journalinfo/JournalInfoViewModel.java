@@ -2,13 +2,11 @@ package org.jabref.gui.fieldeditors.journalinfo;
 
 import java.util.List;
 import java.util.Optional;
-
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
@@ -29,7 +27,8 @@ public class JournalInfoViewModel extends AbstractViewModel {
     }
 
     public void populateJournalInformation(String issn, String journalName) throws FetcherException {
-        Optional<JournalInformation> journalInformationOptional = journalInformationFetcher.getJournalInformation(issn, journalName);
+        Optional<JournalInformation> journalInformationOptional =
+                journalInformationFetcher.getJournalInformation(issn, journalName);
 
         journalInformationOptional.ifPresent(journalInformation -> {
             setTitle(journalInformation.title());
@@ -100,8 +99,8 @@ public class JournalInfoViewModel extends AbstractViewModel {
     public XYChart.Series<String, Double> convertToSeries(List<Pair<Integer, Double>> data) {
         XYChart.Series<String, Double> series = new XYChart.Series<>();
         data.stream()
-            .map(pair -> new XYChart.Data<>(pair.getKey().toString(), pair.getValue()))
-            .forEach(series.getData()::add);
+                .map(pair -> new XYChart.Data<>(pair.getKey().toString(), pair.getValue()))
+                .forEach(series.getData()::add);
         return series;
     }
 }

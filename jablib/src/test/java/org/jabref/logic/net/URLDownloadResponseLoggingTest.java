@@ -1,5 +1,11 @@
 package org.jabref.logic.net;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.sun.net.httpserver.HttpServer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,23 +16,15 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.importer.FetcherClientException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.fetcher.BibSonomyFetcher;
-
-import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.api.parallel.Resources;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /// The logger writes to the console in tests, so the log is read from `System.out`.
 /// The remote side is a local server, because this tests the logging of [URLDownload] and not a remote API.
@@ -52,7 +50,8 @@ class URLDownloadResponseLoggingTest {
             }
         });
         server.start();
-        url = URI.create("http://127.0.0.1:" + server.getAddress().getPort() + "/").toURL();
+        url = URI.create("http://127.0.0.1:" + server.getAddress().getPort() + "/")
+                .toURL();
         System.setOut(new PrintStream(capturedOutput, true, StandardCharsets.UTF_8));
     }
 
@@ -68,7 +67,9 @@ class URLDownloadResponseLoggingTest {
 
         assertThrows(FetcherClientException.class, download::openConnection);
 
-        assertEquals(List.of("SimpleHttpResponse{statusCode=401, responseMessage='Unauthorized', responseBody='" + RESPONSE_BODY + "'}"),
+        assertEquals(
+                List.of("SimpleHttpResponse{statusCode=401, responseMessage='Unauthorized', responseBody='"
+                        + RESPONSE_BODY + "'}"),
                 loggedResponses());
     }
 
@@ -79,7 +80,8 @@ class URLDownloadResponseLoggingTest {
 
         assertThrows(FetcherClientException.class, download::openConnection);
 
-        assertEquals(List.of("SimpleHttpResponse{statusCode=401, responseMessage='Unauthorized', responseBody=''}"),
+        assertEquals(
+                List.of("SimpleHttpResponse{statusCode=401, responseMessage='Unauthorized', responseBody=''}"),
                 loggedResponses());
     }
 
@@ -92,15 +94,18 @@ class URLDownloadResponseLoggingTest {
 
         assertThrows(FetcherClientException.class, download::openConnection);
 
-        assertEquals(List.of("SimpleHttpResponse{statusCode=401, responseMessage='Unauthorized', responseBody=''}"),
+        assertEquals(
+                List.of("SimpleHttpResponse{statusCode=401, responseMessage='Unauthorized', responseBody=''}"),
                 loggedResponses());
     }
 
     /// Other tests may print at the same time, so only the lines about this test's server are kept
     private List<String> loggedResponses() {
-        return capturedOutput.toString(StandardCharsets.UTF_8).lines()
-                             .filter(line -> line.contains(url.toString()))
-                             .map(line -> line.substring(line.indexOf("SimpleHttpResponse")))
-                             .toList();
+        return capturedOutput
+                .toString(StandardCharsets.UTF_8)
+                .lines()
+                .filter(line -> line.contains(url.toString()))
+                .map(line -> line.substring(line.indexOf("SimpleHttpResponse")))
+                .toList();
     }
 }

@@ -1,10 +1,10 @@
 package org.jabref.model.ai.pipeline;
 
-import org.jspecify.annotations.NullMarked;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.Test;
 
 @NullMarked
 class RelevantInformationTest {

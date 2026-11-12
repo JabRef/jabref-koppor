@@ -1,15 +1,14 @@
 package org.jabref.gui.walkthrough.declarative.sideeffect;
 
-import org.jabref.gui.DialogService;
-import org.jabref.gui.preferences.PreferencesDialogView;
-import org.jabref.gui.walkthrough.Walkthrough;
-
-import org.jspecify.annotations.NullMarked;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+import org.jabref.gui.DialogService;
+import org.jabref.gui.preferences.PreferencesDialogView;
+import org.jabref.gui.walkthrough.Walkthrough;
+import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.Test;
 
 @NullMarked
 class OpenPreferencesSideEffectTest {

@@ -1,29 +1,26 @@
 package org.jabref.logic.openoffice.style;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-
-import javafx.collections.FXCollections;
-
-import org.jabref.logic.journals.JournalAbbreviationRepository;
-import org.jabref.logic.layout.LayoutFormatterPreferences;
-import org.jabref.logic.openoffice.OpenOfficePreferences;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Answers;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import javafx.collections.FXCollections;
+import org.jabref.logic.journals.JournalAbbreviationRepository;
+import org.jabref.logic.layout.LayoutFormatterPreferences;
+import org.jabref.logic.openoffice.OpenOfficePreferences;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Answers;
 
 class JStyleLoaderTest {
 
@@ -54,17 +51,23 @@ class JStyleLoaderTest {
 
     @Test
     void throwNPEWithNullPreferences() {
-        assertThrows(NullPointerException.class, () -> loader = new JStyleLoader(null, layoutPreferences, abbreviationRepository));
+        assertThrows(
+                NullPointerException.class,
+                () -> loader = new JStyleLoader(null, layoutPreferences, abbreviationRepository));
     }
 
     @Test
     void throwNPEWithNullLayoutPreferences() {
-        assertThrows(NullPointerException.class, () -> loader = new JStyleLoader(mock(OpenOfficePreferences.class), null, abbreviationRepository));
+        assertThrows(
+                NullPointerException.class,
+                () -> loader = new JStyleLoader(mock(OpenOfficePreferences.class), null, abbreviationRepository));
     }
 
     @Test
     void throwNPEWithNullAbbreviationRepository() {
-        assertThrows(NullPointerException.class, () -> loader = new JStyleLoader(mock(OpenOfficePreferences.class), layoutPreferences, null));
+        assertThrows(
+                NullPointerException.class,
+                () -> loader = new JStyleLoader(mock(OpenOfficePreferences.class), layoutPreferences, null));
     }
 
     @Test

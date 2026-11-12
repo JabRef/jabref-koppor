@@ -1,5 +1,6 @@
 package org.jabref.logic.importer;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Comparator;
@@ -14,20 +15,18 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiPredicate;
-
 import org.jabref.logic.net.URLDownload;
 import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
-
-import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /// Utility class for trying to resolve URLs to full-text PDF for articles.
 ///
-/// Combines multiple [FulltextFetcher]s together. Each fetcher is invoked, the "best" result (sorted by the fetcher trust level) is returned.
+/// Combines multiple [FulltextFetcher]s together. Each fetcher is invoked, the "best" result (sorted by the fetcher
+/// trust level) is returned.
 public class FulltextFetchers {
     private static final Logger LOGGER = LoggerFactory.getLogger(FulltextFetchers.class);
 
@@ -75,21 +74,22 @@ public class FulltextFetchers {
             findDoiForEntry(clonedEntry);
         }
 
-        List<Future<Optional<FetcherResult>>> result = HeadlessExecutorService.INSTANCE.executeAll(getCallables(clonedEntry, fetchers), FETCHER_TIMEOUT, TimeUnit.SECONDS);
+        List<Future<Optional<FetcherResult>>> result = HeadlessExecutorService.INSTANCE.executeAll(
+                getCallables(clonedEntry, fetchers), FETCHER_TIMEOUT, TimeUnit.SECONDS);
 
         return result.stream()
-                     .map(FulltextFetchers::getResults)
-                     .filter(Optional::isPresent)
-                     .map(Optional::get)
-                     .filter(res -> (res.source()) != null)
-                     .max(Comparator.comparingInt((FetcherResult res) -> res.trust().getTrustScore()));
+                .map(FulltextFetchers::getResults)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(res -> (res.source()) != null)
+                .max(Comparator.comparingInt((FetcherResult res) -> res.trust().getTrustScore()));
     }
 
     private void findDoiForEntry(BibEntry clonedEntry) {
         try {
             WebFetchers.getIdFetcherForIdentifier(DOI.class, importerPreferences)
-                       .findIdentifier(clonedEntry)
-                       .ifPresent(e -> clonedEntry.setField(StandardField.DOI, e.asString()));
+                    .findIdentifier(clonedEntry)
+                    .ifPresent(e -> clonedEntry.setField(StandardField.DOI, e.asString()));
         } catch (FetcherException e) {
             LOGGER.debug("Failed to find DOI", e);
         }
@@ -111,8 +111,8 @@ public class FulltextFetchers {
             try {
                 Map<String, String> headers = fetcher.getDownloadHeaders();
                 return fetcher.findFullText(entry)
-                              .filter(url -> isPDF.test(url.toString(), headers))
-                              .map(url -> new FetcherResult(fetcher.getTrustLevel(), url, headers));
+                        .filter(url -> isPDF.test(url.toString(), headers))
+                        .map(url -> new FetcherResult(fetcher.getTrustLevel(), url, headers));
             } catch (IOException | FetcherException e) {
                 LOGGER.debug("Failed to find fulltext PDF at given URL", e);
             }
@@ -121,8 +121,6 @@ public class FulltextFetchers {
     }
 
     private List<Callable<Optional<FetcherResult>>> getCallables(BibEntry entry, Set<FulltextFetcher> fetchers) {
-        return fetchers.stream()
-                       .map(f -> getCallable(entry, f))
-                       .toList();
+        return fetchers.stream().map(f -> getCallable(entry, f)).toList();
     }
 }

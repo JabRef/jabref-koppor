@@ -1,12 +1,11 @@
 package org.jabref.model.study;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class StudyQuery {
     private String query;
@@ -45,10 +44,10 @@ public class StudyQuery {
     /// Returns the first non-blank override for the catalog, matched case-insensitively.
     public Optional<String> getCatalogOverride(String catalogName) {
         return catalogSpecific.entrySet().stream()
-                              .filter(entry -> entry.getKey().equalsIgnoreCase(catalogName))
-                              .map(Map.Entry::getValue)
-                              .filter(value -> value != null && !value.isBlank())
-                              .findFirst();
+                .filter(entry -> entry.getKey().equalsIgnoreCase(catalogName))
+                .map(Map.Entry::getValue)
+                .filter(value -> value != null && !value.isBlank())
+                .findFirst();
     }
 
     @Override
@@ -60,8 +59,7 @@ public class StudyQuery {
             return false;
         }
         StudyQuery that = (StudyQuery) o;
-        return Objects.equals(query, that.query) &&
-                Objects.equals(catalogSpecific, that.catalogSpecific);
+        return Objects.equals(query, that.query) && Objects.equals(catalogSpecific, that.catalogSpecific);
     }
 
     @Override
@@ -71,9 +69,6 @@ public class StudyQuery {
 
     @Override
     public String toString() {
-        return "QueryEntry{" +
-                "query='" + query + '\'' +
-                ", catalogSpecific=" + catalogSpecific +
-                '}';
+        return "QueryEntry{query='" + query + '\'' + ", catalogSpecific=" + catalogSpecific + '}';
     }
 }

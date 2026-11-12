@@ -1,20 +1,18 @@
 package org.jabref.logic.ai.chatting.repositories;
 
-import java.nio.file.Path;
-import java.time.Instant;
-import java.util.List;
-
-import org.jabref.model.ai.chatting.ChatIdentifier;
-import org.jabref.model.ai.chatting.ChatMessage;
-import org.jabref.model.ai.chatting.ChatType;
-
-import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.List;
+import org.jabref.model.ai.chatting.ChatIdentifier;
+import org.jabref.model.ai.chatting.ChatMessage;
+import org.jabref.model.ai.chatting.ChatType;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 // [utest->req~ai.chat.entries.history-storage~1]
 // [utest->req~ai.chat.groups.history-storage~1]
@@ -26,10 +24,7 @@ class ChatHistoryRepositoryTest {
     private static Path tempDir;
 
     static List<ChatHistoryRepository> repositories() {
-        return List.of(
-                new MVStoreChatHistoryRepository(tempDir.resolve("chat-test.mv"), _ -> {
-                })
-        );
+        return List.of(new MVStoreChatHistoryRepository(tempDir.resolve("chat-test.mv"), _ -> {}));
     }
 
     @ParameterizedTest
@@ -54,8 +49,22 @@ class ChatHistoryRepositoryTest {
         ChatMessage second = ChatMessage.aiMessage("second", List.of());
 
         // Add in reverse order to verify sorting
-        repo.addMessage(IDENTIFIER, new ChatMessage(second.id(), Instant.ofEpochMilli(2000), second.role(), second.content(), second.relevantInformation()));
-        repo.addMessage(IDENTIFIER, new ChatMessage(first.id(), Instant.ofEpochMilli(1000), first.role(), first.content(), first.relevantInformation()));
+        repo.addMessage(
+                IDENTIFIER,
+                new ChatMessage(
+                        second.id(),
+                        Instant.ofEpochMilli(2000),
+                        second.role(),
+                        second.content(),
+                        second.relevantInformation()));
+        repo.addMessage(
+                IDENTIFIER,
+                new ChatMessage(
+                        first.id(),
+                        Instant.ofEpochMilli(1000),
+                        first.role(),
+                        first.content(),
+                        first.relevantInformation()));
 
         List<ChatMessage> all = repo.getAllMessages(IDENTIFIER);
         assertEquals("first", all.getFirst().content());

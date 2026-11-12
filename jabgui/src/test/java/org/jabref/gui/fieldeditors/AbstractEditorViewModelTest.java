@@ -1,22 +1,20 @@
 package org.jabref.gui.fieldeditors;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
+import java.util.Optional;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.undo.HeadlessGuiUndoManager;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 /// The editor normalises CRLF for its comparison, because the text control uses `\n` throughout.
 /// What it records has to be what the entry holds, or the change describes a state the library was
@@ -39,7 +37,9 @@ class AbstractEditorViewModelTest {
         assertTrue(journal.canUndo(), "the edit was not recorded");
 
         journal.undo();
-        assertEquals(Optional.of("line one\r\nline two"), entry.getField(StandardField.ABSTRACT),
+        assertEquals(
+                Optional.of("line one\r\nline two"),
+                entry.getField(StandardField.ABSTRACT),
                 "undo did not restore the value the entry actually held");
     }
 

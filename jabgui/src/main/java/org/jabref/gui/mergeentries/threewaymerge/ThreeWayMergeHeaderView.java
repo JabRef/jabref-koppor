@@ -3,7 +3,6 @@ package org.jabref.gui.mergeentries.threewaymerge;
 import javafx.geometry.Insets;
 import javafx.scene.control.Control;
 import javafx.scene.layout.GridPane;
-
 import org.jabref.gui.mergeentries.threewaymerge.cell.HeaderCell;
 import org.jabref.logic.l10n.Localization;
 
@@ -23,19 +22,15 @@ public class ThreeWayMergeHeaderView extends GridPane {
         this.rightHeaderCell = new HeaderCell(rightHeader);
         this.mergedHeaderCell = new HeaderCell(Localization.lang("Merged entry"));
 
-        addRow(0,
-                new HeaderCell(""),
-                leftHeaderCell,
-                rightHeaderCell,
-                mergedHeaderCell
-        );
+        addRow(0, new HeaderCell(""), leftHeaderCell, rightHeaderCell, mergedHeaderCell);
 
         setPrefHeight(Control.USE_COMPUTED_SIZE);
         setMaxHeight(Control.USE_PREF_SIZE);
         setMinHeight(Control.USE_PREF_SIZE);
 
         // The fields grid pane is contained within a scroll pane, thus it doesn't allocate the full available width. In
-        // fact, it uses the available width minus the size of the scrollbar which is 8. This leads to header columns being
+        // fact, it uses the available width minus the size of the scrollbar which is 8. This leads to header columns
+        // being
         // always wider than fields columns. This hack should fix it.
         setPadding(new Insets(0, 8, 0, 0));
     }

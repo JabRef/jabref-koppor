@@ -7,7 +7,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.theme.StyleClasses;
@@ -26,10 +25,11 @@ public class GuiPushToApplicationSettings {
     protected final PushToApplicationPreferences preferences;
     protected final AbstractPushToApplication application;
 
-    public GuiPushToApplicationSettings(PushToApplication application,
-                                        DialogService dialogService,
-                                        FilePreferences filePreferences,
-                                        PushToApplicationPreferences preferences) {
+    public GuiPushToApplicationSettings(
+            PushToApplication application,
+            DialogService dialogService,
+            FilePreferences filePreferences,
+            PushToApplicationPreferences preferences) {
         this.application = (AbstractPushToApplication) application;
         this.preferences = preferences;
 
@@ -61,9 +61,11 @@ public class GuiPushToApplicationSettings {
         settingsPane.add(path, 1, 0);
 
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
-                .withInitialDirectory(filePreferences.getWorkingDirectory()).build();
-        browse.setOnAction(_ -> dialogService.showFileOpenDialog(fileDialogConfiguration)
-                                             .ifPresent(f -> path.setText(f.toAbsolutePath().toString())));
+                .withInitialDirectory(filePreferences.getWorkingDirectory())
+                .build();
+        browse.setOnAction(_ -> dialogService
+                .showFileOpenDialog(fileDialogConfiguration)
+                .ifPresent(f -> path.setText(f.toAbsolutePath().toString())));
         settingsPane.add(browse, 2, 0);
 
         ColumnConstraints textConstraints = new ColumnConstraints();

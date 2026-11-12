@@ -1,16 +1,14 @@
 package org.jabref.logic.bibtex.comparator;
 
-import java.util.Optional;
-
-import org.jabref.model.database.BibDatabase;
-import org.jabref.model.database.BibDatabaseContext;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import org.jabref.model.database.BibDatabase;
+import org.jabref.model.database.BibDatabaseContext;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class PreambleDiffTest {
 

@@ -1,5 +1,7 @@
 package org.jabref.logic.importer;
 
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,13 +15,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Objects;
-
 import org.jabref.logic.util.FileType;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseModeDetection;
-
-import com.ibm.icu.text.CharsetDetector;
-import com.ibm.icu.text.CharsetMatch;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +30,8 @@ public abstract class Importer implements Comparable<Importer> {
 
     /// Check whether the source is in the correct format for this importer.
     ///
-    /// All implementations need to reset the input stream to the beginning again - to enable importing at subsequent calls.
+    /// All implementations need to reset the input stream to the beginning again - to enable importing at subsequent
+    /// calls.
     ///
     /// The effect of this method is primarily to avoid unnecessary processing of files when searching for a suitable
     /// import format. If this method returns false, the import routine will move on to the next import format.
@@ -68,7 +67,7 @@ public abstract class Importer implements Comparable<Importer> {
     /// @throws IOException Signals that an I/O exception has occurred.
     public boolean isRecognizedFormat(String data) throws IOException {
         try (Reader reader = Reader.of(data);
-             BufferedReader bufferedReader = new BufferedReader(reader)) {
+                BufferedReader bufferedReader = new BufferedReader(reader)) {
             return isRecognizedFormat(bufferedReader);
         }
     }
@@ -95,7 +94,8 @@ public abstract class Importer implements Comparable<Importer> {
     /// 2. Override the method [Importer#importDatabase(Path)].
     /// Example of this workaround is in: [org.jabref.logic.importer.fileformat.pdf.PdfImporter].
     ///
-    /// @param input the input to read from - there is no reset done. "BufferedReader" is only a convenience for the implementation
+    /// @param input the input to read from - there is no reset done. "BufferedReader" is only a convenience for the
+    /// implementation
     public abstract ParserResult importDatabase(BufferedReader input) throws IOException;
 
     /// Parse the database in the specified file.
@@ -124,7 +124,8 @@ public abstract class Importer implements Comparable<Importer> {
         Charset defaultCharSet = StandardCharsets.UTF_8;
 
         // This reads the first 8000 bytes only, thus the default size of 8192 of the bufferedInputStream is OK.
-        // See https://github.com/unicode-org/icu/blob/06ef8867f35befee7340e35082fefc9d3561d230/icu4j/main/classes/core/src/com/ibm/icu/text/CharsetDetector.java#L125 for details
+        // See
+        // https://github.com/unicode-org/icu/blob/06ef8867f35befee7340e35082fefc9d3561d230/icu4j/main/classes/core/src/com/ibm/icu/text/CharsetDetector.java#L125 for details
         CharsetDetector charsetDetector = new CharsetDetector();
         try {
             charsetDetector.setText(bufferedInputStream);
@@ -143,7 +144,9 @@ public abstract class Importer implements Comparable<Importer> {
                 }
 
                 // If we have UTF-8 with 100 confidence or any ASCII candidate, UTF-8 is the safer fallback.
-                if (Arrays.stream(matches).anyMatch(charset -> "ASCII".equals(charset.getName()) || ("UTF-8".equals(charset.getName()) && charset.getConfidence() == 100))) {
+                if (Arrays.stream(matches)
+                        .anyMatch(charset -> "ASCII".equals(charset.getName())
+                                || ("UTF-8".equals(charset.getName()) && charset.getConfidence() == 100))) {
                     return defaultCharSet;
                 }
                 return Charset.forName(topMatch);
@@ -156,7 +159,8 @@ public abstract class Importer implements Comparable<Importer> {
 
     /// Parse the database in the specified string.
     ///
-    /// Importer having the facilities to detect the correct encoding of a string should overwrite this method, determine
+    /// Importer having the facilities to detect the correct encoding of a string should overwrite this method,
+    /// determine
     /// the encoding and then call [#importDatabase(BufferedReader)].
     ///
     /// @param data the string which should be imported
@@ -164,7 +168,7 @@ public abstract class Importer implements Comparable<Importer> {
     /// @throws IOException Signals that an I/O exception has occurred.
     public ParserResult importDatabase(String data) throws IOException {
         try (Reader reader = Reader.of(data);
-             BufferedReader bufferedReader = new BufferedReader(reader)) {
+                BufferedReader bufferedReader = new BufferedReader(reader)) {
             return importDatabase(bufferedReader);
         }
     }
@@ -186,7 +190,8 @@ public abstract class Importer implements Comparable<Importer> {
         return new BufferedReader(reader);
     }
 
-    /// Returns a <a href="https://developer.mozilla.org/en-US/docs/Glossary/Slug">slug</a>, which identifies this importer.
+    /// Returns a <a href="https://developer.mozilla.org/en-US/docs/Glossary/Slug">slug</a>, which identifies this
+    /// importer.
     /// Used, for example, to identify the importer in CLI.
     ///
     /// Typically, this name should be short, in English, and should not contain special characters like #, %, etc.

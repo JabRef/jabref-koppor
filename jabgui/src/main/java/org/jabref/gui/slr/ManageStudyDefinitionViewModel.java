@@ -10,14 +10,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.WorkspacePreferences;
 import org.jabref.gui.util.DirectoryDialogConfiguration;
@@ -40,8 +39,6 @@ import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.study.Study;
 import org.jabref.model.study.StudyCatalog;
 import org.jabref.model.study.StudyQuery;
-
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,9 +62,8 @@ public class ManageStudyDefinitionViewModel {
     private final Map<String, String> mixedNativeQueries = new HashMap<>();
 
     // Observe changes to each item's enabledProperty so bindings re-evaluate when catalogs are toggled
-    private final ObservableList<StudyCatalogItem> catalogs = FXCollections.observableArrayList(
-            item -> new javafx.beans.Observable[] {item.enabledProperty()}
-    );
+    private final ObservableList<StudyCatalogItem> catalogs =
+            FXCollections.observableArrayList(item -> new javafx.beans.Observable[] {item.enabledProperty()});
 
     // Hold the complement of databases for the selector
     private final SimpleStringProperty directory = new SimpleStringProperty();
@@ -85,22 +81,23 @@ public class ManageStudyDefinitionViewModel {
     private final StringProperty validationHeaderMessage = new SimpleStringProperty();
 
     /// Constructor for a new study
-    public ManageStudyDefinitionViewModel(ImportFormatPreferences importFormatPreferences,
-                                          ImporterPreferences importerPreferences,
-                                          @NonNull WorkspacePreferences workspacePreferences,
-                                          @NonNull GitPreferences gitPreferences,
-                                          @NonNull DialogService dialogService) {
-        catalogs.addAll(WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences)
-                                   .stream()
-                                   .map(SearchBasedFetcher::getName)
-                                   // The user wants to select specific fetchers
-                                   // The fetcher summarizing ALL fetchers can be emulated by selecting ALL fetchers (which happens rarely when doing an SLR)
-                                   .filter(name -> !CompositeSearchBasedFetcher.FETCHER_NAME.equals(name))
-                                   .map(name -> {
-                                       boolean enabled = DEFAULT_SELECTION.contains(name);
-                                       return new StudyCatalogItem(name, enabled);
-                                   })
-                                   .toList());
+    public ManageStudyDefinitionViewModel(
+            ImportFormatPreferences importFormatPreferences,
+            ImporterPreferences importerPreferences,
+            @NonNull WorkspacePreferences workspacePreferences,
+            @NonNull GitPreferences gitPreferences,
+            @NonNull DialogService dialogService) {
+        catalogs.addAll(WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences).stream()
+                .map(SearchBasedFetcher::getName)
+                // The user wants to select specific fetchers
+                // The fetcher summarizing ALL fetchers can be emulated by selecting ALL fetchers (which happens rarely
+                // when doing an SLR)
+                .filter(name -> !CompositeSearchBasedFetcher.FETCHER_NAME.equals(name))
+                .map(name -> {
+                    boolean enabled = DEFAULT_SELECTION.contains(name);
+                    return new StudyCatalogItem(name, enabled);
+                })
+                .toList());
         this.dialogService = dialogService;
         this.workspacePreferences = workspacePreferences;
         this.gitPreferences = gitPreferences;
@@ -112,35 +109,36 @@ public class ManageStudyDefinitionViewModel {
     ///
     /// @param study          The study to initialize the UI from
     /// @param studyDirectory The path where the study resides
-    public ManageStudyDefinitionViewModel(@NonNull Study study,
-                                          @NonNull Path studyDirectory,
-                                          ImportFormatPreferences importFormatPreferences,
-                                          ImporterPreferences importerPreferences,
-                                          @NonNull WorkspacePreferences workspacePreferences,
-                                          @NonNull GitPreferences gitPreferences,
-                                          @NonNull DialogService dialogService) {
+    public ManageStudyDefinitionViewModel(
+            @NonNull Study study,
+            @NonNull Path studyDirectory,
+            ImportFormatPreferences importFormatPreferences,
+            ImporterPreferences importerPreferences,
+            @NonNull WorkspacePreferences workspacePreferences,
+            @NonNull GitPreferences gitPreferences,
+            @NonNull DialogService dialogService) {
         this.gitPreferences = gitPreferences;
         // copy the content of the study object into the UI fields
         authors.addAll(study.getAuthors());
         title.setValue(study.getTitle());
         researchQuestions.addAll(study.getResearchQuestions());
         queries.addAll(study.getQueries());
-        Map<String, StudyCatalog> catalogsByName = study.getCatalogs().stream()
-                                                        .collect(Collectors.toMap(StudyCatalog::getName, catalog -> catalog));
-        catalogs.addAll(WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences)
-                                   .stream()
-                                   .map(SearchBasedFetcher::getName)
-                                   // The user wants to select specific fetchers
-                                   // The fetcher summarizing ALL fetchers can be emulated by selecting ALL fetchers (which happens rarely when doing an SLR)
-                                   .filter(name -> !CompositeSearchBasedFetcher.FETCHER_NAME.equals(name))
-                                   .map(name -> {
-                                       StudyCatalog savedCatalog = catalogsByName.get(name);
-                                       boolean enabled = savedCatalog != null && savedCatalog.isEnabled();
-                                       String reason = savedCatalog != null ? savedCatalog.getReason() : "";
-                                       String nativeQuery = loadNativeQuery(name);
-                                       return new StudyCatalogItem(name, enabled, reason, nativeQuery);
-                                   })
-                                   .toList());
+        Map<String, StudyCatalog> catalogsByName =
+                study.getCatalogs().stream().collect(Collectors.toMap(StudyCatalog::getName, catalog -> catalog));
+        catalogs.addAll(WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences).stream()
+                .map(SearchBasedFetcher::getName)
+                // The user wants to select specific fetchers
+                // The fetcher summarizing ALL fetchers can be emulated by selecting ALL fetchers (which happens rarely
+                // when doing an SLR)
+                .filter(name -> !CompositeSearchBasedFetcher.FETCHER_NAME.equals(name))
+                .map(name -> {
+                    StudyCatalog savedCatalog = catalogsByName.get(name);
+                    boolean enabled = savedCatalog != null && savedCatalog.isEnabled();
+                    String reason = savedCatalog != null ? savedCatalog.getReason() : "";
+                    String nativeQuery = loadNativeQuery(name);
+                    return new StudyCatalogItem(name, enabled, reason, nativeQuery);
+                })
+                .toList());
 
         this.directory.set(studyDirectory.toString());
         this.workspacePreferences = workspacePreferences;
@@ -152,13 +150,13 @@ public class ManageStudyDefinitionViewModel {
     /// Returns the native query to show for the catalog and records it if the queries differ.
     private String loadNativeQuery(String catalogName) {
         List<String> nativeQueries = queries.stream()
-                                            .map(query -> query.getCatalogOverride(catalogName).orElse(""))
-                                            .distinct()
-                                            .toList();
+                .map(query -> query.getCatalogOverride(catalogName).orElse(""))
+                .distinct()
+                .toList();
         String nativeQuery = nativeQueries.stream()
-                                          .filter(StringUtil::isNotBlank)
-                                          .findFirst()
-                                          .orElse("");
+                .filter(StringUtil::isNotBlank)
+                .findFirst()
+                .orElse("");
         if (nativeQueries.size() > 1) {
             mixedNativeQueries.put(catalogName, nativeQuery);
         }
@@ -167,41 +165,36 @@ public class ManageStudyDefinitionViewModel {
 
     private void initializeValidationBindings() {
         titleValidationMessage.bind(Bindings.when(title.isEmpty())
-                                            .then(Localization.lang("Study title is required"))
-                                            .otherwise(""));
+                .then(Localization.lang("Study title is required"))
+                .otherwise(""));
 
         authorsValidationMessage.bind(Bindings.when(Bindings.isEmpty(authors))
-                                              .then(Localization.lang("At least one author is required"))
-                                              .otherwise(""));
+                .then(Localization.lang("At least one author is required"))
+                .otherwise(""));
 
         questionsValidationMessage.bind(Bindings.when(Bindings.isEmpty(researchQuestions))
-                                                .then(Localization.lang("At least one research question is required"))
-                                                .otherwise(""));
+                .then(Localization.lang("At least one research question is required"))
+                .otherwise(""));
 
         queriesValidationMessage.bind(Bindings.when(Bindings.isEmpty(queries))
-                                              .then(Localization.lang("At least one query is required"))
-                                              .otherwise(""));
+                .then(Localization.lang("At least one query is required"))
+                .otherwise(""));
 
-        catalogsValidationMessage.bind(Bindings.when(
-                                                       Bindings.createBooleanBinding(() ->
-                                                               catalogs.stream().noneMatch(StudyCatalogItem::isEnabled), catalogs))
-                                               .then(Localization.lang("At least one catalog must be selected"))
-                                               .otherwise(""));
+        catalogsValidationMessage.bind(Bindings.when(Bindings.createBooleanBinding(
+                        () -> catalogs.stream().noneMatch(StudyCatalogItem::isEnabled), catalogs))
+                .then(Localization.lang("At least one catalog must be selected"))
+                .otherwise(""));
 
-        validationHeaderMessage.bind(Bindings.when(
-                                                     Bindings.or(
-                                                             Bindings.or(
-                                                                     Bindings.or(
-                                                                             Bindings.or(title.isEmpty(), Bindings.isEmpty(authors)),
-                                                                             Bindings.isEmpty(researchQuestions)
-                                                                     ),
-                                                                     Bindings.isEmpty(queries)
-                                                             ),
-                                                             Bindings.createBooleanBinding(() ->
-                                                                     catalogs.stream().noneMatch(StudyCatalogItem::isEnabled), catalogs)
-                                                     ))
-                                             .then(Localization.lang("In order to proceed:"))
-                                             .otherwise(""));
+        validationHeaderMessage.bind(Bindings.when(Bindings.or(
+                        Bindings.or(
+                                Bindings.or(
+                                        Bindings.or(title.isEmpty(), Bindings.isEmpty(authors)),
+                                        Bindings.isEmpty(researchQuestions)),
+                                Bindings.isEmpty(queries)),
+                        Bindings.createBooleanBinding(
+                                () -> catalogs.stream().noneMatch(StudyCatalogItem::isEnabled), catalogs)))
+                .then(Localization.lang("In order to proceed:"))
+                .otherwise(""));
     }
 
     public StringProperty getTitle() {
@@ -266,18 +259,17 @@ public class ManageStudyDefinitionViewModel {
             new StudyYamlParser().writeStudyYamlFile(study, studyDefinitionFile);
         } catch (IOException e) {
             LOGGER.error("Could not write study file {}", studyDefinitionFile, e);
-            dialogService.notify(Localization.lang("Please enter a valid file path.") +
-                    ": " + studyDirectoryAsString);
+            dialogService.notify(Localization.lang("Please enter a valid file path.") + ": " + studyDirectoryAsString);
             // We do not assume another path - we return that there is an invalid object.
             return null;
         }
 
         try {
-            new GitHandler(studyDirectory, gitPreferences).createCommitOnCurrentBranch("Update study definition", false);
+            new GitHandler(studyDirectory, gitPreferences)
+                    .createCommitOnCurrentBranch("Update study definition", false);
         } catch (IOException | GitAPIException e) {
             LOGGER.error("Could not commit study definition file in directory {}", studyDirectory, e);
-            dialogService.notify(Localization.lang("Please enter a valid file path.") +
-                    ": " + studyDirectory);
+            dialogService.notify(Localization.lang("Please enter a valid file path.") + ": " + studyDirectory);
             // We continue nevertheless as the directory itself could be valid
         }
 
@@ -301,21 +293,23 @@ public class ManageStudyDefinitionViewModel {
     private List<StudyQuery> buildQueries() {
         // Keep differing per-query overrides unless the user edited the cell
         List<StudyCatalogItem> catalogsToApply = catalogs.stream()
-                                                         .filter(StudyCatalogItem::isEnabled)
-                                                         .filter(catalog -> !catalog.getNativeQuery().equals(mixedNativeQueries.get(catalog.getName())))
-                                                         .toList();
-        return queries.stream().map(query -> {
-            Map<String, String> catalogSpecific = new LinkedHashMap<>(query.getCatalogSpecific());
-            for (StudyCatalogItem catalog : catalogsToApply) {
-                catalogSpecific.keySet().removeIf(key -> key.equalsIgnoreCase(catalog.getName()));
-                if (StringUtil.isNotBlank(catalog.getNativeQuery())) {
-                    catalogSpecific.put(catalog.getName(), catalog.getNativeQuery());
-                }
-            }
-            StudyQuery copy = new StudyQuery(query.getQuery());
-            copy.setCatalogSpecific(catalogSpecific);
-            return copy;
-        }).toList();
+                .filter(StudyCatalogItem::isEnabled)
+                .filter(catalog -> !catalog.getNativeQuery().equals(mixedNativeQueries.get(catalog.getName())))
+                .toList();
+        return queries.stream()
+                .map(query -> {
+                    Map<String, String> catalogSpecific = new LinkedHashMap<>(query.getCatalogSpecific());
+                    for (StudyCatalogItem catalog : catalogsToApply) {
+                        catalogSpecific.keySet().removeIf(key -> key.equalsIgnoreCase(catalog.getName()));
+                        if (StringUtil.isNotBlank(catalog.getNativeQuery())) {
+                            catalogSpecific.put(catalog.getName(), catalog.getNativeQuery());
+                        }
+                    }
+                    StudyQuery copy = new StudyQuery(query.getQuery());
+                    copy.setCatalogSpecific(catalogSpecific);
+                    return copy;
+                })
+                .toList();
     }
 
     public Property<String> titleProperty() {
@@ -323,7 +317,10 @@ public class ManageStudyDefinitionViewModel {
     }
 
     public void setStudyDirectory(Optional<Path> studyRepositoryRoot) {
-        getDirectory().setValue(studyRepositoryRoot.map(Path::toString).orElseGet(() -> getDirectory().getValueSafe()));
+        getDirectory()
+                .setValue(studyRepositoryRoot
+                        .map(Path::toString)
+                        .orElseGet(() -> getDirectory().getValueSafe()));
     }
 
     public void deleteAuthor(String item) {
@@ -347,9 +344,9 @@ public class ManageStudyDefinitionViewModel {
 
     public void updateSelectedCatalogs() {
         List<String> selectedCatalogsList = catalogs.stream()
-                                                    .filter(StudyCatalogItem::isEnabled)
-                                                    .map(StudyCatalogItem::getName)
-                                                    .toList();
+                .filter(StudyCatalogItem::isEnabled)
+                .map(StudyCatalogItem::getName)
+                .toList();
 
         workspacePreferences.setSelectedSlrCatalogs(selectedCatalogsList);
     }

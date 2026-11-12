@@ -1,21 +1,19 @@
 package org.jabref.logic.importer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import org.jabref.logic.importer.fileformat.BibtexParser;
 import org.jabref.model.database.BibDatabase;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 class BibDatabaseFilesTest {
 
@@ -29,7 +27,7 @@ class BibDatabaseFilesTest {
     @Test
     void resolveStrings() throws IOException {
         try (InputStream stream = Files.newInputStream(Path.of("src/test/resources/org/jabref/util/twente.bib"));
-             InputStreamReader fr = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+                InputStreamReader fr = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             ParserResult result = new BibtexParser(importFormatPreferences).parse(fr);
 
             BibDatabase db = result.getDatabase();

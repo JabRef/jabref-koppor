@@ -9,16 +9,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldProperty;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NonNull;
 
 public class ContentSelectors {
 
-    public static final List<Field> DEFAULT_FIELD_NAMES = List.of(StandardField.AUTHOR, StandardField.JOURNAL, StandardField.KEYWORDS, StandardField.PUBLISHER);
+    public static final List<Field> DEFAULT_FIELD_NAMES =
+            List.of(StandardField.AUTHOR, StandardField.JOURNAL, StandardField.KEYWORDS, StandardField.PUBLISHER);
 
     private final SortedSet<ContentSelector> contentSelectors;
 
@@ -31,9 +30,12 @@ public class ContentSelectors {
             }
 
             // If the field names are equal, compare the properties
-            // We did not find any other way to compare enum sets, so we convert them to lists and compare them using the toString method
-            List<FieldProperty> properties1 = o1.getField().getProperties().stream().sorted().toList();
-            List<FieldProperty> properties2 = o2.getField().getProperties().stream().sorted().toList();
+            // We did not find any other way to compare enum sets, so we convert them to lists and compare them using
+            // the toString method
+            List<FieldProperty> properties1 =
+                    o1.getField().getProperties().stream().sorted().toList();
+            List<FieldProperty> properties2 =
+                    o2.getField().getProperties().stream().sorted().toList();
             return properties1.toString().compareTo(properties2.toString());
         });
     }
@@ -111,13 +113,13 @@ public class ContentSelectors {
 
     @Override
     public String toString() {
-        return "ContentSelectors{" +
-                "contentSelectors=" + contentSelectors +
-                ", fieldsWithSelectors=" + getFieldsWithSelectors() +
-                '}';
+        return "ContentSelectors{contentSelectors="
+                + contentSelectors + ", fieldsWithSelectors="
+                + getFieldsWithSelectors() + '}';
     }
 
-    /// Checks whether the given map is the default map, i.e. contains only the default field names and no associated keywords.
+    /// Checks whether the given map is the default map, i.e. contains only the default field names and no associated
+    /// keywords.
     public static boolean isDefaultMap(Map<Field, List<String>> fieldKeywordsMap) {
         if (fieldKeywordsMap.size() != ContentSelectors.DEFAULT_FIELD_NAMES.size()) {
             return false;
@@ -135,9 +137,8 @@ public class ContentSelectors {
 
     public static Map<Field, List<String>> getFieldKeywordsMap(SortedSet<ContentSelector> contentSelectors) {
         final Map<Field, List<String>> fieldKeywordsMap = new HashMap<>();
-        contentSelectors.forEach(
-                existingContentSelector -> fieldKeywordsMap.put(existingContentSelector.getField(), new ArrayList<>(existingContentSelector.getValues()))
-        );
+        contentSelectors.forEach(existingContentSelector -> fieldKeywordsMap.put(
+                existingContentSelector.getField(), new ArrayList<>(existingContentSelector.getValues())));
         return fieldKeywordsMap;
     }
 }

@@ -2,7 +2,6 @@ package org.jabref.gui.preferences.externalfiletypes;
 
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
@@ -27,11 +26,16 @@ public class ExternalFileTypesTab extends AbstractPreferenceTabView<ExternalFile
     }
 
     private void buildView() {
-        setContent(form()
-                .table(buildFileTypesTable())
+        setContent(form().table(buildFileTypesTable())
                 .buttonRow(
-                        ControlHelper.labelledIconButton(IconTheme.JabRefIcons.ADD_NOBOX, Localization.lang("Add new file type"), this::addNewType),
-                        ControlHelper.labelledIconButton(IconTheme.JabRefIcons.REFRESH, Localization.lang("Reset to default"), viewModel::resetToDefaults))
+                        ControlHelper.labelledIconButton(
+                                IconTheme.JabRefIcons.ADD_NOBOX,
+                                Localization.lang("Add new file type"),
+                                this::addNewType),
+                        ControlHelper.labelledIconButton(
+                                IconTheme.JabRefIcons.REFRESH,
+                                Localization.lang("Reset to default"),
+                                viewModel::resetToDefaults))
                 .build());
     }
 
@@ -54,21 +58,24 @@ public class ExternalFileTypesTab extends AbstractPreferenceTabView<ExternalFile
                 .withText(name -> name)
                 .install(nameColumn);
 
-        TableColumn<ExternalFileTypeItemViewModel, String> extensionColumn = new TableColumn<>(Localization.lang("Extension"));
+        TableColumn<ExternalFileTypeItemViewModel, String> extensionColumn =
+                new TableColumn<>(Localization.lang("Extension"));
         extensionColumn.setPrefWidth(120.0);
         extensionColumn.setCellValueFactory(cellData -> cellData.getValue().extensionProperty());
         new ValueTableCellFactory<ExternalFileTypeItemViewModel, String>()
                 .withText(extension -> extension)
                 .install(extensionColumn);
 
-        TableColumn<ExternalFileTypeItemViewModel, String> mimeTypeColumn = new TableColumn<>(Localization.lang("MIME type"));
+        TableColumn<ExternalFileTypeItemViewModel, String> mimeTypeColumn =
+                new TableColumn<>(Localization.lang("MIME type"));
         mimeTypeColumn.setPrefWidth(150.0);
         mimeTypeColumn.setCellValueFactory(cellData -> cellData.getValue().mimetypeProperty());
         new ValueTableCellFactory<ExternalFileTypeItemViewModel, String>()
                 .withText(mimetype -> mimetype)
                 .install(mimeTypeColumn);
 
-        TableColumn<ExternalFileTypeItemViewModel, String> applicationColumn = new TableColumn<>(Localization.lang("Application"));
+        TableColumn<ExternalFileTypeItemViewModel, String> applicationColumn =
+                new TableColumn<>(Localization.lang("Application"));
         applicationColumn.setPrefWidth(100.0);
         applicationColumn.setCellValueFactory(cellData -> cellData.getValue().applicationProperty());
         new ValueTableCellFactory<ExternalFileTypeItemViewModel, String>()

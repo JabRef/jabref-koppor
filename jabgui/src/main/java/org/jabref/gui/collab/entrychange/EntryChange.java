@@ -13,12 +13,17 @@ public final class EntryChange extends DatabaseChange {
     private final BibEntry oldEntry;
     private final BibEntry newEntry;
 
-    public EntryChange(BibEntry oldEntry, BibEntry newEntry, BibDatabaseContext databaseContext, DatabaseChangeResolverFactory databaseChangeResolverFactory) {
+    public EntryChange(
+            BibEntry oldEntry,
+            BibEntry newEntry,
+            BibDatabaseContext databaseContext,
+            DatabaseChangeResolverFactory databaseChangeResolverFactory) {
         super(databaseContext, databaseChangeResolverFactory);
         this.oldEntry = oldEntry;
         this.newEntry = newEntry;
-        setChangeName(oldEntry.getCitationKey().map(key -> Localization.lang("Modified entry '%0'", key))
-                              .orElse(Localization.lang("Modified entry")));
+        setChangeName(oldEntry.getCitationKey()
+                .map(key -> Localization.lang("Modified entry '%0'", key))
+                .orElse(Localization.lang("Modified entry")));
     }
 
     public EntryChange(BibEntry oldEntry, BibEntry newEntry, BibDatabaseContext databaseContext) {

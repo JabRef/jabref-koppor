@@ -3,7 +3,6 @@ package org.jabref.logic.cleanup;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
@@ -22,15 +21,21 @@ public class ConvertToBibtexCleanup implements CleanupJob {
         // If there already exists a non blank/empty value for the field, then it is not overwritten
         entry.getPublicationDate().ifPresent(date -> {
             if (StringUtil.isBlank(entry.getField(StandardField.YEAR))) {
-                date.getYear().flatMap(year -> entry.setField(StandardField.YEAR, year.toString())).ifPresent(changes::add);
+                date.getYear()
+                        .flatMap(year -> entry.setField(StandardField.YEAR, year.toString()))
+                        .ifPresent(changes::add);
             }
 
             if (StringUtil.isBlank(entry.getField(StandardField.MONTH))) {
-                date.getMonth().flatMap(month -> entry.setField(StandardField.MONTH, month.getJabRefFormat())).ifPresent(changes::add);
+                date.getMonth()
+                        .flatMap(month -> entry.setField(StandardField.MONTH, month.getJabRefFormat()))
+                        .ifPresent(changes::add);
             }
 
             if (StringUtil.isBlank(entry.getField(StandardField.YEARDIVISION))) {
-                date.getSeason().flatMap(season -> entry.setField(StandardField.YEARDIVISION, season.getName())).ifPresent(changes::add);
+                date.getSeason()
+                        .flatMap(season -> entry.setField(StandardField.YEARDIVISION, season.getName()))
+                        .ifPresent(changes::add);
             }
 
             if (!changes.isEmpty()) {

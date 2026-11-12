@@ -1,7 +1,8 @@
 package org.jabref.gui.ai.chat;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import java.nio.file.Path;
-
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -13,7 +14,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.ValueTableCellFactory;
@@ -28,9 +28,6 @@ import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 import org.jabref.model.ai.pipeline.ResponseEngineKind;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
 
 /// Displays status and metadata for an AI chat session.
 ///
@@ -59,30 +56,50 @@ import jakarta.inject.Inject;
 // [impl->feat~ai.chat.ingestion-status~1]
 public class AiChatStatusView extends VBox {
     // [impl->req~ai.chat.model-visibility~1]
-    @FXML private Label chatModelLabel;
+    @FXML
+    private Label chatModelLabel;
 
-    @FXML private TableView<FullBibEntry> entriesTable;
-    @FXML private TableColumn<FullBibEntry, String> libraryColumn;
-    @FXML private TableColumn<FullBibEntry, String> citationKeyColumn;
+    @FXML
+    private TableView<FullBibEntry> entriesTable;
 
-    @FXML private TableView<AiChatStatusViewModel.IngestionStatusRow> ingestionTable;
-    @FXML private TableColumn<AiChatStatusViewModel.IngestionStatusRow, String> fileColumn;
-    @FXML private TableColumn<AiChatStatusViewModel.IngestionStatusRow, AiChatStatusViewModel.FileStatus> statusColumn;
-    @FXML private TableColumn<AiChatStatusViewModel.IngestionStatusRow, AiChatStatusViewModel.IngestionStatusRow> actionColumn;
+    @FXML
+    private TableColumn<FullBibEntry, String> libraryColumn;
 
-    @FXML private ComboBox<ResponseEngineKind> responseEngineComboBox;
+    @FXML
+    private TableColumn<FullBibEntry, String> citationKeyColumn;
 
-    @Inject private GuiPreferences preferences;
-    @Inject private AiService aiService;
-    @Inject private DialogService dialogService;
-    @Inject private BibEntryTypesManager entryTypesManager;
+    @FXML
+    private TableView<AiChatStatusViewModel.IngestionStatusRow> ingestionTable;
+
+    @FXML
+    private TableColumn<AiChatStatusViewModel.IngestionStatusRow, String> fileColumn;
+
+    @FXML
+    private TableColumn<AiChatStatusViewModel.IngestionStatusRow, AiChatStatusViewModel.FileStatus> statusColumn;
+
+    @FXML
+    private TableColumn<AiChatStatusViewModel.IngestionStatusRow, AiChatStatusViewModel.IngestionStatusRow>
+            actionColumn;
+
+    @FXML
+    private ComboBox<ResponseEngineKind> responseEngineComboBox;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private AiService aiService;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private BibEntryTypesManager entryTypesManager;
 
     private AiChatStatusViewModel viewModel;
 
     public AiChatStatusView() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @FXML
@@ -94,8 +111,7 @@ public class AiChatStatusView extends VBox {
                 entryTypesManager,
                 dialogService,
                 aiService.getEmbeddingModelCache(),
-                aiService.getEmbeddingsStore()
-        );
+                aiService.getEmbeddingsStore());
 
         setupEntriesTable();
         setupIngestionTable();
@@ -105,26 +121,16 @@ public class AiChatStatusView extends VBox {
     private void setupEntriesTable() {
         entriesTable.itemsProperty().bind(viewModel.entriesProperty());
 
-        citationKeyColumn.setCellValueFactory(cellData ->
-                new ReadOnlyStringWrapper(
-                        cellData.getValue().entry().getCitationKey().orElse("")
-                )
-        );
-        new ValueTableCellFactory<FullBibEntry, String>()
-                .withText(text -> text)
-                .install(citationKeyColumn);
+        citationKeyColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(
+                cellData.getValue().entry().getCitationKey().orElse("")));
+        new ValueTableCellFactory<FullBibEntry, String>().withText(text -> text).install(citationKeyColumn);
 
-        libraryColumn.setCellValueFactory(cellData ->
-                new ReadOnlyStringWrapper(
-                        cellData.getValue().databaseContext()
-                                .getDatabasePath()
-                                .map(Path::toString)
-                                .orElse("")
-                )
-        );
-        new ValueTableCellFactory<FullBibEntry, String>()
-                .withText(text -> text)
-                .install(libraryColumn);
+        libraryColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue()
+                .databaseContext()
+                .getDatabasePath()
+                .map(Path::toString)
+                .orElse("")));
+        new ValueTableCellFactory<FullBibEntry, String>().withText(text -> text).install(libraryColumn);
     }
 
     private void setupIngestionTable() {
@@ -153,12 +159,8 @@ public class AiChatStatusView extends VBox {
 
     private Button constructErrorButton(AiChatStatusViewModel.IngestionStatusRow row) {
         Button errorButton = new Button(Localization.lang("Show Error"));
-        errorButton.setOnAction(_ ->
-                dialogService.showErrorDialogAndWait(
-                        Localization.lang("Ingestion Error"),
-                        row.getError()
-                )
-        );
+        errorButton.setOnAction(
+                _ -> dialogService.showErrorDialogAndWait(Localization.lang("Ingestion Error"), row.getError()));
         return errorButton;
     }
 

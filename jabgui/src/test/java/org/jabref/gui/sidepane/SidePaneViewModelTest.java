@@ -1,12 +1,15 @@
 package org.jabref.gui.sidepane;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
@@ -23,15 +26,9 @@ import org.jabref.logic.util.OptionalObjectProperty;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(JavaFxExtension.class)
 class SidePaneViewModelTest {
@@ -114,6 +111,7 @@ class SidePaneViewModelTest {
 
         sidePaneComponents.sort(new SidePaneViewModel.PreferredIndexSort(sidePanePreferences));
 
-        assertTrue(sidePaneComponents.getFirst() == SidePaneType.OPEN_OFFICE && sidePaneComponents.get(2) == SidePaneType.GROUPS);
+        assertTrue(sidePaneComponents.getFirst() == SidePaneType.OPEN_OFFICE
+                && sidePaneComponents.get(2) == SidePaneType.GROUPS);
     }
 }

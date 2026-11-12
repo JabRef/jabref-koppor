@@ -1,5 +1,14 @@
 package org.jabref.logic.ai.chatting;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -12,7 +21,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import org.jabref.logic.ai.chatting.repositories.ChatHistoryRepository;
 import org.jabref.logic.ai.chatting.util.ChatHistoryUtils;
 import org.jabref.model.ai.chatting.ChatIdentifier;
@@ -24,19 +32,9 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.groups.AllEntriesGroup;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 class InMemoryChatHistoryCacheTest {
 
@@ -123,7 +121,11 @@ class InMemoryChatHistoryCacheTest {
         assertTrue(fakeRepository.awaitCommit());
 
         ChatIdentifier id = new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Write2024");
-        assertEquals(List.of("written through"), fakeRepository.getAllMessages(id).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("written through"),
+                fakeRepository.getAllMessages(id).stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
@@ -140,11 +142,19 @@ class InMemoryChatHistoryCacheTest {
 
         ChatHistoryUtils.delete(history, third.id());
         assertTrue(fakeRepository.awaitCommit());
-        assertEquals(List.of("first", "second"), fakeRepository.getAllMessages(id).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("first", "second"),
+                fakeRepository.getAllMessages(id).stream()
+                        .map(ChatMessage::content)
+                        .toList());
 
         ChatHistoryUtils.regenerate(history, second.id());
         assertTrue(fakeRepository.awaitCommit());
-        assertEquals(List.of("first"), fakeRepository.getAllMessages(id).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("first"),
+                fakeRepository.getAllMessages(id).stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
@@ -192,8 +202,13 @@ class InMemoryChatHistoryCacheTest {
         assertEquals(0, fakeRepository.commits);
         assertTrue(fakeRepository.awaitCommit());
         assertEquals(1, fakeRepository.commits);
-        assertEquals(List.of("first", "second"), fakeRepository.getAllMessages(
-                new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Coalesced2024")).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("first", "second"),
+                fakeRepository
+                        .getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Coalesced2024"))
+                        .stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
@@ -208,8 +223,13 @@ class InMemoryChatHistoryCacheTest {
         history.sort(Comparator.comparing(ChatMessage::content).reversed());
         cache.close();
 
-        assertEquals(List.of("second", "first"), fakeRepository.getAllMessages(
-                new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Batched2024")).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("second", "first"),
+                fakeRepository
+                        .getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Batched2024"))
+                        .stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
@@ -221,7 +241,7 @@ class InMemoryChatHistoryCacheTest {
 
         try {
             CompletableFuture.runAsync(() -> history.add(ChatMessage.userMessage("background")))
-                             .get(3, TimeUnit.SECONDS);
+                    .get(3, TimeUnit.SECONDS);
             assertTrue(fakeRepository.commitStarted.await(3, TimeUnit.SECONDS));
             assertEquals(0, fakeRepository.commits);
         } finally {
@@ -242,7 +262,11 @@ class InMemoryChatHistoryCacheTest {
 
         cache.removeEntry(entry);
 
-        assertEquals(List.of("stored"), cache.getForEntry(databaseContext, entry).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("stored"),
+                cache.getForEntry(databaseContext, entry).stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
@@ -258,8 +282,13 @@ class InMemoryChatHistoryCacheTest {
 
         cache.close();
 
-        assertEquals(List.of("late response"), fakeRepository.getAllMessages(
-                new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Closed2024")).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("late response"),
+                fakeRepository
+                        .getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Closed2024"))
+                        .stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
@@ -276,12 +305,18 @@ class InMemoryChatHistoryCacheTest {
         cache.getForEntry(databaseContext, nextEntry);
         cache.close();
 
-        assertEquals(List.of("accepted before switching"), fakeRepository.getAllMessages(
-                new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "PendingClosed2024")).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("accepted before switching"),
+                fakeRepository
+                        .getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "PendingClosed2024"))
+                        .stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
-    void editsDuringCommitAreQueuedWithoutChangingTheRunningWrite() throws InterruptedException, ExecutionException, TimeoutException {
+    void editsDuringCommitAreQueuedWithoutChangingTheRunningWrite()
+            throws InterruptedException, ExecutionException, TimeoutException {
         BibEntry entry = new BibEntry().withCitationKey("Concurrent2024");
         databaseContext.getDatabase().insertEntry(entry);
         ChatIdentifier id = new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Concurrent2024");
@@ -293,19 +328,28 @@ class InMemoryChatHistoryCacheTest {
             assertTrue(fakeRepository.commitStarted.await(3, TimeUnit.SECONDS));
 
             CompletableFuture.runAsync(() -> {
-                history.setAll(ChatMessage.userMessage("second"), ChatMessage.userMessage("third"));
-                history.sort(Comparator.comparing(ChatMessage::content).reversed());
-                history.removeLast();
-            }).get(3, TimeUnit.SECONDS);
+                        history.setAll(ChatMessage.userMessage("second"), ChatMessage.userMessage("third"));
+                        history.sort(Comparator.comparing(ChatMessage::content).reversed());
+                        history.removeLast();
+                    })
+                    .get(3, TimeUnit.SECONDS);
 
-            assertEquals(List.of("first"), fakeRepository.getAllMessages(id).stream().map(ChatMessage::content).toList());
+            assertEquals(
+                    List.of("first"),
+                    fakeRepository.getAllMessages(id).stream()
+                            .map(ChatMessage::content)
+                            .toList());
         } finally {
             fakeRepository.blockCommits = false;
             fakeRepository.commitPermit.release();
         }
 
         cache.close();
-        assertEquals(List.of("third"), fakeRepository.getAllMessages(id).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("third"),
+                fakeRepository.getAllMessages(id).stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
@@ -319,8 +363,9 @@ class InMemoryChatHistoryCacheTest {
         databaseContext.getDatabase().removeEntry(entry);
         cache.close();
 
-        assertEquals(List.of(), fakeRepository.getAllMessages(
-                new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Deleted2024")));
+        assertEquals(
+                List.of(),
+                fakeRepository.getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Deleted2024")));
     }
 
     @Test
@@ -356,9 +401,15 @@ class InMemoryChatHistoryCacheTest {
 
         cache.close();
 
-        assertEquals(List.of(), fakeRepository.getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "A")));
-        assertEquals(List.of(), fakeRepository.getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "B")));
-        assertEquals(List.of("first", "second", "third"), fakeRepository.getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "C")).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of(), fakeRepository.getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "A")));
+        assertEquals(
+                List.of(), fakeRepository.getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "B")));
+        assertEquals(
+                List.of("first", "second", "third"),
+                fakeRepository.getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "C")).stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
@@ -390,7 +441,8 @@ class InMemoryChatHistoryCacheTest {
 
         assertTrue(fakeRepository.awaitFailedAttempt());
 
-        assertEquals(List.of("first"), history.stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("first"), history.stream().map(ChatMessage::content).toList());
         assertEquals(List.of(), fakeRepository.getAllMessages(id));
 
         fakeRepository.failing = false;
@@ -398,7 +450,11 @@ class InMemoryChatHistoryCacheTest {
 
         assertTrue(fakeRepository.awaitCommit());
 
-        assertEquals(List.of("first", "second"), fakeRepository.getAllMessages(id).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("first", "second"),
+                fakeRepository.getAllMessages(id).stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
@@ -423,7 +479,11 @@ class InMemoryChatHistoryCacheTest {
 
         assertTrue(fakeRepository.awaitCommit());
 
-        assertEquals(List.of("kept"), fakeRepository.getAllMessages(firstId).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("kept"),
+                fakeRepository.getAllMessages(firstId).stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
@@ -458,7 +518,11 @@ class InMemoryChatHistoryCacheTest {
         cache.close();
 
         ChatIdentifier id = new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Deleted2024");
-        assertEquals(List.of("persisted"), fakeRepository.getAllMessages(id).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("persisted"),
+                fakeRepository.getAllMessages(id).stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
@@ -500,8 +564,9 @@ class InMemoryChatHistoryCacheTest {
         databaseContext.getMetaData().clearGroups();
         cache.close();
 
-        assertEquals(List.of(), fakeRepository.getAllMessages(
-                new ChatIdentifier(LIBRARY_ID, ChatType.WITH_GROUP, "Deleted group")));
+        assertEquals(
+                List.of(),
+                fakeRepository.getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_GROUP, "Deleted group")));
     }
 
     @Test
@@ -525,12 +590,14 @@ class InMemoryChatHistoryCacheTest {
         }
 
         cache.close();
-        assertEquals(List.of(), fakeRepository.getAllMessages(
-                new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Queued2024")));
+        assertEquals(
+                List.of(),
+                fakeRepository.getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Queued2024")));
     }
 
     @Test
-    void loadingAnotherChatDoesNotWaitForStorageOrBlockEdits() throws InterruptedException, ExecutionException, TimeoutException {
+    void loadingAnotherChatDoesNotWaitForStorageOrBlockEdits()
+            throws InterruptedException, ExecutionException, TimeoutException {
         BibEntry first = new BibEntry().withCitationKey("First2024");
         BibEntry second = new BibEntry().withCitationKey("Second2024");
         databaseContext.getDatabase().insertEntries(first, second);
@@ -541,7 +608,7 @@ class InMemoryChatHistoryCacheTest {
             var loading = cache.getForEntryAsync(databaseContext, second);
             assertTrue(fakeRepository.readStarted.await(3, TimeUnit.SECONDS));
             CompletableFuture.runAsync(() -> firstHistory.add(ChatMessage.userMessage("while loading")))
-                             .get(3, TimeUnit.SECONDS);
+                    .get(3, TimeUnit.SECONDS);
             assertFalse(loading.isDone());
         } finally {
             fakeRepository.blockReads = false;
@@ -549,12 +616,16 @@ class InMemoryChatHistoryCacheTest {
         }
 
         cache.close();
-        assertEquals(List.of("while loading"), fakeRepository.getAllMessages(
-                new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "First2024")).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("while loading"),
+                fakeRepository.getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "First2024")).stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
-    void cancellingOneLoadDoesNotCancelAnotherConsumer() throws InterruptedException, ExecutionException, TimeoutException {
+    void cancellingOneLoadDoesNotCancelAnotherConsumer()
+            throws InterruptedException, ExecutionException, TimeoutException {
         BibEntry entry = new BibEntry().withCitationKey("Shared2024");
         databaseContext.getDatabase().insertEntry(entry);
         fakeRepository.blockReads = true;
@@ -600,8 +671,13 @@ class InMemoryChatHistoryCacheTest {
         assertEquals(0, cache.retainedChatCount());
         assertSame(history, cache.getForEntry(databaseContext, entry));
         cache.close();
-        assertEquals(List.of("first", "second"), fakeRepository.getAllMessages(
-                new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Growing2024")).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("first", "second"),
+                fakeRepository
+                        .getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Growing2024"))
+                        .stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
@@ -616,8 +692,11 @@ class InMemoryChatHistoryCacheTest {
         entry.setCitationKey("Valid2024");
         cache.close();
 
-        assertEquals(List.of("unsaved"), fakeRepository.getAllMessages(
-                new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Valid2024")).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("unsaved"),
+                fakeRepository.getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Valid2024")).stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
@@ -634,8 +713,11 @@ class InMemoryChatHistoryCacheTest {
         fakeRepository.failing = false;
         cache.close();
 
-        assertEquals(List.of("retry"), fakeRepository.getAllMessages(
-                new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Retry2024")).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("retry"),
+                fakeRepository.getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Retry2024")).stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
@@ -653,8 +735,13 @@ class InMemoryChatHistoryCacheTest {
         assertEquals(0, cache.retainedChatCount());
         cache.close();
 
-        assertEquals(List.of("pending", "late response"), fakeRepository.getAllMessages(
-                new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Released2024")).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of("pending", "late response"),
+                fakeRepository
+                        .getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Released2024"))
+                        .stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     @Test
@@ -701,8 +788,9 @@ class InMemoryChatHistoryCacheTest {
         history.add(ChatMessage.userMessage("not persisted"));
         cache.close();
 
-        assertEquals(List.of(), fakeRepository.getAllMessages(
-                new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Duplicate2024")));
+        assertEquals(
+                List.of(),
+                fakeRepository.getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Duplicate2024")));
     }
 
     @Test
@@ -718,10 +806,16 @@ class InMemoryChatHistoryCacheTest {
         history.add(ChatMessage.userMessage("second"));
         cache.close();
 
-        assertEquals(List.of(), fakeRepository.getAllMessages(
-                new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Moved2024")));
-        assertEquals(List.of("first", "second"), fakeRepository.getAllMessages(
-                new ChatIdentifier("new-library", ChatType.WITH_ENTRY, "Moved2024")).stream().map(ChatMessage::content).toList());
+        assertEquals(
+                List.of(),
+                fakeRepository.getAllMessages(new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Moved2024")));
+        assertEquals(
+                List.of("first", "second"),
+                fakeRepository
+                        .getAllMessages(new ChatIdentifier("new-library", ChatType.WITH_ENTRY, "Moved2024"))
+                        .stream()
+                        .map(ChatMessage::content)
+                        .toList());
     }
 
     /// Minimal in-memory implementation of [ChatHistoryRepository] used for testing.

@@ -1,7 +1,6 @@
 package org.jabref.logic.search.sqlbased;
 
 import java.util.List;
-
 import org.jabref.logic.search.SearchBackend;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.event.FieldChangedEvent;

@@ -1,25 +1,23 @@
 package org.jabref.gui.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
-
-import org.jabref.gui.icon.IconTheme;
-import org.jabref.gui.testutils.JavaFxExtension;
-
 import org.controlsfx.validation.Severity;
 import org.controlsfx.validation.ValidationMessage;
+import org.jabref.gui.icon.IconTheme;
+import org.jabref.gui.testutils.JavaFxExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(JavaFxExtension.class)
 public class IconValidationDecoratorTest {
     static Object[][] decorationTestData() {
         return new Object[][] {
-                {Severity.ERROR, IconTheme.JabRefIcons.ERROR.getGraphicNode().toString()},
-                {Severity.WARNING, IconTheme.JabRefIcons.WARNING.getGraphicNode().toString()}
+            {Severity.ERROR, IconTheme.JabRefIcons.ERROR.getGraphicNode().toString()},
+            {Severity.WARNING, IconTheme.JabRefIcons.WARNING.getGraphicNode().toString()}
         };
     }
 

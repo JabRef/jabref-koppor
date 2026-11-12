@@ -5,7 +5,6 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.FulltextFetcher;
 import org.jabref.logic.importer.ImporterPreferences;
@@ -13,7 +12,6 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
-
 import org.jspecify.annotations.NonNull;
 
 /// Fulltext fetcher that downloads PDFs from Wiley journals via the
@@ -69,10 +67,11 @@ public class WileyFetcher implements FulltextFetcher, CustomizableKeyFetcher {
 
     @Override
     public Map<String, String> getDownloadHeaders() {
-        return importerPreferences.getApiKey(FETCHER_NAME)
-                                  .filter(key -> !key.isBlank())
-                                  .map(key -> Map.of(TDM_HEADER_NAME, key))
-                                  .orElse(Map.of());
+        return importerPreferences
+                .getApiKey(FETCHER_NAME)
+                .filter(key -> !key.isBlank())
+                .map(key -> Map.of(TDM_HEADER_NAME, key))
+                .orElse(Map.of());
     }
 
     @NonNull

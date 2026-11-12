@@ -22,6 +22,5 @@ public final class StyleClasses {
     /// Header of a welcome-tab section (also used for the empty main-table placeholder).
     public static final List<String> WELCOME_HEADER = List.of("welcome-header-label", "h3", "bold");
 
-    private StyleClasses() {
-    }
+    private StyleClasses() {}
 }

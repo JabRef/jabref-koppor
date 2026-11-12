@@ -11,16 +11,22 @@ public record CleanupTabSelection(
 
     public CleanupTabSelection {
         allJobs = allJobs == null ? EnumSet.noneOf(CleanupPreferences.CleanupStep.class) : EnumSet.copyOf(allJobs);
-        selectedJobs = selectedJobs == null ? EnumSet.noneOf(CleanupPreferences.CleanupStep.class) : EnumSet.copyOf(selectedJobs);
+        selectedJobs = selectedJobs == null
+                ? EnumSet.noneOf(CleanupPreferences.CleanupStep.class)
+                : EnumSet.copyOf(selectedJobs);
         formatters = Objects.requireNonNullElse(formatters, Optional.empty());
     }
 
-    public static CleanupTabSelection ofJobs(EnumSet<CleanupPreferences.CleanupStep> allJobs, EnumSet<CleanupPreferences.CleanupStep> selectedJobs) {
+    public static CleanupTabSelection ofJobs(
+            EnumSet<CleanupPreferences.CleanupStep> allJobs, EnumSet<CleanupPreferences.CleanupStep> selectedJobs) {
         return new CleanupTabSelection(allJobs, selectedJobs, Optional.empty());
     }
 
     public static CleanupTabSelection ofFormatters(FieldFormatterCleanupActions cleanups) {
-        return new CleanupTabSelection(EnumSet.noneOf(CleanupPreferences.CleanupStep.class), EnumSet.noneOf(CleanupPreferences.CleanupStep.class), Optional.of(cleanups));
+        return new CleanupTabSelection(
+                EnumSet.noneOf(CleanupPreferences.CleanupStep.class),
+                EnumSet.noneOf(CleanupPreferences.CleanupStep.class),
+                Optional.of(cleanups));
     }
 
     public boolean isFormatterTab() {

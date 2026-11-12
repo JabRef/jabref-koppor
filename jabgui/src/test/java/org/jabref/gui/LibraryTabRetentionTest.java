@@ -1,17 +1,21 @@
 package org.jabref.gui;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.airhacks.afterburner.injection.Injector;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
-
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-
+import one.jpro.jmemorybuddy.JMemoryBuddy;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
@@ -39,9 +43,6 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.SearchDisplayMode;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.airhacks.afterburner.injection.Injector;
-import one.jpro.jmemorybuddy.JMemoryBuddy;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
@@ -50,10 +51,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mockito;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /// Closing a library has to release the tab that showed it.
 ///
@@ -74,25 +71,32 @@ class LibraryTabRetentionTest {
         preferences = mock(GuiPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(preferences.getOwnerPreferences().getDefaultOwner()).thenReturn("owner");
         when(preferences.getAutoCompletePreferences().shouldAutoComplete()).thenReturn(true);
-        when(preferences.getSearchPreferences().usePostgresSearchProperty()).thenReturn(new SimpleBooleanProperty(false));
+        when(preferences.getSearchPreferences().usePostgresSearchProperty())
+                .thenReturn(new SimpleBooleanProperty(false));
         when(preferences.getSearchPreferences().isFulltext()).thenReturn(false);
         when(preferences.getFilePreferences().shouldCreateBackup()).thenReturn(false);
         ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
         when(externalApplicationsPreferences.getExternalFileTypes())
-                .thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
+                .thenReturn(
+                        FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
         when(preferences.getExternalApplicationsPreferences()).thenReturn(externalApplicationsPreferences);
         when(preferences.getKeyBindingRepository()).thenReturn(new KeyBindingRepository());
         when(preferences.getImporterPreferences().getCustomImporters()).thenReturn(FXCollections.observableSet());
-        when(preferences.getMainTablePreferences().getColumnPreferences().getColumnSortOrder()).thenReturn(FXCollections.observableArrayList());
-        when(preferences.getMainTablePreferences().getColumnPreferences().getColumns()).thenReturn(FXCollections.observableArrayList());
+        when(preferences.getMainTablePreferences().getColumnPreferences().getColumnSortOrder())
+                .thenReturn(FXCollections.observableArrayList());
+        when(preferences.getMainTablePreferences().getColumnPreferences().getColumns())
+                .thenReturn(FXCollections.observableArrayList());
 
         // Real properties wherever the code under test registers a listener: a mock remembers the
         // listener it was handed, and Mockito's bookkeeping would then root everything that listener
         // captures - the very objects this test asserts are gone.
-        when(preferences.getSearchPreferences().searchDisplayModeProperty()).thenReturn(new SimpleObjectProperty<>(SearchDisplayMode.FILTER));
+        when(preferences.getSearchPreferences().searchDisplayModeProperty())
+                .thenReturn(new SimpleObjectProperty<>(SearchDisplayMode.FILTER));
         when(preferences.getGroupsPreferences()).thenReturn(GroupsPreferences.getDefault());
-        when(preferences.getFilePreferences().fulltextIndexLinkedFilesProperty()).thenReturn(new SimpleBooleanProperty(false));
-        when(preferences.getMainTablePreferences().resizeColumnsToFitProperty()).thenReturn(new SimpleBooleanProperty(false));
+        when(preferences.getFilePreferences().fulltextIndexLinkedFilesProperty())
+                .thenReturn(new SimpleBooleanProperty(false));
+        when(preferences.getMainTablePreferences().resizeColumnsToFitProperty())
+                .thenReturn(new SimpleBooleanProperty(false));
 
         stateManager = new JabRefGuiStateManager();
 
@@ -120,22 +124,30 @@ class LibraryTabRetentionTest {
     private void setUpTabPane() {
         JavaFxExtension.invokeAndWait(() -> {
             tabPane = new TabPane();
-            BindingsHelper.bindContentFiltered(tabPane.getTabs(), stateManager.getOpenDatabases(), LibraryTab.class::isInstance);
+            BindingsHelper.bindContentFiltered(
+                    tabPane.getTabs(), stateManager.getOpenDatabases(), LibraryTab.class::isInstance);
             // ... and the active library follows the selected tab, so closing one hands the state
             // manager the tab that takes over instead of leaving the closed one behind.
-            com.tobiasdiez.easybind.EasyBind.subscribe(tabPane.getSelectionModel().selectedItemProperty(), selected -> {
-                if (selected instanceof LibraryTab libraryTab) {
-                    stateManager.setActiveDatabase(libraryTab.getBibDatabaseContext());
-                    stateManager.activeTabProperty().set(Optional.of(libraryTab));
-                    // The frame also binds the normal search result count to the selected library's table.
-                    stateManager.searchResultSize(SearchType.NORMAL_SEARCH).bind(libraryTab.resultSizeProperty());
-                } else {
-                    stateManager.setActiveDatabase(null);
-                    stateManager.activeTabProperty().set(Optional.empty());
-                    stateManager.searchResultSize(SearchType.NORMAL_SEARCH).unbind();
-                    stateManager.searchResultSize(SearchType.NORMAL_SEARCH).set(0);
-                }
-            });
+            com.tobiasdiez.easybind.EasyBind.subscribe(
+                    tabPane.getSelectionModel().selectedItemProperty(), selected -> {
+                        if (selected instanceof LibraryTab libraryTab) {
+                            stateManager.setActiveDatabase(libraryTab.getBibDatabaseContext());
+                            stateManager.activeTabProperty().set(Optional.of(libraryTab));
+                            // The frame also binds the normal search result count to the selected library's table.
+                            stateManager
+                                    .searchResultSize(SearchType.NORMAL_SEARCH)
+                                    .bind(libraryTab.resultSizeProperty());
+                        } else {
+                            stateManager.setActiveDatabase(null);
+                            stateManager.activeTabProperty().set(Optional.empty());
+                            stateManager
+                                    .searchResultSize(SearchType.NORMAL_SEARCH)
+                                    .unbind();
+                            stateManager
+                                    .searchResultSize(SearchType.NORMAL_SEARCH)
+                                    .set(0);
+                        }
+                    });
         });
     }
 
@@ -149,13 +161,12 @@ class LibraryTabRetentionTest {
         LibraryTabContainer tabContainer = mock(LibraryTabContainer.class);
         when(tabContainer.getLibraryTabs()).thenReturn(FXCollections.observableArrayList());
 
-        BibDatabase database = new BibDatabase(List.of(
-                new BibEntry(StandardEntryType.Article)
-                        // Distinct content per library: BibDatabaseContext#equals compares content,
-                        // and the open-database list removes by equality when a tab closes.
-                        .withCitationKey("Author2021_" + libraryCount++)
-                        .withField(StandardField.AUTHOR, "Author, A.")
-                        .withField(StandardField.TITLE, "Title")));
+        BibDatabase database = new BibDatabase(List.of(new BibEntry(StandardEntryType.Article)
+                // Distinct content per library: BibDatabaseContext#equals compares content,
+                // and the open-database list removes by equality when a tab closes.
+                .withCitationKey("Author2021_" + libraryCount++)
+                .withField(StandardField.AUTHOR, "Author, A.")
+                .withField(StandardField.TITLE, "Title")));
         BibDatabaseContext context = new BibDatabaseContext(database);
 
         @Nullable LibraryTab[] created = new LibraryTab[1];

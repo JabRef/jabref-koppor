@@ -9,13 +9,10 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-
 import javafx.util.Pair;
-
 import org.jabref.logic.remote.Protocol;
 import org.jabref.logic.remote.RemoteMessage;
 import org.jabref.logic.remote.RemotePreferences;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +24,11 @@ public class RemoteListenerServer implements Runnable {
     private static final int TIMEOUT = 1000;
 
     private static final byte[] HEALTH_CHECK_PREFIX = "JABREF/1 ".getBytes(StandardCharsets.UTF_8);
-    private static final byte[] HEALTH_CHECK_REMAINING_PREFIX = Arrays.copyOfRange(HEALTH_CHECK_PREFIX, 1, HEALTH_CHECK_PREFIX.length);
+    private static final byte[] HEALTH_CHECK_REMAINING_PREFIX =
+            Arrays.copyOfRange(HEALTH_CHECK_PREFIX, 1, HEALTH_CHECK_PREFIX.length);
     private static final byte[] HEALTH_CHECK_REQUEST = "PING\n".getBytes(StandardCharsets.UTF_8);
-    private static final byte[] HEALTH_CHECK_RESPONSE = ("JABREF/1 PONG " + Protocol.IDENTIFIER + "\n").getBytes(StandardCharsets.UTF_8);
+    private static final byte[] HEALTH_CHECK_RESPONSE =
+            ("JABREF/1 PONG " + Protocol.IDENTIFIER + "\n").getBytes(StandardCharsets.UTF_8);
 
     private final RemoteMessageHandler messageHandler;
     private final ServerSocket serverSocket;
@@ -113,7 +112,8 @@ public class RemoteListenerServer implements Runnable {
                     messageHandler.handleCommandLineArguments(strings);
                     protocol.sendMessage(RemoteMessage.OK);
                 } else {
-                    throw new IOException("Argument for 'SEND_COMMAND_LINE_ARGUMENTS' is not of type String[]. Got " + argument);
+                    throw new IOException(
+                            "Argument for 'SEND_COMMAND_LINE_ARGUMENTS' is not of type String[]. Got " + argument);
                 }
                 break;
             case FOCUS:

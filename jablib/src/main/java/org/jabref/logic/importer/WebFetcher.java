@@ -2,10 +2,8 @@ package org.jabref.logic.importer;
 
 import java.net.URL;
 import java.util.Optional;
-
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.net.URLDownload;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Searches web resources for bibliographic information.
@@ -28,7 +26,8 @@ public interface WebFetcher {
         return Optional.empty(); // no help page by default
     }
 
-    /// Constructs an [URLDownload] object for downloading content based on the given URL. Overwrite, if you need to send additional headers for the download.
+    /// Constructs an [URLDownload] object for downloading content based on the given URL. Overwrite, if you need to
+    /// send additional headers for the download.
     default URLDownload getUrlDownload(URL url) {
         return new URLDownload(url);
     }

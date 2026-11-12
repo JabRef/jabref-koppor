@@ -1,7 +1,6 @@
 package org.jabref.model.entry.event;
 
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
 
 /// `EntryChangedEvent` is fired when a `BibEntry` has been changed.

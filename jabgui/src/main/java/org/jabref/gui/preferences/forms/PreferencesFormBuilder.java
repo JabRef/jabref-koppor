@@ -1,11 +1,15 @@
 package org.jabref.gui.preferences.forms;
 
+import static org.jabref.gui.preferences.forms.FormMetrics.GAP;
+
+import com.dlsc.gemsfx.TagsField;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
+import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.function.Consumer;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
@@ -40,7 +44,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
-
+import org.controlsfx.control.SearchableComboBox;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.StandardActions;
@@ -56,15 +60,8 @@ import org.jabref.gui.util.component.HelpButton;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
-
-import com.dlsc.gemsfx.TagsField;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
-import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
-import org.controlsfx.control.SearchableComboBox;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-
-import static org.jabref.gui.preferences.forms.FormMetrics.GAP;
 
 /// Fluent, eager builder that assembles a preference tab's node tree and wires all bindings. It
 /// replaces the FXML + controller pair: each call creates a control, binds it to a view-model
@@ -176,7 +173,7 @@ public class PreferencesFormBuilder {
     public PreferencesFormBuilder info(String text, Consumer<InputElement<Label>> config) {
         return label(text, info -> {
             info.styleClass("italic")
-                .configure(label -> label.setPadding(new Insets(0, 0, 0, FormMetrics.INFO_LABEL_INDENT)));
+                    .configure(label -> label.setPadding(new Insets(0, 0, 0, FormMetrics.INFO_LABEL_INDENT)));
             config.accept(info);
         });
     }
@@ -189,7 +186,8 @@ public class PreferencesFormBuilder {
         return checkbox(text, value, noConfig());
     }
 
-    public PreferencesFormBuilder checkbox(String text, Property<Boolean> value, Consumer<InputElement<CheckBox>> config) {
+    public PreferencesFormBuilder checkbox(
+            String text, Property<Boolean> value, Consumer<InputElement<CheckBox>> config) {
         CheckBox checkBox = new CheckBox(text);
         searchable(text, checkBox);
         checkBox.setMaxWidth(Double.MAX_VALUE);
@@ -207,21 +205,26 @@ public class PreferencesFormBuilder {
         return checkWithField(text, enabled, fieldValue, noConfig());
     }
 
-    public PreferencesFormBuilder checkWithField(String text,
-                                                 Property<Boolean> enabled,
-                                                 StringProperty fieldValue,
-                                                 Consumer<InputElement<TextField>> config) {
-        return checkbox(text, enabled, box -> box.attachField(fieldValue, field -> {
-            field.node().setMaxWidth(FormMetrics.SHORT_FIELD_WIDTH);
-            config.accept(field);
-        }));
+    public PreferencesFormBuilder checkWithField(
+            String text,
+            Property<Boolean> enabled,
+            StringProperty fieldValue,
+            Consumer<InputElement<TextField>> config) {
+        return checkbox(
+                text,
+                enabled,
+                box -> box.attachField(fieldValue, field -> {
+                    field.node().setMaxWidth(FormMetrics.SHORT_FIELD_WIDTH);
+                    config.accept(field);
+                }));
     }
 
     public PreferencesFormBuilder stringField(String label, StringProperty value) {
         return stringField(label, value, noConfig());
     }
 
-    public PreferencesFormBuilder stringField(String label, StringProperty value, Consumer<InputElement<TextField>> config) {
+    public PreferencesFormBuilder stringField(
+            String label, StringProperty value, Consumer<InputElement<TextField>> config) {
         TextField field = new TextField();
         field.setMaxWidth(Double.MAX_VALUE);
         field.textProperty().bindBidirectional(value);
@@ -245,7 +248,8 @@ public class PreferencesFormBuilder {
         return button(text, icon, action, noConfig());
     }
 
-    public PreferencesFormBuilder button(String text, JabRefIcon icon, Runnable action, Consumer<InputElement<Button>> config) {
+    public PreferencesFormBuilder button(
+            String text, JabRefIcon icon, Runnable action, Consumer<InputElement<Button>> config) {
         return button(text, action, button -> {
             button.configure(node -> node.setGraphic(icon.getGraphicNode()));
             config.accept(button);
@@ -264,46 +268,51 @@ public class PreferencesFormBuilder {
         return configured(new InputElement<>(this, link), config);
     }
 
-    public <X> PreferencesFormBuilder combo(String label,
-                                            ObservableValue<? extends ObservableList<X>> items,
-                                            Property<X> value,
-                                            Callback<X, String> display) {
+    public <X> PreferencesFormBuilder combo(
+            String label,
+            ObservableValue<? extends ObservableList<X>> items,
+            Property<X> value,
+            Callback<X, String> display) {
         return combo(label, items, value, display, noConfig());
     }
 
-    public <X> PreferencesFormBuilder combo(String label,
-                                            ObservableValue<? extends ObservableList<X>> items,
-                                            Property<X> value,
-                                            Callback<X, String> display,
-                                            Consumer<InputElement<ComboBox<X>>> config) {
+    public <X> PreferencesFormBuilder combo(
+            String label,
+            ObservableValue<? extends ObservableList<X>> items,
+            Property<X> value,
+            Callback<X, String> display,
+            Consumer<InputElement<ComboBox<X>>> config) {
         ComboBox<X> combo = new ComboBox<>();
         combo.itemsProperty().bind(items);
         return addCombo(label, combo, value, display, config);
     }
 
-    public <X> PreferencesFormBuilder searchableCombo(String label,
-                                                      ObservableValue<? extends ObservableList<X>> items,
-                                                      Property<X> value,
-                                                      Callback<X, String> display) {
+    public <X> PreferencesFormBuilder searchableCombo(
+            String label,
+            ObservableValue<? extends ObservableList<X>> items,
+            Property<X> value,
+            Callback<X, String> display) {
         return searchableCombo(label, items, value, display, noConfig());
     }
 
-    public <X> PreferencesFormBuilder searchableCombo(String label,
-                                                      ObservableValue<? extends ObservableList<X>> items,
-                                                      Property<X> value,
-                                                      Callback<X, String> display,
-                                                      Consumer<InputElement<ComboBox<X>>> config) {
+    public <X> PreferencesFormBuilder searchableCombo(
+            String label,
+            ObservableValue<? extends ObservableList<X>> items,
+            Property<X> value,
+            Callback<X, String> display,
+            Consumer<InputElement<ComboBox<X>>> config) {
         SearchableComboBox<X> combo = new SearchableComboBox<>(); // ControlsFX SearchableComboBox
         combo.itemsProperty().bind(items);
         return addCombo(label, combo, value, display, config);
     }
 
     /// Shared wiring for combo variants.
-    private <X> PreferencesFormBuilder addCombo(String label,
-                                                ComboBox<X> combo,
-                                                Property<X> value,
-                                                Callback<X, String> display,
-                                                Consumer<InputElement<ComboBox<X>>> config) {
+    private <X> PreferencesFormBuilder addCombo(
+            String label,
+            ComboBox<X> combo,
+            Property<X> value,
+            Callback<X, String> display,
+            Consumer<InputElement<ComboBox<X>>> config) {
         new ViewModelListCellFactory<X>().withText(display).install(combo);
         combo.setMaxWidth(Double.MAX_VALUE);
         combo.valueProperty().bindBidirectional(value);
@@ -316,9 +325,8 @@ public class PreferencesFormBuilder {
         return tagsField(label, tagsField, noConfig());
     }
 
-    public <X> PreferencesFormBuilder tagsField(String label,
-                                                TagsField<X> tagsField,
-                                                Consumer<InputElement<TagsField<X>>> config) {
+    public <X> PreferencesFormBuilder tagsField(
+            String label, TagsField<X> tagsField, Consumer<InputElement<TagsField<X>>> config) {
         HBox.setHgrow(tagsField, Priority.ALWAYS);
         addField(label, tagsField);
         return configured(new InputElement<>(this, tagsField), config);
@@ -347,9 +355,11 @@ public class PreferencesFormBuilder {
         return radio(text, selected, noConfig());
     }
 
-    public PreferencesFormBuilder radio(String text, Property<Boolean> selected, Consumer<InputElement<RadioButton>> config) {
+    public PreferencesFormBuilder radio(
+            String text, Property<Boolean> selected, Consumer<InputElement<RadioButton>> config) {
         if (currentToggleGroup == null) {
-            throw new IllegalStateException("radio() outside of a radioGroup(...); without one the radios would not be mutually exclusive");
+            throw new IllegalStateException(
+                    "radio() outside of a radioGroup(...); without one the radios would not be mutually exclusive");
         }
         RadioButton radio = new RadioButton(text);
         searchable(text, radio);
@@ -395,7 +405,8 @@ public class PreferencesFormBuilder {
         return stackedField(label, control, noConfig());
     }
 
-    public <T extends Control> PreferencesFormBuilder stackedField(String label, T control, Consumer<InputElement<T>> config) {
+    public <T extends Control> PreferencesFormBuilder stackedField(
+            String label, T control, Consumer<InputElement<T>> config) {
         Label caption = new Label(label);
         caption.setMaxWidth(Double.MAX_VALUE);
         searchable(label, caption);
@@ -469,9 +480,8 @@ public class PreferencesFormBuilder {
     }
 
     /// The configuration lambda addresses the section as a whole, including its header (e.g. for help buttons).
-    public PreferencesFormBuilder section(String title,
-                                          Consumer<PreferencesFormBuilder> content,
-                                          Consumer<SectionRegion> config) {
+    public PreferencesFormBuilder section(
+            String title, Consumer<PreferencesFormBuilder> content, Consumer<SectionRegion> config) {
         Label header = new Label(title);
         searchable(title, header);
         header.getStyleClass().addAll(StyleClasses.SECTION_HEADER);
@@ -509,7 +519,8 @@ public class PreferencesFormBuilder {
         return flow(content, noConfig());
     }
 
-    public PreferencesFormBuilder flow(Consumer<PreferencesFormBuilder> content, Consumer<FormRegion<FlowPane>> config) {
+    public PreferencesFormBuilder flow(
+            Consumer<PreferencesFormBuilder> content, Consumer<FormRegion<FlowPane>> config) {
         return configured(new FormRegion<>(region(new FlowPane(), content)), config);
     }
 
@@ -588,8 +599,7 @@ public class PreferencesFormBuilder {
 
     /// The empty configuration every no-config overload delegates with.
     private static <E> Consumer<E> noConfig() {
-        return _ -> {
-        };
+        return _ -> {};
     }
 
     /// Logical OR of two conditions, used to combine disable conditions: an element is disabled
@@ -598,11 +608,10 @@ public class PreferencesFormBuilder {
     /// Written out rather than using `Bindings.or`, which needs two `ObservableBooleanValue`s;
     /// these are `ObservableValue<? extends Boolean>`, the type view-model properties and
     /// `disableProperty()` actually present, and whose value can be `null`.
-    private static ObservableValue<Boolean> either(ObservableValue<? extends Boolean> first,
-                                                   ObservableValue<? extends Boolean> second) {
+    private static ObservableValue<Boolean> either(
+            ObservableValue<? extends Boolean> first, ObservableValue<? extends Boolean> second) {
         return Bindings.createBooleanBinding(
-                () -> Boolean.TRUE.equals(first.getValue()) || Boolean.TRUE.equals(second.getValue()),
-                first, second);
+                () -> Boolean.TRUE.equals(first.getValue()) || Boolean.TRUE.equals(second.getValue()), first, second);
     }
 
     /// The two-column grid consecutive labeled fields share, created on first use. Cleared by
@@ -654,7 +663,8 @@ public class PreferencesFormBuilder {
     /// column widths therefore do not depend on how long the captions inside them happen to be.
     private void addToContainer(Node node) {
         if (built) {
-            throw new IllegalStateException("build() was already called; the form is finished and cannot take more elements");
+            throw new IllegalStateException(
+                    "build() was already called; the form is finished and cannot take more elements");
         }
         Pane container = container();
         container.getChildren().add(node);
@@ -685,19 +695,22 @@ public class PreferencesFormBuilder {
             collectSearchable(attachment);
             return;
         }
-        throw new IllegalStateException(primary.getParent() == null
-                                        ? "the control has not been placed yet; attach from within its config lambda"
-                                        : "cannot attach to a control sitting in a " + primary.getParent().getClass().getSimpleName()
-                                                + "; only elements the builder wraps in a row of their own take attachments");
+        throw new IllegalStateException(
+                primary.getParent() == null
+                        ? "the control has not been placed yet; attach from within its config lambda"
+                        : "cannot attach to a control sitting in a "
+                                + primary.getParent().getClass().getSimpleName()
+                                + "; only elements the builder wraps in a row of their own take attachments");
     }
 
     private Button helpButton(StandardActions action, HelpFile helpFile) {
         Button button = new Button();
         button.setPrefWidth(FormMetrics.ICON_BUTTON_SIZE);
-        new ActionFactory().configureIconButton(
-                action,
-                new HelpAction(helpFile, dialogService, preferences.getExternalApplicationsPreferences()),
-                button);
+        new ActionFactory()
+                .configureIconButton(
+                        action,
+                        new HelpAction(helpFile, dialogService, preferences.getExternalApplicationsPreferences()),
+                        button);
         return button;
     }
 
@@ -763,17 +776,15 @@ public class PreferencesFormBuilder {
         /// The three cases are the three panes a region is ever made of; see [#region].
         public S spacing(double value) {
             switch (region) {
-                case VBox box ->
-                        box.setSpacing(value);
-                case HBox box ->
-                        box.setSpacing(value);
+                case VBox box -> box.setSpacing(value);
+                case HBox box -> box.setSpacing(value);
                 case FlowPane pane -> {
                     pane.setHgap(value);
                     pane.setVgap(value);
                 }
                 default ->
-                        throw new IllegalStateException(
-                                "spacing() does not apply to a " + region.getClass().getSimpleName() + " region");
+                    throw new IllegalStateException(
+                            "spacing() does not apply to a " + region.getClass().getSimpleName() + " region");
             }
             return self();
         }

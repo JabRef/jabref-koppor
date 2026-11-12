@@ -1,12 +1,10 @@
 package org.jabref.gui.fieldeditors;
 
-import javafx.scene.control.TextInputControl;
-
-import org.jabref.gui.preferences.GuiPreferences;
-import org.jabref.gui.util.IconValidationDecorator;
-
 import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
 import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
+import javafx.scene.control.TextInputControl;
+import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.gui.util.IconValidationDecorator;
 
 public class EditorValidator {
 

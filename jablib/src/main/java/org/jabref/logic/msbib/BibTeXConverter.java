@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Month;
 import org.jabref.model.entry.field.Field;
@@ -19,8 +18,7 @@ public class BibTeXConverter {
 
     private static final String MSBIB_PREFIX = "msbib-";
 
-    private BibTeXConverter() {
-    }
+    private BibTeXConverter() {}
 
     /// Converts an [MSBibEntry] to a [BibEntry] for import
     public static BibEntry convert(MSBibEntry entry) {
@@ -106,7 +104,8 @@ public class BibTeXConverter {
         map.put(field, allAuthors);
     }
 
-    private static void parseSingleStandardNumber(String type, Field field, String standardNum, Map<Field, String> map) {
+    private static void parseSingleStandardNumber(
+            String type, Field field, String standardNum, Map<Field, String> map) {
         Pattern pattern = Pattern.compile(':' + type + ":(.[^:]+)");
         Matcher matcher = pattern.matcher(standardNum);
         if (matcher.matches()) {

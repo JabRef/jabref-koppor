@@ -5,7 +5,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.preferences.JabRefCliPreferences;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntryType;
@@ -22,12 +21,12 @@ class CustomEntryTypePreferenceMigration {
     private static final String CUSTOM_TYPE_OPT = "customTypeOpt_";
     private static final String CUSTOM_TYPE_PRIOPT = "customTypePriOpt_";
 
-    private CustomEntryTypePreferenceMigration() {
-    }
+    private CustomEntryTypePreferenceMigration() {}
 
-    static void upgradeStoredBibEntryTypes(BibDatabaseMode defaultBibDatabaseMode,
-                                           JabRefCliPreferences preferences,
-                                           BibEntryTypesManager entryTypesManager) {
+    static void upgradeStoredBibEntryTypes(
+            BibDatabaseMode defaultBibDatabaseMode,
+            JabRefCliPreferences preferences,
+            BibEntryTypesManager entryTypesManager) {
         List<BibEntryType> storedOldTypes = new ArrayList<>();
 
         int number = 0;
@@ -56,18 +55,24 @@ class CustomEntryTypePreferenceMigration {
 
         BibEntryTypeBuilder entryTypeBuilder = new BibEntryTypeBuilder()
                 .withType(EntryTypeFactory.parse(name))
-                .withRequiredFields(req.stream().map(FieldFactory::parseOrFields).collect(Collectors.toCollection(LinkedHashSet::new)));
+                .withRequiredFields(req.stream()
+                        .map(FieldFactory::parseOrFields)
+                        .collect(Collectors.toCollection(LinkedHashSet::new)));
         if (priOpt.isEmpty()) {
-            entryTypeBuilder = entryTypeBuilder
-                    .withImportantFields(opt.stream().map(FieldFactory::parseField).collect(Collectors.toCollection(LinkedHashSet::new)));
+            entryTypeBuilder = entryTypeBuilder.withImportantFields(
+                    opt.stream().map(FieldFactory::parseField).collect(Collectors.toCollection(LinkedHashSet::new)));
             return Optional.of(entryTypeBuilder.build());
         } else {
             List<String> secondary = new ArrayList<>(opt);
             secondary.removeAll(priOpt);
 
             entryTypeBuilder = entryTypeBuilder
-                    .withImportantFields(priOpt.stream().map(FieldFactory::parseField).collect(Collectors.toCollection(LinkedHashSet::new)))
-                    .withDetailFields(secondary.stream().map(FieldFactory::parseField).collect(Collectors.toCollection(LinkedHashSet::new)));
+                    .withImportantFields(priOpt.stream()
+                            .map(FieldFactory::parseField)
+                            .collect(Collectors.toCollection(LinkedHashSet::new)))
+                    .withDetailFields(secondary.stream()
+                            .map(FieldFactory::parseField)
+                            .collect(Collectors.toCollection(LinkedHashSet::new)));
             return Optional.of(entryTypeBuilder.build());
         }
     }

@@ -1,20 +1,18 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
+import java.util.Optional;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 @ExternalServicesTest
 class TitleFetcherTest {
@@ -28,8 +26,11 @@ class TitleFetcherTest {
 
         bibEntryBischof2009 = new BibEntry(StandardEntryType.InProceedings)
                 .withCitationKey("Bischof_2009")
-                .withField(StandardField.AUTHOR, "Bischof, Marc and Kopp, Oliver and van Lessen, Tammo and Leymann, Frank")
-                .withField(StandardField.BOOKTITLE, "2009 35th Euromicro Conference on Software Engineering and Advanced Applications")
+                .withField(
+                        StandardField.AUTHOR, "Bischof, Marc and Kopp, Oliver and van Lessen, Tammo and Leymann, Frank")
+                .withField(
+                        StandardField.BOOKTITLE,
+                        "2009 35th Euromicro Conference on Software Engineering and Advanced Applications")
                 .withField(StandardField.PUBLISHER, "IEEE")
                 .withField(StandardField.TITLE, "BPELscript: A Simplified Script Syntax for WS-BPEL 2.0")
                 .withField(StandardField.YEAR, "2009")
@@ -45,7 +46,8 @@ class TitleFetcherTest {
 
     @Test
     void performSearchKopp2007() throws FetcherException {
-        Optional<BibEntry> fetchedEntry = fetcher.performSearchById("BPELscript: A simplified script syntax for WS-BPEL 2.0");
+        Optional<BibEntry> fetchedEntry =
+                fetcher.performSearchById("BPELscript: A simplified script syntax for WS-BPEL 2.0");
         assertEquals(Optional.of(bibEntryBischof2009), fetchedEntry);
     }
 

@@ -5,7 +5,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.stage.Screen;
-
 import org.jabref.gui.util.FieldsUtil;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.field.Field;

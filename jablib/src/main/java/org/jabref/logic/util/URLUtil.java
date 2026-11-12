@@ -7,10 +7,8 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
-
-import org.jabref.logic.util.strings.StringUtil;
-
 import org.apache.hc.core5.net.URIBuilder;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jspecify.annotations.NonNull;
 
 /// URL utilities for URLs in the JabRef logic.
@@ -140,7 +138,8 @@ public class URLUtil {
     /// Creates a [URI] object from the given string URL.
     /// This method attempts to convert the given URL string into a [URI] object.
     /// The pipe character ('|') is replaced with its percent-encoded equivalent ("%7C") because the pipe character
-    /// is only a valid character according to RFC3986. However, JDK's URI implementation is implementing RFC2396 and RFC2732, but not RFC3986.
+    /// is only a valid character according to RFC3986. However, JDK's URI implementation is implementing RFC2396 and
+    /// RFC2732, but not RFC3986.
     ///
     /// @param url the URL string to be converted into a [URI].
     /// @return the [URI] object created from the string URL.

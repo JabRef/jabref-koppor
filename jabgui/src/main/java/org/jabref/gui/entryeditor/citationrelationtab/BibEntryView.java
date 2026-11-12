@@ -1,14 +1,12 @@
 package org.jabref.gui.entryeditor.citationrelationtab;
 
 import java.util.EnumSet;
-
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.TextFlowLimited;
 import org.jabref.model.entry.BibEntry;
@@ -19,8 +17,8 @@ import org.jabref.model.entry.types.StandardEntryType;
 /// Class to unify the display method of BibEntries in ListViews.
 public class BibEntryView {
 
-    public static final EnumSet<StandardEntryType> CROSS_REF_TYPES = EnumSet.of(StandardEntryType.InBook,
-            StandardEntryType.InProceedings, StandardEntryType.InCollection);
+    public static final EnumSet<StandardEntryType> CROSS_REF_TYPES =
+            EnumSet.of(StandardEntryType.InBook, StandardEntryType.InProceedings, StandardEntryType.InCollection);
 
     /// Creates a layout for a given [BibEntry] to be displayed in a List
     ///
@@ -29,23 +27,22 @@ public class BibEntryView {
     public static Node getEntryNode(BibEntry entry) {
         Node entryType = getIcon(entry.getType()).getGraphicNode();
         entryType.getStyleClass().add("h5");
-        String authorsText = entry.getFieldOrAliasLatexFree(StandardField.AUTHOR).orElse("");
+        String authorsText =
+                entry.getFieldOrAliasLatexFree(StandardField.AUTHOR).orElse("");
         Node authors = createLabel(authorsText);
         authors.getStyleClass().add("h6");
         String titleText = entry.getFieldOrAliasLatexFree(StandardField.TITLE).orElse("");
         Node title = createLabel(titleText);
         title.getStyleClass().addAll("h5", "bold");
-        Label year = new Label(entry.getFieldOrAliasLatexFree(StandardField.YEAR).orElse(""));
+        Label year =
+                new Label(entry.getFieldOrAliasLatexFree(StandardField.YEAR).orElse(""));
         year.getStyleClass().addAll("h6", "bold");
-        String journalText = entry.getFieldOrAliasLatexFree(StandardField.JOURNAL).orElse("");
+        String journalText =
+                entry.getFieldOrAliasLatexFree(StandardField.JOURNAL).orElse("");
         Node journal = createLabel(journalText);
         journal.getStyleClass().add("h6");
 
-        VBox entryContainer = new VBox(
-                new HBox(4, entryType, title),
-                new HBox(4, year, journal),
-                authors
-        );
+        VBox entryContainer = new VBox(new HBox(4, entryType, title), new HBox(4, year, journal), authors);
 
         entry.getFieldOrAliasLatexFree(StandardField.ABSTRACT).ifPresent(summaryText -> {
             Node summary = createSummary(summaryText);
@@ -78,8 +75,8 @@ public class BibEntryView {
     /// @return true if text contains RTL characters
     private static boolean isRTL(String text) {
         for (char c : text.toCharArray()) {
-            if (Character.getDirectionality(c) == Character.DIRECTIONALITY_RIGHT_TO_LEFT ||
-                    Character.getDirectionality(c) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC) {
+            if (Character.getDirectionality(c) == Character.DIRECTIONALITY_RIGHT_TO_LEFT
+                    || Character.getDirectionality(c) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC) {
                 return true;
             }
         }

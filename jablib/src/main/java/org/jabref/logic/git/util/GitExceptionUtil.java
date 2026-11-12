@@ -7,8 +7,7 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class GitExceptionUtil {
 
-    private GitExceptionUtil() {
-    }
+    private GitExceptionUtil() {}
 
     public static boolean containsCause(Throwable throwable, Class<? extends Throwable> causeType) {
         Throwable current = throwable;

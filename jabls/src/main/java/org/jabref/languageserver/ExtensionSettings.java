@@ -34,9 +34,12 @@ public class ExtensionSettings {
         try {
             JsonNode node = mapper.readTree(object.toString());
             this.consistencyCheck = node.at("/jabref/consistencyCheck/enabled").asBoolean(this.consistencyCheck);
-            this.consistencyCheckRequired = node.at("/jabref/consistencyCheck/required").asBoolean(this.consistencyCheckRequired);
-            this.consistencyCheckOptional = node.at("/jabref/consistencyCheck/optional").asBoolean(this.consistencyCheckOptional);
-            this.consistencyCheckUnknown = node.at("/jabref/consistencyCheck/unknown").asBoolean(this.consistencyCheckUnknown);
+            this.consistencyCheckRequired =
+                    node.at("/jabref/consistencyCheck/required").asBoolean(this.consistencyCheckRequired);
+            this.consistencyCheckOptional =
+                    node.at("/jabref/consistencyCheck/optional").asBoolean(this.consistencyCheckOptional);
+            this.consistencyCheckUnknown =
+                    node.at("/jabref/consistencyCheck/unknown").asBoolean(this.consistencyCheckUnknown);
             this.integrityCheck = node.at("/jabref/integrityCheck/enabled").asBoolean(this.integrityCheck);
         } catch (JacksonException processingException) {
             LOGGER.error("Error parsing settings from JSON", processingException);
@@ -65,12 +68,11 @@ public class ExtensionSettings {
 
     @Override
     public String toString() {
-        return "ExtensionSettings{" +
-                "consistencyCheckRequired=" + consistencyCheckRequired +
-                ", consistencyCheckOptional=" + consistencyCheckOptional +
-                ", consistencyCheckUnknown=" + consistencyCheckUnknown +
-                ", integrityCheck=" + integrityCheck +
-                ", consistencyCheck=" + consistencyCheck +
-                '}';
+        return "ExtensionSettings{consistencyCheckRequired="
+                + consistencyCheckRequired + ", consistencyCheckOptional="
+                + consistencyCheckOptional + ", consistencyCheckUnknown="
+                + consistencyCheckUnknown + ", integrityCheck="
+                + integrityCheck + ", consistencyCheck="
+                + consistencyCheck + '}';
     }
 }

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.HeadlessExecutorService;
@@ -12,7 +11,6 @@ import org.jabref.logic.util.NotificationService;
 import org.jabref.logic.util.StreamGobbler;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,10 +69,12 @@ public class PushToSublimeText extends AbstractPushToApplication {
             if (process.exitValue() != 0) {
                 couldNotPush = true;
                 if (!error.isEmpty()) {
-                    sendErrorNotification(Localization.lang("Error pushing entries"),
+                    sendErrorNotification(
+                            Localization.lang("Error pushing entries"),
                             Localization.lang("Could not push to %0.", getDisplayName()) + " " + error);
                 } else {
-                    sendErrorNotification(Localization.lang("Error pushing entries"),
+                    sendErrorNotification(
+                            Localization.lang("Error pushing entries"),
                             Localization.lang("Could not push to %0.", getDisplayName()));
                 }
             }
@@ -83,11 +83,21 @@ public class PushToSublimeText extends AbstractPushToApplication {
             couldNotCall = true;
 
             if (excep instanceof IOException) {
-                sendErrorNotification(Localization.lang("Error pushing entries"),
-                        Localization.lang("Could not call executable '%0'.", commandPath) + "\n" +
-                                Localization.lang("Please check the path in the preferences.") + "\n" +
-                                (OS.OS_X ? Localization.lang("On macOS, you can use the command-line binary (e.g., /usr/local/bin/subl).") + "\n" +
-                                        Localization.lang("To create it, run: %0", "sudo ln -s /Applications/Sublime\\ Text.app/Contents/SharedSupport/bin/subl /usr/local/bin/subl") : ""));
+                sendErrorNotification(
+                        Localization.lang("Error pushing entries"),
+                        Localization.lang("Could not call executable '%0'.", commandPath) + "\n"
+                                + Localization.lang("Please check the path in the preferences.")
+                                + "\n"
+                                + (OS.OS_X
+                                        ? Localization.lang("On macOS, you can use the command-line binary (e.g.,"
+                                                        + " /usr/local/bin/subl).")
+                                                + "\n"
+                                                + Localization.lang(
+                                                        "To create it, run: %0",
+                                                        "sudo ln -s /Applications/Sublime\\"
+                                                                + " Text.app/Contents/SharedSupport/bin/subl"
+                                                                + " /usr/local/bin/subl")
+                                        : ""));
             }
         }
     }
@@ -109,7 +119,9 @@ public class PushToSublimeText extends AbstractPushToApplication {
             citeCommand = "\\" + getCitePrefix();
         }
 
-        return new String[] {commandPath, "--command", "insert {\"characters\": \"" + citeCommand + keyString + getCiteSuffix() + "\"}"};
+        return new String[] {
+            commandPath, "--command", "insert {\"characters\": \"" + citeCommand + keyString + getCiteSuffix() + "\"}"
+        };
     }
 
     @Override

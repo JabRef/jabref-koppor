@@ -1,16 +1,13 @@
 package org.jabref.gui.preferences.forms;
 
+import com.dlsc.gemsfx.EnhancedPasswordField;
 import java.util.function.Consumer;
-
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.gui.util.ControlHelper;
-
-import com.dlsc.gemsfx.EnhancedPasswordField;
 import org.jspecify.annotations.NullMarked;
 
 /// Custom editor: a bound [EnhancedPasswordField] with an optional row of icon buttons in its
@@ -43,7 +40,8 @@ public final class PasswordFieldEditor {
 
     /// Toggles between masked and plain text.
     public PasswordFieldEditor withRevealButton() {
-        return withIconButton(IconTheme.JabRefIcons.PASSWORD_REVEALED,
+        return withIconButton(
+                IconTheme.JabRefIcons.PASSWORD_REVEALED,
                 passwordField -> passwordField.setShowPassword(!passwordField.isShowPassword()));
     }
 

@@ -1,11 +1,5 @@
 package org.jabref.http.server.resources;
 
-import java.io.IOException;
-import java.nio.file.Files;
-
-import org.jabref.http.SrvStateManager;
-import org.jabref.http.server.services.ServerUtils;
-
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -14,6 +8,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.nio.file.Files;
+import org.jabref.http.SrvStateManager;
+import org.jabref.http.server.services.ServerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,25 +41,25 @@ public class MapResource {
         // if no file is found, return the default mindmap
         if (!Files.exists(jabMapPath)) {
             return """
-                    {
-                      "map": {
-                        "meta": {
-                          "name": "JabMap",
-                          "author": "JabMap",
-                          "version": "1.0"
-                        },
-                        "format": "node_tree",
-                        "data": {
-                          "id": "root",
-                          "topic": "JabMap",
-                          "expanded": true,
-                          "icons": [],
-                          "highlight": null,
-                          "type": "Text"
-                        }
-                      }
+                {
+                  "map": {
+                    "meta": {
+                      "name": "JabMap",
+                      "author": "JabMap",
+                      "version": "1.0"
+                    },
+                    "format": "node_tree",
+                    "data": {
+                      "id": "root",
+                      "topic": "JabMap",
+                      "expanded": true,
+                      "icons": [],
+                      "highlight": null,
+                      "type": "Text"
                     }
-                    """;
+                  }
+                }
+                """;
         }
         return Files.readString(jabMapPath);
     }
@@ -92,7 +90,8 @@ public class MapResource {
     }
 
     private java.nio.file.Path getJabMapDemoPath() {
-        java.nio.file.Path result = java.nio.file.Path.of(System.getProperty("java.io.tmpdir")).resolve("demo.jmp");
+        java.nio.file.Path result =
+                java.nio.file.Path.of(System.getProperty("java.io.tmpdir")).resolve("demo.jmp");
         LOGGER.debug("Using temporary file for demo jmp: {}", result);
         return result;
     }

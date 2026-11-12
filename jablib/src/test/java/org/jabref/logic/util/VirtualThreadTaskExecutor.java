@@ -9,8 +9,8 @@ import java.util.concurrent.TimeUnit;
 /// observable in tests. Use [CurrentThreadTaskExecutor] where the test wants tasks to run inline.
 public class VirtualThreadTaskExecutor implements TaskExecutor {
 
-    private final ScheduledExecutorService executor =
-            Executors.newSingleThreadScheduledExecutor(runnable -> Thread.ofVirtual().unstarted(runnable));
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(
+            runnable -> Thread.ofVirtual().unstarted(runnable));
 
     @Override
     public <V> Future<V> execute(BackgroundTask<V> task) {

@@ -2,7 +2,6 @@ package org.jabref.gui.preferences.websearch;
 
 import java.util.List;
 import java.util.Optional;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
@@ -20,7 +19,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.preferences.forms.PreferencesFormBuilder;
@@ -46,9 +44,11 @@ public class WebSearchTab extends AbstractPreferenceTabView<WebSearchTabViewMode
 
     /// Also the source of the table's row height: it is a themed control in the tree, so its font
     /// tracks the configured font size.
-    private final Label tableNote = new Label(Localization.lang("( Note: Press return to commit changes in the table! )"));
+    private final Label tableNote =
+            new Label(Localization.lang("( Note: Press return to commit changes in the table! )"));
 
-    /// @param workingAiPreferences the dialog-scoped working copy edited by the AI tab; this tab observes its master switch to offer or hide the LLM citation parser
+    /// @param workingAiPreferences the dialog-scoped working copy edited by the AI tab; this tab observes its master
+    /// switch to offer or hide the LLM citation parser
     public WebSearchTab(AiPreferences workingAiPreferences) {
         this.viewModel = new WebSearchTabViewModel(
                 preferences.getImporterPreferences(),
@@ -75,50 +75,72 @@ public class WebSearchTab extends AbstractPreferenceTabView<WebSearchTabViewMode
                 Localization.lang("Custom API key"),
                 "api",
                 "api key",
-                "apikey"
-        );
+                "apikey");
     }
 
     private void buildView() {
-        setContent(form()
-
-                .section(Localization.lang("General"), general -> general
-                        .flow(toggles -> toggles
-                                        .checkbox(Localization.lang("Enable web search"), viewModel.enableWebSearchProperty())
-                                        .checkbox(Localization.lang("Warn about duplicates on import"), viewModel.warnAboutDuplicatesOnImportProperty())
-                                        .checkbox(Localization.lang("Download referenced files (PDFs, ...)"), viewModel.shouldDownloadLinkedOnlineFiles())
-                                        .checkbox(Localization.lang("Store url for downloaded file"), viewModel.shouldKeepDownloadUrl()),
-                                toggleRow -> toggleRow.styleClass("gap-4"))
-                        .checkWithField(Localization.lang("Add imported entries to group"), viewModel.getAddImportedEntries(), viewModel.getAddImportedEntriesGroupName(),
-                                PreferencesFormBuilder.InputElement::grow)
-                        .combo(Localization.lang("Default plain citation parser"), viewModel.plainCitationParsers(), viewModel.defaultPlainCitationParserProperty(), PlainCitationParserChoice::getLocalizedName)
-                        .field(Localization.lang("Citations relations local storage time-to-live (in days)"), buildStoreTtlField()))
-
-                .section(Localization.lang("Custom DOI URI"), doi -> doi
-                        .checkWithField(Localization.lang("Use custom DOI base URI for article access"), viewModel.useCustomDOIProperty(), viewModel.useCustomDOINameProperty(),
+        setContent(form().section(
+                        Localization.lang("General"),
+                        general -> general.flow(
+                                        toggles -> toggles.checkbox(
+                                                        Localization.lang("Enable web search"),
+                                                        viewModel.enableWebSearchProperty())
+                                                .checkbox(
+                                                        Localization.lang("Warn about duplicates on import"),
+                                                        viewModel.warnAboutDuplicatesOnImportProperty())
+                                                .checkbox(
+                                                        Localization.lang("Download referenced files (PDFs, ...)"),
+                                                        viewModel.shouldDownloadLinkedOnlineFiles())
+                                                .checkbox(
+                                                        Localization.lang("Store url for downloaded file"),
+                                                        viewModel.shouldKeepDownloadUrl()),
+                                        toggleRow -> toggleRow.styleClass("gap-4"))
+                                .checkWithField(
+                                        Localization.lang("Add imported entries to group"),
+                                        viewModel.getAddImportedEntries(),
+                                        viewModel.getAddImportedEntriesGroupName(),
+                                        PreferencesFormBuilder.InputElement::grow)
+                                .combo(
+                                        Localization.lang("Default plain citation parser"),
+                                        viewModel.plainCitationParsers(),
+                                        viewModel.defaultPlainCitationParserProperty(),
+                                        PlainCitationParserChoice::getLocalizedName)
+                                .field(
+                                        Localization.lang("Citations relations local storage time-to-live (in days)"),
+                                        buildStoreTtlField()))
+                .section(
+                        Localization.lang("Custom DOI URI"),
+                        doi -> doi.checkWithField(
+                                Localization.lang("Use custom DOI base URI for article access"),
+                                viewModel.useCustomDOIProperty(),
+                                viewModel.useCustomDOINameProperty(),
                                 PreferencesFormBuilder.InputElement::grow))
-
-                .section(Localization.lang("Remote services"), remote -> remote
-                        .checkbox(Localization.lang("Allow sending PDF files and raw citation strings to a JabRef online service (Grobid) to determine Metadata. This produces better results."), viewModel.grobidEnabledProperty())
-                        .stringField(Localization.lang("Grobid URL"), viewModel.grobidURLProperty(),
-                                url -> url.disableWhen(viewModel.grobidEnabledProperty().not())))
-
-                .section(Localization.lang("Search Engine URL Templates"), searchEngines -> searchEngines
-                        .custom(tableNote)
-                        .custom(buildSearchEngineTable()))
-
-                .section(Localization.lang("Pre-selected fetchers"), fetchers -> fetchers
-                        .custom(fetchersContainer))
-
+                .section(
+                        Localization.lang("Remote services"),
+                        remote -> remote.checkbox(
+                                        Localization.lang(
+                                                "Allow sending PDF files and raw citation strings to a JabRef online"
+                                                        + " service (Grobid) to determine Metadata. This produces"
+                                                        + " better results."),
+                                        viewModel.grobidEnabledProperty())
+                                .stringField(
+                                        Localization.lang("Grobid URL"),
+                                        viewModel.grobidURLProperty(),
+                                        url -> url.disableWhen(viewModel
+                                                .grobidEnabledProperty()
+                                                .not())))
+                .section(
+                        Localization.lang("Search Engine URL Templates"),
+                        searchEngines -> searchEngines.custom(tableNote).custom(buildSearchEngineTable()))
+                .section(Localization.lang("Pre-selected fetchers"), fetchers -> fetchers.custom(fetchersContainer))
                 .build());
 
         // The fetcher list is filled in setValues(), i.e. after this view exists.
         InvalidationListener listener = _ -> fetchersContainer
                 .getChildren()
-                .setAll(viewModel.getFetchers()
-                                 .stream()
-                                 .map(this::createFetcherNode)
-                                 .toList());
+                .setAll(viewModel.getFetchers().stream()
+                        .map(this::createFetcherNode)
+                        .toList());
         viewModel.getFetchers().addListener(listener);
     }
 
@@ -170,11 +192,13 @@ public class WebSearchTab extends AbstractPreferenceTabView<WebSearchTabViewMode
 
         // Size the table to its content so it never scrolls inside the already scrolling dialog.
         DoubleBinding rowHeight = Bindings.createDoubleBinding(
-                () -> tableNote.getFont() != null ? tableNote.getFont().getSize() * FONT_HEIGHT_MULTIPLIER : DEFAULT_ROW_HEIGHT,
+                () -> tableNote.getFont() != null
+                        ? tableNote.getFont().getSize() * FONT_HEIGHT_MULTIPLIER
+                        : DEFAULT_ROW_HEIGHT,
                 tableNote.fontProperty());
         table.fixedCellSizeProperty().bind(rowHeight);
-        table.prefHeightProperty().bind(
-                Bindings.size(table.getItems())
+        table.prefHeightProperty()
+                .bind(Bindings.size(table.getItems())
                         .add(HEADER_HEIGHT_ESTIMATE)
                         .multiply(rowHeight));
         return table;
@@ -204,20 +228,20 @@ public class WebSearchTab extends AbstractPreferenceTabView<WebSearchTabViewMode
         }
 
         Tooltip configureTooltip = new Tooltip();
-        configureTooltip.textProperty().bind(
-                Bindings.when(item.useCustomApiKeyProperty())
+        configureTooltip
+                .textProperty()
+                .bind(Bindings.when(item.useCustomApiKeyProperty())
                         .then(Localization.lang("Edit API key"))
                         .otherwise(Localization.lang("Configure API key")));
 
         Button configureButton = new Button();
         configureButton.getStyleClass().add("icon-button");
-        configureButton.graphicProperty().bind(
-                item.useCustomApiKeyProperty().map(value ->
-                        value
-                        ? IconTheme.JabRefIcons.SUCCESS.getGraphicNode()
-                        : IconTheme.JabRefIcons.MAKE_KEY.getGraphicNode()
-                )
-        );
+        configureButton
+                .graphicProperty()
+                .bind(item.useCustomApiKeyProperty()
+                        .map(value -> value
+                                ? IconTheme.JabRefIcons.SUCCESS.getGraphicNode()
+                                : IconTheme.JabRefIcons.MAKE_KEY.getGraphicNode()));
 
         configureButton.setOnAction(_ -> showApiKeyDialog(item));
         configureButton.setVisible(item.isCustomizable());

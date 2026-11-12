@@ -3,9 +3,7 @@ package org.jabref.logic.ocr;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,19 +37,16 @@ public class OcrMyPdfEngine implements OcrEngine {
         Path outputPath = OcrUtils.makeOutputFilePath(pdfPath);
         String outputFile = outputPath.toString();
         String ocrCommand = switch (ocrPreferences.getPagesHaveText()) {
-            case SKIP ->
-                    "--skip-text";
-            case FORCE ->
-                    "--force-ocr";
-            case REDO ->
-                    "--redo-ocr";
+            case SKIP -> "--skip-text";
+            case FORCE -> "--force-ocr";
+            case REDO -> "--redo-ocr";
         };
         // although a list of Strings, it represents a single command as that is how the ProcessBuilder expects it.
         ArrayList<String> command = StringUtil.splitRespectingEscapedWhitespace(ocrPreferences.getOcrEnginePath());
         command.add(ocrCommand);
         List<String> languages = ocrPreferences.getOcrLanguages().stream()
-                                               .map(OcrLanguage::getCode)
-                                               .toList();
+                .map(OcrLanguage::getCode)
+                .toList();
         ocrPreferences.getEngineSelection().getIdentifierName().ifPresent(pluginId -> {
             command.add("--ocr-engine");
             command.add(pluginId);

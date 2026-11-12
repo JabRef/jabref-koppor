@@ -7,7 +7,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.openoffice.style.BstStyle;
@@ -17,8 +16,8 @@ public class BstStyleSelectViewModel {
 
     private final StringProperty name = new SimpleStringProperty("");
     private final StringProperty file = new SimpleStringProperty("");
-    private final ObjectProperty<Node> icon = new SimpleObjectProperty<>(
-            IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode());
+    private final ObjectProperty<Node> icon =
+            new SimpleObjectProperty<>(IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode());
     private final BstStyle bstStyle;
     private final BooleanProperty internalStyle = new SimpleBooleanProperty(false);
 

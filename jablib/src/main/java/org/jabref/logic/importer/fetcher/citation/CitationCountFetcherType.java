@@ -36,16 +36,13 @@ public enum CitationCountFetcherType {
         }
     }
 
-    public static CitationCountFetcher getCitationCountFetcher(CitationCountFetcherType type, ImporterPreferences importerPreferences) {
+    public static CitationCountFetcher getCitationCountFetcher(
+            CitationCountFetcherType type, ImporterPreferences importerPreferences) {
         return switch (type) {
-            case SEMANTIC_SCHOLAR ->
-                    new SemanticScholarCitationFetcher(importerPreferences);
-            case OPEN_ALEX ->
-                    new OpenAlex(importerPreferences);
-            case OPEN_CITATIONS ->
-                    new OpenCitationsFetcher(importerPreferences);
-            case SCITE_AI ->
-                    new SciteAiFetcher();
+            case SEMANTIC_SCHOLAR -> new SemanticScholarCitationFetcher(importerPreferences);
+            case OPEN_ALEX -> new OpenAlex(importerPreferences);
+            case OPEN_CITATIONS -> new OpenCitationsFetcher(importerPreferences);
+            case SCITE_AI -> new SciteAiFetcher();
         };
     }
 }

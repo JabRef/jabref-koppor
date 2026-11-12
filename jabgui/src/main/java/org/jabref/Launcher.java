@@ -1,5 +1,6 @@
 package org.jabref;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.io.File;
 import java.io.IOException;
 import java.net.Authenticator;
@@ -7,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-
 import org.jabref.cli.ArgumentProcessor;
 import org.jabref.gui.JabRefGUI;
 import org.jabref.gui.logging.JavaFxCssLogFilter;
@@ -27,8 +27,6 @@ import org.jabref.logic.search.sqlbased.PostgresServer;
 import org.jabref.logic.util.BuildInfo;
 import org.jabref.logic.util.Directories;
 import org.jabref.migrations.PreferencesMigrations;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -60,17 +58,16 @@ public class Launcher {
 
             final JabRefGuiPreferences preferences = JabRefGuiPreferences.getInstance();
 
-            ArgumentProcessor argumentProcessor = new ArgumentProcessor(
-                    args,
-                    ArgumentProcessor.Mode.INITIAL_START,
-                    preferences);
+            ArgumentProcessor argumentProcessor =
+                    new ArgumentProcessor(args, ArgumentProcessor.Mode.INITIAL_START, preferences);
 
             if (!argumentProcessor.getGuiCli().usageHelpRequested) {
                 Injector.setModelOrService(CliPreferences.class, preferences);
                 Injector.setModelOrService(GuiPreferences.class, preferences);
 
                 // Early exit in case another instance is already running
-                MultipleInstanceAction instanceAction = handleMultipleAppInstances(args, preferences.getRemotePreferences());
+                MultipleInstanceAction instanceAction =
+                        handleMultipleAppInstances(args, preferences.getRemotePreferences());
                 if (instanceAction == MultipleInstanceAction.SHUTDOWN) {
                     systemExit();
                 } else if (instanceAction == MultipleInstanceAction.FOCUS) {
@@ -103,7 +100,8 @@ public class Launcher {
             JabRefGUI.launch(JabRefGUI.class, args);
         } catch (Throwable throwable) {
             if (LOGGER == null) {
-                // initLogging itself failed; fall back to an unconfigured logger so the cause is not hidden by a NullPointerException
+                // initLogging itself failed; fall back to an unconfigured logger so the cause is not hidden by a
+                // NullPointerException
                 LOGGER = LoggerFactory.getLogger(Launcher.class);
             }
             LOGGER.error("Could not launch JabRef", throwable);
@@ -135,12 +133,11 @@ public class Launcher {
 
         // We must configure logging as soon as possible, which is why we cannot wait for the usual
         // argument parsing workflow to parse logging options e.g. --debug
-        Level logLevel = Arrays.stream(args).anyMatch("--debug"::equalsIgnoreCase)
-                         ? Level.DEBUG
-                         : Level.INFO;
+        Level logLevel = Arrays.stream(args).anyMatch("--debug"::equalsIgnoreCase) ? Level.DEBUG : Level.INFO;
 
         // addLogToDisk
-        // We cannot use `Injector.instantiateModelOrService(BuildInfo.class).version` here, because this initializes logging
+        // We cannot use `Injector.instantiateModelOrService(BuildInfo.class).version` here, because this initializes
+        // logging
         Path directory = Directories.getLogDirectory(BUILD_INFO.version);
         try {
             Files.createDirectories(directory);
@@ -173,8 +170,10 @@ public class Launcher {
         System.exit(0);
     }
 
-    /// @return MultipleInstanceAction: CONTINUE if JabRef should continue starting up, SHUTDOWN if it should quit, FOCUS if it should focus the existing instance.
-    private static MultipleInstanceAction handleMultipleAppInstances(String[] args, RemotePreferences remotePreferences) {
+    /// @return MultipleInstanceAction: CONTINUE if JabRef should continue starting up, SHUTDOWN if it should quit,
+    /// FOCUS if it should focus the existing instance.
+    private static MultipleInstanceAction handleMultipleAppInstances(
+            String[] args, RemotePreferences remotePreferences) {
         LOGGER.trace("Checking for remote handling...");
 
         if (remotePreferences.shouldEnableRemoteServer()) {
@@ -183,15 +182,18 @@ public class Launcher {
             if (remoteClient.ping()) {
                 LOGGER.debug("Pinging other instance succeeded.");
                 if (args.length == 0) {
-                    // There is already a server out there, avoid showing log "Passing arguments" while no arguments are provided.
+                    // There is already a server out there, avoid showing log "Passing arguments" while no arguments are
+                    // provided.
                     LOGGER.warn("A JabRef instance is already running. Switching to that instance.");
                     return MultipleInstanceAction.FOCUS;
                 } else {
-                    // We are not alone, there is already a server out there, send command line arguments to other instance
+                    // We are not alone, there is already a server out there, send command line arguments to other
+                    // instance
                     LOGGER.debug("Passing arguments passed on to running JabRef...");
                     if (remoteClient.sendCommandLineArguments(args)) {
                         // So we assume it's all taken care of, and quit.
-                        // Output to both to the log and the screen. Therefore, we do not have an additional System.out.println.
+                        // Output to both to the log and the screen. Therefore, we do not have an additional
+                        // System.out.println.
                         LOGGER.info("Arguments passed on to running JabRef instance. Shutting down.");
                         return MultipleInstanceAction.SHUTDOWN;
                     } else {

@@ -1,7 +1,6 @@
 package org.jabref.logic.ai.tokenization.logic;
 
 import java.util.List;
-
 import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.ai.tokenization.TokenEstimatorKind;
 

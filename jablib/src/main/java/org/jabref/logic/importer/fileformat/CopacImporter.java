@@ -6,7 +6,6 @@ import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
@@ -17,7 +16,6 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NonNull;
 
 /// Importer for COPAC format.
@@ -118,27 +116,40 @@ public class CopacImporter extends Importer {
 
                 switch (code) {
                     case "TI- " ->
-                            setOrAppend(b, StandardField.TITLE, line.substring(4).trim(), ", ");
+                        setOrAppend(b, StandardField.TITLE, line.substring(4).trim(), ", ");
                     case "AU- " ->
-                            setOrAppend(b, StandardField.AUTHOR, line.substring(4).trim(), " and ");
+                        setOrAppend(b, StandardField.AUTHOR, line.substring(4).trim(), " and ");
                     case "PY- " ->
-                            setOrAppend(b, StandardField.YEAR, line.substring(4).trim(), ", ");
+                        setOrAppend(b, StandardField.YEAR, line.substring(4).trim(), ", ");
                     case "PU- " ->
-                            setOrAppend(b, StandardField.PUBLISHER, line.substring(4).trim(), ", ");
+                        setOrAppend(
+                                b, StandardField.PUBLISHER, line.substring(4).trim(), ", ");
                     case "SE- " ->
-                            setOrAppend(b, StandardField.SERIES, line.substring(4).trim(), ", ");
+                        setOrAppend(b, StandardField.SERIES, line.substring(4).trim(), ", ");
                     case "IS- " ->
-                            setOrAppend(b, StandardField.ISBN, line.substring(4).trim(), ", ");
+                        setOrAppend(b, StandardField.ISBN, line.substring(4).trim(), ", ");
                     case "KW- " ->
-                            setOrAppend(b, StandardField.KEYWORDS, line.substring(4).trim(), ", ");
+                        setOrAppend(b, StandardField.KEYWORDS, line.substring(4).trim(), ", ");
                     case "NT- " ->
-                            setOrAppend(b, StandardField.NOTE, line.substring(4).trim(), ", ");
+                        setOrAppend(b, StandardField.NOTE, line.substring(4).trim(), ", ");
                     case "PD- " ->
-                            setOrAppend(b, new UnknownField("physicaldimensions"), line.substring(4).trim(), ", ");
+                        setOrAppend(
+                                b,
+                                new UnknownField("physicaldimensions"),
+                                line.substring(4).trim(),
+                                ", ");
                     case "DT- " ->
-                            setOrAppend(b, new UnknownField("documenttype"), line.substring(4).trim(), ", ");
+                        setOrAppend(
+                                b,
+                                new UnknownField("documenttype"),
+                                line.substring(4).trim(),
+                                ", ");
                     default ->
-                            setOrAppend(b, FieldFactory.parseField(StandardEntryType.Book, line.substring(0, 2)), line.substring(4).trim(), ", ");
+                        setOrAppend(
+                                b,
+                                FieldFactory.parseField(StandardEntryType.Book, line.substring(0, 2)),
+                                line.substring(4).trim(),
+                                ", ");
                 }
             }
             results.add(b);

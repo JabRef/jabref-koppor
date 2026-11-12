@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SequencedMap;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,7 +17,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
@@ -33,7 +31,6 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NonNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -93,8 +90,7 @@ public class EndnoteXmlExporter extends Exporter {
 
     private final DocumentBuilderFactory documentBuilderFactory;
 
-    private record EndNoteType(String name, int number) {
-    }
+    private record EndNoteType(String name, int number) {}
 
     private final BibEntryPreferences bibEntryPreferences;
 
@@ -105,9 +101,8 @@ public class EndnoteXmlExporter extends Exporter {
     }
 
     @Override
-    public void export(@NonNull BibDatabaseContext databaseContext,
-                       @NonNull Path file,
-                       @NonNull List<BibEntry> entries) throws ParserConfigurationException, TransformerException {
+    public void export(@NonNull BibDatabaseContext databaseContext, @NonNull Path file, @NonNull List<BibEntry> entries)
+            throws ParserConfigurationException, TransformerException {
         if (entries.isEmpty()) {
             return;
         }
@@ -189,12 +184,13 @@ public class EndnoteXmlExporter extends Exporter {
     private void mapKeywords(BibDatabase bibDatabase, BibEntry entry, Document document, Element recordElement) {
         entry.getFieldOrAlias(StandardField.KEYWORDS).ifPresent(_ -> {
             Element keywordsElement = document.createElement("keywords");
-            entry.getResolvedKeywords(bibEntryPreferences.getKeywordSeparator(), bibDatabase).forEach(keyword -> {
-                Element keywordElement = document.createElement("keyword");
-                // Hierarchical keywords are separated by the '>' character. See {@link } for details.
-                keywordElement.setTextContent(keyword.get());
-                keywordsElement.appendChild(keywordElement);
-            });
+            entry.getResolvedKeywords(bibEntryPreferences.getKeywordSeparator(), bibDatabase)
+                    .forEach(keyword -> {
+                        Element keywordElement = document.createElement("keyword");
+                        // Hierarchical keywords are separated by the '>' character. See {@link } for details.
+                        keywordElement.setTextContent(keyword.get());
+                        keywordsElement.appendChild(keywordElement);
+                    });
             recordElement.appendChild(keywordsElement);
         });
     }
@@ -240,7 +236,8 @@ public class EndnoteXmlExporter extends Exporter {
             yearElement.setTextContent(day);
             datesElement.appendChild(yearElement);
         });
-        // We need to use getField here - getFieldOrAlias for Date tries to convert year, month, and day to a date, which we do not want
+        // We need to use getField here - getFieldOrAlias for Date tries to convert year, month, and day to a date,
+        // which we do not want
         entry.getField(StandardField.DATE).ifPresent(date -> {
             Element pubDatesElement = document.createElement("pub-dates");
             Element dateElement = document.createElement("date");
@@ -262,10 +259,15 @@ public class EndnoteXmlExporter extends Exporter {
         recordElement.appendChild(refTypeElement);
     }
 
-    private static void createMetaInformationElements(BibDatabaseContext databaseContext, Document document, Element recordElement) {
+    private static void createMetaInformationElements(
+            BibDatabaseContext databaseContext, Document document, Element recordElement) {
         Element databaseElement = document.createElement("database");
         databaseElement.setAttribute("name", "MyLibrary");
-        String name = databaseContext.getDatabasePath().map(Path::getFileName).map(Path::toString).orElse("MyLibrary");
+        String name = databaseContext
+                .getDatabasePath()
+                .map(Path::getFileName)
+                .map(Path::toString)
+                .orElse("MyLibrary");
         databaseElement.setTextContent(name);
         recordElement.appendChild(databaseElement);
 
@@ -277,8 +279,10 @@ public class EndnoteXmlExporter extends Exporter {
 
     private static void mapAuthorAndEditor(BibEntry entry, Document document, Element recordElement) {
         Element contributorsElement = document.createElement("contributors");
-        entry.getField(StandardField.AUTHOR).ifPresent(authors -> addPersons(authors, document, contributorsElement, "authors"));
-        entry.getField(StandardField.EDITOR).ifPresent(editors -> addPersons(editors, document, contributorsElement, "secondary-authors"));
+        entry.getField(StandardField.AUTHOR)
+                .ifPresent(authors -> addPersons(authors, document, contributorsElement, "authors"));
+        entry.getField(StandardField.EDITOR)
+                .ifPresent(editors -> addPersons(editors, document, contributorsElement, "secondary-authors"));
         if (contributorsElement.hasChildNodes()) {
             recordElement.appendChild(contributorsElement);
         }

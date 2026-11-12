@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
@@ -30,7 +29,9 @@ public class AbbreviationParser {
     void readJournalListFromFile(Path file) throws IOException {
         char delimiter = detectDelimiter(file);
 
-        try (CSVParser csvParser = new CSVParser(Files.newBufferedReader(file, StandardCharsets.UTF_8), AbbreviationFormat.getCSVFormatWithDelimiter(delimiter))) {
+        try (CSVParser csvParser = new CSVParser(
+                Files.newBufferedReader(file, StandardCharsets.UTF_8),
+                AbbreviationFormat.getCSVFormatWithDelimiter(delimiter))) {
             for (CSVRecord csvRecord : csvParser) {
                 String name = csvRecord.size() > 0 ? csvRecord.get(0) : "";
                 String abbreviation = csvRecord.size() > 1 ? csvRecord.get(1) : "";
@@ -55,9 +56,9 @@ public class AbbreviationParser {
                 return NO_DELIMITER;
             }
             return Arrays.stream(DELIMITERS)
-                         .filter(s -> line.contains(s.toString()))
-                         .findFirst()
-                         .orElse(NO_DELIMITER);
+                    .filter(s -> line.contains(s.toString()))
+                    .findFirst()
+                    .orElse(NO_DELIMITER);
         }
     }
 

@@ -1,12 +1,16 @@
 package org.jabref.logic.openoffice;
 
+import com.sun.star.beans.IllegalTypeException;
+import com.sun.star.beans.NotRemoveableException;
+import com.sun.star.beans.PropertyVetoException;
+import com.sun.star.lang.WrappedTargetException;
+import com.sun.star.text.XTextDocument;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,15 +20,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import org.jabref.logic.citationstyle.CitationStyle;
 import org.jabref.model.openoffice.uno.UnoUserDefinedProperty;
-
-import com.sun.star.beans.IllegalTypeException;
-import com.sun.star.beans.NotRemoveableException;
-import com.sun.star.beans.PropertyVetoException;
-import com.sun.star.lang.WrappedTargetException;
-import com.sun.star.text.XTextDocument;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,14 +41,14 @@ public final class ZoteroDocumentPreferences {
     private static final String STYLE = "style";
     private static final String STYLE_ID = "id";
     private static final String EMPTY_XML_DOCUMENT_DATA = """
-            <data data-version="3" zotero-version="">\
-            <session id=""/>\
-            <style id="" hasBibliography="0" bibliographyStyleHasBeenSet="0"/>\
-            <prefs><pref name="fieldType" value="ReferenceMark"/></prefs>\
-            </data>""";
+        <data data-version="3" zotero-version="">\
+        <session id=""/>\
+        <style id="" hasBibliography="0" bibliographyStyleHasBeenSet="0"/>\
+        <prefs><pref name="fieldType" value="ReferenceMark"/></prefs>\
+        </data>\
+        """;
 
-    private ZoteroDocumentPreferences() {
-    }
+    private ZoteroDocumentPreferences() {}
 
     public static Optional<CitationStyle> findCitationStyle(XTextDocument document, List<CitationStyle> availableStyles)
             throws WrappedTargetException {
@@ -72,11 +69,7 @@ public final class ZoteroDocumentPreferences {
     }
 
     public static boolean writeCitationStyle(XTextDocument document, CitationStyle citationStyle)
-            throws
-            IllegalTypeException,
-            NotRemoveableException,
-            PropertyVetoException,
-            WrappedTargetException {
+            throws IllegalTypeException, NotRemoveableException, PropertyVetoException, WrappedTargetException {
         Optional<String> serializedData = readSerializedData(document);
         String updatedData;
         try {
@@ -165,8 +158,7 @@ public final class ZoteroDocumentPreferences {
         }
     }
 
-    private static Optional<String> readSerializedData(XTextDocument document)
-            throws WrappedTargetException {
+    private static Optional<String> readSerializedData(XTextDocument document) throws WrappedTargetException {
         Optional<String> serializedData = readChunkedProperty(document, ZOTERO_PREF);
         if (serializedData.isEmpty()) {
             serializedData = readChunkedProperty(document, CSL_PREF);
@@ -196,16 +188,13 @@ public final class ZoteroDocumentPreferences {
     }
 
     private static void writeProperty(XTextDocument document, String propertyName, String value)
-            throws
-            IllegalTypeException,
-            NotRemoveableException,
-            PropertyVetoException,
-            WrappedTargetException {
+            throws IllegalTypeException, NotRemoveableException, PropertyVetoException, WrappedTargetException {
         int chunkCount = Math.ceilDiv(value.length(), MAX_LENGTH);
         for (int chunkIndex = 1; chunkIndex <= chunkCount; chunkIndex++) {
             int start = (chunkIndex - 1) * MAX_LENGTH;
             int end = Math.min(chunkIndex * MAX_LENGTH, value.length());
-            UnoUserDefinedProperty.setStringProperty(document, propertyName + "_" + chunkIndex, value.substring(start, end));
+            UnoUserDefinedProperty.setStringProperty(
+                    document, propertyName + "_" + chunkIndex, value.substring(start, end));
         }
         removeTrailingChunks(document, propertyName, chunkCount);
     }

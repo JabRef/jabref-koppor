@@ -3,7 +3,6 @@ package org.jabref.gui.welcome.components;
 import javafx.beans.InvalidationListener;
 import javafx.collections.ObservableSet;
 import javafx.scene.control.ListCell;
-
 import org.jabref.gui.push.GuiPushToApplication;
 
 public class PushToApplicationCell extends ListCell<GuiPushToApplication> {

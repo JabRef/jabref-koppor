@@ -1,5 +1,11 @@
 package org.jabref.logic.integrity;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.citationkeypattern.CitationKeyGeneratorTestUtils;
 import org.jabref.logic.journals.JournalAbbreviationLoader;
@@ -22,7 +27,6 @@ import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.ResourceLock;
@@ -30,36 +34,35 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 /// This class tests the Integrity Checker as a whole.
-/// Aspects are: selected fields, issues arising in a complete BibTeX entry, ... When testing a checker works with a certain input,
+/// Aspects are: selected fields, issues arising in a complete BibTeX entry, ... When testing a checker works with a
+/// certain input,
 /// this test has to go to a test belonging to the respective checker. See PersonNamesCheckerTest for an example test.
 @ResourceLock("Localization.lang")
 class IntegrityCheckTest {
 
     @Test
     void bibTexAcceptsStandardEntryType() {
-        assertCorrect(withMode(createContext(StandardField.TITLE, "sometitle", StandardEntryType.Article), BibDatabaseMode.BIBTEX));
+        assertCorrect(withMode(
+                createContext(StandardField.TITLE, "sometitle", StandardEntryType.Article), BibDatabaseMode.BIBTEX));
     }
 
     @Test
     void bibTexDoesNotAcceptIEEETranEntryType() {
-        assertWrong(withMode(createContext(StandardField.TITLE, "sometitle", IEEETranEntryType.Patent), BibDatabaseMode.BIBTEX));
+        assertWrong(withMode(
+                createContext(StandardField.TITLE, "sometitle", IEEETranEntryType.Patent), BibDatabaseMode.BIBTEX));
     }
 
     @Test
     void bibLaTexAcceptsIEEETranEntryType() {
-        assertCorrect(withMode(createContext(StandardField.TITLE, "sometitle", IEEETranEntryType.Patent), BibDatabaseMode.BIBLATEX));
+        assertCorrect(withMode(
+                createContext(StandardField.TITLE, "sometitle", IEEETranEntryType.Patent), BibDatabaseMode.BIBLATEX));
     }
 
     @Test
     void bibLaTexAcceptsStandardEntryType() {
-        assertCorrect(withMode(createContext(StandardField.TITLE, "sometitle", StandardEntryType.Article), BibDatabaseMode.BIBLATEX));
+        assertCorrect(withMode(
+                createContext(StandardField.TITLE, "sometitle", StandardEntryType.Article), BibDatabaseMode.BIBLATEX));
     }
 
     @ParameterizedTest
@@ -83,9 +86,12 @@ class IntegrityCheckTest {
     }
 
     private static Stream<String> provideIncorrectFormat() {
-        return Stream.of("Knuth, Donald E. and Kurt Cobain and A. Einstein",
-                ", and Kurt Cobain and A. Einstein", "Donald E. Knuth and Kurt Cobain and ,",
-                "and Kurt Cobain and A. Einstein", "Donald E. Knuth and Kurt Cobain and");
+        return Stream.of(
+                "Knuth, Donald E. and Kurt Cobain and A. Einstein",
+                ", and Kurt Cobain and A. Einstein",
+                "Donald E. Knuth and Kurt Cobain and ,",
+                "and Kurt Cobain and A. Einstein",
+                "Donald E. Knuth and Kurt Cobain and");
     }
 
     @Test
@@ -133,27 +139,26 @@ class IntegrityCheckTest {
         bibDatabase.insertEntry(entry);
         BibDatabaseContext context = new BibDatabaseContext(bibDatabase);
 
-        new IntegrityCheck(context,
-                mock(FilePreferences.class),
-                CitationKeyGeneratorTestUtils.getInstanceForTesting(),
-                JournalAbbreviationLoader.loadBuiltInRepository(),
-                false)
+        new IntegrityCheck(
+                        context,
+                        mock(FilePreferences.class),
+                        CitationKeyGeneratorTestUtils.getInstanceForTesting(),
+                        JournalAbbreviationLoader.loadBuiltInRepository(),
+                        false)
                 .check();
 
         assertEquals(clonedEntry, entry);
     }
 
     private BibDatabaseContext createContext(Field field, String value, EntryType type) {
-        BibEntry entry = new BibEntry(type)
-                .withField(field, value);
+        BibEntry entry = new BibEntry(type).withField(field, value);
         BibDatabase bibDatabase = new BibDatabase();
         bibDatabase.insertEntry(entry);
         return new BibDatabaseContext(bibDatabase);
     }
 
     private BibDatabaseContext createContext(Field field, String value, MetaData metaData) {
-        BibEntry entry = new BibEntry()
-                .withField(field, value);
+        BibEntry entry = new BibEntry().withField(field, value);
         BibDatabase bibDatabase = new BibDatabase();
         bibDatabase.insertEntry(entry);
         return new BibDatabaseContext(bibDatabase, metaData);
@@ -168,11 +173,12 @@ class IntegrityCheckTest {
     private void assertWrong(BibDatabaseContext context) {
         List<IntegrityMessage> messages;
 
-        messages = new IntegrityCheck(context,
-                mock(FilePreferences.class),
-                CitationKeyGeneratorTestUtils.getInstanceForTesting(),
-                JournalAbbreviationLoader.loadBuiltInRepository(),
-                false)
+        messages = new IntegrityCheck(
+                        context,
+                        mock(FilePreferences.class),
+                        CitationKeyGeneratorTestUtils.getInstanceForTesting(),
+                        JournalAbbreviationLoader.loadBuiltInRepository(),
+                        false)
                 .check();
 
         assertNotEquals(List.of(), messages);
@@ -183,11 +189,12 @@ class IntegrityCheckTest {
         when(filePreferencesMock.shouldStoreFilesRelativeToBibFile()).thenReturn(true);
         List<IntegrityMessage> messages;
 
-        messages = new IntegrityCheck(context,
-                filePreferencesMock,
-                CitationKeyGeneratorTestUtils.getInstanceForTesting(),
-                JournalAbbreviationLoader.loadBuiltInRepository(),
-                false)
+        messages = new IntegrityCheck(
+                        context,
+                        filePreferencesMock,
+                        CitationKeyGeneratorTestUtils.getInstanceForTesting(),
+                        JournalAbbreviationLoader.loadBuiltInRepository(),
+                        false)
                 .check();
 
         assertEquals(List.of(), messages);

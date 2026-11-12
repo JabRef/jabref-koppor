@@ -1,15 +1,13 @@
 package org.jabref.toolkit.service;
 
-import java.nio.file.Path;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Path;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.toolkit.commands.AbstractJabKitTest;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ImportServiceTest extends AbstractJabKitTest {
 
@@ -20,7 +18,8 @@ class ImportServiceTest extends AbstractJabKitTest {
 
         BibDatabase database = parserResult.getDatabase();
         assertTrue(database.getEntries().size() > 1);
-        database.getEntries().forEach(entry -> assertTrue(entry.getField(StandardField.TITLE).isPresent()));
+        database.getEntries()
+                .forEach(entry -> assertTrue(entry.getField(StandardField.TITLE).isPresent()));
     }
 
     @Test
@@ -30,6 +29,7 @@ class ImportServiceTest extends AbstractJabKitTest {
 
         BibDatabase database = parserResult.getDatabase();
         assertTrue(database.getEntries().size() > 1);
-        database.getEntries().forEach(entry -> assertTrue(entry.getField(StandardField.TITLE).isPresent()));
+        database.getEntries()
+                .forEach(entry -> assertTrue(entry.getField(StandardField.TITLE).isPresent()));
     }
 }

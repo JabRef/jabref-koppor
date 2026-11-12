@@ -1,14 +1,12 @@
 package org.jabref.http.server.cayw.format;
 
+import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.jabref.http.server.cayw.CAYWQueryParams;
 import org.jabref.http.server.cayw.CitationProperties;
 import org.jabref.http.server.cayw.gui.CAYWEntry;
-
-import jakarta.ws.rs.core.MediaType;
 
 public class PandocFormatter implements CAYWFormatter {
 
@@ -19,10 +17,11 @@ public class PandocFormatter implements CAYWFormatter {
 
     @Override
     public String format(CAYWQueryParams queryParams, List<CAYWEntry> caywEntries) {
-        return "[%s]".formatted(caywEntries.stream()
-                                           .map(this::formatEntry)
-                                           .flatMap(Optional::stream)
-                                           .collect(Collectors.joining("; ")));
+        return "[%s]"
+                .formatted(caywEntries.stream()
+                        .map(this::formatEntry)
+                        .flatMap(Optional::stream)
+                        .collect(Collectors.joining("; ")));
     }
 
     private Optional<String> formatEntry(CAYWEntry entry) {

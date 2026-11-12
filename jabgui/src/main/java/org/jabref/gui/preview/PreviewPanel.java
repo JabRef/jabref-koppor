@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
@@ -25,7 +24,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.Notifications;
 import org.jabref.gui.StateManager;
@@ -45,12 +43,12 @@ import org.jabref.logic.preview.PreviewLayout;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.Nullable;
 
 /// Displays the entry preview
 ///
-/// The instance is re-used at each tab. The code ensures that the panel is moved across tabs when the user switches the tab.
+/// The instance is re-used at each tab. The code ensures that the panel is moved across tabs when the user switches the
+/// tab.
 public class PreviewPanel extends VBox implements PreviewControls {
 
     private final ExternalFilesEntryLinker fileLinker;
@@ -62,19 +60,25 @@ public class PreviewPanel extends VBox implements PreviewControls {
 
     private BibEntry entry;
 
-    public PreviewPanel(DialogService dialogService,
-                        KeyBindingRepository keyBindingRepository,
-                        GuiPreferences preferences,
-                        TaskExecutor taskExecutor,
-                        StateManager stateManager) {
+    public PreviewPanel(
+            DialogService dialogService,
+            KeyBindingRepository keyBindingRepository,
+            GuiPreferences preferences,
+            TaskExecutor taskExecutor,
+            StateManager stateManager) {
         this.keyBindingRepository = keyBindingRepository;
         this.dialogService = dialogService;
         this.previewPreferences = preferences.getPreviewPreferences();
-        this.fileLinker = new ExternalFilesEntryLinker(preferences.getExternalApplicationsPreferences(), preferences.getFilePreferences(), dialogService, stateManager);
+        this.fileLinker = new ExternalFilesEntryLinker(
+                preferences.getExternalApplicationsPreferences(),
+                preferences.getFilePreferences(),
+                dialogService,
+                stateManager);
         this.stateManager = stateManager;
 
         PreviewPreferences previewPreferences = preferences.getPreviewPreferences();
-        previewView = new PreviewViewer(dialogService, preferences, taskExecutor, stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH));
+        previewView = new PreviewViewer(
+                dialogService, preferences, taskExecutor, stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH));
         previewView.setLayout(previewPreferences.getSelectedPreviewLayout());
         previewView.setContextMenu(createPopupMenu());
         previewView.setOnDragDetected(this::onDragDetected);
@@ -121,11 +125,11 @@ public class PreviewPanel extends VBox implements PreviewControls {
         BindingsHelper.bindBidirectional(
                 previewPreferences.layoutCyclePositionProperty(),
                 previewLayoutComboBox.valueProperty(),
-                position -> { // An expanded form of a lambda (with {} and a return statement) has to be used. Otherwise, it would mark the call as "ambiguous".
+                position -> { // An expanded form of a lambda (with {} and a return statement) has to be used.
+                              // Otherwise, it would mark the call as "ambiguous".
                     return previewPreferences.getLayoutCycle().get(position.intValue());
                 },
-                layout -> previewPreferences.getLayoutCycle().indexOf(layout)
-        );
+                layout -> previewPreferences.getLayoutCycle().indexOf(layout));
 
         previewSelectionBar.getChildren().addAll(previewLayoutLabel, previewLayoutComboBox);
         return previewSelectionBar;
@@ -157,7 +161,8 @@ public class PreviewPanel extends VBox implements PreviewControls {
         boolean success = false;
         if (event.getDragboard().hasContent(DataFormat.FILES)) {
             TransferMode transferMode = event.getTransferMode();
-            List<Path> files = event.getDragboard().getFiles().stream().map(File::toPath).collect(Collectors.toList());
+            List<Path> files =
+                    event.getDragboard().getFiles().stream().map(File::toPath).collect(Collectors.toList());
             DragDrop.handleDropOfFiles(files, transferMode, fileLinker, entry);
             success = true;
         }
@@ -179,7 +184,8 @@ public class PreviewPanel extends VBox implements PreviewControls {
     }
 
     private ContextMenu createPopupMenu() {
-        MenuItem copyCitationHtml = new MenuItem(Localization.lang("Copy citation (html)"), IconTheme.JabRefIcons.COPY.getGraphicNode());
+        MenuItem copyCitationHtml =
+                new MenuItem(Localization.lang("Copy citation (html)"), IconTheme.JabRefIcons.COPY.getGraphicNode());
         keyBindingRepository.getKeyCombination(KeyBinding.COPY_PREVIEW).ifPresent(copyCitationHtml::setAccelerator);
         copyCitationHtml.setOnAction(_ -> previewView.copyPreviewHtmlToClipBoard());
         MenuItem copyCitationText = new MenuItem(Localization.lang("Copy citation (text)"));
@@ -188,16 +194,22 @@ public class PreviewPanel extends VBox implements PreviewControls {
         exportToClipboard.setOnAction(_ -> previewView.exportToClipBoard(stateManager));
         MenuItem copySelection = new MenuItem(Localization.lang("Copy selection"));
         copySelection.setOnAction(_ -> previewView.copySelectionToClipBoard());
-        MenuItem printEntryPreview = new MenuItem(Localization.lang("Print entry preview"), IconTheme.JabRefIcons.PRINTED.getGraphicNode());
+        MenuItem printEntryPreview =
+                new MenuItem(Localization.lang("Print entry preview"), IconTheme.JabRefIcons.PRINTED.getGraphicNode());
         printEntryPreview.setOnAction(_ -> previewView.print());
         MenuItem previousPreviewLayout = new MenuItem(Localization.lang("Previous preview layout"));
-        keyBindingRepository.getKeyCombination(KeyBinding.PREVIOUS_PREVIEW_LAYOUT).ifPresent(previousPreviewLayout::setAccelerator);
+        keyBindingRepository
+                .getKeyCombination(KeyBinding.PREVIOUS_PREVIEW_LAYOUT)
+                .ifPresent(previousPreviewLayout::setAccelerator);
         previousPreviewLayout.setOnAction(_ -> this.previousPreviewStyle());
         MenuItem nextPreviewLayout = new MenuItem(Localization.lang("Next preview layout"));
-        keyBindingRepository.getKeyCombination(KeyBinding.NEXT_PREVIEW_LAYOUT).ifPresent(nextPreviewLayout::setAccelerator);
+        keyBindingRepository
+                .getKeyCombination(KeyBinding.NEXT_PREVIEW_LAYOUT)
+                .ifPresent(nextPreviewLayout::setAccelerator);
         nextPreviewLayout.setOnAction(_ -> this.nextPreviewStyle());
         MenuItem goToPreferences = new MenuItem(Localization.lang("Open preview preferences..."));
-        goToPreferences.setOnAction(_ -> dialogService.showCustomDialogAndWait(new PreferencesDialogView(PreviewTab.class)));
+        goToPreferences.setOnAction(
+                _ -> dialogService.showCustomDialogAndWait(new PreferencesDialogView(PreviewTab.class)));
 
         ContextMenu menu = new ContextMenu();
         menu.getItems().add(copyCitationHtml);

@@ -1,10 +1,14 @@
 package org.jabref.logic.shared;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.exporter.SelfContainedSaveConfiguration;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -19,18 +23,12 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.support.DatabaseTest;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @DatabaseTest
 @Execution(ExecutionMode.SAME_THREAD)
@@ -48,8 +46,9 @@ class SharedDatabaseExportTest {
         dbmsProcessor = new DBMSProcessor(dbmsConnection);
         TestManager.clearTables(dbmsConnection);
 
-        connectionUrl = DBMSConnectionUrl.parse(
-                "postgresql://postgres:postgres@localhost:" + dbmsConnection.getProperties().getPort() + "/postgres").orElseThrow();
+        connectionUrl = DBMSConnectionUrl.parse("postgresql://postgres:postgres@localhost:"
+                        + dbmsConnection.getProperties().getPort() + "/postgres")
+                .orElseThrow();
 
         preferences = mock(CliPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(preferences.getBibEntryPreferences()).thenReturn(BibEntryPreferences.getDefault());
@@ -65,7 +64,9 @@ class SharedDatabaseExportTest {
 
     @Test
     void pullFailsOnDatabaseWithoutJabRefTables() {
-        assertThrows(DatabaseNotSupportedException.class, () -> SharedDatabaseExport.pullToTemporaryBib(connectionUrl, preferences));
+        assertThrows(
+                DatabaseNotSupportedException.class,
+                () -> SharedDatabaseExport.pullToTemporaryBib(connectionUrl, preferences));
     }
 
     @Test
@@ -76,19 +77,19 @@ class SharedDatabaseExportTest {
                         .withCitationKey("first")
                         .withField(StandardField.AUTHOR, "Alice")
                         .withField(StandardField.TITLE, "First"),
-                new BibEntry(StandardEntryType.Book)
-                        .withCitationKey("second")
-                        .withField(StandardField.AUTHOR, "Bob")));
+                new BibEntry(StandardEntryType.Book).withCitationKey("second").withField(StandardField.AUTHOR, "Bob")));
         Map<String, String> metaData = dbmsProcessor.getSharedMetaData();
         metaData.put(MetaData.DATABASE_TYPE, "biblatex;");
         dbmsProcessor.setSharedMetaData(metaData);
 
         Path pulled = SharedDatabaseExport.pullToTemporaryBib(connectionUrl, preferences);
 
-        ParserResult parserResult = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor())
+        ParserResult parserResult = new BibtexImporter(
+                        mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor())
                 .importDatabase(pulled);
 
-        assertEquals(List.of(
+        assertEquals(
+                List.of(
                         new BibEntry(StandardEntryType.Article)
                                 .withCitationKey("first")
                                 .withField(StandardField.AUTHOR, "Alice")
@@ -97,6 +98,8 @@ class SharedDatabaseExportTest {
                                 .withCitationKey("second")
                                 .withField(StandardField.AUTHOR, "Bob")),
                 parserResult.getDatabase().getEntries());
-        assertEquals(Optional.of(BibDatabaseMode.BIBLATEX), parserResult.getMetaData().getMode());
+        assertEquals(
+                Optional.of(BibDatabaseMode.BIBLATEX),
+                parserResult.getMetaData().getMode());
     }
 }

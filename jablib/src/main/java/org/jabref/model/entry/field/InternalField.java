@@ -52,8 +52,8 @@ public enum InternalField implements Field {
         }
 
         return Arrays.stream(InternalField.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+                .filter(field -> field.getName().equalsIgnoreCase(name))
+                .findAny();
     }
 
     @Override

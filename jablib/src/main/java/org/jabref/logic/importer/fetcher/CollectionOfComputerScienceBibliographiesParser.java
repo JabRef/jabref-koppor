@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.formatter.bibtexfields.HtmlToUnicodeFormatter;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -19,8 +18,9 @@ import org.jabref.model.entry.BibEntry;
 
 public class CollectionOfComputerScienceBibliographiesParser implements Parser {
 
-    final static Pattern REGEX_FOR_LINKS = Pattern.compile("<item>[\\s\\S]*?<link>([\\s\\S]*?)<\\/link>[\\s\\S]*?<\\/item>");
-    final static Pattern REGEX_FOR_BIBTEX = Pattern.compile("<pre class=\"bibtex\">([\\s\\S]*?)<\\/pre>");
+    static final Pattern REGEX_FOR_LINKS =
+            Pattern.compile("<item>[\\s\\S]*?<link>([\\s\\S]*?)<\\/link>[\\s\\S]*?<\\/item>");
+    static final Pattern REGEX_FOR_BIBTEX = Pattern.compile("<pre class=\"bibtex\">([\\s\\S]*?)<\\/pre>");
 
     final BibtexParser bibtexParser;
     final HtmlToUnicodeFormatter htmlToUnicodeFormatter;
@@ -45,8 +45,8 @@ public class CollectionOfComputerScienceBibliographiesParser implements Parser {
     private List<String> matchRegexFromInputStreamHtml(InputStream inputStream, Pattern pattern) {
         try (Scanner scanner = new Scanner(inputStream)) {
             return scanner.findAll(pattern)
-                          .map(match -> htmlToUnicodeFormatter.format(match.group(1)))
-                          .collect(Collectors.toList());
+                    .map(match -> htmlToUnicodeFormatter.format(match.group(1)))
+                    .collect(Collectors.toList());
         }
     }
 
@@ -62,4 +62,3 @@ public class CollectionOfComputerScienceBibliographiesParser implements Parser {
         return bibtexStringsFromAllLinks;
     }
 }
-

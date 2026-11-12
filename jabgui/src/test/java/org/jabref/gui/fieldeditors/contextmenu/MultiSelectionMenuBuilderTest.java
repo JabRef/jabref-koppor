@@ -1,10 +1,15 @@
 package org.jabref.gui.fieldeditors.contextmenu;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import java.nio.file.Path;
 import java.util.Optional;
-
 import javafx.beans.property.SimpleStringProperty;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.fieldeditors.LinkedFileViewModel;
 import org.jabref.gui.fieldeditors.LinkedFilesEditorViewModel;
@@ -13,18 +18,10 @@ import org.jabref.logic.FilePreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
-import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class MultiSelectionMenuBuilderTest {
 
@@ -41,7 +38,8 @@ class MultiSelectionMenuBuilderTest {
         DialogService dialogService = mock(DialogService.class);
         LinkedFilesEditorViewModel viewModel = mock(LinkedFilesEditorViewModel.class);
         @SuppressWarnings("unchecked")
-        ObservableOptionalValue<BibEntry> bibEntry = (ObservableOptionalValue<BibEntry>) mock(ObservableOptionalValue.class);
+        ObservableOptionalValue<BibEntry> bibEntry =
+                (ObservableOptionalValue<BibEntry>) mock(ObservableOptionalValue.class);
 
         builder = new MultiSelectionMenuBuilder(dialogService, databaseContext, bibEntry, guiPreferences, viewModel);
     }
@@ -97,7 +95,8 @@ class MultiSelectionMenuBuilderTest {
         when(linkedFile.isOnlineLink()).thenReturn(false);
         when(linkedFile.findIn(any(BibDatabaseContext.class), any(FilePreferences.class)))
                 .thenReturn(Optional.of(path));
-        when(linkedFile.linkProperty()).thenReturn(new SimpleStringProperty(path.getFileName().toString()));
+        when(linkedFile.linkProperty())
+                .thenReturn(new SimpleStringProperty(path.getFileName().toString()));
         when(linkedFile.getSourceUrl()).thenReturn("");
         when(linkedFile.sourceUrlProperty()).thenReturn(new SimpleStringProperty(""));
 

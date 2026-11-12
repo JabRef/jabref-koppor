@@ -41,5 +41,7 @@
 ///
 /// @see <a href="https://devdocs.jabref.org/architecture-and-components.html#preferences">Preferences component</a>
 /// @see <a href="https://devdocs.jabref.org/code-howtos/ui-recommendations.html#form-validation">Form validation</a>
-/// @see <a href="https://devdocs.jabref.org/decisions/0069-preferences-search-registration-vs-scene-graph-scan.html">ADR 0069: preferences search registration</a>
+/// @see <a
+/// href="https://devdocs.jabref.org/decisions/0069-preferences-search-registration-vs-scene-graph-scan.html">ADR 0069:
+/// preferences search registration</a>
 package org.jabref.gui.preferences.forms;

@@ -2,7 +2,6 @@ package org.jabref.logic.layout.format;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.jabref.logic.layout.LayoutFormatter;
 
 /// A layout formatter that is the composite of the given Formatters executed in order.

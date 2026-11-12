@@ -3,7 +3,6 @@ package org.jabref.logic.util;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.StringJoiner;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 

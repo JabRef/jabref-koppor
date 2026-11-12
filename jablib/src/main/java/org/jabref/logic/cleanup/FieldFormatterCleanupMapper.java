@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
@@ -20,8 +19,7 @@ public class FieldFormatterCleanupMapper {
     private static final String CLEANUP_FOR_PARSING = ",(?![^\\[]*])";
     private static final Pattern FIELD_FORMATTER_CLEANUP_PATTERN = Pattern.compile("([^\\[]+)\\[([^]]+)]");
 
-    private FieldFormatterCleanupMapper() {
-    }
+    private FieldFormatterCleanupMapper() {}
 
     /// This parses the key/list map of fields and clean up actions for the field.
     ///
@@ -50,8 +48,7 @@ public class FieldFormatterCleanupMapper {
 
             String fieldString = matcher.group(2);
 
-            List<FieldFormatterCleanup> fieldFormatterCleanups = Arrays
-                    .stream(fieldString.split(","))
+            List<FieldFormatterCleanup> fieldFormatterCleanups = Arrays.stream(fieldString.split(","))
                     .map(FieldFormatterCleanupActions::getFormatterFromString)
                     .map(formatter -> new FieldFormatterCleanup(field, formatter))
                     .toList();
@@ -66,8 +63,9 @@ public class FieldFormatterCleanupMapper {
         Map<Field, Set<String>> groupedByField = new LinkedHashMap<>();
         for (FieldFormatterCleanup cleanup : actionList) {
             // add the formatter to map if not already in there, order sensitive
-            groupedByField.computeIfAbsent(cleanup.getField(), _ -> new LinkedHashSet<>())
-                          .add(cleanup.getFormatter().getKey());
+            groupedByField
+                    .computeIfAbsent(cleanup.getField(), _ -> new LinkedHashSet<>())
+                    .add(cleanup.getFormatter().getKey());
         }
 
         // convert the contents of the hashmap into the correct serialization

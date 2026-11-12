@@ -10,12 +10,10 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
-
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.command.CommandSelectionTab;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.fileformat.BibtexImporter;
@@ -27,7 +25,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +53,10 @@ public class JabRefSrvStateManager extends AbstractSrvStateManager {
     private final ObservableList<BibDatabaseContext> openDatabases = FXCollections.observableArrayList();
     private final Map<Path, FileTime> lastModified = new HashMap<>();
 
-    public JabRefSrvStateManager(BibEntryPreferences bibEntryPreferences, ImportFormatPreferences importFormatPreferences, List<Path> files) {
+    public JabRefSrvStateManager(
+            BibEntryPreferences bibEntryPreferences,
+            ImportFormatPreferences importFormatPreferences,
+            List<Path> files) {
         this.bibEntryPreferences = bibEntryPreferences;
         this.importer = new BibtexImporter(importFormatPreferences, new DummyFileUpdateMonitor());
         for (Path file : files) {
@@ -151,10 +151,10 @@ public class JabRefSrvStateManager extends AbstractSrvStateManager {
     @Override
     public synchronized List<String> getAllDatabasePaths() {
         return openDatabases.stream()
-                            .map(BibDatabaseContext::getDatabasePath)
-                            .flatMap(Optional::stream)
-                            .map(path -> path.toAbsolutePath().toString())
-                            .toList();
+                .map(BibDatabaseContext::getDatabasePath)
+                .flatMap(Optional::stream)
+                .map(path -> path.toAbsolutePath().toString())
+                .toList();
     }
 
     @Override

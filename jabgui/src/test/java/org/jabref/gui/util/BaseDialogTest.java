@@ -1,7 +1,14 @@
 package org.jabref.gui.util;
 
-import java.util.concurrent.atomic.AtomicReference;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.airhacks.afterburner.injection.Injector;
+import java.util.concurrent.atomic.AtomicReference;
 import javafx.event.Event;
 import javafx.scene.Scene;
 import javafx.scene.control.ButtonType;
@@ -9,22 +16,12 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.gui.testutils.JavaFxTest;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @NullMarked
 class BaseDialogTest extends JavaFxTest {
@@ -46,7 +43,7 @@ class BaseDialogTest extends JavaFxTest {
     }
 
     @Test
-        // [utest->req~ux.dialogs.close-key-binding~1]
+    // [utest->req~ux.dialogs.close-key-binding~1]
     void closeKeyBindingClosesDialog() {
         closeKeyBindingIs(KeyCode.W);
         BaseDialog<Void> dialog = show(true);
@@ -55,7 +52,7 @@ class BaseDialogTest extends JavaFxTest {
     }
 
     @Test
-        // [utest->req~ux.dialogs.close-key-binding~1]
+    // [utest->req~ux.dialogs.close-key-binding~1]
     void escapeClosesDialogWhenItIsTheCloseKeyBinding() {
         closeKeyBindingIs(KeyCode.ESCAPE);
         BaseDialog<Void> dialog = show(true);
@@ -64,7 +61,7 @@ class BaseDialogTest extends JavaFxTest {
     }
 
     @Test
-        // [utest->req~ux.dialogs.close-key-binding~1]
+    // [utest->req~ux.dialogs.close-key-binding~1]
     void closeKeyBindingKeepsOptedOutDialogOpen() {
         closeKeyBindingIs(KeyCode.W);
         BaseDialog<Void> dialog = show(false);

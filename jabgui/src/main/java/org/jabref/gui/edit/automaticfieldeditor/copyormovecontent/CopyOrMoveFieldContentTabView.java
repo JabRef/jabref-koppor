@@ -1,14 +1,17 @@
 package org.jabref.gui.edit.automaticfieldeditor.copyormovecontent;
 
+import static org.jabref.gui.util.FieldsUtil.FIELD_STRING_CONVERTER;
+
+import com.airhacks.afterburner.views.ViewLoader;
+import com.tobiasdiez.easybind.EasyBind;
+import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
 import java.util.ArrayList;
 import java.util.List;
-
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.edit.automaticfieldeditor.AbstractAutomaticFieldEditorTabView;
@@ -20,13 +23,8 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.undo.CompoundEdit;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import com.tobiasdiez.easybind.EasyBind;
-import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
-
-import static org.jabref.gui.util.FieldsUtil.FIELD_STRING_CONVERTER;
-
-public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorTabView implements AutomaticFieldEditorTab {
+public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorTabView
+        implements AutomaticFieldEditorTab {
     public Button copyContentButton;
     private final CompoundEdit compoundEdit;
     private final DialogService dialogService;
@@ -34,45 +32,53 @@ public class CopyOrMoveFieldContentTabView extends AbstractAutomaticFieldEditorT
     private final BibDatabase database;
     private final StateManager stateManager;
     private final ControlsFxVisualizer visualizer = new ControlsFxVisualizer();
+
     @FXML
     private Button moveContentButton;
+
     @FXML
     private Button swapContentButton;
+
     @FXML
     private ComboBox<Field> fromFieldComboBox;
+
     @FXML
     private ComboBox<Field> toFieldComboBox;
+
     @FXML
     private CheckBox overwriteFieldContentCheckBox;
+
     private CopyOrMoveFieldContentTabViewModel viewModel;
 
-    public CopyOrMoveFieldContentTabView(BibDatabase database,
-                                         CompoundEdit compoundEdit,
-                                         DialogService dialogService,
-                                         StateManager stateManager) {
+    public CopyOrMoveFieldContentTabView(
+            BibDatabase database, CompoundEdit compoundEdit, DialogService dialogService, StateManager stateManager) {
         this.compoundEdit = compoundEdit;
         this.dialogService = dialogService;
         this.selectedEntries = new ArrayList<>(stateManager.getSelectedEntries());
         this.database = database;
         this.stateManager = stateManager;
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     public void initialize() {
-        viewModel = new CopyOrMoveFieldContentTabViewModel(database, selectedEntries, compoundEdit, dialogService, stateManager);
+        viewModel = new CopyOrMoveFieldContentTabViewModel(
+                database, selectedEntries, compoundEdit, dialogService, stateManager);
         initializeFromAndToComboBox();
 
         viewModel.overwriteFieldContentProperty().bindBidirectional(overwriteFieldContentCheckBox.selectedProperty());
 
         moveContentButton.disableProperty().bind(viewModel.canMoveProperty().not());
         swapContentButton.disableProperty().bind(viewModel.canSwapProperty().not());
-        copyContentButton.disableProperty().bind(viewModel.toFieldValidationStatus().validProperty().not());
-        overwriteFieldContentCheckBox.disableProperty().bind(viewModel.toFieldValidationStatus().validProperty().not());
+        copyContentButton
+                .disableProperty()
+                .bind(viewModel.toFieldValidationStatus().validProperty().not());
+        overwriteFieldContentCheckBox
+                .disableProperty()
+                .bind(viewModel.toFieldValidationStatus().validProperty().not());
 
-        Platform.runLater(() -> visualizer.initVisualization(viewModel.toFieldValidationStatus(), toFieldComboBox, true));
+        Platform.runLater(
+                () -> visualizer.initVisualization(viewModel.toFieldValidationStatus(), toFieldComboBox, true));
     }
 
     private void initializeFromAndToComboBox() {

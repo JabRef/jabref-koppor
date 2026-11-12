@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.ParserResult;
@@ -13,8 +13,6 @@ import org.jabref.logic.importer.fileformat.BibtexParser;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.PdfUtils;
 import org.jabref.model.entry.BibEntry;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
 
 /// This importer imports a verbatim BibTeX entry from the first page of the PDF.
 public class PdfVerbatimBibtexImporter extends PdfImporter {

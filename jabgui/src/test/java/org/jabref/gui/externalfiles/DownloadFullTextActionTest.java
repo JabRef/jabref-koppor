@@ -1,5 +1,14 @@
 package org.jabref.gui.externalfiles;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +19,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
 import javafx.application.Platform;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefGuiStateManager;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -26,20 +33,10 @@ import org.jabref.logic.util.URLUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 @ExtendWith(JavaFxExtension.class)
@@ -71,7 +68,8 @@ class DownloadFullTextActionTest {
         databaseContext.getDatabase().insertEntry(entry);
         stateManager.setSelectedEntries(List.of(entry));
 
-        fetcherResult = new FetcherResult(TrustLevel.PUBLISHER, URLUtil.create("https://example.org/test.pdf"), Map.of());
+        fetcherResult =
+                new FetcherResult(TrustLevel.PUBLISHER, URLUtil.create("https://example.org/test.pdf"), Map.of());
     }
 
     @Test
@@ -139,7 +137,8 @@ class DownloadFullTextActionTest {
     void entryShowsFulltextLookupInProgressWhileItsLookupRuns() throws Exception {
         List<Boolean> inProgressDuringLookup = new ArrayList<>();
         RecordingDownloadFullTextAction action = new RecordingDownloadFullTextAction(_ -> {
-            inProgressDuringLookup.add(UiTaskExecutor.runInJavaFXThread(() -> EntryLookupsInProgress.FULLTEXT.inProgress(entry).get()));
+            inProgressDuringLookup.add(UiTaskExecutor.runInJavaFXThread(
+                    () -> EntryLookupsInProgress.FULLTEXT.inProgress(entry).get()));
             return Optional.empty();
         });
 

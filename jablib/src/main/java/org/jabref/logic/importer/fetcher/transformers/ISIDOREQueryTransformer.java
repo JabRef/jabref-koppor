@@ -4,10 +4,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-
 import org.jabref.logic.formatter.casechanger.Word;
 import org.jabref.model.entry.AuthorList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

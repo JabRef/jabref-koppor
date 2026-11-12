@@ -2,7 +2,6 @@ package org.jabref.gui.maintable;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -11,7 +10,6 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.skin.TableColumnHeader;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.actions.ActionFactory;
@@ -29,10 +27,11 @@ public class MainTableHeaderContextMenu extends ContextMenu {
     private final LibraryTabContainer tabContainer;
     private final DialogService dialogService;
 
-    public MainTableHeaderContextMenu(MainTable mainTable,
-                                      MainTableColumnFactory factory,
-                                      LibraryTabContainer tabContainer,
-                                      DialogService dialogService) {
+    public MainTableHeaderContextMenu(
+            MainTable mainTable,
+            MainTableColumnFactory factory,
+            LibraryTabContainer tabContainer,
+            DialogService dialogService) {
         super();
         this.tabContainer = tabContainer;
         this.mainTable = mainTable;
@@ -82,7 +81,8 @@ public class MainTableHeaderContextMenu extends ContextMenu {
             // Remove from remaining common columns pool
             MainTableColumn<?> searchCol = (MainTableColumn<?>) column;
             if (isACommonColumn(searchCol)) {
-                commonColumns.removeIf(tableCol -> ((MainTableColumn<?>) tableCol).getModel().equals(searchCol.getModel()));
+                commonColumns.removeIf(
+                        tableCol -> ((MainTableColumn<?>) tableCol).getModel().equals(searchCol.getModel()));
             }
         }
 
@@ -136,7 +136,9 @@ public class MainTableHeaderContextMenu extends ContextMenu {
 
     /// Removes the column from the MainTable to remove visibility.
     private void removeColumn(MainTableColumn<?> tableColumn) {
-        mainTable.getColumns().removeIf(tableCol -> ((MainTableColumn<?>) tableCol).getModel().equals(tableColumn.getModel()));
+        mainTable
+                .getColumns()
+                .removeIf(tableCol -> ((MainTableColumn<?>) tableCol).getModel().equals(tableColumn.getModel()));
     }
 
     /// Checks if a column is one of the commonly used columns.
@@ -145,7 +147,8 @@ public class MainTableHeaderContextMenu extends ContextMenu {
     }
 
     /// Determines if a list of TableColumns contains the searched column.
-    private boolean isColumnInList(MainTableColumn<?> searchColumn, List<TableColumn<BibEntryTableViewModel, ?>> tableColumns) {
+    private boolean isColumnInList(
+            MainTableColumn<?> searchColumn, List<TableColumn<BibEntryTableViewModel, ?>> tableColumns) {
         for (TableColumn<BibEntryTableViewModel, ?> column : tableColumns) {
             MainTableColumnModel model = ((MainTableColumn<?>) column).getModel();
             if (model.equals(searchColumn.getModel())) {

@@ -1,5 +1,7 @@
 package org.jabref.gui.util;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import java.io.IOException;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.FileSystems;
@@ -12,20 +14,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.WatchServiceUnavailableException;
 import org.jabref.model.util.FileUpdateListener;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// This class monitors a set of files for changes. Upon detecting a change it notifies the registered [FileUpdateListener]s.
+/// This class monitors a set of files for changes. Upon detecting a change it notifies the registered
+/// [FileUpdateListener]s.
 ///
-/// Implementation based on <a href="https://stackoverflow.com/questions/16251273/can-i-watch-for-single-file-change-with-watchservice-not-the-whole-directory">https://stackoverflow.com/questions/16251273/can-i-watch-for-single-file-change-with-watchservice-not-the-whole-directory</a>.
+/// Implementation based on <a
+/// href="https://stackoverflow.com/questions/16251273/can-i-watch-for-single-file-change-with-watchservice-not-the-whole-directory">https://stackoverflow.com/questions/16251273/can-i-watch-for-single-file-change-with-watchservice-not-the-whole-directory</a>.
 public class DefaultFileUpdateMonitor implements Runnable, FileUpdateMonitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultFileUpdateMonitor.class);
@@ -33,7 +33,8 @@ public class DefaultFileUpdateMonitor implements Runnable, FileUpdateMonitor {
     private final Multimap<Path, FileUpdateListener> listeners = ArrayListMultimap.create(20, 4);
     private volatile WatchService watcher;
     private final AtomicBoolean notShutdown = new AtomicBoolean(true);
-    private final AtomicReference<Optional<JabRefException>> filesystemMonitorFailure = new AtomicReference<>(Optional.empty());
+    private final AtomicReference<Optional<JabRefException>> filesystemMonitorFailure =
+            new AtomicReference<>(Optional.empty());
 
     @Override
     public void run() {
@@ -55,7 +56,8 @@ public class DefaultFileUpdateMonitor implements Runnable, FileUpdateMonitor {
                     if (kind == StandardWatchEventKinds.OVERFLOW) {
                         Thread.yield();
                         continue;
-                    } else if (kind == StandardWatchEventKinds.ENTRY_CREATE || kind == StandardWatchEventKinds.ENTRY_MODIFY) {
+                    } else if (kind == StandardWatchEventKinds.ENTRY_CREATE
+                            || kind == StandardWatchEventKinds.ENTRY_MODIFY) {
                         // We only handle "ENTRY_CREATE" and "ENTRY_MODIFY" here, so the context is always a Path
                         @SuppressWarnings("unchecked")
                         WatchEvent<Path> ev = (WatchEvent<Path>) event;
@@ -67,8 +69,8 @@ public class DefaultFileUpdateMonitor implements Runnable, FileUpdateMonitor {
                 Thread.yield();
             }
         } catch (IOException e) {
-            JabRefException exception = new WatchServiceUnavailableException(
-                    e.getMessage(), e.getLocalizedMessage(), e.getCause());
+            JabRefException exception =
+                    new WatchServiceUnavailableException(e.getMessage(), e.getLocalizedMessage(), e.getCause());
             filesystemMonitorFailure.set(Optional.of(exception));
             LOGGER.warn("Error during watching", e);
         }
@@ -97,7 +99,8 @@ public class DefaultFileUpdateMonitor implements Runnable, FileUpdateMonitor {
                 listeners.put(file, listener);
             }
         } else {
-            LOGGER.warn("Not adding listener {} to file {} because the file update monitor isn't active", listener, file);
+            LOGGER.warn(
+                    "Not adding listener {} to file {} because the file update monitor isn't active", listener, file);
         }
     }
 

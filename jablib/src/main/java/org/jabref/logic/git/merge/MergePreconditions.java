@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.citationkeypattern.GlobalCitationKeyPatterns;
 import org.jabref.logic.git.merge.Refusal.Reason;
 import org.jabref.logic.importer.ParserResult;
@@ -18,7 +17,6 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.types.EntryType;
-
 import org.jspecify.annotations.NullMarked;
 
 /// The checks a merge has to pass before `current` is rewritten. [Reason] documents what each
@@ -27,22 +25,23 @@ import org.jspecify.annotations.NullMarked;
 final class MergePreconditions {
 
     private static final Pattern UNATTACHED_COMMENT = Pattern.compile(
-            "^\\h*%.*(\\R\\s*)*\\R\\s*@(comment|preamble)\\s*[{(]",
-            Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+            "^\\h*%.*(\\R\\s*)*\\R\\s*@(comment|preamble)\\s*[{(]", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
-    private MergePreconditions() {
-    }
+    private MergePreconditions() {}
 
     /// @param keyPatterns needed to serialize the metadata for comparison
     /// @return one refusal per violated check, empty if the files can be merged
-    static List<Refusal> check(ParserResult base, ParserResult current, ParserResult other, GlobalCitationKeyPatterns keyPatterns) throws IOException {
+    static List<Refusal> check(
+            ParserResult base, ParserResult current, ParserResult other, GlobalCitationKeyPatterns keyPatterns)
+            throws IOException {
         List<Refusal> refusals = new ArrayList<>();
         for (ParserResult version : List.of(base, current, other)) {
             refusals.addAll(lossOnWriting(version));
         }
 
         NonEntryContent otherContent = NonEntryContent.of(other, keyPatterns);
-        if (!otherContent.equals(NonEntryContent.of(base, keyPatterns)) && !otherContent.equals(NonEntryContent.of(current, keyPatterns))) {
+        if (!otherContent.equals(NonEntryContent.of(base, keyPatterns))
+                && !otherContent.equals(NonEntryContent.of(current, keyPatterns))) {
             refusals.add(new Refusal(fileOf(other), Reason.NON_ENTRY_CONTENT_CHANGED_IN_OTHER));
         }
         return refusals;
@@ -73,17 +72,15 @@ final class MergePreconditions {
 
     private static boolean hasDuplicateCitationKeys(BibDatabase database) {
         return database.getEntries().stream()
-                       .flatMap(entry -> entry.getCitationKey().stream())
-                       .anyMatch(database::isDuplicateCitationKeyExisting);
+                .flatMap(entry -> entry.getCitationKey().stream())
+                .anyMatch(database::isDuplicateCitationKeyExisting);
     }
 
     private static boolean hasUnusedCustomEntryTypes(ParserResult version) {
         Set<EntryType> usedTypes = version.getDatabase().getEntries().stream()
-                                          .map(BibEntry::getType)
-                                          .collect(Collectors.toSet());
-        return version.getEntryTypes().stream()
-                      .map(BibEntryType::getType)
-                      .anyMatch(type -> !usedTypes.contains(type));
+                .map(BibEntry::getType)
+                .collect(Collectors.toSet());
+        return version.getEntryTypes().stream().map(BibEntryType::getType).anyMatch(type -> !usedTypes.contains(type));
     }
 
     /// The parser does not keep the comment, so the raw file has to be searched for it.

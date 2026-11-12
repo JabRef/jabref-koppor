@@ -1,8 +1,9 @@
 package org.jabref.logic.preferences;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.jabref.logic.ai.preferences.AiDefaultExpertSettings;
 import org.jabref.model.ai.pipeline.ResponseEngineKind;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,8 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @NullMarked
 @Execution(ExecutionMode.SAME_THREAD)
@@ -62,7 +61,8 @@ class PreferenceMigrationTest {
     void tearDown() {
         JabRefCliPreferences preferences = new JabRefCliPreferences();
 
-        restorePreference(preferences, AI_ANSWER_ENGINE_KIND, hasLegacyResponseEngineKindValue, legacyResponseEngineKindValue);
+        restorePreference(
+                preferences, AI_ANSWER_ENGINE_KIND, hasLegacyResponseEngineKindValue, legacyResponseEngineKindValue);
         restorePreference(preferences, AI_RESPONSE_ENGINE_KIND, hasResponseEngineKindValue, responseEngineKindValue);
         restorePreference(preferences, AI_CUSTOMIZE_SETTINGS, hasCustomizeSettingsValue, customizeSettingsValue);
         restorePreference(preferences, AI_EMBEDDING_MODEL, hasEmbeddingModelValue, embeddingModelValue);
@@ -77,7 +77,9 @@ class PreferenceMigrationTest {
         ResponseEngineKind responseEngineKind = preferences.getAiPreferences().getResponseEngineKind();
 
         assertEquals(ResponseEngineKind.FULL_DOCUMENT, responseEngineKind);
-        assertEquals(ResponseEngineKind.FULL_DOCUMENT.name(), preferences.get(AI_RESPONSE_ENGINE_KIND, UNUSED_DEFAULT_VALUE));
+        assertEquals(
+                ResponseEngineKind.FULL_DOCUMENT.name(),
+                preferences.get(AI_RESPONSE_ENGINE_KIND, UNUSED_DEFAULT_VALUE));
     }
 
     @Test
@@ -89,7 +91,9 @@ class PreferenceMigrationTest {
         ResponseEngineKind responseEngineKind = preferences.getAiPreferences().getResponseEngineKind();
 
         assertEquals(ResponseEngineKind.EMBEDDINGS_SEARCH, responseEngineKind);
-        assertEquals(ResponseEngineKind.EMBEDDINGS_SEARCH.name(), preferences.get(AI_RESPONSE_ENGINE_KIND, UNUSED_DEFAULT_VALUE));
+        assertEquals(
+                ResponseEngineKind.EMBEDDINGS_SEARCH.name(),
+                preferences.get(AI_RESPONSE_ENGINE_KIND, UNUSED_DEFAULT_VALUE));
     }
 
     @Test
@@ -101,7 +105,8 @@ class PreferenceMigrationTest {
 
         // Without customized expert settings, the default model is used regardless of the stored value
         assertEquals(AiDefaultExpertSettings.EMBEDDING_MODEL, embeddingModel);
-        assertEquals("sentence-transformers/all-MiniLM-L12-v2", preferences.get(AI_EMBEDDING_MODEL, UNUSED_DEFAULT_VALUE));
+        assertEquals(
+                "sentence-transformers/all-MiniLM-L12-v2", preferences.get(AI_EMBEDDING_MODEL, UNUSED_DEFAULT_VALUE));
     }
 
     @Test
@@ -112,7 +117,8 @@ class PreferenceMigrationTest {
         String embeddingModel = preferences.getAiPreferences().getEmbeddingModel();
 
         assertEquals(AiDefaultExpertSettings.EMBEDDING_MODEL, embeddingModel);
-        assertEquals(AiDefaultExpertSettings.EMBEDDING_MODEL, preferences.get(AI_EMBEDDING_MODEL, UNUSED_DEFAULT_VALUE));
+        assertEquals(
+                AiDefaultExpertSettings.EMBEDDING_MODEL, preferences.get(AI_EMBEDDING_MODEL, UNUSED_DEFAULT_VALUE));
     }
 
     @Test

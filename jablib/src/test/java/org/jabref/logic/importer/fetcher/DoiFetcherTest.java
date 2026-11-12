@@ -1,20 +1,18 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
+import java.util.Optional;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
 
 @ExternalServicesTest
 class DoiFetcherTest {
@@ -41,9 +39,14 @@ class DoiFetcherTest {
             .withField(StandardField.PAGES, "296--303")
             .withField(StandardField.DOI, "10.1109/icws.2007.59");
     private final BibEntry bibEntryIannarelli2019 = new BibEntry(StandardEntryType.Article)
-            .withField(StandardField.AUTHOR, "Iannarelli Riccardo  and Novello Anna  and Stricker Damien  and Cisternino Marco  and Gallizio Federico  and Telib Haysam  and Meyer Thierry ")
+            .withField(
+                    StandardField.AUTHOR,
+                    "Iannarelli Riccardo  and Novello Anna  and Stricker Damien  and Cisternino Marco  and Gallizio"
+                            + " Federico  and Telib Haysam  and Meyer Thierry ")
             .withField(StandardField.PUBLISHER, "AIDIC: Italian Association of Chemical Engineering")
-            .withField(StandardField.TITLE, "Safety in research institutions: how to better communicate the risks using numerical simulations")
+            .withField(
+                    StandardField.TITLE,
+                    "Safety in research institutions: how to better communicate the risks using numerical simulations")
             .withField(StandardField.YEAR, "2019")
             .withField(StandardField.DOI, "10.3303/CET1977146")
             .withField(StandardField.JOURNAL, "Chemical Engineering Transactions")
@@ -53,9 +56,13 @@ class DoiFetcherTest {
     // APS Journal
     private final BibEntry bibEntryStenzel2020 = new BibEntry(StandardEntryType.Article)
             .withCitationKey("Stenzel_2020")
-            .withField(StandardField.AUTHOR, "Stenzel, L. and Hayward, A. L. C. and Schollwöck, U. and Heidrich-Meisner, F.")
+            .withField(
+                    StandardField.AUTHOR,
+                    "Stenzel, L. and Hayward, A. L. C. and Schollwöck, U. and Heidrich-Meisner, F.")
             .withField(StandardField.JOURNAL, "Physical Review A")
-            .withField(StandardField.TITLE, "Topological phases in the Fermi-Hofstadter-Hubbard model on hybrid-space ladders")
+            .withField(
+                    StandardField.TITLE,
+                    "Topological phases in the Fermi-Hofstadter-Hubbard model on hybrid-space ladders")
             .withField(StandardField.YEAR, "2020")
             .withField(StandardField.MONTH, "#aug#")
             .withField(StandardField.VOLUME, "102")
@@ -136,7 +143,8 @@ class DoiFetcherTest {
 
     @Test
     void performSearchDOIWithUnencodedCharacters() throws FetcherException {
-        Optional<BibEntry> fetchedEntry = fetcher.performSearchById("10.1002/(SICI)1099-1476(20000125)23:2<147::AID-MMA108>3.0.CO;2-J");
+        Optional<BibEntry> fetchedEntry =
+                fetcher.performSearchById("10.1002/(SICI)1099-1476(20000125)23:2<147::AID-MMA108>3.0.CO;2-J");
         assertEquals(Optional.of(bibBenedetto2000), fetchedEntry);
     }
 }

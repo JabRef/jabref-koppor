@@ -1,8 +1,10 @@
 package org.jabref.gui.preferences;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import com.tobiasdiez.easybind.EasyBind;
+import jakarta.inject.Inject;
 import java.util.Locale;
 import java.util.Optional;
-
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
@@ -11,7 +13,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.input.KeyCode;
-
+import org.controlsfx.control.textfield.CustomTextField;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.BaseDialog;
@@ -20,27 +22,39 @@ import org.jabref.gui.util.ScrollUtils;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import com.tobiasdiez.easybind.EasyBind;
-import jakarta.inject.Inject;
-import org.controlsfx.control.textfield.CustomTextField;
-
 /// Preferences dialog. Contains a TabbedPane, and tabs will be defined in separate classes. Tabs MUST implement the
 /// PreferencesTab interface, since this dialog will call the storeSettings() method of all tabs when the user presses
 /// ok.
 public class PreferencesDialogView extends BaseDialog<PreferencesDialogViewModel> {
 
     public static final String DIALOG_TITLE = Localization.lang("JabRef preferences");
-    @FXML private CustomTextField searchBox;
-    @FXML private ListView<PreferencesTab> preferencesTabList;
-    @FXML private Label tabTitle;
-    @FXML private ScrollPane preferencesContainer;
-    @FXML private ButtonType saveButton;
-    @FXML private ButtonType cancelButton;
-    @FXML private ToggleButton memoryStickMode;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
+    @FXML
+    private CustomTextField searchBox;
+
+    @FXML
+    private ListView<PreferencesTab> preferencesTabList;
+
+    @FXML
+    private Label tabTitle;
+
+    @FXML
+    private ScrollPane preferencesContainer;
+
+    @FXML
+    private ButtonType saveButton;
+
+    @FXML
+    private ButtonType cancelButton;
+
+    @FXML
+    private ToggleButton memoryStickMode;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
 
     private PreferencesDialogViewModel viewModel;
     private final Class<? extends PreferencesTab> preferencesTabToSelectClass;
@@ -49,9 +63,7 @@ public class PreferencesDialogView extends BaseDialog<PreferencesDialogViewModel
         this.setTitle(DIALOG_TITLE);
         this.preferencesTabToSelectClass = preferencesTabToSelectClass;
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         ControlHelper.setAction(saveButton, getDialogPane(), _ -> savePreferencesAndCloseDialog());
 
@@ -96,11 +108,11 @@ public class PreferencesDialogView extends BaseDialog<PreferencesDialogViewModel
         });
 
         if (this.preferencesTabToSelectClass != null) {
-            Optional<PreferencesTab> tabToSelectIfExist = preferencesTabList.getItems()
-                                                                            .stream()
-                                                                            .filter(prefTab -> prefTab.getClass().equals(preferencesTabToSelectClass))
-                                                                            .findFirst();
-            tabToSelectIfExist.ifPresent(preferencesTab -> preferencesTabList.getSelectionModel().select(preferencesTab));
+            Optional<PreferencesTab> tabToSelectIfExist = preferencesTabList.getItems().stream()
+                    .filter(prefTab -> prefTab.getClass().equals(preferencesTabToSelectClass))
+                    .findFirst();
+            tabToSelectIfExist.ifPresent(
+                    preferencesTab -> preferencesTabList.getSelectionModel().select(preferencesTab));
         } else {
             preferencesTabList.getSelectionModel().selectFirst();
         }

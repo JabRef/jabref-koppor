@@ -1,26 +1,23 @@
 package org.jabref.gui.undo;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javafx.application.Platform;
-
 import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.undo.UndoableFieldChange;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /// Unlike [UndoManagerTest], this needs a live toolkit: the point of this class is the hop onto
 /// the JavaFX thread, and `Platform.runLater` is what requires one. The properties themselves
@@ -65,7 +62,8 @@ class JabRefGuiUndoManagerTest {
 
         undoManager.undo();
         JavaFxExtension.awaitEvents();
-        assertTrue(undoManager.hasChangedProperty().get(), "undoing away from the saved position left the marker clear");
+        assertTrue(
+                undoManager.hasChangedProperty().get(), "undoing away from the saved position left the marker clear");
     }
 
     @Test
@@ -116,8 +114,7 @@ class JabRefGuiUndoManagerTest {
     @Test
     void aQueuedUpdateAppliesTheStateItFindsWhenItRuns() throws InterruptedException {
         List<Boolean> undoableValues = new CopyOnWriteArrayList<>();
-        Platform.runLater(() -> undoManager.undoableProperty().addListener(
-                (_, _, added) -> undoableValues.add(added)));
+        Platform.runLater(() -> undoManager.undoableProperty().addListener((_, _, added) -> undoableValues.add(added)));
         JavaFxExtension.awaitEvents();
 
         CountDownLatch release = new CountDownLatch(1);

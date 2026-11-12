@@ -2,7 +2,6 @@ package org.jabref.logic.formatter.minifier;
 
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 
 /// Replaces three or more authors with and others

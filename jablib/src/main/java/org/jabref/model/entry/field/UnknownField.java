@@ -7,7 +7,8 @@ import java.util.Objects;
 
 /// This class models a field that is not natively known to JabRef.
 /// It might be a custom field added by the user.
-/// It also might originate from an importer if the source "field" cannot be mapped to one of the existing fields by its name and/or properties.
+/// It also might originate from an importer if the source "field" cannot be mapped to one of the existing fields by its
+/// name and/or properties.
 /// It is not called "CustomField", because there was the idea that StandardFields could be customized.
 ///
 /// This can be instantiated with [org.jabref.model.entry.field.FieldFactory#parseField(java.lang.String)]
@@ -68,8 +69,6 @@ public class UnknownField implements Field {
 
     @Override
     public String toString() {
-        return "UnknownField{" +
-                "name='" + name + '\'' +
-                '}';
+        return "UnknownField{name='" + name + '\'' + '}';
     }
 }

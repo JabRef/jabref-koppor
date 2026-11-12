@@ -1,11 +1,10 @@
 package org.jabref.logic.msbib;
 
-import org.jabref.model.entry.Author;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.jabref.model.entry.Author;
+import org.junit.jupiter.api.Test;
 
 class MsBibAuthorTest {
 

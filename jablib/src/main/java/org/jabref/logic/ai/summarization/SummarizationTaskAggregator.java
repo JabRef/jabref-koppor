@@ -3,7 +3,6 @@ package org.jabref.logic.ai.summarization;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.TreeMap;
-
 import org.jabref.logic.ai.summarization.tasks.GenerateSummaryTask;
 import org.jabref.logic.ai.summarization.tasks.GenerateSummaryTaskRequest;
 import org.jabref.logic.ai.util.TrackedBackgroundTask;
@@ -27,8 +26,7 @@ public class SummarizationTaskAggregator {
     private final TaskExecutor taskExecutor;
     private final InMemorySummaryCache inMemoryCache;
 
-    private final TreeMap<BibEntry, GenerateSummaryTask> tasks =
-            new TreeMap<>(Comparator.comparing(BibEntry::getId));
+    private final TreeMap<BibEntry, GenerateSummaryTask> tasks = new TreeMap<>(Comparator.comparing(BibEntry::getId));
     private final TreeMap<BibEntry, GenerateSummaryTask> latestTasks =
             new TreeMap<>(Comparator.comparing(BibEntry::getId));
 

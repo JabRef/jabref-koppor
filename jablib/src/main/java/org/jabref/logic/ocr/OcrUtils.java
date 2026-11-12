@@ -6,12 +6,10 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
 import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.StreamGobbler;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +38,8 @@ public final class OcrUtils {
             }
             return process.exitValue() == 0;
         } catch (IOException e) {
-            LOGGER.error("OCR engine is not available at {}: IOException occurred", ocrPreferences.getOcrEnginePath(), e);
+            LOGGER.error(
+                    "OCR engine is not available at {}: IOException occurred", ocrPreferences.getOcrEnginePath(), e);
             return false;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -82,7 +81,8 @@ public final class OcrUtils {
             }
 
             if (process.exitValue() == 0) {
-                return OcrResult.success(null); // The output file path will be determined by the specific OCR engine implementation
+                return OcrResult.success(
+                        null); // The output file path will be determined by the specific OCR engine implementation
             } else {
                 return OcrResult.failure(OcrFailureReason.NON_ZERO_EXIT, command, ocrOutput.toString());
             }

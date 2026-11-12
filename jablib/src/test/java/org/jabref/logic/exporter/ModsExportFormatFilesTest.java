@@ -1,5 +1,9 @@
 package org.jabref.logic.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -8,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.fileformat.BibtexImporter;
 import org.jabref.logic.importer.fileformat.ModsImporter;
@@ -17,7 +20,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.support.BibEntryAssert;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Execution;
@@ -28,10 +30,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("exporter")
@@ -49,20 +47,29 @@ public class ModsExportFormatFilesTest {
     private Path importFile;
 
     public static Stream<String> fileNames() throws URISyntaxException, IOException {
-        resourceDir = Path.of(ModsExportFormatFilesTest.class.getResource("ModsExportFormatTestAllFields.bib").toURI()).getParent();
+        resourceDir = Path.of(ModsExportFormatFilesTest.class
+                        .getResource("ModsExportFormatTestAllFields.bib")
+                        .toURI())
+                .getParent();
         LOGGER.debug("Mods export resource dir {}", resourceDir);
 
         try (Stream<Path> stream = Files.list(resourceDir)) {
-            return stream.map(n -> n.getFileName().toString()).filter(n -> n.endsWith(".bib"))
-                         .filter(n -> n.startsWith("Mods")).toList().stream();
+            return stream
+                    .map(n -> n.getFileName().toString())
+                    .filter(n -> n.endsWith(".bib"))
+                    .filter(n -> n.startsWith("Mods"))
+                    .toList()
+                    .stream();
         }
     }
 
     @BeforeEach
     void setUp(@TempDir Path testFolder) throws IOException {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        ImportFormatPreferences importFormatPreferences =
+                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(importFormatPreferences.bibEntryPreferences()).thenReturn(mock(BibEntryPreferences.class));
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .thenReturn(',');
 
         databaseContext = new BibDatabaseContext();
         charset = StandardCharsets.UTF_8;
@@ -78,10 +85,13 @@ public class ModsExportFormatFilesTest {
     @ParameterizedTest
     @MethodSource("fileNames")
     final void performExport(String filename) throws URISyntaxException, IOException, SaveException {
-        importFile = Path.of(ModsExportFormatFilesTest.class.getResource(filename).toURI());
+        importFile =
+                Path.of(ModsExportFormatFilesTest.class.getResource(filename).toURI());
         String xmlFileName = filename.replace(".bib", ".xml");
-        List<BibEntry> entries = bibtexImporter.importDatabase(importFile).getDatabase().getEntries();
-        Path expectedFile = Path.of(ModsExportFormatFilesTest.class.getResource(xmlFileName).toURI());
+        List<BibEntry> entries =
+                bibtexImporter.importDatabase(importFile).getDatabase().getEntries();
+        Path expectedFile =
+                Path.of(ModsExportFormatFilesTest.class.getResource(xmlFileName).toURI());
 
         exporter.export(databaseContext, exportedFile, entries);
 
@@ -93,8 +103,10 @@ public class ModsExportFormatFilesTest {
     @ParameterizedTest
     @MethodSource("fileNames")
     final void exportAsModsAndThenImportAsMods(String filename) throws URISyntaxException, IOException, SaveException {
-        importFile = Path.of(ModsExportFormatFilesTest.class.getResource(filename).toURI());
-        List<BibEntry> entries = bibtexImporter.importDatabase(importFile).getDatabase().getEntries();
+        importFile =
+                Path.of(ModsExportFormatFilesTest.class.getResource(filename).toURI());
+        List<BibEntry> entries =
+                bibtexImporter.importDatabase(importFile).getDatabase().getEntries();
 
         exporter.export(databaseContext, exportedFile, entries);
         BibEntryAssert.assertEquals(entries, exportedFile, modsImporter);
@@ -103,16 +115,18 @@ public class ModsExportFormatFilesTest {
     @ParameterizedTest
     @MethodSource("fileNames")
     final void importAsModsAndExportAsMods(String filename) throws IOException, URISyntaxException, SaveException {
-        importFile = Path.of(ModsExportFormatFilesTest.class.getResource(filename).toURI());
+        importFile =
+                Path.of(ModsExportFormatFilesTest.class.getResource(filename).toURI());
         String xmlFileName = filename.replace(".bib", ".xml");
-        Path xmlFile = Path.of(ModsExportFormatFilesTest.class.getResource(xmlFileName).toURI());
+        Path xmlFile =
+                Path.of(ModsExportFormatFilesTest.class.getResource(xmlFileName).toURI());
 
-        List<BibEntry> entries = modsImporter.importDatabase(xmlFile).getDatabase().getEntries();
+        List<BibEntry> entries =
+                modsImporter.importDatabase(xmlFile).getDatabase().getEntries();
 
         exporter.export(databaseContext, exportedFile, entries);
 
         assertEquals(
-                String.join("\n", Files.readAllLines(xmlFile)),
-                String.join("\n", Files.readAllLines(exportedFile)));
+                String.join("\n", Files.readAllLines(xmlFile)), String.join("\n", Files.readAllLines(exportedFile)));
     }
 }

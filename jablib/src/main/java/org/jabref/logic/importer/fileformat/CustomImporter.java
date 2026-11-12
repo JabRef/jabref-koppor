@@ -8,12 +8,10 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
 import org.jabref.logic.importer.ImportException;
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.util.FileType;
-
 import org.jspecify.annotations.NonNull;
 
 /// Object with data for a custom importer.
@@ -36,8 +34,7 @@ public class CustomImporter extends Importer {
         }
     }
 
-    private static Importer load(URL basePathURL, String className)
-            throws IOException, ReflectiveOperationException {
+    private static Importer load(URL basePathURL, String className) throws IOException, ReflectiveOperationException {
         try (URLClassLoader cl = new URLClassLoader(new URL[] {basePathURL})) {
             Class<?> clazz = Class.forName(className, true, cl);
             return (Importer) clazz.getDeclaredConstructor().newInstance();

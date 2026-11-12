@@ -8,13 +8,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.l10n.Localization;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,10 +46,8 @@ public class FileNodeViewModel {
 
     /// Return a string of a FileTime in a yyyy-MM-dd HH:mm format.
     public static String formatDateTime(FileTime fileTime) {
-        LocalDateTime localDateTime = fileTime
-                .toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+        LocalDateTime localDateTime =
+                fileTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         return localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
     }
@@ -77,15 +72,14 @@ public class FileNodeViewModel {
         } catch (IOException e) {
             LOGGER.error("Could not get last modified time", e);
         }
-        return "%s (%s: %s)".formatted(path.getFileName(), Localization.lang("last edited"), formatDateTime(lastEditedTime));
+        return "%s (%s: %s)"
+                .formatted(path.getFileName(), Localization.lang("last edited"), formatDateTime(lastEditedTime));
     }
 
     @Override
     public String toString() {
-        return "FileNodeViewModel{path=%s, children=%s, fileCount=%s}".formatted(
-                this.path,
-                this.children,
-                this.fileCount);
+        return "FileNodeViewModel{path=%s, children=%s, fileCount=%s}"
+                .formatted(this.path, this.children, this.fileCount);
     }
 
     @Override
@@ -101,6 +95,8 @@ public class FileNodeViewModel {
         if (!(obj instanceof FileNodeViewModel other)) {
             return false;
         }
-        return Objects.equals(children, other.children) && (fileCount == other.fileCount) && Objects.equals(path, other.path);
+        return Objects.equals(children, other.children)
+                && (fileCount == other.fileCount)
+                && Objects.equals(path, other.path);
     }
 }

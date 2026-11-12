@@ -1,10 +1,15 @@
 package org.jabref.model.undo;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
@@ -18,16 +23,9 @@ import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BibChangeTest {
 
@@ -53,10 +51,13 @@ class BibChangeTest {
                 new UndoableRemoveString(database, string),
                 new UndoableStringChange(string, UndoableStringChange.Part.CONTENT, "content", "other"),
                 new UndoableMetaDataChange(new BibDatabaseContext(), new MetaData(), metaDataWithMode()),
-                new UndoableGroupTreeChange(new MetaData(), Optional.of(groupTree("Books")), Optional.of(groupTree("Articles"))),
-                new ChangeSet("group", List.of(
-                        new UndoableFieldChange(entry, StandardField.AUTHOR, "Einstein", "Bohr"),
-                        new UndoableChangeType(entry, StandardEntryType.Article, StandardEntryType.Book))));
+                new UndoableGroupTreeChange(
+                        new MetaData(), Optional.of(groupTree("Books")), Optional.of(groupTree("Articles"))),
+                new ChangeSet(
+                        "group",
+                        List.of(
+                                new UndoableFieldChange(entry, StandardField.AUTHOR, "Einstein", "Bohr"),
+                                new UndoableChangeType(entry, StandardEntryType.Article, StandardEntryType.Book))));
     }
 
     @ParameterizedTest
@@ -90,7 +91,9 @@ class BibChangeTest {
         UndoableMetaDataChange change = new UndoableMetaDataChange(databaseContext, before, metaDataWithMode());
 
         change.apply();
-        assertEquals(BibDatabaseMode.BIBLATEX, databaseContext.getMetaData().getMode().orElseThrow());
+        assertEquals(
+                BibDatabaseMode.BIBLATEX,
+                databaseContext.getMetaData().getMode().orElseThrow());
 
         change.inverted().apply();
         assertEquals(Optional.empty(), databaseContext.getMetaData().getMode());
@@ -106,10 +109,14 @@ class BibChangeTest {
         UndoableMetaDataChange change = new UndoableMetaDataChange(databaseContext, live, metaDataWithMode());
 
         // The user edits the groups after the change was recorded, then takes the change back.
-        live.getGroups().orElseThrow().addSubgroup(new ExplicitGroup("Added later", GroupHierarchyType.INDEPENDENT, ','));
+        live.getGroups()
+                .orElseThrow()
+                .addSubgroup(new ExplicitGroup("Added later", GroupHierarchyType.INDEPENDENT, ','));
         change.inverted().apply();
 
-        assertEquals(List.of(), live.getGroups().orElseThrow().getChildren(),
+        assertEquals(
+                List.of(),
+                live.getGroups().orElseThrow().getChildren(),
                 "undo restored a group tree the recorded state never held");
     }
 
@@ -135,8 +142,8 @@ class BibChangeTest {
     void undoingAGroupTreeChangePutsTheEarlierTreeBack() {
         MetaData metaData = new MetaData();
         metaData.setGroups(groupTree("Books"));
-        UndoableGroupTreeChange change = new UndoableGroupTreeChange(
-                metaData, metaData.getGroups(), Optional.of(groupTree("Articles")));
+        UndoableGroupTreeChange change =
+                new UndoableGroupTreeChange(metaData, metaData.getGroups(), Optional.of(groupTree("Articles")));
 
         change.apply();
         assertEquals(List.of("Articles"), childNames(metaData));
@@ -150,8 +157,8 @@ class BibChangeTest {
     @Test
     void undoingTheFirstGroupLeavesTheLibraryWithoutGroups() {
         MetaData metaData = new MetaData();
-        UndoableGroupTreeChange change = new UndoableGroupTreeChange(
-                metaData, Optional.empty(), Optional.of(groupTree("Books")));
+        UndoableGroupTreeChange change =
+                new UndoableGroupTreeChange(metaData, Optional.empty(), Optional.of(groupTree("Books")));
 
         change.apply();
         assertEquals(List.of("Books"), childNames(metaData));
@@ -165,11 +172,13 @@ class BibChangeTest {
     @Test
     void applyingAGroupTreeChangeInstallsACopy() {
         MetaData metaData = new MetaData();
-        UndoableGroupTreeChange change = new UndoableGroupTreeChange(
-                metaData, Optional.empty(), Optional.of(groupTree("Books")));
+        UndoableGroupTreeChange change =
+                new UndoableGroupTreeChange(metaData, Optional.empty(), Optional.of(groupTree("Books")));
 
         change.apply();
-        metaData.getGroups().orElseThrow().addSubgroup(new ExplicitGroup("Added later", GroupHierarchyType.INDEPENDENT, ','));
+        metaData.getGroups()
+                .orElseThrow()
+                .addSubgroup(new ExplicitGroup("Added later", GroupHierarchyType.INDEPENDENT, ','));
         change.apply();
 
         assertEquals(List.of("Books"), childNames(metaData));
@@ -177,8 +186,8 @@ class BibChangeTest {
 
     private static List<String> childNames(MetaData metaData) {
         return metaData.getGroups().orElseThrow().getChildren().stream()
-                       .map(node -> node.getGroup().getName())
-                       .toList();
+                .map(node -> node.getGroup().getName())
+                .toList();
     }
 
     @Test
@@ -206,8 +215,11 @@ class BibChangeTest {
 
         ApplyResult result = change.apply();
 
-        assertEquals(List.of(change), result.failures().stream().map(ApplyResult.Failure::change).toList());
-        assertEquals("Planck", entry.getField(StandardField.AUTHOR).orElseThrow(), "the change wrote over the newer value");
+        assertEquals(
+                List.of(change),
+                result.failures().stream().map(ApplyResult.Failure::change).toList());
+        assertEquals(
+                "Planck", entry.getField(StandardField.AUTHOR).orElseThrow(), "the change wrote over the newer value");
     }
 
     @Test
@@ -260,14 +272,15 @@ class BibChangeTest {
         BibEntry moved = entry();
         BibEntry untouched = entry();
         UndoableFieldChange stale = new UndoableFieldChange(moved, StandardField.AUTHOR, "Einstein", "Bohr");
-        ChangeSet changeSet = new ChangeSet("edit", List.of(
-                stale,
-                new UndoableFieldChange(untouched, StandardField.AUTHOR, "Einstein", "Curie")));
+        ChangeSet changeSet = new ChangeSet(
+                "edit", List.of(stale, new UndoableFieldChange(untouched, StandardField.AUTHOR, "Einstein", "Curie")));
         moved.setField(StandardField.AUTHOR, "Planck");
 
         ApplyResult result = changeSet.apply();
 
-        assertEquals(List.of(stale), result.failures().stream().map(ApplyResult.Failure::change).toList());
+        assertEquals(
+                List.of(stale),
+                result.failures().stream().map(ApplyResult.Failure::change).toList());
         assertEquals("Curie", untouched.getField(StandardField.AUTHOR).orElseThrow());
     }
 
@@ -314,21 +327,22 @@ class BibChangeTest {
         BibtexString string = new BibtexString("name", "content");
         database.addString(string);
         UndoableInsertString collides = new UndoableInsertString(database, new BibtexString("name", "other"));
-        ChangeSet changeSet = new ChangeSet("edit", List.of(
-                collides,
-                new UndoableFieldChange(entry, StandardField.AUTHOR, "Einstein", "Bohr")));
+        ChangeSet changeSet = new ChangeSet(
+                "edit", List.of(collides, new UndoableFieldChange(entry, StandardField.AUTHOR, "Einstein", "Bohr")));
 
         ApplyResult result = changeSet.apply();
 
-        assertEquals(List.of(collides), result.failures().stream().map(ApplyResult.Failure::change).toList());
+        assertEquals(
+                List.of(collides),
+                result.failures().stream().map(ApplyResult.Failure::change).toList());
         assertEquals("Bohr", entry.getField(StandardField.AUTHOR).orElseThrow(), "stopped at the failing change");
     }
 
     @Test
     void aSetThatAppliedEverythingReportsSuccess() {
         BibEntry entry = entry();
-        ChangeSet changeSet = new ChangeSet("edit", List.of(
-                new UndoableFieldChange(entry, StandardField.AUTHOR, "Einstein", "Bohr")));
+        ChangeSet changeSet = new ChangeSet(
+                "edit", List.of(new UndoableFieldChange(entry, StandardField.AUTHOR, "Einstein", "Bohr")));
 
         assertTrue(changeSet.apply().complete());
     }
@@ -343,15 +357,19 @@ class BibChangeTest {
 
         ApplyResult result = changeSet.apply();
 
-        assertEquals(List.of(collides), result.failures().stream().map(ApplyResult.Failure::change).toList());
+        assertEquals(
+                List.of(collides),
+                result.failures().stream().map(ApplyResult.Failure::change).toList());
     }
 
     @Test
     void undoingAGroupRevertsItsChangesInReverseOrder() {
         BibEntry entry = entry();
-        ChangeSet changeSet = new ChangeSet("edit", List.of(
-                new UndoableFieldChange(entry, StandardField.AUTHOR, "Einstein", "Bohr"),
-                new UndoableFieldChange(entry, StandardField.AUTHOR, "Bohr", "Planck")));
+        ChangeSet changeSet = new ChangeSet(
+                "edit",
+                List.of(
+                        new UndoableFieldChange(entry, StandardField.AUTHOR, "Einstein", "Bohr"),
+                        new UndoableFieldChange(entry, StandardField.AUTHOR, "Bohr", "Planck")));
 
         changeSet.apply();
         assertEquals("Planck", entry.getField(StandardField.AUTHOR).orElseThrow());
@@ -431,7 +449,9 @@ class BibChangeTest {
     }
 
     private static List<String> childNames(GroupTreeNode node) {
-        return node.getChildren().stream().map(child -> child.getGroup().getName()).toList();
+        return node.getChildren().stream()
+                .map(child -> child.getGroup().getName())
+                .toList();
     }
 
     @Test

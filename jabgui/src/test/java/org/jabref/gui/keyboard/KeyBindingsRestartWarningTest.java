@@ -1,16 +1,14 @@
 package org.jabref.gui.keyboard;
 
-import java.util.List;
-
-import org.jabref.gui.DialogService;
-import org.jabref.gui.preferences.keybindings.KeyBindingsTabViewModel;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
+
+import java.util.List;
+import org.jabref.gui.DialogService;
+import org.jabref.gui.preferences.keybindings.KeyBindingsTabViewModel;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class KeyBindingsRestartWarningTest {
 

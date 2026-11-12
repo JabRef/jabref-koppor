@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -14,14 +12,13 @@ public class CommandLineParser {
 
     private static final Pattern DIRECTORY_PLACEHOLDER = Pattern.compile("%DIR%?");
 
-    private CommandLineParser() {
-    }
+    private CommandLineParser() {}
 
     public static List<String> withDirectory(List<String> arguments, String directory) {
         String replacement = Matcher.quoteReplacement(directory);
         return arguments.stream()
-                        .map(argument -> DIRECTORY_PLACEHOLDER.matcher(argument).replaceAll(replacement))
-                        .toList();
+                .map(argument -> DIRECTORY_PLACEHOLDER.matcher(argument).replaceAll(replacement))
+                .toList();
     }
 
     public static List<String> splitLegacyCommandLine(String commandLine) {
@@ -80,7 +77,8 @@ public class CommandLineParser {
     }
 
     private static boolean isEmbeddedApostrophe(String commandLine, int index) {
-        return index > 0 && index + 1 < commandLine.length()
+        return index > 0
+                && index + 1 < commandLine.length()
                 && Character.isUnicodeIdentifierPart(commandLine.charAt(index - 1))
                 && Character.isUnicodeIdentifierPart(commandLine.charAt(index + 1));
     }

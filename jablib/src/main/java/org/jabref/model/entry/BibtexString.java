@@ -2,7 +2,6 @@ package org.jabref.model.entry;
 
 import java.util.Locale;
 import java.util.Objects;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -86,7 +85,8 @@ public class BibtexString implements Cloneable {
 
     /// Default constructor. Use this if in doubt.
     ///
-    /// In case this constructor is used - and the library is eventually written, the serialization is generated from scratch (and not some null from parsedSerialization)
+    /// In case this constructor is used - and the library is eventually written, the serialization is generated from
+    /// scratch (and not some null from parsedSerialization)
     public BibtexString(String name, String content) {
         this.id = IdGenerator.next();
         this.name = name;
@@ -96,7 +96,8 @@ public class BibtexString implements Cloneable {
         type = Type.get(name);
     }
 
-    /// This is used to set the parsed serialization of the string. This is used when the string is read from a BibTeX file.
+    /// This is used to set the parsed serialization of the string. This is used when the string is read from a BibTeX
+    /// file.
     /// Do not use if not working with reading BibTeX files (or similar actions).     *
     ///
     /// @param parsedSerialization The serialization read during parsing
@@ -189,11 +190,11 @@ public class BibtexString implements Cloneable {
             return false;
         }
         BibtexString that = (BibtexString) o;
-        return Objects.equals(hasChanged, that.hasChanged) &&
-                Objects.equals(name, that.name) &&
-                Objects.equals(content, that.content) &&
-                Objects.equals(type, that.type) &&
-                Objects.equals(parsedSerialization, that.parsedSerialization);
+        return Objects.equals(hasChanged, that.hasChanged)
+                && Objects.equals(name, that.name)
+                && Objects.equals(content, that.content)
+                && Objects.equals(type, that.type)
+                && Objects.equals(parsedSerialization, that.parsedSerialization);
     }
 
     @Override

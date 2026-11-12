@@ -5,11 +5,9 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
-
 import org.jabref.logic.msc.MscCodeLoader;
 import org.jabref.logic.msc.MscCodeRepository;
 import org.jabref.logic.shared.exception.MscCodeLoadingException;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -27,7 +25,8 @@ public class MscCodeUtils {
     /// @return repository with MSC codes as keys and descriptions as values
     /// @throws MscCodeLoadingException if there is an issue loading or parsing the CSV
     @NonNull
-    public static Optional<MscCodeRepository> loadMscCodeRepositoryFromCsv(URL resourceUrl) throws MscCodeLoadingException {
+    public static Optional<MscCodeRepository> loadMscCodeRepositoryFromCsv(URL resourceUrl)
+            throws MscCodeLoadingException {
         try {
             MscCodeRepository repository = new MscCodeRepository(MscCodeLoader.readMscCodesFromCsvUrl(resourceUrl));
             if (repository.getAllLoaded().isEmpty()) {

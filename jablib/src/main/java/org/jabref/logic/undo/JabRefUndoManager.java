@@ -10,13 +10,11 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
 import org.jabref.model.undo.ApplyResult;
 import org.jabref.model.undo.BibChange;
 import org.jabref.model.undo.ChangeSet;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableFieldChange;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -75,8 +73,7 @@ public class JabRefUndoManager implements UndoManager {
     /// modification, and a position in this journal is bookkeeping that only this class needs.
     /// Putting it on the change would also cost `inverted()` its involution: it would have to
     /// either copy the id, giving two distinct positions the same identity, or drop it.
-    private record UndoJournalEntry(long id, BibChange change) {
-    }
+    private record UndoJournalEntry(long id, BibChange change) {}
 
     private final Deque<UndoJournalEntry> undoStack = new ArrayDeque<>();
     private final Deque<UndoJournalEntry> redoStack = new ArrayDeque<>();
@@ -248,7 +245,8 @@ public class JabRefUndoManager implements UndoManager {
             return;
         }
         if (!stepFinished && !undoStack.isEmpty() && (undoStack.getFirst().id() != savedId)) {
-            Optional<BibChange> merged = coalescingPolicy.merge(undoStack.getFirst().change(), change);
+            Optional<BibChange> merged =
+                    coalescingPolicy.merge(undoStack.getFirst().change(), change);
             if (merged.isPresent()) {
                 undoStack.pop();
                 if (!isNoOp(merged.get())) {

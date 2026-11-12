@@ -1,22 +1,19 @@
 package org.jabref.gui.maintable;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
+import java.util.List;
 import javafx.beans.InvalidationListener;
 import javafx.scene.control.TableView;
-
 import org.jabref.gui.maintable.columns.MainTableColumn;
 import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
 
 @NullMarked
 @ExtendWith(JavaFxExtension.class)
@@ -32,13 +29,15 @@ class ColumnPreferencesRecorderTest {
     @BeforeEach
     void setUp() {
         titleColumn = new MainTableColumnModel(MainTableColumnModel.Type.NORMALFIELD, StandardField.TITLE.getName());
-        relevanceColumn = new MainTableColumnModel(MainTableColumnModel.Type.SPECIALFIELD, SpecialField.RANKING.getName());
+        relevanceColumn =
+                new MainTableColumnModel(MainTableColumnModel.Type.SPECIALFIELD, SpecialField.RANKING.getName());
 
         table = new TableView<>();
-        table.getColumns().setAll(List.of(
-                new MainTableColumn<>(new MainTableColumnModel(MainTableColumnModel.Type.MATCH_CATEGORY)),
-                new MainTableColumn<>(titleColumn),
-                new MainTableColumn<>(relevanceColumn)));
+        table.getColumns()
+                .setAll(List.of(
+                        new MainTableColumn<>(new MainTableColumnModel(MainTableColumnModel.Type.MATCH_CATEGORY)),
+                        new MainTableColumn<>(titleColumn),
+                        new MainTableColumn<>(relevanceColumn)));
 
         preferences = new ColumnPreferences(List.of(titleColumn, relevanceColumn), List.of(titleColumn));
         columnPreferencesRecorder = new ColumnPreferencesRecorder(table, preferences);

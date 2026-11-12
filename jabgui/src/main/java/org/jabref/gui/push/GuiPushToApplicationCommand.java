@@ -1,11 +1,10 @@
 package org.jabref.gui.push;
 
+import com.tobiasdiez.easybind.EasyBind;
 import java.util.ArrayList;
 import java.util.List;
-
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuItem;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.Action;
@@ -19,8 +18,6 @@ import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,23 +35,25 @@ public class GuiPushToApplicationCommand extends SimpleCommand {
 
     private GuiPushToApplication application;
 
-    public GuiPushToApplicationCommand(StateManager stateManager, DialogService dialogService, GuiPreferences preferences, TaskExecutor taskExecutor) {
+    public GuiPushToApplicationCommand(
+            StateManager stateManager,
+            DialogService dialogService,
+            GuiPreferences preferences,
+            TaskExecutor taskExecutor) {
         this.stateManager = stateManager;
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.taskExecutor = taskExecutor;
 
-        setApplication(preferences.getPushToApplicationPreferences()
-                                  .getActiveApplicationName());
+        setApplication(preferences.getPushToApplicationPreferences().getActiveApplicationName());
 
-        EasyBind.subscribe(preferences.getPushToApplicationPreferences().activeApplicationNameProperty(),
-                this::setApplication);
+        EasyBind.subscribe(
+                preferences.getPushToApplicationPreferences().activeApplicationNameProperty(), this::setApplication);
 
-        this.executable.bind(ActionHelper.needsDatabase(stateManager).and(ActionHelper.needsEntriesSelected(stateManager)));
+        this.executable.bind(
+                ActionHelper.needsDatabase(stateManager).and(ActionHelper.needsEntriesSelected(stateManager)));
         this.statusMessage.bind(BindingsHelper.ifThenElse(
-                this.executable,
-                "",
-                Localization.lang("This operation requires one or more entries to be selected.")));
+                this.executable, "", Localization.lang("This operation requires one or more entries to be selected.")));
     }
 
     public void registerReconfigurable(Object node) {
@@ -69,10 +68,8 @@ public class GuiPushToApplicationCommand extends SimpleCommand {
     private void setApplication(String applicationName) {
         final ActionFactory factory = new ActionFactory();
         GuiPushToApplication application = GuiPushToApplications.getGUIApplicationByName(
-                                                                        applicationName,
-                                                                        dialogService,
-                                                                        preferences.getPushToApplicationPreferences())
-                                                                .orElseGet(() -> new GuiPushToEmacs(dialogService, preferences.getPushToApplicationPreferences()));
+                        applicationName, dialogService, preferences.getPushToApplicationPreferences())
+                .orElseGet(() -> new GuiPushToEmacs(dialogService, preferences.getPushToApplicationPreferences()));
 
         preferences.getPushToApplicationPreferences().setActiveApplicationName(application.getDisplayName());
         this.application = application;
@@ -98,7 +95,8 @@ public class GuiPushToApplicationCommand extends SimpleCommand {
                 if (StringUtil.isBlank(entry.getCitationKey())) {
                     dialogService.showErrorDialogAndWait(
                             application.getDisplayName(),
-                            Localization.lang("This operation requires all selected entries to have citation keys defined."));
+                            Localization.lang(
+                                    "This operation requires all selected entries to have citation keys defined."));
                     return;
                 }
             }
@@ -106,9 +104,9 @@ public class GuiPushToApplicationCommand extends SimpleCommand {
 
         // All set, call the operation in a new thread:
         BackgroundTask.wrap(this::pushEntries)
-                      .onSuccess(_ -> application.onOperationCompleted())
-                      .onFailure(ex -> LOGGER.error("Error pushing citation", ex))
-                      .executeWith(taskExecutor);
+                .onSuccess(_ -> application.onOperationCompleted())
+                .onFailure(ex -> LOGGER.error("Error pushing citation", ex))
+                .executeWith(taskExecutor);
     }
 
     private void pushEntries() {

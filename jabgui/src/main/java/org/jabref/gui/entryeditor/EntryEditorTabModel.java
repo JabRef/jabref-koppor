@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
@@ -32,10 +31,7 @@ public sealed interface EntryEditorTabModel
     EntryEditorTabModel withVisible(boolean visible);
 
     default boolean isPreview() {
-        return this instanceof BuiltInTab(
-                BuiltIn type,
-                boolean _
-        ) && type == BuiltIn.PREVIEW;
+        return this instanceof BuiltInTab(BuiltIn type, boolean _) && type == BuiltIn.PREVIEW;
     }
 
     /// Union of the fields resolved by all [CustomizedFieldsTab]s' *extracted* patterns in the given
@@ -75,26 +71,16 @@ public sealed interface EntryEditorTabModel
         // Create displayName dynamically for language preference change
         public String displayName() {
             return switch (this) {
-                case PREVIEW ->
-                        Localization.lang("Preview");
-                case ALL_FIELDS ->
-                        Localization.lang("Main");
-                case RELATED_ARTICLES ->
-                        Localization.lang("Related articles");
-                case AI_SUMMARY ->
-                        Localization.lang("AI summary");
-                case AI_CHAT ->
-                        Localization.lang("AI chat");
-                case FILE_ANNOTATIONS ->
-                        Localization.lang("File annotations");
-                case LATEX_CITATIONS ->
-                        Localization.lang("LaTeX citations");
-                case CITATION_INFORMATION ->
-                        Localization.lang("Citations");
-                case SOURCE ->
-                        Localization.lang("Source");
-                case FULLTEXT_SEARCH_RESULTS ->
-                        Localization.lang("Fulltext search results");
+                case PREVIEW -> Localization.lang("Preview");
+                case ALL_FIELDS -> Localization.lang("Main");
+                case RELATED_ARTICLES -> Localization.lang("Related articles");
+                case AI_SUMMARY -> Localization.lang("AI summary");
+                case AI_CHAT -> Localization.lang("AI chat");
+                case FILE_ANNOTATIONS -> Localization.lang("File annotations");
+                case LATEX_CITATIONS -> Localization.lang("LaTeX citations");
+                case CITATION_INFORMATION -> Localization.lang("Citations");
+                case SOURCE -> Localization.lang("Source");
+                case FULLTEXT_SEARCH_RESULTS -> Localization.lang("Fulltext search results");
             };
         }
 
@@ -103,8 +89,7 @@ public sealed interface EntryEditorTabModel
         }
     }
 
-    record BuiltInTab(BuiltIn type, boolean visible)
-            implements EntryEditorTabModel {
+    record BuiltInTab(BuiltIn type, boolean visible) implements EntryEditorTabModel {
         @Override
         public boolean isVisible() {
             return visible;
@@ -138,8 +123,8 @@ public sealed interface EntryEditorTabModel
 
         /// Lower-cased names of every registered field (see [#appearsOnMainTab]).
         private static final Set<String> KNOWN_FIELD_NAMES = FieldFactory.getAllFieldsWithOutInternal().stream()
-                                                                         .map(field -> field.getName().toLowerCase(Locale.ROOT))
-                                                                         .collect(Collectors.toUnmodifiableSet());
+                .map(field -> field.getName().toLowerCase(Locale.ROOT))
+                .collect(Collectors.toUnmodifiableSet());
 
         public CustomizedFieldsTab {
             fieldPatterns = List.copyOf(fieldPatterns);
@@ -171,9 +156,11 @@ public sealed interface EntryEditorTabModel
         /// Resolves only the *extracted* patterns — the fields the Main tab must no longer show.
         // [impl->req~entry-editor.custom-tabs.extract-field~1]
         public SequencedSet<Field> resolveExtractedFields(BibEntry entry) {
-            return resolve(fieldPatterns.stream()
-                                        .filter(pattern -> extractedFieldPatterns.contains(pattern) || !appearsOnMainTab(pattern))
-                                        .toList(), entry);
+            return resolve(
+                    fieldPatterns.stream()
+                            .filter(pattern -> extractedFieldPatterns.contains(pattern) || !appearsOnMainTab(pattern))
+                            .toList(),
+                    entry);
         }
 
         /// Whether the "Extract field" choice applies to the pattern: only a plain name of a known
@@ -187,7 +174,7 @@ public sealed interface EntryEditorTabModel
         public static boolean appearsOnMainTab(String fieldPattern) {
             return PLAIN_FIELD_NAME.matcher(fieldPattern).matches()
                     && (KNOWN_FIELD_NAMES.contains(fieldPattern.toLowerCase(Locale.ROOT))
-                    || !(FieldFactory.parseField(fieldPattern) instanceof UnknownField));
+                            || !(FieldFactory.parseField(fieldPattern) instanceof UnknownField));
         }
 
         private SequencedSet<Field> resolve(List<String> patterns, BibEntry entry) {
@@ -197,11 +184,12 @@ public sealed interface EntryEditorTabModel
                     result.add(FieldFactory.parseField(entry.getType(), pattern));
                     continue;
                 }
-                compiledRegex(pattern).ifPresent(compiled ->
-                        entry.getFields().stream()
-                             .filter(field -> compiled.matcher(field.getName()).matches())
-                             .sorted(Comparator.comparing(Field::getName))
-                             .forEach(result::add));
+                compiledRegex(pattern)
+                        .ifPresent(compiled -> entry.getFields().stream()
+                                .filter(field ->
+                                        compiled.matcher(field.getName()).matches())
+                                .sorted(Comparator.comparing(Field::getName))
+                                .forEach(result::add));
             }
             return result;
         }

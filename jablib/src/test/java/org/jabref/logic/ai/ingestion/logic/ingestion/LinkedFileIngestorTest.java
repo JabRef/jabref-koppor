@@ -1,21 +1,20 @@
 package org.jabref.logic.ai.ingestion.logic.ingestion;
 
-import org.jabref.logic.FilePreferences;
-import org.jabref.logic.ai.ingestion.logic.documentsplitting.DocumentSplitter;
-import org.jabref.logic.ai.ingestion.repositories.IngestedDocumentsRepository;
-import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.entry.LinkedFile;
-
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.store.embedding.EmbeddingStore;
-import org.jspecify.annotations.NullMarked;
-import org.junit.jupiter.api.Test;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+
+import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.store.embedding.EmbeddingStore;
+import org.jabref.logic.FilePreferences;
+import org.jabref.logic.ai.ingestion.logic.documentsplitting.DocumentSplitter;
+import org.jabref.logic.ai.ingestion.repositories.IngestedDocumentsRepository;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.LinkedFile;
+import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.Test;
 
 @NullMarked
 class LinkedFileIngestorTest {

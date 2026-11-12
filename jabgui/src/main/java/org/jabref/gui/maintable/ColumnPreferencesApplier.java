@@ -4,14 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-
 import org.jabref.gui.maintable.columns.MainTableColumn;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Applies the column preferences (columns, sort order, resize policy) to the main table: initially and whenever
@@ -36,11 +33,13 @@ class ColumnPreferencesApplier {
 
     private final ListChangeListener<MainTableColumnModel> columnsListener = _ -> applyColumns();
     private final ListChangeListener<MainTableColumnModel> sortOrderListener = _ -> applySortOrder();
-    private final ChangeListener<Boolean> resizeColumnsListener = (_, _, resizeColumnsToFit) -> applyResizePolicy(resizeColumnsToFit);
+    private final ChangeListener<Boolean> resizeColumnsListener =
+            (_, _, resizeColumnsToFit) -> applyResizePolicy(resizeColumnsToFit);
 
-    ColumnPreferencesApplier(TableView<BibEntryTableViewModel> table,
-                             MainTableColumnFactory columnFactory,
-                             MainTablePreferences mainTablePreferences) {
+    ColumnPreferencesApplier(
+            TableView<BibEntryTableViewModel> table,
+            MainTableColumnFactory columnFactory,
+            MainTablePreferences mainTablePreferences) {
         this.table = table;
         this.columnFactory = columnFactory;
         this.mainTablePreferences = mainTablePreferences;
@@ -67,10 +66,10 @@ class ColumnPreferencesApplier {
     }
 
     void applySortOrder() {
-        List<TableColumn<BibEntryTableViewModel, ?>> sortOrder = configured(mainTablePreferences.getColumnPreferences().getColumnSortOrder())
-                .stream()
-                .flatMap(model -> findColumn(model).stream())
-                .collect(Collectors.toCollection(ArrayList::new));
+        List<TableColumn<BibEntryTableViewModel, ?>> sortOrder =
+                configured(mainTablePreferences.getColumnPreferences().getColumnSortOrder()).stream()
+                        .flatMap(model -> findColumn(model).stream())
+                        .collect(Collectors.toCollection(ArrayList::new));
         findMatchCategoryColumn().ifPresent(sortOrder::addFirst);
         if (sortOrder.equals(table.getSortOrder())) {
             return;
@@ -79,7 +78,8 @@ class ColumnPreferencesApplier {
     }
 
     private void applyColumns() {
-        List<MainTableColumnModel> configuredColumns = configured(mainTablePreferences.getColumnPreferences().getColumns());
+        List<MainTableColumnModel> configuredColumns =
+                configured(mainTablePreferences.getColumnPreferences().getColumns());
         if (configuredColumns.equals(ColumnPreferencesRecorder.toPersistedModels(table.getColumns()))) {
             return;
         }
@@ -88,10 +88,9 @@ class ColumnPreferencesApplier {
         // Reusing the instance keeps it in the sort order. A new instance would briefly empty the sort order.
         findMatchCategoryColumn().ifPresent(columns::add);
         configuredColumns.stream()
-                         .flatMap(model -> findColumn(model)
-                                 .or(() -> Optional.ofNullable(columnFactory.createColumn(model)))
-                                 .stream())
-                         .forEach(columns::add);
+                .flatMap(model ->
+                        findColumn(model).or(() -> Optional.ofNullable(columnFactory.createColumn(model))).stream())
+                .forEach(columns::add);
         table.getColumns().setAll(columns);
     }
 
@@ -104,22 +103,20 @@ class ColumnPreferencesApplier {
     }
 
     private static List<MainTableColumnModel> configured(List<MainTableColumnModel> models) {
-        return models.stream()
-                     .filter(MainTableColumnModel::isConfigurable)
-                     .toList();
+        return models.stream().filter(MainTableColumnModel::isConfigurable).toList();
     }
 
     private Optional<TableColumn<BibEntryTableViewModel, ?>> findMatchCategoryColumn() {
         return table.getColumns().stream()
-                    .filter(column -> column instanceof MainTableColumn<?> mainTableColumn
-                            && mainTableColumn.getModel().getType() == MainTableColumnModel.Type.MATCH_CATEGORY)
-                    .findFirst();
+                .filter(column -> column instanceof MainTableColumn<?> mainTableColumn
+                        && mainTableColumn.getModel().getType() == MainTableColumnModel.Type.MATCH_CATEGORY)
+                .findFirst();
     }
 
     private Optional<TableColumn<BibEntryTableViewModel, ?>> findColumn(MainTableColumnModel model) {
         return table.getColumns().stream()
-                    .filter(column -> column instanceof MainTableColumn<?> mainTableColumn
-                            && model.equals(mainTableColumn.getModel()))
-                    .findFirst();
+                .filter(column -> column instanceof MainTableColumn<?> mainTableColumn
+                        && model.equals(mainTableColumn.getModel()))
+                .findFirst();
     }
 }

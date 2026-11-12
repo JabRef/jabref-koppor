@@ -2,7 +2,6 @@ package org.jabref.model.undo;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,8 @@ public record ChangeSet(String name, List<BibChange> changes) implements BibChan
     /// correctly, because later changes may depend on earlier ones.
     @Override
     public ChangeSet inverted() {
-        return new ChangeSet(name, changes.reversed().stream().map(BibChange::inverted).toList());
+        return new ChangeSet(
+                name, changes.reversed().stream().map(BibChange::inverted).toList());
     }
 
     /// Applies every change, continuing past a failing one, and reports what did not make it.

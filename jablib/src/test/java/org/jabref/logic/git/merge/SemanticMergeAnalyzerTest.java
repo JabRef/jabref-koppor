@@ -1,5 +1,13 @@
 package org.jabref.logic.git.merge;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -7,7 +15,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.git.merge.planning.SemanticMergeAnalyzer;
 import org.jabref.logic.git.model.MergeAnalysis;
@@ -17,7 +24,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -27,35 +33,29 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("git")
 public class SemanticMergeAnalyzerTest {
     @ParameterizedTest
     @MethodSource
-    void semanticEntryLevelConflicts(String description,
-                                     BibDatabaseContext baseDb,
-                                     BibDatabaseContext localDb,
-                                     BibDatabaseContext remoteDb,
-                                     Consumer<MergeAnalysis> verify) {
+    void semanticEntryLevelConflicts(
+            String description,
+            BibDatabaseContext baseDb,
+            BibDatabaseContext localDb,
+            BibDatabaseContext remoteDb,
+            Consumer<MergeAnalysis> verify) {
         MergeAnalysis analysis = SemanticMergeAnalyzer.analyze(baseDb, localDb, remoteDb);
         verify.accept(analysis);
     }
 
     @ParameterizedTest
     @MethodSource
-    void semanticFieldLevelConflicts(String description,
-                                     BibDatabaseContext baseDb,
-                                     BibDatabaseContext localDb,
-                                     BibDatabaseContext remoteDb,
-                                     Consumer<MergeAnalysis> verify) {
+    void semanticFieldLevelConflicts(
+            String description,
+            BibDatabaseContext baseDb,
+            BibDatabaseContext localDb,
+            BibDatabaseContext remoteDb,
+            Consumer<MergeAnalysis> verify) {
         MergeAnalysis analysis = SemanticMergeAnalyzer.analyze(baseDb, localDb, remoteDb);
         verify.accept(analysis);
     }
@@ -71,8 +71,10 @@ public class SemanticMergeAnalyzerTest {
     }
 
     private static BibDatabaseContext parse(String content) throws JabRefException {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        ImportFormatPreferences importFormatPreferences =
+                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .thenReturn(',');
         return BibDatabaseContext.of(content, importFormatPreferences);
     }
 
@@ -88,7 +90,8 @@ public class SemanticMergeAnalyzerTest {
         BibEntry a_common = entryAWithAuthor("common");
 
         return Stream.of(
-                Arguments.of("E01 - entry a does not exist anywhere",
+                Arguments.of(
+                        "E01 - entry a does not exist anywhere",
                         emptyDb(),
                         emptyDb(),
                         emptyDb(),
@@ -96,8 +99,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertPlanEmpty(analysis);
                         }),
-
-                Arguments.of("E02 - entry a added remotely only",
+                Arguments.of(
+                        "E02 - entry a added remotely only",
                         emptyDb(),
                         emptyDb(),
                         dbOf(a_remote_A),
@@ -105,8 +108,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertHasNewEntry(analysis, a_remote_A);
                         }),
-
-                Arguments.of("E03 - entry a added locally only",
+                Arguments.of(
+                        "E03 - entry a added locally only",
                         emptyDb(),
                         dbOf(a_local_A),
                         emptyDb(),
@@ -114,8 +117,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertPlanEmpty(analysis);
                         }),
-
-                Arguments.of("E04a - both sides added entry a with identical content",
+                Arguments.of(
+                        "E04a - both sides added entry a with identical content",
                         emptyDb(),
                         dbOf(a_same_A),
                         dbOf(a_same_A),
@@ -124,7 +127,8 @@ public class SemanticMergeAnalyzerTest {
                         }),
 
                 // local: author = {local},, remote: journal = {Remote Journal},
-                Arguments.of("E04b - both added entry a but changed different fields",
+                Arguments.of(
+                        "E04b - both added entry a but changed different fields",
                         emptyDb(),
                         dbOf(a_local_only),
                         dbOf(a_remote_journal),
@@ -132,16 +136,16 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertPatchEquals(analysis, "a", StandardField.JOURNAL, "Remote Journal");
                         }),
-
-                Arguments.of("E04c - both added entry a with conflicting field values",
+                Arguments.of(
+                        "E04c - both added entry a with conflicting field values",
                         emptyDb(),
                         dbOf(a_local_A),
                         dbOf(a_remote_A),
                         (Consumer<MergeAnalysis>) analysis -> {
                             assertHasConflicts(analysis);
                         }),
-
-                Arguments.of("E05 - entry a was deleted by both",
+                Arguments.of(
+                        "E05 - entry a was deleted by both",
                         dbOf(a_base_A),
                         emptyDb(),
                         emptyDb(),
@@ -149,8 +153,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertDeletes(analysis, Set.of("a"));
                         }),
-
-                Arguments.of("E06 - local deleted entry a, remote kept it unchanged",
+                Arguments.of(
+                        "E06 - local deleted entry a, remote kept it unchanged",
                         dbOf(a_base_A),
                         emptyDb(),
                         dbOf(a_base_A),
@@ -158,14 +162,14 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertPlanEmpty(analysis);
                         }),
-
-                Arguments.of("E07 - local deleted entry a, remote modified it",
+                Arguments.of(
+                        "E07 - local deleted entry a, remote modified it",
                         dbOf(a_base_A),
                         emptyDb(),
                         dbOf(entryAWithAuthorAndTitle("remote", "A")),
                         (Consumer<MergeAnalysis>) analysis -> assertHasConflicts(analysis)),
-
-                Arguments.of("E08 - remote deleted entry a, local kept it unchanged",
+                Arguments.of(
+                        "E08 - remote deleted entry a, local kept it unchanged",
                         dbOf(a_base_A),
                         dbOf(a_base_A),
                         emptyDb(),
@@ -173,8 +177,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertDeletes(analysis, Set.of("a"));
                         }),
-
-                Arguments.of("E09 - entry a unchanged in all three",
+                Arguments.of(
+                        "E09 - entry a unchanged in all three",
                         dbOf(a_base_A),
                         dbOf(a_base_A),
                         dbOf(a_base_A),
@@ -182,8 +186,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertPlanEmpty(analysis);
                         }),
-
-                Arguments.of("E10a - remote modified a different field, local unchanged",
+                Arguments.of(
+                        "E10a - remote modified a different field, local unchanged",
                         dbOf(a_base_A),
                         dbOf(a_base_A),
                         dbOf(a_year_2025),
@@ -191,8 +195,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertPatchEquals(analysis, "a", StandardField.YEAR, "2025");
                         }),
-
-                Arguments.of("E10b - remote modified same field, local unchanged",
+                Arguments.of(
+                        "E10b - remote modified same field, local unchanged",
                         dbOf(a_base_A),
                         dbOf(a_base_A),
                         dbOf(a_remote_A),
@@ -200,18 +204,19 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertPatchEquals(analysis, "a", StandardField.AUTHOR, "remote");
                         }),
-
-                Arguments.of("E11 - remote deleted entry a, local modified it",
+                Arguments.of(
+                        "E11 - remote deleted entry a, local modified it",
                         dbOf(a_base_A),
                         dbOf(a_local_A),
                         emptyDb(),
                         (Consumer<MergeAnalysis>) analysis -> {
                             assertHasConflicts(analysis);
-                            assertFalse(analysis.autoPlan().deletedEntryKeys().contains("a"),
+                            assertFalse(
+                                    analysis.autoPlan().deletedEntryKeys().contains("a"),
                                     "Unsafe delete must not appear in auto plan when local modified");
                         }),
-
-                Arguments.of("E12 - local modified entry a, remote unchanged",
+                Arguments.of(
+                        "E12 - local modified entry a, remote unchanged",
                         dbOf(a_base_A),
                         dbOf(a_local_A),
                         dbOf(a_base_A),
@@ -219,8 +224,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertPlanEmpty(analysis);
                         }),
-
-                Arguments.of("E13a - both modified entry a but changed different fields",
+                Arguments.of(
+                        "E13a - both modified entry a but changed different fields",
                         dbOf(a_base_A),
                         dbOf(a_local_A),
                         dbOf(a_title_B),
@@ -228,36 +233,36 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertPatchEquals(analysis, "a", StandardField.TITLE, "B");
                         }),
-
-                Arguments.of("E13b - both changed same field to same value",
+                Arguments.of(
+                        "E13b - both changed same field to same value",
                         dbOf(entryAWithAuthor("base")),
                         dbOf(a_common),
                         dbOf(a_common),
                         (Consumer<MergeAnalysis>) analysis -> assertNoConflicts(analysis)),
-
-                Arguments.of("E13c - both changed same field differently",
+                Arguments.of(
+                        "E13c - both changed same field differently",
                         dbOf(entryAWithAuthor("base")),
                         dbOf(entryAWithAuthor("local")),
                         dbOf(entryAWithAuthor("remote")),
                         (Consumer<MergeAnalysis>) analysis -> assertHasConflicts(analysis)),
-
-                Arguments.of("E14a - citationKey changed in local",
+                Arguments.of(
+                        "E14a - citationKey changed in local",
                         dbOf(entryAWithAuthor("base")),
                         dbOf(new BibEntry(StandardEntryType.Article)
                                 .withCitationKey("b")
                                 .withField(StandardField.AUTHOR, "base")),
                         dbOf(entryAWithAuthor("base")),
                         (Consumer<MergeAnalysis>) analysis -> assertNoConflicts(analysis)),
-
-                Arguments.of("E14b - citationKey changed in remote",
+                Arguments.of(
+                        "E14b - citationKey changed in remote",
                         dbOf(entryAWithAuthor("base")),
                         dbOf(entryAWithAuthor("base")),
                         dbOf(new BibEntry(StandardEntryType.Article)
                                 .withCitationKey("b")
                                 .withField(StandardField.AUTHOR, "base")),
                         (Consumer<MergeAnalysis>) analysis -> assertNoConflicts(analysis)),
-
-                Arguments.of("E14c - citationKey renamed differently both sides",
+                Arguments.of(
+                        "E14c - citationKey renamed differently both sides",
                         dbOf(entryAWithAuthor("base")),
                         dbOf(new BibEntry(StandardEntryType.Article)
                                 .withCitationKey("b")
@@ -266,13 +271,12 @@ public class SemanticMergeAnalyzerTest {
                                 .withCitationKey("c")
                                 .withField(StandardField.AUTHOR, "base")),
                         (Consumer<MergeAnalysis>) analysis -> assertNoConflicts(analysis)),
-
-                Arguments.of("E15 - both added same citationKey with different content",
+                Arguments.of(
+                        "E15 - both added same citationKey with different content",
                         emptyDb(),
                         dbOf(entryAWithAuthor("local")),
                         dbOf(entryAWithAuthor("remote")),
-                        (Consumer<MergeAnalysis>) analysis -> assertHasConflicts(analysis))
-        );
+                        (Consumer<MergeAnalysis>) analysis -> assertHasConflicts(analysis)));
     }
 
     static Stream<Arguments> semanticFieldLevelConflicts() {
@@ -284,7 +288,8 @@ public class SemanticMergeAnalyzerTest {
         BibEntry a_title_hello_author_alice_swap = entryAWithTitleThenAuthor("Hello", "Alice");
 
         return Stream.of(
-                Arguments.of("F01 - identical field value on all sides",
+                Arguments.of(
+                        "F01 - identical field value on all sides",
                         dbOf(a_same_author),
                         dbOf(a_same_author),
                         dbOf(a_same_author),
@@ -292,8 +297,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertNoAutoChanges(analysis);
                         }),
-
-                Arguments.of("F02 - remote changed, local same as base",
+                Arguments.of(
+                        "F02 - remote changed, local same as base",
                         dbOf(a_base_author),
                         dbOf(a_base_author),
                         dbOf(a_remote_author),
@@ -301,8 +306,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertPatchEquals(analysis, "a", StandardField.AUTHOR, "remote");
                         }),
-
-                Arguments.of("F03 - local changed, remote same as base",
+                Arguments.of(
+                        "F03 - local changed, remote same as base",
                         dbOf(a_base_author),
                         dbOf(a_local_author),
                         dbOf(a_base_author),
@@ -310,8 +315,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertNoAutoChanges(analysis);
                         }),
-
-                Arguments.of("F04 - both changed to same value",
+                Arguments.of(
+                        "F04 - both changed to same value",
                         dbOf(a_base_author),
                         dbOf(a_same_author),
                         dbOf(a_same_author),
@@ -319,14 +324,14 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertNoAutoChanges(analysis);
                         }),
-
-                Arguments.of("F05 - both changed same field differently",
+                Arguments.of(
+                        "F05 - both changed same field differently",
                         dbOf(a_base_author),
                         dbOf(a_local_author),
                         dbOf(a_remote_author),
                         (Consumer<MergeAnalysis>) SemanticMergeAnalyzerTest::assertHasConflicts),
-
-                Arguments.of("F06 - Local deleted, remote unchanged",
+                Arguments.of(
+                        "F06 - Local deleted, remote unchanged",
                         dbOf(a_base_author),
                         dbOf(entryAEmpty()),
                         dbOf(a_base_author),
@@ -334,8 +339,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertNoAutoChanges(analysis);
                         }),
-
-                Arguments.of("F07 - Remote deleted, local unchanged",
+                Arguments.of(
+                        "F07 - Remote deleted, local unchanged",
                         dbOf(a_base_author),
                         dbOf(a_base_author),
                         dbOf(entryAEmpty()),
@@ -343,8 +348,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertPatchDeletesField(analysis, "a", StandardField.AUTHOR);
                         }),
-
-                Arguments.of("F08 - Both deleted",
+                Arguments.of(
+                        "F08 - Both deleted",
                         dbOf(a_base_author),
                         dbOf(entryAEmpty()),
                         dbOf(entryAEmpty()),
@@ -352,20 +357,20 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertNoAutoChanges(analysis);
                         }),
-
-                Arguments.of("F09 - Local changed, remote deleted",
+                Arguments.of(
+                        "F09 - Local changed, remote deleted",
                         dbOf(a_base_author),
                         dbOf(a_local_author),
                         dbOf(entryAEmpty()),
                         (Consumer<MergeAnalysis>) SemanticMergeAnalyzerTest::assertHasConflicts),
-
-                Arguments.of("F10 - Local deleted, remote changed",
+                Arguments.of(
+                        "F10 - Local deleted, remote changed",
                         dbOf(a_base_author),
                         dbOf(entryAEmpty()),
                         dbOf(a_remote_author),
                         (Consumer<MergeAnalysis>) SemanticMergeAnalyzerTest::assertHasConflicts),
-
-                Arguments.of("F11 - All missing",
+                Arguments.of(
+                        "F11 - All missing",
                         dbOf(entryAEmpty()),
                         dbOf(entryAEmpty()),
                         dbOf(entryAEmpty()),
@@ -373,8 +378,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertNoAutoChanges(analysis);
                         }),
-
-                Arguments.of("F12 - Local added",
+                Arguments.of(
+                        "F12 - Local added",
                         dbOf(entryAEmpty()),
                         dbOf(a_local_author),
                         dbOf(entryAEmpty()),
@@ -382,8 +387,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertNoAutoChanges(analysis);
                         }),
-
-                Arguments.of("F13 - Remote added",
+                Arguments.of(
+                        "F13 - Remote added",
                         dbOf(entryAEmpty()),
                         dbOf(entryAEmpty()),
                         dbOf(a_remote_author),
@@ -391,8 +396,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertPatchEquals(analysis, "a", StandardField.AUTHOR, "remote");
                         }),
-
-                Arguments.of("F14 - Both added same value",
+                Arguments.of(
+                        "F14 - Both added same value",
                         dbOf(entryAEmpty()),
                         dbOf(a_same_author),
                         dbOf(a_same_author),
@@ -400,32 +405,32 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertNoAutoChanges(analysis);
                         }),
-
-                Arguments.of("F15 - Both added different values",
+                Arguments.of(
+                        "F15 - Both added different values",
                         dbOf(entryAEmpty()),
                         dbOf(a_local_author),
                         dbOf(a_remote_author),
                         (Consumer<MergeAnalysis>) SemanticMergeAnalyzerTest::assertHasConflicts),
-
-                Arguments.of("F16 - Local modified, remote deleted (conflict)",
+                Arguments.of(
+                        "F16 - Local modified, remote deleted (conflict)",
                         dbOf(a_base_author),
                         dbOf(a_local_author),
                         dbOf(entryAEmpty()),
                         (Consumer<MergeAnalysis>) SemanticMergeAnalyzerTest::assertHasConflicts),
-
-                Arguments.of("F17 - Local deleted and remote modified (conflict)",
+                Arguments.of(
+                        "F17 - Local deleted and remote modified (conflict)",
                         dbOf(a_base_author),
                         dbOf(entryAEmpty()),
                         dbOf(a_remote_author),
                         (Consumer<MergeAnalysis>) SemanticMergeAnalyzerTest::assertHasConflicts),
-
-                Arguments.of("F18 - No base (field), both added different",
+                Arguments.of(
+                        "F18 - No base (field), both added different",
                         dbOf(entryAEmpty()),
                         dbOf(a_local_author),
                         dbOf(a_remote_author),
                         (Consumer<MergeAnalysis>) SemanticMergeAnalyzerTest::assertHasConflicts),
-
-                Arguments.of("F19 - field order changed, same content",
+                Arguments.of(
+                        "F19 - field order changed, same content",
                         dbOf(a_title_hello_author_alice),
                         dbOf(a_title_hello_author_alice_swap),
                         dbOf(a_title_hello_author_alice),
@@ -433,8 +438,8 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertNoAutoChanges(analysis);
                         }),
-
-                Arguments.of("F20 - entryType changed in local",
+                Arguments.of(
+                        "F20 - entryType changed in local",
                         dbOf(new BibEntry(StandardEntryType.Article, "a").withField(StandardField.AUTHOR, "base")),
                         dbOf(new BibEntry(StandardEntryType.Book, "a").withField(StandardField.AUTHOR, "base")),
                         dbOf(new BibEntry(StandardEntryType.Article, "a").withField(StandardField.AUTHOR, "base")),
@@ -442,13 +447,13 @@ public class SemanticMergeAnalyzerTest {
                             assertNoConflicts(analysis);
                             assertNoAutoChanges(analysis);
                         }),
-
-                Arguments.of("F21 - entryType changed differently on both sides",
+                Arguments.of(
+                        "F21 - entryType changed differently on both sides",
                         emptyDb(),
                         dbOf(new BibEntry(StandardEntryType.Book, "a").withField(StandardField.AUTHOR, "base")),
-                        dbOf(new BibEntry(StandardEntryType.InProceedings, "a").withField(StandardField.AUTHOR, "base")),
-                        (Consumer<MergeAnalysis>) SemanticMergeAnalyzerTest::assertHasConflicts)
-        );
+                        dbOf(new BibEntry(StandardEntryType.InProceedings, "a")
+                                .withField(StandardField.AUTHOR, "base")),
+                        (Consumer<MergeAnalysis>) SemanticMergeAnalyzerTest::assertHasConflicts));
     }
 
     private static void assertPatchDeletesField(MergeAnalysis analysis, String citationKey, Field field) {
@@ -467,20 +472,23 @@ public class SemanticMergeAnalyzerTest {
 
     private static void assertHasNewEntry(MergeAnalysis analysis, BibEntry expected) {
         String expectedKey = expected.getCitationKey()
-                                     .orElseThrow(() -> new AssertionError("Expected entry must have a citation key"));
+                .orElseThrow(() -> new AssertionError("Expected entry must have a citation key"));
 
         List<BibEntry> matches = analysis.autoPlan().newEntries().stream()
-                                         .filter(e -> expectedKey.equals(e.getCitationKey().orElse(null)))
-                                         .toList();
+                .filter(e -> expectedKey.equals(e.getCitationKey().orElse(null)))
+                .toList();
 
-        assertEquals(1, matches.size(),
+        assertEquals(
+                1,
+                matches.size(),
                 "Expected exactly one new entry with key '" + expectedKey + "', but found " + matches.size());
 
         BibEntry actual = matches.getFirst();
         assertEntryEqualsIgnoringId(expected, actual);
     }
 
-    private static void assertPatchEquals(MergeAnalysis analysis, String citationKey, Field field, String expectedValue) {
+    private static void assertPatchEquals(
+            MergeAnalysis analysis, String citationKey, Field field, String expectedValue) {
         Map<Field, String> patch = analysis.autoPlan().fieldPatches().get(citationKey);
         assertNotNull(patch, "Expected a field patch for entry '" + citationKey + "'");
         assertEquals(expectedValue, patch.get(field), "Field patch mismatch for " + field.getName());
@@ -497,12 +505,14 @@ public class SemanticMergeAnalyzerTest {
 
         Map<Field, String> expectedFields = fieldMap(expected);
         Map<Field, String> actualFields = fieldMap(actual);
-        assertEquals(expectedFields, actualFields, "Field map mismatch. expected=" + expectedFields + " actual=" + actualFields);
+        assertEquals(
+                expectedFields,
+                actualFields,
+                "Field map mismatch. expected=" + expectedFields + " actual=" + actualFields);
     }
 
     private static void assertNoConflicts(MergeAnalysis analysis) {
-        assertTrue(analysis.conflicts().isEmpty(),
-                "Expected no conflicts, but got: " + analysis.conflicts());
+        assertTrue(analysis.conflicts().isEmpty(), "Expected no conflicts, but got: " + analysis.conflicts());
     }
 
     private static void assertHasConflicts(MergeAnalysis analysis) {
@@ -513,10 +523,12 @@ public class SemanticMergeAnalyzerTest {
         boolean empty = analysis.autoPlan().newEntries().isEmpty()
                 && analysis.autoPlan().fieldPatches().isEmpty()
                 && analysis.autoPlan().deletedEntryKeys().isEmpty();
-        assertTrue(empty, "Expected no auto changes, but got: "
-                + "newEntries=" + analysis.autoPlan().newEntries()
-                + ", fieldPatches=" + analysis.autoPlan().fieldPatches()
-                + ", deleted=" + analysis.autoPlan().deletedEntryKeys());
+        assertTrue(
+                empty,
+                "Expected no auto changes, but got: "
+                        + "newEntries=" + analysis.autoPlan().newEntries()
+                        + ", fieldPatches=" + analysis.autoPlan().fieldPatches()
+                        + ", deleted=" + analysis.autoPlan().deletedEntryKeys());
     }
 
     private static Map<Field, String> fieldMap(BibEntry entry) {

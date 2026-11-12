@@ -3,7 +3,6 @@ package org.jabref.logic.cleanup;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.journals.AbbreviationType;
@@ -13,7 +12,6 @@ import org.jabref.model.FieldChange;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +28,12 @@ public class CleanupWorker {
     private final boolean useFJournalField;
     private final List<JabRefException> failures;
 
-    public CleanupWorker(BibDatabaseContext databaseContext, FilePreferences filePreferences, TimestampPreferences timestampPreferences, boolean useFJournalField, JournalAbbreviationRepository abbreviationRepository) {
+    public CleanupWorker(
+            BibDatabaseContext databaseContext,
+            FilePreferences filePreferences,
+            TimestampPreferences timestampPreferences,
+            boolean useFJournalField,
+            JournalAbbreviationRepository abbreviationRepository) {
         this.databaseContext = databaseContext;
         this.filePreferences = filePreferences;
         this.timestampPreferences = timestampPreferences;
@@ -71,7 +74,9 @@ public class CleanupWorker {
         }
 
         if (preset.getFieldFormatterCleanups().isEnabled()) {
-            jobs.addAll(preset.getFieldFormatterCleanups().getConfiguredActions(databaseContext.getMetaData().getKeywordSeparator().orElse(null)));
+            jobs.addAll(preset.getFieldFormatterCleanups()
+                    .getConfiguredActions(
+                            databaseContext.getMetaData().getKeywordSeparator().orElse(null)));
         }
 
         return jobs;
@@ -79,50 +84,47 @@ public class CleanupWorker {
 
     private CleanupJob toJob(CleanupPreferences.CleanupStep action) {
         return switch (action) {
-            case CLEAN_UP_DOI ->
-                    new DoiCleanup();
-            case CLEAN_UP_ARXIV_DOI ->
-                    new ArXivDoiCleanup();
-            case CLEANUP_EPRINT ->
-                    new EprintCleanup();
-            case CLEAN_UP_URL ->
-                    new URLCleanup();
-            case MAKE_PATHS_RELATIVE ->
-                    new RelativePathsCleanup(databaseContext, filePreferences);
-            case RENAME_PDF ->
-                    new RenamePdfCleanup(false, () -> databaseContext, filePreferences);
-            case RENAME_PDF_ONLY_RELATIVE_PATHS ->
-                    new RenamePdfCleanup(true, () -> databaseContext, filePreferences);
-            case CLEAN_UP_UPGRADE_EXTERNAL_LINKS ->
-                    new UpgradePdfPsToFileCleanup();
-            case CLEAN_UP_DELETED_LINKED_FILES ->
-                    new RemoveLinksToNotExistentFiles(databaseContext, filePreferences);
-            case CONVERT_TO_BIBLATEX ->
-                    new ConvertToBiblatexCleanup();
-            case CONVERT_TO_BIBTEX ->
-                    new ConvertToBibtexCleanup();
+            case CLEAN_UP_DOI -> new DoiCleanup();
+            case CLEAN_UP_ARXIV_DOI -> new ArXivDoiCleanup();
+            case CLEANUP_EPRINT -> new EprintCleanup();
+            case CLEAN_UP_URL -> new URLCleanup();
+            case MAKE_PATHS_RELATIVE -> new RelativePathsCleanup(databaseContext, filePreferences);
+            case RENAME_PDF -> new RenamePdfCleanup(false, () -> databaseContext, filePreferences);
+            case RENAME_PDF_ONLY_RELATIVE_PATHS -> new RenamePdfCleanup(true, () -> databaseContext, filePreferences);
+            case CLEAN_UP_UPGRADE_EXTERNAL_LINKS -> new UpgradePdfPsToFileCleanup();
+            case CLEAN_UP_DELETED_LINKED_FILES -> new RemoveLinksToNotExistentFiles(databaseContext, filePreferences);
+            case CONVERT_TO_BIBLATEX -> new ConvertToBiblatexCleanup();
+            case CONVERT_TO_BIBTEX -> new ConvertToBibtexCleanup();
             case CONVERT_TIMESTAMP_TO_CREATIONDATE ->
-                    new TimestampToDateField(timestampPreferences.getTimestampField(), StandardField.CREATIONDATE);
+                new TimestampToDateField(timestampPreferences.getTimestampField(), StandardField.CREATIONDATE);
             case CONVERT_TIMESTAMP_TO_MODIFICATIONDATE ->
-                    new TimestampToDateField(timestampPreferences.getTimestampField(), StandardField.MODIFICATIONDATE);
-            case MOVE_PDF ->
-                    new MoveFilesCleanup(() -> databaseContext, filePreferences);
-            case FIX_FILE_LINKS ->
-                    new FileLinksCleanup();
-            case REMOVE_XMP_METADATA ->
-                    new XmpMetadataCleanup(databaseContext, filePreferences);
+                new TimestampToDateField(timestampPreferences.getTimestampField(), StandardField.MODIFICATIONDATE);
+            case MOVE_PDF -> new MoveFilesCleanup(() -> databaseContext, filePreferences);
+            case FIX_FILE_LINKS -> new FileLinksCleanup();
+            case REMOVE_XMP_METADATA -> new XmpMetadataCleanup(databaseContext, filePreferences);
             case ABBREVIATE_DEFAULT ->
-                    new AbbreviateJournalCleanup(databaseContext.getDatabase(), abbreviationRepository, AbbreviationType.DEFAULT, useFJournalField);
+                new AbbreviateJournalCleanup(
+                        databaseContext.getDatabase(),
+                        abbreviationRepository,
+                        AbbreviationType.DEFAULT,
+                        useFJournalField);
             case ABBREVIATE_DOTLESS ->
-                    new AbbreviateJournalCleanup(databaseContext.getDatabase(), abbreviationRepository, AbbreviationType.DOTLESS, useFJournalField);
+                new AbbreviateJournalCleanup(
+                        databaseContext.getDatabase(),
+                        abbreviationRepository,
+                        AbbreviationType.DOTLESS,
+                        useFJournalField);
             case ABBREVIATE_SHORTEST_UNIQUE ->
-                    new AbbreviateJournalCleanup(databaseContext.getDatabase(), abbreviationRepository, AbbreviationType.SHORTEST_UNIQUE, useFJournalField);
+                new AbbreviateJournalCleanup(
+                        databaseContext.getDatabase(),
+                        abbreviationRepository,
+                        AbbreviationType.SHORTEST_UNIQUE,
+                        useFJournalField);
             case ABBREVIATE_LTWA ->
-                    new AbbreviateJournalCleanup(databaseContext.getDatabase(), abbreviationRepository, AbbreviationType.LTWA, useFJournalField);
-            case UNABBREVIATE ->
-                    new UnabbreviateJournalCleanup(databaseContext.getDatabase(), abbreviationRepository);
-            default ->
-                    throw new UnsupportedOperationException(action.name());
+                new AbbreviateJournalCleanup(
+                        databaseContext.getDatabase(), abbreviationRepository, AbbreviationType.LTWA, useFJournalField);
+            case UNABBREVIATE -> new UnabbreviateJournalCleanup(databaseContext.getDatabase(), abbreviationRepository);
+            default -> throw new UnsupportedOperationException(action.name());
         };
     }
 

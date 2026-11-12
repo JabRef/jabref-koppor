@@ -1,9 +1,11 @@
 package org.jabref.gui.walkthrough.declarative;
 
+import com.google.common.collect.Streams;
+import com.sun.javafx.scene.NodeHelper;
+import com.sun.javafx.scene.control.LabeledText;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Predicate;
-
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -12,14 +14,9 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.MenuItem;
-
 import org.jabref.gui.actions.StandardActions;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIconView;
-
-import com.google.common.collect.Streams;
-import com.sun.javafx.scene.NodeHelper;
-import com.sun.javafx.scene.control.LabeledText;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -38,7 +35,9 @@ public interface NodeResolver {
     /// @param selector the CSS selector to find the node
     /// @return a resolver that finds the node by selector
     static NodeResolver selector(@NonNull String selector) {
-        return scene -> scene.getRoot().lookupAll(selector).stream().filter(NodeResolver::isVisible).findFirst();
+        return scene -> scene.getRoot().lookupAll(selector).stream()
+                .filter(NodeResolver::isVisible)
+                .findFirst();
     }
 
     /// Creates a resolver that finds a node by its fx:id. The returned node is
@@ -58,7 +57,8 @@ public interface NodeResolver {
     static NodeResolver buttonWithGraphic(IconTheme.JabRefIcons glyph) {
         return scene -> Streams
                 // .icon-button, .button selector is not used, because lookupAll doesn't support multiple selectors
-                .concat(scene.getRoot().lookupAll(".button").stream(),
+                .concat(
+                        scene.getRoot().lookupAll(".button").stream(),
                         scene.getRoot().lookupAll(".icon-button").stream())
                 .filter(node -> {
                     if (!(node instanceof ButtonBase button) || !NodeResolver.isVisible(button)) {
@@ -75,17 +75,19 @@ public interface NodeResolver {
     static NodeResolver buttonWithGraphicIn(Class<? extends Node> container, IconTheme.JabRefIcons glyph) {
         return scene -> predicate(container::isInstance)
                 .resolve(scene)
-                .map(root -> findNode(root, node -> (node instanceof ButtonBase button)
-                        && NodeResolver.isVisible(button)
-                        && containsGlyph(button.getGraphic(), glyph)));
+                .map(root -> findNode(
+                        root,
+                        node -> (node instanceof ButtonBase button)
+                                && NodeResolver.isVisible(button)
+                                && containsGlyph(button.getGraphic(), glyph)));
     }
 
     /// Creates a resolver that returns the first node any of the given resolvers finds, in order.
     static NodeResolver firstOf(NodeResolver... resolvers) {
         return scene -> Arrays.stream(resolvers)
-                              .map(resolver -> resolver.resolve(scene))
-                              .flatMap(Optional::stream)
-                              .findFirst();
+                .map(resolver -> resolver.resolve(scene))
+                .flatMap(Optional::stream)
+                .findFirst();
     }
 
     /// Creates a resolver that finds a node by a predicate. The returned node is
@@ -94,8 +96,8 @@ public interface NodeResolver {
     /// @param predicate the predicate to match the node
     /// @return a resolver that finds the node matching the predicate
     static NodeResolver predicate(@NonNull Predicate<Node> predicate) {
-        return scene -> Optional.ofNullable(findNode(scene.getRoot(),
-                node -> NodeResolver.isVisible(node) && predicate.test(node)));
+        return scene -> Optional.ofNullable(
+                findNode(scene.getRoot(), node -> NodeResolver.isVisible(node) && predicate.test(node)));
     }
 
     /// Creates a resolver that finds a button by its StandardAction. The button is
@@ -151,19 +153,17 @@ public interface NodeResolver {
     /// @param textMatcher predicate to match text content in LabeledText children
     /// @return a resolver that finds the node by style class and text content
     static NodeResolver selectorWithText(@NonNull String selector, @NonNull Predicate<String> textMatcher) {
-        return scene -> scene
-                .getRoot()
-                .lookupAll(selector)
-                .stream()
+        return scene -> scene.getRoot().lookupAll(selector).stream()
                 .filter(NodeHelper::isTreeVisible)
-                .filter(node -> textMatcher.test(node.toString()) || node.lookupAll(".text").stream().anyMatch(child -> {
+                .filter(node -> textMatcher.test(node.toString())
+                        || node.lookupAll(".text").stream().anyMatch(child -> {
                             if (child instanceof LabeledText text) {
                                 String textContent = text.getText();
                                 return textContent != null && textMatcher.test(textContent);
                             }
                             return false;
-                        }
-                )).findFirst();
+                        }))
+                .findFirst();
     }
 
     /// Creates a resolver that finds a menu item by its text.
@@ -181,12 +181,12 @@ public interface NodeResolver {
             }
 
             return menu.getItems().stream()
-                       .filter(item -> NodeResolver.isVisible(item.getStyleableNode()))
-                       .filter(item -> Optional
-                               .ofNullable(item.getText())
-                               .map(str -> str.contains(text))
-                               .orElse(false))
-                       .map(MenuItem::getStyleableNode).findFirst();
+                    .filter(item -> NodeResolver.isVisible(item.getStyleableNode()))
+                    .filter(item -> Optional.ofNullable(item.getText())
+                            .map(str -> str.contains(text))
+                            .orElse(false))
+                    .map(MenuItem::getStyleableNode)
+                    .findFirst();
         };
     }
 
@@ -209,8 +209,13 @@ public interface NodeResolver {
     }
 
     private static boolean containsGlyph(@Nullable Node graphic, IconTheme.JabRefIcons glyph) {
-        return graphic != null && findNode(graphic,
-                node -> (node instanceof JabRefIconView jabRefIconView) && jabRefIconView.getGlyph() == glyph || glyph.matches(node)) != null;
+        return graphic != null
+                && findNode(
+                                graphic,
+                                node -> (node instanceof JabRefIconView jabRefIconView)
+                                                && jabRefIconView.getGlyph() == glyph
+                                        || glyph.matches(node))
+                        != null;
     }
 
     private static boolean isVisible(@Nullable Node node) {

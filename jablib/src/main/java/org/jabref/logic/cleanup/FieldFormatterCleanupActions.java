@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.formatter.Formatters;
 import org.jabref.logic.formatter.IdentityFormatter;
@@ -25,7 +24,6 @@ import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -47,7 +45,8 @@ public class FieldFormatterCleanupActions {
                 new FieldFormatterCleanup(StandardField.PAGES, new NormalizePagesFormatter()),
                 new FieldFormatterCleanup(StandardField.DATE, new NormalizeDateFormatter()),
                 new FieldFormatterCleanup(StandardField.MONTH, new NormalizeMonthFormatter()),
-                new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD, new ReplaceUnicodeLigaturesFormatter()),
+                new FieldFormatterCleanup(
+                        InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD, new ReplaceUnicodeLigaturesFormatter()),
                 new FieldFormatterCleanup(StandardField.KEYWORDS, new NormalizeKeywordDelimitersFormatter()),
                 new FieldFormatterCleanup(StandardField.KEYWORDS, new ConvertMSCCodesFormatter()),
                 new FieldFormatterCleanup(StandardField.ISSN, new NormalizeIssn()));
@@ -56,14 +55,17 @@ public class FieldFormatterCleanupActions {
         recommendedBibtexFormatters.addAll(List.of(
                 new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD, new HtmlToLatexFormatter()),
                 new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD, new UnicodeToLatexFormatter()),
-                new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD, new OrdinalsToSuperscriptFormatter())));
+                new FieldFormatterCleanup(
+                        InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD, new OrdinalsToSuperscriptFormatter())));
         RECOMMEND_BIBTEX_ACTIONS = Collections.unmodifiableList(recommendedBibtexFormatters);
 
         List<FieldFormatterCleanup> recommendedBiblatexFormatters = new ArrayList<>(DEFAULT_SAVE_ACTIONS);
         recommendedBiblatexFormatters.addAll(List.of(
                 new FieldFormatterCleanup(StandardField.TITLE, new HtmlToUnicodeFormatter()),
-                new FieldFormatterCleanup(InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD, new LatexToUnicodeFormatter())));
-        // DO NOT ADD OrdinalsToSuperscriptFormatter here, because this causes issues. See https://github.com/JabRef/jabref/issues/2596.
+                new FieldFormatterCleanup(
+                        InternalField.INTERNAL_ALL_TEXT_FIELDS_FIELD, new LatexToUnicodeFormatter())));
+        // DO NOT ADD OrdinalsToSuperscriptFormatter here, because this causes issues. See
+        // https://github.com/JabRef/jabref/issues/2596.
         RECOMMEND_BIBLATEX_ACTIONS = Collections.unmodifiableList(recommendedBiblatexFormatters);
     }
 
@@ -95,25 +97,26 @@ public class FieldFormatterCleanupActions {
             return getConfiguredActions();
         }
         return actions.stream()
-                      .map(action -> action.getFormatter() instanceof KeywordSeparatorAware aware
-                                     ? new FieldFormatterCleanup(action.getField(), aware.withKeywordSeparator(libraryKeywordSeparator))
-                                     : action)
-                      .toList();
+                .map(action -> action.getFormatter() instanceof KeywordSeparatorAware aware
+                        ? new FieldFormatterCleanup(
+                                action.getField(), aware.withKeywordSeparator(libraryKeywordSeparator))
+                        : action)
+                .toList();
     }
 
     public List<FieldChange> applySaveActions(BibEntry entry) {
         return applySaveActions(entry, null);
     }
 
-    /// @param libraryKeywordSeparator the separator declared by the library the entry belongs to, or `null` for the global preference
+    /// @param libraryKeywordSeparator the separator declared by the library the entry belongs to, or `null` for the
+    /// global preference
     public List<FieldChange> applySaveActions(BibEntry entry, @Nullable Character libraryKeywordSeparator) {
         return applySaveActions(entry, libraryKeywordSeparator, Runnable::run);
     }
 
     /// @param mutationScheduler routes [BibEntry] field mutations to the correct thread
-    public List<FieldChange> applySaveActions(BibEntry entry,
-                                              @Nullable Character libraryKeywordSeparator,
-                                              Consumer<Runnable> mutationScheduler) {
+    public List<FieldChange> applySaveActions(
+            BibEntry entry, @Nullable Character libraryKeywordSeparator, Consumer<Runnable> mutationScheduler) {
         if (enabled) {
             return applyAllActions(entry, libraryKeywordSeparator, mutationScheduler);
         } else {
@@ -121,9 +124,8 @@ public class FieldFormatterCleanupActions {
         }
     }
 
-    private List<FieldChange> applyAllActions(BibEntry entry,
-                                              @Nullable Character libraryKeywordSeparator,
-                                              Consumer<Runnable> mutationScheduler) {
+    private List<FieldChange> applyAllActions(
+            BibEntry entry, @Nullable Character libraryKeywordSeparator, Consumer<Runnable> mutationScheduler) {
         List<FieldChange> result = new ArrayList<>();
 
         for (FieldFormatterCleanup action : getConfiguredActions(libraryKeywordSeparator)) {
@@ -134,16 +136,14 @@ public class FieldFormatterCleanupActions {
     }
 
     static Formatter getFormatterFromString(String formatterName) {
-        return Formatters
-                .getFormatterForKey(formatterName)
-                .orElseGet(() -> {
-                    if (!"identity".equals(formatterName)) {
-                        // The identity formatter is not listed in the formatters list, but is still valid
-                        // Therefore, we log errors in other cases only
-                        LOGGER.info("Formatter {} not found.", formatterName);
-                    }
-                    return new IdentityFormatter();
-                });
+        return Formatters.getFormatterForKey(formatterName).orElseGet(() -> {
+            if (!"identity".equals(formatterName)) {
+                // The identity formatter is not listed in the formatters list, but is still valid
+                // Therefore, we log errors in other cases only
+                LOGGER.info("Formatter {} not found.", formatterName);
+            }
+            return new IdentityFormatter();
+        });
     }
 
     @Override
@@ -164,9 +164,6 @@ public class FieldFormatterCleanupActions {
 
     @Override
     public String toString() {
-        return "FieldFormatterCleanupActions{" +
-                "enabled=" + enabled + "," +
-                "actions=" + actions +
-                "}";
+        return "FieldFormatterCleanupActions{enabled=" + enabled + ",actions=" + actions + "}";
     }
 }

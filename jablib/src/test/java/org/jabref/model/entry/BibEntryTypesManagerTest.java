@@ -1,11 +1,15 @@
 package org.jabref.model.entry;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.exporter.MetaDataSerializer;
 import org.jabref.logic.importer.util.MetaDataParser;
@@ -22,17 +26,11 @@ import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.IEEETranEntryTypeDefinitions;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.entry.types.UnknownEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @AllowedToUseLogic("Requires MetaDataSerializer and MetaDataParser for parsing tests")
 class BibEntryTypesManagerTest {
@@ -47,9 +45,7 @@ class BibEntryTypesManagerTest {
     @BeforeEach
     void setUp() {
         newCustomType = new BibEntryType(
-                CUSTOM_TYPE,
-                List.of(new BibField(StandardField.AUTHOR, FieldPriority.IMPORTANT)),
-                Set.of());
+                CUSTOM_TYPE, List.of(new BibField(StandardField.AUTHOR, FieldPriority.IMPORTANT)), Set.of());
         overwrittenStandardType = new BibEntryType(
                 StandardEntryType.Article,
                 List.of(new BibField(StandardField.TITLE, FieldPriority.IMPORTANT)),
@@ -58,7 +54,10 @@ class BibEntryTypesManagerTest {
     }
 
     private BibEntryType getStandardArticleType(BibDatabaseMode mode) {
-        return entryTypesManager.getEntryTypes(mode).standardTypes.stream().filter(t -> StandardEntryType.Article == t.getType()).findAny().get();
+        return entryTypesManager.getEntryTypes(mode).standardTypes.stream()
+                .filter(t -> StandardEntryType.Article == t.getType())
+                .findAny()
+                .get();
     }
 
     @ParameterizedTest
@@ -89,15 +88,16 @@ class BibEntryTypesManagerTest {
     @Test
     void nonStandardTypesNotInBibtexMode() {
         Set<EntryType> nonStandardTypes = BiblatexNonStandardEntryTypeDefinitions.ALL.stream()
-                                                                                     .map(BibEntryType::getType)
-                                                                                     .collect(Collectors.toSet());
+                .map(BibEntryType::getType)
+                .collect(Collectors.toSet());
 
         Set<EntryType> bibtexTypes = entryTypesManager.getAllTypes(BibDatabaseMode.BIBTEX).stream()
-                                                      .map(BibEntryType::getType)
-                                                      .collect(Collectors.toSet());
+                .map(BibEntryType::getType)
+                .collect(Collectors.toSet());
 
         for (EntryType nonStandardType : nonStandardTypes) {
-            assertFalse(bibtexTypes.contains(nonStandardType),
+            assertFalse(
+                    bibtexTypes.contains(nonStandardType),
                     "Non-standard type " + nonStandardType.getName() + " should not be in BibTeX mode");
         }
     }
@@ -105,9 +105,11 @@ class BibEntryTypesManagerTest {
     @Test
     void nonStandardTypesCanBeEnrichedInBiblatexMode() {
         for (BibEntryType nonStandardType : BiblatexNonStandardEntryTypeDefinitions.ALL) {
-            Optional<BibEntryType> enriched = entryTypesManager.enrich(nonStandardType.getType(), BibDatabaseMode.BIBLATEX);
+            Optional<BibEntryType> enriched =
+                    entryTypesManager.enrich(nonStandardType.getType(), BibDatabaseMode.BIBLATEX);
 
-            assertTrue(enriched.isPresent(),
+            assertTrue(
+                    enriched.isPresent(),
                     "Type " + nonStandardType.getType().getName() + " should be enrichable in BibLaTeX mode");
             assertEquals(nonStandardType.getType(), enriched.get().getType());
         }
@@ -145,9 +147,7 @@ class BibEntryTypesManagerTest {
     void overwriteBibEntryTypeFields(BibDatabaseMode mode) {
         entryTypesManager.addCustomOrModifiedType(newCustomType, mode);
         BibEntryType newBibEntryTypeTitle = new BibEntryType(
-                CUSTOM_TYPE,
-                Set.of(new BibField(StandardField.TITLE, FieldPriority.IMPORTANT)),
-                Set.of());
+                CUSTOM_TYPE, Set.of(new BibField(StandardField.TITLE, FieldPriority.IMPORTANT)), Set.of());
         entryTypesManager.addCustomOrModifiedType(newBibEntryTypeTitle, mode);
         assertEquals(Optional.of(newBibEntryTypeTitle), entryTypesManager.enrich(CUSTOM_TYPE, mode));
     }
@@ -156,7 +156,9 @@ class BibEntryTypesManagerTest {
     @EnumSource(BibDatabaseMode.class)
     void overwriteStandardTypeRequiredFields(BibDatabaseMode mode) {
         entryTypesManager.addCustomOrModifiedType(overwrittenStandardType, mode);
-        assertEquals(Optional.of(overwrittenStandardType), entryTypesManager.enrich(overwrittenStandardType.getType(), mode));
+        assertEquals(
+                Optional.of(overwrittenStandardType),
+                entryTypesManager.enrich(overwrittenStandardType.getType(), mode));
     }
 
     @ParameterizedTest
@@ -177,7 +179,8 @@ class BibEntryTypesManagerTest {
     @EnumSource(BibDatabaseMode.class)
     void modifyingArticleWithUpdate(BibDatabaseMode mode) {
         entryTypesManager.update(overwrittenStandardType, mode);
-        BibEntryType enriched = entryTypesManager.enrich(StandardEntryType.Article, mode).get();
+        BibEntryType enriched =
+                entryTypesManager.enrich(StandardEntryType.Article, mode).get();
         assertEquals(overwrittenStandardType, enriched);
         assertNotEquals(getStandardArticleType(mode), enriched);
     }
@@ -203,14 +206,19 @@ class BibEntryTypesManagerTest {
     void modifyingArticle(BibDatabaseMode mode) {
         overwrittenStandardType = new BibEntryType(
                 StandardEntryType.Article,
-                List.of(new BibField(StandardField.TITLE, FieldPriority.IMPORTANT),
+                List.of(
+                        new BibField(StandardField.TITLE, FieldPriority.IMPORTANT),
                         new BibField(StandardField.NUMBER, FieldPriority.IMPORTANT),
                         new BibField(StandardField.LANGUAGEID, FieldPriority.IMPORTANT),
                         new BibField(StandardField.COMMENT, FieldPriority.IMPORTANT)),
                 Set.of());
 
         entryTypesManager.addCustomOrModifiedType(overwrittenStandardType, mode);
-        assertEquals(List.of(overwrittenStandardType), entryTypesManager.getAllTypes(mode).stream().filter(t -> "article".equals(t.getType().getName())).collect(Collectors.toList()));
+        assertEquals(
+                List.of(overwrittenStandardType),
+                entryTypesManager.getAllTypes(mode).stream()
+                        .filter(t -> "article".equals(t.getType().getName()))
+                        .collect(Collectors.toList()));
     }
 
     @ParameterizedTest
@@ -218,7 +226,8 @@ class BibEntryTypesManagerTest {
     void modifyingArticleWithParsing(BibDatabaseMode mode) {
         overwrittenStandardType = new BibEntryType(
                 StandardEntryType.Article,
-                List.of(new BibField(StandardField.TITLE, FieldPriority.IMPORTANT),
+                List.of(
+                        new BibField(StandardField.TITLE, FieldPriority.IMPORTANT),
                         new BibField(StandardField.NUMBER, FieldPriority.IMPORTANT),
                         new BibField(StandardField.LANGUAGEID, FieldPriority.IMPORTANT),
                         new BibField(StandardField.COMMENT, FieldPriority.IMPORTANT)),
@@ -236,7 +245,8 @@ class BibEntryTypesManagerTest {
     void modifyingArticleWithParsingKeepsListOrder(BibDatabaseMode mode) {
         overwrittenStandardType = new BibEntryType(
                 StandardEntryType.Article,
-                List.of(new BibField(StandardField.TITLE, FieldPriority.IMPORTANT),
+                List.of(
+                        new BibField(StandardField.TITLE, FieldPriority.IMPORTANT),
                         new BibField(StandardField.NUMBER, FieldPriority.IMPORTANT),
                         new BibField(StandardField.LANGUAGEID, FieldPriority.IMPORTANT),
                         new BibField(StandardField.COMMENT, FieldPriority.IMPORTANT)),
@@ -253,23 +263,34 @@ class BibEntryTypesManagerTest {
     /// were lossy, JabRef would keep offering to import the very same customizations - see
     /// <https://github.com/JabRef/jabref/issues/9930>. The types are the ones of the library attached to that issue.
     @ParameterizedTest
-    @ValueSource(strings = {
-            "jabref-entrytype: audio: req[author;date;editor;editortype;number;publisher;series;title;type] opt[url;urldate]",
-            "jabref-entrytype: manuscript: req[collection;library;location;shelfmark;shortcollection;shorthand;shortlibrary] opt[annotation;bookpagination;catalog;columns;contents;dating;keywords;layer;origin;owner;pages;pagetotal;pagination;scribe;support]",
-            "jabref-entrytype: review: req[author;date;journal;journaltitle;number;pages;related;relatedtype;volume;citationkey] opt[doi;url;urldate;eprint;eprinttype]"
-    })
+    @ValueSource(
+            strings = {
+                "jabref-entrytype: audio: req[author;date;editor;editortype;number;publisher;series;title;type]"
+                        + " opt[url;urldate]",
+                "jabref-entrytype: manuscript:"
+                        + " req[collection;library;location;shelfmark;shortcollection;shorthand;shortlibrary]"
+                        + " opt[annotation;bookpagination;catalog;columns;contents;dating;keywords;layer;origin;owner;pages;pagetotal;pagination;scribe;support]",
+                "jabref-entrytype: review:"
+                        + " req[author;date;journal;journaltitle;number;pages;related;relatedtype;volume;citationkey]"
+                        + " opt[doi;url;urldate;eprint;eprinttype]"
+            })
     void customEntryTypeSurvivesSerializationRoundTrip(String entryTypeComment) {
-        BibEntryType entryType = MetaDataParser.parseCustomEntryType(entryTypeComment).orElseThrow();
+        BibEntryType entryType =
+                MetaDataParser.parseCustomEntryType(entryTypeComment).orElseThrow();
 
-        assertEquals(Optional.of(entryType),
+        assertEquals(
+                Optional.of(entryType),
                 MetaDataParser.parseCustomEntryType(MetaDataSerializer.serializeCustomEntryTypes(entryType)));
-        assertEquals(Optional.of(entryType),
+        assertEquals(
+                Optional.of(entryType),
                 MetaDataParser.parseCustomEntryType(MetaDataSerializer.serializeCustomEntryTypesV2(entryType)));
     }
 
     @Test
     void translatorDetailOptionalAtArticle() {
-        BibEntryType entryType = entryTypesManager.enrich(StandardEntryType.Article, BibDatabaseMode.BIBLATEX).get();
+        BibEntryType entryType = entryTypesManager
+                .enrich(StandardEntryType.Article, BibDatabaseMode.BIBLATEX)
+                .get();
         assertTrue(entryType.getDetailOptionalFields().contains(StandardField.TRANSLATOR));
     }
 }

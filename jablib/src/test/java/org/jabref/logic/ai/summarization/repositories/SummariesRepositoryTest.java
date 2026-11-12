@@ -1,22 +1,20 @@
 package org.jabref.logic.ai.summarization.repositories;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.model.ai.AiMetadata;
 import org.jabref.model.ai.llm.AiProvider;
 import org.jabref.model.ai.summarization.AiSummary;
 import org.jabref.model.ai.summarization.AiSummaryIdentifier;
 import org.jabref.model.ai.summarization.SummarizatorKind;
-
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // [utest->req~ai.summarization.general.storage~1]
 class SummariesRepositoryTest {
@@ -27,10 +25,7 @@ class SummariesRepositoryTest {
     private static Path tempDir;
 
     private static List<SummariesRepository> repositories() {
-        return List.of(
-                new MVStoreSummariesRepository(_ -> {
-                }, tempDir.resolve("summaries-test.mv"))
-        );
+        return List.of(new MVStoreSummariesRepository(_ -> {}, tempDir.resolve("summaries-test.mv")));
     }
 
     private static AiSummary buildSummary(String content) {

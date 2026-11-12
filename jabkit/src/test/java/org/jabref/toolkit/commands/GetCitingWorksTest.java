@@ -1,8 +1,13 @@
 package org.jabref.toolkit.commands;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.nio.file.Path;
 import java.util.List;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.fetcher.citation.CitationFetcher;
 import org.jabref.model.entry.BibEntry;
@@ -12,17 +17,10 @@ import org.jabref.toolkit.service.CitationFetcherFactory;
 import org.jabref.toolkit.service.ExportService;
 import org.jabref.toolkit.util.CapturingCommandLine;
 import org.jabref.toolkit.util.CommandFactory;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import picocli.CommandLine;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class GetCitingWorksTest extends AbstractJabKitTest {
 
@@ -46,8 +44,7 @@ class GetCitingWorksTest extends AbstractJabKitTest {
         JabKit jabKit = new JabKit(preferences, entryTypesManager);
         CommandFactory factory = new CommandFactory(sut);
         this.commandLine = new CapturingCommandLine(jabKit, factory);
-        commandLine.setExecutionExceptionHandler(
-                new CliExceptionHandler(commandLine.getExecutionExceptionHandler()));
+        commandLine.setExecutionExceptionHandler(new CliExceptionHandler(commandLine.getExecutionExceptionHandler()));
 
         citationFetcher = mock(CitationFetcher.class);
         when(mockFetcherFactory.getCitationFetcher(any())).thenReturn(citationFetcher);
@@ -57,9 +54,7 @@ class GetCitingWorksTest extends AbstractJabKitTest {
     void simpleDoiLookupPrintsFetcherResults() throws Exception {
         // mock the citation fetcher with sample results
         List<BibEntry> citingWorks = List.of(
-                creatBibEntry("Citing Work 1", "10.1000/xyz123"),
-                creatBibEntry("Citing Work 2", "10.1000/abc456")
-        );
+                creatBibEntry("Citing Work 1", "10.1000/xyz123"), creatBibEntry("Citing Work 2", "10.1000/abc456"));
         when(citationFetcher.getCitations(any())).thenReturn(citingWorks);
 
         // mock the export service to do nothing and capture the argument
@@ -77,9 +72,7 @@ class GetCitingWorksTest extends AbstractJabKitTest {
     void doiLookupWithOutputFileAndFormatExportsFetcherResults() throws Exception {
         // mock the citation fetcher with sample results
         List<BibEntry> citingWorks = List.of(
-                creatBibEntry("Citing Work 1", "10.1000/xyz123"),
-                creatBibEntry("Citing Work 2", "10.1000/abc456")
-        );
+                creatBibEntry("Citing Work 1", "10.1000/xyz123"), creatBibEntry("Citing Work 2", "10.1000/abc456"));
         when(citationFetcher.getCitations(any())).thenReturn(citingWorks);
 
         // mock the export service to do nothing and capture the argument
@@ -91,8 +84,7 @@ class GetCitingWorksTest extends AbstractJabKitTest {
         int exitCode = commandLine.executeToLog(
                 "get-citing-works", "10.3390/su131810256",
                 "--output", "out.file",
-                "--output-format", "Klingon"
-        );
+                "--output-format", "Klingon");
 
         assertEquals(CommandLine.ExitCode.OK, exitCode);
 
@@ -113,8 +105,8 @@ class GetCitingWorksTest extends AbstractJabKitTest {
 
     @Test
     void fetcherExceptionExitsSoftwareError() throws Exception {
-        when(citationFetcher.getCitations(any())).thenThrow(
-                new FetcherException("Fetcher: Failed to fetch (negative test)"));
+        when(citationFetcher.getCitations(any()))
+                .thenThrow(new FetcherException("Fetcher: Failed to fetch (negative test)"));
 
         int exitCode = commandLine.executeToLog("get-citing-works", "10.1000/2026valid01");
 

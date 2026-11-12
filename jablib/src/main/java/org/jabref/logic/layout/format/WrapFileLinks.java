@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.jabref.logic.importer.util.FileFieldParser;
 import org.jabref.logic.layout.AbstractParamLayoutFormatter;
 import org.jabref.logic.util.io.FileUtil;
@@ -210,8 +209,8 @@ public class WrapFileLinks extends AbstractParamLayoutFormatter {
                             }
 
                             String pathString = flEntry.findIn(dirs)
-                                                       .map(path -> path.toAbsolutePath().toString())
-                                                       .orElse(flEntry.getLink());
+                                    .map(path -> path.toAbsolutePath().toString())
+                                    .orElse(flEntry.getLink());
 
                             sb.append(replaceStrings(pathString));
                             break;

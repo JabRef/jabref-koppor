@@ -1,9 +1,7 @@
 package org.jabref.logic.importer.fetcher.transformers;
 
 import java.util.Optional;
-
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Translates JabRef's search query into BibSonomy's free-text `search` parameter.

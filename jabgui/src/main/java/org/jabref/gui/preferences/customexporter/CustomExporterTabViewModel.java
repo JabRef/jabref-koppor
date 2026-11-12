@@ -3,11 +3,9 @@ package org.jabref.gui.preferences.customexporter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.exporter.CreateModifyExporterDialogView;
 import org.jabref.gui.exporter.ExporterViewModel;
@@ -17,8 +15,10 @@ import org.jabref.logic.exporter.TemplateExporter;
 
 public class CustomExporterTabViewModel implements PreferenceTabViewModel {
 
-    private final ListProperty<ExporterViewModel> exporters = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final ListProperty<ExporterViewModel> selectedExporters = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<ExporterViewModel> exporters =
+            new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<ExporterViewModel> selectedExporters =
+            new SimpleListProperty<>(FXCollections.observableArrayList());
 
     private final ExportPreferences exportPreferences;
     private final DialogService dialogService;
@@ -39,9 +39,8 @@ public class CustomExporterTabViewModel implements PreferenceTabViewModel {
 
     @Override
     public void storeSettings() {
-        List<TemplateExporter> exportersLogic = exporters.stream()
-                                                         .map(ExporterViewModel::getLogic)
-                                                         .collect(Collectors.toList());
+        List<TemplateExporter> exportersLogic =
+                exporters.stream().map(ExporterViewModel::getLogic).collect(Collectors.toList());
         exportPreferences.setCustomExporters(exportersLogic);
     }
 

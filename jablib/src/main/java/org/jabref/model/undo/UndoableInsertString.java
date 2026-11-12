@@ -1,10 +1,8 @@
 package org.jabref.model.undo;
 
 import java.util.Objects;
-
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibtexString;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Insertion of a BibTeX string definition.

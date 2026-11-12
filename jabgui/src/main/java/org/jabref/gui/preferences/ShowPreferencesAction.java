@@ -15,7 +15,10 @@ public class ShowPreferencesAction extends SimpleCommand {
         this(tabContainer, null, dialogService);
     }
 
-    public ShowPreferencesAction(LibraryTabContainer tabContainer, Class<? extends PreferencesTab> preferencesTabToSelectClass, DialogService dialogService) {
+    public ShowPreferencesAction(
+            LibraryTabContainer tabContainer,
+            Class<? extends PreferencesTab> preferencesTabToSelectClass,
+            DialogService dialogService) {
         this.tabContainer = tabContainer;
         this.preferencesTabToSelectClass = preferencesTabToSelectClass;
         this.dialogService = dialogService;

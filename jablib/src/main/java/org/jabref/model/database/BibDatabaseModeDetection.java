@@ -1,15 +1,13 @@
 package org.jabref.model.database;
 
 import java.util.stream.Stream;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.EntryTypeFactory;
 
 public class BibDatabaseModeDetection {
 
-    private BibDatabaseModeDetection() {
-    }
+    private BibDatabaseModeDetection() {}
 
     /// Tries to infer the database type by examining a BibDatabase database.
     ///

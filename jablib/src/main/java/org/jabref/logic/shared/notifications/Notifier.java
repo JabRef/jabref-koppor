@@ -1,16 +1,14 @@
 package org.jabref.logic.shared.notifications;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Optional;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.event.FieldChangedEvent;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

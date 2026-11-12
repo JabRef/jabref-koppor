@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.UrlBasedFetcher;
 import org.jabref.logic.net.URLDownload;
@@ -13,7 +12,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Date;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jsoup.Jsoup;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
@@ -60,13 +58,16 @@ public class GenericUrlBasedFetcher implements UrlBasedFetcher {
     private Optional<String> fetchTitle(String url) {
         try {
             String title = Jsoup.connect(url)
-                                .userAgent(URLDownload.USER_AGENT)
-                                .timeout(CONNECT_TIMEOUT_MILLIS)
-                                .get()
-                                .title();
+                    .userAgent(URLDownload.USER_AGENT)
+                    .timeout(CONNECT_TIMEOUT_MILLIS)
+                    .get()
+                    .title();
             return title.isBlank() ? Optional.empty() : Optional.of(title);
         } catch (IOException e) {
-            LOGGER.debug("Could not fetch title for '{}', falling back to the URL as title.", FetcherException.getRedactedUrl(url), e);
+            LOGGER.debug(
+                    "Could not fetch title for '{}', falling back to the URL as title.",
+                    FetcherException.getRedactedUrl(url),
+                    e);
             return Optional.empty();
         }
     }

@@ -1,15 +1,13 @@
 package org.jabref.logic.ai.ingestion.tasks;
 
+import ai.djl.MalformedModelException;
+import ai.djl.repository.zoo.ModelNotFoundException;
 import java.io.IOException;
-
 import org.jabref.logic.ai.embedding.DeepJavaEmbeddingModel;
 import org.jabref.logic.ai.embedding.EmbeddingModelMetadataService;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.ProgressCounter;
-
-import ai.djl.MalformedModelException;
-import ai.djl.repository.zoo.ModelNotFoundException;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +23,7 @@ public class UpdateEmbeddingModelTask extends BackgroundTask<DeepJavaEmbeddingMo
 
     private final ProgressCounter progressCounter = new ProgressCounter();
 
-    public UpdateEmbeddingModelTask(
-            String embeddingModelName,
-            EmbeddingModelMetadataService metadataService
-    ) {
+    public UpdateEmbeddingModelTask(String embeddingModelName, EmbeddingModelMetadataService metadataService) {
         this.embeddingModelName = embeddingModelName;
         this.metadataService = metadataService;
 
@@ -52,11 +47,8 @@ public class UpdateEmbeddingModelTask extends BackgroundTask<DeepJavaEmbeddingMo
         }
 
         try {
-            DeepJavaEmbeddingModel model = new DeepJavaEmbeddingModel(
-                    embeddingModelName,
-                    progressCounter,
-                    metadataService
-            );
+            DeepJavaEmbeddingModel model =
+                    new DeepJavaEmbeddingModel(embeddingModelName, progressCounter, metadataService);
 
             if (!originallyDownloaded) {
                 LOGGER.info("Embedding model was successfully downloaded");
@@ -64,11 +56,15 @@ public class UpdateEmbeddingModelTask extends BackgroundTask<DeepJavaEmbeddingMo
 
             return model;
         } catch (ModelNotFoundException e) {
-            throw new RuntimeException(Localization.lang("Unable to find the embedding model \"%0\"", embeddingModelName), e);
+            throw new RuntimeException(
+                    Localization.lang("Unable to find the embedding model \"%0\"", embeddingModelName), e);
         } catch (MalformedModelException e) {
             throw new RuntimeException(Localization.lang("The model \"%0\" is malformed", embeddingModelName), e);
         } catch (IOException e) {
-            throw new RuntimeException(Localization.lang("An I/O error occurred while opening the embedding model \"%0\"", embeddingModelName), e);
+            throw new RuntimeException(
+                    Localization.lang(
+                            "An I/O error occurred while opening the embedding model \"%0\"", embeddingModelName),
+                    e);
         } finally {
             progressCounter.stop();
         }

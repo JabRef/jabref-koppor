@@ -1,12 +1,15 @@
 package org.jabref.gui.libraryproperties;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.google.common.eventbus.Subscribe;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import javafx.scene.Node;
-
 import org.jabref.logic.undo.JabRefUndoManager;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
@@ -15,14 +18,8 @@ import org.jabref.model.metadata.MetaData;
 import org.jabref.model.metadata.event.MetaDataChangeSource;
 import org.jabref.model.metadata.event.MetaDataChangedEvent;
 import org.jabref.model.undo.UndoablePreambleChange;
-
-import com.google.common.eventbus.Subscribe;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @NullMarked
 class LibraryPropertiesViewModelTest {
@@ -44,8 +41,7 @@ class LibraryPropertiesViewModelTest {
         }
 
         @Override
-        public void setValues(MetaData metaData) {
-        }
+        public void setValues(MetaData metaData) {}
 
         @Override
         public void storeSettings(MetaData metaData) {
@@ -70,16 +66,20 @@ class LibraryPropertiesViewModelTest {
         databaseContext.getMetaData().setMode(BibDatabaseMode.BIBTEX);
 
         viewModel(
-                new SettingTab(metaData -> metaData.setMode(BibDatabaseMode.BIBLATEX)),
-                new SettingTab(metaData -> metaData.setKeywordSeparator(';')))
+                        new SettingTab(metaData -> metaData.setMode(BibDatabaseMode.BIBLATEX)),
+                        new SettingTab(metaData -> metaData.setKeywordSeparator(';')))
                 .storeAllSettings();
 
-        assertEquals(Optional.of(BibDatabaseMode.BIBLATEX), databaseContext.getMetaData().getMode());
+        assertEquals(
+                Optional.of(BibDatabaseMode.BIBLATEX),
+                databaseContext.getMetaData().getMode());
         assertEquals(Optional.of(';'), databaseContext.getMetaData().getKeywordSeparator());
 
         undoManager.undo();
 
-        assertEquals(Optional.of(BibDatabaseMode.BIBTEX), databaseContext.getMetaData().getMode());
+        assertEquals(
+                Optional.of(BibDatabaseMode.BIBTEX),
+                databaseContext.getMetaData().getMode());
         assertEquals(Optional.empty(), databaseContext.getMetaData().getKeywordSeparator());
         assertFalse(undoManager.canUndo(), "the whole dialog is one step");
     }
@@ -89,9 +89,9 @@ class LibraryPropertiesViewModelTest {
     @Test
     void whatATabRecordsJoinsTheSameStep() {
         viewModel(
-                new SettingTab(metaData -> metaData.setMode(BibDatabaseMode.BIBLATEX)),
-                new SettingTab(_ -> undoManager.applyEdit(
-                        new UndoablePreambleChange(databaseContext.getDatabase(), null, "preamble"))))
+                        new SettingTab(metaData -> metaData.setMode(BibDatabaseMode.BIBLATEX)),
+                        new SettingTab(_ -> undoManager.applyEdit(
+                                new UndoablePreambleChange(databaseContext.getDatabase(), null, "preamble"))))
                 .storeAllSettings();
 
         assertEquals(Optional.of("preamble"), databaseContext.getDatabase().getPreamble());
@@ -118,12 +118,13 @@ class LibraryPropertiesViewModelTest {
         });
 
         viewModel(
-                new SettingTab(metaData -> metaData.setMode(BibDatabaseMode.BIBLATEX)),
-                new SettingTab(metaData -> metaData.setKeywordSeparator(';')),
-                new SettingTab(metaData -> metaData.setLibrarySpecificFileDirectory("files")))
+                        new SettingTab(metaData -> metaData.setMode(BibDatabaseMode.BIBLATEX)),
+                        new SettingTab(metaData -> metaData.setKeywordSeparator(';')),
+                        new SettingTab(metaData -> metaData.setLibrarySpecificFileDirectory("files")))
                 .storeAllSettings();
 
-        assertEquals(List.of(MetaDataChangeSource.JOURNAL),
+        assertEquals(
+                List.of(MetaDataChangeSource.JOURNAL),
                 events.stream().map(MetaDataChangedEvent::getSource).distinct().toList());
     }
 
@@ -148,7 +149,9 @@ class LibraryPropertiesViewModelTest {
         undoManager.undo();
         undoManager.redo();
 
-        assertEquals(Optional.of(BibDatabaseMode.BIBLATEX), databaseContext.getMetaData().getMode());
+        assertEquals(
+                Optional.of(BibDatabaseMode.BIBLATEX),
+                databaseContext.getMetaData().getMode());
         assertTrue(undoManager.canUndo());
     }
 }

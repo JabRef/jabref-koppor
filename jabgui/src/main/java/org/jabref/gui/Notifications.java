@@ -1,8 +1,12 @@
 package org.jabref.gui;
 
+import com.dlsc.gemsfx.infocenter.InfoCenterEvent;
+import com.dlsc.gemsfx.infocenter.Notification;
+import com.dlsc.gemsfx.infocenter.Notification.OnClickBehaviour;
+import com.dlsc.gemsfx.infocenter.NotificationAction;
+import com.dlsc.gemsfx.infocenter.NotificationView;
 import java.nio.file.Path;
 import java.util.Optional;
-
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.concurrent.WorkerStateEvent;
@@ -13,18 +17,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.DelayedExecution;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.strings.StringUtil;
-
-import com.dlsc.gemsfx.infocenter.InfoCenterEvent;
-import com.dlsc.gemsfx.infocenter.Notification;
-import com.dlsc.gemsfx.infocenter.Notification.OnClickBehaviour;
-import com.dlsc.gemsfx.infocenter.NotificationAction;
-import com.dlsc.gemsfx.infocenter.NotificationView;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +29,7 @@ import org.slf4j.LoggerFactory;
 public class Notifications {
     private static final Logger LOGGER = LoggerFactory.getLogger(Notifications.class);
 
-    private Notifications() {
-    }
+    private Notifications() {}
 
     public static class UndefinedNotification extends Notification<Object> {
         public UndefinedNotification(String title, String description) {
@@ -117,7 +113,8 @@ public class Notifications {
     public static class TaskNotification extends Notification<Task<?>> {
         private final boolean untitled;
 
-        /// @param backgroundTask the task `task` was created from; decides whether a failure needs a notification, see [BackgroundTask#failureShownByCaller(boolean)]
+        /// @param backgroundTask the task `task` was created from; decides whether a failure needs a notification, see
+        /// [BackgroundTask#failureShownByCaller(boolean)]
         public TaskNotification(Task<?> task, BackgroundTask<?> backgroundTask) {
             super(task.getTitle(), task.getMessage());
             setUserObject(task);
@@ -132,7 +129,8 @@ public class Notifications {
             }));
 
             // Do not overwrite existing handlers
-            // The handlers run on the JavaFX thread after the notification was added: it is created when the task starts running.
+            // The handlers run on the JavaFX thread after the notification was added: it is created when the task
+            // starts running.
             Optional<EventHandler<WorkerStateEvent>> onSucceeded = Optional.ofNullable(task.getOnSucceeded());
             task.setOnSucceeded(event -> {
                 onSucceeded.ifPresent(handler -> handler.handle(event));
@@ -172,7 +170,9 @@ public class Notifications {
         public TaskNotificationView(TaskNotification notification) {
             super(notification);
             progressBar.progressProperty().bind(notification.getUserObject().progressProperty());
-            progressBar.visibleProperty().bind(notification.getUserObject().stateProperty().isNotEqualTo(Worker.State.FAILED));
+            progressBar
+                    .visibleProperty()
+                    .bind(notification.getUserObject().stateProperty().isNotEqualTo(Worker.State.FAILED));
             progressBar.managedProperty().bind(progressBar.visibleProperty());
             HBox.setHgrow(progressBar, Priority.ALWAYS);
             setContent(progressBar);

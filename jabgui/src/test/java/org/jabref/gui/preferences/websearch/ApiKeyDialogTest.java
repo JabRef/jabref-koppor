@@ -1,21 +1,5 @@
 package org.jabref.gui.preferences.websearch;
 
-import java.util.function.Consumer;
-
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextField;
-import javafx.stage.Stage;
-
-import org.jabref.gui.preferences.websearch.WebSearchTabViewModel.FetcherViewModel;
-import org.jabref.gui.testutils.JavaFxTest;
-import org.jabref.logic.l10n.Language;
-import org.jabref.logic.l10n.Localization;
-
-import org.jspecify.annotations.NullMarked;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,6 +9,19 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.function.Consumer;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+import org.jabref.gui.preferences.websearch.WebSearchTabViewModel.FetcherViewModel;
+import org.jabref.gui.testutils.JavaFxTest;
+import org.jabref.logic.l10n.Language;
+import org.jabref.logic.l10n.Localization;
+import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.Test;
 
 @NullMarked
 class ApiKeyDialogTest extends JavaFxTest {
@@ -41,9 +38,11 @@ class ApiKeyDialogTest extends JavaFxTest {
         when(viewModel.getApikeyPersistProperty()).thenReturn(new SimpleBooleanProperty());
         when(viewModel.apiKeyPersistAvailable()).thenReturn(new SimpleBooleanProperty());
         doAnswer(invocation -> {
-            resultHandler = invocation.getArgument(2);
-            return null;
-        }).when(viewModel).checkApiKey(eq(fetcher), anyString(), any());
+                    resultHandler = invocation.getArgument(2);
+                    return null;
+                })
+                .when(viewModel)
+                .checkApiKey(eq(fetcher), anyString(), any());
         dialog = new ApiKeyDialog(viewModel, fetcher);
         dialog.initOwner(stage);
     }

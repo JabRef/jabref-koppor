@@ -6,7 +6,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Date;
@@ -60,19 +59,22 @@ public class TimestampToDateField implements CleanupJob {
     public List<FieldChange> cleanup(BibEntry entry) {
         // Query entries for their timestamp field entries
         if (entry.getField(sourceField).isPresent()) {
-            Optional<String> formattedTimeStamp = formatTimeStamp(entry.getField(sourceField).get());
+            Optional<String> formattedTimeStamp =
+                    formatTimeStamp(entry.getField(sourceField).get());
             if (formattedTimeStamp.isEmpty()) {
                 // In case the timestamp could not be parsed, do nothing to not lose data
                 return List.of();
             }
-            // Setting the EventSource is necessary to circumvent the update of the target field during timestamp migration
+            // Setting the EventSource is necessary to circumvent the update of the target field during timestamp
+            // migration
             entry.clearField(sourceField, EntriesEventSource.CLEANUP_TIMESTAMP);
             List<FieldChange> changeList = new ArrayList<>();
             FieldChange changeTo;
             // Add removal of timestamp field
             changeList.add(new FieldChange(entry, sourceField, formattedTimeStamp.get(), ""));
             entry.setField(targetField, formattedTimeStamp.get(), EntriesEventSource.CLEANUP_TIMESTAMP);
-            changeTo = new FieldChange(entry, targetField, entry.getField(targetField).orElse(""), formattedTimeStamp.get());
+            changeTo = new FieldChange(
+                    entry, targetField, entry.getField(targetField).orElse(""), formattedTimeStamp.get());
             changeList.add(changeTo);
             return changeList;
         }

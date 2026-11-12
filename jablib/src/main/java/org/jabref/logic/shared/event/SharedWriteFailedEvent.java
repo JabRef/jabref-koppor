@@ -1,7 +1,6 @@
 package org.jabref.logic.shared.event;
 
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Fired when a local change could not be written to the shared database although the connection
@@ -9,6 +8,4 @@ import org.jspecify.annotations.NullMarked;
 ///
 /// @param bibDatabaseContext Affected [BibDatabaseContext]
 @NullMarked
-public record SharedWriteFailedEvent(
-        BibDatabaseContext bibDatabaseContext) {
-}
+public record SharedWriteFailedEvent(BibDatabaseContext bibDatabaseContext) {}

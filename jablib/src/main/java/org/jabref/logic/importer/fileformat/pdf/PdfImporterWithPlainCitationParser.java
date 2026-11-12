@@ -2,17 +2,16 @@ package org.jabref.logic.importer.fileformat.pdf;
 
 import java.nio.file.Path;
 import java.util.List;
-
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.importer.plaincitation.PlainCitationParser;
 import org.jabref.logic.importer.plaincitation.ReferencesBlockFromPdfFinder;
 import org.jabref.model.entry.BibEntry;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public abstract class PdfImporterWithPlainCitationParser extends BibliographyFromPdfImporter implements PlainCitationParser {
+public abstract class PdfImporterWithPlainCitationParser extends BibliographyFromPdfImporter
+        implements PlainCitationParser {
 
     @Override
     public ParserResult importDatabase(Path filePath, PDDocument document) {

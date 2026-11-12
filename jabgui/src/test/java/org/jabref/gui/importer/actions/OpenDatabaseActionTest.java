@@ -1,12 +1,24 @@
 package org.jabref.gui.importer.actions;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
@@ -27,26 +39,11 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(JavaFxExtension.class)
 public class OpenDatabaseActionTest {
@@ -70,8 +67,7 @@ public class OpenDatabaseActionTest {
                 mock(BibEntryTypesManager.class),
                 mock(ClipBoardManager.class),
                 mock(TaskExecutor.class),
-                new GitHandlerRegistry(mock(GitPreferences.class))
-        ));
+                new GitHandlerRegistry(mock(GitPreferences.class))));
     }
 
     @Test
@@ -88,12 +84,10 @@ public class OpenDatabaseActionTest {
 
         // Make it so that showFileOpenDialogAndGetMultipleFiles will throw an error when called with the bad path, but
         // not for the good path as in issue #10548
-        when(dialogService.showFileOpenDialogAndGetMultipleFiles(badConfig))
-                .thenAnswer(_ -> {
-                    throw new IllegalArgumentException();
-                });
-        when(dialogService.showFileOpenDialogAndGetMultipleFiles(goodConfig))
-                .thenAnswer(_ -> List.of());
+        when(dialogService.showFileOpenDialogAndGetMultipleFiles(badConfig)).thenAnswer(_ -> {
+            throw new IllegalArgumentException();
+        });
+        when(dialogService.showFileOpenDialogAndGetMultipleFiles(goodConfig)).thenAnswer(_ -> List.of());
 
         // Simulate a scenario where the initial directory is good
         when(openDatabaseAction.getFileDialogConfiguration(openDatabaseAction.getInitialDirectory()))
@@ -107,7 +101,8 @@ public class OpenDatabaseActionTest {
         when(openDatabaseAction.getFileDialogConfiguration(Directories.getUserDirectory()))
                 .thenReturn(goodConfig);
 
-        assertThrows(IllegalArgumentException.class, () -> dialogService.showFileOpenDialogAndGetMultipleFiles(badConfig));
+        assertThrows(
+                IllegalArgumentException.class, () -> dialogService.showFileOpenDialogAndGetMultipleFiles(badConfig));
         assertDoesNotThrow(() -> dialogService.showFileOpenDialog(goodConfig));
         assertEquals(List.of(), openDatabaseAction.getFilesToOpen());
     }
@@ -133,9 +128,8 @@ public class OpenDatabaseActionTest {
 
         assertTrue(result.isInvalid());
         JavaFxExtension.awaitEvents();
-        verify(dialogService).showErrorDialogAndWait(
-                eq(Localization.lang("Open library error")),
-                contains(unreadable.toString()));
+        verify(dialogService)
+                .showErrorDialogAndWait(eq(Localization.lang("Open library error")), contains(unreadable.toString()));
     }
 
     // [utest->req~import.library.unreadable-reported~1]
@@ -143,23 +137,22 @@ public class OpenDatabaseActionTest {
     void loadDatabaseReportsAbortedParse(@TempDir Path tempDir) throws Exception {
         // Unresolved merge conflict markers make the parser abort, so nothing at all is read
         Path conflicted = Files.writeString(tempDir.resolve("conflicted.bib"), """
-                @article{a,
-                <<<<<<< HEAD
-                  title = {Ours},
-                =======
-                  title = {Theirs},
-                >>>>>>> branch
-                }
-                """);
+            @article{a,
+            <<<<<<< HEAD
+              title = {Ours},
+            =======
+              title = {Theirs},
+            >>>>>>> branch
+            }
+            """);
         mockPreferencesForLoad(tempDir.resolve("backups"));
 
         ParserResult result = openDatabaseAction.loadDatabase(conflicted);
 
         assertTrue(result.isInvalid());
         JavaFxExtension.awaitEvents();
-        verify(dialogService).showErrorDialogAndWait(
-                eq(Localization.lang("Open library error")),
-                contains(conflicted.toString()));
+        verify(dialogService)
+                .showErrorDialogAndWait(eq(Localization.lang("Open library error")), contains(conflicted.toString()));
     }
 
     // [utest->req~import.library.unreadable-reported~1]
@@ -182,50 +175,58 @@ public class OpenDatabaseActionTest {
     void loadDatabaseMigratesLegacyExplicitGroups(@TempDir Path tempDir) throws Exception {
         Path library = tempDir.resolve("legacy-groups.bib");
         Files.writeString(library, """
-                @Article{Entry1,
-                  author = {Koppor Test},
-                  title  = {Legacy groups migration test},
-                }
+            @Article{Entry1,
+              author = {Koppor Test},
+              title  = {Legacy groups migration test},
+            }
 
-                @Comment{jabref-meta: groupsversion:3;}
+            @Comment{jabref-meta: groupsversion:3;}
 
-                @Comment{jabref-meta: groupstree:
-                0 AllEntriesGroup:;
-                1 ExplicitGroup:TestGroup\\;0\\;Entry1\\;;
-                }
-                """);
+            @Comment{jabref-meta: groupstree:
+            0 AllEntriesGroup:;
+            1 ExplicitGroup:TestGroup\\;0\\;Entry1\\;;
+            }
+            """);
 
         FilePreferences filePreferences = mock(FilePreferences.class);
         when(filePreferences.getBackupDirectory()).thenReturn(tempDir.resolve("backups"));
         when(guiPreferences.getFilePreferences()).thenReturn(filePreferences);
-        when(guiPreferences.getImportFormatPreferences()).thenReturn(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(guiPreferences.getImportFormatPreferences())
+                .thenReturn(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS));
 
         ParserResult parserResult = openDatabaseAction.loadDatabase(library);
 
         BibEntry entry = parserResult.getDatabase().getEntries().getFirst();
         assertEquals(Optional.of("TestGroup"), entry.getField(StandardField.GROUPS));
         assertTrue(parserResult.getChangedOnMigration());
-        verify(dialogService).notify(Localization.lang("Migrating library '%0' to the current version", library.toAbsolutePath().toString()));
+        verify(dialogService)
+                .notify(Localization.lang(
+                        "Migrating library '%0' to the current version",
+                        library.toAbsolutePath().toString()));
     }
 
     @Test
     void loadModernDatabaseDoesNotShowMigrationNotification(@TempDir Path tempDir) throws Exception {
         Path library = tempDir.resolve("modern.bib");
         Files.writeString(library, """
-                @Article{Entry1,
-                  title = {Modern library},
-                  keywords = {research},
-                  groups = {Current group},
-                }
-                """);
+            @Article{Entry1,
+              title = {Modern library},
+              keywords = {research},
+              groups = {Current group},
+            }
+            """);
         FilePreferences filePreferences = mock(FilePreferences.class);
         when(filePreferences.getBackupDirectory()).thenReturn(tempDir.resolve("backups"));
         when(guiPreferences.getFilePreferences()).thenReturn(filePreferences);
-        when(guiPreferences.getImportFormatPreferences()).thenReturn(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(guiPreferences.getImportFormatPreferences())
+                .thenReturn(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS));
 
         ParserResult result = openDatabaseAction.loadDatabase(library);
 
         assertFalse(result.getChangedOnMigration());
-        verify(dialogService, never()).notify(Localization.lang("Migrating library '%0' to the current version", library.toAbsolutePath().toString()));
+        verify(dialogService, never())
+                .notify(Localization.lang(
+                        "Migrating library '%0' to the current version",
+                        library.toAbsolutePath().toString()));
     }
 }

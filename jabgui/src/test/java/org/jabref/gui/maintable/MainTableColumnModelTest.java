@@ -1,8 +1,8 @@
 package org.jabref.gui.maintable;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 class MainTableColumnModelTest {
 

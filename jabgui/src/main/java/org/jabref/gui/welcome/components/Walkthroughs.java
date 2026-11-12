@@ -8,7 +8,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
@@ -28,7 +27,8 @@ public class Walkthroughs extends VBox {
     private final Label header;
     private boolean isScrollEnabled = true;
 
-    public Walkthroughs(Stage stage, LibraryTabContainer tabContainer, StateManager stateManager, GuiPreferences preferences) {
+    public Walkthroughs(
+            Stage stage, LibraryTabContainer tabContainer, StateManager stateManager, GuiPreferences preferences) {
         this.stage = stage;
         this.tabContainer = tabContainer;
         this.stateManager = stateManager;
@@ -85,12 +85,13 @@ public class Walkthroughs extends VBox {
                 IconTheme.JabRefIcons.SEARCH,
                 WalkthroughAction.SEARCH_WALKTHROUGH_NAME);
 
-        content.getChildren().addAll(
-                mainFileDirWalkthroughButton,
-                entryTableWalkthroughButton,
-                linkPdfWalkthroughButton,
-                groupButton,
-                searchButton);
+        content.getChildren()
+                .addAll(
+                        mainFileDirWalkthroughButton,
+                        entryTableWalkthroughButton,
+                        linkPdfWalkthroughButton,
+                        groupButton,
+                        searchButton);
         return content;
     }
 
@@ -101,11 +102,14 @@ public class Walkthroughs extends VBox {
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.getStyleClass().add("walkthroughs-scroll-pane");
         scrollPane.setMaxHeight(Double.MAX_VALUE);
-        // Retain visibility of the first few Walkthroughs, in case the height of the welcome tab exceeds the height of the window.
+        // Retain visibility of the first few Walkthroughs, in case the height of the welcome tab exceeds the height of
+        // the window.
         Node lastVisibleButton = content.getChildren().get(MIN_VISIBLE_WALKTHROUGHS - 1);
-        scrollPane.minViewportHeightProperty().bind(Bindings.createDoubleBinding(
-                () -> lastVisibleButton.getBoundsInParent().getMaxY(),
-                lastVisibleButton.boundsInParentProperty()));
+        scrollPane
+                .minViewportHeightProperty()
+                .bind(Bindings.createDoubleBinding(
+                        () -> lastVisibleButton.getBoundsInParent().getMaxY(),
+                        lastVisibleButton.boundsInParentProperty()));
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
         return scrollPane;
     }
@@ -115,7 +119,8 @@ public class Walkthroughs extends VBox {
         button.setGraphic(icon.getGraphicNode());
         button.getStyleClass().addAll("quick-settings-button", "padding-12", "align-center-left");
         button.setMaxWidth(Double.MAX_VALUE);
-        button.setOnAction(_ -> new WalkthroughAction(stage, tabContainer, stateManager, preferences, walkthroughId).execute());
+        button.setOnAction(
+                _ -> new WalkthroughAction(stage, tabContainer, stateManager, preferences, walkthroughId).execute());
         return button;
     }
 }

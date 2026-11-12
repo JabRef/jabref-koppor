@@ -2,7 +2,6 @@ package org.jabref.gui.fieldeditors;
 
 import java.io.IOException;
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.desktop.os.NativeDesktop;
@@ -15,7 +14,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.icore.ConferenceEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +33,7 @@ public class ICORERankingEditorViewModel extends AbstractEditorViewModel {
             DialogService dialogService,
             UndoManager undoManager,
             GuiPreferences preferences,
-            ConferenceRepository conferenceRepository
-    ) {
+            ConferenceRepository conferenceRepository) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.dialogService = dialogService;
         this.preferences = preferences;
@@ -66,7 +63,8 @@ public class ICORERankingEditorViewModel extends AbstractEditorViewModel {
     public void openExternalLink() {
         if (matchedConference != null) {
             try {
-                NativeDesktop.openBrowser(matchedConference.getICOREURL(), preferences.getExternalApplicationsPreferences());
+                NativeDesktop.openBrowser(
+                        matchedConference.getICOREURL(), preferences.getExternalApplicationsPreferences());
             } catch (IOException e) {
                 LOGGER.error("Error opening external link in browser", e);
                 dialogService.showErrorDialogAndWait(Localization.lang("Could not open website."), e);

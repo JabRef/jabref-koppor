@@ -8,10 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-
-import org.jabref.model.pdf.FileAnnotation;
-import org.jabref.model.pdf.FileAnnotationType;
-
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSName;
@@ -19,6 +15,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageTree;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
+import org.jabref.model.pdf.FileAnnotation;
+import org.jabref.model.pdf.FileAnnotationType;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +50,8 @@ public class PdfAnnotationImporter implements AnnotationImporter {
                         annotationsList.add(createMarkedAnnotations(pageIndex, page, annotation));
                     } else {
                         FileAnnotation fileAnnotation = new FileAnnotation(annotation, pageIndex + 1);
-                        if ((fileAnnotation.getContent() != null) && !fileAnnotation.getContent().isEmpty()) {
+                        if ((fileAnnotation.getContent() != null)
+                                && !fileAnnotation.getContent().isEmpty()) {
                             annotationsList.add(fileAnnotation);
                         }
                     }
@@ -73,23 +72,32 @@ public class PdfAnnotationImporter implements AnnotationImporter {
             return false;
         }
         try {
-            if (!Arrays.asList(FileAnnotationType.values()).contains(FileAnnotationType.valueOf(annotation.getSubtype()))) {
+            if (!Arrays.asList(FileAnnotationType.values())
+                    .contains(FileAnnotationType.valueOf(annotation.getSubtype()))) {
                 return false;
             }
         } catch (IllegalArgumentException _) {
-            LOGGER.debug("Could not parse the FileAnnotation {} into any known FileAnnotationType. It was {}.", annotation, annotation.getSubtype());
+            LOGGER.debug(
+                    "Could not parse the FileAnnotation {} into any known FileAnnotationType. It was {}.",
+                    annotation,
+                    annotation.getSubtype());
         }
         return true;
     }
 
     private FileAnnotation createMarkedAnnotations(int pageIndex, PDPage page, PDAnnotation annotation) {
         FileAnnotation annotationBelongingToMarking = new FileAnnotation(
-                annotation.getCOSObject().getString(COSName.T), FileAnnotation.extractModifiedTime(annotation.getModifiedDate()),
-                pageIndex + 1, annotation.getContents(), FileAnnotationType.valueOf(annotation.getSubtype().toUpperCase(Locale.ROOT)), Optional.empty());
+                annotation.getCOSObject().getString(COSName.T),
+                FileAnnotation.extractModifiedTime(annotation.getModifiedDate()),
+                pageIndex + 1,
+                annotation.getContents(),
+                FileAnnotationType.valueOf(annotation.getSubtype().toUpperCase(Locale.ROOT)),
+                Optional.empty());
 
         if (annotationBelongingToMarking.getAnnotationType().isLinkedFileAnnotationType()) {
             try {
-                COSArray boundingBoxes = (COSArray) annotation.getCOSObject().getDictionaryObject(COSName.getPDFName("QuadPoints"));
+                COSArray boundingBoxes =
+                        (COSArray) annotation.getCOSObject().getDictionaryObject(COSName.getPDFName("QuadPoints"));
                 annotation.setContents(new TextExtractor(page, boundingBoxes).extractMarkedText());
             } catch (IOException _) {
                 annotation.setContents("JabRef: Could not extract any marked text!");

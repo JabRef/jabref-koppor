@@ -2,7 +2,6 @@ package org.jabref.gui.collab.preamblechange;
 
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.collab.DatabaseChangeDetailsView;
 import org.jabref.gui.theme.StyleClasses;
 import org.jabref.logic.bibtex.comparator.PreambleDiff;
@@ -20,11 +19,15 @@ public final class PreambleChangeDetailsView extends DatabaseChangeDetailsView {
         container.getChildren().add(header);
 
         if (StringUtil.isNotBlank(preambleDiff.getOriginalPreamble())) {
-            container.getChildren().add(new Label(Localization.lang("Current value: %0", preambleDiff.getOriginalPreamble())));
+            container
+                    .getChildren()
+                    .add(new Label(Localization.lang("Current value: %0", preambleDiff.getOriginalPreamble())));
         }
 
         if (StringUtil.isNotBlank(preambleDiff.getNewPreamble())) {
-            container.getChildren().add(new Label(Localization.lang("Value set externally: %0", preambleDiff.getNewPreamble())));
+            container
+                    .getChildren()
+                    .add(new Label(Localization.lang("Value set externally: %0", preambleDiff.getNewPreamble())));
         } else {
             container.getChildren().add(new Label(Localization.lang("Value cleared externally")));
         }

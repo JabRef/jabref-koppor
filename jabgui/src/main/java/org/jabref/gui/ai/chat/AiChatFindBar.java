@@ -1,5 +1,6 @@
 package org.jabref.gui.ai.chat;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -11,22 +12,21 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
-
-import com.airhacks.afterburner.views.ViewLoader;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public class AiChatFindBar extends HBox {
-    @FXML private TextField findField;
-    @FXML private Label findResultLabel;
+    @FXML
+    private TextField findField;
+
+    @FXML
+    private Label findResultLabel;
 
     private final AiChatFindViewModel viewModel = new AiChatFindViewModel();
 
     public AiChatFindBar() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @FXML
@@ -34,21 +34,26 @@ public class AiChatFindBar extends HBox {
         managedProperty().bind(visibleProperty());
         visibleProperty().bind(viewModel.visibleProperty());
         findField.textProperty().bindBidirectional(viewModel.queryProperty());
-        findResultLabel.textProperty().bind(Bindings.createStringBinding(() -> {
-                    if (viewModel.getActiveQuery().isEmpty()) {
-                        return "";
-                    }
-                    int total = viewModel.totalProperty().get();
-                    int current = total == 0 ? 0 : viewModel.getCurrent() + 1;
-                    return current + "/" + total;
-                },
-                viewModel.visibleProperty(),
-                viewModel.queryProperty(),
-                viewModel.currentProperty(),
-                viewModel.totalProperty()
-        ));
+        findResultLabel
+                .textProperty()
+                .bind(Bindings.createStringBinding(
+                        () -> {
+                            if (viewModel.getActiveQuery().isEmpty()) {
+                                return "";
+                            }
+                            int total = viewModel.totalProperty().get();
+                            int current = total == 0 ? 0 : viewModel.getCurrent() + 1;
+                            return current + "/" + total;
+                        },
+                        viewModel.visibleProperty(),
+                        viewModel.queryProperty(),
+                        viewModel.currentProperty(),
+                        viewModel.totalProperty()));
         findField.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            if (event.getCode() == KeyCode.ENTER && !event.isControlDown() && !event.isMetaDown() && !event.isAltDown()) {
+            if (event.getCode() == KeyCode.ENTER
+                    && !event.isControlDown()
+                    && !event.isMetaDown()
+                    && !event.isAltDown()) {
                 if (event.isShiftDown()) {
                     findPrevious();
                 } else {

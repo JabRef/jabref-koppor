@@ -1,18 +1,16 @@
 package org.jabref.gui.autosaveandbackup;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.jabref.logic.util.CoarseChangeFilter;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.event.AutosaveEvent;
 import org.jabref.model.database.event.BibDatabaseContextChangedEvent;
-
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +36,10 @@ public class AutosaveManager {
         this(bibDatabaseContext, coarseChangeFilter, new ScheduledThreadPoolExecutor(2));
     }
 
-    AutosaveManager(BibDatabaseContext bibDatabaseContext, CoarseChangeFilter coarseChangeFilter, ScheduledThreadPoolExecutor executor) {
+    AutosaveManager(
+            BibDatabaseContext bibDatabaseContext,
+            CoarseChangeFilter coarseChangeFilter,
+            ScheduledThreadPoolExecutor executor) {
         this.bibDatabaseContext = bibDatabaseContext;
         this.coarseChangeFilter = coarseChangeFilter;
         this.eventBus = new EventBus();
@@ -97,8 +98,10 @@ public class AutosaveManager {
     ///
     /// @param bibDatabaseContext Associated [BibDatabaseContext]
     public static void shutdown(BibDatabaseContext bibDatabaseContext) {
-        runningInstances.stream().filter(instance -> instance.bibDatabaseContext == bibDatabaseContext).findAny()
-                        .ifPresent(AutosaveManager::shutdown);
+        runningInstances.stream()
+                .filter(instance -> instance.bibDatabaseContext == bibDatabaseContext)
+                .findAny()
+                .ifPresent(AutosaveManager::shutdown);
     }
 
     public void registerListener(Object listener) {

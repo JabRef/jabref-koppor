@@ -1,14 +1,12 @@
 package org.jabref.logic.importer.util;
 
-import java.io.ByteArrayInputStream;
-
-import org.jabref.logic.importer.ParseException;
-
-import kong.unirest.core.json.JSONObject;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.io.ByteArrayInputStream;
+import kong.unirest.core.json.JSONObject;
+import org.jabref.logic.importer.ParseException;
+import org.junit.jupiter.api.Test;
 
 class JsonReaderTest {
 
@@ -19,7 +17,9 @@ class JsonReaderTest {
 
     @Test
     void invalidJsonThrowsParserException() {
-        assertThrows(ParseException.class, () -> JsonReader.toJsonObject(new ByteArrayInputStream("invalid JSON".getBytes())));
+        assertThrows(
+                ParseException.class,
+                () -> JsonReader.toJsonObject(new ByteArrayInputStream("invalid JSON".getBytes())));
     }
 
     @Test

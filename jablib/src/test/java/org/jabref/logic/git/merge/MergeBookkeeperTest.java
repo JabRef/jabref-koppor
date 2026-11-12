@@ -1,22 +1,14 @@
 package org.jabref.logic.git.merge;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
-import org.jabref.logic.git.GitSyncService;
-import org.jabref.logic.git.io.GitFileReader;
-import org.jabref.logic.git.merge.execution.MergeBookkeeper;
-import org.jabref.logic.git.model.BookkeepingResult;
-import org.jabref.logic.git.model.PullPlan;
-import org.jabref.logic.git.preferences.GitPreferences;
-import org.jabref.logic.git.util.GitHandlerRegistry;
-import org.jabref.logic.git.util.NoopGitSystemReader;
-import org.jabref.logic.importer.ImportFormatPreferences;
-import org.jabref.model.database.BibDatabaseContext;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.internal.storage.file.WindowCache;
 import org.eclipse.jgit.lib.ObjectId;
@@ -28,6 +20,16 @@ import org.eclipse.jgit.storage.file.WindowCacheConfig;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.util.SystemReader;
+import org.jabref.logic.git.GitSyncService;
+import org.jabref.logic.git.io.GitFileReader;
+import org.jabref.logic.git.merge.execution.MergeBookkeeper;
+import org.jabref.logic.git.model.BookkeepingResult;
+import org.jabref.logic.git.model.PullPlan;
+import org.jabref.logic.git.preferences.GitPreferences;
+import org.jabref.logic.git.util.GitHandlerRegistry;
+import org.jabref.logic.git.util.NoopGitSystemReader;
+import org.jabref.logic.importer.ImportFormatPreferences;
+import org.jabref.model.database.BibDatabaseContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,10 +38,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /// Agreement:
 ///
@@ -65,10 +63,10 @@ public class MergeBookkeeperTest {
     private final PersonIdent localUser = new PersonIdent("Local", "local@example.org");
 
     private final String initialContent = """
-            @article{a,
-              author = {init},
-            }
-            """;
+        @article{a,
+          author = {init},
+        }
+        """;
 
     @BeforeEach
     void setUp(@TempDir Path tempDir) throws Exception {
@@ -85,17 +83,17 @@ public class MergeBookkeeperTest {
         // 1) Remote bare repository
         remoteDir = tempDir.resolve("remote.git");
         remoteGit = Git.init()
-                       .setBare(true)
-                       .setInitialBranch("main")
-                       .setDirectory(remoteDir.toFile())
-                       .call();
+                .setBare(true)
+                .setInitialBranch("main")
+                .setDirectory(remoteDir.toFile())
+                .call();
 
         // 2) local repository
         localDir = tempDir.resolve("local");
         localGit = Git.init()
-                      .setInitialBranch("main")
-                      .setDirectory(localDir.toFile())
-                      .call();
+                .setInitialBranch("main")
+                .setDirectory(localDir.toFile())
+                .call();
         bibPath = localDir.resolve("library.bib");
 
         // initial commit pushed to the remote
@@ -127,12 +125,13 @@ public class MergeBookkeeperTest {
     // Scene 1: BEHIND + content equals the remote -> fast-forward
     @Test
     void behindAndContentEqualsRemote_fastForward() throws Exception {
-        // Preparation: The remote moves forward one step (simulating that the remote has a new commit) while the local has not yet pulled
+        // Preparation: The remote moves forward one step (simulating that the remote has a new commit) while the local
+        // has not yet pulled
         String remoteAdvance = """
-                @article{a,
-                  author = {remote-1},
-                }
-                """;
+            @article{a,
+              author = {remote-1},
+            }
+            """;
         advanceRemote(remoteAdvance, "remote advance");
 
         // Local: Prepare PullPlan (local BEHIND)
@@ -170,10 +169,10 @@ public class MergeBookkeeperTest {
     @Test
     void behindAndContentDiffers_createSingleParentCommitOnRemoteTip() throws Exception {
         String remoteAdvance = """
-                @article{a,
-                  author = {remote-1},
-                }
-                """;
+            @article{a,
+              author = {remote-1},
+            }
+            """;
         advanceRemote(remoteAdvance, "remote advance");
 
         GitSyncService gitSyncService = GitSyncService.create(importPrefs, handlerRegistry);
@@ -190,19 +189,20 @@ public class MergeBookkeeperTest {
         // in this scenario it intentionally differs from the remote tip
         // (e.g. keeps remote changes and also adds a new local entry).
         String finalMerged = """
-                @article{a,
-                  author = {remote-1},
-                }
-                @article{b,
-                  author = {added-locally-in-merge},
-                }
-                """;
+            @article{a,
+              author = {remote-1},
+            }
+            @article{b,
+              author = {added-locally-in-merge},
+            }
+            """;
         Files.writeString(bibPath, finalMerged, StandardCharsets.UTF_8);
 
         MergeBookkeeper bookkeeper = new MergeBookkeeper(handlerRegistry);
         BookkeepingResult result = bookkeeper.resultRecord(bibPath, plan);
 
-        assertEquals(BookkeepingResult.Kind.NEW_COMMIT,
+        assertEquals(
+                BookkeepingResult.Kind.NEW_COMMIT,
                 result.kind(),
                 "Expected a new single-parent commit on top of remote tip");
 
@@ -214,7 +214,7 @@ public class MergeBookkeeperTest {
         assertEquals(originTip.getId(), parent.getId(), "Parent should be previous origin/main tip");
 
         String committed = GitFileReader.readFileFromCommit(localGit, head, Path.of("library.bib"))
-                                        .orElseThrow(() -> new IllegalStateException("library.bib missing in commit"));
+                .orElseThrow(() -> new IllegalStateException("library.bib missing in commit"));
         assertEquals(normalize(finalMerged), normalize(committed), "Committed content must equal saved final content");
     }
 
@@ -222,18 +222,18 @@ public class MergeBookkeeperTest {
     @Test
     void diverged_createTwoParentMergeCommit() throws Exception {
         String remoteAdvance = """
-                @article{a,
-                  author = {remote-1},
-                }
-                """;
+            @article{a,
+              author = {remote-1},
+            }
+            """;
         advanceRemote(remoteAdvance, "remote advance");
 
         // The local has also changed (resulting in DIVERGED).
         String localAdvance = """
-                @article{a,
-                  author = {local-1},
-                }
-                """;
+            @article{a,
+              author = {local-1},
+            }
+            """;
         RevCommit localBeforeMerge = writeAndCommit(localGit, bibPath, localAdvance, "local advance", localUser);
         // equals to `git fetch origin`, only update remote references without modifying the working directory
         localGit.fetch().setRemote("origin").call();
@@ -250,36 +250,35 @@ public class MergeBookkeeperTest {
 
         // GUI saved merged final content
         String finalMerged = """
-                @article{a,
-                  author = {local-1 + remote-1},
-                }
-                """;
+            @article{a,
+              author = {local-1 + remote-1},
+            }
+            """;
         Files.writeString(bibPath, finalMerged, StandardCharsets.UTF_8);
 
         MergeBookkeeper bookkeeper = new MergeBookkeeper(handlerRegistry);
         BookkeepingResult result = bookkeeper.resultRecord(bibPath, plan);
-        assertEquals(BookkeepingResult.Kind.NEW_COMMIT,
-                result.kind(),
-                "Expected a merge commit");
+        assertEquals(BookkeepingResult.Kind.NEW_COMMIT, result.kind(), "Expected a merge commit");
 
         RevCommit head = latestCommit(localGit);
         assertEquals(2, head.getParentCount(), "Should be a two-parent merge commit");
 
         RevCommit remoteTip = latestCommitOnRemoteTracking(localGit);
-        List<String> parentIds = List.of(head.getParent(0).getId().name(), head.getParent(1).getId().name());
+        List<String> parentIds = List.of(
+                head.getParent(0).getId().name(), head.getParent(1).getId().name());
 
         RevCommit parent0 = head.getParent(0);
         RevCommit parent1 = head.getParent(1);
         List<ObjectId> actualParents = List.of(parent0.getId(), parent1.getId());
 
         assertEquals(
-                List.of(localBeforeMerge.getId(), remoteTip.getId()).stream().sorted().toList(),
+                List.of(localBeforeMerge.getId(), remoteTip.getId()).stream()
+                        .sorted()
+                        .toList(),
                 actualParents.stream().sorted().toList(),
-                "Parents should be [local before merge, origin/main tip]"
-        );
+                "Parents should be [local before merge, origin/main tip]");
 
-        String committed = GitFileReader
-                .readFileFromCommit(localGit, head, Path.of("library.bib"))
+        String committed = GitFileReader.readFileFromCommit(localGit, head, Path.of("library.bib"))
                 .orElseThrow(() -> new IllegalStateException("library.bib missing in commit"));
         assertEquals(normalize(finalMerged), normalize(committed), "Committed content must equal saved final content");
     }
@@ -288,8 +287,12 @@ public class MergeBookkeeperTest {
 
     private static void configureTracking(Git git, String branch, String remote) throws Exception {
         git.branchCreate().setName(branch).setForce(true).call();
-        git.branchCreate().setName(branch).setUpstreamMode(org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
-           .setStartPoint(remote + "/" + branch).setForce(true).call();
+        git.branchCreate()
+                .setName(branch)
+                .setUpstreamMode(org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+                .setStartPoint(remote + "/" + branch)
+                .setForce(true)
+                .call();
         git.checkout().setName(branch).call();
     }
 
@@ -298,24 +301,30 @@ public class MergeBookkeeperTest {
     }
 
     private static RevCommit latestCommitOnRemoteTracking(Git git) throws Exception {
-        Iterable<RevCommit> it = git.log().add(git.getRepository().resolve("refs/remotes/origin/main")).setMaxCount(1).call();
+        Iterable<RevCommit> it = git.log()
+                .add(git.getRepository().resolve("refs/remotes/origin/main"))
+                .setMaxCount(1)
+                .call();
         return it.iterator().next();
     }
 
-    private static RevCommit writeAndCommit(Git git, Path file, String content, String message, PersonIdent who) throws Exception {
+    private static RevCommit writeAndCommit(Git git, Path file, String content, String message, PersonIdent who)
+            throws Exception {
         Files.writeString(file, content, StandardCharsets.UTF_8);
         git.add().addFilepattern(file.getFileName().toString()).call();
         return git.commit().setAuthor(who).setMessage(message).call();
     }
 
     private void advanceRemote(String content, String msg) throws Exception {
-        // Clone the bare remote repo into a temporary working directory, then push the new commit back to the bare remote (simulating a remote-only update).
+        // Clone the bare remote repo into a temporary working directory, then push the new commit back to the bare
+        // remote (simulating a remote-only update).
         Path temp = localDir.getParent().resolve("tmp-clone");
         Git tmp = Git.cloneRepository()
-                     .setURI(remoteDir.toUri().toString())
-                     .setDirectory(temp.toFile())
-                     .setBranchesToClone(List.of("refs/heads/main"))
-                     .setBranch("main").call();
+                .setURI(remoteDir.toUri().toString())
+                .setDirectory(temp.toFile())
+                .setBranchesToClone(List.of("refs/heads/main"))
+                .setBranch("main")
+                .call();
         Path tmpFile = temp.resolve("library.bib");
         Files.writeString(tmpFile, content, StandardCharsets.UTF_8);
         tmp.add().addFilepattern("library.bib").call();
@@ -323,7 +332,8 @@ public class MergeBookkeeperTest {
         tmp.push().call();
         tmp.close();
 
-        // fetch from origin in the local repo to update its remote-tracking ref(`refs/remotes/origin/main`) without changing the local branch.
+        // fetch from origin in the local repo to update its remote-tracking ref(`refs/remotes/origin/main`) without
+        // changing the local branch.
         localGit.fetch().setRemote("origin").call();
     }
 

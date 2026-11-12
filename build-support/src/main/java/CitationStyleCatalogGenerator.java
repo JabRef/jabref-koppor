@@ -23,11 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.jabref.architecture.AllowedToUseClassGetResource;
 import org.jabref.logic.citationstyle.CSLStyleUtils;
 import org.jabref.logic.citationstyle.CitationStyle;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.databind.ObjectMapper;
@@ -51,8 +49,10 @@ public class CitationStyleCatalogGenerator {
 
     public static void generateCitationStyleCatalog() {
         try {
-            // JBang's gradle plugin has a strange path handling. If "application->run" is started from the IDE, the path ends with a module directory (e.g. "jabgui")
-            // Do not rely on the repository directory name (e.g. "jabref"), as forks may check out under a different name (e.g. "jabref-koppor")
+            // JBang's gradle plugin has a strange path handling. If "application->run" is started from the IDE, the
+            // path ends with a module directory (e.g. "jabgui")
+            // Do not rely on the repository directory name (e.g. "jabref"), as forks may check out under a different
+            // name (e.g. "jabref-koppor")
             Path root = Path.of(".").toAbsolutePath().normalize();
             if (!Files.exists(root.resolve(STYLES_ROOT).resolve(DEFAULT_STYLE)) && (root.getParent() != null)) {
                 LOGGER.info("Running from IDE, adjusting path to styles root");
@@ -60,7 +60,11 @@ public class CitationStyleCatalogGenerator {
             }
             Path stylesRoot = root.resolve(STYLES_ROOT);
             if (!Files.exists(stylesRoot.resolve(DEFAULT_STYLE))) {
-                LOGGER.error("Could not find any citation style. Tried with {}. Tried in {}. Current directory: {}", DEFAULT_STYLE, root, Path.of(".").toAbsolutePath());
+                LOGGER.error(
+                        "Could not find any citation style. Tried with {}. Tried in {}. Current directory: {}",
+                        DEFAULT_STYLE,
+                        root,
+                        Path.of(".").toAbsolutePath());
                 return;
             }
 
@@ -74,35 +78,37 @@ public class CitationStyleCatalogGenerator {
     }
 
     private static List<CitationStyle> discoverStyles(Path path) throws IOException {
-        try (Stream<Path> stream = Files.find(path, 1, (file, _) -> file.toString().endsWith("csl"))) {
+        try (Stream<Path> stream =
+                Files.find(path, 1, (file, _) -> file.toString().endsWith("csl"))) {
             return stream.map(Path::toAbsolutePath)
-                         .map(Path::toString)
-                         .map(CSLStyleUtils::createCitationStyleFromFile)
-                         .flatMap(Optional::stream)
-                         .toList();
+                    .map(Path::toString)
+                    .map(CSLStyleUtils::createCitationStyleFromFile)
+                    .flatMap(Optional::stream)
+                    .toList();
         }
     }
 
-    private static void generateCatalog(List<CitationStyle> styles, Path stylesRoot, Path catalogPath) throws IOException {
+    private static void generateCatalog(List<CitationStyle> styles, Path stylesRoot, Path catalogPath)
+            throws IOException {
         // Create a JSON representation of the styles
         ObjectMapper mapper = new ObjectMapper();
         List<Map<String, Object>> styleInfoList = styles.stream()
-                                                        .map(style -> {
-                                                            Map<String, Object> info = new HashMap<>();
-                                                            Path stylePath = Path.of(style.getFilePath());
-                                                            Path relativePath = stylesRoot.toAbsolutePath().relativize(stylePath.toAbsolutePath());
-                                                            info.put("path", relativePath.toString());
-                                                            info.put("styleId", style.getStyleId());
-                                                            info.put("styleClass", style.getStyleClass());
-                                                            info.put("title", style.getTitle());
-                                                            info.put("shortTitle", style.getShortTitle());
-                                                            info.put("isNumeric", style.isNumericStyle());
-                                                            info.put("hasBibliography", style.hasBibliography());
-                                                            info.put("hasBibliographySortOrder", style.hasBibliographySortOrder());
-                                                            info.put("usesHangingIndent", style.usesHangingIndent());
-                                                            return info;
-                                                        })
-                                                        .toList();
+                .map(style -> {
+                    Map<String, Object> info = new HashMap<>();
+                    Path stylePath = Path.of(style.getFilePath());
+                    Path relativePath = stylesRoot.toAbsolutePath().relativize(stylePath.toAbsolutePath());
+                    info.put("path", relativePath.toString());
+                    info.put("styleId", style.getStyleId());
+                    info.put("styleClass", style.getStyleClass());
+                    info.put("title", style.getTitle());
+                    info.put("shortTitle", style.getShortTitle());
+                    info.put("isNumeric", style.isNumericStyle());
+                    info.put("hasBibliography", style.hasBibliography());
+                    info.put("hasBibliographySortOrder", style.hasBibliographySortOrder());
+                    info.put("usesHangingIndent", style.usesHangingIndent());
+                    return info;
+                })
+                .toList();
 
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(styleInfoList);
         Files.writeString(catalogPath, json);

@@ -1,9 +1,7 @@
 package org.jabref.gui.frame;
 
 import java.util.List;
-
 import javafx.concurrent.Task;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.util.UiTaskExecutor;
@@ -38,8 +36,7 @@ public class ProcessingLibraryDialog {
             dialogService.showProgressDialogAndWait(
                     Localization.lang("Please wait..."),
                     Localization.lang("Waiting for save operation to finish..."),
-                    waitForSaveFinished
-            );
+                    waitForSaveFinished);
         }
     }
 }

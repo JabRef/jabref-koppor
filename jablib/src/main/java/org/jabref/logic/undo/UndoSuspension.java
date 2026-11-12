@@ -17,8 +17,7 @@ public interface UndoSuspension extends AutoCloseable {
 
     /// Held by work that is already inside another suspension, where ending one early would reopen
     /// the window. Closing it does nothing.
-    UndoSuspension NONE = () -> {
-    };
+    UndoSuspension NONE = () -> {};
 
     /// Ends the suspension. Never throws, so it is safe in a `finally` and in try-with-resources.
     @Override

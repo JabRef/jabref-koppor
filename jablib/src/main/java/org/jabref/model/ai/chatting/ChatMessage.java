@@ -1,21 +1,20 @@
 package org.jabref.model.ai.chatting;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.jabref.model.ai.pipeline.RelevantInformation;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import org.jabref.model.ai.pipeline.RelevantInformation;
 
 // [model->req~ai.chat.entries.history-storage~1]
 // [model->req~ai.chat.groups.history-storage~1]
-public record ChatMessage(String id, Instant timestamp, Role role, String content, List<RelevantInformation> relevantInformation) {
+public record ChatMessage(
+        String id, Instant timestamp, Role role, String content, List<RelevantInformation> relevantInformation) {
     public enum Role {
         SYSTEM,
         USER,
@@ -33,8 +32,7 @@ public record ChatMessage(String id, Instant timestamp, Role role, String conten
             @JsonProperty("timestamp") Instant timestamp,
             @JsonProperty("role") Role role,
             @JsonProperty("content") String content,
-            @JsonProperty("relevantInformation") List<RelevantInformation> relevantInformation
-    ) {
+            @JsonProperty("relevantInformation") List<RelevantInformation> relevantInformation) {
         this.id = id;
         this.timestamp = timestamp;
         this.role = role;
@@ -58,10 +56,7 @@ public record ChatMessage(String id, Instant timestamp, Role role, String conten
         return dummyChatMessage(Role.SYSTEM, content, timestamp, List.of());
     }
 
-    public static ChatMessage aiMessage(
-            String content,
-            List<RelevantInformation> relevantInformation
-    ) {
+    public static ChatMessage aiMessage(String content, List<RelevantInformation> relevantInformation) {
         return dummyChatMessage(Role.AI, content, Instant.now(), relevantInformation);
     }
 
@@ -70,30 +65,17 @@ public record ChatMessage(String id, Instant timestamp, Role role, String conten
     }
 
     private static ChatMessage dummyChatMessage(
-            Role role,
-            String content,
-            Instant timestamp,
-            List<RelevantInformation> relevantInformation
-    ) {
-        return new ChatMessage(
-                UUID.randomUUID().toString(),
-                timestamp,
-                role,
-                content,
-                relevantInformation
-        );
+            Role role, String content, Instant timestamp, List<RelevantInformation> relevantInformation) {
+        return new ChatMessage(UUID.randomUUID().toString(), timestamp, role, content, relevantInformation);
     }
 
     public Optional<dev.langchain4j.data.message.ChatMessage> toLangChainMessage() {
-        return Optional.ofNullable(switch (role) {
-            case SYSTEM ->
-                    new SystemMessage(content);
-            case USER ->
-                    new UserMessage(content);
-            case AI ->
-                    new AiMessage(content);
-            case ERROR ->
-                    null;
-        });
+        return Optional.ofNullable(
+                switch (role) {
+                    case SYSTEM -> new SystemMessage(content);
+                    case USER -> new UserMessage(content);
+                    case AI -> new AiMessage(content);
+                    case ERROR -> null;
+                });
     }
 }

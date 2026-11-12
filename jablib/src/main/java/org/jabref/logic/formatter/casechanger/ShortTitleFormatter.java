@@ -2,10 +2,8 @@ package org.jabref.logic.formatter.casechanger;
 
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 
 public class ShortTitleFormatter extends Formatter {
@@ -25,16 +23,15 @@ public class ShortTitleFormatter extends Formatter {
         Title title = new Title(input);
 
         return title.getWords().stream()
-                    .filter(Predicate.not(Word::isSmallerWord))
-                    .map(Word::toString)
-                    .limit(3)
-                    .collect(Collectors.joining(" "));
+                .filter(Predicate.not(Word::isSmallerWord))
+                .map(Word::toString)
+                .limit(3)
+                .collect(Collectors.joining(" "));
     }
 
     @Override
     public String getDescription() {
-        return Localization.lang(
-                "Returns first 3 words of the title ignoring any function words.");
+        return Localization.lang("Returns first 3 words of the title ignoring any function words.");
     }
 
     @Override

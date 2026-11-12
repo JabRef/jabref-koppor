@@ -1,9 +1,16 @@
 package org.jabref.gui.undo;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -18,18 +25,9 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.undo.ChangeSet;
 import org.jabref.model.undo.UndoableFieldChange;
 import org.jabref.model.undo.UndoableRemoveString;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /// Pins that the two actions act on the journal of the library the user is looking at, and read
 /// it when they run rather than when they were built. One instance of each serves every library
@@ -86,7 +84,10 @@ class UndoRedoActionTest {
         undoAction.execute();
 
         assertEquals(Optional.of("Einstein"), entryInA.getField(StandardField.AUTHOR));
-        assertEquals(Optional.of("Meitner"), entryInB.getField(StandardField.AUTHOR), "the other library was undone as well");
+        assertEquals(
+                Optional.of("Meitner"),
+                entryInB.getField(StandardField.AUTHOR),
+                "the other library was undone as well");
     }
 
     /// The reason the journal is resolved on every run: the same action instance serves whichever
@@ -100,12 +101,18 @@ class UndoRedoActionTest {
         undoAction.execute();
 
         assertEquals(Optional.of("Einstein"), entryInA.getField(StandardField.AUTHOR));
-        assertEquals(Optional.of("Meitner"), entryInB.getField(StandardField.AUTHOR), "undone in the library that was not in front");
+        assertEquals(
+                Optional.of("Meitner"),
+                entryInB.getField(StandardField.AUTHOR),
+                "undone in the library that was not in front");
 
         showLibrary(tabB, libraryB);
         undoAction.execute();
 
-        assertEquals(Optional.of("Einstein"), entryInA.getField(StandardField.AUTHOR), "undone again in the library switched away from");
+        assertEquals(
+                Optional.of("Einstein"),
+                entryInA.getField(StandardField.AUTHOR),
+                "undone again in the library switched away from");
         assertEquals(Optional.of("Curie"), entryInB.getField(StandardField.AUTHOR));
     }
 
@@ -120,12 +127,18 @@ class UndoRedoActionTest {
         redoAction.execute();
 
         assertEquals(Optional.of("Bohr"), entryInA.getField(StandardField.AUTHOR));
-        assertEquals(Optional.of("Curie"), entryInB.getField(StandardField.AUTHOR), "redone in the library that was not in front");
+        assertEquals(
+                Optional.of("Curie"),
+                entryInB.getField(StandardField.AUTHOR),
+                "redone in the library that was not in front");
 
         showLibrary(tabB, libraryB);
         redoAction.execute();
 
-        assertEquals(Optional.of("Bohr"), entryInA.getField(StandardField.AUTHOR), "redone again in the library switched away from");
+        assertEquals(
+                Optional.of("Bohr"),
+                entryInA.getField(StandardField.AUTHOR),
+                "redone again in the library switched away from");
         assertEquals(Optional.of("Meitner"), entryInB.getField(StandardField.AUTHOR));
     }
 
@@ -157,7 +170,8 @@ class UndoRedoActionTest {
         libraryA.getDatabase().addString(string);
         // Recorded without being performed, so undoing it puts back a string the library still
         // holds - the shape a change has when the library moved on underneath the journal.
-        journalOfA.addEdit(new ChangeSet("Remove string", List.of(new UndoableRemoveString(libraryA.getDatabase(), string))));
+        journalOfA.addEdit(
+                new ChangeSet("Remove string", List.of(new UndoableRemoveString(libraryA.getDatabase(), string))));
         showLibrary(tabA, libraryA);
 
         undoAction.execute();

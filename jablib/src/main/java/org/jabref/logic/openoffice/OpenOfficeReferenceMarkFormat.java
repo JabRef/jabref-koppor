@@ -9,10 +9,8 @@ public enum OpenOfficeReferenceMarkFormat {
 
     public boolean matchesReferenceMarkName(String name) {
         return switch (this) {
-            case JABREF_ONLY ->
-                    ReferenceMark.isJabRefReferenceMarkName(name);
-            case ZOTERO_COMPATIBLE ->
-                    ReferenceMark.isZoteroReferenceMarkName(name);
+            case JABREF_ONLY -> ReferenceMark.isJabRefReferenceMarkName(name);
+            case ZOTERO_COMPATIBLE -> ReferenceMark.isZoteroReferenceMarkName(name);
         };
     }
 }

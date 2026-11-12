@@ -3,13 +3,11 @@ package org.jabref.logic.search;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
-
 import org.junit.jupiter.params.provider.Arguments;
 
 /// Shared search test cases that every [LibrarySearcher] implementation must satisfy.
@@ -21,9 +19,8 @@ public final class LibrarySearcherTestCases {
 
     public static final BibEntry EMPTY_ENTRY = new BibEntry();
 
-    public static final BibEntry ARTICLE_HARRER = new BibEntry(StandardEntryType.Article)
-            .withCitationKey("harrer")
-            .withField(StandardField.AUTHOR, "harrer");
+    public static final BibEntry ARTICLE_HARRER =
+            new BibEntry(StandardEntryType.Article).withCitationKey("harrer").withField(StandardField.AUTHOR, "harrer");
 
     public static final BibEntry INCOLLECTION_TONHO = new BibEntry(StandardEntryType.InCollection)
             .withCitationKey("tonho")
@@ -45,8 +42,7 @@ public final class LibrarySearcherTestCases {
             .withCitationKey("doi-entry")
             .withField(StandardField.DOI, "10.1000/182");
 
-    private LibrarySearcherTestCases() {
-    }
+    private LibrarySearcherTestCases() {}
 
     /// Cases that any [LibrarySearcher] implementation must pass.
     /// Argument tuple: `(expectedMatches, query, libraryEntries)`.
@@ -55,7 +51,10 @@ public final class LibrarySearcherTestCases {
                 // empty library
                 Arguments.of(List.of(), new SearchQuery("whatever"), List.of()),
                 Arguments.of(List.of(), new SearchQuery("whatever"), List.of(EMPTY_ENTRY)),
-                Arguments.of(List.of(), new SearchQuery("whatever"), List.of(EMPTY_ENTRY, ARTICLE_HARRER, INCOLLECTION_TONHO)),
+                Arguments.of(
+                        List.of(),
+                        new SearchQuery("whatever"),
+                        List.of(EMPTY_ENTRY, ARTICLE_HARRER, INCOLLECTION_TONHO)),
 
                 // invalid search syntax → no matches
                 Arguments.of(List.of(), new SearchQuery("author="), List.of(ARTICLE_HARRER)),
@@ -63,40 +62,49 @@ public final class LibrarySearcherTestCases {
                 // unfielded bareword (case-insensitive substring on any field)
                 Arguments.of(List.of(ARTICLE_HARRER), new SearchQuery("harrer"), List.of(ARTICLE_HARRER)),
                 Arguments.of(List.of(INCOLLECTION_TONHO), new SearchQuery("tonho"), List.of(INCOLLECTION_TONHO)),
-                Arguments.of(List.of(INCOLLECTION_TONHO), new SearchQuery("tonho"), List.of(ARTICLE_HARRER, INCOLLECTION_TONHO)),
+                Arguments.of(
+                        List.of(INCOLLECTION_TONHO),
+                        new SearchQuery("tonho"),
+                        List.of(ARTICLE_HARRER, INCOLLECTION_TONHO)),
 
                 // fielded queries
                 Arguments.of(List.of(), new SearchQuery("title= harrer"), List.of(ARTICLE_HARRER)),
                 Arguments.of(List.of(ARTICLE_HARRER), new SearchQuery("author= harrer"), List.of(ARTICLE_HARRER)),
 
                 // case-insensitive vs case-sensitive contains (=, =!)
-                Arguments.of(List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED),
+                Arguments.of(
+                        List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED),
                         new SearchQuery("title = Title"),
                         List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED)),
-                Arguments.of(List.of(TITLE_SENTENCE_CASED),
+                Arguments.of(
+                        List.of(TITLE_SENTENCE_CASED),
                         new SearchQuery("title =! Title"),
                         List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED)),
-                Arguments.of(List.of(),
+                Arguments.of(
+                        List.of(),
                         new SearchQuery("title =! TiTLE"),
                         List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED)),
 
                 // any-field with case-sensitive contains (any =!)
-                Arguments.of(List.of(TITLE_MIXED_CASED),
+                Arguments.of(
+                        List.of(TITLE_MIXED_CASED),
                         new SearchQuery("any =! TiTle"),
                         List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED)),
-                Arguments.of(List.of(),
+                Arguments.of(
+                        List.of(),
                         new SearchQuery("any =! TiTLE"),
                         List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED)),
 
                 // regex on any field
-                Arguments.of(List.of(),
+                Arguments.of(
+                        List.of(),
                         new SearchQuery("any =~ [Y]"),
                         List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED)),
-
                 regexWithLiteralBackslash(),
 
                 // DOI matching (full URLs should find entry by DOI)
-                Arguments.of(List.of(ENTRY_WITH_DOI),
+                Arguments.of(
+                        List.of(ENTRY_WITH_DOI),
                         new SearchQuery("https://doi.org/10.1000/182"),
                         List.of(ENTRY_WITH_DOI, TITLE_SENTENCE_CASED)),
                 doiSearchCase("https://doi.org/10.1016/j.jss.2006.05.024", "10.1016/j.jss.2006.05.024"),
@@ -112,13 +120,18 @@ public final class LibrarySearcherTestCases {
                 doiSearchCase("https://doi.org/10.1000/foo%2Bbar", "http://dx.doi.org/10.1000/foo%2Bbar"),
                 doiSearchCase("https://doi.org/10.1000%2F182", "http://doi.org/10.1000%2F182"),
                 doiSearchCase("https://example.org/article/10.1000/182", "https://example.org/article/10.1000/182"),
-                Arguments.of(List.of(), new SearchQuery("https://example.org/article/10.1000/182"), List.of(ENTRY_WITH_DOI))
-        );
+                Arguments.of(
+                        List.of(),
+                        new SearchQuery("https://example.org/article/10.1000/182"),
+                        List.of(ENTRY_WITH_DOI)));
     }
 
     private static Arguments regexWithLiteralBackslash() {
         BibEntry entry = new BibEntry(StandardEntryType.Article).withField(StandardField.TITLE, "foo\\bar");
-        return Arguments.of(List.of(entry), new SearchQuery("\"foo\\\\bar\"", EnumSet.of(SearchFlags.REGULAR_EXPRESSION)), List.of(entry));
+        return Arguments.of(
+                List.of(entry),
+                new SearchQuery("\"foo\\\\bar\"", EnumSet.of(SearchFlags.REGULAR_EXPRESSION)),
+                List.of(entry));
     }
 
     private static Arguments doiSearchCase(String query, String value) {

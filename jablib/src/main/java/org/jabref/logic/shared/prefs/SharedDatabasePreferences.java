@@ -1,5 +1,8 @@
 package org.jabref.logic.shared.prefs;
 
+import com.github.javakeyring.BackendNotSupportedException;
+import com.github.javakeyring.Keyring;
+import com.github.javakeyring.PasswordAccessException;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -9,15 +12,10 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-
 import org.jabref.logic.shared.DBMSConnectionUrl;
 import org.jabref.logic.shared.DatabaseConnectionProperties;
 import org.jabref.logic.shared.security.Password;
 import org.jabref.logic.util.strings.StringUtil;
-
-import com.github.javakeyring.BackendNotSupportedException;
-import com.github.javakeyring.Keyring;
-import com.github.javakeyring.PasswordAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +31,8 @@ public class SharedDatabasePreferences {
     private static final String SHARED_DATABASE_PORT = "sharedDatabasePort";
     private static final String SHARED_DATABASE_NAME = "sharedDatabaseName";
     private static final String SHARED_DATABASE_USER = "sharedDatabaseUser";
-    /// Legacy key: the password used to be stored AES-encrypted in these preferences; it now lives in the system keyring
+    /// Legacy key: the password used to be stored AES-encrypted in these preferences; it now lives in the system
+    /// keyring
     private static final String SHARED_DATABASE_PASSWORD = "sharedDatabasePassword";
     private static final String KEYRING_SERVICE = "org.jabref.shareddatabase";
     private static final String SHARED_DATABASE_FOLDER = "sharedDatabaseFolder";
@@ -43,7 +42,8 @@ public class SharedDatabasePreferences {
     private static final String SHARED_DATABASE_EXPERT_MODE = "sharedDatabaseExpertMode";
     private static final String SHARED_DATABASE_JDBC_URL = "sharedDatabaseJdbcUrl";
 
-    // This {@link Preferences} is used only for things which should not appear in real JabRefPreferences due to security reasons.
+    // This {@link Preferences} is used only for things which should not appear in real JabRefPreferences due to
+    // security reasons.
     private final Preferences connectionsRoot;
     private final Preferences internalPrefs;
     private final String keyringAccount;
@@ -89,7 +89,8 @@ public class SharedDatabasePreferences {
     /// @return the plain password from the system keyring; empty if none is stored or the keyring is unavailable
     public Optional<String> getPassword() {
         try (Keyring keyring = keyringFactory.call()) {
-            return Optional.of(keyring.getPassword(KEYRING_SERVICE, keyringAccount)).filter(StringUtil::isNotBlank);
+            return Optional.of(keyring.getPassword(KEYRING_SERVICE, keyringAccount))
+                    .filter(StringUtil::isNotBlank);
         } catch (PasswordAccessException _) {
             return migrateLegacyPassword();
         } catch (Exception e) {
@@ -240,14 +241,15 @@ public class SharedDatabasePreferences {
             return false;
         }
         return isUseExpertMode()
-               ? getJdbcUrl().filter(url -> !url.isBlank()).isPresent()
-               : getHost().isPresent() && getName().isPresent();
+                ? getJdbcUrl().filter(url -> !url.isBlank()).isPresent()
+                : getHost().isPresent() && getName().isPresent();
     }
 
     /// Whether this stored connection addresses the same database as `properties`. The password is not part of
     /// the comparison, and neither are driver settings that do not identify the database (such as SSL).
     public boolean addresses(DatabaseConnectionProperties properties) {
-        return addresses(properties.isUseExpertMode(),
+        return addresses(
+                properties.isUseExpertMode(),
                 properties.getUser(),
                 properties.getJdbcUrl(),
                 properties.getHost(),
@@ -258,7 +260,8 @@ public class SharedDatabasePreferences {
     /// Whether both stored connections address the same database. Unlike [#addresses(DatabaseConnectionProperties)],
     /// this reads neither connection's password, so it does not access the system keyring.
     public boolean addressesSameDatabaseAs(SharedDatabasePreferences other) {
-        return addresses(other.isUseExpertMode(),
+        return addresses(
+                other.isUseExpertMode(),
                 other.getUser().orElse(""),
                 other.getJdbcUrl().orElse(""),
                 other.getHost().orElse(""),
@@ -266,7 +269,8 @@ public class SharedDatabasePreferences {
                 other.getName().orElse(""));
     }
 
-    private boolean addresses(boolean expertMode, String user, String jdbcUrl, String host, String port, String database) {
+    private boolean addresses(
+            boolean expertMode, String user, String jdbcUrl, String host, String port, String database) {
         if (isUseExpertMode() != expertMode) {
             return false;
         }
@@ -301,16 +305,18 @@ public class SharedDatabasePreferences {
     public String getDisplayLabel() {
         if (isUseExpertMode()) {
             // Rebuilt from its parts, as a URL typed in expert mode may carry the password as a parameter
-            String url = getJdbcUrl().flatMap(DBMSConnectionUrl::parse)
-                                     .map(DBMSConnectionUrl::toJdbcUrl)
-                                     .orElse(keyringAccount);
+            String url = getJdbcUrl()
+                    .flatMap(DBMSConnectionUrl::parse)
+                    .map(DBMSConnectionUrl::toJdbcUrl)
+                    .orElse(keyringAccount);
             return "%s (%s)".formatted(url, getUser().orElse(""));
         }
-        return "%s@%s:%s/%s".formatted(
-                getUser().orElse(""),
-                getHost().orElse(""),
-                getPort().orElse(""),
-                getName().orElse(""));
+        return "%s@%s:%s/%s"
+                .formatted(
+                        getUser().orElse(""),
+                        getHost().orElse(""),
+                        getPort().orElse(""),
+                        getName().orElse(""));
     }
 
     /// @return the stored settings of the connection with the given identifier, in the same preferences tree
@@ -325,12 +331,13 @@ public class SharedDatabasePreferences {
     // [impl->req~shared-database.saved-connections-unique~1]
     public Optional<String> findSavedId(DatabaseConnectionProperties properties) {
         return listSavedIds().stream()
-                             .filter(sharedDatabaseId -> forConnection(sharedDatabaseId).addresses(properties))
-                             .findFirst();
+                .filter(sharedDatabaseId -> forConnection(sharedDatabaseId).addresses(properties))
+                .findFirst();
     }
 
     /// Before connections were reused, every save stored the same database under a new identifier. Such duplicates
-    /// are listed once: the first identifier stands for all of them, also in [#findSavedId(DatabaseConnectionProperties)].
+    /// are listed once: the first identifier stands for all of them, also in
+    /// [#findSavedId(DatabaseConnectionProperties)].
     /// They are not deleted, because a library file may still refer to any of them.
     ///
     /// Nodes without a usable connection are skipped: reading the settings of an unknown identifier (a stale
@@ -352,18 +359,18 @@ public class SharedDatabasePreferences {
     /// @return the identifiers of all stored connections to the same database as this one, this one included
     public List<String> listIdsOfSameDatabase() {
         return listStoredConnections().stream()
-                                      .filter(this::addressesSameDatabaseAs)
-                                      .map(stored -> stored.keyringAccount)
-                                      .toList();
+                .filter(this::addressesSameDatabaseAs)
+                .map(stored -> stored.keyringAccount)
+                .toList();
     }
 
     private List<SharedDatabasePreferences> listStoredConnections() {
         try {
             return Arrays.stream(connectionsRoot.childrenNames())
-                         .filter(id -> !DEFAULT_NODE.equals(id))
-                         .map(this::forConnection)
-                         .filter(SharedDatabasePreferences::hasConnection)
-                         .toList();
+                    .filter(id -> !DEFAULT_NODE.equals(id))
+                    .map(this::forConnection)
+                    .filter(SharedDatabasePreferences::hasConnection)
+                    .toList();
         } catch (BackingStoreException e) {
             LOGGER.warn("Could not read the stored shared database connections", e);
             return List.of();
@@ -378,7 +385,8 @@ public class SharedDatabasePreferences {
     /// Used when all preferences are reset.
     ///
     /// A connection whose password cannot be deleted from the keyring is kept: removing its settings would leave the
-    /// password behind under an identifier nothing refers to anymore, while a listed connection can still be removed later.
+    /// password behind under an identifier nothing refers to anymore, while a listed connection can still be removed
+    /// later.
     public void clearAllConnections() throws BackingStoreException {
         for (String sharedDatabaseId : connectionsRoot.childrenNames()) {
             if (DEFAULT_NODE.equals(sharedDatabaseId)) {
@@ -388,7 +396,10 @@ public class SharedDatabasePreferences {
             if (stored.setPassword("")) {
                 stored.internalPrefs.removeNode();
             } else {
-                LOGGER.warn("Kept the stored shared database connection {}, as its password could not be removed from the keyring", sharedDatabaseId);
+                LOGGER.warn(
+                        "Kept the stored shared database connection {}, as its password could not be removed from the"
+                                + " keyring",
+                        sharedDatabaseId);
             }
         }
         forConnection(DEFAULT_NODE).clear();

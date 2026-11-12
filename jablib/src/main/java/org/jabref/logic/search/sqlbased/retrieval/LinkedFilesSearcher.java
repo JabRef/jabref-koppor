@@ -7,7 +7,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.StoredFields;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.SearcherManager;
+import org.apache.lucene.search.TopDocs;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.search.query.SearchQueryConversion;
 import org.jabref.logic.search.sqlbased.LuceneIndexer;
@@ -19,17 +28,6 @@ import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResult;
 import org.jabref.model.search.query.SearchResults;
-
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.StoredFields;
-import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.search.TopDocs;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,11 +40,13 @@ public final class LinkedFilesSearcher {
     private final @Nullable SearcherManager searcherManager;
     private final MultiFieldQueryParser parser;
 
-    public LinkedFilesSearcher(BibDatabaseContext databaseContext, LuceneIndexer linkedFilesIndexer, FilePreferences filePreferences) {
+    public LinkedFilesSearcher(
+            BibDatabaseContext databaseContext, LuceneIndexer linkedFilesIndexer, FilePreferences filePreferences) {
         this.searcherManager = linkedFilesIndexer.getSearcherManager();
         this.databaseContext = databaseContext;
         this.filePreferences = filePreferences;
-        this.parser = new MultiFieldQueryParser(LinkedFilesConstants.PDF_FIELDS.toArray(new String[0]), LinkedFilesConstants.LINKED_FILES_ANALYZER);
+        this.parser = new MultiFieldQueryParser(
+                LinkedFilesConstants.PDF_FIELDS.toArray(new String[0]), LinkedFilesConstants.LINKED_FILES_ANALYZER);
         parser.setDefaultOperator(QueryParser.Operator.AND);
         parser.setAllowLeadingWildcard(true);
     }
@@ -62,7 +62,8 @@ public final class LinkedFilesSearcher {
         }
 
         EnumSet<SearchFlags> searchFlags = searchQuery.getSearchFlags();
-        boolean shouldSearchInLinkedFiles = searchFlags.contains(SearchFlags.FULLTEXT) && filePreferences.shouldFulltextIndexLinkedFiles();
+        boolean shouldSearchInLinkedFiles =
+                searchFlags.contains(SearchFlags.FULLTEXT) && filePreferences.shouldFulltextIndexLinkedFiles();
         if (!shouldSearchInLinkedFiles) {
             return new SearchResults();
         }
@@ -92,8 +93,10 @@ public final class LinkedFilesSearcher {
         try {
             return Optional.of(parser.parse(query));
         } catch (ParseException | IllegalArgumentException e) {
-            // Lucene's regular expression dialect is not the one of java.util.regex, which SearchQuery validates against.
-            // Characters such as " or < are literals there, but syntax here, and Lucene reports that as IllegalArgumentException.
+            // Lucene's regular expression dialect is not the one of java.util.regex, which SearchQuery validates
+            // against.
+            // Characters such as " or < are literals there, but syntax here, and Lucene reports that as
+            // IllegalArgumentException.
             // Such a query is still valid for the metadata search, so only the linked files part is skipped.
             // https://github.com/JabRef/jabref/issues/9482
             LOGGER.trace("Error during query parsing with query {}", searchQuery, e);
@@ -108,7 +111,8 @@ public final class LinkedFilesSearcher {
         return getSearchResults(topDocs, storedFields, searchQuery);
     }
 
-    private SearchResults getSearchResults(TopDocs topDocs, StoredFields storedFields, Query searchQuery) throws IOException {
+    private SearchResults getSearchResults(TopDocs topDocs, StoredFields storedFields, Query searchQuery)
+            throws IOException {
         SearchResults searchResults = new SearchResults();
         long startTime = System.currentTimeMillis();
 
@@ -140,7 +144,9 @@ public final class LinkedFilesSearcher {
         Map<String, List<String>> linkedFilesMap = new HashMap<>();
         for (BibEntry bibEntry : databaseContext.getEntries()) {
             for (LinkedFile linkedFile : bibEntry.getFiles()) {
-                linkedFilesMap.computeIfAbsent(linkedFile.getLink(), _ -> new ArrayList<>()).add(bibEntry.getId());
+                linkedFilesMap
+                        .computeIfAbsent(linkedFile.getLink(), _ -> new ArrayList<>())
+                        .add(bibEntry.getId());
             }
         }
         return linkedFilesMap;
@@ -155,7 +161,8 @@ public final class LinkedFilesSearcher {
         return searcherManager.acquire();
     }
 
-    private static void releaseIndexSearcher(SearcherManager searcherManager, IndexSearcher indexSearcher) throws IOException {
+    private static void releaseIndexSearcher(SearcherManager searcherManager, IndexSearcher indexSearcher)
+            throws IOException {
         searcherManager.release(indexSearcher);
     }
 }

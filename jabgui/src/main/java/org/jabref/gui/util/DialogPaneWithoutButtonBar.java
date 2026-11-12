@@ -2,7 +2,6 @@ package org.jabref.gui.util;
 
 import javafx.scene.Node;
 import javafx.scene.control.DialogPane;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 

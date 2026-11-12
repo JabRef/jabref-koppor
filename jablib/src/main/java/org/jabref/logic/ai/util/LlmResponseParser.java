@@ -61,18 +61,22 @@ public final class LlmResponseParser {
         }
 
         boolean anyBullets = groups.stream()
-                                   .anyMatch(g -> g.stream().anyMatch(l -> BULLET_LINE_PATTERN.matcher(l).find()));
+                .anyMatch(g ->
+                        g.stream().anyMatch(l -> BULLET_LINE_PATTERN.matcher(l).find()));
 
         List<String> result = new ArrayList<>();
         for (List<String> group : groups) {
-            boolean groupHasBullets = group.stream().anyMatch(l -> BULLET_LINE_PATTERN.matcher(l).find());
+            boolean groupHasBullets =
+                    group.stream().anyMatch(l -> BULLET_LINE_PATTERN.matcher(l).find());
             if (anyBullets && !groupHasBullets) {
                 continue;
             }
             for (String line : group) {
-                String item = BULLET_LINE_PATTERN.matcher(line).replaceFirst("")
-                                                 .replaceAll("^\\d+\\.\\s*", "")
-                                                 .replaceAll(QUOTE_REMOVAL_PATTERN, "");
+                String item = BULLET_LINE_PATTERN
+                        .matcher(line)
+                        .replaceFirst("")
+                        .replaceAll("^\\d+\\.\\s*", "")
+                        .replaceAll(QUOTE_REMOVAL_PATTERN, "");
                 if (isValidItem(item)) {
                     result.add(item);
                 }

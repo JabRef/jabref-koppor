@@ -2,14 +2,12 @@ package org.jabref.logic.exporter;
 
 import java.nio.file.Path;
 import java.util.List;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.metadata.SaveOrder;
@@ -21,9 +19,7 @@ public class ExportPreferences {
             List.of(
                     new SaveOrder.SortCriterion(InternalField.KEY_FIELD, false),
                     new SaveOrder.SortCriterion(StandardField.AUTHOR, false),
-                    new SaveOrder.SortCriterion(StandardField.TITLE, false)
-            )
-    );
+                    new SaveOrder.SortCriterion(StandardField.TITLE, false)));
 
     private final StringProperty lastExportExtension;
     private final ObjectProperty<Path> exportWorkingDirectory;
@@ -32,17 +28,18 @@ public class ExportPreferences {
 
     private ExportPreferences() {
         this(
-                "",                                       // Last export extension
+                "", // Last export extension
                 Path.of(System.getProperty("user.home")), // Export working directory
-                DEFAULT_EXPORT_SAVE_ORDER,                // Export save order
-                List.of()                                 // Custom exporters
-        );
+                DEFAULT_EXPORT_SAVE_ORDER, // Export save order
+                List.of() // Custom exporters
+                );
     }
 
-    public ExportPreferences(String lastExportExtension,
-                             Path exportWorkingDirectory,
-                             SaveOrder exportSaveOrder,
-                             List<TemplateExporter> customExporters) {
+    public ExportPreferences(
+            String lastExportExtension,
+            Path exportWorkingDirectory,
+            SaveOrder exportSaveOrder,
+            List<TemplateExporter> customExporters) {
         this.lastExportExtension = new SimpleStringProperty(lastExportExtension);
         this.exportWorkingDirectory = new SimpleObjectProperty<>(exportWorkingDirectory);
         this.exportSaveOrder = new SimpleObjectProperty<>(exportSaveOrder);

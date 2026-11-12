@@ -1,10 +1,8 @@
 package org.jabref.gui.welcome.quicksettings.viewmodel;
 
 import java.nio.file.Path;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -21,9 +19,8 @@ public class MainFileDirectoryDialogViewModel extends AbstractViewModel {
         this.filePreferences = preferences.getFilePreferences();
         this.dialogService = dialogService;
 
-        pathProperty.set(filePreferences.getMainFileDirectory()
-                                        .map(Path::toString)
-                                        .orElse(""));
+        pathProperty.set(
+                filePreferences.getMainFileDirectory().map(Path::toString).orElse(""));
     }
 
     public StringProperty pathProperty() {
@@ -35,8 +32,9 @@ public class MainFileDirectoryDialogViewModel extends AbstractViewModel {
                 .withInitialDirectory(filePreferences.getWorkingDirectory())
                 .build();
 
-        dialogService.showDirectorySelectionDialog(dirConfig)
-                     .ifPresent(selectedDir -> pathProperty.set(selectedDir.toString()));
+        dialogService
+                .showDirectorySelectionDialog(dirConfig)
+                .ifPresent(selectedDir -> pathProperty.set(selectedDir.toString()));
     }
 
     public void saveSettings() {

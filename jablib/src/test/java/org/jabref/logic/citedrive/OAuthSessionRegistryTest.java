@@ -1,22 +1,23 @@
 package org.jabref.logic.citedrive;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import org.junit.jupiter.api.Test;
+
 /// The registry is what ties a browser callback to the login that started it.
 /// Two things must hold or logins silently break:
 ///
-/// - a callback completes only the login with the matching `state` (a stale or foreign callback must not finish someone else's login)
-/// - an abandoned login times out *and* is dropped from the registry, otherwise forgotten logins pile up for the lifetime of the JVM
+/// - a callback completes only the login with the matching `state` (a stale or foreign callback must not finish someone
+/// else's login)
+/// - an abandoned login times out *and* is dropped from the registry, otherwise forgotten logins pile up for the
+/// lifetime of the JVM
 ///
 /// [utest->req~citedrive.login~1]
 class OAuthSessionRegistryTest {

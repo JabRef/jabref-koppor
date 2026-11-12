@@ -1,14 +1,18 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.airhacks.afterburner.injection.Injector;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import javafx.collections.FXCollections;
-
+import kong.unirest.core.json.JSONObject;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
@@ -21,16 +25,9 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.paging.Page;
 import org.jabref.support.ExternalServicesTest;
-
-import com.airhacks.afterburner.injection.Injector;
-import kong.unirest.core.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExternalServicesTest
 public class ScholarFetcherTest implements SearchBasedFetcherCapabilityTest, PagedSearchFetcherTest {
@@ -49,33 +46,37 @@ public class ScholarFetcherTest implements SearchBasedFetcherCapabilityTest, Pag
     @Test
     void scholarApiJsonToBibtex() throws ParseException {
         String jsonString = """
-                {
-                       "id": "7184",
-                       "title": "Methylated N-(4-N,N-Dimethylaminobenzyl) Chitosan, a Novel Chitosan Derivative, Enhances Paracellular Permeability Across Intestinal Epithelial Cells (Caco-2)",
-                       "authors": [
-                         "Jariya Kowapradit",
-                         "Praneet Opanasopit",
-                         "Tanasait Ngawhiranpat"
-                       ],
-                       "journal": "AAPS PharmSciTech",
-                       "journal_publisher": "Springer International Publishing",
-                       "journal_issn": [
-                         "1530-9932"
-                       ],
-                       "journal_issue": "Volume 9, Issue 4",
-                       "journal_pages": "1143-1152",
-                       "doi": "10.1208/s12249-008-9160-7",
-                       "published_date": "2008-12-01T00:00:00Z",
-                       "published_date_raw": "2008-12-01T00:00:00Z",
-                       "indexed_at": "2012-10-01T18:58:11.184Z",
-                       "url": "https://link.springer.com/article/10.1208/s12249-008-9160-7",
-                       "has_text": true,
-                       "has_pdf": true
-                     }""";
+            {
+                   "id": "7184",
+                   "title": "Methylated N-(4-N,N-Dimethylaminobenzyl) Chitosan, a Novel Chitosan Derivative, Enhances Paracellular Permeability Across Intestinal Epithelial Cells (Caco-2)",
+                   "authors": [
+                     "Jariya Kowapradit",
+                     "Praneet Opanasopit",
+                     "Tanasait Ngawhiranpat"
+                   ],
+                   "journal": "AAPS PharmSciTech",
+                   "journal_publisher": "Springer International Publishing",
+                   "journal_issn": [
+                     "1530-9932"
+                   ],
+                   "journal_issue": "Volume 9, Issue 4",
+                   "journal_pages": "1143-1152",
+                   "doi": "10.1208/s12249-008-9160-7",
+                   "published_date": "2008-12-01T00:00:00Z",
+                   "published_date_raw": "2008-12-01T00:00:00Z",
+                   "indexed_at": "2012-10-01T18:58:11.184Z",
+                   "url": "https://link.springer.com/article/10.1208/s12249-008-9160-7",
+                   "has_text": true,
+                   "has_pdf": true
+                 }\
+            """;
 
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Jariya Kowapradit and Praneet Opanasopit and Tanasait Ngawhiranpat")
-                .withField(StandardField.TITLE, "Methylated N-(4-N,N-Dimethylaminobenzyl) Chitosan, a Novel Chitosan Derivative, Enhances Paracellular Permeability Across Intestinal Epithelial Cells (Caco-2)")
+                .withField(
+                        StandardField.TITLE,
+                        "Methylated N-(4-N,N-Dimethylaminobenzyl) Chitosan, a Novel Chitosan Derivative, Enhances"
+                                + " Paracellular Permeability Across Intestinal Epithelial Cells (Caco-2)")
                 .withField(StandardField.DATE, "2008-12-01")
                 .withField(StandardField.YEAR, "2008")
                 .withField(StandardField.JOURNAL, "AAPS PharmSciTech")
@@ -107,14 +108,12 @@ public class ScholarFetcherTest implements SearchBasedFetcherCapabilityTest, Pag
     @Test
     @Disabled("ScholarAPI has no journal scoped search")
     @Override
-    public void supportsJournalSearch() {
-    }
+    public void supportsJournalSearch() {}
 
     @Test
     @Disabled("ScholarAPI has no author scoped search")
     @Override
-    public void supportsAuthorSearch() {
-    }
+    public void supportsAuthorSearch() {}
 
     @Override
     public PagedSearchBasedFetcher getPagedFetcher() {
@@ -142,7 +141,8 @@ public class ScholarFetcherTest implements SearchBasedFetcherCapabilityTest, Pag
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(new UnknownField("scholarapi"), "7184")
                 .withField(new UnknownField("scholarApiHasPdf"), "true");
-        assertEquals(Optional.of("https://scholarapi.net/api/v1/pdf/7184"),
+        assertEquals(
+                Optional.of("https://scholarapi.net/api/v1/pdf/7184"),
                 fetcher.findFullText(entry).map(URL::toString));
     }
 
@@ -154,8 +154,7 @@ public class ScholarFetcherTest implements SearchBasedFetcherCapabilityTest, Pag
 
     @Test
     void findFullTextReturnsEmptyWhenHasPdfIsMissing() throws IOException, FetcherException {
-        BibEntry entry = new BibEntry(StandardEntryType.Article)
-                .withField(new UnknownField("scholarapi"), "7184");
+        BibEntry entry = new BibEntry(StandardEntryType.Article).withField(new UnknownField("scholarapi"), "7184");
         assertEquals(Optional.empty(), fetcher.findFullText(entry));
     }
 
@@ -182,7 +181,8 @@ public class ScholarFetcherTest implements SearchBasedFetcherCapabilityTest, Pag
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withField(new UnknownField("scholarapi"), "7184/1")
                 .withField(new UnknownField("scholarApiHasPdf"), "true");
-        assertEquals(Optional.of("https://scholarapi.net/api/v1/pdf/7184%2F1"),
+        assertEquals(
+                Optional.of("https://scholarapi.net/api/v1/pdf/7184%2F1"),
                 fetcher.findFullText(entry).map(URL::toString));
     }
 

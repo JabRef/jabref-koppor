@@ -1,18 +1,16 @@
 package org.jabref.gui;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import org.jabref.logic.undo.UndoManager;
-import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.entry.BibEntry;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import org.jabref.logic.undo.UndoManager;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibEntry;
+import org.junit.jupiter.api.Test;
 
 class JabRefGuiStateManagerTest {
 

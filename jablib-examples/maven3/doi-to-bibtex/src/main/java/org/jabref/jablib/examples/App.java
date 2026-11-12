@@ -1,20 +1,17 @@
 package org.jabref.jablib.examples;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.jabref.logic.exporter.BibDatabaseWriter;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.fetcher.CrossRef;
 import org.jabref.logic.preferences.JabRefCliPreferences;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.jabref.model.entry.BibEntry;
-
 import org.tinylog.Logger;
-
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 /// Converts a DOI to BibTeX
 public class App {

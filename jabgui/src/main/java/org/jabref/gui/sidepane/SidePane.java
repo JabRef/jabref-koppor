@@ -2,12 +2,10 @@ package org.jabref.gui.sidepane;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.collections.ListChangeListener;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
@@ -30,17 +28,18 @@ public class SidePane extends VBox {
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final Map<SidePaneType, BooleanBinding> visibleBindings = new HashMap<>();
 
-    public SidePane(LibraryTabContainer tabContainer,
-                    GuiPreferences preferences,
-                    JournalAbbreviationRepository abbreviationRepository,
-                    TaskExecutor taskExecutor,
-                    DialogService dialogService,
-                    AiService aiService,
-                    StateManager stateManager,
-                    FileUpdateMonitor fileUpdateMonitor,
-                    BibEntryTypesManager entryTypesManager,
-                    ClipBoardManager clipBoardManager,
-                    GitHandlerRegistry gitHandlerRegistry) {
+    public SidePane(
+            LibraryTabContainer tabContainer,
+            GuiPreferences preferences,
+            JournalAbbreviationRepository abbreviationRepository,
+            TaskExecutor taskExecutor,
+            DialogService dialogService,
+            AiService aiService,
+            StateManager stateManager,
+            FileUpdateMonitor fileUpdateMonitor,
+            BibEntryTypesManager entryTypesManager,
+            ClipBoardManager clipBoardManager,
+            GitHandlerRegistry gitHandlerRegistry) {
         this.stateManager = stateManager;
         this.preferences = preferences;
         this.viewModel = new SidePaneViewModel(

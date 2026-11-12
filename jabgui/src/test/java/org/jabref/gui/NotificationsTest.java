@@ -1,25 +1,22 @@
 package org.jabref.gui;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+import com.dlsc.gemsfx.infocenter.Notification;
+import com.dlsc.gemsfx.infocenter.NotificationGroup;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
-
 import javafx.concurrent.Task;
-
 import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.util.BackgroundTask;
-
-import com.dlsc.gemsfx.infocenter.Notification;
-import com.dlsc.gemsfx.infocenter.NotificationGroup;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 // [utest->req~ux.notifications.finished-task~1]
 @ExtendWith(JavaFxExtension.class)
@@ -29,8 +26,7 @@ class NotificationsTest {
     private static final Callable<Void> FAILING = () -> {
         throw new IOException("connection refused");
     };
-    private static final Runnable SUCCEEDING = () -> {
-    };
+    private static final Runnable SUCCEEDING = () -> {};
 
     private final NotificationGroup<Task<?>, Notifications.TaskNotification> group = new NotificationGroup<>("Tasks");
 
@@ -43,7 +39,8 @@ class NotificationsTest {
 
     @Test
     void failedTaskNotShowingFailureShowsErrorWithoutExceptionMessage() {
-        Notifications.TaskNotification notification = runToEnd(BackgroundTask.wrap(FAILING).setTitle("Task"));
+        Notifications.TaskNotification notification =
+                runToEnd(BackgroundTask.wrap(FAILING).setTitle("Task"));
 
         assertEquals(List.of(notification), group.getNotifications());
         assertEquals(Notification.Type.ERROR, notification.getType());
@@ -57,7 +54,8 @@ class NotificationsTest {
         Task<Void> task = UiTaskExecutor.getJavaFXTask(backgroundTask);
         Notifications.TaskNotification notification = addNotification(task, backgroundTask);
         AtomicReference<Optional<Notifications.TaskNotificationView>> view = new AtomicReference<>(Optional.empty());
-        UiTaskExecutor.runAndWaitInJavaFXThread(() -> view.set(Optional.of(new Notifications.TaskNotificationView(notification))));
+        UiTaskExecutor.runAndWaitInJavaFXThread(
+                () -> view.set(Optional.of(new Notifications.TaskNotificationView(notification))));
 
         task.run();
         flushJavaFXThread();
@@ -86,7 +84,8 @@ class NotificationsTest {
 
     @Test
     void succeededTaskStays() {
-        Notifications.TaskNotification notification = runToEnd(BackgroundTask.wrap(SUCCEEDING).setTitle("Task"));
+        Notifications.TaskNotification notification =
+                runToEnd(BackgroundTask.wrap(SUCCEEDING).setTitle("Task"));
 
         assertEquals(List.of(notification), group.getNotifications());
     }
@@ -107,7 +106,8 @@ class NotificationsTest {
     }
 
     private Notifications.TaskNotification addNotification(Task<Void> task, BackgroundTask<Void> backgroundTask) {
-        AtomicReference<Optional<Notifications.TaskNotification>> notification = new AtomicReference<>(Optional.empty());
+        AtomicReference<Optional<Notifications.TaskNotification>> notification =
+                new AtomicReference<>(Optional.empty());
         UiTaskExecutor.runAndWaitInJavaFXThread(() -> {
             Notifications.TaskNotification created = new Notifications.TaskNotification(task, backgroundTask);
             group.getNotifications().add(created);
@@ -118,7 +118,6 @@ class NotificationsTest {
 
     /// Worker state events are posted to the JavaFX thread; waiting for an empty action lets them run first.
     private static void flushJavaFXThread() {
-        UiTaskExecutor.runAndWaitInJavaFXThread(() -> {
-        });
+        UiTaskExecutor.runAndWaitInJavaFXThread(() -> {});
     }
 }

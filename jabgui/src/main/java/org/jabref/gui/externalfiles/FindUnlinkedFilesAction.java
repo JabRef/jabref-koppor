@@ -1,11 +1,10 @@
 package org.jabref.gui.externalfiles;
 
-import org.jabref.gui.StateManager;
-import org.jabref.gui.actions.SimpleCommand;
+import static org.jabref.gui.actions.ActionHelper.needsSavedLocalDatabase;
 
 import com.airhacks.afterburner.injection.Injector;
-
-import static org.jabref.gui.actions.ActionHelper.needsSavedLocalDatabase;
+import org.jabref.gui.StateManager;
+import org.jabref.gui.actions.SimpleCommand;
 
 public class FindUnlinkedFilesAction extends SimpleCommand {
 

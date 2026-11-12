@@ -1,12 +1,10 @@
 package org.jabref.gui.util;
 
 import java.util.concurrent.CountDownLatch;
-
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.TransformationList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

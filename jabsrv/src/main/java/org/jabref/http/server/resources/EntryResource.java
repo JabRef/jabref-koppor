@@ -1,25 +1,5 @@
 package org.jabref.http.server.resources;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-
-import org.jabref.http.SrvStateManager;
-import org.jabref.http.dto.LinkedPdfFileDTO;
-import org.jabref.http.server.services.ServerUtils;
-import org.jabref.logic.externalfiles.LinkedFileHandler;
-import org.jabref.logic.preferences.CliPreferences;
-import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.LinkedFile;
-import org.jabref.model.entry.field.StandardField;
-
 import com.google.common.html.HtmlEscapers;
 import com.google.gson.Gson;
 import jakarta.inject.Inject;
@@ -33,6 +13,24 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
+import org.jabref.http.SrvStateManager;
+import org.jabref.http.dto.LinkedPdfFileDTO;
+import org.jabref.http.server.services.ServerUtils;
+import org.jabref.logic.externalfiles.LinkedFileHandler;
+import org.jabref.logic.preferences.CliPreferences;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.LinkedFile;
+import org.jabref.model.entry.field.StandardField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +47,8 @@ public class EntryResource {
     @Inject
     Gson gson;
 
-    /// At [http://localhost:23119/libraries/){id}/entries/{entryId}](http://localhost:23119/libraries/){id}/entries/{entryId}
+    /// At
+    /// [http://localhost:23119/libraries/){id}/entries/{entryId}](http://localhost:23119/libraries/){id}/entries/{entryId}
     ///
     /// Combines attributes of a given BibEntry into a basic entry preview for as plain text.
     ///
@@ -58,7 +57,8 @@ public class EntryResource {
     /// @return a basic entry preview as plain text
     @GET
     @Produces(MediaType.TEXT_PLAIN + ";charset=UTF-8")
-    public String getPlainRepresentation(@PathParam("id") String id, @PathParam("entryId") String entryId) throws IOException {
+    public String getPlainRepresentation(@PathParam("id") String id, @PathParam("entryId") String entryId)
+            throws IOException {
         BibDatabaseContext databaseContext = getDatabaseContext(id);
         List<BibEntry> entriesByCitationKey = databaseContext.getDatabase().getEntriesByCitationKey(entryId);
         if (entriesByCitationKey.isEmpty()) {
@@ -101,8 +101,10 @@ public class EntryResource {
     @GET
     @Path("entries/{entryId}")
     @Produces(MediaType.TEXT_HTML + ";charset=UTF-8")
-    public String getHTMLRepresentation(@PathParam("id") String id, @PathParam("entryId") String entryId) throws IOException {
-        List<BibEntry> entriesByCitationKey = getDatabaseContext(id).getDatabase().getEntriesByCitationKey(entryId);
+    public String getHTMLRepresentation(@PathParam("id") String id, @PathParam("entryId") String entryId)
+            throws IOException {
+        List<BibEntry> entriesByCitationKey =
+                getDatabaseContext(id).getDatabase().getEntriesByCitationKey(entryId);
         if (entriesByCitationKey.isEmpty()) {
             // This response is served as text/html, so escape the user-controlled path
             // parameters before reflecting them into the message (XSS). The message is
@@ -112,9 +114,9 @@ public class EntryResource {
                     + HtmlEscapers.htmlEscaper().escape(entryId) + "' not found in library "
                     + HtmlEscapers.htmlEscaper().escape(id);
             throw new NotFoundException(Response.status(Response.Status.NOT_FOUND)
-                                                .type(MediaType.TEXT_HTML + ";charset=UTF-8")
-                                                .entity(message)
-                                                .build());
+                    .type(MediaType.TEXT_HTML + ";charset=UTF-8")
+                    .entity(message)
+                    .build());
         }
         if (entriesByCitationKey.size() > 1) {
             LOGGER.warn("Multiple entries found with citation key '{}'. Using the first one.", entryId);
@@ -134,14 +136,14 @@ public class EntryResource {
 
         // the only difference to the plain text version of this method is the format of the output:
         return """
-                <strong>Author:</strong> %s<br>
-                <strong>Title:</strong> %s<br>
-                <strong>Journal:</strong> %s<br>
-                <strong>Volume:</strong> %s<br>
-                <strong>Number:</strong> %s<br>
-                <strong>Pages:</strong> %s<br>
-                <strong>Released on:</strong> %s"""
-                .formatted(
+            <strong>Author:</strong> %s<br>
+            <strong>Title:</strong> %s<br>
+            <strong>Journal:</strong> %s<br>
+            <strong>Volume:</strong> %s<br>
+            <strong>Number:</strong> %s<br>
+            <strong>Pages:</strong> %s<br>
+            <strong>Released on:</strong> %s\
+            """.formatted(
                         HtmlEscapers.htmlEscaper().escape(author),
                         HtmlEscapers.htmlEscaper().escape(title),
                         HtmlEscapers.htmlEscaper().escape(journal),
@@ -166,21 +168,24 @@ public class EntryResource {
     public String getFiles(@PathParam("id") String id, @PathParam("entryId") String entryId) throws IOException {
         BibEntry entry = getEntry(getDatabaseContext(id), id, entryId);
         List<LinkedPdfFileDTO> files = entry.getFiles().stream()
-                                            .filter(file -> "PDF".equals(file.getFileType()) && !LinkedFile.isOnlineLink(file.getLink()))
-                                            .map(file -> new LinkedPdfFileDTO(entry, file))
-                                            .toList();
+                .filter(file -> "PDF".equals(file.getFileType()) && !LinkedFile.isOnlineLink(file.getLink()))
+                .map(file -> new LinkedPdfFileDTO(entry, file))
+                .toList();
         return gson.toJson(files);
     }
 
     @POST
     @Path("files")
     @Consumes("application/pdf")
-    public Response addFile(@PathParam("id") String id, @PathParam("entryId") String entryId, InputStream fileInputStream) throws IOException {
+    public Response addFile(
+            @PathParam("id") String id, @PathParam("entryId") String entryId, InputStream fileInputStream)
+            throws IOException {
         BibDatabaseContext databaseContext = getDatabaseContext(id);
         BibEntry entry = getEntry(databaseContext, id, entryId);
 
         // 2. Determine target directory
-        Optional<java.nio.file.Path> targetDirOpt = databaseContext.getFirstExistingFileDir(preferences.getFilePreferences());
+        Optional<java.nio.file.Path> targetDirOpt =
+                databaseContext.getFirstExistingFileDir(preferences.getFilePreferences());
 
         if (targetDirOpt.isEmpty()) {
             throw new BadRequestException("Library must be saved or have a file directory configured to attach files.");
@@ -188,7 +193,8 @@ public class EntryResource {
         java.nio.file.Path targetDir = targetDirOpt.get();
 
         // 3. Save stream to temporary file
-        String timestamp = ZonedDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'"));
+        String timestamp =
+                ZonedDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'"));
         java.nio.file.Path tempFile = Files.createTempFile(targetDir, "jabref-upload-" + timestamp + "-", ".pdf");
         Files.copy(fileInputStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
 
@@ -196,7 +202,8 @@ public class EntryResource {
         LinkedFile linkedFile = new LinkedFile(tempFile.getFileName().toString(), tempFile, "PDF");
 
         // 5. Rename to suggested pattern (e.g. Author - Title.pdf)
-        LinkedFileHandler fileHandler = new LinkedFileHandler(linkedFile, entry, databaseContext, preferences.getFilePreferences());
+        LinkedFileHandler fileHandler =
+                new LinkedFileHandler(linkedFile, entry, databaseContext, preferences.getFilePreferences());
         boolean renameSuccessful = fileHandler.renameToSuggestedName();
         if (!renameSuccessful) {
             LOGGER.warn("Renaming to suggested name failed. Keeping temp filename.");
@@ -208,7 +215,8 @@ public class EntryResource {
         if (renameSuccessful) {
             return Response.noContent().build();
         } else {
-            return Response.ok("File uploaded but could not be renamed to suggested pattern.").build();
+            return Response.ok("File uploaded but could not be renamed to suggested pattern.")
+                    .build();
         }
     }
 

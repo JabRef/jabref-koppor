@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupTreeNode;
-
 import org.jspecify.annotations.NonNull;
 
 /// Converts legacy explicit groups, where the group contained a list of assigned entries, to the new format,
@@ -18,9 +16,11 @@ public class ConvertLegacyExplicitGroups implements PostOpenMigration {
 
     @Override
     public boolean isMigrationNecessary(ParserResult parserResult) {
-        return parserResult.getMetaData().getGroups()
-                           .map(root -> !getExplicitGroupsWithLegacyKeys(root).isEmpty())
-                           .orElse(false);
+        return parserResult
+                .getMetaData()
+                .getGroups()
+                .map(root -> !getExplicitGroupsWithLegacyKeys(root).isEmpty())
+                .orElse(false);
     }
 
     @Override
@@ -29,14 +29,18 @@ public class ConvertLegacyExplicitGroups implements PostOpenMigration {
             return;
         }
 
-        List<ExplicitGroup> groups = getExplicitGroupsWithLegacyKeys(parserResult.getMetaData().getGroups().orElseThrow());
+        List<ExplicitGroup> groups = getExplicitGroupsWithLegacyKeys(
+                parserResult.getMetaData().getGroups().orElseThrow());
         if (groups.isEmpty()) {
             return;
         }
 
         Map<String, List<BibEntry>> entriesByCitationKey = new HashMap<>();
         for (BibEntry entry : entries) {
-            entry.getCitationKey().ifPresent(key -> entriesByCitationKey.computeIfAbsent(key, _ -> new ArrayList<>()).add(entry));
+            entry.getCitationKey()
+                    .ifPresent(key -> entriesByCitationKey
+                            .computeIfAbsent(key, _ -> new ArrayList<>())
+                            .add(entry));
         }
 
         for (ExplicitGroup group : groups) {

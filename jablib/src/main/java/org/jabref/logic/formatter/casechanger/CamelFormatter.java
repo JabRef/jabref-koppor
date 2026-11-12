@@ -1,10 +1,8 @@
 package org.jabref.logic.formatter.casechanger;
 
 import java.util.stream.Collectors;
-
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 
 public class CamelFormatter extends Formatter {
@@ -24,17 +22,16 @@ public class CamelFormatter extends Formatter {
         Title title = new Title(input);
 
         return title.getWords().stream()
-                    .map(Word -> {
-                        Word.toUpperFirst();
-                        return Word.toString();
-                    })
-                    .collect(Collectors.joining(""));
+                .map(Word -> {
+                    Word.toUpperFirst();
+                    return Word.toString();
+                })
+                .collect(Collectors.joining(""));
     }
 
     @Override
     public String getDescription() {
-        return Localization.lang(
-                "Returns capitalized and concatenated title.");
+        return Localization.lang("Returns capitalized and concatenated title.");
     }
 
     @Override

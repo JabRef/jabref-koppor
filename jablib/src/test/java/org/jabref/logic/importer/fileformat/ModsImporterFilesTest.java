@@ -1,23 +1,21 @@
 package org.jabref.logic.importer.fileformat;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
 import org.jabref.logic.importer.ImportException;
 import org.jabref.logic.importer.ImportFormatPreferences;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class ModsImporterFilesTest {
 
@@ -32,7 +30,8 @@ class ModsImporterFilesTest {
     @BeforeEach
     void setUp() {
         importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .thenReturn(',');
     }
 
     @ParameterizedTest
@@ -50,11 +49,12 @@ class ModsImporterFilesTest {
     @Test
     void rejectsExternalEntities() throws IOException {
         String xmlWithExternalEntity = """
-                <!DOCTYPE modsCollection [<!ENTITY entity SYSTEM "file:///not-accessed">]>
-                <modsCollection><mods><titleInfo><title>&entity;</title></titleInfo></mods></modsCollection>
-                """;
+            <!DOCTYPE modsCollection [<!ENTITY entity SYSTEM "file:///not-accessed">]>
+            <modsCollection><mods><titleInfo><title>&entity;</title></titleInfo></mods></modsCollection>
+            """;
         ModsImporter importer = new ModsImporter(importFormatPreferences);
 
-        assertTrue(importer.importDatabase(new BufferedReader(Reader.of(xmlWithExternalEntity))).isInvalid());
+        assertTrue(importer.importDatabase(new BufferedReader(Reader.of(xmlWithExternalEntity)))
+                .isInvalid());
     }
 }

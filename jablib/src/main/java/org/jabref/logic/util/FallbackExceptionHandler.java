@@ -1,7 +1,6 @@
 package org.jabref.logic.util;
 
 import java.util.function.BiConsumer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +27,8 @@ public class FallbackExceptionHandler implements Thread.UncaughtExceptionHandler
     public void uncaughtException(Thread thread, Throwable exception) {
         if (isSshdExecutorShutdown(exception)) {
             // Known Apache SSHD issue on Windows, harmless: https://github.com/apache/mina-sshd/issues/409
-            // A dead SSH socket (e.g., after resume from suspend) reports its read failure after SSHD closed its executor.
+            // A dead SSH socket (e.g., after resume from suspend) reports its read failure after SSHD closed its
+            // executor.
             LOGGER.debug("Ignoring SSHD executor shutdown in {}", thread, exception);
             return;
         }

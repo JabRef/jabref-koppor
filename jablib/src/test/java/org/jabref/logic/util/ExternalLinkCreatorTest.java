@@ -1,13 +1,16 @@
 package org.jabref.logic.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,11 +19,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class ExternalLinkCreatorTest {
     private static final String DEFAULT_GOOGLE_SCHOLAR_URL = "https://scholar.google.com/scholar";
@@ -43,9 +41,7 @@ class ExternalLinkCreatorTest {
     }
 
     private BibEntry createEntryWithTitleAndAuthor(String title, String author) {
-        return new BibEntry()
-                .withField(StandardField.TITLE, title)
-                .withField(StandardField.AUTHOR, author);
+        return new BibEntry().withField(StandardField.TITLE, title).withField(StandardField.AUTHOR, author);
     }
 
     static Stream<Arguments> specialCharactersProvider() {
@@ -53,8 +49,7 @@ class ExternalLinkCreatorTest {
                 Arguments.of("!*'();:@&=+$,/?#[]"),
                 Arguments.of("100% Complete Research"),
                 Arguments.of("C++ Programming"),
-                Arguments.of("Research & Development")
-        );
+                Arguments.of("Research & Development"));
     }
 
     @Nested
@@ -75,17 +70,19 @@ class ExternalLinkCreatorTest {
         @Test
         void getGoogleScholarSearchURLRemovesLatexBraces() {
             // Equivalent test for Google Scholar
-            BibEntry entry = createEntryWithTitle("{The Difference Between Graph-Based and Block-Structured Business Process Modelling Languages}");
+            BibEntry entry = createEntryWithTitle(
+                    "{The Difference Between Graph-Based and Block-Structured Business Process Modelling Languages}");
             Optional<String> url = linkCreator.getGoogleScholarSearchURL(entry);
 
-            String expectedUrl = "https://scholar.google.com/scholar?q=The%20Difference%20Between%20Graph-Based%20and%20Block-Structured%20Business%20Process%20Modelling%20Languages";
+            String expectedUrl =
+                    "https://scholar.google.com/scholar?q=The%20Difference%20Between%20Graph-Based%20and%20Block-Structured%20Business%20Process%20Modelling%20Languages";
             assertEquals(Optional.of(expectedUrl), url);
         }
 
         @ParameterizedTest
         @CsvSource({
-                "' ', 'https://scholar.google.com/scholar?q='",
-                "'   ', 'https://scholar.google.com/scholar?q=%C2%A0%20%C2%A0'"
+            "' ', 'https://scholar.google.com/scholar?q='",
+            "'   ', 'https://scholar.google.com/scholar?q=%C2%A0%20%C2%A0'"
         })
         void getGoogleScholarSearchURLHandlesWhitespace(String title, String expectedUrl) {
             BibEntry entry = createEntryWithTitle(title);
@@ -97,9 +94,10 @@ class ExternalLinkCreatorTest {
 
         @ParameterizedTest
         @CsvSource({
-                // Expect %20
-                "'JabRef bibliography management', 'https://scholar.google.com/scholar?q=JabRef%20bibliography%20management'",
-                "'Machine learning', 'https://scholar.google.com/scholar?q=Machine%20learning'"
+            // Expect %20
+            "'JabRef bibliography management',"
+                    + " 'https://scholar.google.com/scholar?q=JabRef%20bibliography%20management'",
+            "'Machine learning', 'https://scholar.google.com/scholar?q=Machine%20learning'"
         })
         void getGoogleScholarSearchURLLinksToSearchResults(String title, String expectedUrl) {
             BibEntry entry = createEntryWithTitle(title);
@@ -147,17 +145,19 @@ class ExternalLinkCreatorTest {
         @Test
         void getSemanticScholarSearchURLRemovesLatexBraces() {
             // Equivalent test for Semantic Scholar
-            BibEntry entry = createEntryWithTitle("{The Difference Between Graph-Based and Block-Structured Business Process Modelling Languages}");
+            BibEntry entry = createEntryWithTitle(
+                    "{The Difference Between Graph-Based and Block-Structured Business Process Modelling Languages}");
             Optional<String> url = linkCreator.getSemanticScholarSearchURL(entry);
 
-            String expectedUrl = "https://www.semanticscholar.org/search?q=The%20Difference%20Between%20Graph-Based%20and%20Block-Structured%20Business%20Process%20Modelling%20Languages";
+            String expectedUrl =
+                    "https://www.semanticscholar.org/search?q=The%20Difference%20Between%20Graph-Based%20and%20Block-Structured%20Business%20Process%20Modelling%20Languages";
             assertEquals(Optional.of(expectedUrl), url);
         }
 
         @ParameterizedTest
         @CsvSource({
-                "' ', 'https://www.semanticscholar.org/search?q='",
-                "'   ', 'https://www.semanticscholar.org/search?q=%C2%A0%20%C2%A0'"
+            "' ', 'https://www.semanticscholar.org/search?q='",
+            "'   ', 'https://www.semanticscholar.org/search?q=%C2%A0%20%C2%A0'"
         })
         void getSemanticScholarSearchURLHandlesWhitespace(String title, String expectedUrl) {
             BibEntry entry = createEntryWithTitle(title);
@@ -169,9 +169,10 @@ class ExternalLinkCreatorTest {
 
         @ParameterizedTest
         @CsvSource({
-                // Expect %20
-                "'JabRef bibliography management', 'https://www.semanticscholar.org/search?q=JabRef%20bibliography%20management'",
-                "'Machine learning', 'https://www.semanticscholar.org/search?q=Machine%20learning'"
+            // Expect %20
+            "'JabRef bibliography management',"
+                    + " 'https://www.semanticscholar.org/search?q=JabRef%20bibliography%20management'",
+            "'Machine learning', 'https://www.semanticscholar.org/search?q=Machine%20learning'"
         })
         void getSemanticScholarSearchURLLinksToSearchResults(String title, String expectedUrl) {
             BibEntry entry = createEntryWithTitle(title);
@@ -227,22 +228,24 @@ class ExternalLinkCreatorTest {
 
         @Test
         void getShortScienceSearchURLRemovesLatexBraces() {
-            BibEntry entry = createEntryWithTitle("{The Difference Between Graph-Based and Block-Structured Business Process Modelling Languages}");
+            BibEntry entry = createEntryWithTitle(
+                    "{The Difference Between Graph-Based and Block-Structured Business Process Modelling Languages}");
             Optional<String> url = linkCreator.getShortScienceSearchURL(entry);
 
             // URIBuilder encodes spaces as %20, braces should be gone
-            String expectedUrl = "https://www.shortscience.org/internalsearch?q=The%20Difference%20Between%20Graph-Based%20and%20Block-Structured%20Business%20Process%20Modelling%20Languages";
+            String expectedUrl =
+                    "https://www.shortscience.org/internalsearch?q=The%20Difference%20Between%20Graph-Based%20and%20Block-Structured%20Business%20Process%20Modelling%20Languages";
             assertEquals(Optional.of(expectedUrl), url);
         }
 
         @ParameterizedTest
         @CsvSource({
-                // Standard space: Java trim() removes it -> "q="
-                "' ', 'https://www.shortscience.org/internalsearch?q='",
+            // Standard space: Java trim() removes it -> "q="
+            "' ', 'https://www.shortscience.org/internalsearch?q='",
 
-                // Non-Breaking Space (NBSP): Java trim() keeps it -> "q=%C2%A0%20%C2%A0"
-                // (Note: URIBuilder encodes NBSP as %C2%A0 and the middle regular space as %20)
-                "'   ', 'https://www.shortscience.org/internalsearch?q=%C2%A0%20%C2%A0'"
+            // Non-Breaking Space (NBSP): Java trim() keeps it -> "q=%C2%A0%20%C2%A0"
+            // (Note: URIBuilder encodes NBSP as %C2%A0 and the middle regular space as %20)
+            "'   ', 'https://www.shortscience.org/internalsearch?q=%C2%A0%20%C2%A0'"
         })
         void getShortScienceSearchURLHandlesWhitespace(String title, String expectedUrl) {
             BibEntry entry = createEntryWithTitle(title);
@@ -254,9 +257,10 @@ class ExternalLinkCreatorTest {
 
         @ParameterizedTest
         @CsvSource({
-                // Standard cases using URIBuilder (%20 encoding)
-                "'JabRef bibliography management', 'https://www.shortscience.org/internalsearch?q=JabRef%20bibliography%20management'",
-                "'Machine learning', 'https://www.shortscience.org/internalsearch?q=Machine%20learning'",
+            // Standard cases using URIBuilder (%20 encoding)
+            "'JabRef bibliography management',"
+                    + " 'https://www.shortscience.org/internalsearch?q=JabRef%20bibliography%20management'",
+            "'Machine learning', 'https://www.shortscience.org/internalsearch?q=Machine%20learning'",
         })
         void getShortScienceSearchURLLinksToSearchResults(String title, String expectedUrl) {
             BibEntry entry = createEntryWithTitle(title);
@@ -268,13 +272,13 @@ class ExternalLinkCreatorTest {
 
         @ParameterizedTest
         @CsvSource({
-                // Unicode characters
-                "'歷史書 📖 📚', 'q=%E6%AD%B7%E5%8F%B2%E6%9B%B8%20%F0%9F%93%96%20%F0%9F%93%9A'",
-                // Mixed NBSP and standard space
-                "'    History Textbook   ', 'q=%C2%A0%20%C2%A0%20History%20Textbook%C2%A0%20%C2%A0'",
-                // Literal symbols
-                "'History%20Textbook', 'q=History%2520Textbook'",
-                "'A&B Research', 'q=A%26B%20Research'"
+            // Unicode characters
+            "'歷史書 📖 📚', 'q=%E6%AD%B7%E5%8F%B2%E6%9B%B8%20%F0%9F%93%96%20%F0%9F%93%9A'",
+            // Mixed NBSP and standard space
+            "'    History Textbook   ', 'q=%C2%A0%20%C2%A0%20History%20Textbook%C2%A0%20%C2%A0'",
+            // Literal symbols
+            "'History%20Textbook', 'q=History%2520Textbook'",
+            "'A&B Research', 'q=A%26B%20Research'"
         })
         void getShortScienceSearchURLEncodesCharacters(String title, String expectedQueryPart) {
             BibEntry entry = createEntryWithTitle(title);
@@ -307,8 +311,8 @@ class ExternalLinkCreatorTest {
 
         @ParameterizedTest
         @CsvSource({
-                "'Machine Learning', 'Smith & Jones', 'author=Smith%20%26%20Jones'",
-                "'Deep Learning', '李明', 'author=%E6%9D%8E%E6%98%8E'"
+            "'Machine Learning', 'Smith & Jones', 'author=Smith%20%26%20Jones'",
+            "'Deep Learning', '李明', 'author=%E6%9D%8E%E6%98%8E'"
         })
         void getShortScienceSearchURLEncodesAuthorNames(String title, String author, String expectedAuthorEncoding) {
             BibEntry entry = createEntryWithTitleAndAuthor(title, author);
@@ -356,12 +360,13 @@ class ExternalLinkCreatorTest {
     @Nested
     class SecurityTests {
         @ParameterizedTest
-        @ValueSource(strings = {
-                "mailto:test@example.com",
-                "javascript:alert('xss')",
-                "file:///etc/passwd",
-                "ftp://malicious.com"
-        })
+        @ValueSource(
+                strings = {
+                    "mailto:test@example.com",
+                    "javascript:alert('xss')",
+                    "file:///etc/passwd",
+                    "ftp://malicious.com"
+                })
         void rejectsNonHttpSchemesAndFallsBack(String maliciousUrl) {
             when(mockPreferences.getSearchEngineUrlTemplates())
                     .thenReturn(Map.of("Short Science", maliciousUrl + "?q={title}"));

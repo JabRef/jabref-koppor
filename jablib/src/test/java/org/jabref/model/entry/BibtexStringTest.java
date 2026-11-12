@@ -1,9 +1,9 @@
 package org.jabref.model.entry;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
+import org.junit.jupiter.api.Test;
 
 class BibtexStringTest {
 
@@ -112,7 +112,8 @@ class BibtexStringTest {
     @Test
     void otherTypeCorrectlyDeterminedForUpperCase() {
         // Source of the example: https://docs.jabref.org/fields/strings
-        BibtexString bibtexString = new BibtexString("lTOSCA", "Topology and Orchestration Specification for Cloud Applications");
+        BibtexString bibtexString =
+                new BibtexString("lTOSCA", "Topology and Orchestration Specification for Cloud Applications");
         assertEquals(BibtexString.Type.OTHER, bibtexString.getType());
     }
 }

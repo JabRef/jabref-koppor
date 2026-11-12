@@ -1,5 +1,14 @@
 package org.jabref.model.entry;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+
+import com.google.common.collect.Sets;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -9,7 +18,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-
 import org.jabref.logic.util.URLUtil;
 import org.jabref.model.FieldChange;
 import org.jabref.model.database.BibDatabase;
@@ -22,21 +30,11 @@ import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 @Execution(CONCURRENT)
 class BibEntryTest {
@@ -63,7 +61,9 @@ class BibEntryTest {
     @Test
     void getFieldWorksWithBibFieldAsWell() {
         entry.setField(StandardField.AUTHOR, "value");
-        assertEquals(Optional.of("value"), entry.getField(new BibField(StandardField.AUTHOR, FieldPriority.IMPORTANT).field()));
+        assertEquals(
+                Optional.of("value"),
+                entry.getField(new BibField(StandardField.AUTHOR, FieldPriority.IMPORTANT).field()));
     }
 
     @Test
@@ -216,13 +216,16 @@ class BibEntryTest {
     @Test
     void getFieldOrAliasLatexFreeAlreadyFreeValueIsUnchanged() {
         entry.setField(StandardField.TITLE, "A Title Without any LaTeX commands");
-        assertEquals(Optional.of("A Title Without any LaTeX commands"), entry.getFieldOrAliasLatexFree(StandardField.TITLE));
+        assertEquals(
+                Optional.of("A Title Without any LaTeX commands"), entry.getFieldOrAliasLatexFree(StandardField.TITLE));
     }
 
     @Test
     void getFieldOrAliasLatexFreeAlreadyFreeAliasValueIsUnchanged() {
         entry.setField(StandardField.JOURNAL, "A Title Without any LaTeX commands");
-        assertEquals(Optional.of("A Title Without any LaTeX commands"), entry.getFieldOrAliasLatexFree(StandardField.JOURNALTITLE));
+        assertEquals(
+                Optional.of("A Title Without any LaTeX commands"),
+                entry.getFieldOrAliasLatexFree(StandardField.JOURNALTITLE));
     }
 
     @Test
@@ -234,35 +237,41 @@ class BibEntryTest {
     @Test
     void getFieldOrAliasLatexFreeBracesAreRemovedFromAlias() {
         entry.setField(StandardField.JOURNAL, "{A Title with some {B}ra{C}es}");
-        assertEquals(Optional.of("A Title with some BraCes"), entry.getFieldOrAliasLatexFree(StandardField.JOURNALTITLE));
+        assertEquals(
+                Optional.of("A Title with some BraCes"), entry.getFieldOrAliasLatexFree(StandardField.JOURNALTITLE));
     }
 
     @Test
     void getFieldOrAliasLatexFreeComplexConversionInAlias() {
         entry.setField(StandardField.JOURNAL, "A 32~{mA} {$\\Sigma\\Delta$}-modulator");
-        assertEquals(Optional.of("A 32\u00a0mA ΣΔ-modulator"), entry.getFieldOrAliasLatexFree(StandardField.JOURNALTITLE));
+        assertEquals(
+                Optional.of("A 32\u00a0mA ΣΔ-modulator"), entry.getFieldOrAliasLatexFree(StandardField.JOURNALTITLE));
     }
 
     @Test
     void getFieldOrAliasLatexFreeAbstractWithNestedMathScriptsRemainsReadable() {
         entry.setField(StandardField.ABSTRACT, """
-                Much progress has been made in classifying when the weak Lefschetz property holds for $A=\\mathbb{F}[x,y,z]/I$ where $\\text{char}(\\mathbb{F})=0$ and $I=(x^{d_{1}},y^{d_{2}},z^{d_{3}},x^{a_{1}}y^{a_{2}}z^{a_{3}})$ is a monomial almost complete intersection. We connect this problem to the setting of two variables through a certain relation. In so doing, we are led to determine explicit formulas for the generators of the colon ideal $(x^{d_{1}},y^{d_{2}}):(x+y)^{a_{3}}$. With these generators in hand, we construct a matrix and show that failure of WLP for $A$ is dictated by the vanishing of a certain polynomial (namely the determinant of our matrix) when $A$ is level. We further show in the level case that a conjecture first posed by Migliore, Miró-Roig, and Nagel is true in a few new cases.
-                """);
+            Much progress has been made in classifying when the weak Lefschetz property holds for $A=\\mathbb{F}[x,y,z]/I$ where $\\text{char}(\\mathbb{F})=0$ and $I=(x^{d_{1}},y^{d_{2}},z^{d_{3}},x^{a_{1}}y^{a_{2}}z^{a_{3}})$ is a monomial almost complete intersection. We connect this problem to the setting of two variables through a certain relation. In so doing, we are led to determine explicit formulas for the generators of the colon ideal $(x^{d_{1}},y^{d_{2}}):(x+y)^{a_{3}}$. With these generators in hand, we construct a matrix and show that failure of WLP for $A$ is dictated by the vanishing of a certain polynomial (namely the determinant of our matrix) when $A$ is level. We further show in the level case that a conjecture first posed by Migliore, Miró-Roig, and Nagel is true in a few new cases.
+            """);
 
-        assertEquals(Optional.of("""
-                Much progress has been made in classifying when the weak Lefschetz property holds for A=𝔽[x,y,z]/I where char(𝔽)=0 and I=(xᵈ₁,yᵈ₂,zᵈ₃,xᵃ₁yᵃ₂zᵃ₃) is a monomial almost complete intersection. We connect this problem to the setting of two variables through a certain relation. In so doing, we are led to determine explicit formulas for the generators of the colon ideal (xᵈ₁,yᵈ₂):(x+y)ᵃ₃. With these generators in hand, we construct a matrix and show that failure of WLP for A is dictated by the vanishing of a certain polynomial (namely the determinant of our matrix) when A is level. We further show in the level case that a conjecture first posed by Migliore, Miró-Roig, and Nagel is true in a few new cases.
-                """.stripTrailing()), entry.getFieldOrAliasLatexFree(StandardField.ABSTRACT).map(String::stripTrailing));
+        assertEquals(
+                Optional.of("""
+                    Much progress has been made in classifying when the weak Lefschetz property holds for A=𝔽[x,y,z]/I where char(𝔽)=0 and I=(xᵈ₁,yᵈ₂,zᵈ₃,xᵃ₁yᵃ₂zᵃ₃) is a monomial almost complete intersection. We connect this problem to the setting of two variables through a certain relation. In so doing, we are led to determine explicit formulas for the generators of the colon ideal (xᵈ₁,yᵈ₂):(x+y)ᵃ₃. With these generators in hand, we construct a matrix and show that failure of WLP for A is dictated by the vanishing of a certain polynomial (namely the determinant of our matrix) when A is level. We further show in the level case that a conjecture first posed by Migliore, Miró-Roig, and Nagel is true in a few new cases.
+                    """.stripTrailing()),
+                entry.getFieldOrAliasLatexFree(StandardField.ABSTRACT).map(String::stripTrailing));
     }
 
     @Test
     void getFieldOrAliasLatexFreeAbstractWithTextLikeMathCommandsRemainsReadable() {
         entry.setField(StandardField.ABSTRACT, """
-                Let $R$ be a standard graded algebra over an infinite field $\\mathsf k$, and let $\\mathbb{B}_{\\mathbb{Q}}(R)$ and $\\mathbb{B}_{\\mathbb{Q}}^{\\mathrm{pure}}(R)$ denote the rational cones spanned by the Betti tables of all finitely generated $R$-modules and of those with pure resolutions, respectively. We establish several necessary conditions for the equality $\\mathbb{B}_{\\mathbb{Q}}(R) = \\mathbb{B}_{\\mathbb{Q}}^{\\mathrm{pure}}(R)$. When $\\operatorname{edim}(R)\\ge 2$, we prove that $\\mathsf k$ has a pure resolution if and only if it has a linear resolution, and consequently, if the extremal rays of $\\mathbb{B}_{\\mathbb{Q}}(R)$ are pure, then $R$ is Koszul and good (in the sense of Roos). We show that if $R$ has depth zero, it must be Artinian for the equality of the two cones to hold. For rings with linear pairs of exact zerodivisors, we show that the equality of the cones implies that the $h$-polynomial has degree at most $2$, and use it to characterize generic Gorenstein Artin algebras satisfying $\\mathbb{B}_{\\mathbb{Q}}(R) = \\mathbb{B}_{\\mathbb{Q}}^{\\mathrm{pure}}(R)$. We also characterize algebras whose extremal rays are exactly the Betti tables of shifts of $R/\\mathfrak m^j$ and of pure modules $M$ with $\\operatorname{codim}(M)=\\operatorname{pdim}(M)$: apart from polynomial rings, these are precisely Cohen--Macaulay algebras of dimension at most one with minimal multiplicity. In addition, we obtain a characterization of Cohen--Macaulay algebras of minimal multiplicity in terms of the extremal rays of the Betti cone of maximal Cohen--Macaulay modules.
-                """);
+            Let $R$ be a standard graded algebra over an infinite field $\\mathsf k$, and let $\\mathbb{B}_{\\mathbb{Q}}(R)$ and $\\mathbb{B}_{\\mathbb{Q}}^{\\mathrm{pure}}(R)$ denote the rational cones spanned by the Betti tables of all finitely generated $R$-modules and of those with pure resolutions, respectively. We establish several necessary conditions for the equality $\\mathbb{B}_{\\mathbb{Q}}(R) = \\mathbb{B}_{\\mathbb{Q}}^{\\mathrm{pure}}(R)$. When $\\operatorname{edim}(R)\\ge 2$, we prove that $\\mathsf k$ has a pure resolution if and only if it has a linear resolution, and consequently, if the extremal rays of $\\mathbb{B}_{\\mathbb{Q}}(R)$ are pure, then $R$ is Koszul and good (in the sense of Roos). We show that if $R$ has depth zero, it must be Artinian for the equality of the two cones to hold. For rings with linear pairs of exact zerodivisors, we show that the equality of the cones implies that the $h$-polynomial has degree at most $2$, and use it to characterize generic Gorenstein Artin algebras satisfying $\\mathbb{B}_{\\mathbb{Q}}(R) = \\mathbb{B}_{\\mathbb{Q}}^{\\mathrm{pure}}(R)$. We also characterize algebras whose extremal rays are exactly the Betti tables of shifts of $R/\\mathfrak m^j$ and of pure modules $M$ with $\\operatorname{codim}(M)=\\operatorname{pdim}(M)$: apart from polynomial rings, these are precisely Cohen--Macaulay algebras of dimension at most one with minimal multiplicity. In addition, we obtain a characterization of Cohen--Macaulay algebras of minimal multiplicity in terms of the extremal rays of the Betti cone of maximal Cohen--Macaulay modules.
+            """);
 
-        assertEquals(Optional.of("""
-                Let R be a standard graded algebra over an infinite field k, and let 𝔹_ℚ(R) and 𝔹_ℚᵖᵘʳᵉ(R) denote the rational cones spanned by the Betti tables of all finitely generated R-modules and of those with pure resolutions, respectively. We establish several necessary conditions for the equality 𝔹_ℚ(R) = 𝔹_ℚᵖᵘʳᵉ(R). When edim(R)≥ 2, we prove that k has a pure resolution if and only if it has a linear resolution, and consequently, if the extremal rays of 𝔹_ℚ(R) are pure, then R is Koszul and good (in the sense of Roos). We show that if R has depth zero, it must be Artinian for the equality of the two cones to hold. For rings with linear pairs of exact zerodivisors, we show that the equality of the cones implies that the h-polynomial has degree at most 2, and use it to characterize generic Gorenstein Artin algebras satisfying 𝔹_ℚ(R) = 𝔹_ℚᵖᵘʳᵉ(R). We also characterize algebras whose extremal rays are exactly the Betti tables of shifts of R/𝔪ʲ and of pure modules M with codim(M)=pdim(M): apart from polynomial rings, these are precisely Cohen–Macaulay algebras of dimension at most one with minimal multiplicity. In addition, we obtain a characterization of Cohen–Macaulay algebras of minimal multiplicity in terms of the extremal rays of the Betti cone of maximal Cohen–Macaulay modules.
-                """.stripTrailing()), entry.getFieldOrAliasLatexFree(StandardField.ABSTRACT).map(String::stripTrailing));
+        assertEquals(
+                Optional.of("""
+                    Let R be a standard graded algebra over an infinite field k, and let 𝔹_ℚ(R) and 𝔹_ℚᵖᵘʳᵉ(R) denote the rational cones spanned by the Betti tables of all finitely generated R-modules and of those with pure resolutions, respectively. We establish several necessary conditions for the equality 𝔹_ℚ(R) = 𝔹_ℚᵖᵘʳᵉ(R). When edim(R)≥ 2, we prove that k has a pure resolution if and only if it has a linear resolution, and consequently, if the extremal rays of 𝔹_ℚ(R) are pure, then R is Koszul and good (in the sense of Roos). We show that if R has depth zero, it must be Artinian for the equality of the two cones to hold. For rings with linear pairs of exact zerodivisors, we show that the equality of the cones implies that the h-polynomial has degree at most 2, and use it to characterize generic Gorenstein Artin algebras satisfying 𝔹_ℚ(R) = 𝔹_ℚᵖᵘʳᵉ(R). We also characterize algebras whose extremal rays are exactly the Betti tables of shifts of R/𝔪ʲ and of pure modules M with codim(M)=pdim(M): apart from polynomial rings, these are precisely Cohen–Macaulay algebras of dimension at most one with minimal multiplicity. In addition, we obtain a characterization of Cohen–Macaulay algebras of minimal multiplicity in terms of the extremal rays of the Betti cone of maximal Cohen–Macaulay modules.
+                    """.stripTrailing()),
+                entry.getFieldOrAliasLatexFree(StandardField.ABSTRACT).map(String::stripTrailing));
     }
 
     @Test
@@ -543,8 +552,7 @@ class BibEntryTest {
     void changeKeywordsReturnsChange() {
         entry.setField(StandardField.KEYWORDS, "Foo, Bar");
         Optional<FieldChange> change = entry.putKeywords(Arrays.asList("Test", "FooTest"), ',');
-        assertEquals(Optional.of(new FieldChange(entry, StandardField.KEYWORDS, "Foo, Bar", "Test, FooTest")),
-                change);
+        assertEquals(Optional.of(new FieldChange(entry, StandardField.KEYWORDS, "Foo, Bar", "Test, FooTest")), change);
     }
 
     @Test
@@ -681,8 +689,7 @@ class BibEntryTest {
 
         otherEntry.setField(Map.of(
                 StandardField.EPRINT, "1234.56789",
-                StandardField.DATE, "1970-01-01"
-        ));
+                StandardField.DATE, "1970-01-01"));
 
         copyEntry.mergeWith(otherEntry);
         assertEquals(expected.getFields(), copyEntry.getFields());
@@ -704,8 +711,7 @@ class BibEntryTest {
 
         otherEntry.setField(Map.of(
                 StandardField.AUTHOR, "Another Test Author",
-                StandardField.DATE, "1970-01-01"
-        ));
+                StandardField.DATE, "1970-01-01"));
 
         copyEntry.mergeWith(otherEntry);
         assertEquals(expected.getFields(), copyEntry.getFields());
@@ -728,8 +734,7 @@ class BibEntryTest {
 
         otherEntry.setField(Map.of(
                 StandardField.EPRINT, "1234.56789",
-                StandardField.DATE, "1970-01-01"
-        ));
+                StandardField.DATE, "1970-01-01"));
 
         Set<Field> otherPrioritizedFields = Set.of(StandardField.VOLUME, StandardField.KEYWORDS);
 
@@ -754,8 +759,7 @@ class BibEntryTest {
 
         otherEntry.setField(Map.of(
                 StandardField.EPRINT, "1234.56789",
-                StandardField.DATE, "1970-01-01"
-        ));
+                StandardField.DATE, "1970-01-01"));
 
         Set<Field> otherPrioritizedFields = Set.of(StandardField.AUTHOR, StandardField.EPRINT);
 
@@ -779,8 +783,7 @@ class BibEntryTest {
 
         otherEntry.setField(Map.of(
                 StandardField.AUTHOR, "Another Test Author",
-                StandardField.DATE, "1970-01-01"
-        ));
+                StandardField.DATE, "1970-01-01"));
 
         Set<Field> otherPrioritizedFields = Set.of(StandardField.TITLE, StandardField.DATE);
 
@@ -804,8 +807,7 @@ class BibEntryTest {
 
         otherEntry.setField(Map.of(
                 StandardField.AUTHOR, "Another Test Author",
-                StandardField.DATE, "1970-01-01"
-        ));
+                StandardField.DATE, "1970-01-01"));
 
         Set<Field> otherPrioritizedFields = Set.of(StandardField.AUTHOR, StandardField.DATE);
 
@@ -815,15 +817,15 @@ class BibEntryTest {
 
     @ParameterizedTest
     @CsvSource({
-            "John Doe, Some Title, 2023, Doe: \"Some Title\" (2023)",
-            "Jane Smith and Tom Brown, Another Research, 2022, Smith and Brown: \"Another Research\" (2022)",
-            ", Some Title, , N/A: \"Some Title\" (N/A)",
-            "Single Author, , 2020, Author: \"N/A\" (2020)",
-            "Test, Article, , Test: \"Article\" (N/A)",
-            ", , , N/A: \"N/A\" (N/A)",
-            "Author One, \\\"{O}lala Title, 2021, One: \"Ölala Title\" (2021)",
-            "Another Author, A \\'{e}xample with \\\"u, 2019, Author: \"A éxample with ü\" (2019)",
-            "Last One, Title with {B}races, 2024, One: \"Title with Braces\" (2024)"
+        "John Doe, Some Title, 2023, Doe: \"Some Title\" (2023)",
+        "Jane Smith and Tom Brown, Another Research, 2022, Smith and Brown: \"Another Research\" (2022)",
+        ", Some Title, , N/A: \"Some Title\" (N/A)",
+        "Single Author, , 2020, Author: \"N/A\" (2020)",
+        "Test, Article, , Test: \"Article\" (N/A)",
+        ", , , N/A: \"N/A\" (N/A)",
+        "Author One, \\\"{O}lala Title, 2021, One: \"Ölala Title\" (2021)",
+        "Another Author, A \\'{e}xample with \\\"u, 2019, Author: \"A éxample with ü\" (2019)",
+        "Last One, Title with {B}races, 2024, One: \"Title with Braces\" (2024)"
     })
     void getAuthorTitleYearFormatted(String author, String title, String year, String expected) {
         entry.setField(StandardField.AUTHOR, author != null ? author : "");
@@ -838,9 +840,7 @@ class BibEntryTest {
                 new BibEntry(StandardEntryType.Book),
                 new BibEntry().withField(StandardField.OWNER, "test"),
                 new BibEntry().withField(StandardField.CREATIONDATE, "test"),
-                new BibEntry()
-                        .withField(StandardField.OWNER, "test")
-                        .withField(StandardField.CREATIONDATE, "test"),
+                new BibEntry().withField(StandardField.OWNER, "test").withField(StandardField.CREATIONDATE, "test"),
                 // source: https://github.com/JabRef/jabref/issues/8645
                 new BibEntry()
                         .withField(StandardField.OWNER, "mlep")
@@ -855,9 +855,7 @@ class BibEntryTest {
 
     public static Stream<BibEntry> isNotEmpty() {
         return Stream.of(
-                new BibEntry().withCitationKey("test"),
-                new BibEntry().withField(StandardField.AUTHOR, "test")
-        );
+                new BibEntry().withCitationKey("test"), new BibEntry().withField(StandardField.AUTHOR, "test"));
     }
 
     @ParameterizedTest

@@ -1,8 +1,9 @@
 package org.jabref.gui.entryeditor.fileannotationtab;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.scene.Parent;
 import javafx.scene.control.Tooltip;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.entryeditor.EntryEditorTab;
 import org.jabref.gui.entryeditor.EntryEditorTabModel;
@@ -12,15 +13,11 @@ import org.jabref.logic.pdf.FileAnnotationCache;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import com.tobiasdiez.easybind.EasyBind;
-
 public class FileAnnotationTab extends EntryEditorTab {
 
     private final StateManager stateManager;
 
-    public FileAnnotationTab(StateManager stateManager,
-                             GuiPreferences preferences) {
+    public FileAnnotationTab(StateManager stateManager, GuiPreferences preferences) {
         this.stateManager = stateManager;
 
         // Visible only when the current entry has a linked file to annotate.
@@ -35,10 +32,11 @@ public class FileAnnotationTab extends EntryEditorTab {
     @Override
     protected void bindToEntry(BibEntry entry) {
         if (stateManager.activeTabProperty().get().isPresent()) {
-            FileAnnotationCache cache = stateManager.activeTabProperty().get().get().getAnnotationCache();
+            FileAnnotationCache cache =
+                    stateManager.activeTabProperty().get().get().getAnnotationCache();
             Parent content = ViewLoader.view(new FileAnnotationTabView(entry, cache))
-                                       .load()
-                                       .getView();
+                    .load()
+                    .getView();
             setContent(content);
         } else {
             setContent(null);

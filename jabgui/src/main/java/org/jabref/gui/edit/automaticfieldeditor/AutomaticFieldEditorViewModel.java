@@ -2,7 +2,6 @@ package org.jabref.gui.edit.automaticfieldeditor;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
@@ -24,17 +23,14 @@ public class AutomaticFieldEditorViewModel extends AbstractViewModel {
 
     private final UndoManager undoManager;
 
-    public AutomaticFieldEditorViewModel(BibDatabase database,
-                                         UndoManager undoManager,
-                                         DialogService dialogService,
-                                         StateManager stateManager) {
+    public AutomaticFieldEditorViewModel(
+            BibDatabase database, UndoManager undoManager, DialogService dialogService, StateManager stateManager) {
         this.undoManager = undoManager;
         fieldEditorTabs.addAll(
                 new EditFieldContentTabView(database, dialogEdits, dialogService, stateManager),
                 new CopyOrMoveFieldContentTabView(database, dialogEdits, dialogService, stateManager),
                 new ClearContentTabView(database, dialogEdits, dialogService, stateManager),
-                new RenameFieldTabView(database, dialogEdits, dialogService, stateManager)
-        );
+                new RenameFieldTabView(database, dialogEdits, dialogService, stateManager));
     }
 
     public ObservableList<AutomaticFieldEditorTab> getFieldEditorTabs() {

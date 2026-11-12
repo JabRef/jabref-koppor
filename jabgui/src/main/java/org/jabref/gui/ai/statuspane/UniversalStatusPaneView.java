@@ -1,5 +1,6 @@
 package org.jabref.gui.ai.statuspane;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -13,27 +14,37 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
-import com.airhacks.afterburner.views.ViewLoader;
-
-/// A handy component to display a state of a system: whether there is some important information, error, or action to take.
+/// A handy component to display a state of a system: whether there is some important information, error, or action to
+/// take.
 ///
 /// Look at the [org.jabref.gui.ai.summary.AiSummaryView] for an example of usage.
 public class UniversalStatusPaneView extends BorderPane {
-    @FXML private Label titleLabel;
-    @FXML private Label descriptionLabel;
-    @FXML private TextArea textArea;
-    @FXML private ProgressIndicator spinner;
-    @FXML private HBox buttonsBox;
-    @FXML private Button button1;
-    @FXML private Button button2;
+    @FXML
+    private Label titleLabel;
+
+    @FXML
+    private Label descriptionLabel;
+
+    @FXML
+    private TextArea textArea;
+
+    @FXML
+    private ProgressIndicator spinner;
+
+    @FXML
+    private HBox buttonsBox;
+
+    @FXML
+    private Button button1;
+
+    @FXML
+    private Button button2;
 
     // NOTE: Needed to construct the view model in a field in order for localization tests to work.
     private final UniversalStatusPaneViewModel viewModel = new UniversalStatusPaneViewModel();
 
     public UniversalStatusPaneView() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @FXML

@@ -1,20 +1,18 @@
 package org.jabref.gui.fieldeditors;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.undo.UndoManager;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.KeywordList;
 import org.jabref.model.entry.field.Field;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class KeywordsEditorViewModelTest {
     private KeywordsEditorViewModel viewModel;
@@ -23,8 +21,10 @@ class KeywordsEditorViewModelTest {
     void setUp() {
         SuggestionProvider<String> suggestionProvider = mock(SuggestionProvider.class);
 
-        when(suggestionProvider.getPossibleSuggestions()).thenReturn(List.of("value", "key\\,\\\\", "parent > node > child", "father \\> inheritor"));
-        viewModel = new KeywordsEditorViewModel(mock(Field.class), suggestionProvider, mock(FieldCheckers.class), ',', mock(UndoManager.class));
+        when(suggestionProvider.getPossibleSuggestions())
+                .thenReturn(List.of("value", "key\\,\\\\", "parent > node > child", "father \\> inheritor"));
+        viewModel = new KeywordsEditorViewModel(
+                mock(Field.class), suggestionProvider, mock(FieldCheckers.class), ',', mock(UndoManager.class));
     }
 
     @Test
@@ -36,13 +36,15 @@ class KeywordsEditorViewModelTest {
     @Test
     void getSuggestionsWithEscapedHierarchicalDelimiter() {
         String request = "father";
-        assertEquals(List.of(new Keyword(request), new Keyword("father \\> inheritor")), viewModel.getSuggestions(request));
+        assertEquals(
+                List.of(new Keyword(request), new Keyword("father \\> inheritor")), viewModel.getSuggestions(request));
     }
 
     @Test
     void parseKeywordWithHierarchicalKeywords() {
         String hierarchicalString = "parent > node > child";
-        Keyword parsedKeyword = KeywordList.parse(hierarchicalString, viewModel.getKeywordSeparator()).get(0);
+        Keyword parsedKeyword = KeywordList.parse(hierarchicalString, viewModel.getKeywordSeparator())
+                .get(0);
 
         assertEquals(parsedKeyword, viewModel.parseKeyword(hierarchicalString));
     }
@@ -50,7 +52,8 @@ class KeywordsEditorViewModelTest {
     @Test
     void parseKeywordWithMultipleKeywords() {
         String multipleKeysStr = "key1, key2";
-        Keyword firstParsedKeyword = KeywordList.parse(multipleKeysStr, viewModel.getKeywordSeparator()).get(0);
+        Keyword firstParsedKeyword = KeywordList.parse(multipleKeysStr, viewModel.getKeywordSeparator())
+                .get(0);
 
         assertEquals(firstParsedKeyword, viewModel.parseKeyword(multipleKeysStr));
     }
@@ -60,6 +63,7 @@ class KeywordsEditorViewModelTest {
         String hierarchicalString = "parent > node > child";
         Keyword keyword = Keyword.ofHierarchical(hierarchicalString);
 
-        assertEquals(hierarchicalString, KeywordsEditorViewModel.getStringConverter().toString(keyword));
+        assertEquals(
+                hierarchicalString, KeywordsEditorViewModel.getStringConverter().toString(keyword));
     }
 }

@@ -1,21 +1,6 @@
 package org.jabref.gui.openoffice;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.jabref.gui.DialogService;
-import org.jabref.logic.l10n.Localization;
-import org.jabref.logic.openoffice.NoDocumentFoundException;
-import org.jabref.model.openoffice.uno.CreationException;
-import org.jabref.model.openoffice.uno.NoDocumentException;
-import org.jabref.model.openoffice.uno.UnoCast;
-import org.jabref.model.openoffice.uno.UnoTextDocument;
-import org.jabref.model.openoffice.util.OOResult;
-import org.jabref.model.openoffice.util.OOVoidResult;
+import static com.sun.star.uno.UnoRuntime.queryInterface;
 
 import com.sun.star.bridge.XBridge;
 import com.sun.star.bridge.XBridgeFactory;
@@ -30,10 +15,23 @@ import com.sun.star.lang.XComponent;
 import com.sun.star.lang.XMultiComponentFactory;
 import com.sun.star.text.XTextDocument;
 import com.sun.star.uno.XComponentContext;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.jabref.gui.DialogService;
+import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.openoffice.NoDocumentFoundException;
+import org.jabref.model.openoffice.uno.CreationException;
+import org.jabref.model.openoffice.uno.NoDocumentException;
+import org.jabref.model.openoffice.uno.UnoCast;
+import org.jabref.model.openoffice.uno.UnoTextDocument;
+import org.jabref.model.openoffice.util.OOResult;
+import org.jabref.model.openoffice.util.OOVoidResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.sun.star.uno.UnoRuntime.queryInterface;
 
 /// Establish connection to a document opened in OpenOffice or LibreOffice.
 public class OOBibBaseConnect {
@@ -50,18 +48,14 @@ public class OOBibBaseConnect {
     private XTextDocument xTextDocument;
 
     public OOBibBaseConnect(Path loPath, DialogService dialogService)
-            throws
-            BootstrapException,
-            CreationException, IOException, InterruptedException {
+            throws BootstrapException, CreationException, IOException, InterruptedException {
 
         this.dialogService = dialogService;
         this.componentContext = Bootstrap.bootstrap(loPath);
         this.xDesktop = createDesktop(componentContext);
     }
 
-    private XDesktop createDesktop(XComponentContext context)
-            throws
-            CreationException {
+    private XDesktop createDesktop(XComponentContext context) throws CreationException {
 
         XMultiComponentFactory sem = context.getServiceManager();
 
@@ -84,9 +78,9 @@ public class OOBibBaseConnect {
     public static void closeOfficeConnection() {
         try {
             // get the bridge factory from the local service manager
-            XBridgeFactory bridgeFactory = queryInterface(XBridgeFactory.class,
-                    Bootstrap.createSimpleServiceManager()
-                             .createInstance("com.sun.star.bridge.BridgeFactory"));
+            XBridgeFactory bridgeFactory = queryInterface(
+                    XBridgeFactory.class,
+                    Bootstrap.createSimpleServiceManager().createInstance("com.sun.star.bridge.BridgeFactory"));
 
             if (bridgeFactory != null) {
                 for (XBridge bridge : bridgeFactory.getExistingBridges()) {
@@ -100,9 +94,7 @@ public class OOBibBaseConnect {
     }
 
     private static List<XTextDocument> getTextDocuments(XDesktop desktop)
-            throws
-            NoSuchElementException,
-            WrappedTargetException {
+            throws NoSuchElementException, WrappedTargetException {
 
         List<XTextDocument> result = new ArrayList<>();
 
@@ -121,9 +113,7 @@ public class OOBibBaseConnect {
     /// Run a dialog allowing the user to choose among the documents in `list`.
     ///
     /// @return Null if no document was selected. Otherwise the document selected.
-    private static XTextDocument selectDocumentDialog(List<XTextDocument> list,
-                                                      DialogService dialogService) {
-
+    private static XTextDocument selectDocumentDialog(List<XTextDocument> list, DialogService dialogService) {
         class DocumentTitleViewModel {
 
             private final XTextDocument xTextDocument;
@@ -144,32 +134,30 @@ public class OOBibBaseConnect {
             }
         }
 
-        List<DocumentTitleViewModel> viewModel = list.stream()
-                                                     .map(DocumentTitleViewModel::new)
-                                                     .collect(Collectors.toList());
+        List<DocumentTitleViewModel> viewModel =
+                list.stream().map(DocumentTitleViewModel::new).collect(Collectors.toList());
 
         // This whole method is part of a background task when
         // auto-detecting instances, so we need to show dialog in FX
         // thread
-        Optional<DocumentTitleViewModel> selectedDocument =
-                dialogService
-                        .showChoiceDialogAndWait(Localization.lang("Select document"),
-                                Localization.lang("Found documents:"),
-                                Localization.lang("Use selected document"),
-                                viewModel);
+        Optional<DocumentTitleViewModel> selectedDocument = dialogService.showChoiceDialogAndWait(
+                Localization.lang("Select document"),
+                Localization.lang("Found documents:"),
+                Localization.lang("Use selected document"),
+                viewModel);
 
-        return selectedDocument
-                .map(DocumentTitleViewModel::getXtextDocument)
-                .orElse(null);
+        return selectedDocument.map(DocumentTitleViewModel::getXtextDocument).orElse(null);
     }
 
     /// Choose a document to work with.
     ///
     /// Assumes we have already connected to LibreOffice or OpenOffice.
     ///
-    /// If there is a single document to choose from, selects that. If there are more than one, shows selection dialog. If there are none, throws NoDocumentFoundException
+    /// If there is a single document to choose from, selects that. If there are more than one, shows selection dialog.
+    /// If there are none, throws NoDocumentFoundException
     ///
-    /// After successful selection connects to the selected document and extracts some frequently used parts (starting points for managing its content).
+    /// After successful selection connects to the selected document and extracts some frequently used parts (starting
+    /// points for managing its content).
     ///
     /// Finally initializes this.xTextDocument with the selected document and parts extracted.
     public OOVoidResult<OOError> selectDocument(boolean autoSelectForSingle) {
@@ -181,8 +169,7 @@ public class OOBibBaseConnect {
             } else if ((textDocumentList.size() == 1) && autoSelectForSingle) {
                 selected = textDocumentList.getFirst(); // Get the only one
             } else { // Bring up a dialog
-                selected = OOBibBaseConnect.selectDocumentDialog(textDocumentList,
-                        this.dialogService);
+                selected = OOBibBaseConnect.selectDocumentDialog(textDocumentList, this.dialogService);
             }
 
             if (selected == null) {

@@ -3,7 +3,6 @@ package org.jabref.gui.fieldeditors;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
-
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 
@@ -12,8 +11,7 @@ import org.jabref.gui.frame.ExternalApplicationsPreferences;
 /// For logic-oriented URL utilities see [org.jabref.logic.util.URLUtil].
 public class URLUtil {
 
-    private URLUtil() {
-    }
+    private URLUtil() {}
 
     /// Look for the last '.' in the link, and return the following characters.
     ///
@@ -21,7 +19,8 @@ public class URLUtil {
     ///
     /// @param link The link
     /// @return The suffix, excluding the dot (e.g. "pdf")
-    public static Optional<String> getSuffix(final String link, ExternalApplicationsPreferences externalApplicationsPreferences) {
+    public static Optional<String> getSuffix(
+            final String link, ExternalApplicationsPreferences externalApplicationsPreferences) {
         String strippedLink = link;
         try {
             // Try to strip the query string, if any, to get the correct suffix:

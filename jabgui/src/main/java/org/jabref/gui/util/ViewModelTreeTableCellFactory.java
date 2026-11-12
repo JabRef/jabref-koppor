@@ -2,7 +2,6 @@ package org.jabref.gui.util;
 
 import java.util.List;
 import java.util.function.Supplier;
-
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
@@ -10,10 +9,8 @@ import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
-
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.jspecify.annotations.Nullable;
 
 /// Constructs a [TreeTableCell] based on the view model of the row and a bunch of specified converter methods.

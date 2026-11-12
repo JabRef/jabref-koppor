@@ -1,12 +1,12 @@
 package org.jabref.gui.libraryproperties.constants;
 
+import com.tobiasdiez.easybind.EasyBind;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -14,7 +14,6 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.gui.help.HelpAction;
@@ -26,8 +25,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibtexString;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.undo.UndoableReplaceStrings;
-
-import com.tobiasdiez.easybind.EasyBind;
 
 public class ConstantsPropertiesViewModel implements PropertiesTabViewModel {
 
@@ -44,7 +41,11 @@ public class ConstantsPropertiesViewModel implements PropertiesTabViewModel {
     private final DialogService dialogService;
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
 
-    public ConstantsPropertiesViewModel(BibDatabaseContext databaseContext, DialogService dialogService, ExternalApplicationsPreferences externalApplicationsPreferences, UndoManager undoManager) {
+    public ConstantsPropertiesViewModel(
+            BibDatabaseContext databaseContext,
+            DialogService dialogService,
+            ExternalApplicationsPreferences externalApplicationsPreferences,
+            UndoManager undoManager) {
         this.databaseContext = databaseContext;
         this.undoManager = undoManager;
         this.dialogService = dialogService;
@@ -58,9 +59,9 @@ public class ConstantsPropertiesViewModel implements PropertiesTabViewModel {
     @Override
     public void setValues(MetaData metaData) {
         stringsListProperty.addAll(databaseContext.getDatabase().getStringValues().stream()
-                                                  .sorted(new BibtexStringComparator(false))
-                                                  .map(this::convertFromBibTexString)
-                                                  .toList());
+                .sorted(new BibtexStringComparator(false))
+                .map(this::convertFromBibTexString)
+                .toList());
     }
 
     public void addNewString() {
@@ -84,7 +85,8 @@ public class ConstantsPropertiesViewModel implements PropertiesTabViewModel {
 
     public void resortStrings() {
         // Resort the strings list in the same order as setValues() does
-        stringsListProperty.sort(Comparator.comparing(c -> c.labelProperty().get().toLowerCase(Locale.ROOT)));
+        stringsListProperty.sort(
+                Comparator.comparing(c -> c.labelProperty().get().toLowerCase(Locale.ROOT)));
     }
 
     private ConstantsItemModel convertFromBibTexString(BibtexString bibtexString) {
@@ -94,8 +96,8 @@ public class ConstantsPropertiesViewModel implements PropertiesTabViewModel {
     @Override
     public void storeSettings(MetaData metaData) {
         List<BibtexString> strings = stringsListProperty.stream()
-                                                        .map(this::fromBibtexStringViewModel)
-                                                        .toList();
+                .map(this::fromBibtexStringViewModel)
+                .toList();
         List<BibtexString> before = List.copyOf(databaseContext.getDatabase().getStringValues());
         // By name and content only: `BibtexString.equals` also compares the parsed serialization and
         // the changed flag, and the library's own list comes out of a map in no particular order, so
@@ -106,7 +108,8 @@ public class ConstantsPropertiesViewModel implements PropertiesTabViewModel {
     }
 
     private static Map<String, String> contentsOf(List<BibtexString> strings) {
-        return strings.stream().collect(Collectors.toMap(BibtexString::getName, BibtexString::getContent, (first, _) -> first));
+        return strings.stream()
+                .collect(Collectors.toMap(BibtexString::getName, BibtexString::getContent, (first, _) -> first));
     }
 
     private BibtexString fromBibtexStringViewModel(ConstantsItemModel viewModel) {
@@ -117,8 +120,8 @@ public class ConstantsPropertiesViewModel implements PropertiesTabViewModel {
 
     public Optional<ConstantsItemModel> labelAlreadyExists(String label) {
         return stringsListProperty.stream()
-                                  .filter(item -> item.labelProperty().getValue().equals(label))
-                                  .findFirst();
+                .filter(item -> item.labelProperty().getValue().equals(label))
+                .findFirst();
     }
 
     public void openHelpPage() {

@@ -2,7 +2,6 @@ package org.jabref.gui.mergeentries;
 
 import java.util.Optional;
 import java.util.Set;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionHelper;
@@ -24,10 +23,11 @@ public class UpdateWithBibliographicInformationByWebFetchers extends SimpleComma
     private final StateManager stateManager;
     private final TaskExecutor taskExecutor;
 
-    public UpdateWithBibliographicInformationByWebFetchers(DialogService dialogService,
-                                                           GuiPreferences preferences,
-                                                           StateManager stateManager,
-                                                           TaskExecutor taskExecutor) {
+    public UpdateWithBibliographicInformationByWebFetchers(
+            DialogService dialogService,
+            GuiPreferences preferences,
+            StateManager stateManager,
+            TaskExecutor taskExecutor) {
         this.dialogService = dialogService;
         this.guiPreferences = preferences;
         this.stateManager = stateManager;
@@ -52,13 +52,14 @@ public class UpdateWithBibliographicInformationByWebFetchers extends SimpleComma
                 guiPreferences.getImporterPreferences(),
                 guiPreferences.getImportFormatPreferences(),
                 guiPreferences.getFilePreferences(),
-                databaseContext
-        );
+                databaseContext);
 
         for (EntryBasedFetcher webFetcher : webFetchers) {
             mergedEntriesView.addSource(webFetcher.getName(), () -> {
                 try {
-                    return webFetcher.performSearch(originalEntry).stream().findFirst().orElse(null);
+                    return webFetcher.performSearch(originalEntry).stream()
+                            .findFirst()
+                            .orElse(null);
                 } catch (FetcherException _) {
                     return null;
                 }
@@ -67,12 +68,12 @@ public class UpdateWithBibliographicInformationByWebFetchers extends SimpleComma
 
         Optional<BibEntry> mergedEntry = dialogService.showCustomDialogAndWait(mergedEntriesView);
         new UpdateOriginalEntry(
-                originalEntry,
-                mergedEntry,
-                dialogService,
-                stateManager.getUndoManager(databaseContext),
-                Localization.lang("Merge entry with information"),
-                Localization.lang("Updated entry with merged information"))
+                        originalEntry,
+                        mergedEntry,
+                        dialogService,
+                        stateManager.getUndoManager(databaseContext),
+                        Localization.lang("Merge entry with information"),
+                        Localization.lang("Updated entry with merged information"))
                 .update();
     }
 }

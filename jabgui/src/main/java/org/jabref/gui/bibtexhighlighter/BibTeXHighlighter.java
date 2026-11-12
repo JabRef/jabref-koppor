@@ -1,24 +1,22 @@
 package org.jabref.gui.bibtexhighlighter;
 
+import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
+import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter.BibTeXHighlightRegion;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
-
+import jfx.incubator.scene.control.richtext.SyntaxDecorator;
+import jfx.incubator.scene.control.richtext.TextPos;
+import jfx.incubator.scene.control.richtext.model.CodeTextModel;
+import jfx.incubator.scene.control.richtext.model.RichParagraph;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.search.Highlighter;
 import org.jabref.gui.search.SearchType;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.util.Range;
-
-import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
-import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter.BibTeXHighlightRegion;
-import jfx.incubator.scene.control.richtext.SyntaxDecorator;
-import jfx.incubator.scene.control.richtext.TextPos;
-import jfx.incubator.scene.control.richtext.model.CodeTextModel;
-import jfx.incubator.scene.control.richtext.model.RichParagraph;
 import org.jspecify.annotations.NullMarked;
 
 /// [SyntaxDecorator] that applies BibTeX syntax highlighting and search-term highlighting
@@ -152,8 +150,10 @@ public class BibTeXHighlighter implements SyntaxDecorator {
                 addSegmentWithSearchCheck(builder, text.substring(cursor, localStart), cursor, null, matches);
             }
             if (localEnd > localStart) {
-                String styleClass = BibTeXStyleClass.valueOf(region.category().name()).getStyleClass();
-                addSegmentWithSearchCheck(builder, text.substring(localStart, localEnd), localStart, styleClass, matches);
+                String styleClass =
+                        BibTeXStyleClass.valueOf(region.category().name()).getStyleClass();
+                addSegmentWithSearchCheck(
+                        builder, text.substring(localStart, localEnd), localStart, styleClass, matches);
                 cursor = localEnd;
             }
         }
@@ -164,7 +164,12 @@ public class BibTeXHighlighter implements SyntaxDecorator {
     }
 
     /// Helper to add a text segment, splitting it if it intersects with search matches.
-    private void addSegmentWithSearchCheck(RichParagraph.Builder builder, String segmentText, int segmentStart, @org.jspecify.annotations.Nullable String baseStyleClass, List<Range> matches) {
+    private void addSegmentWithSearchCheck(
+            RichParagraph.Builder builder,
+            String segmentText,
+            int segmentStart,
+            @org.jspecify.annotations.Nullable String baseStyleClass,
+            List<Range> matches) {
         int segmentEnd = segmentStart + segmentText.length();
         int cursor = segmentStart;
 
@@ -199,7 +204,11 @@ public class BibTeXHighlighter implements SyntaxDecorator {
         }
     }
 
-    private void appendSegment(RichParagraph.Builder builder, String text, @org.jspecify.annotations.Nullable String baseStyleClass, boolean isSearchMatch) {
+    private void appendSegment(
+            RichParagraph.Builder builder,
+            String text,
+            @org.jspecify.annotations.Nullable String baseStyleClass,
+            boolean isSearchMatch) {
         if (text.isEmpty()) {
             return;
         }
@@ -222,7 +231,8 @@ public class BibTeXHighlighter implements SyntaxDecorator {
 
     /// Finds search matches in the current line.
     private List<Range> getSearchMatches(String text, int lineStart) {
-        Optional<SearchQuery> searchQuery = stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH).get();
+        Optional<SearchQuery> searchQuery =
+                stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH).get();
         if (searchQuery.isEmpty()) {
             return List.of();
         }
@@ -231,8 +241,8 @@ public class BibTeXHighlighter implements SyntaxDecorator {
         Map<Field, Range> fieldPositions = fieldPositionsProvider.get();
 
         List<Range> matches = new ArrayList<>();
-        termsMap.forEach((fieldOpt, terms) ->
-                Highlighter.buildSearchPattern(terms).ifPresent(pattern -> {
+        termsMap.forEach((fieldOpt, terms) -> Highlighter.buildSearchPattern(terms)
+                .ifPresent(pattern -> {
                     List<Range> localMatches = Highlighter.findMatchPositions(text, pattern);
                     for (Range localMatch : localMatches) {
                         int globalStart = lineStart + localMatch.start() - 1;
@@ -243,7 +253,9 @@ public class BibTeXHighlighter implements SyntaxDecorator {
                         } else {
                             Field field = fieldOpt.get();
                             Range fieldRange = fieldPositions.get(field);
-                            if (fieldRange != null && globalStart >= fieldRange.start() && globalEnd <= fieldRange.end()) {
+                            if (fieldRange != null
+                                    && globalStart >= fieldRange.start()
+                                    && globalEnd <= fieldRange.end()) {
                                 matches.add(localMatch);
                             }
                         }
@@ -266,7 +278,8 @@ public class BibTeXHighlighter implements SyntaxDecorator {
     /// Marks the cache as dirty so that subsequent rendering calls will rebuild
     /// syntax highlight regions for the updated text model.
     @Override
-    public void handleChange(CodeTextModel m, TextPos start, TextPos end, int charsTop, int linesAdded, int charsBottom) {
+    public void handleChange(
+            CodeTextModel m, TextPos start, TextPos end, int charsTop, int linesAdded, int charsBottom) {
         cacheDirty = true;
     }
 }
