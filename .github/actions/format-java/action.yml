@@ -1,16 +1,23 @@
 name: Format Java sources
-description: Reformat Java sources using IntelliJ IDEA's code style
+description: Reformat Java sources with open-java-format (https://openjavaformat.dev/), version from .open-java-format-version
 
 runs:
   using: composite
   steps:
-    - uses: leventeBajczi/intellij-idea-format@db20da18da1ea0264171c370e2ea1922c7b3d18a # idea-2026.2.1
-      with:
-        file-mask: "*.java"
-        settings-file: ".idea/codeStyles/Project.xml"
-    - name: Undo JBang changes # IntelliJ issue: https://youtrack.jetbrains.com/issue/IDEA-https://youtrack.jetbrains.com/issue/IDEA-384956/Skip-formatting-of-shebang-headers/Skip-formatting-of-shebang-headers
+    - name: Download open-java-format
       shell: bash
-      run: git checkout HEAD -- jablib-examples/jbang/*.java
-    - name: Undo changes in submodules # vendored content is formatted in the repository it comes from
+      run: |
+        version="$(cat .open-java-format-version)"
+        binary=open-java-format-linux-glibc_x86-64
+        dir="$RUNNER_TEMP/open-java-format"
+        mkdir -p "$dir"
+        cd "$dir"
+        curl -fsSLO "https://github.com/openjavaformat/open-java-format/releases/download/$version/$binary"
+        curl -fsSLO "https://github.com/openjavaformat/open-java-format/releases/download/$version/checksums_sha256.txt"
+        sha256sum --ignore-missing -c checksums_sha256.txt
+        chmod +x "$binary"
+        echo "OJF=$dir/$binary" >> "$GITHUB_ENV"
+    - name: Run open-java-format
       shell: bash
-      run: git submodule foreach --quiet 'git checkout -- .'
+      # git ls-files does not list the content of submodules: vendored code is formatted in the repository it comes from
+      run: git ls-files -z '*.java' | xargs -0 "$OJF" --replace

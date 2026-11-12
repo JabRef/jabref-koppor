@@ -42,10 +42,8 @@
 - jobName: format
   workflowName: 'Source Code Tests'
   message: >
-    Your code currently does not meet JabRef's code guidelines.
-    IntelliJ auto format covers some cases.
-    There seem to be issues with your code style and autoformat configuration.
-    Please reformat your code (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd>) and commit, then push.
+    Your code is not formatted with [open-java-format](https://openjavaformat.dev/), JabRef's Java formatter.
+    Please run `./gradlew formatDiff` (or <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd> with the open-java-format IntelliJ plugin enabled), commit, and push.
 - jobName: format-javadoc
   workflowName: 'Source Code Tests'
   message: >

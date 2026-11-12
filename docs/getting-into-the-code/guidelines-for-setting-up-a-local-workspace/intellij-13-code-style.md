@@ -37,17 +37,17 @@ Click on "Restart" to finally restart.
 
 Wait for IntelliJ coming up again.
 
-## Have auto format working properly in JavaDoc
+## Install the open-java-format plugin
 
-To have auto format working properly in the context of JavaDoc and line wrapping, "Wrap at right margin" has to be disabled. Details are found in [IntelliJ issue 240517](https://youtrack.jetbrains.com/issue/IDEA-240517).
+JabRef's Java sources are formatted with [open-java-format](https://openjavaformat.dev/).
+The CI checks every pull request with it.
+With its IntelliJ plugin, "Reformat Code" (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd>) produces exactly what the CI expects.
 
-Go to **File > Settings... > Editor > Code Style > Java > JavaDoc**.
+1. Go to **File > Settings... > Plugins**, switch to "Marketplace", search for "open-java-format", and click "Install". Restart IntelliJ.
+2. Go to **File > Settings... > Tools > open-java-format Settings** and tick "Enable open-java-format".
+3. Optional, but much faster: tick "Use native binary" and click "Download".
 
-At "Other", disable "Wrap at right margin"
-
-{% figure caption:"”Wrap at right margin” disabled" %}
-!["Wrap at right margin" disabled](13-12-editor-javadoc-do-not-wrap.png)
-{% endfigure %}
+Details are on the [IntelliJ page of open-java-format](https://openjavaformat.dev/get-started/intellij-idea/).
 
 ## Enable auto formatting of your code
 
@@ -60,14 +60,8 @@ Go to **File > Settings... > Tools > Actions on Save**.
 2. Click on "All file types" (on the right)
 3. Uncheck "All file types"
 4. Check "Java"
-5. Check "Optimize imports"
-6. Click on "All file types" (on the right)
-7. Uncheck "All file types" to disable it
-8. Check "Java"
-
-{% figure caption:"Enable autoformatting on save" %}
-![Enable autoformatting on save](13-12.5-auto-formatting.png)
-{% endfigure %}
+5. Choose "Whole file"
+6. Check "Optimize imports"
 
 ## Enable proper import cleanup
 

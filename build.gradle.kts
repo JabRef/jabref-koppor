@@ -4,6 +4,7 @@ plugins {
     id("org.jabref.gradle.feature.requirementtracing")
     id("org.openrewrite.rewrite") version "7.39.0"
     id("org.cyclonedx.bom") version "3.5.1"
+    id("dev.openjavaformat.java-format") version "21.0.2"
 }
 
 // OpenRewrite should rewrite all sources
