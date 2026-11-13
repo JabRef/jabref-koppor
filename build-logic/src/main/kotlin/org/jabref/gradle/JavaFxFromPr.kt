@@ -30,7 +30,7 @@ abstract class JavaFxFromPr : ValueSource<String, JavaFxFromPr.Params> {
 
     override fun obtain(): String {
         val pr = parameters.pr.get().trim()
-        val number = Regex("""(\d+)/?$""").find(pr)?.groupValues?.get(1)
+        val number = Regex("""^(?:https://github\.com/openjdk/jfx/pull/)?(\d+)(?:/.*)?$""").find(pr)?.groupValues?.get(1)
             ?: throw GradleException("Invalid value '$pr' for property 'javafxPr'. Expected a link like https://github.com/openjdk/jfx/pull/2369 or a PR number.")
         val dir = File(System.getProperty("java.io.tmpdir"), "jabref-jfx-pr-$number")
         if (!File(dir, ".git").isDirectory) {
@@ -45,7 +45,8 @@ abstract class JavaFxFromPr : ValueSource<String, JavaFxFromPr.Params> {
         val version = "$major-pr$number-$sha"
 
         val marker = File(dir, "build/jabref-published-$version")
-        if (!marker.exists()) {
+        val published = File(System.getProperty("user.home"), ".m2/repository/org/openjfx/javafx-controls/$version")
+        if (!marker.exists() || !published.isDirectory) {
             val gradlew = if (System.getProperty("os.name").startsWith("Windows")) listOf("cmd", "/c", "gradlew.bat") else listOf("sh", "gradlew")
             exec.exec {
                 workingDir = dir
