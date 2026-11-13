@@ -1,7 +1,9 @@
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import org.jabref.gradle.JavaFxFromPr
 
 plugins {
     id("java-platform")
+    id("jvm-toolchains")
 }
 
 javaPlatform {
@@ -14,8 +16,15 @@ val arch = DefaultNativePlatform.getCurrentArchitecture()
 
 // Keep version in sync build-support/src/main/java/JournalListMvGenerator.java and build-support/src/main/java/LtwaListMvGenerator.java
 val javafxDefault = "27"
-// The JavaFX version can be overridden via the gradle property `javafxVersion`.
-val javafx = providers.gradleProperty("javafxVersion").getOrElse(javafxDefault)
+// The JavaFX version can be overridden via the gradle property `javafxVersion`,
+// or built from an openjdk/jfx pull request via `javafxPr` (see docs/code-howtos/index.md).
+val javafx = providers.gradleProperty("javafxPr").flatMap { pr ->
+    providers.of(JavaFxFromPr::class) {
+        parameters.pr = pr
+        parameters.javaHome = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(25) }
+            .map { it.metadata.installationPath.asFile.absolutePath }
+    }
+}.orElse(providers.gradleProperty("javafxVersion")).getOrElse(javafxDefault)
 
 val lucene = "10.6.0"
 

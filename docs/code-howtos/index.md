@@ -44,6 +44,19 @@ To test a different (e.g., locally built) JavaFX, override it via the gradle pro
 
 Setting `javafxVersion` enables `mavenLocal()` implicitly, so a JavaFX build published to `~/.m2` is picked up without setting `useMavenLocal`.
 
+### Trying out a JavaFX pull request
+
+To run JabRef with the JavaFX of an [openjdk/jfx](https://github.com/openjdk/jfx/pulls) pull request, pass its link (or number) via the gradle property `javafxPr`:
+
+```shell
+./gradlew :jabgui:run -PjavafxPr=https://github.com/openjdk/jfx/pull/2369
+```
+
+Gradle fetches the PR into `<tmpdir>/jabref-jfx-pr-<number>`, builds JavaFX with JDK 25 (taken from the toolchains, downloaded if missing), publishes it to `~/.m2` as `<major>-pr<number>-<commit>`, and uses it.
+The first run takes several minutes; later runs only rebuild JavaFX when the PR got new commits.
+This runs the PR's build scripts on your machine with your permissions: only use PRs you trust.
+Building JavaFX needs its native build prerequisites (C compiler, GTK development headers on Linux, ...), see [Building OpenJFX](https://wiki.openjdk.org/display/OpenJFX/Building+OpenJFX).
+
 The override applies only to the non-web JavaFX modules; `javafx-web` always stays on the default version defined in `versions/build.gradle.kts`.
 
 ## Selecting the JDK vendor and version
