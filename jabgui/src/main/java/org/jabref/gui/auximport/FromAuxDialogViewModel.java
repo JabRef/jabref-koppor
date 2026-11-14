@@ -1,7 +1,12 @@
 package org.jabref.gui.auximport;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
@@ -27,6 +32,7 @@ import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.shared.DatabaseLocation;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.io.FileUtil;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 
@@ -60,7 +66,11 @@ public class FromAuxDialogViewModel {
 
         librariesProperty.setAll(stateManager.getOpenDatabases());
         selectedLibraryProperty.set(tabContainer.getCurrentLibraryTab().getBibDatabaseContext());
+        prefillAuxFile();
         EasyBind.listen(selectedLibraryProperty, (_, _, _) -> {
+            if (StringUtil.isBlank(auxFileProperty.get())) {
+                prefillAuxFile();
+            }
             if (auxParserResult != null) {
                 parse();
             }
@@ -70,6 +80,38 @@ public class FromAuxDialogViewModel {
             auxParserResult = null;
             parseFailedProperty.set(true);
         });
+    }
+
+    /// Fills in the AUX file LaTeX wrote next to the library's .tex files, i.e., in the directory the LaTeX citations tab scans.
+    private void prefillAuxFile() {
+        BibDatabaseContext context = selectedLibraryProperty.get();
+        Path directory = context.getMetaData().getLatexFileDirectory(preferences.getFilePreferences().getUserAndHost())
+                                .orElse(FileUtil.getInitialDirectory(context, preferences.getFilePreferences().getWorkingDirectory()));
+        findAuxFile(directory).ifPresent(aux -> auxFileProperty.set(aux.toAbsolutePath().toString()));
+    }
+
+    /// Returns the AUX file belonging to a .tex file in the given directory.
+    /// With `\include`, LaTeX writes one AUX file per included file; the main one is closed last, thus the newest is taken.
+    // [impl->req~import.aux.prefill~1]
+    static Optional<Path> findAuxFile(Path directory) {
+        if (!Files.isDirectory(directory)) {
+            return Optional.empty();
+        }
+        try (Stream<Path> files = Files.list(directory)) {
+            return files.filter(file -> FileUtil.getFileExtension(file).filter("aux"::equalsIgnoreCase).isPresent())
+                        .filter(aux -> Files.exists(aux.resolveSibling(FileUtil.getBaseName(aux) + ".tex")))
+                        .max(Comparator.comparing(FromAuxDialogViewModel::lastModified));
+        } catch (IOException | UncheckedIOException _) {
+            return Optional.empty();
+        }
+    }
+
+    private static long lastModified(Path file) {
+        try {
+            return Files.getLastModifiedTime(file).toMillis();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public String getDatabaseName(BibDatabaseContext databaseContext) {

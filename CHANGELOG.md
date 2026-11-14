@@ -33,6 +33,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added consistency checks for entries cited in `.aux` files, automatically selecting a single file beside the library. [#1403](https://github.com/JabRef/jabref-issue-melting-pot/issues/1403)
 - We added tooltips explaining the symbols in the consistency check table. [#17710](https://github.com/JabRef/jabref/pull/17710)
 - We added indentation and syntax highlighting for JSON in AI chat answers. [#17181](https://github.com/JabRef/jabref/pull/17181)
+- We added prefilling of the AUX file belonging to the library's LaTeX document in "New sublibrary based on AUX file". [#790](https://github.com/JabRef/jabref-koppor/pull/790)
 - We added a warning for shortcuts already in use, allowing users to replace the existing shortcut or keep both. [#17240](https://github.com/JabRef/jabref/issues/17240)
 - We added "Delete" and "Retry" to the context menu of AI chat messages and made user messages retryable. [#17151](https://github.com/JabRef/jabref/pull/17151)
 - We added a list of saved connections to the "Connect to shared database" dialog. [#12948](https://github.com/JabRef/jabref/issues/12948)
