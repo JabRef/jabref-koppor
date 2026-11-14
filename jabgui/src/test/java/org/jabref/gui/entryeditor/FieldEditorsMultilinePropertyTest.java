@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FieldEditorsMultilinePropertyTest {
+class FieldEditorsMultilinePropertyTest {
 
     private static final Pattern FIELD_PROPERTY_PATTERN = Pattern.compile("fieldProperties\\.contains\\s*\\(\\s*FieldProperty\\.(\\w+)\\s*\\)");
     private static final Pattern STANDARD_FIELD_PATTERN = Pattern.compile("==\\s*StandardField\\.(\\w+)");
@@ -38,7 +38,7 @@ public class FieldEditorsMultilinePropertyTest {
     private static JavaParser PARSER;
 
     @BeforeAll
-    public static void setUp() {
+    static void setUp() {
         ParserConfiguration configuration = new ParserConfiguration();
         configuration.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21);
         PARSER = new JavaParser(configuration);
@@ -57,7 +57,7 @@ public class FieldEditorsMultilinePropertyTest {
     /// a) Holds a TextInputControl field
     /// b) Has an EditorTextArea object creation
     @Test
-    public void fieldEditorsMatchMultilineProperty() throws Exception {
+    void fieldEditorsMatchMultilineProperty() throws Exception {
         Map<Path, List<FieldProperty>> result = getEditorsWithPropertiesInFieldEditors();
         for (Map.Entry<Path, List<FieldProperty>> entry : result.entrySet()) {
             // Now we have the file path and its properties, going to analyze the target Editor class

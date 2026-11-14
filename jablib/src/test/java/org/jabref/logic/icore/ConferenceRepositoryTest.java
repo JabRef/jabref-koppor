@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ConferenceRepositoryTest {
+class ConferenceRepositoryTest {
     private static final String TEST_DATA_FILE = "ICORETestData.csv";
     private static ConferenceRepository TEST_REPO;
 

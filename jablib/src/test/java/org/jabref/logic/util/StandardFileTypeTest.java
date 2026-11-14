@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class StandardFileTypeTest {
+class StandardFileTypeTest {
     @Test
     void recognizeBlgFileType() {
         FileType detected = StandardFileType.fromExtensions("blg");

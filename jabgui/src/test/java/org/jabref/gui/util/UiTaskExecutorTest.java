@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 class UiTaskExecutorTest {
 
     @Test
-    void runAndWaitInJavaFXThreadWithFailurePropagationPropagatesBackgroundThreadFailure() throws InterruptedException, ExecutionException {
+    void runAndWaitInJavaFXThreadWithFailurePropagationPropagatesBackgroundThreadFailure() throws Exception {
         try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
             Future<ExecutionException> future = executor.submit(() -> assertThrows(
                     ExecutionException.class,

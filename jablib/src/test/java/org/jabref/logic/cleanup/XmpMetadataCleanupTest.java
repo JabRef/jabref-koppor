@@ -1,10 +1,7 @@
 package org.jabref.logic.cleanup;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-
-import javax.xml.transform.TransformerException;
 
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.xmp.XmpPreferences;
@@ -61,7 +58,7 @@ class XmpMetadataCleanupTest {
     }
 
     @Test
-    void cleanupRemovesXmpMetadata() throws IOException, TransformerException {
+    void cleanupRemovesXmpMetadata() throws Exception {
         Path pdfFile = tempDir.resolve("olly2018.pdf");
         try (PDDocument doc = new PDDocument()) {
             doc.addPage(new PDPage());
@@ -111,7 +108,7 @@ class XmpMetadataCleanupTest {
     }
 
     @Test
-    void cleanupDoesNothingIfNoMetadata() throws IOException {
+    void cleanupDoesNothingIfNoMetadata() throws Exception {
         Path pdfFile = tempDir.resolve("test_no_metadata.pdf");
         try (PDDocument doc = new PDDocument()) {
             doc.addPage(new PDPage());

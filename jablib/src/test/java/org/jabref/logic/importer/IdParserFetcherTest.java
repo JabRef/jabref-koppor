@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 class IdParserFetcherTest {
 
     @Test
-    void usesUrlDownloadForIdentifierLookups() throws FetcherException, MalformedURLException, URISyntaxException, ParseException {
+    void usesUrlDownloadForIdentifierLookups() throws Exception {
         URL url = URLUtil.create("https://example.org");
         URLDownload urlDownload = mock(URLDownload.class);
         Parser parser = mock(Parser.class);
@@ -46,7 +46,7 @@ class IdParserFetcherTest {
     }
 
     @Test
-    void returnsEmptyWhenIdentifierLookupReturnsNotFound() throws FetcherException, MalformedURLException, URISyntaxException {
+    void returnsEmptyWhenIdentifierLookupReturnsNotFound() throws Exception {
         URL url = URLUtil.create("https://example.org");
         URLDownload urlDownload = mock(URLDownload.class);
         when(urlDownload.asInputStream()).thenThrow(new FetcherClientException(

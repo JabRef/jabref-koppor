@@ -216,7 +216,7 @@ class GitHandlerTest {
     }
 
     @Test
-    void checkoutNewBranch() throws IOException, GitAPIException {
+    void checkoutNewBranch() throws Exception {
         gitHandler.checkoutBranch("testBranch");
 
         try (Git git = Git.open(repositoryPath.toFile())) {
@@ -225,7 +225,7 @@ class GitHandlerTest {
     }
 
     @Test
-    void createCommitOnCurrentBranch() throws IOException, GitAPIException {
+    void createCommitOnCurrentBranch() throws Exception {
         try (Git git = Git.open(repositoryPath.toFile())) {
             // Create commit
             Files.createFile(Path.of(repositoryPath.toString(), "Test.txt"));
@@ -241,12 +241,12 @@ class GitHandlerTest {
     }
 
     @Test
-    void getCurrentlyCheckedOutBranch() throws IOException {
+    void getCurrentlyCheckedOutBranch() throws Exception {
         assertEquals("main", gitHandler.getCurrentlyCheckedOutBranch());
     }
 
     @Test
-    void fetchOnCurrentBranch() throws IOException, GitAPIException, JabRefException {
+    void fetchOnCurrentBranch() throws Exception {
         try (Git cloneGit = Git.cloneRepository()
                                .setURI(remoteRepoPath.toUri().toString())
                                .setDirectory(clonePath.toFile())
@@ -266,7 +266,7 @@ class GitHandlerTest {
     }
 
     @Test
-    void pushReportsRejectedRemoteUpdate() throws IOException, GitAPIException {
+    void pushReportsRejectedRemoteUpdate() throws Exception {
         try (Git cloneGit = Git.cloneRepository()
                                .setURI(remoteRepoPath.toUri().toString())
                                .setDirectory(clonePath.toFile())
@@ -288,7 +288,7 @@ class GitHandlerTest {
     }
 
     @Test
-    void fromAnyPathFindsGitRootFromNestedPath() throws IOException {
+    void fromAnyPathFindsGitRootFromNestedPath() throws Exception {
         Path nested = repositoryPath.resolve("src/org/jabref");
         Files.createDirectories(nested);
 

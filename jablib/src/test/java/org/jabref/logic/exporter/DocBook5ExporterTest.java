@@ -78,7 +78,7 @@ public class DocBook5ExporterTest {
     }
 
     @Test
-    void performExportForSingleEntry(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void performExportForSingleEntry(@TempDir Path testFolder) throws Exception {
         Path path = testFolder.resolve("ThisIsARandomlyNamedFile");
 
         exporter.export(databaseContext, path, entries);

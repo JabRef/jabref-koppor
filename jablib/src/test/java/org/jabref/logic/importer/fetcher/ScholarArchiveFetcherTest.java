@@ -2,7 +2,6 @@ package org.jabref.logic.importer.fetcher;
 
 import java.util.List;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
@@ -37,14 +36,14 @@ class ScholarArchiveFetcherTest {
 
     @Test
     @Disabled("We seem to be blocked")
-    void performSearchReturnsExpectedResults() throws FetcherException {
+    void performSearchReturnsExpectedResults() throws Exception {
         List<BibEntry> fetchedEntries = fetcher.performSearch("bpelscript");
         fetchedEntries.forEach(entry -> entry.clearField(StandardField.ABSTRACT));
         assertTrue(fetchedEntries.contains(bibEntry), "Found the following entries " + fetchedEntries);
     }
 
     @Test
-    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws FetcherException {
+    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws Exception {
         Page<BibEntry> result = fetcher.performRawSearchQueryPaged("", 0);
         assertTrue(result.getContent().isEmpty());
     }

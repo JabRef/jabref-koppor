@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.SearchBasedFetcher;
 import org.jabref.model.entry.BibEntry;
@@ -26,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 
 @ExternalServicesTest
-public class DnbFetcherTest {
+class DnbFetcherTest {
 
     DnbFetcher dnbFetcher;
     private BibEntry bibEntryISBN9783755300274;
@@ -53,19 +52,19 @@ public class DnbFetcherTest {
     }
 
     @Test
-    void performSearchByIdReturnsEntryForKnownIsbn() throws FetcherException {
+    void performSearchByIdReturnsEntryForKnownIsbn() throws Exception {
         Optional<BibEntry> entry = dnbFetcher.performSearchById("9783755300274");
         assertEquals(Optional.of(bibEntryISBN9783755300274), entry);
     }
 
     @Test
-    void performSearchFindsResultsForAuthorQuery() throws FetcherException {
+    void performSearchFindsResultsForAuthorQuery() throws Exception {
         List<BibEntry> entries = dnbFetcher.performSearch("author=Goethe");
         assertFalse(entries.isEmpty());
     }
 
     @Test
-    void performSearchEmpty() throws FetcherException {
+    void performSearchEmpty() throws Exception {
         List<BibEntry> searchResults = dnbFetcher.performSearch("");
         assertEquals(List.of(), searchResults);
     }

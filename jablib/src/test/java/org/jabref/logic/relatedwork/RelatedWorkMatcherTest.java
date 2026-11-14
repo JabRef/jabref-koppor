@@ -1,6 +1,5 @@
 package org.jabref.logic.relatedwork;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
@@ -27,7 +26,7 @@ import static org.mockito.Mockito.mock;
 class RelatedWorkMatcherTest {
 
     @Test
-    void matchRelatedWorkReturnsContextTextMappedToParsedReferences() throws IOException, URISyntaxException {
+    void matchRelatedWorkReturnsContextTextMappedToParsedReferences() throws Exception {
         LinkedFile linkedFile = createLinkedFile();
         RelatedWorkMatcher matcher = createMatcher();
 
@@ -50,7 +49,7 @@ class RelatedWorkMatcherTest {
     }
 
     @Test
-    void matchRelatedWorkReturnsExistingLibraryEntryWhenDuplicateIsFound() throws IOException, URISyntaxException {
+    void matchRelatedWorkReturnsExistingLibraryEntryWhenDuplicateIsFound() throws Exception {
         LinkedFile linkedFile = createLinkedFile();
         RelatedWorkReferenceResolver resolver = new RelatedWorkReferenceResolver();
         RelatedWorkMatcher matcher = new RelatedWorkMatcher(
@@ -77,7 +76,7 @@ class RelatedWorkMatcherTest {
     }
 
     @Test
-    void matchRelatedWorkReturnsEmptyWhenTextCannotBeParsed() throws IOException, URISyntaxException {
+    void matchRelatedWorkReturnsEmptyWhenTextCannotBeParsed() throws Exception {
         LinkedFile linkedFile = createLinkedFile();
         RelatedWorkMatcher matcher = createMatcher();
 
@@ -93,7 +92,7 @@ class RelatedWorkMatcherTest {
     }
 
     @Test
-    void matchRelatedWorkMatchesEquivalentPagesNotation() throws IOException {
+    void matchRelatedWorkMatchesEquivalentPagesNotation() throws Exception {
         BibEntry parsedReference = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("1")
                 .withField(StandardField.AUTHOR, "J. Smith and A. Brown")

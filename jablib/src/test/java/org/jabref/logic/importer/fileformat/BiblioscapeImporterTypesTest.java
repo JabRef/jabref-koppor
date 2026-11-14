@@ -1,7 +1,6 @@
 package org.jabref.logic.importer.fileformat;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
 import java.util.stream.Stream;
@@ -35,7 +34,7 @@ class BiblioscapeImporterTypesTest {
 
     @ParameterizedTest
     @MethodSource("types")
-    void importConvertsToCorrectBibType(String biblioscapeType, EntryType bibtexType) throws IOException {
+    void importConvertsToCorrectBibType(String biblioscapeType, EntryType bibtexType) throws Exception {
         String bsInput = "--AU-- Baklouti, F.\n" + "--YP-- 1999\n" + "--KW-- Cells; Rna; Isoforms\n" + "--TI-- Blood\n"
                 + "--RT-- " + biblioscapeType + "\n" + "------";
 

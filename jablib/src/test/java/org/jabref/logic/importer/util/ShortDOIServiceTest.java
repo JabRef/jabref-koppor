@@ -23,14 +23,14 @@ class ShortDOIServiceTest {
     }
 
     @Test
-    void getShortDOI() throws ShortDOIServiceException {
+    void getShortDOI() throws Exception {
         DOI shortDoi = sut.getShortDOI(doi);
 
         assertEquals("10/gf4gqc", shortDoi.asString());
     }
 
     @Test
-    void shouldThrowExceptionWhenDOIWasNotFound() throws ShortDOIServiceException {
+    void shouldThrowExceptionWhenDOIWasNotFound() throws Exception {
         assertThrows(ShortDOIServiceException.class, () -> sut.getShortDOI(notExistingDoi));
     }
 }

@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 import javafx.beans.property.SimpleObjectProperty;
 
 import org.jabref.logic.importer.ImportFormatPreferences;
-import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.fileformat.BibtexParser;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
@@ -108,7 +107,7 @@ class CitationKeyGeneratorTest {
     }
 
     @Test
-    void andInAuthorName() throws ParseException {
+    void andInAuthorName() throws Exception {
         Optional<BibEntry> entry0 = BibtexParser.singleFromString(
                 "@ARTICLE{kohn, author={Simon Holland}}", importFormatPreferences);
         assertEquals("Holland", CitationKeyGenerator.cleanKey(
@@ -133,7 +132,7 @@ class CitationKeyGeneratorTest {
     }
 
     @Test
-    void andAuthorNames() throws ParseException {
+    void andAuthorNames() throws Exception {
         String bibtexString = "@ARTICLE{whatevery, author={Mari D. Herland and Mona-Iren Hauge and Ingeborg M. Helgeland}}";
         Optional<BibEntry> entry = BibtexParser.singleFromString(bibtexString, importFormatPreferences);
         assertEquals("HerlandHaugeHelgeland", CitationKeyGenerator.cleanKey(
@@ -158,7 +157,7 @@ class CitationKeyGeneratorTest {
     }
 
     @Test
-    void specialLatexCharacterInAuthorName() throws ParseException {
+    void specialLatexCharacterInAuthorName() throws Exception {
         Optional<BibEntry> entry = BibtexParser.singleFromString(
                 "@ARTICLE{kohn, author={Simon Popovi\\v{c}ov\\'{a}}}",
                 importFormatPreferences);
@@ -197,7 +196,7 @@ class CitationKeyGeneratorTest {
             "@ARTICLE{kohn, author={Andrés D'Alessandro}, year={2000}}", "DAl",
             "@ARTICLE{kohn, author={Andrés Aʹrnold}, year={2000}}", "Arn"
             """)
-    void makeLabelAndCheckLegalKeys(String bibtexString, String expectedResult) throws ParseException {
+    void makeLabelAndCheckLegalKeys(String bibtexString, String expectedResult) throws Exception {
         BibEntry bibEntry = BibtexParser.singleFromString(bibtexString, importFormatPreferences).get();
         String citationKey = generateKey(bibEntry, "[auth3]", new BibDatabase());
 
@@ -224,7 +223,7 @@ class CitationKeyGeneratorTest {
     }
 
     @Test
-    void university() throws ParseException {
+    void university() throws Exception {
         Optional<BibEntry> entry = BibtexParser.singleFromString(
                 "@ARTICLE{kohn, author={{Link{\\\"{o}}ping University}}}",
                 importFormatPreferences);
@@ -325,7 +324,7 @@ class CitationKeyGeneratorTest {
     }
 
     @Test
-    void department() throws ParseException {
+    void department() throws Exception {
         Optional<BibEntry> entry = BibtexParser.singleFromString(
                 "@ARTICLE{kohn, author={{Link{\\\"{o}}ping University, Department of Electrical Engineering}}}",
                 importFormatPreferences);
@@ -351,7 +350,7 @@ class CitationKeyGeneratorTest {
     }
 
     @Test
-    void school() throws ParseException {
+    void school() throws Exception {
         Optional<BibEntry> entry = BibtexParser.singleFromString(
                 "@ARTICLE{kohn, author={{Link{\\\"{o}}ping University, School of Computer Engineering}}}",
                 importFormatPreferences);
@@ -361,7 +360,7 @@ class CitationKeyGeneratorTest {
     }
 
     @Test
-    void generateKeyAbbreviateCorporateAuthorDepartmentWithoutAcademicInstitute() throws ParseException {
+    void generateKeyAbbreviateCorporateAuthorDepartmentWithoutAcademicInstitute() throws Exception {
         Optional<BibEntry> entry = BibtexParser.singleFromString(
                 "@ARTICLE{null, author={{Department of Localhost NullGenerators}}}",
                 importFormatPreferences);
@@ -371,7 +370,7 @@ class CitationKeyGeneratorTest {
     }
 
     @Test
-    void generateKeyAbbreviateCorporateAuthorSchoolWithoutAcademicInstitute() throws ParseException {
+    void generateKeyAbbreviateCorporateAuthorSchoolWithoutAcademicInstitute() throws Exception {
         Optional<BibEntry> entry = BibtexParser.singleFromString(
                 "@ARTICLE{null, author={{The School of Null}}}",
                 importFormatPreferences);
@@ -397,7 +396,7 @@ class CitationKeyGeneratorTest {
     }
 
     @Test
-    void instituteOfTechnology() throws ParseException {
+    void instituteOfTechnology() throws Exception {
         Optional<BibEntry> entry = BibtexParser.singleFromString(
                 "@ARTICLE{kohn, author={{Massachusetts Institute of Technology}}}",
                 importFormatPreferences);

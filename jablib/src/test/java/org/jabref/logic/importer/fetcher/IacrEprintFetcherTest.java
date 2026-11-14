@@ -1,6 +1,5 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,7 +92,7 @@ class IacrEprintFetcherTest {
     }
 
     @Test
-    void searchByIdWithValidId1() throws FetcherException {
+    void searchByIdWithValidId1() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("Report 2017/1118 ");
         assertFalse(fetchedEntry.get().getField(StandardField.ABSTRACT).get().isEmpty());
         fetchedEntry.get().setField(StandardField.ABSTRACT, "dummy");
@@ -101,7 +100,7 @@ class IacrEprintFetcherTest {
     }
 
     @Test
-    void searchByIdWithValidId2() throws FetcherException {
+    void searchByIdWithValidId2() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("iacr ePrint 2016/119");
         assertFalse(fetchedEntry.get().getField(StandardField.ABSTRACT).get().isEmpty());
         fetchedEntry.get().setField(StandardField.ABSTRACT, "dummy");
@@ -109,7 +108,7 @@ class IacrEprintFetcherTest {
     }
 
     @Test
-    void searchByIdWithValidIdAndNonAsciiChars() throws FetcherException {
+    void searchByIdWithValidIdAndNonAsciiChars() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("some random 2017/1095 stuff around the id");
         assertFalse(fetchedEntry.get().getField(StandardField.ABSTRACT).get().isEmpty());
         fetchedEntry.get().setField(StandardField.ABSTRACT, "dummy");
@@ -152,7 +151,7 @@ class IacrEprintFetcherTest {
     }
 
     @Test
-    void searchByIdWithOldHtmlFormatAndCheckDate() throws FetcherException {
+    void searchByIdWithOldHtmlFormatAndCheckDate() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("1997/006");
         assertEquals(Optional.of("1997-05-04"), fetchedEntry.get().getField(StandardField.DATE));
     }
@@ -161,7 +160,7 @@ class IacrEprintFetcherTest {
     @ParameterizedTest(name = "Fetch for id: {0}")
     @MethodSource("allNonWithdrawnIdsWithOldHtmlFormat")
     @Disabled("Takes a lot of time - should only be called manually")
-    void searchByIdWithOldHtmlFormatWithoutDateCheck(String id) throws FetcherException {
+    void searchByIdWithOldHtmlFormatWithoutDateCheck(String id) throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById(id);
         assertTrue(fetchedEntry.isPresent(), "Expected to get an entry for id " + id);
         assertNotEquals(Optional.empty(), fetchedEntry.get().getField(StandardField.DATE), "Expected non empty date field, entry is\n" + fetchedEntry.toString());
@@ -196,19 +195,19 @@ class IacrEprintFetcherTest {
     }
 
     @Test
-    void getFulltextWithVersion() throws FetcherException, IOException {
+    void getFulltextWithVersion() throws Exception {
         Optional<URL> pdfUrl = fetcher.findFullText(abram2017);
         assertEquals(Optional.of("https://eprint.iacr.org/archive/2017/1118/1511505927.pdf"), pdfUrl.map(URL::toString));
     }
 
     @Test
-    void getFulltextWithoutVersion() throws FetcherException, IOException {
+    void getFulltextWithoutVersion() throws Exception {
         Optional<URL> pdfUrl = fetcher.findFullText(abram2017noVersion);
         assertEquals(Optional.of("https://eprint.iacr.org/2017/1118.pdf"), pdfUrl.map(URL::toString));
     }
 
     @Test
-    void getFulltextWithoutUrl() throws FetcherException, IOException {
+    void getFulltextWithoutUrl() throws Exception {
         BibEntry abram2017WithoutUrl = abram2017;
         abram2017WithoutUrl.clearField(StandardField.URL);
         Optional<URL> pdfUrl = fetcher.findFullText(abram2017WithoutUrl);
@@ -216,7 +215,7 @@ class IacrEprintFetcherTest {
     }
 
     @Test
-    void getFulltextWithNonIACRUrl() throws IOException {
+    void getFulltextWithNonIACRUrl() throws Exception {
         BibEntry abram2017WithNonIACRUrl = abram2017;
         abram2017WithNonIACRUrl.setField(StandardField.URL, "https://example.com");
         assertThrows(FetcherException.class, () -> fetcher.findFullText(abram2017WithNonIACRUrl));

@@ -1,7 +1,5 @@
 package org.jabref.toolkit.commands;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -22,12 +20,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // TODO: These tests do not work on linux with "org.gradle.workers.max" greater than 1.
-@Execution(ExecutionMode.SAME_THREAD)
 // Embedded postgres is started per test class and causes conflicts for file "libicuuc.so"
-public class SearchTest extends AbstractJabKitTest {
+@Execution(ExecutionMode.SAME_THREAD)
+class SearchTest extends AbstractJabKitTest {
     @Test
     @ResourceLock("embeddedPostgres")
-    void foundSingleEntry(@TempDir Path tempDir) throws IOException {
+    void foundSingleEntry(@TempDir Path tempDir) throws Exception {
         Path output = tempDir.resolve("output");
         Path origin = getClassResourceAsPath("origin.bib");
 
@@ -44,7 +42,7 @@ public class SearchTest extends AbstractJabKitTest {
 
     @Test
     @ResourceLock("embeddedPostgres")
-    void foundMultipleEntries(@TempDir Path tempDir) throws IOException {
+    void foundMultipleEntries(@TempDir Path tempDir) throws Exception {
         Path output = tempDir.resolve("output");
         Path origin = getClassResourceAsPath("origin.bib");
 
@@ -62,7 +60,7 @@ public class SearchTest extends AbstractJabKitTest {
 
     @Test
     @ResourceLock("embeddedPostgres")
-    void foundNone(@TempDir Path tempDir) throws IOException {
+    void foundNone(@TempDir Path tempDir) throws Exception {
         Path output = tempDir.resolve("output");
         Path origin = getClassResourceAsPath("origin.bib");
 
@@ -77,7 +75,7 @@ public class SearchTest extends AbstractJabKitTest {
 
     @Test
     @ResourceLock("embeddedPostgres")
-    void search(@TempDir Path tempDir) throws URISyntaxException, IOException {
+    void search(@TempDir Path tempDir) throws Exception {
         Path originBib = getClassResourceAsPath("origin.bib");
         String originBibFile = originBib.toAbsolutePath().toString();
 

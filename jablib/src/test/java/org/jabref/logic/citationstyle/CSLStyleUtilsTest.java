@@ -1,6 +1,5 @@
 package org.jabref.logic.citationstyle;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -75,7 +74,7 @@ class CSLStyleUtilsTest {
                         boolean expectedNumericNature,
                         boolean expectedBibliographicNature,
                         boolean expectedHasBibliographySortOrder,
-                        boolean expectedUsesHangingIndent) throws IOException {
+                        boolean expectedUsesHangingIndent) throws Exception {
         String styleContent;
         try (InputStream inputStream = CSLStyleUtilsTest.class.getResourceAsStream(styleName)) {
             styleContent = new String(inputStream.readAllBytes());

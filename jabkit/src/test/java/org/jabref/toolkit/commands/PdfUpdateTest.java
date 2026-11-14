@@ -1,6 +1,5 @@
 package org.jabref.toolkit.commands;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -24,7 +23,7 @@ import static org.mockito.Mockito.when;
 class PdfUpdateTest extends AbstractJabKitTest {
 
     @Test
-    void xmpMetadataWrittenToLinkedPdfByCitationKey(@TempDir Path tempDir) throws IOException {
+    void xmpMetadataWrittenToLinkedPdfByCitationKey(@TempDir Path tempDir) throws Exception {
         Path pdfFile = tempDir.resolve("test.pdf");
         try (PDDocument document = new PDDocument()) {
             document.addPage(new PDPage());

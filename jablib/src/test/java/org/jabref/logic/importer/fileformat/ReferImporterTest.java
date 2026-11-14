@@ -1,9 +1,7 @@
 package org.jabref.logic.importer.fileformat;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.Reader;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ReferImporterTest {
+class ReferImporterTest {
 
     private ReferImporter referImporter;
 
@@ -55,7 +53,7 @@ public class ReferImporterTest {
     }
 
     @Test
-    void isRecognizedFormat() throws IOException, URISyntaxException {
+    void isRecognizedFormat() throws Exception {
         List<String> list = List.of("refer.bibIX.Journal.ref", "refer.bibIX.ref");
 
         for (String str : list) {
@@ -65,7 +63,7 @@ public class ReferImporterTest {
     }
 
     @Test
-    void isRecognizedFormatReject() throws IOException, URISyntaxException {
+    void isRecognizedFormatReject() throws Exception {
         List<String> list = List.of("Endnote.pattern.A.enw", "IEEEImport1.txt", "IsiImporterTest1.isi", "IsiImporterTestInspec.isi",
                 "IsiImporterTestWOS.isi", "IsiImporterTestMedline.isi", "RisImporterTest1.ris",
                 "Endnote.pattern.no_enw", "empty.pdf", "pdf/annotated.pdf");
@@ -77,7 +75,7 @@ public class ReferImporterTest {
     }
 
     @Test
-    void importDatabaseSingleEntryTest() throws IOException, URISyntaxException {
+    void importDatabaseSingleEntryTest() throws Exception {
         Path file = Path.of(ReferImporterTest.class.getResource("refer.bibIX.Journal.ref").toURI());
         List<BibEntry> bibEntryList = referImporter.importDatabase(file).getDatabase().getEntries();
         BibEntry actualEntry = bibEntryList.getFirst();
@@ -102,7 +100,7 @@ public class ReferImporterTest {
     }
 
     @Test
-    void editorNameInAuthorField() throws IOException {
+    void editorNameInAuthorField() throws Exception {
         String refEntry = """
                 %0 Edited Book
                 %A testE
@@ -121,7 +119,7 @@ public class ReferImporterTest {
     }
 
     @Test
-    void importMultipleEntries() throws IOException, URISyntaxException {
+    void importMultipleEntries() throws Exception {
         Path file = Path.of(ReferImporterTest.class.getResource("refer.bibIX.ref").toURI());
         List<BibEntry> bibEntries = referImporter.importDatabase(file).getDatabase().getEntries();
 
@@ -194,7 +192,7 @@ public class ReferImporterTest {
     }
 
     @Test
-    void importPreservesDiacriticalCitationKey() throws IOException {
+    void importPreservesDiacriticalCitationKey() throws Exception {
         String input = "%0 Journal\n%A Author\n%T Title\n%F Müller2020";
         List<BibEntry> entries = referImporter.importDatabase(new BufferedReader(Reader.of(input)))
                                               .getDatabase().getEntries();

@@ -63,7 +63,7 @@ class AutoSetFileLinksUtilTest {
     }
 
     @Test
-    void findAssociatedNotLinkedFilesSuccess() throws IOException {
+    void findAssociatedNotLinkedFilesSuccess() throws Exception {
         when(databaseContext.getFileDirectories(any())).thenReturn(List.of(path.getParent()));
         List<LinkedFile> expected = List.of(new LinkedFile("", Path.of("CiteKey.pdf"), "PDF"));
         AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(databaseContext, externalApplicationsPreferences, filePreferences, autoLinkPrefs);
@@ -72,7 +72,7 @@ class AutoSetFileLinksUtilTest {
     }
 
     @Test
-    void findAssociatedNotLinkedFilesForEmptySearchDir() throws IOException {
+    void findAssociatedNotLinkedFilesForEmptySearchDir() throws Exception {
         when(databaseContext.getFileDirectories(any())).thenReturn(List.of());
         when(filePreferences.shouldStoreFilesRelativeToBibFile()).thenReturn(false);
         AutoSetFileLinksUtil util = new AutoSetFileLinksUtil(databaseContext, externalApplicationsPreferences, filePreferences, autoLinkPrefs);
@@ -81,7 +81,7 @@ class AutoSetFileLinksUtilTest {
     }
 
     @Test
-    void findOneAssociatedNotLinkedFile(@TempDir Path tempDir) throws IOException {
+    void findOneAssociatedNotLinkedFile(@TempDir Path tempDir) throws Exception {
         Path directory = tempDir.resolve("files");
         Path oldPath = directory.resolve("old/minimal.pdf");
         Files.createDirectories(oldPath.getParent());
@@ -113,7 +113,7 @@ class AutoSetFileLinksUtilTest {
     }
 
     @Test
-    void findAllAssociatedNotLinkedFilesInsteadOfTheFirstOne(@TempDir Path tempDir) throws IOException {
+    void findAllAssociatedNotLinkedFilesInsteadOfTheFirstOne(@TempDir Path tempDir) throws Exception {
         Path directory = tempDir.resolve("files");
         Path oldPath = directory.resolve("old/minimal.pdf");
         BibEntry entry = new BibEntry(StandardEntryType.Misc)
@@ -148,7 +148,7 @@ class AutoSetFileLinksUtilTest {
     }
 
     @Test
-    void findAllAssociatedNotLinkedFilesAndNotRepeated(@TempDir Path tempDir) throws IOException {
+    void findAllAssociatedNotLinkedFilesAndNotRepeated(@TempDir Path tempDir) throws Exception {
         when(autoLinkPrefs.getCitationKeyDependency()).thenReturn(AutoLinkPreferences.CitationKeyDependency.START);
 
         // File and folder

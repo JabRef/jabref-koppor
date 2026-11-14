@@ -1,6 +1,5 @@
 package org.jabref.logic.ai.ingestion.util;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -16,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class FileHasherTest {
 
     @Test
-    void computeHashProducesConsistentHash(@TempDir Path tempDir) throws IOException {
+    void computeHashProducesConsistentHash(@TempDir Path tempDir) throws Exception {
         Path testFile = tempDir.resolve("test.txt");
         Files.writeString(testFile, "Test content", StandardOpenOption.CREATE);
 
@@ -27,7 +26,7 @@ class FileHasherTest {
     }
 
     @Test
-    void computeHashDifferentForDifferentContent(@TempDir Path tempDir) throws IOException {
+    void computeHashDifferentForDifferentContent(@TempDir Path tempDir) throws Exception {
         Path file1 = tempDir.resolve("file1.txt");
         Files.writeString(file1, "Content 1", StandardOpenOption.CREATE);
 
@@ -46,7 +45,7 @@ class FileHasherTest {
     }
 
     @Test
-    void computeHashProducesHexString(@TempDir Path tempDir) throws IOException {
+    void computeHashProducesHexString(@TempDir Path tempDir) throws Exception {
         Path testFile = tempDir.resolve("test.txt");
         Files.writeString(testFile, "Test", StandardOpenOption.CREATE);
 

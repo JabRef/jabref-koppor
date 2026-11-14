@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jabref.logic.ai.chatting.ChatModel;
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
@@ -23,7 +22,7 @@ import static org.mockito.Mockito.when;
 class LlmPlainCitationParserTest {
 
     @Test
-    void parsePlainCitation() throws FetcherException {
+    void parsePlainCitation() throws Exception {
         // Given
         String input = "E. G. Santana Jr., G. Benjamin, M. Araujo, and H. Santos, \"Which Prompting Technique Should I Use? An Empirical Investigation of Prompting Techniques for Software Engineering Tasks\", arXiv:2506.05614, Jun. 2025.";
 
@@ -65,7 +64,7 @@ class LlmPlainCitationParserTest {
     }
 
     @Test
-    void parseMultiplePlainCitations() throws FetcherException {
+    void parseMultiplePlainCitations() throws Exception {
         // Given
         String input = """
                 E. G. Santana Jr., G. Benjamin, M. Araujo, and H. Santos, "Which Prompting Technique Should I Use? An Empirical Investigation of Prompting Techniques for Software Engineering Tasks", arXiv:2506.05614, Jun. 2025.
