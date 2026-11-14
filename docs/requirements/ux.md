@@ -331,4 +331,12 @@ A task notification never keeps a running progress bar after its task ended:
 
 Needs: impl, utest
 
+## Running background tasks can be viewed at any time
+
+`req~ux.background-tasks.viewer~1`
+
+The Help menu offers a dialog listing the currently running background tasks, so they can be inspected and cancelled without quitting JabRef.
+
+Needs: impl
+
 <!-- markdownlint-disable-file MD022 -->
