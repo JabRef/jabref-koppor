@@ -66,7 +66,7 @@ public class JournalInformationFetcher implements WebFetcher {
         try {
             crossrefInformation = getCrossrefInformation(cleanedIssn);
         } catch (FetcherException e) {
-            LOGGER.debug("Could not retrieve journal information from {}", CROSSREF_PROVIDER, e);
+            LOGGER.error("Could not retrieve journal information from {}", CROSSREF_PROVIDER, e);
             crossrefInformation = Optional.empty();
             providerFailures.add(e);
         }
@@ -75,7 +75,7 @@ public class JournalInformationFetcher implements WebFetcher {
         try {
             openAlexInformation = getOpenAlexInformation(cleanedIssn, journalName);
         } catch (FetcherException e) {
-            LOGGER.debug("Could not retrieve journal information from {}", OpenAlex.FETCHER_NAME, e);
+            LOGGER.error("Could not retrieve journal information from {}", OpenAlex.FETCHER_NAME, e);
             openAlexInformation = Optional.empty();
             providerFailures.add(e);
         }

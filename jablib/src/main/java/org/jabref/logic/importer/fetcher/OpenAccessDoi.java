@@ -66,7 +66,7 @@ public class OpenAccessDoi implements FulltextFetcher {
                            try {
                                return Optional.of(URLUtil.create(url));
                            } catch (MalformedURLException e) {
-                               LOGGER.debug("Could not determine URL to fetch full text from", e);
+                               LOGGER.error("Could not determine URL to fetch full text from", e);
                                return Optional.empty();
                            }
                        });

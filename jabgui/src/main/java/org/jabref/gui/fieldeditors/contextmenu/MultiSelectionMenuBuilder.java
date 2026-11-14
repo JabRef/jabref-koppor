@@ -230,7 +230,7 @@ record MultiSelectionMenuBuilder(
             try {
                 NativeDesktop.get().openFolderAndSelectFile(fileToSelect);
             } catch (IOException e) {
-                LOGGER.warn("Could not open folder and select file: {}", fileToSelect, e);
+                LOGGER.error("Could not open folder and select file: {}", fileToSelect, e);
             }
         }
     }

@@ -49,7 +49,7 @@ public class JvmOpenAiChatLanguageModel implements ChatModel {
 
     @Override
     public ChatResponse chat(List<ChatMessage> list) {
-        LOGGER.debug("Generating response from jvm-openai chat model with {} messages: {}", list.size(), list);
+        LOGGER.atDebug().addArgument(() -> list.size()).addArgument(list).log("Generating response from jvm-openai chat model with {} messages: {}");
 
         List<io.github.stefanbratanov.jvm.openai.ChatMessage> messages =
                 list.stream().map(chatMessage -> (io.github.stefanbratanov.jvm.openai.ChatMessage) switch (chatMessage) {
@@ -85,7 +85,7 @@ public class JvmOpenAiChatLanguageModel implements ChatModel {
             String reason = rootCause.getMessage() == null ? rootCause.getClass().getSimpleName() : rootCause.getMessage();
             // [impl->req~ai.llms.base-url-redacted~1]
             String redactedUrl = FetcherException.getRedactedUrl(baseUrl);
-            LOGGER.debug("Could not connect to {}", redactedUrl, e);
+            LOGGER.error("Could not connect to {}", redactedUrl, e);
             throw new UncheckedIOException(Localization.lang("Could not connect to %0.\n\n%1", redactedUrl, reason), e.getCause());
         }
         Usage usage = chatCompletion.usage();

@@ -125,7 +125,7 @@ public class Scopus implements PagedSearchBasedParserFetcher, CustomizableKeyFet
         uriBuilder.addParameter("view", "STANDARD");
         uriBuilder.addParameter("suppressNavLinks", "true");
         uriBuilder.addParameter("sort", "relevancy");
-        LOGGER.debug("Scopus Search URL: {}", uriBuilder.build().toString());
+        LOGGER.atDebug().addArgument(() -> uriBuilder.build().toString()).log("Scopus Search URL: {}");
         return uriBuilder.build().toURL();
     }
 
@@ -167,13 +167,13 @@ public class Scopus implements PagedSearchBasedParserFetcher, CustomizableKeyFet
                     JSONObject jsonEntry = resultsArray.getJSONObject(i);
 
                     if (jsonEntry.has("error")) {
-                        LOGGER.debug("Scopus entry error: {}", jsonEntry.optString("error"));
+                        LOGGER.atDebug().addArgument(() -> jsonEntry.optString("error")).log("Scopus entry error: {}");
                         continue;
                     }
 
                     parseScopusEntry(jsonEntry).ifPresent(entries::add);
                 } catch (JSONException e) {
-                    LOGGER.warn("Error parsing Scopus entry at index {}", i, e);
+                    LOGGER.error("Error parsing Scopus entry at index {}", i, e);
                 }
             }
 
@@ -332,7 +332,7 @@ public class Scopus implements PagedSearchBasedParserFetcher, CustomizableKeyFet
                     }
                 } catch (JSONException e) {
                     // openaccessFlag might be null or not a boolean
-                    LOGGER.debug("Could not parse openaccessFlag", e);
+                    LOGGER.error("Could not parse openaccessFlag", e);
                 }
             }
 
@@ -344,7 +344,7 @@ public class Scopus implements PagedSearchBasedParserFetcher, CustomizableKeyFet
 
             return Optional.of(entry);
         } catch (JSONException e) {
-            LOGGER.warn("Error parsing Scopus entry", e);
+            LOGGER.error("Error parsing Scopus entry", e);
             return Optional.empty();
         }
     }

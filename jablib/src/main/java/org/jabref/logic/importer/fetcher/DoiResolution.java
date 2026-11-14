@@ -102,9 +102,9 @@ public class DoiResolution implements FulltextFetcher {
             if (type.getMimeType().startsWith("application/pdf")) {
                 return Optional.of(URLUtil.create(type.getUrl()));
             }
-            LOGGER.warn("DoiResolution fetcher failed: ", type);
+            LOGGER.error("DoiResolution fetcher failed: ", type);
         } catch (IOException e) {
-            LOGGER.warn("DoiResolution fetcher failed: ", e);
+            LOGGER.error("DoiResolution fetcher failed: ", e);
         }
 
         return Optional.empty();

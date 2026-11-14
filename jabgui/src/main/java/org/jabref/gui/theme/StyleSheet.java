@@ -56,9 +56,9 @@ public abstract sealed class StyleSheet permits StyleSheetDataUrl, StyleSheetFil
             try {
                 styleSheetUrl = Optional.of(Path.of(name).toUri().toURL());
             } catch (InvalidPathException e) {
-                LOGGER.warn("Cannot load custom css {} because it is an invalid path: {}", name, e.getLocalizedMessage(), e);
+                LOGGER.error("Cannot load custom css {} because it is an invalid path: {}", name, e.getLocalizedMessage(), e);
             } catch (MalformedURLException e) {
-                LOGGER.warn("Cannot load custom css url {} because it is a malformed url: {}", name, e.getLocalizedMessage(), e);
+                LOGGER.error("Cannot load custom css url {} because it is a malformed url: {}", name, e.getLocalizedMessage(), e);
             }
         }
 

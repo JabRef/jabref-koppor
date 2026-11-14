@@ -39,7 +39,7 @@ public class FilteredListProxy {
                  | InvocationTargetException
                  | NoSuchMethodException
                  | NoSuchFieldException e) {
-            LOGGER.warn("Could not refilter list", e);
+            LOGGER.error("Could not refilter list", e);
         }
     }
 
@@ -92,7 +92,7 @@ public class FilteredListProxy {
 
             END_CHANGE_METHOD.invoke(filteredList);
         } catch (ReflectiveOperationException e) {
-            LOGGER.warn("Could not refilter list", e);
+            LOGGER.error("Could not refilter list", e);
         }
     }
 

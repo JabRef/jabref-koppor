@@ -165,7 +165,7 @@ public class CrossRefCitationFetcher implements CitationFetcher {
                                  .withField(StandardField.NOTE, unstructured)
                                  .withChanged(true));
         } catch (FetcherException e) {
-            LOGGER.warn("Could not get bib entry from text {}", unstructured, e);
+            LOGGER.error("Could not get bib entry from text {}", unstructured, e);
             return new BibEntry()
                     .withField(StandardField.NOTE, unstructured)
                     .withChanged(true);
@@ -199,7 +199,7 @@ public class CrossRefCitationFetcher implements CitationFetcher {
             crossRefForDoi.findIdentifier(clonedEntry)
                           .ifPresent(e -> clonedEntry.setField(StandardField.DOI, e.asString()));
         } catch (FetcherException e) {
-            LOGGER.debug("Failed to find DOI", e);
+            LOGGER.error("Failed to find DOI", e);
         }
     }
 
@@ -214,7 +214,7 @@ public class CrossRefCitationFetcher implements CitationFetcher {
             String apiUrl = API_URL + doi.get().asString();
             return Optional.of(new URI(apiUrl));
         } catch (URISyntaxException e) {
-            LOGGER.debug("Could not create references API URI", e);
+            LOGGER.error("Could not create references API URI", e);
             return Optional.empty();
         }
     }

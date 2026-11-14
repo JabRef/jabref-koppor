@@ -66,7 +66,7 @@ class StudyFetcher {
             }
             return Optional.of(new FetchResult(fetcher.getName(), new BibDatabase(fetchResult)));
         } catch (FetcherException e) {
-            LOGGER.warn("{} API request failed", fetcher.getName(), e);
+            LOGGER.error("{} API request failed", fetcher.getName(), e);
             return Optional.empty();
         }
     }

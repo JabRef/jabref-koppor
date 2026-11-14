@@ -225,7 +225,7 @@ public class CitationKeyGenerator extends BracketedPattern {
             try {
                 key = key.replaceAll(regex, replacement);
             } catch (PatternSyntaxException e) {
-                LOGGER.warn("There is a syntax error in the regular expression \"{}\" used to generate a citation key", regex, e);
+                LOGGER.error("There is a syntax error in the regular expression \"{}\" used to generate a citation key", regex, e);
             }
         }
         return key;

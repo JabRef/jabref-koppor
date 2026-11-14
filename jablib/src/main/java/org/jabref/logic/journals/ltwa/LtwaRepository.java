@@ -62,7 +62,7 @@ public class LtwaRepository {
                 }
             }
 
-            LOGGER.debug("Loaded LTWA repository with {} prefixes and {} suffixes", prefixMap.size(), suffixMap.size());
+            LOGGER.atDebug().addArgument(() -> prefixMap.size()).addArgument(() -> suffixMap.size()).log("Loaded LTWA repository with {} prefixes and {} suffixes");
         }
     }
 

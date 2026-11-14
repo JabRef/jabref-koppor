@@ -152,7 +152,7 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
             return;
         }
 
-        LOGGER.debug("Adding {} files to index", linkedFiles.size());
+        LOGGER.atDebug().addArgument(() -> linkedFiles.size()).log("Adding {} files to index");
         int i = 1;
         for (Map.Entry<String, Pair<Long, Path>> entry : linkedFiles.entrySet()) {
             if (task.isCancelled()) {
@@ -166,7 +166,7 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
             task.showToUser(true);
             i++;
         }
-        LOGGER.debug("Added {} files to index", linkedFiles.size());
+        LOGGER.atDebug().addArgument(() -> linkedFiles.size()).log("Added {} files to index");
     }
 
     private void addToIndex(String fileLink, long modifiedTime, Path resolvedPath) {
@@ -176,7 +176,7 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
             indexWriter.addDocuments(pages);
             indexedFiles.put(fileLink, modifiedTime);
         } catch (IOException e) {
-            LOGGER.warn("Could not add the document {} to the index.", fileLink, e);
+            LOGGER.error("Could not add the document {} to the index.", fileLink, e);
         }
     }
 
@@ -217,7 +217,7 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
                 indexWriter.deleteDocuments(new Term(LinkedFilesConstants.PATH.toString(), fileLink));
                 indexedFiles.remove(fileLink);
             } catch (IOException e) {
-                LOGGER.warn("Could not remove linked file {} from index.", fileLink, e);
+                LOGGER.error("Could not remove linked file {} from index.", fileLink, e);
             }
         }
     }
@@ -317,7 +317,7 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
             long fsModifiedTime = Files.getLastModifiedTime(resolvedPath.get()).to(TimeUnit.SECONDS);
             return new Pair<>(fsModifiedTime, resolvedPath.get());
         } catch (IOException e) {
-            LOGGER.warn("Could not check the modification time of file {}.", linkedFile.getLink(), e);
+            LOGGER.error("Could not check the modification time of file {}.", linkedFile.getLink(), e);
             return null;
         }
     }
@@ -329,9 +329,9 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
                 LOGGER.debug("Forcing merge deletes");
                 indexWriter.forceMergeDeletes(true);
             } catch (IOException e) {
-                LOGGER.warn("Could not force merge deletes.", e);
+                LOGGER.error("Could not force merge deletes.", e);
             } catch (ThreadInterruptedException _) {
-                LOGGER.debug("Interrupted optimization of index while forcing merge.");
+                LOGGER.warn("Interrupted optimization of index while forcing merge.");
                 Thread.currentThread().interrupt();
             }
         }
@@ -339,9 +339,9 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
             LOGGER.debug("Forcing merge segments to 1 segment");
             indexWriter.forceMerge(1, true);
         } catch (IOException e) {
-            LOGGER.warn("Could not force merge segments.", e);
+            LOGGER.error("Could not force merge segments.", e);
         } catch (ThreadInterruptedException _) {
-            LOGGER.debug("Interrupted optimization of index.");
+            LOGGER.warn("Interrupted optimization of index.");
             Thread.currentThread().interrupt();
         }
     }

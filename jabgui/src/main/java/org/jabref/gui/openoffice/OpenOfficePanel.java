@@ -208,7 +208,7 @@ public class OpenOfficePanel {
             currentStyleProperty.set(currentStyle);
             updateButtonAvailability();
         } catch (IOException ex) {
-            LOGGER.warn("Unable to reload style file '{}'", jStyle.getPath(), ex);
+            LOGGER.error("Unable to reload style file '{}'", jStyle.getPath(), ex);
             String msg = Localization.lang("Unable to reload style file '%0'. %1", jStyle.getPath(), String.valueOf(ex.getMessage()));
             new OOError(title, msg, ex).showErrorDialog(dialogService);
             return FAIL;
@@ -229,7 +229,7 @@ public class OpenOfficePanel {
                 updateButtonAvailability();
             } catch (WrappedTargetException
                      | NoSuchElementException ex) {
-                LOGGER.warn("Unable to select document to work on", ex);
+                LOGGER.error("Unable to select document to work on", ex);
                 OOError.fromMisc(ex).setTitle("Unable to select document to work on").showErrorDialog(dialogService);
             }
         });
@@ -246,7 +246,7 @@ public class OpenOfficePanel {
                                  try {
                                      jStyle.ensureUpToDate();
                                  } catch (IOException e) {
-                                     LOGGER.warn("Unable to reload style file '{}'", jStyle.getPath(), e);
+                                     LOGGER.error("Unable to reload style file '{}'", jStyle.getPath(), e);
                                  }
                                  dialogService.notify(Localization.lang("Currently selected JStyle: '%0'", jStyle.getName()));
                              } else if (currentStyle instanceof CitationStyle cslStyle) {
@@ -493,7 +493,7 @@ public class OpenOfficePanel {
                 ooBase.guiActionSelectDocument(true);
             } catch (WrappedTargetException
                      | NoSuchElementException e) {
-                LOGGER.warn("Unable to connect to document", e);
+                LOGGER.error("Unable to connect to document", e);
                 OOError.fromMisc(e).showErrorDialog(dialogService);
                 return;
             }

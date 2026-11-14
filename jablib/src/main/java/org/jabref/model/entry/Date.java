@@ -152,7 +152,7 @@ public class Date {
                 TemporalAccessor parsedEndDate = SIMPLE_DATE_FORMATS.parse(strDates[1].strip());
                 return Optional.of(new Date(parsedDate, parsedEndDate));
             } catch (DateTimeParseException e) {
-                LOGGER.warn("Invalid Date format for range", e);
+                LOGGER.error("Invalid Date format for range", e);
                 return Optional.empty();
             }
         } else if (dateString.matches(
@@ -173,7 +173,7 @@ public class Date {
                 TemporalAccessor parsedEndDate = SIMPLE_DATE_FORMATS.parse(strDates[1].strip());
                 return Optional.of(new Date(parsedDate, parsedEndDate));
             } catch (DateTimeParseException e) {
-                LOGGER.warn("Invalid Date format range", e);
+                LOGGER.error("Invalid Date format range", e);
                 return Optional.empty();
             }
         } else if (dateString.matches(
@@ -190,7 +190,7 @@ public class Date {
                 TemporalAccessor parsedEndDate = parseDateWithEraIndicator(strDates[1]);
                 return Optional.of(new Date(parsedDate, parsedEndDate));
             } catch (DateTimeParseException e) {
-                LOGGER.warn("Invalid Date format range", e);
+                LOGGER.error("Invalid Date format range", e);
                 return Optional.empty();
             }
         } else if (dateString.matches(
@@ -207,7 +207,7 @@ public class Date {
                 TemporalAccessor parsedEndDate = parseDateWithEraIndicator(strDates[1]);
                 return Optional.of(new Date(parsedDate, parsedEndDate));
             } catch (DateTimeParseException e) {
-                LOGGER.warn("Invalid Date format range", e);
+                LOGGER.error("Invalid Date format range", e);
                 return Optional.empty();
             }
         }
@@ -219,7 +219,7 @@ public class Date {
                 TemporalAccessor parsedDate = SIMPLE_DATE_FORMATS.parse(year);
                 return Optional.of(new Date(parsedDate));
             } catch (DateTimeParseException e) {
-                LOGGER.debug("Invalid Date format", e);
+                LOGGER.error("Invalid Date format", e);
                 return Optional.empty();
             }
         }
@@ -236,7 +236,7 @@ public class Date {
                 TemporalAccessor date = parseDateWithEraIndicator(dateString);
                 return Optional.of(new Date(date));
             } catch (DateTimeParseException e) {
-                LOGGER.warn("Invalid Date format with era indicator", e);
+                LOGGER.error("Invalid Date format with era indicator", e);
                 return Optional.empty();
             }
         }
@@ -253,7 +253,7 @@ public class Date {
                 // else, just pass
             } catch (DateTimeParseException e) {
                 // neither month nor season.
-                LOGGER.debug("Invalid Date format", e);
+                LOGGER.error("Invalid Date format", e);
                 return Optional.empty();
             }
         }
@@ -262,7 +262,7 @@ public class Date {
             TemporalAccessor parsedDate = SIMPLE_DATE_FORMATS.parse(dateString);
             return Optional.of(new Date(parsedDate));
         } catch (DateTimeParseException e) {
-            LOGGER.debug("Invalid Date format", e);
+            LOGGER.error("Invalid Date format", e);
             return Optional.empty();
         }
     }

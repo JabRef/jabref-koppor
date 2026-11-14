@@ -67,7 +67,7 @@ public class IsbnFetcher implements EntryBasedFetcher, IdBasedFetcher {
                 bibEntry = gvkIsbnFetcher.performSearchById(isbn.get().asString());
             }
         } catch (FetcherException ex) {
-            LOGGER.debug("Got a fetcher exception for IBSN search", ex);
+            LOGGER.error("Got a fetcher exception for IBSN search", ex);
             if (retryIsbnFetcher.isEmpty()) {
                 throw ex;
             }

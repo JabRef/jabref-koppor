@@ -103,7 +103,7 @@ public class DefaultAuxParser implements AuxParser {
                 if (failOnReadError) {
                     throw e;
                 }
-                LOGGER.warn("Problem opening file", e);
+                LOGGER.error("Problem opening file", e);
             }
 
             fileIndex++;

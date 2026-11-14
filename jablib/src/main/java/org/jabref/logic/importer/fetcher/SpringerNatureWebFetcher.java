@@ -131,7 +131,7 @@ public class SpringerNatureWebFetcher implements PagedSearchBasedParserFetcher, 
                         try {
                             entry.addFile(new LinkedFile(URLUtil.create(url.optString("value")), "PDF"));
                         } catch (MalformedURLException _) {
-                            LOGGER.info("Malformed URL: {}", url.optString("value"));
+                            LOGGER.warn("Malformed URL: {}", url.optString("value"));
                         }
                     }
                 });

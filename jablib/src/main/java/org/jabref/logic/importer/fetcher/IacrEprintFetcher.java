@@ -160,7 +160,7 @@ public class IacrEprintFetcher implements FulltextFetcher, IdBasedFetcher {
             try {
                 url = URLUtil.create(urlField.get());
             } catch (MalformedURLException e) {
-                LOGGER.warn("Invalid URL {}", urlField.get(), e);
+                LOGGER.error("Invalid URL {}", urlField.get(), e);
                 return Optional.empty();
             }
 
