@@ -1,10 +1,16 @@
 package org.jabref.gui.importer.actions;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.airhacks.afterburner.injection.Injector;
 import java.io.Reader;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.importer.BibEntryTypePrefsAndFileViewModel;
 import org.jabref.gui.importer.ImportCustomEntryTypesDialogViewModel;
@@ -17,19 +23,11 @@ import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /// The library is a reduced version of the one attached to <https://github.com/JabRef/jabref/issues/9930>:
 /// `audio` and `review` customize entry types JabRef ships, `manuscript` is unknown to JabRef.
@@ -37,19 +35,19 @@ import static org.mockito.Mockito.when;
 class CheckForNewEntryTypesActionTest {
 
     private static final String LIBRARY = """
-            @Manuscript{NAK5-333,
-              library   = {National Archives, Kathmandu},
-              shelfmark = {5-333},
-            }
+        @Manuscript{NAK5-333,
+          library   = {National Archives, Kathmandu},
+          shelfmark = {5-333},
+        }
 
-            @Comment{jabref-meta: databaseType:biblatex;}
+        @Comment{jabref-meta: databaseType:biblatex;}
 
-            @Comment{jabref-entrytype: audio: req[author;date;publisher;title] opt[url;urldate]}
+        @Comment{jabref-entrytype: audio: req[author;date;publisher;title] opt[url;urldate]}
 
-            @Comment{jabref-entrytype: manuscript: req[library;location;shelfmark] opt[origin;scribe]}
+        @Comment{jabref-entrytype: manuscript: req[library;location;shelfmark] opt[origin;scribe]}
 
-            @Comment{jabref-entrytype: review: req[author;date;journaltitle;pages] opt[doi;url]}
-            """;
+        @Comment{jabref-entrytype: review: req[author;date;journaltitle;pages] opt[doi;url]}
+        """;
 
     private final CheckForNewEntryTypesAction action = new CheckForNewEntryTypesAction();
     private final DialogService dialogService = mock(DialogService.class);
@@ -93,9 +91,11 @@ class CheckForNewEntryTypesActionTest {
     @Test
     void dialogIsNotOfferedForDeclinedTypes() {
         Set<String> declined = parserResult.getEntryTypes().stream()
-                                           .map(type -> CustomEntryTypeDecision.fingerprint(
-                                                   type, entryTypesManager.enrich(type.getType(), BibDatabaseMode.BIBLATEX), BibDatabaseMode.BIBLATEX))
-                                           .collect(Collectors.toSet());
+                .map(type -> CustomEntryTypeDecision.fingerprint(
+                        type,
+                        entryTypesManager.enrich(type.getType(), BibDatabaseMode.BIBLATEX),
+                        BibDatabaseMode.BIBLATEX))
+                .collect(Collectors.toSet());
         when(preferences.getDeclinedCustomEntryTypes()).thenReturn(declined);
 
         assertFalse(action.isActionNecessary(parserResult, dialogService, preferences));
@@ -110,7 +110,7 @@ class CheckForNewEntryTypesActionTest {
         viewModel.importBibEntryTypes(
                 List.copyOf(viewModel.newTypes()),
                 viewModel.differentCustomizations().stream()
-                         .map(BibEntryTypePrefsAndFileViewModel::customTypeFromFile)
-                         .toList());
+                        .map(BibEntryTypePrefsAndFileViewModel::customTypeFromFile)
+                        .toList());
     }
 }

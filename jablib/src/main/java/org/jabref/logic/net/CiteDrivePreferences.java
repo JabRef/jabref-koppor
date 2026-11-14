@@ -1,9 +1,9 @@
 package org.jabref.logic.net;
 
+import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -11,10 +11,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
-
 import org.jabref.logic.util.URLUtil;
-
-import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -39,11 +36,12 @@ public class CiteDrivePreferences {
     private final StringProperty appBaseUrl;
     private long serverRevision;
 
-    public CiteDrivePreferences(boolean enabled,
-                                @Nullable RefreshToken refreshToken,
-                                boolean persistRefreshToken,
-                                String apiBaseUrl,
-                                String appBaseUrl) {
+    public CiteDrivePreferences(
+            boolean enabled,
+            @Nullable RefreshToken refreshToken,
+            boolean persistRefreshToken,
+            String apiBaseUrl,
+            String appBaseUrl) {
         this.enabled = new SimpleBooleanProperty(enabled);
         this.refreshToken = new SimpleObjectProperty<>(refreshToken);
         this.persistRefreshToken = new SimpleBooleanProperty(persistRefreshToken);
@@ -56,11 +54,10 @@ public class CiteDrivePreferences {
     private CiteDrivePreferences() {
         this(
                 false, // CiteDrive is opt-in
-                null,  // no refresh token
+                null, // no refresh token
                 true, // store in keychain
                 "https://api-dev.citedrive.com/",
-                "https://app-dev.citedrive.com/"
-        );
+                "https://app-dev.citedrive.com/");
     }
 
     private synchronized void invalidateLogin() {
@@ -86,7 +83,9 @@ public class CiteDrivePreferences {
         try {
             URI uri = new URI(url);
             return "https".equalsIgnoreCase(uri.getScheme())
-                    && Optional.ofNullable(uri.getHost()).filter(host -> !host.isBlank()).isPresent()
+                    && Optional.ofNullable(uri.getHost())
+                            .filter(host -> !host.isBlank())
+                            .isPresent()
                     && Optional.ofNullable(uri.getRawUserInfo()).isEmpty();
         } catch (URISyntaxException e) {
             LOGGER.debug("Invalid CiteDrive address", e);

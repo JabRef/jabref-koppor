@@ -8,7 +8,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.util.BindingsHelper;
 

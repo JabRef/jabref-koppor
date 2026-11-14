@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jspecify.annotations.NonNull;
 
 public final class ConferenceUtils {
@@ -17,18 +16,31 @@ public final class ConferenceUtils {
     // Regex that will match all years of type 19XX or 20XX;
     private static final String YEAR_REGEX = "(19|20)\\d{2}";
     /*
-        Regex that will match:
-        - ordinals of form [number][st|nd|rd|th] as in 1st, 2nd, 3rd, 4th, and so on
-        - ordinals in LaTeX syntax of [number]\textsuperscript{[st|nd|rd|th]} as in 3\textsuperscript{rd},
-          17\textsuperscript{th}, etc. These are just the same ordinals as above but with the added LaTeX text syntax.
-     */
+       Regex that will match:
+       - ordinals of form [number][st|nd|rd|th] as in 1st, 2nd, 3rd, 4th, and so on
+       - ordinals in LaTeX syntax of [number]\textsuperscript{[st|nd|rd|th]} as in 3\textsuperscript{rd},
+         17\textsuperscript{th}, etc. These are just the same ordinals as above but with the added LaTeX text syntax.
+    */
     private static final String ORDINAL_REGEX = "\\d+(\\\\textsuperscript\\{)?(st|nd|rd|th)}?";
     private static final Pattern YEAR_OR_ORDINAL_PATTERN = Pattern.compile(YEAR_REGEX + "|" + ORDINAL_REGEX);
     // Stopwords must not be contained in the ICORE data
     private static final Set<String> TITLE_STOPWORDS = Set.of(
-            "proceedings", "volume", "part", "papers",
-            "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"
-    );
+            "proceedings",
+            "volume",
+            "part",
+            "papers",
+            "january",
+            "february",
+            "march",
+            "april",
+            "may",
+            "june",
+            "july",
+            "august",
+            "september",
+            "october",
+            "november",
+            "december");
     private static final int MAX_CANDIDATES_THRESHOLD = 50;
     private static final int DELIMITER_START = -1;
 
@@ -43,7 +55,8 @@ public final class ConferenceUtils {
     ///
     ///
     ///
-    /// If a match is found, leading and trailing whitespace around the string is stripped. If the resulting string is not
+    /// If a match is found, leading and trailing whitespace around the string is stripped. If the resulting string is
+    /// not
     /// empty, it is returned wrapped in an `Optional`. Otherwise, an empty `Optional` is returned.
     ///
     ///
@@ -76,7 +89,8 @@ public final class ConferenceUtils {
         return Optional.empty();
     }
 
-    /// Generates possible acronym candidates from the given input string by splitting on common delimiters and extracting
+    /// Generates possible acronym candidates from the given input string by splitting on common delimiters and
+    /// extracting
     /// substrings within the specified cutoff length.
     ///
     /// Candidates are ordered in a [TreeSet] such that longer strings are positioned before shorter ones, with
@@ -154,9 +168,7 @@ public final class ConferenceUtils {
     }
 
     private static boolean isAcronymDelimiter(char c) {
-        return Character.isWhitespace(c) ||
-                c == '\'' || c == ',' || c == '_' ||
-                c == ':' || c == '.' || c == '-';
+        return Character.isWhitespace(c) || c == '\'' || c == ',' || c == '_' || c == ':' || c == '.' || c == '-';
     }
 
     /// Normalizes a raw conference title query string into a simplified form suitable for fuzzy matching.
@@ -201,8 +213,7 @@ public final class ConferenceUtils {
 
         normalizeTokenAndFlush(currentToken, normalized);
 
-        return normalized.toString()
-                         .replaceFirst("^(ofthe|of|the)+", "");   // remove any false starts
+        return normalized.toString().replaceFirst("^(ofthe|of|the)+", ""); // remove any false starts
     }
 
     private static void normalizeTokenAndFlush(StringBuilder currentToken, StringBuilder output) {

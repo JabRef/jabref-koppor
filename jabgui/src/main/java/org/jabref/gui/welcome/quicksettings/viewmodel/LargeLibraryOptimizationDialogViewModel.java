@@ -2,7 +2,6 @@ package org.jabref.gui.welcome.quicksettings.viewmodel;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.preferences.GuiPreferences;
 

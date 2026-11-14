@@ -1,27 +1,24 @@
 package org.jabref.gui.push;
 
-import java.util.List;
-import java.util.Map;
-
-import javafx.beans.property.SimpleMapProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableMap;
-
-import org.jabref.gui.DialogService;
-import org.jabref.logic.os.OS;
-import org.jabref.logic.push.CitationCommandString;
-import org.jabref.logic.push.PushToApplicationPreferences;
-import org.jabref.model.entry.BibEntry;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Answers;
-
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Map;
+import javafx.beans.property.SimpleMapProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
+import org.jabref.gui.DialogService;
+import org.jabref.logic.os.OS;
+import org.jabref.logic.push.CitationCommandString;
+import org.jabref.logic.push.PushToApplicationPreferences;
+import org.jabref.model.entry.BibEntry;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 
 class PushToTeXworksTest {
 
@@ -38,7 +35,8 @@ class PushToTeXworksTest {
         // Mock the command path
         Map<String, String> commandPaths = Map.of(DISPLAY_NAME, TEXWORKS_CLIENT_PATH);
         ObservableMap<String, String> observableCommandPaths = FXCollections.observableMap(commandPaths);
-        when(pushToApplicationPreferences.getCommandPaths()).thenReturn(new SimpleMapProperty<>(observableCommandPaths));
+        when(pushToApplicationPreferences.getCommandPaths())
+                .thenReturn(new SimpleMapProperty<>(observableCommandPaths));
 
         // Mock the return value for getCiteCommand()
         CitationCommandString mockCiteCommand = mock(CitationCommandString.class);
@@ -63,7 +61,8 @@ class PushToTeXworksTest {
     @Test
     void getCommandLine() {
         String keyString = "TestKey";
-        String[] expectedCommand = new String[] {"", "--insert-text", keyString}; // commandPath is only set in pushEntries
+        String[] expectedCommand =
+                new String[] {"", "--insert-text", keyString}; // commandPath is only set in pushEntries
 
         String[] actualCommand = pushToTeXworks.getCommandLine(keyString);
 
@@ -77,7 +76,8 @@ class PushToTeXworksTest {
 
         String testKey = "TestKey";
         if (OS.OS_X) {
-            List<String> expectedCommand = List.of("open", "-a", TEXWORKS_CLIENT_PATH, "-n", "--args", "--insert-text", testKey);
+            List<String> expectedCommand =
+                    List.of("open", "-a", TEXWORKS_CLIENT_PATH, "-n", "--args", "--insert-text", testKey);
 
             pushToTeXworks.pushEntries(List.of(new BibEntry().withCitationKey(testKey)), processBuilder);
 

@@ -10,8 +10,7 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class GitSsh {
 
-    private GitSsh() {
-    }
+    private GitSsh() {}
 
     /// Closes jgit's shared sshd session factory so mina-sshd's asynchronous channel group is torn
     /// down while the JVM is still running. Left to JVM shutdown instead, a Windows IOCP socket read

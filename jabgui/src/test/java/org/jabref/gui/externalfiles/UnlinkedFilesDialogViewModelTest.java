@@ -1,16 +1,18 @@
 package org.jabref.gui.externalfiles;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.control.TreeItem;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.FileNodeViewModel;
@@ -21,32 +23,34 @@ import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 public class UnlinkedFilesDialogViewModelTest {
     @TempDir
     Path tempDir;
+
     @TempDir
     Path subDir;
+
     @TempDir
     Path file1;
+
     @TempDir
     Path file2;
+
     @Mock
     private TaskExecutor taskExecutor;
+
     @Mock
     private GuiPreferences guiPreferences;
+
     @Mock
     private StateManager stateManager;
+
     @Mock
     private BibDatabaseContext bibDatabaseContext;
 
@@ -57,17 +61,24 @@ public class UnlinkedFilesDialogViewModelTest {
         MockitoAnnotations.openMocks(this);
 
         // Mock a base directory
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, org.mockito.Answers.RETURNS_DEEP_STUBS);
+        ImportFormatPreferences importFormatPreferences =
+                mock(ImportFormatPreferences.class, org.mockito.Answers.RETURNS_DEEP_STUBS);
         when(guiPreferences.getImportFormatPreferences()).thenReturn(importFormatPreferences);
-        when(guiPreferences.getExternalApplicationsPreferences()).thenReturn(mock(org.jabref.gui.frame.ExternalApplicationsPreferences.class, org.mockito.Answers.RETURNS_DEEP_STUBS));
-        when(guiPreferences.getImporterPreferences()).thenReturn(mock(ImporterPreferences.class, org.mockito.Answers.RETURNS_DEEP_STUBS));
-        when(guiPreferences.getCitationKeyPatternPreferences()).thenReturn(mock(CitationKeyPatternPreferences.class, org.mockito.Answers.RETURNS_DEEP_STUBS));
+        when(guiPreferences.getExternalApplicationsPreferences())
+                .thenReturn(mock(
+                        org.jabref.gui.frame.ExternalApplicationsPreferences.class,
+                        org.mockito.Answers.RETURNS_DEEP_STUBS));
+        when(guiPreferences.getImporterPreferences())
+                .thenReturn(mock(ImporterPreferences.class, org.mockito.Answers.RETURNS_DEEP_STUBS));
+        when(guiPreferences.getCitationKeyPatternPreferences())
+                .thenReturn(mock(CitationKeyPatternPreferences.class, org.mockito.Answers.RETURNS_DEEP_STUBS));
 
         FieldPreferences fieldPreferences = mock(FieldPreferences.class);
         when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
         when(guiPreferences.getFieldPreferences()).thenReturn(fieldPreferences);
 
-        when(guiPreferences.getImporterPreferences().getCustomImporters()).thenReturn(FXCollections.emptyObservableSet());
+        when(guiPreferences.getImporterPreferences().getCustomImporters())
+                .thenReturn(FXCollections.emptyObservableSet());
         FilePreferences filePreferences = mock(FilePreferences.class);
         when(guiPreferences.getFilePreferences()).thenReturn(filePreferences);
         when(filePreferences.getWorkingDirectory()).thenReturn(Path.of("C:/test/base"));
@@ -75,14 +86,7 @@ public class UnlinkedFilesDialogViewModelTest {
         // Mock the state manager to provide an active database
         when(stateManager.getActiveDatabase()).thenReturn(Optional.of(bibDatabaseContext));
 
-        viewModel = new UnlinkedFilesDialogViewModel(
-                null,
-                null,
-                null,
-                guiPreferences,
-                stateManager,
-                taskExecutor
-        );
+        viewModel = new UnlinkedFilesDialogViewModel(null, null, null, guiPreferences, stateManager, taskExecutor);
     }
 
     @Test
@@ -118,14 +122,13 @@ public class UnlinkedFilesDialogViewModelTest {
 
         // Create list of relative paths
         List<Path> fileList = checkedFileListProperty.stream()
-                                                     .map(item -> item.getValue().getPath())
-                                                     .filter(path -> path.toFile().isFile())
-                                                     .map(directory::relativize)
-                                                     .collect(Collectors.toList());
+                .map(item -> item.getValue().getPath())
+                .filter(path -> path.toFile().isFile())
+                .map(directory::relativize)
+                .collect(Collectors.toList());
         assertEquals(
                 List.of(directory.relativize(file1), directory.relativize(file2)),
                 fileList,
-                "fileList should contain exactly the relative paths of file1.pdf and file2.txt"
-        );
+                "fileList should contain exactly the relative paths of file1.pdf and file2.txt");
     }
 }

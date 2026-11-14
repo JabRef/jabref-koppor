@@ -1,7 +1,6 @@
 package org.jabref.gui.mergeentries.threewaymerge.fieldsmerger;
 
 import java.util.List;
-
 import org.jabref.logic.bibtex.FileFieldWriter;
 import org.jabref.logic.importer.util.FileFieldParser;
 import org.jabref.logic.util.strings.StringUtil;

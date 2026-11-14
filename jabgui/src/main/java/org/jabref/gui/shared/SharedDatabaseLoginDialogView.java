@@ -1,5 +1,9 @@
 package org.jabref.gui.shared;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import com.tobiasdiez.easybind.EasyBind;
+import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
+import jakarta.inject.Inject;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,7 +18,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
@@ -33,44 +36,95 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import com.tobiasdiez.easybind.EasyBind;
-import de.saxsys.mvvmfx.utils.validation.visualization.ControlsFxVisualizer;
-import jakarta.inject.Inject;
-
 /// This offers the user to connect to a remove SQL database.
 /// Moreover, it directly opens the shared database after successful connection.
 public class SharedDatabaseLoginDialogView extends BaseDialog<Void> {
-    @FXML private TextField host;
-    @FXML private TextField database;
-    @FXML private TextField port;
-    @FXML private TextField user;
-    @FXML private PasswordField password;
-    @FXML private CheckBox rememberPassword;
-    @FXML private SplitPane rememberPasswordWrapper;
-    @FXML private TextField folder;
-    @FXML private Button browseButton;
-    @FXML private CheckBox autosave;
-    @FXML private ButtonType connectButton;
-    @FXML private CheckBox useSSL;
-    @FXML private TextField jdbcUrl;
-    @FXML private CheckBox expertMode;
-    @FXML private TextField connectionUrl;
-    @FXML private TitledPane advancedPane;
-    @FXML private GridPane savedConnectionsPane;
-    @FXML private ComboBox<SharedDatabaseLoginDialogViewModel.SavedConnection> savedConnections;
-    @FXML private Button removeSavedConnection;
+    @FXML
+    private TextField host;
 
-    @Inject private DialogService dialogService;
-    @Inject private GuiPreferences preferences;
-    @Inject private AiService aiService;
-    @Inject private StateManager stateManager;
-    @Inject private BibEntryTypesManager entryTypesManager;
-    @Inject private FileUpdateMonitor fileUpdateMonitor;
-    @Inject private ClipBoardManager clipBoardManager;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private JournalAbbreviationRepository journalAbbreviationRepository;
-    @Inject private GitHandlerRegistry gitHandlerRegistry;
+    @FXML
+    private TextField database;
+
+    @FXML
+    private TextField port;
+
+    @FXML
+    private TextField user;
+
+    @FXML
+    private PasswordField password;
+
+    @FXML
+    private CheckBox rememberPassword;
+
+    @FXML
+    private SplitPane rememberPasswordWrapper;
+
+    @FXML
+    private TextField folder;
+
+    @FXML
+    private Button browseButton;
+
+    @FXML
+    private CheckBox autosave;
+
+    @FXML
+    private ButtonType connectButton;
+
+    @FXML
+    private CheckBox useSSL;
+
+    @FXML
+    private TextField jdbcUrl;
+
+    @FXML
+    private CheckBox expertMode;
+
+    @FXML
+    private TextField connectionUrl;
+
+    @FXML
+    private TitledPane advancedPane;
+
+    @FXML
+    private GridPane savedConnectionsPane;
+
+    @FXML
+    private ComboBox<SharedDatabaseLoginDialogViewModel.SavedConnection> savedConnections;
+
+    @FXML
+    private Button removeSavedConnection;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private AiService aiService;
+
+    @Inject
+    private StateManager stateManager;
+
+    @Inject
+    private BibEntryTypesManager entryTypesManager;
+
+    @Inject
+    private FileUpdateMonitor fileUpdateMonitor;
+
+    @Inject
+    private ClipBoardManager clipBoardManager;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private JournalAbbreviationRepository journalAbbreviationRepository;
+
+    @Inject
+    private GitHandlerRegistry gitHandlerRegistry;
 
     private final LibraryTabContainer tabContainer;
     private SharedDatabaseLoginDialogViewModel viewModel;
@@ -82,23 +136,25 @@ public class SharedDatabaseLoginDialogView extends BaseDialog<Void> {
         this.tabContainer = tabContainer;
         this.setTitle(Localization.lang("Connect to shared database"));
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         ControlHelper.setAction(connectButton, this.getDialogPane(), _ -> openDatabase());
         Button btnConnect = (Button) this.getDialogPane().lookupButton(connectButton);
         // must be set here, because in initializing the button is still null
-        btnConnect.disableProperty().bind(viewModel.formValidation().validProperty().not().or(viewModel.passwordLoadingProperty()));
+        btnConnect
+                .disableProperty()
+                .bind(viewModel.formValidation().validProperty().not().or(viewModel.passwordLoadingProperty()));
         // Reading the clipboard once the dialog is shown would run inside the nested event loop of
         // showAndWait and leave the dialog in a state that breaks the next one, so it happens up front
         viewModel.applyClipboardConnectionUrl();
         // addEventHandler, not setOnShown: BaseDialog already installs a shown handler
         // runLater: the dialog moves the focus to its default button after the shown event
-        addEventHandler(DialogEvent.DIALOG_SHOWN, _ -> Platform.runLater(() -> {
-            connectionUrl.requestFocus();
-            connectionUrl.selectAll();
-        }));
+        addEventHandler(
+                DialogEvent.DIALOG_SHOWN,
+                _ -> Platform.runLater(() -> {
+                    connectionUrl.requestFocus();
+                    connectionUrl.selectAll();
+                }));
         setOnCloseRequest(_ -> resizeGeneration++);
     }
 
@@ -132,7 +188,9 @@ public class SharedDatabaseLoginDialogView extends BaseDialog<Void> {
         savedConnections.valueProperty().bindBidirectional(viewModel.selectedSavedConnectionProperty());
         savedConnectionsPane.visibleProperty().bind(viewModel.hasSavedConnectionsProperty());
         savedConnectionsPane.managedProperty().bind(savedConnectionsPane.visibleProperty());
-        removeSavedConnection.disableProperty().bind(viewModel.selectedSavedConnectionProperty().isNull());
+        removeSavedConnection
+                .disableProperty()
+                .bind(viewModel.selectedSavedConnectionProperty().isNull());
 
         connectionUrl.textProperty().bindBidirectional(viewModel.connectionUrlProperty());
         database.textProperty().bindBidirectional(viewModel.databaseproperty());
@@ -175,8 +233,9 @@ public class SharedDatabaseLoginDialogView extends BaseDialog<Void> {
             visualizer.initVisualization(viewModel.portValidation(), port, true);
             visualizer.initVisualization(viewModel.userValidation(), user, true);
 
-            EasyBind.subscribe(autosave.selectedProperty(), _ ->
-                    visualizer.initVisualization(viewModel.folderValidation(), folder, true));
+            EasyBind.subscribe(
+                    autosave.selectedProperty(),
+                    _ -> visualizer.initVisualization(viewModel.folderValidation(), folder, true));
         });
     }
 

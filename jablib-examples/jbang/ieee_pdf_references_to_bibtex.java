@@ -1,22 +1,11 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 
-import org.jabref.logic.exporter.BibWriter;
-import org.jabref.logic.exporter.BibDatabaseWriter;
-import org.jabref.logic.importer.fileformat.pdf.CitationsFromPdf;
-import org.jabref.logic.preferences.CliPreferences;
-import org.jabref.logic.preferences.JabRefCliPreferences;
-
-import org.tinylog.Logger;
-
 //DESCRIPTION Opens the given PDF file, parses the references and outputs BibTeX
-
 //JAVA 25
 //RUNTIME_OPTIONS --enable-native-access=ALL-UNNAMED
 //FILES tinylog.properties=tinylog.properties
-
 //REPOS mavencentral,mavencentralsnapshots=https://central.sonatype.com/repository/maven-snapshots/
 //DEPS com.fasterxml.jackson.core:jackson-annotations:2.20
-// JabRef relies on PR https://github.com/unicode-org/icu/pull/2127; for experiments the release version is OK.
 //DEPS com.ibm.icu:icu4j:78.1
 //DEPS com.nimbusds:oauth2-oidc-sdk:11.30.1
 //DEPS net.minidev:json-smart:2.6.0
@@ -24,6 +13,13 @@ import org.tinylog.Logger;
 //DEPS tools.jackson.core:jackson-core:3.0.2
 //DEPS tools.jackson.core:jackson-databind:3.0.2
 //DEPS tools.jackson.dataformat:jackson-dataformat-yaml:3.0.2
+
+import org.jabref.logic.exporter.BibDatabaseWriter;
+import org.jabref.logic.importer.fileformat.pdf.CitationsFromPdf;
+import org.jabref.logic.preferences.JabRefCliPreferences;
+import org.tinylog.Logger;
+
+// JabRef relies on PR https://github.com/unicode-org/icu/pull/2127; for experiments the release version is OK.
 
 void main() throws Exception {
     var preferences = JabRefCliPreferences.getInstance();

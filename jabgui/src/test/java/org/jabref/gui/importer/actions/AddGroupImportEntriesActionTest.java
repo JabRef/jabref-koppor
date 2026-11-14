@@ -1,20 +1,18 @@
 package org.jabref.gui.importer.actions;
 
-import java.util.List;
-
-import org.jabref.logic.preferences.CliPreferences;
-import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.groups.GroupTreeNode;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Answers;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
+import org.jabref.logic.preferences.CliPreferences;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.groups.GroupTreeNode;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 
 class AddGroupImportEntriesActionTest {
 
@@ -27,14 +25,18 @@ class AddGroupImportEntriesActionTest {
     void setUp() {
         preferences = mock(CliPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(preferences.getLibraryPreferences().shouldAddImportedEntries()).thenReturn(true);
-        when(preferences.getLibraryPreferences().getAddImportedEntriesGroupName()).thenReturn("Imported entries");
+        when(preferences.getLibraryPreferences().getAddImportedEntriesGroupName())
+                .thenReturn("Imported entries");
         when(preferences.getBibEntryPreferences().getKeywordSeparator()).thenReturn(',');
     }
 
     private List<String> groupNames() {
-        return databaseContext.getMetaData().getGroups()
-                              .map(root -> root.getChildren().stream().map(GroupTreeNode::getName).toList())
-                              .orElse(List.of());
+        return databaseContext
+                .getMetaData()
+                .getGroups()
+                .map(root ->
+                        root.getChildren().stream().map(GroupTreeNode::getName).toList())
+                .orElse(List.of());
     }
 
     /// A library without the group gets it, as the first child of the root.

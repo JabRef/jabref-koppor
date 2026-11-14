@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -37,11 +36,12 @@ public class GenerateCitationKeyAction extends SimpleCommand {
     private final TaskExecutor taskExecutor;
     private final CliPreferences preferences;
 
-    public GenerateCitationKeyAction(Supplier<LibraryTab> tabSupplier,
-                                     DialogService dialogService,
-                                     StateManager stateManager,
-                                     TaskExecutor taskExecutor,
-                                     CliPreferences preferences) {
+    public GenerateCitationKeyAction(
+            Supplier<LibraryTab> tabSupplier,
+            DialogService dialogService,
+            StateManager stateManager,
+            TaskExecutor taskExecutor,
+            CliPreferences preferences) {
         this.tabSupplier = tabSupplier;
         this.dialogService = dialogService;
         this.stateManager = stateManager;
@@ -59,7 +59,8 @@ public class GenerateCitationKeyAction extends SimpleCommand {
 
     private void generateKeysIn(BibDatabaseContext databaseContext) {
         if (entries.isEmpty()) {
-            dialogService.showWarningDialogAndWait(Localization.lang("Autogenerate citation keys"),
+            dialogService.showWarningDialogAndWait(
+                    Localization.lang("Autogenerate citation keys"),
                     Localization.lang("First select the entries you want keys to be generated for."));
             return;
         }
@@ -143,7 +144,8 @@ public class GenerateCitationKeyAction extends SimpleCommand {
                 for (BibEntry entry : entries) {
                     String newKey = keyGenerator.generateKey(entry);
                     // Set the key on the FX thread, since BibEntry uses ObservableMap which fires FX listeners
-                    Optional<FieldChange> fieldChange = UiTaskExecutor.runInJavaFXThread(() -> entry.setCitationKey(newKey));
+                    Optional<FieldChange> fieldChange =
+                            UiTaskExecutor.runInJavaFXThread(() -> entry.setCitationKey(newKey));
                     if (fieldChange != null) {
                         fieldChange.ifPresent(change -> compound.addEdit(new UndoableFieldChange(change)));
                     }
@@ -158,12 +160,12 @@ public class GenerateCitationKeyAction extends SimpleCommand {
             }
         };
 
-        return backgroundTask.onSuccess(_ ->
-                dialogService.notify(formatOutputMessage(Localization.lang("Generated citation key for"), entries.size())));
+        return backgroundTask.onSuccess(_ -> dialogService.notify(
+                formatOutputMessage(Localization.lang("Generated citation key for"), entries.size())));
     }
 
     private String formatOutputMessage(String start, int count) {
-        return "%s %d %s.".formatted(start, count,
-                count > 1 ? Localization.lang("entries") : Localization.lang("entry"));
+        return "%s %d %s."
+                .formatted(start, count, count > 1 ? Localization.lang("entries") : Localization.lang("entry"));
     }
 }

@@ -15,5 +15,4 @@ public record ImportFormatPreferences(
         XmpPreferences xmpPreferences,
         DOIPreferences doiPreferences,
         GrobidPreferences grobidPreferences,
-        FilePreferences filePreferences) {
-}
+        FilePreferences filePreferences) {}

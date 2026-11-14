@@ -1,33 +1,28 @@
 package org.jabref.migrations;
 
 import java.util.List;
-
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 
 public class PerformLoadDatabaseMigrations {
 
-    public static void performLoadDatabaseMigrations(ParserResult parserResult,
-                                                     Character keywordSeparator) {
-        performLoadDatabaseMigrations(parserResult, keywordSeparator, () -> {
-        });
+    public static void performLoadDatabaseMigrations(ParserResult parserResult, Character keywordSeparator) {
+        performLoadDatabaseMigrations(parserResult, keywordSeparator, () -> {});
     }
 
     /// Run before attaching the parsed library to GUI listeners.
     // [impl->req~import.bibtex.legacy-migrations.only-when-needed~1]
-    public static void performLoadDatabaseMigrations(ParserResult parserResult,
-                                                     Character keywordSeparator,
-                                                     Runnable onMigrationStarted) {
+    public static void performLoadDatabaseMigrations(
+            ParserResult parserResult, Character keywordSeparator, Runnable onMigrationStarted) {
         List<PostOpenMigration> postOpenMigrations = List.of(
                 new ConvertLegacyExplicitGroups(),
                 new ConvertMarkingToGroups(keywordSeparator),
-                new SpecialFieldsToSeparateFields(keywordSeparator)
-        );
+                new SpecialFieldsToSeparateFields(keywordSeparator));
 
         List<PostOpenMigration> necessaryMigrations = postOpenMigrations.stream()
-                                                                        .filter(migration -> migration.isMigrationNecessary(parserResult))
-                                                                        .toList();
+                .filter(migration -> migration.isMigrationNecessary(parserResult))
+                .toList();
         if (necessaryMigrations.isEmpty()) {
             return;
         }

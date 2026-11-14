@@ -11,12 +11,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringJoiner;
-
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
-
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParseException;
@@ -32,7 +30,6 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +53,7 @@ public class EndnoteXmlImporter extends Importer implements Parser {
             Map.entry(IEEETranEntryType.Patent, "Patent"),
             Map.entry(StandardEntryType.Online, "Web Page"),
             Map.entry(IEEETranEntryType.Electronic, "Electronic Article"),
-            Map.entry(StandardEntryType.Misc, "Generic")
-    );
+            Map.entry(StandardEntryType.Misc, "Generic"));
 
     private static final Map<Field, String> FIELD_MAPPING = Map.ofEntries(
             Map.entry(StandardField.TITLE, "title"),
@@ -86,8 +82,7 @@ public class EndnoteXmlImporter extends Importer implements Parser {
             //  Map.entry(StandardField.LABEL, "label"), // We omit this field
             Map.entry(StandardField.LANGUAGE, "language"),
             // Map.entry(StandardField.KEY, "foreign-keys"),  // We omit this field
-            Map.entry(StandardField.ADDRESS, "auth-address")
-    );
+            Map.entry(StandardField.ADDRESS, "auth-address"));
     private static final UnknownField FIELD_ALT_TITLE = new UnknownField("alt-title");
 
     private final ImportFormatPreferences preferences;
@@ -175,24 +170,18 @@ public class EndnoteXmlImporter extends Importer implements Parser {
                     case "ref-type" -> {
                         String refType = reader.getAttributeValue(null, "name");
                         EntryType entryType = ENTRY_TYPE_MAPPING.entrySet().stream()
-                                                                .filter(e -> e.getValue().equals(refType))
-                                                                .map(Map.Entry::getKey)
-                                                                .findFirst()
-                                                                .orElse(StandardEntryType.Misc);
+                                .filter(e -> e.getValue().equals(refType))
+                                .map(Map.Entry::getKey)
+                                .findFirst()
+                                .orElse(StandardEntryType.Misc);
                         entry.setType(entryType);
                     }
-                    case "contributors" ->
-                            parseContributors(reader, entry);
-                    case "titles" ->
-                            parseTitles(reader, entry);
-                    case "periodical" ->
-                            parsePeriodical(reader, entry);
-                    case "keywords" ->
-                            parseKeywords(reader, entry);
-                    case "urls" ->
-                            parseUrls(reader, entry);
-                    case "dates" ->
-                            parseDates(reader, entry);
+                    case "contributors" -> parseContributors(reader, entry);
+                    case "titles" -> parseTitles(reader, entry);
+                    case "periodical" -> parsePeriodical(reader, entry);
+                    case "keywords" -> parseKeywords(reader, entry);
+                    case "urls" -> parseUrls(reader, entry);
+                    case "dates" -> parseDates(reader, entry);
                     // TODO: Left for future work -- test files need to be adapted
                     // case "accession-num" -> {
                     //    String accessionNumber = parseElementContent(reader, "accession-num");
@@ -200,10 +189,10 @@ public class EndnoteXmlImporter extends Importer implements Parser {
                     // }
                     default -> {
                         Field field = FIELD_MAPPING.entrySet().stream()
-                                                   .filter(e -> e.getValue().equals(elementName))
-                                                   .map(Map.Entry::getKey)
-                                                   .findFirst()
-                                                   .orElse(null);
+                                .filter(e -> e.getValue().equals(elementName))
+                                .map(Map.Entry::getKey)
+                                .findFirst()
+                                .orElse(null);
                         if (field != null) {
                             String value = parseElementContent(reader, elementName);
                             entry.setField(field, value);
@@ -214,7 +203,9 @@ public class EndnoteXmlImporter extends Importer implements Parser {
         }
 
         // Cleanup: Remove alt-title if it matches the journal
-        String journalOrBooktitle = entry.getField(StandardField.JOURNAL).or(() -> entry.getField(StandardField.BOOKTITLE)).orElse("");
+        String journalOrBooktitle = entry.getField(StandardField.JOURNAL)
+                .or(() -> entry.getField(StandardField.BOOKTITLE))
+                .orElse("");
         if (entry.hasField(FIELD_ALT_TITLE)) {
             String altTitle = entry.getField(FIELD_ALT_TITLE).orElse("");
             if (journalOrBooktitle.equals(altTitle)) {
@@ -236,7 +227,8 @@ public class EndnoteXmlImporter extends Importer implements Parser {
         }
     }
 
-    private void extractPersons(XMLStreamReader reader, String elementName, BibEntry entry, StandardField author) throws XMLStreamException {
+    private void extractPersons(XMLStreamReader reader, String elementName, BibEntry entry, StandardField author)
+            throws XMLStreamException {
         if (isStartElement(reader, elementName)) {
             StringJoiner persons = new StringJoiner(" and ");
             while (reader.hasNext()) {
@@ -302,10 +294,7 @@ public class EndnoteXmlImporter extends Importer implements Parser {
     private void parseJournalOrBookTitle(XMLStreamReader reader, BibEntry entry) throws XMLStreamException {
         String elementName = reader.getName().getLocalPart();
         switch (elementName) {
-            case "full-title",
-                 "abbr-2",
-                 "abbr-1",
-                 "abbr-3" -> {
+            case "full-title", "abbr-2", "abbr-1", "abbr-3" -> {
                 String title = parseElementContent(reader, elementName);
                 if (entry.getType().equals(StandardEntryType.Article)) {
                     entry.setField(StandardField.JOURNAL, title);
@@ -397,9 +386,7 @@ public class EndnoteXmlImporter extends Importer implements Parser {
             if (isStartElement(reader)) {
                 String elementName = reader.getName().getLocalPart();
                 switch (elementName) {
-                    case "year",
-                         "month",
-                         "day" -> {
+                    case "year", "month", "day" -> {
                         String date = parseElementContent(reader, elementName);
                         entry.setField(StandardField.fromName(elementName).get(), date);
                     }
@@ -459,8 +446,9 @@ public class EndnoteXmlImporter extends Importer implements Parser {
     @Override
     public List<BibEntry> parseEntries(InputStream inputStream) throws ParseException {
         try {
-            return importDatabase(
-                    new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))).getDatabase().getEntries();
+            return importDatabase(new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)))
+                    .getDatabase()
+                    .getEntries();
         } catch (IOException e) {
             LOGGER.error("Could not import file", e);
         }

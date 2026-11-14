@@ -2,10 +2,8 @@ package org.jabref.logic.undo;
 
 import java.util.Objects;
 import java.util.Optional;
-
 import org.jabref.model.undo.BibChange;
 import org.jabref.model.undo.UndoableFieldChange;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 

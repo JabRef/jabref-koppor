@@ -2,11 +2,9 @@ package org.jabref.gui.externalfiles;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jabref.gui.StateManager;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -42,7 +40,8 @@ public class EntryImportHandlerTracker {
         this(stateManager, targetDatabaseContext, 1);
     }
 
-    public EntryImportHandlerTracker(StateManager stateManager, BibDatabaseContext targetDatabaseContext, int totalEntries) {
+    public EntryImportHandlerTracker(
+            StateManager stateManager, BibDatabaseContext targetDatabaseContext, int totalEntries) {
         this.stateManager = stateManager;
         this.targetDatabaseContext = targetDatabaseContext;
         this.totalEntries = totalEntries;
@@ -93,9 +92,11 @@ public class EntryImportHandlerTracker {
             return;
         }
 
-        stateManager.activeTabProperty().get()
-                    .filter(tab -> targetDatabaseContext == tab.getBibDatabaseContext())
-                    .ifPresent(tab -> tab.clearAndSelect(importedEntriesSnapshot));
+        stateManager
+                .activeTabProperty()
+                .get()
+                .filter(tab -> targetDatabaseContext == tab.getBibDatabaseContext())
+                .ifPresent(tab -> tab.clearAndSelect(importedEntriesSnapshot));
     }
 
     /// Returns an immutable snapshot of the actually imported `BibEntry` instances (the copies inserted

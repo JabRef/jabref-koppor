@@ -1,16 +1,25 @@
 package org.jabref.gui.externalfiles;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.input.TransferMode;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.duplicationFinder.DuplicateResolverDialog;
@@ -41,7 +50,6 @@ import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,17 +64,6 @@ import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockConstruction;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 class ImportHandlerTest {
 
     private ImportHandler importHandler;
@@ -75,8 +72,10 @@ class ImportHandlerTest {
 
     @Mock
     private GuiPreferences preferences;
+
     @Mock
     private DuplicateCheck duplicateCheck;
+
     @Mock
     private DialogService dialogService;
 
@@ -84,12 +83,16 @@ class ImportHandlerTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        ImportFormatPreferences importFormatPreferences =
+                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(preferences.getImportFormatPreferences()).thenReturn(importFormatPreferences);
         when(preferences.getFilePreferences()).thenReturn(mock(FilePreferences.class));
-        when(preferences.getExternalApplicationsPreferences()).thenReturn(mock(ExternalApplicationsPreferences.class, Answers.RETURNS_DEEP_STUBS));
-        when(preferences.getImporterPreferences()).thenReturn(mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS));
-        when(preferences.getCitationKeyPatternPreferences()).thenReturn(mock(CitationKeyPatternPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(preferences.getExternalApplicationsPreferences())
+                .thenReturn(mock(ExternalApplicationsPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(preferences.getImporterPreferences())
+                .thenReturn(mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(preferences.getCitationKeyPatternPreferences())
+                .thenReturn(mock(CitationKeyPatternPreferences.class, Answers.RETURNS_DEEP_STUBS));
         when(preferences.getImporterPreferences().getCustomImporters()).thenReturn(FXCollections.emptyObservableSet());
 
         FieldPreferences fieldPreferences = mock(FieldPreferences.class);
@@ -97,8 +100,10 @@ class ImportHandlerTest {
         when(preferences.getFieldPreferences()).thenReturn(fieldPreferences);
 
         when(preferences.getOwnerPreferences()).thenReturn(mock(OwnerPreferences.class, Answers.RETURNS_DEEP_STUBS));
-        when(preferences.getTimestampPreferences()).thenReturn(mock(TimestampPreferences.class, Answers.RETURNS_DEEP_STUBS));
-        when(preferences.getLibraryPreferences()).thenReturn(mock(LibraryPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(preferences.getTimestampPreferences())
+                .thenReturn(mock(TimestampPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(preferences.getLibraryPreferences())
+                .thenReturn(mock(LibraryPreferences.class, Answers.RETURNS_DEEP_STUBS));
 
         bibDatabaseContext = mock(BibDatabaseContext.class);
         BibDatabase bibDatabase = new BibDatabase();
@@ -155,28 +160,44 @@ class ImportHandlerTest {
     }
 
     @Test
-        // [utest->req~import.dropped-file-diagnostics~1]
+    // [utest->req~import.dropped-file-diagnostics~1]
     void importErrorsShowOnlyUnsuccessfulResults() {
         importHandler.showImportErrors(List.of(
                 new ImportFilesResultItemViewModel(Path.of("good.bib"), true, "Imported"),
                 new ImportFilesResultItemViewModel(Path.of("bad.bib"), false, "Invalid entry"),
-                new ImportFilesResultItemViewModel(Path.of("other.bib"), ImportFilesResultItemViewModel.Status.WARNING, "Imported with warnings")));
+                new ImportFilesResultItemViewModel(
+                        Path.of("other.bib"),
+                        ImportFilesResultItemViewModel.Status.WARNING,
+                        "Imported with warnings")));
 
-        verify(dialogService).showWarningDialogAndWait("Import warnings", "Check the syntax and encoding of the BibTeX file and correct any errors.\n\nbad.bib\nother.bib\n\nSee the event log for details. Some entries may have been imported.");
+        verify(dialogService)
+                .showWarningDialogAndWait(
+                        "Import warnings",
+                        "Check the syntax and encoding of the BibTeX file and correct any errors.\n\n"
+                                + "bad.bib\n"
+                                + "other.bib\n\n"
+                                + "See the event log for details. Some entries may have been imported.");
     }
 
     @Test
     void nonBibtexImportErrorsSuggestCheckingTheFile() {
-        importHandler.showImportErrors(List.of(new ImportFilesResultItemViewModel(Path.of("bad.ris"), false, "Invalid format")));
+        importHandler.showImportErrors(
+                List.of(new ImportFilesResultItemViewModel(Path.of("bad.ris"), false, "Invalid format")));
 
-        verify(dialogService).showWarningDialogAndWait("Import warnings", "Check the affected files and correct any errors.\n\nbad.ris\n\nSee the event log for details. Some entries may have been imported.");
+        verify(dialogService)
+                .showWarningDialogAndWait(
+                        "Import warnings",
+                        "Check the affected files and correct any errors.\n\n"
+                                + "bad.ris\n\n"
+                                + "See the event log for details. Some entries may have been imported.");
     }
 
     @Test
     void longImportDiagnosticsAreShortened() {
         List<ImportFilesResultItemViewModel> results = java.util.stream.IntStream.range(0, 20)
-                                                                                 .mapToObj(index -> new ImportFilesResultItemViewModel(Path.of("file" + index + ".bib"), false, "x".repeat(2000)))
-                                                                                 .toList();
+                .mapToObj(index ->
+                        new ImportFilesResultItemViewModel(Path.of("file" + index + ".bib"), false, "x".repeat(2000)))
+                .toList();
 
         importHandler.showImportErrors(results);
 
@@ -199,7 +220,8 @@ class ImportHandlerTest {
 
     @Test
     void successfulImportsDoNotShowWarning() {
-        importHandler.showImportErrors(List.of(new ImportFilesResultItemViewModel(Path.of("good.bib"), true, "Imported")));
+        importHandler.showImportErrors(
+                List.of(new ImportFilesResultItemViewModel(Path.of("good.bib"), true, "Imported")));
 
         Mockito.verifyNoInteractions(dialogService);
     }
@@ -212,7 +234,9 @@ class ImportHandlerTest {
         Mockito.doReturn(Optional.empty()).when(handler).showPdfMergeDialog(Path.of("cancelled.pdf"));
         Mockito.doNothing().when(handler).importEntries(any());
 
-        List<ImportFilesResultItemViewModel> results = handler.importFilesInBackground(List.of(Path.of("cancelled.pdf")), TransferMode.COPY).call();
+        List<ImportFilesResultItemViewModel> results = handler.importFilesInBackground(
+                        List.of(Path.of("cancelled.pdf")), TransferMode.COPY)
+                .call();
         JavaFxExtension.awaitEvents();
 
         assertEquals(List.of(), results);
@@ -232,7 +256,12 @@ class ImportHandlerTest {
         handler.importDroppedFiles(List.of(file), TransferMode.COPY);
         JavaFxExtension.awaitEvents();
 
-        verify(dialogService).showWarningDialogAndWait("Import warnings", "Check the syntax and encoding of the BibTeX file and correct any errors.\n\ninvalid.bib\n\nSee the event log for details. Some entries may have been imported.");
+        verify(dialogService)
+                .showWarningDialogAndWait(
+                        "Import warnings",
+                        "Check the syntax and encoding of the BibTeX file and correct any errors.\n\n"
+                                + "invalid.bib\n\n"
+                                + "See the event log for details. Some entries may have been imported.");
     }
 
     @Test
@@ -243,29 +272,36 @@ class ImportHandlerTest {
         Mockito.doNothing().when(handler).importEntries(any());
         Path file = directory.resolve("partial.bib");
         Files.writeString(file, """
-                @article{valid, title={A valid entry}}
-                @article{broken, title={unclosed}
-                """);
+            @article{valid, title={A valid entry}}
+            @article{broken, title={unclosed}
+            """);
 
-        List<ImportFilesResultItemViewModel> results = handler.importFilesInBackground(List.of(file), TransferMode.COPY).call();
+        List<ImportFilesResultItemViewModel> results = handler.importFilesInBackground(List.of(file), TransferMode.COPY)
+                .call();
         JavaFxExtension.awaitEvents();
 
         assertEquals(1, results.size());
-        assertEquals(ImportFilesResultItemViewModel.Status.WARNING, results.getFirst().status());
+        assertEquals(
+                ImportFilesResultItemViewModel.Status.WARNING,
+                results.getFirst().status());
         assertTrue(results.getFirst().isSuccess());
         assertTrue(results.getFirst().message().get().contains("File was imported as BibTeX"));
     }
 
     @Test
     void handleBibTeXData() {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        ImportFormatPreferences importFormatPreferences =
+                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
 
         GuiPreferences preferences = mock(GuiPreferences.class);
         when(preferences.getImportFormatPreferences()).thenReturn(importFormatPreferences);
         when(preferences.getFilePreferences()).thenReturn(mock(FilePreferences.class));
-        when(preferences.getExternalApplicationsPreferences()).thenReturn(mock(ExternalApplicationsPreferences.class, Answers.RETURNS_DEEP_STUBS));
-        when(preferences.getImporterPreferences()).thenReturn(mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS));
-        when(preferences.getCitationKeyPatternPreferences()).thenReturn(mock(CitationKeyPatternPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(preferences.getExternalApplicationsPreferences())
+                .thenReturn(mock(ExternalApplicationsPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(preferences.getImporterPreferences())
+                .thenReturn(mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(preferences.getCitationKeyPatternPreferences())
+                .thenReturn(mock(CitationKeyPatternPreferences.class, Answers.RETURNS_DEEP_STUBS));
         when(preferences.getImporterPreferences().getCustomImporters()).thenReturn(FXCollections.emptyObservableSet());
 
         ImportHandler importHandler = new ImportHandler(
@@ -278,10 +314,10 @@ class ImportHandlerTest {
                 new CurrentThreadTaskExecutor());
 
         List<BibEntry> bibEntries = importHandler.handleBibTeXData("""
-                @InProceedings{Wen2013,
-                  library          = {Tagungen\\2013\\KWTK45\\},
-                }
-                """);
+            @InProceedings{Wen2013,
+              library          = {Tagungen\\2013\\KWTK45\\},
+            }
+            """);
 
         BibEntry expected = new BibEntry(StandardEntryType.InProceedings)
                 .withCitationKey("Wen2013")
@@ -305,7 +341,8 @@ class ImportHandlerTest {
 
         ImportResult importResult = new ImportResult("RIS", parserResult);
 
-        ImportHandler.AutoDetectionImportOutcome outcome = importHandler.createAutoDetectionImportOutcome(Path.of("sample.ris"), importResult);
+        ImportHandler.AutoDetectionImportOutcome outcome =
+                importHandler.createAutoDetectionImportOutcome(Path.of("sample.ris"), importResult);
 
         assertEquals(ImportFilesResultItemViewModel.Status.WARNING, outcome.status());
         assertEquals(List.of(importedEntry), outcome.entriesToAdd());
@@ -319,11 +356,14 @@ class ImportHandlerTest {
 
         ImportResult importResult = new ImportResult("RIS", parserResult);
 
-        ImportHandler.AutoDetectionImportOutcome outcome = importHandler.createAutoDetectionImportOutcome(Path.of("sample.ris"), importResult);
+        ImportHandler.AutoDetectionImportOutcome outcome =
+                importHandler.createAutoDetectionImportOutcome(Path.of("sample.ris"), importResult);
 
         assertEquals(ImportFilesResultItemViewModel.Status.FAILURE, outcome.status());
         assertEquals(1, outcome.entriesToAdd().size());
-        assertEquals("No importable data was found in RIS. An empty entry was created with file link. Warning text", outcome.message());
+        assertEquals(
+                "No importable data was found in RIS. An empty entry was created with file link. Warning text",
+                outcome.message());
     }
 
     @Test
@@ -377,7 +417,8 @@ class ImportHandlerTest {
         BibDatabase bibDatabase = bibDatabaseContext.getDatabase();
         bibDatabase.insertEntry(duplicateEntry); // Simulate that the duplicate entry is already in the database
 
-        DuplicateDecisionResult decisionResult = new DuplicateDecisionResult(DuplicateResolverDialog.DuplicateResolverResult.KEEP_RIGHT, null);
+        DuplicateDecisionResult decisionResult =
+                new DuplicateDecisionResult(DuplicateResolverDialog.DuplicateResolverResult.KEEP_RIGHT, null);
         importHandler = Mockito.spy(new ImportHandler(
                 bibDatabaseContext,
                 preferences,
@@ -387,10 +428,15 @@ class ImportHandlerTest {
                 mock(DialogService.class),
                 new CurrentThreadTaskExecutor()));
         // Mock the behavior of getDuplicateDecision to return KEEP_RIGHT
-        Mockito.doReturn(CompletableFuture.completedFuture(decisionResult)).when(importHandler).getDuplicateDecision(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK);
+        Mockito.doReturn(CompletableFuture.completedFuture(decisionResult))
+                .when(importHandler)
+                .getDuplicateDecision(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK);
 
         // Act
-        BibEntry result = importHandler.handleDuplicates(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK).join().get();
+        BibEntry result = importHandler
+                .handleDuplicates(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK)
+                .join()
+                .get();
 
         // Assert that the duplicate entry was removed from the database
         assertFalse(bibDatabase.getEntries().contains(duplicateEntry));
@@ -408,7 +454,8 @@ class ImportHandlerTest {
         BibDatabase bibDatabase = bibDatabaseContext.getDatabase();
         bibDatabase.insertEntry(duplicateEntry); // Simulate that the duplicate entry is already in the database
 
-        DuplicateDecisionResult decisionResult = new DuplicateDecisionResult(DuplicateResolverDialog.DuplicateResolverResult.KEEP_BOTH, null);
+        DuplicateDecisionResult decisionResult =
+                new DuplicateDecisionResult(DuplicateResolverDialog.DuplicateResolverResult.KEEP_BOTH, null);
         importHandler = Mockito.spy(new ImportHandler(
                 bibDatabaseContext,
                 preferences,
@@ -418,13 +465,20 @@ class ImportHandlerTest {
                 mock(DialogService.class),
                 new CurrentThreadTaskExecutor()));
         // Mock the behavior of getDuplicateDecision to return KEEP_BOTH
-        Mockito.doReturn(CompletableFuture.completedFuture(decisionResult)).when(importHandler).getDuplicateDecision(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK);
+        Mockito.doReturn(CompletableFuture.completedFuture(decisionResult))
+                .when(importHandler)
+                .getDuplicateDecision(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK);
 
         // Act
-        BibEntry result = importHandler.handleDuplicates(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK).join().get();
+        BibEntry result = importHandler
+                .handleDuplicates(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK)
+                .join()
+                .get();
 
         // Assert
-        assertTrue(bibDatabase.getEntries().contains(duplicateEntry)); // Assert that the duplicate entry is still in the database
+        assertTrue(bibDatabase
+                .getEntries()
+                .contains(duplicateEntry)); // Assert that the duplicate entry is still in the database
         assertEquals(testEntry, result); // Assert that the original entry is returned
     }
 
@@ -442,7 +496,8 @@ class ImportHandlerTest {
         BibDatabase bibDatabase = bibDatabaseContext.getDatabase();
         bibDatabase.insertEntry(duplicateEntry); // Simulate that the duplicate entry is already in the database
 
-        DuplicateDecisionResult decisionResult = new DuplicateDecisionResult(DuplicateResolverDialog.DuplicateResolverResult.KEEP_MERGE, mergedEntry);
+        DuplicateDecisionResult decisionResult =
+                new DuplicateDecisionResult(DuplicateResolverDialog.DuplicateResolverResult.KEEP_MERGE, mergedEntry);
         importHandler = Mockito.spy(new ImportHandler(
                 bibDatabaseContext,
                 preferences,
@@ -452,15 +507,21 @@ class ImportHandlerTest {
                 mock(DialogService.class),
                 new CurrentThreadTaskExecutor()));
         // Mock the behavior of getDuplicateDecision to return KEEP_MERGE
-        Mockito.doReturn(CompletableFuture.completedFuture(decisionResult)).when(importHandler).getDuplicateDecision(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK);
+        Mockito.doReturn(CompletableFuture.completedFuture(decisionResult))
+                .when(importHandler)
+                .getDuplicateDecision(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK);
 
         // Act
         // create and return a default BibEntry or do other computations
-        BibEntry result = importHandler.handleDuplicates(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK).join()
-                                       .orElseGet(BibEntry::new);
+        BibEntry result = importHandler
+                .handleDuplicates(testEntry, duplicateEntry, DuplicateResolverDialog.DuplicateResolverResult.BREAK)
+                .join()
+                .orElseGet(BibEntry::new);
 
         // Assert
-        assertFalse(bibDatabase.getEntries().contains(duplicateEntry)); // Assert that the duplicate entry was removed from the database
+        assertFalse(bibDatabase
+                .getEntries()
+                .contains(duplicateEntry)); // Assert that the duplicate entry was removed from the database
         assertEquals(mergedEntry, result); // Assert that the merged entry is returned
     }
 
@@ -546,12 +607,13 @@ class ImportHandlerTest {
         // The decision is asked of the user on the JavaFX thread; this test supplies it instead.
         ImportHandler handler = Mockito.spy(handlerFor(databaseContext, journal));
         Mockito.doReturn(CompletableFuture.completedFuture(
-                       new DuplicateDecisionResult(DuplicateResolverDialog.DuplicateResolverResult.KEEP_RIGHT, null)))
-               .when(handler).getDuplicateDecision(testEntry, existing, DuplicateResolverDialog.DuplicateResolverResult.BREAK);
+                        new DuplicateDecisionResult(DuplicateResolverDialog.DuplicateResolverResult.KEEP_RIGHT, null)))
+                .when(handler)
+                .getDuplicateDecision(testEntry, existing, DuplicateResolverDialog.DuplicateResolverResult.BREAK);
 
         handler.handleDuplicates(testEntry, existing, DuplicateResolverDialog.DuplicateResolverResult.BREAK)
-               .thenAccept(entryToImport -> handler.importCleanedEntries(null, List.of(entryToImport.orElseThrow())))
-               .join();
+                .thenAccept(entryToImport -> handler.importCleanedEntries(null, List.of(entryToImport.orElseThrow())))
+                .join();
 
         assertEquals(List.of(testEntry), database.getEntries());
 
@@ -563,7 +625,8 @@ class ImportHandlerTest {
     }
 
     /// An imported entry may carry a key from its source that is already taken in the library.
-    /// With "Generate new key on import" (the default setting), the imported entry gets a free key and the existing key stays.
+    /// With "Generate new key on import" (the default setting), the imported entry gets a free key and the existing key
+    /// stays.
     @Test
     void importedEntryWithTakenKeyGetsNewKeyAndExistingKeyStays() {
         BibEntry existingWang = new BibEntry()
@@ -576,23 +639,27 @@ class ImportHandlerTest {
                 .withCitationKey("Wang2020");
         BibDatabase database = new BibDatabase(List.of(existingWang));
         BibDatabaseContext databaseContext = new BibDatabaseContext(database);
-        when(preferences.getImporterPreferences().shouldGenerateNewKeyOnImport()).thenReturn(true);
-        GlobalCitationKeyPatterns keyPatterns = GlobalCitationKeyPatterns.fromPattern("[auth:transliterate:camel][year]");
-        when(preferences.getCitationKeyPatternPreferences()).thenReturn(new CitationKeyPatternPreferences(
-                false,
-                false,
-                false,
-                false,
-                CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A,
-                "",
-                "",
-                CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS,
-                keyPatterns,
-                new SimpleObjectProperty<>(',')));
+        when(preferences.getImporterPreferences().shouldGenerateNewKeyOnImport())
+                .thenReturn(true);
+        GlobalCitationKeyPatterns keyPatterns =
+                GlobalCitationKeyPatterns.fromPattern("[auth:transliterate:camel][year]");
+        when(preferences.getCitationKeyPatternPreferences())
+                .thenReturn(new CitationKeyPatternPreferences(
+                        false,
+                        false,
+                        false,
+                        false,
+                        CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A,
+                        "",
+                        "",
+                        CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS,
+                        keyPatterns,
+                        new SimpleObjectProperty<>(',')));
 
         handlerFor(databaseContext, new JabRefUndoManager()).importEntries(List.of(importedWang));
 
-        assertEquals(List.of(Optional.of("Wang2020"), Optional.of("Wang2020a")),
+        assertEquals(
+                List.of(Optional.of("Wang2020"), Optional.of("Wang2020a")),
                 List.of(existingWang.getCitationKey(), importedWang.getCitationKey()));
     }
 

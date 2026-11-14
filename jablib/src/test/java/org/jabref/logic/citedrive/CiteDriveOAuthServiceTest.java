@@ -1,33 +1,5 @@
 package org.jabref.logic.citedrive;
 
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.net.URI;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.jabref.logic.net.CiteDrivePreferences;
-import org.jabref.logic.remote.RemotePreferences;
-
-import com.nimbusds.oauth2.sdk.AuthorizationRequest;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.http.HTTPRequest;
-import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
-import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
-import com.nimbusds.oauth2.sdk.token.RefreshToken;
-import org.jspecify.annotations.NullMarked;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.ResourceLock;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.ArgumentCaptor;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -37,6 +9,32 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+
+import com.nimbusds.oauth2.sdk.AuthorizationRequest;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import com.nimbusds.oauth2.sdk.pkce.CodeChallengeMethod;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import org.jabref.logic.net.CiteDrivePreferences;
+import org.jabref.logic.remote.RemotePreferences;
+import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
 
 // [utest->req~citedrive.login~1]
 // [utest->req~citedrive.push~1]
@@ -48,7 +46,8 @@ class CiteDriveOAuthServiceTest {
     private final CiteDrivePreferences preferences = CiteDrivePreferences.getDefault();
     private final OAuthSessionRegistry registry = new OAuthSessionRegistry();
     private final AtomicReference<URI> openedPage = new AtomicReference<>();
-    private final CiteDriveOAuthService.TokenRequestSender sender = mock(CiteDriveOAuthService.TokenRequestSender.class);
+    private final CiteDriveOAuthService.TokenRequestSender sender =
+            mock(CiteDriveOAuthService.TokenRequestSender.class);
 
     @BeforeEach
     void setUp() {
@@ -60,7 +59,8 @@ class CiteDriveOAuthServiceTest {
     void disabledHttpServerFailsWithoutOpeningBrowser() {
         when(remotePreferences.shouldEnableHttpServer()).thenReturn(false);
 
-        assertThrows(ExecutionException.class, () -> service().authorizeInteractive().get(5, TimeUnit.SECONDS));
+        assertThrows(
+                ExecutionException.class, () -> service().authorizeInteractive().get(5, TimeUnit.SECONDS));
         assertEquals(Optional.empty(), Optional.ofNullable(openedPage.get()));
         verifyNoInteractions(sender);
     }
@@ -81,10 +81,12 @@ class CiteDriveOAuthServiceTest {
         RefreshToken refreshToken = new RefreshToken("stored");
         preferences.setRefreshToken(refreshToken);
         when(sender.send(any())).thenReturn(response(200, """
-                {"access_token":"access","token_type":"Bearer"}
-                """));
+            {"access_token":"access","token_type":"Bearer"}
+            """));
 
-        assertEquals(new BearerAccessToken("access"), service().getAccessToken().get(5, TimeUnit.SECONDS).orElseThrow());
+        assertEquals(
+                new BearerAccessToken("access"),
+                service().getAccessToken().get(5, TimeUnit.SECONDS).orElseThrow());
         assertEquals(refreshToken, preferences.getRefreshToken());
     }
 
@@ -92,14 +94,15 @@ class CiteDriveOAuthServiceTest {
     void interactiveLoginWithoutRefreshTokenDiscardsPreviousAccountToken() throws Exception {
         preferences.setRefreshToken(new RefreshToken("previous-account"));
         when(sender.send(any())).thenReturn(response(200, """
-                {"access_token":"access","token_type":"Bearer"}
-                """));
+            {"access_token":"access","token_type":"Bearer"}
+            """));
 
         var login = service().authorizeInteractive();
         AuthorizationRequest request = AuthorizationRequest.parse(openedPage.get());
         registry.complete(request.getState().getValue(), "code");
 
-        assertEquals(new BearerAccessToken("access"), login.get(5, TimeUnit.SECONDS).orElseThrow());
+        assertEquals(
+                new BearerAccessToken("access"), login.get(5, TimeUnit.SECONDS).orElseThrow());
         assertEquals(Optional.empty(), Optional.ofNullable(preferences.getRefreshToken()));
     }
 
@@ -120,10 +123,13 @@ class CiteDriveOAuthServiceTest {
     void temporaryFailureCanBeRetriedWithoutAnotherLogin() throws Exception {
         // [utest->req~citedrive.refresh.failure~1]
         preferences.setRefreshToken(new RefreshToken("stored"));
-        when(sender.send(any())).thenReturn(response(503, "{\"error\":\"temporarily_unavailable\"}"), successResponse());
+        when(sender.send(any()))
+                .thenReturn(response(503, "{\"error\":\"temporarily_unavailable\"}"), successResponse());
 
         assertThrows(ExecutionException.class, () -> service().getAccessToken().get(5, TimeUnit.SECONDS));
-        assertEquals(new BearerAccessToken("access"), service().getAccessToken().get(5, TimeUnit.SECONDS).orElseThrow());
+        assertEquals(
+                new BearerAccessToken("access"),
+                service().getAccessToken().get(5, TimeUnit.SECONDS).orElseThrow());
         assertEquals(Optional.empty(), Optional.ofNullable(openedPage.get()));
     }
 
@@ -133,7 +139,8 @@ class CiteDriveOAuthServiceTest {
         preferences.setRefreshToken(new RefreshToken("expired"));
         when(sender.send(any())).thenReturn(response(400, "{\"error\":\"invalid_grant\"}"));
         CompletableFuture<URI> browserOpened = new CompletableFuture<>();
-        CiteDriveOAuthService service = new CiteDriveOAuthService(remotePreferences, preferences, registry, browserOpened::complete, () -> false, sender);
+        CiteDriveOAuthService service = new CiteDriveOAuthService(
+                remotePreferences, preferences, registry, browserOpened::complete, () -> false, sender);
 
         CompletableFuture<?> login = service.getAccessToken();
         AuthorizationRequest request = AuthorizationRequest.parse(browserOpened.get(5, TimeUnit.SECONDS));
@@ -188,7 +195,9 @@ class CiteDriveOAuthServiceTest {
         assertEquals(URI.create("https://other.example/jabref/push/"), session.pushEndpoint());
         ArgumentCaptor<HTTPRequest> tokenRequest = ArgumentCaptor.forClass(HTTPRequest.class);
         verify(sender).send(tokenRequest.capture());
-        assertEquals("https://other.example/o/token/", tokenRequest.getValue().getURL().toString());
+        assertEquals(
+                "https://other.example/o/token/",
+                tokenRequest.getValue().getURL().toString());
     }
 
     @Test
@@ -236,7 +245,8 @@ class CiteDriveOAuthServiceTest {
         preferences.setRefreshToken(new RefreshToken("stored"));
 
         assertThrows(ExecutionException.class, () -> service().getAccessToken().get(5, TimeUnit.SECONDS));
-        assertThrows(ExecutionException.class, () -> service().authorizeInteractive().get(5, TimeUnit.SECONDS));
+        assertThrows(
+                ExecutionException.class, () -> service().authorizeInteractive().get(5, TimeUnit.SECONDS));
         verifyNoInteractions(sender);
         assertEquals(Optional.empty(), Optional.ofNullable(openedPage.get()));
     }
@@ -247,7 +257,9 @@ class CiteDriveOAuthServiceTest {
         preferences.setRefreshToken(new RefreshToken("stored"));
         when(sender.send(any())).thenReturn(successResponse());
 
-        assertEquals(new BearerAccessToken("access"), service().getAccessToken().get(5, TimeUnit.SECONDS).orElseThrow());
+        assertEquals(
+                new BearerAccessToken("access"),
+                service().getAccessToken().get(5, TimeUnit.SECONDS).orElseThrow());
         assertRequestTimeouts();
     }
 
@@ -269,7 +281,9 @@ class CiteDriveOAuthServiceTest {
             assertFalse(login.isDone());
             reply.complete(successResponse());
 
-            assertEquals(new BearerAccessToken("access"), login.get(5, TimeUnit.SECONDS).orElseThrow());
+            assertEquals(
+                    new BearerAccessToken("access"),
+                    login.get(5, TimeUnit.SECONDS).orElseThrow());
             assertRequestTimeouts();
         } finally {
             reply.complete(successResponse());
@@ -277,7 +291,8 @@ class CiteDriveOAuthServiceTest {
     }
 
     private CiteDriveOAuthService service() {
-        return new CiteDriveOAuthService(remotePreferences, preferences, registry, openedPage::set, () -> false, sender);
+        return new CiteDriveOAuthService(
+                remotePreferences, preferences, registry, openedPage::set, () -> false, sender);
     }
 
     private void assertRequestTimeouts() throws IOException {
@@ -290,8 +305,8 @@ class CiteDriveOAuthServiceTest {
 
     private HTTPResponse successResponse() throws ParseException {
         return response(200, """
-                {"access_token":"access","token_type":"Bearer","refresh_token":"rotated"}
-                """);
+            {"access_token":"access","token_type":"Bearer","refresh_token":"rotated"}
+            """);
     }
 
     private HTTPResponse response(int status, String body) throws ParseException {

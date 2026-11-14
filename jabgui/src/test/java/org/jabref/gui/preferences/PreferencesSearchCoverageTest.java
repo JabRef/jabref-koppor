@@ -1,18 +1,20 @@
 package org.jabref.gui.preferences;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+
+import com.airhacks.afterburner.injection.Injector;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.scene.control.Labeled;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.clipboard.ClipBoardManager;
@@ -51,17 +53,12 @@ import org.jabref.logic.undo.UndoManager;
 import org.jabref.logic.util.CurrentThreadTaskExecutor;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.strings.StringUtil;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 /// Guards the invariant the preferences search rests on: every visible text of a tab is registered
 /// as a [SearchableElement], whether the form builder placed it or a `custom(...)` node brought it.
@@ -84,7 +81,8 @@ class PreferencesSearchCoverageTest {
         Injector.setModelOrService(TaskExecutor.class, new CurrentThreadTaskExecutor());
         Injector.setModelOrService(StateManager.class, mock(StateManager.class, Answers.RETURNS_DEEP_STUBS));
         Injector.setModelOrService(AiService.class, mock(AiService.class, Answers.RETURNS_DEEP_STUBS));
-        Injector.setModelOrService(ProtectedTermsLoader.class, mock(ProtectedTermsLoader.class, Answers.RETURNS_DEEP_STUBS));
+        Injector.setModelOrService(
+                ProtectedTermsLoader.class, mock(ProtectedTermsLoader.class, Answers.RETURNS_DEEP_STUBS));
         Injector.setModelOrService(LanguageServerController.class, mock(LanguageServerController.class));
         Injector.setModelOrService(UiMessageHandler.class, mock(UiMessageHandler.class));
         Injector.setModelOrService(ClipBoardManager.class, mock(ClipBoardManager.class));
@@ -127,14 +125,16 @@ class PreferencesSearchCoverageTest {
         PreferencesTab tab = tabFactory.get();
 
         Set<String> registered = tab.getSearchableElements().stream()
-                                    .map(SearchableElement::text)
-                                    .collect(Collectors.toSet());
+                .map(SearchableElement::text)
+                .collect(Collectors.toSet());
 
         List<String> unregistered = visibleTexts(tab.getContent()).stream()
-                                                                  .filter(text -> !registered.contains(text))
-                                                                  .toList();
+                .filter(text -> !registered.contains(text))
+                .toList();
 
-        assertEquals(List.of(), unregistered,
+        assertEquals(
+                List.of(),
+                unregistered,
                 "these texts of tab \"" + tab.getTabName() + "\" cannot be found by the preferences search");
     }
 

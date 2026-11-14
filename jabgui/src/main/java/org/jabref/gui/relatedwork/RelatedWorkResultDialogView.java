@@ -1,12 +1,12 @@
 package org.jabref.gui.relatedwork;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import java.util.List;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.util.BaseDialog;
@@ -17,29 +17,37 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.relatedwork.RelatedWorkMatchResult;
 import org.jabref.model.entry.BibEntry;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 public class RelatedWorkResultDialogView extends BaseDialog<Void> {
 
     private final BibEntry sourceEntry;
     private final List<RelatedWorkMatchResult> matchedResults;
     private final String userName;
 
-    @FXML private TableView<RelatedWorkMatchResult> matchedReferenceTable;
-    @FXML private TableColumn<RelatedWorkMatchResult, String> citationMarkerColumn;
-    @FXML private TableColumn<RelatedWorkMatchResult, String> citationKeyColumn;
-    @FXML private TableColumn<RelatedWorkMatchResult, String> commentPreviewColumn;
-    @FXML private ButtonType insertButtonType;
+    @FXML
+    private TableView<RelatedWorkMatchResult> matchedReferenceTable;
 
-    @Inject private DialogService dialogService;
-    @Inject private StateManager stateManager;
+    @FXML
+    private TableColumn<RelatedWorkMatchResult, String> citationMarkerColumn;
+
+    @FXML
+    private TableColumn<RelatedWorkMatchResult, String> citationKeyColumn;
+
+    @FXML
+    private TableColumn<RelatedWorkMatchResult, String> commentPreviewColumn;
+
+    @FXML
+    private ButtonType insertButtonType;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private StateManager stateManager;
 
     private RelatedWorkResultDialogViewModel viewModel;
 
-    public RelatedWorkResultDialogView(BibEntry sourceEntry,
-                                       List<RelatedWorkMatchResult> matchedResults,
-                                       String userName) {
+    public RelatedWorkResultDialogView(
+            BibEntry sourceEntry, List<RelatedWorkMatchResult> matchedResults, String userName) {
         this.sourceEntry = sourceEntry;
         this.matchedResults = matchedResults;
         this.userName = userName;
@@ -62,24 +70,39 @@ public class RelatedWorkResultDialogView extends BaseDialog<Void> {
                 matchedResults,
                 userName,
                 dialogService,
-                stateManager.getActiveDatabase().map(stateManager::getUndoManager).orElseThrow()
-        );
+                stateManager
+                        .getActiveDatabase()
+                        .map(stateManager::getUndoManager)
+                        .orElseThrow());
 
         this.matchedReferenceTable.setItems(viewModel.matchedReferencesProperty());
 
-        this.citationMarkerColumn.setCellValueFactory(cellData -> BindingsHelper.constantOf(cellData.getValue().citationKey()));
-        this.citationKeyColumn.setCellValueFactory(cellData -> BindingsHelper.constantOf(getCitationKey(cellData.getValue())));
-        this.commentPreviewColumn.setCellValueFactory(cellData -> BindingsHelper.constantOf(getCommentPreview(cellData.getValue())));
+        this.citationMarkerColumn.setCellValueFactory(
+                cellData -> BindingsHelper.constantOf(cellData.getValue().citationKey()));
+        this.citationKeyColumn.setCellValueFactory(
+                cellData -> BindingsHelper.constantOf(getCitationKey(cellData.getValue())));
+        this.commentPreviewColumn.setCellValueFactory(
+                cellData -> BindingsHelper.constantOf(getCommentPreview(cellData.getValue())));
 
-        new ValueTableCellFactory<RelatedWorkMatchResult, String>().withText(item -> item).withTooltip(item -> item).install(citationMarkerColumn);
-        new ValueTableCellFactory<RelatedWorkMatchResult, String>().withText(item -> item).withTooltip(item -> item).install(citationKeyColumn);
-        new ValueTableCellFactory<RelatedWorkMatchResult, String>().withText(item -> item).withTooltip(item -> item).install(commentPreviewColumn);
+        new ValueTableCellFactory<RelatedWorkMatchResult, String>()
+                .withText(item -> item)
+                .withTooltip(item -> item)
+                .install(citationMarkerColumn);
+        new ValueTableCellFactory<RelatedWorkMatchResult, String>()
+                .withText(item -> item)
+                .withTooltip(item -> item)
+                .install(citationKeyColumn);
+        new ValueTableCellFactory<RelatedWorkMatchResult, String>()
+                .withText(item -> item)
+                .withTooltip(item -> item)
+                .install(commentPreviewColumn);
     }
 
     private String getCitationKey(RelatedWorkMatchResult matchResult) {
-        return matchResult.matchedLibraryBibEntry()
-                          .flatMap(BibEntry::getCitationKey)
-                          .orElse("undefined");
+        return matchResult
+                .matchedLibraryBibEntry()
+                .flatMap(BibEntry::getCitationKey)
+                .orElse("undefined");
     }
 
     private String getCommentPreview(RelatedWorkMatchResult matchResult) {

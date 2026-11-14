@@ -2,7 +2,6 @@ package org.jabref.gui.util;
 
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
-
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -15,7 +14,6 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.DragEvent;
-
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.gui.theme.StyleClasses;
 
@@ -26,7 +24,11 @@ public class ControlHelper {
     private static final PseudoClass DRAG_OVER_CENTER = PseudoClass.getPseudoClass("drag-over-center");
     private static final PseudoClass DRAG_OVER_TOP = PseudoClass.getPseudoClass("drag-over-top");
 
-    public enum EllipsisPosition { BEGINNING, CENTER, ENDING }
+    public enum EllipsisPosition {
+        BEGINNING,
+        CENTER,
+        ENDING
+    }
 
     public static Button iconButton(JabRefIcon icon) {
         Button button = new Button();
@@ -79,13 +81,14 @@ public class ControlHelper {
     }
 
     public static boolean childIsFocused(Parent node) {
-        return node.isFocused() || node.getChildrenUnmodifiable().stream().anyMatch(child -> {
-            if (child instanceof Parent parent) {
-                return childIsFocused(parent);
-            } else {
-                return child.isFocused();
-            }
-        });
+        return node.isFocused()
+                || node.getChildrenUnmodifiable().stream().anyMatch(child -> {
+                    if (child instanceof Parent parent) {
+                        return childIsFocused(parent);
+                    } else {
+                        return child.isFocused();
+                    }
+                });
     }
 
     /// Returns a text formatter that restricts input to integers
@@ -146,11 +149,13 @@ public class ControlHelper {
     /// If needed, truncates a given string to `maxCharacters`, adding `ellipsisString` instead.
     ///
     /// @param text             text which should be truncated, if needed
-    /// @param maxCharacters    maximum amount of characters which the resulting text should have, including the `ellipsisString`; if set to -1, then the default length of 75 characters will be used
+    /// @param maxCharacters    maximum amount of characters which the resulting text should have, including the
+    /// `ellipsisString`; if set to -1, then the default length of 75 characters will be used
     /// @param ellipsisString   string which should be used for indicating the truncation
     /// @param ellipsisPosition location in the given text where the truncation should be performed
     /// @return the new, truncated string
-    public static String truncateString(String text, int maxCharacters, String ellipsisString, EllipsisPosition ellipsisPosition) {
+    public static String truncateString(
+            String text, int maxCharacters, String ellipsisString, EllipsisPosition ellipsisPosition) {
         if (text == null || text.isEmpty()) {
             return text; // return original
         }
@@ -169,13 +174,14 @@ public class ControlHelper {
             // truncation necessary
             return switch (ellipsisPosition) {
                 case BEGINNING ->
-                        ellipsisString + text.substring(text.length() - (maxCharacters - ellipsisString.length()));
+                    ellipsisString + text.substring(text.length() - (maxCharacters - ellipsisString.length()));
                 case CENTER -> {
                     int partialLength = (int) Math.floor((maxCharacters - ellipsisString.length()) / 2f);
-                    yield text.substring(0, partialLength) + ellipsisString + text.substring(text.length() - partialLength);
+                    yield text.substring(0, partialLength)
+                            + ellipsisString
+                            + text.substring(text.length() - partialLength);
                 }
-                case ENDING ->
-                        text.substring(0, maxCharacters - ellipsisString.length()) + ellipsisString;
+                case ENDING -> text.substring(0, maxCharacters - ellipsisString.length()) + ellipsisString;
             };
         }
 

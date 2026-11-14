@@ -1,10 +1,10 @@
 package org.jabref.gui.walkthrough.declarative.sideeffect;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.LibraryTabContainer;
@@ -19,8 +19,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -82,8 +80,7 @@ public class OpenLibrarySideEffect implements WalkthroughSideEffect {
                     Injector.instantiateModelOrService(BibEntryTypesManager.class),
                     Injector.instantiateModelOrService(ClipBoardManager.class),
                     Injector.instantiateModelOrService(TaskExecutor.class),
-                    Injector.instantiateModelOrService(GitHandlerRegistry.class)
-            );
+                    Injector.instantiateModelOrService(GitHandlerRegistry.class));
 
             libraryTab.setText(WALKTHROUGH_LIBRARY_TEMPLATE.formatted(libraryName));
 
@@ -138,13 +135,15 @@ public class OpenLibrarySideEffect implements WalkthroughSideEffect {
         return findWalkthroughLibraryTab(tabContainer.getLibraryTabs(), createdTab, libraryName);
     }
 
-    static Optional<LibraryTab> findWalkthroughLibraryTab(Collection<LibraryTab> libraryTabs, @Nullable LibraryTab createdTab, String libraryName) {
+    static Optional<LibraryTab> findWalkthroughLibraryTab(
+            Collection<LibraryTab> libraryTabs, @Nullable LibraryTab createdTab, String libraryName) {
         if (createdTab != null && libraryTabs.contains(createdTab)) {
             return Optional.of(createdTab);
         }
         return libraryTabs.stream()
-                          .filter(tab -> WALKTHROUGH_LIBRARY_TEMPLATE.formatted(libraryName).equals(tab.getText()))
-                          .findFirst();
+                .filter(tab ->
+                        WALKTHROUGH_LIBRARY_TEMPLATE.formatted(libraryName).equals(tab.getText()))
+                .findFirst();
     }
 
     private Optional<BibDatabaseContext> loadExampleLibrary() {
@@ -154,9 +153,12 @@ public class OpenLibrarySideEffect implements WalkthroughSideEffect {
                 return Optional.empty();
             }
 
-            return Optional.of(OpenDatabase.loadDatabase(in,
-                    Injector.instantiateModelOrService(GuiPreferences.class).getImportFormatPreferences(),
-                    Injector.instantiateModelOrService(FileUpdateMonitor.class)).getDatabaseContext());
+            return Optional.of(OpenDatabase.loadDatabase(
+                            in,
+                            Injector.instantiateModelOrService(GuiPreferences.class)
+                                    .getImportFormatPreferences(),
+                            Injector.instantiateModelOrService(FileUpdateMonitor.class))
+                    .getDatabaseContext());
         } catch (IOException e) {
             LOGGER.error("Failed to load \"{}\" library from resource", libraryName, e);
             return Optional.empty();

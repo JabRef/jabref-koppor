@@ -1,22 +1,21 @@
 package org.jabref.logic.integrity;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.l10n.Localization;
-
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 @ResourceLock("Localization.lang")
 class ValidCitationKeyCheckerTest {
 
-    private final ValidCitationKeyChecker checker = new ValidCitationKeyChecker(CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS);
+    private final ValidCitationKeyChecker checker =
+            new ValidCitationKeyChecker(CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS);
 
     @ParameterizedTest
     @MethodSource("provideCitationKeys")
@@ -32,7 +31,6 @@ class ValidCitationKeyCheckerTest {
                 Arguments.of(Optional.empty(), "kṛṣṇā"),
                 Arguments.of(Optional.empty(), "taṇḍulīyaka"),
                 Arguments.of(Optional.empty(), "Müller2020"),
-                Arguments.of(Optional.empty(), "García_2021")
-        );
+                Arguments.of(Optional.empty(), "García_2021"));
     }
 }

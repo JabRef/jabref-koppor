@@ -1,25 +1,5 @@
 package org.jabref.gui.util;
 
-import java.util.Optional;
-
-import javafx.beans.InvalidationListener;
-import javafx.beans.property.ReadOnlyBooleanWrapper;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Tooltip;
-
-import org.jabref.gui.testutils.JavaFxTest;
-
-import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
-import org.jspecify.annotations.NullMarked;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.ArgumentCaptor;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -28,6 +8,23 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
+import java.util.Optional;
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Tooltip;
+import org.jabref.gui.testutils.JavaFxTest;
+import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 
 @NullMarked
 class ViewModelListCellFactoryTest extends JavaFxTest {
@@ -88,7 +85,9 @@ class ViewModelListCellFactoryTest extends JavaFxTest {
             assertEquals("Attachment (directory/renamed.pdf)", cell.getTooltip().getText());
 
             description.set("Updated attachment");
-            assertEquals("Updated attachment (directory/renamed.pdf)", cell.getTooltip().getText());
+            assertEquals(
+                    "Updated attachment (directory/renamed.pdf)",
+                    cell.getTooltip().getText());
 
             cell.updateIndex(-1);
             assertAllListenersRemoved(link);
@@ -145,7 +144,8 @@ class ViewModelListCellFactoryTest extends JavaFxTest {
         interact(() -> {
             StringProperty link = spy(new SimpleStringProperty("file.pdf"));
             ValidationStatus validationStatus = mock(ValidationStatus.class);
-            when(validationStatus.getHighestMessage()).thenReturn(Optional.of(ValidationMessage.warning("Missing file")));
+            when(validationStatus.getHighestMessage())
+                    .thenReturn(Optional.of(ValidationMessage.warning("Missing file")));
             when(validationStatus.validProperty()).thenReturn(new ReadOnlyBooleanWrapper(false).getReadOnlyProperty());
 
             ListView<StringProperty> listView = new ListView<>();

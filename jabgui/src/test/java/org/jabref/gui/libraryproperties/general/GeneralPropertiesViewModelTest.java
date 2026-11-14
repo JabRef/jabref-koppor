@@ -1,8 +1,12 @@
 package org.jabref.gui.libraryproperties.general;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.undo.JabRefUndoManager;
@@ -15,14 +19,8 @@ import org.jabref.model.groups.AllEntriesGroup;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.groups.WordKeywordGroup;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class GeneralPropertiesViewModelTest {
 
@@ -32,7 +30,8 @@ class GeneralPropertiesViewModelTest {
         CliPreferences preferences = mock(CliPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(preferences.getBibEntryPreferences().getKeywordSeparator()).thenReturn(',');
         when(preferences.getFilePreferences().getUserAndHost()).thenReturn("user");
-        GeneralPropertiesViewModel viewModel = new GeneralPropertiesViewModel(databaseContext, mock(DialogService.class), preferences, mock(UndoManager.class));
+        GeneralPropertiesViewModel viewModel = new GeneralPropertiesViewModel(
+                databaseContext, mock(DialogService.class), preferences, mock(UndoManager.class));
 
         viewModel.setValues(databaseContext.getMetaData());
         viewModel.storeSettings(databaseContext.getMetaData());
@@ -48,13 +47,15 @@ class GeneralPropertiesViewModelTest {
         BibEntry entry = new BibEntry().withField(StandardField.KEYWORDS, "topic, subtopic");
         BibDatabaseContext databaseContext = new BibDatabaseContext(new BibDatabase(List.of(entry)));
         GroupTreeNode root = GroupTreeNode.fromGroup(new AllEntriesGroup("All entries"));
-        root.addSubgroup(new WordKeywordGroup("topic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "topic", true, ',', true));
+        root.addSubgroup(new WordKeywordGroup(
+                "topic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "topic", true, ',', true));
         databaseContext.getMetaData().setGroups(root);
         CliPreferences preferences = mock(CliPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(preferences.getBibEntryPreferences().getKeywordSeparator()).thenReturn(',');
         when(preferences.getFilePreferences().getUserAndHost()).thenReturn("user");
         JabRefUndoManager undoManager = new JabRefUndoManager();
-        GeneralPropertiesViewModel viewModel = new GeneralPropertiesViewModel(databaseContext, mock(DialogService.class), preferences, undoManager);
+        GeneralPropertiesViewModel viewModel =
+                new GeneralPropertiesViewModel(databaseContext, mock(DialogService.class), preferences, undoManager);
 
         viewModel.setValues(databaseContext.getMetaData());
         viewModel.keywordSeparatorProperty().set(";");
@@ -62,7 +63,9 @@ class GeneralPropertiesViewModelTest {
 
         assertEquals(Optional.of(';'), databaseContext.getMetaData().getKeywordSeparator());
         assertEquals(Optional.of("topic; subtopic"), entry.getField(StandardField.KEYWORDS));
-        assertEquals(new WordKeywordGroup("topic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "topic", true, ';', true),
+        assertEquals(
+                new WordKeywordGroup(
+                        "topic", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "topic", true, ';', true),
                 root.getChildren().getFirst().getGroup());
 
         undoManager.undo();

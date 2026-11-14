@@ -1,7 +1,6 @@
 package org.jabref.gui.ai.chat;
 
 import java.time.Instant;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -14,7 +13,6 @@ import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.ClipboardContent;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.util.BindingsHelper;
@@ -46,9 +44,7 @@ public class AiChatMessageViewModel extends AbstractViewModel {
 
     private void setupBindings() {
         id.bind(chatMessage.map(ChatMessage::id));
-        source.bind(chatMessage
-                .map(ChatMessage::role)
-                .map(AiNamingUtils::getDisplayName));
+        source.bind(chatMessage.map(ChatMessage::role).map(AiNamingUtils::getDisplayName));
         messageContent.bind(chatMessage.map(ChatMessage::content).map(StringUtil::makeSafe));
         timestamp.bind(chatMessage.map(ChatMessage::timestamp));
 

@@ -6,7 +6,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.query.BaseQueryNode;
 
@@ -22,12 +21,14 @@ import org.jabref.model.search.query.BaseQueryNode;
 ///
 ///
 /// This interface inherits [SearchBasedFetcher], because the methods `performSearch` have to be provided by both.
-/// As non-BibTeX web fetcher one could do "magic" stuff without this helper interface and directly use [WebFetcher], but this is more work.
+/// As non-BibTeX web fetcher one could do "magic" stuff without this helper interface and directly use [WebFetcher],
+/// but this is more work.
 ///
 ///
 /// Note that this interface "should" be an abstract class.
 /// However, Java does not support multi inheritance with classes (but with interfaces).
-/// We need multi inheritance, because a fetcher might implement multiple query types (such as id fetching [IdBasedFetcher]), complete entry [EntryBasedFetcher], and search-based fetcher (this class).
+/// We need multi inheritance, because a fetcher might implement multiple query types (such as id fetching
+/// [IdBasedFetcher]), complete entry [EntryBasedFetcher], and search-based fetcher (this class).
 
 public interface SearchBasedParserFetcher extends SearchBasedFetcher, ParserFetcher {
 
@@ -48,7 +49,8 @@ public interface SearchBasedParserFetcher extends SearchBasedFetcher, ParserFetc
         return getBibEntries(urlForQuery);
     }
 
-    /// Default implementation: builds the URL via [#getURLForRawQuery(String)], then downloads, parses, and post-cleans the result.
+    /// Default implementation: builds the URL via [#getURLForRawQuery(String)], then downloads, parses, and post-cleans
+    /// the result.
     @Override
     default List<BibEntry> performRawSearchQuery(String rawQuery) throws FetcherException {
         if (rawQuery.isBlank()) {
@@ -85,7 +87,8 @@ public interface SearchBasedParserFetcher extends SearchBasedFetcher, ParserFetc
     /// @param queryList the list that contains the parsed nodes
     URL getURLForQuery(BaseQueryNode queryList) throws URISyntaxException, MalformedURLException, FetcherException;
 
-    /// Constructs a URL that sends the raw, catalog-native query verbatim to the catalog (bypassing the query transformer).
+    /// Constructs a URL that sends the raw, catalog-native query verbatim to the catalog (bypassing the query
+    /// transformer).
     ///
     /// @param rawQuery catalog-native query string sent verbatim to the catalog
     default URL getURLForRawQuery(String rawQuery) throws URISyntaxException, MalformedURLException, FetcherException {

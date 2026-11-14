@@ -1,24 +1,22 @@
 package org.jabref.logic.formatter;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.jabref.logic.formatter.casechanger.ProtectTermsFormatter;
-import org.jabref.logic.formatter.minifier.TruncateFormatter;
-import org.jabref.logic.protectedterms.ProtectedTermsLoader;
-import org.jabref.logic.protectedterms.ProtectedTermsPreferences;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.jabref.logic.formatter.casechanger.ProtectTermsFormatter;
+import org.jabref.logic.formatter.minifier.TruncateFormatter;
+import org.jabref.logic.protectedterms.ProtectedTermsLoader;
+import org.jabref.logic.protectedterms.ProtectedTermsPreferences;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class FormatterTest {
 
@@ -26,9 +24,8 @@ class FormatterTest {
 
     @BeforeAll
     static void setUp() {
-        protectedTermsLoader = new ProtectedTermsLoader(
-                new ProtectedTermsPreferences(ProtectedTermsLoader.getInternalLists(), List.of(),
-                        List.of(), List.of()));
+        protectedTermsLoader = new ProtectedTermsLoader(new ProtectedTermsPreferences(
+                ProtectedTermsLoader.getInternalLists(), List.of(), List.of(), List.of()));
     }
 
     /// When a new formatter is added by copy and pasting another formatter, it may happen that the `getKey()`
@@ -36,14 +33,15 @@ class FormatterTest {
     @Test
     void allFormatterKeysAreUnique() {
         // idea for uniqueness checking by https://stackoverflow.com/a/44032568/873282
-        assertEquals(List.of(),
-                getFormatters().collect(Collectors.groupingBy(
-                                       Formatter::getKey,
-                                       Collectors.counting()))
-                               .entrySet().stream()
-                               .filter(e -> e.getValue() > 1)
-                               .map(Map.Entry::getKey)
-                               .toList());
+        assertEquals(
+                List.of(),
+                getFormatters()
+                        .collect(Collectors.groupingBy(Formatter::getKey, Collectors.counting()))
+                        .entrySet()
+                        .stream()
+                        .filter(e -> e.getValue() > 1)
+                        .map(Map.Entry::getKey)
+                        .toList());
     }
 
     @ParameterizedTest

@@ -19,6 +19,5 @@ public abstract class IntegrityCheckResultWriter implements Closeable {
     public abstract void writeFindings() throws IOException;
 
     @Override
-    public void close() throws IOException {
-    }
+    public void close() throws IOException {}
 }

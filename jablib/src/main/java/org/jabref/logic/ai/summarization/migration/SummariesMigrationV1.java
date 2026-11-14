@@ -11,7 +11,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Map;
 import java.util.Optional;
-
+import org.h2.mvstore.MVMap;
+import org.h2.mvstore.MVStore;
+import org.h2.mvstore.WriteBuffer;
+import org.h2.mvstore.type.BasicDataType;
 import org.jabref.logic.ai.summarization.repositories.SummariesRepository;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.Directories;
@@ -22,11 +25,6 @@ import org.jabref.model.ai.summarization.AiSummary;
 import org.jabref.model.ai.summarization.AiSummaryIdentifier;
 import org.jabref.model.ai.summarization.SummarizatorKind;
 import org.jabref.model.database.BibDatabaseContext;
-
-import org.h2.mvstore.MVMap;
-import org.h2.mvstore.MVStore;
-import org.h2.mvstore.WriteBuffer;
-import org.h2.mvstore.type.BasicDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,8 +66,7 @@ public final class SummariesMigrationV1 {
     public static void migrate(
             BibDatabaseContext bibDatabaseContext,
             SummariesRepository repository,
-            NotificationService notificationService
-    ) {
+            NotificationService notificationService) {
         if (bibDatabaseContext.getMetaData().getAiLibraryId().isEmpty()) {
             LOGGER.warn("Cannot migrate summaries: AI library ID is not set");
             return;
@@ -84,9 +81,9 @@ public final class SummariesMigrationV1 {
         Path bibDatabasePath = bibDatabaseContext.getDatabasePath().get();
 
         Path oldFilePath = Directories.getAiFilesDirectory()
-                                      .getParent()  // Go from ai/2/ to ai/
-                                      .resolve("1")  // Go to ai/1/
-                                      .resolve(OLD_SUMMARIES_FILE_NAME);
+                .getParent() // Go from ai/2/ to ai/
+                .resolve("1") // Go to ai/1/
+                .resolve(OLD_SUMMARIES_FILE_NAME);
 
         migrate(oldFilePath, libraryId, bibDatabasePath, repository, notificationService);
     }
@@ -98,8 +95,7 @@ public final class SummariesMigrationV1 {
             String libraryId,
             Path bibDatabasePath,
             SummariesRepository repository,
-            NotificationService notificationService
-    ) {
+            NotificationService notificationService) {
         if (!oldFilePath.toFile().exists()) {
             LOGGER.debug("No old summaries file found at {} - skipping migration", oldFilePath);
             return;
@@ -123,9 +119,7 @@ public final class SummariesMigrationV1 {
             // Maps stored with the default openMap(name) have no "type" entry in their metadata,
             // so MVStore skips type-validation and accepts our custom DataType here.
             MVMap<String, byte[]> oldMap = oldMvStore.openMap(
-                    oldMapName,
-                    new MVMap.Builder<String, byte[]>().valueType(new RawBytesDataType())
-            );
+                    oldMapName, new MVMap.Builder<String, byte[]>().valueType(new RawBytesDataType()));
 
             if (oldMap.isEmpty()) {
                 LOGGER.debug("Old summaries map is empty");
@@ -176,8 +170,8 @@ public final class SummariesMigrationV1 {
 
     /// Deserializes old Summary using a custom ObjectInputStream that remaps the old AiProvider class.
     static Optional<OldSummary> deserializeOldSummary(byte[] data) {
-        try (ClassRemappingObjectInputStream ois = new ClassRemappingObjectInputStream(
-                new java.io.ByteArrayInputStream(data))) {
+        try (ClassRemappingObjectInputStream ois =
+                new ClassRemappingObjectInputStream(new java.io.ByteArrayInputStream(data))) {
             Object obj = ois.readObject();
 
             if (obj instanceof OldSummary summary) {
@@ -193,13 +187,13 @@ public final class SummariesMigrationV1 {
     }
 
     private static AiSummary convertToNewSummary(OldSummary oldSummary) {
-        Instant timestamp = oldSummary.timestamp().atZone(ZoneId.systemDefault()).toInstant();
+        Instant timestamp =
+                oldSummary.timestamp().atZone(ZoneId.systemDefault()).toInstant();
 
         return new AiSummary(
                 new AiMetadata(oldSummary.aiProvider(), oldSummary.model(), timestamp),
-                SummarizatorKind.CHUNKED,  // Old summaries were made using only the chunked summarizator.
-                oldSummary.content()
-        );
+                SummarizatorKind.CHUNKED, // Old summaries were made using only the chunked summarizator.
+                oldSummary.content());
     }
 
     /// Custom ObjectInputStream that remaps the deleted/moved class names to current inner types,
@@ -251,9 +245,8 @@ public final class SummariesMigrationV1 {
         public byte[] read(ByteBuffer buff) {
             int type = buff.get() & 0xff;
             if (type != TYPE_SERIALIZED_OBJECT) {
-                throw new IllegalStateException(
-                        "Unexpected MVStore type byte " + type
-                                + " while reading summaries for migration (expected 19 = serialized object).");
+                throw new IllegalStateException("Unexpected MVStore type byte " + type
+                        + " while reading summaries for migration (expected 19 = serialized object).");
             }
             int len = readVarInt(buff);
             byte[] data = new byte[len];
@@ -299,11 +292,6 @@ public final class SummariesMigrationV1 {
 
     /// Represents the old Summary format from v1.
     /// This must match the structure of the old record.
-    record OldSummary(
-            LocalDateTime timestamp,
-            AiProvider aiProvider,
-            String model,
-            String content
-    ) implements java.io.Serializable {
-    }
+    record OldSummary(LocalDateTime timestamp, AiProvider aiProvider, String model, String content)
+            implements java.io.Serializable {}
 }

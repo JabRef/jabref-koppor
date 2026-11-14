@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 import org.jabref.model.openoffice.ootext.OOText;
 import org.jabref.model.openoffice.style.Citation;
 import org.jabref.model.openoffice.style.CitationGroup;
@@ -20,8 +19,7 @@ import org.jabref.model.openoffice.util.OOListUtil;
 
 class OOProcessAuthorYearMarkers {
 
-    private OOProcessAuthorYearMarkers() {
-    }
+    private OOProcessAuthorYearMarkers() {}
 
     /// Fills `sortedCitedReferences//normalizedCitationMarker`
     private static void createNormalizedCitationMarkers(CitedReferences sortedCitedReferences, JStyle style) {
@@ -52,10 +50,12 @@ class OOProcessAuthorYearMarkers {
         //
         Map<String, List<String>> normalizedCitationMarkerToClashingKeys = new HashMap<>();
         for (CitedReference citedReference : sortedCitedReferences.values()) {
-            String normalizedCitationMarker = OOText.toString(citedReference.getNormalizedCitationMarker().get());
+            String normalizedCitationMarker =
+                    OOText.toString(citedReference.getNormalizedCitationMarker().get());
             String citationKey = citedReference.citationKey;
 
-            List<String> clashingKeys = normalizedCitationMarkerToClashingKeys.putIfAbsent(normalizedCitationMarker, new ArrayList<>(1));
+            List<String> clashingKeys =
+                    normalizedCitationMarkerToClashingKeys.putIfAbsent(normalizedCitationMarker, new ArrayList<>(1));
             if (clashingKeys == null) {
                 clashingKeys = normalizedCitationMarkerToClashingKeys.get(normalizedCitationMarker);
             }
@@ -136,9 +136,7 @@ class OOProcessAuthorYearMarkers {
 
             List<Citation> citations = group.getCitationsInLocalOrder();
             List<CitationMarkerEntry> citationMarkerEntries = OOListUtil.map(citations, citation -> citation);
-            OOText citMarker = style.createCitationMarker(citationMarkerEntries,
-                    group.citationType,
-                    strictlyUnique);
+            OOText citMarker = style.createCitationMarker(citationMarkerEntries, group.citationType, strictlyUnique);
             group.setCitationMarker(Optional.of(citMarker));
         }
     }

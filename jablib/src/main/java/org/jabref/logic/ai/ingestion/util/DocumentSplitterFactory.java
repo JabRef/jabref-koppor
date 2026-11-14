@@ -13,8 +13,7 @@ public final class DocumentSplitterFactory {
 
     public static DocumentSplitter create(DocumentSplitterKind kind, int chunkSize, int overlapSize) {
         return switch (kind) {
-            case SLIDING_WINDOW ->
-                    new SlidingWindowDocumentSplitter(chunkSize, overlapSize);
+            case SLIDING_WINDOW -> new SlidingWindowDocumentSplitter(chunkSize, overlapSize);
         };
     }
 
@@ -22,7 +21,6 @@ public final class DocumentSplitterFactory {
         return create(
                 aiPreferences.getDocumentSplitterKind(),
                 aiPreferences.getDocumentSplitterChunkSize(),
-                aiPreferences.getDocumentSplitterOverlapSize()
-        );
+                aiPreferences.getDocumentSplitterOverlapSize());
     }
 }

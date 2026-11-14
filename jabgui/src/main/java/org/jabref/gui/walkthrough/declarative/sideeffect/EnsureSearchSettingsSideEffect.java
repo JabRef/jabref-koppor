@@ -5,7 +5,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.search.SearchPreferences;
 import org.jabref.model.search.SearchDisplayMode;
 import org.jabref.model.search.SearchFlags;
-
 import org.jspecify.annotations.NonNull;
 
 /// Ensures the search bar starts with unfiltered mode and regex disabled, then restores

@@ -1,19 +1,17 @@
 package org.jabref.logic.integrity;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
-
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ResourceLock("Localization.lang")
 class NoBibTexFieldCheckerTest {
@@ -34,8 +32,7 @@ class NoBibTexFieldCheckerTest {
                 StandardField.INSTITUTION,
                 StandardField.JOURNAL,
                 StandardField.KEYWORDS,
-                StandardField.REVIEW
-        );
+                StandardField.REVIEW);
     }
 
     @ParameterizedTest()
@@ -46,11 +43,7 @@ class NoBibTexFieldCheckerTest {
     }
 
     @ParameterizedTest(name = "field={0}")
-    @CsvSource({
-            "AFTERWORD",
-            "JOURNALTITLE",
-            "LOCATION"
-    })
+    @CsvSource({"AFTERWORD", "JOURNALTITLE", "LOCATION"})
     void biblatexOnlyField(StandardField field) {
         BibEntry entry = new BibEntry().withField(field, "test");
         IntegrityMessage message = new IntegrityMessage("biblatex field only", entry, field);

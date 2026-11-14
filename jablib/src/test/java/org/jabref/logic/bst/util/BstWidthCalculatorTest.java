@@ -1,12 +1,11 @@
 package org.jabref.logic.bst.util;
 
-import java.util.stream.Stream;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /// How to create these test using Bibtex:
 ///
@@ -50,8 +49,7 @@ class BstWidthCalculatorTest {
                 Arguments.of(444, "{\\'e}"),
                 Arguments.of(19762, "Ulrich {\\\"{U}}nderwood and Ned {\\~N}et and Paul {\\={P}}ot"),
                 Arguments.of(7861, "{\\'{E}}douard Masterly"),
-                Arguments.of(30514, "Jonathan Meyer and Charles Louis Xavier Joseph de la Vall{\\'e}e Poussin")
-        );
+                Arguments.of(30514, "Jonathan Meyer and Charles Louis Xavier Joseph de la Vall{\\'e}e Poussin"));
     }
 
     @ParameterizedTest
@@ -66,7 +64,6 @@ class BstWidthCalculatorTest {
                 Arguments.of(361, 'I'),
                 Arguments.of(500, '~'),
                 Arguments.of(500, '}'),
-                Arguments.of(278, ' ')
-        );
+                Arguments.of(278, ' '));
     }
 }

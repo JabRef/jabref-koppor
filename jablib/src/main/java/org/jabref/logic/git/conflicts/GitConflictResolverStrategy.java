@@ -1,7 +1,6 @@
 package org.jabref.logic.git.conflicts;
 
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
 
 /// Strategy interface for resolving semantic entry-level conflicts during Git merges.

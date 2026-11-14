@@ -1,5 +1,11 @@
 package org.jabref.logic.ai.chatting.migrations;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -11,7 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
+import org.h2.mvstore.MVStore;
 import org.jabref.logic.ai.chatting.repositories.MVStoreChatHistoryRepository;
 import org.jabref.model.ai.chatting.ChatIdentifier;
 import org.jabref.model.ai.chatting.ChatMessage;
@@ -20,17 +26,9 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.metadata.MetaData;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.h2.mvstore.MVStore;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /// Tests that [ChatHistoryMigrationV1] correctly migrates every v1 chat-history MVStore
 /// found under `src/test/resources/…/chatting/migrations/` into the v2 repository.
@@ -70,23 +68,21 @@ class ChatHistoryMigrationV1Test {
         List<DiscoveredEntry> entries = discoverEntries(oldFilePath);
         assertFalse(entries.isEmpty(), "Test resource " + fileName + " contains no chat history maps");
 
-        boolean onWindows = System.getProperty("os.name").toLowerCase(java.util.Locale.ROOT).contains("windows");
-        assumeTrue(onWindows || !hasWindowsAbsolutePaths(entries),
+        boolean onWindows =
+                System.getProperty("os.name").toLowerCase(java.util.Locale.ROOT).contains("windows");
+        assumeTrue(
+                onWindows || !hasWindowsAbsolutePaths(entries),
                 "Skipping " + fileName + ": contains Windows-style paths, not runnable on this OS");
 
         BibDatabaseContext ctx = buildContext(entries);
-        MVStoreChatHistoryRepository repo = new MVStoreChatHistoryRepository(
-                tempDir.resolve("v2-" + fileName), _ -> {
-        }
-        );
+        MVStoreChatHistoryRepository repo =
+                new MVStoreChatHistoryRepository(tempDir.resolve("v2-" + fileName), _ -> {});
 
-        ChatHistoryMigrationV1.migrate(oldFilePath, LIBRARY_ID, ctx, repo, _ -> {
-        });
+        ChatHistoryMigrationV1.migrate(oldFilePath, LIBRARY_ID, ctx, repo, _ -> {});
 
         for (DiscoveredEntry entry : entries) {
             ChatIdentifier id = new ChatIdentifier(LIBRARY_ID, entry.chatType(), entry.chatName());
-            assertFalse(repo.isEmpty(id),
-                    "Expected messages for " + entry.chatType() + " / " + entry.chatName());
+            assertFalse(repo.isEmpty(id), "Expected messages for " + entry.chatType() + " / " + entry.chatName());
         }
     }
 
@@ -97,18 +93,17 @@ class ChatHistoryMigrationV1Test {
 
         List<DiscoveredEntry> entries = discoverEntries(oldFilePath);
 
-        boolean onWindows = System.getProperty("os.name").toLowerCase(java.util.Locale.ROOT).contains("windows");
-        assumeTrue(onWindows || !hasWindowsAbsolutePaths(entries),
+        boolean onWindows =
+                System.getProperty("os.name").toLowerCase(java.util.Locale.ROOT).contains("windows");
+        assumeTrue(
+                onWindows || !hasWindowsAbsolutePaths(entries),
                 "Skipping " + fileName + ": contains Windows-style paths, not runnable on this OS");
 
         BibDatabaseContext ctx = buildContext(entries);
-        MVStoreChatHistoryRepository repo = new MVStoreChatHistoryRepository(
-                tempDir.resolve("v2-msg-" + fileName), _ -> {
-        }
-        );
+        MVStoreChatHistoryRepository repo =
+                new MVStoreChatHistoryRepository(tempDir.resolve("v2-msg-" + fileName), _ -> {});
 
-        ChatHistoryMigrationV1.migrate(oldFilePath, LIBRARY_ID, ctx, repo, _ -> {
-        });
+        ChatHistoryMigrationV1.migrate(oldFilePath, LIBRARY_ID, ctx, repo, _ -> {});
 
         String jsonName = fileName.replace(".mv", ".json");
         URL jsonUrl = getClass().getResource(jsonName);
@@ -122,8 +117,7 @@ class ChatHistoryMigrationV1Test {
             if (entry.chatType() != ChatType.WITH_ENTRY) {
                 continue;
             }
-            List<JsonChatHistoryFile.JsonMessage> expected =
-                    jsonFile.messagesFor(entry.dbPath(), entry.chatName());
+            List<JsonChatHistoryFile.JsonMessage> expected = jsonFile.messagesFor(entry.dbPath(), entry.chatName());
             if (expected == null) {
                 continue;
             }
@@ -131,13 +125,16 @@ class ChatHistoryMigrationV1Test {
             ChatIdentifier id = new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, entry.chatName());
             List<ChatMessage> actual = repo.getAllMessages(id);
 
-            assertEquals(expected.size(), actual.size(),
-                    "Message count mismatch for " + entry.chatName());
+            assertEquals(expected.size(), actual.size(), "Message count mismatch for " + entry.chatName());
 
             for (int i = 0; i < expected.size(); i++) {
-                assertEquals(expected.get(i).role(), actual.get(i).role(),
+                assertEquals(
+                        expected.get(i).role(),
+                        actual.get(i).role(),
                         "Role mismatch at index " + i + " for " + entry.chatName());
-                assertEquals(expected.get(i).content().strip(), actual.get(i).content().strip(),
+                assertEquals(
+                        expected.get(i).content().strip(),
+                        actual.get(i).content().strip(),
                         "Content mismatch at index " + i + " for " + entry.chatName());
             }
         }
@@ -187,9 +184,9 @@ class ChatHistoryMigrationV1Test {
 
     private BibDatabaseContext buildContext(List<DiscoveredEntry> entries) {
         List<BibEntry> bibEntries = entries.stream()
-                                           .filter(e -> e.chatType() == ChatType.WITH_ENTRY)
-                                           .map(e -> new BibEntry().withCitationKey(e.chatName()))
-                                           .toList();
+                .filter(e -> e.chatType() == ChatType.WITH_ENTRY)
+                .map(e -> new BibEntry().withCitationKey(e.chatName()))
+                .toList();
         BibDatabase database = new BibDatabase(bibEntries);
         MetaData metaData = new MetaData();
         metaData.setAiLibraryId(LIBRARY_ID);
@@ -200,8 +197,7 @@ class ChatHistoryMigrationV1Test {
         return ctx;
     }
 
-    private record DiscoveredEntry(Path dbPath, ChatType chatType, String chatName) {
-    }
+    private record DiscoveredEntry(Path dbPath, ChatType chatType, String chatName) {}
 
     private static class JsonChatHistoryFile {
 
@@ -246,16 +242,12 @@ class ChatHistoryMigrationV1Test {
 
         private static ChatMessage.Role roleFromJson(String role) {
             return switch (role) {
-                case "user" ->
-                        ChatMessage.Role.USER;
-                case "assistant" ->
-                        ChatMessage.Role.AI;
-                default ->
-                        ChatMessage.Role.valueOf(role.toUpperCase());
+                case "user" -> ChatMessage.Role.USER;
+                case "assistant" -> ChatMessage.Role.AI;
+                default -> ChatMessage.Role.valueOf(role.toUpperCase());
             };
         }
 
-        record JsonMessage(ChatMessage.Role role, String content) {
-        }
+        record JsonMessage(ChatMessage.Role role, String content) {}
     }
 }

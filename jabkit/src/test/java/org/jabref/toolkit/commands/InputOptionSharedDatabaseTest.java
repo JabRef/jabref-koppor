@@ -1,19 +1,17 @@
 package org.jabref.toolkit.commands;
 
-import java.nio.file.Path;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Path;
 import org.jabref.toolkit.exception.CliExceptionHandler;
 import org.jabref.toolkit.exception.ImportServiceException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import picocli.CommandLine;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /// Verifies that the `FILE`/`--input` argument shared by all `jabkit` commands (see [InputOption])
 /// routes a PostgreSQL connection URL to the shared-database export, and only such a URL.
@@ -36,7 +34,9 @@ class InputOptionSharedDatabaseTest extends AbstractJabKitTest {
         int exitCode = commandLine.executeToLog("check", "integrity", UNREACHABLE_DATABASE);
 
         assertEquals(CommandLine.ExitCode.SOFTWARE, exitCode);
-        assertTrue(commandLine.getErrorOutput().contains("Problem reading the shared database"), commandLine.getErrorOutput());
+        assertTrue(
+                commandLine.getErrorOutput().contains("Problem reading the shared database"),
+                commandLine.getErrorOutput());
     }
 
     @Test

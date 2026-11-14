@@ -6,10 +6,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +19,12 @@ public class ArXivIdentifier extends EprintIdentifier {
     private static final String ARXIV_PREFIX = "http(s)?://arxiv.org/(abs|html|pdf)/|arxiv|arXiv";
     /// Optional trailing URL fragment/anchor (e.g. `#bib` in `https://arxiv.org/html/2510.26275v2#bib`).
     private static final String OPTIONAL_FRAGMENT = "(#\\S*)?";
-    private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("(" + ARXIV_PREFIX + ")?\\s?:?\\s?(?<id>\\d{4}\\.\\d{4,5})(v(?<version>\\d+))?\\s?(\\[(?<classification>\\S+)\\])?" + OPTIONAL_FRAGMENT);
-    private static final Pattern OLD_IDENTIFIER_PATTERN = Pattern.compile("(" + ARXIV_PREFIX + ")?\\s?:?\\s?(?<id>(?<classification>[a-z\\-]+(\\.[A-Z]{2})?)/\\d{7})(v(?<version>\\d+))?" + OPTIONAL_FRAGMENT);
+    private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("(" + ARXIV_PREFIX
+            + ")?\\s?:?\\s?(?<id>\\d{4}\\.\\d{4,5})(v(?<version>\\d+))?\\s?(\\[(?<classification>\\S+)\\])?"
+            + OPTIONAL_FRAGMENT);
+    private static final Pattern OLD_IDENTIFIER_PATTERN = Pattern.compile("(" + ARXIV_PREFIX
+            + ")?\\s?:?\\s?(?<id>(?<classification>[a-z\\-]+(\\.[A-Z]{2})?)/\\d{7})(v(?<version>\\d+))?"
+            + OPTIONAL_FRAGMENT);
 
     private final String identifier;
     private final String classification;
@@ -93,10 +95,7 @@ public class ArXivIdentifier extends EprintIdentifier {
 
     @Override
     public String toString() {
-        return "ArXivIdentifier{" +
-                "identifier='" + identifier + '\'' +
-                ", classification='" + classification + '\'' +
-                '}';
+        return "ArXivIdentifier{identifier='" + identifier + '\'' + ", classification='" + classification + '\'' + '}';
     }
 
     @Override
@@ -109,8 +108,7 @@ public class ArXivIdentifier extends EprintIdentifier {
         }
 
         ArXivIdentifier that = (ArXivIdentifier) o;
-        return Objects.equals(identifier, that.identifier) &&
-                Objects.equals(classification, that.classification);
+        return Objects.equals(identifier, that.identifier) && Objects.equals(classification, that.classification);
     }
 
     @Override

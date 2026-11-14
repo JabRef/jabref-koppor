@@ -1,11 +1,12 @@
 package org.jabref.gui.entryeditor;
 
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.Subscription;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.function.Supplier;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
@@ -15,7 +16,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Tab;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
@@ -34,9 +34,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.EntryType;
-
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.Subscription;
 import org.jspecify.annotations.Nullable;
 
 public class EntryEditorViewModel extends AbstractViewModel {
@@ -75,13 +72,14 @@ public class EntryEditorViewModel extends AbstractViewModel {
     /// [#currentEntryType].
     private @Nullable Subscription typeSubscription;
 
-    public EntryEditorViewModel(StateManager stateManager,
-                                GuiPreferences preferences,
-                                TaskExecutor taskExecutor,
-                                DialogService dialogService,
-                                JournalAbbreviationRepository journalAbbreviationRepository,
-                                Supplier<LibraryTab> tabSupplier,
-                                EntryEditorTabFactory tabFactory) {
+    public EntryEditorViewModel(
+            StateManager stateManager,
+            GuiPreferences preferences,
+            TaskExecutor taskExecutor,
+            DialogService dialogService,
+            JournalAbbreviationRepository journalAbbreviationRepository,
+            Supplier<LibraryTab> tabSupplier,
+            EntryEditorTabFactory tabFactory) {
         this.stateManager = stateManager;
         this.preferences = preferences;
         this.taskExecutor = taskExecutor;
@@ -105,8 +103,7 @@ public class EntryEditorViewModel extends AbstractViewModel {
         // Rebuild the tab set whenever the configured tab models change (tabs added, removed or reordered in
         // the preferences). This observes the single source of truth directly, replacing the former
         // AdaptVisibleTabs callback that other view models used to poke the editor.
-        preferences.getEntryEditorPreferences().getTabModels()
-                   .addListener((InvalidationListener) _ -> rebuildTabs());
+        preferences.getEntryEditorPreferences().getTabModels().addListener((InvalidationListener) _ -> rebuildTabs());
     }
 
     /// (Re)subscribes the single listener on the current entry's type, driving both the type label and the
@@ -129,9 +126,7 @@ public class EntryEditorViewModel extends AbstractViewModel {
 
     private void updateTypeLabelText() {
         BibEntry entry = currentlyEditedEntry.get();
-        typeLabelText.set(entry == null
-                          ? ""
-                          : new TypedBibEntry(entry, activeDatabaseContext()).getTypeForDisplay());
+        typeLabelText.set(entry == null ? "" : new TypedBibEntry(entry, activeDatabaseContext()).getTypeForDisplay());
     }
 
     private BibDatabaseContext activeDatabaseContext() {
@@ -184,17 +179,17 @@ public class EntryEditorViewModel extends AbstractViewModel {
 
         allPossibleTabs.addAll(tabFactory.createTabs());
         sourceTab = allPossibleTabs.stream()
-                                   .filter(SourceTab.class::isInstance)
-                                   .map(SourceTab.class::cast)
-                                   .findFirst()
-                                   .orElse(null);
+                .filter(SourceTab.class::isInstance)
+                .map(SourceTab.class::cast)
+                .findFirst()
+                .orElse(null);
 
         // Each tab observes the currently edited entry directly, so its content-driven visibility reacts to
         // entry and entry-type changes without the editor pushing the entry into every tab by hand.
         allPossibleTabs.forEach(tab -> tab.currentEntryProperty().bind(currentlyEditedEntry));
 
-        allPossibleTabs.forEach(tab ->
-                shouldShowSubscriptions.add(EasyBind.subscribe(tab.visibility(), _ -> refreshVisibleTabs())));
+        allPossibleTabs.forEach(
+                tab -> shouldShowSubscriptions.add(EasyBind.subscribe(tab.visibility(), _ -> refreshVisibleTabs())));
         refreshVisibleTabs();
     }
 
@@ -222,7 +217,9 @@ public class EntryEditorViewModel extends AbstractViewModel {
             return;
         }
 
-        List<EntryEditorTab> wanted = allPossibleTabs.stream().filter(tab -> tab.visibility().getValue()).toList();
+        List<EntryEditorTab> wanted = allPossibleTabs.stream()
+                .filter(tab -> tab.visibility().getValue())
+                .toList();
         visibleTabs.retainAll(wanted);
 
         for (int i = 0; i < wanted.size(); i++) {
@@ -253,7 +250,13 @@ public class EntryEditorViewModel extends AbstractViewModel {
         if (fetcher instanceof PdfMergeMetadataImporter.EntryBasedFetcherWrapper) {
             GrobidUseDialogHelper.showAndWaitIfUserIsUndecided(dialogService, preferences.getGrobidPreferences());
         }
-        new FetchAndMergeEntry(activeDatabaseContext(), taskExecutor, preferences, dialogService, stateManager.getUndoManager(activeDatabaseContext()), stateManager)
+        new FetchAndMergeEntry(
+                        activeDatabaseContext(),
+                        taskExecutor,
+                        preferences,
+                        dialogService,
+                        stateManager.getUndoManager(activeDatabaseContext()),
+                        stateManager)
                 .fetchAndMerge(entry, fetcher);
     }
 
@@ -262,7 +265,13 @@ public class EntryEditorViewModel extends AbstractViewModel {
         if (entry == null) {
             return;
         }
-        new GenerateCitationKeySingleAction(entry, tabSupplier.get().getBibDatabaseContext(), dialogService, preferences, tabSupplier.get().getUndoManager()).execute();
+        new GenerateCitationKeySingleAction(
+                        entry,
+                        tabSupplier.get().getBibDatabaseContext(),
+                        dialogService,
+                        preferences,
+                        tabSupplier.get().getUndoManager())
+                .execute();
     }
 
     public void cleanup() {
@@ -270,7 +279,14 @@ public class EntryEditorViewModel extends AbstractViewModel {
         if (entry == null) {
             return;
         }
-        new CleanupSingleAction(entry, preferences, dialogService, stateManager, stateManager.getUndoManager(activeDatabaseContext()), journalAbbreviationRepository).execute();
+        new CleanupSingleAction(
+                        entry,
+                        preferences,
+                        dialogService,
+                        stateManager,
+                        stateManager.getUndoManager(activeDatabaseContext()),
+                        journalAbbreviationRepository)
+                .execute();
     }
 
     public void deleteEntry() {

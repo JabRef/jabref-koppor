@@ -2,7 +2,6 @@ package org.jabref.gui.util;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
@@ -10,7 +9,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -33,7 +31,8 @@ public class RecursiveChildrenListener {
     /// the scene's root changes, the listener will automatically detach from the old
     /// root and attach to the new one.
     ///
-    /// Dialogs and ControlsFX still replace scene roots, see [Where overlays are rendered](https://devdocs.jabref.org/code-howtos/walkthrough.html#where-overlays-are-rendered).
+    /// Dialogs and ControlsFX still replace scene roots, see [Where overlays are
+    /// rendered](https://devdocs.jabref.org/code-howtos/walkthrough.html#where-overlays-are-rendered).
     ///
     /// @param scene the scene to attach to
     public void attachToScene(@NonNull Scene scene) {

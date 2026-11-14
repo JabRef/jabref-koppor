@@ -1,11 +1,10 @@
 package org.jabref.logic.integrity;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ResourceLock("Localization.lang")
 class BooktitleCheckerTest {
@@ -19,13 +18,20 @@ class BooktitleCheckerTest {
 
     @Test
     void booktitleAcceptsIfItDoesNotEndWithConferenceOn() {
-        assertEquals(Optional.empty(), checker.checkValue("Fourth International Conference on Digital Information and Communication Technology and its Applications (DICTAP)"));
+        assertEquals(
+                Optional.empty(),
+                checker.checkValue(
+                        "Fourth International Conference on Digital Information and Communication Technology and its"
+                                + " Applications (DICTAP)"));
     }
 
     @Test
     void booktitleDoesNotAcceptIfItEndsWithConferenceOn() {
-        assertEquals(Optional.of("booktitle ends with 'conference on'"),
-                checker.checkValue("Digital Information and Communication Technology and its Applications (DICTAP), Fourth International Conference on"));
+        assertEquals(
+                Optional.of("booktitle ends with 'conference on'"),
+                checker.checkValue(
+                        "Digital Information and Communication Technology and its Applications (DICTAP), Fourth"
+                                + " International Conference on"));
     }
 
     @Test
@@ -39,13 +45,16 @@ class BooktitleCheckerTest {
 
     @Test
     void booktitleFlagsYearInMiddle() {
-        assertEquals(Optional.of("booktitle should not contain a year"),
-                yearChecker.checkValue("European Conference on Circuit Theory and Design, {ECCTD} 2015, Trondheim, Norway"));
+        assertEquals(
+                Optional.of("booktitle should not contain a year"),
+                yearChecker.checkValue(
+                        "European Conference on Circuit Theory and Design, {ECCTD} 2015, Trondheim, Norway"));
     }
 
     @Test
     void booktitleFlagsYearAtStart() {
-        assertEquals(Optional.of("booktitle should not contain a year"),
+        assertEquals(
+                Optional.of("booktitle should not contain a year"),
                 yearChecker.checkValue("2015 {IEEE} International Conference on Digital Signal Processing"));
     }
 
@@ -71,19 +80,25 @@ class BooktitleCheckerTest {
 
     @Test
     void booktitleFlagsCountryName() {
-        assertEquals(Optional.of("booktitle should not contain a location"),
-                countryChecker.checkValue("Service-Oriented Computing, Fifth International Conference, Vienna, Austria, Proceedings"));
+        assertEquals(
+                Optional.of("booktitle should not contain a location"),
+                countryChecker.checkValue(
+                        "Service-Oriented Computing, Fifth International Conference, Vienna, Austria, Proceedings"));
     }
 
     @Test
     void booktitleFlagsCountryNameSingapore() {
-        assertEquals(Optional.of("booktitle should not contain a location"),
-                countryChecker.checkValue("{IEEE} International Conference on Digital Signal Processing, Singapore, Proceedings"));
+        assertEquals(
+                Optional.of("booktitle should not contain a location"),
+                countryChecker.checkValue(
+                        "{IEEE} International Conference on Digital Signal Processing, Singapore, Proceedings"));
     }
 
     @Test
     void booktitleAcceptsWhenNoCountry() {
-        assertEquals(Optional.empty(), countryChecker.checkValue("International Conference on Machine Learning Proceedings"));
+        assertEquals(
+                Optional.empty(),
+                countryChecker.checkValue("International Conference on Machine Learning Proceedings"));
     }
 
     @Test
@@ -103,13 +118,15 @@ class BooktitleCheckerTest {
 
     @Test
     void booktitleFlagsPagesPattern() {
-        assertEquals(Optional.of("booktitle should not contain page numbers"),
+        assertEquals(
+                Optional.of("booktitle should not contain page numbers"),
                 pagesChecker.checkValue("Advances in Neural Information Processing Systems, pp. 1234-1242"));
     }
 
     @Test
     void booktitleFlagsPagesKeyword() {
-        assertEquals(Optional.of("booktitle should not contain page numbers"),
+        assertEquals(
+                Optional.of("booktitle should not contain page numbers"),
                 pagesChecker.checkValue("Advances in Neural Information Processing Systems, pages 1234-1242"));
     }
 
@@ -130,9 +147,11 @@ class BooktitleCheckerTest {
     @Test
     void booktitleWithYearAndCountryFlagsBoth() {
         // Year checker and country checker are separate — both fire independently
-        assertEquals(Optional.of("booktitle should not contain a year"),
+        assertEquals(
+                Optional.of("booktitle should not contain a year"),
                 yearChecker.checkValue("2015 IEEE Conference, Singapore"));
-        assertEquals(Optional.of("booktitle should not contain a location"),
+        assertEquals(
+                Optional.of("booktitle should not contain a location"),
                 countryChecker.checkValue("2015 IEEE Conference, Singapore"));
     }
 

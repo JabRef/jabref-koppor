@@ -1,12 +1,9 @@
 package org.jabref.logic.bibtex.comparator;
 
 import java.util.StringJoiner;
-
 import org.jabref.model.entry.BibEntry;
 
-public record BibEntryDiff(
-        BibEntry originalEntry,
-        BibEntry newEntry) {
+public record BibEntryDiff(BibEntry originalEntry, BibEntry newEntry) {
 
     @Override
     public String toString() {

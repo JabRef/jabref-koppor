@@ -1,13 +1,11 @@
 package org.jabref.model.openoffice.style;
 
 import java.util.Optional;
-
 import org.jabref.model.openoffice.ootext.OOText;
 
 public class PageInfo {
 
-    private PageInfo() {
-    }
+    private PageInfo() {}
 
     /*
      * pageInfo normalization

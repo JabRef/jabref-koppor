@@ -5,22 +5,26 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.DirectoryStream.Filter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.util.io.DatabaseFileLookup;
 import org.jabref.model.database.BibDatabaseContext;
 
-/// [java.io.FileFilter] implementation, that allows only files which are not linked in any of the [org.jabref.model.entry.BibEntry]s of the
+/// [java.io.FileFilter] implementation, that allows only files which are not linked in any of the
+/// [org.jabref.model.entry.BibEntry]s of the
 /// specified [org.jabref.model.database.BibDatabase].
 ///
-/// This [java.io.FileFilter] sits on top of another [java.io.FileFilter] -implementation, which it first consults. Only if
+/// This [java.io.FileFilter] sits on top of another [java.io.FileFilter] -implementation, which it first consults. Only
+/// if
 /// this major filefilter has accepted a file, this implementation will verify on that file.
 public class UnlinkedPDFFileFilter implements DirectoryStream.Filter<Path> {
 
     private final DatabaseFileLookup lookup;
     private final Filter<Path> fileFilter;
 
-    public UnlinkedPDFFileFilter(DirectoryStream.Filter<Path> fileFilter, BibDatabaseContext databaseContext, FilePreferences filePreferences) {
+    public UnlinkedPDFFileFilter(
+            DirectoryStream.Filter<Path> fileFilter,
+            BibDatabaseContext databaseContext,
+            FilePreferences filePreferences) {
         this.fileFilter = fileFilter;
         this.lookup = new DatabaseFileLookup(databaseContext, filePreferences);
     }
@@ -30,7 +34,9 @@ public class UnlinkedPDFFileFilter implements DirectoryStream.Filter<Path> {
         if (Files.isDirectory(pathname)) {
             return true;
         } else {
-            return fileFilter.accept(pathname) && !lookup.lookupDatabase(pathname) && !lookup.getPathOfDatabase().equals(pathname);
+            return fileFilter.accept(pathname)
+                    && !lookup.lookupDatabase(pathname)
+                    && !lookup.getPathOfDatabase().equals(pathname);
         }
     }
 }

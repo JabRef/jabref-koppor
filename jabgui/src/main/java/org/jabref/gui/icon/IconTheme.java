@@ -10,16 +10,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
-
 import javafx.scene.Node;
 import javafx.scene.control.Dialog;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
 import org.jabref.architecture.AllowedToUseClassGetResource;
 import org.jabref.logic.os.OS;
-
 import org.jspecify.annotations.NullMarked;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
@@ -69,10 +66,10 @@ public class IconTheme {
 
     private static final String ICON_PATH_PREFIX = "/images/external/";
     private static final String DEFAULT_ICON_PATH = ICON_PATH_PREFIX + "red.png";
-    private static final Map<String, String> KEY_TO_ICON = readIconThemeFile(IconTheme.class.getResource("/images/Icons.properties"));
+    private static final Map<String, String> KEY_TO_ICON =
+            readIconThemeFile(IconTheme.class.getResource("/images/Icons.properties"));
 
-    private IconTheme() {
-    }
+    private IconTheme() {}
 
     public static Image getJabRefIcon() {
         return new Image(getIconUrl("jabrefIcon48").toString());
@@ -80,12 +77,13 @@ public class IconTheme {
 
     public static List<Image> getLogoSet() {
         return LOGO_SET.stream()
-                       .map(name -> new Image(getIconUrl(name).toString()))
-                       .toList();
+                .map(name -> new Image(getIconUrl(name).toString()))
+                .toList();
     }
 
     /// Applies the JabRef icon set to the given [Stage] on platforms that support window icons (non-macOS).
-    /// On macOS, stage icons are omitted so that macOS LaunchServices and dynamic Asset Catalogs natively manage the Dock icon.
+    /// On macOS, stage icons are omitted so that macOS LaunchServices and dynamic Asset Catalogs natively manage the
+    /// Dock icon.
     public static void applyLogo(Stage stage) {
         if (!OS.OS_X) {
             stage.getIcons().addAll(getLogoSet());
@@ -99,15 +97,18 @@ public class IconTheme {
         }
     }
 
-    /// Applies the default JabRef icon to the window of the given [Dialog] on platforms that support window icons (non-macOS).
+    /// Applies the default JabRef icon to the window of the given [Dialog] on platforms that support window icons
+    /// (non-macOS).
     public static void applyLogo(Dialog<?> dialog) {
         applyLogo(dialog, getJabRefIcon());
     }
 
-    /// Applies the specified icon to the window of the given [Dialog] on platforms that support window icons (non-macOS).
+    /// Applies the specified icon to the window of the given [Dialog] on platforms that support window icons
+    /// (non-macOS).
     public static void applyLogo(Dialog<?> dialog, Image image) {
         if (!OS.OS_X) {
-            if (dialog.getDialogPane().getScene() != null && dialog.getDialogPane().getScene().getWindow() instanceof Stage stage) {
+            if (dialog.getDialogPane().getScene() != null
+                    && dialog.getDialogPane().getScene().getWindow() instanceof Stage stage) {
                 stage.getIcons().add(image);
             }
         }
@@ -120,9 +121,9 @@ public class IconTheme {
             return Optional.of(JabRefIcons.valueOf(normalizedIconCode));
         } catch (IllegalArgumentException _) {
             return java.util.Arrays.stream(JabRefIcons.values())
-                                   .filter(icon -> icon.matchesPersistedName(normalizedIconCode))
-                                   .findFirst()
-                                   .map(JabRefIcon.class::cast);
+                    .filter(icon -> icon.matchesPersistedName(normalizedIconCode))
+                    .findFirst()
+                    .map(JabRefIcon.class::cast);
         }
     }
 
@@ -134,7 +135,8 @@ public class IconTheme {
 
     private static URL getIconUrl(String name) {
         if (!KEY_TO_ICON.containsKey(name)) {
-            LOGGER.warn("Could not find icon url by name {}, so falling back on default icon {}", name, DEFAULT_ICON_PATH);
+            LOGGER.warn(
+                    "Could not find icon url by name {}, so falling back on default icon {}", name, DEFAULT_ICON_PATH);
         }
         String path = KEY_TO_ICON.getOrDefault(name, DEFAULT_ICON_PATH);
         return Objects.requireNonNull(IconTheme.class.getResource(path), "Path must not be null for key " + name);
@@ -160,7 +162,6 @@ public class IconTheme {
     }
 
     public enum JabRefIcons implements JabRefIcon {
-
         ADD(MaterialDesignP.PLUS_CIRCLE_OUTLINE),
         ADD_FILLED(MaterialDesignP.PLUS_CIRCLE),
         ADD_NOBOX(MaterialDesignP.PLUS),
@@ -213,11 +214,36 @@ public class IconTheme {
         PRIORITY_LOW(Color.rgb(111, 204, 117), MaterialDesignF.FLAG),
         PRINTED(MaterialDesignP.PRINTER),
         RANKING(MaterialDesignS.STAR),
-        RANK1(MaterialDesignS.STAR, MaterialDesignS.STAR_OUTLINE, MaterialDesignS.STAR_OUTLINE, MaterialDesignS.STAR_OUTLINE, MaterialDesignS.STAR_OUTLINE),
-        RANK2(MaterialDesignS.STAR, MaterialDesignS.STAR, MaterialDesignS.STAR_OUTLINE, MaterialDesignS.STAR_OUTLINE, MaterialDesignS.STAR_OUTLINE),
-        RANK3(MaterialDesignS.STAR, MaterialDesignS.STAR, MaterialDesignS.STAR, MaterialDesignS.STAR_OUTLINE, MaterialDesignS.STAR_OUTLINE),
-        RANK4(MaterialDesignS.STAR, MaterialDesignS.STAR, MaterialDesignS.STAR, MaterialDesignS.STAR, MaterialDesignS.STAR_OUTLINE),
-        RANK5(MaterialDesignS.STAR, MaterialDesignS.STAR, MaterialDesignS.STAR, MaterialDesignS.STAR, MaterialDesignS.STAR),
+        RANK1(
+                MaterialDesignS.STAR,
+                MaterialDesignS.STAR_OUTLINE,
+                MaterialDesignS.STAR_OUTLINE,
+                MaterialDesignS.STAR_OUTLINE,
+                MaterialDesignS.STAR_OUTLINE),
+        RANK2(
+                MaterialDesignS.STAR,
+                MaterialDesignS.STAR,
+                MaterialDesignS.STAR_OUTLINE,
+                MaterialDesignS.STAR_OUTLINE,
+                MaterialDesignS.STAR_OUTLINE),
+        RANK3(
+                MaterialDesignS.STAR,
+                MaterialDesignS.STAR,
+                MaterialDesignS.STAR,
+                MaterialDesignS.STAR_OUTLINE,
+                MaterialDesignS.STAR_OUTLINE),
+        RANK4(
+                MaterialDesignS.STAR,
+                MaterialDesignS.STAR,
+                MaterialDesignS.STAR,
+                MaterialDesignS.STAR,
+                MaterialDesignS.STAR_OUTLINE),
+        RANK5(
+                MaterialDesignS.STAR,
+                MaterialDesignS.STAR,
+                MaterialDesignS.STAR,
+                MaterialDesignS.STAR,
+                MaterialDesignS.STAR),
         WWW(MaterialDesignW.WEB),
         GROUP_INCLUDING(MaterialDesignF.FILTER_OUTLINE),
         GROUP_REFINING(MaterialDesignF.FILTER),
@@ -250,7 +276,8 @@ public class IconTheme {
         RELEVANCE(MaterialDesignS.STAR_CIRCLE),
         // The golden color is used only to indicate that an entry is marked as relevant in the table;
         // menus continue to use the neutral icon. This follows the discussion in
-        // https://github.com/JabRef/jabref/pull/17356, aiming for consistency with the colored Priority and Read Status icons.
+        // https://github.com/JabRef/jabref/pull/17356, aiming for consistency with the colored Priority and Read Status
+        // icons.
         // The amber shade is intended to remain visible in both light and dark themes,
         // although its contrast against a white background may be limited.
         RELEVANT_COLORED(Color.rgb(255, 179, 0), MaterialDesignS.STAR_CIRCLE),

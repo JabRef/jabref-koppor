@@ -2,7 +2,6 @@ package org.jabref.gui.collab.stringchange;
 
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.collab.DatabaseChangeDetailsView;
 import org.jabref.gui.theme.StyleClasses;
 import org.jabref.logic.l10n.Localization;
@@ -13,13 +12,19 @@ public final class BibTexStringChangeDetailsView extends DatabaseChangeDetailsVi
         VBox container = new VBox();
         Label header = new Label(Localization.lang("Modified string"));
         header.getStyleClass().addAll(StyleClasses.SECTION_HEADER);
-        container.getChildren().addAll(
-                header,
-                new Label(Localization.lang("Label: %0", stringChange.getOldString().getName())),
-                new Label(Localization.lang("Content: %0", stringChange.getNewString().getContent()))
-        );
+        container
+                .getChildren()
+                .addAll(
+                        header,
+                        new Label(Localization.lang(
+                                "Label: %0", stringChange.getOldString().getName())),
+                        new Label(Localization.lang(
+                                "Content: %0", stringChange.getNewString().getContent())));
 
-        container.getChildren().add(new Label(Localization.lang("Current content: %0", stringChange.getOldString().getContent())));
+        container
+                .getChildren()
+                .add(new Label(Localization.lang(
+                        "Current content: %0", stringChange.getOldString().getContent())));
 
         this.setAllAnchorsAndAttachChild(container);
     }

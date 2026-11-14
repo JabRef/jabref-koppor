@@ -1,18 +1,16 @@
 package org.jabref.gui.search;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HighlighterTest {
 
@@ -23,9 +21,7 @@ class HighlighterTest {
         Map<Optional<Field>, List<String>> groupedTerms = Highlighter.groupTermsByField(searchQuery);
 
         assertEquals(
-                Optional.of("\\*"),
-                Highlighter.buildSearchPattern(groupedTerms.get(Optional.of(StandardField.TITLE)))
-        );
+                Optional.of("\\*"), Highlighter.buildSearchPattern(groupedTerms.get(Optional.of(StandardField.TITLE))));
     }
 
     @Test
@@ -43,7 +39,6 @@ class HighlighterTest {
 
         assertEquals(
                 Optional.of("term.*"),
-                Highlighter.buildSearchPattern(groupedTerms.get(Optional.of(StandardField.TITLE)))
-        );
+                Highlighter.buildSearchPattern(groupedTerms.get(Optional.of(StandardField.TITLE))));
     }
 }

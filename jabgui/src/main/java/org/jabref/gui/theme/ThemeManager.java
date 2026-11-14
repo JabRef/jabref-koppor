@@ -1,5 +1,8 @@
 package org.jabref.gui.theme;
 
+import static java.util.function.Predicate.not;
+
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -7,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-
 import javafx.application.ColorScheme;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -15,7 +17,6 @@ import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Window;
-
 import org.jabref.gui.WorkspacePreferences;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.BindingsHelper;
@@ -23,14 +24,10 @@ import org.jabref.gui.util.UiTaskExecutor;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.util.FileUpdateListener;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.google.common.annotations.VisibleForTesting;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.util.function.Predicate.not;
 
 /// Installs and manages style files and provides live reloading. JabRef provides themes and the ability
 /// to add a custom stylesheet on top.
@@ -45,10 +42,10 @@ import static java.util.function.Predicate.not;
 /// the JabRef documentation.
 @NullMarked
 public class ThemeManager {
-    public static Map<String, Node> downloadIconTitleMap = Map.of(
-            Localization.lang("Downloading"), IconTheme.JabRefIcons.DOWNLOAD.getGraphicNode()
-    );
-    public static final StyleSheet JABREF_BASE_STYLE_SHEET = StyleSheet.create("internal/jabref-base.css").orElseThrow();
+    public static Map<String, Node> downloadIconTitleMap =
+            Map.of(Localization.lang("Downloading"), IconTheme.JabRefIcons.DOWNLOAD.getGraphicNode());
+    public static final StyleSheet JABREF_BASE_STYLE_SHEET =
+            StyleSheet.create("internal/jabref-base.css").orElseThrow();
 
     private static final String FONT_SIZE_STYLE_CLASS_PREFIX = "font-size-";
 
@@ -76,15 +73,15 @@ public class ThemeManager {
     private ThemeColorScheme colorScheme = ThemeColorScheme.FOLLOW_SYSTEM;
     private @Nullable StyleSheet customTheme;
 
-    public ThemeManager(WorkspacePreferences workspacePreferences,
-                        FileUpdateMonitor fileUpdateMonitor) {
+    public ThemeManager(WorkspacePreferences workspacePreferences, FileUpdateMonitor fileUpdateMonitor) {
         this.workspacePreferences = workspacePreferences;
         this.fileUpdateMonitor = fileUpdateMonitor;
 
         BindingsHelper.subscribeFuture(workspacePreferences.themeProperty(), _ -> updateThemeSettings());
         BindingsHelper.subscribeFuture(workspacePreferences.colorSchemeProperty(), _ -> updateThemeSettings());
         BindingsHelper.subscribeFuture(workspacePreferences.customThemeProperty(), _ -> updateThemeSettings());
-        BindingsHelper.subscribeFuture(workspacePreferences.shouldOverrideDefaultFontSizeProperty(), _ -> updateFontSettings());
+        BindingsHelper.subscribeFuture(
+                workspacePreferences.shouldOverrideDefaultFontSizeProperty(), _ -> updateFontSettings());
         BindingsHelper.subscribeFuture(workspacePreferences.mainFontSizeProperty(), _ -> updateFontSettings());
         BindingsHelper.subscribeFuture(Platform.getPreferences().colorSchemeProperty(), _ -> updateThemeSettings());
 
@@ -112,7 +109,8 @@ public class ThemeManager {
         }
         toAdd.add(JABREF_BASE_STYLE_SHEET.getSceneStylesheetLocation());
 
-        scene.getStylesheets().setAll(toAdd.stream().filter(not(String::isEmpty)).toList());
+        scene.getStylesheets()
+                .setAll(toAdd.stream().filter(not(String::isEmpty)).toList());
     }
 
     private void updateFontStyleForScene(Scene scene) {
@@ -162,12 +160,9 @@ public class ThemeManager {
 
     private void updateColorSchemeOnScene(Scene scene) {
         ColorScheme javafxColorScheme = switch (colorScheme) {
-            case FOLLOW_SYSTEM ->
-                    null;
-            case LIGHT ->
-                    ColorScheme.LIGHT;
-            case DARK ->
-                    ColorScheme.DARK;
+            case FOLLOW_SYSTEM -> null;
+            case LIGHT -> ColorScheme.LIGHT;
+            case DARK -> ColorScheme.DARK;
         };
 
         scene.getPreferences().setColorScheme(javafxColorScheme);
@@ -179,7 +174,8 @@ public class ThemeManager {
             return;
         }
 
-        ThemePreset newTheme = Optional.ofNullable(workspacePreferences.getTheme()).orElse(ThemePreset.JABREF);
+        ThemePreset newTheme =
+                Optional.ofNullable(workspacePreferences.getTheme()).orElse(ThemePreset.JABREF);
 
         boolean cssChanged = false;
         if (theme != newTheme) {
@@ -192,7 +188,8 @@ public class ThemeManager {
             LOGGER.debug("Theme set to {}", newTheme);
         }
 
-        ThemeColorScheme newColorScheme = Optional.ofNullable(workspacePreferences.getColorScheme()).orElse(ThemeColorScheme.FOLLOW_SYSTEM);
+        ThemeColorScheme newColorScheme =
+                Optional.ofNullable(workspacePreferences.getColorScheme()).orElse(ThemeColorScheme.FOLLOW_SYSTEM);
         if (colorScheme != newColorScheme) {
             colorScheme = newColorScheme;
 
@@ -279,7 +276,8 @@ public class ThemeManager {
             themeCssLiveUpdate = null;
         }
         if (parentCssLiveUpdate != null) {
-            theme.getParent().ifPresent(parent -> removeStylesheetFromWatchList(parent.getStyleSheet(), parentCssLiveUpdate));
+            theme.getParent()
+                    .ifPresent(parent -> removeStylesheetFromWatchList(parent.getStyleSheet(), parentCssLiveUpdate));
             parentCssLiveUpdate = null;
         }
     }
@@ -292,23 +290,23 @@ public class ThemeManager {
 
     private void updateCssOnAllScenes() {
         Window.getWindows().stream()
-              .map(Window::getScene)
-              .filter(Objects::nonNull)
-              .forEach(this::updateCssOnScene);
+                .map(Window::getScene)
+                .filter(Objects::nonNull)
+                .forEach(this::updateCssOnScene);
     }
 
     private void updateColorSchemeOnAllScenes() {
         Window.getWindows().stream()
-              .map(Window::getScene)
-              .filter(Objects::nonNull)
-              .forEach(this::updateColorSchemeOnScene);
+                .map(Window::getScene)
+                .filter(Objects::nonNull)
+                .forEach(this::updateColorSchemeOnScene);
     }
 
     private void updateFontOnAllScenes() {
         Window.getWindows().stream()
-              .map(Window::getScene)
-              .filter(Objects::nonNull)
-              .forEach(this::updateFontStyleForScene);
+                .map(Window::getScene)
+                .filter(Objects::nonNull)
+                .forEach(this::updateFontStyleForScene);
     }
 
     /// @return the currently active custom theme

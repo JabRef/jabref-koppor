@@ -1,5 +1,6 @@
 package org.jabref.toolkit;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.io.File;
 import java.io.IOException;
 import java.net.Authenticator;
@@ -10,9 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javafx.util.Pair;
-
 import org.jabref.logic.importer.SearchBasedFetcher;
 import org.jabref.logic.importer.WebFetcher;
 import org.jabref.logic.importer.WebFetchers;
@@ -38,8 +37,6 @@ import org.jabref.toolkit.commands.JabKit;
 import org.jabref.toolkit.exception.CliExceptionHandler;
 import org.jabref.toolkit.service.ExportService;
 import org.jabref.toolkit.service.ImportService;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -50,7 +47,8 @@ import picocli.CommandLine;
 /// Entrypoint for a command-line only version of JabRef.
 /// It does not open any dialogs, just parses the command line arguments and outputs text and creates/modifies files.
 ///
-/// See [Command Line Interface Guidelines](https://clig.dev/) for general guidelines how to design a good CLI interface.
+/// See [Command Line Interface Guidelines](https://clig.dev/) for general guidelines how to design a good CLI
+/// interface.
 ///
 /// It does not open any GUI.
 /// For the GUI application see [org.jabref.Launcher].
@@ -82,14 +80,17 @@ public class JabKitLauncher {
 
             JabKit jabKit = new JabKit(preferences, entryTypesManager);
             CommandLine commandLine = new CommandLine(jabKit, JabKit.createFactory());
-            commandLine.setExecutionExceptionHandler(new CliExceptionHandler(commandLine.getExecutionExceptionHandler()));
+            commandLine.setExecutionExceptionHandler(
+                    new CliExceptionHandler(commandLine.getExecutionExceptionHandler()));
             // [impl->req~jabkit.cli.banner-shown~1]
             String usageHeader = BuildInfo.JABREF_BANNER.formatted(buildInfo.version) + "\n" + JABKIT_BRAND;
             commandLine.getCommandSpec().usageMessage().header(usageHeader);
-            applyUsageFooters(commandLine,
+            applyUsageFooters(
+                    commandLine,
                     ImportService.getAvailableImportFormats(preferences),
                     ExportService.create(preferences, true).getAvailableExportFormats(),
-                    WebFetchers.getSearchBasedFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences()));
+                    WebFetchers.getSearchBasedFetchers(
+                            preferences.getImportFormatPreferences(), preferences.getImporterPreferences()));
 
             // Show help when no arguments are given. Placed after header and footer setup
             // to ensure output matches --help command
@@ -99,8 +100,11 @@ public class JabKitLauncher {
             }
 
             // Heavy initialization only needed when actually executing a command
-            Injector.setModelOrService(JournalAbbreviationRepository.class, JournalAbbreviationLoader.loadRepository(preferences.getAbbreviationPreferences()));
-            Injector.setModelOrService(ProtectedTermsLoader.class, new ProtectedTermsLoader(preferences.getProtectedTermsPreferences()));
+            Injector.setModelOrService(
+                    JournalAbbreviationRepository.class,
+                    JournalAbbreviationLoader.loadRepository(preferences.getAbbreviationPreferences()));
+            Injector.setModelOrService(
+                    ProtectedTermsLoader.class, new ProtectedTermsLoader(preferences.getProtectedTermsPreferences()));
 
             configureProxy(preferences.getProxyPreferences());
             configureSSL(preferences.getSSLPreferences());
@@ -116,31 +120,25 @@ public class JabKitLauncher {
 
     /// Applies appropriate usage footers to each subcommand based on their supported options.
     /// Distinguishes between input formats, output formats, and export formats.
-    private static void applyUsageFooters(CommandLine commandLine,
-                                          List<Pair<String, String>> inputFormats,
-                                          List<Pair<String, String>> outputFormats,
-                                          Set<SearchBasedFetcher> fetchers) {
+    private static void applyUsageFooters(
+            CommandLine commandLine,
+            List<Pair<String, String>> inputFormats,
+            List<Pair<String, String>> outputFormats,
+            Set<SearchBasedFetcher> fetchers) {
 
         final String INPUT_FOOTER_LABEL = Localization.lang("Available import formats:");
         final String OUTPUT_FOOTER_LABEL = Localization.lang("Available output formats:");
         final String EXPORT_FOOTER_LABEL = Localization.lang("Available export formats:");
 
-        String inputFooter = "\n"
-                + INPUT_FOOTER_LABEL + "\n"
-                + StringUtil.alignStringTable(inputFormats);
-        String outputFooter = "\n"
-                + OUTPUT_FOOTER_LABEL + "\n"
-                + StringUtil.alignStringTable(outputFormats);
-        String exportFooter = "\n"
-                + EXPORT_FOOTER_LABEL + "\n"
-                + StringUtil.alignStringTable(outputFormats);
+        String inputFooter = "\n" + INPUT_FOOTER_LABEL + "\n" + StringUtil.alignStringTable(inputFormats);
+        String outputFooter = "\n" + OUTPUT_FOOTER_LABEL + "\n" + StringUtil.alignStringTable(outputFormats);
+        String exportFooter = "\n" + EXPORT_FOOTER_LABEL + "\n" + StringUtil.alignStringTable(outputFormats);
 
         commandLine.getSubcommands().values().forEach(subCommand -> {
             Map<String, Boolean> hasOptions = Map.of(
                     "input", hasCommandOption(subCommand.getCommandSpec(), "--input-format"),
                     "output", hasCommandOption(subCommand.getCommandSpec(), "--output-format"),
-                    "export", hasCommandOption(subCommand.getCommandSpec(), "--export-format")
-            );
+                    "export", hasCommandOption(subCommand.getCommandSpec(), "--export-format"));
 
             String footerText = "";
             footerText += hasOptions.get("input") ? inputFooter : "";
@@ -149,17 +147,21 @@ public class JabKitLauncher {
             subCommand.getCommandSpec().usageMessage().footer(footerText);
         });
 
-        commandLine.getSubcommands().get("fetch")
-                   .getCommandSpec().usageMessage().footer(Localization.lang("The following providers are available:") + "\n"
-                           + fetchers.stream()
-                                     .map(WebFetcher::getName)
-                                     .filter(name -> !"Search pre-configured".equals(name))
-                                     .collect(Collectors.joining(", ")));
+        commandLine
+                .getSubcommands()
+                .get("fetch")
+                .getCommandSpec()
+                .usageMessage()
+                .footer(Localization.lang("The following providers are available:") + "\n"
+                        + fetchers.stream()
+                                .map(WebFetcher::getName)
+                                .filter(name -> !"Search pre-configured".equals(name))
+                                .collect(Collectors.joining(", ")));
     }
 
     private static boolean hasCommandOption(CommandLine.Model.CommandSpec commandSpec, String optionName) {
         return commandSpec.options().stream()
-                          .anyMatch(opt -> Arrays.asList(opt.names()).contains(optionName));
+                .anyMatch(opt -> Arrays.asList(opt.names()).contains(optionName));
     }
 
     /// This needs to be called as early as possible. After the first log writing, it
@@ -171,7 +173,8 @@ public class JabKitLauncher {
 
         // We must configure logging as soon as possible, which is why we cannot wait for the usual
         // argument parsing workflow to parse logging options e.g. --debug or --porcelain
-        boolean isPorcelain = Arrays.stream(args).anyMatch(arg -> "--porcelain".equalsIgnoreCase(arg) || "-p".equalsIgnoreCase(arg));
+        boolean isPorcelain =
+                Arrays.stream(args).anyMatch(arg -> "--porcelain".equalsIgnoreCase(arg) || "-p".equalsIgnoreCase(arg));
         Level logLevel;
         if (Arrays.stream(args).anyMatch(arg -> "--debug".equalsIgnoreCase(arg) || "-d".equalsIgnoreCase(arg))) {
             logLevel = Level.DEBUG;
@@ -180,7 +183,8 @@ public class JabKitLauncher {
         }
 
         // addLogToDisk
-        // We cannot use `Injector.instantiateModelOrService(BuildInfo.class).version` here, because this initializes logging
+        // We cannot use `Injector.instantiateModelOrService(BuildInfo.class).version` here, because this initializes
+        // logging
         Path directory = Directories.getLogDirectory(new BuildInfo().version);
         try {
             Files.createDirectories(directory);
@@ -202,8 +206,10 @@ public class JabKitLauncher {
         Configuration.set("level", logLevel.name().toLowerCase());
         Configuration.set(fileWriterName, "rolling file");
         Configuration.set("%s.logLevel".formatted(fileWriterName), logLevel == Level.DEBUG ? "debug" : "info");
-        // We need to manually join the path, because ".resolve" does not work on Windows, because ":" is not allowed in file names on Windows
-        Configuration.set("%s.file".formatted(fileWriterName), directory + File.separator + "log_{date:yyyy-MM-dd_HH-mm-ss}.txt");
+        // We need to manually join the path, because ".resolve" does not work on Windows, because ":" is not allowed in
+        // file names on Windows
+        Configuration.set(
+                "%s.file".formatted(fileWriterName), directory + File.separator + "log_{date:yyyy-MM-dd_HH-mm-ss}.txt");
         Configuration.set("%s.charset".formatted(fileWriterName), "UTF-8");
         Configuration.set("%s.policies".formatted(fileWriterName), "startup");
         Configuration.set("%s.backups".formatted(fileWriterName), "30");

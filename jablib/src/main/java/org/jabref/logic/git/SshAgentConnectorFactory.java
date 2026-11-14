@@ -3,12 +3,10 @@ package org.jabref.logic.git;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-
-import org.jabref.logic.util.strings.StringUtil;
-
 import org.eclipse.jgit.transport.sshd.agent.Connector;
 import org.eclipse.jgit.transport.sshd.agent.ConnectorFactory;
 import org.eclipse.jgit.util.SystemReader;
+import org.jabref.logic.util.strings.StringUtil;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -47,7 +45,8 @@ public class SshAgentConnectorFactory implements ConnectorFactory {
         if (!StringUtil.isBlank(identityAgent)) {
             return delegate.create(identityAgent, homeDir);
         }
-        return new FallbackConnector(delegate.create(null, homeDir), () -> delegate.create(OPENSSH_AGENT_PIPE, homeDir));
+        return new FallbackConnector(
+                delegate.create(null, homeDir), () -> delegate.create(OPENSSH_AGENT_PIPE, homeDir));
     }
 
     @Override

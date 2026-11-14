@@ -1,11 +1,9 @@
 package org.jabref.model.ai;
 
-import java.time.Instant;
-
-import org.jabref.model.ai.llm.AiProvider;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.Instant;
+import org.jabref.model.ai.llm.AiProvider;
 
 /// Metadata about the AI model used to produce a particular result.
 ///
@@ -16,8 +14,7 @@ public record AiMetadata(AiProvider aiProvider, String model, Instant timestamp)
     public AiMetadata(
             @JsonProperty("aiProvider") AiProvider aiProvider,
             @JsonProperty("model") String model,
-            @JsonProperty("timestamp") Instant timestamp
-    ) {
+            @JsonProperty("timestamp") Instant timestamp) {
         this.aiProvider = aiProvider;
         this.model = model;
         this.timestamp = timestamp;

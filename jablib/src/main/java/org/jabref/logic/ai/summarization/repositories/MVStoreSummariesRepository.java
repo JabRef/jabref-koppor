@@ -3,13 +3,11 @@ package org.jabref.logic.ai.summarization.repositories;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
-
 import org.jabref.logic.ai.util.MVStoreBase;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.model.ai.summarization.AiSummary;
 import org.jabref.model.ai.summarization.AiSummaryIdentifier;
-
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -59,11 +57,14 @@ public class MVStoreSummariesRepository extends MVStoreBase implements Summaries
 
     @Override
     protected String errorMessageForOpening() {
-        return "An error occurred while opening summary storage. Summaries of entries will not be stored in the next session.";
+        return "An error occurred while opening summary storage. Summaries of entries will not be stored in the next"
+                + " session.";
     }
 
     @Override
     protected String errorMessageForOpeningLocalized() {
-        return Localization.lang("An error occurred while opening summary storage. Summaries of entries will not be stored in the next session.");
+        return Localization.lang(
+                "An error occurred while opening summary storage. Summaries of entries will not be stored in the next"
+                        + " session.");
     }
 }

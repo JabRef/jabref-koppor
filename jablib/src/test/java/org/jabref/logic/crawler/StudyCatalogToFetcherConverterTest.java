@@ -1,13 +1,15 @@
 package org.jabref.logic.crawler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.exporter.SaveConfiguration;
 import org.jabref.logic.git.SlrGitHandler;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -18,21 +20,17 @@ import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class StudyCatalogToFetcherConverterTest {
     SaveConfiguration saveConfiguration;
     CliPreferences preferences;
     BibEntryTypesManager entryTypesManager;
     SlrGitHandler gitHandler;
+
     @TempDir
     Path tempRepositoryDirectory;
 
@@ -54,11 +52,7 @@ class StudyCatalogToFetcherConverterTest {
         copyTestStudyDefinitionFileIntoDirectory(studyDefinition);
 
         StudyRepository studyRepository = new StudyRepository(
-                tempRepositoryDirectory,
-                gitHandler,
-                preferences,
-                new DummyFileUpdateMonitor(),
-                entryTypesManager);
+                tempRepositoryDirectory, gitHandler, preferences, new DummyFileUpdateMonitor(), entryTypesManager);
         StudyCatalogToFetcherConverter converter = new StudyCatalogToFetcherConverter(
                 studyRepository.getActiveLibraryEntries(),
                 mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
@@ -67,8 +61,7 @@ class StudyCatalogToFetcherConverterTest {
 
         assertEquals(
                 List.of("Springer", "arXiv", "Medline/PubMed"),
-                result.stream().map(SearchBasedFetcher::getName).toList()
-        );
+                result.stream().map(SearchBasedFetcher::getName).toList());
     }
 
     private void copyTestStudyDefinitionFileIntoDirectory(Path destination) throws URISyntaxException {

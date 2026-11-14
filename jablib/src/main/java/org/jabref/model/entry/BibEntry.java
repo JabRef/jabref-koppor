@@ -1,5 +1,11 @@
 package org.jabref.model.entry;
 
+import static java.util.function.Predicate.not;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.eventbus.EventBus;
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.optional.OptionalBinding;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -20,13 +26,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.bibtex.BibEntryWriter;
 import org.jabref.logic.bibtex.FieldPreferences;
@@ -52,17 +56,10 @@ import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.strings.LatexToUnicodeAdapter;
 import org.jabref.model.util.MultiKeyMap;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.eventbus.EventBus;
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.optional.OptionalBinding;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.util.function.Predicate.not;
 
 /// Represents a Bib(La)TeX entry, which can be BibTeX or BibLaTeX.
 ///
@@ -97,7 +94,9 @@ import static java.util.function.Predicate.not;
 /// - citation key --&gt; contained in [#fields] using they hashmap key `KEY_FIELD`
 /// - fields --&gt; contained in [#fields]
 ///
-/// In case you search for a builder as described in Item 2 of the book "Effective Java", you won't find one. Please use the methods [#withCitationKey(String)] and [#withField(Field,String)]. All these methods set [#hasChanged()] to `false`. In case `changed`, use [#withChanged(boolean)].
+/// In case you search for a builder as described in Item 2 of the book "Effective Java", you won't find one. Please use
+/// the methods [#withCitationKey(String)] and [#withField(Field,String)]. All these methods set [#hasChanged()] to
+/// `false`. In case `changed`, use [#withChanged(boolean)].
 @AllowedToUseLogic("because it needs access to parser and writers")
 public class BibEntry {
 
@@ -116,7 +115,8 @@ public class BibEntry {
     private final Map<Field, String> latexFreeFields = new ConcurrentHashMap<>();
 
     /// Cache that stores the field as keyword lists (format &lt;Field, Separator, Keyword list>)
-    private final MultiKeyMap<StandardField, Character, KeywordList> fieldsAsKeywords = new MultiKeyMap<>(StandardField.class);
+    private final MultiKeyMap<StandardField, Character, KeywordList> fieldsAsKeywords =
+            new MultiKeyMap<>(StandardField.class);
 
     private final EventBus eventBus = new EventBus();
 
@@ -134,7 +134,8 @@ public class BibEntry {
 
     /// Marks whether the complete serialization, which was read from file, should be used.
     ///
-    /// Is set to `true`, if parts of the entry changed. This causes the entry to be serialized based on the internal state (and not based on the old serialization)
+    /// Is set to `true`, if parts of the entry changed. This causes the entry to be serialized based on the internal
+    /// state (and not based on the old serialization)
     private boolean changed;
 
     /// Constructs a new BibEntry. The internal ID is set to IdGenerator.next()
@@ -196,22 +197,22 @@ public class BibEntry {
     /// @return the mapped field or null if there is no valid mapping available
     private Optional<Field> getSourceField(Field targetField, EntryType targetEntry, EntryType sourceEntry) {
         // 1. Sort out forbidden fields
-        if ((targetField == StandardField.IDS) ||
-                (targetField == StandardField.CROSSREF) ||
-                (targetField == StandardField.XREF) ||
-                (targetField == StandardField.ENTRYSET) ||
-                (targetField == StandardField.RELATED) ||
-                (targetField == StandardField.SORTKEY)) {
+        if ((targetField == StandardField.IDS)
+                || (targetField == StandardField.CROSSREF)
+                || (targetField == StandardField.XREF)
+                || (targetField == StandardField.ENTRYSET)
+                || (targetField == StandardField.RELATED)
+                || (targetField == StandardField.SORTKEY)) {
             return Optional.empty();
         }
 
         // 2. Handle special field mappings
-        if (((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.InBook)) ||
-                ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.BookInBook)) ||
-                ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.SuppBook)) ||
-                ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.InBook)) ||
-                ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.BookInBook)) ||
-                ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.SuppBook))) {
+        if (((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.InBook))
+                || ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.BookInBook))
+                || ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.SuppBook))
+                || ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.InBook))
+                || ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.BookInBook))
+                || ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.SuppBook))) {
             if (targetField == StandardField.AUTHOR) {
                 return Optional.of(StandardField.AUTHOR);
             }
@@ -220,17 +221,19 @@ public class BibEntry {
             }
         }
 
-        if (((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.Book)) ||
-                ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.InBook)) ||
-                ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.BookInBook)) ||
-                ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.SuppBook)) ||
-                ((sourceEntry == StandardEntryType.MvCollection) && (targetEntry == StandardEntryType.Collection)) ||
-                ((sourceEntry == StandardEntryType.MvCollection) && (targetEntry == StandardEntryType.InCollection)) ||
-                ((sourceEntry == StandardEntryType.MvCollection) && (targetEntry == StandardEntryType.SuppCollection)) ||
-                ((sourceEntry == StandardEntryType.MvProceedings) && (targetEntry == StandardEntryType.Proceedings)) ||
-                ((sourceEntry == StandardEntryType.MvProceedings) && (targetEntry == StandardEntryType.InProceedings)) ||
-                ((sourceEntry == StandardEntryType.MvReference) && (targetEntry == StandardEntryType.Reference)) ||
-                ((sourceEntry == StandardEntryType.MvReference) && (targetEntry == StandardEntryType.InReference))) {
+        if (((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.Book))
+                || ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.InBook))
+                || ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.BookInBook))
+                || ((sourceEntry == StandardEntryType.MvBook) && (targetEntry == StandardEntryType.SuppBook))
+                || ((sourceEntry == StandardEntryType.MvCollection) && (targetEntry == StandardEntryType.Collection))
+                || ((sourceEntry == StandardEntryType.MvCollection) && (targetEntry == StandardEntryType.InCollection))
+                || ((sourceEntry == StandardEntryType.MvCollection)
+                        && (targetEntry == StandardEntryType.SuppCollection))
+                || ((sourceEntry == StandardEntryType.MvProceedings) && (targetEntry == StandardEntryType.Proceedings))
+                || ((sourceEntry == StandardEntryType.MvProceedings)
+                        && (targetEntry == StandardEntryType.InProceedings))
+                || ((sourceEntry == StandardEntryType.MvReference) && (targetEntry == StandardEntryType.Reference))
+                || ((sourceEntry == StandardEntryType.MvReference) && (targetEntry == StandardEntryType.InReference))) {
             if (targetField == StandardField.MAINTITLE) {
                 return Optional.of(StandardField.TITLE);
             }
@@ -242,9 +245,9 @@ public class BibEntry {
             }
 
             // those fields are no more available for the same-name inheritance strategy
-            if ((targetField == StandardField.TITLE) ||
-                    (targetField == StandardField.SUBTITLE) ||
-                    (targetField == StandardField.TITLEADDON)) {
+            if ((targetField == StandardField.TITLE)
+                    || (targetField == StandardField.SUBTITLE)
+                    || (targetField == StandardField.TITLEADDON)) {
                 return Optional.empty();
             }
 
@@ -254,13 +257,14 @@ public class BibEntry {
             }
         }
 
-        if (((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.InBook)) ||
-                ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.BookInBook)) ||
-                ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.SuppBook)) ||
-                ((sourceEntry == StandardEntryType.Collection) && (targetEntry == StandardEntryType.InCollection)) ||
-                ((sourceEntry == StandardEntryType.Collection) && (targetEntry == StandardEntryType.SuppCollection)) ||
-                ((sourceEntry == StandardEntryType.Reference) && (targetEntry == StandardEntryType.InReference)) ||
-                ((sourceEntry == StandardEntryType.Proceedings) && (targetEntry == StandardEntryType.InProceedings))) {
+        if (((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.InBook))
+                || ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.BookInBook))
+                || ((sourceEntry == StandardEntryType.Book) && (targetEntry == StandardEntryType.SuppBook))
+                || ((sourceEntry == StandardEntryType.Collection) && (targetEntry == StandardEntryType.InCollection))
+                || ((sourceEntry == StandardEntryType.Collection) && (targetEntry == StandardEntryType.SuppCollection))
+                || ((sourceEntry == StandardEntryType.Reference) && (targetEntry == StandardEntryType.InReference))
+                || ((sourceEntry == StandardEntryType.Proceedings)
+                        && (targetEntry == StandardEntryType.InProceedings))) {
             if (targetField == StandardField.BOOKTITLE) {
                 return Optional.of(StandardField.TITLE);
             }
@@ -272,9 +276,9 @@ public class BibEntry {
             }
 
             // those fields are no more available for the same-name inheritance strategy
-            if ((targetField == StandardField.TITLE) ||
-                    (targetField == StandardField.SUBTITLE) ||
-                    (targetField == StandardField.TITLEADDON)) {
+            if ((targetField == StandardField.TITLE)
+                    || (targetField == StandardField.SUBTITLE)
+                    || (targetField == StandardField.TITLEADDON)) {
                 return Optional.empty();
             }
 
@@ -284,8 +288,9 @@ public class BibEntry {
             }
         }
 
-        if (((sourceEntry == IEEETranEntryType.Periodical) && (targetEntry == StandardEntryType.Article)) ||
-                ((sourceEntry == IEEETranEntryType.Periodical) && (targetEntry == StandardEntryType.SuppPeriodical))) {
+        if (((sourceEntry == IEEETranEntryType.Periodical) && (targetEntry == StandardEntryType.Article))
+                || ((sourceEntry == IEEETranEntryType.Periodical)
+                        && (targetEntry == StandardEntryType.SuppPeriodical))) {
             if (targetField == StandardField.JOURNALTITLE) {
                 return Optional.of(StandardField.TITLE);
             }
@@ -294,8 +299,7 @@ public class BibEntry {
             }
 
             // those fields are no more available for the same-name inheritance strategy
-            if ((targetField == StandardField.TITLE) ||
-                    (targetField == StandardField.SUBTITLE)) {
+            if ((targetField == StandardField.TITLE) || (targetField == StandardField.SUBTITLE)) {
                 return Optional.empty();
             }
 
@@ -328,7 +332,10 @@ public class BibEntry {
         return genericGetResolvedFieldOrAlias(field, database, BibEntry::getFieldOrAliasLatexFree);
     }
 
-    private Optional<String> genericGetResolvedFieldOrAlias(Field field, @Nullable BibDatabase database, BiFunction<BibEntry, Field, Optional<String>> getFieldOrAlias) {
+    private Optional<String> genericGetResolvedFieldOrAlias(
+            Field field,
+            @Nullable BibDatabase database,
+            BiFunction<BibEntry, Field, Optional<String>> getFieldOrAlias) {
         if ((InternalField.TYPE_HEADER == field) || (InternalField.OBSOLETE_TYPE_HEADER == field)) {
             return Optional.of(type.get().getDisplayName());
         }
@@ -353,13 +360,12 @@ public class BibEntry {
             }
         }
 
-        return (database == null) || result.isEmpty() ?
-               result :
-               Optional.of(database.resolveForStrings(result.get()));
+        return (database == null) || result.isEmpty() ? result : Optional.of(database.resolveForStrings(result.get()));
     }
 
     /// Returns this entry's ID. It is used internally to distinguish different BibTeX entries.
-    //  It is **not** the citation key (which is stored in the {@link InternalField#KEY_FIELD} and also known as BibTeX key).
+    //  It is **not** the citation key (which is stored in the {@link InternalField#KEY_FIELD} and also known as BibTeX
+    // key).
 
     ///
     /// This id changes on each run of JabRef (because it is currently generated as increasing number).
@@ -398,8 +404,7 @@ public class BibEntry {
     /// If not present, [BibEntry#getAuthorTitleYear(int)] can be used
     @NonNull
     public Optional<String> getCitationKey() {
-        return Optional.ofNullable(fields.get(InternalField.KEY_FIELD))
-                       .filter(StringUtil::isNotBlank);
+        return Optional.ofNullable(fields.get(InternalField.KEY_FIELD)).filter(StringUtil::isNotBlank);
     }
 
     public boolean hasCitationKey() {
@@ -446,7 +451,8 @@ public class BibEntry {
         return new LinkedHashSet<>(fields.keySet());
     }
 
-    /// Returns an unmodifiable sequence containing the names of all fields that are a) set for this particular entry and b) matching the given predicate
+    /// Returns an unmodifiable sequence containing the names of all fields that are a) set for this particular entry
+    /// and b) matching the given predicate
     public SequencedSet<Field> getFields(Predicate<Field> selector) {
         return getFields().stream().filter(selector).collect(Collectors.toCollection(LinkedHashSet::new));
     }
@@ -468,7 +474,8 @@ public class BibEntry {
             Optional<String> fieldValue = getField(field);
             if (fieldValue.isPresent()) {
                 // TODO: Do we need FieldFactory.isLaTeXField(field) here to filter?
-                String latexFreeValue = LatexToUnicodeAdapter.format(fieldValue.get()).intern();
+                String latexFreeValue =
+                        LatexToUnicodeAdapter.format(fieldValue.get()).intern();
                 latexFreeFields.put(field, latexFreeValue);
                 return Optional.of(latexFreeValue);
             } else {
@@ -489,7 +496,8 @@ public class BibEntry {
     /// @param field         the field
     /// @param getFieldValue the method to get the value of a given field in a given entry
     /// @return determined field value
-    private Optional<String> genericGetFieldOrAlias(Field field, BiFunction<BibEntry, Field, Optional<String>> getFieldValue) {
+    private Optional<String> genericGetFieldOrAlias(
+            Field field, BiFunction<BibEntry, Field, Optional<String>> getFieldValue) {
         Optional<String> fieldValue = getFieldValue.apply(this, field);
 
         if (fieldValue.isPresent() && !fieldValue.get().isEmpty()) {
@@ -522,14 +530,10 @@ public class BibEntry {
             Optional<Date> parsedDate = Date.parse(date.get());
             if (parsedDate.isPresent()) {
                 return switch (field) {
-                    case StandardField.YEAR ->
-                            parsedDate.get().getYear().map(Object::toString);
-                    case StandardField.MONTH ->
-                            parsedDate.get().getMonth().map(Month::getJabRefFormat);
-                    case StandardField.DAY ->
-                            parsedDate.get().getDay().map(Object::toString);
-                    default ->
-                            throw new IllegalStateException("Unexpected value");
+                    case StandardField.YEAR -> parsedDate.get().getYear().map(Object::toString);
+                    case StandardField.MONTH -> parsedDate.get().getMonth().map(Month::getJabRefFormat);
+                    case StandardField.DAY -> parsedDate.get().getDay().map(Object::toString);
+                    default -> throw new IllegalStateException("Unexpected value");
                 };
             } else {
                 // Date field not in valid format
@@ -586,9 +590,8 @@ public class BibEntry {
     /// @param field       The field to set
     /// @param value       The value to set - "null" for clear. Useful for cleaner code at fetchers.
     /// @param eventSource Source the event is sent from
-    public Optional<FieldChange> setField(@NonNull Field field,
-                                          @Nullable String value,
-                                          @NonNull EntriesEventSource eventSource) {
+    public Optional<FieldChange> setField(
+            @NonNull Field field, @Nullable String value, @NonNull EntriesEventSource eventSource) {
         if (StringUtil.isNullOrEmpty(value)) {
             return clearField(field);
         }
@@ -654,10 +657,12 @@ public class BibEntry {
     /// entries linked by the "crossref" field, if any.
     ///
     /// @param fields   An array of field names to be checked.
-    /// @param database The database in which to look up crossref'd entries, if any. This argument can be null, meaning that no attempt will be made to follow crossrefs.
+    /// @param database The database in which to look up crossref'd entries, if any. This argument can be null, meaning
+    /// that no attempt will be made to follow crossrefs.
     /// @return true if all fields are set or could be resolved, false otherwise.
     public boolean allFieldsPresent(Collection<OrFields> fields, BibDatabase database) {
-        return fields.stream().allMatch(field -> this.getResolvedFieldOrAlias(field, database).isPresent());
+        return fields.stream()
+                .allMatch(field -> this.getResolvedFieldOrAlias(field, database).isPresent());
     }
 
     // region String representations
@@ -682,7 +687,8 @@ public class BibEntry {
 
     /// Uses `\n` as newline separator
     ///
-    /// Method similar to [org.jabref.gui.entryeditor.SourceTab#getSourceString(BibEntry, BibDatabaseMode, FieldPreferences)]
+    /// Method similar to [org.jabref.gui.entryeditor.SourceTab#getSourceString(BibEntry, BibDatabaseMode,
+    /// FieldPreferences)]
     ///
     /// @return String representation - empty string in case of an error (to ease calling)
     public @NonNull String getStringRepresentation(
@@ -724,7 +730,8 @@ public class BibEntry {
     ///
     /// If `0` is passed as `maxCharacters`, the description is not truncated.
     ///
-    /// @param maxCharacters The maximum number of characters (additional characters are replaced by "..."). Set to 0 to disable truncation.
+    /// @param maxCharacters The maximum number of characters (additional characters are replaced by "..."). Set to 0 to
+    /// disable truncation.
     /// @return A short textual description of the entry in the format:
     /// Author1, Author2: Title (Year)
     public String getAuthorTitleYear(int maxCharacters) {
@@ -736,12 +743,13 @@ public class BibEntry {
         String formattedTitle = LatexToUnicodeAdapter.format(titleField);
 
         StringBuilder textBuilder = new StringBuilder();
-        textBuilder.append(formattedAuthors)
-                   .append(": \"")
-                   .append(formattedTitle)
-                   .append("\" (")
-                   .append(yearField)
-                   .append(')');
+        textBuilder
+                .append(formattedAuthors)
+                .append(": \"")
+                .append(formattedTitle)
+                .append("\" (")
+                .append(yearField)
+                .append(')');
 
         return StringUtil.limitStringLength(textBuilder.toString(), maxCharacters);
     }
@@ -754,7 +762,8 @@ public class BibEntry {
 
     /// Returns the title of the given BibTeX entry as an Optional.
     ///
-    /// @return an Optional containing the title of a BibTeX entry in case it exists, otherwise return an empty Optional.
+    /// @return an Optional containing the title of a BibTeX entry in case it exists, otherwise return an empty
+    /// Optional.
     public Optional<String> getTitle() {
         return getField(StandardField.TITLE);
     }
@@ -845,7 +854,9 @@ public class BibEntry {
 
     public KeywordList getResolvedKeywords(Character delimiter, BibDatabase database) {
         Optional<String> keywordsContent = getResolvedFieldOrAlias(StandardField.KEYWORDS, database);
-        return keywordsContent.map(content -> KeywordList.parse(content, delimiter)).orElse(new KeywordList());
+        return keywordsContent
+                .map(content -> KeywordList.parse(content, delimiter))
+                .orElse(new KeywordList());
     }
 
     public Optional<FieldChange> removeKeywords(KeywordList keywordsToRemove, Character keywordDelimiter) {
@@ -853,7 +864,8 @@ public class BibEntry {
 
         // We need to fix "file has changed on disk" for duplicate keywords
         // The input of the set may contain duplicate keywords (which are present as single keyword in the set)
-        // Even if no "keywordsToRemove" is contained, the method "putKeywords" will return a change, because the duplicate keywords will have been removed
+        // Even if no "keywordsToRemove" is contained, the method "putKeywords" will return a change, because the
+        // duplicate keywords will have been removed
         int oldSize = keywordList.size();
         keywordList.removeAll(keywordsToRemove);
         // claim 1: The size of a set is the same, if no element is removed
@@ -866,9 +878,8 @@ public class BibEntry {
         }
     }
 
-    public Optional<FieldChange> replaceKeywords(KeywordList keywordsToReplace,
-                                                 Keyword newValue,
-                                                 Character keywordDelimiter) {
+    public Optional<FieldChange> replaceKeywords(
+            KeywordList keywordsToReplace, Keyword newValue, Character keywordDelimiter) {
         KeywordList keywordList = getKeywords(keywordDelimiter);
         keywordList.replaceAll(keywordsToReplace, newValue);
 
@@ -965,8 +976,9 @@ public class BibEntry {
     }
 
     public List<ParsedEntryLink> getEntryLinkList(Field field, BibDatabase database) {
-        return getField(field).map(fieldValue -> EntryLinkList.parse(fieldValue, database))
-                              .orElse(List.of());
+        return getField(field)
+                .map(fieldValue -> EntryLinkList.parse(fieldValue, database))
+                .orElse(List.of());
     }
 
     public Optional<FieldChange> setEntryLinkList(Field field, List<ParsedEntryLink> list) {
@@ -1088,12 +1100,11 @@ public class BibEntry {
     ///
     /// @return List of citation keys; empty list if field is empty or not available.
     public SequencedSet<String> getCites() {
-        return this.getField(StandardField.CITES)
-                   .stream()
-                   .flatMap(content -> Arrays.stream(content.split(",")))
-                   .map(String::trim)
-                   .filter(not(String::isEmpty))
-                   .collect(Collectors.toCollection(LinkedHashSet::new));
+        return this.getField(StandardField.CITES).stream()
+                .flatMap(content -> Arrays.stream(content.split(",")))
+                .map(String::trim)
+                .filter(not(String::isEmpty))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public Optional<FieldChange> setCites(SequencedSet<String> keys) {
@@ -1163,7 +1174,8 @@ public class BibEntry {
         this.setFiles(linkedFiles);
     }
 
-    /// Merge this entry's fields with another BibEntry. Non-intersecting fields will be automatically merged. In cases of
+    /// Merge this entry's fields with another BibEntry. Non-intersecting fields will be automatically merged. In cases
+    /// of
     /// intersection, priority is given to THIS entry's field value.
     ///
     /// @param other another BibEntry from which fields are sourced from
@@ -1171,7 +1183,8 @@ public class BibEntry {
         mergeWith(other, Set.of());
     }
 
-    /// Merge this entry's fields with another BibEntry. Non-intersecting fields will be automatically merged. In cases of
+    /// Merge this entry's fields with another BibEntry. Non-intersecting fields will be automatically merged. In cases
+    /// of
     /// intersection, priority is given to THIS entry's field value, UNLESS specified otherwise in the arguments.
     ///
     /// @param other                  another BibEntry from which fields are sourced from
@@ -1185,12 +1198,13 @@ public class BibEntry {
 
         // At the moment, "Field" interface does not provide explicit equality, so using their names instead.
         Set<String> thisFieldsNames = thisFields.stream().map(Field::getName).collect(Collectors.toSet());
-        Set<String> otherPrioritizedFieldsNames = otherPrioritizedFields.stream().map(Field::getName).collect(Collectors.toSet());
+        Set<String> otherPrioritizedFieldsNames =
+                otherPrioritizedFields.stream().map(Field::getName).collect(Collectors.toSet());
 
         for (Field otherField : otherFields) {
             Optional<String> otherFieldValue = other.getField(otherField);
-            if (!thisFieldsNames.contains(otherField.getName()) ||
-                    otherPrioritizedFieldsNames.contains(otherField.getName())) {
+            if (!thisFieldsNames.contains(otherField.getName())
+                    || otherPrioritizedFieldsNames.contains(otherField.getName())) {
                 // As iterator only goes through non-null fields from OTHER, otherFieldValue can never be empty
                 otherFieldValue.ifPresent(s -> this.setField(otherField, s));
             } else {
@@ -1199,8 +1213,8 @@ public class BibEntry {
                         List<LinkedFile> currentFiles = this.getFiles();
                         List<LinkedFile> otherFiles = other.getFiles();
                         List<LinkedFile> filesToAdd = otherFiles.stream()
-                                                                .filter(file -> !currentFiles.contains(file))
-                                                                .toList();
+                                .filter(file -> !currentFiles.contains(file))
+                                .toList();
                         if (!filesToAdd.isEmpty()) {
                             this.addFiles(filesToAdd);
                         }

@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.Optional;
-
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.IdBasedParserFetcher;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -13,13 +13,12 @@ import org.jabref.logic.importer.Parser;
 import org.jabref.logic.importer.fileformat.ModsImporter;
 import org.jabref.logic.util.strings.StringUtil;
 
-import org.apache.hc.core5.net.URIBuilder;
-
 /// Fetcher for the Library of Congress Control Number (LCCN) using https://lccn.loc.gov/
 public class LibraryOfCongress implements IdBasedParserFetcher {
 
     // The Library of Congress asks clients to stay at or below 10 requests per minute.
-    private static final FetcherRateLimiter RATE_LIMITER = FetcherRateLimiter.ofRequestsPerInterval("Library of Congress", 10, Duration.ofMinutes(1));
+    private static final FetcherRateLimiter RATE_LIMITER =
+            FetcherRateLimiter.ofRequestsPerInterval("Library of Congress", 10, Duration.ofMinutes(1));
 
     private final ImportFormatPreferences importFormatPreferences;
 

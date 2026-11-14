@@ -1,13 +1,12 @@
 package org.jabref.gui.mergeentries.threewaymerge.cell;
 
+import static org.jabref.gui.mergeentries.threewaymerge.cell.ThreeWayMergeCell.HEADER_ROW;
+
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
-import com.tobiasdiez.easybind.EasyBind;
-
-import static org.jabref.gui.mergeentries.threewaymerge.cell.ThreeWayMergeCell.HEADER_ROW;
 
 public class ThreeWayMergeCellViewModel {
     private final StringProperty text = new SimpleStringProperty();

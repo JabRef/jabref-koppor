@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.auxparser.AuxParser;
 import org.jabref.logic.auxparser.AuxParserResult;
@@ -15,7 +14,6 @@ import org.jabref.model.metadata.MetaData;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.FileUpdateListener;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -31,13 +29,14 @@ public class TexGroup extends AbstractGroup implements FileUpdateListener {
     private final MetaData metaData;
     private final String user;
 
-    TexGroup(String name,
-             GroupHierarchyType context,
-             Path filePath,
-             AuxParser auxParser,
-             FileUpdateMonitor fileMonitor,
-             MetaData metaData,
-             String user) {
+    TexGroup(
+            String name,
+            GroupHierarchyType context,
+            Path filePath,
+            AuxParser auxParser,
+            FileUpdateMonitor fileMonitor,
+            MetaData metaData,
+            String user) {
         super(name, context);
         this.metaData = metaData;
         this.user = user;
@@ -46,25 +45,29 @@ public class TexGroup extends AbstractGroup implements FileUpdateListener {
         this.fileMonitor = fileMonitor;
     }
 
-    public static TexGroup create(String name,
-                                  GroupHierarchyType context,
-                                  Path filePath,
-                                  AuxParser auxParser,
-                                  FileUpdateMonitor fileMonitor,
-                                  MetaData metaData,
-                                  String userAndHost) throws IOException {
+    public static TexGroup create(
+            String name,
+            GroupHierarchyType context,
+            Path filePath,
+            AuxParser auxParser,
+            FileUpdateMonitor fileMonitor,
+            MetaData metaData,
+            String userAndHost)
+            throws IOException {
         TexGroup group = new TexGroup(name, context, filePath, auxParser, fileMonitor, metaData, userAndHost);
         fileMonitor.addListenerForFile(group.getFilePathResolved(), group);
         return group;
     }
 
     // without FileUpdateMonitor
-    public static TexGroup create(String name,
-                                  GroupHierarchyType context,
-                                  Path filePath,
-                                  AuxParser auxParser,
-                                  MetaData metaData,
-                                  String userAndHost) throws IOException {
+    public static TexGroup create(
+            String name,
+            GroupHierarchyType context,
+            Path filePath,
+            AuxParser auxParser,
+            MetaData metaData,
+            String userAndHost)
+            throws IOException {
         return new TexGroup(name, context, filePath, auxParser, new DummyFileUpdateMonitor(), metaData, userAndHost);
     }
 
@@ -109,12 +112,12 @@ public class TexGroup extends AbstractGroup implements FileUpdateListener {
 
     @Override
     public String toString() {
-        return "TexGroup{" +
-                "filePath=" + filePath +
-                ", keysUsedInAux=" + keysUsedInAux +
-                ", auxParser=" + auxParser +
-                ", fileMonitor=" + fileMonitor +
-                "} " + super.toString();
+        return "TexGroup{filePath="
+                + filePath + ", keysUsedInAux="
+                + keysUsedInAux + ", auxParser="
+                + auxParser + ", fileMonitor="
+                + fileMonitor + "} "
+                + super.toString();
     }
 
     @Override
@@ -149,8 +152,6 @@ public class TexGroup extends AbstractGroup implements FileUpdateListener {
     }
 
     private List<Path> getFileDirectoriesAsPaths() {
-        return metaData.getLatexFileDirectory(user)
-                       .map(List::of)
-                       .orElse(List.of());
+        return metaData.getLatexFileDirectory(user).map(List::of).orElse(List.of());
     }
 }

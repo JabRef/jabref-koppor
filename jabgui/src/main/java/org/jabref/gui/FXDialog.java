@@ -7,7 +7,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.gui.walkthrough.WalkthroughPane;
@@ -55,7 +54,8 @@ public class FXDialog extends Alert {
         setDialogIcon(IconTheme.getJabRefIcon());
 
         Stage dialogWindow = getDialogWindow();
-        dialogWindow.addEventHandler(WindowEvent.WINDOW_SHOWN, _ -> BaseDialog.fitWindowToContent(this.getDialogPane()));
+        dialogWindow.addEventHandler(
+                WindowEvent.WINDOW_SHOWN, _ -> BaseDialog.fitWindowToContent(this.getDialogPane()));
         dialogWindow.setOnCloseRequest(_ -> this.close());
 
         if (isModal) {

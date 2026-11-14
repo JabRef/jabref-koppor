@@ -1,7 +1,6 @@
 package org.jabref.gui.libraryproperties;
 
 import javafx.scene.Node;
-
 import org.jabref.model.metadata.MetaData;
 
 public interface PropertiesTab {

@@ -1,5 +1,12 @@
 package org.jabref.logic.git;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -9,12 +16,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
-
-import org.jabref.logic.JabRefException;
-import org.jabref.logic.git.preferences.GitPreferences;
-import org.jabref.logic.git.util.NoopGitSystemReader;
-import org.jabref.logic.l10n.Localization;
-
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -30,6 +31,10 @@ import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.SystemReader;
+import org.jabref.logic.JabRefException;
+import org.jabref.logic.git.preferences.GitPreferences;
+import org.jabref.logic.git.util.NoopGitSystemReader;
+import org.jabref.logic.l10n.Localization;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,24 +46,21 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Answers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("git")
 class GitHandlerTest {
     @TempDir
     Path repositoryPath;
+
     @TempDir
     Path remoteRepoPath;
+
     @TempDir
     Path clonePath;
+
     @TempDir
     Path libraryPath;
+
     private GitHandler gitHandler;
 
     @BeforeEach
@@ -71,10 +73,10 @@ class GitHandlerTest {
         SystemReader.setInstance(new NoopGitSystemReader());
 
         try (Git remoteGit = Git.init()
-                                .setBare(true)
-                                .setDirectory(remoteRepoPath.toFile())
-                                .setInitialBranch("main")
-                                .call()) {
+                .setBare(true)
+                .setDirectory(remoteRepoPath.toFile())
+                .setInitialBranch("main")
+                .call()) {
             // This ensures the remote repository is initialized and properly closed
         }
 
@@ -232,9 +234,7 @@ class GitHandlerTest {
             gitHandler.createCommitOnCurrentBranch("TestCommit", false);
 
             AnyObjectId head = git.getRepository().resolve(Constants.HEAD);
-            Iterator<RevCommit> log = git.log()
-                                         .add(head)
-                                         .call().iterator();
+            Iterator<RevCommit> log = git.log().add(head).call().iterator();
             assertEquals("TestCommit", log.next().getFullMessage());
             assertEquals("Initial commit", log.next().getFullMessage());
         }
@@ -248,9 +248,9 @@ class GitHandlerTest {
     @Test
     void fetchOnCurrentBranch() throws IOException, GitAPIException, JabRefException {
         try (Git cloneGit = Git.cloneRepository()
-                               .setURI(remoteRepoPath.toUri().toString())
-                               .setDirectory(clonePath.toFile())
-                               .call()) {
+                .setURI(remoteRepoPath.toUri().toString())
+                .setDirectory(clonePath.toFile())
+                .call()) {
             Files.writeString(clonePath.resolve("another.txt"), "world");
             cloneGit.add().addFilepattern("another.txt").call();
             cloneGit.commit().setMessage("Second commit").call();
@@ -268,9 +268,9 @@ class GitHandlerTest {
     @Test
     void pushReportsRejectedRemoteUpdate() throws IOException, GitAPIException {
         try (Git cloneGit = Git.cloneRepository()
-                               .setURI(remoteRepoPath.toUri().toString())
-                               .setDirectory(clonePath.toFile())
-                               .call()) {
+                .setURI(remoteRepoPath.toUri().toString())
+                .setDirectory(clonePath.toFile())
+                .call()) {
             Files.writeString(clonePath.resolve("remote.txt"), "remote change");
             cloneGit.add().addFilepattern("remote.txt").call();
             cloneGit.commit().setMessage("Remote commit").call();
@@ -283,7 +283,9 @@ class GitHandlerTest {
         JabRefException exception = assertThrows(JabRefException.class, gitHandler::pushCommitsToRemoteRepository);
 
         assertEquals(
-                Localization.lang("Push to %0 was rejected (%1).", "refs/heads/main", RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD),
+                Localization.lang(
+                        "Push to %0 was rejected (%1).",
+                        "refs/heads/main", RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD),
                 exception.getLocalizedMessage());
     }
 
@@ -296,7 +298,9 @@ class GitHandlerTest {
         Optional<GitHandler> handlerOpt = GitHandler.fromAnyPath(nested, gitPreferences);
 
         assertTrue(handlerOpt.isPresent(), "Expected GitHandler to be created");
-        assertEquals(repositoryPath.toRealPath(), handlerOpt.get().repositoryPath.toRealPath(),
+        assertEquals(
+                repositoryPath.toRealPath(),
+                handlerOpt.get().repositoryPath.toRealPath(),
                 "Expected repositoryPath to match Git root");
     }
 

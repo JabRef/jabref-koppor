@@ -1,10 +1,13 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.net.ssl.TrustStoreManager;
 import org.jabref.model.entry.BibEntry;
@@ -12,19 +15,16 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.paging.Page;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 @ExternalServicesTest
-@Disabled("isidore.science is unreachable: every request fails with \"Error getting response code\" before any assertion runs. Re-enable the whole class when the service is reachable again. See #16665")
+@Disabled(
+        "isidore.science is unreachable: every request fails with \"Error getting response code\" before any assertion"
+                + " runs. Re-enable the whole class when the service is reachable again. See #16665")
 class ISIDOREFetcherTest {
 
     @TempDir
@@ -50,7 +50,10 @@ class ISIDOREFetcherTest {
     @Disabled("Different result returned")
     void checkArticle1() throws FetcherException {
         BibEntry expected = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.TITLE, "Investigating day-to-day variability of transit usage on a multimonth scale with smart card data. A case study in Lyon")
+                .withField(
+                        StandardField.TITLE,
+                        "Investigating day-to-day variability of transit usage on a multimonth scale with smart card"
+                                + " data. A case study in Lyon")
                 .withField(StandardField.AUTHOR, "Oscar Egu and Patrick Bonnel")
                 .withField(StandardField.YEAR, "2020")
                 .withField(StandardField.JOURNAL, "Travel Behaviour and Society")
@@ -58,7 +61,9 @@ class ISIDOREFetcherTest {
                 .withField(StandardField.DOI, "10.1016/j.tbs.2019.12.003")
                 .withField(StandardField.URL, "https://isidore.science/document/10670/1.hrzlqd");
 
-        List<BibEntry> actual = fetcher.performSearch("Investigating day-to-day variability of transit usage on a multimonth scale with smart card data. A case study in Lyon");
+        List<BibEntry> actual = fetcher.performSearch(
+                "Investigating day-to-day variability of transit usage on a multimonth scale with smart card data. A"
+                        + " case study in Lyon");
 
         assertEquals(List.of(expected), actual);
     }
@@ -67,7 +72,9 @@ class ISIDOREFetcherTest {
     @Disabled("Returns too much results")
     void checkArticle2() throws FetcherException {
         BibEntry expected = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.TITLE, "Inequality – What Can Be Done ? Cambridge (Mass.) Harvard University Press, 2015, XI-384 p. ")
+                .withField(
+                        StandardField.TITLE,
+                        "Inequality – What Can Be Done ? Cambridge (Mass.) Harvard University Press, 2015, XI-384 p. ")
                 .withField(StandardField.AUTHOR, "Benoît Rapoport")
                 .withField(StandardField.YEAR, "2016")
                 .withField(StandardField.JOURNAL, "Population (édition française)")
@@ -83,16 +90,22 @@ class ISIDOREFetcherTest {
     @Test
     void checkThesis() throws FetcherException {
         BibEntry expected = new BibEntry(StandardEntryType.Thesis)
-                .withField(StandardField.TITLE, "Phosphate homeostasis and transport in relation with the liver microsomal glucose-6-phosphatase system")
+                .withField(
+                        StandardField.TITLE,
+                        "Phosphate homeostasis and transport in relation with the liver microsomal"
+                                + " glucose-6-phosphatase system")
                 .withField(StandardField.AUTHOR, "Wensheng Xie")
                 .withField(StandardField.YEAR, "2024");
 
-        List<BibEntry> actual = fetcher.performSearch("Phosphate homeostasis and transport in relation with the liver microsomal glucose-6-phosphatase system");
+        List<BibEntry> actual = fetcher.performSearch(
+                "Phosphate homeostasis and transport in relation with the liver microsomal glucose-6-phosphatase"
+                        + " system");
 
-        // The results obtained by the fetcher contain three entries (as of 2024), and the first matches our expected entry. So, we can use actual.getFirst(), but shall still use findFirst() in case the order of returned items changes.
-        Optional<BibEntry> matchingEntry = actual.stream()
-                                                 .filter(entry -> entry.equals(expected))
-                                                 .findFirst();
+        // The results obtained by the fetcher contain three entries (as of 2024), and the first matches our expected
+        // entry. So, we can use actual.getFirst(), but shall still use findFirst() in case the order of returned items
+        // changes.
+        Optional<BibEntry> matchingEntry =
+                actual.stream().filter(entry -> entry.equals(expected)).findFirst();
 
         assertEquals(Optional.of(expected), matchingEntry);
     }
@@ -101,14 +114,21 @@ class ISIDOREFetcherTest {
     @Disabled("No result returned. Searched for `Salvage Lymph Node`, results are returned")
     void checkArticle3() throws FetcherException {
         BibEntry expected = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.TITLE, "Salvage Lymph Node Dissection for Nodal Recurrent Prostate Cancer: A Systematic Review.")
-                .withField(StandardField.AUTHOR, "G. Ploussard and G. Gandaglia and H. Borgmann and P. de Visschere and I. Heidegger and A. Kretschmer and R. Mathieu and C. Surcel and D. Tilki and I. Tsaur and M. Valerio and R. van den Bergh and P. Ost and A. Briganti")
+                .withField(
+                        StandardField.TITLE,
+                        "Salvage Lymph Node Dissection for Nodal Recurrent Prostate Cancer: A Systematic Review.")
+                .withField(
+                        StandardField.AUTHOR,
+                        "G. Ploussard and G. Gandaglia and H. Borgmann and P. de Visschere and I. Heidegger and A."
+                                + " Kretschmer and R. Mathieu and C. Surcel and D. Tilki and I. Tsaur and M. Valerio"
+                                + " and R. van den Bergh and P. Ost and A. Briganti")
                 .withField(StandardField.YEAR, "2019")
                 .withField(StandardField.JOURNAL, "European urology")
                 .withField(StandardField.DOI, "10.1016/j.eururo.2018.10.041")
                 .withField(StandardField.URL, "https://isidore.science/document/10670/1.zm7q2x");
 
-        List<BibEntry> actual = fetcher.performSearch("Salvage Lymph Node Dissection for Nodal Recurrent Prostate Cancer: A Systematic Review.");
+        List<BibEntry> actual = fetcher.performSearch(
+                "Salvage Lymph Node Dissection for Nodal Recurrent Prostate Cancer: A Systematic Review.");
 
         assertEquals(List.of(expected), actual);
     }
@@ -122,12 +142,16 @@ class ISIDOREFetcherTest {
     @Test
     void author() throws FetcherException {
         List<BibEntry> actual = fetcher.performSearch("author=\"Adam Strange\"");
-        assertEquals(List.of(new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.AUTHOR, "Howard Green and Karen Boyland and Adam Strange")
-                .withField(StandardField.DOI, "doi:10.3406/htn.1990.2970")
-                .withField(StandardField.TITLE, "Le rôle des pépinières dans le développement des entreprises accueillies : essai d'évaluation. L'exemple du Yorkshire -Humberside (R.U.)")
-                .withField(StandardField.YEAR, "1990")
-        ), actual);
+        assertEquals(
+                List.of(new BibEntry(StandardEntryType.Article)
+                        .withField(StandardField.AUTHOR, "Howard Green and Karen Boyland and Adam Strange")
+                        .withField(StandardField.DOI, "doi:10.3406/htn.1990.2970")
+                        .withField(
+                                StandardField.TITLE,
+                                "Le rôle des pépinières dans le développement des entreprises accueillies : essai"
+                                        + " d'évaluation. L'exemple du Yorkshire -Humberside (R.U.)")
+                        .withField(StandardField.YEAR, "1990")),
+                actual);
     }
 
     @Test

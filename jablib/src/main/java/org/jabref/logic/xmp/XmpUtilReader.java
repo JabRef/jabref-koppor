@@ -8,12 +8,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.SequencedCollection;
-
-import org.jabref.logic.bibtex.comparator.BibEntryCompare;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.LinkedFile;
-import org.jabref.model.schema.DublinCoreSchemaCustom;
-
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
@@ -21,6 +15,10 @@ import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.apache.xmpbox.XMPMetadata;
 import org.apache.xmpbox.schema.DublinCoreSchema;
+import org.jabref.logic.bibtex.comparator.BibEntryCompare;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.LinkedFile;
+import org.jabref.model.schema.DublinCoreSchemaCustom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +36,9 @@ public class XmpUtilReader {
 
     public XmpUtilReader() {
         // See: https://pdfbox.apache.org/2.0/getting-started.html
-        System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider"); // To get higher rendering speed on java 8 oder 9 for images
+        System.setProperty(
+                "sun.java2d.cmm",
+                "sun.java2d.cmm.kcms.KcmsServiceProvider"); // To get higher rendering speed on java 8 oder 9 for images
     }
 
     /// Will read the XMPMetadata from the given pdf file, closing the file afterwards.
@@ -84,7 +84,8 @@ public class XmpUtilReader {
         }
 
         PDDocumentInformation documentInformation = document.getDocumentInformation();
-        Optional<BibEntry> documentInformationEntry = new DocumentInformationExtractor(documentInformation).extractBibtexEntry();
+        Optional<BibEntry> documentInformationEntry =
+                new DocumentInformationExtractor(documentInformation).extractBibtexEntry();
         documentInformationEntry.ifPresent(entry -> {
             if (result.isEmpty()) {
                 result.add(entry);
@@ -96,11 +97,8 @@ public class XmpUtilReader {
                     result.removeFirst();
                     result.addFirst(entry);
                 }
-                case DIFFERENT ->
-                        result.addFirst(entry);
-                case DISJUNCT_OR_EQUAL_FIELDS,
-                     DISJUNCT ->
-                        first.mergeWith(entry);
+                case DIFFERENT -> result.addFirst(entry);
+                case DISJUNCT_OR_EQUAL_FIELDS, DISJUNCT -> first.mergeWith(entry);
                 // in all other cases (EQUAL, SUPERSET), the documentInformation is ignored
             }
         });
@@ -137,7 +135,9 @@ public class XmpUtilReader {
         int startDescriptionSection = xmp.indexOf(START_TAG);
         int endDescriptionSection = xmp.lastIndexOf(END_TAG) + END_TAG.length();
 
-        if ((startDescriptionSection < 0) || (startDescriptionSection > endDescriptionSection) || (endDescriptionSection == (END_TAG.length() - 1))) {
+        if ((startDescriptionSection < 0)
+                || (startDescriptionSection > endDescriptionSection)
+                || (endDescriptionSection == (END_TAG.length() - 1))) {
             LOGGER.debug("Cannot find start or end tag in metadata. Returning empty list.");
             return metaList;
         }
@@ -145,7 +145,8 @@ public class XmpUtilReader {
         // XML header for the xmpDomParser
         String start = xmp.substring(0, startDescriptionSection);
         // descriptionArray - mid part of the textual metadata
-        String[] descriptionsArray = xmp.substring(startDescriptionSection, endDescriptionSection).split(END_TAG);
+        String[] descriptionsArray =
+                xmp.substring(startDescriptionSection, endDescriptionSection).split(END_TAG);
         // XML footer for the xmpDomParser
         String end = xmp.substring(endDescriptionSection);
 

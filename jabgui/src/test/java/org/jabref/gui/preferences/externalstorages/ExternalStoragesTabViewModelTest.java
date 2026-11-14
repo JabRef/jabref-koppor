@@ -1,13 +1,12 @@
 package org.jabref.gui.preferences.externalstorages;
 
-import org.jabref.logic.net.CiteDrivePreferences;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import org.jabref.logic.net.CiteDrivePreferences;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @NullMarked
 @ResourceLock("Localization.lang")

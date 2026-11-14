@@ -1,14 +1,12 @@
 package org.jabref.logic.shared;
 
+import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jabref.logic.shared.exception.InvalidDBMSConnectionPropertiesException;
 import org.jabref.support.DatabaseTest;
-
-import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 
 /// Provides connections to an embedded PostgreSQL for tests
 @DatabaseTest
@@ -18,7 +16,8 @@ public class ConnectorTest implements AutoCloseable {
     private final List<DBMSConnection> connections = new ArrayList<>();
 
     /// Fires up postgres on the first call; every call returns a new connection to that instance
-    public DBMSConnection getTestDBMSConnection() throws SQLException, IOException, InvalidDBMSConnectionPropertiesException {
+    public DBMSConnection getTestDBMSConnection()
+            throws SQLException, IOException, InvalidDBMSConnectionPropertiesException {
         if (postgres == null) {
             postgres = EmbeddedPostgres.builder().start();
         }

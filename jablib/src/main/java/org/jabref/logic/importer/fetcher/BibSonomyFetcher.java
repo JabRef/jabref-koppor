@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.cleanup.DoiCleanup;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.cleanup.FieldFormatterCleanupActions;
@@ -39,8 +39,6 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.http.SimpleHttpResponse;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,9 +53,10 @@ public class BibSonomyFetcher implements SearchBasedParserFetcher, CustomizableK
 
     private static final String SEARCH_URL = "https://www.bibsonomy.org/api/posts";
     private static final int MAX_RESULTS = 50;
-    private static final List<Field> INTERNAL_FIELDS = Stream.of("added-at", "citeulike-article-id", "description", "interhash", "intrahash", "priority")
-                                                             .map(FieldFactory::parseField)
-                                                             .toList();
+    private static final List<Field> INTERNAL_FIELDS = Stream.of(
+                    "added-at", "citeulike-article-id", "description", "interhash", "intrahash", "priority")
+            .map(FieldFactory::parseField)
+            .toList();
 
     private static final Field INTERHASH = FieldFactory.parseField("interhash");
 
@@ -72,19 +71,27 @@ public class BibSonomyFetcher implements SearchBasedParserFetcher, CustomizableK
     @Override
     public List<BibEntry> performSearch(BaseQueryNode queryNode) throws FetcherException {
         // [impl->feat~fetchers.bibsonomy~1]
-        if (importerPreferences.getApiKey(FETCHER_NAME).map(String::strip).filter(BibSonomyFetcher::hasUsernameAndApiKey).isEmpty()) {
-            throw new FetcherException(Localization.lang("BibSonomy needs your username and API key. Enter them as 'username:apikey' in Preferences > Web search > BibSonomy."));
+        if (importerPreferences
+                .getApiKey(FETCHER_NAME)
+                .map(String::strip)
+                .filter(BibSonomyFetcher::hasUsernameAndApiKey)
+                .isEmpty()) {
+            throw new FetcherException(Localization.lang(
+                    "BibSonomy needs your username and API key. Enter them as 'username:apikey' in Preferences"
+                            + " > Web search > BibSonomy."));
         }
-        // BibSonomy ignores the year tag when there is no search term, and the tag cannot express every query, so we also filter by year here.
+        // BibSonomy ignores the year tag when there is no search term, and the tag cannot express every query, so we
+        // also filter by year here.
         BibSonomyQueryTransformer transformer = new BibSonomyQueryTransformer();
         String query = transformer.transformSearchQuery(queryNode).orElse("");
         BibSonomyYearFilter yearFilter = new BibSonomyYearFilter(queryNode);
         return fetchEntries(queryNode, query, transformer).stream()
-                                                          .filter(yearFilter::accepts)
-                                                          .toList();
+                .filter(yearFilter::accepts)
+                .toList();
     }
 
-    private List<BibEntry> fetchEntries(BaseQueryNode queryNode, String query, BibSonomyQueryTransformer transformer) throws FetcherException {
+    private List<BibEntry> fetchEntries(BaseQueryNode queryNode, String query, BibSonomyQueryTransformer transformer)
+            throws FetcherException {
         URL url;
         try {
             url = getSearchUrl(queryNode, query, transformer);
@@ -97,10 +104,16 @@ public class BibSonomyFetcher implements SearchBasedParserFetcher, CustomizableK
             entries.forEach(this::doPostCleanup);
             return entries;
         } catch (FetcherClientException e) {
-            // BibSonomy repeats the rejected username and API key in its 401 response, so that response must reach neither the error message nor the log
-            if (e.getHttpResponse().map(SimpleHttpResponse::statusCode).filter(status -> status == HttpURLConnection.HTTP_UNAUTHORIZED).isPresent()) {
+            // BibSonomy repeats the rejected username and API key in its 401 response, so that response must reach
+            // neither the error message nor the log
+            if (e.getHttpResponse()
+                    .map(SimpleHttpResponse::statusCode)
+                    .filter(status -> status == HttpURLConnection.HTTP_UNAUTHORIZED)
+                    .isPresent()) {
                 LOGGER.debug("BibSonomy rejected the username or API key");
-                throw new FetcherException(Localization.lang("BibSonomy rejected the username or API key. Check them in Preferences > Web search > BibSonomy."));
+                throw new FetcherException(Localization.lang(
+                        "BibSonomy rejected the username or API key. Check them in Preferences > Web search >"
+                                + " BibSonomy."));
             }
             throw e;
         } catch (IOException e) {
@@ -114,8 +127,8 @@ public class BibSonomyFetcher implements SearchBasedParserFetcher, CustomizableK
     static List<BibEntry> removeDuplicatePosts(List<BibEntry> entries) {
         Set<String> seenHashes = new HashSet<>();
         return entries.stream()
-                      .filter(entry -> entry.getField(INTERHASH).map(seenHashes::add).orElse(true))
-                      .toList();
+                .filter(entry -> entry.getField(INTERHASH).map(seenHashes::add).orElse(true))
+                .toList();
     }
 
     @Override
@@ -125,7 +138,8 @@ public class BibSonomyFetcher implements SearchBasedParserFetcher, CustomizableK
         return getSearchUrl(queryNode, query, transformer);
     }
 
-    private static URL getSearchUrl(BaseQueryNode queryNode, String query, BibSonomyQueryTransformer transformer) throws URISyntaxException, MalformedURLException {
+    private static URL getSearchUrl(BaseQueryNode queryNode, String query, BibSonomyQueryTransformer transformer)
+            throws URISyntaxException, MalformedURLException {
         URIBuilder uriBuilder = new URIBuilder(SEARCH_URL);
         uriBuilder.addParameter("resourcetype", "publication");
         uriBuilder.addParameter("format", "bibtex");
@@ -138,7 +152,8 @@ public class BibSonomyFetcher implements SearchBasedParserFetcher, CustomizableK
         return uriBuilder.build().toURL();
     }
 
-    /// BibSonomy filters by year through its `sys:year` system tag: `sys:year:2015`, `sys:year:2010-2012`, `sys:year:2010-` or `sys:year:-2012`
+    /// BibSonomy filters by year through its `sys:year` system tag: `sys:year:2015`, `sys:year:2010-2012`,
+    /// `sys:year:2010-` or `sys:year:-2012`
     static Optional<String> getYearTag(BibSonomyQueryTransformer transformer) {
         Optional<Integer> startYear = transformer.getStartYear();
         Optional<Integer> endYear = transformer.getEndYear();
@@ -148,7 +163,8 @@ public class BibSonomyFetcher implements SearchBasedParserFetcher, CustomizableK
         if (startYear.equals(endYear)) {
             return startYear.map(year -> "sys:year:" + year);
         }
-        return Optional.of("sys:year:" + startYear.map(String::valueOf).orElse("") + "-" + endYear.map(String::valueOf).orElse(""));
+        return Optional.of("sys:year:" + startYear.map(String::valueOf).orElse("") + "-"
+                + endYear.map(String::valueOf).orElse(""));
     }
 
     @Override
@@ -158,10 +174,11 @@ public class BibSonomyFetcher implements SearchBasedParserFetcher, CustomizableK
 
     @Override
     public URLDownload getUrlDownload(URL url) {
-        return importerPreferences.getApiKey(FETCHER_NAME)
-                                  .map(String::strip)
-                                  .map(key -> authenticatedDownload(url, key))
-                                  .orElseGet(() -> new URLDownload(url));
+        return importerPreferences
+                .getApiKey(FETCHER_NAME)
+                .map(String::strip)
+                .map(key -> authenticatedDownload(url, key))
+                .orElseGet(() -> new URLDownload(url));
     }
 
     /// BibSonomy repeats rejected credentials in its error responses, so these responses must not reach the log
@@ -180,15 +197,19 @@ public class BibSonomyFetcher implements SearchBasedParserFetcher, CustomizableK
     @Override
     public void doPostCleanup(BibEntry entry) {
         new DoiCleanup().cleanup(entry);
-        new FieldFormatterCleanupActions(true, List.of(
-                new FieldFormatterCleanup(StandardField.TIMESTAMP, new ClearFormatter()),
-                new FieldFormatterCleanup(StandardField.MONTH, new NormalizeMonthFormatter()),
-                new FieldFormatterCleanup(StandardField.ABSTRACT, new RemoveNewlinesFormatter())
-        )).applySaveActions(entry);
+        new FieldFormatterCleanupActions(
+                        true,
+                        List.of(
+                                new FieldFormatterCleanup(StandardField.TIMESTAMP, new ClearFormatter()),
+                                new FieldFormatterCleanup(StandardField.MONTH, new NormalizeMonthFormatter()),
+                                new FieldFormatterCleanup(StandardField.ABSTRACT, new RemoveNewlinesFormatter())))
+                .applySaveActions(entry);
         INTERNAL_FIELDS.forEach(entry::clearField);
         // BibSonomy separates tags with spaces
         entry.getField(StandardField.KEYWORDS)
-             .ifPresent(tags -> entry.putKeywords(KeywordList.parse(tags, ' '), importFormatPreferences.bibEntryPreferences().getKeywordSeparator()));
+                .ifPresent(tags -> entry.putKeywords(
+                        KeywordList.parse(tags, ' '),
+                        importFormatPreferences.bibEntryPreferences().getKeywordSeparator()));
     }
 
     @Override
@@ -220,7 +241,8 @@ public class BibSonomyFetcher implements SearchBasedParserFetcher, CustomizableK
             }
             return true;
         } catch (FetcherException | URISyntaxException | MalformedURLException _) {
-            // The message of a FetcherException contains the response, in which BibSonomy repeats the credentials, so the exception must not be logged
+            // The message of a FetcherException contains the response, in which BibSonomy repeats the credentials, so
+            // the exception must not be logged
             LOGGER.debug("Could not validate the BibSonomy username and API key");
             return false;
         }

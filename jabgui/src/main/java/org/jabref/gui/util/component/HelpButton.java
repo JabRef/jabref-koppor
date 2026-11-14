@@ -1,9 +1,9 @@
 package org.jabref.gui.util.component;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Button;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.edit.OpenBrowserAction;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
@@ -12,8 +12,6 @@ import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.BindingsHelper;
 import org.jabref.logic.help.HelpFile;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 
 public class HelpButton extends Button {
@@ -34,10 +32,11 @@ public class HelpButton extends Button {
             }
 
             setOnAction(_ -> new OpenBrowserAction(
-                    helpUrl.get(),
-                    Injector.instantiateModelOrService(DialogService.class),
-                    Injector.instantiateModelOrService(GuiPreferences.class).getExternalApplicationsPreferences()
-            ).execute());
+                            helpUrl.get(),
+                            Injector.instantiateModelOrService(DialogService.class),
+                            Injector.instantiateModelOrService(GuiPreferences.class)
+                                    .getExternalApplicationsPreferences())
+                    .execute());
         });
     }
 
@@ -46,9 +45,10 @@ public class HelpButton extends Button {
         setHelpUrl(url);
     }
 
-    public void setHelpFile(@NonNull HelpFile helpFile,
-                            @NonNull DialogService dialogService,
-                            @NonNull ExternalApplicationsPreferences externalApplicationsPreferences) {
+    public void setHelpFile(
+            @NonNull HelpFile helpFile,
+            @NonNull DialogService dialogService,
+            @NonNull ExternalApplicationsPreferences externalApplicationsPreferences) {
         if (isHelpFileSet) {
             throw new IllegalStateException("Help file has already been set");
         }

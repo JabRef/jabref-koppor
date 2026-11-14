@@ -2,13 +2,11 @@ package org.jabref.gui.frame;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import javafx.beans.InvalidationListener;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.KeyEvent;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.importer.actions.OpenDatabaseAction;
 import org.jabref.logic.l10n.Localization;
@@ -22,7 +20,8 @@ public class FileHistoryMenu extends Menu {
     private final DialogService dialogService;
     private final OpenDatabaseAction openDatabaseAction;
 
-    public FileHistoryMenu(FileHistory fileHistory, DialogService dialogService, OpenDatabaseAction openDatabaseAction) {
+    public FileHistoryMenu(
+            FileHistory fileHistory, DialogService dialogService, OpenDatabaseAction openDatabaseAction) {
         setText(Localization.lang("Recent libraries"));
 
         this.clearRecentLibraries = new MenuItem();
@@ -70,10 +69,7 @@ public class FileHistoryMenu extends Menu {
         for (int index = 0; index < history.size(); index++) {
             addItem(history.get(index), index + 1);
         }
-        getItems().addAll(
-                new SeparatorMenuItem(),
-                clearRecentLibraries
-        );
+        getItems().addAll(new SeparatorMenuItem(), clearRecentLibraries);
     }
 
     private void addItem(Path file, int num) {
@@ -99,8 +95,7 @@ public class FileHistoryMenu extends Menu {
 
         if (!Files.exists(resolvedFile)) {
             this.dialogService.showErrorDialogAndWait(
-                    Localization.lang("File not found"),
-                    Localization.lang("File not found") + ": " + file);
+                    Localization.lang("File not found"), Localization.lang("File not found") + ": " + file);
             return;
         }
 

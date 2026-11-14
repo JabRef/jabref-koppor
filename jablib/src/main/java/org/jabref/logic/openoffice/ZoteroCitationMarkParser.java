@@ -1,12 +1,15 @@
 package org.jabref.logic.openoffice;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.Author;
 import org.jabref.model.entry.AuthorList;
@@ -14,11 +17,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Date;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +25,7 @@ public class ZoteroCitationMarkParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZoteroCitationMarkParser.class);
 
-    private ZoteroCitationMarkParser() {
-    }
+    private ZoteroCitationMarkParser() {}
 
     public static List<BibEntry> parseCslCitationJson(String cslJson) {
         if (StringUtil.isBlank(cslJson)) {
@@ -38,7 +35,8 @@ public class ZoteroCitationMarkParser {
         try {
             ZoteroCitationData citationData = GSON.fromJson(cslJson, ZoteroCitationData.class);
             List<BibEntry> entries = new ArrayList<>();
-            List<ZoteroCitationData.CitationItemData> citationItemDataList = Optional.ofNullable(citationData.citationItems).orElse(List.of());
+            List<ZoteroCitationData.CitationItemData> citationItemDataList =
+                    Optional.ofNullable(citationData.citationItems).orElse(List.of());
             for (ZoteroCitationData.CitationItemData citationItem : citationItemDataList) {
                 toBibEntry(citationItem).ifPresent(entries::add);
             }
@@ -87,8 +85,8 @@ public class ZoteroCitationMarkParser {
     public static Optional<BibEntry> toBibEntry(ZoteroCitationData.CitationItemData citationItem) {
         return toBibEntry(citationItem.itemData)
                 .map(entry -> ZoteroReferenceMark.getCitationKey(citationItem)
-                                                 .map(entry::withCitationKey)
-                                                 .orElse(entry));
+                        .map(entry::withCitationKey)
+                        .orElse(entry));
     }
 
     private static Optional<BibEntry> toBibEntry(ZoteroCitationData.ItemData itemData) {
@@ -102,7 +100,8 @@ public class ZoteroCitationMarkParser {
         if (itemData.issued != null) {
             setDate(entry, itemData.issued);
         }
-        for (Map.Entry<String, Field> fieldMapping : CSLItemTypeDefinitions.getFieldMappings(type, itemData).entrySet()) {
+        for (Map.Entry<String, Field> fieldMapping :
+                CSLItemTypeDefinitions.getFieldMappings(type, itemData).entrySet()) {
             setField(entry, fieldMapping.getValue(), itemData.getFieldValue(fieldMapping.getKey()));
         }
 

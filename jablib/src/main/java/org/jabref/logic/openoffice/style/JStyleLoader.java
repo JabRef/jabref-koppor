@@ -5,11 +5,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +20,8 @@ public class JStyleLoader {
     private static final Logger LOGGER = LoggerFactory.getLogger(JStyleLoader.class);
 
     // All internal styles
-    private final List<String> internalStyleFiles = List.of(DEFAULT_AUTHORYEAR_STYLE_PATH, DEFAULT_NUMERICAL_STYLE_PATH);
+    private final List<String> internalStyleFiles =
+            List.of(DEFAULT_AUTHORYEAR_STYLE_PATH, DEFAULT_NUMERICAL_STYLE_PATH);
 
     private final OpenOfficePreferences openOfficePreferences;
     private final LayoutFormatterPreferences layoutFormatterPreferences;
@@ -33,9 +32,10 @@ public class JStyleLoader {
     private final List<JStyle> internalStyles = new ArrayList<>();
     private final List<JStyle> externalStyles = new ArrayList<>();
 
-    public JStyleLoader(@NonNull OpenOfficePreferences openOfficePreferences,
-                        @NonNull LayoutFormatterPreferences formatterPreferences,
-                        @NonNull JournalAbbreviationRepository abbreviationRepository) {
+    public JStyleLoader(
+            @NonNull OpenOfficePreferences openOfficePreferences,
+            @NonNull LayoutFormatterPreferences formatterPreferences,
+            @NonNull JournalAbbreviationRepository abbreviationRepository) {
         this.openOfficePreferences = openOfficePreferences;
         this.layoutFormatterPreferences = formatterPreferences;
         this.abbreviationRepository = abbreviationRepository;

@@ -1,5 +1,13 @@
 package org.jabref.http.server.resources;
 
+import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
@@ -8,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.http.SrvStateManager;
 import org.jabref.http.server.services.ServerUtils;
 import org.jabref.logic.UiCommand;
@@ -24,15 +31,6 @@ import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import jakarta.inject.Inject;
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.MediaType;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +56,9 @@ public class EntriesResource {
     ///
     /// [impl->req~jabsrv.import.group~1]
     ///
-    /// @param group optional name of a group the imported entries are additionally assigned to. If the group does not exist, it is created as a top-level group. JabRef merges the entries into the library (duplicate handling applies).
+    /// @param group optional name of a group the imported entries are additionally assigned to. If the group does not
+    /// exist, it is created as a top-level group. JabRef merges the entries into the library (duplicate handling
+    /// applies).
     @POST
     @Consumes(MediaTypes.APPLICATION_BIBTEX)
     public void addBibtex(@PathParam("id") String id, @QueryParam("group") @Nullable String group, String bibtex) {
@@ -86,7 +86,8 @@ public class EntriesResource {
     /// top-level group of that name, creating it if it does not exist.
     @POST
     @Consumes(MediaTypes.CITATIONSTYLES_JSON)
-    public void addCslJson(@PathParam("id") String id, @QueryParam("group") @Nullable String group, String cslJson) throws IOException {
+    public void addCslJson(@PathParam("id") String id, @QueryParam("group") @Nullable String group, String cslJson)
+            throws IOException {
         if (StringUtil.isBlank(cslJson)) {
             throw new BadRequestException("CSL-JSON data must not be empty.");
         }
@@ -102,9 +103,8 @@ public class EntriesResource {
 
         StringWriter rawEntries = new StringWriter();
         BibWriter bibWriter = new BibWriter(rawEntries, "\n");
-        BibEntryWriter entryWriter = new BibEntryWriter(
-                new FieldWriter(preferences.getFieldPreferences()),
-                entryTypesManager);
+        BibEntryWriter entryWriter =
+                new BibEntryWriter(new FieldWriter(preferences.getFieldPreferences()), entryTypesManager);
         for (BibEntry entry : entries) {
             // Freshly built entries have no meaningful parsed serialization, so force a reformat
             // instead of writing the (empty) original source back out.
@@ -126,7 +126,9 @@ public class EntriesResource {
     /// @param group optional name of a group the imported entry is additionally assigned to.
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
-    public void addPlainCitation(@PathParam("id") String id, @QueryParam("group") @Nullable String group, String citationText) throws FetcherException, IOException {
+    public void addPlainCitation(
+            @PathParam("id") String id, @QueryParam("group") @Nullable String group, String citationText)
+            throws FetcherException, IOException {
         if (StringUtil.isBlank(citationText)) {
             throw new BadRequestException("Citation text must not be empty.");
         }
@@ -136,13 +138,13 @@ public class EntriesResource {
         Optional<java.nio.file.Path> targetLibrary = resolveTargetLibrary(id);
 
         BibEntry parsed = ServerUtils.parsePlainCitation(preferences, citationText)
-                                     .orElseThrow(() -> new BadRequestException("Could not parse a bibliography entry from the given text."));
+                .orElseThrow(
+                        () -> new BadRequestException("Could not parse a bibliography entry from the given text."));
 
         StringWriter rawEntry = new StringWriter();
         BibWriter bibWriter = new BibWriter(rawEntry, "\n");
-        BibEntryWriter entryWriter = new BibEntryWriter(
-                new FieldWriter(preferences.getFieldPreferences()),
-                entryTypesManager);
+        BibEntryWriter entryWriter =
+                new BibEntryWriter(new FieldWriter(preferences.getFieldPreferences()), entryTypesManager);
         entryWriter.write(parsed, bibWriter, BibDatabaseMode.BIBTEX);
 
         uiMessageHandler.handleUiCommands(List.of(targetLibrary
@@ -166,7 +168,8 @@ public class EntriesResource {
             body.transferTo(writer);
         }
 
-        uiMessageHandler.handleUiCommands(List.of(new UiCommand.AppendFilesToLibrary(targetLibrary, List.of(tempFile))));
+        uiMessageHandler.handleUiCommands(
+                List.of(new UiCommand.AppendFilesToLibrary(targetLibrary, List.of(tempFile))));
     }
 
     /// Resolves the path-segment library id into the on-disk path the append should target.

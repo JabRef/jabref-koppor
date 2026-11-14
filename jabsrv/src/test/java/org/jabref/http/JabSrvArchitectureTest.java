@@ -1,12 +1,11 @@
 package org.jabref.http;
 
-import org.jabref.support.CommonArchitectureTest;
-
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
+import org.jabref.support.CommonArchitectureTest;
 
 @AnalyzeClasses(packages = "org.jabref.http", importOptions = ImportOption.DoNotIncludeTests.class)
 public class JabSrvArchitectureTest extends CommonArchitectureTest {
@@ -19,9 +18,11 @@ public class JabSrvArchitectureTest extends CommonArchitectureTest {
     @ArchTest
     public void doNotUseAfterburnerInjector(JavaClasses classes) {
         ArchRuleDefinition.noClasses()
-                          .should().dependOnClassesThat().resideInAPackage("com.airhacks.afterburner.injection..")
-                          .because("jabsrv must inject via HK2 (@Inject) — afterburner Injector belongs to the GUI module")
-                          .check(classes);
+                .should()
+                .dependOnClassesThat()
+                .resideInAPackage("com.airhacks.afterburner.injection..")
+                .because("jabsrv must inject via HK2 (@Inject) — afterburner Injector belongs to the GUI module")
+                .check(classes);
     }
 
     /// `application/json` resources are written by `GsonMessageBodyWriter`, so
@@ -33,11 +34,13 @@ public class JabSrvArchitectureTest extends CommonArchitectureTest {
     @ArchTest
     public void doNotUseJacksonOutsideCommand(JavaClasses classes) {
         ArchRuleDefinition.noClasses()
-                          .that().resideOutsideOfPackage("org.jabref.http.server.resources.command..")
-                          .should().dependOnClassesThat().resideInAnyPackage(
-                                  "com.fasterxml.jackson..",
-                                  "tools.jackson..")
-                          .because("Gson writes the wire format for resources/DTOs; Jackson annotations are silently ignored. Only org.jabref.http.server.resources.command may use Jackson directly.")
-                          .check(classes);
+                .that()
+                .resideOutsideOfPackage("org.jabref.http.server.resources.command..")
+                .should()
+                .dependOnClassesThat()
+                .resideInAnyPackage("com.fasterxml.jackson..", "tools.jackson..")
+                .because("Gson writes the wire format for resources/DTOs; Jackson annotations are silently ignored."
+                        + " Only org.jabref.http.server.resources.command may use Jackson directly.")
+                .check(classes);
     }
 }

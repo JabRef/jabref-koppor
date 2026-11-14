@@ -1,5 +1,6 @@
 package org.jabref.gui.search;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,7 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.search.query.SearchQueryConversion;
 import org.jabref.logic.search.sqlbased.PostgresServer;
@@ -19,8 +19,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchQueryNode;
 import org.jabref.model.util.Range;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -67,13 +65,11 @@ public class Highlighter {
 
     private static String highlightNode(String text, String searchPattern) {
         if (!shouldUsePostgresSearch()) {
-            return text.replaceAll(
-                    "(?i)(" + searchPattern + ")",
-                    "<mark style=\"background: orange\">$1</mark>"
-            );
+            return text.replaceAll("(?i)(" + searchPattern + ")", "<mark style=\"background: orange\">$1</mark>");
         }
         if (connection == null) {
-            connection = Injector.instantiateModelOrService(PostgresServer.class).getConnection();
+            connection =
+                    Injector.instantiateModelOrService(PostgresServer.class).getConnection();
         }
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(REGEXP_MARK)) {
@@ -101,7 +97,8 @@ public class Highlighter {
             return positions;
         }
         if (connection == null) {
-            connection = Injector.instantiateModelOrService(PostgresServer.class).getConnection();
+            connection =
+                    Injector.instantiateModelOrService(PostgresServer.class).getConnection();
         }
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(REGEXP_POSITIONS)) {
@@ -129,7 +126,9 @@ public class Highlighter {
         List<SearchQueryNode> queryNodes = getSearchQueryNodes(searchQuery);
         Map<Optional<Field>, List<String>> searchTermsMap = new HashMap<>();
         for (SearchQueryNode searchTerm : queryNodes) {
-            searchTermsMap.computeIfAbsent(searchTerm.field(), _ -> new ArrayList<>()).add(searchTerm.term());
+            searchTermsMap
+                    .computeIfAbsent(searchTerm.field(), _ -> new ArrayList<>())
+                    .add(searchTerm.term());
         }
         return searchTermsMap;
     }
@@ -140,8 +139,8 @@ public class Highlighter {
         }
 
         List<String> terms = getSearchQueryNodes(searchQuery).stream()
-                                                             .map(SearchQueryNode::term)
-                                                             .toList();
+                .map(SearchQueryNode::term)
+                .toList();
         return buildSearchPattern(terms);
     }
 

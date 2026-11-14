@@ -4,12 +4,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NonNull;
 
 /// Article identifier for MathSciNet (also sometimes called "MRNumber")
@@ -23,8 +21,10 @@ public class MathSciNetId implements Identifier {
     }
 
     public static Optional<MathSciNetId> parse(String mrNumberRaw) {
-        // Take everything before whitespace or open bracket, so something like `619693 (82j:58046)` gets parsed correctly
-        String identifier = StringUtil.tokenizeToList(mrNumberRaw, " (").getFirst().trim();
+        // Take everything before whitespace or open bracket, so something like `619693 (82j:58046)` gets parsed
+        // correctly
+        String identifier =
+                StringUtil.tokenizeToList(mrNumberRaw, " (").getFirst().trim();
         return Optional.of(new MathSciNetId(identifier));
     }
 

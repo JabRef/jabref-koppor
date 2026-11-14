@@ -14,29 +14,28 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
-
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.util.FileType;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 /// Represents the link to an external file (e.g. associated PDF file).
 /// This class is [Serializable] which is needed for drag and drop in gui
-/// The conversion from String ([org.jabref.model.entry.field.StandardField.FILE]) is done at [org.jabref.logic.importer.util.FileFieldParser#parse(String)]
+/// The conversion from String ([org.jabref.model.entry.field.StandardField.FILE]) is done at
+/// [org.jabref.logic.importer.util.FileFieldParser#parse(String)]
 @AllowedToUseLogic("Uses FileUtil from logic")
 @NullMarked
 public class LinkedFile implements Serializable {
 
-    private static final String REGEX_URL = "^((?:https?\\:\\/\\/|ftps?\\:\\/\\/|www\\.)(?:[-a-z0-9]+\\.)*[-a-z0-9]+.*)";
+    private static final String REGEX_URL =
+            "^((?:https?\\:\\/\\/|ftps?\\:\\/\\/|www\\.)(?:[-a-z0-9]+\\.)*[-a-z0-9]+.*)";
     private static final Pattern URL_PATTERN = Pattern.compile(REGEX_URL);
 
     private static final LinkedFile NULL_OBJECT = new LinkedFile("", Path.of(""), "");
@@ -55,7 +54,8 @@ public class LinkedFile implements Serializable {
 
     /// @param description The description of the linked file
     /// @param link        The path or URL to the linked file
-    /// @param fileType    The file type of the linked file. See [org.jabref.logic.util.StandardFileType] for common file types.
+    /// @param fileType    The file type of the linked file. See [org.jabref.logic.util.StandardFileType] for common
+    /// file types.
     public LinkedFile(String description, String link, FileType fileType) {
         this(description, link, fileType.getName());
     }
@@ -195,7 +195,8 @@ public class LinkedFile implements Serializable {
     /// Recognizes http://, https://, ftp://, ftps://, and www. prefixes.
     ///
     /// @param toCheck The String to check
-    /// @return `true`, if it starts with "http://", "https://", "ftp://", "ftps://" or contains "www."; `false` otherwise
+    /// @return `true`, if it starts with "http://", "https://", "ftp://", "ftps://" or contains "www."; `false`
+    /// otherwise
     public static boolean isOnlineLink(String toCheck) {
         // We use an explicit regex instead of delegating to URLUtil because
         // isOnlineLink() specifically filters for *remote* links. URLUtil.isURL()
@@ -213,12 +214,12 @@ public class LinkedFile implements Serializable {
 
     @Override
     public String toString() {
-        return "ParsedFileField{" +
-                "description='" + description.get() + '\'' +
-                ", link='" + link.get() + '\'' +
-                ", fileType='" + fileType.get() + '\'' +
-                (StringUtil.isNullOrEmpty(sourceURL.get()) ? "" : (", sourceUrl='" + sourceURL.get() + '\'')) +
-                '}';
+        return "ParsedFileField{description='"
+                + description.get() + '\'' + ", link='"
+                + link.get() + '\'' + ", fileType='"
+                + fileType.get() + '\''
+                + (StringUtil.isNullOrEmpty(sourceURL.get()) ? "" : (", sourceUrl='" + sourceURL.get() + '\''))
+                + '}';
     }
 
     public boolean isEmpty() {

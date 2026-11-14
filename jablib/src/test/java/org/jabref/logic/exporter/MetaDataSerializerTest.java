@@ -1,5 +1,7 @@
 package org.jabref.logic.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -7,7 +9,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
-
 import org.jabref.logic.citationkeypattern.GlobalCitationKeyPatterns;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.cleanup.FieldFormatterCleanupActions;
@@ -26,7 +27,6 @@ import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.UnknownEntryType;
 import org.jabref.model.metadata.ContentSelector;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -35,8 +35,6 @@ import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("exporter")
@@ -53,9 +51,7 @@ public class MetaDataSerializerTest {
         metaData = new MetaData();
         pattern = GlobalCitationKeyPatterns.fromPattern("[auth][year]");
         newCustomType = new BibEntryType(
-                CUSTOM_TYPE,
-                List.of(new BibField(StandardField.AUTHOR, FieldPriority.IMPORTANT)),
-                Set.of());
+                CUSTOM_TYPE, List.of(new BibField(StandardField.AUTHOR, FieldPriority.IMPORTANT)), Set.of());
     }
 
     @Test
@@ -72,23 +68,18 @@ public class MetaDataSerializerTest {
 
     @Test
     void serializeSingleSaveAction() {
-        FieldFormatterCleanupActions saveActions = new FieldFormatterCleanupActions(true,
-                List.of(new FieldFormatterCleanup(StandardField.TITLE, new LowerCaseFormatter())));
+        FieldFormatterCleanupActions saveActions = new FieldFormatterCleanupActions(
+                true, List.of(new FieldFormatterCleanup(StandardField.TITLE, new LowerCaseFormatter())));
         metaData.setSaveActions(saveActions);
 
         Map<String, String> expectedSerialization = new TreeMap<>();
-        expectedSerialization.put("saveActions",
-                "enabled;" + OS.NEWLINE + "title[lower_case]" + OS.NEWLINE + ";");
+        expectedSerialization.put("saveActions", "enabled;" + OS.NEWLINE + "title[lower_case]" + OS.NEWLINE + ";");
         assertEquals(expectedSerialization, MetaDataSerializer.getSerializedStringMap(metaData, pattern));
     }
 
     @Test
     void serializeSingleContentSelectors() {
-        List<String> values = List.of(
-                "approved",
-                "captured",
-                "received",
-                "status");
+        List<String> values = List.of("approved", "captured", "received", "status");
 
         metaData.addContentSelector(new ContentSelector(StandardField.PUBSTATE, values));
 
@@ -116,10 +107,7 @@ public class MetaDataSerializerTest {
 
     @Test
     void parsingEmptyOptionalFieldsFieldsReturnsEmptyCollections() {
-        newCustomType = new BibEntryType(
-                CUSTOM_TYPE,
-                Set.of(),
-                Set.of(new OrFields(StandardField.AUTHOR)));
+        newCustomType = new BibEntryType(CUSTOM_TYPE, Set.of(), Set.of(new OrFields(StandardField.AUTHOR)));
 
         String serialized = MetaDataSerializer.serializeCustomEntryTypes(newCustomType);
         Optional<BibEntryType> type = MetaDataParser.parseCustomEntryType(serialized);
@@ -133,28 +121,23 @@ public class MetaDataSerializerTest {
                         new BibEntryTypeBuilder()
                                 .withType(new UnknownEntryType("test"))
                                 .withRequiredFields(StandardField.AUTHOR, StandardField.TITLE),
-                        "jabref-entrytype: test: req[author;title] opt[]"
-                ),
+                        "jabref-entrytype: test: req[author;title] opt[]"),
                 Arguments.of(
                         new BibEntryTypeBuilder()
                                 .withType(new UnknownEntryType("test"))
                                 .withRequiredFields(StandardField.AUTHOR)
                                 .withImportantFields(StandardField.TITLE),
-                        "jabref-entrytype: test: req[author] opt[title]"
-                ),
+                        "jabref-entrytype: test: req[author] opt[title]"),
                 Arguments.of(
                         new BibEntryTypeBuilder()
                                 .withType(new UnknownEntryType("test"))
                                 .withRequiredFields(new UnknownField("Test1"), new UnknownField("Test2")),
-                        "jabref-entrytype: test: req[Test1;Test2] opt[]"
-                ),
+                        "jabref-entrytype: test: req[Test1;Test2] opt[]"),
                 Arguments.of(
                         new BibEntryTypeBuilder()
                                 .withType(new UnknownEntryType("test"))
                                 .withRequiredFields(new UnknownField("tEST"), new UnknownField("tEsT2")),
-                        "jabref-entrytype: test: req[tEST;tEsT2] opt[]"
-                )
-        );
+                        "jabref-entrytype: test: req[tEST;tEsT2] opt[]"));
     }
 
     public static Stream<Arguments> serializeCustomizedEntryTypeV2() {
@@ -163,45 +146,38 @@ public class MetaDataSerializerTest {
                         new BibEntryTypeBuilder()
                                 .withType(new UnknownEntryType("test"))
                                 .withRequiredFields(StandardField.AUTHOR, StandardField.TITLE),
-                        "jabref-entrytype-v2: test: req[author;title] opt[]"
-                ),
+                        "jabref-entrytype-v2: test: req[author;title] opt[]"),
                 Arguments.of(
                         new BibEntryTypeBuilder()
                                 .withType(new UnknownEntryType("test"))
                                 .withRequiredFields(StandardField.AUTHOR)
                                 .withImportantFields(StandardField.TITLE),
-                        "jabref-entrytype-v2: test: req[author] opt[title]"
-                ),
+                        "jabref-entrytype-v2: test: req[author] opt[title]"),
                 Arguments.of(
                         new BibEntryTypeBuilder()
                                 .withType(new UnknownEntryType("test"))
                                 .withRequiredFields(new UnknownField("Test1"), new UnknownField("Test2")),
-                        "jabref-entrytype-v2: test: req[Test1;Test2] opt[]"
-                ),
+                        "jabref-entrytype-v2: test: req[Test1;Test2] opt[]"),
                 Arguments.of(
                         new BibEntryTypeBuilder()
                                 .withType(new UnknownEntryType("test"))
                                 .withRequiredFields(new UnknownField("tEST"), new UnknownField("tEsT2")),
-                        "jabref-entrytype-v2: test: req[tEST;tEsT2] opt[]"
-                ),
+                        "jabref-entrytype-v2: test: req[tEST;tEsT2] opt[]"),
                 Arguments.of(
                         new BibEntryTypeBuilder()
                                 .withType(new UnknownEntryType("person"))
                                 .withRequiredFields(new UnknownField("Name", FieldProperty.PERSON_NAMES))
                                 .withImportantFields(
                                         new UnknownField("Googlescholar", FieldProperty.EXTERNAL),
-                                        new UnknownField("Orcid", FieldProperty.EXTERNAL)
-                                ),
-                        "jabref-entrytype-v2: person: req[Name|PERSON_NAMES] opt[Googlescholar|EXTERNAL;Orcid|EXTERNAL]"
-                ),
+                                        new UnknownField("Orcid", FieldProperty.EXTERNAL)),
+                        "jabref-entrytype-v2: person: req[Name|PERSON_NAMES]"
+                                + " opt[Googlescholar|EXTERNAL;Orcid|EXTERNAL]"),
                 Arguments.of(
                         new BibEntryTypeBuilder()
                                 .withType(new UnknownEntryType("customizedtype"))
                                 .withRequiredFields(StandardField.TITLE, StandardField.AUTHOR, StandardField.DATE)
                                 .withImportantFields(StandardField.YEAR, StandardField.MONTH, StandardField.PUBLISHER),
-                        "jabref-entrytype-v2: customizedtype: req[title;author;date] opt[year;month;publisher]"
-                )
-        );
+                        "jabref-entrytype-v2: customizedtype: req[title;author;date] opt[year;month;publisher]"));
     }
 
     @ParameterizedTest
@@ -226,7 +202,8 @@ public class MetaDataSerializerTest {
 
         Map<String, String> serialized = MetaDataSerializer.getSerializedStringMap(metaData, pattern);
 
-        // On Windows, the path separator is a backslash, which is escaped in JabRef (see org.jabref.logic.exporter.MetaDataSerializer.serializeMetaData)
+        // On Windows, the path separator is a backslash, which is escaped in JabRef (see
+        // org.jabref.logic.exporter.MetaDataSerializer.serializeMetaData)
         assertEquals(blgPath.toString().replace("\\", "\\\\") + ";", serialized.get("blgFilePath-" + user));
     }
 }

@@ -10,22 +10,23 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import kong.unirest.core.json.JSONArray;
 import kong.unirest.core.json.JSONObject;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Represents the Application Version with the major and minor number, the full Version String and if it's a developer version
+/// Represents the Application Version with the major and minor number, the full Version String and if it's a developer
+/// version
 public class Version {
 
     public static final String JABREF_DOWNLOAD_URL = "https://downloads.jabref.org";
 
     private static final Version UNKNOWN_VERSION = new Version();
 
-    private final static Pattern VERSION_PATTERN = Pattern.compile("(?<major>\\d+)(\\.(?<minor>\\d+))?(\\.(?<patch>\\d+))?(?<stage>-alpha|-beta)?(?:[._]?(?<num>\\d+))?(?<dev>-?dev)?.*");
-    private final static Pattern CI_SUFFIX_PATTERN = Pattern.compile("-ci\\.\\d+");
+    private static final Pattern VERSION_PATTERN = Pattern.compile(
+            "(?<major>\\d+)(\\.(?<minor>\\d+))?(\\.(?<patch>\\d+))?(?<stage>-alpha|-beta)?(?:[._]?(?<num>\\d+))?(?<dev>-?dev)?.*");
+    private static final Pattern CI_SUFFIX_PATTERN = Pattern.compile("-ci\\.\\d+");
 
     private static final String JABREF_GITHUB_RELEASES = "https://api.github.com/repos/JabRef/JabRef/releases";
 
@@ -38,8 +39,7 @@ public class Version {
     private boolean isDevelopmentVersion;
 
     /// Dummy constructor to create a local object (and  [Version#UNKNOWN_VERSION])
-    private Version() {
-    }
+    private Version() {}
 
     /// Tinylog does not allow for altering existing logging configurations after the logger was initialized .
     /// Lazy initialization to enable tinylog writing to a file (and also still enabling logging in this class)
@@ -47,10 +47,13 @@ public class Version {
         return LoggerFactory.getLogger(Version.class);
     }
 
-    /// @param version must be in form of following pattern: `(\d+)(\.(\d+))?(\.(\d+))?(-alpha|-beta)?(-?dev)?` (e.g., 3.3; 3.4-dev)
+    /// @param version must be in form of following pattern: `(\d+)(\.(\d+))?(\.(\d+))?(-alpha|-beta)?(-?dev)?` (e.g.,
+    /// 3.3; 3.4-dev)
     /// @return the parsed version or [Version#UNKNOWN_VERSION] if an error occurred
     public static Version parse(String version) {
-        if ((version == null) || version.isEmpty() || BuildInfo.UNKNOWN_VERSION.equals(version)
+        if ((version == null)
+                || version.isEmpty()
+                || BuildInfo.UNKNOWN_VERSION.equals(version)
                 || "${version}".equals(version)) {
             return UNKNOWN_VERSION;
         }
@@ -74,7 +77,9 @@ public class Version {
                 parsedVersion.patch = patchString == null ? 0 : Integer.parseInt(patchString);
 
                 String versionStageString = matcher.group("stage");
-                parsedVersion.developmentStage = versionStageString == null ? DevelopmentStage.STABLE : DevelopmentStage.parse(versionStageString);
+                parsedVersion.developmentStage = versionStageString == null
+                        ? DevelopmentStage.STABLE
+                        : DevelopmentStage.parse(versionStageString);
 
                 String stageNumString = matcher.group("num");
                 parsedVersion.developmentNum = stageNumString == null ? 0 : Integer.parseInt(stageNumString);
@@ -96,7 +101,8 @@ public class Version {
 
     /// Grabs all the available releases from the GitHub repository
     public static List<Version> getAllAvailableVersions() throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) URLUtil.create(JABREF_GITHUB_RELEASES).openConnection();
+        HttpURLConnection connection =
+                (HttpURLConnection) URLUtil.create(JABREF_GITHUB_RELEASES).openConnection();
         connection.setRequestProperty("Accept-Charset", "UTF-8");
         try (BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
             JSONArray objects = new JSONArray(rd.readLine());
@@ -151,7 +157,8 @@ public class Version {
         return false;
     }
 
-    /// Checks if this version should be updated to one of the given ones. Ignoring the other Version if this one is Stable and the other one is not.
+    /// Checks if this version should be updated to one of the given ones. Ignoring the other Version if this one is
+    /// Stable and the other one is not.
     ///
     /// @return The version this one should be updated to, or an empty Optional
     public Optional<Version> shouldBeUpdatedTo(List<Version> availableVersions) {
@@ -165,7 +172,8 @@ public class Version {
         return newerVersion;
     }
 
-    /// Checks if this version should be updated to the given one. Ignoring the other Version if this one is Stable and the other one is not.
+    /// Checks if this version should be updated to the given one. Ignoring the other Version if this one is Stable and
+    /// the other one is not.
     ///
     /// @return True if this version should be updated to the given one
     public boolean shouldBeUpdatedTo(Version otherVersion) {
@@ -203,7 +211,8 @@ public class Version {
         return isDevelopmentVersion;
     }
 
-    /// @return The link to the changelog on GitHub to this specific version (https://github.com/JabRef/jabref/blob/vX.X/CHANGELOG.md)
+    /// @return The link to the changelog on GitHub to this specific version
+    /// (https://github.com/JabRef/jabref/blob/vX.X/CHANGELOG.md)
     public String getChangelogUrl() {
         if (isDevelopmentVersion) {
             return "https://github.com/JabRef/jabref/blob/main/CHANGELOG.md#unreleased";
@@ -215,17 +224,13 @@ public class Version {
                     .append(this.getMinor());
 
             if (this.getPatch() != 0) {
-                changelogLink
-                        .append(".")
-                        .append(this.getPatch());
+                changelogLink.append(".").append(this.getPatch());
             }
 
-            changelogLink
-                    .append(this.developmentStage.stage);
+            changelogLink.append(this.developmentStage.stage);
 
             if (this.getDevelopmentNum() != 0) {
-                changelogLink
-                        .append(this.getDevelopmentNum());
+                changelogLink.append(this.getDevelopmentNum());
             }
 
             changelogLink.append("/CHANGELOG.md");

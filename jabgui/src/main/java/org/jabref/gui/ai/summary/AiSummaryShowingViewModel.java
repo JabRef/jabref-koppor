@@ -3,14 +3,12 @@ package org.jabref.gui.ai.summary;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.util.BindingsHelper;
@@ -26,7 +24,6 @@ import org.jabref.model.ai.AiMetadata;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 import org.jabref.model.ai.summarization.AiSummary;
 import org.jabref.model.entry.BibEntryTypesManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +46,7 @@ public class AiSummaryShowingViewModel extends AbstractViewModel {
             AiPreferences aiPreferences,
             FieldPreferences fieldPreferences,
             BibEntryTypesManager entryTypesManager,
-            DialogService dialogService
-    ) {
+            DialogService dialogService) {
         this.aiPreferences = aiPreferences;
         this.fieldPreferences = fieldPreferences;
         this.entryTypesManager = entryTypesManager;
@@ -80,19 +76,21 @@ public class AiSummaryShowingViewModel extends AbstractViewModel {
                 .withInitialDirectory(Directories.getUserDirectory())
                 .build();
 
-        dialogService.showFileSaveDialog(fileDialogConfiguration)
-                     .ifPresent(path -> {
-                         try {
-                             AiSummaryMarkdownExporter exporter = new AiSummaryMarkdownExporter(entryTypesManager, fieldPreferences, aiPreferences.getMarkdownChatExportTemplate());
-                             AiMetadata metadata = currentSummary.metadata();
-                             String content = exporter.export(metadata, fullEntry.entry(), fullEntry.databaseContext().getMode(), currentSummary);
-                             Files.writeString(path, content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-                             dialogService.notify(Localization.lang("Export operation finished successfully."));
-                         } catch (IOException e) {
-                             LOGGER.error("Problem occurred while writing the export file", e);
-                             dialogService.showErrorDialogAndWait(Localization.lang("Problem occurred while writing the export file"), e);
-                         }
-                     });
+        dialogService.showFileSaveDialog(fileDialogConfiguration).ifPresent(path -> {
+            try {
+                AiSummaryMarkdownExporter exporter = new AiSummaryMarkdownExporter(
+                        entryTypesManager, fieldPreferences, aiPreferences.getMarkdownChatExportTemplate());
+                AiMetadata metadata = currentSummary.metadata();
+                String content = exporter.export(
+                        metadata, fullEntry.entry(), fullEntry.databaseContext().getMode(), currentSummary);
+                Files.writeString(path, content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                dialogService.notify(Localization.lang("Export operation finished successfully."));
+            } catch (IOException e) {
+                LOGGER.error("Problem occurred while writing the export file", e);
+                dialogService.showErrorDialogAndWait(
+                        Localization.lang("Problem occurred while writing the export file"), e);
+            }
+        });
     }
 
     public void exportJson() {
@@ -110,19 +108,20 @@ public class AiSummaryShowingViewModel extends AbstractViewModel {
                 .withInitialDirectory(Directories.getUserDirectory())
                 .build();
 
-        dialogService.showFileSaveDialog(fileDialogConfiguration)
-                     .ifPresent(path -> {
-                         try {
-                             AiSummaryJsonExporter exporter = new AiSummaryJsonExporter(entryTypesManager, fieldPreferences);
-                             AiMetadata metadata = currentSummary.metadata();
-                             String content = exporter.export(metadata, fullEntry.entry(), fullEntry.databaseContext().getMode(), currentSummary);
-                             Files.writeString(path, content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-                             dialogService.notify(Localization.lang("Export operation finished successfully."));
-                         } catch (IOException e) {
-                             LOGGER.error("Problem occurred while writing the export file", e);
-                             dialogService.showErrorDialogAndWait(Localization.lang("Problem occurred while writing the export file"), e);
-                         }
-                     });
+        dialogService.showFileSaveDialog(fileDialogConfiguration).ifPresent(path -> {
+            try {
+                AiSummaryJsonExporter exporter = new AiSummaryJsonExporter(entryTypesManager, fieldPreferences);
+                AiMetadata metadata = currentSummary.metadata();
+                String content = exporter.export(
+                        metadata, fullEntry.entry(), fullEntry.databaseContext().getMode(), currentSummary);
+                Files.writeString(path, content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                dialogService.notify(Localization.lang("Export operation finished successfully."));
+            } catch (IOException e) {
+                LOGGER.error("Problem occurred while writing the export file", e);
+                dialogService.showErrorDialogAndWait(
+                        Localization.lang("Problem occurred while writing the export file"), e);
+            }
+        });
     }
 
     public ObjectProperty<AiSummary> summaryProperty() {

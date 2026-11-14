@@ -7,7 +7,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibtexString;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableRemoveString;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +15,10 @@ public final class BibTexStringDelete extends DatabaseChange {
 
     private final BibtexString deletedString;
 
-    public BibTexStringDelete(BibtexString deletedString, BibDatabaseContext databaseContext, DatabaseChangeResolverFactory databaseChangeResolverFactory) {
+    public BibTexStringDelete(
+            BibtexString deletedString,
+            BibDatabaseContext databaseContext,
+            DatabaseChangeResolverFactory databaseChangeResolverFactory) {
         super(databaseContext, databaseChangeResolverFactory);
         this.deletedString = deletedString;
         setChangeName(Localization.lang("Deleted string: '%0'", deletedString.getName()));

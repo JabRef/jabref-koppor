@@ -1,9 +1,13 @@
 package org.jabref.logic.database;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.jabref.logic.util.strings.StringSimilarity;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
@@ -11,18 +15,12 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DuplicateCheckTest {
 
@@ -83,7 +81,8 @@ public class DuplicateCheckTest {
     @Test
     void duplicateDetectionWithSameAuthorAndUmlauts() {
         BibEntry one = new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "Billy Bobä");
-        BibEntry two = new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "Bill{\\\"{a}} Bob{\\\"{a}}");
+        BibEntry two =
+                new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "Bill{\\\"{a}} Bob{\\\"{a}}");
 
         assertTrue(duplicateChecker.isDuplicate(one, two, BibDatabaseMode.BIBTEX));
     }
@@ -173,18 +172,26 @@ public class DuplicateCheckTest {
     }
 
     private static Stream<Arguments> compatibleEntryTypes() {
-        return Stream.of(StandardEntryType.Conference, StandardEntryType.InBook, StandardEntryType.InCollection, StandardEntryType.InProceedings)
-                     .flatMap(first -> Stream.of(StandardEntryType.Conference, StandardEntryType.InBook, StandardEntryType.InCollection, StandardEntryType.InProceedings)
-                                             .filter(second -> first != second)
-                                             .flatMap(second -> Stream.of(BibDatabaseMode.values())
-                                                                      .map(mode -> Arguments.of(first, second, mode))));
+        return Stream.of(
+                        StandardEntryType.Conference,
+                        StandardEntryType.InBook,
+                        StandardEntryType.InCollection,
+                        StandardEntryType.InProceedings)
+                .flatMap(first -> Stream.of(
+                                StandardEntryType.Conference,
+                                StandardEntryType.InBook,
+                                StandardEntryType.InCollection,
+                                StandardEntryType.InProceedings)
+                        .filter(second -> first != second)
+                        .flatMap(second ->
+                                Stream.of(BibDatabaseMode.values()).map(mode -> Arguments.of(first, second, mode))));
     }
 
     private static Stream<Arguments> inProceedingsAndInCollection() {
         return Stream.of(BibDatabaseMode.values())
-                     .flatMap(mode -> Stream.of(
-                             Arguments.of(StandardEntryType.InProceedings, StandardEntryType.InCollection, mode),
-                             Arguments.of(StandardEntryType.InCollection, StandardEntryType.InProceedings, mode)));
+                .flatMap(mode -> Stream.of(
+                        Arguments.of(StandardEntryType.InProceedings, StandardEntryType.InCollection, mode),
+                        Arguments.of(StandardEntryType.InCollection, StandardEntryType.InProceedings, mode)));
     }
 
     private static Stream<Arguments> inProceedingsAndInCollectionOrders() {
@@ -196,7 +203,8 @@ public class DuplicateCheckTest {
     // [utest->req~duplicate-detection.compatible-entry-types~1]
     @ParameterizedTest
     @MethodSource("compatibleEntryTypes")
-    void compatibleTypesWithSamePublicationAreDuplicates(StandardEntryType first, StandardEntryType second, BibDatabaseMode mode) {
+    void compatibleTypesWithSamePublicationAreDuplicates(
+            StandardEntryType first, StandardEntryType second, BibDatabaseMode mode) {
         BibEntry one = conferencePaper(first, "A serious paper about something", "Proceedings");
         BibEntry two = conferencePaper(second, "A serious paper about something", "Proceedings");
 
@@ -223,7 +231,8 @@ public class DuplicateCheckTest {
 
     @ParameterizedTest
     @MethodSource("inProceedingsAndInCollection")
-    void abbreviatedParentTitlesAreScoredWithOtherMetadata(StandardEntryType first, StandardEntryType second, BibDatabaseMode mode) {
+    void abbreviatedParentTitlesAreScoredWithOtherMetadata(
+            StandardEntryType first, StandardEntryType second, BibDatabaseMode mode) {
         BibEntry one = conferencePaper(first, "A serious paper about something", "Proc. ICSE 2019");
         BibEntry two = conferencePaper(second, "A serious paper about something", "Proceedings of ICSE 2019");
 
@@ -245,8 +254,7 @@ public class DuplicateCheckTest {
 
     private static Stream<Arguments> contributionTypesAndModes() {
         return Stream.of(StandardEntryType.Conference, StandardEntryType.InProceedings)
-                     .flatMap(type -> Stream.of(BibDatabaseMode.values())
-                                            .map(mode -> Arguments.of(type, mode)));
+                .flatMap(type -> Stream.of(BibDatabaseMode.values()).map(mode -> Arguments.of(type, mode)));
     }
 
     private static BibEntry conferencePaper(StandardEntryType type, String title, String bookTitle) {
@@ -617,7 +625,9 @@ public class DuplicateCheckTest {
     public static Stream<Arguments> twoEntriesWithDifferentSpecificFieldsAreNotDuplicates() {
         return Stream.of(
                 // twoInbooksWithDifferentChaptersAreNotDuplicates
-                Arguments.of(getSimpleInBook(), StandardField.CHAPTER,
+                Arguments.of(
+                        getSimpleInBook(),
+                        StandardField.CHAPTER,
                         "Chapter One – Down the Rabbit Hole",
                         "Chapter Two – The Pool of Tears"),
                 // twoInbooksWithDifferentPagesAreNotDuplicates
@@ -625,16 +635,13 @@ public class DuplicateCheckTest {
                 // twoIncollectionsWithDifferentChaptersAreNotDuplicates
                 Arguments.of(getSimpleInCollection(), StandardField.CHAPTER, "10", "9"),
                 // twoEntriesWithDifferentSpecificFieldsAreNotDuplicates
-                Arguments.of(getSimpleInCollection(), StandardField.PAGES, "1-20", "21-40")
-        );
+                Arguments.of(getSimpleInCollection(), StandardField.PAGES, "1-20", "21-40"));
     }
 
     @ParameterizedTest
     @MethodSource
-    private void twoEntriesWithDifferentSpecificFieldsAreNotDuplicates(final BibEntry cloneable,
-                                                                       final Field field,
-                                                                       final String firstValue,
-                                                                       final String secondValue) {
+    private void twoEntriesWithDifferentSpecificFieldsAreNotDuplicates(
+            final BibEntry cloneable, final Field field, final String firstValue, final String secondValue) {
         final BibEntry entry1 = new BibEntry(cloneable).withField(field, firstValue);
         final BibEntry entry2 = new BibEntry(cloneable).withField(field, secondValue);
         assertFalse(duplicateChecker.isDuplicate(entry1, entry2, BibDatabaseMode.BIBTEX));
@@ -748,7 +755,8 @@ public class DuplicateCheckTest {
         assertTrue(duplicateChecker.isDuplicate(entryOne, entryTwo, BibDatabaseMode.BIBTEX));
     }
 
-    /// Journal articles can have the same ISBN due to the journal has one unique ISBN, but hundreds of different articles.
+    /// Journal articles can have the same ISBN due to the journal has one unique ISBN, but hundreds of different
+    /// articles.
     @Test
     void differentArticlesFromTheSameBookAreNotDuplicates() {
         BibEntry entryOne = new BibEntry(StandardEntryType.Article)
@@ -806,20 +814,23 @@ public class DuplicateCheckTest {
 
     @Test
     void containsDuplicateFindsDuplicateInCollection() {
-        assertEquals(Optional.of(simpleArticle),
-                duplicateChecker.containsDuplicate(List.of(unrelatedArticle, simpleArticle), getSimpleArticle(), BibDatabaseMode.BIBTEX));
+        assertEquals(
+                Optional.of(simpleArticle),
+                duplicateChecker.containsDuplicate(
+                        List.of(unrelatedArticle, simpleArticle), getSimpleArticle(), BibDatabaseMode.BIBTEX));
     }
 
     @Test
     void containsDuplicateReturnsEmptyWhenCollectionHasNoDuplicate() {
-        assertEquals(Optional.empty(),
+        assertEquals(
+                Optional.empty(),
                 duplicateChecker.containsDuplicate(List.of(unrelatedArticle), simpleArticle, BibDatabaseMode.BIBTEX));
     }
 
     @Test
     void containsDuplicateReturnsEmptyForEmptyCollection() {
-        assertEquals(Optional.empty(),
-                duplicateChecker.containsDuplicate(List.of(), simpleArticle, BibDatabaseMode.BIBTEX));
+        assertEquals(
+                Optional.empty(), duplicateChecker.containsDuplicate(List.of(), simpleArticle, BibDatabaseMode.BIBTEX));
     }
 
     @Test
@@ -845,14 +856,16 @@ public class DuplicateCheckTest {
                 .withField(StandardField.AUTHOR, "Zimmermann, Olaf")
                 .withField(StandardField.DATE, "2020")
                 .withField(StandardField.TITLE, "Architectural Decisions --- The Making Of")
-                .withField(StandardField.URL, "https://ozimmer.ch/practices/2020/04/27/ArchitectureDecisionMaking.html");
+                .withField(
+                        StandardField.URL, "https://ozimmer.ch/practices/2020/04/27/ArchitectureDecisionMaking.html");
 
         BibEntry misc = new BibEntry(StandardEntryType.Misc)
                 .withCitationKey("Zimmermann2020c")
                 .withField(StandardField.AUTHOR, "Zimmermann, Olaf")
                 .withField(StandardField.DATE, "2020")
                 .withField(StandardField.TITLE, "Architectural Decisions --- The Making Of")
-                .withField(StandardField.URL, "https://ozimmer.ch/practices/2020/04/27/ArchitectureDecisionMaking.html");
+                .withField(
+                        StandardField.URL, "https://ozimmer.ch/practices/2020/04/27/ArchitectureDecisionMaking.html");
 
         assertTrue(duplicateChecker.isDuplicate(article, misc, BibDatabaseMode.BIBLATEX));
     }

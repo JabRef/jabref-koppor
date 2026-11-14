@@ -1,44 +1,5 @@
 package org.jabref.gui.theme;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
-
-import org.jabref.gui.WorkspacePreferences;
-import org.jabref.gui.icon.IconTheme;
-import org.jabref.gui.icon.IkonliIcon;
-import org.jabref.gui.testutils.JavaFxExtension;
-import org.jabref.model.util.DummyFileUpdateMonitor;
-import org.jabref.model.util.FileUpdateListener;
-import org.jabref.model.util.FileUpdateMonitor;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
-import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
-import org.mockito.Answers;
-import org.mockito.ArgumentCaptor;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -50,15 +11,53 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import org.jabref.gui.WorkspacePreferences;
+import org.jabref.gui.icon.IconTheme;
+import org.jabref.gui.icon.IkonliIcon;
+import org.jabref.gui.testutils.JavaFxExtension;
+import org.jabref.model.util.DummyFileUpdateMonitor;
+import org.jabref.model.util.FileUpdateListener;
+import org.jabref.model.util.FileUpdateMonitor;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
+import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+
 @ExtendWith(JavaFxExtension.class)
 class ThemeManagerTest {
 
-    private static final String TEST_CSS_DATA = "data:text/css;charset=utf-8;base64,LyogQmlibGF0ZXggU291cmNlIENvZGUgKi8KLmNvZGUtYXJlYSAudGV4dCB7CiAgICAtZngtZm9udC1mYW1pbHk6IG1vbm9zcGFjZTsKfQ==";
+    private static final String TEST_CSS_DATA =
+            "data:text/css;charset=utf-8;base64,LyogQmlibGF0ZXggU291cmNlIENvZGUgKi8KLmNvZGUtYXJlYSAudGV4dCB7CiAgICAtZngtZm9udC1mYW1pbHk6IG1vbm9zcGFjZTsKfQ==";
     private static final String TEST_CSS_CONTENT = """
-            /* Biblatex Source Code */
-            .code-area .text {
-                -fx-font-family: monospace;
-            }""";
+        /* Biblatex Source Code */
+        .code-area .text {
+            -fx-font-family: monospace;
+        }\
+        """;
 
     private Path tempFolder;
 
@@ -95,9 +94,11 @@ class ThemeManagerTest {
 
         themeManager.updateCssOnScene(scene);
 
-        assertEquals(List.of(
-                ThemePreset.JABREF.getStyleSheet().getSceneStylesheetLocation(),
-                ThemeManager.JABREF_BASE_STYLE_SHEET.getSceneStylesheetLocation()), scene.getStylesheets());
+        assertEquals(
+                List.of(
+                        ThemePreset.JABREF.getStyleSheet().getSceneStylesheetLocation(),
+                        ThemeManager.JABREF_BASE_STYLE_SHEET.getSceneStylesheetLocation()),
+                scene.getStylesheets());
     }
 
     @Test
@@ -112,10 +113,12 @@ class ThemeManagerTest {
 
         themeManager.updateCssOnScene(scene);
 
-        assertEquals(List.of(
-                ThemePreset.JABREF.getStyleSheet().getSceneStylesheetLocation(),
-                ThemePreset.NORD.getStyleSheet().getSceneStylesheetLocation(),
-                ThemeManager.JABREF_BASE_STYLE_SHEET.getSceneStylesheetLocation()), scene.getStylesheets());
+        assertEquals(
+                List.of(
+                        ThemePreset.JABREF.getStyleSheet().getSceneStylesheetLocation(),
+                        ThemePreset.NORD.getStyleSheet().getSceneStylesheetLocation(),
+                        ThemeManager.JABREF_BASE_STYLE_SHEET.getSceneStylesheetLocation()),
+                scene.getStylesheets());
     }
 
     /// An edit in the parent changes a community theme's look, so both files have to be watched.
@@ -146,14 +149,17 @@ class ThemeManagerTest {
         FileUpdateMonitor fileUpdateMonitor = mock(FileUpdateMonitor.class);
         AtomicBoolean listenerAddedOnJavaFxThread = new AtomicBoolean();
         doAnswer(_ -> {
-            listenerAddedOnJavaFxThread.set(Platform.isFxApplicationThread());
-            return null;
-        }).when(fileUpdateMonitor).addListenerForFile(any(), any());
+                    listenerAddedOnJavaFxThread.set(Platform.isFxApplicationThread());
+                    return null;
+                })
+                .when(fileUpdateMonitor)
+                .addListenerForFile(any(), any());
 
         createThemeManager(workspacePreferences, fileUpdateMonitor);
         listenerAddedOnJavaFxThread.set(false);
 
-        workspacePreferences.setCustomTheme(StyleSheet.create(tempFolder.resolve("custom.css").toString()));
+        workspacePreferences.setCustomTheme(
+                StyleSheet.create(tempFolder.resolve("custom.css").toString()));
 
         JavaFxExtension.awaitEvents();
         assertTrue(listenerAddedOnJavaFxThread.get());
@@ -221,11 +227,15 @@ class ThemeManagerTest {
         StyleSheet customTheme = themeManager.getCustomTheme();
         assertCustomStyleSheet(styleSheet, customTheme, largeCssTestFile);
         assertNotNull(customTheme, "expected custom theme location to be available");
-        assertTrue(customTheme.getSceneStylesheetLocation().startsWith("file:"), "expected large custom theme to be a file");
+        assertTrue(
+                customTheme.getSceneStylesheetLocation().startsWith("file:"),
+                "expected large custom theme to be a file");
 
         Files.move(largeCssTestFile, largeCssTestFile.resolveSibling("renamed.css"));
 
-        assertEquals("", themeManager.getCustomTheme().getSceneStylesheetLocation(),
+        assertEquals(
+                "",
+                themeManager.getCustomTheme().getSceneStylesheetLocation(),
                 "didn't expect a custom stylesheet after css was deleted");
 
         Files.move(largeCssTestFile.resolveSibling("renamed.css"), largeCssTestFile);
@@ -279,15 +289,18 @@ class ThemeManagerTest {
         verify(fileUpdateMonitor).addListenerForFile(eq(testCss), listenerCaptor.capture());
 
         Files.writeString(testCss, """
-                /* And now for something slightly different */
-                .code-area .text {
-                    -fx-font-family: serif;
-                }""", StandardOpenOption.CREATE);
+            /* And now for something slightly different */
+            .code-area .text {
+                -fx-font-family: serif;
+            }\
+            """, StandardOpenOption.CREATE);
 
         listenerCaptor.getValue().fileUpdated();
 
-        assertEquals("data:text/css;charset=utf-8;base64,LyogQW5kIG5vdyBmb3Igc29tZXRoaW5nIHNsaWdodGx5IGRpZmZlcmVudCAqLwouY29kZS1hcmVhIC50ZXh0IHsKICAgIC1meC1mb250LWZhbWlseTogc2VyaWY7Cn0=",
-                styleSheet.orElseThrow().getSceneStylesheetLocation(), "stylesheet embedded in data: url should have reloaded");
+        assertEquals(
+                "data:text/css;charset=utf-8;base64,LyogQW5kIG5vdyBmb3Igc29tZXRoaW5nIHNsaWdodGx5IGRpZmZlcmVudCAqLwouY29kZS1hcmVhIC50ZXh0IHsKICAgIC1meC1mb250LWZhbWlseTogc2VyaWY7Cn0=",
+                styleSheet.orElseThrow().getSceneStylesheetLocation(),
+                "stylesheet embedded in data: url should have reloaded");
     }
 
     /// A third party can replace the scene root of a live window at any time -- ControlsFX injects its
@@ -317,21 +330,26 @@ class ThemeManagerTest {
             stage.get().close();
         });
 
-        assertEquals(List.of(), fontSizeStyleClasses(initialRoot), "the replaced root should not keep a stale font size");
+        assertEquals(
+                List.of(), fontSizeStyleClasses(initialRoot), "the replaced root should not keep a stale font size");
         assertEquals(List.of("font-size-16"), fontSizeStyleClasses(replacementRoot));
     }
 
     private static List<String> fontSizeStyleClasses(Parent parent) {
-        return parent.getStyleClass().stream().filter(styleClass -> styleClass.startsWith("font-size-")).toList();
+        return parent.getStyleClass().stream()
+                .filter(styleClass -> styleClass.startsWith("font-size-"))
+                .toList();
     }
 
     private ThemeManager createThemeManager(WorkspacePreferences workspacePreferences) {
         return createThemeManager(workspacePreferences, new DummyFileUpdateMonitor());
     }
 
-    private ThemeManager createThemeManager(WorkspacePreferences workspacePreferences, FileUpdateMonitor fileUpdateMonitor) {
+    private ThemeManager createThemeManager(
+            WorkspacePreferences workspacePreferences, FileUpdateMonitor fileUpdateMonitor) {
         AtomicReference<ThemeManager> themeManager = new AtomicReference<>();
-        JavaFxExtension.invokeAndWait(() -> themeManager.set(new ThemeManager(workspacePreferences, fileUpdateMonitor)));
+        JavaFxExtension.invokeAndWait(
+                () -> themeManager.set(new ThemeManager(workspacePreferences, fileUpdateMonitor)));
 
         return themeManager.get();
     }
@@ -360,7 +378,9 @@ class ThemeManagerTest {
         List<Integer> styleClassChanges = styleClassChangesAfterSceneReplacementOnReshownWindow(3);
 
         assertTrue(styleClassChanges.getFirst() > 0, "new scene should receive the font style class");
-        assertEquals(List.of(styleClassChanges.getFirst(), styleClassChanges.getFirst(), styleClassChanges.getFirst()), styleClassChanges);
+        assertEquals(
+                List.of(styleClassChanges.getFirst(), styleClassChanges.getFirst(), styleClassChanges.getFirst()),
+                styleClassChanges);
     }
 
     @Test
@@ -371,7 +391,8 @@ class ThemeManagerTest {
 
     @Test
     void colouredThemeSizedIconSizeFollowsFontSizeChanges() {
-        var icon = (FontIcon) new IkonliIcon(MaterialDesignA.ACCOUNT).withColor(Color.AQUA).getGraphicNode();
+        var icon = (FontIcon)
+                new IkonliIcon(MaterialDesignA.ACCOUNT).withColor(Color.AQUA).getGraphicNode();
         assertIconSizeFollowsFontSize(icon);
     }
 
@@ -394,7 +415,8 @@ class ThemeManagerTest {
         var workSpacePreferences = WorkspacePreferences.getDefault();
         workSpacePreferences.setShouldOverrideDefaultFontSize(true);
         var themeManager = createThemeManager(workSpacePreferences);
-        var icon = (FontIcon) new IkonliIcon(MaterialDesignA.ACCOUNT).withSize(27).getGraphicNode();
+        var icon =
+                (FontIcon) new IkonliIcon(MaterialDesignA.ACCOUNT).withSize(27).getGraphicNode();
         showNode(themeManager, icon);
 
         changeFontSize(workSpacePreferences, 20);
@@ -408,7 +430,8 @@ class ThemeManagerTest {
         var workSpacePreferences = WorkspacePreferences.getDefault();
         workSpacePreferences.setShouldOverrideDefaultFontSize(true);
         var themeManager = createThemeManager(workSpacePreferences);
-        var icon = (FontIcon) IconTheme.JabRefIcons.OPEN_LINK.getGraphicNode(); // Like FieldValueCell#createOpenLinkButton
+        var icon =
+                (FontIcon) IconTheme.JabRefIcons.OPEN_LINK.getGraphicNode(); // Like FieldValueCell#createOpenLinkButton
         icon.getStyleClass().add("action-icon");
         HBox cell = new HBox(icon);
         cell.getStyleClass().add("merge-field-value"); // From jabref-base.css
@@ -479,7 +502,8 @@ class ThemeManagerTest {
 
                 StackPane replacementRoot = new StackPane();
                 AtomicInteger replacementRootStyleClassChanges = new AtomicInteger();
-                replacementRoot.getStyleClass().addListener((ListChangeListener<String>) _ -> replacementRootStyleClassChanges.incrementAndGet());
+                replacementRoot.getStyleClass().addListener((ListChangeListener<String>)
+                        _ -> replacementRootStyleClassChanges.incrementAndGet());
                 stage.setScene(new Scene(replacementRoot));
                 styleClassChanges.add(replacementRootStyleClassChanges.get());
             }

@@ -15,11 +15,15 @@ public class MrDlibPreferences {
                 false, // Accept recommendations
                 false, // Send language
                 false, // Send OS
-                false  // Send timezone
-        );
+                false // Send timezone
+                );
     }
 
-    public MrDlibPreferences(boolean acceptRecommendations, boolean shouldSendLanguage, boolean shouldSendOs, boolean shouldSendTimezone) {
+    public MrDlibPreferences(
+            boolean acceptRecommendations,
+            boolean shouldSendLanguage,
+            boolean shouldSendOs,
+            boolean shouldSendTimezone) {
         this.acceptRecommendations = new SimpleBooleanProperty(acceptRecommendations);
         this.sendLanguage = new SimpleBooleanProperty(shouldSendLanguage);
         this.sendOs = new SimpleBooleanProperty(shouldSendOs);

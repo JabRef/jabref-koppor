@@ -1,19 +1,20 @@
 package org.jabref.gui.bibtexhighlighter;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
+import java.util.List;
 import javafx.scene.Scene;
 import javafx.scene.input.Clipboard;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
+import jfx.incubator.scene.control.richtext.TextPos;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.search.SearchType;
 import org.jabref.gui.testutils.JavaFxTest;
 import org.jabref.logic.util.OptionalObjectProperty;
-
-import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
-import jfx.incubator.scene.control.richtext.TextPos;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jspecify.annotations.NullMarked;
@@ -22,19 +23,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 @NullMarked
 class BibTeXHtmlExportFormatHandlerTest extends JavaFxTest {
     private static final String SOURCE = """
-            @Article{Agrawal2015,
-              author       = {Agrawal, Shikha and Agrawal, Jitendra},
-              date         = {2015},
-              journaltitle = {Procedia Computer Science},
-              title        = {Survey on Anomaly Detection using Data Mining Techniques},
-            }""";
+        @Article{Agrawal2015,
+          author       = {Agrawal, Shikha and Agrawal, Jitendra},
+          date         = {2015},
+          journaltitle = {Procedia Computer Science},
+          title        = {Survey on Anomaly Detection using Data Mining Techniques},
+        }\
+        """;
 
     private Clipboard clipboard;
     private BibTeXCodeArea source;
@@ -75,7 +73,9 @@ class BibTeXHtmlExportFormatHandlerTest extends JavaFxTest {
         interact(() -> {
             source.select(TextPos.ofLeading(0, 21), TextPos.ofLeading(1, 8));
             source.copy();
-            assertEquals("\n  author", Jsoup.parse(clipboard.getHtml()).selectFirst("pre").wholeText());
+            assertEquals(
+                    "\n  author",
+                    Jsoup.parse(clipboard.getHtml()).selectFirst("pre").wholeText());
         });
     }
 
@@ -84,7 +84,8 @@ class BibTeXHtmlExportFormatHandlerTest extends JavaFxTest {
         interact(() -> {
             source.select(TextPos.ofLeading(1, 0), TextPos.ofLeading(1, 2));
             source.copy();
-            assertEquals("  ", Jsoup.parse(clipboard.getHtml()).selectFirst("pre").wholeText());
+            assertEquals(
+                    "  ", Jsoup.parse(clipboard.getHtml()).selectFirst("pre").wholeText());
         });
     }
 
@@ -94,15 +95,19 @@ class BibTeXHtmlExportFormatHandlerTest extends JavaFxTest {
     void partialCitationKeyKeepsThemeColor(String color) {
         interact(() -> {
             source.setStyle("-color-success-emphasis: " + color + ";");
-            source.getScene().getStylesheets().add(getClass().getResource("/org/jabref/gui/theme/internal/jabref-base.css").toExternalForm());
+            source.getScene()
+                    .getStylesheets()
+                    .add(getClass()
+                            .getResource("/org/jabref/gui/theme/internal/jabref-base.css")
+                            .toExternalForm());
             source.applyCss();
             source.layout();
             source.select(TextPos.ofLeading(0, 11), TextPos.ofLeading(0, 17));
             source.copy();
             List<String> coloredText = Jsoup.parse(clipboard.getHtml()).select("pre span").stream()
-                                            .filter(span -> span.attr("style").contains(color))
-                                            .map(Element::wholeText)
-                                            .toList();
+                    .filter(span -> span.attr("style").contains(color))
+                    .map(Element::wholeText)
+                    .toList();
             assertEquals(List.of("rawal2"), coloredText);
         });
     }
@@ -114,7 +119,9 @@ class BibTeXHtmlExportFormatHandlerTest extends JavaFxTest {
             source.selectAll();
             source.copy();
             var html = Jsoup.parse(clipboard.getHtml());
-            assertEquals("@Article{Müller,\n  title = {Tom & Jerry <cartoon> 日本語},\n}", html.selectFirst("pre").wholeText());
+            assertEquals(
+                    "@Article{Müller,\n  title = {Tom & Jerry <cartoon> 日本語},\n}",
+                    html.selectFirst("pre").wholeText());
             assertEquals(0, html.select("cartoon").size());
         });
     }

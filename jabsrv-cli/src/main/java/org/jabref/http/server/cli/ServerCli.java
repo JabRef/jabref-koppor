@@ -10,21 +10,21 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-
+import org.glassfish.grizzly.http.server.HttpServer;
 import org.jabref.architecture.AllowedToUseStandardStreams;
 import org.jabref.http.server.Server;
 import org.jabref.logic.citedrive.CiteDriveOAuthService;
 import org.jabref.logic.citedrive.OAuthSessionRegistry;
 import org.jabref.logic.preferences.JabRefCliPreferences;
 import org.jabref.logic.remote.RemotePreferences;
-
-import org.glassfish.grizzly.http.server.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import picocli.CommandLine;
 
-@AllowedToUseStandardStreams("This is a CLI application. It resides in the package http.server to be close to the other http server related classes.")
+@AllowedToUseStandardStreams(
+        "This is a CLI application. It resides in the package http.server to be close to the other http server related"
+                + " classes.")
 @CommandLine.Command(name = "jabsrv", mixinStandardHelpOptions = true, description = "JabSrv - JabRef HTTP server")
 public class ServerCli implements Callable<Integer> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerCli.class);
@@ -32,13 +32,19 @@ public class ServerCli implements Callable<Integer> {
     @CommandLine.Parameters(arity = "0..*", paramLabel = "FILE", description = "the library files (*.bib) to serve")
     List<Path> files;
 
-    @CommandLine.Option(names = {"-H", "--host"}, description = "the host name")
+    @CommandLine.Option(
+            names = {"-H", "--host"},
+            description = "the host name")
     private String host = "localhost";
 
-    @CommandLine.Option(names = {"-p", "--port"}, description = "the port")
+    @CommandLine.Option(
+            names = {"-p", "--port"},
+            description = "the port")
     private Integer port = 23119;
 
-    @CommandLine.Option(names = "--citedrive-login", description = "log in to CiteDrive in the browser, remember the login, and exit")
+    @CommandLine.Option(
+            names = "--citedrive-login",
+            description = "log in to CiteDrive in the browser, remember the login, and exit")
     private boolean citeDriveLogin;
 
     /// Starts an http server serving the last files opened in JabRef
@@ -60,14 +66,15 @@ public class ServerCli implements Callable<Integer> {
         JabRefCliPreferences preferences = JabRefCliPreferences.getInstance();
 
         // The server serves the last opened files (see org.jabref.http.server.resources.LibraryResource.getLibraryPath)
-        final List<Path> filesToServe = new ArrayList<>(preferences.getLastFilesOpenedPreferences().getLastFilesOpened());
+        final List<Path> filesToServe =
+                new ArrayList<>(preferences.getLastFilesOpenedPreferences().getLastFilesOpened());
 
         // Additionally, files can be provided as args
         if (files != null) {
             List<Path> filesToAdd = files.stream()
-                                         .filter(Files::exists)
-                                         .filter(path -> !filesToServe.contains(path))
-                                         .toList();
+                    .filter(Files::exists)
+                    .filter(path -> !filesToServe.contains(path))
+                    .toList();
             LOGGER.info("Adding following files to the list of opened libraries: {}", filesToAdd);
             filesToServe.addAll(0, filesToAdd);
         }
@@ -103,23 +110,32 @@ public class ServerCli implements Callable<Integer> {
         return 0;
     }
 
-    /// The same flow as in the GUI, with the browser URL printed instead of opened. The refresh token ends up in the keyring, so JabRef itself is logged in afterwards.
+    /// The same flow as in the GUI, with the browser URL printed instead of opened. The refresh token ends up in the
+    /// keyring, so JabRef itself is logged in afterwards.
     ///
     /// [impl->req~citedrive.login~1]
     ///
     /// @return the process exit code
-    private static int logInToCiteDrive(JabRefCliPreferences preferences, OAuthSessionRegistry oAuthSessionRegistry, URI serverUri) throws InterruptedException {
+    private static int logInToCiteDrive(
+            JabRefCliPreferences preferences, OAuthSessionRegistry oAuthSessionRegistry, URI serverUri)
+            throws InterruptedException {
         RemotePreferences remotePreferences = preferences.getRemotePreferences();
 
         // CiteDrive redirects the browser to the HTTP server address from the preferences: that has to be this server
         int callbackPort = remotePreferences.getHttpServerUri().getPort();
         if (callbackPort != serverUri.getPort()) {
-            System.err.printf("CiteDrive redirects the browser to port %d (JabRef's HTTP server port), but jabsrv listens on port %d. Use --port %d.%n", callbackPort, serverUri.getPort(), callbackPort);
+            System.err.printf(
+                    "CiteDrive redirects the browser to port %d (JabRef's HTTP server port), but jabsrv listens on"
+                            + " port %d. Use --port %d.%n",
+                    callbackPort, serverUri.getPort(), callbackPort);
             return 1;
         }
 
         if (!preferences.getCiteDrivePreferences().shouldPersistRefreshToken()) {
-            System.err.println("JabRef is set to forget the CiteDrive login between sessions, so a login from jabsrv would be lost on exit. Enable \"Remember the login between sessions\" in JabRef's preferences.");
+            System.err.println(
+                    "JabRef is set to forget the CiteDrive login between sessions, so a login from jabsrv would be"
+                            + " lost on exit. Enable \"Remember the login between sessions\" in JabRef's"
+                            + " preferences.");
             return 1;
         }
 

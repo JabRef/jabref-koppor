@@ -1,5 +1,9 @@
 package org.jabref.logic.importer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -7,20 +11,13 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Stream;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class ImportFormatReaderIntegrationTest {
 
@@ -31,35 +28,50 @@ class ImportFormatReaderIntegrationTest {
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(importerPreferences.getCustomImporters()).thenReturn(FXCollections.emptyObservableSet());
         CitationKeyPatternPreferences citationKeyPatternPreferences = mock(CitationKeyPatternPreferences.class);
-        when(citationKeyPatternPreferences.getUnwantedCharacters()).thenReturn(CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS);
+        when(citationKeyPatternPreferences.getUnwantedCharacters())
+                .thenReturn(CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS);
         reader = new ImportFormatReader(
                 importerPreferences,
                 mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                citationKeyPatternPreferences, new DummyFileUpdateMonitor()
-        );
+                citationKeyPatternPreferences,
+                new DummyFileUpdateMonitor());
     }
 
     @ParameterizedTest
     @MethodSource("importFormats")
-    void importFromFileWithAutoDetection(String resource, String format, int count) throws ImportException, URISyntaxException {
-        Path file = Path.of(ImportFormatReaderIntegrationTest.class.getResource(resource).toURI());
+    void importFromFileWithAutoDetection(String resource, String format, int count)
+            throws ImportException, URISyntaxException {
+        Path file = Path.of(
+                ImportFormatReaderIntegrationTest.class.getResource(resource).toURI());
         ImportFormatReader.ImportResult importResult = reader.importWithAutoDetection(file);
         assertEquals(count, importResult.parserResult().getDatabase().getEntryCount());
     }
 
     @ParameterizedTest
     @MethodSource("importFormats")
-    void importFromFileWithGivenFormat(String resource, String format, int count) throws ImportException, URISyntaxException {
-        Path file = Path.of(ImportFormatReaderIntegrationTest.class.getResource(resource).toURI());
-        assertEquals(count, reader.importFromFile(format, file).getDatabase().getEntries().size());
+    void importFromFileWithGivenFormat(String resource, String format, int count)
+            throws ImportException, URISyntaxException {
+        Path file = Path.of(
+                ImportFormatReaderIntegrationTest.class.getResource(resource).toURI());
+        assertEquals(
+                count,
+                reader.importFromFile(format, file).getDatabase().getEntries().size());
     }
 
     @ParameterizedTest
     @MethodSource("importFormats")
-    void importFromStringWithAutoDetection(String resource, String format, int count) throws URISyntaxException, IOException, ImportException {
-        Path file = Path.of(ImportFormatReaderIntegrationTest.class.getResource(resource).toURI());
+    void importFromStringWithAutoDetection(String resource, String format, int count)
+            throws URISyntaxException, IOException, ImportException {
+        Path file = Path.of(
+                ImportFormatReaderIntegrationTest.class.getResource(resource).toURI());
         String data = Files.readString(file);
-        assertEquals(count, reader.importWithAutoDetection(data).parserResult().getDatabase().getEntries().size());
+        assertEquals(
+                count,
+                reader.importWithAutoDetection(data)
+                        .parserResult()
+                        .getDatabase()
+                        .getEntries()
+                        .size());
     }
 
     private static Stream<Object[]> importFormats() {

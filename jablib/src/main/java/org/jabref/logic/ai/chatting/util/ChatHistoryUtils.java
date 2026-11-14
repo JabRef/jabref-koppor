@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.jabref.model.ai.chatting.ChatMessage;
 
 public final class ChatHistoryUtils {
@@ -24,8 +23,7 @@ public final class ChatHistoryUtils {
     ///
     /// @return the content to regenerate or empty if the message was not found
     public static Optional<String> regenerate(List<ChatMessage> chatHistory, String id) {
-        Optional<ChatMessage> recordOpt = chatHistory
-                .stream()
+        Optional<ChatMessage> recordOpt = chatHistory.stream()
                 .filter(message -> Objects.equals(message.id(), id))
                 .findFirst();
 
@@ -49,9 +47,7 @@ public final class ChatHistoryUtils {
         }
 
         final Instant finalCutoffTime = cutoffTime;
-        chatHistory.removeIf(historyMessage ->
-                !historyMessage.timestamp().isBefore(finalCutoffTime)
-        );
+        chatHistory.removeIf(historyMessage -> !historyMessage.timestamp().isBefore(finalCutoffTime));
 
         return Optional.of(contentToRegenerate);
     }

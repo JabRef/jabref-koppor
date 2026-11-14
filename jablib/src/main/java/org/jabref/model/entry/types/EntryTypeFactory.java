@@ -5,13 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-
 import org.jabref.model.entry.BibEntryType;
 
 public class EntryTypeFactory {
 
-    private EntryTypeFactory() {
-    }
+    private EntryTypeFactory() {}
 
     /// Checks whether two EntryTypeFactory are equal
     /// based on the equality of the type names and on the equality of the required and optional field lists
@@ -35,11 +33,13 @@ public class EntryTypeFactory {
     }
 
     private static boolean isBibtex(EntryType type) {
-        return BibtexEntryTypeDefinitions.ALL.stream().anyMatch(bibEntryType -> bibEntryType.getType().equals(type));
+        return BibtexEntryTypeDefinitions.ALL.stream()
+                .anyMatch(bibEntryType -> bibEntryType.getType().equals(type));
     }
 
     private static boolean isBiblatex(EntryType type) {
-        return BiblatexEntryTypeDefinitions.ALL.stream().anyMatch(bibEntryType -> bibEntryType.getType().equals(type));
+        return BiblatexEntryTypeDefinitions.ALL.stream()
+                .anyMatch(bibEntryType -> bibEntryType.getType().equals(type));
     }
 
     public static EntryType parse(String typeName) {
@@ -49,6 +49,9 @@ public class EntryTypeFactory {
         types.addAll(Arrays.<EntryType>asList(BiblatexApaEntryType.values()));
         types.addAll(Arrays.<EntryType>asList(BiblatexNonStandardEntryType.values()));
 
-        return types.stream().filter(type -> type.getName().equals(typeName.toLowerCase(Locale.ENGLISH))).findFirst().orElse(new UnknownEntryType(typeName));
+        return types.stream()
+                .filter(type -> type.getName().equals(typeName.toLowerCase(Locale.ENGLISH)))
+                .findFirst()
+                .orElse(new UnknownEntryType(typeName));
     }
 }

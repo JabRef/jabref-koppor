@@ -1,7 +1,8 @@
 package org.jabref.gui.ai;
 
-import java.util.List;
+import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 
+import java.util.List;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
@@ -13,8 +14,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.LinkedFile;
 
-import static org.jabref.gui.actions.ActionHelper.needsDatabase;
-
 // [impl->feat~ai.ingestion.clear-cache~1]
 public class ClearEmbeddingsAction extends SimpleCommand {
     private final StateManager stateManager;
@@ -23,11 +22,12 @@ public class ClearEmbeddingsAction extends SimpleCommand {
     private final TaskExecutor taskExecutor;
     private final FilePreferences filePreferences;
 
-    public ClearEmbeddingsAction(StateManager stateManager,
-                                 DialogService dialogService,
-                                 AiService aiService,
-                                 TaskExecutor taskExecutor,
-                                 FilePreferences filePreferences) {
+    public ClearEmbeddingsAction(
+            StateManager stateManager,
+            DialogService dialogService,
+            AiService aiService,
+            TaskExecutor taskExecutor,
+            FilePreferences filePreferences) {
         this.stateManager = stateManager;
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
@@ -54,17 +54,13 @@ public class ClearEmbeddingsAction extends SimpleCommand {
 
         BibDatabaseContext bibDatabaseContext = stateManager.getActiveDatabase().get();
 
-        List<LinkedFile> linkedFiles = bibDatabaseContext
-                .getDatabase()
-                .getEntries()
-                .stream()
+        List<LinkedFile> linkedFiles = bibDatabaseContext.getDatabase().getEntries().stream()
                 .flatMap(entry -> entry.getFiles().stream())
                 .toList();
 
-        BackgroundTask.wrap(() ->
-                              aiService
-                                      .getEmbeddingsCleaner()
-                                      .clearEmbeddingsFor(linkedFiles, bibDatabaseContext, filePreferences))
-                      .executeWith(taskExecutor);
+        BackgroundTask.wrap(() -> aiService
+                        .getEmbeddingsCleaner()
+                        .clearEmbeddingsFor(linkedFiles, bibDatabaseContext, filePreferences))
+                .executeWith(taskExecutor);
     }
 }

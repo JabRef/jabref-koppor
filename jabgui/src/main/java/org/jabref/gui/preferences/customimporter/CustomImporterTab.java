@@ -1,11 +1,13 @@
 package org.jabref.gui.preferences.customimporter;
 
+import static org.jabref.gui.preferences.forms.FormMetrics.BUTTON_WIDTH;
+
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.scene.control.Button;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.importer.ImporterViewModel;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
@@ -13,17 +15,11 @@ import org.jabref.gui.util.ControlHelper;
 import org.jabref.gui.util.ViewModelTableRowFactory;
 import org.jabref.logic.l10n.Localization;
 
-import com.tobiasdiez.easybind.EasyBind;
-
-import static org.jabref.gui.preferences.forms.FormMetrics.BUTTON_WIDTH;
-
 public class CustomImporterTab extends AbstractPreferenceTabView<CustomImporterTabViewModel> {
 
     public CustomImporterTab() {
         viewModel = new CustomImporterTabViewModel(
-                preferences.getImporterPreferences(),
-                preferences.getFilePreferences(),
-                dialogService);
+                preferences.getImporterPreferences(), preferences.getFilePreferences(), dialogService);
         buildView();
     }
 
@@ -33,11 +29,14 @@ public class CustomImporterTab extends AbstractPreferenceTabView<CustomImporterT
     }
 
     private void buildView() {
-        setContent(form()
-                .table(buildImporterTable())
+        setContent(form().table(buildImporterTable())
                 .buttonRow(
                         buildAddButton(),
-                        ControlHelper.labelledIconButton(IconTheme.JabRefIcons.REMOVE_NOBOX, Localization.lang("Remove"), BUTTON_WIDTH, viewModel::removeSelectedImporter))
+                        ControlHelper.labelledIconButton(
+                                IconTheme.JabRefIcons.REMOVE_NOBOX,
+                                Localization.lang("Remove"),
+                                BUTTON_WIDTH,
+                                viewModel::removeSelectedImporter))
                 .build());
     }
 
@@ -46,7 +45,9 @@ public class CustomImporterTab extends AbstractPreferenceTabView<CustomImporterT
         importerTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         importerTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         importerTable.itemsProperty().bind(viewModel.importersProperty());
-        EasyBind.bindContent(viewModel.selectedImportersProperty(), importerTable.getSelectionModel().getSelectedItems());
+        EasyBind.bindContent(
+                viewModel.selectedImportersProperty(),
+                importerTable.getSelectionModel().getSelectedItems());
 
         TableColumn<ImporterViewModel, String> nameColumn = new TableColumn<>(Localization.lang("Import name"));
         nameColumn.setCellValueFactory(cellData -> cellData.getValue().name());
@@ -73,9 +74,8 @@ public class CustomImporterTab extends AbstractPreferenceTabView<CustomImporterT
     private Button buildAddButton() {
         Button addButton = ControlHelper.labelledIconButton(
                 IconTheme.JabRefIcons.ADD_NOBOX, Localization.lang("Add"), BUTTON_WIDTH, viewModel::addImporter);
-        addButton.setTooltip(new Tooltip(
-                Localization.lang("Add a (compiled) custom Importer class from a class path.")
-                        + "\n" + Localization.lang("The path need not be on the classpath of JabRef.")));
+        addButton.setTooltip(new Tooltip(Localization.lang("Add a (compiled) custom Importer class from a class path.")
+                + "\n" + Localization.lang("The path need not be on the classpath of JabRef.")));
         return addButton;
     }
 }

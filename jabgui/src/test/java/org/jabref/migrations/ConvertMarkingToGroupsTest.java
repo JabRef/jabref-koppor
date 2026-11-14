@@ -1,8 +1,9 @@
 package org.jabref.migrations;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Optional;
 import java.util.Set;
-
 import org.jabref.logic.groups.GroupsFactory;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.model.entry.BibEntry;
@@ -11,22 +12,19 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ConvertMarkingToGroupsTest {
     @Test
     void performMigrationForSingleEntry() {
-        BibEntry entry = new BibEntry()
-                .withField(InternalField.MARKED_INTERNAL, "[Nicolas:6]");
+        BibEntry entry = new BibEntry().withField(InternalField.MARKED_INTERNAL, "[Nicolas:6]");
         ParserResult parserResult = new ParserResult(Set.of(entry));
 
         new ConvertMarkingToGroups(',').performMigration(parserResult);
 
         GroupTreeNode rootExpected = GroupTreeNode.fromGroup(GroupsFactory.createAllEntriesGroup());
-        GroupTreeNode markings = rootExpected.addSubgroup(new ExplicitGroup("Markings", GroupHierarchyType.INCLUDING, ','));
+        GroupTreeNode markings =
+                rootExpected.addSubgroup(new ExplicitGroup("Markings", GroupHierarchyType.INCLUDING, ','));
         markings.addSubgroup(new ExplicitGroup("Nicolas:6", GroupHierarchyType.INCLUDING, ','));
 
         assertEquals(Optional.empty(), entry.getField(InternalField.MARKED_INTERNAL));
@@ -47,14 +45,14 @@ class ConvertMarkingToGroupsTest {
 
     @Test
     void performMigrationKeepsTextAroundMarkingInGroupName() {
-        BibEntry entry = new BibEntry()
-                .withField(InternalField.MARKED_INTERNAL, "note [Nicolas:6] more");
+        BibEntry entry = new BibEntry().withField(InternalField.MARKED_INTERNAL, "note [Nicolas:6] more");
         ParserResult parserResult = new ParserResult(Set.of(entry));
 
         new ConvertMarkingToGroups(',').performMigration(parserResult);
 
         GroupTreeNode rootExpected = GroupTreeNode.fromGroup(GroupsFactory.createAllEntriesGroup());
-        GroupTreeNode markings = rootExpected.addSubgroup(new ExplicitGroup("Markings", GroupHierarchyType.INCLUDING, ','));
+        GroupTreeNode markings =
+                rootExpected.addSubgroup(new ExplicitGroup("Markings", GroupHierarchyType.INCLUDING, ','));
         markings.addSubgroup(new ExplicitGroup("note [Nicolas:6] more", GroupHierarchyType.INCLUDING, ','));
 
         assertEquals(Optional.of(rootExpected), parserResult.getMetaData().getGroups());

@@ -4,10 +4,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.logic.l10n.Localization;
@@ -28,13 +26,15 @@ public class RelatedWorkResultDialogViewModel extends AbstractViewModel {
     private final ObservableList<RelatedWorkMatchResult> matchedReferences = FXCollections.observableArrayList();
     private final String userName;
 
-    public RelatedWorkResultDialogViewModel(BibEntry sourceEntry,
-                                            List<RelatedWorkMatchResult> matchedResults,
-                                            String userName,
-                                            DialogService dialogService,
-                                            UndoManager undoManager) {
+    public RelatedWorkResultDialogViewModel(
+            BibEntry sourceEntry,
+            List<RelatedWorkMatchResult> matchedResults,
+            String userName,
+            DialogService dialogService,
+            UndoManager undoManager) {
         this.sourceEntry = sourceEntry;
-        this.userName = NON_ALPHANUMERIC.matcher(userName.toLowerCase(Locale.ROOT)).replaceAll("-");
+        this.userName =
+                NON_ALPHANUMERIC.matcher(userName.toLowerCase(Locale.ROOT)).replaceAll("-");
         this.dialogService = dialogService;
         this.undoManager = undoManager;
         this.relatedWorkInserter = new RelatedWorkInserter();
@@ -47,11 +47,8 @@ public class RelatedWorkResultDialogViewModel extends AbstractViewModel {
     }
 
     public boolean insertComments() {
-        List<RelatedWorkInsertionResult> insertionResults = relatedWorkInserter.insertMatchedRelatedWork(
-                sourceEntry,
-                matchedResults,
-                userName
-        );
+        List<RelatedWorkInsertionResult> insertionResults =
+                relatedWorkInserter.insertMatchedRelatedWork(sourceEntry, matchedResults, userName);
 
         AtomicInteger insertedCount = new AtomicInteger();
         AtomicInteger unchangedCount = new AtomicInteger();
@@ -63,17 +60,14 @@ public class RelatedWorkResultDialogViewModel extends AbstractViewModel {
                         insertedCount.incrementAndGet();
                         edit.addEdit(inserted.fieldChange());
                     }
-                    case RelatedWorkInsertionResult.Unchanged unchanged ->
-                            unchangedCount.incrementAndGet();
+                    case RelatedWorkInsertionResult.Unchanged unchanged -> unchangedCount.incrementAndGet();
                 }
             }
         });
 
         dialogService.notify(Localization.lang(
                 "Processed related work comments. Inserted: %0, unchanged: %1.",
-                String.valueOf(insertedCount.get()),
-                String.valueOf(unchangedCount.get())
-        ));
+                String.valueOf(insertedCount.get()), String.valueOf(unchangedCount.get())));
         return true;
     }
 }

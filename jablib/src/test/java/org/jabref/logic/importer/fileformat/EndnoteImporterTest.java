@@ -1,5 +1,11 @@
 package org.jabref.logic.importer.fileformat;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -8,22 +14,14 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ResourceLock("Localization.lang")
 class EndnoteImporterTest {
@@ -33,7 +31,8 @@ class EndnoteImporterTest {
     @BeforeEach
     void setUp() {
         CitationKeyPatternPreferences citationKeyPatternPreferences = mock(CitationKeyPatternPreferences.class);
-        when(citationKeyPatternPreferences.getUnwantedCharacters()).thenReturn(CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS);
+        when(citationKeyPatternPreferences.getUnwantedCharacters())
+                .thenReturn(CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS);
         importer = new EndnoteImporter(citationKeyPatternPreferences);
     }
 
@@ -54,8 +53,10 @@ class EndnoteImporterTest {
 
     @Test
     void getDescription() {
-        assertEquals("Importer for the Refer/Endnote format."
-                + " Modified to use article number for pages if pages are missing.", importer.getDescription());
+        assertEquals(
+                "Importer for the Refer/Endnote format."
+                        + " Modified to use article number for pages if pages are missing.",
+                importer.getDescription());
     }
 
     @Test
@@ -70,9 +71,16 @@ class EndnoteImporterTest {
 
     @Test
     void isRecognizedFormatReject() throws IOException, URISyntaxException {
-        List<String> list = Arrays.asList("IEEEImport1.txt", "IsiImporterTest1.isi", "IsiImporterTestInspec.isi",
-                "IsiImporterTestWOS.isi", "IsiImporterTestMedline.isi", "RisImporterTest1.ris",
-                "Endnote.pattern.no_enw", "empty.pdf", "pdf/annotated.pdf");
+        List<String> list = Arrays.asList(
+                "IEEEImport1.txt",
+                "IsiImporterTest1.isi",
+                "IsiImporterTestInspec.isi",
+                "IsiImporterTestWOS.isi",
+                "IsiImporterTestMedline.isi",
+                "RisImporterTest1.ris",
+                "Endnote.pattern.no_enw",
+                "empty.pdf",
+                "pdf/annotated.pdf");
 
         for (String string : list) {
             Path file = Path.of(EndnoteImporterTest.class.getResource(string).toURI());
@@ -82,7 +90,8 @@ class EndnoteImporterTest {
 
     @Test
     void importEntries0() throws IOException, URISyntaxException {
-        Path file = Path.of(EndnoteImporterTest.class.getResource("Endnote.entries.enw").toURI());
+        Path file = Path.of(
+                EndnoteImporterTest.class.getResource("Endnote.entries.enw").toURI());
         List<BibEntry> bibEntries = importer.importDatabase(file).getDatabase().getEntries();
 
         assertEquals(5, bibEntries.size());
@@ -128,8 +137,9 @@ class EndnoteImporterTest {
     @Test
     void importEntries1() throws IOException {
         String medlineString = "%O Artn\\\\s testO\n%A testA,\n%E testE0, testE1";
-        List<BibEntry> bibEntries = importer.importDatabase(new BufferedReader(Reader.of(medlineString))).getDatabase()
-                                            .getEntries();
+        List<BibEntry> bibEntries = importer.importDatabase(new BufferedReader(Reader.of(medlineString)))
+                .getDatabase()
+                .getEntries();
 
         BibEntry entry = bibEntries.getFirst();
 
@@ -142,7 +152,9 @@ class EndnoteImporterTest {
 
     @Test
     void importEntriesBookExample() throws IOException, URISyntaxException {
-        Path file = Path.of(EndnoteImporterTest.class.getResource("Endnote.book.example.enw").toURI());
+        Path file = Path.of(EndnoteImporterTest.class
+                .getResource("Endnote.book.example.enw")
+                .toURI());
         List<BibEntry> bibEntries = importer.importDatabase(file).getDatabase().getEntries();
 
         BibEntry entry = bibEntries.getFirst();
@@ -155,7 +167,8 @@ class EndnoteImporterTest {
         assertEquals(Optional.of("Versionsverwaltung"), entry.getField(StandardField.KEYWORDS));
         assertEquals(Optional.of("XX, 327"), entry.getField(StandardField.PAGES));
         assertEquals(Optional.of("dpunkt.verlag"), entry.getField(StandardField.PUBLISHER));
-        assertEquals(Optional.of("Git : dezentrale Versionsverwaltung im Team : Grundlagen und Workflows"),
+        assertEquals(
+                Optional.of("Git : dezentrale Versionsverwaltung im Team : Grundlagen und Workflows"),
                 entry.getField(StandardField.TITLE));
         assertEquals(Optional.of("http://d-nb.info/107601965X"), entry.getField(StandardField.URL));
         assertEquals(Optional.of("2016"), entry.getField(StandardField.YEAR));
@@ -165,7 +178,8 @@ class EndnoteImporterTest {
     void importPreservesDiacriticalCitationKey() throws IOException {
         String input = "%0 Journal\n%A Author\n%T Title\n%F kṛṣṇā";
         List<BibEntry> entries = importer.importDatabase(new BufferedReader(Reader.of(input)))
-                                         .getDatabase().getEntries();
+                .getDatabase()
+                .getEntries();
 
         assertEquals(Optional.of("kṛṣṇā"), entries.getFirst().getCitationKey());
     }

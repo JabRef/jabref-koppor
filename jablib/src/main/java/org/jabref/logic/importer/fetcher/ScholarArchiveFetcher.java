@@ -1,5 +1,6 @@
 package org.jabref.logic.importer.fetcher;
 
+import jakarta.ws.rs.core.MediaType;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -8,7 +9,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.IntStream;
-
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.PagedSearchBasedParserFetcher;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.Parser;
@@ -21,12 +25,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import jakarta.ws.rs.core.MediaType;
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +42,11 @@ public class ScholarArchiveFetcher implements PagedSearchBasedParserFetcher {
     /// @param pageNumber the number of the page indexed from 0
     /// @return URL
     @Override
-    public URL getURLForQuery(BaseQueryNode queryNode, int pageNumber) throws URISyntaxException, MalformedURLException {
-        String transformedQuery = new ScholarArchiveQueryTransformer().transformSearchQuery(queryNode).orElse("");
+    public URL getURLForQuery(BaseQueryNode queryNode, int pageNumber)
+            throws URISyntaxException, MalformedURLException {
+        String transformedQuery = new ScholarArchiveQueryTransformer()
+                .transformSearchQuery(queryNode)
+                .orElse("");
         return buildSearchURL(transformedQuery, pageNumber);
     }
 
@@ -110,11 +111,14 @@ public class ScholarArchiveFetcher implements PagedSearchBasedParserFetcher {
 
             JSONArray abstracts = jsonEntry.getJSONArray("abstracts");
             String foundAbstract = IntStream.range(0, abstracts.length())
-                                            .mapToObj(abstracts::getJSONObject)
-                                            .map(object -> object.optString("body"))
-                                            .findFirst().orElse("");
+                    .mapToObj(abstracts::getJSONObject)
+                    .map(object -> object.optString("body"))
+                    .findFirst()
+                    .orElse("");
 
-            String url = Optional.ofNullable(jsonEntry.optJSONObject("fulltext")).map(fullText -> fullText.optString("access_url")).orElse("");
+            String url = Optional.ofNullable(jsonEntry.optJSONObject("fulltext"))
+                    .map(fullText -> fullText.optString("access_url"))
+                    .orElse("");
 
             // publication type
             String type = biblio.optString("release_type");

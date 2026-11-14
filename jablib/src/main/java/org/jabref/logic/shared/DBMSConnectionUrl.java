@@ -13,9 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -24,16 +22,18 @@ import org.jspecify.annotations.Nullable;
 /// Surrounding text is ignored, so a whole `psql 'postgres://…'` command line can be pasted as well, and so can
 /// libpq's keyword form (`host=… port=… dbname=… user=… password=…`).
 ///
-/// @param query the query part without `user`, `password`, `ssl`, and `sslmode=require`, which map to dedicated settings; empty if none
+/// @param query the query part without `user`, `password`, `ssl`, and `sslmode=require`, which map to dedicated
+/// settings; empty if none
 @NullMarked
-public record DBMSConnectionUrl(DBMSType type,
-                                String host,
-                                int port,
-                                String database,
-                                Optional<String> user,
-                                Optional<String> password,
-                                boolean useSSL,
-                                String query) {
+public record DBMSConnectionUrl(
+        DBMSType type,
+        String host,
+        int port,
+        String database,
+        Optional<String> user,
+        Optional<String> password,
+        boolean useSSL,
+        String query) {
 
     private static final Set<String> SSL_MODES_REQUIRING_SSL = Set.of("require", "verify-ca", "verify-full");
     private static final Pattern URL_IN_TEXT = Pattern.compile("(?i)(?:jdbc:)?postgres(?:ql)?://[^\\s'\"]+");
@@ -83,11 +83,17 @@ public record DBMSConnectionUrl(DBMSType type,
                 parameters.add(Map.entry(key, value));
             }
         }
-        return Optional.of(fromParts(uri.getHost(), Optional.of(uri.getPort()).filter(port -> port != -1), path.startsWith("/") ? path.substring(1) : path, parameters));
+        return Optional.of(fromParts(
+                uri.getHost(),
+                Optional.of(uri.getPort()).filter(port -> port != -1),
+                path.startsWith("/") ? path.substring(1) : path,
+                parameters));
     }
 
-    /// libpq keyword form as shown by some providers: `host=db.example.org port=5432 dbname=lib user=me password='p w'`.
-    /// Hand-written instead of a regex: a repeated alternation recurses per character in Java's regex engine and overflows
+    /// libpq keyword form as shown by some providers: `host=db.example.org port=5432 dbname=lib user=me password='p
+    /// w'`.
+    /// Hand-written instead of a regex: a repeated alternation recurses per character in Java's regex engine and
+    /// overflows
     /// the stack on long pastes.
     private static Optional<DBMSConnectionUrl> parseKeywords(String text) {
         String host = "";
@@ -98,7 +104,8 @@ public record DBMSConnectionUrl(DBMSType type,
         while (position < text.length()) {
             position = skipWhitespace(text, position);
             int keyStart = position;
-            while (position < text.length() && (Character.isLetterOrDigit(text.charAt(position)) || text.charAt(position) == '_')) {
+            while (position < text.length()
+                    && (Character.isLetterOrDigit(text.charAt(position)) || text.charAt(position) == '_')) {
                 position++;
             }
             String key = text.substring(keyStart, position).toLowerCase(Locale.ROOT);
@@ -154,7 +161,8 @@ public record DBMSConnectionUrl(DBMSType type,
         return position;
     }
 
-    private static DBMSConnectionUrl fromParts(String host, Optional<Integer> port, String database, List<Map.Entry<String, String>> parameters) {
+    private static DBMSConnectionUrl fromParts(
+            String host, Optional<Integer> port, String database, List<Map.Entry<String, String>> parameters) {
         DBMSType type = DBMSType.POSTGRESQL;
         Optional<String> user = Optional.empty();
         Optional<String> password = Optional.empty();
@@ -182,7 +190,15 @@ public record DBMSConnectionUrl(DBMSType type,
                 remaining.add(encode(key) + "=" + encode(value));
             }
         }
-        return new DBMSConnectionUrl(type, host, port.orElse(type.getDefaultPort()), database, user, password, useSSL, String.join("&", remaining));
+        return new DBMSConnectionUrl(
+                type,
+                host,
+                port.orElse(type.getDefaultPort()),
+                database,
+                user,
+                password,
+                useSSL,
+                String.join("&", remaining));
     }
 
     private static Optional<Integer> parsePort(String value) {

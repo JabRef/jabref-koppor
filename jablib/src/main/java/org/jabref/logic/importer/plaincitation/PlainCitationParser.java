@@ -2,10 +2,8 @@ package org.jabref.logic.importer.plaincitation;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.model.entry.BibEntry;
-
 import org.jooq.lambda.Unchecked;
 import org.jooq.lambda.UncheckedException;
 
@@ -16,9 +14,9 @@ public interface PlainCitationParser {
     default List<BibEntry> parseMultiplePlainCitations(String text) throws FetcherException {
         try {
             return CitationSplitter.splitCitations(text)
-                                   .map(Unchecked.function(this::parsePlainCitation))
-                                   .flatMap(Optional::stream)
-                                   .toList();
+                    .map(Unchecked.function(this::parsePlainCitation))
+                    .flatMap(Optional::stream)
+                    .toList();
         } catch (UncheckedException e) {
             throw (FetcherException) e.getCause();
         }

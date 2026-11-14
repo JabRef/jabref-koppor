@@ -2,7 +2,6 @@ package org.jabref.toolkit.util;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import picocli.CommandLine;
 
 /// A custom IFactory implementation that enables unit tests to inject modified Commands instances.

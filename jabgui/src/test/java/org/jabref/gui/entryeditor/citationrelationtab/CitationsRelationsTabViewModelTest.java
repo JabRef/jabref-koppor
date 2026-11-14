@@ -1,11 +1,24 @@
 package org.jabref.gui.entryeditor.citationrelationtab;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.duplicationFinder.DuplicateResolverDialog;
@@ -37,7 +50,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,31 +60,19 @@ import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockConstruction;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(JavaFxExtension.class)
 class CitationsRelationsTabViewModelTest {
     private BibDatabaseContext bibDatabaseContext;
 
     @Mock
     private GuiPreferences preferences;
+
     @Mock
     private DuplicateCheck duplicateCheck;
+
     @Mock
     private DialogService dialogService;
+
     private StateManager stateManager;
     private BibEntry existingEntry;
     private BibEntry firstEntryToImport;
@@ -83,8 +83,10 @@ class CitationsRelationsTabViewModelTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        ImportFormatPreferences importFormatPreferences =
+                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .thenReturn(',');
         when(preferences.getImportFormatPreferences()).thenReturn(importFormatPreferences);
 
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS);
@@ -97,9 +99,11 @@ class CitationsRelationsTabViewModelTest {
         when(preferences.getFieldPreferences()).thenReturn(fieldPreferences);
 
         when(preferences.getFilePreferences()).thenReturn(mock(FilePreferences.class));
-        when(preferences.getExternalApplicationsPreferences()).thenReturn(mock(ExternalApplicationsPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(preferences.getExternalApplicationsPreferences())
+                .thenReturn(mock(ExternalApplicationsPreferences.class, Answers.RETURNS_DEEP_STUBS));
         when(preferences.getOwnerPreferences()).thenReturn(mock(OwnerPreferences.class, Answers.RETURNS_DEEP_STUBS));
-        when(preferences.getTimestampPreferences()).thenReturn(mock(TimestampPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(preferences.getTimestampPreferences())
+                .thenReturn(mock(TimestampPreferences.class, Answers.RETURNS_DEEP_STUBS));
 
         CitationKeyPatternPreferences citationKeyPatternPreferences = mock(CitationKeyPatternPreferences.class);
         GlobalCitationKeyPatterns patterns = GlobalCitationKeyPatterns.fromPattern("[auth][year]");
@@ -114,7 +118,8 @@ class CitationsRelationsTabViewModelTest {
         bibDatabaseContext = new BibDatabaseContext(new BibDatabase());
         bibDatabaseContext.setMode(BibDatabaseMode.BIBTEX);
         when(stateManager.getActiveDatabase()).thenReturn(Optional.of(bibDatabaseContext));
-        // The duplicate-checked import selects the imported entries in the active tab; a deep-stubbed Optional would fail there.
+        // The duplicate-checked import selects the imported entries in the active tab; a deep-stubbed Optional would
+        // fail there.
         when(stateManager.activeTabProperty()).thenReturn(OptionalObjectProperty.empty());
 
         LibraryPreferences libraryPreferences = mock(LibraryPreferences.class);
@@ -135,15 +140,17 @@ class CitationsRelationsTabViewModelTest {
 
         bibDatabaseContext.getDatabase().insertEntry(existingEntry);
 
-        firstEntryToImport = new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "First Author")
-                                                                    .withField(StandardField.YEAR, "2022")
-                                                                    .withField(StandardField.TITLE, "Gut microbiota and cognition")
-                                                                    .withCitationKey("FirstAuthorCitationKey2022");
+        firstEntryToImport = new BibEntry(StandardEntryType.Article)
+                .withField(StandardField.AUTHOR, "First Author")
+                .withField(StandardField.YEAR, "2022")
+                .withField(StandardField.TITLE, "Gut microbiota and cognition")
+                .withCitationKey("FirstAuthorCitationKey2022");
 
-        secondEntryToImport = new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "Second Author")
-                                                                     .withField(StandardField.YEAR, "2021")
-                                                                     .withField(StandardField.TITLE, "Dietary flavanols and memory")
-                                                                     .withCitationKey("SecondAuthorCitationKey20221");
+        secondEntryToImport = new BibEntry(StandardEntryType.Article)
+                .withField(StandardField.AUTHOR, "Second Author")
+                .withField(StandardField.YEAR, "2021")
+                .withField(StandardField.TITLE, "Dietary flavanols and memory")
+                .withCitationKey("SecondAuthorCitationKey20221");
     }
 
     @Test
@@ -154,7 +161,9 @@ class CitationsRelationsTabViewModelTest {
 
         viewModel.importEntries(citationItems, CitationFetcher.SearchType.CITES, existingEntry);
 
-        assertEquals(Optional.of("FirstAuthorCitationKey2022,SecondAuthorCitationKey20221"), existingEntry.getField(StandardField.CITES));
+        assertEquals(
+                Optional.of("FirstAuthorCitationKey2022,SecondAuthorCitationKey20221"),
+                existingEntry.getField(StandardField.CITES));
         assertEquals(List.of(existingEntry, firstEntryToImport, secondEntryToImport), bibDatabaseContext.getEntries());
     }
 
@@ -167,12 +176,20 @@ class CitationsRelationsTabViewModelTest {
         viewModel.importEntries(citationItems, CitationFetcher.SearchType.CITED_BY, existingEntry);
 
         // The entries are cloned during the import. Thus, we need to get the actual entries from the database.
-        // In the test, the citation key is not changed during the import, thus we can just look up the entries by their citation key.
-        BibEntry firstEntryInLibrary = bibDatabaseContext.getDatabase().getEntryByCitationKey(firstEntryToImport.getCitationKey().orElseThrow()).orElseThrow();
-        BibEntry secondEntryInLibrary = bibDatabaseContext.getDatabase().getEntryByCitationKey(secondEntryToImport.getCitationKey().orElseThrow()).orElseThrow();
+        // In the test, the citation key is not changed during the import, thus we can just look up the entries by their
+        // citation key.
+        BibEntry firstEntryInLibrary = bibDatabaseContext
+                .getDatabase()
+                .getEntryByCitationKey(firstEntryToImport.getCitationKey().orElseThrow())
+                .orElseThrow();
+        BibEntry secondEntryInLibrary = bibDatabaseContext
+                .getDatabase()
+                .getEntryByCitationKey(secondEntryToImport.getCitationKey().orElseThrow())
+                .orElseThrow();
 
         assertEquals(Optional.of("Test2023"), firstEntryInLibrary.getField(StandardField.CITES));
-        assertEquals(List.of(existingEntry, firstEntryInLibrary, secondEntryInLibrary), bibDatabaseContext.getEntries());
+        assertEquals(
+                List.of(existingEntry, firstEntryInLibrary, secondEntryInLibrary), bibDatabaseContext.getEntries());
     }
 
     @Test
@@ -184,14 +201,15 @@ class CitationsRelationsTabViewModelTest {
 
         viewModel.importEntries(citationItems, CitationFetcher.SearchType.CITES, existingEntry);
 
-        assertEquals(Optional.of("Asdf1222,FirstAuthorCitationKey2022,SecondAuthorCitationKey20221"), existingEntry.getField(StandardField.CITES));
+        assertEquals(
+                Optional.of("Asdf1222,FirstAuthorCitationKey2022,SecondAuthorCitationKey20221"),
+                existingEntry.getField(StandardField.CITES));
         assertEquals(List.of(existingEntry, firstEntryToImport, secondEntryToImport), bibDatabaseContext.getEntries());
     }
 
     @Test
     void importEntriesUpdatesPropertyOnSuccess() {
-        List<CitationRelationItem> citationItems = List.of(
-                new CitationRelationItem(firstEntryToImport, false));
+        List<CitationRelationItem> citationItems = List.of(new CitationRelationItem(firstEntryToImport, false));
 
         viewModel.importEntries(citationItems, CitationFetcher.SearchType.CITES, existingEntry);
 
@@ -204,10 +222,11 @@ class CitationsRelationsTabViewModelTest {
     @Test
     void importEntriesUpdatesEvenIfCitationKeyIsMissing() {
         existingEntry.clearCitationKey();
-        List<CitationRelationItem> citationItems = List.of(
-                new CitationRelationItem(firstEntryToImport, false));
+        List<CitationRelationItem> citationItems = List.of(new CitationRelationItem(firstEntryToImport, false));
         viewModel.importEntries(citationItems, CitationFetcher.SearchType.CITED_BY, existingEntry);
-        assertEquals(citationItems.getFirst().entry(), viewModel.lastImportedEntryProperty().get());
+        assertEquals(
+                citationItems.getFirst().entry(),
+                viewModel.lastImportedEntryProperty().get());
     }
 
     // [utest->feat~entry-editor.citations.review-before-import~1]
@@ -219,7 +238,9 @@ class CitationsRelationsTabViewModelTest {
 
         viewModel.importReviewedEntries(citationItems, CitationFetcher.SearchType.CITES, existingEntry);
 
-        assertEquals(Optional.of("FirstAuthorCitationKey2022,SecondAuthorCitationKey20221"), existingEntry.getField(StandardField.CITES));
+        assertEquals(
+                Optional.of("FirstAuthorCitationKey2022,SecondAuthorCitationKey20221"),
+                existingEntry.getField(StandardField.CITES));
     }
 
     @Test
@@ -231,8 +252,11 @@ class CitationsRelationsTabViewModelTest {
         viewModel.importReviewedEntries(citationItems, CitationFetcher.SearchType.CITES, existingEntry);
 
         // The duplicate check imports copies, so the library content is compared by citation key.
-        assertEquals(List.of("Test2023", "FirstAuthorCitationKey2022", "SecondAuthorCitationKey20221"),
-                bibDatabaseContext.getEntries().stream().map(entry -> entry.getCitationKey().orElseThrow()).toList());
+        assertEquals(
+                List.of("Test2023", "FirstAuthorCitationKey2022", "SecondAuthorCitationKey20221"),
+                bibDatabaseContext.getEntries().stream()
+                        .map(entry -> entry.getCitationKey().orElseThrow())
+                        .toList());
     }
 
     // [utest->feat~entry-editor.citations.review-before-import~1]
@@ -244,8 +268,14 @@ class CitationsRelationsTabViewModelTest {
 
         viewModel.importReviewedEntries(citationItems, CitationFetcher.SearchType.CITED_BY, existingEntry);
 
-        BibEntry firstEntryInLibrary = bibDatabaseContext.getDatabase().getEntryByCitationKey(firstEntryToImport.getCitationKey().orElseThrow()).orElseThrow();
-        BibEntry secondEntryInLibrary = bibDatabaseContext.getDatabase().getEntryByCitationKey(secondEntryToImport.getCitationKey().orElseThrow()).orElseThrow();
+        BibEntry firstEntryInLibrary = bibDatabaseContext
+                .getDatabase()
+                .getEntryByCitationKey(firstEntryToImport.getCitationKey().orElseThrow())
+                .orElseThrow();
+        BibEntry secondEntryInLibrary = bibDatabaseContext
+                .getDatabase()
+                .getEntryByCitationKey(secondEntryToImport.getCitationKey().orElseThrow())
+                .orElseThrow();
 
         assertEquals(Optional.of("Test2023"), firstEntryInLibrary.getField(StandardField.CITES));
         assertEquals(Optional.of("Test2023"), secondEntryInLibrary.getField(StandardField.CITES));
@@ -259,7 +289,10 @@ class CitationsRelationsTabViewModelTest {
 
         viewModel.importReviewedEntries(citationItems, CitationFetcher.SearchType.CITED_BY, existingEntry);
 
-        BibEntry firstEntryInLibrary = bibDatabaseContext.getDatabase().getEntryByCitationKey(firstEntryToImport.getCitationKey().orElseThrow()).orElseThrow();
+        BibEntry firstEntryInLibrary = bibDatabaseContext
+                .getDatabase()
+                .getEntryByCitationKey(firstEntryToImport.getCitationKey().orElseThrow())
+                .orElseThrow();
         assertEquals(firstEntryInLibrary, viewModel.lastImportedEntryProperty().get());
     }
 
@@ -292,7 +325,8 @@ class CitationsRelationsTabViewModelTest {
 
         viewModel.importReviewedEntries(citationItems, CitationFetcher.SearchType.CITES, existingEntry);
 
-        assertEquals(Optional.of("ExistingCiteKey2020,FirstAuthorCitationKey2022,SecondAuthorCitationKey20221"),
+        assertEquals(
+                Optional.of("ExistingCiteKey2020,FirstAuthorCitationKey2022,SecondAuthorCitationKey20221"),
                 existingEntry.getField(StandardField.CITES));
     }
 
@@ -304,7 +338,10 @@ class CitationsRelationsTabViewModelTest {
         viewModel.importReviewedEntries(citationItems, CitationFetcher.SearchType.CITED_BY, existingEntry);
 
         verify(dialogService).notify(Localization.lang("No citation key for %0", existingEntry.getAuthorTitleYear()));
-        BibEntry firstEntryInLibrary = bibDatabaseContext.getDatabase().getEntryByCitationKey(firstEntryToImport.getCitationKey().orElseThrow()).orElseThrow();
+        BibEntry firstEntryInLibrary = bibDatabaseContext
+                .getDatabase()
+                .getEntryByCitationKey(firstEntryToImport.getCitationKey().orElseThrow())
+                .orElseThrow();
         assertEquals(Optional.empty(), firstEntryInLibrary.getField(StandardField.CITES));
     }
 
@@ -316,10 +353,18 @@ class CitationsRelationsTabViewModelTest {
         importReviewedEntriesResolvingDuplicatesWith(
                 Optional.of(DuplicateResolverDialog.DuplicateResolverResult.KEEP_LEFT),
                 CitationFetcher.SearchType.CITES,
-                firstEntryToImport, secondEntryToImport);
+                firstEntryToImport,
+                secondEntryToImport);
 
-        assertEquals(Optional.of("SecondAuthorCitationKey20221,ExistingKey2022"), existingEntry.getField(StandardField.CITES));
-        assertEquals(Optional.empty(), bibDatabaseContext.getDatabase().getEntryByCitationKey(firstEntryToImport.getCitationKey().orElseThrow()));
+        assertEquals(
+                Optional.of("SecondAuthorCitationKey20221,ExistingKey2022"),
+                existingEntry.getField(StandardField.CITES));
+        assertEquals(
+                Optional.empty(),
+                bibDatabaseContext
+                        .getDatabase()
+                        .getEntryByCitationKey(
+                                firstEntryToImport.getCitationKey().orElseThrow()));
     }
 
     // [utest->req~entry-editor.citations.review-links-kept-duplicate~1]
@@ -341,9 +386,7 @@ class CitationsRelationsTabViewModelTest {
         insertDuplicateOfFirstEntry("ExistingKey2022");
 
         importReviewedEntriesResolvingDuplicatesWith(
-                Optional.empty(),
-                CitationFetcher.SearchType.CITES,
-                firstEntryToImport, secondEntryToImport);
+                Optional.empty(), CitationFetcher.SearchType.CITES, firstEntryToImport, secondEntryToImport);
 
         assertEquals(Optional.of("SecondAuthorCitationKey20221"), existingEntry.getField(StandardField.CITES));
     }
@@ -392,7 +435,9 @@ class CitationsRelationsTabViewModelTest {
                 firstEntryToImport);
 
         assertEquals(Optional.of("Test2023"), duplicateInLibrary.getField(StandardField.CITES));
-        assertEquals(Optional.empty(), stateManager.getUndoManager(bibDatabaseContext).undo());
+        assertEquals(
+                Optional.empty(),
+                stateManager.getUndoManager(bibDatabaseContext).undo());
     }
 
     // [utest->req~entry-editor.citations.review-links-kept-duplicate~1]
@@ -407,7 +452,8 @@ class CitationsRelationsTabViewModelTest {
                 CitationFetcher.SearchType.CITES,
                 firstEntryToImport);
 
-        verify(dialogService).notify(Localization.lang("No citation key for %0", duplicateWithoutKey.getAuthorTitleYear()));
+        verify(dialogService)
+                .notify(Localization.lang("No citation key for %0", duplicateWithoutKey.getAuthorTitleYear()));
         assertEquals(Optional.empty(), existingEntry.getField(StandardField.CITES));
         assertEquals(Optional.empty(), duplicateWithoutKey.getCitationKey());
     }
@@ -421,7 +467,8 @@ class CitationsRelationsTabViewModelTest {
         importReviewedEntriesResolvingDuplicatesWith(
                 Optional.of(DuplicateResolverDialog.DuplicateResolverResult.KEEP_LEFT),
                 CitationFetcher.SearchType.CITED_BY,
-                firstEntryToImport, secondEntryToImport);
+                firstEntryToImport,
+                secondEntryToImport);
 
         verify(dialogService).notify(Localization.lang("No citation key for %0", existingEntry.getAuthorTitleYear()));
         assertEquals(Optional.empty(), duplicateInLibrary.getField(StandardField.CITES));
@@ -430,7 +477,8 @@ class CitationsRelationsTabViewModelTest {
     // [utest->req~entry-editor.citations.review-links-kept-duplicate~1]
     @ParameterizedTest
     @EnumSource(CitationFetcher.SearchType.class)
-    void importReviewedEntries_doesNotLinkEntryToItself_whenKeptDuplicateIsInspectedEntry(CitationFetcher.SearchType searchType) {
+    void importReviewedEntries_doesNotLinkEntryToItself_whenKeptDuplicateIsInspectedEntry(
+            CitationFetcher.SearchType searchType) {
         existingEntry.setField(StandardField.YEAR, "2022");
         existingEntry.setField(StandardField.TITLE, "Gut microbiota and cognition");
         BibEntry duplicateOfInspectedEntry = new BibEntry(existingEntry).withCitationKey("Fetched2022");
@@ -458,10 +506,11 @@ class CitationsRelationsTabViewModelTest {
                 CitationFetcher.SearchType.CITED_BY,
                 duplicateOfInspectedEntry);
 
-        assertEquals(List.of(Optional.empty()),
+        assertEquals(
+                List.of(Optional.empty()),
                 bibDatabaseContext.getEntries().stream()
-                                  .map(entry -> entry.getField(StandardField.CITES))
-                                  .toList());
+                        .map(entry -> entry.getField(StandardField.CITES))
+                        .toList());
     }
 
     /// The counterpart for `cites`: the write lands on the inspected entry, which "Keep from import" removed,
@@ -510,12 +559,20 @@ class CitationsRelationsTabViewModelTest {
         importReviewedEntriesResolvingDuplicatesWith(
                 Optional.of(DuplicateResolverDialog.DuplicateResolverResult.KEEP_LEFT),
                 CitationFetcher.SearchType.CITES,
-                firstEntryToImport, secondEntryToImport);
+                firstEntryToImport,
+                secondEntryToImport);
 
         undoManager.undo();
 
         assertEquals(Optional.empty(), existingEntry.getField(StandardField.CITES));
-        assertEquals(importedKey, bibDatabaseContext.getDatabase().getEntryByCitationKey(importedKey).orElseThrow().getCitationKey().orElseThrow());
+        assertEquals(
+                importedKey,
+                bibDatabaseContext
+                        .getDatabase()
+                        .getEntryByCitationKey(importedKey)
+                        .orElseThrow()
+                        .getCitationKey()
+                        .orElseThrow());
 
         undoManager.undo();
 
@@ -546,10 +603,12 @@ class CitationsRelationsTabViewModelTest {
         BibEntry secondDuplicate = new BibEntry(firstEntryToImport).withCitationKey("Replacement2022");
 
         importReviewedEntriesResolvingDuplicatesWith(
-                List.of(Optional.of(DuplicateResolverDialog.DuplicateResolverResult.KEEP_LEFT),
+                List.of(
+                        Optional.of(DuplicateResolverDialog.DuplicateResolverResult.KEEP_LEFT),
                         Optional.of(DuplicateResolverDialog.DuplicateResolverResult.KEEP_RIGHT)),
                 CitationFetcher.SearchType.CITES,
-                firstEntryToImport, secondDuplicate);
+                firstEntryToImport,
+                secondDuplicate);
 
         assertEquals(Optional.empty(), bibDatabaseContext.getDatabase().getEntryByCitationKey("ExistingKey2022"));
         assertEquals(Optional.of("Replacement2022"), existingEntry.getField(StandardField.CITES));
@@ -562,14 +621,22 @@ class CitationsRelationsTabViewModelTest {
         BibEntry secondDuplicate = new BibEntry(firstEntryToImport).withCitationKey("Replacement2022");
 
         importReviewedEntriesResolvingDuplicatesWith(
-                List.of(Optional.of(DuplicateResolverDialog.DuplicateResolverResult.KEEP_LEFT),
+                List.of(
+                        Optional.of(DuplicateResolverDialog.DuplicateResolverResult.KEEP_LEFT),
                         Optional.of(DuplicateResolverDialog.DuplicateResolverResult.KEEP_RIGHT)),
                 CitationFetcher.SearchType.CITED_BY,
-                firstEntryToImport, secondDuplicate);
+                firstEntryToImport,
+                secondDuplicate);
 
         assertEquals(Optional.empty(), bibDatabaseContext.getDatabase().getEntryByCitationKey("ExistingKey2022"));
         assertEquals(Optional.empty(), duplicateInLibrary.getField(StandardField.CITES));
-        assertEquals(Optional.of("Test2023"), bibDatabaseContext.getDatabase().getEntryByCitationKey("Replacement2022").orElseThrow().getField(StandardField.CITES));
+        assertEquals(
+                Optional.of("Test2023"),
+                bibDatabaseContext
+                        .getDatabase()
+                        .getEntryByCitationKey("Replacement2022")
+                        .orElseThrow()
+                        .getField(StandardField.CITES));
     }
 
     // [utest->req~entry-editor.citations.review-links-kept-duplicate~1]
@@ -581,12 +648,15 @@ class CitationsRelationsTabViewModelTest {
         BibEntry secondDuplicate = new BibEntry(firstEntryToImport).withCitationKey("Other2022");
 
         importReviewedEntriesResolvingDuplicatesWith(
-                List.of(Optional.of(DuplicateResolverDialog.DuplicateResolverResult.KEEP_LEFT),
+                List.of(
+                        Optional.of(DuplicateResolverDialog.DuplicateResolverResult.KEEP_LEFT),
                         Optional.of(DuplicateResolverDialog.DuplicateResolverResult.KEEP_LEFT)),
                 CitationFetcher.SearchType.CITES,
-                firstEntryToImport, secondDuplicate);
+                firstEntryToImport,
+                secondDuplicate);
 
-        verify(dialogService).notify(Localization.lang("No citation key for %0", duplicateWithoutKey.getAuthorTitleYear()));
+        verify(dialogService)
+                .notify(Localization.lang("No citation key for %0", duplicateWithoutKey.getAuthorTitleYear()));
         assertEquals(Optional.empty(), existingEntry.getField(StandardField.CITES));
     }
 
@@ -598,10 +668,12 @@ class CitationsRelationsTabViewModelTest {
         GuiUndoManager undoManager = stateManager.getUndoManager(bibDatabaseContext);
 
         importReviewedEntriesResolvingDuplicatesWith(
-                List.of(Optional.of(DuplicateResolverDialog.DuplicateResolverResult.KEEP_LEFT),
+                List.of(
+                        Optional.of(DuplicateResolverDialog.DuplicateResolverResult.KEEP_LEFT),
                         Optional.of(DuplicateResolverDialog.DuplicateResolverResult.KEEP_LEFT)),
                 CitationFetcher.SearchType.CITED_BY,
-                firstEntryToImport, secondDuplicate);
+                firstEntryToImport,
+                secondDuplicate);
 
         assertEquals(Optional.of("Test2023"), duplicateInLibrary.getField(StandardField.CITES));
 
@@ -615,7 +687,10 @@ class CitationsRelationsTabViewModelTest {
     void importEntries_recordsNoUndoStepForCitesWrite() {
         GuiUndoManager undoManager = stateManager.getUndoManager(bibDatabaseContext);
 
-        viewModel.importEntries(List.of(new CitationRelationItem(firstEntryToImport, false)), CitationFetcher.SearchType.CITES, existingEntry);
+        viewModel.importEntries(
+                List.of(new CitationRelationItem(firstEntryToImport, false)),
+                CitationFetcher.SearchType.CITES,
+                existingEntry);
         assertEquals(Optional.of("FirstAuthorCitationKey2022"), existingEntry.getField(StandardField.CITES));
 
         // The newest step is the import itself. Removing the entry takes its key out of the cites field by itself.
@@ -631,9 +706,10 @@ class CitationsRelationsTabViewModelTest {
         return duplicateInLibrary;
     }
 
-    private void importReviewedEntriesResolvingDuplicatesWith(Optional<DuplicateResolverDialog.DuplicateResolverResult> decision,
-                                                              CitationFetcher.SearchType searchType,
-                                                              BibEntry... entries) {
+    private void importReviewedEntriesResolvingDuplicatesWith(
+            Optional<DuplicateResolverDialog.DuplicateResolverResult> decision,
+            CitationFetcher.SearchType searchType,
+            BibEntry... entries) {
         importReviewedEntriesResolvingDuplicatesWith(List.of(decision), searchType, entries);
     }
 
@@ -641,19 +717,23 @@ class CitationsRelationsTabViewModelTest {
     /// so the dialog is not built: its merge view needs most of the application.
     ///
     /// @param decisions the answers of the duplicate dialog in order, empty if the dialog gets closed
-    private void importReviewedEntriesResolvingDuplicatesWith(List<Optional<DuplicateResolverDialog.DuplicateResolverResult>> decisions,
-                                                              CitationFetcher.SearchType searchType,
-                                                              BibEntry... entries) {
-        doReturn(decisions.getFirst(), decisions.subList(1, decisions.size()).toArray()).when(dialogService).showCustomDialogAndWait(any());
+    private void importReviewedEntriesResolvingDuplicatesWith(
+            List<Optional<DuplicateResolverDialog.DuplicateResolverResult>> decisions,
+            CitationFetcher.SearchType searchType,
+            BibEntry... entries) {
+        doReturn(decisions.getFirst(), decisions.subList(1, decisions.size()).toArray())
+                .when(dialogService)
+                .showCustomDialogAndWait(any());
         List<CitationRelationItem> citationItems = Arrays.stream(entries)
-                                                         .map(entry -> new CitationRelationItem(entry, false))
-                                                         .toList();
+                .map(entry -> new CitationRelationItem(entry, false))
+                .toList();
         JavaFxExtension.invokeAndWait(() -> {
             try (MockedConstruction<DuplicateResolverDialog> _ = mockConstruction(DuplicateResolverDialog.class)) {
                 viewModel.importReviewedEntries(citationItems, searchType, existingEntry);
             }
         });
-        // The import handler turns a failure before the dialog answers into a skip, which must not pass for the decision
+        // The import handler turns a failure before the dialog answers into a skip, which must not pass for the
+        // decision
         verify(dialogService, times(decisions.size())).showCustomDialogAndWait(any());
     }
 
@@ -672,7 +752,10 @@ class CitationsRelationsTabViewModelTest {
 
         viewModel.importReviewedEntries(citationItems, CitationFetcher.SearchType.CITES, existingEntry);
 
-        BibEntry importedEntry = bibDatabaseContext.getDatabase().getEntryByCitationKey("FetchedKey2022").orElseThrow();
+        BibEntry importedEntry = bibDatabaseContext
+                .getDatabase()
+                .getEntryByCitationKey("FetchedKey2022")
+                .orElseThrow();
         assertEquals(Optional.of("Corrected Title during Review"), importedEntry.getField(StandardField.TITLE));
         assertEquals(Optional.of("10.1000/182"), importedEntry.getField(StandardField.DOI));
 
@@ -685,24 +768,32 @@ class CitationsRelationsTabViewModelTest {
     void updateForEntryWithoutDoiSetsDoiMissingStatus() {
         BibEntry entryWithoutDoi = new BibEntry(StandardEntryType.Article);
         viewModel.updateForEntry(entryWithoutDoi);
-        assertEquals(CitationsRelationsTabViewModel.SciteStatus.DOI_MISSING, viewModel.statusProperty().get());
+        assertEquals(
+                CitationsRelationsTabViewModel.SciteStatus.DOI_MISSING,
+                viewModel.statusProperty().get());
     }
 
     @Test
     void updateForNullEntrySetsErrorStatus() {
         viewModel.updateForEntry(null);
-        assertEquals(CitationsRelationsTabViewModel.SciteStatus.ERROR, viewModel.statusProperty().get());
+        assertEquals(
+                CitationsRelationsTabViewModel.SciteStatus.ERROR,
+                viewModel.statusProperty().get());
     }
 
     @Test
     void updateForEntryTransitionFromNoDoiToDoiResetsStatus() {
         BibEntry entryWithoutDoi = new BibEntry(StandardEntryType.Article);
         viewModel.updateForEntry(entryWithoutDoi);
-        assertEquals(CitationsRelationsTabViewModel.SciteStatus.DOI_MISSING, viewModel.statusProperty().get());
+        assertEquals(
+                CitationsRelationsTabViewModel.SciteStatus.DOI_MISSING,
+                viewModel.statusProperty().get());
 
         BibEntry entryWithDoi = new BibEntry(StandardEntryType.Article).withField(StandardField.DOI, "10.1000/182");
         viewModel.updateForEntry(entryWithDoi);
-        assertNotEquals(CitationsRelationsTabViewModel.SciteStatus.DOI_MISSING, viewModel.statusProperty().get());
+        assertNotEquals(
+                CitationsRelationsTabViewModel.SciteStatus.DOI_MISSING,
+                viewModel.statusProperty().get());
     }
 
     @Test

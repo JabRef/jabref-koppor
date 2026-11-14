@@ -1,7 +1,6 @@
 package org.jabref.logic.importer.fetcher;
 
 import java.util.Optional;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.entry.BibEntry;

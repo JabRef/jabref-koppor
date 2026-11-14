@@ -1,7 +1,6 @@
 package org.jabref.logic.bibtex.comparator;
 
 import java.util.Comparator;
-
 import org.jabref.model.entry.BibEntry;
 
 public class BibEntryByCitationKeyComparator implements Comparator<BibEntry> {

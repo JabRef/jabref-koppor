@@ -3,7 +3,6 @@ package org.jabref.logic.layout.format;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.layout.ParamLayoutFormatter;
 import org.jabref.logic.util.strings.HTMLUnicodeConversionMaps;
 import org.jabref.logic.util.strings.StringUtil;
@@ -18,7 +17,8 @@ public class HTMLChars implements ParamLayoutFormatter {
     /// - `&amp;` **Not Matched**
     /// - `&#34;` **Not Matched**
     /// - `&Hey` **Matched**
-    private static final Pattern HTML_ENTITY_PATTERN = Pattern.compile("&(?!(?:[a-z0-9]+|#[0-9]{1,6}|#x[0-9a-fA-F]{1,6});)");
+    private static final Pattern HTML_ENTITY_PATTERN =
+            Pattern.compile("&(?!(?:[a-z0-9]+|#[0-9]{1,6}|#x[0-9a-fA-F]{1,6});)");
 
     private boolean keepCurlyBraces = false;
 
@@ -118,7 +118,13 @@ public class HTMLChars implements ParamLayoutFormatter {
                             i++;
                         }
                         i += part.length();
-                        sb.append('<').append(tag).append('>').append(part).append("</").append(tag).append('>');
+                        sb.append('<')
+                                .append(tag)
+                                .append('>')
+                                .append(part)
+                                .append("</")
+                                .append(tag)
+                                .append('>');
                     } else if (c == '{') {
                         String argument = StringUtil.getPart(field, i, true);
                         i += this.keepCurlyBraces ? argument.length() + 1 : argument.length();
@@ -177,12 +183,14 @@ public class HTMLChars implements ParamLayoutFormatter {
 
     private String normalizedField(String inField) {
         // Cannot use StringEscapeUtils#escapeHtml4 because it does not handle LaTeX characters and commands.
-        return HTML_ENTITY_PATTERN.matcher(inField).replaceAll("&amp;") // Replace & with &amp; if it does not begin an HTML entity
-                                  .replaceAll("\\\\&", "&amp;") // Replace \& with &amp;
-                                  .replaceAll("[\\n]{2,}", "<p>") // Replace double line breaks with <p>
-                                  .replace("\n", "<br>") // Replace single line breaks with <br>
-                                  .replace("\\$", "&dollar;") // Replace \$ with &dollar;
-                                  .replaceAll("\\$([^$]*)\\$", this.keepCurlyBraces ? "\\\\{$1\\\\}" : "$1}");
+        return HTML_ENTITY_PATTERN
+                .matcher(inField)
+                .replaceAll("&amp;") // Replace & with &amp; if it does not begin an HTML entity
+                .replaceAll("\\\\&", "&amp;") // Replace \& with &amp;
+                .replaceAll("[\\n]{2,}", "<p>") // Replace double line breaks with <p>
+                .replace("\n", "<br>") // Replace single line breaks with <br>
+                .replace("\\$", "&dollar;") // Replace \$ with &dollar;
+                .replaceAll("\\$([^$]*)\\$", this.keepCurlyBraces ? "\\\\{$1\\\\}" : "$1}");
     }
 
     private String getHTMLTag(String latexCommand) {

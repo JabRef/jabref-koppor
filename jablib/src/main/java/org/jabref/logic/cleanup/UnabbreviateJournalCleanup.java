@@ -2,7 +2,6 @@ package org.jabref.logic.cleanup;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jabref.logic.journals.Abbreviation;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.model.FieldChange;
@@ -11,7 +10,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.AMSField;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Unabbreviates journal field
@@ -20,7 +18,8 @@ public class UnabbreviateJournalCleanup implements CleanupJob {
     private final JournalAbbreviationRepository journalAbbreviationRepository;
     private final BibDatabase database;
 
-    public UnabbreviateJournalCleanup(BibDatabase database, JournalAbbreviationRepository journalAbbreviationRepository) {
+    public UnabbreviateJournalCleanup(
+            BibDatabase database, JournalAbbreviationRepository journalAbbreviationRepository) {
         this.database = database;
         this.journalAbbreviationRepository = journalAbbreviationRepository;
     }
@@ -65,7 +64,8 @@ public class UnabbreviateJournalCleanup implements CleanupJob {
     }
 
     private List<FieldChange> restoreUnabbreviatedJournalTitleFromFJournal(BibEntry entry, Field field) {
-        if ((StandardField.JOURNAL != field && StandardField.JOURNALTITLE != field) || !entry.hasField(AMSField.FJOURNAL)) {
+        if ((StandardField.JOURNAL != field && StandardField.JOURNALTITLE != field)
+                || !entry.hasField(AMSField.FJOURNAL)) {
             return List.of();
         }
 

@@ -3,7 +3,6 @@ package org.jabref.logic.ai.chatting.exporters;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
-
 import org.jabref.logic.ai.templates.AiTemplateRenderer;
 import org.jabref.logic.bibtex.BibEntryWriter;
 import org.jabref.logic.bibtex.FieldPreferences;
@@ -14,7 +13,6 @@ import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,19 +32,21 @@ public class AiChatMarkdownExporter implements AiChatExporter {
     private final FieldPreferences fieldPreferences;
     private final String markdownExportTemplate;
 
-    public AiChatMarkdownExporter(BibEntryTypesManager entryTypesManager, FieldPreferences fieldPreferences, String markdownExportTemplate) {
+    public AiChatMarkdownExporter(
+            BibEntryTypesManager entryTypesManager, FieldPreferences fieldPreferences, String markdownExportTemplate) {
         this.entryTypesManager = entryTypesManager;
         this.fieldPreferences = fieldPreferences;
         this.markdownExportTemplate = markdownExportTemplate;
     }
 
     @Override
-    public String export(AiMetadata metadata, List<BibEntry> entries, BibDatabaseMode mode, List<ChatMessage> messages) {
+    public String export(
+            AiMetadata metadata, List<BibEntry> entries, BibDatabaseMode mode, List<ChatMessage> messages) {
         String bibtex = concatenateBibtexEntries(entries, mode);
 
         List<ChatMessage> filteredMessages = messages.stream()
-                                                     .filter(msg -> msg.role() != ChatMessage.Role.SYSTEM)
-                                                     .toList();
+                .filter(msg -> msg.role() != ChatMessage.Role.SYSTEM)
+                .toList();
 
         return AiTemplateRenderer.renderMarkdownChatExport(markdownExportTemplate, metadata, bibtex, filteredMessages);
     }

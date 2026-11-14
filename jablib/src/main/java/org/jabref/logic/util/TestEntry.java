@@ -1,15 +1,13 @@
 package org.jabref.logic.util;
 
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 
 public class TestEntry {
 
-    private TestEntry() {
-    }
+    private TestEntry() {}
 
     public static BibEntry getTestEntry() {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
@@ -29,14 +27,17 @@ public class TestEntry {
                 .withField(StandardField.ADDRESS, "Trondheim")
                 .withField(StandardField.URL, "https://github.com/JabRef")
                 .withField(StandardField.DOI, "10.1001/bla.blubb")
-                .withField(StandardField.ABSTRACT,
-                        "This entry describes a test scenario which may be useful in JabRef. By providing a test entry it is possible to see how certain things will look in this graphical BIB-file mananger.")
+                .withField(
+                        StandardField.ABSTRACT,
+                        "This entry describes a test scenario which may be useful in JabRef. By providing a test entry"
+                                + " it is possible to see how certain things will look in this graphical BIB-file"
+                                + " mananger.")
                 .withField(StandardField.COMMENT, """
-                        Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et
-                          dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat.
-                          Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non
-                          proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                        """);
+                    Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et
+                      dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat.
+                      Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non
+                      proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                    """);
         entry.putKeywords(List.of("KeyWord1", "KeyWord2", "KeyWord3", "Keyword4"), ';');
         return entry;
     }

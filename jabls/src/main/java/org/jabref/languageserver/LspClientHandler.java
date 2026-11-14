@@ -1,15 +1,6 @@
 package org.jabref.languageserver;
 
 import java.util.concurrent.CompletableFuture;
-
-import org.jabref.languageserver.util.LspDiagnosticHandler;
-import org.jabref.languageserver.util.LspLinkHandler;
-import org.jabref.languageserver.util.LspParserHandler;
-import org.jabref.logic.journals.JournalAbbreviationRepository;
-import org.jabref.logic.preferences.CliPreferences;
-import org.jabref.logic.remote.server.RemoteMessageHandler;
-import org.jabref.model.entry.BibEntryTypesManager;
-
 import org.eclipse.lsp4j.DocumentLinkOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
@@ -24,6 +15,13 @@ import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.jabref.languageserver.util.LspDiagnosticHandler;
+import org.jabref.languageserver.util.LspLinkHandler;
+import org.jabref.languageserver.util.LspParserHandler;
+import org.jabref.logic.journals.JournalAbbreviationRepository;
+import org.jabref.logic.preferences.CliPreferences;
+import org.jabref.logic.remote.server.RemoteMessageHandler;
+import org.jabref.model.entry.BibEntryTypesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,17 +40,27 @@ public class LspClientHandler implements LanguageServer, LanguageClientAware {
     private LanguageClient client;
     private boolean standalone = false;
 
-    public LspClientHandler(RemoteMessageHandler messageHandler, CliPreferences cliPreferences, JournalAbbreviationRepository abbreviationRepository, BibEntryTypesManager bibEntryTypesManager) {
+    public LspClientHandler(
+            RemoteMessageHandler messageHandler,
+            CliPreferences cliPreferences,
+            JournalAbbreviationRepository abbreviationRepository,
+            BibEntryTypesManager bibEntryTypesManager) {
         this.settings = ExtensionSettings.getDefaultSettings();
         this.parserHandler = new LspParserHandler();
-        this.diagnosticHandler = new LspDiagnosticHandler(this, parserHandler, cliPreferences, abbreviationRepository, bibEntryTypesManager);
+        this.diagnosticHandler = new LspDiagnosticHandler(
+                this, parserHandler, cliPreferences, abbreviationRepository, bibEntryTypesManager);
         this.linkHandler = new LspLinkHandler(this, parserHandler, cliPreferences.getFilePreferences());
         this.workspaceService = new BibtexWorkspaceService(this, diagnosticHandler);
         this.textDocumentService = new BibtexTextDocumentService(messageHandler, this, diagnosticHandler, linkHandler);
         this.messageHandler = messageHandler;
     }
 
-    public LspClientHandler(RemoteMessageHandler messageHandler, CliPreferences cliPreferences, JournalAbbreviationRepository abbreviationRepository, BibEntryTypesManager bibEntryTypesManager, boolean standalone) {
+    public LspClientHandler(
+            RemoteMessageHandler messageHandler,
+            CliPreferences cliPreferences,
+            JournalAbbreviationRepository abbreviationRepository,
+            BibEntryTypesManager bibEntryTypesManager,
+            boolean standalone) {
         this(messageHandler, cliPreferences, abbreviationRepository, bibEntryTypesManager);
         this.standalone = standalone;
     }

@@ -1,11 +1,10 @@
 package org.jabref.gui.preferences.external;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @NullMarked
 class ExternalTabViewModelTest {
@@ -15,9 +14,10 @@ class ExternalTabViewModelTest {
         assertEquals(
                 List.of("/usr/bin/gnome-terminal", "--title=O'Brien's Library", "--working-directory=%DIR%"),
                 ExternalTabViewModel.toCommandArguments("""
-                        /usr/bin/gnome-terminal
-                        --title=O'Brien's Library
-                        --working-directory=%DIR%"""));
+                    /usr/bin/gnome-terminal
+                    --title=O'Brien's Library
+                    --working-directory=%DIR%\
+                    """));
     }
 
     @Test

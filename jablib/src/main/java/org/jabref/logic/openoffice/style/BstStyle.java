@@ -5,10 +5,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import org.jabref.logic.bst.BstVM;
-
 import org.antlr.v4.runtime.misc.ParseCancellationException;
+import org.jabref.logic.bst.BstVM;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -37,11 +35,14 @@ public class BstStyle implements OOStyle {
     private final BstVM bstVM;
     private final boolean hasSortCommand;
 
-    private BstStyle(@Nullable String resourcePath, @Nullable Path filePath, boolean internal, String source, BstVM bstVM) {
+    private BstStyle(
+            @Nullable String resourcePath, @Nullable Path filePath, boolean internal, String source, BstVM bstVM) {
         this.internal = internal;
         this.resourcePath = resourcePath;
         this.filePath = filePath;
-        String filename = internal ? Path.of(resourcePath).getFileName().toString() : filePath.getFileName().toString();
+        String filename = internal
+                ? Path.of(resourcePath).getFileName().toString()
+                : filePath.getFileName().toString();
         this.name = stripBstExtension(filename);
         this.source = source;
         this.bstVM = bstVM;

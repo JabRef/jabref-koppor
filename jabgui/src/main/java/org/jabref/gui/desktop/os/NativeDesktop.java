@@ -1,5 +1,11 @@
 package org.jabref.gui.desktop.os;
 
+import static org.jabref.model.entry.field.StandardField.PDF;
+import static org.jabref.model.entry.field.StandardField.PS;
+import static org.jabref.model.entry.field.StandardField.URL;
+
+import com.airhacks.afterburner.injection.Injector;
+import com.google.common.annotations.VisibleForTesting;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
@@ -11,7 +17,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
-
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.clipboard.ClipBoardManager;
@@ -36,23 +41,19 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.identifier.Identifier;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.LoggerFactory;
 
-import static org.jabref.model.entry.field.StandardField.PDF;
-import static org.jabref.model.entry.field.StandardField.PS;
-import static org.jabref.model.entry.field.StandardField.URL;
-
-/// This class contains bundles OS specific implementations for file directories and file/application open handling methods.
+/// This class contains bundles OS specific implementations for file directories and file/application open handling
+/// methods.
 /// In case the default does not work, subclasses provide the correct behavior.
 ///
-/// We cannot use a static logger instance here in this class as the Logger first needs to be configured in the [JabKit#initLogging].
+/// We cannot use a static logger instance here in this class as the Logger first needs to be configured in the
+/// [JabKit#initLogging].
 /// The configuration of tinylog will become immutable as soon as the first log entry is issued.
 /// https://tinylog.org/v2/configuration/
 ///
-/// See https://stackoverflow.com/questions/18004150/desktop-api-is-not-supported-on-the-current-platform for more implementation hints.
+/// See https://stackoverflow.com/questions/18004150/desktop-api-is-not-supported-on-the-current-platform for more
+/// implementation hints.
 /// https://docs.oracle.com/javase/7/docs/api/java/awt/Desktop.html cannot be used as we don't want to rely on AWT.
 ///
 /// For non-GUI things, see [org.jabref.logic.os.OS].
@@ -66,12 +67,13 @@ public abstract class NativeDesktop {
     /// Open a http/pdf/ps viewer for the given link string.
     ///
     /// Opening a PDF file at the file field is done at [org.jabref.gui.fieldeditors.LinkedFileViewModel#open]
-    public static void openExternalViewer(BibDatabaseContext databaseContext,
-                                          GuiPreferences preferences,
-                                          String initialLink,
-                                          Field initialField,
-                                          DialogService dialogService,
-                                          BibEntry entry)
+    public static void openExternalViewer(
+            BibDatabaseContext databaseContext,
+            GuiPreferences preferences,
+            String initialLink,
+            Field initialField,
+            DialogService dialogService,
+            BibEntry entry)
             throws IOException {
         String link = initialLink;
         Field field = initialField;
@@ -106,18 +108,22 @@ public abstract class NativeDesktop {
         } else if (StandardField.EPRINT == field) {
             IdentifierParser identifierParser = new IdentifierParser(entry);
 
-            link = identifierParser.parse(StandardField.EPRINT)
-                                   .flatMap(Identifier::getExternalURI)
-                                   .map(URI::toASCIIString)
-                                   .orElse(link);
+            link = identifierParser
+                    .parse(StandardField.EPRINT)
+                    .flatMap(Identifier::getExternalURI)
+                    .map(URI::toASCIIString)
+                    .orElse(link);
 
             if (Objects.equals(link, initialLink)) {
                 Optional<String> eprintTypeOpt = entry.getField(StandardField.EPRINTTYPE);
                 Optional<String> archivePrefixOpt = entry.getField(StandardField.ARCHIVEPREFIX);
                 if (eprintTypeOpt.isEmpty() && archivePrefixOpt.isEmpty()) {
-                    dialogService.showErrorDialogAndWait(Localization.lang("Unable to open linked eprint. Please set the eprinttype field"));
+                    dialogService.showErrorDialogAndWait(
+                            Localization.lang("Unable to open linked eprint. Please set the eprinttype field"));
                 } else {
-                    dialogService.showErrorDialogAndWait(Localization.lang("Unable to open linked eprint. Please verify that the eprint field has a valid '%0' id", link));
+                    dialogService.showErrorDialogAndWait(Localization.lang(
+                            "Unable to open linked eprint. Please verify that the eprint field has a valid '%0' id",
+                            link));
                 }
             }
             // should be opened in browser
@@ -125,8 +131,7 @@ public abstract class NativeDesktop {
         }
 
         switch (field) {
-            case URL ->
-                    openBrowser(link, preferences.getExternalApplicationsPreferences());
+            case URL -> openBrowser(link, preferences.getExternalApplicationsPreferences());
             case PS -> {
                 try {
                     get().openFile(link, PS.getName(), preferences.getExternalApplicationsPreferences());
@@ -141,9 +146,9 @@ public abstract class NativeDesktop {
                     LoggerFactory.getLogger(NativeDesktop.class).error("An error occurred on the command: {}", link, e);
                 }
             }
-            case null,
-                 default ->
-                    LoggerFactory.getLogger(NativeDesktop.class).info("Message: currently only PDF, PS and HTML files can be opened by double clicking");
+            case null, default ->
+                LoggerFactory.getLogger(NativeDesktop.class)
+                        .info("Message: currently only PDF, PS and HTML files can be opened by double clicking");
         }
     }
 
@@ -154,14 +159,15 @@ public abstract class NativeDesktop {
 
     public static void openCustomDoi(String link, GuiPreferences preferences, DialogService dialogService) {
         DOI.parse(link)
-           .flatMap(doi -> doi.getExternalURIWithCustomBase(preferences.getDOIPreferences().getDefaultBaseURI()))
-           .ifPresent(uri -> {
-               try {
-                   openBrowser(uri, preferences.getExternalApplicationsPreferences());
-               } catch (IOException e) {
-                   dialogService.showErrorDialogAndWait(Localization.lang("Unable to open link."), e);
-               }
-           });
+                .flatMap(doi -> doi.getExternalURIWithCustomBase(
+                        preferences.getDOIPreferences().getDefaultBaseURI()))
+                .ifPresent(uri -> {
+                    try {
+                        openBrowser(uri, preferences.getExternalApplicationsPreferences());
+                    } catch (IOException e) {
+                        dialogService.showErrorDialogAndWait(Localization.lang("Unable to open link."), e);
+                    }
+                });
     }
 
     private static void openIsbn(String isbn, GuiPreferences preferences) throws IOException {
@@ -175,11 +181,13 @@ public abstract class NativeDesktop {
     /// @param databaseContext The database this file belongs to.
     /// @param link            The filename.
     /// @return false if the link couldn't be resolved, true otherwise.
-    public static boolean openExternalFileAnyFormat(final BibDatabaseContext databaseContext,
-                                                    ExternalApplicationsPreferences externalApplicationsPreferences,
-                                                    FilePreferences filePreferences,
-                                                    String link,
-                                                    final Optional<ExternalFileType> type) throws IOException {
+    public static boolean openExternalFileAnyFormat(
+            final BibDatabaseContext databaseContext,
+            ExternalApplicationsPreferences externalApplicationsPreferences,
+            FilePreferences filePreferences,
+            String link,
+            final Optional<ExternalFileType> type)
+            throws IOException {
         if (REMOTE_LINK_PATTERN.matcher(link.toLowerCase(Locale.ROOT)).matches()) {
             openBrowser(link, externalApplicationsPreferences);
             return true;
@@ -194,9 +202,10 @@ public abstract class NativeDesktop {
         return true;
     }
 
-    private static void openExternalFilePlatformIndependent(Optional<ExternalFileType> fileType,
-                                                            String filePath,
-                                                            ExternalApplicationsPreferences externalApplicationsPreferences)
+    private static void openExternalFilePlatformIndependent(
+            Optional<ExternalFileType> fileType,
+            String filePath,
+            ExternalApplicationsPreferences externalApplicationsPreferences)
             throws IOException {
         if (fileType.isPresent()) {
             String application = fileType.get().getOpenWithApplication();
@@ -217,9 +226,9 @@ public abstract class NativeDesktop {
     ///
     /// @param fileLink the location of the file
     /// @throws IOException if the default file browser cannot be opened
-    public static void openFolderAndSelectFile(Path fileLink,
-                                               ExternalApplicationsPreferences externalApplicationsPreferences,
-                                               DialogService dialogService) throws IOException {
+    public static void openFolderAndSelectFile(
+            Path fileLink, ExternalApplicationsPreferences externalApplicationsPreferences, DialogService dialogService)
+            throws IOException {
         if (fileLink == null) {
             return;
         }
@@ -242,14 +251,16 @@ public abstract class NativeDesktop {
     /// Opens a new console starting on the given file location
     ///
     /// @param file Location the console should be opened at.
-    public static void openConsole(Path file, GuiPreferences preferences, DialogService dialogService) throws IOException {
+    public static void openConsole(Path file, GuiPreferences preferences, DialogService dialogService)
+            throws IOException {
         if (file == null) {
             return;
         }
 
         String absolutePath = file.toAbsolutePath().getParent().toString();
 
-        boolean useCustomTerminal = preferences.getExternalApplicationsPreferences().useCustomTerminal();
+        boolean useCustomTerminal =
+                preferences.getExternalApplicationsPreferences().useCustomTerminal();
         if (!useCustomTerminal) {
             get().openConsole(absolutePath, dialogService);
             return;
@@ -257,7 +268,8 @@ public abstract class NativeDesktop {
         List<String> command = preferences.getExternalApplicationsPreferences().getCustomTerminalCommand();
         if (command.isEmpty() || command.getFirst().isBlank()) {
             get().openConsole(absolutePath, dialogService);
-            LoggerFactory.getLogger(NativeDesktop.class).info("Preference for custom terminal is empty. Using default terminal.");
+            LoggerFactory.getLogger(NativeDesktop.class)
+                    .info("Preference for custom terminal is empty. Using default terminal.");
             return;
         }
         executeCommand(command, absolutePath, dialogService);
@@ -274,21 +286,25 @@ public abstract class NativeDesktop {
             processBuilder.directory(Path.of(absolutePath).toFile());
             Process process = processBuilder.start();
 
-            StreamGobbler streamGobblerInput = new StreamGobbler(process.getInputStream(), LoggerFactory.getLogger(NativeDesktop.class)::debug);
-            StreamGobbler streamGobblerError = new StreamGobbler(process.getErrorStream(), LoggerFactory.getLogger(NativeDesktop.class)::debug);
+            StreamGobbler streamGobblerInput =
+                    new StreamGobbler(process.getInputStream(), LoggerFactory.getLogger(NativeDesktop.class)::debug);
+            StreamGobbler streamGobblerError =
+                    new StreamGobbler(process.getErrorStream(), LoggerFactory.getLogger(NativeDesktop.class)::debug);
 
             HeadlessExecutorService.INSTANCE.execute(streamGobblerInput);
             HeadlessExecutorService.INSTANCE.execute(streamGobblerError);
         } catch (IOException exception) {
             LoggerFactory.getLogger(NativeDesktop.class).error("Error during command execution", exception);
-            dialogService.notify(Localization.lang("Error occurred while executing the command \"%0\".", String.join(" ", subcommands)));
+            dialogService.notify(Localization.lang(
+                    "Error occurred while executing the command \"%0\".", String.join(" ", subcommands)));
         }
     }
 
     /// Opens the given URL using the system browser
     ///
     /// @param url the URL to open
-    public static void openBrowser(String url, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException {
+    public static void openBrowser(String url, ExternalApplicationsPreferences externalApplicationsPreferences)
+            throws IOException {
         openBrowser(url, externalApplicationsPreferences, _ -> {
             // Terminal failure is already logged where it is caught
         });
@@ -298,14 +314,25 @@ public abstract class NativeDesktop {
     ///
     /// @param url            the URL to open
     /// @param onAsyncFailure invoked (from a background thread) when opening fails after this
-    ///                                                                                         method has already returned; synchronous failures throw instead
-    public static void openBrowser(String url, ExternalApplicationsPreferences externalApplicationsPreferences, Consumer<IOException> onAsyncFailure) throws IOException {
+    ///                                                                                         method has already
+    /// returned; synchronous failures throw instead
+    public static void openBrowser(
+            String url,
+            ExternalApplicationsPreferences externalApplicationsPreferences,
+            Consumer<IOException> onAsyncFailure)
+            throws IOException {
         openBrowser(url, externalApplicationsPreferences, onAsyncFailure, get());
     }
 
     @VisibleForTesting
-    static void openBrowser(String url, ExternalApplicationsPreferences externalApplicationsPreferences, Consumer<IOException> onAsyncFailure, NativeDesktop desktop) throws IOException {
-        Optional<ExternalFileType> fileType = ExternalFileTypes.getExternalFileTypeByExt("html", externalApplicationsPreferences);
+    static void openBrowser(
+            String url,
+            ExternalApplicationsPreferences externalApplicationsPreferences,
+            Consumer<IOException> onAsyncFailure,
+            NativeDesktop desktop)
+            throws IOException {
+        Optional<ExternalFileType> fileType =
+                ExternalFileTypes.getExternalFileTypeByExt("html", externalApplicationsPreferences);
         if (fileType.isPresent() && !fileType.get().getOpenWithApplication().isEmpty()) {
             // The user configured a custom browser; hand it the URL string unmodified
             desktop.openFileWithApplication(url, fileType.get().getOpenWithApplication());
@@ -318,7 +345,8 @@ public abstract class NativeDesktop {
             uri = URLUtil.createUri(url);
         } catch (IllegalArgumentException e) {
             // Not URI-parseable (e.g. unencoded spaces); the OS URL handlers accept the raw string
-            LoggerFactory.getLogger(NativeDesktop.class).debug("Could not parse {} as URI, falling back to the OS URL handler", url, e);
+            LoggerFactory.getLogger(NativeDesktop.class)
+                    .debug("Could not parse {} as URI, falling back to the OS URL handler", url, e);
             desktop.openUrlWithSystemHandler(url);
             return;
         }
@@ -329,7 +357,8 @@ public abstract class NativeDesktop {
                 try {
                     desktop.desktopBrowse(uri);
                 } catch (IOException e) {
-                    LoggerFactory.getLogger(NativeDesktop.class).warn("Desktop.browse failed for {}, falling back to the OS URL handler", url, e);
+                    LoggerFactory.getLogger(NativeDesktop.class)
+                            .warn("Desktop.browse failed for {}, falling back to the OS URL handler", url, e);
                     try {
                         desktop.openUrlWithSystemHandler(url);
                     } catch (IOException e2) {
@@ -353,17 +382,23 @@ public abstract class NativeDesktop {
         Desktop.getDesktop().browse(uri);
     }
 
-    public static void openBrowser(URI url, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException {
+    public static void openBrowser(URI url, ExternalApplicationsPreferences externalApplicationsPreferences)
+            throws IOException {
         openBrowser(url.toASCIIString(), externalApplicationsPreferences);
     }
 
-    /// Opens the url with the users standard Browser. If that fails a popup will be shown to instruct the user to open the link manually and the link gets copied to the clipboard
+    /// Opens the url with the users standard Browser. If that fails a popup will be shown to instruct the user to open
+    /// the link manually and the link gets copied to the clipboard
     ///
     /// @param url the URL to open
-    public static void openBrowserShowPopup(String url, DialogService dialogService, ExternalApplicationsPreferences externalApplicationsPreferences) {
+    public static void openBrowserShowPopup(
+            String url, DialogService dialogService, ExternalApplicationsPreferences externalApplicationsPreferences) {
         try {
-            openBrowser(url, externalApplicationsPreferences,
-                    exception -> UiTaskExecutor.runInJavaFXThread(() -> showManualOpenPopup(url, dialogService, exception)));
+            openBrowser(
+                    url,
+                    externalApplicationsPreferences,
+                    exception ->
+                            UiTaskExecutor.runInJavaFXThread(() -> showManualOpenPopup(url, dialogService, exception)));
         } catch (IOException exception) {
             showManualOpenPopup(url, dialogService, exception);
         }
@@ -377,7 +412,8 @@ public abstract class NativeDesktop {
         String openManually = Localization.lang("Please open %0 manually.", url);
         String copiedToClipboard = Localization.lang("The link has been copied to the clipboard.");
         dialogService.notify(couldNotOpenBrowser);
-        dialogService.showErrorDialogAndWait(couldNotOpenBrowser, couldNotOpenBrowser + "\n" + openManually + "\n" + copiedToClipboard);
+        dialogService.showErrorDialogAndWait(
+                couldNotOpenBrowser, couldNotOpenBrowser + "\n" + openManually + "\n" + copiedToClipboard);
     }
 
     public static NativeDesktop get() {
@@ -391,7 +427,9 @@ public abstract class NativeDesktop {
         return new DefaultDesktop();
     }
 
-    public abstract void openFile(String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException;
+    public abstract void openFile(
+            String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences)
+            throws IOException;
 
     /// Hands the URL string, unmodified, to the OS's URL-aware handler.
     /// Used when `Desktop.browse` is unsupported, not applicable, or failed;
@@ -427,7 +465,8 @@ public abstract class NativeDesktop {
 
     /// Moves the given file to the trash.
     ///
-    /// @throws UnsupportedOperationException if the current platform does not support the [Desktop.Action#MOVE_TO_TRASH] action
+    /// @throws UnsupportedOperationException if the current platform does not support the
+    /// [Desktop.Action#MOVE_TO_TRASH] action
     /// @see Desktop#moveToTrash(java.io.File)
     public void moveToTrash(Path path) {
         boolean success = Desktop.getDesktop().moveToTrash(path.toFile());

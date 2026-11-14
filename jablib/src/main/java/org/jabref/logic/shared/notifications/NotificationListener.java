@@ -1,14 +1,12 @@
 package org.jabref.logic.shared.notifications;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import org.jabref.logic.shared.DBMSSynchronizer;
-import org.jabref.logic.shared.DatabaseConnection;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import org.jabref.logic.shared.DBMSSynchronizer;
+import org.jabref.logic.shared.DatabaseConnection;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.postgresql.PGConnection;
@@ -38,7 +36,8 @@ public class NotificationListener implements Runnable {
     private volatile @Nullable Connection connection;
     private volatile @Nullable PGConnection pgConnection;
 
-    public NotificationListener(DBMSSynchronizer dbmsSynchronizer, DatabaseConnection dbmsConnection, String processorId) {
+    public NotificationListener(
+            DBMSSynchronizer dbmsSynchronizer, DatabaseConnection dbmsConnection, String processorId) {
         this.dbmsSynchronizer = dbmsSynchronizer;
         this.dbmsConnection = dbmsConnection;
         this.processorId = processorId;
@@ -91,7 +90,11 @@ public class NotificationListener implements Runnable {
                 if (consecutiveFailures == 1) {
                     LOGGER.warn("Error while listening for shared database updates - reconnecting", exception);
                 } else {
-                    LOGGER.debug("Reconnecting the shared database listener in {} ms (attempt {})", delayMillis, consecutiveFailures, exception);
+                    LOGGER.debug(
+                            "Reconnecting the shared database listener in {} ms (attempt {})",
+                            delayMillis,
+                            consecutiveFailures,
+                            exception);
                 }
                 try {
                     Thread.sleep(delayMillis);

@@ -1,15 +1,16 @@
 package org.jabref.model.undo;
 
 import java.util.Objects;
-
 import org.jabref.model.database.BibDatabase;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 /// A change of the library preamble. A `null` value means no preamble is set.
 @NullMarked
-public record UndoablePreambleChange(BibDatabase database, @Nullable String before, @Nullable String after) implements BibChange {
+public record UndoablePreambleChange(
+        BibDatabase database,
+        @Nullable String before,
+        @Nullable String after) implements BibChange {
 
     @Override
     public UndoablePreambleChange inverted() {

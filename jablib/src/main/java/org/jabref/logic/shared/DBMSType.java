@@ -20,7 +20,9 @@ public enum DBMSType {
     }
 
     public static Optional<DBMSType> fromString(String typeName) {
-        return Arrays.stream(DBMSType.values()).filter(dbmsType -> dbmsType.type.equalsIgnoreCase(typeName)).findAny();
+        return Arrays.stream(DBMSType.values())
+                .filter(dbmsType -> dbmsType.type.equalsIgnoreCase(typeName))
+                .findAny();
     }
 
     @Override

@@ -1,7 +1,6 @@
 package org.jabref.logic.bibtex.comparator.plausibility;
 
 import java.util.Optional;
-
 import org.jabref.logic.bibtex.comparator.ComparisonResult;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.Date;
@@ -9,8 +8,7 @@ import org.jabref.model.entry.Date;
 public class DateFieldPlausibilityComparator implements FieldValuePlausibilityComparator {
 
     // Only {@link PlausibilityComparatorFactory} may instantiate this
-    DateFieldPlausibilityComparator() {
-    }
+    DateFieldPlausibilityComparator() {}
 
     /// Compares the plausibility of two field values.
     ///

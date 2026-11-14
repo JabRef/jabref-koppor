@@ -1,14 +1,13 @@
 package org.jabref.logic.search;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.search.sqlbased.LuceneIndexer;
 import org.jabref.logic.search.sqlbased.indexing.DefaultLinkedFilesIndexer;
@@ -24,8 +23,6 @@ import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResults;
-
-import com.google.common.base.Strings;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -49,14 +46,18 @@ public class LinkedFilesIndexManager {
     /// Set from re-enabling indexing until the index left over from before disabling has been cleared.
     private final AtomicBoolean staleIndex = new AtomicBoolean(false);
 
-    private record FileDelta(long generation, String oldValue, String newValue) {
-    }
+    private record FileDelta(long generation, String oldValue, String newValue) {}
 
-    public LinkedFilesIndexManager(BibDatabaseContext databaseContext, TaskExecutor taskExecutor, FilePreferences filePreferences) {
+    public LinkedFilesIndexManager(
+            BibDatabaseContext databaseContext, TaskExecutor taskExecutor, FilePreferences filePreferences) {
         this(databaseContext, taskExecutor, filePreferences, createIndexer(databaseContext, filePreferences));
     }
 
-    LinkedFilesIndexManager(BibDatabaseContext databaseContext, TaskExecutor taskExecutor, FilePreferences filePreferences, LuceneIndexer indexer) {
+    LinkedFilesIndexManager(
+            BibDatabaseContext databaseContext,
+            TaskExecutor taskExecutor,
+            FilePreferences filePreferences,
+            LuceneIndexer indexer) {
         this.taskExecutor = taskExecutor;
         this.indexingTasks = new SerialBackgroundTaskGroup(taskExecutor);
         this.shouldIndexLinkedFiles = filePreferences.fulltextIndexLinkedFilesProperty();
@@ -154,8 +155,12 @@ public class LinkedFilesIndexManager {
             return;
         }
         @Nullable FileDelta fileValues = pendingFileValuesByEntry.get(entryId);
-        if (fileValues != null && fileValues.generation() == generation && pendingFileValuesByEntry.remove(entryId, fileValues)) {
-            runIndexingTask(generation, task -> linkedFilesIndexer.updateEntry(entry, fileValues.oldValue(), fileValues.newValue(), task));
+        if (fileValues != null
+                && fileValues.generation() == generation
+                && pendingFileValuesByEntry.remove(entryId, fileValues)) {
+            runIndexingTask(
+                    generation,
+                    task -> linkedFilesIndexer.updateEntry(entry, fileValues.oldValue(), fileValues.newValue(), task));
         }
     }
 

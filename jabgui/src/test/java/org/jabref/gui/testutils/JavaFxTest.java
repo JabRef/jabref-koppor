@@ -1,7 +1,6 @@
 package org.jabref.gui.testutils;
 
 import javafx.stage.Stage;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -10,8 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(JavaFxExtension.class)
 public abstract class JavaFxTest {
 
-    public void start(Stage stage) {
-    }
+    public void start(Stage stage) {}
 
     protected final void interact(Runnable action) {
         JavaFxExtension.invokeAndWait(action);

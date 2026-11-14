@@ -1,9 +1,9 @@
 package org.jabref.logic.shared;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
+import org.junit.jupiter.api.Test;
 
 class SharedDatabaseIdentityTest {
 
@@ -34,8 +34,15 @@ class SharedDatabaseIdentityTest {
 
     @Test
     void toleratesMissingHost() {
-        DBMSConnectionProperties withoutHost = new DBMSConnectionPropertiesBuilder().setType(DBMSType.POSTGRESQL).setDatabase("jabref").createDBMSConnectionProperties();
-        DBMSConnectionProperties withHost = new DBMSConnectionPropertiesBuilder().setType(DBMSType.POSTGRESQL).setHost("localhost").setDatabase("jabref").createDBMSConnectionProperties();
+        DBMSConnectionProperties withoutHost = new DBMSConnectionPropertiesBuilder()
+                .setType(DBMSType.POSTGRESQL)
+                .setDatabase("jabref")
+                .createDBMSConnectionProperties();
+        DBMSConnectionProperties withHost = new DBMSConnectionPropertiesBuilder()
+                .setType(DBMSType.POSTGRESQL)
+                .setHost("localhost")
+                .setDatabase("jabref")
+                .createDBMSConnectionProperties();
 
         assertEquals(SharedDatabaseIdentity.from(withoutHost), SharedDatabaseIdentity.from(withoutHost));
         assertNotEquals(SharedDatabaseIdentity.from(withoutHost), SharedDatabaseIdentity.from(withHost));

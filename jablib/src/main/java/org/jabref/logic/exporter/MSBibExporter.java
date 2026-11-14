@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -12,12 +11,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import org.jabref.logic.msbib.MSBibDatabase;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NonNull;
 
 /// TemplateExporter for exporting in MSBIB XML format.
@@ -31,9 +28,8 @@ class MSBibExporter extends Exporter {
     }
 
     @Override
-    public void export(@NonNull BibDatabaseContext databaseContext,
-                       @NonNull Path file,
-                       @NonNull List<BibEntry> entries) throws SaveException {
+    public void export(@NonNull BibDatabaseContext databaseContext, @NonNull Path file, @NonNull List<BibEntry> entries)
+            throws SaveException {
         if (entries.isEmpty()) {
             return;
         }

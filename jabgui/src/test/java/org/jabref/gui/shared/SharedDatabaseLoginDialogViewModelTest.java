@@ -1,13 +1,23 @@
 package org.jabref.gui.shared;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.prefs.BackingStoreException;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.LibraryTabContainer;
@@ -25,23 +35,10 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /// The stored connections are mocks and the keyring is reported unavailable, so neither the user's preferences
 /// nor the system keyring are touched.
@@ -55,7 +52,8 @@ class SharedDatabaseLoginDialogViewModelTest {
     private final ObservableList<LibraryTab> libraryTabs = FXCollections.observableArrayList();
     private final DialogService dialogService = mock(DialogService.class);
     private final GuiPreferences preferences = mock(GuiPreferences.class);
-    private final ObservableList<String> lastSharedDatabasesOpened = FXCollections.observableArrayList("stored", "duplicate", "unrelated");
+    private final ObservableList<String> lastSharedDatabasesOpened =
+            FXCollections.observableArrayList("stored", "duplicate", "unrelated");
 
     private SharedDatabaseLoginDialogViewModel viewModel;
 
@@ -77,10 +75,13 @@ class SharedDatabaseLoginDialogViewModelTest {
         when(preferences.getLastFilesOpenedPreferences()).thenReturn(lastFilesOpenedPreferences);
 
         viewModel = createViewModel(() -> false, mock(TaskExecutor.class));
-        viewModel.selectedSavedConnectionProperty().set(viewModel.getSavedConnections().getFirst());
+        viewModel
+                .selectedSavedConnectionProperty()
+                .set(viewModel.getSavedConnections().getFirst());
     }
 
-    private SharedDatabaseLoginDialogViewModel createViewModel(BooleanSupplier keyringAvailability, TaskExecutor taskExecutor) {
+    private SharedDatabaseLoginDialogViewModel createViewModel(
+            BooleanSupplier keyringAvailability, TaskExecutor taskExecutor) {
         return new SharedDatabaseLoginDialogViewModel(
                 tabContainer,
                 dialogService,
@@ -116,7 +117,9 @@ class SharedDatabaseLoginDialogViewModelTest {
         when(storedConnection.getRememberPassword()).thenReturn(true);
         SharedDatabaseLoginDialogViewModel keyringViewModel = createViewModel(() -> true, mock(TaskExecutor.class));
 
-        keyringViewModel.selectedSavedConnectionProperty().set(keyringViewModel.getSavedConnections().getFirst());
+        keyringViewModel
+                .selectedSavedConnectionProperty()
+                .set(keyringViewModel.getSavedConnections().getFirst());
 
         assertTrue(keyringViewModel.passwordLoadingProperty().get());
     }
@@ -125,17 +128,23 @@ class SharedDatabaseLoginDialogViewModelTest {
     void storedPasswordIsFilledInOnceRead() {
         when(storedConnection.getRememberPassword()).thenReturn(true);
         when(storedConnection.getPassword()).thenReturn(Optional.of("secret"));
-        SharedDatabaseLoginDialogViewModel keyringViewModel = createViewModel(() -> true, new CurrentThreadTaskExecutor());
+        SharedDatabaseLoginDialogViewModel keyringViewModel =
+                createViewModel(() -> true, new CurrentThreadTaskExecutor());
 
-        keyringViewModel.selectedSavedConnectionProperty().set(keyringViewModel.getSavedConnections().getFirst());
+        keyringViewModel
+                .selectedSavedConnectionProperty()
+                .set(keyringViewModel.getSavedConnections().getFirst());
 
         assertEquals("secret", keyringViewModel.passwordProperty().get());
         assertFalse(keyringViewModel.passwordLoadingProperty().get());
     }
 
     /// Selects the stored connection in a dialog whose keyring read only finishes when the returned task is completed
-    private BackgroundTask<Optional<String>> selectWithPendingPasswordRead(SharedDatabaseLoginDialogViewModel keyringViewModel, TaskExecutor taskExecutor) {
-        keyringViewModel.selectedSavedConnectionProperty().set(keyringViewModel.getSavedConnections().getFirst());
+    private BackgroundTask<Optional<String>> selectWithPendingPasswordRead(
+            SharedDatabaseLoginDialogViewModel keyringViewModel, TaskExecutor taskExecutor) {
+        keyringViewModel
+                .selectedSavedConnectionProperty()
+                .set(keyringViewModel.getSavedConnections().getFirst());
         ArgumentCaptor<BackgroundTask<Optional<String>>> passwordRead = ArgumentCaptor.captor();
         verify(taskExecutor, atLeastOnce()).execute(passwordRead.capture());
         return passwordRead.getValue();
@@ -190,7 +199,9 @@ class SharedDatabaseLoginDialogViewModelTest {
         viewModel.selectedSavedConnectionProperty().set(null);
         viewModel.portProperty().set("6543");
 
-        viewModel.selectedSavedConnectionProperty().set(viewModel.getSavedConnections().getFirst());
+        viewModel
+                .selectedSavedConnectionProperty()
+                .set(viewModel.getSavedConnections().getFirst());
 
         assertEquals("5432", viewModel.portProperty().get());
     }
@@ -232,11 +243,13 @@ class SharedDatabaseLoginDialogViewModelTest {
 
         viewModel.removeSavedConnection();
 
-        assertEquals(List.of(false, false, false, ""), List.of(
-                viewModel.useSSLProperty().get(),
-                viewModel.rememberPasswordProperty().get(),
-                viewModel.autosaveProperty().get(),
-                viewModel.folderProperty().get()));
+        assertEquals(
+                List.of(false, false, false, ""),
+                List.of(
+                        viewModel.useSSLProperty().get(),
+                        viewModel.rememberPasswordProperty().get(),
+                        viewModel.autosaveProperty().get(),
+                        viewModel.folderProperty().get()));
     }
 
     /// The settings of a removed node can no longer be read
@@ -284,7 +297,11 @@ class SharedDatabaseLoginDialogViewModelTest {
 
         viewModel.removeSavedConnection();
 
-        assertEquals(List.of("duplicate"), viewModel.getSavedConnections().stream().map(SharedDatabaseLoginDialogViewModel.SavedConnection::id).toList());
+        assertEquals(
+                List.of("duplicate"),
+                viewModel.getSavedConnections().stream()
+                        .map(SharedDatabaseLoginDialogViewModel.SavedConnection::id)
+                        .toList());
     }
 
     @Test

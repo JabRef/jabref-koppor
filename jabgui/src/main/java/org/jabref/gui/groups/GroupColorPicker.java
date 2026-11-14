@@ -1,9 +1,7 @@
 package org.jabref.gui.groups;
 
 import java.util.List;
-
 import javafx.scene.paint.Color;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 

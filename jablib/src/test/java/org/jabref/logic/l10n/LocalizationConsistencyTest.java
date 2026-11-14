@@ -1,5 +1,9 @@
 package org.jabref.logic.l10n;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,20 +23,13 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javafx.application.Platform;
-
 import org.jabref.support.DisabledOnCIServerWindows;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisabledOnCIServerWindows("Needs DISPLAY variable to be set")
 @ResourceLock("Localization.lang")
@@ -57,15 +54,19 @@ class LocalizationConsistencyTest {
             for (Path fullPath : directoryStream) {
                 String fileName = fullPath.getFileName().toString();
                 if (propertiesFile.matcher(fileName).matches()) {
-                    localizationFiles.add(fileName.substring(bundle.length() + 1, fileName.length() - ".properties".length()));
+                    localizationFiles.add(
+                            fileName.substring(bundle.length() + 1, fileName.length() - ".properties".length()));
                 }
             }
         }
 
-        Set<String> knownLanguages = Stream.of(Language.values())
-                                           .map(Language::getId)
-                                           .collect(Collectors.toSet());
-        assertEquals(knownLanguages, localizationFiles, "There are some localization files that are not present in org.jabref.logic.l10n.Language or vice versa!");
+        Set<String> knownLanguages =
+                Stream.of(Language.values()).map(Language::getId).collect(Collectors.toSet());
+        assertEquals(
+                knownLanguages,
+                localizationFiles,
+                "There are some localization files that are not present in org.jabref.logic.l10n.Language or vice"
+                        + " versa!");
     }
 
     @Test
@@ -95,40 +96,44 @@ class LocalizationConsistencyTest {
     void keyValueShouldBeEqualForEnglishPropertiesMessages() {
         Properties englishKeys = LocalizationParser.getProperties("/l10n/%s_%s.properties".formatted("JabRef", "en"));
         for (Map.Entry<Object, Object> entry : englishKeys.entrySet()) {
-            String expectedKeyEqualsKey = "%s=%s".formatted(entry.getKey(), entry.getKey().toString().replace("\n", "\\n"));
-            String actualKeyEqualsValue = "%s=%s".formatted(entry.getKey(), entry.getValue().toString().replace("\n", "\\n"));
+            String expectedKeyEqualsKey =
+                    "%s=%s".formatted(entry.getKey(), entry.getKey().toString().replace("\n", "\\n"));
+            String actualKeyEqualsValue = "%s=%s"
+                    .formatted(entry.getKey(), entry.getValue().toString().replace("\n", "\\n"));
             assertEquals(expectedKeyEqualsKey, actualKeyEqualsValue);
         }
     }
 
     @Test
     void languageKeysShouldNotContainUnderscoresForSpaces() throws IOException {
-        final List<LocalizationEntry> quotedEntries = LocalizationParser
-                .findLocalizationParametersStringsInJavaFiles()
-                .stream()
-                .filter(key -> key.getKey().contains("\\_"))
-                .toList();
-        assertEquals(List.of(), quotedEntries,
-                "Language keys must not use underscores for spaces! Use \"This is a message\" instead of \"This_is_a_message\".\n" +
-                        "Please correct the following entries:\n" +
-                        quotedEntries
-                                .stream()
+        final List<LocalizationEntry> quotedEntries =
+                LocalizationParser.findLocalizationParametersStringsInJavaFiles().stream()
+                        .filter(key -> key.getKey().contains("\\_"))
+                        .toList();
+        assertEquals(
+                List.of(),
+                quotedEntries,
+                "Language keys must not use underscores for spaces! Use \"This is a message\" instead of"
+                        + " \"This_is_a_message\".\n"
+                        + "Please correct the following entries:\n"
+                        + quotedEntries.stream()
                                 .map(key -> "\n%s (%s)\n".formatted(key.getKey(), key.getPath()))
                                 .toList());
     }
 
     @Test
     void languageKeysShouldNotContainHtmlBrAndHtmlP() throws IOException {
-        final List<LocalizationEntry> entriesWithHtml = LocalizationParser
-                .findLocalizationParametersStringsInJavaFiles()
-                .stream()
-                .filter(key -> key.getKey().contains("<br>") || key.getKey().contains("<p>"))
-                .toList();
-        assertEquals(List.of(), entriesWithHtml,
-                "Language keys must not contain HTML <br> or <p>. Use \\n for a line break.\n" +
-                        "Please correct the following entries:\n" +
-                        entriesWithHtml
-                                .stream()
+        final List<LocalizationEntry> entriesWithHtml =
+                LocalizationParser.findLocalizationParametersStringsInJavaFiles().stream()
+                        .filter(key ->
+                                key.getKey().contains("<br>") || key.getKey().contains("<p>"))
+                        .toList();
+        assertEquals(
+                List.of(),
+                entriesWithHtml,
+                "Language keys must not contain HTML <br> or <p>. Use \\n for a line break.\n"
+                        + "Please correct the following entries:\n"
+                        + entriesWithHtml.stream()
                                 .map(key -> "\n%s (%s)\n".formatted(key.getKey(), key.getPath()))
                                 .toList());
     }
@@ -136,37 +141,37 @@ class LocalizationConsistencyTest {
     @Test
     void findMissingLocalizationKeys() throws IOException {
         List<LocalizationEntry> missingKeys = new ArrayList<>(LocalizationParser.findMissingKeys());
-        assertEquals(List.of(), missingKeys,
+        assertEquals(
+                List.of(),
+                missingKeys,
                 missingKeys.stream()
-                           .map(key -> LocalizationKey.fromKey(key.getKey()))
-                           .map(key -> "%s=%s".formatted(
-                                   key.getEscapedPropertiesKey(),
-                                   key.getValueForEnglishPropertiesFile()))
-                           .collect(Collectors.joining("\n",
-                                   """
+                        .map(key -> LocalizationKey.fromKey(key.getKey()))
+                        .map(key -> "%s=%s"
+                                .formatted(key.getEscapedPropertiesKey(), key.getValueForEnglishPropertiesFile()))
+                        .collect(Collectors.joining("\n", """
 
-                                           DETECTED LANGUAGE KEYS WHICH ARE NOT IN THE ENGLISH LANGUAGE FILE.
-                                           PASTE THESE INTO THE ENGLISH LANGUAGE FILE "JabRef_en.properties".
-                                           Search for a proper place; typically related keys are grouped together.
-                                           If a similar key is already present, please adapt your language instead of adding load to translators by adding a new key.
+                            DETECTED LANGUAGE KEYS WHICH ARE NOT IN THE ENGLISH LANGUAGE FILE.
+                            PASTE THESE INTO THE ENGLISH LANGUAGE FILE "JabRef_en.properties".
+                            Search for a proper place; typically related keys are grouped together.
+                            If a similar key is already present, please adapt your language instead of adding load to translators by adding a new key.
 
-                                           """,
-                                   "\n\n")));
+                            """, "\n\n")));
     }
 
     @Test
     void findObsoleteLocalizationKeys() throws IOException {
         Set<String> obsoleteKeys = LocalizationParser.findObsolete();
-        assertEquals(Set.of(), obsoleteKeys,
-                obsoleteKeys.stream().collect(Collectors.joining("\n",
-                        "Obsolete keys found in language properties file: \n\n",
-                        """
+        assertEquals(
+                Set.of(),
+                obsoleteKeys,
+                obsoleteKeys.stream()
+                        .collect(Collectors.joining(
+                                "\n", "Obsolete keys found in language properties file: \n\n", """
 
                                 1. CHECK IF THE KEY IS REALLY NOT USED ANYMORE.
                                 2. REMOVE THESE FROM THE ENGLISH LANGUAGE FILE "JabRef_en.properties".
 
-                                """))
-        );
+                                """)));
     }
 
     @Test
@@ -181,7 +186,11 @@ class LocalizationConsistencyTest {
             // TODO: Forbidden Localization.lang("test" + var2) not covered by the test
             //       In case this kind of code is found, an error should be reported
             //       JabRef's infrastructure only supports Localization.lang("Some Message"); and not something else.
-            assertTrue(e.getKey().startsWith("\""), "Illegal localization parameter found. Must include a String with potential concatenation or replacement parameters. Illegal parameter: Localization.lang(" + e.getKey());
+            assertTrue(
+                    e.getKey().startsWith("\""),
+                    "Illegal localization parameter found. Must include a String with potential concatenation or"
+                            + " replacement parameters. Illegal parameter: Localization.lang("
+                            + e.getKey());
         }
     }
 
@@ -192,7 +201,8 @@ class LocalizationConsistencyTest {
     @ParameterizedTest
     @MethodSource("installedLanguages")
     void resourceBundleExists(Language language) {
-        Path messagesPropertyFile = Path.of("src/main/resources").resolve(Localization.RESOURCE_PREFIX + "_" + language.getId() + ".properties");
+        Path messagesPropertyFile = Path.of("src/main/resources")
+                .resolve(Localization.RESOURCE_PREFIX + "_" + language.getId() + ".properties");
         assertTrue(Files.exists(messagesPropertyFile));
     }
 
@@ -212,7 +222,8 @@ class LocalizationConsistencyTest {
 
     private static class DuplicationDetectionProperties extends Properties {
 
-        @Serial private static final long serialVersionUID = 1L;
+        @Serial
+        private static final long serialVersionUID = 1L;
 
         private final List<String> duplicates = new ArrayList<>();
 

@@ -9,13 +9,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.SequencedSet;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UserSpecificCommentField;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Partitions the ordered field list of the [AllFieldsTab] into display sections
@@ -40,24 +38,17 @@ public final class FieldListSections {
         /// The localized section heading; empty for [#MAIN].
         public Optional<String> header() {
             return switch (this) {
-                case MAIN ->
-                        Optional.empty();
-                case IDENTIFIERS ->
-                        Optional.of(Localization.lang("Identifiers"));
-                case FILES_AND_LINKS ->
-                        Optional.of(Localization.lang("Files and links"));
-                case BIBLIOMETRY ->
-                        Optional.of(Localization.lang("Bibliometrics"));
-                case COMMENTS ->
-                        Optional.of(Localization.lang("Comments"));
-                case META ->
-                        Optional.of(Localization.lang("Meta"));
+                case MAIN -> Optional.empty();
+                case IDENTIFIERS -> Optional.of(Localization.lang("Identifiers"));
+                case FILES_AND_LINKS -> Optional.of(Localization.lang("Files and links"));
+                case BIBLIOMETRY -> Optional.of(Localization.lang("Bibliometrics"));
+                case COMMENTS -> Optional.of(Localization.lang("Comments"));
+                case META -> Optional.of(Localization.lang("Meta"));
             };
         }
     }
 
-    public record Section(SectionType type, SequencedSet<Field> fields) {
-    }
+    public record Section(SectionType type, SequencedSet<Field> fields) {}
 
     /// `FieldProperty.IDENTIFIER` only marks DOI/EPRINT/PMID, therefore an explicit list.
     /// Order = chip/display order in the Identifiers section.
@@ -73,16 +64,12 @@ public final class FieldListSections {
             StandardField.MR_NUMBER));
 
     /// Order = chip/display order in the Files and links section.
-    private static final SequencedSet<Field> FILE_AND_LINK_FIELDS = new LinkedHashSet<>(List.of(
-            StandardField.FILE,
-            StandardField.URL,
-            StandardField.URI,
-            StandardField.URLDATE));
+    private static final SequencedSet<Field> FILE_AND_LINK_FIELDS = new LinkedHashSet<>(
+            List.of(StandardField.FILE, StandardField.URL, StandardField.URI, StandardField.URLDATE));
 
     /// Order = chip/display order in the Bibliometrics section.
-    private static final SequencedSet<Field> BIBLIOMETRY_FIELDS = new LinkedHashSet<>(List.of(
-            StandardField.CITATIONCOUNT,
-            StandardField.ICORERANKING));
+    private static final SequencedSet<Field> BIBLIOMETRY_FIELDS =
+            new LinkedHashSet<>(List.of(StandardField.CITATIONCOUNT, StandardField.ICORERANKING));
 
     /// Membership of the Meta section; a superset of [#META_CHIP_FIELDS] because the
     /// timestamp fields are managed automatically, so they are shown when set but not
@@ -97,14 +84,11 @@ public final class FieldListSections {
 
     private static final SequencedSet<Field> META_CHIP_FIELDS = buildMetaChipFields();
 
-    private FieldListSections() {
-    }
+    private FieldListSections() {}
 
     private static SequencedSet<Field> buildMetaChipFields() {
-        SequencedSet<Field> fields = new LinkedHashSet<>(List.of(
-                StandardField.CROSSREF,
-                StandardField.GROUPS,
-                StandardField.OWNER));
+        SequencedSet<Field> fields =
+                new LinkedHashSet<>(List.of(StandardField.CROSSREF, StandardField.GROUPS, StandardField.OWNER));
         fields.addAll(List.of(SpecialField.values()));
         return fields;
     }
@@ -115,17 +99,11 @@ public final class FieldListSections {
     /// fields are dynamic).
     public static SequencedSet<Field> fieldsOf(SectionType type) {
         return switch (type) {
-            case IDENTIFIERS ->
-                    new LinkedHashSet<>(IDENTIFIER_FIELDS);
-            case FILES_AND_LINKS ->
-                    new LinkedHashSet<>(FILE_AND_LINK_FIELDS);
-            case BIBLIOMETRY ->
-                    new LinkedHashSet<>(BIBLIOMETRY_FIELDS);
-            case META ->
-                    new LinkedHashSet<>(META_CHIP_FIELDS);
-            case MAIN,
-                 COMMENTS ->
-                    new LinkedHashSet<>();
+            case IDENTIFIERS -> new LinkedHashSet<>(IDENTIFIER_FIELDS);
+            case FILES_AND_LINKS -> new LinkedHashSet<>(FILE_AND_LINK_FIELDS);
+            case BIBLIOMETRY -> new LinkedHashSet<>(BIBLIOMETRY_FIELDS);
+            case META -> new LinkedHashSet<>(META_CHIP_FIELDS);
+            case MAIN, COMMENTS -> new LinkedHashSet<>();
         };
     }
 
@@ -165,8 +143,8 @@ public final class FieldListSections {
         }
         orderedFields.forEach(field -> buckets.get(sectionOf(field)).add(field));
         return Arrays.stream(SectionType.values())
-                     .map(type -> new Section(type, buckets.get(type)))
-                     .filter(section -> !section.fields().isEmpty())
-                     .toList();
+                .map(type -> new Section(type, buckets.get(type)))
+                .filter(section -> !section.fields().isEmpty())
+                .toList();
     }
 }

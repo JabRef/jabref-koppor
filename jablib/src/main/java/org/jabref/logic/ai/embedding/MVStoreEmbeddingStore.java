@@ -1,21 +1,8 @@
 package org.jabref.logic.ai.embedding;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.PriorityQueue;
-import java.util.UUID;
-import java.util.function.Predicate;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import org.jabref.logic.ai.util.MVStoreBase;
-import org.jabref.logic.l10n.Localization;
-import org.jabref.logic.util.NotificationService;
+import static java.util.Comparator.comparingDouble;
+import static org.jabref.logic.ai.ingestion.logic.EmbeddingsCleaner.FILE_HASH_METADATA_KEY;
+import static org.jabref.logic.ai.ingestion.logic.ingestion.FileIngestor.PAGE_NUMBER_METADATA_KEY;
 
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
@@ -29,15 +16,27 @@ import dev.langchain4j.store.embedding.RelevanceScore;
 import dev.langchain4j.store.embedding.filter.Filter;
 import dev.langchain4j.store.embedding.filter.comparison.IsEqualTo;
 import dev.langchain4j.store.embedding.filter.comparison.IsIn;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.PriorityQueue;
+import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import org.jabref.logic.ai.util.MVStoreBase;
+import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.util.NotificationService;
 import org.jspecify.annotations.Nullable;
-
-import static java.util.Comparator.comparingDouble;
-import static org.jabref.logic.ai.ingestion.logic.EmbeddingsCleaner.FILE_HASH_METADATA_KEY;
-import static org.jabref.logic.ai.ingestion.logic.ingestion.FileIngestor.PAGE_NUMBER_METADATA_KEY;
 
 /// A custom implementation of langchain4j's [EmbeddingStore] that uses an MVStore as an embedded database.
 ///
-/// Every embedding has 3 fields: float array (the embedding itself), file hash where it was generated from, and the embedded
+/// Every embedding has 3 fields: float array (the embedding itself), file hash where it was generated from, and the
+/// embedded
 /// string (the content).
 ///
 public class MVStoreEmbeddingStore extends MVStoreBase implements EmbeddingStore<TextSegment> {
@@ -104,7 +103,9 @@ public class MVStoreEmbeddingStore extends MVStoreBase implements EmbeddingStore
 
     @Override
     public List<String> addAll(List<Embedding> embeddings, List<TextSegment> embedded) {
-        return IntStream.range(0, embeddings.size()).mapToObj(i -> add(embeddings.get(i), embedded.get(i))).toList();
+        return IntStream.range(0, embeddings.size())
+                .mapToObj(i -> add(embeddings.get(i), embedded.get(i)))
+                .toList();
     }
 
     @Override
@@ -150,7 +151,8 @@ public class MVStoreEmbeddingStore extends MVStoreBase implements EmbeddingStore
             String fileHash = fileHashMap.get(id);
             Integer pageNumber = pageNumberMap.get(id);
 
-            double cosineSimilarity = CosineSimilarity.between(Embedding.from(embeddingVector), request.queryEmbedding());
+            double cosineSimilarity =
+                    CosineSimilarity.between(Embedding.from(embeddingVector), request.queryEmbedding());
             double score = RelevanceScore.fromCosineSimilarity(cosineSimilarity);
 
             if (score >= request.minScore()) {
@@ -161,12 +163,8 @@ public class MVStoreEmbeddingStore extends MVStoreBase implements EmbeddingStore
                 if (pageNumber != null) {
                     metadata.put(PAGE_NUMBER_METADATA_KEY, pageNumber);
                 }
-                matches.add(
-                        new EmbeddingMatch<>(
-                                score,
-                                id,
-                                Embedding.from(embeddingVector),
-                                new TextSegment(content, metadata)));
+                matches.add(new EmbeddingMatch<>(
+                        score, id, Embedding.from(embeddingVector), new TextSegment(content, metadata)));
 
                 if (matches.size() > request.maxResults()) {
                     matches.poll();
@@ -192,17 +190,17 @@ public class MVStoreEmbeddingStore extends MVStoreBase implements EmbeddingStore
 
     private Stream<String> applyFilter(@Nullable Filter filter) {
         return switch (filter) {
-            case null ->
-                    fileHashMap.keySet().stream();
+            case null -> fileHashMap.keySet().stream();
 
-            case IsIn isInFilter when Objects.equals(isInFilter.key(), FILE_HASH_METADATA_KEY) ->
-                    filterEntries(entry -> isInFilter.comparisonValues().contains(entry.getValue()));
+            case IsIn isInFilter
+            when Objects.equals(isInFilter.key(), FILE_HASH_METADATA_KEY) ->
+                filterEntries(entry -> isInFilter.comparisonValues().contains(entry.getValue()));
 
-            case IsEqualTo isEqualToFilter when Objects.equals(isEqualToFilter.key(), FILE_HASH_METADATA_KEY) ->
-                    filterEntries(entry -> isEqualToFilter.comparisonValue().equals(entry.getValue()));
+            case IsEqualTo isEqualToFilter
+            when Objects.equals(isEqualToFilter.key(), FILE_HASH_METADATA_KEY) ->
+                filterEntries(entry -> isEqualToFilter.comparisonValue().equals(entry.getValue()));
 
-            default ->
-                    throw new IllegalArgumentException("Wrong filter passed to MVStoreEmbeddingStore");
+            default -> throw new IllegalArgumentException("Wrong filter passed to MVStoreEmbeddingStore");
         };
     }
 
@@ -212,11 +210,14 @@ public class MVStoreEmbeddingStore extends MVStoreBase implements EmbeddingStore
 
     @Override
     protected String errorMessageForOpening() {
-        return "An error occurred while opening the embeddings cache file. Embeddings will not be stored in the next session.";
+        return "An error occurred while opening the embeddings cache file. Embeddings will not be stored in the next"
+                + " session.";
     }
 
     @Override
     protected String errorMessageForOpeningLocalized() {
-        return Localization.lang("An error occurred while opening the embeddings cache file. Embeddings will not be stored in the next session.");
+        return Localization.lang(
+                "An error occurred while opening the embeddings cache file. Embeddings will not be stored in the next"
+                        + " session.");
     }
 }

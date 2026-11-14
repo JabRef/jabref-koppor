@@ -2,14 +2,11 @@ package org.jabref.gui.util;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Counts the running lookups of one kind per entry, so a progress indicator in the entry editor
@@ -29,8 +26,7 @@ public final class EntryLookupsInProgress {
     private final Map<BibEntry, Integer> pendingFinished = new IdentityHashMap<>();
     private boolean finishUpdateScheduled;
 
-    EntryLookupsInProgress() {
-    }
+    EntryLookupsInProgress() {}
 
     public void started(BibEntry entry) {
         running.merge(entry, 1, Integer::sum);

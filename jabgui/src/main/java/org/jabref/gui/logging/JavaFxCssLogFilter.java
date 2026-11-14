@@ -55,7 +55,9 @@ public class JavaFxCssLogFilter implements Filter {
         // Additionally, some messages include attached exceptions about class cast during CSS parsing
         if (record.getThrown() != null) {
             final String ex = record.getThrown().getClass().getName();
-            return !"java.lang.ClassCastException".equals(ex) && !"java.lang.IllegalArgumentException".equals(ex); // suppress CSS parsing exceptions from stylesheets
+            return !"java.lang.ClassCastException".equals(ex)
+                    && !"java.lang.IllegalArgumentException"
+                            .equals(ex); // suppress CSS parsing exceptions from stylesheets
         }
 
         return true;

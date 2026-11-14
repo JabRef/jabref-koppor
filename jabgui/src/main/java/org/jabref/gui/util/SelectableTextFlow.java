@@ -1,5 +1,6 @@
 package org.jabref.gui.util;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +8,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
@@ -20,10 +20,7 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-
 import org.jabref.gui.clipboard.ClipBoardManager;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -38,10 +35,15 @@ public class SelectableTextFlow extends TextFlow {
     /// Insertion indices into [#getTextFlowContent()]; -1 when there is no selection.
     private int selectionStart = -1;
     private int selectionEnd = -1;
-    @Nullable private Path selectionPath;
+
+    @Nullable
+    private Path selectionPath;
 
     private final List<Path> occurrencePaths = new ArrayList<>();
-    @Nullable private Path currentOccurrencePath;
+
+    @Nullable
+    private Path currentOccurrencePath;
+
     private String occurrenceQuery = "";
     private Pattern occurrencePattern = EMPTY_QUERY_PATTERN;
     private int currentOccurrence = -1;
@@ -73,7 +75,8 @@ public class SelectableTextFlow extends TextFlow {
         boundsInParentProperty().addListener(_ -> {
             if (!occurrenceQuery.isEmpty() && !occurrenceRefreshPending) {
                 occurrenceRefreshPending = true;
-                // Computing range geometry can invalidate bounds inside a refresh; finish that refresh before redrawing.
+                // Computing range geometry can invalidate bounds inside a refresh; finish that refresh before
+                // redrawing.
                 Platform.runLater(() -> {
                     try {
                         highlightOccurrences(occurrenceQuery, currentOccurrence);
@@ -85,7 +88,8 @@ public class SelectableTextFlow extends TextFlow {
         });
     }
 
-    /// Highlights all case-insensitive occurrences of `query`; the `current`-th one is emphasized (none if out of range).
+    /// Highlights all case-insensitive occurrences of `query`; the `current`-th one is emphasized (none if out of
+    /// range).
     ///
     /// Search text and JavaFX layout use different indices: a hyperlink label contributes all its characters to the
     /// search, but its node occupies only one layout position. We concatenate adjacent text and link labels so a match
@@ -104,8 +108,8 @@ public class SelectableTextFlow extends TextFlow {
         currentOccurrence = current;
         if (query.isEmpty()) {
             getChildren().stream()
-                         .flatMap(SelectableTextFlow::embeddedTextFlows)
-                         .forEach(flow -> flow.highlightOccurrences("", -1));
+                    .flatMap(SelectableTextFlow::embeddedTextFlows)
+                    .forEach(flow -> flow.highlightOccurrences("", -1));
             return 0;
         }
 
@@ -140,7 +144,8 @@ public class SelectableTextFlow extends TextFlow {
     }
 
     /// Appends searchable characters and returns the number of layout positions occupied by the node.
-    private static int appendSearchableText(Node child, StringBuilder content, List<Integer> layoutIndices, int layoutIndex) {
+    private static int appendSearchableText(
+            Node child, StringBuilder content, List<Integer> layoutIndices, int layoutIndex) {
         String text = child instanceof Text textNode ? textNode.getText() : ((Hyperlink) child).getText();
         content.append(text);
         for (int index = 0; index < text.length(); index++) {
@@ -161,7 +166,8 @@ public class SelectableTextFlow extends TextFlow {
         int count = 0;
         Matcher matcher = occurrencePattern.matcher(content);
         while (matcher.find()) {
-            addOccurrenceHighlight(layoutIndices.get(matcher.start()), layoutIndices.get(matcher.end() - 1) + 1, count == current);
+            addOccurrenceHighlight(
+                    layoutIndices.get(matcher.start()), layoutIndices.get(matcher.end() - 1) + 1, count == current);
             count++;
         }
         return count;
@@ -195,10 +201,10 @@ public class SelectableTextFlow extends TextFlow {
     /// The highlight of the emphasized occurrence of the last [#highlightOccurrences(String, int)] call.
     public Optional<Node> getCurrentOccurrence() {
         return Optional.<Node>ofNullable(currentOccurrencePath)
-                       .or(() -> getChildren().stream()
-                                              .flatMap(SelectableTextFlow::embeddedTextFlows)
-                                              .flatMap(flow -> flow.getCurrentOccurrence().stream())
-                                              .findFirst());
+                .or(() -> getChildren().stream()
+                        .flatMap(SelectableTextFlow::embeddedTextFlows)
+                        .flatMap(flow -> flow.getCurrentOccurrence().stream())
+                        .findFirst());
     }
 
     public void copySelectedText() {
@@ -296,7 +302,8 @@ public class SelectableTextFlow extends TextFlow {
             return;
         }
 
-        // Consumed so that enclosing controls (e.g. the ScrollPane of the AI chat) do not grab the focus, which would clear the selection.
+        // Consumed so that enclosing controls (e.g. the ScrollPane of the AI chat) do not grab the focus, which would
+        // clear the selection.
         event.consume();
         requestFocus();
 

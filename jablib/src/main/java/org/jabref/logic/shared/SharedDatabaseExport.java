@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Map;
-
 import org.jabref.logic.exporter.BibDatabaseWriter;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.util.MetaDataParser;
@@ -17,7 +16,6 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +28,7 @@ public class SharedDatabaseExport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SharedDatabaseExport.class);
 
-    private SharedDatabaseExport() {
-    }
+    private SharedDatabaseExport() {}
 
     /// Connects to the shared database, writes its entries and meta data to a temporary file, and disconnects again.
     /// The file is deleted when the JVM exits.
@@ -83,11 +80,12 @@ public class SharedDatabaseExport {
         MetaData metaData = new MetaData();
         try {
             // No file monitor: the exported file is written once and never watched
-            new MetaDataParser(new DummyFileUpdateMonitor()).parse(
-                    metaData,
-                    sharedMetaData,
-                    preferences.getBibEntryPreferences().getKeywordSeparator(),
-                    preferences.getFilePreferences().getUserAndHost());
+            new MetaDataParser(new DummyFileUpdateMonitor())
+                    .parse(
+                            metaData,
+                            sharedMetaData,
+                            preferences.getBibEntryPreferences().getKeywordSeparator(),
+                            preferences.getFilePreferences().getUserAndHost());
         } catch (ParseException e) {
             // Same as DBMSSynchronizer: unparsable meta data must not keep the entries from being read
             LOGGER.error("Could not parse the meta data of the shared library", e);

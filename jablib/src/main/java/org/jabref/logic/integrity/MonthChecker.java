@@ -3,20 +3,18 @@ package org.jabref.logic.integrity;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class MonthChecker implements ValueChecker {
 
-    private static final Predicate<String> ONLY_AN_INTEGER = Pattern.compile("^(0?[1-9]|10|11|12)$")
-                                                                    .asPredicate();
-    private static final Predicate<String> MONTH_NORMALIZED = Pattern
-            .compile("^(#jan#|#feb#|#mar#|#apr#|#may#|#jun#|#jul#|#aug#|#sep#|#oct#|#nov#|#dec#)$")
+    private static final Predicate<String> ONLY_AN_INTEGER =
+            Pattern.compile("^(0?[1-9]|10|11|12)$").asPredicate();
+    private static final Predicate<String> MONTH_NORMALIZED = Pattern.compile(
+                    "^(#jan#|#feb#|#mar#|#apr#|#may#|#jun#|#jul#|#aug#|#sep#|#oct#|#nov#|#dec#)$")
             .asPredicate();
 
     private final BibDatabaseContext bibDatabaseContextMonth;

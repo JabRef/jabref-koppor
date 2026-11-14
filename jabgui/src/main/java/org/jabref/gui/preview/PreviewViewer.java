@@ -1,18 +1,17 @@
 package org.jabref.gui.preview;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.print.PrinterJob;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ClipboardContent;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.WorkspacePreferences;
@@ -34,8 +33,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.query.SearchQuery;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +44,9 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PreviewViewer.class);
 
-    private static final String COVER_IMAGE_FORMAT_HTML = "<img style=\"border-width:1px; border-style:solid; border-color:auto; display:block; height:12rem;\" src=\"%s\"> <br>";
+    private static final String COVER_IMAGE_FORMAT_HTML =
+            "<img style=\"border-width:1px; border-style:solid; border-color:auto; display:block; height:12rem;\""
+                    + " src=\"%s\"> <br>";
 
     private boolean viewportResetScheduled = false;
     private double latestContentHeight = 0.0;
@@ -68,16 +67,15 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
     private String layoutText;
     private long updateSequence;
 
-    public PreviewViewer(DialogService dialogService,
-                         GuiPreferences preferences,
-                         TaskExecutor taskExecutor) {
+    public PreviewViewer(DialogService dialogService, GuiPreferences preferences, TaskExecutor taskExecutor) {
         this(dialogService, preferences, taskExecutor, OptionalObjectProperty.empty());
     }
 
-    public PreviewViewer(DialogService dialogService,
-                         GuiPreferences preferences,
-                         TaskExecutor taskExecutor,
-                         OptionalObjectProperty<SearchQuery> activeSearchQueryProperty) {
+    public PreviewViewer(
+            DialogService dialogService,
+            GuiPreferences preferences,
+            TaskExecutor taskExecutor,
+            OptionalObjectProperty<SearchQuery> activeSearchQueryProperty) {
         this.dialogService = dialogService;
         this.clipBoardManager = Injector.instantiateModelOrService(ClipBoardManager.class);
         this.taskExecutor = taskExecutor;
@@ -98,9 +96,8 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
         setPrefSize(800, 600);
         previewView = new RichHtmlView();
         previewView.getStyleClass().add("preview-viewer-content");
-        previewView.setOptions(HtmlRenderOptions.defaults()
-                                                .withLinkHandler(this::openLink)
-                                                .withBaseFontSize(resolveBaseFontSize()));
+        previewView.setOptions(
+                HtmlRenderOptions.defaults().withLinkHandler(this::openLink).withBaseFontSize(resolveBaseFontSize()));
         // The outer ScrollPane scrolls (scroll sync, tooltips); the area sizes to its content
         previewView.setUseContentHeight(true);
         setContent(previewView);
@@ -119,8 +116,8 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
     /// points — so the stored pt value must be converted (1pt = 96/72 px).
     private double resolveBaseFontSize() {
         double pt = workspacePreferences.shouldOverrideDefaultFontSize()
-                    ? workspacePreferences.getMainFontSize()
-                    : WorkspacePreferences.getDefault().getMainFontSize();
+                ? workspacePreferences.getMainFontSize()
+                : WorkspacePreferences.getDefault().getMainFontSize();
         return pt * 96.0 / 72.0;
     }
 
@@ -139,7 +136,8 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
     }
 
     public void setLayout(PreviewLayout newLayout) {
-        // Change listeners might set the layout to null while the update method is executing, therefore, we need to prevent this here
+        // Change listeners might set the layout to null while the update method is executing, therefore, we need to
+        // prevent this here
         if ((newLayout == null) || newLayout.equals(layout)) {
             return;
         }
@@ -175,7 +173,8 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
     }
 
     public void setDatabaseContext(BibDatabaseContext newDatabaseContext) {
-        // we do not use equals here as it would compare all entries, and we just want to get notified of changes when a user switches library
+        // we do not use equals here as it would compare all entries, and we just want to get notified of changes when a
+        // user switches library
         if (databaseContext == newDatabaseContext) {
             return;
         }
@@ -193,7 +192,8 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
     private void updateOnFxThread() {
         long currentUpdateSequence = ++updateSequence;
         if ((databaseContext == null) || (entry == null) || (layout == null)) {
-            LOGGER.debug("Missing components - Database: {}, Entry: {}, Layout: {}",
+            LOGGER.debug(
+                    "Missing components - Database: {}, Entry: {}, Layout: {}",
                     databaseContext == null ? "null" : databaseContext,
                     entry == null ? "null" : entry,
                     layout == null ? "null" : layout);
@@ -207,49 +207,50 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
         PreviewLayout currentLayout = layout;
 
         BackgroundTask.wrap(() -> currentLayout.generatePreview(currentEntry, currentDatabaseContext))
-                      .onSuccess(previewText -> {
-                          if (currentUpdateSequence != updateSequence) {
-                              return;
-                          }
-                          setPreviewText(previewText);
-                          if (preferences.getPreviewPreferences().shouldDownloadCovers()) {
-                              downloadCoverAndRefresh(currentEntry, previewText, currentUpdateSequence);
-                          }
-                      })
-                      .onFailure(e -> {
-                          if (currentUpdateSequence == updateSequence) {
-                              setPreviewText(formatError(currentEntry, e));
-                          }
-                      })
-                      .executeWith(taskExecutor);
+                .onSuccess(previewText -> {
+                    if (currentUpdateSequence != updateSequence) {
+                        return;
+                    }
+                    setPreviewText(previewText);
+                    if (preferences.getPreviewPreferences().shouldDownloadCovers()) {
+                        downloadCoverAndRefresh(currentEntry, previewText, currentUpdateSequence);
+                    }
+                })
+                .onFailure(e -> {
+                    if (currentUpdateSequence == updateSequence) {
+                        setPreviewText(formatError(currentEntry, e));
+                    }
+                })
+                .executeWith(taskExecutor);
     }
 
     private void downloadCoverAndRefresh(BibEntry entry, String previewText, long currentUpdateSequence) {
         BackgroundTask.wrap(() -> bookCoverFetcher.downloadCoversForEntry(entry))
-                      .onSuccess(_ -> {
-                          if (currentUpdateSequence == updateSequence) {
-                              setPreviewText(previewText);
-                          }
-                      })
-                      .executeWith(taskExecutor);
+                .onSuccess(_ -> {
+                    if (currentUpdateSequence == updateSequence) {
+                        setPreviewText(previewText);
+                    }
+                })
+                .executeWith(taskExecutor);
     }
 
     private String formatError(BibEntry entry, Throwable exception) {
         LOGGER.error("Error generating preview for entry: {}", entry.getCitationKey(), exception);
 
         return """
-                <div class="error">
-                    <h3>%s</h3>
-                    <p>%s</p>
-                    <p><small>Check the event logs for details.</small></p>
-                </div>
-                """.formatted(
-                Localization.lang("Error while generating citation style"),
-                exception.getLocalizedMessage() != null ? exception.getLocalizedMessage() : "Unknown error");
+            <div class="error">
+                <h3>%s</h3>
+                <p>%s</p>
+                <p><small>Check the event logs for details.</small></p>
+            </div>
+            """.formatted(
+                        Localization.lang("Error while generating citation style"),
+                        exception.getLocalizedMessage() != null ? exception.getLocalizedMessage() : "Unknown error");
     }
 
     private void setPreviewText(String text) {
-        String coverIfAny = getCoverImageURL().map(COVER_IMAGE_FORMAT_HTML::formatted).orElse("");
+        String coverIfAny =
+                getCoverImageURL().map(COVER_IMAGE_FORMAT_HTML::formatted).orElse("");
         layoutText = coverIfAny + text;
         renderLayoutTextWithCurrentOptions();
     }
@@ -258,18 +259,22 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
         if (databaseContext == null) {
             return Optional.empty();
         }
-        return databaseContext.getFirstExistingFileDir(preferences.getFilePreferences()).map(path -> {
-            String url = path.toUri().toString();
-            if (!url.endsWith("/")) {
-                url += "/";
-            }
-            return url;
-        });
+        return databaseContext
+                .getFirstExistingFileDir(preferences.getFilePreferences())
+                .map(path -> {
+                    String url = path.toUri().toString();
+                    if (!url.endsWith("/")) {
+                        url += "/";
+                    }
+                    return url;
+                });
     }
 
     private Optional<String> getCoverImageURL() {
         if (entry != null) {
-            return bookCoverFetcher.getDownloadedCoverForEntry(entry).map(path -> path.toUri().toString());
+            return bookCoverFetcher
+                    .getDownloadedCoverForEntry(entry)
+                    .map(path -> path.toUri().toString());
         }
         return Optional.empty();
     }
@@ -286,18 +291,18 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
         String highlightedLayoutText = getHighlightedLayoutText();
         UiTaskExecutor.runInJavaFXThread(() -> {
             HtmlRenderOptions options = previewView.getOptions();
-            HtmlRenderOptions optionsWithBaseUri = getBaseURL()
-                    .map(options::withBaseUri)
-                    .orElseGet(options::withoutBaseUri);
+            HtmlRenderOptions optionsWithBaseUri =
+                    getBaseURL().map(options::withBaseUri).orElseGet(options::withoutBaseUri);
             previewView.setHtml(highlightedLayoutText, optionsWithBaseUri);
             setHvalue(0);
         });
     }
 
     private String getHighlightedLayoutText() {
-        return activeSearchQueryProperty.get()
-                                        .map(searchQuery -> Highlighter.highlightHtml(layoutText, searchQuery))
-                                        .orElse(layoutText);
+        return activeSearchQueryProperty
+                .get()
+                .map(searchQuery -> Highlighter.highlightHtml(layoutText, searchQuery))
+                .orElse(layoutText);
     }
 
     public void print() {
@@ -321,13 +326,13 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
             return;
         }
         BackgroundTask.wrap(job::endJob)
-                      .onSuccess(success -> {
-                          if (!success) {
-                              dialogService.showErrorDialogAndWait(Localization.lang("Could not print preview"));
-                          }
-                      })
-                      .onFailure(e -> dialogService.showErrorDialogAndWait(Localization.lang("Could not print preview"), e))
-                      .executeWith(taskExecutor);
+                .onSuccess(success -> {
+                    if (!success) {
+                        dialogService.showErrorDialogAndWait(Localization.lang("Could not print preview"));
+                    }
+                })
+                .onFailure(e -> dialogService.showErrorDialogAndWait(Localization.lang("Could not print preview"), e))
+                .executeWith(taskExecutor);
     }
 
     public void copyPreviewHtmlToClipBoard() {
@@ -371,12 +376,8 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
     }
 
     public void exportToClipBoard(StateManager stateManager) {
-        ExportToClipboardAction exportToClipboardAction = new ExportToClipboardAction(
-                dialogService,
-                stateManager,
-                clipBoardManager,
-                taskExecutor,
-                preferences);
+        ExportToClipboardAction exportToClipboardAction =
+                new ExportToClipboardAction(dialogService, stateManager, clipBoardManager, taskExecutor, preferences);
         exportToClipboardAction.execute();
     }
 
@@ -409,7 +410,8 @@ public class PreviewViewer extends ScrollPane implements InvalidationListener {
                     viewportResetScheduled = true;
                     Platform.runLater(() -> {
                         viewportResetScheduled = false;
-                        if (Math.abs(getPrefViewportHeight() - latestContentHeight) < 1 && getPrefViewportHeight() != USE_COMPUTED_SIZE) {
+                        if (Math.abs(getPrefViewportHeight() - latestContentHeight) < 1
+                                && getPrefViewportHeight() != USE_COMPUTED_SIZE) {
                             setPrefViewportHeight(USE_COMPUTED_SIZE);
                         }
                     });

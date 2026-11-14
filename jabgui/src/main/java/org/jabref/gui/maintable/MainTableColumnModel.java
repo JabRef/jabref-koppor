@@ -3,7 +3,6 @@ package org.jabref.gui.maintable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
-
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -12,17 +11,16 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.TableColumn;
-
 import org.jabref.gui.util.FieldsUtil;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// Represents the full internal name of a column in the main table. Consists of two parts: The type of the column and a qualifier, like the
+/// Represents the full internal name of a column in the main table. Consists of two parts: The type of the column and a
+/// qualifier, like the
 /// field name to be displayed in the column.
 @NullMarked
 public class MainTableColumnModel {
@@ -44,7 +42,8 @@ public class MainTableColumnModel {
         SPECIALFIELD("special", Localization.lang("Special")),
         LIBRARY_NAME("library", Localization.lang("Library"));
 
-        public static final EnumSet<Type> ICON_COLUMNS = EnumSet.of(EXTRAFILE, FILES, GROUPS, GROUP_ICONS, LINKED_IDENTIFIER);
+        public static final EnumSet<Type> ICON_COLUMNS =
+                EnumSet.of(EXTRAFILE, FILES, GROUPS, GROUP_ICONS, LINKED_IDENTIFIER);
 
         private final String name;
         private final String displayName;
@@ -79,10 +78,7 @@ public class MainTableColumnModel {
 
         @Override
         public String toString() {
-            return "Type{" +
-                    "name='" + name + '\'' +
-                    ", displayName='" + displayName + '\'' +
-                    '}';
+            return "Type{name='" + name + '\'' + ", displayName='" + displayName + '\'' + '}';
         }
     }
 
@@ -107,7 +103,8 @@ public class MainTableColumnModel {
         }
     }
 
-    /// This is used by the preferences dialog, to initialize available basic icon columns, the user can add to the table.
+    /// This is used by the preferences dialog, to initialize available basic icon columns, the user can add to the
+    /// table.
     ///
     /// @param type the `MainTableColumnModel.Type` of the column, e.g. "GROUPS" or "LINKED_IDENTIFIER"
     public MainTableColumnModel(Type type) {
@@ -142,7 +139,8 @@ public class MainTableColumnModel {
     }
 
     public String getDisplayName() {
-        if ((Type.ICON_COLUMNS.contains(typeProperty.getValue()) && qualifierProperty.getValue().isBlank())
+        if ((Type.ICON_COLUMNS.contains(typeProperty.getValue())
+                        && qualifierProperty.getValue().isBlank())
                 || (typeProperty.getValue() == Type.INDEX)) {
             return typeProperty.getValue().getDisplayName();
         } else {
@@ -182,8 +180,8 @@ public class MainTableColumnModel {
     public List<SaveOrder.SortCriterion> getSortCriteria() {
         boolean descending = getSortType() == TableColumn.SortType.DESCENDING;
         return FieldFactory.parseOrFields(getQualifier()).getFields().stream()
-                           .map(field -> new SaveOrder.SortCriterion(field, descending))
-                           .toList();
+                .map(field -> new SaveOrder.SortCriterion(field, descending))
+                .toList();
     }
 
     /// Returns whether this model may appear in the user-editable entry-table column preferences.
@@ -192,19 +190,9 @@ public class MainTableColumnModel {
     /// are valid implementation details but must not be persisted or reconstructed from user input.
     public boolean isConfigurable() {
         return switch (getType()) {
-            case MATCH_CATEGORY,
-                 LIBRARY_NAME ->
-                    false;
-            case INDEX,
-                 FILES,
-                 GROUPS,
-                 GROUP_ICONS,
-                 LINKED_IDENTIFIER ->
-                    true;
-            case EXTRAFILE,
-                 NORMALFIELD,
-                 SPECIALFIELD ->
-                    !getQualifier().isBlank();
+            case MATCH_CATEGORY, LIBRARY_NAME -> false;
+            case INDEX, FILES, GROUPS, GROUP_ICONS, LINKED_IDENTIFIER -> true;
+            case EXTRAFILE, NORMALFIELD, SPECIALFIELD -> !getQualifier().isBlank();
         };
     }
 
@@ -233,10 +221,7 @@ public class MainTableColumnModel {
 
     @Override
     public String toString() {
-        return "MainTableColumnModel{" +
-                "qualifierProperty=" + qualifierProperty +
-                ", typeProperty=" + typeProperty +
-                '}';
+        return "MainTableColumnModel{qualifierProperty=" + qualifierProperty + ", typeProperty=" + typeProperty + '}';
     }
 
     /// This creates a new `MainTableColumnModel` out of a given string
@@ -253,9 +238,7 @@ public class MainTableColumnModel {
         Type type = Type.fromString(splitName[0]);
         String qualifier = "";
 
-        if ((type == Type.NORMALFIELD)
-                || (type == Type.SPECIALFIELD)
-                || (type == Type.EXTRAFILE)) {
+        if ((type == Type.NORMALFIELD) || (type == Type.SPECIALFIELD) || (type == Type.EXTRAFILE)) {
             if (splitName.length == 1) {
                 qualifier = splitName[0]; // By default the rawColumnName is parsed as NORMALFIELD
             } else {

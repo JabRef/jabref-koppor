@@ -1,5 +1,9 @@
 package org.jabref.logic.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -8,10 +12,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.citationkeypattern.GlobalCitationKeyPatterns;
 import org.jabref.logic.importer.fileformat.CffImporter;
@@ -21,7 +23,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -29,10 +30,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("exporter")
@@ -48,7 +45,8 @@ class CffExporterTest {
     }
 
     @Test
-    final void exportForNoEntriesWritesNothing(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportForNoEntriesWritesNothing(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path file = tempDir.resolve("ThisIsARandomlyNamedFile");
         Files.createFile(file);
         cffExporter.export(databaseContext, tempDir, List.of());
@@ -56,7 +54,8 @@ class CffExporterTest {
     }
 
     @Test
-    final void exportsCorrectContent(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorrectContent(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -85,7 +84,8 @@ class CffExporterTest {
     }
 
     @Test
-    final void usesCorrectType(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void usesCorrectType(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.InProceedings)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -114,7 +114,8 @@ class CffExporterTest {
     }
 
     @Test
-    final void usesCorrectDefaultValues(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void usesCorrectDefaultValues(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Thesis).withCitationKey("test");
 
         Path file = tempDir.resolve("RandomFileName");
@@ -137,7 +138,8 @@ class CffExporterTest {
     }
 
     @Test
-    final void exportsSoftwareCorrectly(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsSoftwareCorrectly(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Software)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -162,7 +164,8 @@ class CffExporterTest {
     }
 
     @Test
-    final void exportsSoftwareDateCorrectly(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsSoftwareDateCorrectly(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Software)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -187,7 +190,8 @@ class CffExporterTest {
     }
 
     @Test
-    final void exportsArticleDateCorrectly(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsArticleDateCorrectly(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -217,7 +221,8 @@ class CffExporterTest {
     }
 
     @Test
-    final void passesModifiedCharset(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void passesModifiedCharset(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "谷崎 潤一郎")
@@ -246,11 +251,10 @@ class CffExporterTest {
     }
 
     @Test
-    final void roundTripTest(@TempDir Path tempDir) throws URISyntaxException, IOException, SaveException, ParserConfigurationException, TransformerException {
-        CitationKeyPatternPreferences citationKeyPatternPreferences = mock(
-                CitationKeyPatternPreferences.class,
-                Answers.RETURNS_SMART_NULLS
-        );
+    final void roundTripTest(@TempDir Path tempDir)
+            throws URISyntaxException, IOException, SaveException, ParserConfigurationException, TransformerException {
+        CitationKeyPatternPreferences citationKeyPatternPreferences =
+                mock(CitationKeyPatternPreferences.class, Answers.RETURNS_SMART_NULLS);
         when(citationKeyPatternPreferences.getKeyPatterns())
                 .thenReturn(GlobalCitationKeyPatterns.fromPattern("[auth][year]"));
 
@@ -321,4 +325,3 @@ class CffExporterTest {
         }
     }
 }
-

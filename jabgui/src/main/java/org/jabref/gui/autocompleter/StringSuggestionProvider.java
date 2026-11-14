@@ -1,12 +1,10 @@
 package org.jabref.gui.autocompleter;
 
+import com.google.common.base.Equivalence;
 import java.util.Comparator;
 import java.util.stream.Stream;
-
-import org.jabref.logic.util.strings.StringUtil;
-
-import com.google.common.base.Equivalence;
 import org.controlsfx.control.textfield.AutoCompletionBinding;
+import org.jabref.logic.util.strings.StringUtil;
 
 abstract class StringSuggestionProvider extends SuggestionProvider<String> {
 

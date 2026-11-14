@@ -16,5 +16,4 @@ public record FieldChange(
         @Nullable String field,
         @Nullable String oldValue,
         @Nullable String newValue,
-        int version) {
-}
+        int version) {}

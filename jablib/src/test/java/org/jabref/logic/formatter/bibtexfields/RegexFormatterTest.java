@@ -1,8 +1,8 @@
 package org.jabref.logic.formatter.bibtexfields;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 class RegexFormatterTest {
 
@@ -23,25 +23,33 @@ class RegexFormatterTest {
     @Test
     void protectedSpacesNotReplacedInTwoProtectedBlocks() {
         formatter = new RegexFormatter("(\" \",\"-\")");
-        assertEquals("replace-spaces-{not these ones}-{or these ones}-but-these-ones", formatter.format("replace spaces {not these ones} {or these ones} but these ones"));
+        assertEquals(
+                "replace-spaces-{not these ones}-{or these ones}-but-these-ones",
+                formatter.format("replace spaces {not these ones} {or these ones} but these ones"));
     }
 
     @Test
     void escapedBracesAreNotReplaced() {
         formatter = new RegexFormatter("(\" \",\"-\")");
-        assertEquals("replace-spaces-\\{-these-ones\\}-and-these-ones", formatter.format("replace spaces \\{ these ones\\} and these ones"));
+        assertEquals(
+                "replace-spaces-\\{-these-ones\\}-and-these-ones",
+                formatter.format("replace spaces \\{ these ones\\} and these ones"));
     }
 
     @Test
     void escapedBracesAreNotReplacedInTwoCases() {
         formatter = new RegexFormatter("(\" \",\"-\")");
-        assertEquals("replace-spaces-\\{-these-ones\\},-these-ones,-and-\\{-these-ones\\}", formatter.format("replace spaces \\{ these ones\\}, these ones, and \\{ these ones\\}"));
+        assertEquals(
+                "replace-spaces-\\{-these-ones\\},-these-ones,-and-\\{-these-ones\\}",
+                formatter.format("replace spaces \\{ these ones\\}, these ones, and \\{ these ones\\}"));
     }
 
     @Test
     void escapedBracesAreNotReplacedAndProtectionStillWorks() {
         formatter = new RegexFormatter("(\" \",\"-\")");
-        assertEquals("replace-spaces-{not these ones},-these-ones,-and-\\{-these-ones\\}", formatter.format("replace spaces {not these ones}, these ones, and \\{ these ones\\}"));
+        assertEquals(
+                "replace-spaces-{not these ones},-these-ones,-and-\\{-these-ones\\}",
+                formatter.format("replace spaces {not these ones}, these ones, and \\{ these ones\\}"));
     }
 
     @Test

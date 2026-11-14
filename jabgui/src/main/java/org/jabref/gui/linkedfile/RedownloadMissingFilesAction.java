@@ -1,9 +1,10 @@
 package org.jabref.gui.linkedfile;
 
+import static org.jabref.gui.actions.ActionHelper.needsDatabase;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
@@ -13,11 +14,8 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 
 public class RedownloadMissingFilesAction extends SimpleCommand {
 
@@ -31,11 +29,12 @@ public class RedownloadMissingFilesAction extends SimpleCommand {
 
     private BibDatabaseContext databaseContext;
 
-    public RedownloadMissingFilesAction(StateManager stateManager,
-                                        DialogService dialogService,
-                                        ExternalApplicationsPreferences externalApplicationsPreferences,
-                                        FilePreferences filePreferences,
-                                        TaskExecutor taskExecutor) {
+    public RedownloadMissingFilesAction(
+            StateManager stateManager,
+            DialogService dialogService,
+            ExternalApplicationsPreferences externalApplicationsPreferences,
+            FilePreferences filePreferences,
+            TaskExecutor taskExecutor) {
         this.stateManager = stateManager;
         this.dialogService = dialogService;
         this.externalApplicationsPreferences = externalApplicationsPreferences;
@@ -62,8 +61,9 @@ public class RedownloadMissingFilesAction extends SimpleCommand {
     /// @implNote Similar method [org.jabref.gui.fieldeditors.LinkedFileViewModel#redownload]
     private void redownloadMissing(BibDatabaseContext databaseContext) {
         LOGGER.info("Redownloading missing files");
-        databaseContext.getEntries().forEach(entry ->
-                entry.getFiles().forEach(linkedFile -> {
+        databaseContext
+                .getEntries()
+                .forEach(entry -> entry.getFiles().forEach(linkedFile -> {
                     if (linkedFile.isOnlineLink() || linkedFile.getSourceUrl().isEmpty()) {
                         return;
                     }
@@ -72,7 +72,8 @@ public class RedownloadMissingFilesAction extends SimpleCommand {
                     if (path.isPresent() && Files.exists(path.get())) {
                         return;
                     }
-                    String fileName = Path.of(linkedFile.getLink()).getFileName().toString();
+                    String fileName =
+                            Path.of(linkedFile.getLink()).getFileName().toString();
 
                     DownloadLinkedFileAction downloadAction = new DownloadLinkedFileAction(
                             this.databaseContext,

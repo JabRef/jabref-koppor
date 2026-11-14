@@ -1,14 +1,12 @@
 package org.jabref.logic.ai.models;
 
-import java.util.List;
-
-import org.jabref.model.ai.llm.AiProvider;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+import org.jabref.model.ai.llm.AiProvider;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class OpenAiCompatibleModelProviderTest {
 
@@ -58,10 +56,7 @@ class OpenAiCompatibleModelProviderTest {
     void fetchModelsReturnsEmptyListForInvalidUrl() {
         // Using an invalid/unreachable URL should result in empty list
         List<String> models = provider.fetchModels(
-                AiProvider.OPEN_AI,
-                "https://this-is-an-invalid-url-that-does-not-exist-12345.com",
-                "test-key"
-        );
+                AiProvider.OPEN_AI, "https://this-is-an-invalid-url-that-does-not-exist-12345.com", "test-key");
         assertTrue(models.isEmpty());
     }
 
@@ -69,54 +64,37 @@ class OpenAiCompatibleModelProviderTest {
     void fetchModelsReturnsEmptyListForNonRoutableIp() {
         // Using a non-routable IP (TEST-NET-1) should timeout and return empty list
         // This tests the timeout functionality
-        List<String> models = provider.fetchModels(
-                AiProvider.OPEN_AI,
-                "https://192.0.2.1",
-                "test-key"
-        );
+        List<String> models = provider.fetchModels(AiProvider.OPEN_AI, "https://192.0.2.1", "test-key");
         assertTrue(models.isEmpty());
     }
 
     @Test
     void fetchModelsHandlesInvalidUrlGracefully() {
         // Test with malformed URL structure
-        List<String> models = provider.fetchModels(
-                AiProvider.OPEN_AI,
-                "not-a-valid-url",
-                "test-key"
-        );
+        List<String> models = provider.fetchModels(AiProvider.OPEN_AI, "not-a-valid-url", "test-key");
         assertTrue(models.isEmpty());
     }
 
     @Test
     void fetchModelsHandlesMistralAiProvider() {
         // Test with blank API key for Mistral AI
-        List<String> models = provider.fetchModels(
-                AiProvider.MISTRAL_AI,
-                "https://api.mistral.ai",
-                ""
-        );
+        List<String> models = provider.fetchModels(AiProvider.MISTRAL_AI, "https://api.mistral.ai", "");
         assertTrue(models.isEmpty());
     }
 
     @Test
     void supportsMethodReturnsFalseForUnsupportedProviders() {
         // Test all unsupported providers
-        assertFalse(provider.supports(AiProvider.HUGGING_FACE),
-                "Should not support HUGGING_FACE");
-        assertFalse(provider.supports(AiProvider.GEMINI),
-                "Should not support GEMINI");
-        assertFalse(provider.supports(AiProvider.DEBUG),
-                "Should not support DEBUG");
+        assertFalse(provider.supports(AiProvider.HUGGING_FACE), "Should not support HUGGING_FACE");
+        assertFalse(provider.supports(AiProvider.GEMINI), "Should not support GEMINI");
+        assertFalse(provider.supports(AiProvider.DEBUG), "Should not support DEBUG");
     }
 
     @Test
     void supportsMethodReturnsTrueForAllSupportedProviders() {
         // Verify all supported providers
-        assertTrue(provider.supports(AiProvider.OPEN_AI),
-                "Should support OPEN_AI");
-        assertTrue(provider.supports(AiProvider.MISTRAL_AI),
-                "Should support MISTRAL_AI");
+        assertTrue(provider.supports(AiProvider.OPEN_AI), "Should support OPEN_AI");
+        assertTrue(provider.supports(AiProvider.MISTRAL_AI), "Should support MISTRAL_AI");
     }
 
     @Test
@@ -124,8 +102,7 @@ class OpenAiCompatibleModelProviderTest {
         // Test that all supported providers handle null API key correctly
         for (AiProvider provider : List.of(AiProvider.OPEN_AI, AiProvider.MISTRAL_AI)) {
             List<String> models = this.provider.fetchModels(provider, "https://example.com", null);
-            assertTrue(models.isEmpty(),
-                    "Provider " + provider + " should return empty list for null API key");
+            assertTrue(models.isEmpty(), "Provider " + provider + " should return empty list for null API key");
         }
     }
 
@@ -134,8 +111,7 @@ class OpenAiCompatibleModelProviderTest {
         // Test that all supported providers handle blank API key correctly
         for (AiProvider provider : List.of(AiProvider.OPEN_AI, AiProvider.MISTRAL_AI)) {
             List<String> models = this.provider.fetchModels(provider, "https://example.com", "   ");
-            assertTrue(models.isEmpty(),
-                    "Provider " + provider + " should return empty list for blank API key");
+            assertTrue(models.isEmpty(), "Provider " + provider + " should return empty list for blank API key");
         }
     }
 }

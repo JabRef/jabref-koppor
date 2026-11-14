@@ -13,15 +13,13 @@ public class GrobidPreferences {
 
     private GrobidPreferences() {
         this(
-                false,                          // Grobid enabled
-                false,                          // Grobid use asked
+                false, // Grobid enabled
+                false, // Grobid use asked
                 "https://grobid.jabref.org" // Grobid URL
-        );
+                );
     }
 
-    public GrobidPreferences(boolean grobidEnabled,
-                             boolean grobidUseAsked,
-                             String grobidURL) {
+    public GrobidPreferences(boolean grobidEnabled, boolean grobidUseAsked, String grobidURL) {
         this.grobidEnabled = new SimpleBooleanProperty(grobidEnabled);
         this.grobidUseAsked = new SimpleBooleanProperty(grobidUseAsked);
         this.grobidURL = new SimpleStringProperty(grobidURL);

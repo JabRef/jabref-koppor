@@ -5,15 +5,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import org.jabref.logic.importer.FulltextFetcher;
-import org.jabref.logic.importer.ImporterPreferences;
-import org.jabref.logic.net.URLDownload;
-import org.jabref.logic.util.URLUtil;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.StandardField;
-import org.jabref.model.entry.identifier.DOI;
-
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
@@ -21,6 +12,13 @@ import kong.unirest.core.UnirestException;
 import kong.unirest.core.json.JSONArray;
 import kong.unirest.core.json.JSONException;
 import kong.unirest.core.json.JSONObject;
+import org.jabref.logic.importer.FulltextFetcher;
+import org.jabref.logic.importer.ImporterPreferences;
+import org.jabref.logic.net.URLDownload;
+import org.jabref.logic.util.URLUtil;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.StandardField;
+import org.jabref.model.entry.identifier.DOI;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Node;
@@ -29,7 +27,8 @@ import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// FulltextFetcher implementation that attempts to find a PDF URL at <a href="https://www.sciencedirect.com/">ScienceDirect</a>.
+/// FulltextFetcher implementation that attempts to find a PDF URL at <a
+/// href="https://www.sciencedirect.com/">ScienceDirect</a>.
 /// See <a href="https://dev.elsevier.com/">https://dev.elsevier.com/</a>.
 public class ScienceDirect implements FulltextFetcher, CustomizableKeyFetcher {
     public static final String FETCHER_NAME = "ScienceDirect";
@@ -40,15 +39,13 @@ public class ScienceDirect implements FulltextFetcher, CustomizableKeyFetcher {
 
     private final ImporterPreferences importerPreferences;
 
-    private sealed interface DoiResolution permits DoiResolution.ArticlePage, DoiResolution.NotFound, DoiResolution.Pdf {
-        record Pdf(String url) implements DoiResolution {
-        }
+    private sealed interface DoiResolution
+            permits DoiResolution.ArticlePage, DoiResolution.NotFound, DoiResolution.Pdf {
+        record Pdf(String url) implements DoiResolution {}
 
-        record ArticlePage(String url) implements DoiResolution {
-        }
+        record ArticlePage(String url) implements DoiResolution {}
 
-        record NotFound() implements DoiResolution {
-        }
+        record NotFound() implements DoiResolution {}
     }
 
     public ScienceDirect(ImporterPreferences importerPreferences) {
@@ -65,14 +62,12 @@ public class ScienceDirect implements FulltextFetcher, CustomizableKeyFetcher {
 
         // @formatter:off
         return switch (getUrlByDoi(doi.get().asString())) {
-            case DoiResolution.NotFound() ->
-                    Optional.empty();
+            case DoiResolution.NotFound() -> Optional.empty();
             case DoiResolution.Pdf(String url) -> {
                 LOGGER.info("Fulltext PDF found at ScienceDirect at {}.", url);
                 yield Optional.of(URLUtil.create(url));
             }
-            case DoiResolution.ArticlePage(String url) ->
-                    parseArticlePage(url);
+            case DoiResolution.ArticlePage(String url) -> parseArticlePage(url);
         };
         // @formatter:on
     }
@@ -80,10 +75,10 @@ public class ScienceDirect implements FulltextFetcher, CustomizableKeyFetcher {
     private @NonNull Optional<URL> parseArticlePage(String url) throws IOException {
         // Scrape the web page as desktop client (not as mobile client!)
         Document html = Jsoup.connect(url)
-                             .userAgent(URLDownload.USER_AGENT)
-                             .referrer("https://www.google.com")
-                             .ignoreHttpErrors(true)
-                             .get();
+                .userAgent(URLDownload.USER_AGENT)
+                .referrer("https://www.google.com")
+                .ignoreHttpErrors(true)
+                .get();
 
         // Retrieve PDF link from meta data (most recent)
         Elements metaLinks = html.getElementsByAttributeValue("name", "citation_pdf_url");
@@ -96,9 +91,7 @@ public class ScienceDirect implements FulltextFetcher, CustomizableKeyFetcher {
         // This page contains the link to the PDF in some JavaScript code embedded in the web page.
         // Example page: https://www.sciencedirect.com/science/article/pii/S1674775515001079
 
-        Optional<JSONObject> pdfDownloadOptional = html
-                .getElementsByAttributeValue("type", "application/json")
-                .stream()
+        Optional<JSONObject> pdfDownloadOptional = html.getElementsByAttributeValue("type", "application/json").stream()
                 .flatMap(element -> element.getElementsByTag("script").stream())
                 // The first DOM child of the script element is the script itself (represented as HTML text)
                 .map(element -> element.childNode(0))
@@ -126,13 +119,14 @@ public class ScienceDirect implements FulltextFetcher, CustomizableKeyFetcher {
             JSONObject urlMetadata = pdfDownload.getJSONObject("urlMetadata");
             JSONObject queryParamsObject = urlMetadata.getJSONObject("queryParams");
             String queryParameters = queryParamsObject.keySet().stream()
-                                                      .map(key -> "%s=%s".formatted(key, queryParamsObject.getString(key)))
-                                                      .collect(Collectors.joining("&"));
-            fullLinkToPdf = "https://www.sciencedirect.com/%s/%s%s?%s".formatted(
-                    urlMetadata.getString("path"),
-                    urlMetadata.getString("pii"),
-                    urlMetadata.getString("pdfExtension"),
-                    queryParameters);
+                    .map(key -> "%s=%s".formatted(key, queryParamsObject.getString(key)))
+                    .collect(Collectors.joining("&"));
+            fullLinkToPdf = "https://www.sciencedirect.com/%s/%s%s?%s"
+                    .formatted(
+                            urlMetadata.getString("path"),
+                            urlMetadata.getString("pii"),
+                            urlMetadata.getString("pdfExtension"),
+                            queryParameters);
         } else {
             LOGGER.debug("No suitable data in JSON information");
             return Optional.empty();
@@ -158,15 +152,18 @@ public class ScienceDirect implements FulltextFetcher, CustomizableKeyFetcher {
         try {
             String request = API_URL + doi;
             HttpResponse<JsonNode> jsonResponse = Unirest.get(request)
-                                                         // Shares the same key as Scopus, because both are offered by Elsevier (https://devdocs.jabref.org/code-howtos/fetchers.html#fetchers)
-                                                         .header("X-ELS-APIKey", importerPreferences.getApiKey(Scopus.FETCHER_NAME).orElse(""))
-                                                         .queryString("httpAccept", "application/json")
-                                                         .asJson();
+                    // Shares the same key as Scopus, because both are offered by Elsevier
+                    // (https://devdocs.jabref.org/code-howtos/fetchers.html#fetchers)
+                    .header(
+                            "X-ELS-APIKey",
+                            importerPreferences.getApiKey(Scopus.FETCHER_NAME).orElse(""))
+                    .queryString("httpAccept", "application/json")
+                    .asJson();
 
             JSONObject json = jsonResponse.getBody().getObject();
             JSONArray links = json.getJSONObject("full-text-retrieval-response")
-                                  .getJSONObject("coredata")
-                                  .getJSONArray("link");
+                    .getJSONObject("coredata")
+                    .getJSONArray("link");
 
             for (int i = 0; i < links.length(); i++) {
                 JSONObject link = links.getJSONObject(i);

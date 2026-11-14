@@ -11,7 +11,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +47,7 @@ public class HeadlessExecutorService implements Executor {
 
     private final Timer timer = new Timer("timer", true);
 
-    private HeadlessExecutorService() {
-    }
+    private HeadlessExecutorService() {}
 
     public void execute(@NonNull Runnable command) {
         executorService.execute(command);
@@ -74,7 +72,8 @@ public class HeadlessExecutorService implements Executor {
         return executorService.submit(command);
     }
 
-    /// Executes a collection of callable tasks and returns a List of the resulting Future objects after the calculation is done.
+    /// Executes a collection of callable tasks and returns a List of the resulting Future objects after the calculation
+    /// is done.
     ///
     /// @param tasks The tasks to execute
     /// @return A List of Future objects that provide the returning values.
@@ -152,14 +151,16 @@ public class HeadlessExecutorService implements Executor {
         }
     }
 
-    /// Shuts down the provided executor service by first trying a normal shutdown, then waiting for the shutdown and then forcibly shutting it down.
+    /// Shuts down the provided executor service by first trying a normal shutdown, then waiting for the shutdown and
+    /// then forcibly shutting it down.
     /// Returns if the status of the shut down is known.
     public static void gracefullyShutdown(String name, ExecutorService executorService, int timeoutInSeconds) {
         try {
             // This is non-blocking. See https://stackoverflow.com/a/57383461/873282.
             executorService.shutdown();
             if (!executorService.awaitTermination(timeoutInSeconds, TimeUnit.SECONDS)) {
-                LOGGER.debug("{} seconds passed, {} still not completed. Trying forced shutdown.", timeoutInSeconds, name);
+                LOGGER.debug(
+                        "{} seconds passed, {} still not completed. Trying forced shutdown.", timeoutInSeconds, name);
                 // those threads will be interrupted in their current task
                 executorService.shutdownNow();
                 if (executorService.awaitTermination(timeoutInSeconds, TimeUnit.SECONDS)) {

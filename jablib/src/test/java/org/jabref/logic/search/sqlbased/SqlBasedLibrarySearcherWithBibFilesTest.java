@@ -1,5 +1,10 @@
 package org.jabref.logic.search.sqlbased;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -7,9 +12,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
-
 import javafx.beans.property.SimpleBooleanProperty;
-
+import org.hamcrest.Matchers;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ParserResult;
@@ -27,8 +31,6 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
@@ -39,11 +41,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 /// Note: Postgres is `new`ed at each test - maybe put it tgo `@BeforeAll`
 @Execution(ExecutionMode.SAME_THREAD)
@@ -100,12 +97,16 @@ class SqlBasedLibrarySearcherWithBibFilesTest {
 
     private BibDatabaseContext initializeDatabaseFromPath(String testFile) throws URISyntaxException, IOException {
         // Resources live next to the original test file in org/jabref/logic/search/
-        return initializeDatabaseFromPath(Path.of(Objects.requireNonNull(
-                SqlBasedLibrarySearcherWithBibFilesTest.class.getResource("/org/jabref/logic/search/" + testFile)).toURI()));
+        return initializeDatabaseFromPath(
+                Path.of(Objects.requireNonNull(SqlBasedLibrarySearcherWithBibFilesTest.class.getResource(
+                                "/org/jabref/logic/search/" + testFile))
+                        .toURI()));
     }
 
     private BibDatabaseContext initializeDatabaseFromPath(Path testFile) throws IOException {
-        ParserResult result = new BibtexImporter(mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor()).importDatabase(testFile);
+        ParserResult result = new BibtexImporter(
+                        mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS), new DummyFileUpdateMonitor())
+                .importDatabase(testFile);
         BibDatabaseContext databaseContext = spy(result.getDatabaseContext());
 
         when(databaseContext.getFulltextIndexPath()).thenReturn(indexDir);
@@ -126,47 +127,85 @@ class SqlBasedLibrarySearcherWithBibFilesTest {
 
                 // test-library-title-casing
                 Arguments.of(List.of(), "test-library-title-casing.bib", "NotExisting", false),
-                Arguments.of(List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED), "test-library-title-casing.bib", "Title", false),
-
+                Arguments.of(
+                        List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED),
+                        "test-library-title-casing.bib",
+                        "Title",
+                        false),
                 Arguments.of(List.of(), "test-library-title-casing.bib", "title = NotExisting", false),
-                Arguments.of(List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED), "test-library-title-casing.bib", "title = Title", false),
-
+                Arguments.of(
+                        List.of(TITLE_SENTENCE_CASED, TITLE_MIXED_CASED, TITLE_UPPER_CASED),
+                        "test-library-title-casing.bib",
+                        "title = Title",
+                        false),
                 Arguments.of(List.of(), "test-library-title-casing.bib", "title =! TiTLE", false),
                 Arguments.of(List.of(TITLE_SENTENCE_CASED), "test-library-title-casing.bib", "title =! Title", false),
-
                 Arguments.of(List.of(), "test-library-title-casing.bib", "any =! TiTLE", false),
                 Arguments.of(List.of(TITLE_MIXED_CASED), "test-library-title-casing.bib", "any =! TiTle", false),
-
                 Arguments.of(List.of(), "test-library-title-casing.bib", "title =! NotExisting", false),
                 Arguments.of(List.of(TITLE_MIXED_CASED), "test-library-title-casing.bib", "title =! TiTle", false),
-
                 Arguments.of(List.of(), "test-library-title-casing.bib", "any =~ [Y]", false),
 
                 // test-library-with-attached-files
                 Arguments.of(List.of(), "test-library-with-attached-files.bib", "NotExisting.", true),
-                Arguments.of(List.of(MINIMAL_SENTENCE_CASE, MINIMAL_ALL_UPPER_CASE, MINIMAL_MIXED_CASE), "test-library-with-attached-files.bib", "\"This is a short sentence, comma included.\"", true),
-                Arguments.of(List.of(MINIMAL_SENTENCE_CASE, MINIMAL_ALL_UPPER_CASE, MINIMAL_MIXED_CASE), "test-library-with-attached-files.bib", "comma", true),
-
+                Arguments.of(
+                        List.of(MINIMAL_SENTENCE_CASE, MINIMAL_ALL_UPPER_CASE, MINIMAL_MIXED_CASE),
+                        "test-library-with-attached-files.bib",
+                        "\"This is a short sentence, comma included.\"",
+                        true),
+                Arguments.of(
+                        List.of(MINIMAL_SENTENCE_CASE, MINIMAL_ALL_UPPER_CASE, MINIMAL_MIXED_CASE),
+                        "test-library-with-attached-files.bib",
+                        "comma",
+                        true),
                 Arguments.of(List.of(), "test-library-with-attached-files.bib", "NotExisting", true),
-                Arguments.of(List.of(MINIMAL_NOTE_SENTENCE_CASE, MINIMAL_NOTE_ALL_UPPER_CASE, MINIMAL_NOTE_MIXED_CASE), "test-library-with-attached-files.bib", "world", true),
-                Arguments.of(List.of(MINIMAL_NOTE_SENTENCE_CASE, MINIMAL_NOTE_ALL_UPPER_CASE, MINIMAL_NOTE_MIXED_CASE), "test-library-with-attached-files.bib", "\"Hello World\"", true),
+                Arguments.of(
+                        List.of(MINIMAL_NOTE_SENTENCE_CASE, MINIMAL_NOTE_ALL_UPPER_CASE, MINIMAL_NOTE_MIXED_CASE),
+                        "test-library-with-attached-files.bib",
+                        "world",
+                        true),
+                Arguments.of(
+                        List.of(MINIMAL_NOTE_SENTENCE_CASE, MINIMAL_NOTE_ALL_UPPER_CASE, MINIMAL_NOTE_MIXED_CASE),
+                        "test-library-with-attached-files.bib",
+                        "\"Hello World\"",
+                        true),
 
                 // case-sensitive fulltext search
-                Arguments.of(List.of(MINIMAL_ALL_UPPER_CASE), "test-library-with-attached-files.bib", "any =! COMMA", true),
-                Arguments.of(List.of(MINIMAL_SENTENCE_CASE, MINIMAL_MIXED_CASE), "test-library-with-attached-files.bib", "any =! comma", true),
-                Arguments.of(List.of(MINIMAL_NOTE_ALL_UPPER_CASE), "test-library-with-attached-files.bib", "any ==! HELLO", true),
-                Arguments.of(List.of(MINIMAL_NOTE_SENTENCE_CASE), "test-library-with-attached-files.bib", "any ==! Hello", true),
-                Arguments.of(List.of(MINIMAL_ALL_UPPER_CASE), "test-library-with-attached-files.bib", "any =~! COMM.", true),
-                Arguments.of(List.of(MINIMAL_SENTENCE_CASE, MINIMAL_MIXED_CASE), "test-library-with-attached-files.bib", "any =~! comm.", true)
-        );
+                Arguments.of(
+                        List.of(MINIMAL_ALL_UPPER_CASE), "test-library-with-attached-files.bib", "any =! COMMA", true),
+                Arguments.of(
+                        List.of(MINIMAL_SENTENCE_CASE, MINIMAL_MIXED_CASE),
+                        "test-library-with-attached-files.bib",
+                        "any =! comma",
+                        true),
+                Arguments.of(
+                        List.of(MINIMAL_NOTE_ALL_UPPER_CASE),
+                        "test-library-with-attached-files.bib",
+                        "any ==! HELLO",
+                        true),
+                Arguments.of(
+                        List.of(MINIMAL_NOTE_SENTENCE_CASE),
+                        "test-library-with-attached-files.bib",
+                        "any ==! Hello",
+                        true),
+                Arguments.of(
+                        List.of(MINIMAL_ALL_UPPER_CASE), "test-library-with-attached-files.bib", "any =~! COMM.", true),
+                Arguments.of(
+                        List.of(MINIMAL_SENTENCE_CASE, MINIMAL_MIXED_CASE),
+                        "test-library-with-attached-files.bib",
+                        "any =~! comm.",
+                        true));
     }
 
     @ParameterizedTest
     @MethodSource
-    void searchLibrary(List<BibEntry> expected, String testFile, String query, boolean isFullText) throws URISyntaxException, IOException {
+    void searchLibrary(List<BibEntry> expected, String testFile, String query, boolean isFullText)
+            throws URISyntaxException, IOException {
         BibDatabaseContext databaseContext = initializeDatabaseFromPath(testFile);
         EnumSet<SearchFlags> flags = isFullText ? EnumSet.of(SearchFlags.FULLTEXT) : EnumSet.noneOf(SearchFlags.class);
-        List<BibEntry> matches = new SqlBasedLibrarySearcher(databaseContext, TASK_EXECUTOR, preferences, postgresServer).getMatches(new SearchQuery(query, flags));
+        List<BibEntry> matches = new SqlBasedLibrarySearcher(
+                        databaseContext, TASK_EXECUTOR, preferences, postgresServer)
+                .getMatches(new SearchQuery(query, flags));
         assertThat(expected, Matchers.containsInAnyOrder(matches.toArray()));
     }
 }

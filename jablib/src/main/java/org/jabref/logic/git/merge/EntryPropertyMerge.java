@@ -5,12 +5,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
 import org.jabref.logic.git.conflicts.ThreeWayEntryConflict;
 import org.jabref.logic.git.merge.planning.util.EntryTriples;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -27,14 +25,14 @@ final class EntryPropertyMerge {
             new EntryProperty<>(BibEntry::getType, BibEntry::setType),
             new EntryProperty<>(BibEntry::getUserComments, EntryPropertyMerge::setUserComments));
 
-    private EntryPropertyMerge() {
-    }
+    private EntryPropertyMerge() {}
 
     /// Applies the property changes of `other` to the entries of `current`.
     ///
     /// @param keptAsIs citation keys of entries already known to be in conflict; they are left untouched
     /// @return the conflicts found, none of them among `keptAsIs`
-    static List<ThreeWayEntryConflict> merge(BibDatabaseContext base, BibDatabaseContext current, BibDatabaseContext other, Set<String> keptAsIs) {
+    static List<ThreeWayEntryConflict> merge(
+            BibDatabaseContext base, BibDatabaseContext current, BibDatabaseContext other, Set<String> keptAsIs) {
         EntryTriples triples = EntryTriples.from(base, current, other);
         List<ThreeWayEntryConflict> conflicts = new ArrayList<>();
         for (String key : triples.allKeys()) {

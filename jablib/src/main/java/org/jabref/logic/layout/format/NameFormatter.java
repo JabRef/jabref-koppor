@@ -3,11 +3,9 @@ package org.jabref.logic.layout.format;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.jabref.logic.bst.util.BstNameFormatter;
 import org.jabref.logic.layout.LayoutFormatter;
 import org.jabref.model.entry.AuthorList;
-
 import org.jspecify.annotations.NonNull;
 
 /// This layout formatter uses the BibTeX `name.format$` method and provides ultimate flexibility.
@@ -72,7 +70,8 @@ import org.jspecify.annotations.NonNull;
 /// For more examples see the test cases.
 public class NameFormatter implements LayoutFormatter {
 
-    public static final String DEFAULT_FORMAT = "1@*@{ff }{vv }{ll}{, jj}@@*@1@{ff }{vv }{ll}{, jj}@*@, {ff }{vv }{ll}{, jj}";
+    public static final String DEFAULT_FORMAT =
+            "1@*@{ff }{vv }{ll}{, jj}@@*@1@{ff }{vv }{ll}{, jj}@*@, {ff }{vv }{ll}{, jj}";
 
     private String parameter = NameFormatter.DEFAULT_FORMAT;
 

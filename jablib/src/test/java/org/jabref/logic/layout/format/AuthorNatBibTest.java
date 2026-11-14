@@ -1,14 +1,12 @@
 package org.jabref.logic.layout.format;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.stream.Stream;
-
 import org.jabref.logic.layout.LayoutFormatter;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AuthorNatBibTest {
 
@@ -27,7 +25,6 @@ class AuthorNatBibTest {
 
                 // Test method for {@link org.jabref.logic.layout.format.AuthorLF_FF#format(java.lang.String)}.
                 Arguments.of("von Neumann and Smith", "von Neumann,,John and John Smith"),
-                Arguments.of("von Neumann", "von Neumann, John")
-        );
+                Arguments.of("von Neumann", "von Neumann, John"));
     }
 }

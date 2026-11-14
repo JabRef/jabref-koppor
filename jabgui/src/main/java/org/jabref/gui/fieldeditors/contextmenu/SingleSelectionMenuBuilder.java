@@ -1,12 +1,11 @@
 package org.jabref.gui.fieldeditors.contextmenu;
 
+import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import java.util.ArrayList;
 import java.util.List;
-
 import javafx.collections.ObservableList;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionFactory;
@@ -21,8 +20,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import org.jspecify.annotations.NonNull;
 
 record SingleSelectionMenuBuilder(
@@ -34,18 +31,19 @@ record SingleSelectionMenuBuilder(
         TaskExecutor taskExecutor,
         FileUpdateMonitor fileUpdateMonitor,
         UndoManager undoManager,
-        StateManager stateManager
-) implements ContextMenuBuilder {
+        StateManager stateManager)
+        implements ContextMenuBuilder {
 
-    SingleSelectionMenuBuilder(@NonNull DialogService dialogService,
-                               @NonNull BibDatabaseContext databaseContext,
-                               @NonNull ObservableOptionalValue<BibEntry> bibEntry,
-                               @NonNull GuiPreferences preferences,
-                               @NonNull LinkedFilesEditorViewModel viewModel,
-                               @NonNull TaskExecutor taskExecutor,
-                               @NonNull FileUpdateMonitor fileUpdateMonitor,
-                               @NonNull UndoManager undoManager,
-                               @NonNull StateManager stateManager) {
+    SingleSelectionMenuBuilder(
+            @NonNull DialogService dialogService,
+            @NonNull BibDatabaseContext databaseContext,
+            @NonNull ObservableOptionalValue<BibEntry> bibEntry,
+            @NonNull GuiPreferences preferences,
+            @NonNull LinkedFilesEditorViewModel viewModel,
+            @NonNull TaskExecutor taskExecutor,
+            @NonNull FileUpdateMonitor fileUpdateMonitor,
+            @NonNull UndoManager undoManager,
+            @NonNull StateManager stateManager) {
         this.dialogService = dialogService;
         this.databaseContext = databaseContext;
         this.bibEntry = bibEntry;
@@ -75,55 +73,118 @@ record SingleSelectionMenuBuilder(
 
         items.add(factory.createMenuItem(
                 StandardActions.EDIT_FILE_LINK,
-                new ContextAction(StandardActions.EDIT_FILE_LINK, selectedLinkedFile, databaseContext, bibEntry, preferences, viewModel)));
+                new ContextAction(
+                        StandardActions.EDIT_FILE_LINK,
+                        selectedLinkedFile,
+                        databaseContext,
+                        bibEntry,
+                        preferences,
+                        viewModel)));
 
         items.add(new SeparatorMenuItem());
 
         items.add(factory.createMenuItem(
                 StandardActions.OPEN_FILE,
-                new ContextAction(StandardActions.OPEN_FILE, selectedLinkedFile, databaseContext, bibEntry, preferences, viewModel)));
+                new ContextAction(
+                        StandardActions.OPEN_FILE,
+                        selectedLinkedFile,
+                        databaseContext,
+                        bibEntry,
+                        preferences,
+                        viewModel)));
         items.add(factory.createMenuItem(
                 StandardActions.OPEN_FOLDER,
-                new ContextAction(StandardActions.OPEN_FOLDER, selectedLinkedFile, databaseContext, bibEntry, preferences, viewModel)));
+                new ContextAction(
+                        StandardActions.OPEN_FOLDER,
+                        selectedLinkedFile,
+                        databaseContext,
+                        bibEntry,
+                        preferences,
+                        viewModel)));
 
         items.add(new SeparatorMenuItem());
 
         items.add(factory.createMenuItem(
                 StandardActions.DOWNLOAD_FILE,
-                new ContextAction(StandardActions.DOWNLOAD_FILE, selectedLinkedFile, databaseContext, bibEntry, preferences, viewModel)));
+                new ContextAction(
+                        StandardActions.DOWNLOAD_FILE,
+                        selectedLinkedFile,
+                        databaseContext,
+                        bibEntry,
+                        preferences,
+                        viewModel)));
 
         items.add(factory.createMenuItem(
                 StandardActions.PERFORM_OCR,
-                new OcrLinkedFileAction(selectedLinkedFile.getFile(), selectedLinkedFile.getLinkedEntries(), databaseContext, dialogService, preferences, taskExecutor, fileUpdateMonitor, undoManager, stateManager)));
+                new OcrLinkedFileAction(
+                        selectedLinkedFile.getFile(),
+                        selectedLinkedFile.getLinkedEntries(),
+                        databaseContext,
+                        dialogService,
+                        preferences,
+                        taskExecutor,
+                        fileUpdateMonitor,
+                        undoManager,
+                        stateManager)));
 
         items.add(factory.createMenuItem(
                 StandardActions.RENAME_FILE_TO_PATTERN,
-                new ContextAction(StandardActions.RENAME_FILE_TO_PATTERN, selectedLinkedFile, databaseContext, bibEntry, preferences, viewModel)));
+                new ContextAction(
+                        StandardActions.RENAME_FILE_TO_PATTERN,
+                        selectedLinkedFile,
+                        databaseContext,
+                        bibEntry,
+                        preferences,
+                        viewModel)));
         items.add(factory.createMenuItem(
                 StandardActions.RENAME_FILE_TO_NAME,
-                new ContextAction(StandardActions.RENAME_FILE_TO_NAME, selectedLinkedFile, databaseContext, bibEntry, preferences, viewModel)));
+                new ContextAction(
+                        StandardActions.RENAME_FILE_TO_NAME,
+                        selectedLinkedFile,
+                        databaseContext,
+                        bibEntry,
+                        preferences,
+                        viewModel)));
 
-        MoveFileSubmenuFactory moveFileSubmenuFactory = new MoveFileSubmenuFactory(factory, databaseContext, preferences);
+        MoveFileSubmenuFactory moveFileSubmenuFactory =
+                new MoveFileSubmenuFactory(factory, databaseContext, preferences);
         items.add(moveFileSubmenuFactory.createSingle(selectedLinkedFile));
         items.add(moveFileSubmenuFactory.createSingleAndRename(selectedLinkedFile));
 
         items.add(factory.createMenuItem(
                 StandardActions.COPY_FILE_TO_FOLDER,
-                new CopyLinkedFilesAction(selectedLinkedFile.getFile(), dialogService, databaseContext, preferences.getFilePreferences())));
+                new CopyLinkedFilesAction(
+                        selectedLinkedFile.getFile(),
+                        dialogService,
+                        databaseContext,
+                        preferences.getFilePreferences())));
 
         items.add(factory.createMenuItem(
                 StandardActions.REDOWNLOAD_FILE,
-                new ContextAction(StandardActions.REDOWNLOAD_FILE, selectedLinkedFile, databaseContext, bibEntry, preferences, viewModel)));
+                new ContextAction(
+                        StandardActions.REDOWNLOAD_FILE,
+                        selectedLinkedFile,
+                        databaseContext,
+                        bibEntry,
+                        preferences,
+                        viewModel)));
 
         // An auto-found file is only a suggestion and not part of the entry yet, so "Remove link" would be a lie
-        StandardActions linkAction = selectedLinkedFile.isAutomaticallyFound() ? StandardActions.LINK_FILE : StandardActions.REMOVE_LINK;
+        StandardActions linkAction =
+                selectedLinkedFile.isAutomaticallyFound() ? StandardActions.LINK_FILE : StandardActions.REMOVE_LINK;
         items.add(factory.createMenuItem(
                 linkAction,
                 new ContextAction(linkAction, selectedLinkedFile, databaseContext, bibEntry, preferences, viewModel)));
 
         items.add(factory.createMenuItem(
                 StandardActions.DELETE_FILE,
-                new ContextAction(StandardActions.DELETE_FILE, selectedLinkedFile, databaseContext, bibEntry, preferences, viewModel)));
+                new ContextAction(
+                        StandardActions.DELETE_FILE,
+                        selectedLinkedFile,
+                        databaseContext,
+                        bibEntry,
+                        preferences,
+                        viewModel)));
 
         return items;
     }

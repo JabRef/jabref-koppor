@@ -7,13 +7,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
 import org.jabref.logic.util.io.FileNameCleaner;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.study.Study;
 import org.jabref.model.study.StudyCatalog;
 import org.jabref.model.study.StudyQuery;
-
 import tools.jackson.databind.ObjectMapper;
 
 /// Exports study search queries in the SearchRxiv / search-query JSON format.
@@ -54,9 +52,11 @@ public class SearchRxivExporter {
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("search_string", query);
         data.put("platform", platform.toLowerCase(Locale.ROOT));
-        data.put("authors", study.getAuthors().stream()
-                                 .map(author -> Map.of("name", author))
-                                 .toList());
+        data.put(
+                "authors",
+                study.getAuthors().stream()
+                        .map(author -> Map.of("name", author))
+                        .toList());
         // Placeholder fields — to be filled by the user on SearchRxiv
         data.put("record_info", Map.of());
         data.put("date", Map.of());
@@ -66,7 +66,8 @@ public class SearchRxivExporter {
 
     private String buildFileName(String query, String catalogName, int index) {
         String queryPart = query.isBlank() ? "query" : query;
-        String name = FileNameCleaner.cleanFileName(catalogName) + "-" + FileNameCleaner.cleanFileName(queryPart) + "-" + index + ".json";
+        String name = FileNameCleaner.cleanFileName(catalogName) + "-" + FileNameCleaner.cleanFileName(queryPart) + "-"
+                + index + ".json";
         return FileUtil.getValidFileName(name);
     }
 }

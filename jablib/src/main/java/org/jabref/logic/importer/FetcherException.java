@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.http.SimpleHttpResponse;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -18,7 +16,8 @@ import org.slf4j.LoggerFactory;
 public class FetcherException extends JabRefException {
     private static final Logger LOGGER = LoggerFactory.getLogger(FetcherException.class);
     private static final String SENSITIVE_PARAM_NAME = "sensitiveParamName";
-    private static final Pattern SENSITIVE_PARAM_PATTERN = Pattern.compile("(?i)(?<" + SENSITIVE_PARAM_NAME + ">api|key|api[-_]?key|mailto|email)=[^&]*");
+    private static final Pattern SENSITIVE_PARAM_PATTERN =
+            Pattern.compile("(?i)(?<" + SENSITIVE_PARAM_NAME + ">api|key|api[-_]?key|mailto|email)=[^&]*");
     private static final Pattern USERINFO_PATTERN = Pattern.compile("(?<=://)[^/@]+@");
     private static final String REDACTED_STRING = "[REDACTED]";
 
@@ -81,11 +80,21 @@ public class FetcherException extends JabRefException {
     @Override
     public @Nullable String getLocalizedMessage() {
         // TODO: This should be moved to a separate class converting "any" exception object to a localized message
-        // TODO: 5% of the "new-ers" pass a "real" localized message. See org.jabref.logic.importer.fetcher.GoogleScholar.addHitsFromQuery. We should maybe make use of this (and rewrite the whole message handling)
-        // TODO: Try to convert IOException to some more meaningful information here (or at org.jabref.gui.DialogService.showErrorDialogAndWait(org.jabref.logic.importer.FetcherException)). See also org.jabref.logic.net.URLDownload.openConnection
+        // TODO: 5% of the "new-ers" pass a "real" localized message. See
+        // org.jabref.logic.importer.fetcher.GoogleScholar.addHitsFromQuery. We should maybe make use of this (and
+        // rewrite the whole message handling)
+        // TODO: Try to convert IOException to some more meaningful information here (or at
+        // org.jabref.gui.DialogService.showErrorDialogAndWait(org.jabref.logic.importer.FetcherException)). See also
+        // org.jabref.logic.net.URLDownload.openConnection
         if (httpResponse != null) {
             // We decided to not "translate" technical terms (URL, HTTP)
-            return getPrefix() + "URL: %s\nHTTP %d %s\n%s".formatted(getRedactedUrl(), httpResponse.statusCode(), httpResponse.responseMessage(), httpResponse.responseBody());
+            return getPrefix()
+                    + "URL: %s\nHTTP %d %s\n%s"
+                            .formatted(
+                                    getRedactedUrl(),
+                                    httpResponse.statusCode(),
+                                    httpResponse.responseMessage(),
+                                    httpResponse.responseBody());
         } else if (url != null) {
             return getPrefix() + "URL: %s".formatted(getRedactedUrl());
         } else {
@@ -99,7 +108,9 @@ public class FetcherException extends JabRefException {
 
     public static String getRedactedUrl(String source) {
         String withoutUserInfo = USERINFO_PATTERN.matcher(source).replaceAll("");
-        return SENSITIVE_PARAM_PATTERN.matcher(withoutUserInfo).replaceAll("${" + SENSITIVE_PARAM_NAME + "}=" + REDACTED_STRING);
+        return SENSITIVE_PARAM_PATTERN
+                .matcher(withoutUserInfo)
+                .replaceAll("${" + SENSITIVE_PARAM_NAME + "}=" + REDACTED_STRING);
     }
 
     private String getPrefix() {

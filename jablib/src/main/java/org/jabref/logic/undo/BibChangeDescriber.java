@@ -15,7 +15,6 @@ import org.jabref.model.undo.UndoableRemoveEntries;
 import org.jabref.model.undo.UndoableRemoveString;
 import org.jabref.model.undo.UndoableReplaceStrings;
 import org.jabref.model.undo.UndoableStringChange;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Names a change as the user would recognise it, for the message the Undo and Redo actions show.
@@ -32,35 +31,28 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class BibChangeDescriber {
 
-    private BibChangeDescriber() {
-    }
+    private BibChangeDescriber() {}
 
     public static String describe(BibChange change) {
         return switch (change) {
-            case ChangeSet changeSet ->
-                    changeSet.name();
+            case ChangeSet changeSet -> changeSet.name();
             case UndoableFieldChange fieldChange ->
-                    Localization.lang("Change field %0", FieldTextMapper.getDisplayName(fieldChange.field()));
-            case UndoableChangeType _ ->
-                    Localization.lang("Change entry type");
+                Localization.lang("Change field %0", FieldTextMapper.getDisplayName(fieldChange.field()));
+            case UndoableChangeType _ -> Localization.lang("Change entry type");
             case UndoableInsertEntries insert ->
-                    insert.entries().size() == 1 ? Localization.lang("Insert entry") : Localization.lang("Insert entries");
+                insert.entries().size() == 1 ? Localization.lang("Insert entry") : Localization.lang("Insert entries");
             case UndoableRemoveEntries remove ->
-                    remove.entries().size() == 1 ? Localization.lang("Remove entry") : Localization.lang("Remove entries");
-            case UndoableGroupTreeChange _ ->
-                    Localization.lang("Edit groups");
-            case UndoableMetaDataChange _ ->
-                    Localization.lang("Change library settings");
-            case UndoablePreambleChange _ ->
-                    Localization.lang("Change preamble");
+                remove.entries().size() == 1 ? Localization.lang("Remove entry") : Localization.lang("Remove entries");
+            case UndoableGroupTreeChange _ -> Localization.lang("Edit groups");
+            case UndoableMetaDataChange _ -> Localization.lang("Change library settings");
+            case UndoablePreambleChange _ -> Localization.lang("Change preamble");
             case UndoableStringChange stringChange ->
-                    Localization.lang("Change string %0", stringChange.string().getName());
-            case UndoableReplaceStrings _ ->
-                    Localization.lang("Change string constants");
+                Localization.lang("Change string %0", stringChange.string().getName());
+            case UndoableReplaceStrings _ -> Localization.lang("Change string constants");
             case UndoableInsertString insert ->
-                    Localization.lang("Insert string %0", insert.string().getName());
+                Localization.lang("Insert string %0", insert.string().getName());
             case UndoableRemoveString remove ->
-                    Localization.lang("Remove string %0", remove.string().getName());
+                Localization.lang("Remove string %0", remove.string().getName());
         };
     }
 }

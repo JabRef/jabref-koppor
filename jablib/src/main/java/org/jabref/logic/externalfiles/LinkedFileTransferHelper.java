@@ -8,7 +8,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.TransferInformation;
@@ -16,7 +15,6 @@ import org.jabref.model.TransferMode;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.jooq.lambda.Unchecked;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
@@ -41,8 +39,7 @@ public class LinkedFileTransferHelper {
             FilePreferences filePreferences,
             TransferInformation transferInformation,
             BibDatabaseContext targetContext,
-            BibEntry targetEntry
-    ) {
+            BibEntry targetEntry) {
         if (!filePreferences.shouldAdjustFileLinksOnTransfer()) {
             return;
         }
@@ -87,7 +84,8 @@ public class LinkedFileTransferHelper {
             Path sourcePath = sourcePathOpt.get();
             assert !linkedFileAsPath.isAbsolute();
 
-            if ((linkedFileAsPath.getParent() != null) // the case with no parent is handled at the next if ("Try to find in other directory")
+            if ((linkedFileAsPath.getParent() != null) // the case with no parent is handled at the next if ("Try to
+                                                       // find in other directory")
                     && linkedFile.findIn(targetContext, filePreferences).isPresent()) {
                 // [impl->req~logic.externalfiles.file-transfer.reachable-no-copy~1]
                 LOGGER.debug("File is reachable as is");
@@ -110,7 +108,8 @@ public class LinkedFileTransferHelper {
 
             if (otherPlaceFile.isPresent()) {
                 LOGGER.debug("Found in other place {}", otherPlaceFile);
-                String newLink = FileUtil.relativize(otherPlaceFile.get(), directories).toString();
+                String newLink =
+                        FileUtil.relativize(otherPlaceFile.get(), directories).toString();
                 LOGGER.debug("Setting new link {}", newLink);
                 linkedFile.setLink(newLink);
                 fileLinksChanged = true;
@@ -118,11 +117,13 @@ public class LinkedFileTransferHelper {
                 continue;
             }
 
-            if ((transferInformation.transferMode() == TransferMode.COPY) && !filePreferences.shouldCopyLinkedFilesOnTransfer()) {
+            if ((transferInformation.transferMode() == TransferMode.COPY)
+                    && !filePreferences.shouldCopyLinkedFilesOnTransfer()) {
                 LOGGER.debug("File copy not allowed by preferences");
                 return;
             }
-            if ((transferInformation.transferMode() == TransferMode.MOVE) && !filePreferences.shouldMoveLinkedFilesOnTransfer()) {
+            if ((transferInformation.transferMode() == TransferMode.MOVE)
+                    && !filePreferences.shouldMoveLinkedFilesOnTransfer()) {
                 LOGGER.debug("File move not allowed by preferences");
                 return;
             }
@@ -160,8 +161,7 @@ public class LinkedFileTransferHelper {
 
     private static Optional<Path> findInSubDirs(Path path, List<Path> directories) {
         try {
-            return directories
-                    .stream()
+            return directories.stream()
                     .filter(Files::exists)
                     .flatMap(Unchecked.function(Files::walk))
                     .filter(p -> p.endsWith(path))

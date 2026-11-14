@@ -1,33 +1,32 @@
 package org.jabref.toolkit.commands;
 
-import org.jabref.logic.preferences.CliPreferences;
-import org.jabref.logic.util.BuildInfo;
-import org.jabref.model.entry.BibEntryTypesManager;
-
-import picocli.CommandLine;
-
 import static picocli.CommandLine.Command;
 import static picocli.CommandLine.Mixin;
 import static picocli.CommandLine.Option;
+
+import org.jabref.logic.preferences.CliPreferences;
+import org.jabref.logic.util.BuildInfo;
+import org.jabref.model.entry.BibEntryTypesManager;
+import picocli.CommandLine;
 
 @Command(
         name = "jabkit",
         mixinStandardHelpOptions = true,
         // sorted alphabetically
         subcommands = {
-                Check.class,
-                CitationKeys.class,
-                Convert.class,
-                DoiToBibtex.class,
-                Fetch.class,
-                GenerateBibFromAux.class,
-                GetCitedWorks.class,
-                GetCitingWorks.class,
-                Git.class,
-                Pdf.class,
-                Preferences.class,
-                Pseudonymize.class,
-                Search.class
+            Check.class,
+            CitationKeys.class,
+            Convert.class,
+            DoiToBibtex.class,
+            Fetch.class,
+            GenerateBibFromAux.class,
+            GetCitedWorks.class,
+            GetCitingWorks.class,
+            Git.class,
+            Pdf.class,
+            Preferences.class,
+            Pseudonymize.class,
+            Search.class
         })
 public class JabKit implements Runnable {
 
@@ -39,7 +38,10 @@ public class JabKit implements Runnable {
     @Mixin
     private SharedOptions sharedOptions;
 
-    @Option(names = {"-v", "--version"}, versionHelp = true, description = "display version info")
+    @Option(
+            names = {"-v", "--version"},
+            versionHelp = true,
+            description = "display version info")
     private boolean versionInfoRequested;
 
     public JabKit(CliPreferences cliPreferences, BibEntryTypesManager entryTypesManager) {
@@ -75,13 +77,20 @@ public class JabKit implements Runnable {
     }
 
     public static class SharedOptions {
-        @Option(names = {"-d", "--debug"}, description = "Enable debug output")
+        @Option(
+                names = {"-d", "--debug"},
+                description = "Enable debug output")
         boolean debug;
 
-        @Option(names = {"-p", "--porcelain"}, description = "Enable script-friendly output")
+        @Option(
+                names = {"-p", "--porcelain"},
+                description = "Enable script-friendly output")
         boolean porcelain;
 
-        @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message")
+        @Option(
+                names = {"-h", "--help"},
+                usageHelp = true,
+                description = "Display this help message")
         private boolean usageHelpRequested = true;
     }
 }

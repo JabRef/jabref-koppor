@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.prefs.BackingStoreException;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.InternalPreferences;
 import org.jabref.logic.JabRefException;
@@ -64,7 +63,8 @@ public interface CliPreferences {
 
     Map<String, Object> getDefaults();
 
-    /// Returns the export configuration. The contained SaveConfiguration is a [org.jabref.model.metadata.SelfContainedSaveOrder]
+    /// Returns the export configuration. The contained SaveConfiguration is a
+    /// [org.jabref.model.metadata.SelfContainedSaveOrder]
     SelfContainedSaveConfiguration getSelfContainedExportConfiguration();
 
     BibEntryTypesManager getCustomEntryTypesRepository();

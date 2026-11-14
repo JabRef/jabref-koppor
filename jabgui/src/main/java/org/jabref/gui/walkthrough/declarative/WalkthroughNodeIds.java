@@ -56,6 +56,5 @@ public final class WalkthroughNodeIds {
     /// "Explicit selection" radio of `GroupDialog.fxml`.
     public static final String GROUP_EXPLICIT_RADIO = "group-explicit-radio";
 
-    private WalkthroughNodeIds() {
-    }
+    private WalkthroughNodeIds() {}
 }

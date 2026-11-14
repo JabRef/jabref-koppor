@@ -1,13 +1,13 @@
 package org.jabref.model.ai.summarization;
 
 import java.util.Optional;
-
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 
 public record AiSummaryIdentifier(String libraryId, String summaryName) {
     public static Optional<AiSummaryIdentifier> from(BibDatabaseContext ctx, BibEntry entry) {
-        if (ctx.getMetaData().getAiLibraryId().isEmpty() || entry.getCitationKey().isEmpty()) {
+        if (ctx.getMetaData().getAiLibraryId().isEmpty()
+                || entry.getCitationKey().isEmpty()) {
             return Optional.empty();
         }
 
@@ -24,8 +24,6 @@ public record AiSummaryIdentifier(String libraryId, String summaryName) {
         assert entry.getCitationKey().isPresent();
 
         return new AiSummaryIdentifier(
-                ctx.getMetaData().getAiLibraryId().get(),
-                entry.getCitationKey().get()
-        );
+                ctx.getMetaData().getAiLibraryId().get(), entry.getCitationKey().get());
     }
 }

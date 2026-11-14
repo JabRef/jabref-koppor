@@ -12,12 +12,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-
+import kong.unirest.core.UnirestException;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.cleanup.DoiCleanup;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.formatter.bibtexfields.ClearFormatter;
@@ -38,16 +38,15 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import kong.unirest.core.UnirestException;
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /// Fetch or search from PubMed <a href="http://www.ncbi.nlm.nih.gov/sites/entrez/">www.ncbi.nlm.nih.gov</a>
 /// The MedlineFetcher fetches the entries from the PubMed database.
-/// See <a href="https://docs.jabref.org/collect/import-using-online-bibliographic-database#medline-pubmed">docs.jabref.org</a> for a detailed documentation of the available fields.
+/// See <a
+/// href="https://docs.jabref.org/collect/import-using-online-bibliographic-database#medline-pubmed">docs.jabref.org</a>
+/// for a detailed documentation of the available fields.
 public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher, CustomizableKeyFetcher {
     public static final String FETCHER_NAME = "Medline/PubMed";
 
@@ -106,7 +105,8 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher,
                         break;
 
                     case XMLStreamConstants.END_ELEMENT:
-                        // Everything relevant is listed before the IdList. So we break the loop right after the IdList tag closes.
+                        // Everything relevant is listed before the IdList. So we break the loop right after the IdList
+                        // tag closes.
                         if ("IdList".equals(streamReader.getName().toString())) {
                             break fetchLoop;
                         }
@@ -118,8 +118,8 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher,
         } catch (IOException | URISyntaxException e) {
             throw new FetcherException("Unable to get PubMed IDs", Localization.lang("Unable to get PubMed IDs"), e);
         } catch (XMLStreamException e) {
-            throw new FetcherException("Error while parsing ID list", Localization.lang("Error while parsing ID list"),
-                    e);
+            throw new FetcherException(
+                    "Error while parsing ID list", Localization.lang("Error while parsing ID list"), e);
         }
     }
 
@@ -181,8 +181,9 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher,
             // Separate the IDs with a comma to search multiple entries
             URL fetchURL = getUrlForIdentifier(String.join(",", ids));
             URLConnection data = fetchURL.openConnection();
-            ParserResult result = new MedlineImporter().importDatabase(
-                    new BufferedReader(new InputStreamReader(data.getInputStream(), StandardCharsets.UTF_8)));
+            ParserResult result = new MedlineImporter()
+                    .importDatabase(
+                            new BufferedReader(new InputStreamReader(data.getInputStream(), StandardCharsets.UTF_8)));
             if (result.hasWarnings()) {
                 LOGGER.warn(result.getErrorMessage());
             }
@@ -190,11 +191,13 @@ public class MedlineFetcher implements IdBasedParserFetcher, SearchBasedFetcher,
             resultList.forEach(this::doPostCleanup);
             return resultList;
         } catch (URISyntaxException | MalformedURLException e) {
-            throw new FetcherException("Error while generating fetch URL",
-                    Localization.lang("Error while generating fetch URL"), e);
+            throw new FetcherException(
+                    "Error while generating fetch URL", Localization.lang("Error while generating fetch URL"), e);
         } catch (IOException e) {
-            throw new FetcherException("Error while fetching from Medline",
-                    Localization.lang("Error while fetching from %0", "Medline"), e);
+            throw new FetcherException(
+                    "Error while fetching from Medline",
+                    Localization.lang("Error while fetching from %0", "Medline"),
+                    e);
         }
     }
 

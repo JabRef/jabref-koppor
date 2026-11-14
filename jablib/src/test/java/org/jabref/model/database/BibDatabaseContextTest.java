@@ -1,5 +1,13 @@
 package org.jabref.model.database;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -17,17 +24,8 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class BibDatabaseContextTest {
 
@@ -95,11 +93,11 @@ class BibDatabaseContextTest {
         BibDatabaseContext database = new BibDatabaseContext();
         database.setDatabasePath(file);
         database.getMetaData().setLibrarySpecificFileDirectory("../Literature");
-        assertEquals(List.of(
+        assertEquals(
+                List.of(
                         // first directory originates from the metadata
                         Path.of("/absolute/Literature").toAbsolutePath(),
-                        Path.of("/absolute/subdir").toAbsolutePath()
-                ),
+                        Path.of("/absolute/subdir").toAbsolutePath()),
                 database.getFileDirectories(fileDirPrefs));
     }
 
@@ -110,11 +108,11 @@ class BibDatabaseContextTest {
         BibDatabaseContext database = new BibDatabaseContext();
         database.setDatabasePath(file);
         database.getMetaData().setLibrarySpecificFileDirectory("Literature");
-        assertEquals(List.of(
+        assertEquals(
+                List.of(
                         // first directory originates from the metadata
                         Path.of("/absolute/subdir/Literature").toAbsolutePath(),
-                        Path.of("/absolute/subdir").toAbsolutePath()
-                ),
+                        Path.of("/absolute/subdir").toAbsolutePath()),
                 database.getFileDirectories(fileDirPrefs));
     }
 
@@ -178,7 +176,8 @@ class BibDatabaseContextTest {
         Path actualPath = bibDatabaseContext.getFulltextIndexPath();
         assertNotNull(actualPath);
 
-        String fulltextIndexBaseDirectory = Directories.getFulltextIndexBaseDirectory().toString();
+        String fulltextIndexBaseDirectory =
+                Directories.getFulltextIndexBaseDirectory().toString();
         String actualPathStart = actualPath.toString().substring(0, fulltextIndexBaseDirectory.length());
         assertEquals(fulltextIndexBaseDirectory, actualPathStart);
     }
@@ -186,12 +185,12 @@ class BibDatabaseContextTest {
     @Test
     void ofParsesValidBibtexStringCorrectly() throws Exception {
         String bibContent = """
-                @article{Alice2023,
-                    author = {Alice},
-                    title = {Test Title},
-                    year = {2023}
-                }
-                """;
+            @article{Alice2023,
+                author = {Alice},
+                title = {Test Title},
+                year = {2023}
+            }
+            """;
 
         BibDatabaseContext context = BibDatabaseContext.of(bibContent, importPrefs);
         BibEntry expected = new BibEntry(StandardEntryType.Article)
@@ -206,12 +205,12 @@ class BibDatabaseContextTest {
     @Test
     void ofParsesValidBibtexStreamCorrectly() throws Exception {
         String bibContent = """
-                @article{Alice2023,
-                    author = {Alice},
-                    title = {Test Title},
-                    year = {2023}
-                }
-                """;
+            @article{Alice2023,
+                author = {Alice},
+                title = {Test Title},
+                year = {2023}
+            }
+            """;
 
         try (InputStream bibContentStream = new ByteArrayInputStream(bibContent.getBytes(StandardCharsets.UTF_8))) {
             BibDatabaseContext context = BibDatabaseContext.of(bibContentStream, importPrefs);

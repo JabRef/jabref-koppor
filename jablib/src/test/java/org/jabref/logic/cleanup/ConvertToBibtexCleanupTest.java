@@ -1,14 +1,12 @@
 package org.jabref.logic.cleanup;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Optional;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ConvertToBibtexCleanupTest {
 
@@ -54,7 +52,8 @@ class ConvertToBibtexCleanupTest {
 
     @Test
     void cleanUpDoesntMoveFileField() {
-        String fileField = ":Ambriola2006 - On the Systematic Analysis of Natural Language Requirements with CIRCE.pdf:PDF";
+        String fileField =
+                ":Ambriola2006 - On the Systematic Analysis of Natural Language Requirements with CIRCE.pdf:PDF";
         BibEntry entry = new BibEntry().withField(StandardField.FILE, fileField);
 
         worker.cleanup(entry);

@@ -1,7 +1,11 @@
 package org.jabref.gui.importer.fetcher;
 
+import com.tobiasdiez.easybind.EasyBind;
+import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
+import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
+import de.saxsys.mvvmfx.utils.validation.Validator;
 import java.util.concurrent.Callable;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -15,7 +19,9 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.frame.SidePanePreferences;
@@ -33,19 +39,11 @@ import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.util.OptionalUtil;
 
-import com.tobiasdiez.easybind.EasyBind;
-import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
-import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
-import de.saxsys.mvvmfx.utils.validation.Validator;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.misc.ParseCancellationException;
-
 public class WebSearchPaneViewModel {
 
     private final ObjectProperty<SearchBasedFetcher> selectedFetcher = new SimpleObjectProperty<>();
-    private final ListProperty<SearchBasedFetcher> fetchers = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<SearchBasedFetcher> fetchers =
+            new SimpleListProperty<>(FXCollections.observableArrayList());
     private final StringProperty query = new SimpleStringProperty();
     private final ReadOnlyStringWrapper searchModeIndicator = new ReadOnlyStringWrapper("");
     private final DialogService dialogService;
@@ -62,12 +60,10 @@ public class WebSearchPaneViewModel {
 
         BooleanProperty importEnabled = preferences.getImporterPreferences().importerEnabledProperty();
         searchEnabled = Bindings.createBooleanBinding(
-                () -> importEnabled.get() && !StringUtil.isBlank(getQuery()),
-                importEnabled, query);
+                () -> importEnabled.get() && !StringUtil.isBlank(getQuery()), importEnabled, query);
 
         fetchers.setAll(WebFetchers.getSearchBasedFetchers(
-                preferences.getImportFormatPreferences(),
-                preferences.getImporterPreferences()));
+                preferences.getImportFormatPreferences(), preferences.getImporterPreferences()));
 
         // Choose last-selected fetcher as default
         SidePanePreferences sidePanePreferences = preferences.getSidePanePreferences();
@@ -82,51 +78,50 @@ public class WebSearchPaneViewModel {
             sidePanePreferences.setWebSearchFetcherSelected(newIndex);
         });
 
-        searchQueryValidator = new FunctionBasedValidator<>(
-                query,
-                queryText -> {
-                    if (StringUtil.isBlank(queryText)) {
-                        // in case user did not enter something, it is treated as valid (to avoid UI WTFs)
-                        searchModeIndicator.set("");
-                        return null;
-                    }
+        searchQueryValidator = new FunctionBasedValidator<>(query, queryText -> {
+            if (StringUtil.isBlank(queryText)) {
+                // in case user did not enter something, it is treated as valid (to avoid UI WTFs)
+                searchModeIndicator.set("");
+                return null;
+            }
 
-                    if (DOI.parse(queryText).isPresent()) {
-                        searchModeIndicator.set(Localization.lang("Routing to DOI fetcher"));
-                        return null;
-                    }
+            if (DOI.parse(queryText).isPresent()) {
+                searchModeIndicator.set(Localization.lang("Routing to DOI fetcher"));
+                return null;
+            }
 
-                    if (CompositeIdFetcher.containsValidId(queryText)) {
-                        // in case the query contains any ID, it is treated as valid
-                        searchModeIndicator.set("");
-                        return null;
-                    }
+            if (CompositeIdFetcher.containsValidId(queryText)) {
+                // in case the query contains any ID, it is treated as valid
+                searchModeIndicator.set("");
+                return null;
+            }
 
-                    try {
-                        // The result is ignored because we just check for validity
-                        SearchQuery.getStartContext(queryText);
-                        searchModeIndicator.set(Localization.lang("Advanced search syntax"));
-                        return null;
-                    } catch (ParseCancellationException e) {
-                        // Query will still be sent as a raw search term to the fetcher
-                        // but we show a warning so the user knows advanced syntax was not recognized.
-                        searchModeIndicator.set(Localization.lang("Query sent as raw search term"));
+            try {
+                // The result is ignored because we just check for validity
+                SearchQuery.getStartContext(queryText);
+                searchModeIndicator.set(Localization.lang("Advanced search syntax"));
+                return null;
+            } catch (ParseCancellationException e) {
+                // Query will still be sent as a raw search term to the fetcher
+                // but we show a warning so the user knows advanced syntax was not recognized.
+                searchModeIndicator.set(Localization.lang("Query sent as raw search term"));
 
-                        // RecognitionException can point out the exact error
-                        if (e.getCause() instanceof RecognitionException recEx) {
-                            Token offendingToken = recEx.getOffendingToken();
+                // RecognitionException can point out the exact error
+                if (e.getCause() instanceof RecognitionException recEx) {
+                    Token offendingToken = recEx.getOffendingToken();
 
-                            // The character position is 0-based, so we add 1 for user-friendliness.
-                            int line = offendingToken.getLine();
-                            int charPositionInLine = offendingToken.getCharPositionInLine() + 1;
+                    // The character position is 0-based, so we add 1 for user-friendliness.
+                    int line = offendingToken.getLine();
+                    int charPositionInLine = offendingToken.getCharPositionInLine() + 1;
 
-                            return ValidationMessage.warning(Localization.lang("Invalid query element '%0' at position %1", line, charPositionInLine));
-                        }
+                    return ValidationMessage.warning(
+                            Localization.lang("Invalid query element '%0' at position %1", line, charPositionInLine));
+                }
 
-                        // Fallback for other failing reasons
-                        return ValidationMessage.warning(Localization.lang("Invalid query"));
-                    }
-                });
+                // Fallback for other failing reasons
+                return ValidationMessage.warning(Localization.lang("Invalid query"));
+            }
+        });
     }
 
     public ObservableList<SearchBasedFetcher> getFetchers() {
@@ -191,7 +186,8 @@ public class WebSearchPaneViewModel {
             effectiveFetcher = null;
         } else if (CompositeIdFetcher.containsValidId(query)) {
             CompositeIdFetcher compositeIdFetcher = new CompositeIdFetcher(preferences.getImportFormatPreferences());
-            parserResultCallable = () -> new ParserResult(OptionalUtil.toList(compositeIdFetcher.performSearchById(query)));
+            parserResultCallable =
+                    () -> new ParserResult(OptionalUtil.toList(compositeIdFetcher.performSearchById(query)));
             fetcherName = Localization.lang("Identifier-based Web Search");
         } else {
             // Exceptions are handled below at "task.onFailure(dialogService::showErrorDialogAndWait)"
@@ -199,7 +195,7 @@ public class WebSearchPaneViewModel {
         }
 
         BackgroundTask<ParserResult> task = BackgroundTask.wrap(parserResultCallable)
-                                                          .withInitialMessage(Localization.lang("Processing \"%0\"...", query));
+                .withInitialMessage(Localization.lang("Processing \"%0\"...", query));
         task.onFailure(dialogService::showErrorDialogAndWait);
 
         ImportEntriesDialog dialog;

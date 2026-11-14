@@ -1,9 +1,17 @@
 package org.jabref.gui.git;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
-
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.internal.storage.file.WindowCache;
+import org.eclipse.jgit.lib.RepositoryCache;
+import org.eclipse.jgit.storage.file.WindowCacheConfig;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.logic.git.preferences.GitPreferences;
@@ -13,11 +21,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.CurrentThreadTaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.internal.storage.file.WindowCache;
-import org.eclipse.jgit.lib.RepositoryCache;
-import org.eclipse.jgit.storage.file.WindowCacheConfig;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,11 +30,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @NullMarked
 @Execution(ExecutionMode.SAME_THREAD)
@@ -50,9 +48,12 @@ class GitCommitDialogViewModelTest {
         GitPreferences gitPreferences = mock(GitPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(gitPreferences.getPat()).thenReturn("");
         gitHandlerRegistry = new GitHandlerRegistry(gitPreferences);
-        // Deep stubs so when parsing .bib files in diffTask() can read the keyword separator and avoid NullPointerException
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        // Deep stubs so when parsing .bib files in diffTask() can read the keyword separator and avoid
+        // NullPointerException
+        ImportFormatPreferences importFormatPreferences =
+                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .thenReturn(',');
         viewModel = new GitCommitDialogViewModel(
                 stateManager,
                 dialogService,
@@ -74,7 +75,10 @@ class GitCommitDialogViewModelTest {
         Path libraryFile = repoDir.resolve("library.bib");
         Files.createDirectories(repoDir);
 
-        try (Git git = Git.init().setInitialBranch("main").setDirectory(repoDir.toFile()).call()) {
+        try (Git git = Git.init()
+                .setInitialBranch("main")
+                .setDirectory(repoDir.toFile())
+                .call()) {
             Files.writeString(libraryFile, "@article{a, title={initial}}\n");
             git.add().addFilepattern("library.bib").call();
             git.commit().setMessage("Initial commit").call();
@@ -87,12 +91,14 @@ class GitCommitDialogViewModelTest {
         when(databaseContext.getDatabasePath()).thenReturn(Optional.of(libraryFile));
         when(stateManager.getActiveDatabase()).thenReturn(Optional.of(databaseContext));
 
-        viewModel.commit(() -> {
-        });
+        viewModel.commit(() -> {});
 
-        verify(dialogService).showErrorDialogAndWait(
-                Localization.lang("Git commit failed"),
-                Localization.lang("The Git repository is locked. Close other Git, JabRef, or IDE processes and try again."));
+        verify(dialogService)
+                .showErrorDialogAndWait(
+                        Localization.lang("Git commit failed"),
+                        Localization.lang(
+                                "The Git repository is locked. Close other Git, JabRef, or IDE processes and try"
+                                        + " again."));
     }
 
     // [utest->req~git.commit.generated-message~1]
@@ -103,7 +109,8 @@ class GitCommitDialogViewModelTest {
 
         viewModel.prefillGeneratedCommitMessage();
 
-        assertEquals("Modify author of Smith2024", viewModel.commitMessageProperty().get());
+        assertEquals(
+                "Modify author of Smith2024", viewModel.commitMessageProperty().get());
     }
 
     @Test
@@ -123,8 +130,7 @@ class GitCommitDialogViewModelTest {
         Path libraryFile = commitLibrary(tempDir, "@article{Smith2024, author={Smith}, title={Git basics}}\n");
         Files.writeString(libraryFile, "@article{Smith2024, author={Smith, John}, title={Git basics}}\n");
 
-        viewModel.commit(() -> {
-        });
+        viewModel.commit(() -> {});
 
         assertEquals("Modify author of Smith2024", lastCommitMessage(tempDir));
     }
@@ -135,8 +141,7 @@ class GitCommitDialogViewModelTest {
         Files.writeString(libraryFile, "@article{Smith2024, author={Smith, John}, title={Git basics}}\n");
         viewModel.commitMessageProperty().set("My own message");
 
-        viewModel.commit(() -> {
-        });
+        viewModel.commit(() -> {});
 
         assertEquals("My own message", lastCommitMessage(tempDir));
     }
@@ -152,7 +157,10 @@ class GitCommitDialogViewModelTest {
         Path libraryFile = repoDir.resolve("library.bib");
         Files.createDirectories(repoDir);
 
-        try (Git git = Git.init().setInitialBranch("main").setDirectory(repoDir.toFile()).call()) {
+        try (Git git = Git.init()
+                .setInitialBranch("main")
+                .setDirectory(repoDir.toFile())
+                .call()) {
             Files.writeString(libraryFile, content);
             git.add().addFilepattern("library.bib").call();
             git.commit().setMessage("Initial commit").call();

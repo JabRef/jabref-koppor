@@ -1,8 +1,11 @@
 package org.jabref.logic.database;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.bibtex.comparator.BibtexStringComparator;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.database.BibDatabase;
@@ -16,14 +19,9 @@ import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.metadata.ContentSelector;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class DatabaseMergerTest {
     private ImportFormatPreferences importFormatPreferences;
@@ -31,7 +29,8 @@ class DatabaseMergerTest {
     @BeforeEach
     void setUp() {
         importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .thenReturn(',');
     }
 
     @Test
@@ -45,7 +44,10 @@ class DatabaseMergerTest {
                 .withField(StandardField.TITLE, "Quantum Networks for Generating Arbitrary Quantum States");
         BibEntry entry3 = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Stephen Blaha")
-                .withField(StandardField.TITLE, "Quantum Computers and Quantum Computer Languages: Quantum Assembly Language and Quantum C Language");
+                .withField(
+                        StandardField.TITLE,
+                        "Quantum Computers and Quantum Computer Languages: Quantum Assembly Language and Quantum C"
+                                + " Language");
 
         BibDatabase database = new BibDatabase(List.of(entry1));
         BibDatabase other = new BibDatabase(List.of(entry2, entry3));
@@ -103,17 +105,19 @@ class DatabaseMergerTest {
         source1.addString(sourceString1);
         source2.addString(sourceString2);
 
-        new DatabaseMerger(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).mergeStrings(target, source1);
-        new DatabaseMerger(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).mergeStrings(target, source2);
+        new DatabaseMerger(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .mergeStrings(target, source1);
+        new DatabaseMerger(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .mergeStrings(target, source2);
         // Use string representation to compare since the id will not match
-        List<String> resultStringsSorted = target.getStringValues()
-                                                 .stream()
-                                                 .map(BibtexString::toString)
-                                                 .sorted()
-                                                 .collect(Collectors.toList());
+        List<String> resultStringsSorted = target.getStringValues().stream()
+                .map(BibtexString::toString)
+                .sorted()
+                .collect(Collectors.toList());
 
-        assertEquals(List.of(targetString.toString(), importedBibTeXString1.toString(),
-                importedBibTeXString2.toString()), resultStringsSorted);
+        assertEquals(
+                List.of(targetString.toString(), importedBibTeXString1.toString(), importedBibTeXString2.toString()),
+                resultStringsSorted);
     }
 
     @Test
@@ -132,11 +136,11 @@ class DatabaseMergerTest {
         source.addString(sourceString1);
         source.addString(sourceString2);
 
-        new DatabaseMerger(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).mergeStrings(target, source);
-        List<BibtexString> resultStringsSorted = target.getStringValues()
-                                                       .stream()
-                                                       .sorted(new BibtexStringComparator(false)::compare)
-                                                       .collect(Collectors.toList());
+        new DatabaseMerger(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .mergeStrings(target, source);
+        List<BibtexString> resultStringsSorted = target.getStringValues().stream()
+                .sorted(new BibtexStringComparator(false)::compare)
+                .collect(Collectors.toList());
 
         assertEquals(List.of(targetString1, targetString2), resultStringsSorted);
     }
@@ -145,20 +149,25 @@ class DatabaseMergerTest {
     void mergeMetaDataWithoutAllEntriesGroup() {
         MetaData target = new MetaData();
         target.addContentSelector(new ContentSelector(StandardField.AUTHOR, List.of("Test Author")));
-        GroupTreeNode targetRootGroup = new GroupTreeNode(new ExplicitGroup("targetGroup", GroupHierarchyType.INDEPENDENT, ','));
+        GroupTreeNode targetRootGroup =
+                new GroupTreeNode(new ExplicitGroup("targetGroup", GroupHierarchyType.INDEPENDENT, ','));
         target.setGroups(targetRootGroup);
         MetaData other = new MetaData();
-        GroupTreeNode otherRootGroup = new GroupTreeNode(new ExplicitGroup("otherGroup", GroupHierarchyType.INCLUDING, ','));
+        GroupTreeNode otherRootGroup =
+                new GroupTreeNode(new ExplicitGroup("otherGroup", GroupHierarchyType.INCLUDING, ','));
         other.setGroups(otherRootGroup);
         other.addContentSelector(new ContentSelector(StandardField.TITLE, List.of("Test Title")));
-        List<ContentSelector> expectedContentSelectors =
-                List.of(new ContentSelector(StandardField.AUTHOR, List.of("Test Author")),
-                        new ContentSelector(StandardField.TITLE, List.of("Test Title")));
+        List<ContentSelector> expectedContentSelectors = List.of(
+                new ContentSelector(StandardField.AUTHOR, List.of("Test Author")),
+                new ContentSelector(StandardField.TITLE, List.of("Test Title")));
 
-        new DatabaseMerger(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).mergeMetaData(target, other, "unknown", List.of());
+        new DatabaseMerger(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .mergeMetaData(target, other, "unknown", List.of());
 
         // Assert that content selectors are all merged
-        assertEquals(expectedContentSelectors, target.getContentSelectorsSorted().stream().toList());
+        assertEquals(
+                expectedContentSelectors,
+                target.getContentSelectorsSorted().stream().toList());
 
         // Assert that groups of other are children of root node of target
         assertEquals(targetRootGroup, target.getGroups().get());
@@ -176,18 +185,24 @@ class DatabaseMergerTest {
         GroupTreeNode otherRootGroup = new GroupTreeNode(new AllEntriesGroup("otherGroup"));
         other.setGroups(otherRootGroup);
         other.addContentSelector(new ContentSelector(StandardField.TITLE, List.of("Test Title")));
-        List<ContentSelector> expectedContentSelectors =
-                List.of(new ContentSelector(StandardField.AUTHOR, List.of("Test Author")),
-                        new ContentSelector(StandardField.TITLE, List.of("Test Title")));
-        GroupTreeNode expectedImportedGroupNode = new GroupTreeNode(new ExplicitGroup("Imported unknown", GroupHierarchyType.INDEPENDENT, ';'));
+        List<ContentSelector> expectedContentSelectors = List.of(
+                new ContentSelector(StandardField.AUTHOR, List.of("Test Author")),
+                new ContentSelector(StandardField.TITLE, List.of("Test Title")));
+        GroupTreeNode expectedImportedGroupNode =
+                new GroupTreeNode(new ExplicitGroup("Imported unknown", GroupHierarchyType.INDEPENDENT, ';'));
 
-        new DatabaseMerger(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).mergeMetaData(target, other, "unknown", List.of());
+        new DatabaseMerger(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .mergeMetaData(target, other, "unknown", List.of());
 
         // Assert that groups of other are children of root node of target
         assertEquals(targetRootGroup, target.getGroups().get());
         assertEquals(1, target.getGroups().get().getChildren().size());
-        assertEquals(expectedImportedGroupNode, target.getGroups().get().getChildren().getFirst());
-        assertEquals(expectedContentSelectors, target.getContentSelectorsSorted().stream().toList());
+        assertEquals(
+                expectedImportedGroupNode,
+                target.getGroups().get().getChildren().getFirst());
+        assertEquals(
+                expectedContentSelectors,
+                target.getContentSelectorsSorted().stream().toList());
     }
 
     @Test
@@ -209,7 +224,8 @@ class DatabaseMergerTest {
         merger.merge(target, other);
 
         assertEquals(1, target.getEntries().size());
-        assertEquals("ArXiv, Springer",
+        assertEquals(
+                "ArXiv, Springer",
                 target.getEntries().getFirst().getField(StandardField.GROUPS).orElse(""));
     }
 
@@ -231,7 +247,8 @@ class DatabaseMergerTest {
         merger.merge(target, other);
 
         assertEquals(1, target.getEntries().size());
-        assertEquals("ArXiv",
+        assertEquals(
+                "ArXiv",
                 target.getEntries().getFirst().getField(StandardField.GROUPS).orElse(""));
     }
 
@@ -254,7 +271,8 @@ class DatabaseMergerTest {
         merger.merge(target, other);
 
         assertEquals(1, target.getEntries().size());
-        assertEquals("ArXiv",
+        assertEquals(
+                "ArXiv",
                 target.getEntries().getFirst().getField(StandardField.GROUPS).orElse(""));
     }
 }

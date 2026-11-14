@@ -1,8 +1,9 @@
 package org.jabref.logic.msbib;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
@@ -11,10 +12,8 @@ import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.IEEETranEntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-
-/// Mapping between Msbib and biblatex All Fields: <a href = "https://msdn.microsoft.com/de-de/library/office/documentformat.openxml.bibliography">List
+/// Mapping between Msbib and biblatex All Fields: <a href =
+/// "https://msdn.microsoft.com/de-de/library/office/documentformat.openxml.bibliography">List
 /// of all MSBib fields</a>
 public class MSBibMapping {
 
@@ -26,7 +25,8 @@ public class MSBibMapping {
     private static final Map<EntryType, MSBibEntryType> BIB_ENTRYTYPE_MAPPING = new HashMap<>();
 
     static {
-        // see https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oe376/6c085406-a698-4e12-9d4d-c3b0ee3dbc4a
+        // see
+        // https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oe376/6c085406-a698-4e12-9d4d-c3b0ee3dbc4a
         LANG_TO_LCID.put("basque", 1609);
         LANG_TO_LCID.put("bulgarian", 1026);
         LANG_TO_LCID.put("catalan", 1027);
@@ -154,8 +154,7 @@ public class MSBibMapping {
         BIB_ENTRYTYPE_MAPPING.put(StandardEntryType.Online, MSBibEntryType.InternetSite);
     }
 
-    private MSBibMapping() {
-    }
+    private MSBibMapping() {}
 
     public static EntryType getBiblatexEntryType(String msbibType) {
         return MSBIB_ENTRYTYPE_MAPPING.getOrDefault(msbibType, StandardEntryType.Misc);

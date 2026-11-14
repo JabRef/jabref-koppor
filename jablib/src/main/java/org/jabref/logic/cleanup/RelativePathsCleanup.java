@@ -4,14 +4,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.FieldChange;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.jspecify.annotations.NonNull;
 
 public class RelativePathsCleanup implements CleanupJob {
@@ -38,13 +36,13 @@ public class RelativePathsCleanup implements CleanupJob {
                 newFileName = oldFileName;
             } else {
                 // only try to transform local file path to relative one
-                newFileName = FileUtil
-                        .relativize(Path.of(oldFileName), databaseContext, filePreferences)
+                newFileName = FileUtil.relativize(Path.of(oldFileName), databaseContext, filePreferences)
                         .toString();
             }
             LinkedFile newFileEntry = fileEntry;
             if (!oldFileName.equals(newFileName)) {
-                newFileEntry = new LinkedFile(fileEntry.getDescription(), Path.of(newFileName), fileEntry.getFileType());
+                newFileEntry =
+                        new LinkedFile(fileEntry.getDescription(), Path.of(newFileName), fileEntry.getFileType());
                 changed = true;
             }
             newFileList.add(newFileEntry);

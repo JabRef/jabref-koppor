@@ -1,5 +1,13 @@
 package org.jabref.http.server.cayw;
 
+import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.awt.GraphicsEnvironment;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,7 +27,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
@@ -28,7 +35,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.VBox;
-
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.http.JabRefSrvStateManager;
 import org.jabref.http.SrvStateManager;
@@ -49,15 +55,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
-import jakarta.inject.Inject;
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -70,10 +67,12 @@ public class CAYWResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(CAYWResource.class);
     private static final String CHOCOLATEBIB_PATH = "/Chocolate.bib";
     private static final String CONTENT_SECURITY_POLICY = "Content-Security-Policy";
-    private static final String CAYW_CONTENT_SECURITY_POLICY = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'";
+    private static final String CAYW_CONTENT_SECURITY_POLICY =
+            "default-src 'none'; frame-ancestors 'none'; base-uri 'none'";
     private static final String X_CONTENT_TYPE_OPTIONS = "X-Content-Type-Options";
     private static final String NO_SNIFF = "nosniff";
-    private static final String INVALID_LIBRARY_PATH_ERROR = "The 'librarypath' parameter must reference a currently served library file.";
+    private static final String INVALID_LIBRARY_PATH_ERROR =
+            "The 'librarypath' parameter must reference a currently served library file.";
     private static volatile boolean allowAllLibraryPaths = false;
     private static final Set<Path> TRUSTED_LIBRARY_PATHS = ConcurrentHashMap.newKeySet();
     private static final Set<Path> BLOCKED_LIBRARY_PATHS = ConcurrentHashMap.newKeySet();
@@ -91,16 +90,16 @@ public class CAYWResource {
 
     @GET
     @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON})
-    public Response getCitation(
-            @BeanParam CAYWQueryParams queryParams
-    ) throws IOException, ExecutionException, InterruptedException {
+    public Response getCitation(@BeanParam CAYWQueryParams queryParams)
+            throws IOException, ExecutionException, InterruptedException {
         // Validation of command parameter
         String command = queryParams.getCommand().orElse("autocite");
         if (!ALLOWED_COMMAND.matcher(command).matches()) {
             LOGGER.warn("Blocked CAYW request with malicious command: {}", command);
             return Response.status(Response.Status.BAD_REQUEST)
-                           .entity("The 'command' parameter contains invalid characters. Only letters (A–Z, a–z) and '*' are allowed.")
-                           .build();
+                    .entity("The 'command' parameter contains invalid characters. Only letters (A–Z, a–z) and '*' are"
+                            + " allowed.")
+                    .build();
         }
 
         // Probe parameter handling
@@ -114,17 +113,21 @@ public class CAYWResource {
         List<CAYWEntry> searchResults;
         if (queryParams.isSelected()) {
             if (srvStateManager instanceof JabRefSrvStateManager) {
-                LOGGER.error("The 'selected' parameter is not supported in CLI mode. Please use the GUI to use the selected entries.");
+                LOGGER.error(
+                        "The 'selected' parameter is not supported in CLI mode. Please use the GUI to use the selected"
+                                + " entries.");
                 return Response.status(Response.Status.BAD_REQUEST)
-                               .entity("The 'selected' parameter is not supported in CLI mode. Please use the GUI to use the selected entries.")
-                               .build();
+                        .entity("The 'selected' parameter is not supported in CLI mode. Please use the GUI to use the"
+                                + " selected entries.")
+                        .build();
             }
-            searchResults = srvStateManager.getSelectedEntries().stream().map(this::createCAYWEntry).toList();
+            searchResults = srvStateManager.getSelectedEntries().stream()
+                    .map(this::createCAYWEntry)
+                    .toList();
         } else {
-            List<CAYWEntry> entries = databaseContext.getEntries()
-                                                     .stream()
-                                                     .map(this::createCAYWEntry)
-                                                     .collect(Collectors.toList());
+            List<CAYWEntry> entries = databaseContext.getEntries().stream()
+                    .map(this::createCAYWEntry)
+                    .collect(Collectors.toList());
             initializeGUI();
             searchResults = openSearchGui(entries, databaseContext);
         }
@@ -136,13 +139,16 @@ public class CAYWResource {
         // Select parameter handling
         if (queryParams.isSelect()) {
             if (srvStateManager instanceof JabRefSrvStateManager) {
-                LOGGER.error("The 'select' parameter is not supported in CLI mode. Please use the GUI to select entries.");
+                LOGGER.error(
+                        "The 'select' parameter is not supported in CLI mode. Please use the GUI to select entries.");
                 return Response.status(Response.Status.BAD_REQUEST)
-                               .entity("The 'select' parameter is not supported in CLI mode. Please use the GUI to select entries.")
-                               .build();
+                        .entity("The 'select' parameter is not supported in CLI mode. Please use the GUI to select"
+                                + " entries.")
+                        .build();
             }
             srvStateManager.getActiveSelectionTabProperty().get().ifPresent(selectionTab -> {
-                selectionTab.clearAndSelect(searchResults.stream().map(CAYWEntry::bibEntry).collect(Collectors.toList()));
+                selectionTab.clearAndSelect(
+                        searchResults.stream().map(CAYWEntry::bibEntry).collect(Collectors.toList()));
             });
         }
 
@@ -160,34 +166,38 @@ public class CAYWResource {
                 javafx.scene.input.Clipboard.getSystemClipboard().setContent(content);
             });
             return Response.accepted()
-                           .header(X_CONTENT_TYPE_OPTIONS, NO_SNIFF)
-                           .header(CONTENT_SECURITY_POLICY, CAYW_CONTENT_SECURITY_POLICY)
-                           .build();
+                    .header(X_CONTENT_TYPE_OPTIONS, NO_SNIFF)
+                    .header(CONTENT_SECURITY_POLICY, CAYW_CONTENT_SECURITY_POLICY)
+                    .build();
         }
 
         // Push to Application parameter handling
         if (queryParams.getApplication().isPresent()) {
             CitationCommandString citationCmd = new CitationCommandString("\\" + command + "{", ",", "}");
-            PushToApplications.getApplication(queryParams.getApplication().get(), LOGGER::info, preferences.getPushToApplicationPreferences().withCitationCommand(citationCmd))
-                              .ifPresent(application -> application.pushEntries(searchResults.stream().map(CAYWEntry::bibEntry).toList()));
+            PushToApplications.getApplication(
+                            queryParams.getApplication().get(),
+                            LOGGER::info,
+                            preferences.getPushToApplicationPreferences().withCitationCommand(citationCmd))
+                    .ifPresent(application -> application.pushEntries(
+                            searchResults.stream().map(CAYWEntry::bibEntry).toList()));
         }
 
         return Response.ok(formattedResponse)
-                       .type(formatter.getMediaType())
-                       .header(X_CONTENT_TYPE_OPTIONS, NO_SNIFF)
-                       .header(CONTENT_SECURITY_POLICY, CAYW_CONTENT_SECURITY_POLICY)
-                       .build();
+                .type(formatter.getMediaType())
+                .header(X_CONTENT_TYPE_OPTIONS, NO_SNIFF)
+                .header(CONTENT_SECURITY_POLICY, CAYW_CONTENT_SECURITY_POLICY)
+                .build();
     }
 
-    private List<CAYWEntry> openSearchGui(List<CAYWEntry> entries, BibDatabaseContext databaseContext) throws InterruptedException, ExecutionException {
-        InMemoryLibrarySearcher searcher = new InMemoryLibrarySearcher(databaseContext, preferences.getBibEntryPreferences());
+    private List<CAYWEntry> openSearchGui(List<CAYWEntry> entries, BibDatabaseContext databaseContext)
+            throws InterruptedException, ExecutionException {
+        InMemoryLibrarySearcher searcher =
+                new InMemoryLibrarySearcher(databaseContext, preferences.getBibEntryPreferences());
 
         CompletableFuture<List<CAYWEntry>> future = new CompletableFuture<>();
         Platform.runLater(() -> {
             SearchDialog dialog = new SearchDialog();
-            List<CAYWEntry> results = dialog.show(
-                    searchText -> filterEntries(entries, searchText, searcher),
-                    entries);
+            List<CAYWEntry> results = dialog.show(searchText -> filterEntries(entries, searchText, searcher), entries);
             future.complete(results);
         });
 
@@ -200,25 +210,27 @@ public class CAYWResource {
     /// - Valid Search.g4 expression → grammar-based filter via [InMemoryLibrarySearcher].
     /// - Invalid expression (e.g. user is mid-typing `author=`) → fall back to a plain
     ///   substring match across the CAYW labels so the list stays useful as the user types.
-    private List<CAYWEntry> filterEntries(List<CAYWEntry> entries, String searchText, InMemoryLibrarySearcher searcher) {
+    private List<CAYWEntry> filterEntries(
+            List<CAYWEntry> entries, String searchText, InMemoryLibrarySearcher searcher) {
         if (searchText.isEmpty()) {
             return entries;
         }
         SearchQuery query = new SearchQuery(searchText);
         if (query.isValid()) {
             return entries.stream()
-                          .filter(caywEntry -> searcher.matches(caywEntry.bibEntry(), query))
-                          .toList();
+                    .filter(caywEntry -> searcher.matches(caywEntry.bibEntry(), query))
+                    .toList();
         }
         return entries.stream()
-                      .filter(caywEntry -> matchesSubstring(caywEntry, searchText))
-                      .toList();
+                .filter(caywEntry -> matchesSubstring(caywEntry, searchText))
+                .toList();
     }
 
     private BibDatabaseContext getBibDatabaseContext(CAYWQueryParams queryParams) throws IOException {
         Optional<String> libraryId = queryParams.getLibraryId();
         if (libraryId.isPresent()) {
-            return ServerUtils.getBibDatabaseContext(libraryId.get(), srvStateManager, preferences.getImportFormatPreferences());
+            return ServerUtils.getBibDatabaseContext(
+                    libraryId.get(), srvStateManager, preferences.getImportFormatPreferences());
         }
 
         Optional<String> libraryPath = queryParams.getLibraryPath();
@@ -269,7 +281,8 @@ public class CAYWResource {
             headless = GraphicsEnvironment.isHeadless();
         } catch (LinkageError awtUnavailable) {
             // Native image doesn't bundle AWT libs, so isHeadless() fails to link; treat that as headless.
-            LOGGER.debug("AWT unavailable (native image without bundled AWT libs); treating as headless.", awtUnavailable);
+            LOGGER.debug(
+                    "AWT unavailable (native image without bundled AWT libs); treating as headless.", awtUnavailable);
             headless = true;
         }
         if (headless) {
@@ -339,23 +352,26 @@ public class CAYWResource {
 
     private List<Path> getServedLibraryPaths() {
         return srvStateManager.getOpenDatabases().stream()
-                              .map(BibDatabaseContext::getDatabasePath)
-                              .flatMap(Optional::stream)
-                              .map(path -> path.toAbsolutePath().normalize())
-                              .toList();
+                .map(BibDatabaseContext::getDatabasePath)
+                .flatMap(Optional::stream)
+                .map(path -> path.toAbsolutePath().normalize())
+                .toList();
     }
 
     private InputStream getLatestDatabaseStream() throws IOException {
         InputStream libraryStream;
         // Use the latest opened library as the default library
-        final List<Path> lastOpenedLibraries = new ArrayList<>(preferences.getLastFilesOpenedPreferences().getLastFilesOpened());
+        final List<Path> lastOpenedLibraries =
+                new ArrayList<>(preferences.getLastFilesOpenedPreferences().getLastFilesOpened());
         if (lastOpenedLibraries.isEmpty()) {
-            LOGGER.warn("No library path provided and no last opened libraries found, using the default chocolate.bib.");
+            LOGGER.warn(
+                    "No library path provided and no last opened libraries found, using the default chocolate.bib.");
             libraryStream = getChocolateBibAsStream();
         } else {
             Path lastOpenedLibrary = lastOpenedLibraries.getFirst();
             if (!Files.exists(lastOpenedLibrary)) {
-                LOGGER.error("Last opened library does not exist, using the default chocolate.bib: {}", lastOpenedLibrary);
+                LOGGER.error(
+                        "Last opened library does not exist, using the default chocolate.bib: {}", lastOpenedLibrary);
                 libraryStream = getChocolateBibAsStream();
             } else {
                 libraryStream = Files.newInputStream(lastOpenedLibrary);
@@ -373,7 +389,8 @@ public class CAYWResource {
     }
 
     private BibDatabaseContext getDatabaseContextFromStream(InputStream inputStream) throws IOException {
-        BibtexImporter bibtexImporter = new BibtexImporter(preferences.getImportFormatPreferences(), new DummyFileUpdateMonitor());
+        BibtexImporter bibtexImporter =
+                new BibtexImporter(preferences.getImportFormatPreferences(), new DummyFileUpdateMonitor());
         BibDatabaseContext databaseContext;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             databaseContext = bibtexImporter.importDatabase(reader).getDatabaseContext();
@@ -403,13 +420,17 @@ public class CAYWResource {
             initialized = true;
             return;
         } catch (Throwable e) {
-            // Catches NoClassDefFoundError/UnsatisfiedLinkError when the JavaFX runtime is missing or version-mismatched
-            // (e.g., javafx.graphics from an older version paired with a newer javafx.base where javafx.util.FXPermission was removed).
+            // Catches NoClassDefFoundError/UnsatisfiedLinkError when the JavaFX runtime is missing or
+            // version-mismatched
+            // (e.g., javafx.graphics from an older version paired with a newer javafx.base where
+            // javafx.util.FXPermission was removed).
             LOGGER.error("Could not initialize JavaFX runtime for CAYW resource.", e);
-            throw new WebApplicationException(
-                    Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                            .entity("CAYW unavailable: JavaFX runtime could not be initialized (" + e.getClass().getName() + ": " + e.getMessage() + "). The CAYW endpoint requires a working, version-consistent JavaFX runtime on the module path.")
-                            .build());
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity("CAYW unavailable: JavaFX runtime could not be initialized ("
+                            + e.getClass().getName() + ": " + e.getMessage()
+                            + "). The CAYW endpoint requires a working, version-consistent JavaFX runtime on"
+                            + " the module path.")
+                    .build());
         }
         try {
             latch.await();
@@ -420,7 +441,8 @@ public class CAYWResource {
         }
     }
 
-    /// @return a stream to the `Chocolate.bib` file in the classpath (is null only if the file was moved or there are issues with the classpath)
+    /// @return a stream to the `Chocolate.bib` file in the classpath (is null only if the file was moved or there are
+    /// issues with the classpath)
     private @Nullable InputStream getChocolateBibAsStream() {
         return BibDatabase.class.getResourceAsStream(CHOCOLATEBIB_PATH);
     }
@@ -434,11 +456,10 @@ public class CAYWResource {
 
     private boolean matchesSubstring(CAYWEntry entry, String searchText) {
         String lowerSearchText = searchText.toLowerCase();
-        return entry.label().toLowerCase().contains(lowerSearchText) ||
-                entry.description().toLowerCase().contains(lowerSearchText) ||
-                entry.shortLabel().toLowerCase().contains(lowerSearchText);
+        return entry.label().toLowerCase().contains(lowerSearchText)
+                || entry.description().toLowerCase().contains(lowerSearchText)
+                || entry.shortLabel().toLowerCase().contains(lowerSearchText);
     }
 
-    private record LibraryPathAccessPromptResult(ButtonType selectedButton, boolean dontAskAgain) {
-    }
+    private record LibraryPathAccessPromptResult(ButtonType selectedButton, boolean dontAskAgain) {}
 }

@@ -1,10 +1,11 @@
 package org.jabref.gui.mergeentries.multiwaymerge;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
+import java.util.Optional;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.testutils.JavaFxTest;
 import org.jabref.logic.l10n.Language;
@@ -12,12 +13,8 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.CurrentThreadTaskExecutor;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 class MultiMergeEntriesViewTest extends JavaFxTest {
 
@@ -34,7 +31,8 @@ class MultiMergeEntriesViewTest extends JavaFxTest {
     void emptyCellOfEarlierSourceDoesNotClearFieldFromLaterSource() {
         interact(() -> {
             dialog.addSource("A", new BibEntry().withField(StandardField.TITLE, "Title"));
-            dialog.addSource("B", new BibEntry().withField(StandardField.TITLE, "Title").withField(StandardField.YEAR, "2026"));
+            dialog.addSource(
+                    "B", new BibEntry().withField(StandardField.TITLE, "Title").withField(StandardField.YEAR, "2026"));
         });
 
         BibEntry merged = dialog.getResultConverter().call(ButtonType.OK);

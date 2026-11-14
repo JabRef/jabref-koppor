@@ -35,14 +35,12 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+import org.h2.mvstore.MVMap;
+import org.h2.mvstore.MVStore;
 import org.jabref.logic.journals.ltwa.LtwaEntry;
 import org.jabref.logic.journals.ltwa.LtwaTsvParser;
 import org.jabref.logic.journals.ltwa.NormalizeUtils;
 import org.jabref.logic.journals.ltwa.PrefixTree;
-
-import org.h2.mvstore.MVMap;
-import org.h2.mvstore.MVStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +55,8 @@ public class LtwaListMvGenerator {
         try {
             Path csvFile = Path.of("jablib", "src", "main", "resources", "ltwa", "ltwa_20210702.csv");
             if (!Files.exists(csvFile)) {
-                LOGGER.error("LTWA CSV file not found at {}. Please ensure that you checked out the submodules.", csvFile);
+                LOGGER.error(
+                        "LTWA CSV file not found at {}. Please ensure that you checked out the submodules.", csvFile);
                 return;
             }
             Path outputDir = Path.of("jablib", "build", "generated", "resources", "journals");
@@ -93,24 +92,30 @@ public class LtwaListMvGenerator {
             MVMap<String, List<LtwaEntry>> suffixMap = store.openMap("Suffixes");
             String inflection = Character.toString(PrefixTree.WILD_CARD).repeat(3) + " ";
 
-            entries.forEach(entry ->
-                    NormalizeUtils.normalize(entry.word())
-                                  .map(String::toLowerCase)
-                                  .map(word -> word.replace(" ", inflection))
-                                  .ifPresent(word -> {
-                                      if (word.startsWith("-")) {
-                                          String key = word.substring(1);
-                                          suffixMap.computeIfAbsent(key, _ ->
-                                                  Stream.<LtwaEntry>builder().build().collect(Collectors.toList())
-                                          ).add(entry);
-                                      } else {
-                                          String key = word.endsWith("-") ? word.substring(0, word.length() - 1) : word;
-                                          prefixMap.computeIfAbsent(key, _ ->
-                                                  Stream.<LtwaEntry>builder().build().collect(Collectors.toList())
-                                          ).add(entry);
-                                      }
-                                  })
-            );
+            entries.forEach(entry -> NormalizeUtils.normalize(entry.word())
+                    .map(String::toLowerCase)
+                    .map(word -> word.replace(" ", inflection))
+                    .ifPresent(word -> {
+                        if (word.startsWith("-")) {
+                            String key = word.substring(1);
+                            suffixMap
+                                    .computeIfAbsent(
+                                            key,
+                                            _ -> Stream.<LtwaEntry>builder()
+                                                    .build()
+                                                    .collect(Collectors.toList()))
+                                    .add(entry);
+                        } else {
+                            String key = word.endsWith("-") ? word.substring(0, word.length() - 1) : word;
+                            prefixMap
+                                    .computeIfAbsent(
+                                            key,
+                                            _ -> Stream.<LtwaEntry>builder()
+                                                    .build()
+                                                    .collect(Collectors.toList()))
+                                    .add(entry);
+                        }
+                    }));
 
             LOGGER.info("Stored {} prefixes and {} suffixes", prefixMap.size(), suffixMap.size());
         }

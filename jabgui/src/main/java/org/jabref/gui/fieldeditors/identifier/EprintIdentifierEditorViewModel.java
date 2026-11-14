@@ -1,8 +1,8 @@
 package org.jabref.gui.fieldeditors.identifier;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.collections.MapChangeListener;
 import javafx.collections.WeakMapChangeListener;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.autocompleter.SuggestionProvider;
@@ -16,8 +16,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.ARK;
 import org.jabref.model.entry.identifier.ArXivIdentifier;
 import org.jabref.model.entry.identifier.EprintIdentifier;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,32 +32,47 @@ public class EprintIdentifierEditorViewModel extends BaseIdentifierEditorViewMod
         }
     };
 
-    public EprintIdentifierEditorViewModel(SuggestionProvider<?> suggestionProvider,
-                                           FieldCheckers fieldCheckers,
-                                           DialogService dialogService,
-                                           TaskExecutor taskExecutor,
-                                           GuiPreferences preferences,
-                                           UndoManager undoManager,
-                                           StateManager stateManager) {
-        super(StandardField.EPRINT, suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
-        EasyBind.subscribe(identifier, newIdentifier -> newIdentifier.ifPresent(id -> {
-            // TODO: We already have a common superclass between ArXivIdentifier and ARK. This could be refactored further.
-            if (id instanceof ArXivIdentifier) {
-                configure(true, false, false);
-            } else if (id instanceof ARK) {
-                configure(false, false, false);
-            } else {
-                LOGGER.warn("Unknown eprint identifier type: {}", id.getClass().getName());
-                configure(false, false, false);
-            }
-        }));
+    public EprintIdentifierEditorViewModel(
+            SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers,
+            DialogService dialogService,
+            TaskExecutor taskExecutor,
+            GuiPreferences preferences,
+            UndoManager undoManager,
+            StateManager stateManager) {
+        super(
+                StandardField.EPRINT,
+                suggestionProvider,
+                fieldCheckers,
+                dialogService,
+                taskExecutor,
+                preferences,
+                undoManager,
+                stateManager);
+        EasyBind.subscribe(
+                identifier,
+                newIdentifier -> newIdentifier.ifPresent(id -> {
+                    // TODO: We already have a common superclass between ArXivIdentifier and ARK. This could be
+                    // refactored further.
+                    if (id instanceof ArXivIdentifier) {
+                        configure(true, false, false);
+                    } else if (id instanceof ARK) {
+                        configure(false, false, false);
+                    } else {
+                        LOGGER.warn(
+                                "Unknown eprint identifier type: {}",
+                                id.getClass().getName());
+                        configure(false, false, false);
+                    }
+                }));
     }
 
     @Override
     public void bindToEntry(BibEntry entry) {
         super.bindToEntry(entry);
         // Unlike other identifiers (they only depend on their own field value), eprint  depends on eprinttype thus
-        // its identity changes whenever the eprinttype field changes .e.g. If eprinttype equals 'arxiv' then the eprint identity
+        // its identity changes whenever the eprinttype field changes .e.g. If eprinttype equals 'arxiv' then the eprint
+        // identity
         // will be of type ArXivIdentifier and if it equals 'ark' then it switches to type ARK.
         entry.getFieldsObservable().addListener(new WeakMapChangeListener<>(eprintTypeFieldListener));
     }

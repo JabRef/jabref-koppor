@@ -11,6 +11,4 @@ public record Reference(
         String volume,
         String doi,
         String isbn,
-        String citationKey
-) {
-}
+        String citationKey) {}

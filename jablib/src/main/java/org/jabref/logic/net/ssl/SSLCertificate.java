@@ -1,5 +1,6 @@
 package org.jabref.logic.net.ssl;
 
+import com.google.common.hash.Hashing;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,8 +12,6 @@ import java.security.cert.X509Certificate;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Optional;
-
-import com.google.common.hash.Hashing;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,14 @@ public class SSLCertificate {
     private final String signatureAlgorithm;
     private final Integer version;
 
-    public SSLCertificate(byte[] encoded, String serialNumber, String issuer, LocalDate validFrom, LocalDate validTo, String signatureAlgorithm, Integer version) {
+    public SSLCertificate(
+            byte[] encoded,
+            String serialNumber,
+            String issuer,
+            LocalDate validFrom,
+            LocalDate validTo,
+            String signatureAlgorithm,
+            Integer version) {
         this.serialNumber = serialNumber;
         this.issuer = issuer;
         this.validFrom = validFrom;
@@ -69,7 +75,9 @@ public class SSLCertificate {
 
     public static Optional<SSLCertificate> fromX509(@NonNull X509Certificate x509Certificate) {
         try {
-            return Optional.of(new SSLCertificate(x509Certificate.getEncoded(), x509Certificate.getSerialNumber().toString(),
+            return Optional.of(new SSLCertificate(
+                    x509Certificate.getEncoded(),
+                    x509Certificate.getSerialNumber().toString(),
                     x509Certificate.getIssuerX500Principal().getName(),
                     LocalDate.ofInstant(x509Certificate.getNotBefore().toInstant(), ZoneId.systemDefault()),
                     LocalDate.ofInstant(x509Certificate.getNotAfter().toInstant(), ZoneId.systemDefault()),

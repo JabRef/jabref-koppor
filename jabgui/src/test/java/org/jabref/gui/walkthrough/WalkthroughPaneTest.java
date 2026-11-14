@@ -1,9 +1,12 @@
 package org.jabref.gui.walkthrough;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -23,16 +26,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.robot.Robot;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
-
 import org.jabref.gui.testutils.JavaFxExtension;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @NullMarked
 @ExtendWith(JavaFxExtension.class)
@@ -92,7 +89,9 @@ class WalkthroughPaneTest {
 
         DialogPane dialogPane = dialog.get().getDialogPane();
         assertTrue(dialogPane.getChildren().contains(pane.get()));
-        assertEquals(Optional.of(pane.get()), WalkthroughPane.of(dialogPane.getScene().getWindow()));
+        assertEquals(
+                Optional.of(pane.get()),
+                WalkthroughPane.of(dialogPane.getScene().getWindow()));
 
         JavaFxExtension.invokeAndWait(() -> dialog.get().close());
     }

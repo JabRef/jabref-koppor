@@ -1,8 +1,9 @@
 package org.jabref.logic.formatter.bibtexfields;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.cleanup.KeywordSeparatorAware;
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
@@ -12,9 +13,6 @@ import org.jabref.logic.preferences.JabRefCliPreferences;
 import org.jabref.logic.util.MscCodeUtils;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.KeywordList;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.google.common.annotations.VisibleForTesting;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -31,7 +29,8 @@ public class ConvertMSCCodesFormatter extends Formatter implements LayoutFormatt
         this(cliPreferences, null);
     }
 
-    private ConvertMSCCodesFormatter(@Nullable JabRefCliPreferences cliPreferences, @Nullable Character keywordSeparator) {
+    private ConvertMSCCodesFormatter(
+            @Nullable JabRefCliPreferences cliPreferences, @Nullable Character keywordSeparator) {
         this.cliPreferences = cliPreferences;
         this.keywordSeparator = keywordSeparator;
     }
@@ -49,19 +48,20 @@ public class ConvertMSCCodesFormatter extends Formatter implements LayoutFormatt
             return text;
         }
 
-        Character dlim = Optional.ofNullable(keywordSeparator).orElseGet(() -> preferences.getBibEntryPreferences().getKeywordSeparator());
+        Character dlim = Optional.ofNullable(keywordSeparator)
+                .orElseGet(() -> preferences.getBibEntryPreferences().getKeywordSeparator());
 
         // create KeywordList to tokenize
         KeywordList keyList = KeywordList.parse(text, dlim);
         List<Keyword> modifiedList = keyList.stream()
-                                            .map(item -> {
-                                                String code = item.toString().trim();
-                                                String convertedText = MscCodeUtils.getMscCodeRepository()
-                                                                                   .flatMap(repository -> repository.getText(code))
-                                                                                   .orElse(code);
-                                                return new Keyword(convertedText);
-                                            })
-                                            .toList();
+                .map(item -> {
+                    String code = item.toString().trim();
+                    String convertedText = MscCodeUtils.getMscCodeRepository()
+                            .flatMap(repository -> repository.getText(code))
+                            .orElse(code);
+                    return new Keyword(convertedText);
+                })
+                .toList();
 
         return KeywordList.serialize(modifiedList, dlim);
     }

@@ -2,12 +2,11 @@ package org.jabref.gui.ai;
 
 import java.io.IOException;
 import java.util.OptionalLong;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
+import org.apache.commons.io.FileUtils;
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.desktop.os.NativeDesktop;
@@ -18,8 +17,6 @@ import org.jabref.gui.groups.GroupsPreferences;
 import org.jabref.logic.ai.embedding.EmbeddingModelMetadata;
 import org.jabref.logic.ai.embedding.EmbeddingModelMetadataService;
 import org.jabref.logic.ai.preferences.AiPreferences;
-
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +39,7 @@ public class AiPrivacyNoticeViewModel extends AbstractViewModel {
             EntryEditorPreferences entryEditorPreferences,
             GroupsPreferences groupsPreferences,
             DialogService dialogService,
-            EmbeddingModelMetadataService embeddingModelMetadataService
-    ) {
+            EmbeddingModelMetadataService embeddingModelMetadataService) {
         this.aiPreferences = aiPreferences;
         this.externalApplicationsPreferences = externalApplicationsPreferences;
         this.entryEditorPreferences = entryEditorPreferences;
@@ -55,14 +51,14 @@ public class AiPrivacyNoticeViewModel extends AbstractViewModel {
     }
 
     private void setupBindings() {
-        embeddingModelSize.bind(Bindings.createStringBinding(() ->
-                        embeddingModelMetadataService
-                                .getMetadata(aiPreferences.getEmbeddingModel())
-                                .map(EmbeddingModelMetadata::downloadSizeBytes)
-                                .filter(OptionalLong::isPresent)
-                                .map(OptionalLong::getAsLong)
-                                .map(FileUtils::byteCountToDisplaySize)
-                                .orElse(""),
+        embeddingModelSize.bind(Bindings.createStringBinding(
+                () -> embeddingModelMetadataService
+                        .getMetadata(aiPreferences.getEmbeddingModel())
+                        .map(EmbeddingModelMetadata::downloadSizeBytes)
+                        .filter(OptionalLong::isPresent)
+                        .map(OptionalLong::getAsLong)
+                        .map(FileUtils::byteCountToDisplaySize)
+                        .orElse(""),
                 aiPreferences.embeddingModelProperty(),
                 aiPreferences.customizeExpertSettingsProperty()));
     }

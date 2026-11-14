@@ -10,10 +10,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.util.BindingsHelper;
-
 import org.jspecify.annotations.NullMarked;
 
 /// State of [AiChatFindBar]: the query, whether the bar is shown, and which occurrence is the current one.
@@ -39,7 +37,8 @@ public class AiChatFindViewModel extends AbstractViewModel {
 
     /// Records the number of highlighted occurrences.
     ///
-    /// @return `false` if the current occurrence no longer exists and was reset to the first one, so the highlighting has to be redone
+    /// @return `false` if the current occurrence no longer exists and was reset to the first one, so the highlighting
+    /// has to be redone
     public boolean setTotal(int value) {
         total.set(value);
         if (value > 0 && current.get() >= value) {

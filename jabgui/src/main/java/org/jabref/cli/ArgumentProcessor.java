@@ -3,14 +3,12 @@ package org.jabref.cli;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
-
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.UiCommand;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BuildInfo;
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -18,7 +16,10 @@ import picocli.CommandLine;
 public class ArgumentProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArgumentProcessor.class);
 
-    public enum Mode { INITIAL_START, REMOTE_START }
+    public enum Mode {
+        INITIAL_START,
+        REMOTE_START
+    }
 
     private final Mode startupMode;
     private final GuiPreferences preferences;
@@ -28,9 +29,7 @@ public class ArgumentProcessor {
     private final List<UiCommand> uiCommands = new ArrayList<>();
     private boolean guiNeeded = true;
 
-    public ArgumentProcessor(String[] args,
-                             Mode startupMode,
-                             GuiPreferences preferences) {
+    public ArgumentProcessor(String[] args, Mode startupMode, GuiPreferences preferences) {
         this.startupMode = startupMode;
         this.preferences = preferences;
         this.guiCli = new GuiCommandLine();

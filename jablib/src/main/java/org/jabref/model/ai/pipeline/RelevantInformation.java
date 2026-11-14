@@ -5,8 +5,4 @@ import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public record RelevantInformation(
-        @Nullable String source,
-        @Nullable Integer pageNumber,
-        String text
-) {
-}
+        @Nullable String source, @Nullable Integer pageNumber, String text) {}

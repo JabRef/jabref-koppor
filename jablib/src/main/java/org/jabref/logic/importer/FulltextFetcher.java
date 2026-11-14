@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
-
 import org.jabref.logic.importer.fetcher.TrustLevel;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NonNull;
 
 /// This interface is used for classes that try to resolve a full-text PDF url for a BibTex entry.

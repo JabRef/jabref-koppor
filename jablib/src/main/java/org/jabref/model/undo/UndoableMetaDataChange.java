@@ -3,7 +3,6 @@ package org.jabref.model.undo;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.metadata.event.MetaDataChangeSource;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Replaces a library's settings as a whole, which is how they arrive from a file, and how the
@@ -20,7 +19,8 @@ import org.jspecify.annotations.NullMarked;
 /// check writes. Both are copied from the live instance before the snapshot is installed, so
 /// undoing the properties dialog after opening the chat does not orphan the chats.
 @NullMarked
-public record UndoableMetaDataChange(BibDatabaseContext databaseContext, MetaData before, MetaData after) implements BibChange {
+public record UndoableMetaDataChange(BibDatabaseContext databaseContext, MetaData before, MetaData after)
+        implements BibChange {
 
     public UndoableMetaDataChange {
         before = MetaData.copyOf(before);

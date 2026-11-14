@@ -1,15 +1,13 @@
 package org.jabref.http.server;
 
-import java.util.EnumSet;
-
-import org.jabref.http.server.resources.GroupsResource;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
+import java.util.EnumSet;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.jabref.http.server.resources.GroupsResource;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GroupsResourceTest extends ServerTest {
 
@@ -31,34 +29,35 @@ class GroupsResourceTest extends ServerTest {
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
         assertEquals("""
-                [
-                  {
-                    "name": "Papers",
-                    "path": [
-                      "Papers"
-                    ]
-                  },
-                  {
-                    "name": "2024",
-                    "path": [
-                      "Papers",
-                      "2024"
-                    ]
-                  },
-                  {
-                    "name": "Machine Learning",
-                    "path": [
-                      "Papers",
-                      "Machine Learning"
-                    ]
-                  },
-                  {
-                    "name": "Reading List",
-                    "path": [
-                      "Reading List"
-                    ]
-                  }
-                ]""", result);
+            [
+              {
+                "name": "Papers",
+                "path": [
+                  "Papers"
+                ]
+              },
+              {
+                "name": "2024",
+                "path": [
+                  "Papers",
+                  "2024"
+                ]
+              },
+              {
+                "name": "Machine Learning",
+                "path": [
+                  "Papers",
+                  "Machine Learning"
+                ]
+              },
+              {
+                "name": "Reading List",
+                "path": [
+                  "Reading List"
+                ]
+              }
+            ]\
+            """, result);
     }
 
     @Test

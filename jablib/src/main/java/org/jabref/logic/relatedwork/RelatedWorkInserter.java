@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.UserSpecificCommentField;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +22,8 @@ public class RelatedWorkInserter {
     /// Specifically, related work text is inserted into the `comment-{username}` field of the matched bib entries
     ///
     /// @return List of insertion result
-    public List<RelatedWorkInsertionResult> insertMatchedRelatedWork(BibEntry sourceEntry,
-                                                                     List<RelatedWorkMatchResult> matchResults,
-                                                                     String userName) {
+    public List<RelatedWorkInsertionResult> insertMatchedRelatedWork(
+            BibEntry sourceEntry, List<RelatedWorkMatchResult> matchResults, String userName) {
         String sourceCitationKey = sourceEntry.getCitationKey().get();
 
         UserSpecificCommentField userSpecificCommentField = new UserSpecificCommentField(userName);
@@ -42,12 +39,10 @@ public class RelatedWorkInserter {
                     sourceCitationKey,
                     matchResult.contextText(),
                     matchResult.matchedLibraryBibEntry().get(),
-                    userSpecificCommentField
-            );
+                    userSpecificCommentField);
             fieldChange.ifPresentOrElse(
                     change -> insertionResults.add(new RelatedWorkInsertionResult.Inserted(matchResult, change)),
-                    () -> insertionResults.add(new RelatedWorkInsertionResult.Unchanged(matchResult))
-            );
+                    () -> insertionResults.add(new RelatedWorkInsertionResult.Unchanged(matchResult)));
         }
 
         return insertionResults;
@@ -58,16 +53,18 @@ public class RelatedWorkInserter {
     ///
     /// @param userSpecificCommentField comment-{username}
     /// @return FieldChange represents if the field is changed
-    private Optional<FieldChange> appendRelatedWorkComment(String sourceCitationKey,
-                                                           String contextText,
-                                                           BibEntry matchedLibraryEntry,
-                                                           UserSpecificCommentField userSpecificCommentField) {
+    private Optional<FieldChange> appendRelatedWorkComment(
+            String sourceCitationKey,
+            String contextText,
+            BibEntry matchedLibraryEntry,
+            UserSpecificCommentField userSpecificCommentField) {
         String formattedComment = "[%s]: %s".formatted(sourceCitationKey, contextText);
         Optional<String> existingComment = matchedLibraryEntry.getField(userSpecificCommentField);
         if (existingComment.stream()
-                           .flatMap(comment -> COMMENT_LINE_SEPARATOR_PATTERN.splitAsStream(comment.strip()))
-                           .anyMatch(formattedComment::equals)) {
-            LOGGER.debug("Insertion for citation {} is skipped, because comment already exists in {}.",
+                .flatMap(comment -> COMMENT_LINE_SEPARATOR_PATTERN.splitAsStream(comment.strip()))
+                .anyMatch(formattedComment::equals)) {
+            LOGGER.debug(
+                    "Insertion for citation {} is skipped, because comment already exists in {}.",
                     sourceCitationKey,
                     userSpecificCommentField);
             return Optional.empty();
@@ -75,7 +72,10 @@ public class RelatedWorkInserter {
 
         String updatedComment = existingComment
                 .filter(comment -> !comment.isBlank())
-                .map(comment -> StringUtil.unifyLineBreaks(comment.stripTrailing(), OS.NEWLINE) + OS.NEWLINE + OS.NEWLINE + formattedComment)
+                .map(comment -> StringUtil.unifyLineBreaks(comment.stripTrailing(), OS.NEWLINE)
+                        + OS.NEWLINE
+                        + OS.NEWLINE
+                        + formattedComment)
                 .orElse(formattedComment);
 
         return matchedLibraryEntry.setField(userSpecificCommentField, updatedComment);

@@ -1,9 +1,8 @@
 package org.jabref.model.study;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
 public class StudyCatalog {
@@ -99,11 +98,10 @@ public class StudyCatalog {
 
     @Override
     public String toString() {
-        return "StudyCatalog{" +
-                "name='" + name + '\'' +
-                ", enabled=" + enabled +
-                ", reason='" + reason + '\'' +
-                ", maxResults=" + maxResults +
-                '}';
+        return "StudyCatalog{name='"
+                + name + '\'' + ", enabled="
+                + enabled + ", reason='"
+                + reason + '\'' + ", maxResults="
+                + maxResults + '}';
     }
 }

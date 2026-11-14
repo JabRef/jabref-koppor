@@ -1,10 +1,13 @@
 package org.jabref.logic.ai.summarization;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
 import org.jabref.logic.ai.summarization.repositories.SummariesRepository;
 import org.jabref.model.ai.AiMetadata;
 import org.jabref.model.ai.identifiers.FullBibEntry;
@@ -16,13 +19,8 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.metadata.MetaData;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InMemorySummaryCacheTest {
 

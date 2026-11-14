@@ -6,7 +6,6 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -23,7 +22,8 @@ import org.slf4j.LoggerFactory;
 /// @param size             the file size in bytes, `-1` when the file did not exist
 /// @param lastModifiedTime the modification time, `null` when the file did not exist
 @NullMarked
-public record FileSnapshot(boolean exists, long size, @Nullable FileTime lastModifiedTime) {
+public record FileSnapshot(
+        boolean exists, long size, @Nullable FileTime lastModifiedTime) {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileSnapshot.class);
 
     private static final FileSnapshot ABSENT = new FileSnapshot(false, -1, null);

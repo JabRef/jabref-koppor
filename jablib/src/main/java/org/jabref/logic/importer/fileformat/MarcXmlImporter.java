@@ -9,20 +9,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.StandardFileType;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,8 +73,8 @@ public class MarcXmlImporter extends Importer {
             if (!scanResult.recognized()) {
                 return new ParserResult();
             }
-            return new ParserResult(new MarcXmlParser().parseEntries(
-                    new ByteArrayInputStream(scanResult.sruXml().getBytes(StandardCharsets.UTF_8))));
+            return new ParserResult(new MarcXmlParser()
+                    .parseEntries(new ByteArrayInputStream(scanResult.sruXml().getBytes(StandardCharsets.UTF_8))));
         } catch (ParseException | XMLStreamException e) {
             LOGGER.debug("Could not parse MARCXML", e);
             return ParserResult.fromError(e);
@@ -114,7 +111,8 @@ public class MarcXmlImporter extends Importer {
                         writer.writeEndElement();
                         writer.writeEndElement();
                         path.removeLast();
-                    } else if (path.size() == 1 && "collection".equals(path.getFirst())
+                    } else if (path.size() == 1
+                            && "collection".equals(path.getFirst())
                             && MARC_NAMESPACE.equals(reader.getNamespaceURI())) {
                         recognized = true;
                     }
@@ -141,7 +139,8 @@ public class MarcXmlImporter extends Importer {
         if (path.size() == 1 || path.size() == 2 && "collection".equals(path.getFirst())) {
             return true;
         }
-        return "searchRetrieveResponse".equals(path.getFirst()) && path.size() >= 2
+        return "searchRetrieveResponse".equals(path.getFirst())
+                && path.size() >= 2
                 && "recordData".equals(path.get(path.size() - 2));
     }
 
@@ -160,12 +159,8 @@ public class MarcXmlImporter extends Importer {
                 depth++;
                 if (depth == 2) {
                     recognized |= switch (reader.getLocalName()) {
-                        case "leader",
-                             "controlfield",
-                             "datafield" ->
-                                true;
-                        default ->
-                                false;
+                        case "leader", "controlfield", "datafield" -> true;
+                        default -> false;
                     };
                     if ("datafield".equals(reader.getLocalName())) {
                         writer.writeStartElement("datafield");
@@ -208,6 +203,5 @@ public class MarcXmlImporter extends Importer {
         }
     }
 
-    private record ScanResult(boolean recognized, String sruXml) {
-    }
+    private record ScanResult(boolean recognized, String sruXml) {}
 }

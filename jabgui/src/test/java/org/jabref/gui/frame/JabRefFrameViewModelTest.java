@@ -1,12 +1,19 @@
 package org.jabref.gui.frame;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.airhacks.afterburner.injection.Injector;
+import com.tobiasdiez.easybind.EasyBind;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.LibraryTabContainer;
@@ -22,19 +29,9 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.tobiasdiez.easybind.EasyBind;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class JabRefFrameViewModelTest extends JavaFxTest {
 
@@ -83,8 +80,7 @@ class JabRefFrameViewModelTest extends JavaFxTest {
                 entryTypesManager,
                 fileUpdateMonitor,
                 clipBoardManager,
-                taskExecutor
-        );
+                taskExecutor);
     }
 
     @Test
@@ -97,7 +93,7 @@ class JabRefFrameViewModelTest extends JavaFxTest {
         when(libraryTab.getBibDatabaseContext()).thenReturn(context);
 
         when(tabContainer.getCurrentLibraryTab())
-                .thenReturn(null)        // First call in addParserResult
+                .thenReturn(null) // First call in addParserResult
                 .thenReturn(libraryTab); // Second call after tabContainer.addTab
 
         when(stateManager.getOpenDatabases()).thenReturn(FXCollections.observableArrayList(context));
@@ -133,7 +129,8 @@ class JabRefFrameViewModelTest extends JavaFxTest {
 
     @Test
     void unconnectedSharedDatabaseStaysRemembered() {
-        when(stateManager.getAnyTasksThatWillNotBeRecoveredRunning()).thenReturn(EasyBind.map(new SimpleBooleanProperty(false), Boolean::booleanValue));
+        when(stateManager.getAnyTasksThatWillNotBeRecoveredRunning())
+                .thenReturn(EasyBind.map(new SimpleBooleanProperty(false), Boolean::booleanValue));
         when(tabContainer.getLibraryTabs()).thenReturn(FXCollections.observableArrayList());
         when(tabContainer.getCurrentLibraryTab()).thenReturn(null);
         when(tabContainer.closeTabs(any(), eq(false))).thenReturn(true);
@@ -152,7 +149,8 @@ class JabRefFrameViewModelTest extends JavaFxTest {
         LibraryTab loadingTab = mock(LibraryTab.class);
         when(loadingTab.isLoading()).thenReturn(true);
         when(loadingTab.getBibDatabaseContext()).thenReturn(loadingContext);
-        when(stateManager.getAnyTasksThatWillNotBeRecoveredRunning()).thenReturn(EasyBind.map(new SimpleBooleanProperty(false), Boolean::booleanValue));
+        when(stateManager.getAnyTasksThatWillNotBeRecoveredRunning())
+                .thenReturn(EasyBind.map(new SimpleBooleanProperty(false), Boolean::booleanValue));
         when(tabContainer.getLibraryTabs()).thenReturn(FXCollections.observableArrayList(loadingTab));
         when(tabContainer.getCurrentLibraryTab()).thenReturn(null);
         when(tabContainer.closeTabs(any(), eq(false))).thenReturn(true);

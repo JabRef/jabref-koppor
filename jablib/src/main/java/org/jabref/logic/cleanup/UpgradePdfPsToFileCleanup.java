@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.jabref.logic.bibtex.FileFieldWriter;
 import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;

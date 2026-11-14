@@ -1,15 +1,13 @@
 package org.jabref.http.server.cayw.format;
 
+import jakarta.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.jabref.http.server.cayw.CAYWQueryParams;
 import org.jabref.http.server.cayw.CitationProperties;
 import org.jabref.http.server.cayw.gui.CAYWEntry;
-
-import jakarta.ws.rs.core.MediaType;
 
 public class TypstFormatter implements CAYWFormatter {
 
@@ -21,9 +19,9 @@ public class TypstFormatter implements CAYWFormatter {
     @Override
     public String format(CAYWQueryParams queryParams, List<CAYWEntry> caywEntries) {
         return caywEntries.stream()
-                          .map(this::formatEntry)
-                          .flatMap(Optional::stream)
-                          .collect(Collectors.joining(" "));
+                .map(this::formatEntry)
+                .flatMap(Optional::stream)
+                .collect(Collectors.joining(" "));
     }
 
     private Optional<String> formatEntry(CAYWEntry entry) {
@@ -31,9 +29,7 @@ public class TypstFormatter implements CAYWFormatter {
             CitationProperties props = entry.citationProperties();
 
             /// <key> or label("key") for keys with /
-            String keyRef = key.contains("/")
-                            ? "label(\"%s\")".formatted(key)
-                            : "<%s>".formatted(key);
+            String keyRef = key.contains("/") ? "label(\"%s\")".formatted(key) : "<%s>".formatted(key);
 
             String locator = props.getFormattedLocator().orElse("");
             boolean omitAuthor = props.isOmitAuthor();

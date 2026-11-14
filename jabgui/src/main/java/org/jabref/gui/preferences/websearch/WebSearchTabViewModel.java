@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
@@ -22,7 +21,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.LibraryPreferences;
@@ -79,14 +77,15 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
 
     private final ReadOnlyBooleanProperty refAiEnabled;
 
-    public WebSearchTabViewModel(ImporterPreferences importerPreferences,
-                                 GrobidPreferences grobidPreferences,
-                                 DOIPreferences doiPreferences,
-                                 FilePreferences filePreferences,
-                                 ImportFormatPreferences importFormatPreferences,
-                                 LibraryPreferences libraryPreferences,
-                                 ReadOnlyBooleanProperty refAiEnabled,
-                                 TaskExecutor taskExecutor) {
+    public WebSearchTabViewModel(
+            ImporterPreferences importerPreferences,
+            GrobidPreferences grobidPreferences,
+            DOIPreferences doiPreferences,
+            FilePreferences filePreferences,
+            ImportFormatPreferences importFormatPreferences,
+            LibraryPreferences libraryPreferences,
+            ReadOnlyBooleanProperty refAiEnabled,
+            TaskExecutor taskExecutor) {
         this.importerPreferences = importerPreferences;
         this.grobidPreferences = grobidPreferences;
         this.doiPreferences = doiPreferences;
@@ -146,8 +145,7 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
         searchEngines.addAll(
                 new SearchEngineItem("Google Scholar", "https://scholar.google.com/scholar?q={title}"),
                 new SearchEngineItem("Semantic Scholar", "https://www.semanticscholar.org/search?q={title}"),
-                new SearchEngineItem("Short Science", "https://www.shortscience.org/internalsearch?q={title}")
-        );
+                new SearchEngineItem("Short Science", "https://www.shortscience.org/internalsearch?q={title}"));
     }
 
     @Override
@@ -170,13 +168,17 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
         Set<FetcherApiKey> savedApiKeys = importerPreferences.getApiKeys();
         Set<String> enabledCatalogs = new HashSet<>(importerPreferences.getCatalogs());
 
-        List<SearchBasedFetcher> allFetchers = WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences)
-                                                          .stream()
-                                                          .sorted(Comparator.comparing(WebFetcher::getName))
-                                                          .toList();
+        List<SearchBasedFetcher> allFetchers =
+                WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences).stream()
+                        .sorted(Comparator.comparing(WebFetcher::getName))
+                        .toList();
 
-        // We need to use names, because [WebFetchers] creates new instances for the fetchers at each method - even if they are the same.
-        Set<String> customizableKeyFetcherNames = WebFetchers.getCustomizableKeyFetchers(importFormatPreferences, importerPreferences).stream().map(WebFetcher::getName).collect(Collectors.toSet());
+        // We need to use names, because [WebFetchers] creates new instances for the fetchers at each method - even if
+        // they are the same.
+        Set<String> customizableKeyFetcherNames =
+                WebFetchers.getCustomizableKeyFetchers(importFormatPreferences, importerPreferences).stream()
+                        .map(WebFetcher::getName)
+                        .collect(Collectors.toSet());
 
         fetchers.clear();
         Set<String> addedFetcherNames = new HashSet<>();
@@ -189,31 +191,33 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
             FetcherViewModel fetcherViewModel = new FetcherViewModel(fetcher, isEnabled, keyIsCustomizable);
             if (keyIsCustomizable) {
                 savedApiKeys.stream()
-                            .filter(apiKey -> apiKey.getName().equals(fetcher.getName()))
-                            .findFirst()
-                            .ifPresent(apiKey -> {
-                                fetcherViewModel.apiKeyProperty().set(apiKey.getKey());
-                                fetcherViewModel.useCustomApiKeyProperty().set(apiKey.shouldUse());
-                            });
-            }
-            fetchers.add(fetcherViewModel);
-            addedFetcherNames.add(fetcher.getName());
-        }
-
-        // TODO: Refactor this loop and the above into one common logic / Use WebFetcher common interface
-        // Add customizable key fetchers that are not search-based (for ex: fulltext-only fetchers like WileyFetcher are CustomizableKeyFetchers)
-        for (CustomizableKeyFetcher fetcher : WebFetchers.getCustomizableKeyFetchers(importFormatPreferences, importerPreferences)) {
-            if (addedFetcherNames.contains(fetcher.getName())) {
-                continue;
-            }
-            FetcherViewModel fetcherViewModel = new FetcherViewModel(fetcher, false, true);
-            savedApiKeys.stream()
                         .filter(apiKey -> apiKey.getName().equals(fetcher.getName()))
                         .findFirst()
                         .ifPresent(apiKey -> {
                             fetcherViewModel.apiKeyProperty().set(apiKey.getKey());
                             fetcherViewModel.useCustomApiKeyProperty().set(apiKey.shouldUse());
                         });
+            }
+            fetchers.add(fetcherViewModel);
+            addedFetcherNames.add(fetcher.getName());
+        }
+
+        // TODO: Refactor this loop and the above into one common logic / Use WebFetcher common interface
+        // Add customizable key fetchers that are not search-based (for ex: fulltext-only fetchers like WileyFetcher are
+        // CustomizableKeyFetchers)
+        for (CustomizableKeyFetcher fetcher :
+                WebFetchers.getCustomizableKeyFetchers(importFormatPreferences, importerPreferences)) {
+            if (addedFetcherNames.contains(fetcher.getName())) {
+                continue;
+            }
+            FetcherViewModel fetcherViewModel = new FetcherViewModel(fetcher, false, true);
+            savedApiKeys.stream()
+                    .filter(apiKey -> apiKey.getName().equals(fetcher.getName()))
+                    .findFirst()
+                    .ifPresent(apiKey -> {
+                        fetcherViewModel.apiKeyProperty().set(apiKey.getKey());
+                        fetcherViewModel.useCustomApiKeyProperty().set(apiKey.shouldUse());
+                    });
             fetchers.add(fetcherViewModel);
         }
 
@@ -238,7 +242,8 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
         if (addImportedEntriesGroupName.getValue().isBlank()) {
             libraryPreferences.setAddImportedEntriesGroupName(Localization.lang("Imported entries"));
         } else {
-            libraryPreferences.setAddImportedEntriesGroupName(addImportedEntriesGroupName.getValue().trim());
+            libraryPreferences.setAddImportedEntriesGroupName(
+                    addImportedEntriesGroupName.getValue().trim());
         }
         importerPreferences.setDefaultPlainCitationParser(defaultPlainCitationParser.getValue());
         importerPreferences.setCitationsRelationsStoreTTL(citationsRelationStoreTTL.getValue());
@@ -249,16 +254,18 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
         doiPreferences.setUseCustom(useCustomDOIProperty.get());
         doiPreferences.setDefaultBaseURI(useCustomDOINameProperty.getValue().trim());
 
-        importerPreferences.setCatalogs(
-                fetchers.stream()
-                        .filter(FetcherViewModel::isEnabled)
-                        .map(FetcherViewModel::getName)
-                        .toList());
+        importerPreferences.setCatalogs(fetchers.stream()
+                .filter(FetcherViewModel::isEnabled)
+                .map(FetcherViewModel::getName)
+                .toList());
 
         List<FetcherApiKey> apiKeysToStore = fetchers.stream()
-                                                     .filter(FetcherViewModel::isCustomizable)
-                                                     .map(fetcherViewModel -> new FetcherApiKey(fetcherViewModel.getName(), fetcherViewModel.shouldUseCustomApiKey(), fetcherViewModel.getApiKey()))
-                                                     .toList();
+                .filter(FetcherViewModel::isCustomizable)
+                .map(fetcherViewModel -> new FetcherApiKey(
+                        fetcherViewModel.getName(),
+                        fetcherViewModel.shouldUseCustomApiKey(),
+                        fetcherViewModel.getApiKey()))
+                .toList();
 
         // Must be set before keys are set
         importerPreferences.setPersistCustomKeys(apikeyPersistProperty.get());
@@ -269,10 +276,7 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
 
         // Save custom URL templates to preferences
         Map<String, String> templates = searchEngines.stream()
-                                                     .collect(Collectors.toMap(
-                                                             SearchEngineItem::getName,
-                                                             SearchEngineItem::getUrlTemplate
-                                                     ));
+                .collect(Collectors.toMap(SearchEngineItem::getName, SearchEngineItem::getUrlTemplate));
         importerPreferences.setSearchEngineUrlTemplates(templates);
     }
 
@@ -354,9 +358,9 @@ public class WebSearchTabViewModel implements PreferenceTabViewModel {
             return fetcher.isValidKey(apiKey);
         };
         BackgroundTask.wrap(tester)
-                      .onSuccess(onFinished)
-                      .onFailure(_ -> onFinished.accept(false))
-                      .executeWith(taskExecutor);
+                .onSuccess(onFinished)
+                .onFailure(_ -> onFinished.accept(false))
+                .executeWith(taskExecutor);
     }
 
     @Override

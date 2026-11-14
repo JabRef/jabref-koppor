@@ -5,9 +5,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
-
 import javafx.util.Pair;
-
 import org.jabref.logic.ai.ingestion.tasks.generateembeddings.GenerateEmbeddingsTask;
 import org.jabref.logic.ai.ingestion.tasks.generateembeddings.GenerateEmbeddingsTaskRequest;
 import org.jabref.logic.ai.ingestion.tasks.generateembeddingsforseveral.GenerateEmbeddingsForSeveralTask;
@@ -21,18 +19,20 @@ public class IngestionTaskAggregator {
     private final Map<LinkedFile, Pair<Future<Void>, GenerateEmbeddingsTask>> generateEmbeddingsTasks =
             Collections.synchronizedMap(new IdentityHashMap<>());
 
-    private final Map<GenerateEmbeddingsForSeveralTaskRequest, Pair<Future<Void>, GenerateEmbeddingsForSeveralTask>> generateEmbeddingsForSeveralTasks =
-            Collections.synchronizedMap(new HashMap<>());
+    private final Map<GenerateEmbeddingsForSeveralTaskRequest, Pair<Future<Void>, GenerateEmbeddingsForSeveralTask>>
+            generateEmbeddingsForSeveralTasks = Collections.synchronizedMap(new HashMap<>());
 
     public IngestionTaskAggregator(TaskExecutor taskExecutor) {
         this.taskExecutor = taskExecutor;
     }
 
-    public synchronized Pair<Future<Void>, GenerateEmbeddingsTask> startWithFuture(GenerateEmbeddingsTaskRequest request) {
+    public synchronized Pair<Future<Void>, GenerateEmbeddingsTask> startWithFuture(
+            GenerateEmbeddingsTaskRequest request) {
         return startWithFuture(request, true);
     }
 
-    public synchronized Pair<Future<Void>, GenerateEmbeddingsTask> startWithFuture(GenerateEmbeddingsTaskRequest request, boolean showToUser) {
+    public synchronized Pair<Future<Void>, GenerateEmbeddingsTask> startWithFuture(
+            GenerateEmbeddingsTaskRequest request, boolean showToUser) {
         return generateEmbeddingsTasks.computeIfAbsent(request.linkedFile(), _ -> {
             GenerateEmbeddingsTask task = new GenerateEmbeddingsTask(request, showToUser);
             task.onFinished(() -> generateEmbeddingsTasks.remove(request.linkedFile()));
@@ -49,7 +49,8 @@ public class IngestionTaskAggregator {
         return startWithFuture(request, showToUser).getValue();
     }
 
-    public synchronized Pair<Future<Void>, GenerateEmbeddingsForSeveralTask> start(GenerateEmbeddingsForSeveralTaskRequest request) {
+    public synchronized Pair<Future<Void>, GenerateEmbeddingsForSeveralTask> start(
+            GenerateEmbeddingsForSeveralTaskRequest request) {
         return generateEmbeddingsForSeveralTasks.computeIfAbsent(request, _ -> {
             GenerateEmbeddingsForSeveralTask task = new GenerateEmbeddingsForSeveralTask(this, request);
             task.onFinished(() -> generateEmbeddingsForSeveralTasks.remove(request));

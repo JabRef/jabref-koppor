@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
-
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.formatter.bibtexfields.NormalizeWhitespaceFormatter;
 import org.jabref.model.FieldChange;

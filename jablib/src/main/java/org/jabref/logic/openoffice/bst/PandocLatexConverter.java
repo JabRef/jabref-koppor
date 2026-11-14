@@ -1,5 +1,6 @@
 package org.jabref.logic.openoffice.bst;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -7,12 +8,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
-
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.StreamGobbler;
-
-import com.google.common.annotations.VisibleForTesting;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,23 +29,13 @@ public class PandocLatexConverter {
     /// Candidate commands tried by [autoDetect] on Windows, in priority order.
     private static final List<String> WINDOWS_CANDIDATES = List.of(
             // MSI installer adds to PATH; AppData path varies per user so we do not hardcode those locations here.
-            PANDOC_EXECUTABLE
-    );
+            PANDOC_EXECUTABLE);
     /// Additional Windows install-directory hints resolved at runtime to absolute paths such as
     /// `C:\\Program Files\\Pandoc\\pandoc.exe`.
-    private static final List<String> WINDOWS_INSTALL_DIRECTORY_HINTS = List.of(
-            "Pandoc"
-    );
-    private static final List<String> MACOS_CANDIDATES = List.of(
-            "pandoc",
-            "/usr/local/bin/pandoc",
-            "/opt/homebrew/bin/pandoc"
-    );
-    private static final List<String> LINUX_CANDIDATES = List.of(
-            "pandoc",
-            "/usr/bin/pandoc",
-            "/usr/local/bin/pandoc"
-    );
+    private static final List<String> WINDOWS_INSTALL_DIRECTORY_HINTS = List.of("Pandoc");
+    private static final List<String> MACOS_CANDIDATES =
+            List.of("pandoc", "/usr/local/bin/pandoc", "/opt/homebrew/bin/pandoc");
+    private static final List<String> LINUX_CANDIDATES = List.of("pandoc", "/usr/bin/pandoc", "/usr/local/bin/pandoc");
 
     private final String pandocPath;
 
@@ -59,20 +47,20 @@ public class PandocLatexConverter {
     /// or [Optional.empty] if none responds to `--version` within 5 seconds.
     public static Optional<String> autoDetect() {
         return getAutoDetectCandidates(OS.WINDOWS, OS.OS_X).stream()
-                                                           .filter(PandocLatexConverter::probeCandidate)
-                                                           .findFirst();
+                .filter(PandocLatexConverter::probeCandidate)
+                .findFirst();
     }
 
     @VisibleForTesting
     static List<String> getAutoDetectCandidates(boolean windows, boolean osX) {
         if (windows) {
             return Stream.concat(
-                                 WINDOWS_CANDIDATES.stream(),
-                                 WINDOWS_INSTALL_DIRECTORY_HINTS.stream()
-                                                                .map(directoryName -> OS.detectProgramPath(PANDOC_EXECUTABLE, directoryName))
-                                                                .filter(path -> !path.isBlank()))
-                         .distinct()
-                         .toList();
+                            WINDOWS_CANDIDATES.stream(),
+                            WINDOWS_INSTALL_DIRECTORY_HINTS.stream()
+                                    .map(directoryName -> OS.detectProgramPath(PANDOC_EXECUTABLE, directoryName))
+                                    .filter(path -> !path.isBlank()))
+                    .distinct()
+                    .toList();
         }
 
         return osX ? MACOS_CANDIDATES : LINUX_CANDIDATES;

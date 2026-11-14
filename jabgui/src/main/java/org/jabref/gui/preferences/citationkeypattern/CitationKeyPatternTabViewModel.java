@@ -9,7 +9,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.commonfxcontrols.CitationKeyPatternsPanelItemModel;
 import org.jabref.gui.commonfxcontrols.CitationKeyPatternsPanelViewModel;
 import org.jabref.gui.preferences.PreferenceTabViewModel;
@@ -33,9 +32,11 @@ public class CitationKeyPatternTabViewModel implements PreferenceTabViewModel {
 
     // The list and the default properties are being overwritten by the bound properties of the tableView, but to
     // prevent an NPE on storing the preferences before lazy-loading of the setValues, they need to be initialized.
-    private final ListProperty<CitationKeyPatternsPanelItemModel> patternListProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final ObjectProperty<CitationKeyPatternsPanelItemModel> defaultKeyPatternProperty = new SimpleObjectProperty<>(
-            new CitationKeyPatternsPanelItemModel(new CitationKeyPatternsPanelViewModel.DefaultEntryType(), ""));
+    private final ListProperty<CitationKeyPatternsPanelItemModel> patternListProperty =
+            new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ObjectProperty<CitationKeyPatternsPanelItemModel> defaultKeyPatternProperty =
+            new SimpleObjectProperty<>(new CitationKeyPatternsPanelItemModel(
+                    new CitationKeyPatternsPanelViewModel.DefaultEntryType(), ""));
 
     private final CitationKeyPatternPreferences keyPatternPreferences;
 
@@ -45,26 +46,26 @@ public class CitationKeyPatternTabViewModel implements PreferenceTabViewModel {
     /// Hence, we keep the preference in [ImporterPreferences], but for the UI, we initialize it here.
     private final ImporterPreferences importerPreferences;
 
-    public CitationKeyPatternTabViewModel(CitationKeyPatternPreferences keyPatternPreferences, ImporterPreferences importerPreferences) {
+    public CitationKeyPatternTabViewModel(
+            CitationKeyPatternPreferences keyPatternPreferences, ImporterPreferences importerPreferences) {
         this.keyPatternPreferences = keyPatternPreferences;
         this.importerPreferences = importerPreferences;
     }
 
     @Override
     public void setValues() {
-        transliterateFieldsForCitationKeyProperty.setValue(keyPatternPreferences.shouldTransliterateFieldsForCitationKey());
+        transliterateFieldsForCitationKeyProperty.setValue(
+                keyPatternPreferences.shouldTransliterateFieldsForCitationKey());
         overwriteAllowProperty.setValue(!keyPatternPreferences.shouldAvoidOverwriteCiteKey());
         overwriteWarningProperty.setValue(keyPatternPreferences.shouldWarnBeforeOverwriteCiteKey());
         generateOnSaveProperty.setValue(keyPatternPreferences.shouldGenerateCiteKeysBeforeSaving());
         generateKeyOnImportProperty.setValue(importerPreferences.shouldGenerateNewKeyOnImport());
 
-        if (keyPatternPreferences.getKeySuffix()
-                == CitationKeyPatternPreferences.KeySuffix.ALWAYS) {
+        if (keyPatternPreferences.getKeySuffix() == CitationKeyPatternPreferences.KeySuffix.ALWAYS) {
             letterAlwaysAddProperty.setValue(true);
             letterStartAProperty.setValue(false);
             letterStartBProperty.setValue(false);
-        } else if (keyPatternPreferences.getKeySuffix()
-                == CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A) {
+        } else if (keyPatternPreferences.getKeySuffix() == CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_A) {
             letterAlwaysAddProperty.setValue(false);
             letterStartAProperty.setValue(true);
             letterStartBProperty.setValue(false);
@@ -81,8 +82,8 @@ public class CitationKeyPatternTabViewModel implements PreferenceTabViewModel {
 
     @Override
     public void storeSettings() {
-        GlobalCitationKeyPatterns newKeyPattern =
-                new GlobalCitationKeyPatterns(keyPatternPreferences.getKeyPatterns().getDefaultValue());
+        GlobalCitationKeyPatterns newKeyPattern = new GlobalCitationKeyPatterns(
+                keyPatternPreferences.getKeyPatterns().getDefaultValue());
         patternListProperty.forEach(item -> {
             String patternString = item.getPattern();
             if (!"default".equals(item.getEntryType().getName())) {
@@ -106,7 +107,8 @@ public class CitationKeyPatternTabViewModel implements PreferenceTabViewModel {
             keySuffix = CitationKeyPatternPreferences.KeySuffix.SECOND_WITH_B;
         }
 
-        keyPatternPreferences.setShouldTransliterateFieldsForCitationKey(transliterateFieldsForCitationKeyProperty.getValue());
+        keyPatternPreferences.setShouldTransliterateFieldsForCitationKey(
+                transliterateFieldsForCitationKeyProperty.getValue());
         keyPatternPreferences.setAvoidOverwriteCiteKey(!overwriteAllowProperty.getValue());
         keyPatternPreferences.setWarnBeforeOverwriteCiteKey(overwriteWarningProperty.getValue());
         keyPatternPreferences.setGenerateCiteKeysBeforeSaving(generateOnSaveProperty.getValue());

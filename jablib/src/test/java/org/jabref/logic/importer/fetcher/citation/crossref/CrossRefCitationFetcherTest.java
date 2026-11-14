@@ -1,7 +1,10 @@
 package org.jabref.logic.importer.fetcher.citation.crossref;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
@@ -13,12 +16,7 @@ import org.jabref.logic.importer.util.GrobidPreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExternalServicesTest
 class CrossRefCitationFetcherTest {
@@ -27,15 +25,22 @@ class CrossRefCitationFetcherTest {
     @Test
     void getReferences() throws FetcherException {
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class);
-        when(importerPreferences.getDefaultPlainCitationParser()).thenReturn(PlainCitationParserChoice.RULE_BASED_GENERAL);
+        when(importerPreferences.getDefaultPlainCitationParser())
+                .thenReturn(PlainCitationParserChoice.RULE_BASED_GENERAL);
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class);
         CitationKeyPatternPreferences citationKeyPatternPreferences = mock(CitationKeyPatternPreferences.class);
         GrobidPreferences grobidPreferences = mock(GrobidPreferences.class);
         AiPreferences aiPreferences = mock(AiPreferences.class);
         ChatModel chatModel = mock(ChatModel.class);
         CrossRefCitationFetcher fetcher = new CrossRefCitationFetcher(
-                importerPreferences, importFormatPreferences, citationKeyPatternPreferences, grobidPreferences, aiPreferences, chatModel);
-        List<BibEntry> references = fetcher.getReferences(new BibEntry().withField(StandardField.DOI, "10.47397/tb/44-3/tb138kopp-jabref"));
+                importerPreferences,
+                importFormatPreferences,
+                citationKeyPatternPreferences,
+                grobidPreferences,
+                aiPreferences,
+                chatModel);
+        List<BibEntry> references =
+                fetcher.getReferences(new BibEntry().withField(StandardField.DOI, "10.47397/tb/44-3/tb138kopp-jabref"));
         assertNotEquals(List.of(), references);
     }
 }

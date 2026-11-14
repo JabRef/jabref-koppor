@@ -1,12 +1,12 @@
 package org.jabref.gui.ai.summary;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import java.util.Optional;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.layout.StackPane;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.ai.AiPrivacyNoticeView;
 import org.jabref.gui.ai.statuspane.UniversalStatusPaneView;
@@ -19,34 +19,50 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
 public class AiSummaryView extends StackPane {
-    @FXML private AiPrivacyNoticeView privacyNotice;
-    @FXML private UniversalStatusPaneView restartNeededPane;
+    @FXML
+    private AiPrivacyNoticeView privacyNotice;
 
-    @FXML private UniversalStatusPaneView processingPane;
-    @FXML private UniversalStatusPaneView errorPane;
-    @FXML private UniversalStatusPaneView cancelledPane;
+    @FXML
+    private UniversalStatusPaneView restartNeededPane;
 
-    @FXML private UniversalStatusPaneView noFilesPane;
-    @FXML private UniversalStatusPaneView noLocalFilePane;
-    @FXML private UniversalStatusPaneView noSupportedFileTypesPane;
+    @FXML
+    private UniversalStatusPaneView processingPane;
 
-    @FXML private AiSummaryShowingView summaryShowing;
+    @FXML
+    private UniversalStatusPaneView errorPane;
 
-    @Inject private GuiPreferences preferences;
-    @Inject private AiService aiService;
-    @Inject private DialogService dialogService;
-    @Inject private BibEntryTypesManager entryTypesManager;
+    @FXML
+    private UniversalStatusPaneView cancelledPane;
+
+    @FXML
+    private UniversalStatusPaneView noFilesPane;
+
+    @FXML
+    private UniversalStatusPaneView noLocalFilePane;
+
+    @FXML
+    private UniversalStatusPaneView noSupportedFileTypesPane;
+
+    @FXML
+    private AiSummaryShowingView summaryShowing;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private AiService aiService;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private BibEntryTypesManager entryTypesManager;
 
     private AiSummaryViewModel viewModel;
 
     public AiSummaryView() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @FXML
@@ -57,22 +73,26 @@ public class AiSummaryView extends StackPane {
                 aiService.getSummariesRepository(),
                 aiService.getSummaryCache(),
                 aiService.getSummarizationTaskAggregator(),
-                dialogService
-        );
+                dialogService);
 
         setupBindings();
     }
 
     private void setupBindings() {
-        errorPane.textAreaContentProperty().bind(viewModel.errorProperty().map(e -> Optional.ofNullable(e.getMessage()).orElse(e.getClass().getSimpleName())));
+        errorPane
+                .textAreaContentProperty()
+                .bind(viewModel
+                        .errorProperty()
+                        .map(e -> Optional.ofNullable(e.getMessage())
+                                .orElse(e.getClass().getSimpleName())));
 
         summaryShowing.summaryProperty().bind(viewModel.summaryProperty());
         summaryShowing.entryProperty().bind(viewModel.entryProperty());
 
-        processingPane.descriptionProperty().bind(Bindings.createObjectBinding(
-                this::generateDescription,
-                viewModel.summarizatorProperty(), viewModel.chatModelProperty()
-        ));
+        processingPane
+                .descriptionProperty()
+                .bind(Bindings.createObjectBinding(
+                        this::generateDescription, viewModel.summarizatorProperty(), viewModel.chatModelProperty()));
 
         privacyNotice.managedProperty().bind(privacyNotice.visibleProperty());
         restartNeededPane.managedProperty().bind(restartNeededPane.visibleProperty());
@@ -85,14 +105,24 @@ public class AiSummaryView extends StackPane {
         summaryShowing.managedProperty().bind(summaryShowing.visibleProperty());
 
         // [impl->req~ai.summarization.entries.privacy-policy~1]
-        privacyNotice.visibleProperty().bind(viewModel.stateProperty().isEqualTo(AiSummaryViewModel.State.AI_TURNED_OFF));
-        restartNeededPane.visibleProperty().bind(viewModel.stateProperty().isEqualTo(AiSummaryViewModel.State.RESTART_NEEDED));
+        privacyNotice
+                .visibleProperty()
+                .bind(viewModel.stateProperty().isEqualTo(AiSummaryViewModel.State.AI_TURNED_OFF));
+        restartNeededPane
+                .visibleProperty()
+                .bind(viewModel.stateProperty().isEqualTo(AiSummaryViewModel.State.RESTART_NEEDED));
         processingPane.visibleProperty().bind(viewModel.stateProperty().isEqualTo(AiSummaryViewModel.State.PROCESSING));
-        errorPane.visibleProperty().bind(viewModel.stateProperty().isEqualTo(AiSummaryViewModel.State.ERROR_WHILE_GENERATING));
+        errorPane
+                .visibleProperty()
+                .bind(viewModel.stateProperty().isEqualTo(AiSummaryViewModel.State.ERROR_WHILE_GENERATING));
         cancelledPane.visibleProperty().bind(viewModel.stateProperty().isEqualTo(AiSummaryViewModel.State.CANCELLED));
         noFilesPane.visibleProperty().bind(viewModel.stateProperty().isEqualTo(AiSummaryViewModel.State.NO_FILES));
-        noLocalFilePane.visibleProperty().bind(viewModel.stateProperty().isEqualTo(AiSummaryViewModel.State.NO_LOCAL_FILE));
-        noSupportedFileTypesPane.visibleProperty().bind(viewModel.stateProperty().isEqualTo(AiSummaryViewModel.State.NO_SUPPORTED_FILE_TYPES));
+        noLocalFilePane
+                .visibleProperty()
+                .bind(viewModel.stateProperty().isEqualTo(AiSummaryViewModel.State.NO_LOCAL_FILE));
+        noSupportedFileTypesPane
+                .visibleProperty()
+                .bind(viewModel.stateProperty().isEqualTo(AiSummaryViewModel.State.NO_SUPPORTED_FILE_TYPES));
         summaryShowing.visibleProperty().bind(viewModel.stateProperty().isEqualTo(AiSummaryViewModel.State.DONE));
     }
 
@@ -108,8 +138,7 @@ public class AiSummaryView extends StackPane {
                 "Your entry is being summarized by %0 %1 using algorithm %2",
                 AiNamingUtils.getDisplayName(chatModel.getAiProvider()),
                 chatModel.getName(),
-                AiNamingUtils.getDisplayName(summarizator.getKind())
-        );
+                AiNamingUtils.getDisplayName(summarizator.getKind()));
     }
 
     public ObjectProperty<FullBibEntry> entryProperty() {

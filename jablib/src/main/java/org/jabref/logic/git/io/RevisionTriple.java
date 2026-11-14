@@ -1,7 +1,6 @@
 package org.jabref.logic.git.io;
 
 import java.util.Optional;
-
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.jspecify.annotations.NullMarked;
 
@@ -12,10 +11,6 @@ import org.jspecify.annotations.NullMarked;
 /// @param local  the current local branch tip
 /// @param remote the tip of the remote tracking branch (typically origin/main)
 @NullMarked
-public record RevisionTriple(
-        Optional<RevCommit> base,
-        RevCommit local,
-        RevCommit remote) {
-    public RevisionTriple {
-    }
+public record RevisionTriple(Optional<RevCommit> base, RevCommit local, RevCommit remote) {
+    public RevisionTriple {}
 }

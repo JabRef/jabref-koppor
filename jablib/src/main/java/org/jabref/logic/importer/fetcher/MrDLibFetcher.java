@@ -8,7 +8,7 @@ import java.net.URL;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
-
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.importer.EntryBasedFetcher;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ParserResult;
@@ -19,8 +19,6 @@ import org.jabref.logic.util.Version;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +30,8 @@ public class MrDLibFetcher implements EntryBasedFetcher {
     private static final String NAME = "MDL_FETCHER";
     private static final String MDL_JABREF_PARTNER_ID = "1";
     private static final String MDL_URL = "api.mr-dlib.org";
-    private static final String DEFAULT_MRDLIB_ERROR_MESSAGE = Localization.lang("Error while fetching recommendations from Mr.DLib.");
+    private static final String DEFAULT_MRDLIB_ERROR_MESSAGE =
+            Localization.lang("Error while fetching recommendations from Mr.DLib.");
 
     private final String LANGUAGE;
     private final Version VERSION;
@@ -131,7 +130,8 @@ public class MrDLibFetcher implements EntryBasedFetcher {
             builder.addParameter("os", System.getProperty("os.name"));
         }
         if (preferences.shouldSendTimezone()) {
-            builder.addParameter("timezone", Calendar.getInstance().getTimeZone().getID());
+            builder.addParameter(
+                    "timezone", Calendar.getInstance().getTimeZone().getID());
         }
 
         URI uri = builder.build();

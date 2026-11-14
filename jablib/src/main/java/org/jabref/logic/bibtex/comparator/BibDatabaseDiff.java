@@ -5,14 +5,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import org.jabref.logic.database.DuplicateCheck;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.field.StandardField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +64,8 @@ public class BibDatabaseDiff {
         return comparator;
     }
 
-    private static List<BibEntryDiff> compareEntries(List<BibEntry> originalEntries, List<BibEntry> newEntries, BibDatabaseMode mode) {
+    private static List<BibEntryDiff> compareEntries(
+            List<BibEntry> originalEntries, List<BibEntry> newEntries, BibDatabaseMode mode) {
         List<BibEntryDiff> differences = new ArrayList<>();
 
         // Without new entries, every original entry was deleted
@@ -121,7 +120,8 @@ public class BibDatabaseDiff {
 
             boolean isDuplicate = duplicateCheck.isDuplicate(originalEntry, bestEntry, mode);
             boolean hasEqualCitationKey = hasEqualCitationKey(originalEntry, bestEntry);
-            // For a diff, it could be nice to have a pair of entries being similar, but not being a duplicate or having the same citation key.
+            // For a diff, it could be nice to have a pair of entries being similar, but not being a duplicate or having
+            // the same citation key.
             boolean ratioOfEqualFieldsAboveThreshold = bestMatch > MATCH_THRESHOLD;
 
             if (isDuplicate || hasEqualCitationKey || ratioOfEqualFieldsAboveThreshold) {
@@ -143,7 +143,9 @@ public class BibDatabaseDiff {
     }
 
     private static boolean hasEqualCitationKey(BibEntry oneEntry, BibEntry twoEntry) {
-        return oneEntry.hasCitationKey() && twoEntry.hasCitationKey() && oneEntry.getCitationKey().equals(twoEntry.getCitationKey());
+        return oneEntry.hasCitationKey()
+                && twoEntry.hasCitationKey()
+                && oneEntry.getCitationKey().equals(twoEntry.getCitationKey());
     }
 
     public static BibDatabaseDiff compare(BibDatabaseContext base, BibDatabaseContext changed) {

@@ -1,21 +1,18 @@
 package org.jabref.logic.push;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 import java.util.Map;
-
 import javafx.beans.property.SimpleMapProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.util.NotificationService;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class PushToSublimeTextTest {
 
@@ -29,7 +26,8 @@ class PushToSublimeTextTest {
         pushToSublimeText = new PushToSublimeText(notificationService, preferences);
 
         Map<String, String> commandPaths = Map.of(pushToSublimeText.getDisplayName(), "/usr/bin/subl");
-        SimpleMapProperty<String, String> commandPathsProperty = new SimpleMapProperty<>(FXCollections.observableMap(commandPaths));
+        SimpleMapProperty<String, String> commandPathsProperty =
+                new SimpleMapProperty<>(FXCollections.observableMap(commandPaths));
         when(preferences.getCommandPaths()).thenReturn(commandPathsProperty);
     }
 
@@ -44,7 +42,9 @@ class PushToSublimeTextTest {
 
         String[] commandLine = pushToSublimeText.getCommandLine("key");
 
-        String[] expected = {"/usr/bin/subl", "--command", "insert {\"characters\": \"\\\\cite{'; touch /tmp/pwned; #key}\"}"};
+        String[] expected = {
+            "/usr/bin/subl", "--command", "insert {\"characters\": \"\\\\cite{'; touch /tmp/pwned; #key}\"}"
+        };
         assertArrayEquals(expected, commandLine);
     }
 }

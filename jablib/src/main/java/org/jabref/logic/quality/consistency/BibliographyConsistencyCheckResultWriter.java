@@ -13,7 +13,6 @@ import java.util.SequencedCollection;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryType;
@@ -23,7 +22,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.field.OrFields;
 import org.jabref.model.entry.types.EntryType;
-
 import org.jooq.lambda.Unchecked;
 
 /// Outputs the findings as CSV.
@@ -39,7 +37,8 @@ import org.jooq.lambda.Unchecked;
 ///
 /// Note that this classification is based on JabRef's definition and might not match the publisher's definition.
 ///
-/// @implNote We could have implemented a `PaperConsistencyCheckResultFormatter`, but that would have been too much effort.
+/// @implNote We could have implemented a `PaperConsistencyCheckResultFormatter`, but that would have been too much
+/// effort.
 public abstract class BibliographyConsistencyCheckResultWriter implements Closeable {
 
     protected static final String REQUIRED_FIELD_AT_ENTRY_TYPE_CELL_ENTRY = "x";
@@ -64,8 +63,10 @@ public abstract class BibliographyConsistencyCheckResultWriter implements Closea
     ///
     /// @param displayName      the display name of the entry type
     /// @param differingFields  the fields set in some, but not all entries of the entry type, sorted by name
-    /// @param reportedFields   the differing fields plus the required fields missing in at least one entry, sorted by name
-    /// @param requiredOrFields the required fields of the entry type (each [OrFields] is satisfied by any of its fields)
+    /// @param reportedFields   the differing fields plus the required fields missing in at least one entry, sorted by
+    /// name
+    /// @param requiredOrFields the required fields of the entry type (each [OrFields] is satisfied by any of its
+    /// fields)
     /// @param requiredFields   all fields contained in `requiredOrFields`
     /// @param optionalFields   the optional fields of the entry type
     /// @param sortedEntries    the entries to report
@@ -84,33 +85,38 @@ public abstract class BibliographyConsistencyCheckResultWriter implements Closea
         }
     }
 
-    public BibliographyConsistencyCheckResultWriter(BibliographyConsistencyCheck.Result result, Writer writer, boolean isPorcelain) {
+    public BibliographyConsistencyCheckResultWriter(
+            BibliographyConsistencyCheck.Result result, Writer writer, boolean isPorcelain) {
         this(result, writer, isPorcelain, new BibEntryTypesManager(), BibDatabaseMode.BIBTEX);
     }
 
-    public BibliographyConsistencyCheckResultWriter(BibliographyConsistencyCheck.Result result, Writer writer, boolean isPorcelain, BibEntryTypesManager entryTypesManager, BibDatabaseMode bibDatabaseMode) {
+    public BibliographyConsistencyCheckResultWriter(
+            BibliographyConsistencyCheck.Result result,
+            Writer writer,
+            boolean isPorcelain,
+            BibEntryTypesManager entryTypesManager,
+            BibDatabaseMode bibDatabaseMode) {
         this.result = result;
         this.writer = writer;
         this.isPorcelain = isPorcelain;
         this.entryTypesManager = entryTypesManager;
         this.bibDatabaseMode = bibDatabaseMode;
         this.entryTypeToReport = result.entryTypeToResultMap().entrySet().stream()
-                                       .collect(Collectors.toMap(
-                                               Map.Entry::getKey,
-                                               mapEntry -> createEntryTypeReport(mapEntry.getKey(), mapEntry.getValue())));
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey, mapEntry -> createEntryTypeReport(mapEntry.getKey(), mapEntry.getValue())));
         this.allReportedFields = entryTypeToReport.values().stream()
-                                                  .flatMap(entryTypeReport -> entryTypeReport.reportedFields().stream())
-                                                  .sorted(Comparator.comparing(Field::getName))
-                                                  .distinct()
-                                                  .toList();
+                .flatMap(entryTypeReport -> entryTypeReport.reportedFields().stream())
+                .sorted(Comparator.comparing(Field::getName))
+                .distinct()
+                .toList();
         this.columnNames = getColumnNames();
         this.columnCount = columnNames.size();
     }
 
     public void writeFindings() throws IOException {
         entryTypeToReport.entrySet().stream()
-                         .sorted(Comparator.comparing(entry -> entry.getKey().getName()))
-                         .forEach(entry -> writeEntryTypeReport(entry.getValue()));
+                .sorted(Comparator.comparing(entry -> entry.getKey().getName()))
+                .forEach(entry -> writeEntryTypeReport(entry.getValue()));
     }
 
     private List<String> getColumnNames() {
@@ -131,59 +137,68 @@ public abstract class BibliographyConsistencyCheckResultWriter implements Closea
             if (requiredFields.contains(field)) {
                 // Aliases satisfy required fields, consistent with [BibliographyConsistencyCheck#isMissing]
                 results.add(bibEntry.getFieldOrAlias(field)
-                                    .map(_ -> REQUIRED_FIELD_AT_ENTRY_TYPE_CELL_ENTRY)
-                                    .orElse(UNSET_FIELD_AT_ENTRY_TYPE_CELL_ENTRY));
+                        .map(_ -> REQUIRED_FIELD_AT_ENTRY_TYPE_CELL_ENTRY)
+                        .orElse(UNSET_FIELD_AT_ENTRY_TYPE_CELL_ENTRY));
             } else {
                 results.add(bibEntry.getField(field)
-                                    .map(_ -> optionalFields.contains(field) ? OPTIONAL_FIELD_AT_ENTRY_TYPE_CELL_ENTRY : UNKNOWN_FIELD_AT_ENTRY_TYPE_CELL_ENTRY)
-                                    .orElse(UNSET_FIELD_AT_ENTRY_TYPE_CELL_ENTRY));
+                        .map(_ -> optionalFields.contains(field)
+                                ? OPTIONAL_FIELD_AT_ENTRY_TYPE_CELL_ENTRY
+                                : UNKNOWN_FIELD_AT_ENTRY_TYPE_CELL_ENTRY)
+                        .orElse(UNSET_FIELD_AT_ENTRY_TYPE_CELL_ENTRY));
             }
         });
         return results;
     }
 
-    private EntryTypeReport createEntryTypeReport(EntryType entryType, BibliographyConsistencyCheck.EntryTypeResult entryTypeResult) {
+    private EntryTypeReport createEntryTypeReport(
+            EntryType entryType, BibliographyConsistencyCheck.EntryTypeResult entryTypeResult) {
         Optional<BibEntryType> bibEntryType = this.entryTypesManager.enrich(entryType, bibDatabaseMode);
-        List<OrFields> requiredOrFields = bibEntryType
-                .map(BibEntryType::getRequiredFields)
-                .stream()
+        List<OrFields> requiredOrFields = bibEntryType.map(BibEntryType::getRequiredFields).stream()
                 .flatMap(Collection::stream)
                 .sorted()
                 .toList();
         Set<Field> requiredFields = requiredOrFields.stream()
-                                                    .flatMap(orFields -> orFields.getFields().stream())
-                                                    .collect(Collectors.toSet());
-        Set<Field> optionalFields = bibEntryType
-                .map(BibEntryType::getOptionalFields)
-                .stream()
+                .flatMap(orFields -> orFields.getFields().stream())
+                .collect(Collectors.toSet());
+        Set<Field> optionalFields = bibEntryType.map(BibEntryType::getOptionalFields).stream()
                 .flatMap(Collection::stream)
                 .map(BibField::field)
                 .collect(Collectors.toSet());
 
         List<Field> differingFields = entryTypeResult.fields().stream()
-                                                     .sorted(Comparator.comparing(Field::getName))
-                                                     .toList();
+                .sorted(Comparator.comparing(Field::getName))
+                .toList();
 
-        // Required fields missing in an entry are reported, too. Otherwise, an entry flagged only because of them would show no finding.
+        // Required fields missing in an entry are reported, too. Otherwise, an entry flagged only because of them would
+        // show no finding.
         Stream<Field> missingRequiredFields = entryTypeResult.sortedEntries().stream()
-                                                             .flatMap(bibEntry -> getMissingRequiredFields(requiredOrFields, bibEntry).stream())
-                                                             .flatMap(orFields -> orFields.getFields().stream());
+                .flatMap(bibEntry -> getMissingRequiredFields(requiredOrFields, bibEntry).stream())
+                .flatMap(orFields -> orFields.getFields().stream());
         List<Field> reportedFields = Stream.concat(differingFields.stream(), missingRequiredFields)
-                                           .distinct()
-                                           .sorted(Comparator.comparing(Field::getName))
-                                           .toList();
+                .distinct()
+                .sorted(Comparator.comparing(Field::getName))
+                .toList();
 
-        return new EntryTypeReport(entryType.getDisplayName(), differingFields, reportedFields, requiredOrFields, requiredFields, optionalFields, entryTypeResult.sortedEntries());
+        return new EntryTypeReport(
+                entryType.getDisplayName(),
+                differingFields,
+                reportedFields,
+                requiredOrFields,
+                requiredFields,
+                optionalFields,
+                entryTypeResult.sortedEntries());
     }
 
     private static List<OrFields> getMissingRequiredFields(List<OrFields> requiredOrFields, BibEntry bibEntry) {
         return requiredOrFields.stream()
-                               .filter(orFields -> BibliographyConsistencyCheck.isMissing(orFields, bibEntry))
-                               .toList();
+                .filter(orFields -> BibliographyConsistencyCheck.isMissing(orFields, bibEntry))
+                .toList();
     }
 
     protected void writeEntryTypeReport(EntryTypeReport entryTypeReport) {
-        entryTypeReport.sortedEntries().forEach(Unchecked.consumer(bibEntry -> writeBibEntry(bibEntry, entryTypeReport)));
+        entryTypeReport
+                .sortedEntries()
+                .forEach(Unchecked.consumer(bibEntry -> writeBibEntry(bibEntry, entryTypeReport)));
     }
 
     protected abstract void writeBibEntry(BibEntry bibEntry, EntryTypeReport entryTypeReport) throws IOException;

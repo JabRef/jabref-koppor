@@ -1,7 +1,6 @@
 package org.jabref.logic.importer;
 
 import java.time.Duration;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +14,7 @@ final class FetcherRetry {
     private static final Logger LOGGER = LoggerFactory.getLogger(FetcherRetry.class);
     private static final Duration INITIAL_BACKOFF = Duration.ofSeconds(1);
 
-    private FetcherRetry() {
-    }
+    private FetcherRetry() {}
 
     // [impl->req~fetchers.identifier-rate-limit-retries~1]
     static <T> T executeWithRateLimitRetry(FetcherOperation<T> operation) throws FetcherException {
@@ -38,16 +36,18 @@ final class FetcherRetry {
                     backoff.waitFor(delay);
                 } catch (InterruptedException interruptedException) {
                     Thread.currentThread().interrupt();
-                    throw new FetcherException("Interrupted while waiting to retry a rate-limited request", interruptedException);
+                    throw new FetcherException(
+                            "Interrupted while waiting to retry a rate-limited request", interruptedException);
                 }
             }
         }
     }
 
     private static boolean isRateLimited(FetcherClientException exception) {
-        return exception.getHttpResponse()
-                        .map(response -> response.statusCode() == HTTP_TOO_MANY_REQUESTS)
-                        .orElse(false);
+        return exception
+                .getHttpResponse()
+                .map(response -> response.statusCode() == HTTP_TOO_MANY_REQUESTS)
+                .orElse(false);
     }
 
     @FunctionalInterface

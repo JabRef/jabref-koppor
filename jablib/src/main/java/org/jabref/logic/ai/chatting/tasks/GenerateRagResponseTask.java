@@ -1,9 +1,9 @@
 package org.jabref.logic.ai.chatting.tasks;
 
+import dev.langchain4j.model.chat.response.ChatResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.chatting.util.ChatHistoryUtils;
 import org.jabref.logic.ai.rag.logic.ResponseEngine;
@@ -12,12 +12,11 @@ import org.jabref.logic.util.BackgroundTask;
 import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 import org.jabref.model.ai.pipeline.RelevantInformation;
-
-import dev.langchain4j.model.chat.response.ChatResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// The task responsible for generating a RAG (retrieval-augmented generation) response. Before sending a user message to the LLM, the [ResponseEngine] is called which finds the relevant context for the message.
+/// The task responsible for generating a RAG (retrieval-augmented generation) response. Before sending a user message
+/// to the LLM, the [ResponseEngine] is called which finds the relevant context for the message.
 public class GenerateRagResponseTask extends BackgroundTask<ChatMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateRagResponseTask.class);
 
@@ -34,8 +33,7 @@ public class GenerateRagResponseTask extends BackgroundTask<ChatMessage> {
             List<ChatMessage> chatHistory,
             List<FullBibEntry> entries,
             String systemMessageTemplate,
-            String injectionTemplate
-    ) {
+            String injectionTemplate) {
         this.chatModel = chatModel;
         this.responseEngine = responseEngine;
         this.chatHistory = chatHistory;
@@ -51,28 +49,25 @@ public class GenerateRagResponseTask extends BackgroundTask<ChatMessage> {
         Optional<ChatMessage> userMessage = ChatHistoryUtils.getLastUserMessage(workingChatHistory);
 
         if (userMessage.isEmpty()) {
-            LOGGER.error("A chat history without a user message at the end was sent to GenerateRagResponseTask. This should not happen, returning an empty AI message.");
+            LOGGER.error(
+                    "A chat history without a user message at the end was sent to GenerateRagResponseTask. This should"
+                            + " not happen, returning an empty AI message.");
             return ChatMessage.aiMessage("", List.of());
         }
 
-        List<RelevantInformation> relevantInformation = responseEngine.process(
-                userMessage.get().content(),
-                entries
-        );
+        List<RelevantInformation> relevantInformation =
+                responseEngine.process(userMessage.get().content(), entries);
 
         String injected = AiTemplateRenderer.renderChattingUserMessage(
                 injectionTemplate,
                 entries.stream().map(FullBibEntry::entry).toList(),
                 userMessage.get().content(),
-                relevantInformation
-        );
+                relevantInformation);
 
         ChatMessage injectedMessage = ChatMessage.userMessage(userMessage.get().timestamp(), injected);
 
         ChatMessage systemMessage = ChatMessage.systemMessage(AiTemplateRenderer.renderChattingSystemMessage(
-                systemMessageTemplate,
-                entries.stream().map(FullBibEntry::entry).toList()
-        ));
+                systemMessageTemplate, entries.stream().map(FullBibEntry::entry).toList()));
 
         List<ChatMessage> chatHistoryForLlm = new ArrayList<>();
         chatHistoryForLlm.add(systemMessage);
@@ -84,8 +79,7 @@ public class GenerateRagResponseTask extends BackgroundTask<ChatMessage> {
         // [impl->req~ai.chat.uses-response-engine~1]
         chatHistoryForLlm.add(injectedMessage);
 
-        List<dev.langchain4j.data.message.ChatMessage> chatMessages = chatHistoryForLlm
-                .stream()
+        List<dev.langchain4j.data.message.ChatMessage> chatMessages = chatHistoryForLlm.stream()
                 .map(ChatMessage::toLangChainMessage)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -94,9 +88,6 @@ public class GenerateRagResponseTask extends BackgroundTask<ChatMessage> {
         ChatResponse response = chatModel.chat(chatMessages);
         String content = response.aiMessage().text();
 
-        return ChatMessage.aiMessage(
-                content,
-                relevantInformation
-        );
+        return ChatMessage.aiMessage(content, relevantInformation);
     }
 }

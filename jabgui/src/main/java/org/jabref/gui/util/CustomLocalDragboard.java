@@ -3,16 +3,17 @@ package org.jabref.gui.util;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.jabref.gui.DragAndDropDataFormats;
 import org.jabref.logic.preview.PreviewLayout;
 import org.jabref.model.entry.BibEntry;
 
-/// Placeholder class for a custom generic type safe dragboard to be used in drag and drop, does not depend on serialization
+/// Placeholder class for a custom generic type safe dragboard to be used in drag and drop, does not depend on
+/// serialization
 /// Don't use this class directly. Use the instance provided in [org.jabref.gui.StateManager#getLocalDragboard()]
 public class CustomLocalDragboard {
 
-    @SuppressWarnings("unchecked") private static final Class<List<BibEntry>> BIB_ENTRIES = (Class<List<BibEntry>>) (Class<?>) List.class;
+    @SuppressWarnings("unchecked")
+    private static final Class<List<BibEntry>> BIB_ENTRIES = (Class<List<BibEntry>>) (Class<?>) List.class;
 
     private final Map<Class<?>, Object> contents = new HashMap<>();
 

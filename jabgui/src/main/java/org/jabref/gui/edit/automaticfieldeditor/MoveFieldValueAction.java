@@ -2,7 +2,6 @@ package org.jabref.gui.edit.automaticfieldeditor;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
@@ -21,7 +20,12 @@ public class MoveFieldValueAction extends SimpleCommand {
 
     private final boolean overwriteToFieldContent;
 
-    public MoveFieldValueAction(Field fromField, Field toField, List<BibEntry> entries, CompoundEdit edits, boolean overwriteToFieldContent) {
+    public MoveFieldValueAction(
+            Field fromField,
+            Field toField,
+            List<BibEntry> entries,
+            CompoundEdit edits,
+            boolean overwriteToFieldContent) {
         this.fromField = fromField;
         this.toField = toField;
         this.entries = entries;

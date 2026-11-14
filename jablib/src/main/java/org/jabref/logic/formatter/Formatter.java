@@ -2,7 +2,8 @@ package org.jabref.logic.formatter;
 
 import org.jspecify.annotations.NonNull;
 
-/// The Formatter is used for a Filter design-pattern. Extending classes have to accept a String and returned a formatted
+/// The Formatter is used for a Filter design-pattern. Extending classes have to accept a String and returned a
+/// formatted
 /// version of it. Implementations have to reside in the logic package.
 ///
 /// Example:

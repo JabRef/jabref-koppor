@@ -2,7 +2,6 @@ package org.jabref.logic.push;
 
 import java.nio.file.Path;
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
 
 /// Class that defines interaction with an external application in the form of "pushing" selected entries to it.
@@ -27,7 +26,8 @@ public interface PushToApplication {
     /// Used to route to either the GUI or the CLI - dependent on the usage
     void sendErrorNotification(String message);
 
-    /// Check whether this operation requires citation keys to be set for the entries. If true is returned an error message
+    /// Check whether this operation requires citation keys to be set for the entries. If true is returned an error
+    /// message
     /// will be displayed if keys are missing.
     ///
     /// @return true if citation keys are required for this operation.

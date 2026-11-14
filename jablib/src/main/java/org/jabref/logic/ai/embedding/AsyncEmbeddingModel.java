@@ -1,22 +1,19 @@
 package org.jabref.logic.ai.embedding;
 
+import dev.langchain4j.data.embedding.Embedding;
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.output.Response;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.logic.ai.ingestion.tasks.UpdateEmbeddingModelTask;
 import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.logic.util.TaskExecutor;
-
-import dev.langchain4j.data.embedding.Embedding;
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.output.Response;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +35,8 @@ public class AsyncEmbeddingModel implements EmbeddingModel, AutoCloseable {
     private final TaskExecutor taskExecutor;
     private final EmbeddingModelMetadataService metadataService;
 
-    private final ObjectProperty<Optional<DeepJavaEmbeddingModel>> predictorProperty = new SimpleObjectProperty<>(Optional.empty());
+    private final ObjectProperty<Optional<DeepJavaEmbeddingModel>> predictorProperty =
+            new SimpleObjectProperty<>(Optional.empty());
 
     // Empty if there is no error.
     private String errorWhileBuildingModel = "";
@@ -50,8 +48,7 @@ public class AsyncEmbeddingModel implements EmbeddingModel, AutoCloseable {
             AiPreferences aiPreferences,
             NotificationService notificationService,
             TaskExecutor taskExecutor,
-            EmbeddingModelMetadataService metadataService
-    ) {
+            EmbeddingModelMetadataService metadataService) {
         this.modelName = modelName;
         this.notificationService = notificationService;
         this.taskExecutor = taskExecutor;
@@ -84,7 +81,8 @@ public class AsyncEmbeddingModel implements EmbeddingModel, AutoCloseable {
                             return;
                         }
                         LOGGER.error("An error occurred while downloading the embedding model", e);
-                        notificationService.notify(Localization.lang("An error occurred while downloading the embedding model"));
+                        notificationService.notify(
+                                Localization.lang("An error occurred while downloading the embedding model"));
                         predictorProperty.set(Optional.empty());
                         errorWhileBuildingModel = e.getMessage() == null ? "" : e.getMessage();
                     }
@@ -101,12 +99,13 @@ public class AsyncEmbeddingModel implements EmbeddingModel, AutoCloseable {
     }
 
     public OptionalInt getMaxSnippetTokens() {
-        return predictorProperty.get()
-                                .map(DeepJavaEmbeddingModel::getMaxSnippetTokens)
-                                .orElseGet(() -> metadataService
-                                        .getMetadata(modelName)
-                                        .map(EmbeddingModelMetadata::maxSnippetTokens)
-                                        .orElseGet(OptionalInt::empty));
+        return predictorProperty
+                .get()
+                .map(DeepJavaEmbeddingModel::getMaxSnippetTokens)
+                .orElseGet(() -> metadataService
+                        .getMetadata(modelName)
+                        .map(EmbeddingModelMetadata::maxSnippetTokens)
+                        .orElseGet(OptionalInt::empty));
     }
 
     public boolean hadErrorWhileBuildingModel() {

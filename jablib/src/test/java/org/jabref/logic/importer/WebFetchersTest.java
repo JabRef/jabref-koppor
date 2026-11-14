@@ -1,5 +1,12 @@
 package org.jabref.logic.importer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfoList;
+import io.github.classgraph.ScanResult;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -12,7 +19,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.importer.fetcher.AbstractIsbnFetcher;
 import org.jabref.logic.importer.fetcher.CollectionOfComputerScienceBibliographiesFetcher;
@@ -31,19 +37,11 @@ import org.jabref.logic.importer.plaincitation.LlmPlainCitationParser;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfoList;
-import io.github.classgraph.ScanResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class WebFetchersTest {
 
@@ -71,14 +69,16 @@ class WebFetchersTest {
 
     private Set<Class<?>> getIgnoredInaccessibleClasses() {
         return IGNORED_INACCESSIBLE_FETCHERS.stream()
-                                            .map(classPath -> {
-                                                try {
-                                                    return Class.forName(classPath);
-                                                } catch (ClassNotFoundException e) {
-                                                    LOGGER.error("Some of the ignored classes were not found", e);
-                                                    return null;
-                                                }
-                                            }).filter(Objects::nonNull).collect(Collectors.toSet());
+                .map(classPath -> {
+                    try {
+                        return Class.forName(classPath);
+                    } catch (ClassNotFoundException e) {
+                        LOGGER.error("Some of the ignored classes were not found", e);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     @Test
@@ -86,7 +86,8 @@ class WebFetchersTest {
         Set<IdBasedFetcher> idFetchers = WebFetchers.getIdBasedFetchers(importFormatPreferences, importerPreferences);
 
         try (ScanResult scanResult = classGraph.scan()) {
-            ClassInfoList controlClasses = scanResult.getAllClassesImplementing(IdBasedFetcher.class.getCanonicalName());
+            ClassInfoList controlClasses =
+                    scanResult.getAllClassesImplementing(IdBasedFetcher.class.getCanonicalName());
             Set<Class<?>> expected = new LinkedHashSet<>(loadClasses(controlClasses));
 
             // Some classes implement IdBasedFetcher, but are only accessible to other fetcher, so ignore them
@@ -121,7 +122,8 @@ class WebFetchersTest {
                 mock(BibDatabaseContext.class));
 
         try (ScanResult scanResult = classGraph.scan()) {
-            ClassInfoList controlClasses = scanResult.getAllClassesImplementing(EntryBasedFetcher.class.getCanonicalName());
+            ClassInfoList controlClasses =
+                    scanResult.getAllClassesImplementing(EntryBasedFetcher.class.getCanonicalName());
             Set<Class<?>> expected = new HashSet<>(loadClasses(controlClasses));
 
             expected.remove(EntryBasedParserFetcher.class);
@@ -132,9 +134,11 @@ class WebFetchersTest {
 
     @Test
     void getSearchBasedFetchersReturnsAllFetcherDerivingFromSearchBasedFetcher() throws ClassNotFoundException {
-        Set<SearchBasedFetcher> searchBasedFetchers = WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences);
+        Set<SearchBasedFetcher> searchBasedFetchers =
+                WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences);
         try (ScanResult scanResult = classGraph.scan()) {
-            ClassInfoList controlClasses = scanResult.getAllClassesImplementing(SearchBasedFetcher.class.getCanonicalName());
+            ClassInfoList controlClasses =
+                    scanResult.getAllClassesImplementing(SearchBasedFetcher.class.getCanonicalName());
 
             Set<Class<?>> expected = new TreeSet<>(Comparator.comparing(Class::getName));
             expected.addAll(loadClasses(controlClasses));
@@ -163,10 +167,12 @@ class WebFetchersTest {
 
     @Test
     void getFullTextFetchersReturnsAllFetcherDerivingFromFullTextFetcher() throws ClassNotFoundException {
-        Set<FulltextFetcher> fullTextFetchers = WebFetchers.getFullTextFetchers(importFormatPreferences, importerPreferences);
+        Set<FulltextFetcher> fullTextFetchers =
+                WebFetchers.getFullTextFetchers(importFormatPreferences, importerPreferences);
 
         try (ScanResult scanResult = classGraph.scan()) {
-            ClassInfoList controlClasses = scanResult.getAllClassesImplementing(FulltextFetcher.class.getCanonicalName());
+            ClassInfoList controlClasses =
+                    scanResult.getAllClassesImplementing(FulltextFetcher.class.getCanonicalName());
             Set<Class<?>> expected = new HashSet<>(loadClasses(controlClasses));
 
             // Some classes implement FulltextFetcher, but are only accessible to other fetcher, so ignore them
@@ -204,7 +210,8 @@ class WebFetchersTest {
         ImporterPreferences importerPreferences = mock(ImporterPreferences.class);
         when(importerPreferences.getApiKey(CrossRef.FETCHER_NAME)).thenReturn(Optional.of("user@example.org"));
 
-        CrossRef fetcher = (CrossRef) WebFetchers.getIdFetcherForField(StandardField.DOI, importerPreferences).orElseThrow();
+        CrossRef fetcher = (CrossRef) WebFetchers.getIdFetcherForField(StandardField.DOI, importerPreferences)
+                .orElseThrow();
         URL url = fetcher.getURLForEntry(new BibEntry().withField(StandardField.TITLE, "A title"));
 
         assertEquals("query.bibliographic=A%20title&rows=20&offset=0&mailto=user%40example.org", url.getQuery());
@@ -212,8 +219,8 @@ class WebFetchersTest {
 
     private Set<? extends Class<?>> getClasses(Collection<?> objects) {
         return objects.stream()
-                      .map(Object::getClass)
-                      .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Class::getName))));
+                .map(Object::getClass)
+                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Class::getName))));
     }
 
     private Set<Class<?>> loadClasses(ClassInfoList classInfos) throws ClassNotFoundException {

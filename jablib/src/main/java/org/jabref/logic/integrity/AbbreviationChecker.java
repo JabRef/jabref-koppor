@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.BibEntry;
@@ -26,7 +25,8 @@ public class AbbreviationChecker implements EntryChecker {
         for (Field field : fields) {
             Optional<String> value = entry.getFieldLatexFree(field);
             value.filter(abbreviationRepository::isAbbreviatedName)
-                 .ifPresent(_ -> messages.add(new IntegrityMessage(Localization.lang("abbreviation detected"), entry, field)));
+                    .ifPresent(_ -> messages.add(
+                            new IntegrityMessage(Localization.lang("abbreviation detected"), entry, field)));
         }
         return messages;
     }

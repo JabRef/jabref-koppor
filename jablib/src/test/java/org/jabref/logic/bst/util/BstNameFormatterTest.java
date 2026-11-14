@@ -1,29 +1,30 @@
 package org.jabref.logic.bst.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.stream.Stream;
-
 import org.jabref.model.entry.AuthorList;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 class BstNameFormatterTest {
 
     private static final String EDOUARD_MASTERLY = "{\\'{E}}douard Masterly";
-    private static final String MEYER_AND_DE_LA_VALLEE_POUSSIN = "Jonathan Meyer and Charles Louis Xavier Joseph de la Vall{\\'e}e Poussin";
+    private static final String MEYER_AND_DE_LA_VALLEE_POUSSIN =
+            "Jonathan Meyer and Charles Louis Xavier Joseph de la Vall{\\'e}e Poussin";
     private static final String UNDERWOOD_NET_AND_POT = "Ulrich {\\\"{U}}nderwood and Ned {\\~N}et and Paul {\\={P}}ot";
-    private static final String VICTOR_AND_CIERVA = "Paul {\\'E}mile Victor and and de la Cierva y Codorn{\\’\\i}u, Juan";
+    private static final String VICTOR_AND_CIERVA =
+            "Paul {\\'E}mile Victor and and de la Cierva y Codorn{\\’\\i}u, Juan";
 
     @Test
     void umlautsFullNames() {
         AuthorList list = AuthorList.parse("Charles Louis Xavier Joseph de la Vall{\\'e}e Poussin");
 
-        assertEquals("de~laVall{\\'e}e~PoussinCharles Louis Xavier~Joseph",
+        assertEquals(
+                "de~laVall{\\'e}e~PoussinCharles Louis Xavier~Joseph",
                 BstNameFormatter.formatName(list.getAuthor(0), "{vv}{ll}{jj}{ff}"));
     }
 
@@ -31,7 +32,8 @@ class BstNameFormatterTest {
     void umlautsAbbreviations() {
         AuthorList list = AuthorList.parse("Charles Louis Xavier Joseph de la Vall{\\'e}e Poussin");
 
-        assertEquals("de~la Vall{\\'e}e~Poussin, C.~L. X.~J.",
+        assertEquals(
+                "de~la Vall{\\'e}e~Poussin, C.~L. X.~J.",
                 BstNameFormatter.formatName(list.getAuthor(0), "{vv~}{ll}{, jj}{, f.}"));
     }
 
@@ -39,7 +41,8 @@ class BstNameFormatterTest {
     void umlautsAbbreviationsWithQuestionMark() {
         AuthorList list = AuthorList.parse("Charles Louis Xavier Joseph de la Vall{\\'e}e Poussin");
 
-        assertEquals("de~la Vall{\\'e}e~Poussin, C.~L. X.~J?",
+        assertEquals(
+                "de~la Vall{\\'e}e~Poussin, C.~L. X.~J?",
                 BstNameFormatter.formatName(list.getAuthor(0), "{vv~}{ll}{, jj}{, f}?"));
     }
 
@@ -67,8 +70,7 @@ class BstNameFormatterTest {
                 Arguments.of("Jonathan Meyer", MEYER_AND_DE_LA_VALLEE_POUSSIN, "{ff }{vv }{ll}{ jj}"),
                 Arguments.of(EDOUARD_MASTERLY, EDOUARD_MASTERLY, "{ff }{vv }{ll}{ jj}"),
                 Arguments.of("Ulrich {\\\"{U}}nderwood", UNDERWOOD_NET_AND_POT, "{ff }{vv }{ll}{ jj}"),
-                Arguments.of("Paul~{\\'E}mile Victor", VICTOR_AND_CIERVA, "{ff }{vv }{ll}{ jj}")
-        );
+                Arguments.of("Paul~{\\'E}mile Victor", VICTOR_AND_CIERVA, "{ff }{vv }{ll}{ jj}"));
     }
 
     @ParameterizedTest
@@ -99,26 +101,20 @@ class BstNameFormatterTest {
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "C, Charles",
-            "V, Vall{\\'e}e",
-            "{\\'e}, {\\'e}",
-            "{\\'e, {\\'e",
-            "E, {E"
-    })
+    @CsvSource({"C, Charles", "V, Vall{\\'e}e", "{\\'e}, {\\'e}", "{\\'e, {\\'e", "E, {E"})
     void getFirstCharOfString(String expected, String s) {
         assertEquals(expected, BstNameFormatter.getFirstCharOfString(s));
     }
 
     @ParameterizedTest
     @CsvSource({
-            "6, Vall{\\'e}e, -1",
-            "2, Vall{\\'e}e, 2",
-            "1, Vall{\\'e}e, 1",
-            "6, Vall{\\'e}e, 6",
-            "6, Vall{\\'e}e, 7",
-            "8, Vall{e}e, -1",
-            "6, Vall{\\'e this will be skipped}e, -1"
+        "6, Vall{\\'e}e, -1",
+        "2, Vall{\\'e}e, 2",
+        "1, Vall{\\'e}e, 1",
+        "6, Vall{\\'e}e, 6",
+        "6, Vall{\\'e}e, 7",
+        "8, Vall{e}e, -1",
+        "6, Vall{\\'e this will be skipped}e, -1"
     })
     void numberOfChars(int expected, String token, int inStop) {
         assertEquals(expected, BstNameFormatter.numberOfChars(token, inStop));

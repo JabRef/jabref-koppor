@@ -2,9 +2,7 @@ package org.jabref.gui.fieldeditors.optioneditors;
 
 import java.util.Arrays;
 import java.util.Collection;
-
 import javafx.util.StringConverter;
-
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.undo.UndoManager;
@@ -16,7 +14,12 @@ import org.jabref.model.entry.field.Field;
 public class MonthEditorViewModel extends OptionEditorViewModel<Month> {
     private final BibDatabaseMode databaseMode;
 
-    public MonthEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider, BibDatabaseMode databaseMode, FieldCheckers fieldCheckers, UndoManager undoManager) {
+    public MonthEditorViewModel(
+            Field field,
+            SuggestionProvider<?> suggestionProvider,
+            BibDatabaseMode databaseMode,
+            FieldCheckers fieldCheckers,
+            UndoManager undoManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.databaseMode = databaseMode;
     }

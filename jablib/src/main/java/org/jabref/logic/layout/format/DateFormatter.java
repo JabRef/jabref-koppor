@@ -3,7 +3,6 @@ package org.jabref.logic.layout.format;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-
 import org.jabref.logic.layout.ParamLayoutFormatter;
 
 public class DateFormatter implements ParamLayoutFormatter {

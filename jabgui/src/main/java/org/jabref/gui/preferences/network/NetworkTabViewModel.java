@@ -1,11 +1,15 @@
 package org.jabref.gui.preferences.network;
 
+import de.saxsys.mvvmfx.utils.validation.CompositeValidator;
+import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
+import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
+import de.saxsys.mvvmfx.utils.validation.Validator;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -16,7 +20,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.stage.FileChooser;
-
+import kong.unirest.core.UnirestException;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.gui.util.FileDialogConfiguration;
@@ -33,13 +37,6 @@ import org.jabref.logic.os.OS;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.strings.StringUtil;
 
-import de.saxsys.mvvmfx.utils.validation.CompositeValidator;
-import de.saxsys.mvvmfx.utils.validation.FunctionBasedValidator;
-import de.saxsys.mvvmfx.utils.validation.ValidationMessage;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
-import de.saxsys.mvvmfx.utils.validation.Validator;
-import kong.unirest.core.UnirestException;
-
 public class NetworkTabViewModel implements PreferenceTabViewModel {
     private final BooleanProperty versionCheckProperty = new SimpleBooleanProperty();
     private final BooleanProperty proxyUseProperty = new SimpleBooleanProperty();
@@ -50,7 +47,8 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
     private final StringProperty proxyPasswordProperty = new SimpleStringProperty("");
     private final BooleanProperty proxyPersistPasswordProperty = new SimpleBooleanProperty();
     private final BooleanProperty passwordPersistAvailable = new SimpleBooleanProperty();
-    private final ListProperty<CustomCertificateViewModel> customCertificateListProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<CustomCertificateViewModel> customCertificateListProperty =
+            new SimpleListProperty<>(FXCollections.observableArrayList());
 
     private final Validator proxyHostnameValidator;
     private final Validator proxyPortValidator;
@@ -68,11 +66,12 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
 
     private final AtomicBoolean sslCertificatesChanged = new AtomicBoolean(false);
 
-    public NetworkTabViewModel(DialogService dialogService,
-                               ProxyPreferences proxyPreferences,
-                               InternalPreferences internalPreferences,
-                               SSLPreferences sslPreferences,
-                               FilePreferences filePreferences) {
+    public NetworkTabViewModel(
+            DialogService dialogService,
+            ProxyPreferences proxyPreferences,
+            InternalPreferences internalPreferences,
+            SSLPreferences sslPreferences,
+            FilePreferences filePreferences) {
         this.dialogService = dialogService;
         this.filePreferences = filePreferences;
         this.proxyPreferences = proxyPreferences;
@@ -90,34 +89,38 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
         proxyHostnameValidator = new FunctionBasedValidator<>(
                 proxyHostnameProperty,
                 input -> !StringUtil.isNullOrEmpty(input),
-                ValidationMessage.error("%s > %s %n %n %s".formatted(
-                        Localization.lang("Network"),
-                        Localization.lang("Proxy configuration"),
-                        Localization.lang("Please specify a hostname"))));
+                ValidationMessage.error("%s > %s %n %n %s"
+                        .formatted(
+                                Localization.lang("Network"),
+                                Localization.lang("Proxy configuration"),
+                                Localization.lang("Please specify a hostname"))));
 
         proxyPortValidator = new FunctionBasedValidator<>(
                 proxyPortProperty,
                 input -> getPortAsInt(input).isPresent(),
-                ValidationMessage.error("%s > %s %n %n %s".formatted(
-                        Localization.lang("Network"),
-                        Localization.lang("Proxy configuration"),
-                        Localization.lang("Please specify a port"))));
+                ValidationMessage.error("%s > %s %n %n %s"
+                        .formatted(
+                                Localization.lang("Network"),
+                                Localization.lang("Proxy configuration"),
+                                Localization.lang("Please specify a port"))));
 
         proxyUsernameValidator = new FunctionBasedValidator<>(
                 proxyUsernameProperty,
                 input -> !StringUtil.isNullOrEmpty(input),
-                ValidationMessage.error("%s > %s %n %n %s".formatted(
-                        Localization.lang("Network"),
-                        Localization.lang("Proxy configuration"),
-                        Localization.lang("Please specify a username"))));
+                ValidationMessage.error("%s > %s %n %n %s"
+                        .formatted(
+                                Localization.lang("Network"),
+                                Localization.lang("Proxy configuration"),
+                                Localization.lang("Please specify a username"))));
 
         proxyPasswordValidator = new FunctionBasedValidator<>(
                 proxyPasswordProperty,
                 input -> !input.isBlank(),
-                ValidationMessage.error("%s > %s %n %n %s".formatted(
-                        Localization.lang("Network"),
-                        Localization.lang("Proxy configuration"),
-                        Localization.lang("Please specify a password"))));
+                ValidationMessage.error("%s > %s %n %n %s"
+                        .formatted(
+                                Localization.lang("Network"),
+                                Localization.lang("Proxy configuration"),
+                                Localization.lang("Please specify a password"))));
 
         this.trustStoreManager = new TrustStoreManager(sslPreferences.getTruststorePath());
     }
@@ -143,14 +146,19 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
 
     private void setSSLValues() {
         customCertificateListProperty.clear();
-        trustStoreManager.getCustomCertificates().forEach(cert -> customCertificateListProperty.add(CustomCertificateViewModel.fromSSLCertificate(cert)));
+        trustStoreManager
+                .getCustomCertificates()
+                .forEach(
+                        cert -> customCertificateListProperty.add(CustomCertificateViewModel.fromSSLCertificate(cert)));
         customCertificateListProperty.addListener((ListChangeListener<CustomCertificateViewModel>) c -> {
             sslCertificatesChanged.set(true);
             while (c.next()) {
                 if (c.wasAdded()) {
                     CustomCertificateViewModel certificate = c.getAddedSubList().getFirst();
-                    certificate.getPath().ifPresent(path -> trustStoreManager
-                            .addCertificate(formatCustomAlias(certificate.getThumbprint()), Path.of(path)));
+                    certificate
+                            .getPath()
+                            .ifPresent(path -> trustStoreManager.addCertificate(
+                                    formatCustomAlias(certificate.getThumbprint()), Path.of(path)));
                 } else if (c.wasRemoved()) {
                     CustomCertificateViewModel certificate = c.getRemoved().getFirst();
                     trustStoreManager.deleteCertificate(formatCustomAlias(certificate.getThumbprint()));
@@ -167,7 +175,8 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
         proxyPreferences.setPort(proxyPortProperty.getValue().trim());
         proxyPreferences.setUseAuthentication(proxyUseAuthenticationProperty.getValue());
         proxyPreferences.setUsername(proxyUsernameProperty.getValue().trim());
-        proxyPreferences.setPersistPassword(proxyPersistPasswordProperty.getValue()); // Set before the password to actually persist
+        proxyPreferences.setPersistPassword(
+                proxyPersistPasswordProperty.getValue()); // Set before the password to actually persist
         proxyPreferences.setPassword(proxyPasswordProperty.getValue());
         ProxyRegisterer.register(proxyPreferences);
 
@@ -214,14 +223,16 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
 
         ValidationStatus validationStatus = validator.getValidationStatus();
         if (!validationStatus.isValid()) {
-            validationStatus.getHighestMessage().ifPresent(message ->
-                    dialogService.showErrorDialogAndWait(message.getMessage()));
+            validationStatus
+                    .getHighestMessage()
+                    .ifPresent(message -> dialogService.showErrorDialogAndWait(message.getMessage()));
             return false;
         }
         return true;
     }
 
-    /// Check the connection by using the given url. Used for validating the http proxy. The checking result will be appearing when request finished.
+    /// Check the connection by using the given url. Used for validating the http proxy. The checking result will be
+    /// appearing when request finished.
     /// The checking result could be either success or fail.
     /// If fail, the cause will be displayed.
     public void checkConnection() {
@@ -238,8 +249,7 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
                 proxyUseAuthenticationProperty.getValue(),
                 proxyUsernameProperty.getValue().trim(),
                 proxyPasswordProperty.getValue(),
-                proxyPersistPasswordProperty.getValue()
-        ));
+                proxyPersistPasswordProperty.getValue()));
 
         URLDownload urlDownload;
         try {
@@ -309,19 +319,24 @@ public class NetworkTabViewModel implements PreferenceTabViewModel {
 
     public void addCertificateFile() {
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
-                .addExtensionFilter(new FileChooser.ExtensionFilter(Localization.lang("SSL certificate file"), "*.crt", "*.cer"))
+                .addExtensionFilter(
+                        new FileChooser.ExtensionFilter(Localization.lang("SSL certificate file"), "*.crt", "*.cer"))
                 .withDefaultExtension(Localization.lang("SSL certificate file"), StandardFileType.CER)
                 .withInitialDirectory(filePreferences.getWorkingDirectory())
                 .build();
 
-        dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(certPath -> SSLCertificate.fromPath(certPath).ifPresent(sslCertificate -> {
-            if (!trustStoreManager.certificateExists(formatCustomAlias(sslCertificate.getSHA256Thumbprint()))) {
-                customCertificateListProperty.add(CustomCertificateViewModel.fromSSLCertificate(sslCertificate)
-                                                                            .setPath(certPath.toAbsolutePath().toString()));
-            } else {
-                dialogService.showWarningDialogAndWait(Localization.lang("Duplicate Certificates"), Localization.lang("You already added this certificate"));
-            }
-        }));
+        dialogService
+                .showFileOpenDialog(fileDialogConfiguration)
+                .ifPresent(certPath -> SSLCertificate.fromPath(certPath).ifPresent(sslCertificate -> {
+                    if (!trustStoreManager.certificateExists(formatCustomAlias(sslCertificate.getSHA256Thumbprint()))) {
+                        customCertificateListProperty.add(CustomCertificateViewModel.fromSSLCertificate(sslCertificate)
+                                .setPath(certPath.toAbsolutePath().toString()));
+                    } else {
+                        dialogService.showWarningDialogAndWait(
+                                Localization.lang("Duplicate Certificates"),
+                                Localization.lang("You already added this certificate"));
+                    }
+                }));
     }
 
     private String formatCustomAlias(String thumbprint) {

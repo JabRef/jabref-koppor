@@ -20,6 +20,5 @@ public final class FormMetrics {
 
     static final double ICON_BUTTON_SIZE = 20.0;
 
-    private FormMetrics() {
-    }
+    private FormMetrics() {}
 }

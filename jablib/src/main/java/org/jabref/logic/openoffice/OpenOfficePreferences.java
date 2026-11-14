@@ -1,7 +1,6 @@
 package org.jabref.logic.openoffice;
 
 import java.util.List;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -10,7 +9,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.citationstyle.CSLStyleLoader;
 import org.jabref.logic.citationstyle.CitationStyle;
 import org.jabref.logic.openoffice.oocsltext.CSLFormatUtils;
@@ -52,25 +50,26 @@ public class OpenOfficePreferences {
     private final ObjectProperty<BstCitationFormat> bstCitationFormat;
     private final ObjectProperty<CitationType> citeSpecialCitationType;
 
-    public OpenOfficePreferences(String executablePath,
-                                 boolean useAllDatabases,
-                                 boolean syncWhenCiting,
-                                 List<String> externalJStyles,
-                                 String currentJStyle,
-                                 OOStyle currentStyle,
-                                 boolean alwaysAddCitedOnPages,
-                                 String cslBibliographyTitle,
-                                 String cslBibliographyHeaderFormat,
-                                 String cslBibliographyBodyFormat,
-                                 List<String> externalCslStyles,
-                                 boolean addSpaceBefore,
-                                 boolean addSpaceAfter,
-                                 boolean zoteroCompatibilityMode,
-                                 boolean inferCslStyleFromDocument,
-                                 List<String> externalBstStyles,
-                                 String pandocPath,
-                                 BstCitationFormat bstCitationFormat,
-                                 CitationType citeSpecialCitationType) {
+    public OpenOfficePreferences(
+            String executablePath,
+            boolean useAllDatabases,
+            boolean syncWhenCiting,
+            List<String> externalJStyles,
+            String currentJStyle,
+            OOStyle currentStyle,
+            boolean alwaysAddCitedOnPages,
+            String cslBibliographyTitle,
+            String cslBibliographyHeaderFormat,
+            String cslBibliographyBodyFormat,
+            List<String> externalCslStyles,
+            boolean addSpaceBefore,
+            boolean addSpaceAfter,
+            boolean zoteroCompatibilityMode,
+            boolean inferCslStyleFromDocument,
+            List<String> externalBstStyles,
+            String pandocPath,
+            BstCitationFormat bstCitationFormat,
+            CitationType citeSpecialCitationType) {
         this.executablePath = new SimpleStringProperty(executablePath);
         this.useAllDatabases = new SimpleBooleanProperty(useAllDatabases);
         this.syncWhenCiting = new SimpleBooleanProperty(syncWhenCiting);
@@ -94,28 +93,28 @@ public class OpenOfficePreferences {
 
     private OpenOfficePreferences() {
         this(
-                OS.WINDOWS ? DEFAULT_WIN_EXEC_PATH              // executablePath
-                           : OS.OS_X ? DEFAULT_OSX_EXEC_PATH
-                                     : DEFAULT_LINUX_EXEC_PATH,
-                true,                                           // useAllDatabases
-                false,                                          // syncWhenCiting
-                List.of(),                                      // externalJStyles
-                JStyleLoader.DEFAULT_AUTHORYEAR_STYLE_PATH,     // currentJStyle
-                CSLStyleLoader.getDefaultStyle(),               // currentStyle
-                false,                                          // alwaysAddCitedOnPages
-                "References",                                   // cslBibliographyTitle
-                "Heading 2",                                    // cslBibliographyHeaderFormat
-                "Text body",                                    // cslBibliographyBodyFormat
-                List.of(),                                      // externalCslStyles
-                true,                                           // addSpaceBefore
-                false,                                          // addSpaceAfter
-                false,                                          // zoteroCompatibilityMode
-                false,                                          // inferCslStyleFromDocument
-                List.of(),                                      // externalBstStyles
-                "pandoc",                                       // pandocPath
-                BstCitationFormat.NUMERIC,                      // bstCitationFormat
-                CitationType.AUTHORYEAR_INTEXT                  // citeSpecialCitationType
-        );
+                OS.WINDOWS
+                        ? DEFAULT_WIN_EXEC_PATH // executablePath
+                        : OS.OS_X ? DEFAULT_OSX_EXEC_PATH : DEFAULT_LINUX_EXEC_PATH,
+                true, // useAllDatabases
+                false, // syncWhenCiting
+                List.of(), // externalJStyles
+                JStyleLoader.DEFAULT_AUTHORYEAR_STYLE_PATH, // currentJStyle
+                CSLStyleLoader.getDefaultStyle(), // currentStyle
+                false, // alwaysAddCitedOnPages
+                "References", // cslBibliographyTitle
+                "Heading 2", // cslBibliographyHeaderFormat
+                "Text body", // cslBibliographyBodyFormat
+                List.of(), // externalCslStyles
+                true, // addSpaceBefore
+                false, // addSpaceAfter
+                false, // zoteroCompatibilityMode
+                false, // inferCslStyleFromDocument
+                List.of(), // externalBstStyles
+                "pandoc", // pandocPath
+                BstCitationFormat.NUMERIC, // bstCitationFormat
+                CitationType.AUTHORYEAR_INTEXT // citeSpecialCitationType
+                );
     }
 
     public static OpenOfficePreferences getDefault() {
@@ -312,8 +311,8 @@ public class OpenOfficePreferences {
 
     public OpenOfficeReferenceMarkFormat getReferenceMarkFormat() {
         return zoteroCompatibilityMode.get()
-               ? OpenOfficeReferenceMarkFormat.ZOTERO_COMPATIBLE
-               : OpenOfficeReferenceMarkFormat.JABREF_ONLY;
+                ? OpenOfficeReferenceMarkFormat.ZOTERO_COMPATIBLE
+                : OpenOfficeReferenceMarkFormat.JABREF_ONLY;
     }
 
     /// List of paths to external BST style files.

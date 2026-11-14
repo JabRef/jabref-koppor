@@ -1,5 +1,18 @@
 package org.jabref.gui.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -8,12 +21,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -48,24 +59,10 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class SaveDatabaseActionTest {
 
@@ -91,7 +88,8 @@ class SaveDatabaseActionTest {
 
     @Test
     void saveAsShouldSetWorkingDirectory() {
-        when(dialogService.showFileSaveDialog(any(FileDialogConfiguration.class))).thenReturn(Optional.of(file));
+        when(dialogService.showFileSaveDialog(any(FileDialogConfiguration.class)))
+                .thenReturn(Optional.of(file));
         doReturn(true).when(saveDatabaseAction).saveAs(any());
 
         saveDatabaseAction.saveAs();
@@ -101,7 +99,8 @@ class SaveDatabaseActionTest {
 
     @Test
     void saveAsShouldNotSetWorkingDirectoryIfNotSelected() {
-        when(dialogService.showFileSaveDialog(any(FileDialogConfiguration.class))).thenReturn(Optional.empty());
+        when(dialogService.showFileSaveDialog(any(FileDialogConfiguration.class)))
+                .thenReturn(Optional.empty());
         doReturn(false).when(saveDatabaseAction).saveAs(any());
 
         saveDatabaseAction.saveAs();
@@ -130,7 +129,9 @@ class SaveDatabaseActionTest {
         when(dbContext.getDatabasePath()).thenReturn(Optional.of(file));
         when(libraryTab.isSaving()).thenReturn(true);
 
-        assertEquals(SaveDatabaseAction.SaveResult.ALREADY_SAVING, saveDatabaseAction.save(SaveDatabaseAction.SaveDatabaseMode.SILENT));
+        assertEquals(
+                SaveDatabaseAction.SaveResult.ALREADY_SAVING,
+                saveDatabaseAction.save(SaveDatabaseAction.SaveDatabaseMode.SILENT));
     }
 
     @Test
@@ -165,10 +166,12 @@ class SaveDatabaseActionTest {
         dbContext = mock(BibDatabaseContext.class);
         libraryTab = mock(LibraryTab.class);
         metaData = mock(MetaData.class);
-        when(saveConfiguration.withSaveType(any(BibDatabaseWriter.SaveType.class))).thenReturn(saveConfiguration);
+        when(saveConfiguration.withSaveType(any(BibDatabaseWriter.SaveType.class)))
+                .thenReturn(saveConfiguration);
         when(saveConfiguration.getSaveOrder()).thenReturn(SaveOrder.getDefaultSaveOrder());
         GlobalCitationKeyPatterns emptyGlobalCitationKeyPatterns = GlobalCitationKeyPatterns.fromPattern("");
-        when(metaData.getCiteKeyPatterns(any(GlobalCitationKeyPatterns.class))).thenReturn(emptyGlobalCitationKeyPatterns);
+        when(metaData.getCiteKeyPatterns(any(GlobalCitationKeyPatterns.class)))
+                .thenReturn(emptyGlobalCitationKeyPatterns);
         when(dbContext.getDatabasePath()).thenReturn(Optional.of(file));
         when(dbContext.getLocation()).thenReturn(DatabaseLocation.LOCAL);
         when(dbContext.getDatabase()).thenReturn(database);
@@ -180,7 +183,8 @@ class SaveDatabaseActionTest {
         when(preferences.getFieldPreferences()).thenReturn(fieldPreferences);
         when(preferences.getAbbreviationPreferences()).thenReturn(mock(AbbreviationPreferences.class));
         when(preferences.getCitationKeyPatternPreferences()).thenReturn(mock(CitationKeyPatternPreferences.class));
-        when(preferences.getCitationKeyPatternPreferences().getKeyPatterns()).thenReturn(emptyGlobalCitationKeyPatterns);
+        when(preferences.getCitationKeyPatternPreferences().getKeyPatterns())
+                .thenReturn(emptyGlobalCitationKeyPatterns);
         when(preferences.getFieldPreferences().getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
         when(preferences.getLibraryPreferences()).thenReturn(mock(LibraryPreferences.class));
         when(libraryTab.getBibDatabaseContext()).thenReturn(dbContext);
@@ -213,9 +217,11 @@ class SaveDatabaseActionTest {
         saveDatabaseAction = createSaveDatabaseActionForBibDatabase(database);
         saveDatabaseAction.save();
 
-        assertEquals(database
-                        .getEntries().stream()
-                        .map(BibEntry::hasChanged).filter(_ -> false).collect(Collectors.toList()),
+        assertEquals(
+                database.getEntries().stream()
+                        .map(BibEntry::hasChanged)
+                        .filter(_ -> false)
+                        .collect(Collectors.toList()),
                 List.of());
     }
 
@@ -235,13 +241,15 @@ class SaveDatabaseActionTest {
         when(dbContext.getMetaData().getEncoding()).thenReturn(Optional.of(StandardCharsets.US_ASCII));
         // "Café" is not encodable in US-ASCII, so the encoding-problems dialog opens. While it is open, another
         // program saves the file; the user then chooses to retry with a different encoding.
-        when(dialogService.showCustomDialogAndWait(any(String.class), any(DialogPane.class), any(ButtonType.class), any(ButtonType.class)))
+        when(dialogService.showCustomDialogAndWait(
+                        any(String.class), any(DialogPane.class), any(ButtonType.class), any(ButtonType.class)))
                 .thenAnswer(invocation -> {
                     Files.writeString(file, "external content");
                     ButtonType tryDifferentEncoding = invocation.getArgument(3);
                     return Optional.of(tryDifferentEncoding);
                 });
-        when(dialogService.showChoiceDialogAndWait(any(), any(), any(), any(), any())).thenReturn(Optional.of(StandardCharsets.UTF_8));
+        when(dialogService.showChoiceDialogAndWait(any(), any(), any(), any(), any()))
+                .thenReturn(Optional.of(StandardCharsets.UTF_8));
 
         SaveDatabaseAction.SaveResult result = saveDatabaseAction.save();
 
@@ -259,7 +267,8 @@ class SaveDatabaseActionTest {
         when(dbContext.getMetaData().getEncoding()).thenReturn(Optional.of(StandardCharsets.US_ASCII));
         // While the encoding-problems dialog is open, another program saves the file; the user then clicks "Ignore".
         // The committed first write no longer is the file's content, so the save must not be reported as successful.
-        when(dialogService.showCustomDialogAndWait(any(String.class), any(DialogPane.class), any(ButtonType.class), any(ButtonType.class)))
+        when(dialogService.showCustomDialogAndWait(
+                        any(String.class), any(DialogPane.class), any(ButtonType.class), any(ButtonType.class)))
                 .thenAnswer(invocation -> {
                     Files.writeString(file, "external content");
                     ButtonType ignore = invocation.getArgument(2);
@@ -290,9 +299,9 @@ class SaveDatabaseActionTest {
         failSaveMutation.set(true);
         BibDatabase database = new BibDatabase(List.of(entry));
         saveDatabaseAction = createSaveDatabaseActionForBibDatabase(database);
-        when(metaData.getSaveActions()).thenReturn(Optional.of(new FieldFormatterCleanupActions(
-                true,
-                List.of(new FieldFormatterCleanup(StandardField.TITLE, new LowerCaseFormatter())))));
+        when(metaData.getSaveActions())
+                .thenReturn(Optional.of(new FieldFormatterCleanupActions(
+                        true, List.of(new FieldFormatterCleanup(StandardField.TITLE, new LowerCaseFormatter())))));
 
         SaveDatabaseAction.SaveResult result = saveDatabaseAction.save();
 

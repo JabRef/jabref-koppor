@@ -25,23 +25,26 @@ public class AddGroupImportEntriesAction {
         String groupName = preferences.getLibraryPreferences().getAddImportedEntriesGroupName();
         MetaData metaData = databaseContext.getMetaData();
         boolean groupMissing = metaData.getGroups()
-                                       .map(root -> root.getChildren().stream()
-                                                        .map(GroupTreeNode::getGroup)
-                                                        .noneMatch(grp -> grp instanceof ExplicitGroup && grp.getName().equalsIgnoreCase(groupName)))
-                                       .orElse(true);
+                .map(root -> root.getChildren().stream()
+                        .map(GroupTreeNode::getGroup)
+                        .noneMatch(grp ->
+                                grp instanceof ExplicitGroup && grp.getName().equalsIgnoreCase(groupName)))
+                .orElse(true);
 
         if (!groupMissing) {
             return false;
         }
 
-        char keywordSeparator = metaData.getKeywordSeparator().orElse(preferences.getBibEntryPreferences().getKeywordSeparator());
+        char keywordSeparator = metaData.getKeywordSeparator()
+                .orElse(preferences.getBibEntryPreferences().getKeywordSeparator());
         GroupTreeNode root = metaData.getGroups().orElseGet(() -> {
             GroupTreeNode newRoot = GroupTreeNode.fromGroup(GroupsFactory.createAllEntriesGroup());
             metaData.setGroups(newRoot);
             return newRoot;
         });
 
-        AbstractGroup importEntriesGroup = new ExplicitGroup(groupName, GroupHierarchyType.INDEPENDENT, keywordSeparator);
+        AbstractGroup importEntriesGroup =
+                new ExplicitGroup(groupName, GroupHierarchyType.INDEPENDENT, keywordSeparator);
         GroupTreeNode newSubgroup = root.addSubgroup(importEntriesGroup);
         newSubgroup.moveTo(root, 0);
         // The tree was edited in place, so the root is written back to report the write: that is

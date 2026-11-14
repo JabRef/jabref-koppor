@@ -1,7 +1,6 @@
 package org.jabref.logic.citation.repository;
 
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
 
 /// Generic interface for a repository that stores relations between BibEntries.

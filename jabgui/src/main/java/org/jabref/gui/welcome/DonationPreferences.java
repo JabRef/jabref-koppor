@@ -4,7 +4,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -20,8 +19,8 @@ public class DonationPreferences {
     ///  Creates object with default values
     private DonationPreferences() {
         this(
-                false,                    // Donation never show again
-                -1);                      // No donation notification scheduled yet
+                false, // Donation never show again
+                -1); // No donation notification scheduled yet
     }
 
     public static DonationPreferences getDefault() {

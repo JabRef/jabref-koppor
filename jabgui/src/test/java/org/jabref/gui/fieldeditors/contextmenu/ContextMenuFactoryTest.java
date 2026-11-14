@@ -1,16 +1,23 @@
 package org.jabref.gui.fieldeditors.contextmenu;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.fieldeditors.LinkedFileViewModel;
@@ -31,20 +38,10 @@ import org.jabref.model.database.FileDirectories;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(JavaFxExtension.class)
 class ContextMenuFactoryTest {
@@ -57,8 +54,10 @@ class ContextMenuFactoryTest {
     @SuppressWarnings("unchecked")
     public void setUp() {
         GuiPreferences guiPreferences = mock(GuiPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        ObservableOptionalValue<BibEntry> bibEntry = (ObservableOptionalValue<BibEntry>) mock(ObservableOptionalValue.class);
+        ImportFormatPreferences importFormatPreferences =
+                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        ObservableOptionalValue<BibEntry> bibEntry =
+                (ObservableOptionalValue<BibEntry>) mock(ObservableOptionalValue.class);
         when(bibEntry.getValue()).thenReturn(Optional.of(new BibEntry()));
 
         bibDatabaseContext = mock(BibDatabaseContext.class);
@@ -66,10 +65,14 @@ class ContextMenuFactoryTest {
 
         when(guiPreferences.getImportFormatPreferences()).thenReturn(importFormatPreferences);
         when(guiPreferences.getFilePreferences()).thenReturn(filePreferences);
-        when(guiPreferences.getExternalApplicationsPreferences()).thenReturn(mock(ExternalApplicationsPreferences.class, Answers.RETURNS_DEEP_STUBS));
-        when(guiPreferences.getImporterPreferences()).thenReturn(mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS));
-        when(guiPreferences.getCitationKeyPatternPreferences()).thenReturn(mock(CitationKeyPatternPreferences.class, Answers.RETURNS_DEEP_STUBS));
-        when(guiPreferences.getImporterPreferences().getCustomImporters()).thenReturn(FXCollections.emptyObservableSet());
+        when(guiPreferences.getExternalApplicationsPreferences())
+                .thenReturn(mock(ExternalApplicationsPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(guiPreferences.getImporterPreferences())
+                .thenReturn(mock(ImporterPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(guiPreferences.getCitationKeyPatternPreferences())
+                .thenReturn(mock(CitationKeyPatternPreferences.class, Answers.RETURNS_DEEP_STUBS));
+        when(guiPreferences.getImporterPreferences().getCustomImporters())
+                .thenReturn(FXCollections.emptyObservableSet());
         FieldPreferences fieldPreferences = mock(FieldPreferences.class);
         when(fieldPreferences.getNonWrappableFields()).thenReturn(FXCollections.emptyObservableList());
         when(guiPreferences.getFieldPreferences()).thenReturn(fieldPreferences);
@@ -87,13 +90,14 @@ class ContextMenuFactoryTest {
                 mock(TaskExecutor.class),
                 mock(FileUpdateMonitor.class),
                 mock(UndoManager.class),
-                mock(StateManager.class)
-        );
+                mock(StateManager.class));
     }
 
     @Test
     void createMenuForSelectionNull() {
-        assertThrows(NullPointerException.class, () -> factory.createMenuForSelection(null),
+        assertThrows(
+                NullPointerException.class,
+                () -> factory.createMenuForSelection(null),
                 "Factory should reject null selection");
     }
 
@@ -108,11 +112,11 @@ class ContextMenuFactoryTest {
 
     @Test
     void createMenuForSingleOfflineFile() {
-        LinkedFileViewModel offlineExistingFileViewModel = mockOfflineExistingFileViewModel(
-                bibDatabaseContext, filePreferences, ""
-        );
+        LinkedFileViewModel offlineExistingFileViewModel =
+                mockOfflineExistingFileViewModel(bibDatabaseContext, filePreferences, "");
 
-        ObservableList<LinkedFileViewModel> singleSelection = FXCollections.observableArrayList(offlineExistingFileViewModel);
+        ObservableList<LinkedFileViewModel> singleSelection =
+                FXCollections.observableArrayList(offlineExistingFileViewModel);
 
         ContextMenu contextMenu = factory.createMenuForSelection(singleSelection);
 
@@ -122,54 +126,56 @@ class ContextMenuFactoryTest {
 
     @Test
     void autoFoundFileOffersLinkInsteadOfRemoveLink() {
-        LinkedFileViewModel autoFoundFileViewModel = mockOfflineExistingFileViewModel(bibDatabaseContext, filePreferences, "");
+        LinkedFileViewModel autoFoundFileViewModel =
+                mockOfflineExistingFileViewModel(bibDatabaseContext, filePreferences, "");
         when(autoFoundFileViewModel.isAutomaticallyFound()).thenReturn(true);
 
-        ContextMenu contextMenu = factory.createMenuForSelection(FXCollections.observableArrayList(autoFoundFileViewModel));
+        ContextMenu contextMenu =
+                factory.createMenuForSelection(FXCollections.observableArrayList(autoFoundFileViewModel));
 
-        List<String> texts = contextMenu.getItems().stream().map(MenuItem::getText).toList();
+        List<String> texts =
+                contextMenu.getItems().stream().map(MenuItem::getText).toList();
         assertTrue(texts.contains(Localization.lang("Link file")));
         assertFalse(texts.contains(Localization.lang("Remove link")));
     }
 
     @Test
     void createMenuForOfflineAndOnlineFilesMixed() {
-        LinkedFileViewModel offlineExistingFileViewModel = mockOfflineExistingFileViewModel(
-                bibDatabaseContext, filePreferences, "https://example.com/file.pdf"
-        );
+        LinkedFileViewModel offlineExistingFileViewModel =
+                mockOfflineExistingFileViewModel(bibDatabaseContext, filePreferences, "https://example.com/file.pdf");
         LinkedFileViewModel onlineFileViewModel = mockOnlineFileViewModel();
 
-        ObservableList<LinkedFileViewModel> multiSelection = FXCollections.observableArrayList(
-                List.of(offlineExistingFileViewModel, onlineFileViewModel)
-        );
+        ObservableList<LinkedFileViewModel> multiSelection =
+                FXCollections.observableArrayList(List.of(offlineExistingFileViewModel, onlineFileViewModel));
 
         ContextMenu contextMenu = factory.createMenuForSelection(multiSelection);
 
         assertNotNull(contextMenu);
-        assertFalse(contextMenu.getItems().isEmpty(),
-                "Multi-selection menu should not be empty");
-        assertTrue(containsMenuItemWithText(contextMenu, "Remove link"),
+        assertFalse(contextMenu.getItems().isEmpty(), "Multi-selection menu should not be empty");
+        assertTrue(
+                containsMenuItemWithText(contextMenu, "Remove link"),
                 "Menu should contain 'Remove link' in multi-selection");
-        assertTrue(containsMenuItemWithText(contextMenu, "Copy linked file"),
+        assertTrue(
+                containsMenuItemWithText(contextMenu, "Copy linked file"),
                 "Menu should contain 'Copy linked file' item");
     }
 
     private static boolean containsMenuItemWithText(ContextMenu contextMenu, String expectedFragment) {
         return contextMenu.getItems().stream()
-                          .map(MenuItem::getText)
-                          .filter(Objects::nonNull)
-                          .anyMatch(text -> text.contains(expectedFragment));
+                .map(MenuItem::getText)
+                .filter(Objects::nonNull)
+                .anyMatch(text -> text.contains(expectedFragment));
     }
 
-    private static LinkedFileViewModel mockOfflineExistingFileViewModel(BibDatabaseContext bibDatabaseContext,
-                                                                        FilePreferences filePreferences,
-                                                                        String sourceUrl) {
+    private static LinkedFileViewModel mockOfflineExistingFileViewModel(
+            BibDatabaseContext bibDatabaseContext, FilePreferences filePreferences, String sourceUrl) {
         LinkedFile modelLinkedFile = mock(LinkedFile.class, Answers.RETURNS_DEEP_STUBS);
         when(modelLinkedFile.isOnlineLink()).thenReturn(false);
         when(modelLinkedFile.findIn(bibDatabaseContext, filePreferences)).thenReturn(Optional.of(Path.of("dummy.pdf")));
         when(modelLinkedFile.linkProperty()).thenReturn(new SimpleStringProperty("dummy.pdf"));
         when(modelLinkedFile.getSourceUrl()).thenReturn(sourceUrl == null ? "" : sourceUrl);
-        when(modelLinkedFile.sourceUrlProperty()).thenReturn(new SimpleStringProperty(sourceUrl == null ? "" : sourceUrl));
+        when(modelLinkedFile.sourceUrlProperty())
+                .thenReturn(new SimpleStringProperty(sourceUrl == null ? "" : sourceUrl));
 
         LinkedFileViewModel fileViewModel = mock(LinkedFileViewModel.class, Answers.RETURNS_DEEP_STUBS);
         when(fileViewModel.getFile()).thenReturn(modelLinkedFile);

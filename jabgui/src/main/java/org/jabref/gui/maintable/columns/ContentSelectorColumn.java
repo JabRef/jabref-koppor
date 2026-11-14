@@ -1,11 +1,10 @@
 package org.jabref.gui.maintable.columns;
 
+import com.tobiasdiez.easybind.EasyBind;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.maintable.BibEntryTableViewModel;
 import org.jabref.gui.maintable.MainTableColumnModel;
@@ -16,8 +15,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.OrFields;
 import org.jabref.model.undo.UndoableFieldChange;
-
-import com.tobiasdiez.easybind.EasyBind;
 
 /// A column for fields with content selectors.
 public class ContentSelectorColumn extends MainTableColumn<Optional<String>> {
@@ -33,7 +30,8 @@ public class ContentSelectorColumn extends MainTableColumn<Optional<String>> {
         this.field = FieldFactory.parseField(model.getQualifier());
 
         setText(field.getName());
-        setCellValueFactory(param -> EasyBind.map(param.getValue().getFields(new OrFields(field)),
+        setCellValueFactory(param -> EasyBind.map(
+                param.getValue().getFields(new OrFields(field)),
                 value -> StringUtil.isBlank(value) ? Optional.empty() : Optional.of(value)));
 
         new OptionalValueTableCellFactory<BibEntryTableViewModel, String>()
@@ -51,7 +49,8 @@ public class ContentSelectorColumn extends MainTableColumn<Optional<String>> {
         for (String item : values) {
             MenuItem menuItem = new MenuItem(item);
             menuItem.setOnAction(_ -> {
-                UndoableFieldChange change = new UndoableFieldChange(entry, field, entry.getField(field).orElse(null), item);
+                UndoableFieldChange change = new UndoableFieldChange(
+                        entry, field, entry.getField(field).orElse(null), item);
                 stateManager.getUndoManager(model.getBibDatabaseContext()).applyEdit(change);
             });
             menu.getItems().add(menuItem);

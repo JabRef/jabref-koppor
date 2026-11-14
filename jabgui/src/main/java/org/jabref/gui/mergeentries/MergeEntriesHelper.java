@@ -3,7 +3,6 @@ package org.jabref.gui.mergeentries;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-
 import org.jabref.logic.bibtex.comparator.ComparisonResult;
 import org.jabref.logic.bibtex.comparator.plausibility.PlausibilityComparatorFactory;
 import org.jabref.model.FieldChange;
@@ -16,7 +15,6 @@ import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableChangeType;
 import org.jabref.model.undo.UndoableFieldChange;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +25,7 @@ public final class MergeEntriesHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MergeEntriesHelper.class);
 
-    private MergeEntriesHelper() {
-    }
+    private MergeEntriesHelper() {}
 
     /// Merges two BibEntry objects with undo support.
     ///
@@ -36,7 +33,8 @@ public final class MergeEntriesHelper {
     /// @param entryFromLibrary The entry to be updated (target, from the library)
     /// @param compoundEdit     Compound edit to collect undo information
     /// @param keywordSeparator Separator character used for union-merging the groups field
-    public static boolean mergeEntries(BibEntry entryFromFetcher, BibEntry entryFromLibrary, CompoundEdit compoundEdit, char keywordSeparator) {
+    public static boolean mergeEntries(
+            BibEntry entryFromFetcher, BibEntry entryFromLibrary, CompoundEdit compoundEdit, char keywordSeparator) {
         LOGGER.debug("Entry from fetcher: {}", entryFromFetcher);
         LOGGER.debug("Entry from library: {}", entryFromLibrary);
 
@@ -51,23 +49,26 @@ public final class MergeEntriesHelper {
     /// Adopts the fetcher-provided citation key (e.g. an INSPIRE texkey) onto the library entry,
     /// but only if the library entry doesn't already have one — an existing, possibly user-chosen
     /// key is never overwritten by this merge.
-    private static boolean mergeCitationKey(BibEntry entryFromFetcher, BibEntry entryFromLibrary, CompoundEdit compoundEdit) {
+    private static boolean mergeCitationKey(
+            BibEntry entryFromFetcher, BibEntry entryFromLibrary, CompoundEdit compoundEdit) {
         if (entryFromLibrary.getCitationKey().isPresent()) {
             return false;
         }
 
-        return entryFromFetcher.getCitationKey()
-                               .filter(key -> !key.isBlank())
-                               .map(key -> {
-                                   LOGGER.debug("Adopting citation key from fetcher: {}", key);
-                                   Optional<FieldChange> change = entryFromLibrary.setCitationKey(key);
-                                   change.ifPresent(fieldChange -> compoundEdit.addEdit(new UndoableFieldChange(fieldChange)));
-                                   return true;
-                               })
-                               .orElse(false);
+        return entryFromFetcher
+                .getCitationKey()
+                .filter(key -> !key.isBlank())
+                .map(key -> {
+                    LOGGER.debug("Adopting citation key from fetcher: {}", key);
+                    Optional<FieldChange> change = entryFromLibrary.setCitationKey(key);
+                    change.ifPresent(fieldChange -> compoundEdit.addEdit(new UndoableFieldChange(fieldChange)));
+                    return true;
+                })
+                .orElse(false);
     }
 
-    private static boolean mergeEntryType(BibEntry entryFromFetcher, BibEntry entryFromLibrary, CompoundEdit compoundEdit) {
+    private static boolean mergeEntryType(
+            BibEntry entryFromFetcher, BibEntry entryFromLibrary, CompoundEdit compoundEdit) {
         EntryType fetcherType = entryFromFetcher.getType();
         EntryType libraryType = entryFromLibrary.getType();
 
@@ -80,7 +81,8 @@ public final class MergeEntriesHelper {
         return false;
     }
 
-    private static boolean mergeFields(BibEntry entryFromFetcher, BibEntry entryFromLibrary, CompoundEdit compoundEdit, char keywordSeparator) {
+    private static boolean mergeFields(
+            BibEntry entryFromFetcher, BibEntry entryFromLibrary, CompoundEdit compoundEdit, char keywordSeparator) {
         Set<Field> allFields = new LinkedHashSet<>();
         allFields.addAll(entryFromFetcher.getFields());
         allFields.addAll(entryFromLibrary.getFields());
@@ -94,24 +96,28 @@ public final class MergeEntriesHelper {
             if (field == StandardField.GROUPS && fetcherValue.isPresent()) {
                 // Always union-merge groups so no source group is ever lost
                 String merged = KeywordList.merge(libraryValue.orElse(""), fetcherValue.get(), keywordSeparator)
-                                           .getAsString(keywordSeparator);
+                        .getAsString(keywordSeparator);
                 if (!merged.equals(libraryValue.orElse(""))) {
-                    LOGGER.debug("Union-merging groups: {} + {} -> {}", libraryValue.orElse(""), fetcherValue.get(), merged);
+                    LOGGER.debug(
+                            "Union-merging groups: {} + {} -> {}", libraryValue.orElse(""), fetcherValue.get(), merged);
                     entryFromLibrary.setField(field, merged);
-                    compoundEdit.addEdit(new UndoableFieldChange(entryFromLibrary, field, libraryValue.orElse(null), merged));
+                    compoundEdit.addEdit(
+                            new UndoableFieldChange(entryFromLibrary, field, libraryValue.orElse(null), merged));
                     anyFieldsChanged = true;
                 }
             } else if (fetcherValue.isPresent() && shouldUpdateField(field, fetcherValue.get(), libraryValue)) {
                 LOGGER.debug("Updating field {}: {} -> {}", field, libraryValue.orElse(null), fetcherValue.get());
                 entryFromLibrary.setField(field, fetcherValue.get());
-                compoundEdit.addEdit(new UndoableFieldChange(entryFromLibrary, field, libraryValue.orElse(null), fetcherValue.get()));
+                compoundEdit.addEdit(new UndoableFieldChange(
+                        entryFromLibrary, field, libraryValue.orElse(null), fetcherValue.get()));
                 anyFieldsChanged = true;
             }
         }
         return anyFieldsChanged;
     }
 
-    private static boolean removeFieldsNotPresentInFetcher(BibEntry entryFromFetcher, BibEntry entryFromLibrary, CompoundEdit compoundEdit) {
+    private static boolean removeFieldsNotPresentInFetcher(
+            BibEntry entryFromFetcher, BibEntry entryFromLibrary, CompoundEdit compoundEdit) {
         Set<Field> obsoleteFields = new LinkedHashSet<>(entryFromLibrary.getFields());
         obsoleteFields.removeAll(entryFromFetcher.getFields());
 
@@ -138,10 +144,11 @@ public final class MergeEntriesHelper {
             return true;
         }
 
-        return PlausibilityComparatorFactory.INSTANCE.getPlausibilityComparator(field)
-                                                     .map(comparator -> comparator.compare(fetcherValue, libraryValue.get()))
-                                                     .filter(result -> result == ComparisonResult.LEFT_BETTER)
-                                                     .map(_ -> true)
-                                                     .orElse(false);
+        return PlausibilityComparatorFactory.INSTANCE
+                .getPlausibilityComparator(field)
+                .map(comparator -> comparator.compare(fetcherValue, libraryValue.get()))
+                .filter(result -> result == ComparisonResult.LEFT_BETTER)
+                .map(_ -> true)
+                .orElse(false);
     }
 }

@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -19,7 +18,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ButtonType;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.mergeentries.FetchAndMergeEntry;
 import org.jabref.logic.bibtex.comparator.ComparisonResult;
@@ -34,7 +32,6 @@ import org.jabref.model.entry.identifier.DOI;
 import org.jabref.model.entry.identifier.ISBN;
 import org.jabref.model.entry.identifier.ISSN;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.Nullable;
 
 public class MultiMergeEntriesViewModel extends AbstractViewModel {
@@ -69,8 +66,7 @@ public class MultiMergeEntriesViewModel extends AbstractViewModel {
             return;
         }
 
-        if (StandardEntryType.Misc == mergedEntry.get().getType()
-                && StandardEntryType.Misc != entry.getType()) {
+        if (StandardEntryType.Misc == mergedEntry.get().getType() && StandardEntryType.Misc != entry.getType()) {
             mergedEntry.get().setType(entry.getType());
         }
 
@@ -112,26 +108,22 @@ public class MultiMergeEntriesViewModel extends AbstractViewModel {
         Map<Field, String> result = new LinkedHashMap<>();
         for (Field field : FetchAndMergeEntry.SUPPORTED_FIELDS) {
             entry.getField(field)
-                 .flatMap(rawValue -> normalizeIdentifier(field, rawValue))
-                 .filter(value -> autoFetchedIdentifiers.computeIfAbsent(field, _ -> new HashSet<>())
-                                                        .add(value.toLowerCase(Locale.ROOT)))
-                 .ifPresent(value -> result.put(field, value));
+                    .flatMap(rawValue -> normalizeIdentifier(field, rawValue))
+                    .filter(value -> autoFetchedIdentifiers
+                            .computeIfAbsent(field, _ -> new HashSet<>())
+                            .add(value.toLowerCase(Locale.ROOT)))
+                    .ifPresent(value -> result.put(field, value));
         }
         return result;
     }
 
     private static Optional<String> normalizeIdentifier(Field field, String rawValue) {
         return switch (field) {
-            case StandardField.DOI ->
-                    DOI.parse(rawValue).map(DOI::asString);
-            case StandardField.ISBN ->
-                    ISBN.parse(rawValue).map(ISBN::asString);
-            case StandardField.EPRINT ->
-                    ArXivIdentifier.parse(rawValue).map(ArXivIdentifier::asString);
-            case StandardField.ISSN ->
-                    normalizeIssn(rawValue);
-            default ->
-                    Optional.empty();
+            case StandardField.DOI -> DOI.parse(rawValue).map(DOI::asString);
+            case StandardField.ISBN -> ISBN.parse(rawValue).map(ISBN::asString);
+            case StandardField.EPRINT -> ArXivIdentifier.parse(rawValue).map(ArXivIdentifier::asString);
+            case StandardField.ISSN -> normalizeIssn(rawValue);
+            default -> Optional.empty();
         };
     }
 
@@ -175,11 +167,11 @@ public class MultiMergeEntriesViewModel extends AbstractViewModel {
             isLoading.set(true);
 
             BackgroundTask.wrap(entrySupplier::get)
-                          .onSuccess(value -> {
-                              entry.set(value);
-                              isLoading.set(false);
-                          })
-                          .executeWith(taskExecutor);
+                    .onSuccess(value -> {
+                        entry.set(value);
+                        isLoading.set(false);
+                    })
+                    .executeWith(taskExecutor);
         }
 
         public EntrySource(String title, BibEntry entry) {

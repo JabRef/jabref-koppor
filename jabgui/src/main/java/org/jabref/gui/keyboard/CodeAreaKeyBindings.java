@@ -2,13 +2,11 @@ package org.jabref.gui.keyboard;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-
+import jfx.incubator.scene.control.richtext.CodeArea;
+import jfx.incubator.scene.control.richtext.TextPos;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.strings.StringManipulator;
 import org.jabref.model.util.ResultingStringState;
-
-import jfx.incubator.scene.control.richtext.CodeArea;
-import jfx.incubator.scene.control.richtext.TextPos;
 
 public class CodeAreaKeyBindings {
 

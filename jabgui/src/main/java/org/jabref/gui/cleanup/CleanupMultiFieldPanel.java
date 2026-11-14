@@ -1,39 +1,49 @@
 package org.jabref.gui.cleanup;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import java.util.EnumSet;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.VBox;
-
 import org.jabref.logic.cleanup.CleanupPreferences;
 import org.jabref.logic.cleanup.CleanupTabSelection;
-
-import com.airhacks.afterburner.views.ViewLoader;
 import org.jspecify.annotations.NonNull;
 
 public class CleanupMultiFieldPanel extends VBox implements CleanupPanel {
-    @FXML private CheckBox cleanupDoi;
-    @FXML private CheckBox cleanupArXivDoi;
-    @FXML private CheckBox cleanupEprint;
-    @FXML private CheckBox cleanupUrl;
-    @FXML private CheckBox cleanupBibLaTeX;
-    @FXML private CheckBox cleanupBibTeX;
-    @FXML private CheckBox cleanupTimestampToCreationDate;
-    @FXML private CheckBox cleanupTimestampToModificationDate;
+    @FXML
+    private CheckBox cleanupDoi;
+
+    @FXML
+    private CheckBox cleanupArXivDoi;
+
+    @FXML
+    private CheckBox cleanupEprint;
+
+    @FXML
+    private CheckBox cleanupUrl;
+
+    @FXML
+    private CheckBox cleanupBibLaTeX;
+
+    @FXML
+    private CheckBox cleanupBibTeX;
+
+    @FXML
+    private CheckBox cleanupTimestampToCreationDate;
+
+    @FXML
+    private CheckBox cleanupTimestampToModificationDate;
 
     private final CleanupMultiFieldViewModel viewModel;
     private final CleanupDialogViewModel dialogViewModel;
 
-    public CleanupMultiFieldPanel(@NonNull CleanupPreferences cleanupPreferences,
-                                  @NonNull CleanupDialogViewModel dialogViewModel) {
+    public CleanupMultiFieldPanel(
+            @NonNull CleanupPreferences cleanupPreferences, @NonNull CleanupDialogViewModel dialogViewModel) {
 
         this.dialogViewModel = dialogViewModel;
         this.viewModel = new CleanupMultiFieldViewModel(cleanupPreferences);
 
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
 
         bindProperties();
     }
@@ -46,7 +56,9 @@ public class CleanupMultiFieldPanel extends VBox implements CleanupPanel {
         cleanupBibTeX.selectedProperty().bindBidirectional(viewModel.bibTexSelected);
         cleanupBibLaTeX.selectedProperty().bindBidirectional(viewModel.bibLaTexSelected);
         cleanupTimestampToCreationDate.selectedProperty().bindBidirectional(viewModel.timestampToCreationSelected);
-        cleanupTimestampToModificationDate.selectedProperty().bindBidirectional(viewModel.timestampToModificationSelected);
+        cleanupTimestampToModificationDate
+                .selectedProperty()
+                .bindBidirectional(viewModel.timestampToModificationSelected);
     }
 
     @Override

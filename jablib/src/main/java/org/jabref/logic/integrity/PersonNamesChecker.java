@@ -3,14 +3,12 @@ package org.jabref.logic.integrity;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.layout.format.RemoveBrackets;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.AuthorList;
-
 import org.jspecify.annotations.Nullable;
 
 public class PersonNamesChecker implements ValueChecker {
@@ -52,7 +50,8 @@ public class PersonNamesChecker implements ValueChecker {
         //  Last, First and ...
         //  First Last and ...
         if (!isStandardFormat(valueWithoutBrackets)) {
-            return Optional.of(Localization.lang("Names are not in the standard %0 format.", bibMode.getFormattedName()));
+            return Optional.of(
+                    Localization.lang("Names are not in the standard %0 format.", bibMode.getFormattedName()));
         }
 
         return Optional.empty();

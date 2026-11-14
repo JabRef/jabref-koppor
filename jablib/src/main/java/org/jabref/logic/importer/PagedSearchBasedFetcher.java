@@ -2,7 +2,6 @@ package org.jabref.logic.importer;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.paging.Page;
 import org.jabref.model.search.query.BaseQueryNode;
@@ -29,8 +28,7 @@ public interface PagedSearchBasedFetcher extends SearchBasedFetcher {
     /// @param pageNumber requested site number indexed from 0
     /// @return Page with search results
     default Page<BibEntry> performRawSearchQueryPaged(String rawQuery, int pageNumber) throws FetcherException {
-        throw new UnsupportedOperationException(
-                getName() + " has not yet been migrated to performRawSearchQueryPaged");
+        throw new UnsupportedOperationException(getName() + " has not yet been migrated to performRawSearchQueryPaged");
     }
 
     /// @return default pageSize

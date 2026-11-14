@@ -6,9 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-
 import org.jabref.logic.net.CiteDrivePreferences;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,30 +21,34 @@ public class OAuthSessionRegistry {
     private static final Logger LOGGER = LoggerFactory.getLogger(OAuthSessionRegistry.class);
 
     private final Map<String, CompletableFuture<String>> pending = new ConcurrentHashMap<>();
-    private final Map<TokenRequestKey, CompletableFuture<Optional<CiteDriveOAuthService.AuthorizedSession>>> tokenRequests = new ConcurrentHashMap<>();
+    private final Map<TokenRequestKey, CompletableFuture<Optional<CiteDriveOAuthService.AuthorizedSession>>>
+            tokenRequests = new ConcurrentHashMap<>();
 
     // [impl->req~citedrive.refresh.single-request~1]
     CompletableFuture<Optional<CiteDriveOAuthService.AuthorizedSession>> requestToken(
-            CiteDrivePreferences preferences, long revision,
+            CiteDrivePreferences preferences,
+            long revision,
             Supplier<CompletableFuture<Optional<CiteDriveOAuthService.AuthorizedSession>>> request) {
         TokenRequestKey key = new TokenRequestKey(preferences, revision);
         CompletableFuture<Optional<CiteDriveOAuthService.AuthorizedSession>> candidate = new CompletableFuture<>();
-        CompletableFuture<Optional<CiteDriveOAuthService.AuthorizedSession>> shared = Optional.ofNullable(tokenRequests.putIfAbsent(key, candidate))
-                                                                                              .orElseGet(() -> {
-                                                                                                  CompletableFuture.completedFuture(true)
-                                                                                                                   .thenCompose(_ -> request.get())
-                                                                                                                   .whenComplete((session, failure) -> {
-                                                                                                                       tokenRequests.remove(key, candidate);
-                                                                                                                       Optional.ofNullable(failure).ifPresentOrElse(candidate::completeExceptionally, () -> candidate.complete(session));
-                                                                                                                   });
-                                                                                                  return candidate;
-                                                                                              });
+        CompletableFuture<Optional<CiteDriveOAuthService.AuthorizedSession>> shared = Optional.ofNullable(
+                        tokenRequests.putIfAbsent(key, candidate))
+                .orElseGet(() -> {
+                    CompletableFuture.completedFuture(true)
+                            .thenCompose(_ -> request.get())
+                            .whenComplete((session, failure) -> {
+                                tokenRequests.remove(key, candidate);
+                                Optional.ofNullable(failure)
+                                        .ifPresentOrElse(
+                                                candidate::completeExceptionally, () -> candidate.complete(session));
+                            });
+                    return candidate;
+                });
         return shared.copy();
     }
 
     @NullMarked
-    private record TokenRequestKey(CiteDrivePreferences preferences, long revision) {
-    }
+    private record TokenRequestKey(CiteDrivePreferences preferences, long revision) {}
 
     /// @return the authorization code; fails with a `TimeoutException` if no callback arrives in time
     public CompletableFuture<String> register(String state) {
@@ -56,8 +58,7 @@ public class OAuthSessionRegistry {
     CompletableFuture<String> register(String state, long timeout, TimeUnit unit) {
         CompletableFuture<String> future = new CompletableFuture<>();
         pending.put(state, future);
-        future.orTimeout(timeout, unit)
-              .whenComplete((_, _) -> pending.remove(state, future));
+        future.orTimeout(timeout, unit).whenComplete((_, _) -> pending.remove(state, future));
         return future;
     }
 

@@ -1,24 +1,22 @@
 package org.jabref.logic.citationstyle;
 
-import java.lang.reflect.Field;
-import java.util.List;
-
-import org.jabref.logic.preview.PreviewLayout;
-import org.jabref.logic.preview.TextBasedPreviewLayout;
-import org.jabref.model.database.BibDatabase;
-import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.entry.BibEntry;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import org.jabref.logic.preview.PreviewLayout;
+import org.jabref.logic.preview.TextBasedPreviewLayout;
+import org.jabref.model.database.BibDatabase;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibEntry;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 @Execution(ExecutionMode.SAME_THREAD)
 class CitationStyleCacheTest {

@@ -1,5 +1,11 @@
 package org.jabref.toolkit.commands;
 
+import static picocli.CommandLine.Command;
+import static picocli.CommandLine.Mixin;
+import static picocli.CommandLine.Option;
+import static picocli.CommandLine.Parameters;
+import static picocli.CommandLine.ParentCommand;
+
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -9,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.importer.fileformat.pdf.CitationsFromPdf;
@@ -21,21 +26,17 @@ import org.jabref.toolkit.converter.ExtractionModeConverter;
 import org.jabref.toolkit.exception.ExportServiceException;
 import org.jabref.toolkit.exception.ImportServiceException;
 import org.jabref.toolkit.service.ExportService;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
-import static picocli.CommandLine.Command;
-import static picocli.CommandLine.Mixin;
-import static picocli.CommandLine.Option;
-import static picocli.CommandLine.Parameters;
-import static picocli.CommandLine.ParentCommand;
-
 @NullMarked
-@Command(name = "extract-references", description = "Extract references from the \"References\" section of one or more PDFs and output them as BibTeX.")
+@Command(
+        name = "extract-references",
+        description =
+                "Extract references from the \"References\" section of one or more PDFs and output them as BibTeX.")
 class PdfExtractReferences implements Callable<Integer> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfExtractReferences.class);
@@ -49,20 +50,34 @@ class PdfExtractReferences implements Callable<Integer> {
     private JabKit.SharedOptions sharedOptions;
 
     // [impl->req~jabkit.cli.input-url~2]
-    @Parameters(paramLabel = "FILE", description = "PDF(s) to extract references from, each a file or an http(s)/ftp URL.", arity = "1..*")
+    @Parameters(
+            paramLabel = "FILE",
+            description = "PDF(s) to extract references from, each a file or an http(s)/ftp URL.",
+            arity = "1..*")
     private List<String> inputFiles;
 
-    @Option(names = "--mode", converter = ExtractionModeConverter.class,
-            description = "Extraction mode: ${COMPLETION-CANDIDATES} (LLM is experimental). Defaults to GROBID if Grobid is enabled in preferences, otherwise RULE_BASED.")
+    @Option(
+            names = "--mode",
+            converter = ExtractionModeConverter.class,
+            description =
+                    "Extraction mode: ${COMPLETION-CANDIDATES} (LLM is experimental). Defaults to GROBID if Grobid is"
+                            + " enabled in preferences, otherwise RULE_BASED.")
     private @Nullable ExtractionMode mode;
 
-    @Option(names = "--grobid-url", description = "Override the configured Grobid server URL for this call (only valid with --mode=GROBID).")
+    @Option(
+            names = "--grobid-url",
+            description = "Override the configured Grobid server URL for this call (only valid with --mode=GROBID).")
     private @Nullable String grobidUrl;
 
-    @Option(names = "--output", description = "Write output to this file. Only valid when a single input file is given (e.g. --output=out.bib).")
+    @Option(
+            names = "--output",
+            description =
+                    "Write output to this file. Only valid when a single input file is given (e.g. --output=out.bib).")
     private @Nullable Path outputFile;
 
-    @Option(names = "--output-dir", description = "Directory to write one .bib file per input PDF into (default: alongside each source PDF).")
+    @Option(
+            names = "--output-dir",
+            description = "Directory to write one .bib file per input PDF into (default: alongside each source PDF).")
     private @Nullable Path outputDir;
 
     @Option(names = "--output-format", description = "Output format (e.g. bibtex)", defaultValue = "bibtex")
@@ -77,7 +92,8 @@ class PdfExtractReferences implements Callable<Integer> {
         initFields();
 
         if (outputFile != null && inputFiles.size() > 1) {
-            System.err.println(Localization.lang("--output can only be used with a single input file; use --output-dir for multiple files."));
+            System.err.println(Localization.lang(
+                    "--output can only be used with a single input file; use --output-dir for multiple files."));
             return CommandLine.ExitCode.USAGE;
         }
         if (outputFile != null && outputDir != null) {
@@ -87,8 +103,10 @@ class PdfExtractReferences implements Callable<Integer> {
 
         CliPreferences preferences = pdf.argumentProcessor.cliPreferences;
         ExtractionMode effectiveMode = mode != null
-                                       ? mode
-                                       : (preferences.getGrobidPreferences().isGrobidEnabled() ? ExtractionMode.GROBID : ExtractionMode.RULE_BASED);
+                ? mode
+                : (preferences.getGrobidPreferences().isGrobidEnabled()
+                        ? ExtractionMode.GROBID
+                        : ExtractionMode.RULE_BASED);
 
         if (grobidUrl != null && effectiveMode != ExtractionMode.GROBID) {
             System.err.println(Localization.lang("--grobid-url can only be used with --mode=GROBID."));
@@ -131,26 +149,28 @@ class PdfExtractReferences implements Callable<Integer> {
 
             if (!sharedOptions.porcelain) {
                 (writeToStdOut ? System.err : System.out)
-                        .println(Localization.lang("Extracting references from %0 (mode: %1).", displayName(input), effectiveMode));
+                        .println(Localization.lang(
+                                "Extracting references from %0 (mode: %1).", displayName(input), effectiveMode));
             }
 
             ParserResult result = switch (effectiveMode) {
-                case RULE_BASED ->
-                        CitationsFromPdf.extractCitationsUsingRuleBasedAlgorithm(preferences, inputFile);
+                case RULE_BASED -> CitationsFromPdf.extractCitationsUsingRuleBasedAlgorithm(preferences, inputFile);
                 // Force Grobid enabled for this single call: the user explicitly asked for --mode=GROBID,
                 // but the stored preference may have Grobid disabled, which would otherwise make
                 // GrobidService throw instead of running the extraction.
                 case GROBID ->
-                        CitationsFromPdf.extractCitationsUsingGrobid(
-                                preferences,
-                                inputFile,
-                                grobidUrl != null ? grobidUrl : preferences.getGrobidPreferences().getGrobidURL());
-                case LLM ->
-                        CitationsFromPdf.extractCitationsUsingLLM(preferences, LOGGER::info, inputFile);
+                    CitationsFromPdf.extractCitationsUsingGrobid(
+                            preferences,
+                            inputFile,
+                            grobidUrl != null
+                                    ? grobidUrl
+                                    : preferences.getGrobidPreferences().getGrobidURL());
+                case LLM -> CitationsFromPdf.extractCitationsUsingLLM(preferences, LOGGER::info, inputFile);
             };
 
             if (result.isInvalid()) {
-                LOGGER.error("Could not extract references from '{}': {}", displayName(input), result.getErrorMessage());
+                LOGGER.error(
+                        "Could not extract references from '{}': {}", displayName(input), result.getErrorMessage());
                 failed.add(input);
                 continue;
             }
@@ -158,7 +178,10 @@ class PdfExtractReferences implements Callable<Integer> {
             if (outputFile != null) {
                 exportService.exportParserResultToFile(result, outputFile, outputFormat);
             } else if (outputDir != null) {
-                exportService.exportParserResultToFile(result, outputDirTarget(outputDir, outputBaseName(input, inputFile), takenTargets), outputFormat);
+                exportService.exportParserResultToFile(
+                        result,
+                        outputDirTarget(outputDir, outputBaseName(input, inputFile), takenTargets),
+                        outputFormat);
             } else if (inputFiles.size() == 1) {
                 exportService.printDatabaseContextToStdOut(result.getDatabaseContext());
             } else {
@@ -194,8 +217,8 @@ class PdfExtractReferences implements Callable<Integer> {
     private static Path defaultBibFile(String input, Path resolvedFile) {
         String bibFileName = outputBaseName(input, resolvedFile) + ".bib";
         return URLUtil.isURL(input)
-               ? Path.of(bibFileName)
-               : resolvedFile.toAbsolutePath().getParent().resolve(bibFileName);
+                ? Path.of(bibFileName)
+                : resolvedFile.toAbsolutePath().getParent().resolve(bibFileName);
     }
 
     /// Base name (without extension) for an input's output file. For a URL the name is taken from
@@ -208,7 +231,9 @@ class PdfExtractReferences implements Callable<Integer> {
         try {
             // URI#getPath drops query and fragment
             String urlPath = URI.create(input).getPath();
-            Path lastSegment = (urlPath == null || urlPath.isEmpty()) ? null : Path.of(urlPath).getFileName();
+            Path lastSegment = (urlPath == null || urlPath.isEmpty())
+                    ? null
+                    : Path.of(urlPath).getFileName();
             return lastSegment == null ? "downloaded" : FileUtil.getBaseName(lastSegment);
         } catch (IllegalArgumentException _) {
             // Downloadable URL that is no strict URI (or whose path is no valid Path) - it carries no usable file name

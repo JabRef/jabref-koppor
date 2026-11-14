@@ -4,7 +4,6 @@ import org.jabref.latexconv.LatexConv;
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.layout.LayoutFormatter;
-
 import org.jspecify.annotations.NonNull;
 
 public class UnicodeToLatexFormatter extends Formatter implements LayoutFormatter {

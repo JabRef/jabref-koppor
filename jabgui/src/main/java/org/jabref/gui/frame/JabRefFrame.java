@@ -1,5 +1,11 @@
 package org.jabref.gui.frame;
 
+import static org.jabref.gui.actions.ActionHelper.needsSavedLocalDatabase;
+
+import com.airhacks.afterburner.injection.Injector;
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.EasyObservableList;
+import com.tobiasdiez.easybind.Subscription;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -7,7 +13,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
@@ -30,7 +35,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
+import org.fxmisc.richtext.CodeArea;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.LibraryTabContainer;
@@ -79,22 +84,17 @@ import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.EasyObservableList;
-import com.tobiasdiez.easybind.Subscription;
-import org.fxmisc.richtext.CodeArea;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.jabref.gui.actions.ActionHelper.needsSavedLocalDatabase;
-
 /// Represents the inner frame of the JabRef window
 public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMessageHandler {
     /// Defines the different modes that the tab can operate in
-    private enum PanelMode { MAIN_TABLE, MAIN_TABLE_AND_ENTRY_EDITOR }
+    private enum PanelMode {
+        MAIN_TABLE,
+        MAIN_TABLE_AND_ENTRY_EDITOR
+    }
 
     public static final String FRAME_TITLE = "JabRef";
 
@@ -117,7 +117,8 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
 
     private final FileHistoryMenu fileHistory;
 
-    @SuppressWarnings({"FieldCanBeLocal"}) private EasyObservableList<BibDatabaseContext> openDatabaseList;
+    @SuppressWarnings({"FieldCanBeLocal"})
+    private EasyObservableList<BibDatabaseContext> openDatabaseList;
 
     private final Stage mainStage;
     private final StateManager stateManager;
@@ -143,18 +144,19 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
     private Subscription horizontalDividerSubscription;
     private Subscription verticalDividerSubscription;
 
-    public JabRefFrame(Stage mainStage,
-                       DialogService dialogService,
-                       FileUpdateMonitor fileUpdateMonitor,
-                       GuiPreferences preferences,
-                       AiService aiService,
-                       StateManager stateManager,
-                       BibEntryTypesManager entryTypesManager,
-                       ClipBoardManager clipBoardManager,
-                       TaskExecutor taskExecutor,
-                       GitHandlerRegistry gitHandlerRegistry,
-                       JournalAbbreviationRepository journalAbbreviationRepository,
-                       OAuthSessionRegistry oAuthSessionRegistry) {
+    public JabRefFrame(
+            Stage mainStage,
+            DialogService dialogService,
+            FileUpdateMonitor fileUpdateMonitor,
+            GuiPreferences preferences,
+            AiService aiService,
+            StateManager stateManager,
+            BibEntryTypesManager entryTypesManager,
+            ClipBoardManager clipBoardManager,
+            TaskExecutor taskExecutor,
+            GitHandlerRegistry gitHandlerRegistry,
+            JournalAbbreviationRepository journalAbbreviationRepository,
+            OAuthSessionRegistry oAuthSessionRegistry) {
         this.mainStage = mainStage;
         this.dialogService = dialogService;
         this.fileUpdateMonitor = fileUpdateMonitor;
@@ -184,21 +186,16 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
                 taskExecutor);
         Injector.setModelOrService(UiMessageHandler.class, this);
 
-        FrameDndHandler frameDndHandler = new FrameDndHandler(
-                tabbedPane,
-                mainStage::getScene,
-                this::getOpenDatabaseAction,
-                stateManager);
+        FrameDndHandler frameDndHandler =
+                new FrameDndHandler(tabbedPane, mainStage::getScene, this::getOpenDatabaseAction, stateManager);
 
-        this.globalSearchBar = new GlobalSearchBar(
-                this,
-                stateManager,
-                this.preferences,
-                dialogService,
-                SearchType.NORMAL_SEARCH);
+        this.globalSearchBar =
+                new GlobalSearchBar(this, stateManager, this.preferences, dialogService, SearchType.NORMAL_SEARCH);
 
-        this.entryEditor = new EntryEditor(this::getCurrentLibraryTab,
-                // Actions are recreated here since this avoids passing more parameters and the amount of additional memory consumption is neglegtable.
+        this.entryEditor = new EntryEditor(
+                this::getCurrentLibraryTab,
+                // Actions are recreated here since this avoids passing more parameters and the amount of additional
+                // memory consumption is neglegtable.
                 new UndoAction(dialogService, stateManager),
                 new RedoAction(dialogService, stateManager));
         Injector.setModelOrService(EntryEditor.class, entryEditor);
@@ -216,11 +213,8 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
                 clipBoardManager,
                 gitHandlerRegistry);
 
-        this.pushToApplicationCommand = new GuiPushToApplicationCommand(
-                stateManager,
-                dialogService,
-                this.preferences,
-                taskExecutor);
+        this.pushToApplicationCommand =
+                new GuiPushToApplicationCommand(stateManager, dialogService, this.preferences, taskExecutor);
 
         this.fileHistory = new FileHistoryMenu(
                 this.preferences.getLastFilesOpenedPreferences().getFileHistory(),
@@ -277,8 +271,7 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
                 entryEditor,
                 gitHandlerRegistry,
                 journalAbbreviationRepository,
-                oAuthSessionRegistry
-        );
+                oAuthSessionRegistry);
 
         VBox head = new VBox(0, mainMenu, mainToolBar);
         setTop(head);
@@ -335,14 +328,14 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
         }
         horizontalSplit.setDividerPositions(preferences.getGuiPreferences().getHorizontalDividerPosition());
         horizontalDividerSubscription = EasyBind.valueAt(horizontalSplit.getDividers(), 0)
-                                                .mapObservable(SplitPane.Divider::positionProperty)
-                                                .listenToValues((_, newValue) -> {
-                                                    double position = newValue.doubleValue();
-                                                    // 0 and 1 occur while the pane is added or removed, not as a user's choice
-                                                    if (position > 0 && position < 1) {
-                                                        preferences.getGuiPreferences().setHorizontalDividerPosition(position);
-                                                    }
-                                                });
+                .mapObservable(SplitPane.Divider::positionProperty)
+                .listenToValues((_, newValue) -> {
+                    double position = newValue.doubleValue();
+                    // 0 and 1 occur while the pane is added or removed, not as a user's choice
+                    if (position > 0 && position < 1) {
+                        preferences.getGuiPreferences().setHorizontalDividerPosition(position);
+                    }
+                });
     }
 
     private void unsubscribeHorizontalDivider() {
@@ -356,16 +349,16 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
         if (mainStage.isShowing() && panelMode.get() == PanelMode.MAIN_TABLE_AND_ENTRY_EDITOR) {
             verticalSplit.setDividerPositions(preferences.getGuiPreferences().getVerticalDividerPosition());
             verticalDividerSubscription = EasyBind.valueAt(verticalSplit.getDividers(), 0)
-                                                  .mapObservable(SplitPane.Divider::positionProperty)
-                                                  .listenToValues((_, newValue) ->
-                                                          preferences.getGuiPreferences()
-                                                                     .setVerticalDividerPosition(newValue.doubleValue()));
+                    .mapObservable(SplitPane.Divider::positionProperty)
+                    .listenToValues((_, newValue) ->
+                            preferences.getGuiPreferences().setVerticalDividerPosition(newValue.doubleValue()));
         }
     }
 
     /// The frame captures shortcuts before child views; a view that handles Search must receive it itself.
     // [impl->req~ai.chat.find.unavailable~1]
-    static boolean handleSearchKeyBinding(KeyEvent event, KeyBindingRepository keyBindings, Runnable focusLibrarySearch) {
+    static boolean handleSearchKeyBinding(
+            KeyEvent event, KeyBindingRepository keyBindings, Runnable focusLibrarySearch) {
         if (!keyBindings.matches(event, KeyBinding.SEARCH)) {
             return false;
         }
@@ -382,15 +375,25 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
         if (node instanceof SearchShortcutTarget searchTarget) {
             return searchTarget.canHandleSearch();
         }
-        return Optional.ofNullable(node.getParent()).map(JabRefFrame::hasSearchShortcutTarget).orElse(false);
+        return Optional.ofNullable(node.getParent())
+                .map(JabRefFrame::hasSearchShortcutTarget)
+                .orElse(false);
     }
 
     private void initKeyBindings() {
         KeyBindingDispatcher keyBindingDispatcher = new KeyBindingDispatcher(preferences.getKeyBindingRepository())
-                .on(KeyBinding.FOCUS_ENTRY_TABLE, () -> getCurrentLibraryTab().getMainTable().requestFocus())
-                .on(KeyBinding.FOCUS_GROUP_LIST, () -> sidePane.getSidePaneComponent(SidePaneType.GROUPS).requestFocus())
-                .on(KeyBinding.NEXT_LIBRARY, () -> tabbedPane.getSelectionModel().selectNext())
-                .on(KeyBinding.PREVIOUS_LIBRARY, () -> tabbedPane.getSelectionModel().selectPrevious())
+                .on(
+                        KeyBinding.FOCUS_ENTRY_TABLE,
+                        () -> getCurrentLibraryTab().getMainTable().requestFocus())
+                .on(
+                        KeyBinding.FOCUS_GROUP_LIST,
+                        () -> sidePane.getSidePaneComponent(SidePaneType.GROUPS).requestFocus())
+                .on(
+                        KeyBinding.NEXT_LIBRARY,
+                        () -> tabbedPane.getSelectionModel().selectNext())
+                .on(
+                        KeyBinding.PREVIOUS_LIBRARY,
+                        () -> tabbedPane.getSelectionModel().selectPrevious())
                 .onWithoutConsuming(KeyBinding.OPEN_GLOBAL_SEARCH_DIALOG, globalSearchBar::openGlobalSearchDialog)
                 .onConditionally(KeyBinding.BACK, () -> navigateHistory(LibraryTab::back))
                 .onConditionally(KeyBinding.FORWARD, () -> navigateHistory(LibraryTab::forward))
@@ -403,8 +406,11 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
                         new CloseDatabaseAction(this, stateManager).execute();
                     }
                 });
-        NEW_ENTRY_KEY_BINDINGS.forEach((keyBinding, entryType) -> keyBindingDispatcher.onWithoutConsuming(keyBinding,
-                () -> new NewEntryAction(entryType, this::getCurrentLibraryTab, dialogService, preferences, stateManager).execute()));
+        NEW_ENTRY_KEY_BINDINGS.forEach((keyBinding, entryType) -> keyBindingDispatcher.onWithoutConsuming(
+                keyBinding,
+                () -> new NewEntryAction(
+                                entryType, this::getCurrentLibraryTab, dialogService, preferences, stateManager)
+                        .execute()));
 
         addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             // Check search before the dispatcher, which only sees the first matching key binding.
@@ -441,9 +447,11 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
     private void initBindings() {
         // Every tab shows its close button, so selecting a tab does not shift its label
         tabbedPane.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
-        BindingsHelper.bindContentFiltered(tabbedPane.getTabs(), stateManager.getOpenDatabases(), LibraryTab.class::isInstance);
+        BindingsHelper.bindContentFiltered(
+                tabbedPane.getTabs(), stateManager.getOpenDatabases(), LibraryTab.class::isInstance);
 
-        // the binding for stateManager.activeDatabaseProperty() is at org.jabref.gui.LibraryTab.onDatabaseLoadingSucceed
+        // the binding for stateManager.activeDatabaseProperty() is at
+        // org.jabref.gui.LibraryTab.onDatabaseLoadingSucceed
 
         // Subscribe to the search
         EasyBind.subscribe(stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH), query -> {
@@ -453,8 +461,9 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
         });
 
         // Wait for the scene to be created, otherwise focusOwnerProperty is not provided
-        Platform.runLater(() -> stateManager.focusOwnerProperty().bind(
-                EasyBind.map(mainStage.getScene().focusOwnerProperty(), Optional::ofNullable)));
+        Platform.runLater(() -> stateManager
+                .focusOwnerProperty()
+                .bind(EasyBind.map(mainStage.getScene().focusOwnerProperty(), Optional::ofNullable)));
 
         EasyBind.subscribe(tabbedPane.getSelectionModel().selectedItemProperty(), selectedTab -> {
             if (selectedTab instanceof LibraryTab libraryTab) {
@@ -469,32 +478,43 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
 
                 // Update active search query when switching between databases
                 if (preferences.getSearchPreferences().shouldKeepSearchString()) {
-                    libraryTab.searchQueryProperty().set(stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH).get());
+                    libraryTab
+                            .searchQueryProperty()
+                            .set(stateManager
+                                    .activeSearchQuery(SearchType.NORMAL_SEARCH)
+                                    .get());
                 } else {
-                    stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH).set(libraryTab.searchQueryProperty().get());
+                    stateManager
+                            .activeSearchQuery(SearchType.NORMAL_SEARCH)
+                            .set(libraryTab.searchQueryProperty().get());
                 }
                 stateManager.searchResultSize(SearchType.NORMAL_SEARCH).bind(libraryTab.resultSizeProperty());
                 globalSearchBar.setAutoCompleter(libraryTab.getAutoCompleter());
 
                 // Listen for auto-completer changes after real context is loaded
-                libraryTab.setAutoCompleterChangedListener(() -> globalSearchBar.setAutoCompleter(libraryTab.getAutoCompleter()));
+                libraryTab.setAutoCompleterChangedListener(
+                        () -> globalSearchBar.setAutoCompleter(libraryTab.getAutoCompleter()));
 
                 // [impl->req~maintable.focus~1]
                 Platform.runLater(() -> libraryTab.getMainTable().requestFocus());
 
                 // Set window title dynamically
-                mainStage.titleProperty().bind(Bindings.createStringBinding(
-                        () -> libraryTab.textProperty().getValue() + " – " + FRAME_TITLE, // not a minus, but codepoint 2013
-                        libraryTab.textProperty()));
+                mainStage
+                        .titleProperty()
+                        .bind(Bindings.createStringBinding(
+                                () -> libraryTab.textProperty().getValue() + " – "
+                                        + FRAME_TITLE, // not a minus, but codepoint 2013
+                                libraryTab.textProperty()));
             } else {
                 // Check if the previously active database was closed
                 if (stateManager.getActiveDatabase().isPresent()) {
                     String activeUID = stateManager.getActiveDatabase().get().getUid();
                     boolean wasClosed = tabbedPane.getTabs().stream()
-                                                  .filter(tab -> tab instanceof LibraryTab)
-                                                  .noneMatch(ltab -> ((LibraryTab) ltab).getBibDatabaseContext()
-                                                                                        .getUid()
-                                                                                        .equals(activeUID));
+                            .filter(tab -> tab instanceof LibraryTab)
+                            .noneMatch(ltab -> ((LibraryTab) ltab)
+                                    .getBibDatabaseContext()
+                                    .getUid()
+                                    .equals(activeUID));
                     if (wasClosed) {
                         tabbedPane.getSelectionModel().selectNext();
                     }
@@ -511,7 +531,9 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
             }
         });
 
-        BindingsHelper.bindBidirectional((ObservableValue<Boolean>) stateManager.getEditorShowing(), panelMode,
+        BindingsHelper.bindBidirectional(
+                (ObservableValue<Boolean>) stateManager.getEditorShowing(),
+                panelMode,
                 mode -> stateManager.getEditorShowing().setValue(mode == PanelMode.MAIN_TABLE_AND_ENTRY_EDITOR),
                 showing -> panelMode.setValue(showing ? PanelMode.MAIN_TABLE_AND_ENTRY_EDITOR : PanelMode.MAIN_TABLE));
 
@@ -523,30 +545,33 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
         });
 
         // Hide tab bar
-        stateManager.getOpenDatabases().addListener((ListChangeListener<BibDatabaseContext>) _ -> updateTabBarVisible());
+        stateManager.getOpenDatabases().addListener((ListChangeListener<BibDatabaseContext>)
+                _ -> updateTabBarVisible());
         tabbedPane.getTabs().addListener((ListChangeListener<Tab>) _ -> updateTabBarVisible());
         preferences.getWorkspacePreferences().hideTabBarProperty().addListener((_, _, _) -> updateTabBarVisible());
 
-        stateManager.canGoBackProperty().bind(
-                stateManager.activeTabProperty().flatMap(
-                        optionalTab -> optionalTab
+        stateManager
+                .canGoBackProperty()
+                .bind(stateManager
+                        .activeTabProperty()
+                        .flatMap(optionalTab -> optionalTab
                                 .map(LibraryTab::canGoBackProperty)
-                                .orElse(new SimpleBooleanProperty(false))
-                )
-        );
+                                .orElse(new SimpleBooleanProperty(false))));
 
-        stateManager.canGoForwardProperty().bind(
-                stateManager.activeTabProperty().flatMap(
-                        optionalTab -> optionalTab
+        stateManager
+                .canGoForwardProperty()
+                .bind(stateManager
+                        .activeTabProperty()
+                        .flatMap(optionalTab -> optionalTab
                                 .map(LibraryTab::canGoForwardProperty)
-                                .orElse(new SimpleBooleanProperty(false))
-                )
-        );
+                                .orElse(new SimpleBooleanProperty(false))));
     }
 
-    /// Closes the selected tab if it is no [LibraryTab] (the welcome tab): [CloseDatabaseAction] only knows library tabs, so the close shortcut would do nothing there.
+    /// Closes the selected tab if it is no [LibraryTab] (the welcome tab): [CloseDatabaseAction] only knows library
+    /// tabs, so the close shortcut would do nothing there.
     ///
-    /// Mirrors what the tab's close button does in `TabPaneBehavior`: the tab close events are notifications, a [TabPane] never removes a tab in response to one, so the removal has to happen here.
+    /// Mirrors what the tab's close button does in `TabPaneBehavior`: the tab close events are notifications, a
+    /// [TabPane] never removes a tab in response to one, so the removal has to happen here.
     static void closeSelectedNonLibraryTab(TabPane tabbedPane) {
         Tab selectedTab = tabbedPane.getSelectionModel().getSelectedItem();
         if ((selectedTab == null) || (selectedTab instanceof LibraryTab) || !selectedTab.isClosable()) {
@@ -563,7 +588,8 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
 
     private void updateTabBarVisible() {
         // When WelcomeTab is open, the tabbar should be visible
-        if (preferences.getWorkspacePreferences().shouldHideTabBar() && tabbedPane.getTabs().size() <= 1) {
+        if (preferences.getWorkspacePreferences().shouldHideTabBar()
+                && tabbedPane.getTabs().size() <= 1) {
             if (!tabbedPane.getStyleClass().contains("hide-tab-bar")) {
                 tabbedPane.getStyleClass().add("hide-tab-bar");
             }
@@ -597,7 +623,8 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
     }
 
     public void showWelcomeTab() {
-        // The loop iterates through all tabs in tabbedPane to check if a WelcomeTab already exists. If yes, it is selected.
+        // The loop iterates through all tabs in tabbedPane to check if a WelcomeTab already exists. If yes, it is
+        // selected.
         for (Tab tab : tabbedPane.getTabs()) {
             if (!(tab instanceof LibraryTab)) {
                 tabbedPane.getSelectionModel().select(tab);
@@ -666,40 +693,52 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
     /// Matches by database, not by `equals`: a retry entered in expert mode or with other SSL settings still targets
     /// the database the placeholder stands for.
     private void removeSharedDatabaseErrorTabsFor(DatabaseConnectionProperties connectionProperties) {
-        tabbedPane.getTabs().removeIf(tab -> (tab instanceof SharedDatabaseErrorTab errorTab)
-                && DBMSConnectionProperties.isSameDatabase(errorTab.getConnectionProperties(), connectionProperties));
+        tabbedPane
+                .getTabs()
+                .removeIf(tab -> (tab instanceof SharedDatabaseErrorTab errorTab)
+                        && DBMSConnectionProperties.isSameDatabase(
+                                errorTab.getConnectionProperties(), connectionProperties));
     }
 
     private ContextMenu createTabContextMenuFor(LibraryTab tab) {
         ContextMenu contextMenu = new ContextMenu();
         ActionFactory factory = new ActionFactory();
 
-        contextMenu.getItems().addAll(
-                factory.createMenuItem(StandardActions.LIBRARY_PROPERTIES,
-                        new LibraryPropertiesAction(tab::getBibDatabaseContext, stateManager)),
-                factory.createMenuItem(StandardActions.OPEN_DATABASE_FOLDER,
-                        new OpenDatabaseFolder(dialogService, stateManager, preferences, tab::getBibDatabaseContext)),
-                factory.createMenuItem(StandardActions.OPEN_CONSOLE,
-                        new OpenConsoleAction(() -> {
-                            LibraryTab currentTab = getCurrentLibraryTab();
-                            return (currentTab == null) ? null : currentTab.getBibDatabaseContext();
-                        }, stateManager, preferences, dialogService)),
-                factory.createMenuItem(StandardActions.SORT_TABS_ALPHABETICALLY, new SimpleCommand() {
-                    @Override
-                    public void execute() {
-                        tabbedPane.getTabs().sort((tab1, tab2) -> {
-                            String text1 = tab1.getText() != null ? tab1.getText() : "";
-                            String text2 = tab2.getText() != null ? tab2.getText() : "";
-                            return text1.compareToIgnoreCase(text2);
-                        });
-                    }
-                }),
-                new SeparatorMenuItem(),
-                factory.createMenuItem(StandardActions.CLOSE_LIBRARY,
-                        new CloseDatabaseAction(this, tab, stateManager)),
-                factory.createMenuItem(StandardActions.CLOSE_OTHER_LIBRARIES,
-                        new CloseOthersDatabaseAction(tab))
-        );
+        contextMenu
+                .getItems()
+                .addAll(
+                        factory.createMenuItem(
+                                StandardActions.LIBRARY_PROPERTIES,
+                                new LibraryPropertiesAction(tab::getBibDatabaseContext, stateManager)),
+                        factory.createMenuItem(
+                                StandardActions.OPEN_DATABASE_FOLDER,
+                                new OpenDatabaseFolder(
+                                        dialogService, stateManager, preferences, tab::getBibDatabaseContext)),
+                        factory.createMenuItem(
+                                StandardActions.OPEN_CONSOLE,
+                                new OpenConsoleAction(
+                                        () -> {
+                                            LibraryTab currentTab = getCurrentLibraryTab();
+                                            return (currentTab == null) ? null : currentTab.getBibDatabaseContext();
+                                        },
+                                        stateManager,
+                                        preferences,
+                                        dialogService)),
+                        factory.createMenuItem(StandardActions.SORT_TABS_ALPHABETICALLY, new SimpleCommand() {
+                            @Override
+                            public void execute() {
+                                tabbedPane.getTabs().sort((tab1, tab2) -> {
+                                    String text1 = tab1.getText() != null ? tab1.getText() : "";
+                                    String text2 = tab2.getText() != null ? tab2.getText() : "";
+                                    return text1.compareToIgnoreCase(text2);
+                                });
+                            }
+                        }),
+                        new SeparatorMenuItem(),
+                        factory.createMenuItem(
+                                StandardActions.CLOSE_LIBRARY, new CloseDatabaseAction(this, tab, stateManager)),
+                        factory.createMenuItem(
+                                StandardActions.CLOSE_OTHER_LIBRARIES, new CloseOthersDatabaseAction(tab)));
 
         return contextMenu;
     }
@@ -714,10 +753,8 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
 
     public boolean closeTabs(@NonNull List<LibraryTab> tabs, boolean showWelcomeTab) {
         // Only accept library tabs that are shown in the tab container
-        List<LibraryTab> toClose = tabs.stream()
-                                       .distinct()
-                                       .filter(getLibraryTabs()::contains)
-                                       .toList();
+        List<LibraryTab> toClose =
+                tabs.stream().distinct().filter(getLibraryTabs()::contains).toList();
 
         if (toClose.isEmpty()) {
             // Nothing to do
@@ -738,7 +775,8 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
             Event.fireEvent(libraryTab, new Event(this, libraryTab, Tab.CLOSED_EVENT));
         }
         if (tabbedPane.getTabs().isEmpty()) {
-            // Force group update in the GroupTreeViewModel by clearing the active database so the group pane doesn't keep displaying groups from a library that's no longer open
+            // Force group update in the GroupTreeViewModel by clearing the active database so the group pane doesn't
+            // keep displaying groups from a library that's no longer open
             stateManager.setActiveDatabase(null);
             // No library remains open, so show the welcome screen instead of an empty tab pane
             if (showWelcomeTab) {
@@ -764,7 +802,8 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
 
     /// Refreshes the ui after preferences changes
     public void refresh() {
-        // Disabled, because Bindings implement automatic update. Left here as commented out code to guide if something does not work after updating the preferences.
+        // Disabled, because Bindings implement automatic update. Left here as commented out code to guide if something
+        // does not work after updating the preferences.
         // getLibraryTabs().forEach(LibraryTab::setupMainPanel);
         getLibraryTabs().forEach(tab -> tab.getMainTable().getTableModel().resetFieldFormatter());
     }
@@ -776,20 +815,34 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
         }
 
         // [impl->req~shared-database.reopen-on-startup~1]
-        SharedDatabaseSessionService sessionService = new SharedDatabaseSessionService(preferences.getSharedDatabasePreferences());
-        for (SharedDatabaseSessionService.Reconnection reconnection : sessionService.getDatabasesToReconnect(preferences.getLastFilesOpenedPreferences())) {
+        SharedDatabaseSessionService sessionService =
+                new SharedDatabaseSessionService(preferences.getSharedDatabasePreferences());
+        for (SharedDatabaseSessionService.Reconnection reconnection :
+                sessionService.getDatabasesToReconnect(preferences.getLastFilesOpenedPreferences())) {
             reconnectSharedDatabase(sessionService, reconnection);
         }
     }
 
     /// Opens a loading tab for a remembered shared database and connects in the background.
-    private void reconnectSharedDatabase(SharedDatabaseSessionService sessionService, SharedDatabaseSessionService.Reconnection reconnection) {
-        Optional<LibraryTab> existingTab = SharedDatabaseUIManager.findOpenTab(this, reconnection.connectionProperties());
+    private void reconnectSharedDatabase(
+            SharedDatabaseSessionService sessionService, SharedDatabaseSessionService.Reconnection reconnection) {
+        Optional<LibraryTab> existingTab =
+                SharedDatabaseUIManager.findOpenTab(this, reconnection.connectionProperties());
         if (existingTab.isPresent()) {
             showLibraryTab(existingTab.orElseThrow());
             return;
         }
-        SharedDatabaseUIManager manager = new SharedDatabaseUIManager(this, dialogService, preferences, aiService, stateManager, entryTypesManager, fileUpdateMonitor, clipBoardManager, taskExecutor, gitHandlerRegistry);
+        SharedDatabaseUIManager manager = new SharedDatabaseUIManager(
+                this,
+                dialogService,
+                preferences,
+                aiService,
+                stateManager,
+                entryTypesManager,
+                fileUpdateMonitor,
+                clipBoardManager,
+                taskExecutor,
+                gitHandlerRegistry);
         // Connecting blocks on the network; on the JavaFX thread an unreachable server would stall the whole startup.
         // The callbacks check the stage so a connection that completes during shutdown is closed with its loading tab.
         BibDatabaseContext dummyContext = manager.createDummyContext(reconnection.connectionProperties());
@@ -808,9 +861,11 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
                 clipBoardManager,
                 taskExecutor,
                 gitHandlerRegistry,
-                (tab, bibDatabaseContext) -> handleSharedDatabaseReconnectionSuccess(sessionService, reconnection, tab, bibDatabaseContext),
+                (tab, bibDatabaseContext) ->
+                        handleSharedDatabaseReconnectionSuccess(sessionService, reconnection, tab, bibDatabaseContext),
                 exception -> handleSharedDatabaseReconnectionFailure(sessionService, reconnection, exception));
-        Optional<LibraryTab> reservedTab = SharedDatabaseUIManager.reserveTab(this, reconnection.connectionProperties(), newTab);
+        Optional<LibraryTab> reservedTab =
+                SharedDatabaseUIManager.reserveTab(this, reconnection.connectionProperties(), newTab);
         if (reservedTab.isPresent()) {
             showLibraryTab(reservedTab.orElseThrow());
             return;
@@ -819,10 +874,11 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
         newTab.startDataLoadingTask();
     }
 
-    private void handleSharedDatabaseReconnectionSuccess(SharedDatabaseSessionService sessionService,
-                                                         SharedDatabaseSessionService.Reconnection reconnection,
-                                                         LibraryTab tab,
-                                                         BibDatabaseContext bibDatabaseContext) {
+    private void handleSharedDatabaseReconnectionSuccess(
+            SharedDatabaseSessionService sessionService,
+            SharedDatabaseSessionService.Reconnection reconnection,
+            LibraryTab tab,
+            BibDatabaseContext bibDatabaseContext) {
         if (!mainStage.isShowing()) {
             closeTab(tab);
             return;
@@ -830,18 +886,23 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
         sessionService.restoreSharedDatabaseId(bibDatabaseContext, reconnection.sharedDatabaseId());
     }
 
-    /// The failed loading tab has already closed itself; a [SharedDatabaseErrorTab] takes its place instead of a dialog,
+    /// The failed loading tab has already closed itself; a [SharedDatabaseErrorTab] takes its place instead of a
+    /// dialog,
     /// so the connection can be retried and stays remembered for the next session.
-    private void handleSharedDatabaseReconnectionFailure(SharedDatabaseSessionService sessionService,
-                                                         SharedDatabaseSessionService.Reconnection reconnection,
-                                                         Exception exception) {
+    private void handleSharedDatabaseReconnectionFailure(
+            SharedDatabaseSessionService sessionService,
+            SharedDatabaseSessionService.Reconnection reconnection,
+            Exception exception) {
         LOGGER.error("Could not reconnect to shared database {}", reconnection.sharedDatabaseId(), exception);
         if (!mainStage.isShowing()) {
             return;
         }
         // The tab alone is easy to miss among the libraries that did open, so the failure is announced as well.
-        dialogService.notify(Localization.lang("Could not reconnect to shared database %0.", reconnection.connectionProperties().getDatabase()));
-        SharedDatabaseErrorTab errorTab = new SharedDatabaseErrorTab(reconnection.sharedDatabaseId(), reconnection.connectionProperties());
+        dialogService.notify(Localization.lang(
+                "Could not reconnect to shared database %0.",
+                reconnection.connectionProperties().getDatabase()));
+        SharedDatabaseErrorTab errorTab =
+                new SharedDatabaseErrorTab(reconnection.sharedDatabaseId(), reconnection.connectionProperties());
         errorTab.setRetryAction(tab -> {
             tab.close();
             reconnectSharedDatabase(sessionService, reconnection);
@@ -854,11 +915,12 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
     public void showSharedDatabaseErrorTab(SharedDatabaseErrorTab errorTab) {
         // Keep the remembered id while retrying with the settings from the latest attempt.
         Optional<SharedDatabaseErrorTab> remembered = tabbedPane.getTabs().stream()
-                                                                .filter(SharedDatabaseErrorTab.class::isInstance)
-                                                                .map(SharedDatabaseErrorTab.class::cast)
-                                                                .filter(existing -> DBMSConnectionProperties.isSameDatabase(existing.getConnectionProperties(), errorTab.getConnectionProperties()))
-                                                                .filter(existing -> existing.getSharedDatabaseId().isPresent())
-                                                                .findFirst();
+                .filter(SharedDatabaseErrorTab.class::isInstance)
+                .map(SharedDatabaseErrorTab.class::cast)
+                .filter(existing -> DBMSConnectionProperties.isSameDatabase(
+                        existing.getConnectionProperties(), errorTab.getConnectionProperties()))
+                .filter(existing -> existing.getSharedDatabaseId().isPresent())
+                .findFirst();
         if (remembered.isPresent()) {
             SharedDatabaseErrorTab rememberedTab = remembered.orElseThrow();
             rememberedTab.updateFailure(errorTab);
@@ -874,7 +936,8 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
         addSharedDatabaseErrorTab(tabbedPane, errorTab, this::showWelcomeTab);
     }
 
-    static void addSharedDatabaseErrorTab(TabPane tabbedPane, SharedDatabaseErrorTab errorTab, Runnable showWelcomeTab) {
+    static void addSharedDatabaseErrorTab(
+            TabPane tabbedPane, SharedDatabaseErrorTab errorTab, Runnable showWelcomeTab) {
         errorTab.setOnClosed(_ -> {
             if (tabbedPane.getTabs().isEmpty()) {
                 showWelcomeTab.run();
@@ -886,9 +949,9 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
     @Override
     public List<String> getUnconnectedSharedDatabaseIds() {
         return tabbedPane.getTabs().stream()
-                         .filter(SharedDatabaseErrorTab.class::isInstance)
-                         .flatMap(tab -> ((SharedDatabaseErrorTab) tab).getSharedDatabaseId().stream())
-                         .toList();
+                .filter(SharedDatabaseErrorTab.class::isInstance)
+                .flatMap(tab -> ((SharedDatabaseErrorTab) tab).getSharedDatabaseId().stream())
+                .toList();
     }
 
     @Override
@@ -902,7 +965,7 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
     }
 
     /// The action concerned with closing the window.
-    static protected class CloseAction extends SimpleCommand {
+    protected static class CloseAction extends SimpleCommand {
 
         private final JabRefFrame frame;
 
@@ -918,7 +981,7 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
         }
     }
 
-    static protected class CloseDatabaseAction extends SimpleCommand {
+    protected static class CloseDatabaseAction extends SimpleCommand {
 
         private final LibraryTabContainer tabContainer;
         private final LibraryTab libraryTab;
@@ -963,10 +1026,10 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
         public void execute() {
             LibraryTab toKeepLibraryTab = Optional.of(libraryTab).get();
             List<LibraryTab> libraryTabs = tabbedPane.getTabs().stream()
-                                                     .filter(LibraryTab.class::isInstance)
-                                                     .map(LibraryTab.class::cast)
-                                                     .filter(tab -> tab != toKeepLibraryTab)
-                                                     .toList();
+                    .filter(LibraryTab.class::isInstance)
+                    .map(LibraryTab.class::cast)
+                    .filter(tab -> tab != toKeepLibraryTab)
+                    .toList();
             for (LibraryTab tab : libraryTabs) {
                 Platform.runLater(() -> closeTab(tab));
             }
@@ -979,7 +1042,11 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
         private final DialogService dialogService;
         private final GuiPreferences preferences;
 
-        public OpenDatabaseFolder(DialogService dialogService, StateManager stateManager, GuiPreferences preferences, Supplier<BibDatabaseContext> databaseContext) {
+        public OpenDatabaseFolder(
+                DialogService dialogService,
+                StateManager stateManager,
+                GuiPreferences preferences,
+                Supplier<BibDatabaseContext> databaseContext) {
             this.dialogService = dialogService;
             this.preferences = preferences;
             this.databaseContext = databaseContext;
@@ -988,13 +1055,16 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
 
         @Override
         public void execute() {
-            Optional.of(databaseContext.get()).flatMap(BibDatabaseContext::getDatabasePath).ifPresent(path -> {
-                try {
-                    NativeDesktop.openFolderAndSelectFile(path, preferences.getExternalApplicationsPreferences(), dialogService);
-                } catch (IOException e) {
-                    LOGGER.info("Could not open folder", e);
-                }
-            });
+            Optional.of(databaseContext.get())
+                    .flatMap(BibDatabaseContext::getDatabasePath)
+                    .ifPresent(path -> {
+                        try {
+                            NativeDesktop.openFolderAndSelectFile(
+                                    path, preferences.getExternalApplicationsPreferences(), dialogService);
+                        } catch (IOException e) {
+                            LOGGER.info("Could not open folder", e);
+                        }
+                    });
         }
     }
 }

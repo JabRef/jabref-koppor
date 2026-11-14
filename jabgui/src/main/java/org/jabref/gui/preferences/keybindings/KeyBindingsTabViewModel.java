@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -15,7 +14,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyEvent;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingCategory;
@@ -26,7 +24,6 @@ import org.jabref.gui.preferences.keybindings.presets.KeyBindingPreset;
 import org.jabref.gui.preferences.keybindings.presets.NewEntryBindingPreset;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.OptionalObjectProperty;
-
 import org.jspecify.annotations.NonNull;
 
 public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
@@ -36,14 +33,15 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
     private final KeyBindingRepository liveKeyBindingRepository;
     private final OptionalObjectProperty<KeyBindingViewModel> selectedKeyBinding = OptionalObjectProperty.empty();
     private final ObjectProperty<KeyBindingViewModel> rootKeyBinding = new SimpleObjectProperty<>();
-    private final ListProperty<KeyBindingPreset> keyBindingPresets = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<KeyBindingPreset> keyBindingPresets =
+            new SimpleListProperty<>(FXCollections.observableArrayList());
 
     private final DialogService dialogService;
 
     private final List<String> restartWarning = new ArrayList<>();
 
-    public KeyBindingsTabViewModel(@NonNull KeyBindingRepository keyBindingRepository,
-                                   @NonNull DialogService dialogService) {
+    public KeyBindingsTabViewModel(
+            @NonNull KeyBindingRepository keyBindingRepository, @NonNull DialogService dialogService) {
         this.keyBindingRepository = new KeyBindingRepository(keyBindingRepository.getKeyBindings());
         this.liveKeyBindingRepository = keyBindingRepository;
         this.dialogService = dialogService;
@@ -71,7 +69,8 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
                     return;
                 }
                 if (matchesSearchTerm(keyBinding, term.toLowerCase())) {
-                    KeyBindingViewModel keyBindViewModel = new KeyBindingViewModel(keyBindingRepository, keyBinding, bind);
+                    KeyBindingViewModel keyBindViewModel =
+                            new KeyBindingViewModel(keyBindingRepository, keyBinding, bind);
                     categoryItem.getChildren().add(keyBindViewModel);
                 }
             });
@@ -87,12 +86,17 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
     /// @param searchTerm term to search for
     /// @return true if the term is found in the keybinding
     private boolean matchesSearchTerm(KeyBinding keyBinding, String searchTerm) {
-        if (keyBinding.getLocalization().toLowerCase().contains(searchTerm) ||
-                keyBinding.getCategory().getName().toLowerCase().contains(searchTerm)) {
+        if (keyBinding.getLocalization().toLowerCase().contains(searchTerm)
+                || keyBinding.getCategory().getName().toLowerCase().contains(searchTerm)) {
             return true;
         }
         if (keyBindingRepository.getKeyCombination(keyBinding).isPresent()) {
-            return keyBindingRepository.getKeyCombination(keyBinding).get().toString().toLowerCase().contains(searchTerm);
+            return keyBindingRepository
+                    .getKeyCombination(keyBinding)
+                    .get()
+                    .toString()
+                    .toLowerCase()
+                    .contains(searchTerm);
         }
         return false;
     }
@@ -115,11 +119,12 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
         String previousBinding = selectedEntry.getBinding();
         if (selectedEntry.setNewBinding(event)) {
             // [impl->req~ux.keybindings.duplicate-warning~1]
-            List<KeyBinding> conflicts = keyBindingRepository.findConflictingKeyBindings(
-                    selectedEntry.getKeyBinding(), event);
+            List<KeyBinding> conflicts =
+                    keyBindingRepository.findConflictingKeyBindings(selectedEntry.getKeyBinding(), event);
 
             if (!conflicts.isEmpty()) {
-                ButtonBar.ButtonData choice = askForResolution(selectedEntry.shownBindingProperty().get(), conflicts);
+                ButtonBar.ButtonData choice =
+                        askForResolution(selectedEntry.shownBindingProperty().get(), conflicts);
                 if (choice == ButtonBar.ButtonData.OK_DONE) {
                     conflicts.forEach(this::clearBinding);
                 } else if (choice != ButtonBar.ButtonData.OTHER) {
@@ -134,36 +139,39 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
 
     private ButtonBar.ButtonData askForResolution(String combination, List<KeyBinding> conflictingKeyBindings) {
         String names = conflictingKeyBindings.stream()
-                                             .map(keyBinding -> "'" + keyBinding.getLocalization() + "'")
-                                             .collect(Collectors.joining(", "));
+                .map(keyBinding -> "'" + keyBinding.getLocalization() + "'")
+                .collect(Collectors.joining(", "));
         ButtonType replace = new ButtonType(Localization.lang("Replace"), ButtonBar.ButtonData.OK_DONE);
         ButtonType keepBoth = new ButtonType(Localization.lang("Keep both"), ButtonBar.ButtonData.OTHER);
         ButtonType cancel = new ButtonType(Localization.lang("Cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
         Map<ButtonType, String> tooltips = Map.of(
-                keepBoth, Localization.lang("Both actions keep the shortcut. This only works if they are used in different places."));
-        return dialogService.showCustomButtonDialogWithTooltipsAndWait(
-                                    Alert.AlertType.WARNING,
-                                    Localization.lang("Shortcut already in use"),
-                                    Localization.lang("The shortcut %0 is already used by %1. Replace it or keep both?",
-                                            combination, names),
-                                    tooltips,
-                                    replace, keepBoth, cancel)
-                            .map(ButtonType::getButtonData)
-                            .orElse(ButtonBar.ButtonData.CANCEL_CLOSE);
+                keepBoth,
+                Localization.lang(
+                        "Both actions keep the shortcut. This only works if they are used in different places."));
+        return dialogService
+                .showCustomButtonDialogWithTooltipsAndWait(
+                        Alert.AlertType.WARNING,
+                        Localization.lang("Shortcut already in use"),
+                        Localization.lang(
+                                "The shortcut %0 is already used by %1. Replace it or keep both?", combination, names),
+                        tooltips,
+                        replace,
+                        keepBoth,
+                        cancel)
+                .map(ButtonType::getButtonData)
+                .orElse(ButtonBar.ButtonData.CANCEL_CLOSE);
     }
 
     private void clearBinding(KeyBinding keyBinding) {
-        findRow(keyBinding).ifPresentOrElse(
-                KeyBindingViewModel::clear,
-                () -> keyBindingRepository.put(keyBinding, ""));
+        findRow(keyBinding).ifPresentOrElse(KeyBindingViewModel::clear, () -> keyBindingRepository.put(keyBinding, ""));
     }
 
     private Optional<KeyBindingViewModel> findRow(KeyBinding keyBinding) {
         return Optional.ofNullable(rootKeyBinding.get()).stream()
-                       .flatMap(root -> root.getChildren().stream())
-                       .flatMap(category -> category.getChildren().stream())
-                       .filter(row -> row.getKeyBinding() == keyBinding)
-                       .findFirst();
+                .flatMap(root -> root.getChildren().stream())
+                .flatMap(category -> category.getChildren().stream())
+                .filter(row -> row.getKeyBinding() == keyBinding)
+                .findFirst();
     }
 
     @Override
@@ -186,13 +194,15 @@ public class KeyBindingsTabViewModel implements PreferenceTabViewModel {
         String title = Localization.lang("Resetting all keyboard shortcuts");
         String content = Localization.lang("All keyboard shortcuts will be reset to their defaults.");
         ButtonType resetButtonType = new ButtonType("Reset", ButtonBar.ButtonData.OK_DONE);
-        dialogService.showCustomButtonDialogAndWait(Alert.AlertType.INFORMATION, title, content, resetButtonType,
-                ButtonType.CANCEL).ifPresent(response -> {
-            if (response == resetButtonType) {
-                keyBindingRepository.resetToDefault();
-                setValues();
-            }
-        });
+        dialogService
+                .showCustomButtonDialogAndWait(
+                        Alert.AlertType.INFORMATION, title, content, resetButtonType, ButtonType.CANCEL)
+                .ifPresent(response -> {
+                    if (response == resetButtonType) {
+                        keyBindingRepository.resetToDefault();
+                        setValues();
+                    }
+                });
     }
 
     public void loadPreset(KeyBindingPreset preset) {

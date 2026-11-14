@@ -1,18 +1,16 @@
 package org.jabref.logic.integrity;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.jabref.logic.l10n.Localization;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @ResourceLock("Localization.lang")
 class ISBNCheckerTest {
@@ -49,7 +47,6 @@ class ISBNCheckerTest {
         return Stream.of(
                 Arguments.of(Optional.empty(), "978-0-306-40615-7"),
                 Arguments.of(Optional.of(Localization.lang("incorrect control digit")), "978-0-306-40615-2"),
-                Arguments.of(Optional.of(Localization.lang("incorrect format")), "978_0_306_40615_7")
-        );
+                Arguments.of(Optional.of(Localization.lang("incorrect format")), "978_0_306_40615_7"));
     }
 }

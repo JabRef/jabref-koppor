@@ -1,17 +1,15 @@
 package org.jabref.model;
 
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.StandardField;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.StandardField;
+import org.junit.jupiter.api.Test;
+
 class FieldChangeTest {
 
-    private final BibEntry entry = new BibEntry()
-            .withField(StandardField.DOI, "foo");
+    private final BibEntry entry = new BibEntry().withField(StandardField.DOI, "foo");
     private final BibEntry entryOther = new BibEntry();
     private final FieldChange fc = new FieldChange(entry, StandardField.DOI, "foo", "bar");
 

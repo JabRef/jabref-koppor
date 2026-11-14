@@ -1,23 +1,21 @@
 package org.jabref.http.server.cayw.format;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.jabref.http.server.cayw.CAYWQueryParams;
 import org.jabref.http.server.cayw.CitationProperties;
 import org.jabref.http.server.cayw.LocatorType;
 import org.jabref.http.server.cayw.gui.CAYWEntry;
 import org.jabref.model.entry.BibEntry;
-
-import jakarta.ws.rs.core.MediaType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CAYWFormattersTest {
 
@@ -26,8 +24,8 @@ class CAYWFormattersTest {
             return List.of();
         }
         return Stream.of(keys)
-                     .map(key -> new CAYWEntry(new BibEntry().withCitationKey(key), key, key, "", new CitationProperties()))
-                     .collect(Collectors.toList());
+                .map(key -> new CAYWEntry(new BibEntry().withCitationKey(key), key, key, "", new CitationProperties()))
+                .collect(Collectors.toList());
     }
 
     private CAYWEntry caywEntryWithProperties(String key, CitationProperties properties) {
@@ -70,8 +68,7 @@ class CAYWFormattersTest {
 
         @Test
         void omitAuthor() {
-            CitationProperties props = new CitationProperties()
-                    .withOmitAuthor(true);
+            CitationProperties props = new CitationProperties().withOmitAuthor(true);
 
             String actual = formatter.format(queryParams(null), List.of(caywEntryWithProperties("key1", props)));
             assertEquals("[-@key1]", actual);
@@ -79,8 +76,7 @@ class CAYWFormattersTest {
 
         @Test
         void prefixOnly() {
-            CitationProperties props = new CitationProperties()
-                    .withPrefix("see");
+            CitationProperties props = new CitationProperties().withPrefix("see");
 
             String actual = formatter.format(queryParams(null), List.of(caywEntryWithProperties("key1", props)));
             assertEquals("[see @key1]", actual);
@@ -93,10 +89,11 @@ class CAYWFormattersTest {
                     .withLocatorType(LocatorType.PAGE)
                     .withLocatorValue("42");
 
-            String actual = formatter.format(queryParams(null), List.of(
-                    caywEntryWithProperties("key1", props1),
-                    caywEntryWithProperties("key2", new CitationProperties())
-            ));
+            String actual = formatter.format(
+                    queryParams(null),
+                    List.of(
+                            caywEntryWithProperties("key1", props1),
+                            caywEntryWithProperties("key2", new CitationProperties())));
             assertEquals("[see @key1, p. 42; @key2]", actual);
         }
     }
@@ -143,8 +140,7 @@ class CAYWFormattersTest {
 
         @Test
         void omitAuthor() {
-            CitationProperties props = new CitationProperties()
-                    .withOmitAuthor(true);
+            CitationProperties props = new CitationProperties().withOmitAuthor(true);
 
             String actual = formatter.format(queryParams(null), List.of(caywEntryWithProperties("key1", props)));
             assertEquals("\\autocite*{key1}", actual);
@@ -153,22 +149,22 @@ class CAYWFormattersTest {
         @Test
         void omitAuthor_unsupportedCommand() {
             BibLatexFormatter textciteFormatter = new BibLatexFormatter("textcite");
-            CitationProperties props = new CitationProperties()
-                    .withOmitAuthor(true);
+            CitationProperties props = new CitationProperties().withOmitAuthor(true);
 
-            String actual = textciteFormatter.format(queryParams(null), List.of(caywEntryWithProperties("key1", props)));
+            String actual =
+                    textciteFormatter.format(queryParams(null), List.of(caywEntryWithProperties("key1", props)));
             assertEquals("\\textcite{key1}", actual);
         }
 
         @Test
         void omitAuthor_multipleEntries_ignored() {
-            CitationProperties props1 = new CitationProperties()
-                    .withOmitAuthor(true);
+            CitationProperties props1 = new CitationProperties().withOmitAuthor(true);
 
-            String actual = formatter.format(queryParams(null), List.of(
-                    caywEntryWithProperties("key1", props1),
-                    caywEntryWithProperties("key2", new CitationProperties())
-            ));
+            String actual = formatter.format(
+                    queryParams(null),
+                    List.of(
+                            caywEntryWithProperties("key1", props1),
+                            caywEntryWithProperties("key2", new CitationProperties())));
             assertEquals("\\autocites{key1}{key2}", actual);
         }
 
@@ -214,13 +210,13 @@ class CAYWFormattersTest {
 
         @Test
         void mixedEntries() {
-            CitationProperties props1 = new CitationProperties()
-                    .withPrefix("see");
+            CitationProperties props1 = new CitationProperties().withPrefix("see");
 
-            String actual = formatter.format(queryParams(null), List.of(
-                    caywEntryWithProperties("key1", props1),
-                    caywEntryWithProperties("key2", new CitationProperties())
-            ));
+            String actual = formatter.format(
+                    queryParams(null),
+                    List.of(
+                            caywEntryWithProperties("key1", props1),
+                            caywEntryWithProperties("key2", new CitationProperties())));
             assertEquals("\\citep[see][]{key1}\\citep{key2}", actual);
         }
     }
@@ -249,9 +245,8 @@ class CAYWFormattersTest {
 
         @Test
         void withLocator() {
-            CitationProperties props = new CitationProperties()
-                    .withLocatorType(LocatorType.PAGE)
-                    .withLocatorValue("42");
+            CitationProperties props =
+                    new CitationProperties().withLocatorType(LocatorType.PAGE).withLocatorValue("42");
 
             String actual = formatter.format(queryParams(null), List.of(caywEntryWithProperties("key1", props)));
             assertEquals("#cite(<key1>, supplement: [p. 42])", actual);
@@ -259,8 +254,7 @@ class CAYWFormattersTest {
 
         @Test
         void omitAuthor() {
-            CitationProperties props = new CitationProperties()
-                    .withOmitAuthor(true);
+            CitationProperties props = new CitationProperties().withOmitAuthor(true);
 
             String actual = formatter.format(queryParams(null), List.of(caywEntryWithProperties("key1", props)));
             assertEquals("#cite(<key1>, form: \"year\")", actual);
@@ -286,8 +280,7 @@ class CAYWFormattersTest {
 
         @Test
         void withPrefix() {
-            CitationProperties props = new CitationProperties()
-                    .withPrefix("see");
+            CitationProperties props = new CitationProperties().withPrefix("see");
 
             String actual = formatter.format(queryParams(null), List.of(caywEntryWithProperties("key1", props)));
             assertEquals("[see][#key1]", actual);
@@ -295,9 +288,8 @@ class CAYWFormattersTest {
 
         @Test
         void withLocator() {
-            CitationProperties props = new CitationProperties()
-                    .withLocatorType(LocatorType.PAGE)
-                    .withLocatorValue("42");
+            CitationProperties props =
+                    new CitationProperties().withLocatorType(LocatorType.PAGE).withLocatorValue("42");
 
             String actual = formatter.format(queryParams(null), List.of(caywEntryWithProperties("key1", props)));
             assertEquals("[\\]\\[p. 42][#key1]", actual);

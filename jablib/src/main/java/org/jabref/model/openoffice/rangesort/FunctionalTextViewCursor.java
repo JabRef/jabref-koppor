@@ -1,16 +1,14 @@
 package org.jabref.model.openoffice.rangesort;
 
-import java.util.Arrays;
-
-import org.jabref.model.openoffice.uno.UnoCursor;
-import org.jabref.model.openoffice.uno.UnoSelection;
-import org.jabref.model.openoffice.util.OOResult;
-
 import com.sun.star.lang.XServiceInfo;
 import com.sun.star.text.XTextDocument;
 import com.sun.star.text.XTextRange;
 import com.sun.star.text.XTextViewCursor;
 import com.sun.star.uno.RuntimeException;
+import java.util.Arrays;
+import org.jabref.model.openoffice.uno.UnoCursor;
+import org.jabref.model.openoffice.uno.UnoSelection;
+import org.jabref.model.openoffice.util.OOResult;
 import org.jspecify.annotations.NonNull;
 
 /*
@@ -53,9 +51,8 @@ public class FunctionalTextViewCursor {
     /* The view cursor, potentially moved from its original location. */
     private final XTextViewCursor viewCursor;
 
-    private FunctionalTextViewCursor(XTextRange initialPosition,
-                                     XServiceInfo initialSelection,
-                                     XTextViewCursor viewCursor) {
+    private FunctionalTextViewCursor(
+            XTextRange initialPosition, XServiceInfo initialSelection, XTextViewCursor viewCursor) {
         this.initialPosition = initialPosition;
         this.initialSelection = initialSelection;
         this.viewCursor = viewCursor;
@@ -71,7 +68,8 @@ public class FunctionalTextViewCursor {
      */
     public static OOResult<FunctionalTextViewCursor, String> get(@NonNull XTextDocument doc) {
         XTextRange initialPosition = null;
-        XServiceInfo initialSelection = UnoSelection.getSelectionAsXServiceInfo(doc).orElse(null);
+        XServiceInfo initialSelection =
+                UnoSelection.getSelectionAsXServiceInfo(doc).orElse(null);
         XTextViewCursor viewCursor = UnoCursor.getViewCursor(doc).orElse(null);
         if (viewCursor != null) {
             try {
@@ -89,7 +87,7 @@ public class FunctionalTextViewCursor {
             String errorMessage = "Selection is not available: cannot provide a functional view cursor";
             return OOResult.error(errorMessage);
         } else if (Arrays.stream(initialSelection.getSupportedServiceNames())
-                         .noneMatch("com.sun.star.text.TextRanges"::equals)) {
+                .noneMatch("com.sun.star.text.TextRanges"::equals)) {
             // initialSelection does not support TextRanges.
             // We need to change it (and the viewCursor with it).
             XTextRange newSelection = doc.getText().getStart();
@@ -118,10 +116,7 @@ public class FunctionalTextViewCursor {
         return viewCursor;
     }
 
-    private static void restore(XTextDocument doc,
-                                XTextRange initialPosition,
-                                XServiceInfo initialSelection) {
-
+    private static void restore(XTextDocument doc, XTextRange initialPosition, XServiceInfo initialSelection) {
         if (initialPosition != null) {
             XTextViewCursor viewCursor = UnoCursor.getViewCursor(doc).orElse(null);
             if (viewCursor != null) {

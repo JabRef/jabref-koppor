@@ -10,8 +10,7 @@ public sealed interface OcrResult {
     /// Represents a successful OCR result.
     ///
     /// Contains the path of the searchable PDF created by the OCR engine.
-    record Success(Path outputFile) implements OcrResult {
-    }
+    record Success(Path outputFile) implements OcrResult {}
 
     /// Represents a failed OCR result.
     ///

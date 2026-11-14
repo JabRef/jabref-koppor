@@ -1,13 +1,12 @@
 package org.jabref.logic.citationstyle;
 
+import de.undercouch.citeproc.LocaleProvider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-
-import de.undercouch.citeproc.LocaleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +24,8 @@ public class JabRefLocaleProvider implements LocaleProvider {
     @Override
     public String retrieveLocale(String lang) {
         return locales.computeIfAbsent(lang, locale -> {
-            try (InputStream inputStream = getClass().getResourceAsStream(LOCALES_ROOT + "/locales-" + locale + ".xml")) {
+            try (InputStream inputStream =
+                    getClass().getResourceAsStream(LOCALES_ROOT + "/locales-" + locale + ".xml")) {
                 if (inputStream == null) {
                     throw new IllegalArgumentException("Unable to load locale " + locale);
                 }

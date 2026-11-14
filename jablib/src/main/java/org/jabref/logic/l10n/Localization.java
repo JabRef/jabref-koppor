@@ -13,9 +13,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.jabref.architecture.AllowedToUseStandardStreams;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +36,7 @@ public class Localization {
     private static Locale locale;
     private static LocalizationBundle localizedMessages;
 
-    private Localization() {
-    }
+    private Localization() {}
 
     /// Public access to all messages that are not menu-entries
     ///
@@ -63,7 +60,8 @@ public class Localization {
         Optional<Locale> knownLanguage = Language.convertToSupportedLocale(language);
         final Locale defaultLocale = Locale.getDefault();
         if (knownLanguage.isEmpty()) {
-            LoggerFactory.getLogger(Localization.class).warn("Language {} is not supported by JabRef (Default: {})", language, defaultLocale);
+            LoggerFactory.getLogger(Localization.class)
+                    .warn("Language {} is not supported by JabRef (Default: {})", language, defaultLocale);
             setLanguage(Language.ENGLISH);
             return;
         }
@@ -79,7 +77,8 @@ public class Localization {
             createResourceBundles(locale);
         } catch (MissingResourceException ex) {
             // should not happen as we have scripts to enforce this
-            LoggerFactory.getLogger(Localization.class).warn("Could not find bundles for language {}, switching to full english language", locale, ex);
+            LoggerFactory.getLogger(Localization.class)
+                    .warn("Could not find bundles for language {}, switching to full english language", locale, ex);
             setLanguage(Language.ENGLISH);
         }
     }
@@ -112,15 +111,15 @@ public class Localization {
     /// @return Lookup map for the baseBundle.
     private static Map<String, String> createLookupMap(ResourceBundle baseBundle) {
         final ArrayList<String> baseKeys = Collections.list(baseBundle.getKeys());
-        return new HashMap<>(baseKeys.stream().collect(
-                Collectors.toMap(
+        return new HashMap<>(baseKeys.stream()
+                .collect(Collectors.toMap(
                         // not required to unescape content, because that is already done by the ResourceBundle itself
                         key -> key,
-                        baseBundle::getString)
-        ));
+                        baseBundle::getString)));
     }
 
-    /// This looks up a key in the bundle and replaces parameters %0, ..., %9 with the respective params given. Note that
+    /// This looks up a key in the bundle and replaces parameters %0, ..., %9 with the respective params given. Note
+    /// that
     /// the keys are the "unescaped" strings from the bundle property files.
     ///
     /// @param bundle The [LocalizationBundle] which is usually [Localization#localizedMessages].
@@ -130,7 +129,8 @@ public class Localization {
     private static String lookup(@NonNull LocalizationBundle bundle, @NonNull String key, String... params) {
         String translation = bundle.containsKey(key) ? bundle.getString(key) : "";
         if (translation.isEmpty()) {
-            LoggerFactory.getLogger(Localization.class).warn("Warning: could not get translation for \"{}\" for locale {}", key, Locale.getDefault());
+            LoggerFactory.getLogger(Localization.class)
+                    .warn("Warning: could not get translation for \"{}\" for locale {}", key, Locale.getDefault());
             translation = key;
         }
         return new LocalizationKeyParams(translation, params).replacePlaceholders();
@@ -147,8 +147,7 @@ public class Localization {
 
         @Override
         public final Object handleGetObject(@NonNull String key) {
-            return Optional.ofNullable(lookup.get(key))
-                           .orElse(key);
+            return Optional.ofNullable(lookup.get(key)).orElse(key);
         }
 
         @Override

@@ -1,11 +1,10 @@
 package org.jabref.logic.shared.security;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PasswordTest {
 

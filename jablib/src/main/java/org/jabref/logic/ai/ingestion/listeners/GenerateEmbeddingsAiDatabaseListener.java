@@ -1,9 +1,11 @@
 package org.jabref.logic.ai.ingestion.listeners;
 
+import com.google.common.eventbus.Subscribe;
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.store.embedding.EmbeddingStore;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.ai.AiDatabaseListener;
 import org.jabref.logic.ai.embedding.EmbeddingModelCache;
@@ -19,10 +21,6 @@ import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.util.ListUtil;
-
-import com.google.common.eventbus.Subscribe;
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.store.embedding.EmbeddingStore;
 
 public class GenerateEmbeddingsAiDatabaseListener implements AiDatabaseListener {
     private final AiPreferences aiPreferences;
@@ -40,8 +38,7 @@ public class GenerateEmbeddingsAiDatabaseListener implements AiDatabaseListener 
             IngestedDocumentsRepository ingestedDocumentsRepository,
             EmbeddingStore<TextSegment> embeddingStore,
             EmbeddingModelCache embeddingModelCache,
-            IngestionTaskAggregator ingestionTaskAggregator
-    ) {
+            IngestionTaskAggregator ingestionTaskAggregator) {
         this.aiPreferences = aiPreferences;
         this.filePreferences = filePreferences;
         this.ingestedDocumentsRepository = ingestedDocumentsRepository;
@@ -58,8 +55,7 @@ public class GenerateEmbeddingsAiDatabaseListener implements AiDatabaseListener 
                 aiPreferences.customizeExpertSettingsProperty(),
                 aiPreferences.documentSplitterKindProperty(),
                 aiPreferences.documentSplitterChunkSizeProperty(),
-                aiPreferences.documentSplitterOverlapSizeProperty()
-        ));
+                aiPreferences.documentSplitterOverlapSizeProperty()));
     }
 
     @Override
@@ -90,7 +86,9 @@ public class GenerateEmbeddingsAiDatabaseListener implements AiDatabaseListener 
 
         @Subscribe
         public void listen(FieldChangedEvent e) {
-            if (!aiPreferences.getAiFeaturesEnabled() || !aiPreferences.getAutoGenerateEmbeddings() || e.getField() != StandardField.FILE) {
+            if (!aiPreferences.getAiFeaturesEnabled()
+                    || !aiPreferences.getAutoGenerateEmbeddings()
+                    || e.getField() != StandardField.FILE) {
                 return;
             }
 
@@ -98,15 +96,16 @@ public class GenerateEmbeddingsAiDatabaseListener implements AiDatabaseListener 
         }
 
         private void ingest(LinkedFile linkedFile) {
-            ingestionTaskAggregator.start(new GenerateEmbeddingsTaskRequest(
-                    filePreferences,
-                    ingestedDocumentsRepository,
-                    embeddingStore,
-                    embeddingModelCache.getOrCreate(aiPreferences.getEmbeddingModel()),
-                    documentSplitter.get(),
-                    context,
-                    linkedFile
-            ), false);
+            ingestionTaskAggregator.start(
+                    new GenerateEmbeddingsTaskRequest(
+                            filePreferences,
+                            ingestedDocumentsRepository,
+                            embeddingStore,
+                            embeddingModelCache.getOrCreate(aiPreferences.getEmbeddingModel()),
+                            documentSplitter.get(),
+                            context,
+                            linkedFile),
+                    false);
         }
     }
 }

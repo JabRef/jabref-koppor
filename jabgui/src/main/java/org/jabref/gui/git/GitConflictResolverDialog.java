@@ -1,7 +1,6 @@
 package org.jabref.gui.git;
 
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.mergeentries.threewaymerge.MergeEntriesDialog;
@@ -15,13 +14,15 @@ import org.jabref.model.entry.BibEntry;
 
 /// A wrapper around [MergeEntriesDialog] for Git feature
 ///
-/// Receives a semantic conflict (ThreeWayEntryConflict), pops up an interactive GUI (belonging to mergeentries), and returns a user-confirmed BibEntry merge result.
+/// Receives a semantic conflict (ThreeWayEntryConflict), pops up an interactive GUI (belonging to mergeentries), and
+/// returns a user-confirmed BibEntry merge result.
 public class GitConflictResolverDialog {
     private final DialogService dialogService;
     private final GuiPreferences preferences;
     private final StateManager stateManager;
 
-    public GitConflictResolverDialog(DialogService dialogService, GuiPreferences preferences, StateManager stateManager) {
+    public GitConflictResolverDialog(
+            DialogService dialogService, GuiPreferences preferences, StateManager stateManager) {
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.stateManager = stateManager;
@@ -35,13 +36,10 @@ public class GitConflictResolverDialog {
         MergeEntriesDialog dialog = new MergeEntriesDialog(local, remote, preferences, stateManager);
         dialog.setLeftHeaderText(Localization.lang("Local"));
         dialog.setRightHeaderText(Localization.lang("Remote"));
-        ShowDiffConfig diffConfig = new ShowDiffConfig(
-                ThreeWayMergeToolbar.DiffView.SPLIT,
-                DiffHighlighter.BasicDiffMethod.WORDS
-        );
+        ShowDiffConfig diffConfig =
+                new ShowDiffConfig(ThreeWayMergeToolbar.DiffView.SPLIT, DiffHighlighter.BasicDiffMethod.WORDS);
         dialog.configureDiff(diffConfig);
 
-        return dialogService.showCustomDialogAndWait(dialog)
-                            .map(result -> result.mergedEntry());
+        return dialogService.showCustomDialogAndWait(dialog).map(result -> result.mergedEntry());
     }
 }

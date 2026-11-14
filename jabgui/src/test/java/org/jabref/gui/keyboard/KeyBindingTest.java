@@ -1,12 +1,12 @@
 package org.jabref.gui.keyboard;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @NullMarked
 class KeyBindingTest {

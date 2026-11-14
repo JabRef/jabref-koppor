@@ -1,29 +1,28 @@
 package org.jabref.logic.net;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import java.util.Optional;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @NullMarked
 class CiteDrivePreferencesTest {
 
     @ParameterizedTest
     @CsvSource({
-            "https://api.citedrive.com/,true",
-            "HTTPS://api.citedrive.com/,true",
-            "http://api.citedrive.com/,false",
-            "http://127.0.0.1:8080/,false",
-            "https:///missing-host,false",
-            "https://user:password@api.citedrive.com/,false",
-            "file:///tmp/token,false",
-            "'not a URL',false"
+        "https://api.citedrive.com/,true",
+        "HTTPS://api.citedrive.com/,true",
+        "http://api.citedrive.com/,false",
+        "http://127.0.0.1:8080/,false",
+        "https:///missing-host,false",
+        "https://user:password@api.citedrive.com/,false",
+        "file:///tmp/token,false",
+        "'not a URL',false"
     })
     void serverAddressRequiresHttps(String address, boolean valid) {
         // [utest->req~citedrive.https~1]
@@ -49,7 +48,8 @@ class CiteDrivePreferencesTest {
     void importingPreferencesKeepsTheLoginForTheImportedServer() {
         CiteDrivePreferences preferences = CiteDrivePreferences.getDefault();
         RefreshToken importedToken = new RefreshToken("imported");
-        CiteDrivePreferences imported = new CiteDrivePreferences(true, importedToken, true, "https://other.example/", "https://app.example/");
+        CiteDrivePreferences imported =
+                new CiteDrivePreferences(true, importedToken, true, "https://other.example/", "https://app.example/");
 
         preferences.setAll(imported);
 

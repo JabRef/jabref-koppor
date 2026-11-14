@@ -2,14 +2,12 @@ package org.jabref.gui.search;
 
 import javafx.scene.Node;
 import javafx.scene.input.KeyEvent;
-
+import org.controlsfx.control.textfield.CustomTextField;
+import org.controlsfx.control.textfield.TextFields;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.logic.l10n.Localization;
-
-import org.controlsfx.control.textfield.CustomTextField;
-import org.controlsfx.control.textfield.TextFields;
 
 public class SearchTextField {
 
@@ -30,7 +28,8 @@ public class SearchTextField {
         textField.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             // Other key bindings are handled at org.jabref.gui.keyboard.TextInputKeyBindings
             // We need to handle clear search here to have the code "more clean"
-            // Otherwise, we would have to add a new class for this and handle the case hitting that class in TextInputKeyBindings
+            // Otherwise, we would have to add a new class for this and handle the case hitting that class in
+            // TextInputKeyBindings
 
             if (keyBindingRepository.matches(event, KeyBinding.CLEAR_SEARCH)) {
                 if (!textField.getText().isEmpty()) {

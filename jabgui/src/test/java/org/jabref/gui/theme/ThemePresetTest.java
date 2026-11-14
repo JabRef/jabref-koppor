@@ -1,5 +1,9 @@
 package org.jabref.gui.theme;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -9,17 +13,11 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
-
 import org.jabref.architecture.AllowedToUseClassGetResource;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @NullMarked
 @AllowedToUseClassGetResource("Lists the bundled theme files next to the theme package.")
@@ -41,16 +39,16 @@ class ThemePresetTest {
         Set<String> bundled = new TreeSet<>();
         try (Stream<Path> files = Files.list(Path.of(themesDirectory.toURI()))) {
             files.map(file -> file.getFileName().toString())
-                 .filter(name -> name.endsWith(".css"))
-                 .forEach(bundled::add);
+                    .filter(name -> name.endsWith(".css"))
+                    .forEach(bundled::add);
         }
 
         Set<String> listed = new TreeSet<>();
         Arrays.stream(ThemePreset.values())
-              .map(theme -> theme.getStyleSheet().getName())
-              .filter(css -> css.startsWith(THEMES_DIRECTORY))
-              .map(css -> css.substring(THEMES_DIRECTORY.length()))
-              .forEach(listed::add);
+                .map(theme -> theme.getStyleSheet().getName())
+                .filter(css -> css.startsWith(THEMES_DIRECTORY))
+                .map(css -> css.substring(THEMES_DIRECTORY.length()))
+                .forEach(listed::add);
 
         assertEquals(bundled, listed, "ThemePreset does not list exactly the bundled themes");
     }
@@ -58,7 +56,8 @@ class ThemePresetTest {
     /// The stored color scheme can be absent, and the preferences read that as "follow system".
     @Test
     void unsetColorSchemeNamesAThemeAsFollowSystemDoes() {
-        assertEquals(ThemePreset.DINOGIRLS_WINERED.getLocalizedName(ThemeColorScheme.FOLLOW_SYSTEM),
+        assertEquals(
+                ThemePreset.DINOGIRLS_WINERED.getLocalizedName(ThemeColorScheme.FOLLOW_SYSTEM),
                 ThemePreset.DINOGIRLS_WINERED.getLocalizedName(null));
     }
 

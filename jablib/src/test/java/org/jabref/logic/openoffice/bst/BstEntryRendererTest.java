@@ -1,19 +1,17 @@
 package org.jabref.logic.openoffice.bst;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
-
 import org.jabref.logic.bst.BstVM;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BstEntryRendererTest {
 
@@ -21,7 +19,9 @@ class BstEntryRendererTest {
     private static BibEntry articleEntry() {
         return new BibEntry(StandardEntryType.Article)
                 .withCitationKey("Cooper2007")
-                .withField(StandardField.AUTHOR, "Cooper, Karen A. and Donovan, Jennifer L. and Waterhouse, Andrew L. and Williamson, Gary")
+                .withField(
+                        StandardField.AUTHOR,
+                        "Cooper, Karen A. and Donovan, Jennifer L. and Waterhouse, Andrew L. and Williamson, Gary")
                 .withField(StandardField.TITLE, "Cocoa and health: a decade of research")
                 .withField(StandardField.JOURNAL, "British Journal of Nutrition")
                 .withField(StandardField.VOLUME, "99")
@@ -35,17 +35,22 @@ class BstEntryRendererTest {
         return new BibEntry(StandardEntryType.InProceedings)
                 .withCitationKey("canh05")
                 .withField(StandardField.AUTHOR, "Crowston, K. and Annabi, H. and Howison, J. and Masango, C.")
-                .withField(StandardField.TITLE, "Effective work practices for floss development: A model and propositions")
+                .withField(
+                        StandardField.TITLE, "Effective work practices for floss development: A model and propositions")
                 .withField(StandardField.BOOKTITLE, "Hawaii International Conference On System Sciences (HICSS)")
                 .withField(StandardField.YEAR, "2005");
     }
 
     private static Path ieeePath() throws URISyntaxException {
-        return Path.of(BstEntryRendererTest.class.getResource("/org/jabref/logic/bst/IEEEtran.bst").toURI());
+        return Path.of(BstEntryRendererTest.class
+                .getResource("/org/jabref/logic/bst/IEEEtran.bst")
+                .toURI());
     }
 
     private static Path abbrvPath() throws URISyntaxException {
-        return Path.of(BstEntryRendererTest.class.getResource("/org/jabref/logic/bst/abbrv.bst").toURI());
+        return Path.of(BstEntryRendererTest.class
+                .getResource("/org/jabref/logic/bst/abbrv.bst")
+                .toURI());
     }
 
     @Test

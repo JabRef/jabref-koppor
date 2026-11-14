@@ -1,9 +1,5 @@
 package org.jabref.model.openoffice.uno;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import com.sun.star.beans.PropertyVetoException;
 import com.sun.star.beans.UnknownPropertyException;
 import com.sun.star.beans.XPropertySet;
@@ -14,6 +10,9 @@ import com.sun.star.document.XRedlinesSupplier;
 import com.sun.star.lang.WrappedTargetException;
 import com.sun.star.text.XTextDocument;
 import com.sun.star.text.XTextRange;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /// Change tracking and Redlines
@@ -21,8 +20,7 @@ public class UnoRedlines {
 
     private static final String REDLINE_TYPE_DELETE = "Delete";
 
-    public static boolean getRecordChanges(XTextDocument doc)
-            throws WrappedTargetException {
+    public static boolean getRecordChanges(XTextDocument doc) throws WrappedTargetException {
 
         // https://wiki.openoffice.org/wiki/Documentation/DevGuide/Text/Settings
         // "Properties of com.sun.star.text.TextDocument"
@@ -36,15 +34,13 @@ public class UnoRedlines {
         }
     }
 
-    public static void setRecordChanges(XTextDocument doc, boolean recordChanges)
-            throws WrappedTargetException {
+    public static void setRecordChanges(XTextDocument doc, boolean recordChanges) throws WrappedTargetException {
 
         XPropertySet propertySet = UnoCast.cast(XPropertySet.class, doc).get();
 
         try {
             propertySet.setPropertyValue("RecordChanges", recordChanges);
-        } catch (UnknownPropertyException | PropertyVetoException
-                 | com.sun.star.lang.IllegalArgumentException ex) {
+        } catch (UnknownPropertyException | PropertyVetoException | com.sun.star.lang.IllegalArgumentException ex) {
             throw new IllegalStateException("Could not set 'RecordChanges'", ex);
         }
     }

@@ -19,7 +19,9 @@ public class TogglePaneAction extends SimpleCommand {
     public void execute() {
         if (!stateManager.getVisibleSidePaneComponents().contains(pane)) {
             stateManager.getVisibleSidePaneComponents().add(pane);
-            stateManager.getVisibleSidePaneComponents().sort(new SidePaneViewModel.PreferredIndexSort(sidePanePreferences));
+            stateManager
+                    .getVisibleSidePaneComponents()
+                    .sort(new SidePaneViewModel.PreferredIndexSort(sidePanePreferences));
         } else {
             stateManager.getVisibleSidePaneComponents().remove(pane);
         }

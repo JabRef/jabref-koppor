@@ -2,7 +2,6 @@ package org.jabref.gui.slr;
 
 import java.io.IOException;
 import java.nio.file.Path;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionHelper;
@@ -12,7 +11,6 @@ import org.jabref.logic.crawler.StudyYamlParser;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.study.Study;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +30,8 @@ public class EditExistingStudyAction extends SimpleCommand {
     public void execute() {
         // The action works on the current library
         // This library has to be determined
-        if (stateManager.getActiveDatabase().isEmpty() || !stateManager.getActiveDatabase().get().isStudy()) {
+        if (stateManager.getActiveDatabase().isEmpty()
+                || !stateManager.getActiveDatabase().get().isStudy()) {
             return;
         }
         BibDatabaseContext bibDatabaseContext = stateManager.getActiveDatabase().get();
@@ -51,7 +50,8 @@ public class EditExistingStudyAction extends SimpleCommand {
 
         Study study;
         try {
-            study = new StudyYamlParser().parseStudyYamlFile(studyDirectory.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME));
+            study = new StudyYamlParser()
+                    .parseStudyYamlFile(studyDirectory.resolve(StudyRepository.STUDY_DEFINITION_FILE_NAME));
         } catch (IOException e) {
             dialogService.showErrorDialogAndWait(Localization.lang("Error opening file"), e);
             return;

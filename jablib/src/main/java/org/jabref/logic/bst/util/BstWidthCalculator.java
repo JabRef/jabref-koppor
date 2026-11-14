@@ -134,8 +134,7 @@ public class BstWidthCalculator {
         }
     }
 
-    private BstWidthCalculator() {
-    }
+    private BstWidthCalculator() {}
 
     private static int getSpecialCharWidth(char[] c, int pos) {
         if ((pos + 1) < c.length) {
@@ -203,7 +202,8 @@ public class BstWidthCalculator {
                         if ((i < n) && (i == afterBackslash)) {
                             i++; // Skip non-alpha control seq
                         } else {
-                            if (BstCaseChanger.findSpecialChar(c, afterBackslash).isPresent()) {
+                            if (BstCaseChanger.findSpecialChar(c, afterBackslash)
+                                    .isPresent()) {
                                 result += BstWidthCalculator.getSpecialCharWidth(c, afterBackslash);
                             }
                         }

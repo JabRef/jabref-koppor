@@ -8,7 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
+import org.controlsfx.control.ToggleSwitch;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -21,8 +21,6 @@ import org.jabref.gui.welcome.quicksettings.PushApplicationDialog;
 import org.jabref.gui.welcome.quicksettings.ThemeDialog;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.TaskExecutor;
-
-import org.controlsfx.control.ToggleSwitch;
 
 public class QuickSettings extends VBox {
     private static final int MIN_VISIBLE_SETTINGS = 3;
@@ -66,13 +64,18 @@ public class QuickSettings extends VBox {
     }
 
     private VBox createContent() {
-        ToggleSwitch httpServerToggle = new ToggleSwitch(Localization.lang("Enable HTTP server (for browser extension)"));
-        httpServerToggle.selectedProperty().bindBidirectional(preferences.getRemotePreferences().enableHttpServerProperty());
+        ToggleSwitch httpServerToggle =
+                new ToggleSwitch(Localization.lang("Enable HTTP server (for browser extension)"));
+        httpServerToggle
+                .selectedProperty()
+                .bindBidirectional(preferences.getRemotePreferences().enableHttpServerProperty());
         httpServerToggle.setMaxWidth(Double.MAX_VALUE);
         httpServerToggle.setPadding(new Insets(5));
 
         ToggleSwitch coverImagesDownloadToggle = new ToggleSwitch(Localization.lang("Enable cover images download"));
-        coverImagesDownloadToggle.selectedProperty().bindBidirectional(preferences.getPreviewPreferences().shouldDownloadCoversProperty());
+        coverImagesDownloadToggle
+                .selectedProperty()
+                .bindBidirectional(preferences.getPreviewPreferences().shouldDownloadCoversProperty());
         coverImagesDownloadToggle.setMaxWidth(Double.MAX_VALUE);
         coverImagesDownloadToggle.setPadding(new Insets(5));
 
@@ -82,9 +85,7 @@ public class QuickSettings extends VBox {
                 this::showMainFileDirectoryDialog);
 
         Button themeButton = createButton(
-                Localization.lang("Change appearance"),
-                IconTheme.JabRefIcons.PREFERENCES,
-                this::showThemeDialog);
+                Localization.lang("Change appearance"), IconTheme.JabRefIcons.PREFERENCES, this::showThemeDialog);
 
         Button largeLibraryButton = createButton(
                 Localization.lang("Optimize for large libraries"),
@@ -106,7 +107,8 @@ public class QuickSettings extends VBox {
                 IconTheme.JabRefIcons.TOGGLE_GROUPS,
                 this::showEntryTableConfigurationDialog);
 
-        VBox newContent = new VBox(4,
+        VBox newContent = new VBox(
+                4,
                 httpServerToggle,
                 coverImagesDownloadToggle,
                 mainFileDirButton,
@@ -126,11 +128,14 @@ public class QuickSettings extends VBox {
         scrollPane.setFitToWidth(true);
         scrollPane.getStyleClass().add("quick-settings-scroll-pane");
         scrollPane.setMaxHeight(Double.MAX_VALUE);
-        // Retain visibility of the first few items of QuickSettings, in case the height of the welcome tab exceeds the height of the window.
+        // Retain visibility of the first few items of QuickSettings, in case the height of the welcome tab exceeds the
+        // height of the window.
         Node lastVisibleSetting = contentPane.getChildren().get(MIN_VISIBLE_SETTINGS - 1);
-        scrollPane.minViewportHeightProperty().bind(Bindings.createDoubleBinding(
-                () -> lastVisibleSetting.getBoundsInParent().getMaxY(),
-                lastVisibleSetting.boundsInParentProperty()));
+        scrollPane
+                .minViewportHeightProperty()
+                .bind(Bindings.createDoubleBinding(
+                        () -> lastVisibleSetting.getBoundsInParent().getMaxY(),
+                        lastVisibleSetting.boundsInParentProperty()));
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
         return scrollPane;
     }

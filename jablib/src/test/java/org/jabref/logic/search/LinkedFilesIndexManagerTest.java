@@ -1,47 +1,5 @@
 package org.jabref.logic.search;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javafx.beans.property.SimpleBooleanProperty;
-
-import org.jabref.logic.FilePreferences;
-import org.jabref.logic.search.sqlbased.LuceneIndexer;
-import org.jabref.logic.util.BackgroundTask;
-import org.jabref.logic.util.DelayTaskThrottler;
-import org.jabref.logic.util.TaskExecutor;
-import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.LinkedFile;
-import org.jabref.model.entry.event.FieldChangedEvent;
-import org.jabref.model.entry.field.StandardField;
-import org.jabref.model.search.LinkedFilesConstants;
-import org.jabref.model.search.SearchFlags;
-import org.jabref.model.search.query.SearchQuery;
-
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.store.ByteBuffersDirectory;
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -56,10 +14,49 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import javafx.beans.property.SimpleBooleanProperty;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.search.SearcherManager;
+import org.apache.lucene.store.ByteBuffersDirectory;
+import org.jabref.logic.FilePreferences;
+import org.jabref.logic.search.sqlbased.LuceneIndexer;
+import org.jabref.logic.util.BackgroundTask;
+import org.jabref.logic.util.DelayTaskThrottler;
+import org.jabref.logic.util.TaskExecutor;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.LinkedFile;
+import org.jabref.model.entry.event.FieldChangedEvent;
+import org.jabref.model.entry.field.StandardField;
+import org.jabref.model.search.LinkedFilesConstants;
+import org.jabref.model.search.SearchFlags;
+import org.jabref.model.search.query.SearchQuery;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.Test;
+
 @NullMarked
 class LinkedFilesIndexManagerTest {
     @Test
-        // [utest->req~search.fulltext.disable-indexing~1]
+    // [utest->req~search.fulltext.disable-indexing~1]
     void disablingAndReenablingWaitsForCancelledWorker() throws Exception {
         try (ExecutorService workers = Executors.newCachedThreadPool()) {
             TaskExecutor executor = mock(TaskExecutor.class);
@@ -78,16 +75,19 @@ class LinkedFilesIndexManagerTest {
             AtomicInteger starts = new AtomicInteger();
             AtomicReference<@Nullable BackgroundTask<?>> firstTask = new AtomicReference<>();
             doAnswer(invocation -> {
-                if (starts.incrementAndGet() == 1) {
-                    firstTask.set(invocation.getArgument(0));
-                    firstStarted.countDown();
-                    releaseFirst.await();
-                } else {
-                    secondStarted.countDown();
-                }
-                return null;
-            }).when(indexer).updateOnStart(any());
-            LinkedFilesIndexManager manager = new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
+                        if (starts.incrementAndGet() == 1) {
+                            firstTask.set(invocation.getArgument(0));
+                            firstStarted.countDown();
+                            releaseFirst.await();
+                        } else {
+                            secondStarted.countDown();
+                        }
+                        return null;
+                    })
+                    .when(indexer)
+                    .updateOnStart(any());
+            LinkedFilesIndexManager manager =
+                    new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
             try {
                 enabled.set(true);
                 assertTrue(firstStarted.await(5, TimeUnit.SECONDS));
@@ -108,7 +108,7 @@ class LinkedFilesIndexManagerTest {
     }
 
     @Test
-        // [utest->req~search.fulltext.disable-indexing~1]
+    // [utest->req~search.fulltext.disable-indexing~1]
     void disablingWaitsForRunningWorkBeforeClearingIndex() throws Exception {
         try (ExecutorService workers = Executors.newVirtualThreadPerTaskExecutor()) {
             TaskExecutor executor = mock(TaskExecutor.class);
@@ -126,17 +126,22 @@ class LinkedFilesIndexManagerTest {
             CompletableFuture<Void> release = new CompletableFuture<>();
             AtomicInteger clears = new AtomicInteger();
             doAnswer(_ -> {
-                if (clears.incrementAndGet() == 2) {
-                    cleared.countDown();
-                }
-                return null;
-            }).when(indexer).removeAllFromIndex();
+                        if (clears.incrementAndGet() == 2) {
+                            cleared.countDown();
+                        }
+                        return null;
+                    })
+                    .when(indexer)
+                    .removeAllFromIndex();
             doAnswer(_ -> {
-                started.countDown();
-                release.join();
-                return null;
-            }).when(indexer).updateOnStart(any());
-            LinkedFilesIndexManager manager = new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
+                        started.countDown();
+                        release.join();
+                        return null;
+                    })
+                    .when(indexer)
+                    .updateOnStart(any());
+            LinkedFilesIndexManager manager =
+                    new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
             try {
                 enabled.set(true);
                 assertTrue(started.await(5, TimeUnit.SECONDS));
@@ -169,17 +174,20 @@ class LinkedFilesIndexManagerTest {
             CountDownLatch release = new CountDownLatch(1);
             CountDownLatch cancelled = new CountDownLatch(1);
             doAnswer(invocation -> {
-                BackgroundTask<?> task = invocation.getArgument(0);
-                task.isCancelledProperty().addListener((_, _, value) -> {
-                    if (value) {
-                        cancelled.countDown();
-                    }
-                });
-                started.countDown();
-                release.await();
-                return null;
-            }).when(indexer).updateOnStart(any());
-            LinkedFilesIndexManager manager = new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
+                        BackgroundTask<?> task = invocation.getArgument(0);
+                        task.isCancelledProperty().addListener((_, _, value) -> {
+                            if (value) {
+                                cancelled.countDown();
+                            }
+                        });
+                        started.countDown();
+                        release.await();
+                        return null;
+                    })
+                    .when(indexer)
+                    .updateOnStart(any());
+            LinkedFilesIndexManager manager =
+                    new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
             try {
                 enabled.set(true);
                 assertTrue(started.await(5, TimeUnit.SECONDS));
@@ -198,7 +206,7 @@ class LinkedFilesIndexManagerTest {
     }
 
     @Test
-        // [utest->req~search.fulltext.disable-indexing~1]
+    // [utest->req~search.fulltext.disable-indexing~1]
     void queuedWorkFromPreviousGenerationDoesNotRun() throws Exception {
         TaskExecutor executor = mock(TaskExecutor.class);
         when(executor.createThrottler(anyInt())).thenReturn(new DelayTaskThrottler(700));
@@ -211,7 +219,8 @@ class LinkedFilesIndexManagerTest {
         FilePreferences preferences = mock(FilePreferences.class);
         when(preferences.fulltextIndexLinkedFilesProperty()).thenReturn(enabled);
         LuceneIndexer indexer = mock(LuceneIndexer.class);
-        LinkedFilesIndexManager manager = new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
+        LinkedFilesIndexManager manager =
+                new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
         try {
             enabled.set(true);
             enabled.set(false);
@@ -238,7 +247,8 @@ class LinkedFilesIndexManagerTest {
         FilePreferences preferences = mock(FilePreferences.class);
         when(preferences.fulltextIndexLinkedFilesProperty()).thenReturn(enabled);
         LuceneIndexer indexer = mock(LuceneIndexer.class);
-        LinkedFilesIndexManager manager = new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
+        LinkedFilesIndexManager manager =
+                new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
         try (ExecutorService workers = Executors.newVirtualThreadPerTaskExecutor()) {
             try {
                 enabled.set(true);
@@ -275,7 +285,8 @@ class LinkedFilesIndexManagerTest {
         FilePreferences preferences = mock(FilePreferences.class);
         when(preferences.fulltextIndexLinkedFilesProperty()).thenReturn(enabled);
         LuceneIndexer indexer = mock(LuceneIndexer.class);
-        LinkedFilesIndexManager manager = new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
+        LinkedFilesIndexManager manager =
+                new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
         try (ExecutorService workers = Executors.newVirtualThreadPerTaskExecutor()) {
             try {
                 enabled.set(true);
@@ -320,7 +331,8 @@ class LinkedFilesIndexManagerTest {
         FilePreferences preferences = mock(FilePreferences.class);
         when(preferences.fulltextIndexLinkedFilesProperty()).thenReturn(enabled);
         LuceneIndexer indexer = mock(LuceneIndexer.class);
-        LinkedFilesIndexManager manager = new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
+        LinkedFilesIndexManager manager =
+                new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
         BibEntry entry = new BibEntry();
         try (ExecutorService workers = Executors.newVirtualThreadPerTaskExecutor()) {
             try {
@@ -369,7 +381,8 @@ class LinkedFilesIndexManagerTest {
         FilePreferences preferences = mock(FilePreferences.class);
         when(preferences.fulltextIndexLinkedFilesProperty()).thenReturn(enabled);
         LuceneIndexer indexer = mock(LuceneIndexer.class);
-        LinkedFilesIndexManager manager = new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
+        LinkedFilesIndexManager manager =
+                new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
         BibEntry entry = new BibEntry();
         try (ExecutorService workers = Executors.newVirtualThreadPerTaskExecutor()) {
             try {
@@ -416,11 +429,14 @@ class LinkedFilesIndexManagerTest {
             CountDownLatch started = new CountDownLatch(1);
             CompletableFuture<Void> release = new CompletableFuture<>();
             doAnswer(_ -> {
-                started.countDown();
-                release.join();
-                return null;
-            }).when(indexer).updateOnStart(any());
-            LinkedFilesIndexManager manager = new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
+                        started.countDown();
+                        release.join();
+                        return null;
+                    })
+                    .when(indexer)
+                    .updateOnStart(any());
+            LinkedFilesIndexManager manager =
+                    new LinkedFilesIndexManager(new BibDatabaseContext(), executor, preferences, indexer);
             try {
                 enabled.set(true);
                 assertTrue(started.await(5, TimeUnit.SECONDS));
@@ -438,11 +454,12 @@ class LinkedFilesIndexManagerTest {
     }
 
     @Test
-        // [utest->req~search.fulltext.disable-indexing~1]
+    // [utest->req~search.fulltext.disable-indexing~1]
     void reenablingHidesStaleIndexUntilItIsCleared() throws Exception {
         try (ExecutorService workers = Executors.newVirtualThreadPerTaskExecutor();
-             IndexWriter writer = new IndexWriter(new ByteBuffersDirectory(), new IndexWriterConfig(LinkedFilesConstants.LINKED_FILES_ANALYZER));
-             SearcherManager searcherManager = new SearcherManager(writer, null)) {
+                IndexWriter writer = new IndexWriter(
+                        new ByteBuffersDirectory(), new IndexWriterConfig(LinkedFilesConstants.LINKED_FILES_ANALYZER));
+                SearcherManager searcherManager = new SearcherManager(writer, null)) {
             TaskExecutor executor = mock(TaskExecutor.class);
             when(executor.createThrottler(anyInt())).thenReturn(new DelayTaskThrottler(700));
             when(executor.execute(any())).thenAnswer(invocation -> {
@@ -456,27 +473,34 @@ class LinkedFilesIndexManagerTest {
             LuceneIndexer indexer = mock(LuceneIndexer.class);
             when(indexer.getSearcherManager()).thenReturn(searcherManager);
             doAnswer(_ -> {
-                writer.deleteAll();
-                return null;
-            }).when(indexer).removeAllFromIndex();
+                        writer.deleteAll();
+                        return null;
+                    })
+                    .when(indexer)
+                    .removeAllFromIndex();
             CountDownLatch staleIndexed = new CountDownLatch(1);
             CountDownLatch rebuilt = new CountDownLatch(1);
             CompletableFuture<Void> release = new CompletableFuture<>();
             AtomicInteger starts = new AtomicInteger();
             doAnswer(_ -> {
-                if (starts.incrementAndGet() == 1) {
-                    writer.addDocument(indexedPage("stale"));
-                    staleIndexed.countDown();
-                    release.join();
-                } else {
-                    writer.addDocument(indexedPage("fresh"));
-                    rebuilt.countDown();
-                }
-                return null;
-            }).when(indexer).updateOnStart(any());
+                        if (starts.incrementAndGet() == 1) {
+                            writer.addDocument(indexedPage("stale"));
+                            staleIndexed.countDown();
+                            release.join();
+                        } else {
+                            writer.addDocument(indexedPage("fresh"));
+                            rebuilt.countDown();
+                        }
+                        return null;
+                    })
+                    .when(indexer)
+                    .updateOnStart(any());
             BibDatabaseContext databaseContext = new BibDatabaseContext();
-            databaseContext.getDatabase().insertEntry(new BibEntry().withFiles(List.of(new LinkedFile("", "paper.pdf", "PDF"))));
-            LinkedFilesIndexManager manager = new LinkedFilesIndexManager(databaseContext, executor, preferences, indexer);
+            databaseContext
+                    .getDatabase()
+                    .insertEntry(new BibEntry().withFiles(List.of(new LinkedFile("", "paper.pdf", "PDF"))));
+            LinkedFilesIndexManager manager =
+                    new LinkedFilesIndexManager(databaseContext, executor, preferences, indexer);
             try {
                 enabled.set(true);
                 assertTrue(staleIndexed.await(5, TimeUnit.SECONDS));
@@ -504,7 +528,9 @@ class LinkedFilesIndexManagerTest {
     }
 
     private static int fulltextMatches(LinkedFilesIndexManager manager, String term) {
-        return manager.search(new SearchQuery(term, EnumSet.of(SearchFlags.FULLTEXT))).getMatchedEntries().size();
+        return manager.search(new SearchQuery(term, EnumSet.of(SearchFlags.FULLTEXT)))
+                .getMatchedEntries()
+                .size();
     }
 
     private static class PausedPreference extends SimpleBooleanProperty {

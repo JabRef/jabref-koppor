@@ -1,7 +1,6 @@
 package org.jabref.logic.search.inmemory;
 
 import java.util.List;
-
 import org.jabref.logic.search.SearchBackend;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;

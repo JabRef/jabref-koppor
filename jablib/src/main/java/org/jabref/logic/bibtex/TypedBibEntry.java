@@ -1,14 +1,12 @@
 package org.jabref.logic.bibtex;
 
 import java.util.Optional;
-
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryType;
 import org.jabref.model.entry.BibEntryTypesManager;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 

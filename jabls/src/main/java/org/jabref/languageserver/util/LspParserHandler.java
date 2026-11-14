@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ParserResult;
@@ -24,9 +23,12 @@ public class LspParserHandler {
         this.parserResults = new ConcurrentHashMap<>();
     }
 
-    public ParserResult parserResultFromString(String fileUri, String content, ImportFormatPreferences importFormatPreferences) throws JabRefException, IOException {
+    public ParserResult parserResultFromString(
+            String fileUri, String content, ImportFormatPreferences importFormatPreferences)
+            throws JabRefException, IOException {
         // We use BibtexParser directly, because we do not want to add an extra DummyFileMonitor
-        // Otherwise, we could use `OpenDatabase.loadDatabase(path, importFormatPreferences, new DummyFileUpdateMonitor())`
+        // Otherwise, we could use `OpenDatabase.loadDatabase(path, importFormatPreferences, new
+        // DummyFileUpdateMonitor())`
         BibtexParser parser = new BibtexParser(importFormatPreferences);
         ParserResult parserResult = parser.parse(Reader.of(content));
         URI uri;

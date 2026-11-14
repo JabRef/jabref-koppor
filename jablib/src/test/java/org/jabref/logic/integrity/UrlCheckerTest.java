@@ -1,12 +1,11 @@
 package org.jabref.logic.integrity;
 
-import java.util.Optional;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.ResourceLock;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
 
 @ResourceLock("Localization.lang")
 class UrlCheckerTest {
@@ -25,7 +24,9 @@ class UrlCheckerTest {
 
     @Test
     void urlFieldAcceptsFullPathHttpAddress() {
-        assertEquals(Optional.empty(), checker.checkValue("http://scikit-learn.org/stable/modules/ensemble.html#random-forests"));
+        assertEquals(
+                Optional.empty(),
+                checker.checkValue("http://scikit-learn.org/stable/modules/ensemble.html#random-forests"));
     }
 
     @Test

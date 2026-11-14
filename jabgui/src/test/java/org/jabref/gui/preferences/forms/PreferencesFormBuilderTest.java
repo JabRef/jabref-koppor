@@ -1,7 +1,12 @@
 package org.jabref.gui.preferences.forms;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
+import com.dlsc.unitfx.IntegerInputField;
+import java.util.List;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -11,20 +16,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.preferences.SearchableElement;
 import org.jabref.gui.testutils.JavaFxExtension;
-
-import com.dlsc.unitfx.IntegerInputField;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(JavaFxExtension.class)
 class PreferencesFormBuilderTest {
@@ -50,13 +47,9 @@ class PreferencesFormBuilderTest {
 
     @Test
     void columnsOfGroupsKeepEveryCell() {
-        VBox root = form()
-                .columns(columns -> columns
-                        .group(left -> left
-                                .stackedField("Left one", new TextField())
+        VBox root = form().columns(columns -> columns.group(left -> left.stackedField("Left one", new TextField())
                                 .stackedField("Left two", new TextField()))
-                        .group(right -> right
-                                .stackedField("Right one", new TextField())))
+                        .group(right -> right.stackedField("Right one", new TextField())))
                 .build();
 
         Node columns = root.getChildren().getFirst();
@@ -73,18 +66,19 @@ class PreferencesFormBuilderTest {
         JavaFxExtension.invokeAndWait(() -> {
             IntegerInputField integerField = new IntegerInputField();
             TextField textField = new TextField();
-            VBox root = form()
-                    .group(expert -> expert
-                            .columns(columns -> columns
-                                    .group(left -> left.stackedField("Context window size", integerField))
+            VBox root = form().group(expert -> expert.columns(
+                            columns -> columns.group(left -> left.stackedField("Context window size", integerField))
                                     .group(right -> right.stackedField("Temperature", textField))))
                     .build();
             new Scene(root, 800, 600);
             root.applyCss();
             root.layout();
-            assertTrue(integerField.getWidth() > 0 && integerField.getHeight() > 0,
-                    "the integer field is laid out, but was " + integerField.getWidth() + "x" + integerField.getHeight());
-            assertTrue(textField.getWidth() > 0 && textField.getHeight() > 0,
+            assertTrue(
+                    integerField.getWidth() > 0 && integerField.getHeight() > 0,
+                    "the integer field is laid out, but was " + integerField.getWidth() + "x"
+                            + integerField.getHeight());
+            assertTrue(
+                    textField.getWidth() > 0 && textField.getHeight() > 0,
                     "the text field is laid out, but was " + textField.getWidth() + "x" + textField.getHeight());
         });
     }
@@ -94,9 +88,8 @@ class PreferencesFormBuilderTest {
     @Test
     void columnsAreEquallyWideRegardlessOfContent() {
         JavaFxExtension.invokeAndWait(() -> {
-            VBox root = form()
-                    .columns(row -> row
-                            .group(left -> left.stackedField("A very much longer caption than the other", new TextField()))
+            VBox root = form().columns(row -> row.group(left ->
+                                    left.stackedField("A very much longer caption than the other", new TextField()))
                             .group(right -> right.stackedField("Short", new TextField())))
                     .build();
             new Scene(root, 900, 700);
@@ -106,7 +99,9 @@ class PreferencesFormBuilderTest {
             HBox columnsRow = (HBox) root.getChildren().getFirst();
             VBox leftColumn = (VBox) columnsRow.getChildren().getFirst();
             VBox rightColumn = (VBox) columnsRow.getChildren().get(1);
-            assertEquals(leftColumn.getWidth(), rightColumn.getWidth(),
+            assertEquals(
+                    leftColumn.getWidth(),
+                    rightColumn.getWidth(),
                     "columns are equally wide, but were " + leftColumn.getWidth() + " and " + rightColumn.getWidth());
         });
     }
@@ -115,19 +110,17 @@ class PreferencesFormBuilderTest {
     /// two-column block of stacked fields.
     @Test
     void columnsInsideAGroupKeepTheirCells() {
-        VBox root = form()
-                .group(expert -> expert
-                        .stringField("API base URL", new SimpleStringProperty(""))
-                        .columns(columns -> columns
-                                .group(left -> left.stackedField("Context window size", new TextField()))
+        VBox root = form().group(expert -> expert.stringField("API base URL", new SimpleStringProperty(""))
+                        .columns(columns -> columns.group(
+                                        left -> left.stackedField("Context window size", new TextField()))
                                 .group(right -> right.stackedField("Temperature", new TextField()))))
                 .build();
 
         Node group = root.getChildren().getFirst();
         Node columns = childrenOf(group).stream()
-                                        .filter(HBox.class::isInstance)
-                                        .findFirst()
-                                        .orElseThrow(() -> new AssertionError("the columns block is missing from the group"));
+                .filter(HBox.class::isInstance)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("the columns block is missing from the group"));
         assertEquals(2, childrenOf(columns).size(), "both column groups are present");
         assertEquals(1, childrenOf(childrenOf(columns).getFirst()).size());
     }
@@ -179,6 +172,8 @@ class PreferencesFormBuilderTest {
     }
 
     private static List<String> textsOf(PreferencesFormBuilder form) {
-        return form.getSearchableElements().stream().map(SearchableElement::text).toList();
+        return form.getSearchableElements().stream()
+                .map(SearchableElement::text)
+                .toList();
     }
 }

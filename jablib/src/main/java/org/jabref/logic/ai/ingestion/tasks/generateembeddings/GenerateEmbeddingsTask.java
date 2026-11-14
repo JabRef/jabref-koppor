@@ -4,7 +4,6 @@ import org.jabref.logic.ai.ingestion.logic.ingestion.LinkedFileIngestor;
 import org.jabref.logic.ai.util.TrackedBackgroundTask;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.LinkedFile;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,25 +17,24 @@ public class GenerateEmbeddingsTask extends TrackedBackgroundTask<Void> {
 
     private final LinkedFileIngestor linkedFileIngestor;
 
-    public GenerateEmbeddingsTask(
-            GenerateEmbeddingsTaskRequest request,
-            boolean showToUser
-    ) {
+    public GenerateEmbeddingsTask(GenerateEmbeddingsTaskRequest request, boolean showToUser) {
         this.request = request;
         this.linkedFileIngestor = new LinkedFileIngestor(
                 request.filePreferences(),
                 request.ingestedDocumentsRepository(),
                 request.embeddingStore(),
                 request.embeddingModel(),
-                request.documentSplitter()
-        );
+                request.documentSplitter());
 
         configure(showToUser);
     }
 
     private void configure(boolean showToUser) {
         showToUser(showToUser);
-        titleProperty().set(Localization.lang("Generating embeddings for file '%0'", request.linkedFile().getLink()));
+        titleProperty()
+                .set(Localization.lang(
+                        "Generating embeddings for file '%0'",
+                        request.linkedFile().getLink()));
     }
 
     @Override
@@ -44,10 +42,7 @@ public class GenerateEmbeddingsTask extends TrackedBackgroundTask<Void> {
         LOGGER.debug("Starting embeddings generation task");
 
         try {
-            linkedFileIngestor.ingest(
-                    request.bibDatabaseContext(),
-                    request.linkedFile()
-            );
+            linkedFileIngestor.ingest(request.bibDatabaseContext(), request.linkedFile());
         } catch (InterruptedException _) {
             LOGGER.debug("There is a embeddings generation task. It will be cancelled, because user quits JabRef");
         }

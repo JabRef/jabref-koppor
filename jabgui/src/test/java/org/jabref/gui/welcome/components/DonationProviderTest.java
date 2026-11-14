@@ -1,21 +1,5 @@
 package org.jabref.gui.welcome.components;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-
-import org.jabref.gui.DialogService;
-import org.jabref.gui.Notifications;
-import org.jabref.gui.preferences.GuiPreferences;
-import org.jabref.gui.testutils.JavaFxTest;
-import org.jabref.gui.welcome.DonationPreferences;
-import org.jabref.logic.l10n.Localization;
-
-import com.dlsc.gemsfx.infocenter.Notification.OnClickBehaviour;
-import com.dlsc.gemsfx.infocenter.NotificationAction;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,6 +7,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.dlsc.gemsfx.infocenter.Notification.OnClickBehaviour;
+import com.dlsc.gemsfx.infocenter.NotificationAction;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import org.jabref.gui.DialogService;
+import org.jabref.gui.Notifications;
+import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.gui.testutils.JavaFxTest;
+import org.jabref.gui.welcome.DonationPreferences;
+import org.jabref.logic.l10n.Localization;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 class DonationProviderTest extends JavaFxTest {
 
@@ -39,7 +37,10 @@ class DonationProviderTest extends JavaFxTest {
     @Test
     public void notificationIsDueWhenItWasScheduledForAPastDay() {
         LocalDate today = LocalDate.of(2026, 9, 9);
-        assertEquals(0, donationProvider.calculateDaysUntilNextNotification((int) today.minusDays(30).toEpochDay(), today));
+        assertEquals(
+                0,
+                donationProvider.calculateDaysUntilNextNotification(
+                        (int) today.minusDays(30).toEpochDay(), today));
     }
 
     @Test
@@ -52,7 +53,8 @@ class DonationProviderTest extends JavaFxTest {
     public void daysUntilNextNotificationSpanTheWholeInterval() {
         LocalDate today = LocalDate.of(2026, 9, 9);
         LocalDate inSixMonths = today.plusMonths(6);
-        assertEquals(ChronoUnit.DAYS.between(today, inSixMonths),
+        assertEquals(
+                ChronoUnit.DAYS.between(today, inSixMonths),
                 donationProvider.calculateDaysUntilNextNotification((int) inSixMonths.toEpochDay(), today));
     }
 
@@ -60,32 +62,38 @@ class DonationProviderTest extends JavaFxTest {
     public void firstLaunchSchedulesTheNotificationSixMonthsLater() {
         interact(donationProvider::showIfNeeded);
 
-        assertEquals((int) LocalDate.now().plusMonths(6).toEpochDay(), donationPreferences.getNextNotificationEpochDay());
+        assertEquals(
+                (int) LocalDate.now().plusMonths(6).toEpochDay(), donationPreferences.getNextNotificationEpochDay());
         verify(dialogService, never()).notify(any(Notifications.DonationNotification.class));
     }
 
     @Test
     public void dueNotificationIsShownAndScheduledSixMonthsLater() {
-        donationPreferences.setNextNotificationEpochDay((int) LocalDate.now().minusDays(1).toEpochDay());
+        donationPreferences.setNextNotificationEpochDay(
+                (int) LocalDate.now().minusDays(1).toEpochDay());
 
         interact(donationProvider::showIfNeeded);
 
         verify(dialogService).notify(any(Notifications.DonationNotification.class));
-        assertEquals((int) LocalDate.now().plusMonths(6).toEpochDay(), donationPreferences.getNextNotificationEpochDay());
+        assertEquals(
+                (int) LocalDate.now().plusMonths(6).toEpochDay(), donationPreferences.getNextNotificationEpochDay());
     }
 
     @Test
     public void dismissActionKeepsTheNotificationSixMonthsAway() {
-        donationPreferences.setNextNotificationEpochDay((int) LocalDate.now().minusDays(1).toEpochDay());
+        donationPreferences.setNextNotificationEpochDay(
+                (int) LocalDate.now().minusDays(1).toEpochDay());
         interact(donationProvider::showIfNeeded);
 
         assertEquals(OnClickBehaviour.HIDE_AND_REMOVE, triggerAction(Localization.lang("Dismiss")));
-        assertEquals((int) LocalDate.now().plusMonths(6).toEpochDay(), donationPreferences.getNextNotificationEpochDay());
+        assertEquals(
+                (int) LocalDate.now().plusMonths(6).toEpochDay(), donationPreferences.getNextNotificationEpochDay());
     }
 
     @Test
     public void dismissForeverActionStopsFutureNotifications() {
-        donationPreferences.setNextNotificationEpochDay((int) LocalDate.now().minusDays(1).toEpochDay());
+        donationPreferences.setNextNotificationEpochDay(
+                (int) LocalDate.now().minusDays(1).toEpochDay());
         interact(donationProvider::showIfNeeded);
 
         captureNotification().getOnDismissForever().run();
@@ -95,7 +103,8 @@ class DonationProviderTest extends JavaFxTest {
     @Test
     public void noNotificationIsShownAfterDismissingForever() {
         donationPreferences.setNeverShowAgain(true);
-        donationPreferences.setNextNotificationEpochDay((int) LocalDate.now().minusDays(1).toEpochDay());
+        donationPreferences.setNextNotificationEpochDay(
+                (int) LocalDate.now().minusDays(1).toEpochDay());
 
         interact(donationProvider::showIfNeeded);
 
@@ -107,14 +116,15 @@ class DonationProviderTest extends JavaFxTest {
     private OnClickBehaviour triggerAction(String actionText) {
         Notifications.DonationNotification notification = captureNotification();
         NotificationAction<Object> action = (NotificationAction<Object>) notification.getActions().stream()
-                                                                                     .filter(candidate -> candidate.getText().equals(actionText))
-                                                                                     .findFirst()
-                                                                                     .orElseThrow();
+                .filter(candidate -> candidate.getText().equals(actionText))
+                .findFirst()
+                .orElseThrow();
         return action.getOnAction().call(notification);
     }
 
     private Notifications.DonationNotification captureNotification() {
-        ArgumentCaptor<Notifications.DonationNotification> captor = ArgumentCaptor.forClass(Notifications.DonationNotification.class);
+        ArgumentCaptor<Notifications.DonationNotification> captor =
+                ArgumentCaptor.forClass(Notifications.DonationNotification.class);
         verify(dialogService).notify(captor.capture());
         return captor.getValue();
     }

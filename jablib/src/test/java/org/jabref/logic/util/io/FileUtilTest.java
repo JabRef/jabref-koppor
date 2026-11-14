@@ -1,5 +1,12 @@
 package org.jabref.logic.util.io;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -11,7 +18,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.os.OS;
@@ -19,7 +25,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -31,13 +36,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @AllowedToUseLogic("uses OS from logic package")
 class FileUtilTest {
@@ -67,8 +65,7 @@ class FileUtilTest {
 
     @Test
     void extensionBakAddedCorrectly() {
-        assertEquals(Path.of("demo.bib.bak"),
-                FileUtil.addExtension(Path.of("demo.bib"), ".bak"));
+        assertEquals(Path.of("demo.bib.bak"), FileUtil.addExtension(Path.of("demo.bib"), ".bak"));
     }
 
     @Test
@@ -86,8 +83,7 @@ class FileUtilTest {
 
     @Test
     void extensionBakAddedCorrectlyToAFileContainedInTmpDirectory() {
-        assertEquals(Path.of("tmp", "demo.bib.bak"),
-                FileUtil.addExtension(Path.of("tmp", "demo.bib"), ".bak"));
+        assertEquals(Path.of("tmp", "demo.bib.bak"), FileUtil.addExtension(Path.of("tmp", "demo.bib"), ".bak"));
     }
 
     @Test
@@ -97,7 +93,8 @@ class FileUtilTest {
         entry.setCitationKey("1234");
         entry.setField(StandardField.TITLE, "mytitle");
 
-        assertEquals("1234 - mytitle",
+        assertEquals(
+                "1234 - mytitle",
                 FileUtil.createFileNameFromPattern(null, entry, fileNamePattern).get());
     }
 
@@ -108,7 +105,8 @@ class FileUtilTest {
         entry.setCitationKey("1234");
         entry.setField(StandardField.TITLE, "mytitle");
 
-        assertEquals("1234 - mytitle",
+        assertEquals(
+                "1234 - mytitle",
                 FileUtil.createFileNameFromPattern(null, entry, fileNamePattern).get());
     }
 
@@ -119,7 +117,8 @@ class FileUtilTest {
         entry.setCitationKey("1234");
         entry.setField(StandardField.TITLE, "mytitle");
 
-        assertEquals("1234",
+        assertEquals(
+                "1234",
                 FileUtil.createFileNameFromPattern(null, entry, fileNamePattern).get());
     }
 
@@ -130,7 +129,9 @@ class FileUtilTest {
         entry.setCitationKey("1234");
         entry.setField(StandardField.TITLE, "mytitle");
 
-        assertEquals("1234", FileUtil.createFileNameFromPattern(null, entry, fileNamePattern).get());
+        assertEquals(
+                "1234",
+                FileUtil.createFileNameFromPattern(null, entry, fileNamePattern).get());
     }
 
     @Test
@@ -148,7 +149,9 @@ class FileUtilTest {
         BibEntry entry = new BibEntry();
         entry.setCitationKey("1234");
 
-        assertEquals("1234", FileUtil.createFileNameFromPattern(null, entry, fileNamePattern).get());
+        assertEquals(
+                "1234",
+                FileUtil.createFileNameFromPattern(null, entry, fileNamePattern).get());
     }
 
     @Test
@@ -175,7 +178,9 @@ class FileUtilTest {
         entry.setField(StandardField.YEAR, "1868");
         entry.setField(StandardField.PAGES, "567-579");
 
-        assertEquals("1868_Kitsune_567", FileUtil.createFileNameFromPattern(null, entry, fileNamePattern).get());
+        assertEquals(
+                "1868_Kitsune_567",
+                FileUtil.createFileNameFromPattern(null, entry, fileNamePattern).get());
     }
 
     @Test
@@ -191,16 +196,16 @@ class FileUtilTest {
 
     @ParameterizedTest
     @CsvSource(textBlock = """
-                pdf, test.pdf
-                pdf, te.st.pdf
-                PdF, te.st.PdF
-                pdf, 'test.pdf  '
-                PdF, 'test.PdF  '
-                PdF, 'te.st.PdF  '
-                txt, other.txt
-                pdf, path/test.pdf
-                pdf, path/.to/FileInsideAHiddenFolder.pdf
-            """)
+            pdf, test.pdf
+            pdf, te.st.pdf
+            PdF, te.st.PdF
+            pdf, 'test.pdf  '
+            PdF, 'test.PdF  '
+            PdF, 'te.st.PdF  '
+            txt, other.txt
+            pdf, path/test.pdf
+            pdf, path/.to/FileInsideAHiddenFolder.pdf
+        """)
     void getFileExtension(String extension, String file) {
         file = file.replace('/', File.separatorChar);
         assertEquals(extension, FileUtil.getFileExtension(file).get());
@@ -208,13 +213,13 @@ class FileUtilTest {
 
     @ParameterizedTest
     @CsvSource(textBlock = """
-                JustTextNotASingleDot
-                .StartsWithADotIsNotAnExtension
-                path/to/JustTextNotASingleDot
-                path/to/.StartsWithADotIsNotAnExtension
-                path/.to/FileInsideAHiddenFolder
-                path/.to/.StartsWithADotInsideAHiddenFolder
-            """)
+            JustTextNotASingleDot
+            .StartsWithADotIsNotAnExtension
+            path/to/JustTextNotASingleDot
+            path/to/.StartsWithADotIsNotAnExtension
+            path/.to/FileInsideAHiddenFolder
+            path/.to/.StartsWithADotInsideAHiddenFolder
+        """)
     void getAbsentFileExtension(String file) {
         file = file.replace('/', File.separatorChar);
         Optional<String> result = FileUtil.getFileExtension(file);
@@ -223,18 +228,18 @@ class FileUtilTest {
 
     @ParameterizedTest
     @CsvSource(textBlock = """
-                te.st, 'te.st.PdF  '
-                te.st, 'path/to/te.st.PdF  '
-                test, test.pdf
-                other, 'other.txt'
-                file, path/to/file.pdf
-                JustTextNotASingleDot, JustTextNotASingleDot
-                .StartsWithADotIsNotAnExtension, .StartsWithADotIsNotAnExtension
-                JustTextNotASingleDot, path/to/JustTextNotASingleDot
-                .StartsWithADotIsNotAnExtension, path/to/.StartsWithADotIsNotAnExtension
-                FileInsideAHiddenFolder, path/.to/FileInsideAHiddenFolder
-                .StartsWithADotInsideAHiddenFolder, path/.to/.StartsWithADotInsideAHiddenFolder
-            """)
+            te.st, 'te.st.PdF  '
+            te.st, 'path/to/te.st.PdF  '
+            test, test.pdf
+            other, 'other.txt'
+            file, path/to/file.pdf
+            JustTextNotASingleDot, JustTextNotASingleDot
+            .StartsWithADotIsNotAnExtension, .StartsWithADotIsNotAnExtension
+            JustTextNotASingleDot, path/to/JustTextNotASingleDot
+            .StartsWithADotIsNotAnExtension, path/to/.StartsWithADotIsNotAnExtension
+            FileInsideAHiddenFolder, path/.to/FileInsideAHiddenFolder
+            .StartsWithADotInsideAHiddenFolder, path/.to/.StartsWithADotInsideAHiddenFolder
+        """)
     void getBaseName(String baseName, String file) {
         file = file.replace('/', File.separatorChar);
         assertEquals(baseName, FileUtil.getBaseName(file));
@@ -242,17 +247,17 @@ class FileUtilTest {
 
     @ParameterizedTest
     @CsvSource(textBlock = """
-                test.pdf
-                other.txt
-                path/test.pdf
-                path/to/file.pdf
-                JustTextNotASingleDot
-                .StartsWithADotIsNotAnExtension
-                path/to/JustTextNotASingleDot
-                path/to/.StartsWithADotIsNotAnExtension
-                path/.to/FileInsideAHiddenFolder
-                path/.to/.StartsWithADotInsideAHiddenFolder
-            """)
+            test.pdf
+            other.txt
+            path/test.pdf
+            path/to/file.pdf
+            JustTextNotASingleDot
+            .StartsWithADotIsNotAnExtension
+            path/to/JustTextNotASingleDot
+            path/to/.StartsWithADotIsNotAnExtension
+            path/.to/FileInsideAHiddenFolder
+            path/.to/.StartsWithADotInsideAHiddenFolder
+        """)
     void fileExtensionAreTheSameForStringsAndPaths(String file) {
         file = file.replace('/', File.separatorChar);
         Optional<String> resultFromString = FileUtil.getFileExtension(file);
@@ -262,31 +267,34 @@ class FileUtilTest {
 
     @ParameterizedTest
     @CsvSource(textBlock = """
-            test.file, www.example.com/test.file
-            test.file, http://www.example.com/test.file
-            test.file, https://www.example.com/test.file
-            test.file, www.example.com/path/to/test.file
-            test.file, http://www.example.com/path/to/test.file
-            test.file, https://www.example.com/path/to/test.file
-            test.file, https://www.example.com/not%5Ca%5Cwindows%5Cpath/test.file
-            # Linux: test.file, https://www.example.com////test.file
-            # Windows: ____test.file, https://www.example.com////test.file
-            blank, https://www.example.com/path/to/blank
-            blank, https://www.example.com/not%5Ca%5Cwindows%5Cpath/blank
-            # Windows: last part is not\\a\\windows.file
-            # Windows: windows.file, https://www.example.com/path/to/not%5Ca%5Cwindows.file
-            test.file, https://www.example.com/path/to/test.file?field=value
-            test.file, https://www.example.com/path/to/test.file?a=1&b=2
-            test.file, https://www.example.com/path/to/test.file?search=for+a+file
-            blank, https://www.example.com/path/to/blank?search=for+a+file
-            """)
+        test.file, www.example.com/test.file
+        test.file, http://www.example.com/test.file
+        test.file, https://www.example.com/test.file
+        test.file, www.example.com/path/to/test.file
+        test.file, http://www.example.com/path/to/test.file
+        test.file, https://www.example.com/path/to/test.file
+        test.file, https://www.example.com/not%5Ca%5Cwindows%5Cpath/test.file
+        # Linux: test.file, https://www.example.com////test.file
+        # Windows: ____test.file, https://www.example.com////test.file
+        blank, https://www.example.com/path/to/blank
+        blank, https://www.example.com/not%5Ca%5Cwindows%5Cpath/blank
+        # Windows: last part is not\\a\\windows.file
+        # Windows: windows.file, https://www.example.com/path/to/not%5Ca%5Cwindows.file
+        test.file, https://www.example.com/path/to/test.file?field=value
+        test.file, https://www.example.com/path/to/test.file?a=1&b=2
+        test.file, https://www.example.com/path/to/test.file?search=for+a+file
+        blank, https://www.example.com/path/to/blank?search=for+a+file
+        """)
     void getFileNameFromUrlsCorrectly(String file, String url) {
         assertEquals(Optional.of(file), FileUtil.getFileNameFromUrl(url));
     }
 
     @Test
     void getLastPathFragmentAsNameFallback() {
-        assertEquals(Optional.of("to"), FileUtil.getFileNameFromUrl("https://www.example.com/path/to/?nothing=at+all"), "from 'https://www.example.com/path/to/?nothing=at+all'");
+        assertEquals(
+                Optional.of("to"),
+                FileUtil.getFileNameFromUrl("https://www.example.com/path/to/?nothing=at+all"),
+                "from 'https://www.example.com/path/to/?nothing=at+all'");
     }
 
     @Test
@@ -297,12 +305,14 @@ class FileUtilTest {
     @Test
     @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Assumed path separator is /")
     void uniquePathSubstrings() {
-        List<String> paths = List.of("C:/uniquefile.bib",
+        List<String> paths = List.of(
+                "C:/uniquefile.bib",
                 "C:/downloads/filename.bib",
                 "C:/mypaper/bib/filename.bib",
                 "C:/external/mypaper/bib/filename.bib",
                 "");
-        List<String> uniqPath = List.of("uniquefile.bib",
+        List<String> uniqPath = List.of(
+                "uniquefile.bib",
                 "downloads/filename.bib",
                 "C:/mypaper/bib/filename.bib",
                 "external/mypaper/bib/filename.bib",
@@ -316,14 +326,18 @@ class FileUtilTest {
     @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Assumed path separator is /")
     void uniquePathFragmentWithSameSuffix() {
         List<String> dirs = List.of("/users/jabref/bibliography.bib", "/users/jabref/koppor-bibliograsphy.bib");
-        assertEquals(Optional.of("bibliography.bib"), FileUtil.getUniquePathFragment(dirs, Path.of("/users/jabref/bibliography.bib")));
+        assertEquals(
+                Optional.of("bibliography.bib"),
+                FileUtil.getUniquePathFragment(dirs, Path.of("/users/jabref/bibliography.bib")));
     }
 
     @Test
     @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Assumed path separator is /")
     void uniquePathFragmentWithSameSuffixAndLongerName() {
         List<String> paths = List.of("/users/jabref/bibliography.bib", "/users/jabref/koppor-bibliography.bib");
-        assertEquals(Optional.of("koppor-bibliography.bib"), FileUtil.getUniquePathFragment(paths, Path.of("/users/jabref/koppor-bibliography.bib")));
+        assertEquals(
+                Optional.of("koppor-bibliography.bib"),
+                FileUtil.getUniquePathFragment(paths, Path.of("/users/jabref/koppor-bibliography.bib")));
     }
 
     @Test
@@ -373,7 +387,9 @@ class FileUtilTest {
         Path temp = subDir.resolve("existingTestFile.txt");
         Files.createFile(temp);
         FileUtil.copyFile(existingTestFile, temp, true);
-        assertEquals(Files.readAllLines(existingTestFile, StandardCharsets.UTF_8), Files.readAllLines(temp, StandardCharsets.UTF_8));
+        assertEquals(
+                Files.readAllLines(existingTestFile, StandardCharsets.UTF_8),
+                Files.readAllLines(temp, StandardCharsets.UTF_8));
     }
 
     @Test
@@ -383,7 +399,9 @@ class FileUtilTest {
         Path temp = subDir.resolve("existingTestFile.txt");
         Files.createFile(temp);
         FileUtil.copyFile(existingTestFile, temp, false);
-        assertNotEquals(Files.readAllLines(existingTestFile, StandardCharsets.UTF_8), Files.readAllLines(temp, StandardCharsets.UTF_8));
+        assertNotEquals(
+                Files.readAllLines(existingTestFile, StandardCharsets.UTF_8),
+                Files.readAllLines(temp, StandardCharsets.UTF_8));
     }
 
     @Test
@@ -398,15 +416,22 @@ class FileUtilTest {
 
     @Test
     void validFilenameShouldBeMaximum255Chars() {
-        String longestValidFilename = Stream.generate(() -> String.valueOf('1')).limit(FileUtil.MAXIMUM_FILE_NAME_LENGTH - 4).collect(Collectors.joining()) + ".pdf";
-        String longerFilename = Stream.generate(() -> String.valueOf('1')).limit(260).collect(Collectors.joining()) + ".pdf";
+        String longestValidFilename = Stream.generate(() -> String.valueOf('1'))
+                        .limit(FileUtil.MAXIMUM_FILE_NAME_LENGTH - 4)
+                        .collect(Collectors.joining())
+                + ".pdf";
+        String longerFilename =
+                Stream.generate(() -> String.valueOf('1')).limit(260).collect(Collectors.joining()) + ".pdf";
         assertEquals(longestValidFilename, FileUtil.getValidFileName(longerFilename));
     }
 
     @Test
     void invalidFilenameWithoutExtension() {
-        String longestValidFilename = Stream.generate(() -> String.valueOf('1')).limit(FileUtil.MAXIMUM_FILE_NAME_LENGTH).collect(Collectors.joining());
-        String longerFilename = Stream.generate(() -> String.valueOf('1')).limit(260).collect(Collectors.joining());
+        String longestValidFilename = Stream.generate(() -> String.valueOf('1'))
+                .limit(FileUtil.MAXIMUM_FILE_NAME_LENGTH)
+                .collect(Collectors.joining());
+        String longerFilename =
+                Stream.generate(() -> String.valueOf('1')).limit(260).collect(Collectors.joining());
         assertEquals(longestValidFilename, FileUtil.getValidFileName(longerFilename));
     }
 
@@ -508,7 +533,9 @@ class FileUtilTest {
     }
 
     @Test
-    @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Shortcut resolution only supported on Windows")
+    @DisabledOnOs(
+            value = org.junit.jupiter.api.condition.OS.WINDOWS,
+            disabledReason = "Shortcut resolution only supported on Windows")
     void resolveIfShortcutReturnsOriginalPathOnNonWindowsOs() {
         Path path = Path.of("test.lnk");
         assertEquals(path, FileUtil.resolveIfShortcut(path));
@@ -522,7 +549,8 @@ class FileUtilTest {
 
     @Test
     void findInListOfPath() {
-        // due to the added workaround for old JabRef behavior as both path starts with the same name they are considered equal
+        // due to the added workaround for old JabRef behavior as both path starts with the same name they are
+        // considered equal
         List<Path> paths = List.of(existingTestFile, otherExistingTestFile, rootDir);
         List<Path> resultPaths = List.of(existingTestFile);
         List<Path> result = FileUtil.findListOfFiles("existingTestFile.txt", paths);
@@ -531,7 +559,8 @@ class FileUtilTest {
 
     @Test
     void extractFileExtension() throws URISyntaxException {
-        final Path filePath = Path.of(FileUtilTest.class.getResource("pdffile.pdf").toURI());
+        final Path filePath =
+                Path.of(FileUtilTest.class.getResource("pdffile.pdf").toURI());
         assertEquals(Optional.of("pdf"), FileUtil.getFileExtension(filePath));
     }
 
@@ -595,7 +624,9 @@ class FileUtilTest {
 
     /// Tests for issue <https://github.com/JabRef/jabref/issues/12995>
     @Test
-    @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Symlink behavior unreliable on windows")
+    @DisabledOnOs(
+            value = org.junit.jupiter.api.condition.OS.WINDOWS,
+            disabledReason = "Symlink behavior unreliable on windows")
     void simpleRelativizeSymlinks() throws IOException {
         Path realDir = bibTempDir.resolve("realDir_" + UUID.randomUUID());
         Files.createDirectories(realDir);
@@ -609,7 +640,9 @@ class FileUtilTest {
     }
 
     @Test
-    @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Symlink behavior unreliable on windows")
+    @DisabledOnOs(
+            value = org.junit.jupiter.api.condition.OS.WINDOWS,
+            disabledReason = "Symlink behavior unreliable on windows")
     void chainedRelativizeSymlinks() throws IOException {
         Path chainReal = bibTempDir.resolve("chainReal_" + UUID.randomUUID());
         Files.createDirectories(chainReal);
@@ -625,7 +658,9 @@ class FileUtilTest {
     }
 
     @Test
-    @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Symlink behavior unreliable on windows")
+    @DisabledOnOs(
+            value = org.junit.jupiter.api.condition.OS.WINDOWS,
+            disabledReason = "Symlink behavior unreliable on windows")
     void nestedRelativizeSymlinks() throws IOException {
         Path realDir = bibTempDir.resolve("realDir_" + UUID.randomUUID());
         Files.createDirectories(realDir);
@@ -641,7 +676,9 @@ class FileUtilTest {
     }
 
     @Test
-    @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Symlink behavior unreliable on windows")
+    @DisabledOnOs(
+            value = org.junit.jupiter.api.condition.OS.WINDOWS,
+            disabledReason = "Symlink behavior unreliable on windows")
     void unrelatedFileRemainsAbsolute() throws IOException {
         Path realDir = bibTempDir.resolve("realDir_" + UUID.randomUUID());
         Files.createDirectories(realDir);
@@ -655,7 +692,9 @@ class FileUtilTest {
     }
 
     @Test
-    @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Symlink behavior unreliable on windows")
+    @DisabledOnOs(
+            value = org.junit.jupiter.api.condition.OS.WINDOWS,
+            disabledReason = "Symlink behavior unreliable on windows")
     void symlinkEscapeCaseIgnored() throws IOException {
         Path veryPrivate = bibTempDir.resolve("veryprivate");
         Files.createDirectories(veryPrivate);
@@ -670,12 +709,16 @@ class FileUtilTest {
         Files.createDirectories(libDir);
         Files.createFile(libDir.resolve("bib.bib"));
 
-        org.junit.jupiter.api.Assumptions.assumeTrue(false, "IGNORED: Symlink chain escaping base dir, see <https://github.com/JabRef/jabref/issues/12995#issuecomment-3065149862>");
+        org.junit.jupiter.api.Assumptions.assumeTrue(
+                false,
+                "IGNORED: Symlink chain escaping base dir, see"
+                        + " <https://github.com/JabRef/jabref/issues/12995#issuecomment-3065149862>");
         Path result = FileUtil.relativize(secretFile, List.of(things));
         assertEquals(secretFile, result);
     }
 
-    /// @implNote Tests inspired by [org.jabref.model.database.BibDatabaseContextTest#getFileDirectoriesWithRelativeMetadata]
+    /// @implNote Tests inspired by
+    /// [org.jabref.model.database.BibDatabaseContextTest#getFileDirectoriesWithRelativeMetadata]
     public static Stream<Arguments> relativize() {
         Path bibPath = bibTempDir.resolve("bibliography.bib");
         Path filesPath = bibTempDir.resolve("files").resolve("pdfs");
@@ -697,13 +740,16 @@ class FileUtilTest {
 
         return Stream.of(
                 Arguments.of(List.of(target1), List.of(source1), database, fileDirPrefs),
-                Arguments.of(List.of(target2), List.of(source2), database, fileDirPrefs)
-        );
+                Arguments.of(List.of(target2), List.of(source2), database, fileDirPrefs));
     }
 
     @ParameterizedTest
     @MethodSource
-    void relativize(List<BibEntry> expected, List<BibEntry> entries, BibDatabaseContext databaseContext, FilePreferences filePreferences) {
+    void relativize(
+            List<BibEntry> expected,
+            List<BibEntry> entries,
+            BibDatabaseContext databaseContext,
+            FilePreferences filePreferences) {
         List<BibEntry> actual = FileUtil.relativize(entries, databaseContext, filePreferences);
         assertEquals(expected, actual);
     }
@@ -722,23 +768,23 @@ class FileUtilTest {
 
     @ParameterizedTest
     @CsvSource({
-            "''                             ,                                     ,   ",
-            "''                             ,                                     , -3",
-            "''                             ,                                     ,  0",
-            "''                             ,                                     ,  3",
-            "''                             ,                                     ,  5",
-            "''                             ,                                     , 10",
-            "''                             , thisisatestfile.pdf                 ,   ",
-            "''                             , thisisatestfile.pdf                 , -5",
-            "''                             , thisisatestfile.pdf                 ,  0",
-            "...                            , thisisatestfile.pdf                 ,  3",
-            "th...                          , thisisatestfile.pdf                 ,  5",
-            "th...e.pdf                     , thisisatestfile.pdf                 , 10",
-            "thisisatestfile.pdf            , thisisatestfile.pdf                 , 20",
-            "lo...                          , longfilename.extremelylongextension ,  5",
-            "longfil...                     , longfilename.extremelylongextension , 10",
-            "longfilename.extr...           , longfilename.extremelylongextension , 20",
-            "lo...me.extremelylongextension , longfilename.extremelylongextension , 30",
+        "''                             ,                                     ,   ",
+        "''                             ,                                     , -3",
+        "''                             ,                                     ,  0",
+        "''                             ,                                     ,  3",
+        "''                             ,                                     ,  5",
+        "''                             ,                                     , 10",
+        "''                             , thisisatestfile.pdf                 ,   ",
+        "''                             , thisisatestfile.pdf                 , -5",
+        "''                             , thisisatestfile.pdf                 ,  0",
+        "...                            , thisisatestfile.pdf                 ,  3",
+        "th...                          , thisisatestfile.pdf                 ,  5",
+        "th...e.pdf                     , thisisatestfile.pdf                 , 10",
+        "thisisatestfile.pdf            , thisisatestfile.pdf                 , 20",
+        "lo...                          , longfilename.extremelylongextension ,  5",
+        "longfil...                     , longfilename.extremelylongextension , 10",
+        "longfilename.extr...           , longfilename.extremelylongextension , 20",
+        "lo...me.extremelylongextension , longfilename.extremelylongextension , 30",
     })
     void shortenFileName(String expected, String fileName, Integer maxLength) {
         assertEquals(expected, FileUtil.shortenFileName(fileName, maxLength));
@@ -746,14 +792,21 @@ class FileUtilTest {
 
     @EnabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS)
     @ParameterizedTest
-    @ValueSource(strings = {"/c/Users/username/Downloads/test.bib",
-            "/cygdrive/c/Users/username/Downloads/test.bib",
-            "/mnt/c/Users/username/Downloads/test.bib"})
+    @ValueSource(
+            strings = {
+                "/c/Users/username/Downloads/test.bib",
+                "/cygdrive/c/Users/username/Downloads/test.bib",
+                "/mnt/c/Users/username/Downloads/test.bib"
+            })
     void convertCygwinPathToWindowsShouldConvertToWindowsFormatWhenRunningOnWindows(String filePath) {
-        assertEquals(Path.of("C:\\\\Users\\\\username\\\\Downloads\\\\test.bib"), FileUtil.convertCygwinPathToWindows(filePath));
+        assertEquals(
+                Path.of("C:\\\\Users\\\\username\\\\Downloads\\\\test.bib"),
+                FileUtil.convertCygwinPathToWindows(filePath));
     }
 
-    @DisabledOnOs(value = org.junit.jupiter.api.condition.OS.WINDOWS, disabledReason = "Test in others operational systems")
+    @DisabledOnOs(
+            value = org.junit.jupiter.api.condition.OS.WINDOWS,
+            disabledReason = "Test in others operational systems")
     @ParameterizedTest
     @ValueSource(strings = {"/home/username/Downloads/test.bib"})
     void convertCygwinPathToWindowsShouldReturnOriginalFilePathWhenRunningOnWindows(String filePath) {

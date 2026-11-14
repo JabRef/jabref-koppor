@@ -1,5 +1,9 @@
 package org.jabref.logic.citationstyle;
 
+import de.undercouch.citeproc.ItemDataProvider;
+import de.undercouch.citeproc.bibtex.BibTeXConverter;
+import de.undercouch.citeproc.csl.CSLItemData;
+import de.undercouch.citeproc.helper.json.StringJsonBuilderFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -8,7 +12,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.SequencedCollection;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.formatter.bibtexfields.RemoveNewlinesFormatter;
 import org.jabref.logic.integrity.PagesChecker;
 import org.jabref.model.database.BibDatabaseContext;
@@ -21,11 +24,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.strings.LatexToUnicodeAdapter;
-
-import de.undercouch.citeproc.ItemDataProvider;
-import de.undercouch.citeproc.bibtex.BibTeXConverter;
-import de.undercouch.citeproc.csl.CSLItemData;
-import de.undercouch.citeproc.helper.json.StringJsonBuilderFactory;
 import org.jbibtex.BibTeXEntry;
 import org.jbibtex.DigitStringValue;
 import org.jbibtex.Key;
@@ -70,7 +68,8 @@ public class JabRefItemDataProvider implements ItemDataProvider {
     /// <td style="text-align:left">number</td>
     /// <td style="text-align:left">issue</td>
     /// <td style="text-align:left">issue</td>
-    /// <td style="text-align:left">For conversion to CSL or BibTeX: BibLaTeX `number` takes priority and supersedes BibLaTeX `issue`</td>
+    /// <td style="text-align:left">For conversion to CSL or BibTeX: BibLaTeX `number` takes priority and supersedes
+    /// BibLaTeX `issue`</td>
     /// </tr>
     /// <tr>
     /// <td style="text-align:left">number</td>
@@ -82,7 +81,10 @@ public class JabRefItemDataProvider implements ItemDataProvider {
     /// <td style="text-align:left">pages</td>
     /// <td style="text-align:left">eid</td>
     /// <td style="text-align:left">number</td>
-    /// <td style="text-align:left">Some journals put the article-number (= eid) into the pages field. If BibLaTeX `eid` exists, provide csl `number` to the style. If `pages` exists, provide csl `page`.  If `eid` WITHIN the `pages` field exists, detect the eid and provide csl `number`. If both `eid` and `pages` exists, ideally provide both csl `number` and csl `page`. Ideally the citationstyle should be able to flexibly choose the rendering.</td>
+    /// <td style="text-align:left">Some journals put the article-number (= eid) into the pages field. If BibLaTeX `eid`
+    /// exists, provide csl `number` to the style. If `pages` exists, provide csl `page`.  If `eid` WITHIN the `pages`
+    /// field exists, detect the eid and provide csl `number`. If both `eid` and `pages` exists, ideally provide both
+    /// csl `number` and csl `page`. Ideally the citationstyle should be able to flexibly choose the rendering.</td>
     /// </tr>
     /// <tr>
     /// <td style="text-align:left">pages</td>
@@ -92,7 +94,8 @@ public class JabRefItemDataProvider implements ItemDataProvider {
     /// </tr>
     /// </tbody>
     /// </table>
-    private CSLItemData bibEntryToCSLItemData(BibEntry originalBibEntry, BibDatabaseContext bibDatabaseContext, BibEntryTypesManager entryTypesManager) {
+    private CSLItemData bibEntryToCSLItemData(
+            BibEntry originalBibEntry, BibDatabaseContext bibDatabaseContext, BibEntryTypesManager entryTypesManager) {
         // We need to make a deep copy, because we modify the entry according to the logic presented at
         // https://github.com/JabRef/jabref/issues/8372#issuecomment-1014941935
         BibEntry bibEntry = new BibEntry(originalBibEntry);
@@ -112,10 +115,9 @@ public class JabRefItemDataProvider implements ItemDataProvider {
                 // Map "number" to CSL "issue", unless no number exists
                 Optional<String> numberField = bibEntry.getField(StandardField.NUMBER);
                 numberField.ifPresent(number -> {
-                            bibEntry.setField(StandardField.ISSUE, number);
-                            bibEntry.clearField(StandardField.NUMBER);
-                        }
-                );
+                    bibEntry.setField(StandardField.ISSUE, number);
+                    bibEntry.clearField(StandardField.NUMBER);
+                });
 
                 bibEntry.getField(StandardField.EID).ifPresent(eid -> {
                     if (!bibEntry.hasField(StandardField.NUMBER)) {
@@ -146,7 +148,10 @@ public class JabRefItemDataProvider implements ItemDataProvider {
 
         SequencedCollection<Field> fields;
         if (entryType.isPresent()) {
-            fields = entryType.map(BibEntryType::getAllFields).map(LinkedHashSet::new).get();
+            fields = entryType
+                    .map(BibEntryType::getAllFields)
+                    .map(LinkedHashSet::new)
+                    .get();
             fields.addAll(bibEntry.getFields());
         } else {
             fields = bibEntry.getFields();
@@ -171,7 +176,8 @@ public class JabRefItemDataProvider implements ItemDataProvider {
         this.setData(bibDatabaseContext.getEntries(), bibDatabaseContext, entryTypesManager);
     }
 
-    public void setData(List<BibEntry> data, BibDatabaseContext bibDatabaseContext, BibEntryTypesManager entryTypesManager) {
+    public void setData(
+            List<BibEntry> data, BibDatabaseContext bibDatabaseContext, BibEntryTypesManager entryTypesManager) {
         this.data.clear();
         this.data.addAll(data);
         this.bibDatabaseContext = bibDatabaseContext;
@@ -187,19 +193,19 @@ public class JabRefItemDataProvider implements ItemDataProvider {
     @Override
     public CSLItemData retrieveItem(String id) {
         return data.stream()
-                   .filter(entry -> entry.getCitationKey().orElse("").equals(id))
-                   .map(entry -> bibEntryToCSLItemData(entry, bibDatabaseContext, entryTypesManager))
-                   .findFirst().orElse(null);
+                .filter(entry -> entry.getCitationKey().orElse("").equals(id))
+                .map(entry -> bibEntryToCSLItemData(entry, bibDatabaseContext, entryTypesManager))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
     public Collection<String> getIds() {
-        return data.stream()
-                   .map(entry -> entry.getCitationKey().orElse(""))
-                   .toList();
+        return data.stream().map(entry -> entry.getCitationKey().orElse("")).toList();
     }
 
-    public String toJson(BibEntry entry, BibDatabaseContext bibDatabaseContext, BibEntryTypesManager entryTypesManager) {
+    public String toJson(
+            BibEntry entry, BibDatabaseContext bibDatabaseContext, BibEntryTypesManager entryTypesManager) {
         CSLItemData itemData = bibEntryToCSLItemData(entry, bibDatabaseContext, entryTypesManager);
         return (String) itemData.toJson(stringJsonBuilderFactory.createJsonBuilder());
     }
@@ -208,7 +214,7 @@ public class JabRefItemDataProvider implements ItemDataProvider {
         List<BibEntry> entries = bibDatabaseContext.getEntries();
         this.setData(entries, bibDatabaseContext, entryTypesManager);
         return entries.stream()
-                      .map(entry -> toJson(entry, bibDatabaseContext, entryTypesManager))
-                      .collect(Collectors.joining(",", "[", "]"));
+                .map(entry -> toJson(entry, bibDatabaseContext, entryTypesManager))
+                .collect(Collectors.joining(",", "[", "]"));
     }
 }

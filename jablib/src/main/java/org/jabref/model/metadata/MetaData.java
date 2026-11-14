@@ -1,5 +1,8 @@
 package org.jabref.model.metadata;
 
+import com.google.common.eventbus.EventBus;
+import com.tobiasdiez.easybind.optional.OptionalBinding;
+import com.tobiasdiez.easybind.optional.OptionalWrapper;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -9,10 +12,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.citationkeypattern.AbstractCitationKeyPatterns;
 import org.jabref.logic.citationkeypattern.CitationKeyPattern;
@@ -29,10 +30,6 @@ import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.groups.event.GroupUpdatedEvent;
 import org.jabref.model.metadata.event.MetaDataChangeSource;
 import org.jabref.model.metadata.event.MetaDataChangedEvent;
-
-import com.google.common.eventbus.EventBus;
-import com.tobiasdiez.easybind.optional.OptionalBinding;
-import com.tobiasdiez.easybind.optional.OptionalWrapper;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -42,7 +39,8 @@ public class MetaData {
     public static final String META_FLAG = "jabref-meta: ";
     public static final String ENTRYTYPE_FLAG = "jabref-entrytype: ";
     public static final String ENTRYTYPE_FLAG_V2 = "jabref-entrytype-v2: ";
-    public static final String SAVE_ORDER_CONFIG = "saveOrderConfig"; // ToDo: Rename in next major version to saveOrder, adapt testbibs
+    public static final String SAVE_ORDER_CONFIG =
+            "saveOrderConfig"; // ToDo: Rename in next major version to saveOrder, adapt testbibs
     public static final String SAVE_ACTIONS = "saveActions";
     public static final String LIBRARY_ABBREVIATION_TYPE = "libraryAbbreviationType";
     public static final String KEYWORD_SEPARATOR = "keywordSeparator";
@@ -79,15 +77,31 @@ public class MetaData {
     private final Map<String, Path> blgFilePathMap = new HashMap<>();
     private Optional<Version> groupSearchSyntaxVersion = Optional.empty();
 
-    @Nullable private Charset encoding;
-    @Nullable private SaveOrder saveOrder;
-    @Nullable private String defaultCiteKeyPattern;
-    @Nullable private FieldFormatterCleanupActions saveActions;
-    @Nullable private BibDatabaseMode mode;
-    @Nullable private AbbreviationType libraryAbbreviationType;
-    @Nullable private Character keywordSeparator;
+    @Nullable
+    private Charset encoding;
+
+    @Nullable
+    private SaveOrder saveOrder;
+
+    @Nullable
+    private String defaultCiteKeyPattern;
+
+    @Nullable
+    private FieldFormatterCleanupActions saveActions;
+
+    @Nullable
+    private BibDatabaseMode mode;
+
+    @Nullable
+    private AbbreviationType libraryAbbreviationType;
+
+    @Nullable
+    private Character keywordSeparator;
+
     private boolean isProtected;
-    @Nullable private String librarySpecificFileDirectory;
+
+    @Nullable
+    private String librarySpecificFileDirectory;
 
     @NonNull
     private final ContentSelectors contentSelectors = new ContentSelectors();
@@ -95,8 +109,13 @@ public class MetaData {
     private final Map<String, List<String>> unknownMetaData = new HashMap<>();
     private boolean isEventPropagationEnabled = true;
     private boolean encodingExplicitlySupplied;
-    @Nullable private String versionDBStructure;
-    @Nullable private String aiLibraryId;
+
+    @Nullable
+    private String versionDBStructure;
+
+    @Nullable
+    private String aiLibraryId;
+
     private boolean containsSearchGroups;
 
     private boolean gitAutoPull;
@@ -219,14 +238,16 @@ public class MetaData {
 
     /// Updates the stored key patterns to the given key patterns.
     ///
-    /// @param bibtexKeyPatterns the key patterns to update to. A reference to this object is stored internally and is returned at getCiteKeyPattern();
+    /// @param bibtexKeyPatterns the key patterns to update to. A reference to this object is stored internally and is
+    /// returned at getCiteKeyPattern();
     public void setCiteKeyPattern(@NonNull AbstractCitationKeyPatterns bibtexKeyPatterns) {
         CitationKeyPattern defaultValue = bibtexKeyPatterns.getDefaultValue();
         Map<EntryType, CitationKeyPattern> nonDefaultPatterns = bibtexKeyPatterns.getPatterns();
         setCiteKeyPattern(defaultValue, nonDefaultPatterns);
     }
 
-    public void setCiteKeyPattern(CitationKeyPattern defaultValue, Map<EntryType, CitationKeyPattern> nonDefaultPatterns) {
+    public void setCiteKeyPattern(
+            CitationKeyPattern defaultValue, Map<EntryType, CitationKeyPattern> nonDefaultPatterns) {
         // Remove all patterns from metadata
         citeKeyPatterns.clear();
 
@@ -288,7 +309,8 @@ public class MetaData {
         postChange();
     }
 
-    /// The separator used in this library's keyword fields; absent if the library does not declare one (then the global preference applies)
+    /// The separator used in this library's keyword fields; absent if the library does not declare one (then the global
+    /// preference applies)
     public Optional<Character> getKeywordSeparator() {
         return Optional.ofNullable(keywordSeparator);
     }
@@ -465,8 +487,8 @@ public class MetaData {
         gitAutoPush = other.gitAutoPush;
 
         other.getGroups()
-             .map(GroupTreeNode::copySubtree)
-             .ifPresentOrElse(root -> setGroups(root, source), () -> clearGroups(source));
+                .map(GroupTreeNode::copySubtree)
+                .ifPresentOrElse(root -> setGroups(root, source), () -> clearGroups(source));
 
         postChange(source);
     }
@@ -584,13 +606,39 @@ public class MetaData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(isProtected, groupsRoot.getValue(), encoding, encodingExplicitlySupplied, saveOrder, citeKeyPatterns, userFileDirectory,
-                latexFileDirectory, defaultCiteKeyPattern, saveActions, mode, keywordSeparator, librarySpecificFileDirectory, contentSelectors, versionDBStructure, aiLibraryId, gitAutoPull, gitAutoCommit, gitAutoPush);
+        return Objects.hash(
+                isProtected,
+                groupsRoot.getValue(),
+                encoding,
+                encodingExplicitlySupplied,
+                saveOrder,
+                citeKeyPatterns,
+                userFileDirectory,
+                latexFileDirectory,
+                defaultCiteKeyPattern,
+                saveActions,
+                mode,
+                keywordSeparator,
+                librarySpecificFileDirectory,
+                contentSelectors,
+                versionDBStructure,
+                aiLibraryId,
+                gitAutoPull,
+                gitAutoCommit,
+                gitAutoPush);
     }
 
     @Override
     public String toString() {
-        return "MetaData [citeKeyPatterns=" + citeKeyPatterns + ", userFileDirectory=" + userFileDirectory + ", laTexFileDirectory=" + latexFileDirectory + ", groupsRoot=" + groupsRoot + ", encoding=" + encoding + ", saveOrderConfig=" + saveOrder + ", defaultCiteKeyPattern=" + defaultCiteKeyPattern + ", saveActions=" + saveActions + ", mode=" + mode + ", keywordSeparator=" + keywordSeparator + ", isProtected=" + isProtected + ", librarySpecificFileDirectory=" + librarySpecificFileDirectory + ", contentSelectors=" + contentSelectors + ", encodingExplicitlySupplied=" + encodingExplicitlySupplied + ", VersionDBStructure=" + versionDBStructure + ", aiLibraryId=" + aiLibraryId + ", gitAutoPull=" + gitAutoPull + ", gitAutoCommit=" + gitAutoCommit + ", gitAutoPush=" + gitAutoPush + "]";
+        return "MetaData [citeKeyPatterns=" + citeKeyPatterns + ", userFileDirectory=" + userFileDirectory
+                + ", laTexFileDirectory=" + latexFileDirectory + ", groupsRoot=" + groupsRoot + ", encoding=" + encoding
+                + ", saveOrderConfig=" + saveOrder + ", defaultCiteKeyPattern=" + defaultCiteKeyPattern
+                + ", saveActions=" + saveActions + ", mode=" + mode + ", keywordSeparator=" + keywordSeparator
+                + ", isProtected=" + isProtected + ", librarySpecificFileDirectory=" + librarySpecificFileDirectory
+                + ", contentSelectors=" + contentSelectors + ", encodingExplicitlySupplied="
+                + encodingExplicitlySupplied + ", VersionDBStructure=" + versionDBStructure + ", aiLibraryId="
+                + aiLibraryId + ", gitAutoPull=" + gitAutoPull + ", gitAutoCommit=" + gitAutoCommit + ", gitAutoPush="
+                + gitAutoPush + "]";
     }
 
     public Optional<Path> getBlgFilePath(String user) {

@@ -1,7 +1,15 @@
 package org.jabref.gui.fieldeditors;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
@@ -11,7 +19,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.gui.testutils.JavaFxTest;
@@ -19,17 +26,7 @@ import org.jabref.gui.undo.RedoAction;
 import org.jabref.gui.undo.UndoAction;
 import org.jabref.logic.os.OS;
 import org.jabref.model.entry.BibEntry;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class FieldEditorFXTest extends JavaFxTest {
 
@@ -46,8 +43,7 @@ class FieldEditorFXTest extends JavaFxTest {
 
         FieldEditorFX editor = new FieldEditorFX() {
             @Override
-            public void bindToEntry(BibEntry entry) {
-            }
+            public void bindToEntry(BibEntry entry) {}
 
             @Override
             public Parent getNode() {
@@ -60,8 +56,10 @@ class FieldEditorFXTest extends JavaFxTest {
         // Stubbed: the real repository matches the event against every binding, and matching a
         // KeyCharacterCombination throws UnsupportedOperationException on the headless toolkit
         KeyBindingRepository keyBindingRepository = mock(KeyBindingRepository.class);
-        when(keyBindingRepository.matches(any(), eq(KeyBinding.UNDO))).thenAnswer(invocation -> isShortcut(invocation.getArgument(0), KeyCode.Z));
-        when(keyBindingRepository.matches(any(), eq(KeyBinding.REDO))).thenAnswer(invocation -> isShortcut(invocation.getArgument(0), KeyCode.Y));
+        when(keyBindingRepository.matches(any(), eq(KeyBinding.UNDO)))
+                .thenAnswer(invocation -> isShortcut(invocation.getArgument(0), KeyCode.Z));
+        when(keyBindingRepository.matches(any(), eq(KeyBinding.REDO)))
+                .thenAnswer(invocation -> isShortcut(invocation.getArgument(0), KeyCode.Y));
         editor.establishBinding(textField, textProperty, keyBindingRepository, undoAction, redoAction);
         textField.addEventHandler(KeyEvent.KEY_PRESSED, _ -> keyPressReachedControl.set(true));
 
@@ -75,8 +73,7 @@ class FieldEditorFXTest extends JavaFxTest {
             textField.setText("hello world");
             textField.selectRange(6, 11);
             textField.fireEvent(new KeyEvent(
-                    textField, textField, KeyEvent.KEY_TYPED, "{", "{", KeyCode.UNDEFINED,
-                    false, false, false, false));
+                    textField, textField, KeyEvent.KEY_TYPED, "{", "{", KeyCode.UNDEFINED, false, false, false, false));
         });
 
         assertEquals("hello {world}", textField.getText());
@@ -88,8 +85,7 @@ class FieldEditorFXTest extends JavaFxTest {
             textField.setText("hello  world ");
             textField.selectRange(6, 13);
             textField.fireEvent(new KeyEvent(
-                    textField, textField, KeyEvent.KEY_TYPED, "{", "{", KeyCode.UNDEFINED,
-                    false, false, false, false));
+                    textField, textField, KeyEvent.KEY_TYPED, "{", "{", KeyCode.UNDEFINED, false, false, false, false));
         });
 
         assertEquals("hello { world }", textField.getText());
@@ -101,8 +97,7 @@ class FieldEditorFXTest extends JavaFxTest {
             textField.setText("hello");
             textField.positionCaret(5);
             textField.fireEvent(new KeyEvent(
-                    textField, textField, KeyEvent.KEY_TYPED, "{", "{", KeyCode.UNDEFINED,
-                    false, false, false, false));
+                    textField, textField, KeyEvent.KEY_TYPED, "{", "{", KeyCode.UNDEFINED, false, false, false, false));
         });
 
         assertEquals("hello{", textField.getText());
@@ -142,7 +137,16 @@ class FieldEditorFXTest extends JavaFxTest {
         textField.requestFocus();
         Node focusOwner = textField.getScene().getFocusOwner();
         assertEquals(textField, focusOwner);
-        focusOwner.fireEvent(new KeyEvent(focusOwner, focusOwner, KeyEvent.KEY_PRESSED, "", code.getName(), code,
-                false, !OS.OS_X, false, OS.OS_X));
+        focusOwner.fireEvent(new KeyEvent(
+                focusOwner,
+                focusOwner,
+                KeyEvent.KEY_PRESSED,
+                "",
+                code.getName(),
+                code,
+                false,
+                !OS.OS_X,
+                false,
+                OS.OS_X));
     }
 }

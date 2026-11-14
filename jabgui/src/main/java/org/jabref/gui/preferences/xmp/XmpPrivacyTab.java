@@ -12,7 +12,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.theme.StyleClasses;
@@ -43,10 +42,12 @@ public class XmpPrivacyTab extends AbstractPreferenceTabView<XmpPrivacyTabViewMo
     }
 
     private void buildView() {
-        setContent(form()
-                .checkbox(Localization.lang("Do not write the following fields to XMP Metadata"), viewModel.xmpFilterEnabledProperty())
-                .custom(buildFilterRegion(), region -> region
-                        .validate(viewModel.xmpFilterListValidationStatus(), filterList))
+        setContent(form().checkbox(
+                        Localization.lang("Do not write the following fields to XMP Metadata"),
+                        viewModel.xmpFilterEnabledProperty())
+                .custom(
+                        buildFilterRegion(),
+                        region -> region.validate(viewModel.xmpFilterListValidationStatus(), filterList))
                 .build());
     }
 
@@ -79,7 +80,8 @@ public class XmpPrivacyTab extends AbstractPreferenceTabView<XmpPrivacyTabViewMo
         new ValueTableCellFactory<Field, Field>()
                 .withGraphic(_ -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
                 .withTooltip(item -> Localization.lang("Remove") + " " + item.getName())
-                .withOnMouseClickedEvent(_ -> _ -> viewModel.removeFilter(filterList.getFocusModel().getFocusedItem()))
+                .withOnMouseClickedEvent(_ ->
+                        _ -> viewModel.removeFilter(filterList.getFocusModel().getFocusedItem()))
                 .install(actionsColumn);
 
         filterList.getColumns().add(fieldColumn);

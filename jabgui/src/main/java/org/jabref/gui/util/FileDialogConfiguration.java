@@ -6,11 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import javafx.stage.FileChooser;
-
 import org.jabref.logic.util.FileType;
-
 import org.jspecify.annotations.NonNull;
 
 public class FileDialogConfiguration {
@@ -21,10 +18,11 @@ public class FileDialogConfiguration {
     private final String initialFileName;
     private FileChooser.ExtensionFilter selectedExtensionFilter;
 
-    private FileDialogConfiguration(Path initialDirectory,
-                                    @NonNull List<FileChooser.ExtensionFilter> extensionFilters,
-                                    FileChooser.ExtensionFilter defaultExtension,
-                                    String initialFileName) {
+    private FileDialogConfiguration(
+            Path initialDirectory,
+            @NonNull List<FileChooser.ExtensionFilter> extensionFilters,
+            FileChooser.ExtensionFilter defaultExtension,
+            String initialFileName) {
         this.initialDirectory = initialDirectory;
         this.extensionFilters = extensionFilters;
         this.defaultExtension = defaultExtension;
@@ -67,7 +65,8 @@ public class FileDialogConfiguration {
         }
 
         public Builder withInitialDirectory(Path directory) {
-            if (directory == null) { // It could be that somehow the path is null, for example if it got deleted in the meantime
+            if (directory == null) { // It could be that somehow the path is null, for example if it got deleted in the
+                                     // meantime
                 initialDirectory = null;
             } else { // Dir must be a folder, not a file
                 if (!Files.isDirectory(directory)) {
@@ -115,9 +114,9 @@ public class FileDialogConfiguration {
 
         public Builder withDefaultExtension(String fileTypeDescription) {
             extensionFilters.stream()
-                            .filter(type -> type.getDescription().equalsIgnoreCase(fileTypeDescription))
-                            .findFirst()
-                            .ifPresent(extensionFilter -> defaultExtension = extensionFilter);
+                    .filter(type -> type.getDescription().equalsIgnoreCase(fileTypeDescription))
+                    .findFirst()
+                    .ifPresent(extensionFilter -> defaultExtension = extensionFilter);
 
             return this;
         }
@@ -133,9 +132,7 @@ public class FileDialogConfiguration {
         }
 
         public Builder addExtensionFilter(FileType... fileTypes) {
-            Stream.of(fileTypes)
-                  .map(FileFilterConverter::toExtensionFilter)
-                  .forEachOrdered(this::addExtensionFilter);
+            Stream.of(fileTypes).map(FileFilterConverter::toExtensionFilter).forEachOrdered(this::addExtensionFilter);
             return this;
         }
 

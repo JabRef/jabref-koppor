@@ -1,13 +1,12 @@
 package org.jabref.logic.formatter.minifier;
 
-import java.util.stream.Stream;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /// Tests in addition to the general tests from [org.jabref.logic.formatter.FormatterTest]
 class MinifyNameListFormatterTest {
@@ -32,7 +31,6 @@ class MinifyNameListFormatterTest {
                 Arguments.of("Simon Harrer and Jörg Lenhard", "Simon Harrer and Jörg Lenhard"),
                 Arguments.of("Simon Harrer and others", "Simon Harrer and Jörg Lenhard and Guido Wirtz"),
                 Arguments.of("Simon Harrer and others", "Simon Harrer and Jörg Lenhard and Guido Wirtz and others"),
-                Arguments.of("Stefan Kolb and others", new MinifyNameListFormatter().getExampleInput())
-        );
+                Arguments.of("Stefan Kolb and others", new MinifyNameListFormatter().getExampleInput()));
     }
 }

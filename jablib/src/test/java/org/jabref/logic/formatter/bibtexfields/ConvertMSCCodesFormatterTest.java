@@ -1,19 +1,17 @@
 package org.jabref.logic.formatter.bibtexfields;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import org.jabref.logic.journals.AbbreviationPreferences;
 import org.jabref.logic.msc.MscCodeEntry;
 import org.jabref.logic.msc.MscCodeRepository;
 import org.jabref.logic.preferences.JabRefCliPreferences;
 import org.jabref.model.entry.BibEntryPreferences;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ConvertMSCCodesFormatterTest {
 
@@ -31,12 +29,17 @@ public class ConvertMSCCodesFormatterTest {
         formatter = new ConvertMSCCodesFormatter(cliPreferences);
 
         MscCodeRepository repository = new MscCodeRepository(List.of(
-                new MscCodeEntry("34B60", "Applications of boundary value problems involving ordinary differential equations", "Applications of boundary value problems involving ordinary differential equations"),
-                new MscCodeEntry("53C70", "Direct methods (\\(G\\)-spaces of Busemann, etc.)", "Direct methods (\\(G\\)-spaces of Busemann, etc.)"),
+                new MscCodeEntry(
+                        "34B60",
+                        "Applications of boundary value problems involving ordinary differential equations",
+                        "Applications of boundary value problems involving ordinary differential equations"),
+                new MscCodeEntry(
+                        "53C70",
+                        "Direct methods (\\(G\\)-spaces of Busemann, etc.)",
+                        "Direct methods (\\(G\\)-spaces of Busemann, etc.)"),
                 new MscCodeEntry("53C99", "Global differential geometry", "None of the above, but in this section"),
                 new MscCodeEntry("76Z10", "Biopropulsion in water and in air", "Biopropulsion in water and in air"),
-                new MscCodeEntry("90B40", "Search theory", "Search theory")
-        ));
+                new MscCodeEntry("90B40", "Search theory", "Search theory")));
         ConvertMSCCodesFormatter.setMscCodes(repository);
     }
 
@@ -52,7 +55,8 @@ public class ConvertMSCCodesFormatterTest {
 
     @Test
     void convertSingleMSCCode() {
-        assertEquals("Applications of boundary value problems involving ordinary differential equations",
+        assertEquals(
+                "Applications of boundary value problems involving ordinary differential equations",
                 formatter.format("34B60"));
     }
 
@@ -79,7 +83,8 @@ public class ConvertMSCCodesFormatterTest {
 
     @Test
     void disabledFeatureLeavesKeywordsUntouched() {
-        when(cliPreferences.getAbbreviationPreferences().shouldEnableMscKeywordDescriptions()).thenReturn(false);
+        when(cliPreferences.getAbbreviationPreferences().shouldEnableMscKeywordDescriptions())
+                .thenReturn(false);
 
         assertEquals("34B60,90B40", formatter.format("34B60,90B40"));
     }

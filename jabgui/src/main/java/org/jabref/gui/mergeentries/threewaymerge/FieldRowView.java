@@ -1,11 +1,12 @@
 package org.jabref.gui.mergeentries.threewaymerge;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
-
+import org.fxmisc.richtext.StyleClassedTextArea;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.mergeentries.threewaymerge.FieldRowViewModel.Selection;
 import org.jabref.gui.mergeentries.threewaymerge.cell.FieldNameCell;
@@ -21,9 +22,6 @@ import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldTextMapper;
-
-import com.tobiasdiez.easybind.EasyBind;
-import org.fxmisc.richtext.StyleClassedTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +41,15 @@ public class FieldRowView {
 
     private GridPane parent;
 
-    public FieldRowView(Field field, BibEntry leftEntry, BibEntry rightEntry, BibEntry mergedEntry, FieldMergerFactory fieldMergerFactory, GuiPreferences preferences, StateManager stateManager, int rowIndex) {
+    public FieldRowView(
+            Field field,
+            BibEntry leftEntry,
+            BibEntry rightEntry,
+            BibEntry mergedEntry,
+            FieldMergerFactory fieldMergerFactory,
+            GuiPreferences preferences,
+            StateManager stateManager,
+            int rowIndex) {
         viewModel = new FieldRowViewModel(field, leftEntry, rightEntry, mergedEntry, fieldMergerFactory);
 
         fieldNameCell = new FieldNameCell(FieldTextMapper.getDisplayName(field), rowIndex);
@@ -156,7 +162,9 @@ public class FieldRowView {
     }
 
     public void showDiff(ShowDiffConfig diffConfig) {
-        if (!rightValueCell.isVisible() || StringUtil.isNullOrEmpty(viewModel.getLeftFieldValue()) || StringUtil.isNullOrEmpty(viewModel.getRightFieldValue())) {
+        if (!rightValueCell.isVisible()
+                || StringUtil.isNullOrEmpty(viewModel.getLeftFieldValue())
+                || StringUtil.isNullOrEmpty(viewModel.getRightFieldValue())) {
             return;
         }
         LOGGER.debug("Showing diffs...");
@@ -214,6 +222,8 @@ public class FieldRowView {
 
     @Override
     public String toString() {
-        return "FieldRowView [shouldShowDiffs=" + shouldShowDiffs.get() + ", fieldNameCell=" + fieldNameCell + ", leftValueCell=" + leftValueCell + ", rightValueCell=" + rightValueCell + ", mergedValueCell=" + mergedValueCell + "]";
+        return "FieldRowView [shouldShowDiffs=" + shouldShowDiffs.get() + ", fieldNameCell=" + fieldNameCell
+                + ", leftValueCell=" + leftValueCell + ", rightValueCell=" + rightValueCell + ", mergedValueCell="
+                + mergedValueCell + "]";
     }
 }

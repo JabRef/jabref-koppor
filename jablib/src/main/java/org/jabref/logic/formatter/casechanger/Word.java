@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.jspecify.annotations.NonNull;
 
 /// Represents a word in a title of a bibtex entry.
@@ -15,9 +14,9 @@ public final class Word {
     /// Set containing common lowercase function words
     public static final Set<String> SMALLER_WORDS;
 
-    public static final Set<Character> DASHES = Set.of('-', '~', '⸗', '〰', '᐀', '֊', '־', '‐', '‑', '‒',
-            '–', '—', '―', '⁓', '⁻', '₋', '−', '⸺', '⸻',
-            '〜', '゠', '︱', '︲', '﹘', '﹣', '－');
+    public static final Set<Character> DASHES = Set.of(
+            '-', '~', '⸗', '〰', '᐀', '֊', '־', '‐', '‑', '‒', '–', '—', '―', '⁓', '⁻', '₋', '−', '⸺', '⸻', '〜', '゠',
+            '︱', '︲', '﹘', '﹣', '－');
 
     // Conjunctions used as part of Title case capitalisation to specifically check if word is conjunction or not
     public static final Set<String> CONJUNCTIONS = Set.of("and", "but", "for", "nor", "or", "so", "yet");
@@ -33,14 +32,18 @@ public final class Word {
         smallerWords.addAll(Arrays.asList("a", "an", "the"));
 
         // Prepositions
-        smallerWords.addAll(Arrays.asList("above", "about", "across", "against", "along", "among", "around", "as", "at", "before", "behind", "below", "beneath", "beside", "between", "beyond", "by", "down", "during", "except", "for", "from", "in", "inside", "into", "like", "near", "of", "off", "on", "onto", "since", "to", "toward", "through", "under", "until", "up", "upon", "with", "within", "without"));
+        smallerWords.addAll(Arrays.asList(
+                "above", "about", "across", "against", "along", "among", "around", "as", "at", "before", "behind",
+                "below", "beneath", "beside", "between", "beyond", "by", "down", "during", "except", "for", "from",
+                "in", "inside", "into", "like", "near", "of", "off", "on", "onto", "since", "to", "toward", "through",
+                "under", "until", "up", "upon", "with", "within", "without"));
 
         // Conjunctions used as part of all case capitalisation to check if it is a small word or not
         smallerWords.addAll(CONJUNCTIONS);
 
         SMALLER_WORDS = smallerWords.stream()
-                                    .map(word -> word.toLowerCase(Locale.ROOT))
-                                    .collect(Collectors.toUnmodifiableSet());
+                .map(word -> word.toLowerCase(Locale.ROOT))
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     public Word(char @NonNull [] chars, boolean @NonNull [] protectedChars) {
@@ -78,9 +81,7 @@ public final class Word {
     public void toUpperFirst() {
         for (int i = 0; i < chars.length; i++) {
             if (!protectedChars[i]) {
-                chars[i] = i == 0 ?
-                           Character.toUpperCase(chars[i]) :
-                           Character.toLowerCase(chars[i]);
+                chars[i] = i == 0 ? Character.toUpperCase(chars[i]) : Character.toLowerCase(chars[i]);
             }
         }
     }
@@ -88,9 +89,9 @@ public final class Word {
     public void toUpperFirstIgnoreHyphen() {
         for (int i = 0; i < chars.length; i++) {
             if (!protectedChars[i]) {
-                chars[i] = i == 0 || (DASHES.contains(chars[i - 1])) ?
-                           Character.toUpperCase(chars[i]) :
-                           Character.toLowerCase(chars[i]);
+                chars[i] = i == 0 || (DASHES.contains(chars[i - 1]))
+                        ? Character.toUpperCase(chars[i])
+                        : Character.toLowerCase(chars[i]);
             }
         }
     }
@@ -98,9 +99,9 @@ public final class Word {
     public void toUpperFirstTitle() {
         for (int i = 0; i < chars.length; i++) {
             if (!protectedChars[i]) {
-                chars[i] = i == 0 || (DASHES.contains(chars[i - 1]) && isConjunction(chars, i)) ?
-                           Character.toUpperCase(chars[i]) :
-                           Character.toLowerCase(chars[i]);
+                chars[i] = i == 0 || (DASHES.contains(chars[i - 1]) && isConjunction(chars, i))
+                        ? Character.toUpperCase(chars[i])
+                        : Character.toLowerCase(chars[i]);
             }
         }
     }
@@ -117,9 +118,9 @@ public final class Word {
     public void stripConsonants() {
         for (int i = 0; i < chars.length; i++) {
             if (!protectedChars[i]) {
-                chars[i] = i == 0 || DASHES.contains(chars[i - 1]) ?
-                           Character.toUpperCase(chars[i]) :
-                           Character.toLowerCase(chars[i]);
+                chars[i] = i == 0 || DASHES.contains(chars[i - 1])
+                        ? Character.toUpperCase(chars[i])
+                        : Character.toLowerCase(chars[i]);
             }
         }
     }

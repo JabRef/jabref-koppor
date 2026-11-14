@@ -1,9 +1,10 @@
 package org.jabref.logic.ai.preferences;
 
+import com.github.javakeyring.Keyring;
+import com.github.javakeyring.PasswordAccessException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -17,7 +18,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.logic.ai.chatting.PredefinedChatModelUtil;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.ai.llm.AiProvider;
@@ -26,9 +26,6 @@ import org.jabref.model.ai.pipeline.DocumentSplitterKind;
 import org.jabref.model.ai.pipeline.ResponseEngineKind;
 import org.jabref.model.ai.summarization.SummarizatorKind;
 import org.jabref.model.ai.tokenization.TokenEstimatorKind;
-
-import com.github.javakeyring.Keyring;
-import com.github.javakeyring.PasswordAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +48,7 @@ public class AiPreferences {
             AiProvider.MISTRAL_AI, PredefinedChatModel.OPEN_MIXTRAL_8X22B,
             AiProvider.GEMINI, PredefinedChatModel.GEMINI_1_5_FLASH,
             AiProvider.HUGGING_FACE, PredefinedChatModel.BLANK_HUGGING_FACE,
-            AiProvider.DEBUG, PredefinedChatModel.DEBUG
-    );
+            AiProvider.DEBUG, PredefinedChatModel.DEBUG);
 
     /// Controls whether the AI features should start/work in a JabRef session.
     /// This property is set when JabRef has started, and is not persisted.
@@ -107,51 +103,47 @@ public class AiPreferences {
 
     private AiPreferences() {
         this(
-                false,                                                                       // AI disabled
-                false,                                                                       // Auto-generate embeddings
-                false,                                                                       // Auto-generate summaries
-                DEFAULT_AI_PROVIDER,                                                         // AI provider
-
-                DEFAULT_CHAT_MODEL.get(AiProvider.OPEN_AI).getName(),                        // OpenAI chat model
-                DEFAULT_CHAT_MODEL.get(AiProvider.MISTRAL_AI).getName(),                     // Mistral AI chat model
-                DEFAULT_CHAT_MODEL.get(AiProvider.GEMINI).getName(),                         // Gemini chat model
-                DEFAULT_CHAT_MODEL.get(AiProvider.HUGGING_FACE).getName(),                   // HuggingFace chat model
-
-                false,                                                                       // Customize expert settings
-
-                AiProvider.OPEN_AI.getApiUrl(),                                              // OpenAI API base URL
-                AiProvider.MISTRAL_AI.getApiUrl(),                                           // Mistral AI API base URL
-                AiProvider.GEMINI.getApiUrl(),                                               // Gemini API base URL
-                AiProvider.HUGGING_FACE.getApiUrl(),                                         // HuggingFace API base URL
-
-                AiDefaultExpertSettings.ENABLE_AI_DEBUG_PROVIDER,                             // Enable dummy AI provider for debugging
-
-                AiDefaultExpertSettings.SUMMARIZATOR_KIND,                                   // Summarizator kind
-                AiDefaultExpertSettings.TOKEN_ESTIMATOR_KIND,                                // Token estimator kind
-                AiDefaultExpertSettings.EMBEDDING_MODEL,                                     // Embedding model
-                AiDefaultExpertSettings.TEMPERATURE,                                         // Temperature
+                false, // AI disabled
+                false, // Auto-generate embeddings
+                false, // Auto-generate summaries
+                DEFAULT_AI_PROVIDER, // AI provider
+                DEFAULT_CHAT_MODEL.get(AiProvider.OPEN_AI).getName(), // OpenAI chat model
+                DEFAULT_CHAT_MODEL.get(AiProvider.MISTRAL_AI).getName(), // Mistral AI chat model
+                DEFAULT_CHAT_MODEL.get(AiProvider.GEMINI).getName(), // Gemini chat model
+                DEFAULT_CHAT_MODEL.get(AiProvider.HUGGING_FACE).getName(), // HuggingFace chat model
+                false, // Customize expert settings
+                AiProvider.OPEN_AI.getApiUrl(), // OpenAI API base URL
+                AiProvider.MISTRAL_AI.getApiUrl(), // Mistral AI API base URL
+                AiProvider.GEMINI.getApiUrl(), // Gemini API base URL
+                AiProvider.HUGGING_FACE.getApiUrl(), // HuggingFace API base URL
+                AiDefaultExpertSettings.ENABLE_AI_DEBUG_PROVIDER, // Enable dummy AI provider for debugging
+                AiDefaultExpertSettings.SUMMARIZATOR_KIND, // Summarizator kind
+                AiDefaultExpertSettings.TOKEN_ESTIMATOR_KIND, // Token estimator kind
+                AiDefaultExpertSettings.EMBEDDING_MODEL, // Embedding model
+                AiDefaultExpertSettings.TEMPERATURE, // Temperature
                 PredefinedChatModelUtil.getContextWindowSize(
                         DEFAULT_AI_PROVIDER,
-                        DEFAULT_CHAT_MODEL.get(DEFAULT_AI_PROVIDER).getName()),              // Context window size
-                AiDefaultExpertSettings.DOCUMENT_SPLITTER_KIND,                              // Document splitter kind
-                AiDefaultExpertSettings.DOCUMENT_SPLITTER_CHUNK_SIZE,                        // Document splitter chunk size
-                AiDefaultExpertSettings.DOCUMENT_SPLITTER_OVERLAP_SIZE,                      // Document splitter overlap size
-                AiDefaultExpertSettings.RESPONSE_ENGINE_KIND,                                // Response engine kind
-                AiDefaultExpertSettings.RAG_MAX_RESULTS_COUNT,                               // RAG max results count
-                AiDefaultExpertSettings.RAG_MIN_SCORE,                                       // RAG min score
-
-                AiDefaultTemplates.CHATTING_SYSTEM_MESSAGE_TEMPLATE,                         // Chatting system message template
-                AiDefaultTemplates.CHATTING_USER_MESSAGE_TEMPLATE,                           // Chatting user message template
-                AiDefaultTemplates.SUMMARIZATION_CHUNK_SYSTEM_MESSAGE_TEMPLATE,              // Summarization chunk system message template
-                AiDefaultTemplates.SUMMARIZATION_COMBINE_SYSTEM_MESSAGE_TEMPLATE,            // Summarization combine system message template
-                AiDefaultTemplates.SUMMARIZATION_FULL_DOCUMENT_SYSTEM_MESSAGE_TEMPLATE,      // Summarization full document system message template
-                AiDefaultTemplates.CITATION_PARSING_SYSTEM_MESSAGE_TEMPLATE,                 // Citation parsing system message template
-                AiDefaultTemplates.MARKDOWN_CHAT_EXPORT_TEMPLATE,                            // Markdown chat export template
-
-                true,                                                                        // Generate follow-up questions
-                3,                                                                           // Follow-up questions count
-                AiDefaultTemplates.FOLLOW_UP_QUESTIONS_TEMPLATE                              // Follow-up questions template
-        );
+                        DEFAULT_CHAT_MODEL.get(DEFAULT_AI_PROVIDER).getName()), // Context window size
+                AiDefaultExpertSettings.DOCUMENT_SPLITTER_KIND, // Document splitter kind
+                AiDefaultExpertSettings.DOCUMENT_SPLITTER_CHUNK_SIZE, // Document splitter chunk size
+                AiDefaultExpertSettings.DOCUMENT_SPLITTER_OVERLAP_SIZE, // Document splitter overlap size
+                AiDefaultExpertSettings.RESPONSE_ENGINE_KIND, // Response engine kind
+                AiDefaultExpertSettings.RAG_MAX_RESULTS_COUNT, // RAG max results count
+                AiDefaultExpertSettings.RAG_MIN_SCORE, // RAG min score
+                AiDefaultTemplates.CHATTING_SYSTEM_MESSAGE_TEMPLATE, // Chatting system message template
+                AiDefaultTemplates.CHATTING_USER_MESSAGE_TEMPLATE, // Chatting user message template
+                AiDefaultTemplates
+                        .SUMMARIZATION_CHUNK_SYSTEM_MESSAGE_TEMPLATE, // Summarization chunk system message template
+                AiDefaultTemplates
+                        .SUMMARIZATION_COMBINE_SYSTEM_MESSAGE_TEMPLATE, // Summarization combine system message template
+                AiDefaultTemplates.SUMMARIZATION_FULL_DOCUMENT_SYSTEM_MESSAGE_TEMPLATE, // Summarization full document
+                                                                                        // system message template
+                AiDefaultTemplates.CITATION_PARSING_SYSTEM_MESSAGE_TEMPLATE, // Citation parsing system message template
+                AiDefaultTemplates.MARKDOWN_CHAT_EXPORT_TEMPLATE, // Markdown chat export template
+                true, // Generate follow-up questions
+                3, // Follow-up questions count
+                AiDefaultTemplates.FOLLOW_UP_QUESTIONS_TEMPLATE // Follow-up questions template
+                );
     }
 
     public AiPreferences(
@@ -189,8 +181,7 @@ public class AiPreferences {
             String markdownChatExportTemplate,
             boolean generateFollowUpQuestions,
             int followUpQuestionsCount,
-            String followUpQuestionsTemplate
-    ) {
+            String followUpQuestionsTemplate) {
         this.aiFeaturesEnabledInitially = new SimpleBooleanProperty(aiFeaturesEnabledCurrently);
         this.aiFeaturesEnabledCurrently = new SimpleBooleanProperty(aiFeaturesEnabledCurrently);
         this.autoGenerateEmbeddings = new SimpleBooleanProperty(autoGenerateEmbeddings);
@@ -228,9 +219,12 @@ public class AiPreferences {
 
         this.chattingSystemMessageTemplate = new SimpleStringProperty(chattingSystemMessageTemplate);
         this.chattingUserMessageTemplate = new SimpleStringProperty(chattingUserMessageTemplate);
-        this.summarizationChunkSystemMessageTemplate = new SimpleStringProperty(summarizationChunkSystemMessageTemplate);
-        this.summarizationCombineSystemMessageTemplate = new SimpleStringProperty(summarizationCombineSystemMessageTemplate);
-        this.summarizationFullDocumentSystemMessageTemplate = new SimpleStringProperty(summarizationFullDocumentSystemMessageTemplate);
+        this.summarizationChunkSystemMessageTemplate =
+                new SimpleStringProperty(summarizationChunkSystemMessageTemplate);
+        this.summarizationCombineSystemMessageTemplate =
+                new SimpleStringProperty(summarizationCombineSystemMessageTemplate);
+        this.summarizationFullDocumentSystemMessageTemplate =
+                new SimpleStringProperty(summarizationFullDocumentSystemMessageTemplate);
         this.citationParsingSystemMessageTemplate = new SimpleStringProperty(citationParsingSystemMessageTemplate);
         this.markdownChatExportTemplate = new SimpleStringProperty(markdownChatExportTemplate);
 
@@ -337,7 +331,9 @@ public class AiPreferences {
                 try {
                     keyring.deletePassword(KEYRING_AI_SERVICE, KEYRING_AI_SERVICE_ACCOUNT + "-" + aiProvider.name());
                 } catch (PasswordAccessException _) {
-                    LOGGER.debug("API key for provider {} not stored in keyring. JabRef does not store an empty key.", aiProvider.name());
+                    LOGGER.debug(
+                            "API key for provider {} not stored in keyring. JabRef does not store an empty key.",
+                            aiProvider.name());
                 }
             } else {
                 keyring.setPassword(KEYRING_AI_SERVICE, KEYRING_AI_SERVICE_ACCOUNT + "-" + aiProvider.name(), newKey);
@@ -349,7 +345,8 @@ public class AiPreferences {
 
     public BooleanBinding restartNeededBinding() {
         return (aiFeaturesEnabledProperty().not().and(aiFeaturesEnabledCurrentlyProperty()))
-                .or(aiFeaturesEnabledProperty().and(aiFeaturesEnabledCurrentlyProperty().not()));
+                .or(aiFeaturesEnabledProperty()
+                        .and(aiFeaturesEnabledCurrentlyProperty().not()));
     }
 
     public ReadOnlyBooleanProperty aiFeaturesEnabledProperty() {
@@ -597,16 +594,13 @@ public class AiPreferences {
             return contextWindowSize.get();
         } else {
             return switch (aiProvider.get()) {
-                case OPEN_AI ->
-                        PredefinedChatModelUtil.getContextWindowSize(AiProvider.OPEN_AI, openAiChatModel.get());
+                case OPEN_AI -> PredefinedChatModelUtil.getContextWindowSize(AiProvider.OPEN_AI, openAiChatModel.get());
                 case MISTRAL_AI ->
-                        PredefinedChatModelUtil.getContextWindowSize(AiProvider.MISTRAL_AI, mistralAiChatModel.get());
+                    PredefinedChatModelUtil.getContextWindowSize(AiProvider.MISTRAL_AI, mistralAiChatModel.get());
                 case HUGGING_FACE ->
-                        PredefinedChatModelUtil.getContextWindowSize(AiProvider.HUGGING_FACE, huggingFaceChatModel.get());
-                case GEMINI ->
-                        PredefinedChatModelUtil.getContextWindowSize(AiProvider.GEMINI, geminiChatModel.get());
-                case DEBUG ->
-                        PredefinedChatModel.DEBUG.getContextWindowSize();
+                    PredefinedChatModelUtil.getContextWindowSize(AiProvider.HUGGING_FACE, huggingFaceChatModel.get());
+                case GEMINI -> PredefinedChatModelUtil.getContextWindowSize(AiProvider.GEMINI, geminiChatModel.get());
+                case DEBUG -> PredefinedChatModel.DEBUG.getContextWindowSize();
             };
         }
     }
@@ -709,8 +703,7 @@ public class AiPreferences {
                 embeddingModel,
                 documentSplitterKind,
                 documentSplitterChunkSize,
-                documentSplitterOverlapSize
-        );
+                documentSplitterOverlapSize);
     }
 
     private List<Property<?>> getChatModelNamesProperties() {
@@ -723,17 +716,29 @@ public class AiPreferences {
 
     public List<Property<?>> getChatProperties() {
         return (List<Property<?>>) Stream.of(
-                List.of(aiFeaturesEnabledCurrently, aiProvider, enableAiDebugProvider, customizeExpertSettings, temperature, contextWindowSize, tokenEstimatorKind),
-                getChatModelNamesProperties(),
-                getApiBaseUrlsProperties()
-        ).flatMap(List::stream).toList();
+                        List.of(
+                                aiFeaturesEnabledCurrently,
+                                aiProvider,
+                                enableAiDebugProvider,
+                                customizeExpertSettings,
+                                temperature,
+                                contextWindowSize,
+                                tokenEstimatorKind),
+                        getChatModelNamesProperties(),
+                        getApiBaseUrlsProperties())
+                .flatMap(List::stream)
+                .toList();
     }
 
     public List<? extends Property<?>> getSummarizatorProperties() {
         return Stream.of(
-                List.of(aiFeaturesEnabledCurrently, customizeExpertSettings, summarizatorKind),
-                List.of(summarizationChunkSystemMessageTemplate, summarizationCombineSystemMessageTemplate, summarizationFullDocumentSystemMessageTemplate)
-        ).flatMap(List::stream).toList();
+                        List.of(aiFeaturesEnabledCurrently, customizeExpertSettings, summarizatorKind),
+                        List.of(
+                                summarizationChunkSystemMessageTemplate,
+                                summarizationCombineSystemMessageTemplate,
+                                summarizationFullDocumentSystemMessageTemplate))
+                .flatMap(List::stream)
+                .toList();
     }
 
     public List<? extends Property<?>> getResponseEngineProperties() {
@@ -743,8 +748,7 @@ public class AiPreferences {
                 customizeExpertSettings,
                 responseEngineKind,
                 ragMaxResultsCount,
-                ragMinScore
-        );
+                ragMinScore);
     }
 
     public List<? extends Property<?>> getDocumentSplitterProperties() {
@@ -753,38 +757,27 @@ public class AiPreferences {
                 customizeExpertSettings,
                 documentSplitterKind,
                 documentSplitterChunkSize,
-                documentSplitterOverlapSize
-        );
+                documentSplitterOverlapSize);
     }
 
     public String getSelectedChatModel() {
         return switch (aiProvider.get()) {
-            case OPEN_AI ->
-                    openAiChatModel.get();
-            case MISTRAL_AI ->
-                    mistralAiChatModel.get();
-            case HUGGING_FACE ->
-                    huggingFaceChatModel.get();
-            case GEMINI ->
-                    geminiChatModel.get();
-            case DEBUG ->
-                    PredefinedChatModel.DEBUG.getName();
+            case OPEN_AI -> openAiChatModel.get();
+            case MISTRAL_AI -> mistralAiChatModel.get();
+            case HUGGING_FACE -> huggingFaceChatModel.get();
+            case GEMINI -> geminiChatModel.get();
+            case DEBUG -> PredefinedChatModel.DEBUG.getName();
         };
     }
 
     public String getSelectedApiBaseUrl() {
         if (customizeExpertSettings.get()) {
             return switch (aiProvider.get()) {
-                case OPEN_AI ->
-                        openAiApiBaseUrl.get();
-                case MISTRAL_AI ->
-                        mistralAiApiBaseUrl.get();
-                case HUGGING_FACE ->
-                        huggingFaceApiBaseUrl.get();
-                case GEMINI ->
-                        geminiApiBaseUrl.get();
-                case DEBUG ->
-                        AiProvider.DEBUG.getApiUrl();
+                case OPEN_AI -> openAiApiBaseUrl.get();
+                case MISTRAL_AI -> mistralAiApiBaseUrl.get();
+                case HUGGING_FACE -> huggingFaceApiBaseUrl.get();
+                case GEMINI -> geminiApiBaseUrl.get();
+                case DEBUG -> AiProvider.DEBUG.getApiUrl();
             };
         } else {
             return aiProvider.get().getApiUrl();

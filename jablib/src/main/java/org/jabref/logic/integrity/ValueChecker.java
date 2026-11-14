@@ -1,7 +1,6 @@
 package org.jabref.logic.integrity;
 
 import java.util.Optional;
-
 import org.jspecify.annotations.Nullable;
 
 public interface ValueChecker {

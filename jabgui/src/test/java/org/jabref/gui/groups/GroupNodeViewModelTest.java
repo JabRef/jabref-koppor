@@ -1,17 +1,26 @@
 package org.jabref.gui.groups;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
-
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.JabRefSvgIcon;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -39,21 +48,9 @@ import org.jabref.model.groups.SearchGroup;
 import org.jabref.model.groups.WordKeywordGroup;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.event.IndexAddedOrUpdatedEvent;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(JavaFxExtension.class)
 class GroupNodeViewModelTest {
@@ -73,29 +70,23 @@ class GroupNodeViewModelTest {
         databaseContext = new BibDatabaseContext();
         taskExecutor = new CurrentThreadTaskExecutor();
         preferences = mock(GuiPreferences.class);
-        when(preferences.getGroupsPreferences()).thenReturn(new GroupsPreferences(
-                EnumSet.noneOf(GroupViewMode.class),
-                true,
-                true,
-                false,
-                GroupHierarchyType.INDEPENDENT,
-                false
-        ));
+        when(preferences.getGroupsPreferences())
+                .thenReturn(new GroupsPreferences(
+                        EnumSet.noneOf(GroupViewMode.class), true, true, false, GroupHierarchyType.INDEPENDENT, false));
         SearchContext searchContext = new SearchContext(
                 new SimpleBooleanProperty(false),
                 NoOpSearchBackend::new,
-                () -> new InMemorySearchBackend(databaseContext, new BibEntryPreferences(','))
-        );
+                () -> new InMemorySearchBackend(databaseContext, new BibEntryPreferences(',')));
         when(stateManager.getSearchContext(any())).thenReturn(searchContext);
 
-        viewModel = getViewModelForGroup(
-                new WordKeywordGroup("Test group", GroupHierarchyType.INDEPENDENT, StandardField.TITLE, "search", true, ',', false));
+        viewModel = getViewModelForGroup(new WordKeywordGroup(
+                "Test group", GroupHierarchyType.INDEPENDENT, StandardField.TITLE, "search", true, ',', false));
     }
 
     @Test
     void getDisplayNameConvertsLatexToUnicode() {
-        GroupNodeViewModel viewModel = getViewModelForGroup(
-                new WordKeywordGroup("\\beta", GroupHierarchyType.INDEPENDENT, StandardField.TITLE, "search", true, ',', false));
+        GroupNodeViewModel viewModel = getViewModelForGroup(new WordKeywordGroup(
+                "\\beta", GroupHierarchyType.INDEPENDENT, StandardField.TITLE, "search", true, ',', false));
         assertEquals("β", viewModel.getDisplayName());
     }
 
@@ -116,16 +107,24 @@ class GroupNodeViewModelTest {
         BibEntry entryThree = new BibEntry().withField(StandardField.KEYWORDS, "A > B > B2");
         databaseContext.getDatabase().insertEntries(entryOne, entryTwo, entryThree);
 
-        AutomaticKeywordGroup group = new AutomaticKeywordGroup("Keywords", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, ',', '>');
+        AutomaticKeywordGroup group =
+                new AutomaticKeywordGroup("Keywords", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, ',', '>');
         GroupNodeViewModel groupViewModel = getViewModelForGroup(group);
 
-        WordKeywordGroup expectedGroupA = new WordKeywordGroup("A", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true);
-        WordKeywordGroup expectedGroupB = new WordKeywordGroup("B", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B", true, ',', true);
-        WordKeywordGroup expectedGroupB1 = new WordKeywordGroup("B1", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B > B1", true, ',', true);
-        WordKeywordGroup expectedGroupB2 = new WordKeywordGroup("B2", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B > B2", true, ',', true);
-        WordKeywordGroup expectedGroupC = new WordKeywordGroup("C", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > C", true, ',', true);
-        WordKeywordGroup expectedGroupD = new WordKeywordGroup("D", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > D", true, ',', true);
-        WordKeywordGroup expectedGroupE = new WordKeywordGroup("E", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "E", true, ',', true);
+        WordKeywordGroup expectedGroupA =
+                new WordKeywordGroup("A", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true);
+        WordKeywordGroup expectedGroupB = new WordKeywordGroup(
+                "B", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B", true, ',', true);
+        WordKeywordGroup expectedGroupB1 = new WordKeywordGroup(
+                "B1", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B > B1", true, ',', true);
+        WordKeywordGroup expectedGroupB2 = new WordKeywordGroup(
+                "B2", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B > B2", true, ',', true);
+        WordKeywordGroup expectedGroupC = new WordKeywordGroup(
+                "C", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > C", true, ',', true);
+        WordKeywordGroup expectedGroupD = new WordKeywordGroup(
+                "D", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > D", true, ',', true);
+        WordKeywordGroup expectedGroupE =
+                new WordKeywordGroup("E", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "E", true, ',', true);
         GroupNodeViewModel expectedA = getViewModelForGroup(expectedGroupA);
         GroupTreeNode expectedB = expectedA.addSubgroup(expectedGroupB);
         expectedB.addSubgroup(expectedGroupB1);
@@ -140,10 +139,14 @@ class GroupNodeViewModelTest {
 
     @Test
     void draggedOnTopOfGroupAddsBeforeIt() {
-        GroupNodeViewModel rootViewModel = getViewModelForGroup(new WordKeywordGroup("root", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true));
-        WordKeywordGroup groupA = new WordKeywordGroup("A", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true);
-        WordKeywordGroup groupB = new WordKeywordGroup("B", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B", true, ',', true);
-        WordKeywordGroup groupC = new WordKeywordGroup("C", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B > B1", true, ',', true);
+        GroupNodeViewModel rootViewModel = getViewModelForGroup(new WordKeywordGroup(
+                "root", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true));
+        WordKeywordGroup groupA =
+                new WordKeywordGroup("A", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true);
+        WordKeywordGroup groupB = new WordKeywordGroup(
+                "B", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B", true, ',', true);
+        WordKeywordGroup groupC = new WordKeywordGroup(
+                "C", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B > B1", true, ',', true);
         GroupNodeViewModel groupAViewModel = getViewModelForGroup(rootViewModel.addSubgroup(groupA));
         GroupNodeViewModel groupBViewModel = getViewModelForGroup(rootViewModel.addSubgroup(groupB));
         GroupNodeViewModel groupCViewModel = getViewModelForGroup(rootViewModel.addSubgroup(groupC));
@@ -155,10 +158,14 @@ class GroupNodeViewModelTest {
 
     @Test
     void draggedOnBottomOfGroupAddsAfterIt() {
-        GroupNodeViewModel rootViewModel = getViewModelForGroup(new WordKeywordGroup("root", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true));
-        WordKeywordGroup groupA = new WordKeywordGroup("A", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true);
-        WordKeywordGroup groupB = new WordKeywordGroup("B", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B", true, ',', true);
-        WordKeywordGroup groupC = new WordKeywordGroup("C", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B > B1", true, ',', true);
+        GroupNodeViewModel rootViewModel = getViewModelForGroup(new WordKeywordGroup(
+                "root", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true));
+        WordKeywordGroup groupA =
+                new WordKeywordGroup("A", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true);
+        WordKeywordGroup groupB = new WordKeywordGroup(
+                "B", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B", true, ',', true);
+        WordKeywordGroup groupC = new WordKeywordGroup(
+                "C", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B > B1", true, ',', true);
         GroupNodeViewModel groupAViewModel = getViewModelForGroup(rootViewModel.addSubgroup(groupA));
         GroupNodeViewModel groupBViewModel = getViewModelForGroup(rootViewModel.addSubgroup(groupB));
         GroupNodeViewModel groupCViewModel = getViewModelForGroup(rootViewModel.addSubgroup(groupC));
@@ -170,10 +177,14 @@ class GroupNodeViewModelTest {
 
     @Test
     void draggedOnBottomOfGroupAddsAfterItWhenSourceGroupWasBefore() {
-        GroupNodeViewModel rootViewModel = getViewModelForGroup(new WordKeywordGroup("root", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true));
-        WordKeywordGroup groupA = new WordKeywordGroup("A", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true);
-        WordKeywordGroup groupB = new WordKeywordGroup("B", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B", true, ',', true);
-        WordKeywordGroup groupC = new WordKeywordGroup("C", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B > B1", true, ',', true);
+        GroupNodeViewModel rootViewModel = getViewModelForGroup(new WordKeywordGroup(
+                "root", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true));
+        WordKeywordGroup groupA =
+                new WordKeywordGroup("A", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true);
+        WordKeywordGroup groupB = new WordKeywordGroup(
+                "B", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B", true, ',', true);
+        WordKeywordGroup groupC = new WordKeywordGroup(
+                "C", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B > B1", true, ',', true);
         GroupNodeViewModel groupAViewModel = getViewModelForGroup(rootViewModel.addSubgroup(groupA));
         GroupNodeViewModel groupBViewModel = getViewModelForGroup(rootViewModel.addSubgroup(groupB));
         GroupNodeViewModel groupCViewModel = getViewModelForGroup(rootViewModel.addSubgroup(groupC));
@@ -185,10 +196,14 @@ class GroupNodeViewModelTest {
 
     @Test
     void draggedOnTopOfGroupAddsBeforeItWhenSourceGroupWasBefore() {
-        GroupNodeViewModel rootViewModel = getViewModelForGroup(new WordKeywordGroup("root", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true));
-        WordKeywordGroup groupA = new WordKeywordGroup("A", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true);
-        WordKeywordGroup groupB = new WordKeywordGroup("B", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B", true, ',', true);
-        WordKeywordGroup groupC = new WordKeywordGroup("C", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B > B1", true, ',', true);
+        GroupNodeViewModel rootViewModel = getViewModelForGroup(new WordKeywordGroup(
+                "root", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true));
+        WordKeywordGroup groupA =
+                new WordKeywordGroup("A", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A", true, ',', true);
+        WordKeywordGroup groupB = new WordKeywordGroup(
+                "B", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B", true, ',', true);
+        WordKeywordGroup groupC = new WordKeywordGroup(
+                "C", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, "A > B > B1", true, ',', true);
         GroupNodeViewModel groupAViewModel = getViewModelForGroup(rootViewModel.addSubgroup(groupA));
         GroupNodeViewModel groupBViewModel = getViewModelForGroup(rootViewModel.addSubgroup(groupB));
         GroupNodeViewModel groupCViewModel = getViewModelForGroup(rootViewModel.addSubgroup(groupC));
@@ -205,10 +220,12 @@ class GroupNodeViewModelTest {
         BibEntry entry = new BibEntry();
         databaseContext.getDatabase().insertEntry(entry);
 
-        GroupNodeViewModel model = new GroupNodeViewModel(databaseContext, stateManager, taskExecutor, group, new CustomLocalDragboard(), preferences);
+        GroupNodeViewModel model = new GroupNodeViewModel(
+                databaseContext, stateManager, taskExecutor, group, new CustomLocalDragboard(), preferences);
         model.addEntriesToGroup(databaseContext.getEntries());
 
-        assertEquals(databaseContext.getEntries(), model.getGroupNode().getEntriesInGroup(databaseContext.getEntries()));
+        assertEquals(
+                databaseContext.getEntries(), model.getGroupNode().getEntriesInGroup(databaseContext.getEntries()));
         assertEquals(groupName, entry.getField(StandardField.GROUPS).get());
     }
 
@@ -265,11 +282,13 @@ class GroupNodeViewModelTest {
     }
 
     private GroupNodeViewModel getViewModelForGroup(AbstractGroup group) {
-        return new GroupNodeViewModel(databaseContext, stateManager, taskExecutor, group, new CustomLocalDragboard(), preferences);
+        return new GroupNodeViewModel(
+                databaseContext, stateManager, taskExecutor, group, new CustomLocalDragboard(), preferences);
     }
 
     private GroupNodeViewModel getViewModelForGroup(GroupTreeNode group) {
-        return new GroupNodeViewModel(databaseContext, stateManager, taskExecutor, group, new CustomLocalDragboard(), preferences);
+        return new GroupNodeViewModel(
+                databaseContext, stateManager, taskExecutor, group, new CustomLocalDragboard(), preferences);
     }
 
     @Test
@@ -281,11 +300,10 @@ class GroupNodeViewModelTest {
         // Automatic group: its subgroups exist only in the ViewModel
         AutomaticKeywordGroup autoRoot = new AutomaticKeywordGroup(
                 "Keywords",
-                GroupHierarchyType.INCLUDING,   // UNION behavior expected
+                GroupHierarchyType.INCLUDING, // UNION behavior expected
                 StandardField.KEYWORDS,
                 ',',
-                '>'
-        );
+                '>');
 
         GroupNodeViewModel vm = getViewModelForGroup(autoRoot);
         vm.ensureMatchedEntriesLoaded();
@@ -325,8 +343,7 @@ class GroupNodeViewModelTest {
                 GroupHierarchyType.INDEPENDENT, // no hierarchical aggregation
                 StandardField.KEYWORDS,
                 ',',
-                '>'
-        );
+                '>');
 
         GroupNodeViewModel vm = getViewModelForGroup(autoRoot);
         vm.ensureMatchedEntriesLoaded();
@@ -338,8 +355,8 @@ class GroupNodeViewModelTest {
     @Test
     void hitsAreRecomputedWhenGroupCountIsReenabledAfterSkippedRefresh() {
         databaseContext.getDatabase().insertEntry(new BibEntry().withField(StandardField.TITLE, "search"));
-        GroupNodeViewModel vm = getViewModelForGroup(
-                new WordKeywordGroup("Test group", GroupHierarchyType.INDEPENDENT, StandardField.TITLE, "search", true, ',', false));
+        GroupNodeViewModel vm = getViewModelForGroup(new WordKeywordGroup(
+                "Test group", GroupHierarchyType.INDEPENDENT, StandardField.TITLE, "search", true, ',', false));
         vm.ensureMatchedEntriesLoaded();
         assertEquals(1, vm.getHits().getValue().intValue());
 
@@ -382,8 +399,8 @@ class GroupNodeViewModelTest {
         BibEntry secondEntry = new BibEntry().withField(StandardField.TITLE, "search");
         databaseContext.getDatabase().insertEntries(firstEntry, secondEntry);
 
-        GroupNodeViewModel vm = getViewModelForGroup(
-                new WordKeywordGroup("Test group", GroupHierarchyType.INDEPENDENT, StandardField.TITLE, "search", true, ',', false));
+        GroupNodeViewModel vm = getViewModelForGroup(new WordKeywordGroup(
+                "Test group", GroupHierarchyType.INDEPENDENT, StandardField.TITLE, "search", true, ',', false));
         vm.ensureMatchedEntriesLoaded();
         assertEquals(2, vm.getHits().getValue().intValue());
 
@@ -395,8 +412,8 @@ class GroupNodeViewModelTest {
     @Test
     void hitsAreUpdatedWhenManyMatchingEntriesAreRemoved() {
         List<BibEntry> entriesToRemove = IntStream.range(0, 11)
-                                                  .mapToObj(_ -> new BibEntry().withField(StandardField.TITLE, "search"))
-                                                  .toList();
+                .mapToObj(_ -> new BibEntry().withField(StandardField.TITLE, "search"))
+                .toList();
         BibEntry remainingEntry = new BibEntry().withField(StandardField.TITLE, "search");
         databaseContext.getDatabase().insertEntries(entriesToRemove);
         databaseContext.getDatabase().insertEntry(remainingEntry);
@@ -416,12 +433,13 @@ class GroupNodeViewModelTest {
                 databaseContext,
                 stateManager,
                 recordingTaskExecutor,
-                new WordKeywordGroup("Test group", GroupHierarchyType.INDEPENDENT, StandardField.TITLE, "search", true, ',', false),
+                new WordKeywordGroup(
+                        "Test group", GroupHierarchyType.INDEPENDENT, StandardField.TITLE, "search", true, ',', false),
                 new CustomLocalDragboard(),
                 preferences);
         List<BibEntry> entriesToRemove = IntStream.range(0, 11)
-                                                  .mapToObj(_ -> new BibEntry().withField(StandardField.TITLE, "search"))
-                                                  .toList();
+                .mapToObj(_ -> new BibEntry().withField(StandardField.TITLE, "search"))
+                .toList();
         databaseContext.getDatabase().insertEntries(entriesToRemove);
 
         databaseContext.getDatabase().removeEntries(entriesToRemove);
@@ -435,8 +453,8 @@ class GroupNodeViewModelTest {
         BibEntry secondEntry = new BibEntry().withField(StandardField.TITLE, "search");
         databaseContext.getDatabase().insertEntries(firstEntry, secondEntry);
 
-        GroupNodeViewModel vm = getViewModelForGroup(
-                new WordKeywordGroup("Test group", GroupHierarchyType.INDEPENDENT, StandardField.TITLE, "search", true, ',', false));
+        GroupNodeViewModel vm = getViewModelForGroup(new WordKeywordGroup(
+                "Test group", GroupHierarchyType.INDEPENDENT, StandardField.TITLE, "search", true, ',', false));
         vm.ensureMatchedEntriesLoaded();
         IntegerBinding hits = vm.getHits();
         assertEquals(2, hits.getValue().intValue());
@@ -455,13 +473,8 @@ class GroupNodeViewModelTest {
 
         ExplicitGroup parentGroup = new ExplicitGroup("Parent", GroupHierarchyType.INCLUDING, ',');
         GroupTreeNode parentNode = new GroupTreeNode(parentGroup);
-        AutomaticKeywordGroup autoGroup = new AutomaticKeywordGroup(
-                "Keywords",
-                GroupHierarchyType.INCLUDING,
-                StandardField.KEYWORDS,
-                ',',
-                '>'
-        );
+        AutomaticKeywordGroup autoGroup =
+                new AutomaticKeywordGroup("Keywords", GroupHierarchyType.INCLUDING, StandardField.KEYWORDS, ',', '>');
         parentNode.addChild(new GroupTreeNode(autoGroup));
 
         GroupNodeViewModel parentVm = getViewModelForGroup(parentNode);
@@ -475,16 +488,20 @@ class GroupNodeViewModelTest {
         ExplicitGroup parentGroup = new ExplicitGroup("Parent", GroupHierarchyType.INDEPENDENT, ',');
         GroupTreeNode parentNode = new GroupTreeNode(parentGroup);
 
-        WordKeywordGroup duplicateGroup1 = new WordKeywordGroup("Duplicate", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "tag", true, ',', false);
-        WordKeywordGroup duplicateGroup2 = new WordKeywordGroup("Duplicate", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "tag", true, ',', false);
+        WordKeywordGroup duplicateGroup1 = new WordKeywordGroup(
+                "Duplicate", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "tag", true, ',', false);
+        WordKeywordGroup duplicateGroup2 = new WordKeywordGroup(
+                "Duplicate", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "tag", true, ',', false);
 
         GroupTreeNode childNode1 = parentNode.addSubgroup(duplicateGroup1);
         GroupTreeNode childNode2 = parentNode.addSubgroup(duplicateGroup2);
 
         GroupNodeViewModel parentVm = getViewModelForGroup(parentNode);
 
-        GroupNodeViewModel foundVm1 = parentVm.findGroupNodeViewModel(childNode1).orElseThrow();
-        GroupNodeViewModel foundVm2 = parentVm.findGroupNodeViewModel(childNode2).orElseThrow();
+        GroupNodeViewModel foundVm1 =
+                parentVm.findGroupNodeViewModel(childNode1).orElseThrow();
+        GroupNodeViewModel foundVm2 =
+                parentVm.findGroupNodeViewModel(childNode2).orElseThrow();
 
         assertEquals(childNode1, foundVm1.getGroupNode());
         assertEquals(childNode2, foundVm2.getGroupNode());
@@ -494,7 +511,8 @@ class GroupNodeViewModelTest {
 
     @Test
     void disposingCancelsSearchIndexTasksAndPreventsUpdates() {
-        SearchGroup searchGroup = new SearchGroup("Search", GroupHierarchyType.INDEPENDENT, "author=Alice", EnumSet.noneOf(SearchFlags.class));
+        SearchGroup searchGroup = new SearchGroup(
+                "Search", GroupHierarchyType.INDEPENDENT, "author=Alice", EnumSet.noneOf(SearchFlags.class));
         GroupNodeViewModel searchVm = getViewModelForGroup(searchGroup);
 
         searchVm.dispose();

@@ -2,7 +2,6 @@ package org.jabref.logic.ai.tokenization.logic;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.ai.tokenization.TokenEstimatorKind;
 
@@ -16,10 +15,7 @@ public class ByCharacterTokenEstimator implements TokenEstimator {
 
     @Override
     public int estimate(List<ChatMessage> messages) {
-        String content = messages
-                .stream()
-                .map(ChatMessage::content)
-                .collect(Collectors.joining(" "));
+        String content = messages.stream().map(ChatMessage::content).collect(Collectors.joining(" "));
 
         return calculate(content);
     }

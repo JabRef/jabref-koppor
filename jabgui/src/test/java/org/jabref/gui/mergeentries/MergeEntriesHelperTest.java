@@ -1,15 +1,14 @@
 package org.jabref.gui.mergeentries;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.undo.CompoundEdit;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class MergeEntriesHelperTest {
 
@@ -24,8 +23,8 @@ class MergeEntriesHelperTest {
 
     @Test
     void groupsFieldIsNotRemovedWhenFetcherHasNoGroups() {
-        BibEntry entryFromFetcher = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.TITLE, "Some Title");
+        BibEntry entryFromFetcher =
+                new BibEntry(StandardEntryType.Article).withField(StandardField.TITLE, "Some Title");
         BibEntry entryFromLibrary = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.TITLE, "Some Title")
                 .withField(StandardField.GROUPS, "IEEE");
@@ -47,7 +46,9 @@ class MergeEntriesHelperTest {
         MergeEntriesHelper.mergeEntries(entryFromFetcher, entryFromLibrary, compoundEdit, KEYWORD_SEPARATOR);
 
         String groups = entryFromLibrary.getField(StandardField.GROUPS).orElse("");
-        assertEquals("IEEE, Springer", entryFromLibrary.getField(StandardField.GROUPS).orElse(""));
+        assertEquals(
+                "IEEE, Springer",
+                entryFromLibrary.getField(StandardField.GROUPS).orElse(""));
     }
 
     @Test
@@ -69,8 +70,8 @@ class MergeEntriesHelperTest {
         BibEntry entryFromFetcher = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.TITLE, "Some Title")
                 .withField(StandardField.GROUPS, "Springer");
-        BibEntry entryFromLibrary = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.TITLE, "Some Title");
+        BibEntry entryFromLibrary =
+                new BibEntry(StandardEntryType.Article).withField(StandardField.TITLE, "Some Title");
 
         MergeEntriesHelper.mergeEntries(entryFromFetcher, entryFromLibrary, compoundEdit, KEYWORD_SEPARATOR);
 
@@ -79,8 +80,8 @@ class MergeEntriesHelperTest {
 
     @Test
     void regularObsoleteFieldIsRemovedWhenNotInFetcher() {
-        BibEntry entryFromFetcher = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.TITLE, "Some Title");
+        BibEntry entryFromFetcher =
+                new BibEntry(StandardEntryType.Article).withField(StandardField.TITLE, "Some Title");
         BibEntry entryFromLibrary = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.TITLE, "Some Title")
                 .withField(StandardField.NOTE, "Obsolete note");
@@ -95,8 +96,8 @@ class MergeEntriesHelperTest {
         BibEntry entryFromFetcher = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.TITLE, "Some Title")
                 .withCitationKey("Maldacena:1997re");
-        BibEntry entryFromLibrary = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.TITLE, "Some Title");
+        BibEntry entryFromLibrary =
+                new BibEntry(StandardEntryType.Article).withField(StandardField.TITLE, "Some Title");
 
         MergeEntriesHelper.mergeEntries(entryFromFetcher, entryFromLibrary, compoundEdit, KEYWORD_SEPARATOR);
 

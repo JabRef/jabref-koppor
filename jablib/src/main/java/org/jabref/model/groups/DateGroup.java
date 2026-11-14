@@ -1,7 +1,6 @@
 package org.jabref.model.groups;
 
 import java.util.Optional;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Date;
 import org.jabref.model.entry.field.Field;
@@ -21,11 +20,10 @@ public class DateGroup extends AbstractGroup {
     }
 
     static Optional<Date> extractDate(Field field, BibEntry entry) {
-        boolean isCore =
-                (field == StandardField.DATE)
-                        || (field == StandardField.YEAR)
-                        || (field == StandardField.MONTH)
-                        || (field == StandardField.DAY);
+        boolean isCore = (field == StandardField.DATE)
+                || (field == StandardField.YEAR)
+                || (field == StandardField.MONTH)
+                || (field == StandardField.DAY);
 
         if (isCore) {
             // use alias resolution so DATE <-> YEAR/MONTH/DAY works either way
@@ -47,29 +45,31 @@ public class DateGroup extends AbstractGroup {
         int numOfdashes = (int) dateKeyFormat.chars().filter(ch -> ch == '-').count();
         Optional<Integer> y = d.getYear();
         return switch (numOfdashes) {
-            case 0 ->
-                    y.map("%04d"::formatted); // "YYYY"
+            case 0 -> y.map("%04d"::formatted); // "YYYY"
             case 1 -> { // "YYYY-MM"
                 if (d.getYear().isPresent() && d.getMonth().isPresent()) {
-                    String out = "%04d-%02d".formatted(d.getYear().get(), d.getMonth().get().getNumber());
+                    String out = "%04d-%02d"
+                            .formatted(d.getYear().get(), d.getMonth().get().getNumber());
                     yield Optional.of(out);
                 } else {
                     yield Optional.empty();
                 }
             }
             case 2 -> { // "YYYY-MM-DD"
-                if (d.getYear().isPresent() && d.getMonth().isPresent() && d.getDay().isPresent()) {
-                    String out = "%04d-%02d-%02d".formatted(
-                            d.getYear().get(),
-                            d.getMonth().get().getNumber(),
-                            d.getDay().get());
+                if (d.getYear().isPresent()
+                        && d.getMonth().isPresent()
+                        && d.getDay().isPresent()) {
+                    String out = "%04d-%02d-%02d"
+                            .formatted(
+                                    d.getYear().get(),
+                                    d.getMonth().get().getNumber(),
+                                    d.getDay().get());
                     yield Optional.of(out);
                 } else {
                     yield Optional.empty();
                 }
             }
-            default ->
-                    Optional.empty();
+            default -> Optional.empty();
         };
     }
 

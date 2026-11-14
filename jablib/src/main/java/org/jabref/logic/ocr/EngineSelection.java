@@ -1,7 +1,6 @@
 package org.jabref.logic.ocr;
 
 import java.util.Optional;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked

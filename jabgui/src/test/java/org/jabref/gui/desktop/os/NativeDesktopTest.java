@@ -1,5 +1,9 @@
 package org.jabref.gui.desktop.os;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -11,25 +15,18 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.externalfiletype.CustomExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.gui.icon.IconTheme;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /// The "browser" in these tests is a shell script recording its argument, so the assertions catch
 /// any URL mangling on the way to the external application (the regression fixed here: routing
@@ -38,9 +35,11 @@ import static org.mockito.Mockito.when;
 @DisabledOnOs(OS.WINDOWS)
 class NativeDesktopTest {
 
-    private static final String URL_WITH_QUERY = "https://journals.plos.org/plosmedicine/article/file?id=10.1371/journal.pmed.1004085&type=printable";
+    private static final String URL_WITH_QUERY =
+            "https://journals.plos.org/plosmedicine/article/file?id=10.1371/journal.pmed.1004085&type=printable";
 
-    @TempDir Path tempDir;
+    @TempDir
+    Path tempDir;
 
     private Path recorder;
     private Path recorded;
@@ -65,7 +64,8 @@ class NativeDesktopTest {
 
     @Test
     void openBrowserPassesFullUrlToCustomBrowser() throws IOException, InterruptedException {
-        ExternalFileType htmlType = new CustomExternalFileType("URL", "html", "text/html", recorder.toString(), "www", IconTheme.JabRefIcons.WWW);
+        ExternalFileType htmlType = new CustomExternalFileType(
+                "URL", "html", "text/html", recorder.toString(), "www", IconTheme.JabRefIcons.WWW);
         ExternalApplicationsPreferences preferences = mock(ExternalApplicationsPreferences.class);
         when(preferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(htmlType));
 
@@ -84,7 +84,8 @@ class NativeDesktopTest {
     }
 
     @Test
-    void openBrowserPassesFullUrlToDesktopBrowse() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+    void openBrowserPassesFullUrlToDesktopBrowse()
+            throws IOException, InterruptedException, ExecutionException, TimeoutException {
         FakeDesktop desktop = new FakeDesktop(true, false, false);
 
         NativeDesktop.openBrowser(URL_WITH_QUERY, noCustomBrowser(), FakeDesktop.NO_FAILURE_EXPECTED, desktop);
@@ -93,7 +94,8 @@ class NativeDesktopTest {
     }
 
     @Test
-    void openBrowserFallsBackToSystemHandlerWhenBrowseFails() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+    void openBrowserFallsBackToSystemHandlerWhenBrowseFails()
+            throws IOException, InterruptedException, ExecutionException, TimeoutException {
         FakeDesktop desktop = new FakeDesktop(true, true, false);
 
         NativeDesktop.openBrowser(URL_WITH_QUERY, noCustomBrowser(), FakeDesktop.NO_FAILURE_EXPECTED, desktop);
@@ -102,7 +104,8 @@ class NativeDesktopTest {
     }
 
     @Test
-    void openBrowserReportsAsyncFailureWhenAllMechanismsFail() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+    void openBrowserReportsAsyncFailureWhenAllMechanismsFail()
+            throws IOException, InterruptedException, ExecutionException, TimeoutException {
         FakeDesktop desktop = new FakeDesktop(true, true, true);
         CompletableFuture<IOException> failure = new CompletableFuture<>();
 
@@ -176,7 +179,8 @@ class NativeDesktopTest {
         }
 
         @Override
-        public void openFile(String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences) {
+        public void openFile(
+                String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences) {
             throw new UnsupportedOperationException();
         }
 

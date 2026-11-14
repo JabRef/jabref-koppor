@@ -1,5 +1,7 @@
 package org.jabref.logic.journals.ltwa;
 
+import static java.util.function.Predicate.not;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -11,8 +13,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static java.util.function.Predicate.not;
 
 /// Parser for the LTWA (List of Title Word Abbreviations) CSV file.
 /// Converts CSV data into a list of LtwaEntry objects.
@@ -52,14 +52,17 @@ public class LtwaTsvParser {
                 String abbreviationStr = matcher.group(2);
                 String languageStr = matcher.group(3);
 
-                Optional<String> normalizeResult = NormalizeUtils.normalize(ANNOTATION.matcher(word).replaceAll("").strip());
+                Optional<String> normalizeResult = NormalizeUtils.normalize(
+                        ANNOTATION.matcher(word).replaceAll("").strip());
                 if (normalizeResult.isEmpty()) {
                     continue;
                 }
                 word = normalizeResult.get();
                 String abbreviation = NO_ABBREVIATION.equals(abbreviationStr) ? null : abbreviationStr;
-                List<String> languages = Arrays.stream(languageStr.split("\\s*,\\s*")).map(String::trim)
-                                               .filter(not(String::isEmpty)).toList();
+                List<String> languages = Arrays.stream(languageStr.split("\\s*,\\s*"))
+                        .map(String::trim)
+                        .filter(not(String::isEmpty))
+                        .toList();
 
                 entries.add(new LtwaEntry(word, abbreviation, languages));
             }

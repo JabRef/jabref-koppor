@@ -1,14 +1,12 @@
 package org.jabref.http.server.cayw.format;
 
+import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.jabref.http.server.cayw.CAYWQueryParams;
 import org.jabref.http.server.cayw.CitationProperties;
 import org.jabref.http.server.cayw.gui.CAYWEntry;
-
-import jakarta.ws.rs.core.MediaType;
 
 public class MMDFormatter implements CAYWFormatter {
 
@@ -20,9 +18,9 @@ public class MMDFormatter implements CAYWFormatter {
     @Override
     public String format(CAYWQueryParams queryParams, List<CAYWEntry> caywEntries) {
         return caywEntries.stream()
-                          .map(this::formatEntry)
-                          .flatMap(Optional::stream)
-                          .collect(Collectors.joining(""));
+                .map(this::formatEntry)
+                .flatMap(Optional::stream)
+                .collect(Collectors.joining(""));
     }
 
     private Optional<String> formatEntry(CAYWEntry entry) {
@@ -36,7 +34,8 @@ public class MMDFormatter implements CAYWFormatter {
             }
 
             if (props.getPrefix().isPresent() || props.getPostnote().isPresent()) {
-                return "[" + props.getPrefix().orElse("") + sep + props.getPostnote().orElse("") + "][#" + key + "]";
+                return "[" + props.getPrefix().orElse("") + sep
+                        + props.getPostnote().orElse("") + "][#" + key + "]";
             }
 
             return "[#" + key + "]";

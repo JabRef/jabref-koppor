@@ -1,8 +1,9 @@
 package org.jabref.gui.ai.chat;
 
+import com.airhacks.afterburner.views.ViewLoader;
+import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ListProperty;
 import javafx.collections.ListChangeListener;
@@ -16,7 +17,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.ai.AiPrivacyNoticeView;
 import org.jabref.gui.ai.statuspane.UniversalStatusPaneView;
@@ -37,50 +37,77 @@ import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 
-import com.airhacks.afterburner.views.ViewLoader;
-import jakarta.inject.Inject;
-
-/// General AI chat component with [org.jabref.model.entry.BibEntry]. Can be used for chatting with one entry ([AiEntryChatView]) or with several entries (like [AiGroupChatView]).
+/// General AI chat component with [org.jabref.model.entry.BibEntry]. Can be used for chatting with one entry
+/// ([AiEntryChatView]) or with several entries (like [AiGroupChatView]).
 ///
 /// To set up this component, set or bind the [#entriesProperty()] and [#chatHistoryProperty()] properties.
 // [impl->feat~ai.chatting~1]
 public class AiChatView extends StackPane implements SearchShortcutTarget {
-    @FXML private AiPrivacyNoticeView privacyNotice;
-    @FXML private UniversalStatusPaneView restartNeededPane;
-    @FXML private UniversalStatusPaneView noFilesErrorPane;
-    @FXML private BorderPane mainContainer;
+    @FXML
+    private AiPrivacyNoticeView privacyNotice;
 
-    @FXML private ListScrollPane<ChatMessage> chatHistoryScrollPane;
+    @FXML
+    private UniversalStatusPaneView restartNeededPane;
 
-    @FXML private Pane transparentPane;
-    @FXML private ProgressIndicator loadingIndicator;
+    @FXML
+    private UniversalStatusPaneView noFilesErrorPane;
 
-    @FXML private AiChatFindBar findBar;
+    @FXML
+    private BorderPane mainContainer;
 
-    @FXML private HBox followUpQuestionsArea;
-    @FXML private SimpleListView<String> followUpQuestionsSimpleListView;
+    @FXML
+    private ListScrollPane<ChatMessage> chatHistoryScrollPane;
 
-    @FXML private Button infoButton;
+    @FXML
+    private Pane transparentPane;
+
+    @FXML
+    private ProgressIndicator loadingIndicator;
+
+    @FXML
+    private AiChatFindBar findBar;
+
+    @FXML
+    private HBox followUpQuestionsArea;
+
+    @FXML
+    private SimpleListView<String> followUpQuestionsSimpleListView;
+
+    @FXML
+    private Button infoButton;
     // [impl->feat~ai.chat.smart-prompt-field~1]
-    @FXML private HistoryTextArea userMessageTextArea;
-    @FXML private Button sendButton;
-    @FXML private Button retryButton;
-    @FXML private Button cancelButton;
+    @FXML
+    private HistoryTextArea userMessageTextArea;
 
-    @FXML private Label noticeText;
+    @FXML
+    private Button sendButton;
 
-    @Inject private GuiPreferences preferences;
-    @Inject private AiService aiService;
-    @Inject private DialogService dialogService;
-    @Inject private TaskExecutor taskExecutor;
+    @FXML
+    private Button retryButton;
+
+    @FXML
+    private Button cancelButton;
+
+    @FXML
+    private Label noticeText;
+
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private AiService aiService;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private TaskExecutor taskExecutor;
 
     private AiChatViewModel viewModel;
     private Optional<Node> focusBeforeFind = Optional.empty();
 
     public AiChatView() {
-        ViewLoader.view(this)
-                  .root(this)
-                  .load();
+        ViewLoader.view(this).root(this).load();
     }
 
     @FXML
@@ -93,8 +120,7 @@ public class AiChatView extends StackPane implements SearchShortcutTarget {
                 aiService.getIngestedDocumentsRepository(),
                 aiService.getEmbeddingsStore(),
                 aiService.getEmbeddingModelCache(),
-                taskExecutor
-        );
+                taskExecutor);
 
         setupBindings();
         setupValues();
@@ -102,7 +128,8 @@ public class AiChatView extends StackPane implements SearchShortcutTarget {
         setupFind();
     }
 
-    /// Ctrl+F inside the chat searches the chat messages instead of the library, see [org.jabref.gui.frame.JabRefFrame].
+    /// Ctrl+F inside the chat searches the chat messages instead of the library, see
+    /// [org.jabref.gui.frame.JabRefFrame].
     // [impl->req~ai.chat.find.open~1, req~ai.chat.find.close~1, req~ai.chat.find.navigation~1]
     private void setupFind() {
         findBar.setOnNavigate(_ -> updateFind(true));
@@ -140,9 +167,9 @@ public class AiChatView extends StackPane implements SearchShortcutTarget {
         String query = findBar.getActiveQuery();
         int current = findBar.getCurrent();
         List<MarkdownTextFlow> flows = chatHistoryScrollPane.getRenderedNodes().stream()
-                                                            .filter(AiChatMessageView.class::isInstance)
-                                                            .map(node -> ((AiChatMessageView) node).getMarkdownTextFlow())
-                                                            .toList();
+                .filter(AiChatMessageView.class::isInstance)
+                .map(node -> ((AiChatMessageView) node).getMarkdownTextFlow())
+                .toList();
 
         int total = 0;
         for (MarkdownTextFlow flow : flows) {
@@ -155,30 +182,35 @@ public class AiChatView extends StackPane implements SearchShortcutTarget {
 
         if (scrollToCurrent) {
             flows.stream()
-                 .flatMap(flow -> flow.getCurrentOccurrence().stream())
-                 .findFirst()
-                 .ifPresent(node -> ScrollUtils.scrollIntoScrollPane(chatHistoryScrollPane, node.localToScene(node.getBoundsInLocal())));
+                    .flatMap(flow -> flow.getCurrentOccurrence().stream())
+                    .findFirst()
+                    .ifPresent(node -> ScrollUtils.scrollIntoScrollPane(
+                            chatHistoryScrollPane, node.localToScene(node.getBoundsInLocal())));
         }
     }
 
     // [impl->req~ai.chat.find.restore-focus~1]
     private void closeFind() {
         findBar.hide();
-        focusBeforeFind.filter(node -> node.getScene() == getScene() && isVisibleAndEnabled(node))
-                       .ifPresentOrElse(Node::requestFocus, () -> {
-                           if (isVisibleAndEnabled(userMessageTextArea)) {
-                               userMessageTextArea.requestFocus();
-                           } else {
-                               chatHistoryScrollPane.requestFocus();
-                           }
-                       });
+        focusBeforeFind
+                .filter(node -> node.getScene() == getScene() && isVisibleAndEnabled(node))
+                .ifPresentOrElse(Node::requestFocus, () -> {
+                    if (isVisibleAndEnabled(userMessageTextArea)) {
+                        userMessageTextArea.requestFocus();
+                    } else {
+                        chatHistoryScrollPane.requestFocus();
+                    }
+                });
         focusBeforeFind = Optional.empty();
     }
 
     /// A hidden ancestor makes requestFocus a no-op, so reject it before choosing the focus-restoration fallback.
     private static boolean isVisibleAndEnabled(Node node) {
-        return node.isVisible() && !node.isDisabled()
-                && Optional.ofNullable(node.getParent()).map(AiChatView::isVisibleAndEnabled).orElse(true);
+        return node.isVisible()
+                && !node.isDisabled()
+                && Optional.ofNullable(node.getParent())
+                        .map(AiChatView::isVisibleAndEnabled)
+                        .orElse(true);
     }
 
     @Override
@@ -215,9 +247,9 @@ public class AiChatView extends StackPane implements SearchShortcutTarget {
         privacyNotice.visibleProperty().bind(isAiTurnedOff);
         restartNeededPane.visibleProperty().bind(isRestartNeeded);
         noFilesErrorPane.visibleProperty().bind(isNoFiles);
-        mainContainer.visibleProperty().bind(isAiTurnedOff.not()
-                                                          .and(isNoFiles.not())
-                                                          .and(isRestartNeeded.not()));
+        mainContainer
+                .visibleProperty()
+                .bind(isAiTurnedOff.not().and(isNoFiles.not()).and(isRestartNeeded.not()));
 
         loadingIndicator.visibleProperty().bind(isWaiting);
         transparentPane.visibleProperty().bind(isWaiting);
@@ -230,15 +262,21 @@ public class AiChatView extends StackPane implements SearchShortcutTarget {
 
     private static String formatNoticeText(ChatModel model) {
         String modelName = AiNamingUtils.getDisplayName(model.getAiProvider()) + " " + model.getName();
-        return Localization.lang("Current AI model: %0. The AI may generate inaccurate or inappropriate responses. Please verify any information provided.", modelName);
+        return Localization.lang(
+                "Current AI model: %0. The AI may generate inaccurate or inappropriate responses. Please verify any"
+                        + " information provided.",
+                modelName);
     }
 
     private void setupFollowUpQuestions() {
-        followUpQuestionsArea.visibleProperty().bind(
-                viewModel.followUpQuestionsProperty().emptyProperty().not()
-                         .and(preferences.getAiPreferences().generateFollowUpQuestionsProperty())
-                         .and(viewModel.stateProperty().isEqualTo(AiChatViewModel.State.IDLE))
-        );
+        followUpQuestionsArea
+                .visibleProperty()
+                .bind(viewModel
+                        .followUpQuestionsProperty()
+                        .emptyProperty()
+                        .not()
+                        .and(preferences.getAiPreferences().generateFollowUpQuestionsProperty())
+                        .and(viewModel.stateProperty().isEqualTo(AiChatViewModel.State.IDLE)));
 
         followUpQuestionsSimpleListView.itemsProperty().bind(viewModel.followUpQuestionsProperty());
         followUpQuestionsSimpleListView.setRenderer(question -> {
@@ -250,14 +288,12 @@ public class AiChatView extends StackPane implements SearchShortcutTarget {
     }
 
     private void setupValues() {
-        userMessageTextArea.getHistory().addAll(
-                viewModel
-                        .chatHistoryProperty()
-                        .stream()
+        userMessageTextArea
+                .getHistory()
+                .addAll(viewModel.chatHistoryProperty().stream()
                         .map(ChatMessage::content)
                         .filter(StringUtil::isNotBlank)
-                        .toList()
-        );
+                        .toList());
     }
 
     private Node renderChatMessage(ChatMessage chatMessage) {

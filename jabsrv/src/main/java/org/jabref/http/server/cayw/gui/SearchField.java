@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
-
 import javafx.animation.PauseTransition;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.TextField;

@@ -1,9 +1,12 @@
 package org.jabref.gui.fieldeditors.optioneditors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mock;
+
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
-
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
@@ -14,13 +17,8 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.Langid;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.mock;
 
 public class LanguageEditorViewModelTest {
 
@@ -31,7 +29,12 @@ public class LanguageEditorViewModelTest {
         BibDatabaseContext databaseContext = mock(BibDatabaseContext.class);
         FilePreferences filePreferences = mock(FilePreferences.class);
         JournalAbbreviationRepository abbreviationRepository = mock(JournalAbbreviationRepository.class);
-        FieldCheckers fieldCheckers = new FieldCheckers(databaseContext, filePreferences, abbreviationRepository, false, CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS);
+        FieldCheckers fieldCheckers = new FieldCheckers(
+                databaseContext,
+                filePreferences,
+                abbreviationRepository,
+                false,
+                CitationKeyPatternPreferences.DEFAULT_UNWANTED_CHARACTERS);
         SuggestionProvider<?> suggestionProvider = mock(SuggestionProvider.class);
 
         languageEditorViewModel = new LanguageEditorViewModel(
@@ -39,8 +42,7 @@ public class LanguageEditorViewModelTest {
                 suggestionProvider,
                 BibDatabaseMode.BIBLATEX,
                 fieldCheckers,
-                new JabRefUndoManager()
-        );
+                new JabRefUndoManager());
     }
 
     @Test
@@ -85,4 +87,3 @@ public class LanguageEditorViewModelTest {
         assertNull(result, "Blank input should return null Langid");
     }
 }
-

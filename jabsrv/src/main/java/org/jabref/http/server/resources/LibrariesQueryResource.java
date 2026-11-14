@@ -1,10 +1,15 @@
 package org.jabref.http.server.resources;
 
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-
 import org.jabref.http.SrvStateManager;
 import org.jabref.http.dto.LibraryQueryMatch;
 import org.jabref.http.dto.LibraryQueryRequest;
@@ -18,13 +23,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResults;
-
-import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,9 +89,11 @@ public class LibrariesQueryResource {
         List<LibraryQueryMatch> matches = new ArrayList<>();
         for (String libraryId : libraryIds) {
             try {
-                BibDatabaseContext context = ServerUtils.getBibDatabaseContext(libraryId, srvStateManager, preferences.getImportFormatPreferences());
+                BibDatabaseContext context = ServerUtils.getBibDatabaseContext(
+                        libraryId, srvStateManager, preferences.getImportFormatPreferences());
                 for (BibEntry entry : runSearch(context, searchQuery)) {
-                    matches.add(new LibraryQueryMatch(libraryId, entry.getCitationKey().orElse(LibraryQueryMatch.UNSET_CITATION_KEY)));
+                    matches.add(new LibraryQueryMatch(
+                            libraryId, entry.getCitationKey().orElse(LibraryQueryMatch.UNSET_CITATION_KEY)));
                 }
             } catch (IOException e) {
                 LOGGER.warn("Could not load library {} for query", libraryId, e);
@@ -108,7 +108,7 @@ public class LibrariesQueryResource {
     private List<BibEntry> runSearch(BibDatabaseContext context, SearchQuery query) {
         SearchResults results = srvStateManager.getSearchContext(context).search(query);
         return context.getDatabase().getEntries().stream()
-                      .filter(results::isMatched)
-                      .toList();
+                .filter(results::isMatched)
+                .toList();
     }
 }

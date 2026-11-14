@@ -1,9 +1,11 @@
 package org.jabref.gui.slr;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.WorkspacePreferences;
 import org.jabref.logic.git.preferences.GitPreferences;
@@ -12,14 +14,10 @@ import org.jabref.logic.importer.ImporterPreferences;
 import org.jabref.model.study.Study;
 import org.jabref.model.study.StudyCatalog;
 import org.jabref.model.study.StudyQuery;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 class ManageStudyDefinitionViewModelTest {
     private ImportFormatPreferences importFormatPreferences;
@@ -43,86 +41,81 @@ class ManageStudyDefinitionViewModelTest {
     void emptyStudyConstructorFillsDatabasesCorrectly() {
         ManageStudyDefinitionViewModel manageStudyDefinitionViewModel = new ManageStudyDefinitionViewModel(
                 importFormatPreferences, importerPreferences, workspacePreferences, gitPreferences, dialogService);
-        assertEquals(List.of(
-                new StudyCatalogItem("ACM Portal", true),
-                new StudyCatalogItem("arXiv", false),
-                new StudyCatalogItem("Bibliotheksverbund Bayern (Experimental)", false),
-                new StudyCatalogItem("BibSonomy", false),
-                new StudyCatalogItem("Bielefeld Academic Search Engine", false),
-                new StudyCatalogItem("Biodiversity Heritage", false),
-                new StudyCatalogItem("Crossref", false),
-                new StudyCatalogItem("DBLP", true),
-                new StudyCatalogItem("DNB", false),
-                new StudyCatalogItem("DOAB", false),
-                new StudyCatalogItem("DOAJ", false),
-                new StudyCatalogItem("Europe/PMCID", false),
-                new StudyCatalogItem("GVK", false),
-                new StudyCatalogItem("IEEEXplore", true),
-                new StudyCatalogItem("INSPIRE", false),
-                new StudyCatalogItem("ISIDORE", false),
-                new StudyCatalogItem("LOBID", false),
-                new StudyCatalogItem("MathSciNet", false),
-                new StudyCatalogItem("Medline/PubMed", false),
-                new StudyCatalogItem("OpenAlex", false),
-                new StudyCatalogItem("ResearchGate", false),
-                new StudyCatalogItem("SAO/NASA ADS", false),
-                new StudyCatalogItem("ScholarAPI", false),
-                new StudyCatalogItem("ScholarArchive", false),
-                new StudyCatalogItem("Scopus", false),
-                new StudyCatalogItem("SemanticScholar", false),
-                new StudyCatalogItem("Springer", true),
-                new StudyCatalogItem("Unpaywall", false),
-                new StudyCatalogItem("zbMATH", false)
-        ), manageStudyDefinitionViewModel.getCatalogs());
+        assertEquals(
+                List.of(
+                        new StudyCatalogItem("ACM Portal", true),
+                        new StudyCatalogItem("arXiv", false),
+                        new StudyCatalogItem("Bibliotheksverbund Bayern (Experimental)", false),
+                        new StudyCatalogItem("BibSonomy", false),
+                        new StudyCatalogItem("Bielefeld Academic Search Engine", false),
+                        new StudyCatalogItem("Biodiversity Heritage", false),
+                        new StudyCatalogItem("Crossref", false),
+                        new StudyCatalogItem("DBLP", true),
+                        new StudyCatalogItem("DNB", false),
+                        new StudyCatalogItem("DOAB", false),
+                        new StudyCatalogItem("DOAJ", false),
+                        new StudyCatalogItem("Europe/PMCID", false),
+                        new StudyCatalogItem("GVK", false),
+                        new StudyCatalogItem("IEEEXplore", true),
+                        new StudyCatalogItem("INSPIRE", false),
+                        new StudyCatalogItem("ISIDORE", false),
+                        new StudyCatalogItem("LOBID", false),
+                        new StudyCatalogItem("MathSciNet", false),
+                        new StudyCatalogItem("Medline/PubMed", false),
+                        new StudyCatalogItem("OpenAlex", false),
+                        new StudyCatalogItem("ResearchGate", false),
+                        new StudyCatalogItem("SAO/NASA ADS", false),
+                        new StudyCatalogItem("ScholarAPI", false),
+                        new StudyCatalogItem("ScholarArchive", false),
+                        new StudyCatalogItem("Scopus", false),
+                        new StudyCatalogItem("SemanticScholar", false),
+                        new StudyCatalogItem("Springer", true),
+                        new StudyCatalogItem("Unpaywall", false),
+                        new StudyCatalogItem("zbMATH", false)),
+                manageStudyDefinitionViewModel.getCatalogs());
     }
 
     @Test
     void studyConstructorFillsDatabasesCorrectly(@TempDir Path tempDir) {
         ManageStudyDefinitionViewModel manageStudyDefinitionViewModel = getManageStudyDefinitionViewModel(tempDir);
-        assertEquals(List.of(
-                new StudyCatalogItem("ACM Portal", true),
-                new StudyCatalogItem("arXiv", false),
-                new StudyCatalogItem("Bibliotheksverbund Bayern (Experimental)", false),
-                new StudyCatalogItem("BibSonomy", false),
-                new StudyCatalogItem("Bielefeld Academic Search Engine", false),
-                new StudyCatalogItem("Biodiversity Heritage", false),
-                new StudyCatalogItem("Crossref", false),
-                new StudyCatalogItem("DBLP", false),
-                new StudyCatalogItem("DNB", false),
-                new StudyCatalogItem("DOAB", false),
-                new StudyCatalogItem("DOAJ", false),
-                new StudyCatalogItem("Europe/PMCID", false),
-                new StudyCatalogItem("GVK", false),
-                new StudyCatalogItem("IEEEXplore", false),
-                new StudyCatalogItem("INSPIRE", false),
-                new StudyCatalogItem("ISIDORE", false),
-                new StudyCatalogItem("LOBID", false),
-                new StudyCatalogItem("MathSciNet", false),
-                new StudyCatalogItem("Medline/PubMed", false),
-                new StudyCatalogItem("OpenAlex", false),
-                new StudyCatalogItem("ResearchGate", false),
-                new StudyCatalogItem("SAO/NASA ADS", false),
-                new StudyCatalogItem("ScholarAPI", false),
-                new StudyCatalogItem("ScholarArchive", false),
-                new StudyCatalogItem("Scopus", false),
-                new StudyCatalogItem("SemanticScholar", false),
-                new StudyCatalogItem("Springer", false),
-                new StudyCatalogItem("Unpaywall", false),
-                new StudyCatalogItem("zbMATH", false)
-        ), manageStudyDefinitionViewModel.getCatalogs());
+        assertEquals(
+                List.of(
+                        new StudyCatalogItem("ACM Portal", true),
+                        new StudyCatalogItem("arXiv", false),
+                        new StudyCatalogItem("Bibliotheksverbund Bayern (Experimental)", false),
+                        new StudyCatalogItem("BibSonomy", false),
+                        new StudyCatalogItem("Bielefeld Academic Search Engine", false),
+                        new StudyCatalogItem("Biodiversity Heritage", false),
+                        new StudyCatalogItem("Crossref", false),
+                        new StudyCatalogItem("DBLP", false),
+                        new StudyCatalogItem("DNB", false),
+                        new StudyCatalogItem("DOAB", false),
+                        new StudyCatalogItem("DOAJ", false),
+                        new StudyCatalogItem("Europe/PMCID", false),
+                        new StudyCatalogItem("GVK", false),
+                        new StudyCatalogItem("IEEEXplore", false),
+                        new StudyCatalogItem("INSPIRE", false),
+                        new StudyCatalogItem("ISIDORE", false),
+                        new StudyCatalogItem("LOBID", false),
+                        new StudyCatalogItem("MathSciNet", false),
+                        new StudyCatalogItem("Medline/PubMed", false),
+                        new StudyCatalogItem("OpenAlex", false),
+                        new StudyCatalogItem("ResearchGate", false),
+                        new StudyCatalogItem("SAO/NASA ADS", false),
+                        new StudyCatalogItem("ScholarAPI", false),
+                        new StudyCatalogItem("ScholarArchive", false),
+                        new StudyCatalogItem("Scopus", false),
+                        new StudyCatalogItem("SemanticScholar", false),
+                        new StudyCatalogItem("Springer", false),
+                        new StudyCatalogItem("Unpaywall", false),
+                        new StudyCatalogItem("zbMATH", false)),
+                manageStudyDefinitionViewModel.getCatalogs());
     }
 
     @Test
     void studyConstructorPreservesCatalogReason(@TempDir Path tempDir) {
-        List<StudyCatalog> catalogs = List.of(
-                new StudyCatalog("ACM Portal", true, "Primary source"));
-        Study study = new Study(
-                List.of("Name"),
-                "title",
-                List.of("Q1"),
-                List.of(),
-                catalogs
-        );
+        List<StudyCatalog> catalogs = List.of(new StudyCatalog("ACM Portal", true, "Primary source"));
+        Study study = new Study(List.of("Name"), "title", List.of("Q1"), List.of(), catalogs);
         ManageStudyDefinitionViewModel viewModel = new ManageStudyDefinitionViewModel(
                 study,
                 tempDir,
@@ -132,10 +125,10 @@ class ManageStudyDefinitionViewModelTest {
                 gitPreferences,
                 dialogService);
         String reason = viewModel.getCatalogs().stream()
-                                 .filter(item -> "ACM Portal".equals(item.getName()))
-                                 .findFirst()
-                                 .map(StudyCatalogItem::getReason)
-                                 .orElse("");
+                .filter(item -> "ACM Portal".equals(item.getName()))
+                .findFirst()
+                .map(StudyCatalogItem::getReason)
+                .orElse("");
         assertEquals("Primary source", reason);
     }
 
@@ -153,13 +146,19 @@ class ManageStudyDefinitionViewModelTest {
         List<StudyCatalog> catalogs = List.of(new StudyCatalog("ACM Portal", true));
         Study study = new Study(List.of("Name"), "title", List.of("RQ1"), List.of(query1, query2), catalogs);
         ManageStudyDefinitionViewModel viewModel = new ManageStudyDefinitionViewModel(
-                study, tempDir, importFormatPreferences, importerPreferences, workspacePreferences, gitPreferences, dialogService);
+                study,
+                tempDir,
+                importFormatPreferences,
+                importerPreferences,
+                workspacePreferences,
+                gitPreferences,
+                dialogService);
 
         viewModel.getCatalogs().stream()
-                 .filter(item -> "ACM Portal".equals(item.getName()))
-                 .findFirst()
-                 .orElseThrow()
-                 .setNativeQuery("ti:Test");
+                .filter(item -> "ACM Portal".equals(item.getName()))
+                .findFirst()
+                .orElseThrow()
+                .setNativeQuery("ti:Test");
 
         Study builtStudy = viewModel.buildStudy();
         for (StudyQuery query : builtStudy.getQueries()) {
@@ -174,13 +173,19 @@ class ManageStudyDefinitionViewModelTest {
         List<StudyCatalog> catalogs = List.of(new StudyCatalog("ACM Portal", true));
         Study study = new Study(List.of("Name"), "title", List.of("RQ1"), List.of(query), catalogs);
         ManageStudyDefinitionViewModel viewModel = new ManageStudyDefinitionViewModel(
-                study, tempDir, importFormatPreferences, importerPreferences, workspacePreferences, gitPreferences, dialogService);
+                study,
+                tempDir,
+                importFormatPreferences,
+                importerPreferences,
+                workspacePreferences,
+                gitPreferences,
+                dialogService);
 
         viewModel.getCatalogs().stream()
-                 .filter(item -> "ACM Portal".equals(item.getName()))
-                 .findFirst()
-                 .orElseThrow()
-                 .setNativeQuery("");
+                .filter(item -> "ACM Portal".equals(item.getName()))
+                .findFirst()
+                .orElseThrow()
+                .setNativeQuery("");
 
         Study builtStudy = viewModel.buildStudy();
         assertEquals(Map.of(), builtStudy.getQueries().getFirst().getCatalogSpecific());
@@ -191,14 +196,20 @@ class ManageStudyDefinitionViewModelTest {
         StudyQuery query = new StudyQuery("Q1");
         Study study = new Study(List.of("Name"), "title", List.of("RQ1"), List.of(query), List.of());
         ManageStudyDefinitionViewModel viewModel = new ManageStudyDefinitionViewModel(
-                study, tempDir, importFormatPreferences, importerPreferences, workspacePreferences, gitPreferences, dialogService);
+                study,
+                tempDir,
+                importFormatPreferences,
+                importerPreferences,
+                workspacePreferences,
+                gitPreferences,
+                dialogService);
 
         // "arXiv" is not part of the study's catalogs, so it stays disabled by default
         viewModel.getCatalogs().stream()
-                 .filter(item -> "arXiv".equals(item.getName()))
-                 .findFirst()
-                 .orElseThrow()
-                 .setNativeQuery("ti:Test");
+                .filter(item -> "arXiv".equals(item.getName()))
+                .findFirst()
+                .orElseThrow()
+                .setNativeQuery("ti:Test");
 
         Study builtStudy = viewModel.buildStudy();
         assertEquals(Map.of(), builtStudy.getQueries().getFirst().getCatalogSpecific());
@@ -211,17 +222,25 @@ class ManageStudyDefinitionViewModelTest {
         List<StudyCatalog> catalogs = List.of(new StudyCatalog("ACM Portal", true));
         Study study = new Study(List.of("Name"), "title", List.of("RQ1"), List.of(query), catalogs);
         ManageStudyDefinitionViewModel viewModel = new ManageStudyDefinitionViewModel(
-                study, tempDir, importFormatPreferences, importerPreferences, workspacePreferences, gitPreferences, dialogService);
+                study,
+                tempDir,
+                importFormatPreferences,
+                importerPreferences,
+                workspacePreferences,
+                gitPreferences,
+                dialogService);
 
         viewModel.getCatalogs().stream()
-                 .filter(item -> "ACM Portal".equals(item.getName()))
-                 .findFirst()
-                 .orElseThrow()
-                 .setNativeQuery("ti:New");
+                .filter(item -> "ACM Portal".equals(item.getName()))
+                .findFirst()
+                .orElseThrow()
+                .setNativeQuery("ti:New");
 
         Study builtStudy = viewModel.buildStudy();
         // The differently-cased key must be replaced, not kept alongside the new one
-        assertEquals(Map.of("ACM Portal", "ti:New"), builtStudy.getQueries().getFirst().getCatalogSpecific());
+        assertEquals(
+                Map.of("ACM Portal", "ti:New"),
+                builtStudy.getQueries().getFirst().getCatalogSpecific());
     }
 
     @Test
@@ -236,13 +255,19 @@ class ManageStudyDefinitionViewModelTest {
         Study study = new Study(List.of("Name"), "title", List.of("RQ1"), List.of(query1, query2, query3), catalogs);
 
         ManageStudyDefinitionViewModel viewModel = new ManageStudyDefinitionViewModel(
-                study, tempDir, importFormatPreferences, importerPreferences, workspacePreferences, gitPreferences, dialogService);
+                study,
+                tempDir,
+                importFormatPreferences,
+                importerPreferences,
+                workspacePreferences,
+                gitPreferences,
+                dialogService);
 
         String nativeQuery = viewModel.getCatalogs().stream()
-                                      .filter(item -> "ACM Portal".equals(item.getName()))
-                                      .findFirst()
-                                      .map(StudyCatalogItem::getNativeQuery)
-                                      .orElse("");
+                .filter(item -> "ACM Portal".equals(item.getName()))
+                .findFirst()
+                .map(StudyCatalogItem::getNativeQuery)
+                .orElse("");
 
         assertEquals("ti:First", nativeQuery);
     }
@@ -253,7 +278,9 @@ class ManageStudyDefinitionViewModelTest {
 
         Study builtStudy = viewModel.buildStudy();
 
-        assertEquals(List.of(Map.of("ACM Portal", "ti:First"), Map.of("ACM Portal", "ti:Second")), getCatalogSpecifics(builtStudy));
+        assertEquals(
+                List.of(Map.of("ACM Portal", "ti:First"), Map.of("ACM Portal", "ti:Second")),
+                getCatalogSpecifics(builtStudy));
     }
 
     @Test
@@ -261,13 +288,15 @@ class ManageStudyDefinitionViewModelTest {
         ManageStudyDefinitionViewModel viewModel = getViewModelWithMixedNativeQueries(tempDir);
 
         viewModel.getCatalogs().stream()
-                 .filter(item -> "ACM Portal".equals(item.getName()))
-                 .findFirst()
-                 .orElseThrow()
-                 .setNativeQuery("ti:New");
+                .filter(item -> "ACM Portal".equals(item.getName()))
+                .findFirst()
+                .orElseThrow()
+                .setNativeQuery("ti:New");
 
         Study builtStudy = viewModel.buildStudy();
-        assertEquals(List.of(Map.of("ACM Portal", "ti:New"), Map.of("ACM Portal", "ti:New")), getCatalogSpecifics(builtStudy));
+        assertEquals(
+                List.of(Map.of("ACM Portal", "ti:New"), Map.of("ACM Portal", "ti:New")),
+                getCatalogSpecifics(builtStudy));
     }
 
     @Test
@@ -277,12 +306,20 @@ class ManageStudyDefinitionViewModelTest {
         List<StudyCatalog> catalogs = List.of(new StudyCatalog("ACM Portal", true));
         Study study = new Study(List.of("Name"), "title", List.of("RQ1"), List.of(query), catalogs);
         ManageStudyDefinitionViewModel viewModel = new ManageStudyDefinitionViewModel(
-                study, tempDir, importFormatPreferences, importerPreferences, workspacePreferences, gitPreferences, dialogService);
+                study,
+                tempDir,
+                importFormatPreferences,
+                importerPreferences,
+                workspacePreferences,
+                gitPreferences,
+                dialogService);
 
         viewModel.addQuery("Q2");
 
         Study builtStudy = viewModel.buildStudy();
-        assertEquals(List.of(Map.of("ACM Portal", "ti:Test"), Map.of("ACM Portal", "ti:Test")), getCatalogSpecifics(builtStudy));
+        assertEquals(
+                List.of(Map.of("ACM Portal", "ti:Test"), Map.of("ACM Portal", "ti:Test")),
+                getCatalogSpecifics(builtStudy));
     }
 
     @Test
@@ -293,7 +330,13 @@ class ManageStudyDefinitionViewModelTest {
         List<StudyCatalog> catalogs = List.of(new StudyCatalog("ACM Portal", true));
         Study study = new Study(List.of("Name"), "title", List.of("RQ1"), List.of(query1, query2), catalogs);
         ManageStudyDefinitionViewModel viewModel = new ManageStudyDefinitionViewModel(
-                study, tempDir, importFormatPreferences, importerPreferences, workspacePreferences, gitPreferences, dialogService);
+                study,
+                tempDir,
+                importFormatPreferences,
+                importerPreferences,
+                workspacePreferences,
+                gitPreferences,
+                dialogService);
 
         Study builtStudy = viewModel.buildStudy();
 
@@ -304,28 +347,23 @@ class ManageStudyDefinitionViewModelTest {
     void buildStudyDoesNotChangeLoadedQueries(@TempDir Path tempDir) {
         ManageStudyDefinitionViewModel viewModel = getViewModelWithMixedNativeQueries(tempDir);
         StudyCatalogItem catalog = viewModel.getCatalogs().stream()
-                                            .filter(item -> "ACM Portal".equals(item.getName()))
-                                            .findFirst()
-                                            .orElseThrow();
+                .filter(item -> "ACM Portal".equals(item.getName()))
+                .findFirst()
+                .orElseThrow();
 
         catalog.setNativeQuery("ti:New");
         viewModel.buildStudy();
         catalog.setNativeQuery("ti:First");
         Study builtStudy = viewModel.buildStudy();
 
-        assertEquals(List.of(Map.of("ACM Portal", "ti:First"), Map.of("ACM Portal", "ti:Second")), getCatalogSpecifics(builtStudy));
+        assertEquals(
+                List.of(Map.of("ACM Portal", "ti:First"), Map.of("ACM Portal", "ti:Second")),
+                getCatalogSpecifics(builtStudy));
     }
 
     private ManageStudyDefinitionViewModel getManageStudyDefinitionViewModel(Path tempDir) {
-        List<StudyCatalog> catalogs = List.of(
-                new StudyCatalog("ACM Portal", true));
-        Study study = new Study(
-                List.of("Name"),
-                "title",
-                List.of("Q1"),
-                List.of(),
-                catalogs
-        );
+        List<StudyCatalog> catalogs = List.of(new StudyCatalog("ACM Portal", true));
+        Study study = new Study(List.of("Name"), "title", List.of("Q1"), List.of(), catalogs);
         return new ManageStudyDefinitionViewModel(
                 study,
                 tempDir,
@@ -344,12 +382,16 @@ class ManageStudyDefinitionViewModelTest {
         List<StudyCatalog> catalogs = List.of(new StudyCatalog("ACM Portal", true));
         Study study = new Study(List.of("Name"), "title", List.of("RQ1"), List.of(query1, query2), catalogs);
         return new ManageStudyDefinitionViewModel(
-                study, tempDir, importFormatPreferences, importerPreferences, workspacePreferences, gitPreferences, dialogService);
+                study,
+                tempDir,
+                importFormatPreferences,
+                importerPreferences,
+                workspacePreferences,
+                gitPreferences,
+                dialogService);
     }
 
     private static List<Map<String, String>> getCatalogSpecifics(Study study) {
-        return study.getQueries().stream()
-                    .map(StudyQuery::getCatalogSpecific)
-                    .toList();
+        return study.getQueries().stream().map(StudyQuery::getCatalogSpecific).toList();
     }
 }

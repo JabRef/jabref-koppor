@@ -6,12 +6,12 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.paging.Page;
 import org.jabref.model.search.query.BaseQueryNode;
 
-public interface PagedSearchBasedParserFetcher extends SearchBasedParserFetcher, PagedSearchBasedFetcher, ParserFetcher {
+public interface PagedSearchBasedParserFetcher
+        extends SearchBasedParserFetcher, PagedSearchBasedFetcher, ParserFetcher {
 
     @Override
     default Page<BibEntry> performSearchPaged(BaseQueryNode queryNode, int pageNumber) throws FetcherException {
@@ -62,7 +62,8 @@ public interface PagedSearchBasedParserFetcher extends SearchBasedParserFetcher,
         return PagedSearchBasedFetcher.super.performRawSearchQuery(rawQuery);
     }
 
-    /// Default implementation: builds the URL via [#getURLForRawQuery(String, int)], then downloads, parses, and post-cleans the result.
+    /// Default implementation: builds the URL via [#getURLForRawQuery(String, int)], then downloads, parses, and
+    /// post-cleans the result.
     @Override
     default Page<BibEntry> performRawSearchQueryPaged(String rawQuery, int pageNumber) throws FetcherException {
         if (rawQuery.isBlank()) {
@@ -77,11 +78,13 @@ public interface PagedSearchBasedParserFetcher extends SearchBasedParserFetcher,
         return new Page<>(rawQuery, pageNumber, getBibEntries(urlForQuery));
     }
 
-    /// Constructs a URL that sends the raw, catalog-native query verbatim to the catalog (bypassing the query transformer).
+    /// Constructs a URL that sends the raw, catalog-native query verbatim to the catalog (bypassing the query
+    /// transformer).
     ///
     /// @param rawQuery   catalog-native query string sent verbatim to the catalog
     /// @param pageNumber requested page number indexed from 0
-    default URL getURLForRawQuery(String rawQuery, int pageNumber) throws URISyntaxException, MalformedURLException, FetcherException {
+    default URL getURLForRawQuery(String rawQuery, int pageNumber)
+            throws URISyntaxException, MalformedURLException, FetcherException {
         throw new UnsupportedOperationException(getName() + " has not yet been migrated to performRawSearchQueryPaged");
     }
 }

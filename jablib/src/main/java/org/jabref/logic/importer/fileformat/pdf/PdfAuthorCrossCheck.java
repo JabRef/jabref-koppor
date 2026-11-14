@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.Author;
 import org.jabref.model.entry.AuthorList;
@@ -17,7 +16,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.UnknownEntryType;
 import org.jabref.model.strings.LatexToUnicodeAdapter;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -35,11 +33,11 @@ class PdfAuthorCrossCheck {
     private static final Pattern COMBINING_MARKS = Pattern.compile("\\p{M}+");
     private static final Pattern APOSTROPHES = Pattern.compile("['\u2019\u02BC]");
     private static final Set<String> NAME_LIST_LOWERCASE_WORDS = Set.of(
-            "and", "others", "van", "von", "vom", "zu", "zur", "der", "den", "de", "del", "della", "dei", "des", "du", "dos", "das", "do", "da", "di",
-            "la", "le", "ten", "ter", "af", "av", "y", "e", "bin", "binti", "bint", "ibn", "al", "el");
+            "and", "others", "van", "von", "vom", "zu", "zur", "der", "den", "de", "del", "della", "dei", "des", "du",
+            "dos", "das", "do", "da", "di", "la", "le", "ten", "ter", "af", "av", "y", "e", "bin", "binti", "bint",
+            "ibn", "al", "el");
 
-    private PdfAuthorCrossCheck() {
-    }
+    private PdfAuthorCrossCheck() {}
 
     /// Replaces an unconfirmed creator-style author with the best author list confirmed by the PDF's leading
     /// pages. Bibliographic metadata and authors without extractable page text are preserved.
@@ -57,15 +55,15 @@ class PdfAuthorCrossCheck {
         }
 
         entry.getField(StandardField.AUTHOR)
-             .ifPresent(mergedAuthor -> crossCheckMergedAuthor(entry, mergedAuthor, candidates, documentWords));
+                .ifPresent(mergedAuthor -> crossCheckMergedAuthor(entry, mergedAuthor, candidates, documentWords));
     }
 
     /// Preserves authors backed by bibliographic metadata or confirmed in the PDF text. Otherwise, selects
     /// the candidate with the most confirmed family names, or removes a lone unconfirmed author.
     /// The first author-bearing candidate identifies the merged author's source because merging keeps its value.
     // [impl->adr~conservative-pdf-author-evidence~1]
-    private static void crossCheckMergedAuthor(BibEntry entry, String mergedAuthor, List<BibEntry> candidates,
-                                               DocumentWords documentWords) {
+    private static void crossCheckMergedAuthor(
+            BibEntry entry, String mergedAuthor, List<BibEntry> candidates, DocumentWords documentWords) {
         // A sentence mis-parsed as author ("Written by Alice Smith") is not confirmed by one of its names
         if (looksLikeAuthorList(mergedAuthor) && isAuthorConfirmedByText(mergedAuthor, documentWords)) {
             return;
@@ -136,7 +134,8 @@ class PdfAuthorCrossCheck {
             String stripped = LEADING_AND_TRAILING_NON_LETTERS.matcher(word).replaceAll("");
             if (stripped.isEmpty()
                     // The allowlist applies only to lowercase letters; caseless scripts such as CJK and Arabic pass.
-                    || (Character.isLowerCase(stripped.codePointAt(0)) && !NAME_LIST_LOWERCASE_WORDS.contains(stripped))) {
+                    || (Character.isLowerCase(stripped.codePointAt(0))
+                            && !NAME_LIST_LOWERCASE_WORDS.contains(stripped))) {
                 return false;
             }
         }
@@ -152,11 +151,13 @@ class PdfAuthorCrossCheck {
         // characters from broken XMP decoding). A single common word such as a given name also occurs in
         // unrelated text, so at least two distinct words of the raw value must occur. Single letters are
         // initials ("A.", "J.") and are found in any text.
-        long confirmedWords = Arrays.stream(NON_LETTERS.split(normalizeForComparison(LatexToUnicodeAdapter.format(authorField))))
-                                    .filter(word -> word.length() >= 2 && !NAME_LIST_LOWERCASE_WORDS.contains(word.toLowerCase(Locale.ROOT)))
-                                    .distinct()
-                                    .filter(documentWords::containsName)
-                                    .count();
+        long confirmedWords = Arrays.stream(
+                        NON_LETTERS.split(normalizeForComparison(LatexToUnicodeAdapter.format(authorField))))
+                .filter(word ->
+                        word.length() >= 2 && !NAME_LIST_LOWERCASE_WORDS.contains(word.toLowerCase(Locale.ROOT)))
+                .distinct()
+                .filter(documentWords::containsName)
+                .count();
         return confirmedWords >= 2;
     }
 
@@ -178,7 +179,8 @@ class PdfAuthorCrossCheck {
     /// match is a plain substring search, also for multi-word names such as "van der Berg".
     private record DocumentWords(String lowerCase, String caseSensitive) {
         static DocumentWords of(String text) {
-            return new DocumentWords(toWordSequence(normalizeForComparison(text).toLowerCase(Locale.ROOT)),
+            return new DocumentWords(
+                    toWordSequence(normalizeForComparison(text).toLowerCase(Locale.ROOT)),
                     toWordSequence(normalizeForComparison(text)));
         }
 
@@ -191,7 +193,8 @@ class PdfAuthorCrossCheck {
         /// is matched ignoring case.
         boolean containsName(String name) {
             // Metadata may encode accents as LaTeX ("B{\\\"o}hm"), the PDF text prints them ("Böhm")
-            String words = toWordSequence(normalizeForComparison(LatexToUnicodeAdapter.format(name))).strip();
+            String words = toWordSequence(normalizeForComparison(LatexToUnicodeAdapter.format(name)))
+                    .strip();
             if (words.isBlank()) {
                 return false;
             }
@@ -199,9 +202,10 @@ class PdfAuthorCrossCheck {
                 return lowerCase.contains(" " + words.toLowerCase(Locale.ROOT) + " ");
             }
             int firstLength = Character.charCount(words.codePointAt(0));
-            String capitalized = words.substring(0, firstLength) + words.substring(firstLength).toLowerCase(Locale.ROOT);
+            String capitalized = words.substring(0, firstLength)
+                    + words.substring(firstLength).toLowerCase(Locale.ROOT);
             return Stream.of(words, words.toUpperCase(Locale.ROOT), capitalized)
-                         .anyMatch(variant -> caseSensitive.contains(" " + variant + " "));
+                    .anyMatch(variant -> caseSensitive.contains(" " + variant + " "));
         }
 
         private static String toWordSequence(String normalizedText) {
@@ -214,7 +218,11 @@ class PdfAuthorCrossCheck {
     /// hyphen is a soft line-break hyphen for one name but a genuine part of another (e.g. "Kylo-Ren").
     /// Apostrophes are removed instead of splitting words, so that "Connor" does not match "O'Connor".
     private static String normalizeForComparison(String text) {
-        String joined = APOSTROPHES.matcher(SOFT_LINE_BREAK_HYPHEN.matcher(text).replaceAll("").replace("-", "")).replaceAll("");
-        return COMBINING_MARKS.matcher(Normalizer.normalize(joined, Normalizer.Form.NFKD)).replaceAll("");
+        String joined = APOSTROPHES
+                .matcher(SOFT_LINE_BREAK_HYPHEN.matcher(text).replaceAll("").replace("-", ""))
+                .replaceAll("");
+        return COMBINING_MARKS
+                .matcher(Normalizer.normalize(joined, Normalizer.Form.NFKD))
+                .replaceAll("");
     }
 }

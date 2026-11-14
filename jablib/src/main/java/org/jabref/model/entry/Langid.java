@@ -1,7 +1,6 @@
 package org.jabref.model.entry;
 
 import java.util.Optional;
-
 import org.jabref.logic.bibtex.FieldWriter;
 
 /// Language identifiers based on BibLaTeX manual specifications.
@@ -88,6 +87,7 @@ public enum Langid {
     }
 
     public String getJabRefFormat() {
-        return (FieldWriter.BIBTEX_STRING_START_END_SYMBOL + "%s" + FieldWriter.BIBTEX_STRING_START_END_SYMBOL).formatted(langid);
+        return (FieldWriter.BIBTEX_STRING_START_END_SYMBOL + "%s" + FieldWriter.BIBTEX_STRING_START_END_SYMBOL)
+                .formatted(langid);
     }
 }

@@ -2,8 +2,7 @@ package org.jabref.logic.net;
 
 public class ProxyRegisterer {
 
-    private ProxyRegisterer() {
-    }
+    private ProxyRegisterer() {}
 
     public static void register(ProxyPreferences proxyPrefs) {
         if (proxyPrefs.shouldUseProxy()) {

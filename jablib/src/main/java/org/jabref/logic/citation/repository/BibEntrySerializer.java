@@ -6,7 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
+import org.h2.mvstore.WriteBuffer;
+import org.h2.mvstore.type.BasicDataType;
 import org.jabref.logic.bibtex.BibEntryWriter;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.bibtex.FieldWriter;
@@ -17,9 +18,6 @@ import org.jabref.logic.importer.fileformat.BibtexParser;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import org.h2.mvstore.WriteBuffer;
-import org.h2.mvstore.type.BasicDataType;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +30,10 @@ class BibEntrySerializer extends BasicDataType<BibEntry> {
     private final ImportFormatPreferences importFormatPreferences;
     private final FieldPreferences fieldPreferences;
 
-    public BibEntrySerializer(BibEntryTypesManager entryTypesManager, ImportFormatPreferences importFormatPreferences, FieldPreferences fieldPreferences) {
+    public BibEntrySerializer(
+            BibEntryTypesManager entryTypesManager,
+            ImportFormatPreferences importFormatPreferences,
+            FieldPreferences fieldPreferences) {
         this.entryTypesManager = entryTypesManager;
         this.importFormatPreferences = importFormatPreferences;
         this.fieldPreferences = fieldPreferences;
@@ -40,7 +41,8 @@ class BibEntrySerializer extends BasicDataType<BibEntry> {
 
     private String toString(BibEntry entry) {
         // BibEntry is not Java serializable. Thus, we need to do the serialization manually
-        // At reading of the clipboard in JabRef, we parse the plain string in all cases, so we don't need to flag we put BibEntries here
+        // At reading of the clipboard in JabRef, we parse the plain string in all cases, so we don't need to flag we
+        // put BibEntries here
         // Furthermore, storing a string also enables other applications to work with the data
         BibEntryWriter writer = new BibEntryWriter(new FieldWriter(fieldPreferences), entryTypesManager);
         try {
@@ -83,14 +85,10 @@ class BibEntrySerializer extends BasicDataType<BibEntry> {
     @Override
     public int compare(@NonNull BibEntry a, @NonNull BibEntry b) {
         return switch (BibEntryCompare.compareEntries(a, b)) {
-            case SUBSET ->
-                    -1;
-            case SUPERSET ->
-                    1;
-            case EQUAL ->
-                    0;
-            default ->
-                    Objects.compare(a.hashCode(), b.hashCode(), Integer::compare);
+            case SUBSET -> -1;
+            case SUPERSET -> 1;
+            case EQUAL -> 0;
+            default -> Objects.compare(a.hashCode(), b.hashCode(), Integer::compare);
         };
     }
 

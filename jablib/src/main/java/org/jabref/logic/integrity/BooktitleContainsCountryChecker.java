@@ -1,17 +1,15 @@
 package org.jabref.logic.integrity;
 
+import static java.util.function.Predicate.not;
+
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.jspecify.annotations.Nullable;
-
-import static java.util.function.Predicate.not;
 
 public class BooktitleContainsCountryChecker implements ValueChecker {
 
@@ -19,13 +17,12 @@ public class BooktitleContainsCountryChecker implements ValueChecker {
 
     static {
         String alternation = Arrays.stream(Locale.getISOCountries())
-                                   .map(code -> Locale.of("", code).getDisplayCountry(Locale.ENGLISH))
-                                   .filter(not(String::isEmpty))
-                                   .map(name -> name.toLowerCase(Locale.ENGLISH))
-                                   .map(Pattern::quote)
-                                   .collect(Collectors.joining("|"));
-        CONTAINS_COUNTRY = Pattern.compile(
-                "(?i)(?<!\\p{Alnum})(" + alternation + ")(?!\\p{Alnum})");
+                .map(code -> Locale.of("", code).getDisplayCountry(Locale.ENGLISH))
+                .filter(not(String::isEmpty))
+                .map(name -> name.toLowerCase(Locale.ENGLISH))
+                .map(Pattern::quote)
+                .collect(Collectors.joining("|"));
+        CONTAINS_COUNTRY = Pattern.compile("(?i)(?<!\\p{Alnum})(" + alternation + ")(?!\\p{Alnum})");
     }
 
     @Override

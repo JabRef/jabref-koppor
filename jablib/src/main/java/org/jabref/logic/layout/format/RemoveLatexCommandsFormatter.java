@@ -27,7 +27,8 @@ public class RemoveLatexCommandsFormatter implements LayoutFormatter {
                 currentCommand = new StringBuilder();
             } else if (!incommand && ((currentCharacter == '{') || (currentCharacter == '}'))) {
                 // Swallow the brace.
-            } else if (Character.isLetter(currentCharacter) || StringUtil.SPECIAL_COMMAND_CHARS.contains(String.valueOf(currentCharacter))) {
+            } else if (Character.isLetter(currentCharacter)
+                    || StringUtil.SPECIAL_COMMAND_CHARS.contains(String.valueOf(currentCharacter))) {
                 escaped = false;
                 if (incommand) {
                     currentCommand.append(currentCharacter);
@@ -59,7 +60,8 @@ public class RemoveLatexCommandsFormatter implements LayoutFormatter {
                     }
                     if (incommand) {
                         // eat up all whitespace characters
-                        while (currentFieldPosition + 1 < field.length() && Character.isWhitespace(field.charAt(currentFieldPosition + 1))) {
+                        while (currentFieldPosition + 1 < field.length()
+                                && Character.isWhitespace(field.charAt(currentFieldPosition + 1))) {
                             currentFieldPosition++;
                         }
                     }

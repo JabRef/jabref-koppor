@@ -1,9 +1,9 @@
 package org.jabref.gui.icon;
 
+import com.tobiasdiez.easybind.EasyBind;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.css.CssMetaData;
@@ -18,10 +18,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
-
 import org.jabref.gui.icon.IconTheme.JabRefIcons;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.jspecify.annotations.NullMarked;
 
 /// View for a [JabRefIcons] usable in FXML (e.g. `<JabRefIconView glyph="REFRESH"/>`).
@@ -60,8 +57,7 @@ public class JabRefIconView extends Group {
 
     /// CSS-styleable color, fed by `-fx-icon-color` rules (e.g. an inline `style="-fx-icon-color: ..."`).
     /// Forwarded to an SVG child as a fixed color.
-    private final StyleableObjectProperty<Paint> color =
-            new SimpleStyleableObjectProperty<>(COLOR, this, "iconColor");
+    private final StyleableObjectProperty<Paint> color = new SimpleStyleableObjectProperty<>(COLOR, this, "iconColor");
 
     /// This property is only needed to get proper IDE support in FXML files
     /// (e.g. validation that parameter passed to "icon" is indeed of type [IconTheme.JabRefIcons]).
@@ -106,7 +102,8 @@ public class JabRefIconView extends Group {
         Paint colorValue = color.get();
         // Without an override the child colors itself from theme CSS. Pushing the null through would both paint
         // nothing and pin the color to a code-set value, locking the theme out for good.
-        if ((colorValue != null) && !getChildren().isEmpty()
+        if ((colorValue != null)
+                && !getChildren().isEmpty()
                 && (getChildren().getFirst() instanceof JabRefSvgIcon svgIcon)) {
             svgIcon.setColor(colorValue);
         }

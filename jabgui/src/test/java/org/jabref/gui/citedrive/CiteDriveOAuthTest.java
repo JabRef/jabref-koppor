@@ -1,14 +1,21 @@
 package org.jabref.gui.citedrive;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.nimbusds.oauth2.sdk.token.AccessToken;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
-
 import javafx.collections.FXCollections;
-
+import kong.unirest.core.HttpResponse;
+import kong.unirest.core.Unirest;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
@@ -21,21 +28,11 @@ import org.jabref.logic.importer.util.MediaTypes;
 import org.jabref.logic.net.CiteDrivePreferences;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.remote.RemotePreferences;
-
-import com.nimbusds.oauth2.sdk.token.AccessToken;
-import kong.unirest.core.HttpResponse;
-import kong.unirest.core.Unirest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class CiteDriveOAuthTest {
 
@@ -60,7 +57,9 @@ class CiteDriveOAuthTest {
     @Disabled
     void getToken() throws ExecutionException, InterruptedException {
         ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
-        when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
+        when(externalApplicationsPreferences.getExternalFileTypes())
+                .thenReturn(
+                        FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
 
         RemotePreferences remotePreferences = mock(RemotePreferences.class);
         when(remotePreferences.getHttpServerUri()).thenReturn(URI.create("http://localhost:23119"));
@@ -68,9 +67,18 @@ class CiteDriveOAuthTest {
 
         CiteDrivePreferences citeDrivePreferences = CiteDrivePreferences.getDefault();
 
-        CiteDriveOAuthService citeDriveOAuthService = new CiteDriveOAuthService(remotePreferences, citeDrivePreferences, OAUTH_SESSION_REGISTRY, uri -> NativeDesktop.openBrowserShowPopup(uri.toASCIIString(), mock(DialogService.class), externalApplicationsPreferences), () -> true, URI.create("https://api-dev.citedrive.com/jabref/login/"), URI.create("https://api-dev.citedrive.com/o/token/"));
+        CiteDriveOAuthService citeDriveOAuthService = new CiteDriveOAuthService(
+                remotePreferences,
+                citeDrivePreferences,
+                OAUTH_SESSION_REGISTRY,
+                uri -> NativeDesktop.openBrowserShowPopup(
+                        uri.toASCIIString(), mock(DialogService.class), externalApplicationsPreferences),
+                () -> true,
+                URI.create("https://api-dev.citedrive.com/jabref/login/"),
+                URI.create("https://api-dev.citedrive.com/o/token/"));
 
-        Optional<AccessToken> actual = citeDriveOAuthService.authorizeInteractive().get();
+        Optional<AccessToken> actual =
+                citeDriveOAuthService.authorizeInteractive().get();
         assertTrue(actual.isPresent());
     }
 
@@ -80,7 +88,9 @@ class CiteDriveOAuthTest {
     @Disabled
     void putLibraryOAuthFromScratch() throws ExecutionException, InterruptedException, IOException {
         ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
-        when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
+        when(externalApplicationsPreferences.getExternalFileTypes())
+                .thenReturn(
+                        FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
 
         RemotePreferences remotePreferences = mock(RemotePreferences.class);
         when(remotePreferences.getHttpServerUri()).thenReturn(URI.create("http://localhost:23119"));
@@ -88,29 +98,38 @@ class CiteDriveOAuthTest {
 
         CiteDrivePreferences citeDrivePreferences = CiteDrivePreferences.getDefault();
 
-        CiteDriveOAuthService citeDriveOAuthService = new CiteDriveOAuthService(remotePreferences, citeDrivePreferences, OAUTH_SESSION_REGISTRY, uri -> NativeDesktop.openBrowserShowPopup(uri.toASCIIString(), mock(DialogService.class), externalApplicationsPreferences), () -> true, URI.create("https://api-dev.citedrive.com/jabref/login/"), URI.create("https://api-dev.citedrive.com/o/token/"));
+        CiteDriveOAuthService citeDriveOAuthService = new CiteDriveOAuthService(
+                remotePreferences,
+                citeDrivePreferences,
+                OAUTH_SESSION_REGISTRY,
+                uri -> NativeDesktop.openBrowserShowPopup(
+                        uri.toASCIIString(), mock(DialogService.class), externalApplicationsPreferences),
+                () -> true,
+                URI.create("https://api-dev.citedrive.com/jabref/login/"),
+                URI.create("https://api-dev.citedrive.com/o/token/"));
 
-        Optional<AccessToken> actual = citeDriveOAuthService.authorizeInteractive().get();
+        Optional<AccessToken> actual =
+                citeDriveOAuthService.authorizeInteractive().get();
         assertTrue(actual.isPresent());
 
         String bibtex = """
-                @article{xyz,
-                  author = {Doe, John and Smith, Jane},
-                  title = {An Example Article},
-                  journal = {Journal of Examples},
-                  year = {2024},
-                  volume = {42},
-                  number = {1},
-                  pages = {1-10},
-                  publisher = {Example Publisher}
-                }
-                """;
+            @article{xyz,
+              author = {Doe, John and Smith, Jane},
+              title = {An Example Article},
+              journal = {Journal of Examples},
+              year = {2024},
+              volume = {42},
+              number = {1},
+              pages = {1-10},
+              publisher = {Example Publisher}
+            }
+            """;
 
         HttpResponse<String> response = Unirest.post("https://api-dev.citedrive.com/jabref/push/")
-                                               .header("Authorization", "Bearer " + actual.get())
-                                               .header("Content-Type", MediaTypes.APPLICATION_BIBTEX)
-                                               .body(bibtex)
-                                               .asString();
+                .header("Authorization", "Bearer " + actual.get())
+                .header("Content-Type", MediaTypes.APPLICATION_BIBTEX)
+                .body(bibtex)
+                .asString();
 
         assertEquals(200, response.getStatus());
         // Example response: {"file_size":225,"file_size_kb":0.22,"entry_count":1,"status":"success"}
@@ -123,7 +142,9 @@ class CiteDriveOAuthTest {
     @Disabled
     void putLibrary() throws ExecutionException, InterruptedException, IOException {
         ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
-        when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
+        when(externalApplicationsPreferences.getExternalFileTypes())
+                .thenReturn(
+                        FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
 
         RemotePreferences remotePreferences = mock(RemotePreferences.class);
         when(remotePreferences.getHttpServerUri()).thenReturn(URI.create("http://localhost:23119"));
@@ -131,29 +152,37 @@ class CiteDriveOAuthTest {
 
         CiteDrivePreferences citeDrivePreferences = CiteDrivePreferences.getDefault();
 
-        CiteDriveOAuthService citeDriveOAuthService = new CiteDriveOAuthService(remotePreferences, citeDrivePreferences, OAUTH_SESSION_REGISTRY, uri -> NativeDesktop.openBrowserShowPopup(uri.toASCIIString(), mock(DialogService.class), externalApplicationsPreferences), () -> true, URI.create("https://api-dev.citedrive.com/jabref/login/"), URI.create("https://api-dev.citedrive.com/o/token/"));
+        CiteDriveOAuthService citeDriveOAuthService = new CiteDriveOAuthService(
+                remotePreferences,
+                citeDrivePreferences,
+                OAUTH_SESSION_REGISTRY,
+                uri -> NativeDesktop.openBrowserShowPopup(
+                        uri.toASCIIString(), mock(DialogService.class), externalApplicationsPreferences),
+                () -> true,
+                URI.create("https://api-dev.citedrive.com/jabref/login/"),
+                URI.create("https://api-dev.citedrive.com/o/token/"));
 
         Optional<AccessToken> actual = citeDriveOAuthService.getAccessToken().get();
         assertTrue(actual.isPresent());
 
         String bibtex = """
-                @article{xyz,
-                  author = {Doe, John and Smith, Jane},
-                  title = {An Example Article},
-                  journal = {Journal of Examples},
-                  year = {2024},
-                  volume = {42},
-                  number = {1},
-                  pages = {1-10},
-                  publisher = {Example Publisher}
-                }
-                """;
+            @article{xyz,
+              author = {Doe, John and Smith, Jane},
+              title = {An Example Article},
+              journal = {Journal of Examples},
+              year = {2024},
+              volume = {42},
+              number = {1},
+              pages = {1-10},
+              publisher = {Example Publisher}
+            }
+            """;
 
         HttpResponse<String> response = Unirest.post("https://api-dev.citedrive.com/jabref/push/")
-                                               .header("Authorization", "Bearer " + actual.get())
-                                               .header("Content-Type", MediaTypes.APPLICATION_BIBTEX)
-                                               .body(bibtex)
-                                               .asString();
+                .header("Authorization", "Bearer " + actual.get())
+                .header("Content-Type", MediaTypes.APPLICATION_BIBTEX)
+                .body(bibtex)
+                .asString();
 
         assertEquals(200, response.getStatus());
         // Example response: {"file_size":225,"file_size_kb":0.22,"entry_count":1,"status":"success"}

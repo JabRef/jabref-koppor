@@ -14,7 +14,6 @@ import org.kordamp.ikonli.Ikon;
 /// @see <a href="https://materialdesignicons.com/custom">Material Design Icon custom page</a>
 @NullMarked
 public enum JabRefMaterialDesignIcon implements Ikon {
-
     TEX_STUDIO("jab-texstudio", '\ue900'),
     TEX_MAKER("jab-textmaker", '\ue901'),
     EMACS("jab-emacs", '\ue902'),

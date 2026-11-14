@@ -1,7 +1,6 @@
 package org.jabref.logic.ai.rag.logic;
 
 import java.util.List;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.ai.ingestion.logic.parsing.UniversalContentParser;
 import org.jabref.model.ai.identifiers.FullBibEntry;
@@ -20,25 +19,19 @@ public class FullDocumentResponseEngine implements ResponseEngine {
     }
 
     @Override
-    public List<RelevantInformation> process(
-            String query,
-            List<FullBibEntry> entriesFilter
-    ) {
-        return entriesFilter
-                .stream()
-                .flatMap(entryIdentifier ->
-                        entryIdentifier
-                                .entry()
-                                .getFiles()
-                                .stream()
-                                .flatMap(linkedFile ->
-                                        linkedFile
-                                                .findIn(entryIdentifier.databaseContext(), filePreferences)
-                                                .flatMap(universalContentParser::parseAsString)
-                                                .map(c -> new RelevantInformation(FullBibEntry.findEntryByLink(entryIdentifier, linkedFile.getLink()).flatMap(BibEntry::getCitationKey).orElse(null), null, c))
-                                                .stream()
-                                )
-                )
+    public List<RelevantInformation> process(String query, List<FullBibEntry> entriesFilter) {
+        return entriesFilter.stream()
+                .flatMap(entryIdentifier -> entryIdentifier.entry().getFiles().stream()
+                        .flatMap(linkedFile -> linkedFile
+                                .findIn(entryIdentifier.databaseContext(), filePreferences)
+                                .flatMap(universalContentParser::parseAsString)
+                                .map(c -> new RelevantInformation(
+                                        FullBibEntry.findEntryByLink(entryIdentifier, linkedFile.getLink())
+                                                .flatMap(BibEntry::getCitationKey)
+                                                .orElse(null),
+                                        null,
+                                        c))
+                                .stream()))
                 .toList();
     }
 
@@ -47,5 +40,3 @@ public class FullDocumentResponseEngine implements ResponseEngine {
         return ResponseEngineKind.FULL_DOCUMENT;
     }
 }
-
-

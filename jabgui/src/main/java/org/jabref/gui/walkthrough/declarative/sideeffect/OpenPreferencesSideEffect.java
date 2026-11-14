@@ -1,10 +1,9 @@
 package org.jabref.gui.walkthrough.declarative.sideeffect;
 
+import com.airhacks.afterburner.injection.Injector;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.PreferencesDialogView;
 import org.jabref.gui.walkthrough.Walkthrough;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 

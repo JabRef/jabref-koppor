@@ -3,20 +3,17 @@ package org.jabref.gui.walkthrough;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.stage.Stage;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.walkthrough.declarative.step.PanelStep;
 import org.jabref.gui.walkthrough.declarative.step.SideEffect;
 import org.jabref.gui.walkthrough.declarative.step.TooltipStep;
 import org.jabref.gui.walkthrough.declarative.step.WalkthroughStep;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -37,7 +34,8 @@ public class Walkthrough {
 
     public Walkthrough(StateManager stateManager, List<WalkthroughStep> steps) {
         if (steps.isEmpty() || steps.stream().anyMatch(Objects::isNull)) {
-            // This throwing is acceptable, since the Walkthrough is often hardcoded and won't make the application crash
+            // This throwing is acceptable, since the Walkthrough is often hardcoded and won't make the application
+            // crash
             throw new IllegalArgumentException("Walkthrough must have at least one step and no null steps allowed.");
         }
         this.currentStep = new SimpleIntegerProperty(0);

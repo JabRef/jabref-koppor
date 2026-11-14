@@ -1,14 +1,13 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.paging.Page;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /// This interface provides general test methods for paged fetchers
 public interface PagedSearchFetcherTest {
@@ -29,7 +28,9 @@ public interface PagedSearchFetcherTest {
         assertEquals(20, secondPage.getSize());
 
         for (BibEntry entry : firstPage.getContent()) {
-            assertFalse(secondPage.getContent().contains(entry), "%s contained in %s".formatted(entry, secondPage.getContent()));
+            assertFalse(
+                    secondPage.getContent().contains(entry),
+                    "%s contained in %s".formatted(entry, secondPage.getContent()));
         }
     }
 

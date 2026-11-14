@@ -7,7 +7,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
@@ -20,7 +19,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,10 +39,11 @@ public abstract class SendAsEMailAction extends SimpleCommand {
     private final StateManager stateManager;
     private final TaskExecutor taskExecutor;
 
-    public SendAsEMailAction(DialogService dialogService,
-                             GuiPreferences preferences,
-                             StateManager stateManager,
-                             TaskExecutor taskExecutor) {
+    public SendAsEMailAction(
+            DialogService dialogService,
+            GuiPreferences preferences,
+            StateManager stateManager,
+            TaskExecutor taskExecutor) {
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.stateManager = stateManager;
@@ -54,13 +53,13 @@ public abstract class SendAsEMailAction extends SimpleCommand {
     @Override
     public void execute() {
         BackgroundTask.wrap(this::sendEmail)
-                      .onSuccess(dialogService::notify)
-                      .onFailure(e -> {
-                          String message = Localization.lang("Error creating email");
-                          LOGGER.warn(message, e);
-                          dialogService.notify(message);
-                      })
-                      .executeWith(taskExecutor);
+                .onSuccess(dialogService::notify)
+                .onFailure(e -> {
+                    String message = Localization.lang("Error creating email");
+                    LOGGER.warn(message, e);
+                    dialogService.notify(message);
+                })
+                .executeWith(taskExecutor);
     }
 
     private String sendEmail() throws URISyntaxException, IOException {
@@ -103,14 +102,16 @@ public abstract class SendAsEMailAction extends SimpleCommand {
         boolean openFolders = preferences.getExternalApplicationsPreferences().shouldAutoOpenEmailAttachmentsFolder();
 
         BibDatabaseContext databaseContext = stateManager.getActiveDatabase().get();
-        List<Path> fileList = FileUtil.getListOfLinkedFiles(entries, databaseContext.getFileDirectories(preferences.getFilePreferences()));
+        List<Path> fileList = FileUtil.getListOfLinkedFiles(
+                entries, databaseContext.getFileDirectories(preferences.getFilePreferences()));
 
         List<String> attachments = new ArrayList<>();
         for (Path path : fileList) {
             attachments.add(path.toAbsolutePath().toString());
             if (openFolders) {
                 try {
-                    NativeDesktop.openFolderAndSelectFile(path.toAbsolutePath(), preferences.getExternalApplicationsPreferences(), dialogService);
+                    NativeDesktop.openFolderAndSelectFile(
+                            path.toAbsolutePath(), preferences.getExternalApplicationsPreferences(), dialogService);
                 } catch (IOException e) {
                     LOGGER.debug("Cannot open file", e);
                 }

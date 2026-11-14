@@ -1,10 +1,9 @@
 package org.jabref.gui.util.component;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.github.kusoroadeolu.veneer.JSONLexer;
 import io.github.kusoroadeolu.veneer.JSONParser;
+import java.util.ArrayList;
+import java.util.List;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
@@ -35,11 +34,9 @@ public class JsonHighlighter {
 
     /// A piece of the original text together with the CSS style class it should be rendered with.
     /// `styleClass` is empty for text between tokens (whitespace).
-    public record Segment(String text, String styleClass) {
-    }
+    public record Segment(String text, String styleClass) {}
 
-    private JsonHighlighter() {
-    }
+    private JsonHighlighter() {}
 
     /// Splits the given JSON text into segments carrying a style class each.
     public static List<Segment> tokenize(String json) {
@@ -53,7 +50,8 @@ public class JsonHighlighter {
         int position = 0;
 
         for (ParseTree node : Trees.getDescendants(parser.json())) {
-            if (!(node instanceof TerminalNode terminal) || (terminal.getSymbol().getType() == Token.EOF)) {
+            if (!(node instanceof TerminalNode terminal)
+                    || (terminal.getSymbol().getType() == Token.EOF)) {
                 continue;
             }
             Token token = terminal.getSymbol();
@@ -115,12 +113,10 @@ public class JsonHighlighter {
     /// and a token of a `value` that is neither string nor number is one of `true`, `false`, `null`.
     private static String styleClassOf(TerminalNode terminal) {
         return switch (terminal.getSymbol().getType()) {
-            case JSONLexer.NUMBER ->
-                    "json-number";
+            case JSONLexer.NUMBER -> "json-number";
             case JSONLexer.STRING ->
-                    terminal.getParent() instanceof JSONParser.PairContext ? "json-key" : "json-string";
-            default ->
-                    terminal.getParent() instanceof JSONParser.ValueContext ? "json-literal" : "json-punctuation";
+                terminal.getParent() instanceof JSONParser.PairContext ? "json-key" : "json-string";
+            default -> terminal.getParent() instanceof JSONParser.ValueContext ? "json-literal" : "json-punctuation";
         };
     }
 

@@ -1,17 +1,15 @@
 package org.jabref.logic.git.diff;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GitCommitMessageGeneratorTest {
 
@@ -28,7 +26,8 @@ public class GitCommitMessageGeneratorTest {
     void addedEntriesAreCounted() {
         Optional<String> message = generate(
                 List.of(),
-                List.of(article("Brown2022", "Brown", "Branching"),
+                List.of(
+                        article("Brown2022", "Brown", "Branching"),
                         article("Lee2021", "Lee", "Rebasing"),
                         article("Kim2020", "Kim", "Tagging")));
 
@@ -39,9 +38,9 @@ public class GitCommitMessageGeneratorTest {
     @Test
     void addedAndModifiedEntriesAreSummarized() {
         Optional<String> message = generate(
-                List.of(article("Smith2024", "Smith", "Git basics"),
-                        article("Jones2023", "Jones", "Merging")),
-                List.of(article("Smith2024", "Smith", "Git basics, second edition"),
+                List.of(article("Smith2024", "Smith", "Git basics"), article("Jones2023", "Jones", "Merging")),
+                List.of(
+                        article("Smith2024", "Smith", "Git basics, second edition"),
                         article("Jones2023", "Jones", "Merging libraries"),
                         article("Brown2022", "Brown", "Branching"),
                         article("Lee2021", "Lee", "Rebasing"),
@@ -53,8 +52,7 @@ public class GitCommitMessageGeneratorTest {
     @Test
     void singleDeletedEntryUsesSingular() {
         Optional<String> message = generate(
-                List.of(article("Smith2024", "Smith", "Git basics"),
-                        article("Jones2023", "Jones", "Merging")),
+                List.of(article("Smith2024", "Smith", "Git basics"), article("Jones2023", "Jones", "Merging")),
                 List.of(article("Smith2024", "Smith", "Git basics")));
 
         assertEquals(Optional.of("Delete 1 entry"), message);
@@ -63,8 +61,7 @@ public class GitCommitMessageGeneratorTest {
     @Test
     void deletingAllEntriesIsReported() {
         Optional<String> message = generate(
-                List.of(article("Smith2024", "Smith", "Git basics"),
-                        article("Jones2023", "Jones", "Merging")),
+                List.of(article("Smith2024", "Smith", "Git basics"), article("Jones2023", "Jones", "Merging")),
                 List.of());
 
         assertEquals(Optional.of("Delete 2 entries"), message);
@@ -113,27 +110,24 @@ public class GitCommitMessageGeneratorTest {
 
     @Test
     void renamedCitationKeyNamesOldAndNewKey() {
-        Optional<String> message = generate(
-                List.of(detailedArticle("Jones2023")),
-                List.of(detailedArticle("Jones2024")));
+        Optional<String> message =
+                generate(List.of(detailedArticle("Jones2023")), List.of(detailedArticle("Jones2024")));
 
         assertEquals(Optional.of("Rename citation key Jones2023 to Jones2024"), message);
     }
 
     @Test
     void addedCitationKeyIsCountedAsModification() {
-        Optional<String> message = generate(
-                List.of(detailedArticleWithoutKey()),
-                List.of(detailedArticle("Jones2024")));
+        Optional<String> message =
+                generate(List.of(detailedArticleWithoutKey()), List.of(detailedArticle("Jones2024")));
 
         assertEquals(Optional.of("Modify 1 entry"), message);
     }
 
     @Test
     void removedCitationKeyIsCountedAsModification() {
-        Optional<String> message = generate(
-                List.of(detailedArticle("Jones2023")),
-                List.of(detailedArticleWithoutKey()));
+        Optional<String> message =
+                generate(List.of(detailedArticle("Jones2023")), List.of(detailedArticleWithoutKey()));
 
         assertEquals(Optional.of("Modify 1 entry"), message);
     }

@@ -1,12 +1,17 @@
 package org.jabref.gui;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.dlsc.gemsfx.PowerPane;
+import com.dlsc.gemsfx.infocenter.InfoCenterPane;
+import com.dlsc.gemsfx.infocenter.InfoCenterViewPos;
+import com.tobiasdiez.easybind.EasyBind;
+import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -21,7 +26,10 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Pair;
-
+import kong.unirest.core.Unirest;
+import org.controlsfx.control.decoration.Decorator;
+import org.controlsfx.control.decoration.GraphicDecoration;
+import org.controlsfx.dialog.ExceptionDialog;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.frame.JabRefFrame;
 import org.jabref.gui.help.VersionWorker;
@@ -65,17 +73,6 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.dlsc.gemsfx.PowerPane;
-import com.dlsc.gemsfx.infocenter.InfoCenterPane;
-import com.dlsc.gemsfx.infocenter.InfoCenterViewPos;
-import com.tobiasdiez.easybind.EasyBind;
-import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
-import kong.unirest.core.Unirest;
-import org.controlsfx.control.decoration.Decorator;
-import org.controlsfx.control.decoration.GraphicDecoration;
-import org.controlsfx.dialog.ExceptionDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,8 +109,7 @@ public class JabRefGUI extends Application {
 
     private Stage mainStage;
 
-    public static void setup(List<UiCommand> uiCommands,
-                             GuiPreferences preferences) {
+    public static void setup(List<UiCommand> uiCommands, GuiPreferences preferences) {
         JabRefGUI.uiCommands = uiCommands;
         JabRefGUI.preferences = preferences;
     }
@@ -122,8 +118,9 @@ public class JabRefGUI extends Application {
     public void start(Stage stage) {
         // Installed before the try block below (not after) so background threads started during
         // initialize() are also covered, not just ones started once the main window is up.
-        FallbackExceptionHandler.installExceptionHandler((exception, thread) -> UiTaskExecutor.runInJavaFXThread(() ->
-                showCriticalErrorDialog(Localization.lang("Uncaught exception occurred in %0", thread.toString()), exception)));
+        FallbackExceptionHandler.installExceptionHandler((exception, thread) ->
+                UiTaskExecutor.runInJavaFXThread(() -> showCriticalErrorDialog(
+                        Localization.lang("Uncaught exception occurred in %0", thread.toString()), exception)));
 
         try {
             this.mainStage = stage;
@@ -154,18 +151,15 @@ public class JabRefGUI extends Application {
 
             if (!fileUpdateMonitor.isActive()) {
                 dialogService.showErrorDialogAndWait(
-                        Localization.lang("Unable to monitor file changes. Please close files " +
-                                "and processes and restart. You may encounter errors if you continue " +
-                                "with this session."));
+                        Localization.lang("Unable to monitor file changes. Please close files "
+                                + "and processes and restart. You may encounter errors if you continue "
+                                + "with this session."));
             }
 
             BuildInfo buildInfo = Injector.instantiateModelOrService(BuildInfo.class);
             EasyBind.subscribe(preferences.getInternalPreferences().versionCheckEnabledProperty(), enabled -> {
                 if (enabled) {
-                    new VersionWorker(buildInfo.version,
-                            dialogService,
-                            taskExecutor,
-                            preferences)
+                    new VersionWorker(buildInfo.version, dialogService, taskExecutor, preferences)
                             .checkForNewVersionDelayed();
                 }
             });
@@ -208,7 +202,8 @@ public class JabRefGUI extends Application {
         JabRefGUI.taskExecutor = new UiTaskExecutor();
         Injector.setModelOrService(TaskExecutor.class, taskExecutor);
 
-        journalAbbreviationRepository = JournalAbbreviationLoader.loadRepositoryInBackground(preferences.getAbbreviationPreferences(), taskExecutor);
+        journalAbbreviationRepository = JournalAbbreviationLoader.loadRepositoryInBackground(
+                preferences.getAbbreviationPreferences(), taskExecutor);
 
         DefaultFileUpdateMonitor fileUpdateMonitor = new DefaultFileUpdateMonitor();
         JabRefGUI.fileUpdateMonitor = fileUpdateMonitor;
@@ -224,7 +219,8 @@ public class JabRefGUI extends Application {
         BibEntryTypesManager entryTypesManager = preferences.getCustomEntryTypesRepository();
         Injector.setModelOrService(BibEntryTypesManager.class, entryTypesManager);
         Injector.setModelOrService(JournalAbbreviationRepository.class, journalAbbreviationRepository);
-        Injector.setModelOrService(ProtectedTermsLoader.class, new ProtectedTermsLoader(preferences.getProtectedTermsPreferences()));
+        Injector.setModelOrService(
+                ProtectedTermsLoader.class, new ProtectedTermsLoader(preferences.getProtectedTermsPreferences()));
 
         IndexManager.clearOldSearchIndices();
 
@@ -237,38 +233,36 @@ public class JabRefGUI extends Application {
         JabRefGUI.oAuthSessionRegistry = new OAuthSessionRegistry();
         Injector.setModelOrService(OAuthSessionRegistry.class, JabRefGUI.oAuthSessionRegistry);
 
-        JabRefGUI.languageServerController = new LanguageServerController(preferences, journalAbbreviationRepository, entryTypesManager);
+        JabRefGUI.languageServerController =
+                new LanguageServerController(preferences, journalAbbreviationRepository, entryTypesManager);
         Injector.setModelOrService(LanguageServerController.class, JabRefGUI.languageServerController);
 
         Injector.setModelOrService(KeyBindingRepository.class, preferences.getKeyBindingRepository());
 
-        JabRefGUI.themeManager = new ThemeManager(
-                preferences.getWorkspacePreferences(),
-                fileUpdateMonitor
-        );
+        JabRefGUI.themeManager = new ThemeManager(preferences.getWorkspacePreferences(), fileUpdateMonitor);
         Injector.setModelOrService(ThemeManager.class, themeManager);
 
         JabRefGUI.dialogService = new JabRefDialogService(mainStage);
         Injector.setModelOrService(DialogService.class, dialogService);
 
-        stateManager.getRunningBackgroundTasksPairs().addListener((ListChangeListener<? super Pair<BackgroundTask<?>, Task<?>>>) change -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    for (Pair<BackgroundTask<?>, Task<?>> pair : change.getAddedSubList()) {
-                        dialogService.notify(new Notifications.TaskNotification(pair.getValue(), pair.getKey()));
+        stateManager
+                .getRunningBackgroundTasksPairs()
+                .addListener((ListChangeListener<? super Pair<BackgroundTask<?>, Task<?>>>) change -> {
+                    while (change.next()) {
+                        if (change.wasAdded()) {
+                            for (Pair<BackgroundTask<?>, Task<?>> pair : change.getAddedSubList()) {
+                                dialogService.notify(
+                                        new Notifications.TaskNotification(pair.getValue(), pair.getKey()));
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
 
         JabRefGUI.clipBoardManager = new ClipBoardManager(stateManager);
         Injector.setModelOrService(ClipBoardManager.class, clipBoardManager);
 
         JabRefGUI.aiService = new AiService(
-                preferences.getAiPreferences(),
-                preferences.getFilePreferences(),
-                dialogService,
-                taskExecutor);
+                preferences.getAiPreferences(), preferences.getFilePreferences(), dialogService, taskExecutor);
         Injector.setModelOrService(AiService.class, aiService);
 
         JabRefGUI.citationsAndRelationsSearchService = new SearchCitationsRelationsService(
@@ -282,8 +276,7 @@ public class JabRefGUI extends Application {
                 preferences.getAiPreferences(),
                 aiService.getCurrentChatModel(),
                 entryTypesManager,
-                dialogService
-        );
+                dialogService);
         Injector.setModelOrService(SearchCitationsRelationsService.class, citationsAndRelationsSearchService);
 
         loadBundledFonts();
@@ -302,7 +295,9 @@ public class JabRefGUI extends Application {
 
             Font font = Font.loadFont(stream, -1);
             if (font == null) {
-                LOGGER.warn("Could not load bundled font {}, falling back to the platform default", BIBTEX_EDITOR_FONT_RESOURCE);
+                LOGGER.warn(
+                        "Could not load bundled font {}, falling back to the platform default",
+                        BIBTEX_EDITOR_FONT_RESOURCE);
             }
         } catch (IOException e) {
             LOGGER.warn("Could not load bundled font {}", BIBTEX_EDITOR_FONT_RESOURCE, e);
@@ -363,7 +358,9 @@ public class JabRefGUI extends Application {
             mainStage.setHeight(coreGuiPreferences.getSizeY());
             LOGGER.debug("NOT saving window positions");
         } else {
-            LOGGER.info("The JabRef window is outside of screen bounds. Position and size will be corrected to 1024x768. Primary screen will be used.");
+            LOGGER.info(
+                    "The JabRef window is outside of screen bounds. Position and size will be corrected to 1024x768."
+                            + " Primary screen will be used.");
             Rectangle2D bounds = Screen.getPrimary().getBounds();
             mainStage.setX(bounds.getMinX());
             mainStage.setY(bounds.getMinY());
@@ -381,7 +378,10 @@ public class JabRefGUI extends Application {
         Injector.setModelOrService(InfoCenterPane.class, powerpane.getInfoCenterPane());
         powerpane.setContent(JabRefGUI.mainFrame);
         powerpane.getInfoCenterPane().setInfoCenterViewPos(InfoCenterViewPos.BOTTOM_RIGHT);
-        powerpane.getInfoCenterPane().autoHideProperty().bind(Bindings.isEmpty(dialogService.getPersistentNotifications()));
+        powerpane
+                .getInfoCenterPane()
+                .autoHideProperty()
+                .bind(Bindings.isEmpty(dialogService.getPersistentNotifications()));
         // PowerPane is a StackPane, so the walkthrough draws into a sibling of the info center pane
         // rather than into a wrapper around the scene root.
         powerpane.getChildren().add(new WalkthroughPane());
@@ -443,7 +443,8 @@ public class JabRefGUI extends Application {
         }
 
         Platform.runLater(() -> {
-            // We need to check at this point, because here, all libraries are loaded (e.g., load previously opened libraries) and all UI commands (e.g., load libraries, blank workspace, ...) are handled.
+            // We need to check at this point, because here, all libraries are loaded (e.g., load previously opened
+            // libraries) and all UI commands (e.g., load libraries, blank workspace, ...) are handled.
             if (stateManager.getOpenDatabases().isEmpty()) {
                 mainFrame.showWelcomeTab();
             }
@@ -484,15 +485,20 @@ public class JabRefGUI extends Application {
     ///
     /// @param mainStage JabRef's stage
     private void debugLogWindowState(Stage mainStage) {
-        LOGGER.debug("""
-                        screen data:
-                          mainStage.WINDOW_MAXIMISED: {}
-                          mainStage.POS_X: {}
-                          mainStage.POS_Y: {}
-                          mainStage.SIZE_X: {}
-                          mainStage.SIZE_Y: {}
-                        """,
-                mainStage.isMaximized(), mainStage.getX(), mainStage.getY(), mainStage.getWidth(), mainStage.getHeight());
+        LOGGER.debug(
+                """
+                screen data:
+                  mainStage.WINDOW_MAXIMISED: {}
+                  mainStage.POS_X: {}
+                  mainStage.POS_Y: {}
+                  mainStage.SIZE_X: {}
+                  mainStage.SIZE_Y: {}
+                """,
+                mainStage.isMaximized(),
+                mainStage.getX(),
+                mainStage.getY(),
+                mainStage.getWidth(),
+                mainStage.getHeight());
     }
 
     /// Tests if the window coordinates are inside any screen
@@ -512,7 +518,8 @@ public class JabRefGUI extends Application {
         double bottomY = coreGuiPreferences.getPositionY() + coreGuiPreferences.getSizeY();
         LOGGER.debug("left x: {}, bottom y: {}", leftX, bottomY);
 
-        boolean inBounds = Screen.getScreens().stream().anyMatch(screen -> screen.getBounds().contains(leftX, bottomY));
+        boolean inBounds = Screen.getScreens().stream()
+                .anyMatch(screen -> screen.getBounds().contains(leftX, bottomY));
         LOGGER.debug("lower left corner is in bounds: {}", inBounds);
         return inBounds;
     }
@@ -524,7 +531,8 @@ public class JabRefGUI extends Application {
         double topY = coreGuiPreferences.getPositionY();
         LOGGER.debug("right x: {}, top y: {}", rightX, topY);
 
-        boolean inBounds = Screen.getScreens().stream().anyMatch(screen -> screen.getBounds().contains(rightX, topY));
+        boolean inBounds = Screen.getScreens().stream()
+                .anyMatch(screen -> screen.getBounds().contains(rightX, topY));
         LOGGER.debug("upper right corner is in bounds: {}", inBounds);
         return inBounds;
     }
@@ -534,13 +542,12 @@ public class JabRefGUI extends Application {
         RemotePreferences remotePreferences = preferences.getRemotePreferences();
         CLIMessageHandler cliMessageHandler = new CLIMessageHandler(mainFrame, preferences);
         if (remotePreferences.shouldEnableRemoteServer()) {
-            remoteListenerServerManager.openAndStart(
-                    cliMessageHandler,
-                    remotePreferences.getRemoteServerPort());
+            remoteListenerServerManager.openAndStart(cliMessageHandler, remotePreferences.getRemoteServerPort());
         }
 
         if (remotePreferences.shouldEnableHttpServer()) {
-            httpServerManager.start(preferences, stateManager, mainFrame, oAuthSessionRegistry, remotePreferences.getHttpServerUri());
+            httpServerManager.start(
+                    preferences, stateManager, mainFrame, oAuthSessionRegistry, remotePreferences.getHttpServerUri());
         }
         if (remotePreferences.shouldEnableLanguageServer()) {
             languageServerController.start(cliMessageHandler, remotePreferences.getLanguageServerPort());
@@ -553,7 +560,12 @@ public class JabRefGUI extends Application {
             // stop in all cases, because the port might have changed
             httpServerManager.stop();
             if (newValue) {
-                httpServerManager.start(preferences, stateManager, mainFrame, oAuthSessionRegistry, remotePreferences.getHttpServerUri());
+                httpServerManager.start(
+                        preferences,
+                        stateManager,
+                        mainFrame,
+                        oAuthSessionRegistry,
+                        remotePreferences.getHttpServerUri());
             }
         });
     }
@@ -618,7 +630,8 @@ public class JabRefGUI extends Application {
                 try {
                     GitSsh.shutdown();
                 } catch (RuntimeException e) {
-                    // Log only: the submitted task's future is never read (a rethrow would vanish) and the UI is already gone
+                    // Log only: the submitted task's future is never read (a rethrow would vanish) and the UI is
+                    // already gone
                     LOGGER.error("Unable to close Git SSH session factory", e);
                 }
                 LOGGER.trace("Git SSH session factory closed");

@@ -2,11 +2,9 @@ package org.jabref.logic.integrity;
 
 import java.net.URISyntaxException;
 import java.util.Optional;
-
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
-
-import org.apache.hc.core5.net.URIBuilder;
 import org.jspecify.annotations.Nullable;
 
 public class UrlChecker implements ValueChecker {

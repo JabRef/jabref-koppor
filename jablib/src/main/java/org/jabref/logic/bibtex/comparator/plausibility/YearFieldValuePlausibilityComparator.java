@@ -4,7 +4,6 @@ import java.time.Year;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.bibtex.comparator.ComparisonResult;
 import org.jabref.logic.integrity.YearChecker;
 import org.jabref.logic.util.strings.StringUtil;
@@ -14,8 +13,7 @@ public class YearFieldValuePlausibilityComparator implements FieldValuePlausibil
     private static final Pattern YEAR_PATTERN = Pattern.compile("(\\d{4})");
 
     // Only the factor may instantiate this
-    YearFieldValuePlausibilityComparator() {
-    }
+    YearFieldValuePlausibilityComparator() {}
 
     /// Compares the plausibility of two field values.
     ///
@@ -52,7 +50,8 @@ public class YearFieldValuePlausibilityComparator implements FieldValuePlausibil
         int leftYear = extractYear(leftValue).get();
         int rightYear = extractYear(rightValue).get();
         boolean leftYearInRange = (leftYear >= 1800) && (leftYear <= Year.now().getValue() + 2);
-        boolean rightYearInRange = (rightYear >= 1800) && (rightYear <= Year.now().getValue() + 2);
+        boolean rightYearInRange =
+                (rightYear >= 1800) && (rightYear <= Year.now().getValue() + 2);
         if (leftYearInRange && !rightYearInRange) {
             return ComparisonResult.LEFT_BETTER;
         } else if (rightYearInRange && !leftYearInRange) {
@@ -63,9 +62,7 @@ public class YearFieldValuePlausibilityComparator implements FieldValuePlausibil
 
         int diff = Math.abs(leftYear - rightYear);
         if (diff > 10) {
-            return rightYear > leftYear
-                   ? ComparisonResult.RIGHT_BETTER
-                   : ComparisonResult.LEFT_BETTER;
+            return rightYear > leftYear ? ComparisonResult.RIGHT_BETTER : ComparisonResult.LEFT_BETTER;
         }
 
         return ComparisonResult.UNDETERMINED; // years are close, undetermined

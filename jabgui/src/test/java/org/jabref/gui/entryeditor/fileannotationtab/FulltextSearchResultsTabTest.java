@@ -1,14 +1,19 @@
 package org.jabref.gui.entryeditor.fileannotationtab;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.TermQuery;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -25,17 +30,9 @@ import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResult;
 import org.jabref.model.search.query.SearchResults;
-
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.TermQuery;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(JavaFxExtension.class)
 @NullMarked
@@ -67,17 +64,27 @@ class FulltextSearchResultsTabTest {
         assertEquals(0, content.getChildren().size());
 
         SearchResults linkedFileResults = new SearchResults();
-        linkedFileResults.addSearchResult(entry.getId(), new SearchResult(
-                "paper.pdf", "before term after", "", 3, new TermQuery(new Term("content", "term"))));
+        linkedFileResults.addSearchResult(
+                entry.getId(),
+                new SearchResult("paper.pdf", "before term after", "", 3, new TermQuery(new Term("content", "term"))));
         results.set(Optional.of(linkedFileResults));
 
         List<String> renderedText = content.getChildren().stream()
-                                           .filter(Text.class::isInstance)
-                                           .map(node -> ((Text) node).getText())
-                                           .toList();
-        assertEquals(Localization.lang("Found match in %0", "paper.pdf") + System.lineSeparator() + System.lineSeparator(), renderedText.getFirst());
-        assertEquals("term", renderedText.stream().filter(text -> text.contains("term")).findFirst().orElseThrow());
-        assertEquals(Localization.lang("On page %0", 3) + System.lineSeparator() + System.lineSeparator(), renderedText.getLast());
+                .filter(Text.class::isInstance)
+                .map(node -> ((Text) node).getText())
+                .toList();
+        assertEquals(
+                Localization.lang("Found match in %0", "paper.pdf") + System.lineSeparator() + System.lineSeparator(),
+                renderedText.getFirst());
+        assertEquals(
+                "term",
+                renderedText.stream()
+                        .filter(text -> text.contains("term"))
+                        .findFirst()
+                        .orElseThrow());
+        assertEquals(
+                Localization.lang("On page %0", 3) + System.lineSeparator() + System.lineSeparator(),
+                renderedText.getLast());
         tab.dispose();
     }
 

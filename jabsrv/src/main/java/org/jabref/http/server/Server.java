@@ -7,9 +7,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-
 import javax.net.ssl.SSLContext;
-
+import net.harawata.appdirs.AppDirsFactory;
+import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.ssl.SSLContextConfigurator;
+import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.jabref.http.JabRefSrvStateManager;
 import org.jabref.http.SrvStateManager;
 import org.jabref.http.dto.GlobalExceptionMapper;
@@ -36,14 +41,6 @@ import org.jabref.logic.os.OS;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import net.harawata.appdirs.AppDirsFactory;
-import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.ssl.SSLContextConfigurator;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
@@ -65,8 +62,10 @@ public class Server {
         List<Path> filesToServeList;
         if (files.isEmpty()) {
             LOGGER.debug("No library available to serve, serving the demo library (Chocolate.bib)...");
-            // Chocolate.bib lives at the resources root of jablib (a dependency of jabsrv), thus it is reachable on the classpath.
-            // JabRefSrvStateManager requires a filesystem Path, so the classpath resource is copied to a temporary file.
+            // Chocolate.bib lives at the resources root of jablib (a dependency of jabsrv), thus it is reachable on the
+            // classpath.
+            // JabRefSrvStateManager requires a filesystem Path, so the classpath resource is copied to a temporary
+            // file.
             try (InputStream demo = BibDatabase.class.getResourceAsStream("/Chocolate.bib")) {
                 if (demo == null) {
                     throw new IOException("Demo library Chocolate.bib not found on classpath");
@@ -84,15 +83,14 @@ public class Server {
         LOGGER.debug("Libraries to serve: {}", filesToServeList);
 
         SrvStateManager srvStateManager = new JabRefSrvStateManager(
-                preferences.getBibEntryPreferences(),
-                preferences.getImportFormatPreferences(),
-                filesToServeList);
+                preferences.getBibEntryPreferences(), preferences.getImportFormatPreferences(), filesToServeList);
 
         ServiceLocator serviceLocator = ServiceLocatorUtilities.createAndPopulateServiceLocator();
         ServiceLocatorUtilities.addOneConstant(serviceLocator, srvStateManager, "statemanager", SrvStateManager.class);
         // No GUI in standalone mode: bind the null object so the resources' mandatory
         // UiMessageHandler injection resolves and GUI-only endpoints can reject with a clean 400.
-        ServiceLocatorUtilities.addOneConstant(serviceLocator, UiMessageHandler.NONE, "uimessagehandler", UiMessageHandler.class);
+        ServiceLocatorUtilities.addOneConstant(
+                serviceLocator, UiMessageHandler.NONE, "uimessagehandler", UiMessageHandler.class);
         HttpServer httpServer = startServer(serviceLocator, uri);
 
         // Required for CLI only
@@ -114,7 +112,8 @@ public class Server {
     public HttpServer run(SrvStateManager srvStateManager, UiMessageHandler uiMessageHandler, URI uri) {
         ServiceLocator serviceLocator = ServiceLocatorUtilities.createAndPopulateServiceLocator();
         ServiceLocatorUtilities.addOneConstant(serviceLocator, srvStateManager, "statemanager", SrvStateManager.class);
-        ServiceLocatorUtilities.addOneConstant(serviceLocator, uiMessageHandler, "uimessagehandler", UiMessageHandler.class);
+        ServiceLocatorUtilities.addOneConstant(
+                serviceLocator, uiMessageHandler, "uimessagehandler", UiMessageHandler.class);
         return startServer(serviceLocator, uri);
     }
 
@@ -124,7 +123,11 @@ public class Server {
         ServiceLocatorUtilities.addOneConstant(serviceLocator, preferences, "preferences", CliPreferences.class);
         ServiceLocatorUtilities.addOneConstant(serviceLocator, new CitationCacheService());
         ServiceLocatorUtilities.addOneConstant(serviceLocator, new FormatterService());
-        ServiceLocatorUtilities.addOneConstant(serviceLocator, preferences.getCustomEntryTypesRepository(), "entrytypesmanager", BibEntryTypesManager.class);
+        ServiceLocatorUtilities.addOneConstant(
+                serviceLocator,
+                preferences.getCustomEntryTypesRepository(),
+                "entrytypesmanager",
+                BibEntryTypesManager.class);
         ServiceLocatorUtilities.addFactoryConstants(serviceLocator, new GsonFactory());
 
         // see https://stackoverflow.com/a/33794265/873282
@@ -156,8 +159,7 @@ public class Server {
 
         LOGGER.debug("Starting HTTP server...");
 
-        return GrizzlyHttpServerFactory
-                .createHttpServer(uri, resourceConfig, serviceLocator);
+        return GrizzlyHttpServerFactory.createHttpServer(uri, resourceConfig, serviceLocator);
     }
 
     private boolean sslCertExists() {
@@ -173,19 +175,17 @@ public class Server {
             sslContextConfig.setKeyStorePass("changeit");
         } else {
             LOGGER.error("Could not find server key store {}.", serverKeyStore);
-            LOGGER.error("One create one by following the steps described in [http-server.md](/docs/code-howtos/http-server.md), which is rendered at <https://devdocs.jabref.org/code-howtos/http-server.html>");
+            LOGGER.error("One create one by following the steps described in"
+                    + " [http-server.md](/docs/code-howtos/http-server.md), which is rendered at"
+                    + " <https://devdocs.jabref.org/code-howtos/http-server.html>");
         }
         return sslContextConfig.createSSLContext(false);
     }
 
     @NonNull
     private Path getSslCert() {
-        return Path.of(AppDirsFactory.getInstance()
-                                     .getUserDataDir(
-                                             OS.APP_DIR_APP_NAME,
-                                             "ssl",
-                                             OS.APP_DIR_APP_AUTHOR))
-                   .resolve("server.p12");
+        return Path.of(AppDirsFactory.getInstance().getUserDataDir(OS.APP_DIR_APP_NAME, "ssl", OS.APP_DIR_APP_AUTHOR))
+                .resolve("server.p12");
     }
 
     static void stopServer() {

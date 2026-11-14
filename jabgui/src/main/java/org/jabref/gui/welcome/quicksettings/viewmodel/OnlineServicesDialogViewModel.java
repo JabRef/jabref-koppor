@@ -3,7 +3,6 @@ package org.jabref.gui.welcome.quicksettings.viewmodel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -11,14 +10,12 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.slr.StudyCatalogItem;
 import org.jabref.logic.importer.SearchBasedFetcher;
 import org.jabref.logic.importer.WebFetchers;
 import org.jabref.logic.importer.fetcher.CompositeSearchBasedFetcher;
-
 import org.jspecify.annotations.NonNull;
 
 public class OnlineServicesDialogViewModel extends AbstractViewModel {
@@ -49,13 +46,14 @@ public class OnlineServicesDialogViewModel extends AbstractViewModel {
     }
 
     private void initializeFetchers() {
-        List<StudyCatalogItem> availableFetchers = WebFetchers
-                .getSearchBasedFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences())
+        List<StudyCatalogItem> availableFetchers = WebFetchers.getSearchBasedFetchers(
+                        preferences.getImportFormatPreferences(), preferences.getImporterPreferences())
                 .stream()
                 .map(SearchBasedFetcher::getName)
                 .filter(name -> !CompositeSearchBasedFetcher.FETCHER_NAME.equals(name))
                 .map(name -> {
-                    boolean enabled = preferences.getImporterPreferences().getCatalogs().contains(name);
+                    boolean enabled =
+                            preferences.getImporterPreferences().getCatalogs().contains(name);
                     return new StudyCatalogItem(name, enabled);
                 })
                 .toList();
@@ -100,7 +98,9 @@ public class OnlineServicesDialogViewModel extends AbstractViewModel {
     }
 
     public @NonNull String getGrobidUrl() {
-        return Objects.requireNonNull(grobidUrlProperty.get()); // In every sensible use case (unless someone intentionally set this property to null), this should not be null.
+        return Objects.requireNonNull(grobidUrlProperty.get()); // In every sensible use case (unless someone
+                                                                // intentionally set this property to null), this should
+                                                                // not be null.
     }
 
     public ListProperty<StudyCatalogItem> fetchersProperty() {

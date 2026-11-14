@@ -1,8 +1,16 @@
 package org.jabref.gui.ai.chat;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import com.airhacks.afterburner.injection.Injector;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
@@ -15,7 +23,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.clipboard.ClipBoardManager;
@@ -36,21 +43,11 @@ import org.jabref.model.ai.identifiers.FullBibEntry;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 @NullMarked
 @ResourceLock("Localization.lang")
@@ -78,7 +75,8 @@ class AiChatViewTest extends JavaFxTest {
         when(preferences.getKeyBindingRepository()).thenReturn(keyBindings);
 
         EmbeddingModelCache embeddingModelCache = mock(EmbeddingModelCache.class);
-        when(embeddingModelCache.getOrCreate(aiPreferences.getEmbeddingModel())).thenReturn(mock(AsyncEmbeddingModel.class));
+        when(embeddingModelCache.getOrCreate(aiPreferences.getEmbeddingModel()))
+                .thenReturn(mock(AsyncEmbeddingModel.class));
         AiService aiService = mock(AiService.class);
         when(aiService.getEmbeddingModelCache()).thenReturn(embeddingModelCache);
         when(aiService.getEmbeddingModelMetadataService()).thenReturn(mock(EmbeddingModelMetadataService.class));
@@ -93,7 +91,8 @@ class AiChatViewTest extends JavaFxTest {
         view = new AiChatView();
         BibEntry entry = new BibEntry();
         entry.addFile(new LinkedFile("Paper", "paper.pdf", "pdf"));
-        view.entriesProperty().set(FXCollections.observableArrayList(new FullBibEntry(new BibDatabaseContext(), entry)));
+        view.entriesProperty()
+                .set(FXCollections.observableArrayList(new FullBibEntry(new BibDatabaseContext(), entry)));
         root = new StackPane(view);
         stage.setScene(new Scene(root, 700, 500));
         stage.show();
@@ -102,18 +101,27 @@ class AiChatViewTest extends JavaFxTest {
     private void openFind() {
         Node composer = view.lookup("#userMessageTextArea");
         composer.requestFocus();
-        Event.fireEvent(composer, new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.F, false, !OS.OS_X, false, OS.OS_X));
+        Event.fireEvent(
+                composer, new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.F, false, !OS.OS_X, false, OS.OS_X));
     }
 
     // [utest->req~ai.chat.find.close~1]
     @ParameterizedTest
-    @ValueSource(strings = {"findField", "findNextButton", "findPreviousButton", "chatHistoryScrollPane", "userMessageTextArea"})
+    @ValueSource(
+            strings = {
+                "findField",
+                "findNextButton",
+                "findPreviousButton",
+                "chatHistoryScrollPane",
+                "userMessageTextArea"
+            })
     void escapeClosesFindFromAnywhereInChat(String focusTarget) {
         interact(() -> {
             openFind();
             Node target = view.lookup("#" + focusTarget);
             target.requestFocus();
-            Event.fireEvent(target, new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.ESCAPE, false, false, false, false));
+            Event.fireEvent(
+                    target, new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.ESCAPE, false, false, false, false));
             assertFalse(view.lookup("#findBar").isVisible());
         });
     }
@@ -123,7 +131,9 @@ class AiChatViewTest extends JavaFxTest {
     void closingFindRestoresComposerAfterRepeatedSearchShortcut() {
         interact(() -> {
             openFind();
-            Event.fireEvent(view.lookup("#findField"), new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.F, false, !OS.OS_X, false, OS.OS_X));
+            Event.fireEvent(
+                    view.lookup("#findField"),
+                    new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.F, false, !OS.OS_X, false, OS.OS_X));
             ((Button) view.lookup("#closeFindButton")).fire();
             assertEquals(view.lookup("#userMessageTextArea"), root.getScene().getFocusOwner());
         });
@@ -137,9 +147,12 @@ class AiChatViewTest extends JavaFxTest {
             keyBindings.put(KeyBinding.CLOSE, "F11");
             Node composer = view.lookup("#userMessageTextArea");
             composer.requestFocus();
-            Event.fireEvent(composer, new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.F10, false, false, false, false));
+            Event.fireEvent(
+                    composer, new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.F10, false, false, false, false));
             assertEquals(view.lookup("#findField"), root.getScene().getFocusOwner());
-            Event.fireEvent(view.lookup("#findNextButton"), new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.F11, false, false, false, false));
+            Event.fireEvent(
+                    view.lookup("#findNextButton"),
+                    new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.F11, false, false, false, false));
             assertFalse(view.lookup("#findBar").isVisible());
         });
     }
@@ -151,7 +164,8 @@ class AiChatViewTest extends JavaFxTest {
             view.entriesProperty().clear();
             AtomicBoolean globalSearchRequested = new AtomicBoolean();
             root.addEventHandler(KeyEvent.KEY_PRESSED, _ -> globalSearchRequested.set(true));
-            Event.fireEvent(view, new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.F, false, !OS.OS_X, false, OS.OS_X));
+            Event.fireEvent(
+                    view, new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.F, false, !OS.OS_X, false, OS.OS_X));
             assertFalse(view.canHandleSearch());
             assertFalse(view.lookup("#findBar").isVisible());
             assertTrue(globalSearchRequested.get());
@@ -166,7 +180,9 @@ class AiChatViewTest extends JavaFxTest {
             TextField field = (TextField) view.lookup("#findField");
             field.setText("chocolate");
             ((Button) view.lookup("#findNextButton")).requestFocus();
-            Event.fireEvent(view.lookup("#findNextButton"), new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.F, false, !OS.OS_X, false, OS.OS_X));
+            Event.fireEvent(
+                    view.lookup("#findNextButton"),
+                    new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.F, false, !OS.OS_X, false, OS.OS_X));
             assertEquals(field, root.getScene().getFocusOwner());
             assertEquals("chocolate", field.getSelectedText());
         });
@@ -175,7 +191,8 @@ class AiChatViewTest extends JavaFxTest {
     // [utest->req~ai.chat.find.navigation~1]
     @Test
     void enterAndShiftEnterNavigateMatchesWithoutInvokingGlobalSearch() {
-        interact(() -> view.chatHistoryProperty().add(ChatMessage.aiMessage("Chocolate, chocolate, chocolate", List.of())));
+        interact(() ->
+                view.chatHistoryProperty().add(ChatMessage.aiMessage("Chocolate, chocolate, chocolate", List.of())));
         awaitEvents();
         interact(() -> {
             AtomicBoolean globalSearchRequested = new AtomicBoolean();
@@ -184,9 +201,11 @@ class AiChatViewTest extends JavaFxTest {
             TextField field = (TextField) view.lookup("#findField");
             field.setText("chocolate");
             Label result = (Label) view.lookup("#findResultLabel");
-            Event.fireEvent(field, new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.ENTER, false, false, false, false));
+            Event.fireEvent(
+                    field, new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.ENTER, false, false, false, false));
             assertEquals("2/3", result.getText());
-            Event.fireEvent(field, new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.ENTER, true, false, false, false));
+            Event.fireEvent(
+                    field, new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.ENTER, true, false, false, false));
             assertEquals("1/3", result.getText());
             assertFalse(globalSearchRequested.get());
         });

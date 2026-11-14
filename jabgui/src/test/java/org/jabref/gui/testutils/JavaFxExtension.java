@@ -9,13 +9,11 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
@@ -85,8 +83,7 @@ public class JavaFxExtension implements BeforeEachCallback, AfterEachCallback {
 
     public static void awaitEvents() {
         for (int pass = 0; pass < EVENT_DRAIN_PASSES; pass++) {
-            invokeAndWait(() -> {
-            });
+            invokeAndWait(() -> {});
         }
         throwAsynchronousFailures();
     }
@@ -99,18 +96,17 @@ public class JavaFxExtension implements BeforeEachCallback, AfterEachCallback {
         return lookup(root, selector, nodeType, _ -> true);
     }
 
-    public static <T extends Node> List<T> lookupAll(Parent root, String selector, Class<T> nodeType, Predicate<T> matcher) {
+    public static <T extends Node> List<T> lookupAll(
+            Parent root, String selector, Class<T> nodeType, Predicate<T> matcher) {
         return callAndWait(() -> root.lookupAll(selector).stream()
-                                     .filter(nodeType::isInstance)
-                                     .map(nodeType::cast)
-                                     .filter(matcher)
-                                     .toList());
+                .filter(nodeType::isInstance)
+                .map(nodeType::cast)
+                .filter(matcher)
+                .toList());
     }
 
     public static <T extends Node> T lookup(Parent root, String selector, Class<T> nodeType, Predicate<T> matcher) {
-        return lookupAll(root, selector, nodeType, matcher).stream()
-                                                           .findFirst()
-                                                           .orElseThrow();
+        return lookupAll(root, selector, nodeType, matcher).stream().findFirst().orElseThrow();
     }
 
     private static void initializeToolkit() throws InterruptedException {

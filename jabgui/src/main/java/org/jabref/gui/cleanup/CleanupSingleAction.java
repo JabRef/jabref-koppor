@@ -18,12 +18,13 @@ public class CleanupSingleAction extends SimpleCommand {
     private final UndoManager undoManager;
     private final JournalAbbreviationRepository journalAbbreviationRepository;
 
-    public CleanupSingleAction(BibEntry entry,
-                               CliPreferences preferences,
-                               DialogService dialogService,
-                               StateManager stateManager,
-                               UndoManager undoManager,
-                               JournalAbbreviationRepository journalAbbreviationRepository) {
+    public CleanupSingleAction(
+            BibEntry entry,
+            CliPreferences preferences,
+            DialogService dialogService,
+            StateManager stateManager,
+            UndoManager undoManager,
+            JournalAbbreviationRepository journalAbbreviationRepository) {
         this.entry = entry;
         this.preferences = preferences;
         this.dialogService = dialogService;
@@ -47,8 +48,7 @@ public class CleanupSingleAction extends SimpleCommand {
                 dialogService,
                 stateManager,
                 undoManager,
-                journalAbbreviationRepository
-        );
+                journalAbbreviationRepository);
 
         dialogService.showCustomDialogAndWait(cleanupDialog);
     }

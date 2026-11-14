@@ -11,10 +11,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
 import org.jspecify.annotations.NonNull;
 
 public class ISBN implements Identifier {
@@ -42,7 +40,8 @@ public class ISBN implements Identifier {
     /// The match ends where the first number of the list starts.
     /// The "10" or "13" must not be followed by a digit, otherwise it could be the first digits of an
     /// unhyphenated number, as in "ISBN 1305116550".
-    private static final Pattern ISBN_LABEL = Pattern.compile("(?i:ISBN)(?:[-\\s]?1[03](?!\\d))?" + QUALIFIER + ":?\\s{0,3}");
+    private static final Pattern ISBN_LABEL =
+            Pattern.compile("(?i:ISBN)(?:[-\\s]?1[03](?!\\d))?" + QUALIFIER + ":?\\s{0,3}");
 
     /// Pass 2: one number of a list, either an ISBN-13 or an ISBN-10.
     /// Used with `lookingAt()` on a region, so it needs transparent bounds for its lookbehind and lookahead.
@@ -131,9 +130,7 @@ public class ISBN implements Identifier {
     }
 
     private static void addIfValid(String number, Map<String, ISBN> isbns) {
-        String compact = NOT_ISBN_CHARACTER.matcher(number)
-                                           .replaceAll("")
-                                           .toUpperCase(Locale.ROOT);
+        String compact = NOT_ISBN_CHARACTER.matcher(number).replaceAll("").toUpperCase(Locale.ROOT);
         ISBN isbn = new ISBN(compact);
         if (isbn.isValid()) {
             isbns.putIfAbsent(compact, isbn);
@@ -164,7 +161,8 @@ public class ISBN implements Identifier {
         return isbn13check();
     }
 
-    // Check that the control digit is correct, see e.g. https://en.wikipedia.org/wiki/International_Standard_Book_Number#Check_digits
+    // Check that the control digit is correct, see e.g.
+    // https://en.wikipedia.org/wiki/International_Standard_Book_Number#Check_digits
     private boolean isbn10check() {
         if (isbnString.length() != 10) {
             return false;
@@ -182,7 +180,8 @@ public class ISBN implements Identifier {
         return (sum % 11) == 0;
     }
 
-    // Check that the control digit is correct, see e.g. https://en.wikipedia.org/wiki/International_Standard_Book_Number#Check_digits
+    // Check that the control digit is correct, see e.g.
+    // https://en.wikipedia.org/wiki/International_Standard_Book_Number#Check_digits
     private boolean isbn13check() {
         if (isbnString.length() != 13) {
             return false;

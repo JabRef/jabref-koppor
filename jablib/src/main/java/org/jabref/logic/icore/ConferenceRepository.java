@@ -8,13 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.util.strings.StringSimilarity;
 import org.jabref.model.icore.ConferenceEntry;
-
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +20,8 @@ import org.slf4j.LoggerFactory;
 /// A Repository that loads and stores the latest ICORE Conference Ranking Data and allows lookups using a conference's
 /// acronym or title.
 ///
-/// The ranking data is sourced from <a href="https://portal.core.edu.au/conf-ranks/">the ICORE Conference Ranking Portal</a>.
+/// The ranking data is sourced from <a href="https://portal.core.edu.au/conf-ranks/">the ICORE Conference Ranking
+/// Portal</a>.
 /// Since the website does not expose an API endpoint to fetch this data programmatically, it must be manually exported
 /// from the website and stored as a resource. This means that when new ranking data is released, the old data must be
 /// replaced and the `ICORE_RANK_DATA_FILE` variable must be modified to point to the new data file.
@@ -58,12 +57,14 @@ public class ConferenceRepository {
     private void loadConferenceDataFromInputStream(InputStream inputStream) throws JabRefException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
-        try (inputStream; reader) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder()
-                                                           .setHeader()
-                                                           .setSkipHeaderRecord(true)
-                                                           .get()
-                                                           .parse(reader);
+        try (inputStream;
+                reader) {
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT
+                    .builder()
+                    .setHeader()
+                    .setSkipHeaderRecord(true)
+                    .get()
+                    .parse(reader);
 
             for (CSVRecord record : records) {
                 String id = record.get("Id").strip();
@@ -150,11 +151,14 @@ public class ConferenceRepository {
     /// noise.
     ///
     ///
-    /// While searching, the function computes Levenshtein similarity and LCS similarity between the query and the current conference
+    /// While searching, the function computes Levenshtein similarity and LCS similarity between the query and the
+    /// current conference
     /// title (also normalized) and prioritizes them in the following order:
-    /// 1. Whenever LCS similarity returns `1.0`, i.e., a conference title is found entirely as a substring in the query.
+    /// 1. Whenever LCS similarity returns `1.0`, i.e., a conference title is found entirely as a substring in the
+    /// query.
     /// 2. Whenever Levenshtein similarity exceeds the threshold defined by the `LEVENSHTEIN_THRESHOLD` constant.
-    /// 3. The combined weighted score of both LCS and Levenshtein similarities exceeds the `COMBINED_LCS_LEV_THRESHOLD`.
+    /// 3. The combined weighted score of both LCS and Levenshtein similarities exceeds the
+    /// `COMBINED_LCS_LEV_THRESHOLD`.
     ///
     /// The combined score is calculated as follows:
     /// `(0.6 * Levenshtein similarity) + (0.4 * LCS similarity)`
@@ -201,8 +205,13 @@ public class ConferenceRepository {
                 if (combinedScore >= COMBINED_LCS_LEV_THRESHOLD && combinedScore >= bestScore) {
                     bestMatch = conferenceTitle;
                     bestScore = combinedScore;
-                    LOGGER.debug("Matched query: {} with title: {} with combinedScore: {} and LEV: {} and LCS: {}",
-                            normalizedQuery, conferenceTitle, combinedScore, levSimilarity, LCSSimilarity);
+                    LOGGER.debug(
+                            "Matched query: {} with title: {} with combinedScore: {} and LEV: {} and LCS: {}",
+                            normalizedQuery,
+                            conferenceTitle,
+                            combinedScore,
+                            levSimilarity,
+                            LCSSimilarity);
                 }
             }
         }

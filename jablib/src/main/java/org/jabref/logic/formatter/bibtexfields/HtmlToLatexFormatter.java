@@ -3,12 +3,10 @@ package org.jabref.logic.formatter.bibtexfields;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.layout.LayoutFormatter;
 import org.jabref.logic.util.strings.HTMLUnicodeConversionMaps;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +48,8 @@ public class HtmlToLatexFormatter extends Formatter implements LayoutFormatter {
         while (m.find()) {
             int num = Integer.decode(m.group(1).replace("x", "#") + m.group(3));
             if (HTMLUnicodeConversionMaps.NUMERICAL_LATEX_CONVERSION_MAP.containsKey(num)) {
-                result = result.replaceAll("\\\\?&#" + m.group(1) + m.group(2) + m.group(3) + ";",
+                result = result.replaceAll(
+                        "\\\\?&#" + m.group(1) + m.group(2) + m.group(3) + ";",
                         Matcher.quoteReplacement(HTMLUnicodeConversionMaps.NUMERICAL_LATEX_CONVERSION_MAP.get(num)));
             }
         }
@@ -61,13 +60,16 @@ public class HtmlToLatexFormatter extends Formatter implements LayoutFormatter {
             int num = Integer.decode(m.group(2).replace("x", "#") + m.group(4));
             if (HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.containsKey(num)) {
                 if ("i".equals(m.group(1))) {
-                    result = result.replace(m.group(1) + "&#" + m.group(2) + m.group(3) + m.group(4) + ";",
+                    result = result.replace(
+                            m.group(1) + "&#" + m.group(2) + m.group(3) + m.group(4) + ";",
                             "{\\" + HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.get(num) + "{\\i}}");
                 } else if ("j".equals(m.group(1))) {
-                    result = result.replace(m.group(1) + "&#" + m.group(2) + m.group(3) + m.group(4) + ";",
+                    result = result.replace(
+                            m.group(1) + "&#" + m.group(2) + m.group(3) + m.group(4) + ";",
                             "{\\" + HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.get(num) + "{\\j}}");
                 } else {
-                    result = result.replace(m.group(1) + "&#" + m.group(2) + m.group(3) + m.group(4) + ";",
+                    result = result.replace(
+                            m.group(1) + "&#" + m.group(2) + m.group(3) + m.group(4) + ";",
                             "{\\" + HTMLUnicodeConversionMaps.ESCAPED_ACCENTS.get(num) + "{" + m.group(1) + "}}");
                 }
             }

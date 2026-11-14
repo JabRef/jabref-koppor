@@ -1,13 +1,13 @@
 package org.jabref.gui.entryeditor;
 
+import com.google.common.eventbus.Subscribe;
+import com.tobiasdiez.easybind.EasyBind;
 import java.util.Optional;
 import java.util.SequencedSet;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -20,9 +20,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.InternalField;
-
-import com.google.common.eventbus.Subscribe;
-import com.tobiasdiez.easybind.EasyBind;
 import org.jspecify.annotations.NullMarked;
 
 /// A user-defined tab showing the fields resolved from a [EntryEditorTabModel.CustomizedFieldsTab]
@@ -47,27 +44,23 @@ public class UserDefinedFieldsTab extends FieldsEditorTab {
     /// Set when a coalesced burst contains an entry-type change, which forces a rebuild (see [#listen]).
     private final AtomicBoolean entryTypeChangeQueued = new AtomicBoolean();
 
-    public UserDefinedFieldsTab(EntryEditorTabModel.CustomizedFieldsTab model,
-                                UndoAction undoAction,
-                                RedoAction redoAction,
-                                GuiPreferences preferences,
-                                JournalAbbreviationRepository journalAbbreviationRepository,
-                                StateManager stateManager,
-                                PreviewPanel previewPanel) {
-        super(
-                false,
-                undoAction,
-                redoAction,
-                preferences,
-                journalAbbreviationRepository,
-                stateManager,
-                previewPanel);
+    public UserDefinedFieldsTab(
+            EntryEditorTabModel.CustomizedFieldsTab model,
+            UndoAction undoAction,
+            RedoAction redoAction,
+            GuiPreferences preferences,
+            JournalAbbreviationRepository journalAbbreviationRepository,
+            StateManager stateManager,
+            PreviewPanel previewPanel) {
+        super(false, undoAction, redoAction, preferences, journalAbbreviationRepository, stateManager, previewPanel);
 
         this.model = model;
 
         setContentDrivenVisibility(hasResolvedFields);
-        EasyBind.subscribe(currentEntryProperty(), entry ->
-                hasResolvedFields.set((entry != null) && !model.resolveFields(entry).isEmpty()));
+        EasyBind.subscribe(
+                currentEntryProperty(),
+                entry -> hasResolvedFields.set(
+                        (entry != null) && !model.resolveFields(entry).isEmpty()));
 
         setText(model.name());
         setGraphic(IconTheme.JabRefIcons.OPTIONAL.getGraphicNode());

@@ -4,11 +4,9 @@ import java.util.Optional;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.strings.LatexToUnicodeAdapter;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Converts LaTeX commands that encode a single character, such as `\textcopyright{}` or `\"{o}`, to that Unicode
@@ -18,19 +16,21 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class LatexToUnicodeAwareLatexFormatter extends Formatter {
 
-    // Spaces and optional single line break swallowed after a control word. A blank line is kept because it ends the paragraph.
+    // Spaces and optional single line break swallowed after a control word. A blank line is kept because it ends the
+    // paragraph.
     private static final String SWALLOWED_SPACES = "(?>[ \\t]*+(?:\\R[ \\t]*+(?!\\R))?)";
 
     private static final String ACCENT_BASE = "(?:[A-Za-z]|\\\\[ij](?![A-Za-z])(?:\\{\\}|" + SWALLOWED_SPACES + "))";
 
-    private static final String ACCENT_COMMAND = "\\\\(?:[\"'^`~=.]|[cvuHdbrk](?:\\s+|(?=[{\\\\])))"
-            + "(?:\\{" + ACCENT_BASE + "\\}|" + ACCENT_BASE + ")";
+    private static final String ACCENT_COMMAND =
+            "\\\\(?:[\"'^`~=.]|[cvuHdbrk](?:\\s+|(?=[{\\\\])))(?:\\{" + ACCENT_BASE + "\\}|" + ACCENT_BASE + ")";
 
     private static final String SYMBOL_COMMAND = "\\\\[A-Za-z]++(?:\\{\\}|" + SWALLOWED_SPACES + "(?!\\{))";
 
     private static final String CHARACTER_COMMAND = ACCENT_COMMAND + "|" + SYMBOL_COMMAND;
 
-    private static final String MATH = String.join("|",
+    private static final String MATH = String.join(
+            "|",
             "\\$\\$.*?\\$\\$",
             "\\$(?:[^$\\\\]|\\\\.)*+\\$",
             "\\\\\\(.*?\\\\\\)",
@@ -38,7 +38,8 @@ public class LatexToUnicodeAwareLatexFormatter extends Formatter {
             "\\\\begin\\{(?<mathEnvironment>(?:equation|align|alignat|flalign|gather|multline|eqnarray|math|displaymath|split|aligned|alignedat|gathered|cases|matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix)\\*?)\\}.*?\\\\end\\{\\k<mathEnvironment>\\}");
 
     // URLs, citation keys, labels, and verbatim text, whose characters must not change
-    private static final String NON_TEXT_ARGUMENT = String.join("|",
+    private static final String NON_TEXT_ARGUMENT = String.join(
+            "|",
             "\\\\(?:url|nolinkurl|href|cite[A-Za-z]*|[A-Za-z]*ref|label)\\*?(?:\\[[^\\]]*+\\])*+\\{[^}]*+\\}",
             "\\\\verb\\*?(?<verbDelimiter>[^A-Za-z\\s]).*?\\k<verbDelimiter>");
 
@@ -54,8 +55,10 @@ public class LatexToUnicodeAwareLatexFormatter extends Formatter {
                     + "|" + CONTROL_SYMBOL,
             Pattern.DOTALL);
 
-    // Rewrites accent commands like \'\i or \b t to \accent{letter}, because the converter only handles the braced form correctly:
-    // it turns \'\i into a dotless i with a separate accent instead of í, and places the accent of \b t before the letter
+    // Rewrites accent commands like \'\i or \b t to \accent{letter}, because the converter only handles the braced form
+    // correctly:
+    // it turns \'\i into a dotless i with a separate accent instead of í, and places the accent of \b t before the
+    // letter
     private static final Pattern ACCENT_WITH_LOOSE_BASE = Pattern.compile(
             "^(\\\\(?:[\"'^`~=.]|[cvuHdbrk](?=[\\s{\\\\])))\\s*+\\{?\\\\?([A-Za-z])(?:\\{\\})?\\s*+\\}?$");
 
@@ -77,8 +80,7 @@ public class LatexToUnicodeAwareLatexFormatter extends Formatter {
         Matcher token = LATEX_TOKEN.matcher(value);
         int textStart = 0;
         while (token.find()) {
-            result.append(value, textStart, token.start())
-                  .append(convertToken(token, result));
+            result.append(value, textStart, token.start()).append(convertToken(token, result));
             textStart = token.end();
         }
         return result.append(value, textStart, value.length()).toString();
@@ -86,7 +88,8 @@ public class LatexToUnicodeAwareLatexFormatter extends Formatter {
 
     @Override
     public String getDescription() {
-        return Localization.lang("Converts LaTeX commands for single characters to Unicode while preserving other LaTeX code.");
+        return Localization.lang(
+                "Converts LaTeX commands for single characters to Unicode while preserving other LaTeX code.");
     }
 
     @Override
@@ -96,15 +99,20 @@ public class LatexToUnicodeAwareLatexFormatter extends Formatter {
 
     private static String convertToken(MatchResult token, CharSequence precedingOutput) {
         return Optional.ofNullable(token.group(COMMAND_GROUP))
-                       .flatMap(command -> convertCommand(command, precedingOutput))
-                       .orElse(token.group());
+                .flatMap(command -> convertCommand(command, precedingOutput))
+                .orElse(token.group());
     }
 
     private static Optional<String> convertCommand(String command, CharSequence precedingOutput) {
         boolean braced = command.startsWith("{");
         String unbracedCommand = braced ? command.substring(1, command.length() - 1) : command;
-        boolean needsBraces = braced ? mayBeArgument(precedingOutput) : endsWithControlWord(precedingOutput, precedingOutput.length());
-        return toUnicode(unbracedCommand).map(unicode -> needsBraces || (braced && Character.isUpperCase(unicode.codePointAt(0))) ? "{" + unicode + "}" : unicode);
+        boolean needsBraces = braced
+                ? mayBeArgument(precedingOutput)
+                : endsWithControlWord(precedingOutput, precedingOutput.length());
+        return toUnicode(unbracedCommand)
+                .map(unicode -> needsBraces || (braced && Character.isUpperCase(unicode.codePointAt(0)))
+                        ? "{" + unicode + "}"
+                        : unicode);
     }
 
     private static Optional<String> toUnicode(String command) {
@@ -132,7 +140,9 @@ public class LatexToUnicodeAwareLatexFormatter extends Formatter {
 
     private static boolean isCombiningMark(int codePoint) {
         int type = Character.getType(codePoint);
-        return type == Character.NON_SPACING_MARK || type == Character.ENCLOSING_MARK || type == Character.COMBINING_SPACING_MARK;
+        return type == Character.NON_SPACING_MARK
+                || type == Character.ENCLOSING_MARK
+                || type == Character.COMBINING_SPACING_MARK;
     }
 
     // Checks whether the end of text may be a command that takes the following group as an argument

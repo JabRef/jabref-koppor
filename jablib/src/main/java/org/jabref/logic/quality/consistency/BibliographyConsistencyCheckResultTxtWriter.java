@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.quality.consistency.BibliographyConsistencyCheck.EntryTypeResult;
 import org.jabref.model.database.BibDatabaseMode;
@@ -23,11 +22,17 @@ public class BibliographyConsistencyCheckResultTxtWriter extends BibliographyCon
 
     private List<Integer> columnWidths;
 
-    public BibliographyConsistencyCheckResultTxtWriter(BibliographyConsistencyCheck.Result result, Writer writer, boolean isPorcelain) {
+    public BibliographyConsistencyCheckResultTxtWriter(
+            BibliographyConsistencyCheck.Result result, Writer writer, boolean isPorcelain) {
         super(result, writer, isPorcelain);
     }
 
-    public BibliographyConsistencyCheckResultTxtWriter(BibliographyConsistencyCheck.Result result, Writer writer, boolean isPorcelain, BibEntryTypesManager entryTypesManager, BibDatabaseMode bibDatabaseMode) {
+    public BibliographyConsistencyCheckResultTxtWriter(
+            BibliographyConsistencyCheck.Result result,
+            Writer writer,
+            boolean isPorcelain,
+            BibEntryTypesManager entryTypesManager,
+            BibDatabaseMode bibDatabaseMode) {
         super(result, writer, isPorcelain, entryTypesManager, bibDatabaseMode);
     }
 
@@ -59,16 +64,23 @@ public class BibliographyConsistencyCheckResultTxtWriter extends BibliographyCon
                     Localization.lang("required field is present").length(),
                     Localization.lang("optional field is present").length(),
                     Localization.lang("unknown field is present").length(),
-                    Localization.lang("field is absent").length()
-            ));
+                    Localization.lang("field is absent").length()));
 
             writer.write("\n");
-            writer.write(("| %-" + widthSymbol + "s | %-" + widthMeaning + "s |\n").formatted(Localization.lang("Symbol"), Localization.lang("Meaning")));
-            writer.write(("| " + "-".repeat(widthSymbol) + " | " + "-".repeat(widthMeaning) + " |\n").formatted("--", "--"));
-            writer.write(("| %-" + widthSymbol + "s | %-" + widthMeaning + "s |\n").formatted(REQUIRED_FIELD_AT_ENTRY_TYPE_CELL_ENTRY, Localization.lang("required field is present")));
-            writer.write(("| %-" + widthSymbol + "s | %-" + widthMeaning + "s |\n").formatted(OPTIONAL_FIELD_AT_ENTRY_TYPE_CELL_ENTRY, Localization.lang("optional field is present")));
-            writer.write(("| %-" + widthSymbol + "s | %-" + widthMeaning + "s |\n").formatted(UNKNOWN_FIELD_AT_ENTRY_TYPE_CELL_ENTRY, Localization.lang("unknown field is present")));
-            writer.write(("| %-" + widthSymbol + "s | %-" + widthMeaning + "s |\n").formatted(UNSET_FIELD_AT_ENTRY_TYPE_CELL_ENTRY, Localization.lang("field is absent")));
+            writer.write(("| %-" + widthSymbol + "s | %-" + widthMeaning + "s |\n")
+                    .formatted(Localization.lang("Symbol"), Localization.lang("Meaning")));
+            writer.write(
+                    ("| " + "-".repeat(widthSymbol) + " | " + "-".repeat(widthMeaning) + " |\n").formatted("--", "--"));
+            writer.write(("| %-" + widthSymbol + "s | %-" + widthMeaning + "s |\n")
+                    .formatted(
+                            REQUIRED_FIELD_AT_ENTRY_TYPE_CELL_ENTRY, Localization.lang("required field is present")));
+            writer.write(("| %-" + widthSymbol + "s | %-" + widthMeaning + "s |\n")
+                    .formatted(
+                            OPTIONAL_FIELD_AT_ENTRY_TYPE_CELL_ENTRY, Localization.lang("optional field is present")));
+            writer.write(("| %-" + widthSymbol + "s | %-" + widthMeaning + "s |\n")
+                    .formatted(UNKNOWN_FIELD_AT_ENTRY_TYPE_CELL_ENTRY, Localization.lang("unknown field is present")));
+            writer.write(("| %-" + widthSymbol + "s | %-" + widthMeaning + "s |\n")
+                    .formatted(UNSET_FIELD_AT_ENTRY_TYPE_CELL_ENTRY, Localization.lang("field is absent")));
         }
     }
 
@@ -78,10 +90,13 @@ public class BibliographyConsistencyCheckResultTxtWriter extends BibliographyCon
         int entryTypeWidth = "entry type".length();
         int citationKeyWidth = "citation key".length();
 
-        for (Map.Entry<EntryType, EntryTypeResult> keysAndValue : result.entryTypeToResultMap().entrySet()) {
-            entryTypeWidth = Math.max(entryTypeWidth, keysAndValue.getKey().getDisplayName().length());
+        for (Map.Entry<EntryType, EntryTypeResult> keysAndValue :
+                result.entryTypeToResultMap().entrySet()) {
+            entryTypeWidth = Math.max(
+                    entryTypeWidth, keysAndValue.getKey().getDisplayName().length());
             for (BibEntry entry : keysAndValue.getValue().sortedEntries()) {
-                citationKeyWidth = Math.max(citationKeyWidth, entry.getCitationKey().orElse("").length());
+                citationKeyWidth = Math.max(
+                        citationKeyWidth, entry.getCitationKey().orElse("").length());
             }
         }
 
@@ -109,6 +124,5 @@ public class BibliographyConsistencyCheckResultTxtWriter extends BibliographyCon
     }
 
     @Override
-    public void close() throws IOException {
-    }
+    public void close() throws IOException {}
 }

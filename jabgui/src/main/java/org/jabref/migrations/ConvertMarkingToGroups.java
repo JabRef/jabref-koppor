@@ -1,12 +1,13 @@
 package org.jabref.migrations;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.groups.GroupsFactory;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
@@ -15,9 +16,6 @@ import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
-
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
 import org.jspecify.annotations.NonNull;
 
 /// Converts legacy explicit groups, where the group contained a list of assigned entries, to the new format,
@@ -35,7 +33,7 @@ public class ConvertMarkingToGroups implements PostOpenMigration {
     @Override
     public boolean isMigrationNecessary(ParserResult parserResult) {
         return parserResult.getDatabase().getEntries().stream()
-                           .anyMatch(entry -> entry.getField(InternalField.MARKED_INTERNAL).isPresent());
+                .anyMatch(entry -> entry.getField(InternalField.MARKED_INTERNAL).isPresent());
     }
 
     @Override
@@ -45,7 +43,8 @@ public class ConvertMarkingToGroups implements PostOpenMigration {
             GroupTreeNode markingRoot = GroupTreeNode.fromGroup(
                     new ExplicitGroup(Localization.lang("Markings"), GroupHierarchyType.INCLUDING, keywordSeparator));
 
-            for (Map.Entry<String, Collection<BibEntry>> marking : markings.asMap().entrySet()) {
+            for (Map.Entry<String, Collection<BibEntry>> marking :
+                    markings.asMap().entrySet()) {
                 String markingName = marking.getKey();
                 Collection<BibEntry> markingMatchedEntries = marking.getValue();
 
@@ -67,7 +66,8 @@ public class ConvertMarkingToGroups implements PostOpenMigration {
 
     /// Looks for markings (such as __markedentry = {[Nicolas:6]}) in the given list of entries.
     private Multimap<String, BibEntry> getMarkingWithEntries(List<BibEntry> entries) {
-        Multimap<String, BibEntry> markings = MultimapBuilder.treeKeys().linkedListValues().build();
+        Multimap<String, BibEntry> markings =
+                MultimapBuilder.treeKeys().linkedListValues().build();
 
         for (BibEntry entry : entries) {
             Optional<String> marking = entry.getField(InternalField.MARKED_INTERNAL);

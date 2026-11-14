@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -16,27 +15,31 @@ public class RelatedWorkTextParser {
     private static final Pattern NEWLINE_WITHOUT_SENTENCE_END_PATTERN = Pattern.compile("(?<![.:])\\R");
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
     private static final Pattern SPACE_BEFORE_PUNCTUATION_PATTERN = Pattern.compile("\\s+([,.;:!?])");
-    private static final Pattern TRAILING_CONJUNCTION_WITH_PUNCTUATION_PATTERN = Pattern.compile("\\s+(?:and|or)([.?!])$", Pattern.CASE_INSENSITIVE);
-    private static final Pattern TRAILING_CONJUNCTION_PATTERN = Pattern.compile("\\s+(?:and|or)$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern TRAILING_CONJUNCTION_WITH_PUNCTUATION_PATTERN =
+            Pattern.compile("\\s+(?:and|or)([.?!])$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern TRAILING_CONJUNCTION_PATTERN =
+            Pattern.compile("\\s+(?:and|or)$", Pattern.CASE_INSENSITIVE);
 
     /// This method first cuts long texts into separate sentence segments, and then parse these sentences.
     public List<RelatedWorkSnippet> parseRelatedWork(String text) {
         String normalizedText = getNormalText(text);
 
-        return SEGMENT_SPLIT_PATTERN.splitAsStream(normalizedText)
-                                    .filter(segment -> !segment.isBlank())
-                                    .map(this::parseTextSegment)
-                                    .flatMap(List::stream)
-                                    .toList();
+        return SEGMENT_SPLIT_PATTERN
+                .splitAsStream(normalizedText)
+                .filter(segment -> !segment.isBlank())
+                .map(this::parseTextSegment)
+                .flatMap(List::stream)
+                .toList();
     }
 
     /// Parse a sentence into citationKeys and text.
     public List<RelatedWorkSnippet> parseTextSegment(String text) {
-        List<String> citationMarkers = CITE_PATTERN.matcher(text)
-                                                   .results()
-                                                   .map(MatchResult::group)
-                                                   .flatMap(citation -> splitCitation(citation).stream())
-                                                   .toList();
+        List<String> citationMarkers = CITE_PATTERN
+                .matcher(text)
+                .results()
+                .map(MatchResult::group)
+                .flatMap(citation -> splitCitation(citation).stream())
+                .toList();
 
         if (citationMarkers.isEmpty()) {
             return List.of();
@@ -45,8 +48,8 @@ public class RelatedWorkTextParser {
         String contextText = extractContextText(text);
 
         return citationMarkers.stream()
-                              .map(citationMarker -> new RelatedWorkSnippet(contextText, citationMarker))
-                              .toList();
+                .map(citationMarker -> new RelatedWorkSnippet(contextText, citationMarker))
+                .toList();
     }
 
     /// Split citations groups by comma, and then split into single citation by connector (if contains)

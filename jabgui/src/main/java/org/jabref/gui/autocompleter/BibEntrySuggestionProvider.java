@@ -1,16 +1,14 @@
 package org.jabref.gui.autocompleter;
 
+import com.google.common.base.Equivalence;
 import java.util.Comparator;
 import java.util.stream.Stream;
-
+import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.jabref.logic.bibtex.comparator.EntryComparator;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
-
-import com.google.common.base.Equivalence;
-import org.controlsfx.control.textfield.AutoCompletionBinding;
 
 /// Delivers possible completions as a list of [BibEntry] based on their citation key.
 public class BibEntrySuggestionProvider extends SuggestionProvider<BibEntry> {
@@ -35,8 +33,8 @@ public class BibEntrySuggestionProvider extends SuggestionProvider<BibEntry> {
     protected boolean isMatch(BibEntry entry, AutoCompletionBinding.ISuggestionRequest request) {
         String userText = request.getUserText();
         return entry.getCitationKey()
-                    .map(key -> StringUtil.containsIgnoreCase(key, userText))
-                    .orElse(false);
+                .map(key -> StringUtil.containsIgnoreCase(key, userText))
+                .orElse(false);
     }
 
     @Override

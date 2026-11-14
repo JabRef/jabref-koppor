@@ -1,10 +1,10 @@
 package org.jabref.gui.externalfiles;
 
+import jakarta.inject.Inject;
 import java.util.Optional;
-
 import javafx.application.Platform;
 import javafx.scene.control.ButtonType;
-
+import org.controlsfx.dialog.Wizard;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.icon.IconTheme;
@@ -14,15 +14,21 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.util.FileUpdateMonitor;
 
-import jakarta.inject.Inject;
-import org.controlsfx.dialog.Wizard;
-
 public class UnlinkedFilesWizard {
-    @Inject private GuiPreferences preferences;
-    @Inject private DialogService dialogService;
-    @Inject private StateManager stateManager;
-    @Inject private TaskExecutor taskExecutor;
-    @Inject private FileUpdateMonitor fileUpdateMonitor;
+    @Inject
+    private GuiPreferences preferences;
+
+    @Inject
+    private DialogService dialogService;
+
+    @Inject
+    private StateManager stateManager;
+
+    @Inject
+    private TaskExecutor taskExecutor;
+
+    @Inject
+    private FileUpdateMonitor fileUpdateMonitor;
 
     private UnlinkedFilesDialogViewModel viewModel;
     private BibDatabaseContext bibDatabaseContext;
@@ -32,8 +38,7 @@ public class UnlinkedFilesWizard {
     private FileSelectionPage page2;
     private ImportResultsPage page3;
 
-    public UnlinkedFilesWizard() {
-    }
+    public UnlinkedFilesWizard() {}
 
     public void show() {
         if (!initializeWizard()) {
@@ -73,7 +78,13 @@ public class UnlinkedFilesWizard {
         }
         this.bibDatabaseContext = activeDatabase.get();
 
-        viewModel = new UnlinkedFilesDialogViewModel(dialogService, stateManager.getUndoManager(bibDatabaseContext), fileUpdateMonitor, preferences, stateManager, taskExecutor);
+        viewModel = new UnlinkedFilesDialogViewModel(
+                dialogService,
+                stateManager.getUndoManager(bibDatabaseContext),
+                fileUpdateMonitor,
+                preferences,
+                stateManager,
+                taskExecutor);
 
         page1 = new SearchConfigurationPage(viewModel, bibDatabaseContext, preferences);
         page2 = new FileSelectionPage(stateManager, viewModel, preferences.getImportFormatPreferences(), taskExecutor);
@@ -96,13 +107,22 @@ public class UnlinkedFilesWizard {
 
     private void saveConfiguration() {
         if (viewModel.selectedExtensionProperty().get() != null) {
-            preferences.getUnlinkedFilesDialogPreferences().setUnlinkedFilesSelectedExtension(viewModel.selectedExtensionProperty().get().getName());
+            preferences
+                    .getUnlinkedFilesDialogPreferences()
+                    .setUnlinkedFilesSelectedExtension(
+                            viewModel.selectedExtensionProperty().get().getName());
         }
         if (viewModel.selectedDateProperty().get() != null) {
-            preferences.getUnlinkedFilesDialogPreferences().setUnlinkedFilesSelectedDateRange(viewModel.selectedDateProperty().get());
+            preferences
+                    .getUnlinkedFilesDialogPreferences()
+                    .setUnlinkedFilesSelectedDateRange(
+                            viewModel.selectedDateProperty().get());
         }
         if (viewModel.selectedSortProperty().get() != null) {
-            preferences.getUnlinkedFilesDialogPreferences().setUnlinkedFilesSelectedSort(viewModel.selectedSortProperty().get());
+            preferences
+                    .getUnlinkedFilesDialogPreferences()
+                    .setUnlinkedFilesSelectedSort(
+                            viewModel.selectedSortProperty().get());
         }
     }
 }

@@ -5,12 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.biblog.BibLogPathResolver;
@@ -39,14 +37,13 @@ public class BibLogSettingsViewModel extends AbstractViewModel {
         this.bibPath = bibPath;
         this.user = System.getProperty("user.name");
 
-        BibLogPathResolver.resolve(metaData, bibPath, user)
-                          .ifPresent(resolvedPath -> {
-                              this.path.set(resolvedPath.toString());
-                              if (metaData.getBlgFilePath(user).isEmpty()) {
-                                  metaData.setBlgFilePath(user, resolvedPath);
-                                  this.lastResolvedBlgPath = Optional.of(resolvedPath);
-                              }
-                          });
+        BibLogPathResolver.resolve(metaData, bibPath, user).ifPresent(resolvedPath -> {
+            this.path.set(resolvedPath.toString());
+            if (metaData.getBlgFilePath(user).isEmpty()) {
+                metaData.setBlgFilePath(user, resolvedPath);
+                this.lastResolvedBlgPath = Optional.of(resolvedPath);
+            }
+        });
     }
 
     /// Parses the .blg file (if it exists) into the observable list.
@@ -68,7 +65,8 @@ public class BibLogSettingsViewModel extends AbstractViewModel {
         try {
             BibtexLogParser parser = new BibtexLogParser();
             List<BibWarning> warnings = parser.parseBiblog(path);
-            List<IntegrityMessage> newWarnings = BibWarningToIntegrityMessageConverter.convert(warnings, databaseContext);
+            List<IntegrityMessage> newWarnings =
+                    BibWarningToIntegrityMessageConverter.convert(warnings, databaseContext);
             blgWarnings.setAll(newWarnings);
             return Optional.of(newWarnings);
         } catch (IOException e) {
@@ -76,8 +74,7 @@ public class BibLogSettingsViewModel extends AbstractViewModel {
             throw new JabRefException(
                     "Failed to parse .blg file",
                     Localization.lang("Could not read BibTeX log file. Please check the file path and try again."),
-                    e
-            );
+                    e);
         }
     }
 
@@ -112,13 +109,12 @@ public class BibLogSettingsViewModel extends AbstractViewModel {
     }
 
     public Optional<Path> getResolvedBlgPath() {
-        return BibLogPathResolver.resolve(metaData, bibPath, user)
-                                 .filter(Files::exists);
+        return BibLogPathResolver.resolve(metaData, bibPath, user).filter(Files::exists);
     }
 
     public Path getInitialDirectory() {
         return bibPath.flatMap(path -> Optional.ofNullable(path.getParent()))
-                      .orElse(Path.of(System.getProperty("user.home")));
+                .orElse(Path.of(System.getProperty("user.home")));
     }
 
     public boolean wasBlgFileManuallySelected() {

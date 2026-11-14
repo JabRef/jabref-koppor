@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
-
+import kong.unirest.core.json.JSONArray;
+import kong.unirest.core.json.JSONException;
+import kong.unirest.core.json.JSONObject;
+import org.apache.hc.core5.net.URIBuilder;
 import org.jabref.logic.cleanup.FieldFormatterCleanup;
 import org.jabref.logic.formatter.bibtexfields.NormalizePagesFormatter;
 import org.jabref.logic.importer.IdBasedParserFetcher;
@@ -27,11 +30,6 @@ import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.query.BaseQueryNode;
-
-import kong.unirest.core.json.JSONArray;
-import kong.unirest.core.json.JSONException;
-import kong.unirest.core.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +41,9 @@ public class EuropePmcFetcher implements IdBasedParserFetcher, SearchBasedParser
 
     @Override
     public URL getUrlForIdentifier(String identifier) throws URISyntaxException, MalformedURLException {
-        return new URI("https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=" + identifier + "&resultType=core&format=json").toURL();
+        return new URI("https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=" + identifier
+                        + "&resultType=core&format=json")
+                .toURL();
     }
 
     @Override
@@ -71,7 +71,8 @@ public class EuropePmcFetcher implements IdBasedParserFetcher, SearchBasedParser
 
     private BibEntry jsonItemToBibEntry(JSONObject item) throws ParseException {
         try {
-            JSONObject result = item.getJSONObject("resultList").getJSONArray("result").getJSONObject(0);
+            JSONObject result =
+                    item.getJSONObject("resultList").getJSONArray("result").getJSONObject(0);
 
             LOGGER.debug(result.toString(2));
 
@@ -81,13 +82,12 @@ public class EuropePmcFetcher implements IdBasedParserFetcher, SearchBasedParser
             BibEntry entry = new BibEntry(entryType);
 
             entry.withField(StandardField.TITLE, result.optString("title"))
-                 .withField(StandardField.ABSTRACT, result.optString("abstractText"))
-                 .withField(StandardField.YEAR, result.optString("pubYear"))
-                 .withField(StandardField.PAGES, result.optString("pageInfo"));
+                    .withField(StandardField.ABSTRACT, result.optString("abstractText"))
+                    .withField(StandardField.YEAR, result.optString("pubYear"))
+                    .withField(StandardField.PAGES, result.optString("pageInfo"));
 
             String doi = result.optString("doi");
-            entry.withField(StandardField.DOI, doi)
-                 .withField(StandardField.PMID, result.optString("pmid"));
+            entry.withField(StandardField.DOI, doi).withField(StandardField.PMID, result.optString("pmid"));
 
             // Prefer fulltext URLs (e.g., PDF) when available, otherwise fall back to DOI or PubMed page
             String bestUrl = extractBestFullTextUrl(result).orElseGet(() -> {
@@ -104,14 +104,16 @@ public class EuropePmcFetcher implements IdBasedParserFetcher, SearchBasedParser
             }
 
             if (result.has("journalInfo") && result.getJSONObject("journalInfo").has("issn")) {
-                entry.setField(StandardField.ISSN, result.getJSONObject("journalInfo").getString("issn"));
+                entry.setField(
+                        StandardField.ISSN, result.getJSONObject("journalInfo").getString("issn"));
             }
 
             String printPubDate = result.optString("printPublicationDate");
             String dateOfPublication = result.optString("dateOfPublication");
             if (printPubDate != null && DATE_PATTERN.matcher(printPubDate).matches()) {
                 entry.setField(StandardField.DATE, printPubDate);
-            } else if (dateOfPublication != null && DATE_PATTERN.matcher(dateOfPublication).matches()) {
+            } else if (dateOfPublication != null
+                    && DATE_PATTERN.matcher(dateOfPublication).matches()) {
                 entry.setField(StandardField.DATE, dateOfPublication);
             }
 
@@ -128,7 +130,8 @@ public class EuropePmcFetcher implements IdBasedParserFetcher, SearchBasedParser
                     String firstName = author.optString("firstName", "");
                     authorList.add(new Author(firstName, "", "", lastName, ""));
 
-                    entry.setField(StandardField.AUTHOR, AuthorList.of(authorList).getAsLastFirstNamesWithAnd(false));
+                    entry.setField(
+                            StandardField.AUTHOR, AuthorList.of(authorList).getAsLastFirstNamesWithAnd(false));
                 }
             }
 
@@ -150,12 +153,14 @@ public class EuropePmcFetcher implements IdBasedParserFetcher, SearchBasedParser
                     }
                 }
             }
-            if (result.has("meshHeadingList") && result.getJSONObject("meshHeadingList").has("meshHeading")) {
+            if (result.has("meshHeadingList")
+                    && result.getJSONObject("meshHeadingList").has("meshHeading")) {
                 JSONArray mesh = result.getJSONObject("meshHeadingList").getJSONArray("meshHeading");
                 for (int i = 0; i < mesh.length(); i++) {
                     JSONObject meshHeading = mesh.optJSONObject(i);
                     if (meshHeading != null) {
-                        String descriptor = meshHeading.optString("descriptorName", "").trim();
+                        String descriptor =
+                                meshHeading.optString("descriptorName", "").trim();
                         if (!descriptor.isEmpty()) {
                             entry.addKeyword(descriptor, ',');
                         }
@@ -170,25 +175,33 @@ public class EuropePmcFetcher implements IdBasedParserFetcher, SearchBasedParser
             }
 
             if (result.has("pubModel")) {
-                Optional.ofNullable(result.optString("pubModel")).ifPresent(pubModel -> entry.withField(StandardField.HOWPUBLISHED, pubModel));
+                Optional.ofNullable(result.optString("pubModel"))
+                        .ifPresent(pubModel -> entry.withField(StandardField.HOWPUBLISHED, pubModel));
             }
             if (result.has("publicationStatus")) {
-                Optional.ofNullable(result.optString("publicationStatus")).ifPresent(pubStatus -> entry.withField(StandardField.PUBSTATE, pubStatus));
+                Optional.ofNullable(result.optString("publicationStatus"))
+                        .ifPresent(pubStatus -> entry.withField(StandardField.PUBSTATE, pubStatus));
             }
 
             if (result.has("journalInfo")) {
                 JSONObject journalInfo = result.getJSONObject("journalInfo");
-                Optional.ofNullable(journalInfo.optString("issue")).ifPresent(issue -> entry.setField(StandardField.ISSUE, issue));
-                Optional.ofNullable(journalInfo.optString("volume")).ifPresent(volume -> entry.setField(StandardField.VOLUME, volume));
-                Optional.of(journalInfo.optInt("yearOfPublication")).ifPresent(year -> entry.setField(StandardField.YEAR, year.toString()));
+                Optional.ofNullable(journalInfo.optString("issue"))
+                        .ifPresent(issue -> entry.setField(StandardField.ISSUE, issue));
+                Optional.ofNullable(journalInfo.optString("volume"))
+                        .ifPresent(volume -> entry.setField(StandardField.VOLUME, volume));
+                Optional.of(journalInfo.optInt("yearOfPublication"))
+                        .ifPresent(year -> entry.setField(StandardField.YEAR, year.toString()));
                 Optional.of(journalInfo.optInt("monthOfPublication"))
                         .flatMap(month -> Month.parse(month.toString()))
                         .ifPresent(parsedMonth -> entry.setField(StandardField.MONTH, parsedMonth.getJabRefFormat()));
                 if (journalInfo.has("journal")) {
                     JSONObject journal = journalInfo.getJSONObject("journal");
-                    Optional.ofNullable(journal.optString("title")).ifPresent(title -> entry.setField(StandardField.JOURNAL, title));
-                    Optional.ofNullable(journal.optString("nlmid")).ifPresent(nlmid -> entry.setField(new UnknownField("nlmid"), nlmid));
-                    Optional.ofNullable(journal.optString("issn")).ifPresent(issn -> entry.setField(StandardField.ISSN, issn));
+                    Optional.ofNullable(journal.optString("title"))
+                            .ifPresent(title -> entry.setField(StandardField.JOURNAL, title));
+                    Optional.ofNullable(journal.optString("nlmid"))
+                            .ifPresent(nlmid -> entry.setField(new UnknownField("nlmid"), nlmid));
+                    Optional.ofNullable(journal.optString("issn"))
+                            .ifPresent(issn -> entry.setField(StandardField.ISSN, issn));
                 }
             }
 
@@ -214,13 +227,18 @@ public class EuropePmcFetcher implements IdBasedParserFetcher, SearchBasedParser
         if (matchesAny(types, "book")) {
             return StandardEntryType.Book;
         }
-        if (matchesAny(types, "conference") || matchesAny(types, "proceedings") || matchesAny(types, "conference paper") || matchesAny(types, "proceedings paper")) {
+        if (matchesAny(types, "conference")
+                || matchesAny(types, "proceedings")
+                || matchesAny(types, "conference paper")
+                || matchesAny(types, "proceedings paper")) {
             return StandardEntryType.InProceedings;
         }
         if (matchesAny(types, "phd") || matchesAny(types, "phd thesis") || matchesAny(types, "doctoral thesis")) {
             return StandardEntryType.PhdThesis;
         }
-        if (matchesAny(types, "master") || matchesAny(types, "masters thesis") || matchesAny(types, "master's thesis")) {
+        if (matchesAny(types, "master")
+                || matchesAny(types, "masters thesis")
+                || matchesAny(types, "master's thesis")) {
             return StandardEntryType.MastersThesis;
         }
         // Letters, reviews, editorials are usually articles
@@ -234,7 +252,8 @@ public class EuropePmcFetcher implements IdBasedParserFetcher, SearchBasedParser
 
     private Optional<String> extractBestFullTextUrl(JSONObject result) {
         try {
-            if (!(result.has("fullTextUrlList") && result.getJSONObject("fullTextUrlList").has("fullTextUrl"))) {
+            if (!(result.has("fullTextUrlList")
+                    && result.getJSONObject("fullTextUrlList").has("fullTextUrl"))) {
                 return Optional.empty();
             }
             JSONArray urls = result.getJSONObject("fullTextUrlList").getJSONArray("fullTextUrl");

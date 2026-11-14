@@ -1,26 +1,26 @@
 package org.jabref.logic.citationstyle;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 @Execution(ExecutionMode.SAME_THREAD)
 public class CSLStyleLoaderTest {
 
     @BeforeAll
     static void setup() {
-        // Lifecycle of CSLStyleLoader is different; one needs to load the internal styles using a static method instead of creating an instance.
+        // Lifecycle of CSLStyleLoader is different; one needs to load the internal styles using a static method instead
+        // of creating an instance.
         CSLStyleLoader.loadInternalStyles();
     }
 
@@ -37,7 +37,7 @@ public class CSLStyleLoaderTest {
     }
 
     @Test
-        // [utest->req~ux.citation-styles.lazy-source-loading~1]
+    // [utest->req~ux.citation-styles.lazy-source-loading~1]
     void loadsCitationStyleSourceOnDemand() {
         AtomicInteger sourceLoadCount = new AtomicInteger();
         CitationStyle style = new CitationStyle(

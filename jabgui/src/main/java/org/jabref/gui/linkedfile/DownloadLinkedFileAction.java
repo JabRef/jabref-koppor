@@ -1,5 +1,6 @@
 package org.jabref.gui.linkedfile;
 
+import com.tobiasdiez.easybind.EasyBind;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -10,13 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import javax.net.ssl.SSLHandshakeException;
-
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-
+import javax.net.ssl.SSLHandshakeException;
+import kong.unirest.core.UnirestException;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.externalfiletype.ExternalFileType;
@@ -42,9 +41,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.undo.UndoableFieldChange;
-
-import com.tobiasdiez.easybind.EasyBind;
-import kong.unirest.core.UnirestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,17 +65,18 @@ public class DownloadLinkedFileAction extends SimpleCommand {
     private final LinkedFileHandler linkedFileHandler;
     private Map<String, String> downloadHeaders = Map.of();
 
-    public DownloadLinkedFileAction(BibDatabaseContext databaseContext,
-                                    BibEntry entry,
-                                    LinkedFile linkedFile,
-                                    String downloadUrl,
-                                    DialogService dialogService,
-                                    ExternalApplicationsPreferences externalApplicationsPreferences,
-                                    FilePreferences filePreferences,
-                                    TaskExecutor taskExecutor,
-                                    String suggestedName,
-                                    boolean keepHtmlLink,
-                                    UndoManager undoManager) {
+    public DownloadLinkedFileAction(
+            BibDatabaseContext databaseContext,
+            BibEntry entry,
+            LinkedFile linkedFile,
+            String downloadUrl,
+            DialogService dialogService,
+            ExternalApplicationsPreferences externalApplicationsPreferences,
+            FilePreferences filePreferences,
+            TaskExecutor taskExecutor,
+            String suggestedName,
+            boolean keepHtmlLink,
+            UndoManager undoManager) {
         this.databaseContext = databaseContext;
         this.entry = entry;
         this.linkedFile = linkedFile;
@@ -96,16 +93,18 @@ public class DownloadLinkedFileAction extends SimpleCommand {
     }
 
     /// Downloads the given linked file to the first existing file directory. It keeps HTML files as URLs.
-    public DownloadLinkedFileAction(BibDatabaseContext databaseContext,
-                                    BibEntry entry,
-                                    LinkedFile linkedFile,
-                                    String downloadUrl,
-                                    DialogService dialogService,
-                                    ExternalApplicationsPreferences externalApplicationsPreferences,
-                                    FilePreferences filePreferences,
-                                    TaskExecutor taskExecutor,
-                                    UndoManager undoManager) {
-        this(databaseContext,
+    public DownloadLinkedFileAction(
+            BibDatabaseContext databaseContext,
+            BibEntry entry,
+            LinkedFile linkedFile,
+            String downloadUrl,
+            DialogService dialogService,
+            ExternalApplicationsPreferences externalApplicationsPreferences,
+            FilePreferences filePreferences,
+            TaskExecutor taskExecutor,
+            UndoManager undoManager) {
+        this(
+                databaseContext,
                 entry,
                 linkedFile,
                 downloadUrl,
@@ -131,7 +130,8 @@ public class DownloadLinkedFileAction extends SimpleCommand {
 
         Optional<Path> targetDirectory = databaseContext.getFirstExistingFileDir(filePreferences);
         if (targetDirectory.isEmpty()) {
-            LOGGER.warn("File directory not available while downloading {}. Storing as URL in file field.", downloadUrl);
+            LOGGER.warn(
+                    "File directory not available while downloading {}. Storing as URL in file field.", downloadUrl);
             return;
         }
 
@@ -153,9 +153,11 @@ public class DownloadLinkedFileAction extends SimpleCommand {
         downloadProgress.bind(downloadTask.workDonePercentageProperty());
 
         downloadTask.titleProperty().set(Localization.lang("Downloading"));
-        entry.getCitationKey().ifPresentOrElse(
-                citationkey -> downloadTask.messageProperty().set(Localization.lang("Fulltext for %0", citationkey)),
-                () -> downloadTask.messageProperty().set(Localization.lang("Fulltext for a new entry")));
+        entry.getCitationKey()
+                .ifPresentOrElse(
+                        citationkey ->
+                                downloadTask.messageProperty().set(Localization.lang("Fulltext for %0", citationkey)),
+                        () -> downloadTask.messageProperty().set(Localization.lang("Fulltext for a new entry")));
         downloadTask.showToUser(true);
 
         downloadTask.onFailure(ex -> onFailure(urlDownload, ex)).failureShownByCaller(true);
@@ -171,7 +173,8 @@ public class DownloadLinkedFileAction extends SimpleCommand {
         boolean isDuplicate;
         boolean isHtml;
         try {
-            isDuplicate = FileNameUniqueness.isDuplicatedFile(targetDirectory, downloadedFile.getFileName(), dialogService::notify);
+            isDuplicate = FileNameUniqueness.isDuplicatedFile(
+                    targetDirectory, downloadedFile.getFileName(), dialogService::notify);
         } catch (IOException e) {
             LOGGER.error("FileNameUniqueness.isDuplicatedFile failed", e);
             return;
@@ -180,19 +183,22 @@ public class DownloadLinkedFileAction extends SimpleCommand {
         if (isDuplicate) {
             // We do not add duplicate files.
             // The downloaded file was deleted in {@link org.jabref.logic.util.io.FileNameUniqueness.isDuplicatedFile]}
-            LOGGER.info("File {} already exists in target directory {}.", downloadedFile.getFileName(), targetDirectory);
+            LOGGER.info(
+                    "File {} already exists in target directory {}.", downloadedFile.getFileName(), targetDirectory);
             return;
         }
 
-        // we need to call LinkedFileViewModel#fromFile, because we need to make the path relative to the configured directories
+        // we need to call LinkedFileViewModel#fromFile, because we need to make the path relative to the configured
+        // directories
         LinkedFile newLinkedFile = LinkedFilesEditorViewModel.fromFile(
-                downloadedFile,
-                databaseContext.getFileDirectories(filePreferences),
-                externalApplicationsPreferences);
-        if (newLinkedFile.getDescription().isEmpty() && !linkedFile.getDescription().isEmpty()) {
+                downloadedFile, databaseContext.getFileDirectories(filePreferences), externalApplicationsPreferences);
+        if (newLinkedFile.getDescription().isEmpty()
+                && !linkedFile.getDescription().isEmpty()) {
             newLinkedFile.setDescription(linkedFile.getDescription());
         }
-        if (linkedFile.getSourceUrl().isEmpty() && LinkedFile.isOnlineLink(linkedFile.getLink()) && filePreferences.shouldKeepDownloadUrl()) {
+        if (linkedFile.getSourceUrl().isEmpty()
+                && LinkedFile.isOnlineLink(linkedFile.getLink())
+                && filePreferences.shouldKeepDownloadUrl()) {
             newLinkedFile.setSourceURL(linkedFile.getLink());
         } else if (filePreferences.shouldKeepDownloadUrl()) {
             newLinkedFile.setSourceURL(linkedFile.getSourceUrl());
@@ -208,7 +214,9 @@ public class DownloadLinkedFileAction extends SimpleCommand {
                 newFiles.remove(linkedFile);
                 // Recorded: the modified marker derives from the journal, so removing the link
                 // without saying so would leave the library looking saved.
-                undoManager.applyEdit(new UndoableFieldChange(entry, StandardField.FILE,
+                undoManager.applyEdit(new UndoableFieldChange(
+                        entry,
+                        StandardField.FILE,
                         entry.getField(StandardField.FILE).orElse(null),
                         FileFieldWriter.getStringRepresentation(newFiles)));
                 try {
@@ -229,7 +237,11 @@ public class DownloadLinkedFileAction extends SimpleCommand {
         } else {
             String fetcherExceptionMessage = ex.getLocalizedMessage();
             String failedTitle = Localization.lang("Failed to download from URL");
-            dialogService.showErrorDialogAndWait(failedTitle, Localization.lang("Please check the URL and try again.\nURL: %0\nDetails: %1", urlDownload.getSource(), fetcherExceptionMessage));
+            dialogService.showErrorDialogAndWait(
+                    failedTitle,
+                    Localization.lang(
+                            "Please check the URL and try again.\nURL: %0\nDetails: %1",
+                            urlDownload.getSource(), fetcherExceptionMessage));
         }
     }
 
@@ -238,8 +250,10 @@ public class DownloadLinkedFileAction extends SimpleCommand {
             urlDownload.canBeReached();
         } catch (UnirestException ex) {
             if (ex.getCause() instanceof SSLHandshakeException) {
-                if (dialogService.showConfirmationDialogAndWait(Localization.lang("Download file"),
-                        Localization.lang("Unable to find valid certification path to requested target(%0), download anyway?",
+                if (dialogService.showConfirmationDialogAndWait(
+                        Localization.lang("Download file"),
+                        Localization.lang(
+                                "Unable to find valid certification path to requested target(%0), download anyway?",
                                 urlDownload.getSource().toString()))) {
                     return true;
                 } else {
@@ -256,8 +270,7 @@ public class DownloadLinkedFileAction extends SimpleCommand {
     }
 
     private BackgroundTask<Path> prepareDownloadTask(Path targetDirectory, URLDownload urlDownload) {
-        return BackgroundTask
-                .wrap(() -> {
+        return BackgroundTask.wrap(() -> {
                     String suggestedName;
                     if (this.suggestedName.isEmpty()) {
                         Optional<ExternalFileType> suggestedType = inferFileType(urlDownload);
@@ -266,8 +279,10 @@ public class DownloadLinkedFileAction extends SimpleCommand {
                     } else {
                         suggestedName = this.suggestedName;
                     }
-                    String fulltextDir = FileUtil.createDirNameFromPattern(databaseContext.getDatabase(), entry, filePreferences.getFileDirectoryPattern());
-                    suggestedName = FileNameUniqueness.getNonOverWritingFileName(targetDirectory.resolve(fulltextDir), suggestedName);
+                    String fulltextDir = FileUtil.createDirNameFromPattern(
+                            databaseContext.getDatabase(), entry, filePreferences.getFileDirectoryPattern());
+                    suggestedName = FileNameUniqueness.getNonOverWritingFileName(
+                            targetDirectory.resolve(fulltextDir), suggestedName);
 
                     return targetDirectory.resolve(fulltextDir).resolve(suggestedName);
                 })
@@ -290,16 +305,16 @@ public class DownloadLinkedFileAction extends SimpleCommand {
     }
 
     private Optional<ExternalFileType> inferFileTypeFromMimeType(URLDownload urlDownload) {
-        return urlDownload.getMimeType()
-                          .flatMap(mimeType -> {
-                              LOGGER.debug("MIME Type suggested: {}", mimeType);
-                              return ExternalFileTypes.getExternalFileTypeByMimeType(mimeType, externalApplicationsPreferences);
-                          });
+        return urlDownload.getMimeType().flatMap(mimeType -> {
+            LOGGER.debug("MIME Type suggested: {}", mimeType);
+            return ExternalFileTypes.getExternalFileTypeByMimeType(mimeType, externalApplicationsPreferences);
+        });
     }
 
     private Optional<ExternalFileType> inferFileTypeFromURL(String url) {
         return URLUtil.getSuffix(url, externalApplicationsPreferences)
-                      .flatMap(extension -> ExternalFileTypes.getExternalFileTypeByExt(extension, externalApplicationsPreferences));
+                .flatMap(extension ->
+                        ExternalFileTypes.getExternalFileTypeByExt(extension, externalApplicationsPreferences));
     }
 
     public ReadOnlyDoubleProperty downloadProgress() {

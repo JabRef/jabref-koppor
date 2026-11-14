@@ -1,5 +1,6 @@
 package org.jabref.gui.mergeentries.threewaymerge;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -8,7 +9,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.mergeentries.threewaymerge.fieldsmerger.FieldMerger;
 import org.jabref.gui.mergeentries.threewaymerge.fieldsmerger.FieldMergerFactory;
 import org.jabref.logic.bibtex.comparator.plausibility.PlausibilityComparatorFactory;
@@ -18,8 +18,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.types.EntryTypeFactory;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +59,12 @@ public class FieldRowViewModel {
     /// Whether the merged value is currently shown, as opposed to the two original values.
     private boolean showingMergedValue;
 
-    public FieldRowViewModel(Field field, BibEntry leftEntry, BibEntry rightEntry, BibEntry mergedEntry, FieldMergerFactory fieldMergerFactory) {
+    public FieldRowViewModel(
+            Field field,
+            BibEntry leftEntry,
+            BibEntry rightEntry,
+            BibEntry mergedEntry,
+            FieldMergerFactory fieldMergerFactory) {
         this.field = field;
         this.leftEntry = leftEntry;
         this.rightEntry = rightEntry;
@@ -86,7 +89,8 @@ public class FieldRowViewModel {
             }
         });
 
-        hasEqualLeftAndRight = Bindings.createBooleanBinding(this::hasEqualLeftAndRightValues, leftFieldValueProperty(), rightFieldValueProperty());
+        hasEqualLeftAndRight = Bindings.createBooleanBinding(
+                this::hasEqualLeftAndRightValues, leftFieldValueProperty(), rightFieldValueProperty());
 
         selectNonEmptyValue();
 
@@ -102,10 +106,8 @@ public class FieldRowViewModel {
         EasyBind.subscribe(selectionProperty(), selection -> {
             LOGGER.debug("Selecting {}' value for field {}", selection, FieldTextMapper.getDisplayName(field));
             switch (selection) {
-                case LEFT ->
-                        EasyBind.subscribe(leftFieldValueProperty(), this::setMergedFieldValue);
-                case RIGHT ->
-                        EasyBind.subscribe(rightFieldValueProperty(), this::setMergedFieldValue);
+                case LEFT -> EasyBind.subscribe(leftFieldValueProperty(), this::setMergedFieldValue);
+                case RIGHT -> EasyBind.subscribe(rightFieldValueProperty(), this::setMergedFieldValue);
             }
         });
 
@@ -134,11 +136,11 @@ public class FieldRowViewModel {
                 .map(comparator -> comparator.compare(leftValue, rightValue))
                 .ifPresent(result -> {
                     switch (result) {
-                        case RIGHT_BETTER ->
-                                selectRightValue();
-                        case LEFT_BETTER ->
-                                selectLeftValue();
-                        default -> { /* nothing */ }
+                        case RIGHT_BETTER -> selectRightValue();
+                        case LEFT_BETTER -> selectLeftValue();
+                        default -> {
+                            /* nothing */
+                        }
                     }
                 });
     }
@@ -192,7 +194,9 @@ public class FieldRowViewModel {
 
         if (mergedValues == null) {
             FieldMerger fieldMerger = fieldMergerFactory.create(field);
-            mergedValues = new MergedValues(getLeftFieldValue(), getRightFieldValue(),
+            mergedValues = new MergedValues(
+                    getLeftFieldValue(),
+                    getRightFieldValue(),
                     fieldMerger.merge(getLeftFieldValue(), getRightFieldValue()));
         }
 
@@ -279,6 +283,5 @@ public class FieldRowViewModel {
         return mergedEntry;
     }
 
-    private record MergedValues(String left, String right, String merged) {
-    }
+    private record MergedValues(String left, String right, String merged) {}
 }

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.externalfiles.LinkedFileHandler;
@@ -14,7 +13,6 @@ import org.jabref.model.FieldChange;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +26,8 @@ public class MoveFilesCleanup implements CleanupJob {
     private final FilePreferences filePreferences;
     private final List<JabRefException> ioExceptions;
 
-    public MoveFilesCleanup(@NonNull Supplier<BibDatabaseContext> databaseContext,
-                            @NonNull FilePreferences filePreferences) {
+    public MoveFilesCleanup(
+            @NonNull Supplier<BibDatabaseContext> databaseContext, @NonNull FilePreferences filePreferences) {
         this.databaseContext = databaseContext;
         this.filePreferences = filePreferences;
         this.ioExceptions = new ArrayList<>();
@@ -46,7 +44,9 @@ public class MoveFilesCleanup implements CleanupJob {
                 changed = fileHandler.moveToDefaultDirectory() || changed;
             } catch (IOException exception) {
                 LOGGER.error("Error while moving file {}", file.getLink(), exception);
-                ioExceptions.add(new JabRefException(Localization.lang("Could not move file %0. Please close this file and retry.", file.getLink()), exception));
+                ioExceptions.add(new JabRefException(
+                        Localization.lang("Could not move file %0. Please close this file and retry.", file.getLink()),
+                        exception));
             }
         }
 

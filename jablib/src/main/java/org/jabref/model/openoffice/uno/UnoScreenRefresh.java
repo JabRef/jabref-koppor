@@ -5,8 +5,7 @@ import com.sun.star.text.XTextDocument;
 /// Disable/enable screen refresh.
 public class UnoScreenRefresh {
 
-    private UnoScreenRefresh() {
-    }
+    private UnoScreenRefresh() {}
 
     /// Disable screen refresh.
     ///

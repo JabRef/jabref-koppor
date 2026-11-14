@@ -1,15 +1,13 @@
 package org.jabref.logic.layout;
 
-import java.io.IOException;
-import java.io.Reader;
-
-import org.jabref.logic.journals.JournalAbbreviationRepository;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
+
+import java.io.IOException;
+import java.io.Reader;
+import org.jabref.logic.journals.JournalAbbreviationRepository;
+import org.junit.jupiter.api.Test;
 
 class LayoutHelperTest {
 

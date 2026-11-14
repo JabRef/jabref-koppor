@@ -1,12 +1,13 @@
 package org.jabref.gui.externalfiles;
 
+import static org.jabref.gui.actions.ActionHelper.needsDatabase;
+import static org.jabref.gui.actions.ActionHelper.needsEntriesSelected;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
-
 import javafx.concurrent.Task;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
@@ -25,9 +26,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableFieldChange;
 
-import static org.jabref.gui.actions.ActionHelper.needsDatabase;
-import static org.jabref.gui.actions.ActionHelper.needsEntriesSelected;
-
 /// This Action may only be used in a menu or button.
 /// Never in the entry editor. FileListEditor and EntryEditor have other ways to update the file links
 public class AutoLinkFilesAction extends SimpleCommand {
@@ -37,19 +35,25 @@ public class AutoLinkFilesAction extends SimpleCommand {
     private final StateManager stateManager;
     private final UiTaskExecutor taskExecutor;
 
-    public AutoLinkFilesAction(DialogService dialogService, GuiPreferences preferences, StateManager stateManager, UiTaskExecutor taskExecutor) {
+    public AutoLinkFilesAction(
+            DialogService dialogService,
+            GuiPreferences preferences,
+            StateManager stateManager,
+            UiTaskExecutor taskExecutor) {
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.stateManager = stateManager;
         this.taskExecutor = taskExecutor;
 
         this.executable.bind(needsDatabase(this.stateManager).and(needsEntriesSelected(stateManager)));
-        this.statusMessage.bind(BindingsHelper.ifThenElse(executable, "", Localization.lang("This operation requires one or more entries to be selected.")));
+        this.statusMessage.bind(BindingsHelper.ifThenElse(
+                executable, "", Localization.lang("This operation requires one or more entries to be selected.")));
     }
 
     @Override
     public void execute() {
-        final BibDatabaseContext database = stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
+        final BibDatabaseContext database =
+                stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
         final UndoManager undoManager = stateManager.getUndoManager(database);
         final List<BibEntry> entries = List.copyOf(stateManager.getSelectedEntries());
 
@@ -129,13 +133,18 @@ public class AutoLinkFilesAction extends SimpleCommand {
                     return;
                 }
 
-                dialogService.notify("%s %s\n%s".formatted(
-                        Localization.lang("Finished automatically setting external links."),
-                        Localization.lang("Changed %0 entry(s).", result.getChangedEntries().size()),
-                        Localization.lang("Affected entry(s): %0", result.getChangedEntries().stream()
-                                                                         .map(BibEntry::getCitationKey)
-                                                                         .flatMap(Optional::stream)
-                                                                         .collect(Collectors.joining(", ")))));
+                dialogService.notify("%s %s\n%s"
+                        .formatted(
+                                Localization.lang("Finished automatically setting external links."),
+                                Localization.lang(
+                                        "Changed %0 entry(s).",
+                                        result.getChangedEntries().size()),
+                                Localization.lang(
+                                        "Affected entry(s): %0",
+                                        result.getChangedEntries().stream()
+                                                .map(BibEntry::getCitationKey)
+                                                .flatMap(Optional::stream)
+                                                .collect(Collectors.joining(", ")))));
             }
         };
 

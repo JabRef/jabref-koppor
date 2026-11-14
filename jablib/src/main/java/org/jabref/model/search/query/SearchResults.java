@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.jabref.model.entry.BibEntry;
 
 public class SearchResults {
@@ -32,9 +31,7 @@ public class SearchResults {
 
     public boolean hasFulltextResults(BibEntry entry) {
         if (searchResults.containsKey(entry.getId())) {
-            return searchResults.get(entry.getId())
-                                .stream()
-                                .anyMatch(SearchResult::hasFulltextResults);
+            return searchResults.get(entry.getId()).stream().anyMatch(SearchResult::hasFulltextResults);
         }
         return false;
     }
@@ -44,7 +41,8 @@ public class SearchResults {
         if (searchResults.containsKey(entry.getId())) {
             for (SearchResult result : searchResults.get(entry.getId())) {
                 if (result.hasFulltextResults()) {
-                    results.computeIfAbsent(result.getPath(), _ -> new ArrayList<>()).add(result);
+                    results.computeIfAbsent(result.getPath(), _ -> new ArrayList<>())
+                            .add(result);
                 }
             }
         }

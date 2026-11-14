@@ -1,28 +1,25 @@
 package org.jabref.logic.bibtex.comparator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.OrFields;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 class FieldComparatorTest {
     @Test
     void compareMonthFieldIdentity() {
         FieldComparator comparator = new FieldComparator(StandardField.MONTH);
-        BibEntry equal = new BibEntry()
-                .withField(StandardField.MONTH, "1");
+        BibEntry equal = new BibEntry().withField(StandardField.MONTH, "1");
 
         assertEquals(0, comparator.compare(equal, equal));
     }
@@ -30,10 +27,8 @@ class FieldComparatorTest {
     @Test
     void compareMonthFieldEquality() {
         FieldComparator comparator = new FieldComparator(StandardField.MONTH);
-        BibEntry equal = new BibEntry()
-                .withField(StandardField.MONTH, "1");
-        BibEntry equal2 = new BibEntry()
-                .withField(StandardField.MONTH, "1");
+        BibEntry equal = new BibEntry().withField(StandardField.MONTH, "1");
+        BibEntry equal2 = new BibEntry().withField(StandardField.MONTH, "1");
 
         assertEquals(0, comparator.compare(equal, equal2));
     }
@@ -41,10 +36,8 @@ class FieldComparatorTest {
     @Test
     void compareMonthFieldBiggerAscending() {
         FieldComparator comparator = new FieldComparator(StandardField.MONTH);
-        BibEntry smaller = new BibEntry()
-                .withField(StandardField.MONTH, "jan");
-        BibEntry bigger = new BibEntry()
-                .withField(StandardField.MONTH, "feb");
+        BibEntry smaller = new BibEntry().withField(StandardField.MONTH, "jan");
+        BibEntry bigger = new BibEntry().withField(StandardField.MONTH, "feb");
 
         assertEquals(1, comparator.compare(bigger, smaller));
     }
@@ -52,10 +45,8 @@ class FieldComparatorTest {
     @Test
     void compareMonthFieldBiggerDescending() {
         FieldComparator comparator = new FieldComparator(new OrFields(StandardField.MONTH), true);
-        BibEntry smaller = new BibEntry()
-                .withField(StandardField.MONTH, "feb");
-        BibEntry bigger = new BibEntry()
-                .withField(StandardField.MONTH, "jan");
+        BibEntry smaller = new BibEntry().withField(StandardField.MONTH, "feb");
+        BibEntry bigger = new BibEntry().withField(StandardField.MONTH, "jan");
 
         assertEquals(1, comparator.compare(bigger, smaller));
     }
@@ -63,8 +54,7 @@ class FieldComparatorTest {
     @Test
     void compareYearFieldIdentity() {
         FieldComparator comparator = new FieldComparator(StandardField.YEAR);
-        BibEntry equal = new BibEntry()
-                .withField(StandardField.YEAR, "2016");
+        BibEntry equal = new BibEntry().withField(StandardField.YEAR, "2016");
 
         assertEquals(0, comparator.compare(equal, equal));
     }
@@ -72,10 +62,8 @@ class FieldComparatorTest {
     @Test
     void compareYearFieldEquality() {
         FieldComparator comparator = new FieldComparator(StandardField.YEAR);
-        BibEntry equal = new BibEntry()
-                .withField(StandardField.YEAR, "2016");
-        BibEntry equal2 = new BibEntry()
-                .withField(StandardField.YEAR, "2016");
+        BibEntry equal = new BibEntry().withField(StandardField.YEAR, "2016");
+        BibEntry equal2 = new BibEntry().withField(StandardField.YEAR, "2016");
 
         assertEquals(0, comparator.compare(equal, equal2));
     }
@@ -83,10 +71,8 @@ class FieldComparatorTest {
     @Test
     void compareYearFieldBiggerAscending() {
         FieldComparator comparator = new FieldComparator(StandardField.YEAR);
-        BibEntry smaller = new BibEntry()
-                .withField(StandardField.YEAR, "2000");
-        BibEntry bigger = new BibEntry()
-                .withField(StandardField.YEAR, "2016");
+        BibEntry smaller = new BibEntry().withField(StandardField.YEAR, "2000");
+        BibEntry bigger = new BibEntry().withField(StandardField.YEAR, "2016");
 
         assertEquals(1, comparator.compare(bigger, smaller));
     }
@@ -94,10 +80,8 @@ class FieldComparatorTest {
     @Test
     void compareYearFieldBiggerDescending() {
         FieldComparator comparator = new FieldComparator(new OrFields(StandardField.YEAR), true);
-        BibEntry smaller = new BibEntry()
-                .withField(StandardField.YEAR, "2016");
-        BibEntry bigger = new BibEntry()
-                .withField(StandardField.YEAR, "2000");
+        BibEntry smaller = new BibEntry().withField(StandardField.YEAR, "2016");
+        BibEntry bigger = new BibEntry().withField(StandardField.YEAR, "2000");
 
         assertEquals(1, comparator.compare(bigger, smaller));
     }
@@ -142,8 +126,7 @@ class FieldComparatorTest {
     @Test
     void compareStringFieldsIdentity() {
         FieldComparator comparator = new FieldComparator(StandardField.TITLE);
-        BibEntry equal = new BibEntry()
-                .withField(StandardField.TITLE, "title");
+        BibEntry equal = new BibEntry().withField(StandardField.TITLE, "title");
 
         assertEquals(0, comparator.compare(equal, equal));
     }
@@ -151,10 +134,8 @@ class FieldComparatorTest {
     @Test
     void compareStringFieldsEquality() {
         FieldComparator comparator = new FieldComparator(StandardField.TITLE);
-        BibEntry equal = new BibEntry()
-                .withField(StandardField.TITLE, "title");
-        BibEntry equal2 = new BibEntry()
-                .withField(StandardField.TITLE, "title");
+        BibEntry equal = new BibEntry().withField(StandardField.TITLE, "title");
+        BibEntry equal2 = new BibEntry().withField(StandardField.TITLE, "title");
 
         assertEquals(0, comparator.compare(equal, equal2));
     }
@@ -162,10 +143,8 @@ class FieldComparatorTest {
     @Test
     void compareStringFieldsBiggerAscending() {
         FieldComparator comparator = new FieldComparator(StandardField.TITLE);
-        BibEntry bigger = new BibEntry()
-                .withField(StandardField.TITLE, "b");
-        BibEntry smaller = new BibEntry()
-                .withField(StandardField.TITLE, "a");
+        BibEntry bigger = new BibEntry().withField(StandardField.TITLE, "b");
+        BibEntry smaller = new BibEntry().withField(StandardField.TITLE, "a");
 
         assertEquals(1, comparator.compare(bigger, smaller));
     }
@@ -173,10 +152,8 @@ class FieldComparatorTest {
     @Test
     void compareStringFieldsBiggerDescending() {
         FieldComparator comparator = new FieldComparator(new OrFields(StandardField.TITLE), true);
-        BibEntry bigger = new BibEntry()
-                .withField(StandardField.TITLE, "a");
-        BibEntry smaller = new BibEntry()
-                .withField(StandardField.TITLE, "b");
+        BibEntry bigger = new BibEntry().withField(StandardField.TITLE, "a");
+        BibEntry smaller = new BibEntry().withField(StandardField.TITLE, "b");
 
         assertEquals(1, comparator.compare(bigger, smaller));
     }
@@ -184,10 +161,8 @@ class FieldComparatorTest {
     @Test
     void compareNumericFieldsBiggerDescending() {
         FieldComparator comparator = new FieldComparator(new OrFields(StandardField.PMID), true);
-        BibEntry smaller = new BibEntry()
-                .withField(StandardField.PMID, "234567");
-        BibEntry bigger = new BibEntry()
-                .withField(StandardField.PMID, "123456");
+        BibEntry smaller = new BibEntry().withField(StandardField.PMID, "234567");
+        BibEntry bigger = new BibEntry().withField(StandardField.PMID, "123456");
 
         assertEquals(1, comparator.compare(bigger, smaller));
     }
@@ -195,10 +170,8 @@ class FieldComparatorTest {
     @Test
     void compareParsableWithNonParsableNumericFieldDescending() {
         FieldComparator comparator = new FieldComparator(new OrFields(StandardField.PMID), true);
-        BibEntry parsable = new BibEntry()
-                .withField(StandardField.PMID, "123456");
-        BibEntry unparsable = new BibEntry()
-                .withField(StandardField.PMID, "abc##z");
+        BibEntry parsable = new BibEntry().withField(StandardField.PMID, "123456");
+        BibEntry unparsable = new BibEntry().withField(StandardField.PMID, "abc##z");
 
         assertEquals(1, comparator.compare(parsable, unparsable));
     }
@@ -207,10 +180,8 @@ class FieldComparatorTest {
     @MethodSource
     void compareNumericalValues(int comparisonResult, String id1, String id2, String message) {
         FieldComparator comparator = new FieldComparator(StandardField.PMID);
-        BibEntry entry1 = new BibEntry()
-                .withField(StandardField.PMID, id1);
-        BibEntry entry2 = new BibEntry()
-                .withField(StandardField.PMID, id2);
+        BibEntry entry1 = new BibEntry().withField(StandardField.PMID, id1);
+        BibEntry entry2 = new BibEntry().withField(StandardField.PMID, id2);
 
         assertEquals(comparisonResult, comparator.compare(entry1, entry2), message);
     }
@@ -222,8 +193,7 @@ class FieldComparatorTest {
                 Arguments.of(1, "abc##z", "123456", "abc##z should be lexicographically greater than 123456 "),
                 Arguments.of(0, "", "", "Empty IDs should be lexicographically equal"),
                 Arguments.of(-1, "", "123456", "No ID should be lexicographically smaller than 123456"),
-                Arguments.of(1, "123456", "", "123456 should be lexicographically greater than no ID")
-        );
+                Arguments.of(1, "123456", "", "123456 should be lexicographically greater than no ID"));
     }
 
     @ParameterizedTest
@@ -249,17 +219,14 @@ class FieldComparatorTest {
                 Arguments.of(0, null, null),
                 Arguments.of(0, "value", "value"),
                 Arguments.of(-1, null, "value"),
-                Arguments.of(1, "value", null)
-        );
+                Arguments.of(1, "value", null));
     }
 
     @Test
     void compareAuthorField() {
         FieldComparator comparator = new FieldComparator(StandardField.AUTHOR);
-        BibEntry bigger = new BibEntry()
-                .withField(StandardField.AUTHOR, "Freund, Lucas");
-        BibEntry smaller = new BibEntry()
-                .withField(StandardField.AUTHOR, "Mustermann, Max");
+        BibEntry bigger = new BibEntry().withField(StandardField.AUTHOR, "Freund, Lucas");
+        BibEntry smaller = new BibEntry().withField(StandardField.AUTHOR, "Mustermann, Max");
 
         assertEquals(1, comparator.compare(smaller, bigger));
     }
@@ -267,10 +234,8 @@ class FieldComparatorTest {
     @Test
     void compareAuthorFieldWithBracedOrganisationNameAscending() {
         FieldComparator comparator = new FieldComparator(new OrFields(StandardField.AUTHOR), false);
-        BibEntry organisation = new BibEntry()
-                .withField(StandardField.AUTHOR, "{The Geany contributors}");
-        BibEntry person = new BibEntry()
-                .withField(StandardField.AUTHOR, "Abbott, Anne");
+        BibEntry organisation = new BibEntry().withField(StandardField.AUTHOR, "{The Geany contributors}");
+        BibEntry person = new BibEntry().withField(StandardField.AUTHOR, "Abbott, Anne");
 
         assertTrue(comparator.compare(organisation, person) > 0);
     }
@@ -278,10 +243,8 @@ class FieldComparatorTest {
     @Test
     void compareAuthorFieldWithBracedOrganisationNameDescending() {
         FieldComparator comparator = new FieldComparator(new OrFields(StandardField.AUTHOR), true);
-        BibEntry organisation = new BibEntry()
-                .withField(StandardField.AUTHOR, "{The Geany contributors}");
-        BibEntry person = new BibEntry()
-                .withField(StandardField.AUTHOR, "Abbott, Anne");
+        BibEntry organisation = new BibEntry().withField(StandardField.AUTHOR, "{The Geany contributors}");
+        BibEntry person = new BibEntry().withField(StandardField.AUTHOR, "Abbott, Anne");
 
         assertTrue(comparator.compare(organisation, person) < 0);
     }
@@ -294,9 +257,8 @@ class FieldComparatorTest {
         BibEntry abbott = new BibEntry().withField(StandardField.AUTHOR, "Abbott, Anne");
         BibEntry linux = new BibEntry().withField(StandardField.AUTHOR, "{Linux Foundation}");
 
-        List<BibEntry> sorted = Stream.of(smith, geany, abbott, linux)
-                                      .sorted(comparator)
-                                      .toList();
+        List<BibEntry> sorted =
+                Stream.of(smith, geany, abbott, linux).sorted(comparator).toList();
 
         assertEquals(List.of(abbott, linux, smith, geany), sorted);
     }
@@ -304,10 +266,9 @@ class FieldComparatorTest {
     @Test
     void compareAuthorFieldKeepsBracesInMultipleAuthors() {
         FieldComparator comparator = new FieldComparator(StandardField.AUTHOR);
-        BibEntry organisationAndPerson = new BibEntry()
-                .withField(StandardField.AUTHOR, "{The Geany contributors} and Smith, John");
-        BibEntry person = new BibEntry()
-                .withField(StandardField.AUTHOR, "Abbott, Anne");
+        BibEntry organisationAndPerson =
+                new BibEntry().withField(StandardField.AUTHOR, "{The Geany contributors} and Smith, John");
+        BibEntry person = new BibEntry().withField(StandardField.AUTHOR, "Abbott, Anne");
 
         assertEquals(1, Integer.signum(comparator.compare(organisationAndPerson, person)));
     }

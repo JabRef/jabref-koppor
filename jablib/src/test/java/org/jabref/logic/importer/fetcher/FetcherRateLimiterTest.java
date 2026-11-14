@@ -1,12 +1,11 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.time.Duration;
-
-import org.jspecify.annotations.NullMarked;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.time.Duration;
+import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.Test;
 
 @NullMarked
 class FetcherRateLimiterTest {
@@ -29,19 +28,22 @@ class FetcherRateLimiterTest {
 
     @Test
     void rejectsNonPositiveRequestCount() {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(
+                IllegalArgumentException.class,
                 () -> FetcherRateLimiter.ofRequestsPerInterval("Test", 0, Duration.ofSeconds(1)));
     }
 
     @Test
     void rejectsNonPositiveInterval() {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(
+                IllegalArgumentException.class,
                 () -> FetcherRateLimiter.ofRequestsPerInterval("Test", 1, Duration.ZERO));
     }
 
     @Test
     void rejectsNonFiniteRate() {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(
+                IllegalArgumentException.class,
                 () -> FetcherRateLimiter.ofRequestsPerSecond("Test", Double.POSITIVE_INFINITY));
     }
 }

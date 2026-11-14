@@ -9,12 +9,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.journals.Abbreviation;
 import org.jabref.logic.journals.AbbreviationWriter;
 import org.jabref.logic.journals.JournalAbbreviationLoader;
@@ -23,8 +21,8 @@ import org.jabref.logic.journals.JournalAbbreviationLoader;
 /// their paths. This also allows to specify pseudo files as placeholder objects.
 public class AbbreviationsFileViewModel {
 
-    private final SimpleListProperty<AbbreviationViewModel> abbreviations = new SimpleListProperty<>(
-            FXCollections.observableArrayList());
+    private final SimpleListProperty<AbbreviationViewModel> abbreviations =
+            new SimpleListProperty<>(FXCollections.observableArrayList());
     private final ReadOnlyBooleanProperty isBuiltInList;
     private final String name;
     private final Optional<Path> path;
@@ -47,7 +45,8 @@ public class AbbreviationsFileViewModel {
 
     public void readAbbreviations() throws IOException {
         if (path.isPresent()) {
-            Collection<Abbreviation> abbreviationList = JournalAbbreviationLoader.readAbbreviationsFromCsvFile(path.get());
+            Collection<Abbreviation> abbreviationList =
+                    JournalAbbreviationLoader.readAbbreviationsFromCsvFile(path.get());
             abbreviationList.forEach(abbreviation -> abbreviations.addAll(new AbbreviationViewModel(abbreviation)));
         } else {
             throw new FileNotFoundException();
@@ -59,10 +58,10 @@ public class AbbreviationsFileViewModel {
     /// [AbbreviationWriter#writeOrCreate].
     public void writeOrCreate() throws IOException {
         if (!isBuiltInList.get()) {
-            List<Abbreviation> actualAbbreviations =
-                    abbreviations.stream().filter(abb -> !abb.isPseudoAbbreviation())
-                                 .map(AbbreviationViewModel::getAbbreviationObject)
-                                 .collect(Collectors.toList());
+            List<Abbreviation> actualAbbreviations = abbreviations.stream()
+                    .filter(abb -> !abb.isPseudoAbbreviation())
+                    .map(AbbreviationViewModel::getAbbreviationObject)
+                    .collect(Collectors.toList());
             AbbreviationWriter.writeOrCreate(path.get(), actualAbbreviations);
         }
     }

@@ -1,14 +1,13 @@
 package org.jabref.logic.formatter;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FormattersTest {
 
@@ -22,9 +21,10 @@ class FormattersTest {
                 .enableClassInfo()
                 .acceptPackages("org.jabref.logic")
                 .scan()) {
-            Set<String> expected = new HashSet<>(scanResult.getAllSubclasses(Formatter.class.getName())
-                                                           .filter(classInfo -> !classInfo.isAbstract() && !classInfo.isAnonymousClass())
-                                                           .getNames());
+            Set<String> expected = new HashSet<>(scanResult
+                    .getAllSubclasses(Formatter.class.getName())
+                    .filter(classInfo -> !classInfo.isAbstract() && !classInfo.isAnonymousClass())
+                    .getNames());
             expected.removeAll(Set.of(
                     // Need configuration
                     "org.jabref.logic.formatter.bibtexfields.RegexFormatter",
@@ -41,7 +41,11 @@ class FormattersTest {
                     "org.jabref.logic.formatter.bibtexfields.ReplaceTabsBySpaceFormatter",
                     "org.jabref.logic.formatter.bibtexfields.TrimWhitespaceFormatter"));
 
-            assertEquals(expected, Formatters.getAll().stream().map(formatter -> formatter.getClass().getName()).collect(Collectors.toSet()));
+            assertEquals(
+                    expected,
+                    Formatters.getAll().stream()
+                            .map(formatter -> formatter.getClass().getName())
+                            .collect(Collectors.toSet()));
         }
     }
 }

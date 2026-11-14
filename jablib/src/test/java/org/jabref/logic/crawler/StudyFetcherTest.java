@@ -1,19 +1,5 @@
 package org.jabref.logic.crawler;
 
-import java.util.List;
-import java.util.Map;
-
-import org.jabref.logic.importer.FetcherException;
-import org.jabref.logic.importer.PagedSearchBasedFetcher;
-import org.jabref.logic.importer.SearchBasedFetcher;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.paging.Page;
-import org.jabref.model.study.QueryResult;
-import org.jabref.model.study.StudyQuery;
-
-import org.jspecify.annotations.NullMarked;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -24,6 +10,18 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Map;
+import org.jabref.logic.importer.FetcherException;
+import org.jabref.logic.importer.PagedSearchBasedFetcher;
+import org.jabref.logic.importer.SearchBasedFetcher;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.paging.Page;
+import org.jabref.model.study.QueryResult;
+import org.jabref.model.study.StudyQuery;
+import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.Test;
 
 @NullMarked
 class StudyFetcherTest {

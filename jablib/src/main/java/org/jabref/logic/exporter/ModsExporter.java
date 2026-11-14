@@ -12,7 +12,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -22,7 +21,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
@@ -30,7 +28,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.EntryType;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +47,9 @@ class ModsExporter extends Exporter {
     }
 
     @Override
-    public void export(@NonNull final BibDatabaseContext databaseContext,
-                       final Path file,
-                       @NonNull List<BibEntry> entries) throws SaveException {
+    public void export(
+            @NonNull final BibDatabaseContext databaseContext, final Path file, @NonNull List<BibEntry> entries)
+            throws SaveException {
         if (entries.isEmpty()) { // Only export if entries exist
             return;
         }
@@ -149,7 +146,8 @@ class ModsExporter extends Exporter {
         writer.writeNamespace("mods", MODS_NAMESPACE_URI);
         writer.writeNamespace("ns2", "http://www.w3.org/1999/xlink");
         writer.writeNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-        writer.writeAttribute("xsi", "http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", MODS_SCHEMA_LOCATION);
+        writer.writeAttribute(
+                "xsi", "http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", MODS_SCHEMA_LOCATION);
         return writer;
     }
 
@@ -164,7 +162,8 @@ class ModsExporter extends Exporter {
         }
     }
 
-    private void writeOriginInformation(XMLStreamWriter writer, List<String> originItems, Map<Field, String> fieldMap) throws XMLStreamException {
+    private void writeOriginInformation(XMLStreamWriter writer, List<String> originItems, Map<Field, String> fieldMap)
+            throws XMLStreamException {
         if (originItems.isEmpty()) {
             writer.writeEmptyElement("mods", "originInfo", MODS_NAMESPACE_URI);
         } else {
@@ -178,7 +177,9 @@ class ModsExporter extends Exporter {
         }
     }
 
-    private void writeRelatedInformation(XMLStreamWriter writer, List<String> parts, Map<Field, String> fieldMap, EntryType entryType) throws XMLStreamException {
+    private void writeRelatedInformation(
+            XMLStreamWriter writer, List<String> parts, Map<Field, String> fieldMap, EntryType entryType)
+            throws XMLStreamException {
         writer.writeStartElement("mods", "relatedItem", MODS_NAMESPACE_URI);
         writer.writeAttribute("type", "host");
 
@@ -208,7 +209,8 @@ class ModsExporter extends Exporter {
         return StandardField.JOURNAL;
     }
 
-    private void writePartInformation(XMLStreamWriter writer, List<String> parts, Map<Field, String> fieldMap) throws XMLStreamException {
+    private void writePartInformation(XMLStreamWriter writer, List<String> parts, Map<Field, String> fieldMap)
+            throws XMLStreamException {
         if (parts.isEmpty()) {
             writer.writeEmptyElement("mods", "part", MODS_NAMESPACE_URI);
         } else {
@@ -311,7 +313,8 @@ class ModsExporter extends Exporter {
         writer.writeEndElement();
     }
 
-    private void addJournal(XMLStreamWriter writer, String value) throws XMLStreamException { // this may also need to be called within second for loop?
+    private void addJournal(XMLStreamWriter writer, String value)
+            throws XMLStreamException { // this may also need to be called within second for loop?
         // Start TitleInfoDefinition
         writer.writeStartElement("mods", "titleInfo", MODS_NAMESPACE_URI);
 

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Keyword;
@@ -23,18 +22,19 @@ public class SpecialFieldsToSeparateFields implements PostOpenMigration {
     public SpecialFieldsToSeparateFields(Character keywordDelimiter) {
         List<SpecialFieldValue> specialFieldValues = Arrays.asList(SpecialFieldValue.values());
         possibleKeywordsToMigrate = new KeywordList(specialFieldValues.stream()
-                                                                      .map(SpecialFieldValue::getKeyword)
-                                                                      .filter(Optional::isPresent)
-                                                                      .map(Optional::get)
-                                                                      .collect(Collectors.toList()));
+                .map(SpecialFieldValue::getKeyword)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList()));
         this.keywordDelimiter = keywordDelimiter;
     }
 
     @Override
     public boolean isMigrationNecessary(ParserResult parserResult) {
         return parserResult.getDatabase().getEntries().stream()
-                           .filter(entry -> entry.hasField(StandardField.KEYWORDS))
-                           .anyMatch(entry -> possibleKeywordsToMigrate.stream().anyMatch(entry.getKeywords(keywordDelimiter)::contains));
+                .filter(entry -> entry.hasField(StandardField.KEYWORDS))
+                .anyMatch(entry ->
+                        possibleKeywordsToMigrate.stream().anyMatch(entry.getKeywords(keywordDelimiter)::contains));
     }
 
     @Override

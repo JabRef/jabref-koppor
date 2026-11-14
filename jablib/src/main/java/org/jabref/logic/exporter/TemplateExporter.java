@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.jabref.logic.journals.JournalAbbreviationLoader;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.layout.Layout;
@@ -28,7 +27,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.metadata.SelfContainedSaveOrder;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -59,18 +57,13 @@ public class TemplateExporter extends Exporter {
     /// @param name       to display to the user and to call this format in the console.
     /// @param lfFileName Name of the main layout file.
     /// @param extension  May or may not contain the . (for instance .txt).
-    public TemplateExporter(String name,
-                            String lfFileName,
-                            String extension,
-                            LayoutFormatterPreferences layoutPreferences,
-                            SelfContainedSaveOrder saveOrder) {
-        this(name,
-                name,
-                lfFileName,
-                "",
-                StandardFileType.fromExtensions(extension),
-                layoutPreferences,
-                saveOrder);
+    public TemplateExporter(
+            String name,
+            String lfFileName,
+            String extension,
+            LayoutFormatterPreferences layoutPreferences,
+            SelfContainedSaveOrder saveOrder) {
+        this(name, name, lfFileName, "", StandardFileType.fromExtensions(extension), layoutPreferences, saveOrder);
     }
 
     /// Initialize another export format based on templates stored in dir with layoutFile lfFilename.
@@ -80,14 +73,23 @@ public class TemplateExporter extends Exporter {
     /// @param lfFileName  Name of the main layout file.
     /// @param directory   Directory in which to find the layout file (a blank string can be passed).
     /// @param extension   Should contain the . (for instance .txt).
-    public TemplateExporter(String displayName,
-                            String consoleName,
-                            String lfFileName,
-                            String directory,
-                            FileType extension,
-                            LayoutFormatterPreferences layoutPreferences,
-                            SelfContainedSaveOrder saveOrder) {
-        this(displayName, consoleName, lfFileName, directory, extension, layoutPreferences, saveOrder, BlankLineBehaviour.KEEP_BLANKS);
+    public TemplateExporter(
+            String displayName,
+            String consoleName,
+            String lfFileName,
+            String directory,
+            FileType extension,
+            LayoutFormatterPreferences layoutPreferences,
+            SelfContainedSaveOrder saveOrder) {
+        this(
+                displayName,
+                consoleName,
+                lfFileName,
+                directory,
+                extension,
+                layoutPreferences,
+                saveOrder,
+                BlankLineBehaviour.KEEP_BLANKS);
     }
 
     /// Initialize another export format based on templates stored in dir with layoutFile lfFilename.
@@ -99,14 +101,15 @@ public class TemplateExporter extends Exporter {
     /// @param extension          Should contain the . (for instance .txt).
     /// @param layoutPreferences  Preferences for layout
     /// @param blankLineBehaviour how to behave regarding blank lines.
-    public TemplateExporter(String displayName,
-                            String consoleName,
-                            String lfFileName,
-                            String directory,
-                            FileType extension,
-                            LayoutFormatterPreferences layoutPreferences,
-                            @Nullable SelfContainedSaveOrder saveOrder,
-                            BlankLineBehaviour blankLineBehaviour) {
+    public TemplateExporter(
+            String displayName,
+            String consoleName,
+            String lfFileName,
+            String directory,
+            FileType extension,
+            LayoutFormatterPreferences layoutPreferences,
+            @Nullable SelfContainedSaveOrder saveOrder,
+            BlankLineBehaviour blankLineBehaviour) {
         super(consoleName, displayName, extension);
         if (lfFileName.endsWith(LAYOUT_EXTENSION)) {
             this.lfFileName = lfFileName.substring(0, lfFileName.length() - LAYOUT_EXTENSION.length());
@@ -169,11 +172,13 @@ public class TemplateExporter extends Exporter {
     }
 
     @Override
-    public void export(final BibDatabaseContext databaseContext,
-                       final Path file,
-                       List<BibEntry> entries,
-                       List<Path> fileDirForDatabase,
-                       JournalAbbreviationRepository abbreviationRepository) throws IOException {
+    public void export(
+            final BibDatabaseContext databaseContext,
+            final Path file,
+            List<BibEntry> entries,
+            List<Path> fileDirForDatabase,
+            JournalAbbreviationRepository abbreviationRepository)
+            throws IOException {
         Charset encodingToUse = StandardCharsets.UTF_8;
 
         if (entries.isEmpty()) { // Do not export if no entries to export -- avoids exports with only template text
@@ -193,7 +198,8 @@ public class TemplateExporter extends Exporter {
 
             // Print header
             try (Reader reader = getReader(lfFileName + BEGIN_INFIX + LAYOUT_EXTENSION)) {
-                LayoutHelper layoutHelper = new LayoutHelper(reader, fileDirForDatabase, layoutPreferences, abbreviationRepository);
+                LayoutHelper layoutHelper =
+                        new LayoutHelper(reader, fileDirForDatabase, layoutPreferences, abbreviationRepository);
                 beginLayout = layoutHelper.getLayoutFromText();
             } catch (IOException _) {
                 // If an exception was cast, export filter doesn't have a begin
@@ -237,7 +243,8 @@ public class TemplateExporter extends Exporter {
                 } else {
                     try (Reader reader = getReader(lfFileName + '.' + type.getName() + LAYOUT_EXTENSION)) {
                         // We try to get a type-specific layout for this entry.
-                        layoutHelper = new LayoutHelper(reader, fileDirForDatabase, layoutPreferences, abbreviationRepository);
+                        layoutHelper =
+                                new LayoutHelper(reader, fileDirForDatabase, layoutPreferences, abbreviationRepository);
                         layout = layoutHelper.getLayoutFromText();
                         layouts.put(type, layout);
                         if (layout != null) {
@@ -254,7 +261,8 @@ public class TemplateExporter extends Exporter {
                 // Write the entry
                 if (layout != null) {
                     if (blankLineBehaviour == BlankLineBehaviour.DELETE_BLANKS) {
-                        String[] lines = layout.doLayout(entry, databaseContext.getDatabase()).split(BLANK_LINE_PATTERN);
+                        String[] lines = layout.doLayout(entry, databaseContext.getDatabase())
+                                .split(BLANK_LINE_PATTERN);
                         for (String line : lines) {
                             if (!line.isBlank() && !line.isEmpty()) {
                                 ps.write(line + OS.NEWLINE);

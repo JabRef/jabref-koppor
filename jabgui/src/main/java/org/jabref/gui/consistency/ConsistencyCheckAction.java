@@ -1,11 +1,11 @@
 package org.jabref.gui.consistency;
 
+import static org.jabref.gui.actions.ActionHelper.needsDatabase;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-
 import javafx.concurrent.Task;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -17,11 +17,8 @@ import org.jabref.logic.quality.consistency.BibliographyConsistencyCheck;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 
 public class ConsistencyCheckAction extends SimpleCommand {
 
@@ -33,12 +30,13 @@ public class ConsistencyCheckAction extends SimpleCommand {
     private final BibEntryTypesManager entryTypesManager;
     private final UiTaskExecutor taskExecutor;
 
-    public ConsistencyCheckAction(Supplier<LibraryTab> tabSupplier,
-                                  DialogService dialogService,
-                                  StateManager stateManager,
-                                  GuiPreferences preferences,
-                                  BibEntryTypesManager entryTypesManager,
-                                  UiTaskExecutor taskExecutor) {
+    public ConsistencyCheckAction(
+            Supplier<LibraryTab> tabSupplier,
+            DialogService dialogService,
+            StateManager stateManager,
+            GuiPreferences preferences,
+            BibEntryTypesManager entryTypesManager,
+            UiTaskExecutor taskExecutor) {
         this.tabSupplier = tabSupplier;
         this.dialogService = dialogService;
         this.stateManager = stateManager;
@@ -63,14 +61,17 @@ public class ConsistencyCheckAction extends SimpleCommand {
             @Override
             public ConsistencyCheckDialogViewModel call() {
                 List<BibEntry> entries = List.copyOf(bibContext.getEntries());
-                BibliographyConsistencyCheck.Snapshot snapshot = BibliographyConsistencyCheck.snapshot(entries, bibContext.getMode(), entryTypesManager, this::isCancelled);
+                BibliographyConsistencyCheck.Snapshot snapshot = BibliographyConsistencyCheck.snapshot(
+                        entries, bibContext.getMode(), entryTypesManager, this::isCancelled);
                 // [impl->req~ux.consistency.report-background~1]
-                ConsistencyCheckDialogViewModel viewModel = new ConsistencyCheckDialogViewModel(dialogService, preferences, snapshot, taskExecutor);
+                ConsistencyCheckDialogViewModel viewModel =
+                        new ConsistencyCheckDialogViewModel(dialogService, preferences, snapshot, taskExecutor);
                 return viewModel;
             }
         };
 
-        task.setOnFailed(_ -> dialogService.showErrorDialogAndWait(Localization.lang("Consistency check failed."), task.getException()));
+        task.setOnFailed(_ -> dialogService.showErrorDialogAndWait(
+                Localization.lang("Consistency check failed."), task.getException()));
         task.setOnSucceeded(_ -> {
             if (!task.getValue().hasFindings()) {
                 dialogService.notify(Localization.lang("No problems found."));
@@ -83,8 +84,6 @@ public class ConsistencyCheckAction extends SimpleCommand {
         taskExecutor.execute(task);
 
         dialogService.showProgressDialog(
-                Localization.lang("Check consistency"),
-                Localization.lang("Checking consistency..."),
-                task);
+                Localization.lang("Check consistency"), Localization.lang("Checking consistency..."), task);
     }
 }

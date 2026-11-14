@@ -1,8 +1,8 @@
 package org.jabref.gui;
 
+import com.tobiasdiez.easybind.EasyBinding;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
@@ -10,7 +10,6 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.util.Pair;
-
 import org.jabref.gui.ai.chat.AiGroupChatWindow;
 import org.jabref.gui.search.SearchType;
 import org.jabref.gui.sidepane.SidePaneType;
@@ -26,8 +25,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.search.query.SearchQuery;
-
-import com.tobiasdiez.easybind.EasyBinding;
 import org.jspecify.annotations.NonNull;
 
 /// This class manages the GUI-state of JabRef, including:

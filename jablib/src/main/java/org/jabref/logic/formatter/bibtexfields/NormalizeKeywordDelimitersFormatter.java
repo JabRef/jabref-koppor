@@ -1,9 +1,9 @@
 package org.jabref.logic.formatter.bibtexfields;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.jabref.logic.cleanup.KeywordSeparatorAware;
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.importer.KeywordImportNormalizer;
@@ -11,8 +11,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.preferences.JabRefCliPreferences;
 import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.KeywordList;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -36,7 +34,8 @@ public class NormalizeKeywordDelimitersFormatter extends Formatter implements Ke
     }
 
     /// @param keywordSeparator the separator to serialize with; `null` uses the one from the preferences
-    public NormalizeKeywordDelimitersFormatter(@Nullable BibEntryPreferences bibEntryPreferences, @Nullable Character keywordSeparator) {
+    public NormalizeKeywordDelimitersFormatter(
+            @Nullable BibEntryPreferences bibEntryPreferences, @Nullable Character keywordSeparator) {
         this.bibEntryPreferences = bibEntryPreferences;
         this.keywordSeparator = keywordSeparator;
     }
@@ -63,21 +62,21 @@ public class NormalizeKeywordDelimitersFormatter extends Formatter implements Ke
         }
         BibEntryPreferences preferences = getBibEntryPreferences();
         Character separator = Optional.ofNullable(keywordSeparator)
-                                      .or(() -> Optional.ofNullable(preferences.getKeywordSeparator()))
-                                      .orElse(BibEntryPreferences.getDefault().getKeywordSeparator());
+                .or(() -> Optional.ofNullable(preferences.getKeywordSeparator()))
+                .orElse(BibEntryPreferences.getDefault().getKeywordSeparator());
         List<Character> delimiters = Stream.concat(
-                                                   KeywordImportNormalizer.parseConfiguredDelimiters(preferences.getImportKeywordDelimiters()).stream(),
-                                                   Stream.of(separator))
-                                           .distinct()
-                                           .toList();
-        BibEntryPreferences.ImportDelimiterParsingStrategy strategy = Optional.ofNullable(preferences.getImportDelimiterParsingStrategy())
-                                                                              .orElse(BibEntryPreferences.ImportDelimiterParsingStrategy.SPLIT_ON_ALL_DELIMITERS);
+                        KeywordImportNormalizer.parseConfiguredDelimiters(preferences.getImportKeywordDelimiters())
+                                .stream(),
+                        Stream.of(separator))
+                .distinct()
+                .toList();
+        BibEntryPreferences.ImportDelimiterParsingStrategy strategy = Optional.ofNullable(
+                        preferences.getImportDelimiterParsingStrategy())
+                .orElse(BibEntryPreferences.ImportDelimiterParsingStrategy.SPLIT_ON_ALL_DELIMITERS);
 
         KeywordList keywords = switch (strategy) {
-            case SPLIT_ON_ALL_DELIMITERS ->
-                    KeywordList.parseWithMultipleDelimiters(value, delimiters);
-            case INFER_DELIMITER_BY_PRIORITY ->
-                    KeywordList.parseWithPrioritizedDelimiters(value, delimiters);
+            case SPLIT_ON_ALL_DELIMITERS -> KeywordList.parseWithMultipleDelimiters(value, delimiters);
+            case INFER_DELIMITER_BY_PRIORITY -> KeywordList.parseWithPrioritizedDelimiters(value, delimiters);
         };
         if (keywords.equals(KeywordList.parse(value, separator))) {
             return value;
@@ -87,7 +86,8 @@ public class NormalizeKeywordDelimitersFormatter extends Formatter implements Ke
 
     @Override
     public String getDescription() {
-        return Localization.lang("Rewrite keywords separated by an accepted import delimiter to the keyword separator of the library.");
+        return Localization.lang(
+                "Rewrite keywords separated by an accepted import delimiter to the keyword separator of the library.");
     }
 
     @Override

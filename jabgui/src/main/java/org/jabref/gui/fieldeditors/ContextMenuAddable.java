@@ -2,9 +2,7 @@ package org.jabref.gui.fieldeditors;
 
 import java.util.List;
 import java.util.function.Supplier;
-
 import javafx.scene.control.MenuItem;
-
 import org.jabref.gui.keyboard.KeyBindingRepository;
 
 public interface ContextMenuAddable {

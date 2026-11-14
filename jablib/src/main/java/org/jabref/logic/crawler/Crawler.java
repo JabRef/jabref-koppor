@@ -3,7 +3,7 @@ package org.jabref.logic.crawler;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.exporter.SaveException;
 import org.jabref.logic.git.SlrGitHandler;
@@ -12,8 +12,6 @@ import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.study.QueryResult;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import org.eclipse.jgit.api.errors.GitAPIException;
 
 /// This class provides a service for SLR support by conducting an automated search and persistence
 /// of studies using the queries and E-Libraries specified in the provided study definition file.
@@ -29,17 +27,15 @@ public class Crawler {
     /// Creates a crawler for retrieving studies from E-Libraries
     ///
     /// @param studyRepositoryRoot The path to the study repository
-    public Crawler(Path studyRepositoryRoot,
-                   SlrGitHandler gitHandler,
-                   CliPreferences preferences,
-                   BibEntryTypesManager bibEntryTypesManager,
-                   FileUpdateMonitor fileUpdateMonitor) throws IllegalArgumentException, IOException, ParseException, JabRefException {
+    public Crawler(
+            Path studyRepositoryRoot,
+            SlrGitHandler gitHandler,
+            CliPreferences preferences,
+            BibEntryTypesManager bibEntryTypesManager,
+            FileUpdateMonitor fileUpdateMonitor)
+            throws IllegalArgumentException, IOException, ParseException, JabRefException {
         this.studyRepository = new StudyRepository(
-                studyRepositoryRoot,
-                gitHandler,
-                preferences,
-                fileUpdateMonitor,
-                bibEntryTypesManager);
+                studyRepositoryRoot, gitHandler, preferences, fileUpdateMonitor, bibEntryTypesManager);
         StudyCatalogToFetcherConverter studyCatalogToFetcherConverter = new StudyCatalogToFetcherConverter(
                 studyRepository.getActiveLibraryEntries(),
                 preferences.getImportFormatPreferences(),

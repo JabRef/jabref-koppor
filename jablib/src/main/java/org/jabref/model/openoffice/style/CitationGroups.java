@@ -7,12 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.openoffice.util.OOListUtil;
 import org.jabref.model.openoffice.util.OOPair;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,10 +43,7 @@ public class CitationGroups {
     }
 
     /// For each citation in `where` call `fun.accept(new Pair(citation, value));`
-    public <T> void distributeToCitations(List<CitationPath> where,
-                                          Consumer<OOPair<Citation, T>> fun,
-                                          T value) {
-
+    public <T> void distributeToCitations(List<CitationPath> where, Consumer<OOPair<Citation, T>> fun, T value) {
         for (CitationPath p : where) {
             CitationGroup group = citationGroupsUnordered.get(p.group);
             if (group == null) {
@@ -189,8 +184,8 @@ public class CitationGroups {
 
     public void createNumberedBibliographySortedInOrderOfAppearance() {
         if (bibliography.isPresent()) {
-            throw new IllegalStateException("createNumberedBibliographySortedInOrderOfAppearance:"
-                    + " already have a bibliography");
+            throw new IllegalStateException(
+                    "createNumberedBibliographySortedInOrderOfAppearance: already have a bibliography");
         }
         CitedReferences citedReferences = getCitedReferencesSortedInOrderOfAppearance();
         citedReferences.numberCitedReferencesInCurrentOrder();
@@ -211,7 +206,8 @@ public class CitationGroups {
     /// precondition: database lookup already performed (otherwise we just sort citation keys)
     public void createNumberedBibliographySortedByComparator(Comparator<BibEntry> entryComparator) {
         if (bibliography.isPresent()) {
-            throw new IllegalStateException("createNumberedBibliographySortedByComparator: already have a bibliography");
+            throw new IllegalStateException(
+                    "createNumberedBibliographySortedByComparator: already have a bibliography");
         }
         CitedReferences citedReferences = getCitedReferencesUnordered();
         citedReferences.sortByComparator(entryComparator);

@@ -2,12 +2,10 @@ package org.jabref.logic.openoffice.bst;
 
 import java.util.List;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.bst.BstVM;
 import org.jabref.logic.cleanup.ConvertToBibtexCleanup;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Renders a single [BibEntry] through a [BstVM] and strips all LaTeX structure that precedes
@@ -20,7 +18,8 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class BstEntryRenderer {
 
-    private static final Pattern BIBITEM_PATTERN = Pattern.compile("\\\\bibitem(?:\\[(?<label>[^\\]]*)\\])?\\{(?<key>[^}]+)}");
+    private static final Pattern BIBITEM_PATTERN =
+            Pattern.compile("\\\\bibitem(?:\\[(?<label>[^\\]]*)\\])?\\{(?<key>[^}]+)}");
     private static final Pattern BIB_ENV_END_PATTERN = Pattern.compile("\\\\end\\{thebibliography}");
 
     private final BstVM bstVM;

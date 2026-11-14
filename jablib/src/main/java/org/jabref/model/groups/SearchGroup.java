@@ -5,11 +5,9 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +21,8 @@ public class SearchGroup extends AbstractGroup {
 
     private SearchQuery searchQuery;
 
-    public SearchGroup(String name, GroupHierarchyType context, String searchExpression, EnumSet<SearchFlags> searchFlags) {
+    public SearchGroup(
+            String name, GroupHierarchyType context, String searchExpression, EnumSet<SearchFlags> searchFlags) {
         super(name, context);
         this.searchQuery = new SearchQuery(searchExpression, searchFlags);
     }
@@ -86,14 +85,19 @@ public class SearchGroup extends AbstractGroup {
         } catch (Throwable t) {
             // this should never happen, because the constructor obviously
             // succeeded in creating _this_ instance!
-            LOGGER.error("Internal error in SearchGroup.deepCopy(). " + "Please report this on https://github.com/JabRef/jabref/issues", t);
+            LOGGER.error(
+                    "Internal error in SearchGroup.deepCopy(). "
+                            + "Please report this on https://github.com/JabRef/jabref/issues",
+                    t);
             throw t;
         }
     }
 
     @Override
     public String toString() {
-        return "SearchGroup [query=" + searchQuery + ", name=" + name + ", searchFlags=" + getSearchFlags() + ",  context=" + context + ", color=" + color + ", isExpanded=" + isExpanded + ", description=" + description + ", iconName=" + iconName + "]";
+        return "SearchGroup [query=" + searchQuery + ", name=" + name + ", searchFlags=" + getSearchFlags()
+                + ",  context=" + context + ", color=" + color + ", isExpanded=" + isExpanded + ", description="
+                + description + ", iconName=" + iconName + "]";
     }
 
     @Override

@@ -1,11 +1,14 @@
 package org.jabref.gui.search;
 
+import static org.jabref.gui.actions.ActionHelper.needsDatabase;
+
+import com.tobiasdiez.easybind.EasyBind;
+import impl.org.controlsfx.skin.AutoCompletePopup;
 import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
@@ -35,7 +38,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-
+import org.controlsfx.control.textfield.AutoCompletionBinding;
+import org.controlsfx.control.textfield.CustomTextField;
 import org.jabref.architecture.AllowedToUseClassGetResource;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
@@ -64,17 +68,10 @@ import org.jabref.model.entry.Author;
 import org.jabref.model.search.SearchDisplayMode;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
-
-import com.tobiasdiez.easybind.EasyBind;
-import impl.org.controlsfx.skin.AutoCompletePopup;
-import org.controlsfx.control.textfield.AutoCompletionBinding;
-import org.controlsfx.control.textfield.CustomTextField;
 import org.reactfx.util.FxTimer;
 import org.reactfx.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.jabref.gui.actions.ActionHelper.needsDatabase;
 
 public class GlobalSearchBar extends HBox {
 
@@ -101,11 +98,12 @@ public class GlobalSearchBar extends HBox {
     private GlobalSearchResultDialog globalSearchResultDialog;
     private final SearchType searchType;
 
-    public GlobalSearchBar(LibraryTabContainer tabContainer,
-                           StateManager stateManager,
-                           GuiPreferences preferences,
-                           DialogService dialogService,
-                           SearchType searchType) {
+    public GlobalSearchBar(
+            LibraryTabContainer tabContainer,
+            StateManager stateManager,
+            GuiPreferences preferences,
+            DialogService dialogService,
+            SearchType searchType) {
         super();
         this.stateManager = stateManager;
         this.preferences = preferences;
@@ -123,24 +121,28 @@ public class GlobalSearchBar extends HBox {
         stateManager.searchQueryProperty().bind(searchField.textProperty());
 
         Label currentResults = new Label();
-        // fits the standard "found x entries"-message thus hinders the searchbar to jump around while searching if the tabContainer width is too small
+        // fits the standard "found x entries"-message thus hinders the searchbar to jump around while searching if the
+        // tabContainer width is too small
         currentResults.setPrefWidth(150);
 
-        currentResults.textProperty().bind(EasyBind.combine(
-                stateManager.activeSearchQuery(searchType), stateManager.searchResultSize(searchType), illegalSearch,
-                (searchQuery, matched, illegal) -> {
-                    searchField.pseudoClassStateChanged(ILLEGAL_SEARCH, illegal);
-                    if (illegal) {
-                        return Localization.lang("Illegal search expression");
-                    } else if (searchQuery.isEmpty()) {
-                        return "";
-                    } else if (matched.intValue() == 0) {
-                        return Localization.lang("No results found.");
-                    } else {
-                        return Localization.lang("Found %0 results.", String.valueOf(matched));
-                    }
-                }
-        ));
+        currentResults
+                .textProperty()
+                .bind(EasyBind.combine(
+                        stateManager.activeSearchQuery(searchType),
+                        stateManager.searchResultSize(searchType),
+                        illegalSearch,
+                        (searchQuery, matched, illegal) -> {
+                            searchField.pseudoClassStateChanged(ILLEGAL_SEARCH, illegal);
+                            if (illegal) {
+                                return Localization.lang("Illegal search expression");
+                            } else if (searchQuery.isEmpty()) {
+                                return "";
+                            } else if (matched.intValue() == 0) {
+                                return Localization.lang("No results found.");
+                            } else {
+                                return Localization.lang("Found %0 results.", String.valueOf(matched));
+                            }
+                        }));
 
         searchField.setTooltip(searchFieldTooltip);
         searchFieldTooltip.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -167,7 +169,10 @@ public class GlobalSearchBar extends HBox {
         searchField.setContextMenu(SearchFieldRightClickMenu.create(stateManager, searchField));
         stateManager.getWholeSearchHistory().addListener((ListChangeListener.Change<? extends String> _) -> {
             searchField.getContextMenu().getItems().removeLast();
-            searchField.getContextMenu().getItems().add(SearchFieldRightClickMenu.createSearchFromHistorySubMenu(stateManager, searchField));
+            searchField
+                    .getContextMenu()
+                    .getItems()
+                    .add(SearchFieldRightClickMenu.createSearchFromHistorySubMenu(stateManager, searchField));
         });
 
         regexButton = ControlHelper.iconToggleButton(IconTheme.JabRefIcons.REG_EX);
@@ -179,13 +184,14 @@ public class GlobalSearchBar extends HBox {
 
         initSearchModifierButtons();
 
-        BooleanBinding focusedOrActive = searchField.focusedProperty()
-                                                    .or(regexButton.focusedProperty())
-                                                    .or(caseSensitiveButton.focusedProperty())
-                                                    .or(fulltextButton.focusedProperty())
-                                                    .or(keepSearchString.focusedProperty())
-                                                    .or(filterModeButton.focusedProperty())
-                                                    .or(searchField.textProperty().isNotEmpty());
+        BooleanBinding focusedOrActive = searchField
+                .focusedProperty()
+                .or(regexButton.focusedProperty())
+                .or(caseSensitiveButton.focusedProperty())
+                .or(fulltextButton.focusedProperty())
+                .or(keepSearchString.focusedProperty())
+                .or(filterModeButton.focusedProperty())
+                .or(searchField.textProperty().isNotEmpty());
 
         regexButton.visibleProperty().unbind();
         regexButton.visibleProperty().bind(focusedOrActive);
@@ -200,7 +206,8 @@ public class GlobalSearchBar extends HBox {
 
         StackPane modifierButtons;
         if (searchType == SearchType.NORMAL_SEARCH) {
-            modifierButtons = new StackPane(new HBox(regexButton, caseSensitiveButton, fulltextButton, keepSearchString, filterModeButton));
+            modifierButtons = new StackPane(
+                    new HBox(regexButton, caseSensitiveButton, fulltextButton, keepSearchString, filterModeButton));
         } else {
             modifierButtons = new StackPane(new HBox(regexButton, caseSensitiveButton, fulltextButton));
         }
@@ -258,7 +265,13 @@ public class GlobalSearchBar extends HBox {
 
         fulltextButton.selectedProperty().addListener((_, _, newVal) -> {
             if (!filePreferences.shouldFulltextIndexLinkedFiles() && newVal) {
-                boolean enableFulltextSearch = dialogService.showConfirmationDialogAndWait(Localization.lang("Fulltext search"), Localization.lang("Fulltext search requires the setting 'Automatically index all linked files for fulltext search' to be enabled. Do you want to enable indexing now?"), Localization.lang("Enable indexing"), Localization.lang("Keep disabled"));
+                boolean enableFulltextSearch = dialogService.showConfirmationDialogAndWait(
+                        Localization.lang("Fulltext search"),
+                        Localization.lang(
+                                "Fulltext search requires the setting 'Automatically index all linked files for"
+                                        + " fulltext search' to be enabled. Do you want to enable indexing now?"),
+                        Localization.lang("Enable indexing"),
+                        Localization.lang("Keep disabled"));
 
                 LibraryTab libraryTab = tabContainer.getCurrentLibraryTab();
                 if (libraryTab != null && enableFulltextSearch) {
@@ -277,9 +290,12 @@ public class GlobalSearchBar extends HBox {
         });
 
         regexButton.setSelected(searchPreferences.isRegularExpression());
-        setToggleTooltip(regexButton,
+        setToggleTooltip(
+                regexButton,
                 Localization.lang("Regular expression") + "\n"
-                        + Localization.lang("This only affects unfielded terms. For using RegEx in a fielded term, use =~ operator."));
+                        + Localization.lang(
+                                "This only affects unfielded terms. For using RegEx in a fielded term, use =~"
+                                        + " operator."));
         initSearchModifierButton(regexButton);
         searchPreferences.getObservableSearchFlags().addListener((SetChangeListener<SearchFlags>) change -> {
             if (change.wasAdded() && change.getElementAdded() == SearchFlags.REGULAR_EXPRESSION) {
@@ -295,9 +311,12 @@ public class GlobalSearchBar extends HBox {
         });
 
         caseSensitiveButton.setSelected(searchPreferences.isCaseSensitive());
-        setToggleTooltip(caseSensitiveButton,
+        setToggleTooltip(
+                caseSensitiveButton,
                 Localization.lang("Case sensitive") + "\n"
-                        + Localization.lang("This only affects unfielded terms. For using case-sensitive in a fielded term, use =! operator."));
+                        + Localization.lang(
+                                "This only affects unfielded terms. For using case-sensitive in a fielded term, use =!"
+                                        + " operator."));
         initSearchModifierButton(caseSensitiveButton);
         searchPreferences.getObservableSearchFlags().addListener((SetChangeListener<SearchFlags>) change -> {
             if (change.wasAdded() && change.getElementAdded() == SearchFlags.CASE_SENSITIVE) {
@@ -315,7 +334,9 @@ public class GlobalSearchBar extends HBox {
         keepSearchString.setSelected(searchPreferences.shouldKeepSearchString());
         setToggleTooltip(keepSearchString, Localization.lang("Keep search string across libraries"));
         initSearchModifierButton(keepSearchString);
-        searchPreferences.keepSearchStringProperty().addListener((_, _, newVal) -> keepSearchString.setSelected(newVal));
+        searchPreferences
+                .keepSearchStringProperty()
+                .addListener((_, _, newVal) -> keepSearchString.setSelected(newVal));
         keepSearchString.selectedProperty().addListener((_, _, newVal) -> {
             searchPreferences.setKeepSearchString(newVal);
             searchField.requestFocus();
@@ -324,22 +345,29 @@ public class GlobalSearchBar extends HBox {
         filterModeButton.setSelected(searchPreferences.getSearchDisplayMode() == SearchDisplayMode.FILTER);
         setToggleTooltip(filterModeButton, Localization.lang("Filter search results"));
         initSearchModifierButton(filterModeButton);
-        searchPreferences.searchDisplayModeProperty().addListener((_, _, newVal) -> filterModeButton.setSelected(newVal == SearchDisplayMode.FILTER));
+        searchPreferences
+                .searchDisplayModeProperty()
+                .addListener((_, _, newVal) -> filterModeButton.setSelected(newVal == SearchDisplayMode.FILTER));
         filterModeButton.setOnAction(_ -> {
-            searchPreferences.setSearchDisplayMode(filterModeButton.isSelected() ? SearchDisplayMode.FILTER : SearchDisplayMode.FLOAT);
+            searchPreferences.setSearchDisplayMode(
+                    filterModeButton.isSelected() ? SearchDisplayMode.FILTER : SearchDisplayMode.FLOAT);
             searchField.requestFocus();
         });
 
-        openGlobalSearchButton.disableProperty().bind(globalSearchActive.or(needsDatabase(stateManager).not()));
+        openGlobalSearchButton
+                .disableProperty()
+                .bind(globalSearchActive.or(needsDatabase(stateManager).not()));
         openGlobalSearchButton.setTooltip(new Tooltip(Localization.lang("Search across libraries in a new window")));
         initSearchModifierButton(openGlobalSearchButton);
         openGlobalSearchButton.setOnAction(_ -> openGlobalSearchDialog());
 
-        searchPreferences.getObservableSearchFlags().addListener((SetChangeListener.Change<? extends SearchFlags> _) -> {
-            regexButton.setSelected(searchPreferences.isRegularExpression());
-            caseSensitiveButton.setSelected(searchPreferences.isCaseSensitive());
-            fulltextButton.setSelected(searchPreferences.isFulltext());
-        });
+        searchPreferences
+                .getObservableSearchFlags()
+                .addListener((SetChangeListener.Change<? extends SearchFlags> _) -> {
+                    regexButton.setSelected(searchPreferences.isRegularExpression());
+                    caseSensitiveButton.setSelected(searchPreferences.isCaseSensitive());
+                    fulltextButton.setSelected(searchPreferences.isFulltext());
+                });
     }
 
     public void openGlobalSearchDialog() {
@@ -350,8 +378,11 @@ public class GlobalSearchBar extends HBox {
         if (globalSearchResultDialog == null) {
             globalSearchResultDialog = new GlobalSearchResultDialog(tabContainer);
         }
-        stateManager.activeSearchQuery(SearchType.NORMAL_SEARCH).get().ifPresent(query ->
-                stateManager.activeSearchQuery(SearchType.GLOBAL_SEARCH).set(Optional.of(query)));
+        stateManager
+                .activeSearchQuery(SearchType.NORMAL_SEARCH)
+                .get()
+                .ifPresent(query ->
+                        stateManager.activeSearchQuery(SearchType.GLOBAL_SEARCH).set(Optional.of(query)));
         updateSearchQuery();
         dialogService.showCustomDialogAndWait(globalSearchResultDialog);
         globalSearchActive.setValue(false);
@@ -371,16 +402,15 @@ public class GlobalSearchBar extends HBox {
     private void setToggleTooltip(ToggleButton button, String description) {
         String[] parts = description.split("\n", 2);
         Tooltip tooltip = new Tooltip();
-        tooltip.textProperty().bind(Bindings.createStringBinding(
-                () -> {
-                    String status = button.isSelected()
-                                    ? Localization.lang("Enabled")
-                                    : Localization.lang("Disabled");
+        tooltip.textProperty()
+                .bind(Bindings.createStringBinding(
+                        () -> {
+                            String status =
+                                    button.isSelected() ? Localization.lang("Enabled") : Localization.lang("Disabled");
 
-                    return parts[0] + ": " + status + (parts.length > 1 ? "\n" + parts[1] : "");
-                },
-                button.selectedProperty()
-        ));
+                            return parts[0] + ": " + status + (parts.length > 1 ? "\n" + parts[1] : "");
+                        },
+                        button.selectedProperty()));
         button.setTooltip(tooltip);
     }
 
@@ -411,7 +441,8 @@ public class GlobalSearchBar extends HBox {
 
     public void setAutoCompleter(SuggestionProvider<Author> searchCompleter) {
         if (preferences.getAutoCompletePreferences().shouldAutoComplete()) {
-            AutoCompletionTextInputBinding<Author> autoComplete = AutoCompletionTextInputBinding.autoComplete(searchField,
+            AutoCompletionTextInputBinding<Author> autoComplete = AutoCompletionTextInputBinding.autoComplete(
+                    searchField,
                     searchCompleter::provideSuggestions,
                     new PersonNameStringConverter(false, false, AutoCompleteFirstNameMode.BOTH),
                     new AppendPersonNamesStrategy());
@@ -436,7 +467,12 @@ public class GlobalSearchBar extends HBox {
 
     public void setSearchBarHint() {
         if (preferences.getWorkspacePreferences().shouldShowAdvancedHints()) {
-            String genericDescription = Localization.lang("Hint:\n\nTo search all fields for <b>Smith</b>, enter:\n<tt>smith</tt>\n\nTo search the field <b>author</b> for <b>Smith</b> and the field <b>title</b> for <b>electrical</b>, enter:\n<tt>author=Smith AND title=electrical</tt>");
+            String genericDescription = Localization.lang("Hint:\n\n"
+                    + "To search all fields for <b>Smith</b>, enter:\n"
+                    + "<tt>smith</tt>\n\n"
+                    + "To search the field <b>author</b> for <b>Smith</b> and the field <b>title</b> for"
+                    + " <b>electrical</b>, enter:\n"
+                    + "<tt>author=Smith AND title=electrical</tt>");
             List<Text> genericDescriptionTexts = TooltipTextUtil.createTextsFromHtml(genericDescription);
 
             TextFlow emptyHintTooltip = new TextFlow();
@@ -464,8 +500,15 @@ public class GlobalSearchBar extends HBox {
             this.control = control;
             this.suggestionList = new ListView<>(control.getSuggestions());
             this.suggestionList.getStyleClass().add("auto-complete-popup");
-            this.suggestionList.getStylesheets().add(Objects.requireNonNull(AutoCompletionBinding.class.getResource("autocompletion.css")).toExternalForm());
-            this.suggestionList.prefHeightProperty().bind(Bindings.min(control.visibleRowCountProperty(), Bindings.size(this.suggestionList.getItems())).multiply(24).add(18));
+            this.suggestionList
+                    .getStylesheets()
+                    .add(Objects.requireNonNull(AutoCompletionBinding.class.getResource("autocompletion.css"))
+                            .toExternalForm());
+            this.suggestionList
+                    .prefHeightProperty()
+                    .bind(Bindings.min(control.visibleRowCountProperty(), Bindings.size(this.suggestionList.getItems()))
+                            .multiply(24)
+                            .add(18));
             this.suggestionList.setCellFactory(TextFieldListCell.forListView(control.getConverter()));
             this.suggestionList.prefWidthProperty().bind(control.prefWidthProperty());
             this.suggestionList.maxWidthProperty().bind(control.maxWidthProperty());
@@ -480,14 +523,16 @@ public class GlobalSearchBar extends HBox {
         private void registerEventListener() {
             this.suggestionList.setOnMouseClicked(me -> {
                 if (me.getButton() == MouseButton.PRIMARY) {
-                    this.onSuggestionChosen(this.suggestionList.getSelectionModel().getSelectedItem());
+                    this.onSuggestionChosen(
+                            this.suggestionList.getSelectionModel().getSelectedItem());
                 }
             });
             this.suggestionList.setOnKeyPressed(ke -> {
                 switch (ke.getCode()) {
                     case TAB:
                     case ENTER:
-                        this.onSuggestionChosen(this.suggestionList.getSelectionModel().getSelectedItem());
+                        this.onSuggestionChosen(
+                                this.suggestionList.getSelectionModel().getSelectedItem());
                         break;
                     case ESCAPE:
                         if (this.control.isHideOnEscape()) {

@@ -1,7 +1,6 @@
 package org.jabref.model.openoffice.style;
 
 import java.util.Comparator;
-
 import org.jabref.model.entry.BibEntry;
 
 /*
@@ -26,5 +25,3 @@ public class CompareCitation implements Comparator<ComparableCitation> {
         return res;
     }
 }
-
-

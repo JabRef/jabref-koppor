@@ -7,14 +7,12 @@ import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.StringJoiner;
 import java.util.TreeSet;
-
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.InternalField;
 
 public class CanonicalBibEntry {
 
-    private CanonicalBibEntry() {
-    }
+    private CanonicalBibEntry() {}
 
     /// This returns a canonical BibTeX serialization.
     /// The result is close to BibTeX, but not a valid BibTeX representation in all cases
@@ -35,7 +33,8 @@ public class CanonicalBibEntry {
         String citeKey = entry.getCitationKey().orElse("");
         sb.append("@%s{%s,".formatted(entry.getType().getName(), citeKey)).append('\n');
 
-        // we have to introduce a new Map as fields are stored case-sensitive in JabRef (see https://github.com/koppor/jabref/issues/45).
+        // we have to introduce a new Map as fields are stored case-sensitive in JabRef (see
+        // https://github.com/koppor/jabref/issues/45).
         Map<String, String> mapFieldToValue = new HashMap<>();
 
         // determine sorted fields -- all fields lower case
@@ -58,7 +57,10 @@ public class CanonicalBibEntry {
             sj.add(line);
         }
 
-        sj.add("  _jabref_shared = {sharedId: %d, version: %d}".formatted(entry.getSharedBibEntryData().getSharedIdAsInt(), entry.getSharedBibEntryData().getVersion()));
+        sj.add("  _jabref_shared = {sharedId: %d, version: %d}"
+                .formatted(
+                        entry.getSharedBibEntryData().getSharedIdAsInt(),
+                        entry.getSharedBibEntryData().getVersion()));
 
         sb.append(sj);
 

@@ -1,10 +1,24 @@
 package org.jabref.gui.entryeditor.citationrelationtab;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import com.airhacks.afterburner.injection.Injector;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.event.Event;
@@ -25,7 +39,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-
 import org.jabref.architecture.AllowedToUseClassGetResource;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
@@ -66,8 +79,6 @@ import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.DummyFileUpdateMonitor;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
@@ -75,20 +86,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 // [utest->feat~entry-editor.citations.review-before-import~1]
 @AllowedToUseClassGetResource("JavaFX internally handles the passed URLs properly.")
@@ -130,12 +127,16 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
         when(preferences.getOwnerPreferences().getDefaultOwner()).thenReturn("owner");
         when(preferences.getKeyBindingRepository()).thenReturn(new KeyBindingRepository());
         when(preferences.getEntryEditorPreferences().autoLinkFilesEnabled()).thenReturn(false);
-        when(preferences.getCitationKeyPatternPreferences().getUnwantedCharacters()).thenReturn("");
-        when(preferences.getExternalApplicationsPreferences().getExternalFileTypes()).thenReturn(FXCollections.emptyObservableSet());
-        when(preferences.getAutoLinkPreferences()).thenReturn(new AutoLinkPreferences(AutoLinkPreferences.CitationKeyDependency.START, "", false, ';'));
+        when(preferences.getCitationKeyPatternPreferences().getUnwantedCharacters())
+                .thenReturn("");
+        when(preferences.getExternalApplicationsPreferences().getExternalFileTypes())
+                .thenReturn(FXCollections.emptyObservableSet());
+        when(preferences.getAutoLinkPreferences())
+                .thenReturn(new AutoLinkPreferences(AutoLinkPreferences.CitationKeyDependency.START, "", false, ';'));
 
         previewPreferences = mock(PreviewPreferences.class);
-        PreviewLayout previewLayout = new TextBasedPreviewLayout("", mock(LayoutFormatterPreferences.class), mock(JournalAbbreviationRepository.class));
+        PreviewLayout previewLayout = new TextBasedPreviewLayout(
+                "", mock(LayoutFormatterPreferences.class), mock(JournalAbbreviationRepository.class));
         doReturn(previewLayout).when(previewPreferences).getSelectedPreviewLayout();
         when(preferences.getPreviewPreferences()).thenReturn(previewPreferences);
 
@@ -158,17 +159,19 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
         Injector.setModelOrService(FileUpdateMonitor.class, new DummyFileUpdateMonitor());
 
         Scene mainWindowScene = new Scene(new StackPane(), 1024, 768);
-        mainWindowScene.getStylesheets().addAll(
-                stylesheet("/org/jabref/gui/theme/themes.jabref.org/jabref-theme.css"),
-                stylesheet("/org/jabref/gui/theme/internal/jabref-base.css"));
+        mainWindowScene
+                .getStylesheets()
+                .addAll(
+                        stylesheet("/org/jabref/gui/theme/themes.jabref.org/jabref-theme.css"),
+                        stylesheet("/org/jabref/gui/theme/internal/jabref-base.css"));
         stage.setScene(mainWindowScene);
 
         raisedFontSizeListener = change -> {
             while (change.next()) {
                 change.getAddedSubList().stream()
-                      .map(Window::getScene)
-                      .filter(Objects::nonNull)
-                      .forEach(scene -> scene.getRoot().getStyleClass().add(FONT_SIZE_CLASS));
+                        .map(Window::getScene)
+                        .filter(Objects::nonNull)
+                        .forEach(scene -> scene.getRoot().getStyleClass().add(FONT_SIZE_CLASS));
             }
         };
         Window.getWindows().addListener(raisedFontSizeListener);
@@ -212,9 +215,9 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
 
     private static ButtonType findButtonType(CitationEntryReviewDialog dialog, ButtonBar.ButtonData buttonData) {
         return dialog.getDialogPane().getButtonTypes().stream()
-                     .filter(buttonType -> buttonType.getButtonData() == buttonData)
-                     .findFirst()
-                     .orElseThrow();
+                .filter(buttonType -> buttonType.getButtonData() == buttonData)
+                .findFirst()
+                .orElseThrow();
     }
 
     @SuppressWarnings("unchecked")
@@ -305,7 +308,8 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
         interact(() -> {
             CitationEntryReviewDialog reviewDialog = createDialog(2, 2, sampleEntry);
             ButtonType previousButton = findButtonType(reviewDialog, ButtonBar.ButtonData.BACK_PREVIOUS);
-            assertFalse(reviewDialog.getDialogPane().lookupButton(previousButton).isDisabled());
+            assertFalse(
+                    reviewDialog.getDialogPane().lookupButton(previousButton).isDisabled());
         });
     }
 
@@ -336,10 +340,18 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
             ButtonType nextButton = findButtonType(reviewDialog, ButtonBar.ButtonData.NEXT_FORWARD);
             ButtonType cancelButton = findButtonType(reviewDialog, ButtonBar.ButtonData.CANCEL_CLOSE);
 
-            assertEquals(CitationEntryReviewDialog.Decision.PREVIOUS, reviewDialog.getResultConverter().call(previousButton));
-            assertEquals(CitationEntryReviewDialog.Decision.SKIP, reviewDialog.getResultConverter().call(skipButton));
-            assertEquals(CitationEntryReviewDialog.Decision.NEXT, reviewDialog.getResultConverter().call(nextButton));
-            assertEquals(CitationEntryReviewDialog.Decision.CANCEL, reviewDialog.getResultConverter().call(cancelButton));
+            assertEquals(
+                    CitationEntryReviewDialog.Decision.PREVIOUS,
+                    reviewDialog.getResultConverter().call(previousButton));
+            assertEquals(
+                    CitationEntryReviewDialog.Decision.SKIP,
+                    reviewDialog.getResultConverter().call(skipButton));
+            assertEquals(
+                    CitationEntryReviewDialog.Decision.NEXT,
+                    reviewDialog.getResultConverter().call(nextButton));
+            assertEquals(
+                    CitationEntryReviewDialog.Decision.CANCEL,
+                    reviewDialog.getResultConverter().call(cancelButton));
         });
     }
 
@@ -350,7 +362,9 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
             entryTypeComboOf(createDialog(1, 2, entry)).setValue(StandardEntryType.Book);
 
             // Every visit of an entry builds its own dialog, so the picked type has to come back off the entry
-            assertEquals(StandardEntryType.Book, entryTypeComboOf(createDialog(1, 2, entry)).getValue());
+            assertEquals(
+                    StandardEntryType.Book,
+                    entryTypeComboOf(createDialog(1, 2, entry)).getValue());
         });
     }
 
@@ -381,7 +395,8 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
 
         interact(() -> {
             assertNotNull(dialog);
-            Event.fireEvent(dialog.getDialogPane(),
+            Event.fireEvent(
+                    dialog.getDialogPane(),
                     new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.ESCAPE, false, false, false, false));
         });
         awaitEvents();
@@ -403,7 +418,8 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
                     .withField(StandardField.TITLE, "Sample Title");
             CitationEntryReviewDialog reviewDialog = createDialog(1, 1, entry);
             List<FieldNameLabel> labels = findChildren(reviewDialog.getDialogPane(), FieldNameLabel.class);
-            assertEquals(List.of(
+            assertEquals(
+                    List.of(
                             FieldsUtil.getDisplayName(StandardField.AUTHOR),
                             FieldsUtil.getDisplayName(StandardField.TITLE),
                             FieldsUtil.getDisplayName(StandardField.JOURNAL),
@@ -414,8 +430,10 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
 
     @Test
     void preview_showsTheEntry_whenTheDialogIsBuilt() {
-        doReturn(new TextBasedPreviewLayout("\\title", mock(LayoutFormatterPreferences.class), mock(JournalAbbreviationRepository.class)))
-                .when(previewPreferences).getSelectedPreviewLayout();
+        doReturn(new TextBasedPreviewLayout(
+                        "\\title", mock(LayoutFormatterPreferences.class), mock(JournalAbbreviationRepository.class)))
+                .when(previewPreferences)
+                .getSelectedPreviewLayout();
 
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("Key2022")
@@ -430,9 +448,12 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
         interact(() -> {
             assertNotNull(dialog);
             // The viewer renders nothing without a layout, and nothing else in the dialog would notice
-            PreviewViewer previewViewer = findChildren(dialog.getDialogPane(), PreviewViewer.class)
-                    .stream().distinct().findFirst().orElseThrow();
-            assertEquals("Sample title",
+            PreviewViewer previewViewer = findChildren(dialog.getDialogPane(), PreviewViewer.class).stream()
+                    .distinct()
+                    .findFirst()
+                    .orElseThrow();
+            assertEquals(
+                    "Sample title",
                     ((RichHtmlView) previewViewer.getContent()).toPlainText().trim());
         });
     }
@@ -496,7 +517,8 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
 
         interact(() -> {
             List<FieldNameLabel> rowsAfterUndo = findFieldLabels();
-            assertEquals(rowsBeforeUndo.stream().map(FieldNameLabel::getText).toList(),
+            assertEquals(
+                    rowsBeforeUndo.stream().map(FieldNameLabel::getText).toList(),
                     rowsAfterUndo.stream().map(FieldNameLabel::getText).toList());
             assertNotSame(rowsBeforeUndo.getFirst(), rowsAfterUndo.getFirst());
         });
@@ -534,13 +556,17 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
         interact(() -> articleRows.addAll(findFieldLabelTexts()));
 
         selectEntryType(entryTypeCombo, StandardEntryType.Book);
-        interact(() -> assertEquals(List.of(publisher), findFieldLabelTexts().stream().filter(publisher::equals).toList()));
+        interact(() -> assertEquals(
+                List.of(publisher),
+                findFieldLabelTexts().stream().filter(publisher::equals).toList()));
 
         fireShortcut(entryTypeCombo, KeyCode.Z);
         interact(() -> {
             assertEquals(StandardEntryType.Article, entry.getType());
             assertEquals(StandardEntryType.Article, entryTypeCombo.getValue());
-            assertEquals(List.of(), findFieldLabelTexts().stream().filter(publisher::equals).toList());
+            assertEquals(
+                    List.of(),
+                    findFieldLabelTexts().stream().filter(publisher::equals).toList());
             assertEquals(articleRows, findFieldLabelTexts());
         });
     }
@@ -666,14 +692,17 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
     /// other bindings. The headless toolkit of the tests does not support those.
     private void useKeyBindingsWithoutCharacterCombinations() {
         KeyBindingRepository keyBindings = spy(new KeyBindingRepository());
-        doAnswer(invocation -> keyBindings.checkKeyCombinationEquality(invocation.<KeyBinding>getArgument(1), invocation.<KeyEvent>getArgument(0)))
-                .when(keyBindings).matches(any(), any());
+        doAnswer(invocation -> keyBindings.checkKeyCombinationEquality(
+                        invocation.<KeyBinding>getArgument(1), invocation.<KeyEvent>getArgument(0)))
+                .when(keyBindings)
+                .matches(any(), any());
         when(preferences.getKeyBindingRepository()).thenReturn(keyBindings);
     }
 
     @SuppressWarnings("unchecked")
     private static ComboBox<EntryType> entryTypeComboOf(CitationEntryReviewDialog dialog) {
-        return (ComboBox<EntryType>) findChildNode(dialog.getDialogPane(), ComboBox.class).orElseThrow();
+        return (ComboBox<EntryType>)
+                findChildNode(dialog.getDialogPane(), ComboBox.class).orElseThrow();
     }
 
     /// Shows the dialog, because the combo box gets the skin and the behavior that handle its keys only then.
@@ -686,7 +715,8 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
             reviewDialog.initOwner(primaryStage);
             reviewDialog.show();
             reviewDialog.getDialogPane().applyCss();
-            entryTypeCombo.add((ComboBox<EntryType>) findChildNode(reviewDialog.getDialogPane(), ComboBox.class).orElseThrow());
+            entryTypeCombo.add((ComboBox<EntryType>)
+                    findChildNode(reviewDialog.getDialogPane(), ComboBox.class).orElseThrow());
             assertNotNull(entryTypeCombo.getFirst().getSkin());
         });
         awaitEvents();
@@ -710,15 +740,17 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
     private TextInputControl findTextInput(String text) {
         assertNotNull(dialog);
         return findChildren(dialog.getDialogPane(), TextInputControl.class).stream()
-                                                                           .filter(input -> text.equals(input.getText()))
-                                                                           .findFirst()
-                                                                           .orElseThrow();
+                .filter(input -> text.equals(input.getText()))
+                .findFirst()
+                .orElseThrow();
     }
 
     private List<FieldNameLabel> findFieldLabels() {
         assertNotNull(dialog);
         // A shown dialog has skins, through which findChildren reaches the same label on several paths
-        return findChildren(dialog.getDialogPane(), FieldNameLabel.class).stream().distinct().toList();
+        return findChildren(dialog.getDialogPane(), FieldNameLabel.class).stream()
+                .distinct()
+                .toList();
     }
 
     private List<String> findFieldLabelTexts() {
@@ -727,16 +759,16 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
 
     private TextInputControl findTextInputInRowOf(StandardField field) {
         FieldNameLabel label = findFieldLabels().stream()
-                                                .filter(fieldLabel -> FieldsUtil.getDisplayName(field).equals(fieldLabel.getText()))
-                                                .findFirst()
-                                                .orElseThrow();
+                .filter(fieldLabel -> FieldsUtil.getDisplayName(field).equals(fieldLabel.getText()))
+                .findFirst()
+                .orElseThrow();
         GridPane grid = (GridPane) label.getParent();
         Parent editor = grid.getChildren().stream()
-                            .filter(node -> Objects.equals(GridPane.getRowIndex(node), GridPane.getRowIndex(label)))
-                            .filter(node -> node != label)
-                            .map(Parent.class::cast)
-                            .findFirst()
-                            .orElseThrow();
+                .filter(node -> Objects.equals(GridPane.getRowIndex(node), GridPane.getRowIndex(label)))
+                .filter(node -> node != label)
+                .map(Parent.class::cast)
+                .findFirst()
+                .orElseThrow();
         return findChildNode(editor, TextInputControl.class).orElseThrow();
     }
 
@@ -746,6 +778,7 @@ class CitationEntryReviewDialogTest extends JavaFxTest {
     }
 
     private static String stylesheet(String path) {
-        return Objects.requireNonNull(CitationEntryReviewDialogTest.class.getResource(path)).toExternalForm();
+        return Objects.requireNonNull(CitationEntryReviewDialogTest.class.getResource(path))
+                .toExternalForm();
     }
 }

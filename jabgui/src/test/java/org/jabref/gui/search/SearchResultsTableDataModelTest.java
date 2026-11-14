@@ -1,10 +1,11 @@
 package org.jabref.gui.search;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+
 import java.util.List;
 import java.util.Optional;
-
 import javafx.beans.property.SimpleBooleanProperty;
-
 import org.jabref.gui.JabRefGuiStateManager;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.maintable.BibEntryTableViewModel;
@@ -20,14 +21,10 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.search.query.SearchQuery;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(JavaFxExtension.class)
 class SearchResultsTableDataModelTest {
@@ -47,8 +44,7 @@ class SearchResultsTableDataModelTest {
         SearchContext searchContext = new SearchContext(
                 new SimpleBooleanProperty(false),
                 NoOpSearchBackend::new,
-                () -> new InMemorySearchBackend(context, new BibEntryPreferences(','))
-        );
+                () -> new InMemorySearchBackend(context, new BibEntryPreferences(',')));
         stateManager.setSearchContext(context, searchContext);
     }
 
@@ -62,15 +58,12 @@ class SearchResultsTableDataModelTest {
 
         stateManager.activeSearchQuery(SearchType.GLOBAL_SEARCH).set(Optional.of(new SearchQuery("Alice")));
 
-        SearchResultsTableDataModel model = new SearchResultsTableDataModel(
-                context1,
-                preferences,
-                stateManager,
-                taskExecutor);
+        SearchResultsTableDataModel model =
+                new SearchResultsTableDataModel(context1, preferences, stateManager, taskExecutor);
 
         List<BibEntry> initialMatched = model.getEntriesFilteredAndSorted().stream()
-                                             .map(BibEntryTableViewModel::getEntry)
-                                             .toList();
+                .map(BibEntryTableViewModel::getEntry)
+                .toList();
         assertEquals(List.of(entry1), initialMatched);
 
         BibDatabaseContext context2 = new BibDatabaseContext();
@@ -82,8 +75,8 @@ class SearchResultsTableDataModelTest {
         stateManager.getOpenDatabases().add(context2);
 
         List<BibEntry> updatedMatched = model.getEntriesFilteredAndSorted().stream()
-                                             .map(BibEntryTableViewModel::getEntry)
-                                             .toList();
+                .map(BibEntryTableViewModel::getEntry)
+                .toList();
         assertEquals(List.of(entry1, entry3), updatedMatched);
     }
 }

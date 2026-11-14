@@ -20,7 +20,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
 import org.graalvm.nativeimage.hosted.Feature;
 import org.graalvm.nativeimage.hosted.RuntimeReflection;
 import org.jspecify.annotations.NullMarked;
@@ -44,7 +43,8 @@ import org.jspecify.annotations.NullMarked;
 public class JabRefViewsFeature implements Feature {
 
     /// Classes created reflectively by Afterburner that cannot be discovered through FXML/CSS or JavaFX inheritance.
-    private static final List<String> AFTERBURNER_ROOT_CLASS_NAMES = List.of("org.jabref.gui.externalfiles.UnlinkedFilesWizard");
+    private static final List<String> AFTERBURNER_ROOT_CLASS_NAMES =
+            List.of("org.jabref.gui.externalfiles.UnlinkedFilesWizard");
     private static final List<String> BASE_CLASS_NAMES = List.of("javafx.scene.Node", "javafx.scene.control.Dialog");
     private static final Set<String> INJECT_ANNOTATION_NAMES = Set.of("jakarta.inject.Inject", "javax.inject.Inject");
     private static final boolean LOG_REGISTRATIONS = Boolean.getBoolean("jabref.nativeimage.logViews");
@@ -82,18 +82,22 @@ public class JabRefViewsFeature implements Feature {
             findClassByName(access, rootClassName).ifPresent(this::registerJabRefClass);
         }
         for (String baseClassName : BASE_CLASS_NAMES) {
-            access.registerSubtypeReachabilityHandler((_, type) -> {
-                if (type.getName().startsWith("org.jabref.")) {
-                    registerJabRefClass(type);
-                }
-            }, access.findClassByName(baseClassName));
+            access.registerSubtypeReachabilityHandler(
+                    (_, type) -> {
+                        if (type.getName().startsWith("org.jabref.")) {
+                            registerJabRefClass(type);
+                        }
+                    },
+                    access.findClassByName(baseClassName));
         }
     }
 
     @Override
     public void afterAnalysis(AfterAnalysisAccess access) {
-        System.out.println("[JabRefViewsFeature] read " + fxmlFiles + " FXML and " + cssFiles + " CSS files, registered "
-                + jabRefClasses.size() + " JabRef classes, " + publicApiClasses.size() + " other classes named in FXML/CSS, "
+        System.out.println("[JabRefViewsFeature] read " + fxmlFiles + " FXML and " + cssFiles
+                + " CSS files, registered "
+                + jabRefClasses.size() + " JabRef classes, " + publicApiClasses.size()
+                + " other classes named in FXML/CSS, "
                 + enums.size() + " enums used as parameters and " + injectedTypes.size() + " @Inject field types");
     }
 
@@ -120,16 +124,19 @@ public class JabRefViewsFeature implements Feature {
             return;
         }
         findClassByName(access, controllerName.group(1))
-                .ifPresent(controller -> registerControllerExpressionTypes(controller, FXML_CONTROLLER_EXPRESSION.matcher(fxml)));
+                .ifPresent(controller ->
+                        registerControllerExpressionTypes(controller, FXML_CONTROLLER_EXPRESSION.matcher(fxml)));
     }
 
     private void registerControllerExpressionTypes(Class<?> controller, Matcher expressions) {
         while (expressions.find()) {
             String controllerProperty = expressions.group(1);
-            String capitalizedProperty = Character.toUpperCase(controllerProperty.charAt(0)) + controllerProperty.substring(1);
+            String capitalizedProperty =
+                    Character.toUpperCase(controllerProperty.charAt(0)) + controllerProperty.substring(1);
             for (Method method : controller.getMethods()) {
                 if (method.getParameterCount() == 0
-                        && (method.getName().equals("get" + capitalizedProperty) || method.getName().equals("is" + capitalizedProperty))) {
+                        && (method.getName().equals("get" + capitalizedProperty)
+                                || method.getName().equals("is" + capitalizedProperty))) {
                     registerPublicMembers(method.getReturnType());
                 }
             }
@@ -195,16 +202,17 @@ public class JabRefViewsFeature implements Feature {
     private void registerInjectedTypes(Field[] fields) {
         for (Field field : fields) {
             boolean isInjected = Stream.of(field.getDeclaredAnnotations())
-                                       .anyMatch(annotation -> INJECT_ANNOTATION_NAMES.contains(annotation.annotationType().getName()));
+                    .anyMatch(annotation -> INJECT_ANNOTATION_NAMES.contains(
+                            annotation.annotationType().getName()));
             Class<?> type = field.getType();
             if (!isInjected || !injectedTypes.add(type)) {
                 continue;
             }
             RuntimeReflection.register(type);
             Stream.of(type.getDeclaredConstructors())
-                  .filter(constructor -> constructor.getParameterCount() == 0)
-                  .findFirst()
-                  .ifPresent(RuntimeReflection::register);
+                    .filter(constructor -> constructor.getParameterCount() == 0)
+                    .findFirst()
+                    .ifPresent(RuntimeReflection::register);
             log("@Inject field type", type);
         }
     }
@@ -212,9 +220,9 @@ public class JabRefViewsFeature implements Feature {
     /// Finds a top-level or nested class using the naming forms accepted by FXMLLoader.
     private Optional<Class<?>> findClassByName(FeatureAccess access, String name) {
         Optional<Class<?>> type = nestedClassCandidates(name).stream()
-                                                             // findClassByName returns null for unknown names
-                                                             .<Class<?>>flatMap(candidate -> Stream.ofNullable(access.findClassByName(candidate)))
-                                                             .findFirst();
+                // findClassByName returns null for unknown names
+                .<Class<?>>flatMap(candidate -> Stream.ofNullable(access.findClassByName(candidate)))
+                .findFirst();
         // Resources can appear in more than one classpath entry, so report each missing class only once
         if (type.isEmpty() && missingClasses.add(name)) {
             System.out.println("[JabRefViewsFeature] WARNING: class referenced for reflection not found: " + name);
@@ -246,7 +254,8 @@ public class JabRefViewsFeature implements Feature {
                     return;
                 }
                 try (Stream<Path> files = Files.walk(root)) {
-                    for (Path file : files.filter(path -> isFxmlOrCss(path.toString())).toList()) {
+                    for (Path file :
+                            files.filter(path -> isFxmlOrCss(path.toString())).toList()) {
                         consumer.accept(file.toString(), Files.readString(file));
                     }
                 }

@@ -1,13 +1,12 @@
 package org.jabref.gui.fieldeditors.identifier;
 
+import com.tobiasdiez.easybind.EasyBind;
 import java.io.IOException;
 import java.util.Optional;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.autocompleter.SuggestionProvider;
@@ -27,8 +26,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.identifier.Identifier;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,14 +44,15 @@ public abstract class BaseIdentifierEditorViewModel<T extends Identifier> extend
     protected GuiPreferences preferences;
     protected final StateManager stateManager;
 
-    public BaseIdentifierEditorViewModel(Field field,
-                                         SuggestionProvider<?> suggestionProvider,
-                                         FieldCheckers fieldCheckers,
-                                         DialogService dialogService,
-                                         TaskExecutor taskExecutor,
-                                         GuiPreferences preferences,
-                                         UndoManager undoManager,
-                                         StateManager stateManager) {
+    public BaseIdentifierEditorViewModel(
+            Field field,
+            SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers,
+            DialogService dialogService,
+            TaskExecutor taskExecutor,
+            GuiPreferences preferences,
+            UndoManager undoManager,
+            StateManager stateManager) {
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
@@ -62,18 +60,25 @@ public abstract class BaseIdentifierEditorViewModel<T extends Identifier> extend
         this.stateManager = stateManager;
     }
 
-    /// Since it's not possible to perform the same actions on all identifiers, specific implementations can call the `configure`
-    /// method to tell the actions they can perform and the actions they can't. Based on this configuration, the view will enable/disable or
+    /// Since it's not possible to perform the same actions on all identifiers, specific implementations can call the
+    /// `configure`
+    /// method to tell the actions they can perform and the actions they can't. Based on this configuration, the view
+    /// will enable/disable or
     /// show/hide certain UI elements for certain identifier editors.
     ///
     /// **NOTE: This method MUST be called by all the implementation view models in their principal constructor**
-    protected final void configure(boolean canFetchBibliographyInformationById, boolean canLookupIdentifier, boolean canShortenIdentifier) {
+    protected final void configure(
+            boolean canFetchBibliographyInformationById, boolean canLookupIdentifier, boolean canShortenIdentifier) {
         configure(canFetchBibliographyInformationById, canLookupIdentifier, canShortenIdentifier, false);
     }
 
     /// Overload adding `canSyncWithBrowser`, currently only used by the MathSciNet editor. Kept separate from the
     /// 3-arg overload so the far more common call sites don't all need a trailing `false`.
-    protected final void configure(boolean canFetchBibliographyInformationById, boolean canLookupIdentifier, boolean canShortenIdentifier, boolean canSyncWithBrowser) {
+    protected final void configure(
+            boolean canFetchBibliographyInformationById,
+            boolean canLookupIdentifier,
+            boolean canShortenIdentifier,
+            boolean canSyncWithBrowser) {
         this.canFetchBibliographyInformationById.set(canFetchBibliographyInformationById);
         this.canLookupIdentifier.set(canLookupIdentifier);
         this.canShortenIdentifier.set(canShortenIdentifier);
@@ -92,13 +97,20 @@ public abstract class BaseIdentifierEditorViewModel<T extends Identifier> extend
     protected void handleIdentifierFetchingError(Exception exception, IdFetcher<T> fetcher) {
         LOGGER.error("Error while fetching identifier", exception);
         if (exception instanceof FetcherClientException) {
-            dialogService.showInformationDialogAndWait(Localization.lang("Look up %0", fetcher.getName()), Localization.lang("No data was found for the identifier"));
+            dialogService.showInformationDialogAndWait(
+                    Localization.lang("Look up %0", fetcher.getName()),
+                    Localization.lang("No data was found for the identifier"));
         } else if (exception instanceof FetcherServerException) {
-            dialogService.showInformationDialogAndWait(Localization.lang("Look up %0", fetcher.getName()), Localization.lang("Server not available"));
+            dialogService.showInformationDialogAndWait(
+                    Localization.lang("Look up %0", fetcher.getName()), Localization.lang("Server not available"));
         } else if (exception.getCause() != null) {
-            dialogService.showWarningDialogAndWait(Localization.lang("Look up %0", fetcher.getName()), Localization.lang("Error occurred %0", exception.getCause().getMessage()));
+            dialogService.showWarningDialogAndWait(
+                    Localization.lang("Look up %0", fetcher.getName()),
+                    Localization.lang("Error occurred %0", exception.getCause().getMessage()));
         } else {
-            dialogService.showWarningDialogAndWait(Localization.lang("Look up %0", fetcher.getName()), Localization.lang("Error occurred %0", exception.getCause().getMessage()));
+            dialogService.showWarningDialogAndWait(
+                    Localization.lang("Look up %0", fetcher.getName()),
+                    Localization.lang("Error occurred %0", exception.getCause().getMessage()));
         }
     }
 
@@ -165,11 +177,18 @@ public abstract class BaseIdentifierEditorViewModel<T extends Identifier> extend
     }
 
     public void fetchBibliographyInformation(BibEntry bibEntry) {
-        stateManager.getActiveDatabase().ifPresentOrElse(
-                databaseContext -> new FetchAndMergeEntry(databaseContext, taskExecutor, preferences, dialogService, undoManager, stateManager)
-                        .fetchAndMerge(entry, field),
-                () -> dialogService.notify(Localization.lang("No library selected"))
-        );
+        stateManager
+                .getActiveDatabase()
+                .ifPresentOrElse(
+                        databaseContext -> new FetchAndMergeEntry(
+                                        databaseContext,
+                                        taskExecutor,
+                                        preferences,
+                                        dialogService,
+                                        undoManager,
+                                        stateManager)
+                                .fetchAndMerge(entry, field),
+                        () -> dialogService.notify(Localization.lang("No library selected")));
     }
 
     public void lookupIdentifier(BibEntry bibEntry) {
@@ -178,17 +197,17 @@ public abstract class BaseIdentifierEditorViewModel<T extends Identifier> extend
 
     public void openExternalLink() {
         identifier.get().flatMap(Identifier::getExternalURI).ifPresent(url -> {
-                    try {
-                        NativeDesktop.openBrowser(url, preferences.getExternalApplicationsPreferences());
-                    } catch (IOException ex) {
-                        dialogService.showErrorDialogAndWait(Localization.lang("Unable to open link."), ex);
-                    }
-                }
-        );
+            try {
+                NativeDesktop.openBrowser(url, preferences.getExternalApplicationsPreferences());
+            } catch (IOException ex) {
+                dialogService.showErrorDialogAndWait(Localization.lang("Unable to open link."), ex);
+            }
+        });
     }
 
     public void shortenID() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Shortening of identifiers is not supported by this identifier editor.");
+        throw new UnsupportedOperationException(
+                "Shortening of identifiers is not supported by this identifier editor.");
     }
 
     @Override

@@ -1,7 +1,7 @@
 package org.jabref.gui.util;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.util.Optional;
-
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -17,13 +17,10 @@ import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.keyboard.KeyBinding;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.gui.walkthrough.WalkthroughPane;
-
-import com.airhacks.afterburner.injection.Injector;
 
 public class BaseDialog<T> extends Dialog<T> {
 
@@ -77,7 +74,8 @@ public class BaseDialog<T> extends Dialog<T> {
 
     private void handleKeyEvent(KeyEvent event) {
         if (!closesOnCloseKeyBinding()) {
-            // Escape is consumed as well: JavaFX's own stage handler closes a dialog with a cancel button on an unconsumed Escape
+            // Escape is consumed as well: JavaFX's own stage handler closes a dialog with a cancel button on an
+            // unconsumed Escape
             if (event.getCode() == KeyCode.ESCAPE || matchesCloseKeyBinding(event)) {
                 event.consume();
                 return;
@@ -112,9 +110,9 @@ public class BaseDialog<T> extends Dialog<T> {
 
     private ButtonType getDefaultButtonType() {
         return getDialogPane().getButtonTypes().stream()
-                              .filter(buttonType -> buttonType.getButtonData().isDefaultButton())
-                              .findFirst()
-                              .orElse(ButtonType.OK);
+                .filter(buttonType -> buttonType.getButtonData().isDefaultButton())
+                .findFirst()
+                .orElse(ButtonType.OK);
     }
 
     private void setDialogIcon(Image image) {

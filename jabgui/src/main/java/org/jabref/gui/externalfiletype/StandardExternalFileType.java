@@ -5,18 +5,59 @@ import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.logic.l10n.Localization;
 
 public enum StandardExternalFileType implements ExternalFileType {
-
     PDF("PDF", "pdf", "application/pdf", "evince", "pdfSmall", IconTheme.JabRefIcons.PDF_FILE),
     PostScript("PostScript", "ps", "application/postscript", "evince", "psSmall", IconTheme.JabRefIcons.FILE),
     Word("Word", "doc", "application/msword", "oowriter", "openoffice", IconTheme.JabRefIcons.FILE_WORD),
-    Word_NEW("Word 2007+", "docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "oowriter", "openoffice", IconTheme.JabRefIcons.FILE_WORD),
-    OpenDocument_TEXT(Localization.lang("OpenDocument text"), "odt", "application/vnd.oasis.opendocument.text", "oowriter", "openoffice", IconTheme.JabRefIcons.FILE_OPENOFFICE),
+    Word_NEW(
+            "Word 2007+",
+            "docx",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "oowriter",
+            "openoffice",
+            IconTheme.JabRefIcons.FILE_WORD),
+    OpenDocument_TEXT(
+            Localization.lang("OpenDocument text"),
+            "odt",
+            "application/vnd.oasis.opendocument.text",
+            "oowriter",
+            "openoffice",
+            IconTheme.JabRefIcons.FILE_OPENOFFICE),
     Excel("Excel", "xls", "application/excel", "oocalc", "openoffice", IconTheme.JabRefIcons.FILE_EXCEL),
-    Excel_NEW("Excel 2007+", "xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "oocalc", "openoffice", IconTheme.JabRefIcons.FILE_EXCEL),
-    OpenDocumentSpreadsheet(Localization.lang("OpenDocument spreadsheet"), "ods", "application/vnd.oasis.opendocument.spreadsheet", "oocalc", "openoffice", IconTheme.JabRefIcons.FILE_OPENOFFICE),
-    PowerPoint("PowerPoint", "ppt", "application/vnd.ms-powerpoint", "ooimpress", "openoffice", IconTheme.JabRefIcons.FILE_POWERPOINT),
-    PowerPoint_NEW("PowerPoint 2007+", "pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation", "ooimpress", "openoffice", IconTheme.JabRefIcons.FILE_POWERPOINT),
-    OpenDocumentPresentation(Localization.lang("OpenDocument presentation"), "odp", "application/vnd.oasis.opendocument.presentation", "ooimpress", "openoffice", IconTheme.JabRefIcons.FILE_OPENOFFICE),
+    Excel_NEW(
+            "Excel 2007+",
+            "xlsx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "oocalc",
+            "openoffice",
+            IconTheme.JabRefIcons.FILE_EXCEL),
+    OpenDocumentSpreadsheet(
+            Localization.lang("OpenDocument spreadsheet"),
+            "ods",
+            "application/vnd.oasis.opendocument.spreadsheet",
+            "oocalc",
+            "openoffice",
+            IconTheme.JabRefIcons.FILE_OPENOFFICE),
+    PowerPoint(
+            "PowerPoint",
+            "ppt",
+            "application/vnd.ms-powerpoint",
+            "ooimpress",
+            "openoffice",
+            IconTheme.JabRefIcons.FILE_POWERPOINT),
+    PowerPoint_NEW(
+            "PowerPoint 2007+",
+            "pptx",
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            "ooimpress",
+            "openoffice",
+            IconTheme.JabRefIcons.FILE_POWERPOINT),
+    OpenDocumentPresentation(
+            Localization.lang("OpenDocument presentation"),
+            "odp",
+            "application/vnd.oasis.opendocument.presentation",
+            "ooimpress",
+            "openoffice",
+            IconTheme.JabRefIcons.FILE_OPENOFFICE),
     RTF("Rich Text Format", "rtf", "application/rtf", "oowriter", "openoffice", IconTheme.JabRefIcons.FILE_TEXT),
     PNG(Localization.lang("%0 image", "PNG"), "png", "image/png", "gimp", "picture", IconTheme.JabRefIcons.PICTURE),
     GIF(Localization.lang("%0 image", "GIF"), "gif", "image/gif", "gimp", "picture", IconTheme.JabRefIcons.PICTURE),
@@ -37,8 +78,8 @@ public enum StandardExternalFileType implements ExternalFileType {
     private final String iconName;
     private final JabRefIcon icon;
 
-    StandardExternalFileType(String name, String extension, String mimeType,
-                             String openWith, String iconName, JabRefIcon icon) {
+    StandardExternalFileType(
+            String name, String extension, String mimeType, String openWith, String iconName, JabRefIcon icon) {
         this.name = name;
         this.extension = extension;
         this.mimeType = mimeType;

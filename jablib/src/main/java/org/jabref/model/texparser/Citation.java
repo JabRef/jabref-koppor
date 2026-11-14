@@ -1,7 +1,6 @@
 package org.jabref.model.texparser;
 
 import java.nio.file.Path;
-
 import org.jspecify.annotations.NonNull;
 
 ///
@@ -35,25 +34,19 @@ public record Citation(Path path, int line, int colStart, int colEnd, String lin
         int center = (colStart + colEnd) / 2;
         int lineLength = lineText.length();
 
-        int start = Math.max(0, center + CONTEXT_WIDTH / 2 < lineLength
-                                ? center - CONTEXT_WIDTH / 2
-                                : lineLength - CONTEXT_WIDTH);
+        int start = Math.max(
+                0, center + CONTEXT_WIDTH / 2 < lineLength ? center - CONTEXT_WIDTH / 2 : lineLength - CONTEXT_WIDTH);
         int end = Math.min(lineLength, start + CONTEXT_WIDTH);
 
         // Add three dots when the string does not contain all the line.
-        return "%s%s%s".formatted(
-                start > 0 ? "..." : "",
-                lineText.substring(start, end).trim(),
-                end < lineLength ? "..." : "");
+        return "%s%s%s"
+                .formatted(
+                        start > 0 ? "..." : "", lineText.substring(start, end).trim(), end < lineLength ? "..." : "");
     }
 
     @Override
     public String toString() {
-        return "Citation{path=%s, line=%s, colStart=%s, colEnd=%s, lineText='%s'}".formatted(
-                this.path,
-                this.line,
-                this.colStart,
-                this.colEnd,
-                this.lineText);
+        return "Citation{path=%s, line=%s, colStart=%s, colEnd=%s, lineText='%s'}"
+                .formatted(this.path, this.line, this.colStart, this.colEnd, this.lineText);
     }
 }

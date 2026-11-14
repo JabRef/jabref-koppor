@@ -1,32 +1,29 @@
 package org.jabref.model.openoffice.uno;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import com.sun.star.beans.Property;
 import com.sun.star.beans.UnknownPropertyException;
 import com.sun.star.beans.XPropertyContainer;
 import com.sun.star.beans.XPropertySet;
 import com.sun.star.beans.XPropertySetInfo;
 import com.sun.star.lang.WrappedTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.NonNull;
 
 /// Utilities for properties.
 public class UnoProperties {
 
-    private UnoProperties() {
-    }
+    private UnoProperties() {}
 
     public static Optional<XPropertySet> asPropertySet(XPropertyContainer propertyContainer) {
         return UnoCast.cast(XPropertySet.class, propertyContainer);
     }
 
     public static Optional<XPropertySetInfo> getPropertySetInfo(XPropertySet propertySet) {
-        return Optional.ofNullable(propertySet)
-                       .flatMap(e -> Optional.ofNullable(e.getPropertySetInfo()));
+        return Optional.ofNullable(propertySet).flatMap(e -> Optional.ofNullable(e.getPropertySetInfo()));
     }
 
     public static Optional<XPropertySetInfo> getPropertySetInfo(XPropertyContainer propertyContainer) {
@@ -34,9 +31,7 @@ public class UnoProperties {
     }
 
     public static List<String> getPropertyNames(Property @NonNull [] properties) {
-        return Arrays.stream(properties)
-                     .map(p -> p.Name)
-                     .collect(Collectors.toList());
+        return Arrays.stream(properties).map(p -> p.Name).collect(Collectors.toList());
     }
 
     public static List<String> getPropertyNames(XPropertySetInfo propertySetInfo) {

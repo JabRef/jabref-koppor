@@ -2,16 +2,13 @@ package org.jabref.gui.walkthrough.declarative.sideeffect;
 
 import java.util.Optional;
 import java.util.function.Supplier;
-
 import javafx.collections.ObservableList;
 import javafx.scene.control.TextInputControl;
 import javafx.stage.Stage;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.sidepane.SidePaneType;
 import org.jabref.gui.walkthrough.Walkthrough;
 import org.jabref.gui.walkthrough.declarative.WalkthroughNodeIds;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 
@@ -30,7 +27,8 @@ public class PrepareGroupsWalkthroughSideEffect implements WalkthroughSideEffect
         this(stateManager, () -> findSearchField(stage));
     }
 
-    PrepareGroupsWalkthroughSideEffect(StateManager stateManager, Supplier<Optional<TextInputControl>> searchFieldSupplier) {
+    PrepareGroupsWalkthroughSideEffect(
+            StateManager stateManager, Supplier<Optional<TextInputControl>> searchFieldSupplier) {
         this.stateManager = stateManager;
         this.searchFieldSupplier = searchFieldSupplier;
     }
@@ -42,18 +40,21 @@ public class PrepareGroupsWalkthroughSideEffect implements WalkthroughSideEffect
 
     @Override
     public boolean forward(@NonNull Walkthrough walkthrough) {
-        return searchFieldSupplier.get().map(resolvedSearchField -> {
-            ObservableList<SidePaneType> visibleSidePanes = stateManager.getVisibleSidePaneComponents();
-            groupsPaneWasVisible = visibleSidePanes.contains(SidePaneType.GROUPS);
-            if (!groupsPaneWasVisible) {
-                visibleSidePanes.add(SidePaneType.GROUPS);
-            }
+        return searchFieldSupplier
+                .get()
+                .map(resolvedSearchField -> {
+                    ObservableList<SidePaneType> visibleSidePanes = stateManager.getVisibleSidePaneComponents();
+                    groupsPaneWasVisible = visibleSidePanes.contains(SidePaneType.GROUPS);
+                    if (!groupsPaneWasVisible) {
+                        visibleSidePanes.add(SidePaneType.GROUPS);
+                    }
 
-            searchField = Optional.of(resolvedSearchField);
-            previousSearchQuery = resolvedSearchField.getText();
-            resolvedSearchField.clear();
-            return true;
-        }).orElse(false);
+                    searchField = Optional.of(resolvedSearchField);
+                    previousSearchQuery = resolvedSearchField.getText();
+                    resolvedSearchField.clear();
+                    return true;
+                })
+                .orElse(false);
     }
 
     @Override
@@ -72,8 +73,8 @@ public class PrepareGroupsWalkthroughSideEffect implements WalkthroughSideEffect
 
     private static Optional<TextInputControl> findSearchField(Stage stage) {
         return Optional.ofNullable(stage.getScene())
-                       .map(scene -> scene.lookup("#" + WalkthroughNodeIds.GLOBAL_SEARCH_FIELD))
-                       .filter(TextInputControl.class::isInstance)
-                       .map(TextInputControl.class::cast);
+                .map(scene -> scene.lookup("#" + WalkthroughNodeIds.GLOBAL_SEARCH_FIELD))
+                .filter(TextInputControl.class::isInstance)
+                .map(TextInputControl.class::cast);
     }
 }

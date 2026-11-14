@@ -1,9 +1,14 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
-
 import org.jabref.logic.importer.FetcherClientException;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -14,15 +19,8 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExternalServicesTest
 class LibraryOfCongressTest {
@@ -33,7 +31,8 @@ class LibraryOfCongressTest {
     void setUp() {
         ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class);
         when(importFormatPreferences.bibEntryPreferences()).thenReturn(mock(BibEntryPreferences.class));
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .thenReturn(',');
 
         fetcher = new LibraryOfCongress(importFormatPreferences);
     }
@@ -60,7 +59,8 @@ class LibraryOfCongressTest {
 
     @Test
     void parsesAttachedModsBookAsBook() throws IOException, ParseException {
-        try (InputStream inputStream = LibraryOfCongressTest.class.getResourceAsStream("library_of_congress_2010045158_mods.xml")) {
+        try (InputStream inputStream =
+                LibraryOfCongressTest.class.getResourceAsStream("library_of_congress_2010045158_mods.xml")) {
             assertTrue(inputStream != null);
 
             BibEntry expected = new BibEntry()

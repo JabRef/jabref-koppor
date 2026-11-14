@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionHelper;
@@ -18,7 +17,6 @@ import org.jabref.logic.pseudonymization.Pseudonymization;
 import org.jabref.logic.pseudonymization.PseudonymizationResultCsvWriter;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,14 +39,19 @@ public class PseudonymizeAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        dialogService.showDirectorySelectionDialog(new DirectoryDialogConfiguration.Builder().build())
-                     .ifPresent(this::pseudonymizeDatabase);
+        dialogService
+                .showDirectorySelectionDialog(new DirectoryDialogConfiguration.Builder().build())
+                .ifPresent(this::pseudonymizeDatabase);
     }
 
     private void pseudonymizeDatabase(Path outputFilePath) {
-        BibDatabaseContext database = stateManager.getActiveDatabase().orElseThrow(() -> new IllegalStateException("No active database found."));
-        Path inputFile = database.getDatabasePath().orElseThrow(() -> new IllegalStateException("Database has no file path"));
-        Character keywordSeparator = database.getKeywordSeparator(preferences.getBibEntryPreferences().getKeywordSeparator());
+        BibDatabaseContext database = stateManager
+                .getActiveDatabase()
+                .orElseThrow(() -> new IllegalStateException("No active database found."));
+        Path inputFile =
+                database.getDatabasePath().orElseThrow(() -> new IllegalStateException("Database has no file path"));
+        Character keywordSeparator = database.getKeywordSeparator(
+                preferences.getBibEntryPreferences().getKeywordSeparator());
         Pseudonymization.Result result = new Pseudonymization(keywordSeparator).pseudonymizeLibrary(database);
 
         String fileName = FileUtil.getBaseName(inputFile) + PSEUDO_SUFFIX;
@@ -63,7 +66,9 @@ public class PseudonymizeAction extends SimpleCommand {
         try {
             exportPseudonymBibFile(pseudoBibPath, result);
             exportPseudonymKeyCsv(pseudoCsvPath, result);
-            dialogService.notify(Localization.lang("%0 and %1 created at %2", pseudoBibPath.getFileName(), pseudoCsvPath.getFileName(), outputFilePath));
+            dialogService.notify(Localization.lang(
+                    "%0 and %1 created at %2",
+                    pseudoBibPath.getFileName(), pseudoCsvPath.getFileName(), outputFilePath));
         } catch (IOException e) {
             dialogService.notify(Localization.lang("Unable to save files. Error occurred."));
             LOGGER.error("Error while saving file", e);
@@ -72,7 +77,8 @@ public class PseudonymizeAction extends SimpleCommand {
 
     private boolean confirmOverride(Path pseudoBibPath, Path pseudoCsvPath, Path outputFilePath) {
         if (Files.exists(pseudoBibPath) || Files.exists(pseudoCsvPath)) {
-            return dialogService.showConfirmationDialogAndWait(Localization.lang("Pseudonymization"),
+            return dialogService.showConfirmationDialogAndWait(
+                    Localization.lang("Pseudonymization"),
                     Localization.lang("File(s) with same name(s) found at %0. Override?", outputFilePath));
         }
         return true;
@@ -83,15 +89,15 @@ public class PseudonymizeAction extends SimpleCommand {
             LOGGER.error("Invalid output file type provided.");
         }
         try (AtomicFileWriter fileWriter = new AtomicFileWriter(pseudoBibPath, StandardCharsets.UTF_8)) {
-            BibDatabaseWriter databaseWriter = new BibDatabaseWriter(
-                    fileWriter,
-                    result.bibDatabaseContext(),
-                    preferences);
+            BibDatabaseWriter databaseWriter =
+                    new BibDatabaseWriter(fileWriter, result.bibDatabaseContext(), preferences);
             databaseWriter.writeDatabase(result.bibDatabaseContext());
 
             // Show just a warning message if encoding did not work for all characters:
             if (fileWriter.hasEncodingProblems()) {
-                LOGGER.warn("Warning: UTF-8 could not be used to encode the following characters: {}", fileWriter.getEncodingProblems());
+                LOGGER.warn(
+                        "Warning: UTF-8 could not be used to encode the following characters: {}",
+                        fileWriter.getEncodingProblems());
             }
             LOGGER.info("Saved {}", pseudoBibPath);
         }

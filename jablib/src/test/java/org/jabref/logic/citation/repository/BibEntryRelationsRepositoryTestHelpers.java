@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
 import org.jabref.model.entry.BibEntry;
 
 /// Provide helpers methods and classes for tests to manage [BibEntryCitationsAndReferencesRepository] mocks.
@@ -21,8 +20,7 @@ public class BibEntryRelationsRepositoryTestHelpers {
                 Function<BibEntry, List<BibEntry>> retrieveReferences,
                 BiConsumer<BibEntry, List<BibEntry>> insertReferences,
                 Function<BibEntry, Boolean> isCitationsUpdatable,
-                Function<BibEntry, Boolean> isReferencesUpdatable
-        ) {
+                Function<BibEntry, Boolean> isReferencesUpdatable) {
             return new BibEntryCitationsAndReferencesRepository() {
                 @Override
                 public void addCitations(BibEntry entry, List<BibEntry> citations) {
@@ -72,8 +70,9 @@ public class BibEntryRelationsRepositoryTestHelpers {
         }
 
         public static BibEntryCitationsAndReferencesRepository from(
-                Map<BibEntry, List<BibEntry>> citationsDB, Map<BibEntry, List<BibEntry>> referencesDB, boolean isCitationsUpdatable
-        ) {
+                Map<BibEntry, List<BibEntry>> citationsDB,
+                Map<BibEntry, List<BibEntry>> referencesDB,
+                boolean isCitationsUpdatable) {
             return new BibEntryCitationsAndReferencesRepository() {
                 @Override
                 public void addCitations(BibEntry entry, List<BibEntry> citations) {

@@ -1,7 +1,6 @@
 package org.jabref.logic.ai.chatting.exporters;
 
 import java.util.List;
-
 import org.jabref.model.ai.AiMetadata;
 import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.database.BibDatabaseMode;

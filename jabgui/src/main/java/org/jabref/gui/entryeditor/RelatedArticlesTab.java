@@ -2,7 +2,6 @@ package org.jabref.gui.entryeditor;
 
 import java.io.IOException;
 import java.util.List;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.scene.control.Button;
@@ -17,7 +16,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.desktop.os.NativeDesktop;
@@ -33,7 +31,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,11 +46,12 @@ public class RelatedArticlesTab extends EntryEditorTab {
 
     private final GuiPreferences preferences;
 
-    public RelatedArticlesTab(BuildInfo buildInfo,
-                              GuiPreferences preferences,
-                              DialogService dialogService,
-                              StateManager stateManager,
-                              TaskExecutor taskExecutor) {
+    public RelatedArticlesTab(
+            BuildInfo buildInfo,
+            GuiPreferences preferences,
+            DialogService dialogService,
+            StateManager stateManager,
+            TaskExecutor taskExecutor) {
         this.dialogService = dialogService;
         this.buildInfo = buildInfo;
         this.stateManager = stateManager;
@@ -77,18 +75,18 @@ public class RelatedArticlesTab extends EntryEditorTab {
         ProgressIndicator progress = new ProgressIndicator();
         progress.setMaxSize(100, 100);
 
-        BibDatabaseMode mode = stateManager.getActiveDatabase().map(BibDatabaseContext::getMode)
-                                           .orElse(BibDatabaseMode.BIBLATEX);
+        BibDatabaseMode mode = stateManager
+                .getActiveDatabase()
+                .map(BibDatabaseContext::getMode)
+                .orElse(BibDatabaseMode.BIBLATEX);
 
         MrDLibFetcher fetcher = new MrDLibFetcher(
                 preferences.getWorkspacePreferences().getLanguage().name(),
                 buildInfo.version,
                 preferences.getMrDlibPreferences());
-        BackgroundTask
-                .wrap(() -> fetcher.performSearch(entry))
+        BackgroundTask.wrap(() -> fetcher.performSearch(entry))
                 .onRunning(() -> progress.setVisible(true))
                 .onSuccess(relatedArticles -> {
-
                     ImportCleanup cleanup = ImportCleanup.targeting(mode, preferences.getFieldPreferences());
                     cleanup.doPostCleanup(relatedArticles);
                     progress.setVisible(false);
@@ -106,7 +104,8 @@ public class RelatedArticlesTab extends EntryEditorTab {
         return root;
     }
 
-    /// Creates a VBox of the related article information to be used in the StackPane displayed in the Related Articles tab
+    /// Creates a VBox of the related article information to be used in the StackPane displayed in the Related Articles
+    /// tab
     ///
     /// @param list List of BibEntries of related articles
     /// @return VBox of related article descriptions to be displayed in the Related Articles tab
@@ -134,15 +133,23 @@ public class RelatedArticlesTab extends EntryEditorTab {
 
             Hyperlink titleLink = new Hyperlink(title);
             Text journalText = new Text(journal);
-            journalText.setFont(Font.font(Font.getDefault().getFamily(), FontPosture.ITALIC, Font.getDefault().getSize()));
+            journalText.setFont(Font.font(
+                    Font.getDefault().getFamily(),
+                    FontPosture.ITALIC,
+                    Font.getDefault().getSize()));
             Text authorsText = new Text(authors);
 
             titleLink.setOnAction(_ -> {
                 if (entry.getField(StandardField.URL).isPresent()) {
                     try {
-                        NativeDesktop.openBrowser(entry.getField(StandardField.URL).get(), preferences.getExternalApplicationsPreferences());
+                        NativeDesktop.openBrowser(
+                                entry.getField(StandardField.URL).get(),
+                                preferences.getExternalApplicationsPreferences());
                     } catch (IOException e) {
-                        LOGGER.error("Error opening the browser to: {}", entry.getField(StandardField.URL).get(), e);
+                        LOGGER.error(
+                                "Error opening the browser to: {}",
+                                entry.getField(StandardField.URL).get(),
+                                e);
                         dialogService.showErrorDialogAndWait(e);
                     }
                 }
@@ -150,8 +157,8 @@ public class RelatedArticlesTab extends EntryEditorTab {
 
             hBox.getChildren().addAll(titleLink, journalText, authorsText);
             entry.getFieldOrAlias(StandardField.YEAR)
-                 .filter(year -> !year.isBlank())
-                 .ifPresent(year -> hBox.getChildren().add(new Text("(" + year + ")")));
+                    .filter(year -> !year.isBlank())
+                    .ifPresent(year -> hBox.getChildren().add(new Text("(" + year + ")")));
 
             vBox.getChildren().add(hBox);
         }
@@ -199,16 +206,30 @@ public class RelatedArticlesTab extends EntryEditorTab {
 
         DoubleBinding rootWidth = Bindings.subtract(root.widthProperty(), 88d);
 
-        Text line1 = new Text(Localization.lang("JabRef requests recommendations from Mr. DLib, which is an external service. To enable Mr. DLib to calculate recommendations, some of your data must be shared with Mr. DLib. Generally, the more data is shared the better recommendations can be calculated. However, we understand that some of your data in JabRef is sensitive, and you may not want to share it. Therefore, Mr. DLib offers a choice of which data you would like to share."));
+        Text line1 = new Text(Localization.lang(
+                "JabRef requests recommendations from Mr. DLib, which is an external service. To enable Mr."
+                        + " DLib to calculate recommendations, some of your data must be shared with Mr. DLib."
+                        + " Generally, the more data is shared the better recommendations can be calculated."
+                        + " However, we understand that some of your data in JabRef is sensitive, and you may"
+                        + " not want to share it. Therefore, Mr. DLib offers a choice of which data you would"
+                        + " like to share."));
         line1.wrappingWidthProperty().bind(rootWidth);
-        Text line2 = new Text(Localization.lang("Whatever option you choose, Mr. DLib may share its data with research partners to further improve recommendation quality as part of a 'living lab'. Mr. DLib may also release public datasets that may contain anonymized information about you and the recommendations (sensitive information such as metadata of your articles will be anonymised through e.g. hashing). Research partners are obliged to adhere to the same strict data protection policy as Mr. DLib."));
+        Text line2 = new Text(Localization.lang(
+                "Whatever option you choose, Mr. DLib may share its data with research partners to further"
+                        + " improve recommendation quality as part of a 'living lab'. Mr. DLib may also"
+                        + " release public datasets that may contain anonymized information about you and the"
+                        + " recommendations (sensitive information such as metadata of your articles will be"
+                        + " anonymised through e.g. hashing). Research partners are obliged to adhere to the"
+                        + " same strict data protection policy as Mr. DLib."));
         line2.wrappingWidthProperty().bind(rootWidth);
         Text line3 = new Text(Localization.lang("This setting may be changed in preferences at any time."));
         line3.wrappingWidthProperty().bind(rootWidth);
         Hyperlink mdlLink = new Hyperlink(Localization.lang("Further information about Mr. DLib for JabRef users."));
         mdlLink.setOnAction(_ -> {
             try {
-                NativeDesktop.openBrowser("http://mr-dlib.org/information-for-users/information-about-mr-dlib-for-jabref-users/", preferences.getExternalApplicationsPreferences());
+                NativeDesktop.openBrowser(
+                        "http://mr-dlib.org/information-for-users/information-about-mr-dlib-for-jabref-users/",
+                        preferences.getExternalApplicationsPreferences());
             } catch (IOException e) {
                 LOGGER.error("Error opening the browser to Mr. DLib information page.", e);
                 dialogService.showErrorDialogAndWait(e);
@@ -218,12 +239,19 @@ public class RelatedArticlesTab extends EntryEditorTab {
         CheckBox cbTitle = new CheckBox(Localization.lang("Entry Title (Required to deliver recommendations.)"));
         cbTitle.setSelected(true);
         cbTitle.setDisable(true);
-        CheckBox cbVersion = new CheckBox(Localization.lang("JabRef Version (Required to ensure backwards compatibility with Mr. DLib's Web Service)"));
+        CheckBox cbVersion = new CheckBox(Localization.lang(
+                "JabRef Version (Required to ensure backwards compatibility with Mr. DLib's Web Service)"));
         cbVersion.setSelected(true);
         cbVersion.setDisable(true);
-        CheckBox cbLanguage = new CheckBox(Localization.lang("JabRef Language (Provides for better recommendations by giving an indication of user's preferred language.)"));
-        CheckBox cbOS = new CheckBox(Localization.lang("Operating System (Provides for better recommendations by giving an indication of user's system set-up.)"));
-        CheckBox cbTimezone = new CheckBox(Localization.lang("Timezone (Provides for better recommendations by indicating the time of day the request is being made.)"));
+        CheckBox cbLanguage = new CheckBox(Localization.lang(
+                "JabRef Language (Provides for better recommendations by giving an indication of user's"
+                        + " preferred language.)"));
+        CheckBox cbOS = new CheckBox(Localization.lang(
+                "Operating System (Provides for better recommendations by giving an indication of user's"
+                        + " system set-up.)"));
+        CheckBox cbTimezone = new CheckBox(Localization.lang(
+                "Timezone (Provides for better recommendations by indicating the time of day the request is"
+                        + " being made.)"));
         vb.getChildren().addAll(cbTitle, cbVersion, cbLanguage, cbOS, cbTimezone);
 
         button.setOnAction(_ -> {

@@ -1,5 +1,15 @@
 package org.jabref.gui.git;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -7,10 +17,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
-
+import org.eclipse.jgit.api.Git;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefGuiStateManager;
 import org.jabref.gui.LibraryTab;
@@ -30,8 +39,6 @@ import org.jabref.logic.util.CurrentThreadTaskExecutor;
 import org.jabref.logic.util.OptionalObjectProperty;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import org.eclipse.jgit.api.Git;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -39,16 +46,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InOrder;
 import org.mockito.MockedConstruction;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockConstruction;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class GitCommitActionTest {
 
@@ -86,8 +83,10 @@ class GitCommitActionTest {
     void modifiedLibraryIsSavedBeforeGitStatusIsChecked() {
         when(libraryTab.isModified()).thenReturn(true);
 
-        try (MockedConstruction<SaveDatabaseAction> saveDatabaseAction = mockConstruction(SaveDatabaseAction.class,
-                (mockedSave, _) -> when(mockedSave.saveWithoutGitAutoCommit(SaveDatabaseMode.NORMAL)).thenReturn(SaveResult.SUCCESS))) {
+        try (MockedConstruction<SaveDatabaseAction> saveDatabaseAction = mockConstruction(
+                SaveDatabaseAction.class,
+                (mockedSave, _) -> when(mockedSave.saveWithoutGitAutoCommit(SaveDatabaseMode.NORMAL))
+                        .thenReturn(SaveResult.SUCCESS))) {
             gitCommitAction.execute();
 
             SaveDatabaseAction save = saveDatabaseAction.constructed().getFirst();
@@ -147,8 +146,10 @@ class GitCommitActionTest {
         when(libraryPreferences.shouldAutoSave()).thenReturn(false);
         clickButton(Localization.lang("Save and commit"));
 
-        try (MockedConstruction<SaveDatabaseAction> saveDatabaseAction = mockConstruction(SaveDatabaseAction.class,
-                (mockedSave, _) -> when(mockedSave.saveWithoutGitAutoCommit(SaveDatabaseMode.NORMAL)).thenReturn(SaveResult.SUCCESS))) {
+        try (MockedConstruction<SaveDatabaseAction> saveDatabaseAction = mockConstruction(
+                SaveDatabaseAction.class,
+                (mockedSave, _) -> when(mockedSave.saveWithoutGitAutoCommit(SaveDatabaseMode.NORMAL))
+                        .thenReturn(SaveResult.SUCCESS))) {
             gitCommitAction.execute();
 
             verify(saveDatabaseAction.constructed().getFirst()).saveWithoutGitAutoCommit(SaveDatabaseMode.NORMAL);
@@ -163,8 +164,10 @@ class GitCommitActionTest {
         when(libraryPreferences.shouldAutoSave()).thenReturn(false);
         clickButton(Localization.lang("Save and commit"));
 
-        try (MockedConstruction<SaveDatabaseAction> saveDatabaseAction = mockConstruction(SaveDatabaseAction.class,
-                (mockedSave, _) -> when(mockedSave.saveWithoutGitAutoCommit(SaveDatabaseMode.NORMAL)).thenReturn(SaveResult.FAILURE))) {
+        try (MockedConstruction<SaveDatabaseAction> saveDatabaseAction = mockConstruction(
+                SaveDatabaseAction.class,
+                (mockedSave, _) -> when(mockedSave.saveWithoutGitAutoCommit(SaveDatabaseMode.NORMAL))
+                        .thenReturn(SaveResult.FAILURE))) {
             gitCommitAction.execute();
 
             verify(stateManager, never()).getActiveDatabase();
@@ -172,12 +175,16 @@ class GitCommitActionTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = SaveResult.class, names = {"FAILURE", "ALREADY_SAVING"})
+    @EnumSource(
+            value = SaveResult.class,
+            names = {"FAILURE", "ALREADY_SAVING"})
     void unsuccessfulSaveAbortsCommit(SaveResult saveResult) {
         when(libraryTab.isModified()).thenReturn(true);
 
-        try (MockedConstruction<SaveDatabaseAction> saveDatabaseAction = mockConstruction(SaveDatabaseAction.class,
-                (mockedSave, _) -> when(mockedSave.saveWithoutGitAutoCommit(SaveDatabaseMode.NORMAL)).thenReturn(saveResult))) {
+        try (MockedConstruction<SaveDatabaseAction> saveDatabaseAction = mockConstruction(
+                SaveDatabaseAction.class,
+                (mockedSave, _) -> when(mockedSave.saveWithoutGitAutoCommit(SaveDatabaseMode.NORMAL))
+                        .thenReturn(saveResult))) {
             gitCommitAction.execute();
 
             verify(saveDatabaseAction.constructed().getFirst()).saveWithoutGitAutoCommit(SaveDatabaseMode.NORMAL);
@@ -220,11 +227,20 @@ class GitCommitActionTest {
     void brokenRepositoryStatusShowsAnErrorDialog() throws Exception {
         Path libraryFile = libraryDirectory.resolve("library.bib");
         Files.writeString(libraryFile, "@Article{test,}");
-        try (Git git = Git.init().setInitialBranch("main").setDirectory(libraryDirectory.toFile()).call()) {
+        try (Git git = Git.init()
+                .setInitialBranch("main")
+                .setDirectory(libraryDirectory.toFile())
+                .call()) {
             git.add().addFilepattern("library.bib").call();
             git.commit().setMessage("Initial commit").call();
         }
-        Files.writeString(libraryDirectory.resolve(".git").resolve("refs").resolve("heads").resolve("main"), "0000000000000000000000000000000000000000");
+        Files.writeString(
+                libraryDirectory
+                        .resolve(".git")
+                        .resolve("refs")
+                        .resolve("heads")
+                        .resolve("main"),
+                "0000000000000000000000000000000000000000");
 
         BibDatabaseContext databaseContext = mock(BibDatabaseContext.class);
         when(databaseContext.getLocation()).thenReturn(DatabaseLocation.LOCAL);
@@ -234,9 +250,12 @@ class GitCommitActionTest {
 
         gitCommitAction.execute();
 
-        verify(dialogService).showErrorDialogAndWait(
-                Localization.lang("Git commit failed"),
-                Localization.lang("The local Git repository is incomplete or corrupted. Remove the broken .git directory in that folder or choose another folder, then try again."));
+        verify(dialogService)
+                .showErrorDialogAndWait(
+                        Localization.lang("Git commit failed"),
+                        Localization.lang(
+                                "The local Git repository is incomplete or corrupted. Remove the broken .git directory"
+                                        + " in that folder or choose another folder, then try again."));
     }
 
     private void executeCommitAction(Path libraryFile, boolean confirmInitialization) {
@@ -247,26 +266,28 @@ class GitCommitActionTest {
         initStateManager.activeDatabaseProperty().setValue(Optional.of(databaseContext));
 
         DialogService initDialogService = mock(DialogService.class);
-        when(initDialogService.showConfirmationDialogAndWait(anyString(), anyString(), anyString(), anyString())).thenReturn(confirmInitialization);
+        when(initDialogService.showConfirmationDialogAndWait(anyString(), anyString(), anyString(), anyString()))
+                .thenReturn(confirmInitialization);
 
         // tabSupplier yields null: without an open tab there is nothing to save first
         new GitCommitAction(
-                () -> null,
-                initDialogService,
-                initStateManager,
-                preferences,
-                mock(BibEntryTypesManager.class),
-                mock(JournalAbbreviationRepository.class),
-                new CurrentThreadTaskExecutor(),
-                new GitHandlerRegistry(mock(GitPreferences.class))).execute();
+                        () -> null,
+                        initDialogService,
+                        initStateManager,
+                        preferences,
+                        mock(BibEntryTypesManager.class),
+                        mock(JournalAbbreviationRepository.class),
+                        new CurrentThreadTaskExecutor(),
+                        new GitHandlerRegistry(mock(GitPreferences.class)))
+                .execute();
     }
 
     private void clickButton(String label) {
         when(dialogService.showCustomButtonDialogAndWait(any(), any(), any(), any(), any(), any()))
                 .thenAnswer(invocation -> Stream.of(invocation.getArguments())
-                                                .filter(ButtonType.class::isInstance)
-                                                .map(ButtonType.class::cast)
-                                                .filter(button -> label.equals(button.getText()))
-                                                .findFirst());
+                        .filter(ButtonType.class::isInstance)
+                        .map(ButtonType.class::cast)
+                        .filter(button -> label.equals(button.getText()))
+                        .findFirst());
     }
 }

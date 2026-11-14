@@ -1,9 +1,7 @@
 package org.jabref.gui;
 
 import java.util.List;
-
 import javafx.scene.input.DataFormat;
-
 import org.jabref.logic.preview.PreviewLayout;
 
 /// Contains all the different [DataFormat]s that may occur in JabRef.
@@ -14,6 +12,10 @@ public class DragAndDropDataFormats {
     public static final DataFormat LINKED_FILE = new DataFormat("dnd/org.jabref.model.entry.LinkedFile");
     public static final DataFormat ENTRIES = new DataFormat("dnd/org.jabref.model.entry.BibEntries");
     public static final DataFormat PREVIEWLAYOUTS = new DataFormat("dnd/org.jabref.logic.citationstyle.PreviewLayouts");
-    public static final DataFormat ENTRY_EDITOR_TAB = new DataFormat("dnd/org.jabref.gui.preferences.entryeditor.EditorTabViewModel");
-    @SuppressWarnings("unchecked") public static final Class<List<PreviewLayout>> PREVIEWLAYOUT_LIST_CLASS = (Class<List<PreviewLayout>>) (Class<?>) List.class;
+    public static final DataFormat ENTRY_EDITOR_TAB =
+            new DataFormat("dnd/org.jabref.gui.preferences.entryeditor.EditorTabViewModel");
+
+    @SuppressWarnings("unchecked")
+    public static final Class<List<PreviewLayout>> PREVIEWLAYOUT_LIST_CLASS =
+            (Class<List<PreviewLayout>>) (Class<?>) List.class;
 }

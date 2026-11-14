@@ -1,5 +1,9 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,24 +11,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.fileformat.PicaXmlParser;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.BibEntryAssert;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExternalServicesTest
 class PicaXmlParserTest {
 
-    private void doTest(String xmlName, int expectedSize, List<String> resourceNames) throws ParseException, IOException {
+    private void doTest(String xmlName, int expectedSize, List<String> resourceNames)
+            throws ParseException, IOException {
         try (InputStream is = PicaXmlParserTest.class.getResourceAsStream(xmlName)) {
             PicaXmlParser parser = new PicaXmlParser();
             List<BibEntry> entries = parser.parseEntries(is);
@@ -72,12 +71,14 @@ class PicaXmlParserTest {
     @Test
     void rejectsDocumentTypeDeclarations() {
         String xmlWithDoctype = """
-                <!DOCTYPE response [<!ENTITY entity SYSTEM "file:///not-accessed">]>
-                <zs:searchRetrieveResponse xmlns:zs="http://www.loc.gov/zing/srw/"/>
-                """;
+            <!DOCTYPE response [<!ENTITY entity SYSTEM "file:///not-accessed">]>
+            <zs:searchRetrieveResponse xmlns:zs="http://www.loc.gov/zing/srw/"/>
+            """;
 
         PicaXmlParser parser = new PicaXmlParser();
 
-        assertThrows(ParseException.class, () -> parser.parseEntries(new ByteArrayInputStream(xmlWithDoctype.getBytes(StandardCharsets.UTF_8))));
+        assertThrows(
+                ParseException.class,
+                () -> parser.parseEntries(new ByteArrayInputStream(xmlWithDoctype.getBytes(StandardCharsets.UTF_8))));
     }
 }

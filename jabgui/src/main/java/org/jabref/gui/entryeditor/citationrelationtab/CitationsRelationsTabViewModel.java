@@ -7,13 +7,11 @@ import java.util.SequencedSet;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.externalfiles.EntryImportHandlerTracker;
@@ -32,7 +30,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.sciteTallies.TalliesResponse;
 import org.jabref.model.undo.UndoableFieldChange;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -70,7 +67,12 @@ public class CitationsRelationsTabViewModel {
     private @Nullable BackgroundTask<List<CitationRelationItem>> citedByTask;
     private @Nullable BibEntry currentEntry;
 
-    public CitationsRelationsTabViewModel(GuiPreferences preferences, StateManager stateManager, DialogService dialogService, FileUpdateMonitor fileUpdateMonitor, TaskExecutor taskExecutor) {
+    public CitationsRelationsTabViewModel(
+            GuiPreferences preferences,
+            StateManager stateManager,
+            DialogService dialogService,
+            FileUpdateMonitor fileUpdateMonitor,
+            TaskExecutor taskExecutor) {
         this.preferences = preferences;
         this.stateManager = stateManager;
         this.dialogService = dialogService;
@@ -82,8 +84,10 @@ public class CitationsRelationsTabViewModel {
         this.sciteAiFetcher = new SciteAiFetcher();
     }
 
-    public void importEntries(List<CitationRelationItem> entriesToImport, CitationFetcher.SearchType searchType, BibEntry existingEntry) {
-        assert stateManager.getActiveDatabase().isPresent() : "No active database found, but it is required for importing citation relations";
+    public void importEntries(
+            List<CitationRelationItem> entriesToImport, CitationFetcher.SearchType searchType, BibEntry existingEntry) {
+        assert stateManager.getActiveDatabase().isPresent()
+                : "No active database found, but it is required for importing citation relations";
         Optional<BibDatabaseContext> activeDatabase = stateManager.getActiveDatabase();
         if (activeDatabase.isEmpty()) {
             dialogService.notify(Localization.lang("No library open"));
@@ -96,10 +100,11 @@ public class CitationsRelationsTabViewModel {
             return;
         }
         List<BibEntry> entries = entriesToImport.stream()
-                                                .map(CitationRelationItem::entry)
-                                                // We need to have a clone of the entry, because we add the entry to the library (and keep it in the citation relation tab, too)
-                                                .map(BibEntry::new)
-                                                .toList();
+                .map(CitationRelationItem::entry)
+                // We need to have a clone of the entry, because we add the entry to the library (and keep it in the
+                // citation relation tab, too)
+                .map(BibEntry::new)
+                .toList();
 
         ImportHandler importHandler = createImportHandler(databaseContext);
         importHandler.importEntries(entries);
@@ -114,7 +119,8 @@ public class CitationsRelationsTabViewModel {
     /// relation is set on the entries that actually reached the library, once every entry is imported or skipped.
     /// An entry resolved by keeping its duplicate in the library is still part of the relation, so the kept entry is
     /// linked in its place. An entry whose duplicate dialog was closed is left out.
-    public void importReviewedEntries(List<CitationRelationItem> entriesToImport, CitationFetcher.SearchType searchType, BibEntry existingEntry) {
+    public void importReviewedEntries(
+            List<CitationRelationItem> entriesToImport, CitationFetcher.SearchType searchType, BibEntry existingEntry) {
         Optional<BibDatabaseContext> activeDatabase = stateManager.getActiveDatabase();
         if (activeDatabase.isEmpty()) {
             dialogService.notify(Localization.lang("No library open"));
@@ -124,15 +130,16 @@ public class CitationsRelationsTabViewModel {
             return;
         }
         BibDatabaseContext databaseContext = activeDatabase.get();
-        List<BibEntry> entries = entriesToImport.stream()
-                                                .map(CitationRelationItem::entry)
-                                                .toList();
+        List<BibEntry> entries =
+                entriesToImport.stream().map(CitationRelationItem::entry).toList();
 
-        EntryImportHandlerTracker tracker = new EntryImportHandlerTracker(stateManager, databaseContext, entries.size());
+        EntryImportHandlerTracker tracker =
+                new EntryImportHandlerTracker(stateManager, databaseContext, entries.size());
         tracker.setOnFinish(() -> {
             List<BibEntry> importedEntries = tracker.getImportedEntries();
             dialogService.notify(Localization.lang("%0 entry(s) imported", importedEntries.size()));
-            linkReviewedEntries(importedEntries, tracker.getKeptExistingEntries(), searchType, existingEntry, databaseContext);
+            linkReviewedEntries(
+                    importedEntries, tracker.getKeptExistingEntries(), searchType, existingEntry, databaseContext);
             if (!importedEntries.isEmpty()) {
                 lastImportedEntry.set(importedEntries.getFirst());
             }
@@ -151,13 +158,13 @@ public class CitationsRelationsTabViewModel {
                 taskExecutor);
     }
 
-    /// Records the citation relation between the inspected entry and the imported entries, which must already have their citation keys.
-    private void linkImportedEntries(List<BibEntry> importedEntries, CitationFetcher.SearchType searchType, BibEntry existingEntry) {
+    /// Records the citation relation between the inspected entry and the imported entries, which must already have
+    /// their citation keys.
+    private void linkImportedEntries(
+            List<BibEntry> importedEntries, CitationFetcher.SearchType searchType, BibEntry existingEntry) {
         switch (searchType) {
-            case CITES ->
-                    linkCites(importedEntries, existingEntry);
-            case CITED_BY ->
-                    linkCitedBy(importedEntries, existingEntry);
+            case CITES -> linkCites(importedEntries, existingEntry);
+            case CITED_BY -> linkCitedBy(importedEntries, existingEntry);
         }
     }
 
@@ -170,13 +177,15 @@ public class CitationsRelationsTabViewModel {
     /// @param databaseContext library the entries belong to
     // [impl->req~entry-editor.citations.review-links-kept-duplicate~1]
     // [impl->req~entry-editor.citations.review-inspected-entry-replaced~1]
-    private void linkReviewedEntries(List<BibEntry> importedEntries,
-                                     List<BibEntry> keptEntries,
-                                     CitationFetcher.SearchType searchType,
-                                     BibEntry existingEntry,
-                                     BibDatabaseContext databaseContext) {
+    private void linkReviewedEntries(
+            List<BibEntry> importedEntries,
+            List<BibEntry> keptEntries,
+            CitationFetcher.SearchType searchType,
+            BibEntry existingEntry,
+            BibDatabaseContext databaseContext) {
         if (!databaseContext.getDatabase().containsEntryWithId(existingEntry.getId())) {
-            dialogService.notify(Localization.lang("No citation relation recorded for %0", existingEntry.getAuthorTitleYear()));
+            dialogService.notify(
+                    Localization.lang("No citation relation recorded for %0", existingEntry.getAuthorTitleYear()));
             return;
         }
         List<BibEntry> keptEntriesToLink = determineKeptEntriesToLink(keptEntries, existingEntry, databaseContext);
@@ -184,12 +193,13 @@ public class CitationsRelationsTabViewModel {
             return;
         }
         switch (searchType) {
-            case CITES ->
-                    linkReviewedCites(importedEntries, keptEntriesToLink, existingEntry, databaseContext);
+            case CITES -> linkReviewedCites(importedEntries, keptEntriesToLink, existingEntry, databaseContext);
             case CITED_BY -> {
                 linkCitedBy(importedEntries, existingEntry);
-                existingEntry.getCitationKey().ifPresent(citationKey ->
-                        linkKeptEntriesCitedBy(keptEntriesToLink, citationKey, databaseContext));
+                existingEntry
+                        .getCitationKey()
+                        .ifPresent(
+                                citationKey -> linkKeptEntriesCitedBy(keptEntriesToLink, citationKey, databaseContext));
             }
         }
     }
@@ -197,44 +207,52 @@ public class CitationsRelationsTabViewModel {
     /// @param keptEntries     library entries the user kept, one per reviewed entry resolved that way
     /// @param existingEntry   the inspected entry
     /// @param databaseContext library the entries belong to
-    private List<BibEntry> determineKeptEntriesToLink(List<BibEntry> keptEntries, BibEntry existingEntry, BibDatabaseContext databaseContext) {
-        // BibEntry.equals compares the content, so only the id tells whether two reviewed entries kept the same library entry
+    private List<BibEntry> determineKeptEntriesToLink(
+            List<BibEntry> keptEntries, BibEntry existingEntry, BibDatabaseContext databaseContext) {
+        // BibEntry.equals compares the content, so only the id tells whether two reviewed entries kept the same library
+        // entry
         Set<String> seenEntryIds = new HashSet<>();
         return keptEntries.stream()
-                          // The inspected entry can be the duplicate that was kept, and an entry does not cite itself
-                          .filter(keptEntry -> keptEntry != existingEntry)
-                          // Keeping the import for another reviewed entry can have removed the kept entry from the library
-                          .filter(keptEntry -> databaseContext.getDatabase().containsEntryWithId(keptEntry.getId()))
-                          .filter(keptEntry -> seenEntryIds.add(keptEntry.getId()))
-                          .toList();
+                // The inspected entry can be the duplicate that was kept, and an entry does not cite itself
+                .filter(keptEntry -> keptEntry != existingEntry)
+                // Keeping the import for another reviewed entry can have removed the kept entry from the library
+                .filter(keptEntry -> databaseContext.getDatabase().containsEntryWithId(keptEntry.getId()))
+                .filter(keptEntry -> seenEntryIds.add(keptEntry.getId()))
+                .toList();
     }
 
     /// With nothing imported, this write is the only change of the review. It therefore has to be recorded, or
     /// closing the library would not offer to save it.
     ///
     /// A kept entry is not changed by the review, so one without a citation key is reported instead of given a key.
-    private void linkReviewedCites(List<BibEntry> importedEntries, List<BibEntry> keptEntries, BibEntry existingEntry, BibDatabaseContext databaseContext) {
+    private void linkReviewedCites(
+            List<BibEntry> importedEntries,
+            List<BibEntry> keptEntries,
+            BibEntry existingEntry,
+            BibDatabaseContext databaseContext) {
         keptEntries.stream()
-                   .filter(keptEntry -> keptEntry.getCitationKey().isEmpty())
-                   .forEach(keptEntry -> dialogService.notify(Localization.lang("No citation key for %0", keptEntry.getAuthorTitleYear())));
+                .filter(keptEntry -> keptEntry.getCitationKey().isEmpty())
+                .forEach(keptEntry -> dialogService.notify(
+                        Localization.lang("No citation key for %0", keptEntry.getAuthorTitleYear())));
         SequencedSet<String> alreadyCited = existingEntry.getCites();
         List<BibEntry> entriesToCite = Stream.concat(importedEntries.stream(), keptEntries.stream())
-                                             .filter(entry -> entry.getCitationKey().filter(citationKey -> !alreadyCited.contains(citationKey)).isPresent())
-                                             .toList();
+                .filter(entry -> entry.getCitationKey()
+                        .filter(citationKey -> !alreadyCited.contains(citationKey))
+                        .isPresent())
+                .toList();
         if (!entriesToCite.isEmpty()) {
-            linkCites(entriesToCite, existingEntry)
-                    .ifPresent(change -> recordLinkChange(change, databaseContext));
+            linkCites(entriesToCite, existingEntry).ifPresent(change -> recordLinkChange(change, databaseContext));
         }
     }
 
     /// Unlike an imported entry, a kept entry was already part of the library, and undoing the import does not take
     /// this change back. It is therefore recorded as its own step.
-    private void linkKeptEntriesCitedBy(List<BibEntry> keptEntries, String citationKey, BibDatabaseContext databaseContext) {
+    private void linkKeptEntriesCitedBy(
+            List<BibEntry> keptEntries, String citationKey, BibDatabaseContext databaseContext) {
         for (BibEntry keptEntry : keptEntries) {
             SequencedSet<String> existingCites = keptEntry.getCites();
             if (existingCites.add(citationKey)) {
-                keptEntry.setCites(existingCites)
-                         .ifPresent(change -> recordLinkChange(change, databaseContext));
+                keptEntry.setCites(existingCites).ifPresent(change -> recordLinkChange(change, databaseContext));
             }
         }
     }
@@ -246,13 +264,12 @@ public class CitationsRelationsTabViewModel {
 
     private Optional<FieldChange> linkCites(List<BibEntry> entries, BibEntry existingEntry) {
         SequencedSet<String> citeKeys = existingEntry.getCites();
-        entries.stream()
-               .flatMap(entry -> entry.getCitationKey().stream())
-               .forEach(citeKeys::add);
+        entries.stream().flatMap(entry -> entry.getCitationKey().stream()).forEach(citeKeys::add);
         return existingEntry.setCites(citeKeys);
     }
 
-    /// "cited by" is the opposite of "cites", but not stored in field `CITED_BY`, but in the `CITES` field of the citing entry.
+    /// "cited by" is the opposite of "cites", but not stored in field `CITED_BY`, but in the `CITES` field of the
+    /// citing entry.
     ///
     /// Therefore, some special handling is needed
     private void linkCitedBy(List<BibEntry> entries, BibEntry existingEntry) {
@@ -283,23 +300,23 @@ public class CitationsRelationsTabViewModel {
         }
 
         // The scite.ai api requires a DOI
-        entry.getDOI().ifPresentOrElse(
-                doi -> {
-                    status.set(SciteStatus.IN_PROGRESS);
-                    searchTask = BackgroundTask.wrap(() -> sciteAiFetcher.fetchTallies(doi))
-                                               .onRunning(() -> status.set(SciteStatus.IN_PROGRESS))
-                                               .onSuccess(result -> {
-                                                   currentResult = Optional.of(result);
-                                                   status.set(SciteStatus.FOUND);
-                                               })
-                                               .onFailure(error -> {
-                                                   searchError.set(error.getMessage());
-                                                   status.set(SciteStatus.ERROR);
-                                               })
-                                               .executeWith(taskExecutor);
-                },
-                () -> status.set(SciteStatus.DOI_MISSING)
-        );
+        entry.getDOI()
+                .ifPresentOrElse(
+                        doi -> {
+                            status.set(SciteStatus.IN_PROGRESS);
+                            searchTask = BackgroundTask.wrap(() -> sciteAiFetcher.fetchTallies(doi))
+                                    .onRunning(() -> status.set(SciteStatus.IN_PROGRESS))
+                                    .onSuccess(result -> {
+                                        currentResult = Optional.of(result);
+                                        status.set(SciteStatus.FOUND);
+                                    })
+                                    .onFailure(error -> {
+                                        searchError.set(error.getMessage());
+                                        status.set(SciteStatus.ERROR);
+                                    })
+                                    .executeWith(taskExecutor);
+                        },
+                        () -> status.set(SciteStatus.DOI_MISSING));
     }
 
     private void cancelSearch() {
@@ -331,26 +348,25 @@ public class CitationsRelationsTabViewModel {
         }
     }
 
-    public void trackCitationSearch(CitationFetcher.SearchType searchType, BackgroundTask<List<CitationRelationItem>> task) {
+    public void trackCitationSearch(
+            CitationFetcher.SearchType searchType, BackgroundTask<List<CitationRelationItem>> task) {
         cancelCitationSearch(searchType);
         switch (searchType) {
-            case CITES ->
-                    citingTask = task;
-            case CITED_BY ->
-                    citedByTask = task;
+            case CITES -> citingTask = task;
+            case CITED_BY -> citedByTask = task;
         }
     }
 
-    public boolean isTrackedCitationSearch(CitationFetcher.SearchType searchType, BackgroundTask<List<CitationRelationItem>> task) {
+    public boolean isTrackedCitationSearch(
+            CitationFetcher.SearchType searchType, BackgroundTask<List<CitationRelationItem>> task) {
         return switch (searchType) {
-            case CITES ->
-                    citingTask == task;
-            case CITED_BY ->
-                    citedByTask == task;
+            case CITES -> citingTask == task;
+            case CITED_BY -> citedByTask == task;
         };
     }
 
-    public void clearTrackedCitationSearch(CitationFetcher.SearchType searchType, BackgroundTask<List<CitationRelationItem>> task) {
+    public void clearTrackedCitationSearch(
+            CitationFetcher.SearchType searchType, BackgroundTask<List<CitationRelationItem>> task) {
         switch (searchType) {
             case CITES -> {
                 if (citingTask == task) {
@@ -384,31 +400,30 @@ public class CitationsRelationsTabViewModel {
         CrossRef doiFetcher = new CrossRef(preferences.getImporterPreferences());
 
         doiLookupTask = BackgroundTask.wrap(() -> doiFetcher.findIdentifier(entry))
-                                      .onRunning(() -> status.set(SciteStatus.DOI_LOOK_UP))
-                                      .onSuccess(identifier -> {
-                                          if (this.currentEntry != entry) {
-                                              return;
-                                          }
-                                          identifier.ifPresentOrElse(
-                                                  doi -> {
-                                                      entry.setField(StandardField.DOI, doi.asString());
-                                                      onDoiFound.run();
-                                                  },
-                                                  () -> {
-                                                      status.set(SciteStatus.DOI_MISSING);
-                                                      dialogService.notify(Localization.lang("No DOI found."));
-                                                  }
-                                          );
-                                      })
-                                      .onFailure(ex -> {
-                                          if (this.currentEntry != entry) {
-                                              return;
-                                          }
-                                          LOGGER.error("Error while looking up DOI", ex);
-                                          status.set(SciteStatus.DOI_LOOK_UP_ERROR);
-                                          dialogService.notify(Localization.lang("Error while looking up DOI: %0", ex.getLocalizedMessage()));
-                                      })
-                                      .executeWith(taskExecutor);
+                .onRunning(() -> status.set(SciteStatus.DOI_LOOK_UP))
+                .onSuccess(identifier -> {
+                    if (this.currentEntry != entry) {
+                        return;
+                    }
+                    identifier.ifPresentOrElse(
+                            doi -> {
+                                entry.setField(StandardField.DOI, doi.asString());
+                                onDoiFound.run();
+                            },
+                            () -> {
+                                status.set(SciteStatus.DOI_MISSING);
+                                dialogService.notify(Localization.lang("No DOI found."));
+                            });
+                })
+                .onFailure(ex -> {
+                    if (this.currentEntry != entry) {
+                        return;
+                    }
+                    LOGGER.error("Error while looking up DOI", ex);
+                    status.set(SciteStatus.DOI_LOOK_UP_ERROR);
+                    dialogService.notify(Localization.lang("Error while looking up DOI: %0", ex.getLocalizedMessage()));
+                })
+                .executeWith(taskExecutor);
     }
 
     public ObjectProperty<SciteStatus> statusProperty() {

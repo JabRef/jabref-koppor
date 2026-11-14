@@ -1,10 +1,12 @@
 package org.jabref.gui.fieldeditors;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.dlsc.gemsfx.TagsField;
+import com.google.common.collect.Comparators;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
@@ -21,7 +23,6 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.JabRefDialogService;
 import org.jabref.gui.actions.ActionFactory;
@@ -40,10 +41,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.Keyword;
 import org.jabref.model.entry.KeywordList;
 import org.jabref.model.entry.field.Field;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.dlsc.gemsfx.TagsField;
-import com.google.common.collect.Comparators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,10 +71,11 @@ public abstract class TagsEditor extends HBox implements FieldEditorFX {
     private boolean tagOrderUpdateScheduled;
     private boolean updatingTagOrder;
 
-    protected TagsEditor(Field field,
-                         SuggestionProvider<?> suggestionProvider,
-                         FieldCheckers fieldCheckers,
-                         UndoManager undoManager) {
+    protected TagsEditor(
+            Field field,
+            SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers,
+            UndoManager undoManager) {
         this.field = field;
         this.suggestionProvider = suggestionProvider;
         this.fieldCheckers = fieldCheckers;
@@ -93,10 +91,11 @@ public abstract class TagsEditor extends HBox implements FieldEditorFX {
 
     /// Initializes the TagsField with common configuration.
     /// Must be called by subclasses after their ViewModel is created.
-    protected void setupTagsField(StringConverter<Keyword> converter,
-                                  Character separator,
-                                  ListProperty<Keyword> tagListProperty,
-                                  Function<String, List<Keyword>> suggestionsProvider) {
+    protected void setupTagsField(
+            StringConverter<Keyword> converter,
+            Character separator,
+            ListProperty<Keyword> tagListProperty,
+            Function<String, List<Keyword>> suggestionsProvider) {
 
         tagsField.setCellFactory(new ViewModelListCellFactory<Keyword>().withText(Keyword::get));
         tagsField.setTagViewFactory(this::createTag);
@@ -112,8 +111,10 @@ public abstract class TagsEditor extends HBox implements FieldEditorFX {
         tagsField.setOnMouseClicked(_ -> tagsField.getEditor().requestFocus());
         tagsField.getEditor().getStyleClass().clear();
         tagsField.getEditor().getStyleClass().add("tags-field-editor");
-        tagsField.getEditor().focusedProperty().addListener((_, _, newValue) ->
-                tagsField.pseudoClassStateChanged(FOCUSED, newValue));
+        tagsField
+                .getEditor()
+                .focusedProperty()
+                .addListener((_, _, newValue) -> tagsField.pseudoClassStateChanged(FOCUSED, newValue));
 
         String separatorStr = String.valueOf(separator);
         tagsField.getEditor().setOnKeyReleased(event -> {
@@ -196,11 +197,13 @@ public abstract class TagsEditor extends HBox implements FieldEditorFX {
 
         ContextMenu contextMenu = new ContextMenu();
         ActionFactory factory = new ActionFactory();
-        contextMenu.getItems().addAll(
-                factory.createMenuItem(StandardActions.COPY, new TagContextAction(StandardActions.COPY, tag)),
-                factory.createMenuItem(StandardActions.CUT, new TagContextAction(StandardActions.CUT, tag)),
-                factory.createMenuItem(StandardActions.DELETE, new TagContextAction(StandardActions.DELETE, tag))
-        );
+        contextMenu
+                .getItems()
+                .addAll(
+                        factory.createMenuItem(StandardActions.COPY, new TagContextAction(StandardActions.COPY, tag)),
+                        factory.createMenuItem(StandardActions.CUT, new TagContextAction(StandardActions.CUT, tag)),
+                        factory.createMenuItem(
+                                StandardActions.DELETE, new TagContextAction(StandardActions.DELETE, tag)));
         tagLabel.setContextMenu(contextMenu);
 
         tagLabel.setOnMouseClicked(event -> {
@@ -251,8 +254,7 @@ public abstract class TagsEditor extends HBox implements FieldEditorFX {
     }
 
     /// Hook for subclasses to customize tag labels (e.g., adding tooltips).
-    protected void customizeTag(Label tagLabel, Keyword tag) {
-    }
+    protected void customizeTag(Label tagLabel, Keyword tag) {}
 
     /// While the [#tagsField] has no width yet, GemsFX's `FlowPane` puts every tag on its own row,
     /// so the first layout pass would reserve one row per tag. The height then drops once the real width is known,
@@ -305,19 +307,17 @@ public abstract class TagsEditor extends HBox implements FieldEditorFX {
             switch (command) {
                 case COPY -> {
                     clipBoardManager.setContent(tag.get());
-                    dialogService.notify(Localization.lang("Copied '%0' to clipboard.",
-                            JabRefDialogService.shortenDialogMessage(tag.get())));
+                    dialogService.notify(Localization.lang(
+                            "Copied '%0' to clipboard.", JabRefDialogService.shortenDialogMessage(tag.get())));
                 }
                 case CUT -> {
                     clipBoardManager.setContent(tag.get());
-                    dialogService.notify(Localization.lang("Copied '%0' to clipboard.",
-                            JabRefDialogService.shortenDialogMessage(tag.get())));
+                    dialogService.notify(Localization.lang(
+                            "Copied '%0' to clipboard.", JabRefDialogService.shortenDialogMessage(tag.get())));
                     tagsField.removeTags(tag);
                 }
-                case DELETE ->
-                        tagsField.removeTags(tag);
-                default ->
-                        LOGGER.info("Action {} not defined", command.getText());
+                case DELETE -> tagsField.removeTags(tag);
+                default -> LOGGER.info("Action {} not defined", command.getText());
             }
         }
     }

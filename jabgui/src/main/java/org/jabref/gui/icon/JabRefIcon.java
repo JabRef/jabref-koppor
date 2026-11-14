@@ -2,7 +2,6 @@ package org.jabref.gui.icon;
 
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Library-agnostic icon contract, with two parallel implementations: [IconTheme.JabRefIcons] enum

@@ -1,8 +1,10 @@
 package org.jabref.logic.cleanup;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.journals.Abbreviation;
 import org.jabref.logic.journals.AbbreviationType;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
@@ -11,13 +13,9 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.AMSField;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
 
 public class AbbreviateJournalCleanupTest {
     private AbbreviateJournalCleanup cleanupWithoutFJournal;
@@ -30,13 +28,15 @@ public class AbbreviateJournalCleanupTest {
     void setUp() {
         databaseMock = Mockito.mock(BibDatabase.class);
         Mockito.when(databaseMock.resolveForStrings(anyString()))
-               .thenAnswer(invocation -> invocation.getArgument(0, String.class));
+                .thenAnswer(invocation -> invocation.getArgument(0, String.class));
 
         repositoryMock = Mockito.mock(JournalAbbreviationRepository.class);
         Mockito.when(repositoryMock.get(anyString())).thenReturn(Optional.empty());
 
-        cleanupWithoutFJournal = new AbbreviateJournalCleanup(databaseMock, repositoryMock, AbbreviationType.DEFAULT, false);
-        cleanupWithFJournal = new AbbreviateJournalCleanup(databaseMock, repositoryMock, AbbreviationType.DEFAULT, true);
+        cleanupWithoutFJournal =
+                new AbbreviateJournalCleanup(databaseMock, repositoryMock, AbbreviationType.DEFAULT, false);
+        cleanupWithFJournal =
+                new AbbreviateJournalCleanup(databaseMock, repositoryMock, AbbreviationType.DEFAULT, true);
     }
 
     @Test
@@ -47,8 +47,7 @@ public class AbbreviateJournalCleanupTest {
 
         assertEquals(List.of(), changes);
 
-        BibEntry expectedEntry = new BibEntry()
-                .withField(StandardField.JOURNAL, "Some Unknown Journal");
+        BibEntry expectedEntry = new BibEntry().withField(StandardField.JOURNAL, "Some Unknown Journal");
         assertEquals(expectedEntry, entry);
     }
 
@@ -60,13 +59,10 @@ public class AbbreviateJournalCleanupTest {
         BibEntry entry = new BibEntry().withField(StandardField.JOURNAL, "Journal of Foo");
         List<FieldChange> changes = cleanupWithoutFJournal.cleanup(entry);
 
-        List<FieldChange> expected = List.of(
-                new FieldChange(entry, StandardField.JOURNAL, "Journal of Foo", "J. Foo")
-        );
+        List<FieldChange> expected = List.of(new FieldChange(entry, StandardField.JOURNAL, "Journal of Foo", "J. Foo"));
         assertEquals(expected, changes);
 
-        BibEntry expectedEntry = new BibEntry()
-                .withField(StandardField.JOURNAL, "J. Foo");
+        BibEntry expectedEntry = new BibEntry().withField(StandardField.JOURNAL, "J. Foo");
         assertEquals(expectedEntry, entry);
     }
 
@@ -80,8 +76,7 @@ public class AbbreviateJournalCleanupTest {
 
         assertEquals(List.of(), changes);
 
-        BibEntry expectedEntry = new BibEntry()
-                .withField(StandardField.JOURNAL, "J. Foo");
+        BibEntry expectedEntry = new BibEntry().withField(StandardField.JOURNAL, "J. Foo");
         assertEquals(expectedEntry, entry);
     }
 
@@ -95,8 +90,7 @@ public class AbbreviateJournalCleanupTest {
 
         List<FieldChange> expected = List.of(
                 new FieldChange(entry, AMSField.FJOURNAL, null, "Canadian Journal of Math"),
-                new FieldChange(entry, StandardField.JOURNAL, "Canadian Journal of Math", "Can. J. Math.")
-        );
+                new FieldChange(entry, StandardField.JOURNAL, "Canadian Journal of Math", "Can. J. Math."));
         assertEquals(expected, changes);
 
         BibEntry expectedEntry = new BibEntry()
@@ -114,12 +108,10 @@ public class AbbreviateJournalCleanupTest {
         List<FieldChange> changes = cleanupWithoutFJournal.cleanup(entry);
 
         List<FieldChange> expected = List.of(
-                new FieldChange(entry, StandardField.JOURNALTITLE, "Physical Review Letters", "Phys. Rev. Lett.")
-        );
+                new FieldChange(entry, StandardField.JOURNALTITLE, "Physical Review Letters", "Phys. Rev. Lett."));
         assertEquals(expected, changes);
 
-        BibEntry expectedEntry = new BibEntry()
-                .withField(StandardField.JOURNALTITLE, "Phys. Rev. Lett.");
+        BibEntry expectedEntry = new BibEntry().withField(StandardField.JOURNALTITLE, "Phys. Rev. Lett.");
         assertEquals(expectedEntry, entry);
     }
 
@@ -147,8 +139,7 @@ public class AbbreviateJournalCleanupTest {
 
         List<FieldChange> expected = List.of(
                 new FieldChange(entry, AMSField.FJOURNAL, "Some old text", "Journal of Foo"),
-                new FieldChange(entry, StandardField.JOURNAL, "Journal of Foo", "J. Foo")
-        );
+                new FieldChange(entry, StandardField.JOURNAL, "Journal of Foo", "J. Foo"));
         assertEquals(expected, changes);
 
         BibEntry expectedEntry = new BibEntry()
@@ -167,13 +158,11 @@ public class AbbreviateJournalCleanupTest {
 
         List<FieldChange> changes = cleanupWithoutFJournal.cleanup(entry);
 
-        List<FieldChange> expected = List.of(
-                new FieldChange(entry, StandardField.JOURNAL, "{Journal of Foo}", "J. Foo")
-        );
+        List<FieldChange> expected =
+                List.of(new FieldChange(entry, StandardField.JOURNAL, "{Journal of Foo}", "J. Foo"));
         assertEquals(expected, changes);
 
-        BibEntry expectedEntry = new BibEntry()
-                .withField(StandardField.JOURNAL, "J. Foo");
+        BibEntry expectedEntry = new BibEntry().withField(StandardField.JOURNAL, "J. Foo");
         assertEquals(expectedEntry, entry);
     }
 
@@ -187,13 +176,11 @@ public class AbbreviateJournalCleanupTest {
 
         List<FieldChange> changes = cleanupWithoutFJournal.cleanup(entry);
 
-        List<FieldChange> expected = List.of(
-                new FieldChange(entry, StandardField.JOURNAL, "Journal of Foo   ", "J. Foo")
-        );
+        List<FieldChange> expected =
+                List.of(new FieldChange(entry, StandardField.JOURNAL, "Journal of Foo   ", "J. Foo"));
         assertEquals(expected, changes);
 
-        BibEntry expectedEntry = new BibEntry()
-                .withField(StandardField.JOURNAL, "J. Foo");
+        BibEntry expectedEntry = new BibEntry().withField(StandardField.JOURNAL, "J. Foo");
         assertEquals(expectedEntry, entry);
     }
 
@@ -206,13 +193,10 @@ public class AbbreviateJournalCleanupTest {
         BibEntry entry = new BibEntry().withField(StandardField.JOURNAL, "MACRO_JOURNAL");
         List<FieldChange> changes = cleanupWithoutFJournal.cleanup(entry);
 
-        List<FieldChange> expected = List.of(
-                new FieldChange(entry, StandardField.JOURNAL, "MACRO_JOURNAL", "J. Foo")
-        );
+        List<FieldChange> expected = List.of(new FieldChange(entry, StandardField.JOURNAL, "MACRO_JOURNAL", "J. Foo"));
         assertEquals(expected, changes);
 
-        BibEntry expectedEntry = new BibEntry()
-                .withField(StandardField.JOURNAL, "J. Foo");
+        BibEntry expectedEntry = new BibEntry().withField(StandardField.JOURNAL, "J. Foo");
         assertEquals(expectedEntry, entry);
     }
 
@@ -239,7 +223,8 @@ public class AbbreviateJournalCleanupTest {
                 .withField(StandardField.JOURNAL, "Journal of Bar")
                 .withField(StandardField.JOURNALTITLE, "Review Letters");
 
-        AbbreviateJournalCleanup testCleanup = new AbbreviateJournalCleanup(databaseMock, repositoryMock, AbbreviationType.DEFAULT, true);
+        AbbreviateJournalCleanup testCleanup =
+                new AbbreviateJournalCleanup(databaseMock, repositoryMock, AbbreviationType.DEFAULT, true);
         List<FieldChange> changes = testCleanup.cleanup(entry);
 
         List<FieldChange> expected = List.of(
@@ -248,8 +233,7 @@ public class AbbreviateJournalCleanupTest {
                 // There is only one FJOURNAL field for an entry, which is why the test asserts this.
                 // JOURNAL and JOURNALTITLE aren't meant to be this different for the same entry.
                 new FieldChange(entry, AMSField.FJOURNAL, "Journal of Bar", "Review Letters"),
-                new FieldChange(entry, StandardField.JOURNALTITLE, "Review Letters", "Rev. Lett.")
-        );
+                new FieldChange(entry, StandardField.JOURNALTITLE, "Review Letters", "Rev. Lett."));
         assertEquals(expected, changes);
 
         BibEntry expectedEntry = new BibEntry()
@@ -265,17 +249,15 @@ public class AbbreviateJournalCleanupTest {
         Mockito.when(repositoryMock.get("Long Name")).thenReturn(Optional.of(abbr));
 
         BibEntry entry = new BibEntry().withField(StandardField.JOURNAL, "Long Name");
-        AbbreviateJournalCleanup dotlessCleanup = new AbbreviateJournalCleanup(databaseMock, repositoryMock, AbbreviationType.DOTLESS, false);
+        AbbreviateJournalCleanup dotlessCleanup =
+                new AbbreviateJournalCleanup(databaseMock, repositoryMock, AbbreviationType.DOTLESS, false);
 
         List<FieldChange> changes = dotlessCleanup.cleanup(entry);
 
-        List<FieldChange> expected = List.of(
-                new FieldChange(entry, StandardField.JOURNAL, "Long Name", "L N")
-        );
+        List<FieldChange> expected = List.of(new FieldChange(entry, StandardField.JOURNAL, "Long Name", "L N"));
         assertEquals(expected, changes);
 
-        BibEntry expectedEntry = new BibEntry()
-                .withField(StandardField.JOURNAL, "L N");
+        BibEntry expectedEntry = new BibEntry().withField(StandardField.JOURNAL, "L N");
         assertEquals(expectedEntry, entry);
     }
 
@@ -285,19 +267,18 @@ public class AbbreviateJournalCleanupTest {
         Mockito.when(repositoryMock.get("Long Name")).thenReturn(Optional.of(abbr));
 
         BibEntry entry = new BibEntry().withField(StandardField.JOURNAL, "Long Name");
-        AbbreviateJournalCleanup dotlessCleanup = new AbbreviateJournalCleanup(databaseMock, repositoryMock, AbbreviationType.DOTLESS, true);
+        AbbreviateJournalCleanup dotlessCleanup =
+                new AbbreviateJournalCleanup(databaseMock, repositoryMock, AbbreviationType.DOTLESS, true);
 
         List<FieldChange> changes = dotlessCleanup.cleanup(entry);
 
         List<FieldChange> expected = List.of(
                 new FieldChange(entry, AMSField.FJOURNAL, null, "Long Name"),
-                new FieldChange(entry, StandardField.JOURNAL, "Long Name", "L N")
-        );
+                new FieldChange(entry, StandardField.JOURNAL, "Long Name", "L N"));
         assertEquals(expected, changes);
 
-        BibEntry expectedEntry = new BibEntry()
-                .withField(StandardField.JOURNAL, "L N")
-                .withField(AMSField.FJOURNAL, "Long Name");
+        BibEntry expectedEntry =
+                new BibEntry().withField(StandardField.JOURNAL, "L N").withField(AMSField.FJOURNAL, "Long Name");
         assertEquals(expectedEntry, entry);
     }
 
@@ -307,17 +288,16 @@ public class AbbreviateJournalCleanupTest {
         Mockito.when(repositoryMock.get("Physical Review Letters")).thenReturn(Optional.of(abbr));
 
         BibEntry entry = new BibEntry().withField(StandardField.JOURNAL, "Physical Review Letters");
-        AbbreviateJournalCleanup shortestCleanup = new AbbreviateJournalCleanup(databaseMock, repositoryMock, AbbreviationType.SHORTEST_UNIQUE, false);
+        AbbreviateJournalCleanup shortestCleanup =
+                new AbbreviateJournalCleanup(databaseMock, repositoryMock, AbbreviationType.SHORTEST_UNIQUE, false);
 
         List<FieldChange> changes = shortestCleanup.cleanup(entry);
 
-        List<FieldChange> expected = List.of(
-                new FieldChange(entry, StandardField.JOURNAL, "Physical Review Letters", "PRL")
-        );
+        List<FieldChange> expected =
+                List.of(new FieldChange(entry, StandardField.JOURNAL, "Physical Review Letters", "PRL"));
         assertEquals(expected, changes);
 
-        BibEntry expectedEntry = new BibEntry()
-                .withField(StandardField.JOURNAL, "PRL");
+        BibEntry expectedEntry = new BibEntry().withField(StandardField.JOURNAL, "PRL");
         assertEquals(expectedEntry, entry);
     }
 
@@ -327,14 +307,14 @@ public class AbbreviateJournalCleanupTest {
         Mockito.when(repositoryMock.get("Physical Review Letters")).thenReturn(Optional.of(abbr));
 
         BibEntry entry = new BibEntry().withField(StandardField.JOURNAL, "Physical Review Letters");
-        AbbreviateJournalCleanup shortestCleanup = new AbbreviateJournalCleanup(databaseMock, repositoryMock, AbbreviationType.SHORTEST_UNIQUE, true);
+        AbbreviateJournalCleanup shortestCleanup =
+                new AbbreviateJournalCleanup(databaseMock, repositoryMock, AbbreviationType.SHORTEST_UNIQUE, true);
 
         List<FieldChange> changes = shortestCleanup.cleanup(entry);
 
         List<FieldChange> expected = List.of(
                 new FieldChange(entry, AMSField.FJOURNAL, null, "Physical Review Letters"),
-                new FieldChange(entry, StandardField.JOURNAL, "Physical Review Letters", "PRL")
-        );
+                new FieldChange(entry, StandardField.JOURNAL, "Physical Review Letters", "PRL"));
         assertEquals(expected, changes);
 
         BibEntry expectedEntry = new BibEntry()

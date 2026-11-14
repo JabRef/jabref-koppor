@@ -1,12 +1,10 @@
 package org.jabref.gui.errorconsole;
 
+import com.google.common.base.Throwables;
 import java.util.Optional;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.logic.os.OS;
-
-import com.google.common.base.Throwables;
 import org.jspecify.annotations.NonNull;
 import org.tinylog.core.LogEntry;
 
@@ -29,23 +27,17 @@ public class LogEventViewModel {
 
     public String getStyleClass() {
         return switch (logEvent.getLevel()) {
-            case ERROR ->
-                    "exception";
-            case WARN ->
-                    "output";
-            default ->
-                    "log";
+            case ERROR -> "exception";
+            case WARN -> "output";
+            default -> "log";
         };
     }
 
     public JabRefIcon getIcon() {
         return switch (logEvent.getLevel()) {
-            case ERROR ->
-                    IconTheme.JabRefIcons.INTEGRITY_FAIL;
-            case WARN ->
-                    IconTheme.JabRefIcons.INTEGRITY_WARN;
-            default ->
-                    IconTheme.JabRefIcons.INTEGRITY_INFO;
+            case ERROR -> IconTheme.JabRefIcons.INTEGRITY_FAIL;
+            case WARN -> IconTheme.JabRefIcons.INTEGRITY_WARN;
+            default -> IconTheme.JabRefIcons.INTEGRITY_INFO;
         };
     }
 
@@ -54,6 +46,7 @@ public class LogEventViewModel {
     }
 
     public String getDetailedText() {
-        return getDisplayText() + getStackTrace().map(stacktrace -> OS.NEWLINE + stacktrace).orElse("");
+        return getDisplayText()
+                + getStackTrace().map(stacktrace -> OS.NEWLINE + stacktrace).orElse("");
     }
 }

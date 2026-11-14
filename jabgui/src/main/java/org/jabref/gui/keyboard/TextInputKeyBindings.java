@@ -6,7 +6,6 @@ import javafx.scene.control.skin.TextAreaSkin;
 import javafx.scene.control.skin.TextInputControlSkin.Direction;
 import javafx.scene.control.skin.TextInputControlSkin.TextUnit;
 import javafx.scene.input.KeyEvent;
-
 import org.jabref.logic.util.strings.StringManipulator;
 import org.jabref.model.util.ResultingStringState;
 
@@ -69,7 +68,8 @@ public class TextInputKeyBindings {
                     }
                     case EDITOR_CAPITALIZE -> {
                         int pos = focusedTextField.getCaretPosition();
-                        String text = focusedTextField.getText(0, focusedTextField.getText().length());
+                        String text = focusedTextField.getText(
+                                0, focusedTextField.getText().length());
                         ResultingStringState res = StringManipulator.capitalize(pos, text);
                         focusedTextField.setText(res.text);
                         focusedTextField.positionCaret(res.caretPosition);
@@ -77,7 +77,8 @@ public class TextInputKeyBindings {
                     }
                     case EDITOR_LOWERCASE -> {
                         int pos = focusedTextField.getCaretPosition();
-                        String text = focusedTextField.getText(0, focusedTextField.getText().length());
+                        String text = focusedTextField.getText(
+                                0, focusedTextField.getText().length());
                         ResultingStringState res = StringManipulator.lowercase(pos, text);
                         focusedTextField.setText(res.text);
                         focusedTextField.positionCaret(res.caretPosition);
@@ -85,7 +86,8 @@ public class TextInputKeyBindings {
                     }
                     case EDITOR_UPPERCASE -> {
                         int pos = focusedTextField.getCaretPosition();
-                        String text = focusedTextField.getText(0, focusedTextField.getText().length());
+                        String text = focusedTextField.getText(
+                                0, focusedTextField.getText().length());
                         ResultingStringState res = StringManipulator.uppercase(pos, text);
                         focusedTextField.setText(res.text);
                         focusedTextField.positionCaret(res.caretPosition);
@@ -105,7 +107,8 @@ public class TextInputKeyBindings {
                     }
                     case EDITOR_KILL_WORD -> {
                         int pos = focusedTextField.getCaretPosition();
-                        String text = focusedTextField.getText(0, focusedTextField.getText().length());
+                        String text = focusedTextField.getText(
+                                0, focusedTextField.getText().length());
                         ResultingStringState res = StringManipulator.killWord(pos, text);
                         focusedTextField.setText(res.text);
                         focusedTextField.positionCaret(res.caretPosition);
@@ -113,7 +116,8 @@ public class TextInputKeyBindings {
                     }
                     case EDITOR_KILL_WORD_BACKWARD -> {
                         int pos = focusedTextField.getCaretPosition();
-                        String text = focusedTextField.getText(0, focusedTextField.getText().length());
+                        String text = focusedTextField.getText(
+                                0, focusedTextField.getText().length());
                         ResultingStringState res = StringManipulator.backwardKillWord(pos, text);
                         focusedTextField.setText(res.text);
                         focusedTextField.positionCaret(res.caretPosition);
@@ -158,6 +162,7 @@ public class TextInputKeyBindings {
         }
 
         int nextLineEnd = text.indexOf('\n', lineEnd + 1);
-        control.positionCaret(Math.min(lineEnd + 1 + caret - lineStart, nextLineEnd == -1 ? text.length() : nextLineEnd));
+        control.positionCaret(
+                Math.min(lineEnd + 1 + caret - lineStart, nextLineEnd == -1 ? text.length() : nextLineEnd));
     }
 }

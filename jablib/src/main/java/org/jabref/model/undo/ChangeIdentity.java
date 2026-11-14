@@ -15,8 +15,7 @@ import java.util.List;
 /// undo stack.
 final class ChangeIdentity {
 
-    private ChangeIdentity() {
-    }
+    private ChangeIdentity() {}
 
     static boolean same(Object left, Object right) {
         return left == right;

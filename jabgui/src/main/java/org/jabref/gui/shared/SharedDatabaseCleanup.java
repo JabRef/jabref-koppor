@@ -10,14 +10,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RejectedExecutionException;
-
 import org.jabref.logic.shared.DatabaseConnectionProperties;
 import org.jabref.logic.shared.DatabaseSynchronizer;
 import org.jabref.logic.shared.SharedDatabaseIdentity;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -30,8 +28,7 @@ public final class SharedDatabaseCleanup {
     private static final Set<CompletableFuture<Void>> ACTIVE = new HashSet<>();
     private static final Map<SharedDatabaseIdentity, CompletableFuture<Void>> BY_DATABASE = new HashMap<>();
 
-    private SharedDatabaseCleanup() {
-    }
+    private SharedDatabaseCleanup() {}
 
     // [impl->req~shared-database.background-close~1]
     public static void close(BibDatabaseContext context, TaskExecutor executor) {

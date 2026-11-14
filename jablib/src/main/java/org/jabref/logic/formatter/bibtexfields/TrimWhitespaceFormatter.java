@@ -2,7 +2,6 @@ package org.jabref.logic.formatter.bibtexfields;
 
 import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,21 +1,19 @@
 package org.jabref.gui.mergeentries;
 
-import java.util.Optional;
-
-import org.jabref.gui.DialogService;
-import org.jabref.logic.undo.JabRefUndoManager;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.StandardField;
-import org.jabref.model.entry.types.StandardEntryType;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+import java.util.Optional;
+import org.jabref.gui.DialogService;
+import org.jabref.logic.undo.JabRefUndoManager;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.StandardField;
+import org.jabref.model.entry.types.StandardEntryType;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class UpdateOriginalEntryTest {
 
@@ -41,7 +39,8 @@ class UpdateOriginalEntryTest {
                 .withField(StandardField.TITLE, "Merged title")
                 .withField(StandardField.ISSN, "0378-5955");
 
-        new UpdateOriginalEntry(originalEntry, Optional.of(mergedEntry), dialogService, undoManager, EDIT_NAME, SUCCESS_MESSAGE)
+        new UpdateOriginalEntry(
+                        originalEntry, Optional.of(mergedEntry), dialogService, undoManager, EDIT_NAME, SUCCESS_MESSAGE)
                 .update();
 
         assertEquals(StandardEntryType.Book, originalEntry.getType());
@@ -56,7 +55,8 @@ class UpdateOriginalEntryTest {
     void updateKeepsOriginalFieldsWhenMergedEntryIsEffectivelyEmpty() {
         BibEntry mergedEntry = new BibEntry(StandardEntryType.Article);
 
-        new UpdateOriginalEntry(originalEntry, Optional.of(mergedEntry), dialogService, undoManager, EDIT_NAME, SUCCESS_MESSAGE)
+        new UpdateOriginalEntry(
+                        originalEntry, Optional.of(mergedEntry), dialogService, undoManager, EDIT_NAME, SUCCESS_MESSAGE)
                 .update();
 
         assertEquals(Optional.of("Original title"), originalEntry.getField(StandardField.TITLE));
@@ -70,7 +70,13 @@ class UpdateOriginalEntryTest {
         BibEntry mergedEntry = new BibEntry(StandardEntryType.Book);
         BibEntry originalTypeOnlyEntry = new BibEntry(StandardEntryType.Article);
 
-        new UpdateOriginalEntry(originalTypeOnlyEntry, Optional.of(mergedEntry), dialogService, undoManager, EDIT_NAME, SUCCESS_MESSAGE)
+        new UpdateOriginalEntry(
+                        originalTypeOnlyEntry,
+                        Optional.of(mergedEntry),
+                        dialogService,
+                        undoManager,
+                        EDIT_NAME,
+                        SUCCESS_MESSAGE)
                 .update();
 
         assertEquals(StandardEntryType.Book, originalTypeOnlyEntry.getType());

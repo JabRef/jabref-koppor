@@ -1,7 +1,6 @@
 package org.jabref.model.ai.chatting;
 
 import java.util.Optional;
-
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.groups.GroupTreeNode;
@@ -11,7 +10,8 @@ public record ChatIdentifier(String libraryId, ChatType chatType, String chatNam
     ///
     /// @return [Optional#empty()] if the preconditions are not met
     public static Optional<ChatIdentifier> from(BibDatabaseContext ctx, BibEntry entry) {
-        if (ctx.getMetaData().getAiLibraryId().isEmpty() || entry.getCitationKey().isEmpty()) {
+        if (ctx.getMetaData().getAiLibraryId().isEmpty()
+                || entry.getCitationKey().isEmpty()) {
             return Optional.empty();
         }
 
@@ -20,11 +20,8 @@ public record ChatIdentifier(String libraryId, ChatType chatType, String chatNam
             return Optional.empty();
         }
 
-        return Optional.of(new ChatIdentifier(
-                ctx.getMetaData().getAiLibraryId().get(),
-                ChatType.WITH_ENTRY,
-                citationKey
-        ));
+        return Optional.of(
+                new ChatIdentifier(ctx.getMetaData().getAiLibraryId().get(), ChatType.WITH_ENTRY, citationKey));
     }
 
     /// Creates a [ChatIdentifier] for a group if it has a valid AI library ID.
@@ -35,10 +32,7 @@ public record ChatIdentifier(String libraryId, ChatType chatType, String chatNam
             return Optional.empty();
         }
 
-        return Optional.of(new ChatIdentifier(
-                ctx.getMetaData().getAiLibraryId().get(),
-                ChatType.WITH_GROUP,
-                group.getName()
-        ));
+        return Optional.of(
+                new ChatIdentifier(ctx.getMetaData().getAiLibraryId().get(), ChatType.WITH_GROUP, group.getName()));
     }
 }

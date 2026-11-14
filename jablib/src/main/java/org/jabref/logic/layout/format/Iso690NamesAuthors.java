@@ -1,7 +1,6 @@
 package org.jabref.logic.layout.format;
 
 import java.util.Locale;
-
 import org.jabref.logic.layout.LayoutFormatter;
 import org.jabref.logic.util.strings.StringUtil;
 
@@ -45,7 +44,9 @@ public class Iso690NamesAuthors implements LayoutFormatter {
                     // primer campo Nombre
                     name = author[0].trim();
                     // Segundo y tercer campo Apellido1 Apellido2
-                    surname = author[1].trim().toUpperCase(Locale.ROOT) + ' ' + author[2].trim().toUpperCase(Locale.ROOT);
+                    surname = author[1].trim().toUpperCase(Locale.ROOT)
+                            + ' '
+                            + author[2].trim().toUpperCase(Locale.ROOT);
 
                     // añadimos los campos modificados al string final
                     sb.append(surname);
@@ -55,7 +56,9 @@ public class Iso690NamesAuthors implements LayoutFormatter {
                     // primer y segundo campo Nombre SegundoNombre
                     name = author[0].trim() + ' ' + author[1].trim();
                     // tercer y cuarto campo Apellido1 Apellido2
-                    surname = author[2].trim().toUpperCase(Locale.ROOT) + ' ' + author[3].trim().toUpperCase(Locale.ROOT);
+                    surname = author[2].trim().toUpperCase(Locale.ROOT)
+                            + ' '
+                            + author[3].trim().toUpperCase(Locale.ROOT);
 
                     // añadimos los campos modificados al string final
                     sb.append(surname);

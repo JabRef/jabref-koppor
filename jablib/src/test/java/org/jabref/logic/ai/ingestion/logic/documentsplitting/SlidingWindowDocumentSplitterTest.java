@@ -1,14 +1,13 @@
 package org.jabref.logic.ai.ingestion.logic.documentsplitting;
 
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class SlidingWindowDocumentSplitterTest {
 
@@ -22,7 +21,8 @@ class SlidingWindowDocumentSplitterTest {
 
         assertFalse(chunks.isEmpty());
         for (String chunk : chunks) {
-            assertTrue(chunk.length() <= chunkSize,
+            assertTrue(
+                    chunk.length() <= chunkSize,
                     "Expected chunk length <= " + chunkSize + " but was " + chunk.length() + ": " + chunk);
         }
     }

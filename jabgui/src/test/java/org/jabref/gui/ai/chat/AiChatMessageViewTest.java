@@ -1,9 +1,15 @@
 package org.jabref.gui.ai.chat;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.airhacks.afterburner.injection.Injector;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
@@ -13,7 +19,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.StackPane;
 import javafx.scene.robot.Robot;
 import javafx.stage.Stage;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.clipboard.ClipBoardManager;
@@ -23,16 +28,8 @@ import org.jabref.gui.testutils.JavaFxTest;
 import org.jabref.gui.util.component.ListScrollPane;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.ai.chatting.ChatMessage;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 // [utest->feat~ai.chat.jump-to-entry-pdf~1]
 @ResourceLock("Localization.lang")
@@ -96,7 +93,8 @@ class AiChatMessageViewTest extends JavaFxTest {
         });
 
         interact(() -> {
-            Hyperlink hyperlink = (Hyperlink) view.getMarkdownTextFlow().getChildren().getFirst();
+            Hyperlink hyperlink =
+                    (Hyperlink) view.getMarkdownTextFlow().getChildren().getFirst();
             hyperlink.fire();
         });
 

@@ -6,12 +6,9 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.ListIterator;
 import java.util.function.Predicate;
-
 import javafx.collections.ObservableListBase;
 import javafx.collections.transformation.FilteredList;
-
 import org.jabref.gui.maintable.BibEntryTableViewModel;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,15 +32,13 @@ public class FilteredListProxy {
                 initReflection();
             }
             REFILTER_METHOD.invoke(filteredList);
-        } catch (IllegalAccessException
-                 | InvocationTargetException
-                 | NoSuchMethodException
-                 | NoSuchFieldException e) {
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | NoSuchFieldException e) {
             LOGGER.warn("Could not refilter list", e);
         }
     }
 
-    public static void refilterListReflection(FilteredList<BibEntryTableViewModel> filteredList, int sourceFrom, int sourceTo) {
+    public static void refilterListReflection(
+            FilteredList<BibEntryTableViewModel> filteredList, int sourceFrom, int sourceTo) {
         try {
             if (!initialized) {
                 initReflection();
@@ -56,8 +51,10 @@ public class FilteredListProxy {
             ENSURE_SIZE_METHOD.invoke(filteredList, filteredList.getSource().size());
 
             @SuppressWarnings("unchecked")
-            Predicate<BibEntryTableViewModel> predicateImpl = (Predicate<BibEntryTableViewModel>) GET_PREDICATE_IMPL_METHOD.invoke(filteredList);
-            ListIterator<? extends BibEntryTableViewModel> it = filteredList.getSource().listIterator(sourceFrom);
+            Predicate<BibEntryTableViewModel> predicateImpl =
+                    (Predicate<BibEntryTableViewModel>) GET_PREDICATE_IMPL_METHOD.invoke(filteredList);
+            ListIterator<? extends BibEntryTableViewModel> it =
+                    filteredList.getSource().listIterator(sourceFrom);
 
             int[] filtered = (int[]) FILTERED_FIELD.get(filteredList);
             int size = (int) SIZE_FIELD.get(filteredList);

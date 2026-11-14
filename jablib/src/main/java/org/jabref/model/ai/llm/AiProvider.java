@@ -1,7 +1,6 @@
 package org.jabref.model.ai.llm;
 
 import java.io.Serializable;
-
 import org.jabref.model.ai.AiDefaultEnums;
 
 public enum AiProvider implements Serializable {

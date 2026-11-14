@@ -1,22 +1,20 @@
 package org.jabref.languageserver.util.definition;
 
+import com.google.gson.JsonArray;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.jabref.languageserver.util.LspParserHandler;
-import org.jabref.languageserver.util.LspRangeUtil;
-import org.jabref.logic.importer.ParserResult;
-import org.jabref.model.entry.BibEntry;
-
-import com.google.gson.JsonArray;
 import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.jabref.languageserver.util.LspParserHandler;
+import org.jabref.languageserver.util.LspRangeUtil;
+import org.jabref.logic.importer.ParserResult;
+import org.jabref.model.entry.BibEntry;
 
 public abstract class DefinitionProvider {
 
@@ -35,9 +33,10 @@ public abstract class DefinitionProvider {
             Map<String, List<BibEntry>> entriesMap = parserHandler.searchForEntryByCitationKey(citationKey.get());
             if (!entriesMap.isEmpty()) {
                 return entriesMap.entrySet().stream()
-                                 .flatMap(listEntry -> listEntry.getValue().stream()
-                                                                .map(entry -> createLocation(getRangeFromEntry(listEntry.getKey(), entry), listEntry.getKey())))
-                                 .toList();
+                        .flatMap(listEntry -> listEntry.getValue().stream()
+                                .map(entry -> createLocation(
+                                        getRangeFromEntry(listEntry.getKey(), entry), listEntry.getKey())))
+                        .toList();
             }
         }
         return List.of();
@@ -74,7 +73,9 @@ public abstract class DefinitionProvider {
     }
 
     Range getRangeFromEntry(String fileUri, BibEntry entry) {
-        ParserResult parserResult = parserHandler.getParserResultForUri(fileUri).get(); // always present if we have an entry from provideDefinition
+        ParserResult parserResult = parserHandler
+                .getParserResultForUri(fileUri)
+                .get(); // always present if we have an entry from provideDefinition
         return LspRangeUtil.convertToLspRange(parserResult.getArticleRanges().get(entry));
     }
 
@@ -134,6 +135,5 @@ public abstract class DefinitionProvider {
         return result;
     }
 
-    private record KeyBounds(String key, int start, int end) {
-    }
+    private record KeyBounds(String key, int start, int end) {}
 }

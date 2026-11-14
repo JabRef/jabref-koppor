@@ -1,28 +1,28 @@
 package org.jabref.logic.ocr;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @NullMarked
 class OcrUtilsTest {
     @Test
     void nonZeroExitPreservesCommandAndOutput() throws URISyntaxException {
         String javaExecutable = ProcessHandle.current().info().command().orElseThrow();
-        String classPath = Path.of(
-                FailingProcess.class.getProtectionDomain()
-                                    .getCodeSource()
-                                    .getLocation()
-                                    .toURI()
-        ).toString();
-        ArrayList<String> command = new ArrayList<>(List.of(javaExecutable, "-cp", classPath, FailingProcess.class.getName()));
+        String classPath = Path.of(FailingProcess.class
+                        .getProtectionDomain()
+                        .getCodeSource()
+                        .getLocation()
+                        .toURI())
+                .toString();
+        ArrayList<String> command =
+                new ArrayList<>(List.of(javaExecutable, "-cp", classPath, FailingProcess.class.getName()));
 
         OcrResult result = OcrUtils.performOcr(command, "Test OCR");
 

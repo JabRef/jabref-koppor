@@ -1,21 +1,19 @@
 package org.jabref.gui.autocompleter;
 
+import static org.jabref.gui.autocompleter.AutoCompleterUtil.getRequest;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.Author;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.jabref.gui.autocompleter.AutoCompleterUtil.getRequest;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PersonNameSuggestionProviderTest {
 
@@ -35,7 +33,8 @@ class PersonNameSuggestionProviderTest {
 
     @Test
     void initAutoCompleterWithNullFieldThrowsException() {
-        assertThrows(NullPointerException.class, () -> new PersonNameSuggestionProvider((Field) null, new BibDatabase()));
+        assertThrows(
+                NullPointerException.class, () -> new PersonNameSuggestionProvider((Field) null, new BibDatabase()));
     }
 
     @Test

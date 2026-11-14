@@ -4,16 +4,14 @@ import java.net.MalformedURLException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.jabref.logic.importer.FetcherClientException;
-import org.jabref.logic.importer.FetcherException;
-import org.jabref.logic.net.URLDownload;
-import org.jabref.model.ai.llm.AiProvider;
-
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.json.JSONArray;
 import kong.unirest.core.json.JSONException;
 import kong.unirest.core.json.JSONObject;
+import org.jabref.logic.importer.FetcherClientException;
+import org.jabref.logic.importer.FetcherException;
+import org.jabref.logic.net.URLDownload;
+import org.jabref.model.ai.llm.AiProvider;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -51,8 +49,11 @@ public class OpenAiCompatibleModelProvider implements AiModelProvider {
 
             LOGGER.debug("Successfully fetched {} models from {}", models.size(), aiProvider.name());
         } catch (FetcherClientException e) {
-            // Invalid API key or wrong base URL: URLDownload already logged the response (incl. status), so no stack trace above debug
-            LOGGER.warn("Could not fetch models from {}: client error (see HTTP response logged before)", aiProvider.name());
+            // Invalid API key or wrong base URL: URLDownload already logged the response (incl. status), so no stack
+            // trace above debug
+            LOGGER.warn(
+                    "Could not fetch models from {}: client error (see HTTP response logged before)",
+                    aiProvider.name());
             LOGGER.debug("Client error while fetching models from {}", aiProvider.name(), e);
         } catch (FetcherException | MalformedURLException | JSONException e) {
             LOGGER.error("Failed to fetch models from {}", aiProvider.name(), e);

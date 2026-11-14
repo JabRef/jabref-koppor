@@ -4,24 +4,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 
 /// A data structure representing the result of semantic diffing between base and remote entries.
 ///
 /// The idea is: library A and then this patch leads to library B (if this patch is calculated between A and B)
-/// This is a bit different from [org.jabref.logic.bibtex.comparator.BibEntryDiff], which "just" contains two entries on any field diff, but leaves "computation" on the caller.
+/// This is a bit different from [org.jabref.logic.bibtex.comparator.BibEntryDiff], which "just" contains two entries on
+/// any field diff, but leaves "computation" on the caller.
 /// Thus, the data structure is different, because here, only the patches are contained, not any source or target.
 /// "patch" in the sense of "commands" to be applied to the source to get the target
 ///
-/// @param fieldPatches contains field-level modifications per citation key. citationKey -> field -> newValue (null = delete)
+/// @param fieldPatches contains field-level modifications per citation key. citationKey -> field -> newValue (null =
+/// delete)
 /// @param newEntries   entries present in remote but not in base/local
 public record MergePlan(
-        Map<String, Map<Field, String>> fieldPatches,
-        List<BibEntry> newEntries,
-        List<String> deletedEntryKeys
-) {
+        Map<String, Map<Field, String>> fieldPatches, List<BibEntry> newEntries, List<String> deletedEntryKeys) {
     public static MergePlan empty() {
         return new MergePlan(Map.of(), List.of(), List.of());
     }
@@ -36,7 +34,13 @@ public record MergePlan(
         remainingPatches.keySet().removeAll(citationKeys);
         return new MergePlan(
                 remainingPatches,
-                newEntries.stream().filter(entry -> entry.getCitationKey().filter(citationKeys::contains).isEmpty()).toList(),
-                deletedEntryKeys.stream().filter(key -> !citationKeys.contains(key)).toList());
+                newEntries.stream()
+                        .filter(entry -> entry.getCitationKey()
+                                .filter(citationKeys::contains)
+                                .isEmpty())
+                        .toList(),
+                deletedEntryKeys.stream()
+                        .filter(key -> !citationKeys.contains(key))
+                        .toList());
     }
 }

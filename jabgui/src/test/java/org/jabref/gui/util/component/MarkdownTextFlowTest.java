@@ -1,12 +1,19 @@
 package org.jabref.gui.util.component;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+
+import com.airhacks.afterburner.injection.Injector;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-
 import javafx.collections.ListChangeListener;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
@@ -25,27 +32,17 @@ import javafx.scene.shape.Path;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
-
 import org.jabref.gui.StateManager;
 import org.jabref.gui.ai.chat.JsonCodeBlockFormatter;
 import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.gui.testutils.JavaFxTest;
 import org.jabref.logic.ai.chatting.util.JsonAnswerFormatter;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 
 class MarkdownTextFlowTest extends JavaFxTest {
     private StackPane rootPane;
@@ -95,11 +92,15 @@ class MarkdownTextFlowTest extends JavaFxTest {
                 } else if (child instanceof GridPane table) {
                     TreeMap<Integer, StringJoiner> rows = new TreeMap<>();
                     for (Node cell : table.getChildren()) {
-                        if (cell instanceof StackPane pane && pane.getChildren().getFirst() instanceof MarkdownTextFlow content) {
-                            rows.computeIfAbsent(GridPane.getRowIndex(cell), _ -> new StringJoiner("\t")).add(renderedText(content));
+                        if (cell instanceof StackPane pane
+                                && pane.getChildren().getFirst() instanceof MarkdownTextFlow content) {
+                            rows.computeIfAbsent(GridPane.getRowIndex(cell), _ -> new StringJoiner("\t"))
+                                    .add(renderedText(content));
                         }
                     }
-                    builder.append(String.join("\n", rows.values().stream().map(StringJoiner::toString).toList()));
+                    builder.append(String.join(
+                            "\n",
+                            rows.values().stream().map(StringJoiner::toString).toList()));
                 }
             }
             renderedTextReference.set(builder.toString());
@@ -230,11 +231,12 @@ class MarkdownTextFlowTest extends JavaFxTest {
         });
 
         assertEquals("""
-                ```json
-                {
-                  "a": 1
-                }
-                ```""", clipBoardManager.stringContent.get());
+            ```json
+            {
+              "a": 1
+            }
+            ```\
+            """, clipBoardManager.stringContent.get());
         assertTrue(clipBoardManager.htmlContent.get().contains("<code"));
     }
 
@@ -304,8 +306,9 @@ class MarkdownTextFlowTest extends JavaFxTest {
         MarkdownTextFlow textFlow = markdownTextFlow();
 
         interact(() -> {
-            textFlow.setMarkdown("```\noriginal\n```", _ -> Optional.of(List.of(
-                    new MarkdownTextFlow.CodeBlockSegment(replacement, "custom-code"))));
+            textFlow.setMarkdown(
+                    "```\noriginal\n```",
+                    _ -> Optional.of(List.of(new MarkdownTextFlow.CodeBlockSegment(replacement, "custom-code"))));
             assertEquals(replacement, renderedText(textFlow));
             assertTrue(hasChildWithStyleClass(textFlow, "custom-code"));
             rootPane.applyCss();
@@ -400,20 +403,37 @@ class MarkdownTextFlowTest extends JavaFxTest {
         MarkdownTextFlow textFlow = markdownTextFlow();
 
         interact(() -> textFlow.setMarkdown("""
-                | Name | Year |
-                |------|------|
-                | **JabRef** | 2003 |
-                """));
+            | Name | Year |
+            |------|------|
+            | **JabRef** | 2003 |
+            """));
 
         assertEquals("""
-                Name\tYear
-                JabRef\t2003""", renderedText(textFlow));
+            Name\tYear
+            JabRef\t2003\
+            """, renderedText(textFlow));
         interact(() -> {
             GridPane table = table(textFlow);
-            assertEquals(List.of(0, 1, 0, 1), table.getChildren().stream().filter(StackPane.class::isInstance).map(GridPane::getColumnIndex).toList());
-            assertEquals(1, table.getChildren().stream().filter(Separator.class::isInstance).count());
-            assertEquals("bold", tableCell(textFlow, 0).getParent().getStyleClass().getLast());
-            assertEquals("bold", tableCell(textFlow, 2).getChildren().getFirst().getStyleClass().getLast());
+            assertEquals(
+                    List.of(0, 1, 0, 1),
+                    table.getChildren().stream()
+                            .filter(StackPane.class::isInstance)
+                            .map(GridPane::getColumnIndex)
+                            .toList());
+            assertEquals(
+                    1,
+                    table.getChildren().stream()
+                            .filter(Separator.class::isInstance)
+                            .count());
+            assertEquals(
+                    "bold", tableCell(textFlow, 0).getParent().getStyleClass().getLast());
+            assertEquals(
+                    "bold",
+                    tableCell(textFlow, 2)
+                            .getChildren()
+                            .getFirst()
+                            .getStyleClass()
+                            .getLast());
         });
     }
 
@@ -422,35 +442,50 @@ class MarkdownTextFlowTest extends JavaFxTest {
         MarkdownTextFlow textFlow = markdownTextFlow();
 
         interact(() -> textFlow.setMarkdown("""
-                | left | center | right |
-                |:-----|:------:|------:|
-                | a | b | c |
-                """));
+            | left | center | right |
+            |:-----|:------:|------:|
+            | a | b | c |
+            """));
 
-        interact(() -> assertEquals(List.of(TextAlignment.LEFT, TextAlignment.CENTER, TextAlignment.RIGHT),
-                List.of(tableCell(textFlow, 3).getTextAlignment(), tableCell(textFlow, 4).getTextAlignment(), tableCell(textFlow, 5).getTextAlignment())));
+        interact(() -> assertEquals(
+                List.of(TextAlignment.LEFT, TextAlignment.CENTER, TextAlignment.RIGHT),
+                List.of(
+                        tableCell(textFlow, 3).getTextAlignment(),
+                        tableCell(textFlow, 4).getTextAlignment(),
+                        tableCell(textFlow, 5).getTextAlignment())));
         interact(() -> {
-            rootPane.getStylesheets().add(MarkdownTextFlow.class.getResource("/org/jabref/gui/theme/internal/jabref-base.css").toExternalForm());
+            rootPane.getStylesheets()
+                    .add(MarkdownTextFlow.class
+                            .getResource("/org/jabref/gui/theme/internal/jabref-base.css")
+                            .toExternalForm());
             rootPane.applyCss();
             rootPane.layout();
-            assertEquals(List.of(TextAlignment.LEFT, TextAlignment.CENTER, TextAlignment.RIGHT),
-                    List.of(tableCell(textFlow, 3).getTextAlignment(), tableCell(textFlow, 4).getTextAlignment(), tableCell(textFlow, 5).getTextAlignment()));
+            assertEquals(
+                    List.of(TextAlignment.LEFT, TextAlignment.CENTER, TextAlignment.RIGHT),
+                    List.of(
+                            tableCell(textFlow, 3).getTextAlignment(),
+                            tableCell(textFlow, 4).getTextAlignment(),
+                            tableCell(textFlow, 5).getTextAlignment()));
         });
     }
 
     @ParameterizedTest
     @CsvSource(delimiter = ';', textBlock = """
-            '| a | b |\n|---|---|';                  'a\tb'
-            '| a |\n|---|\n| 1 | 2 |';               'a\n1\t2'
-            '| e\u0301 | 🙂 |\n|---|---|\n| ab | cd |'; 'e\u0301\t🙂\nab\tcd'
-            """)
+        '| a | b |\n|---|---|';                  'a\tb'
+        '| a |\n|---|\n| 1 | 2 |';               'a\n1\t2'
+        '| e\u0301 | 🙂 |\n|---|---|\n| ab | cd |'; 'e\u0301\t🙂\nab\tcd'
+        """)
     void setMarkdownRendersHeaderOnlyAndIrregularTables(String markdown, String expected) {
         MarkdownTextFlow textFlow = markdownTextFlow();
 
         interact(() -> textFlow.setMarkdown(markdown.translateEscapes()));
 
         assertEquals(expected.translateEscapes(), renderedText(textFlow));
-        interact(() -> assertEquals(1, table(textFlow).getChildren().stream().filter(Separator.class::isInstance).count()));
+        interact(() -> assertEquals(
+                1,
+                table(textFlow).getChildren().stream()
+                        .filter(Separator.class::isInstance)
+                        .count()));
     }
 
     @Test
@@ -458,18 +493,21 @@ class MarkdownTextFlowTest extends JavaFxTest {
         MarkdownTextFlow textFlow = markdownTextFlow();
 
         interact(() -> textFlow.setMarkdown("""
-                > | a | b |
-                > |---|---|
-                > | 1 | 2 |
-                """));
+            > | a | b |
+            > |---|---|
+            > | 1 | 2 |
+            """));
 
         assertEquals("""
-                > a\tb
-                1\t2""", renderedText(textFlow));
+            > a\tb
+            1\t2\
+            """, renderedText(textFlow));
         interact(() -> {
             rootPane.applyCss();
             rootPane.layout();
-            assertEquals(tableCell(textFlow, 0).getParent().getLayoutX(), tableCell(textFlow, 2).getParent().getLayoutX());
+            assertEquals(
+                    tableCell(textFlow, 0).getParent().getLayoutX(),
+                    tableCell(textFlow, 2).getParent().getLayoutX());
         });
     }
 
@@ -477,9 +515,10 @@ class MarkdownTextFlowTest extends JavaFxTest {
     void copySelectedTableUsesMarkdownAndHtmlTable() {
         MarkdownTextFlow textFlow = markdownTextFlow();
         String table = """
-                | a | b |
-                |---|---|
-                | 1 | 2 |""";
+            | a | b |
+            |---|---|
+            | 1 | 2 |\
+            """;
 
         interact(() -> {
             textFlow.setMarkdown(table);
@@ -502,10 +541,10 @@ class MarkdownTextFlowTest extends JavaFxTest {
 
         interact(() -> {
             textFlow.setMarkdown("""
-                    | A | B | C |
-                    |---|---|---|
-                    | 1 || 3 |
-                    """);
+                | A | B | C |
+                |---|---|---|
+                | 1 || 3 |
+                """);
 
             assertEquals(2, GridPane.getColumnSpan(tableCell(textFlow, 3).getParent()));
             assertEquals(2, GridPane.getColumnIndex(tableCell(textFlow, 4).getParent()));
@@ -518,11 +557,11 @@ class MarkdownTextFlowTest extends JavaFxTest {
         MarkdownTextFlow textFlow = markdownTextFlow();
 
         interact(() -> textFlow.setMarkdown("""
-                | Value | Next |
-                |---|---|
-                | `  value  ` | x |
-                [Important caption]
-                """));
+            | Value | Next |
+            |---|---|
+            | `  value  ` | x |
+            [Important caption]
+            """));
 
         assertEquals("Value\tNext\n  value  \tx\nImportant caption", renderedText(textFlow));
     }
@@ -534,16 +573,20 @@ class MarkdownTextFlowTest extends JavaFxTest {
 
         interact(() -> {
             textFlow.setMarkdown("""
-                    | Name | Year |
-                    |---|---|
-                    | %s | 2026 |
-                    | ab | 2025 |
-                    """.formatted(value));
+                | Name | Year |
+                |---|---|
+                | %s | 2026 |
+                | ab | 2025 |
+                """.formatted(value));
             rootPane.applyCss();
             rootPane.layout();
 
-            assertEquals(tableCell(textFlow, 3).getParent().getLayoutX(), tableCell(textFlow, 5).getParent().getLayoutX());
-            assertEquals(tableCell(textFlow, 3).getParent().getBoundsInParent().getWidth(), tableCell(textFlow, 5).getParent().getBoundsInParent().getWidth());
+            assertEquals(
+                    tableCell(textFlow, 3).getParent().getLayoutX(),
+                    tableCell(textFlow, 5).getParent().getLayoutX());
+            assertEquals(
+                    tableCell(textFlow, 3).getParent().getBoundsInParent().getWidth(),
+                    tableCell(textFlow, 5).getParent().getBoundsInParent().getWidth());
         });
     }
 
@@ -553,24 +596,29 @@ class MarkdownTextFlowTest extends JavaFxTest {
 
         interact(() -> {
             textFlow.setMarkdown("""
-                    | Title | Year | Description |
-                    |---|---|---|
-                    | A long title consisting of several words | 2026 | An extended explanation that makes this table wider than the chat bubble |
-                    """);
+                | Title | Year | Description |
+                |---|---|---|
+                | A long title consisting of several words | 2026 | An extended explanation that makes this table wider than the chat bubble |
+                """);
             rootPane.applyCss();
             rootPane.layout();
             GridPane table = table(textFlow);
 
             assertEquals(textFlow.getWidth(), table.getWidth(), 1);
             for (int column = 0; column < 3; column++) {
-                assertEquals(tableCell(textFlow, column).getParent().getLayoutX(), tableCell(textFlow, column + 3).getParent().getLayoutX());
+                assertEquals(
+                        tableCell(textFlow, column).getParent().getLayoutX(),
+                        tableCell(textFlow, column + 3).getParent().getLayoutX());
             }
-            assertTrue(tableCell(textFlow, 5).getHeight() > tableCell(textFlow, 2).getHeight());
+            assertTrue(
+                    tableCell(textFlow, 5).getHeight() > tableCell(textFlow, 2).getHeight());
 
             rootPane.resize(200, 400);
             rootPane.layout();
             assertEquals(textFlow.getWidth(), table.getWidth(), 1);
-            assertEquals(tableCell(textFlow, 2).getParent().getLayoutX(), tableCell(textFlow, 5).getParent().getLayoutX());
+            assertEquals(
+                    tableCell(textFlow, 2).getParent().getLayoutX(),
+                    tableCell(textFlow, 5).getParent().getLayoutX());
         });
     }
 
@@ -580,7 +628,8 @@ class MarkdownTextFlowTest extends JavaFxTest {
         MarkdownTextFlow textFlow = markdownTextFlow();
         String continuation = "> ".equals(prefix) ? prefix : " ".repeat(prefix.length());
         String separator = "> ".equals(prefix) ? "\n>\n" : "\n\n";
-        String markdown = prefix + "Intro" + separator + continuation + "| A | B |\n" + continuation + "|---|---|\n" + continuation + "| 1 | 2 |" + separator + continuation + "After";
+        String markdown = prefix + "Intro" + separator + continuation + "| A | B |\n" + continuation + "|---|---|\n"
+                + continuation + "| 1 | 2 |" + separator + continuation + "After";
 
         interact(() -> {
             textFlow.setMarkdown(markdown);
@@ -598,9 +647,10 @@ class MarkdownTextFlowTest extends JavaFxTest {
     void copyQuotedTableRetainsEveryQuotePrefix() {
         MarkdownTextFlow textFlow = markdownTextFlow();
         String markdown = """
-                > | A | B |
-                > |---|---|
-                > | 1 | 2 |""";
+            > | A | B |
+            > |---|---|
+            > | 1 | 2 |\
+            """;
 
         interact(() -> {
             textFlow.setMarkdown(markdown);
@@ -612,30 +662,31 @@ class MarkdownTextFlowTest extends JavaFxTest {
 
         assertEquals(markdown, clipBoardManager.stringContent.get());
         assertEquals("""
-                <blockquote>
-                <table>
-                <thead>
-                <tr><th>A</th><th>B</th></tr>
-                </thead>
-                <tbody>
-                <tr><td>1</td><td>2</td></tr>
-                </tbody>
-                </table>
-                </blockquote>
-                """, clipBoardManager.htmlContent.get());
+            <blockquote>
+            <table>
+            <thead>
+            <tr><th>A</th><th>B</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>1</td><td>2</td></tr>
+            </tbody>
+            </table>
+            </blockquote>
+            """, clipBoardManager.htmlContent.get());
     }
 
     @Test
     void copySelectionAcrossTableKeepsSurroundingMarkup() {
         MarkdownTextFlow textFlow = markdownTextFlow();
         String markdown = """
-                **Before**
+            **Before**
 
-                | A | B |
-                |---|---|
-                | 1 | 2 |
+            | A | B |
+            |---|---|
+            | 1 | 2 |
 
-                *After*""";
+            *After*\
+            """;
 
         interact(() -> {
             textFlow.setMarkdown(markdown);
@@ -655,16 +706,17 @@ class MarkdownTextFlowTest extends JavaFxTest {
 
         interact(() -> {
             textFlow.setMarkdown("""
-                    | Reference | Year |
-                    |---|---|
-                    | [JabRef](https://www.jabref.org) | 2026 |
-                    """);
+                | Reference | Year |
+                |---|---|
+                | [JabRef](https://www.jabref.org) | 2026 |
+                """);
             textFlow.setHyperlinkHandler(clickedUrl::set);
             rootPane.applyCss();
             rootPane.layout();
         });
         JavaFxExtension.invokeAndWait(() -> {
-            Hyperlink hyperlink = (Hyperlink) tableCell(textFlow, 2).getChildren().getFirst();
+            Hyperlink hyperlink =
+                    (Hyperlink) tableCell(textFlow, 2).getChildren().getFirst();
             Bounds bounds = hyperlink.localToScreen(hyperlink.getBoundsInLocal());
             Robot robot = new Robot();
             robot.mouseMove(bounds.getCenterX(), bounds.getCenterY());
@@ -681,10 +733,10 @@ class MarkdownTextFlowTest extends JavaFxTest {
 
         interact(() -> {
             textFlow.setMarkdown("""
-                    | Value | Next |
-                    |---|---|
-                    | `  value  ` | x |
-                    """);
+                | Value | Next |
+                |---|---|
+                | `  value  ` | x |
+                """);
             rootPane.applyCss();
             rootPane.layout();
             tableCell(textFlow, 2).selectAll();
@@ -729,10 +781,10 @@ class MarkdownTextFlowTest extends JavaFxTest {
 
         interact(() -> {
             textFlow.setMarkdown("""
-                    | Value | Next |
-                    |---|---|
-                    | hello world | x |
-                    """);
+                | Value | Next |
+                |---|---|
+                | hello world | x |
+                """);
             rootPane.applyCss();
             rootPane.layout();
         });
@@ -831,28 +883,37 @@ class MarkdownTextFlowTest extends JavaFxTest {
 
     private static int childCount(MarkdownTextFlow textFlow) {
         AtomicReference<Integer> childCountReference = new AtomicReference<>();
-        JavaFxExtension.invokeAndWait(() -> childCountReference.set(textFlow.getChildren().size()));
+        JavaFxExtension.invokeAndWait(
+                () -> childCountReference.set(textFlow.getChildren().size()));
         return childCountReference.get();
     }
 
     private static GridPane table(MarkdownTextFlow flow) {
-        return (GridPane) flow.getChildren().stream().filter(GridPane.class::isInstance).findFirst().orElseThrow();
+        return (GridPane) flow.getChildren().stream()
+                .filter(GridPane.class::isInstance)
+                .findFirst()
+                .orElseThrow();
     }
 
     private static MarkdownTextFlow tableCell(MarkdownTextFlow flow, int index) {
-        StackPane pane = (StackPane) table(flow).getChildren().stream().filter(StackPane.class::isInstance).toList().get(index);
+        StackPane pane = (StackPane) table(flow).getChildren().stream()
+                .filter(StackPane.class::isInstance)
+                .toList()
+                .get(index);
         return (MarkdownTextFlow) pane.getChildren().getFirst();
     }
 
     private static boolean hasNoChildren(MarkdownTextFlow textFlow) {
         AtomicReference<Boolean> hasNoChildrenReference = new AtomicReference<>();
-        JavaFxExtension.invokeAndWait(() -> hasNoChildrenReference.set(textFlow.getChildren().isEmpty()));
+        JavaFxExtension.invokeAndWait(
+                () -> hasNoChildrenReference.set(textFlow.getChildren().isEmpty()));
         return hasNoChildrenReference.get();
     }
 
     private static boolean hasChildWithStyleClass(MarkdownTextFlow textFlow, String styleClass) {
         AtomicReference<Boolean> hasChildWithStyleClassReference = new AtomicReference<>();
-        JavaFxExtension.invokeAndWait(() -> hasChildWithStyleClassReference.set(textFlow.getChildren().stream().anyMatch(child -> child.getStyleClass().contains(styleClass))));
+        JavaFxExtension.invokeAndWait(() -> hasChildWithStyleClassReference.set(textFlow.getChildren().stream()
+                .anyMatch(child -> child.getStyleClass().contains(styleClass))));
         return hasChildWithStyleClassReference.get();
     }
 
@@ -898,20 +959,15 @@ class MarkdownTextFlowTest extends JavaFxTest {
 
     // [utest->req~ai.chat.find.matches~1]
     @ParameterizedTest
-    @ValueSource(strings = {
-            "[Chocolate](https://example.org)",
-            "Hot [choco](https://example.org)**late**",
-            """
-                    | Flavor |
-                    | --- |
-                    | Chocolate |
-                    """,
-            """
-                    | Flavor |
-                    | --- |
-                    | [Chocolate](https://example.org) |
-                    """
-    })
+    @ValueSource(strings = {"[Chocolate](https://example.org)", "Hot [choco](https://example.org)**late**", """
+        | Flavor |
+        | --- |
+        | Chocolate |
+        """, """
+            | Flavor |
+            | --- |
+            | [Chocolate](https://example.org) |
+            """})
     void highlightOccurrencesIncludesEmbeddedMarkdown(String markdown) {
         MarkdownTextFlow flow = markdownTextFlow();
         interact(() -> {
@@ -932,14 +988,14 @@ class MarkdownTextFlowTest extends JavaFxTest {
         MarkdownTextFlow flow = markdownTextFlow();
         interact(() -> {
             flow.setMarkdown("""
-                    Chocolate before
+                Chocolate before
 
-                    | Flavor |
-                    | --- |
-                    | Chocolate inside |
+                | Flavor |
+                | --- |
+                | Chocolate inside |
 
-                    Chocolate after
-                    """);
+                Chocolate after
+                """);
             rootPane.applyCss();
             rootPane.layout();
 
@@ -947,7 +1003,8 @@ class MarkdownTextFlowTest extends JavaFxTest {
             Node current = flow.getCurrentOccurrence().orElseThrow();
             assertInstanceOf(GridPane.class, current.getParent().getParent());
             assertEquals(3, flow.highlightOccurrences("chocolate", 2));
-            assertEquals(flow.getParent(), flow.getCurrentOccurrence().orElseThrow().getParent());
+            assertEquals(
+                    flow.getParent(), flow.getCurrentOccurrence().orElseThrow().getParent());
         });
     }
 
@@ -956,17 +1013,17 @@ class MarkdownTextFlowTest extends JavaFxTest {
         MarkdownTextFlow flow = markdownTextFlow();
         interact(() -> {
             flow.setMarkdown("""
-                    Chocolate appears in plain text and **CHOCOLATE** in bold.
+                Chocolate appears in plain text and **CHOCOLATE** in bold.
 
-                    Here is a [Chocolate citation](https://example.org/chocolate).
+                Here is a [Chocolate citation](https://example.org/chocolate).
 
-                    | Flavor | Note |
-                    | --- | --- |
-                    | Chocolate | Table match |
-                    | [Chocolate source](https://example.org/source) | Link in table |
+                | Flavor | Note |
+                | --- | --- |
+                | Chocolate | Table match |
+                | [Chocolate source](https://example.org/source) | Link in table |
 
-                    The final chocolate occurrence is below the table.
-                    """);
+                The final chocolate occurrence is below the table.
+                """);
             rootPane.applyCss();
             rootPane.layout();
             flow.highlightOccurrences("c", 0);
@@ -987,7 +1044,11 @@ class MarkdownTextFlowTest extends JavaFxTest {
                 rootPane.layout();
             }
             assertEquals(6, flow.highlightOccurrences("chocolate", 0));
-            assertEquals(4L, content.getChildren().stream().filter(Path.class::isInstance).count());
+            assertEquals(
+                    4L,
+                    content.getChildren().stream()
+                            .filter(Path.class::isInstance)
+                            .count());
         });
         awaitEvents();
     }

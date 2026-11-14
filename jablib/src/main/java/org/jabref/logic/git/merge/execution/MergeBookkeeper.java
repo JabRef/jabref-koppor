@@ -5,15 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
-
-import org.jabref.logic.JabRefException;
-import org.jabref.logic.git.GitHandler;
-import org.jabref.logic.git.io.GitFileReader;
-import org.jabref.logic.git.io.GitRevisionLocator;
-import org.jabref.logic.git.model.BookkeepingResult;
-import org.jabref.logic.git.model.PullPlan;
-import org.jabref.logic.git.util.GitHandlerRegistry;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.dircache.DirCache;
@@ -25,6 +16,13 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.RefUpdate;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.jabref.logic.JabRefException;
+import org.jabref.logic.git.GitHandler;
+import org.jabref.logic.git.io.GitFileReader;
+import org.jabref.logic.git.io.GitRevisionLocator;
+import org.jabref.logic.git.model.BookkeepingResult;
+import org.jabref.logic.git.model.PullPlan;
+import org.jabref.logic.git.util.GitHandlerRegistry;
 
 /// Record the GUI-produced merge result into Git history.
 /// Creates the right commit shape based on the merge graph:
@@ -44,7 +42,8 @@ public final class MergeBookkeeper {
         this.registry = registry;
     }
 
-    public BookkeepingResult resultRecord(Path bibFilePath, PullPlan computation) throws IOException, GitAPIException, JabRefException {
+    public BookkeepingResult resultRecord(Path bibFilePath, PullPlan computation)
+            throws IOException, GitAPIException, JabRefException {
         Optional<Path> repoRoot = GitHandler.findRepositoryRoot(bibFilePath);
         if (repoRoot.isEmpty()) {
             throw new JabRefException("Finalize aborted: Path is not inside a Git repository.");
@@ -87,20 +86,20 @@ public final class MergeBookkeeper {
                     gitHandler.fastForwardTo(remote);
                     return BookkeepingResult.fastForward();
                 }
-                // Local working tree != remote: The current index tree needs to be attached as a new commit on top of the remote (single parent).
-                return commitWithParents(repo, branchRef, treeId,
-                        "Semantic merge (GUI-applied) on top of remote",
-                        remote.getId());
+                // Local working tree != remote: The current index tree needs to be attached as a new commit on top of
+                // the remote (single parent).
+                return commitWithParents(
+                        repo, branchRef, treeId, "Semantic merge (GUI-applied) on top of remote", remote.getId());
             } else {
                 // DIVERGED or other -> merge commit with parents [localHead, remote]
-                return commitWithParents(repo, branchRef, treeId,
-                        "Semantic merge (GUI-applied)",
-                        localHead.getId(), remote.getId());
+                return commitWithParents(
+                        repo, branchRef, treeId, "Semantic merge (GUI-applied)", localHead.getId(), remote.getId());
             }
         }
     }
 
-    private static boolean blobEqualsCommitPath(Git git, RevCommit commit, String relativePath, Path file) throws JabRefException, IOException {
+    private static boolean blobEqualsCommitPath(Git git, RevCommit commit, String relativePath, Path file)
+            throws JabRefException, IOException {
         Optional<String> content = GitFileReader.readFileFromCommit(git, commit, Path.of(relativePath));
         if (content.isEmpty()) {
             return false;
@@ -110,11 +109,9 @@ public final class MergeBookkeeper {
         return Objects.equals(remoteText, current);
     }
 
-    private BookkeepingResult commitWithParents(Repository repo,
-                                                String branchRef,
-                                                ObjectId treeId,
-                                                String message,
-                                                ObjectId... parents) throws IOException {
+    private BookkeepingResult commitWithParents(
+            Repository repo, String branchRef, ObjectId treeId, String message, ObjectId... parents)
+            throws IOException {
 
         try (ObjectInserter inserter = repo.newObjectInserter()) {
             CommitBuilder commitBuilder = new CommitBuilder();

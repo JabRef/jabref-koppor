@@ -18,7 +18,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.FieldTextMapper;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.DOI;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,14 +26,23 @@ public class DoiIdentifierEditorViewModel extends BaseIdentifierEditorViewModel<
 
     private final ShortenDOIFormatter shortenDOIFormatter;
 
-    public DoiIdentifierEditorViewModel(SuggestionProvider<?> suggestionProvider,
-                                        FieldCheckers fieldCheckers,
-                                        DialogService dialogService,
-                                        TaskExecutor taskExecutor,
-                                        GuiPreferences preferences,
-                                        UndoManager undoManager,
-                                        StateManager stateManager) {
-        super(StandardField.DOI, suggestionProvider, fieldCheckers, dialogService, taskExecutor, preferences, undoManager, stateManager);
+    public DoiIdentifierEditorViewModel(
+            SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers,
+            DialogService dialogService,
+            TaskExecutor taskExecutor,
+            GuiPreferences preferences,
+            UndoManager undoManager,
+            StateManager stateManager) {
+        super(
+                StandardField.DOI,
+                suggestionProvider,
+                fieldCheckers,
+                dialogService,
+                taskExecutor,
+                preferences,
+                undoManager,
+                stateManager);
         this.shortenDOIFormatter = new ShortenDOIFormatter();
         configure(true, true, true);
     }
@@ -45,11 +53,14 @@ public class DoiIdentifierEditorViewModel extends BaseIdentifierEditorViewModel<
 
         BibEntry lookedUpEntry = entry;
         BackgroundTask.wrap(() -> doiFetcher.findIdentifier(lookedUpEntry))
-                      .onRunning(() -> EntryLookupsInProgress.DOI.started(lookedUpEntry))
-                      .onFinished(() -> EntryLookupsInProgress.DOI.finished(lookedUpEntry))
-                      .onSuccess(identifier -> identifier.ifPresentOrElse(
-                              doi -> lookedUpEntry.setField(field, doi.asString()),
-                              () -> dialogService.notify(Localization.lang("No %0 found", FieldTextMapper.getDisplayName(field))))).onFailure(e -> handleIdentifierFetchingError(e, doiFetcher)).executeWith(taskExecutor);
+                .onRunning(() -> EntryLookupsInProgress.DOI.started(lookedUpEntry))
+                .onFinished(() -> EntryLookupsInProgress.DOI.finished(lookedUpEntry))
+                .onSuccess(identifier -> identifier.ifPresentOrElse(
+                        doi -> lookedUpEntry.setField(field, doi.asString()),
+                        () -> dialogService.notify(
+                                Localization.lang("No %0 found", FieldTextMapper.getDisplayName(field)))))
+                .onFailure(e -> handleIdentifierFetchingError(e, doiFetcher))
+                .executeWith(taskExecutor);
     }
 
     @Override
@@ -60,17 +71,23 @@ public class DoiIdentifierEditorViewModel extends BaseIdentifierEditorViewModel<
 
     @Override
     public void fetchBibliographyInformation(BibEntry bibEntry) {
-        stateManager.getActiveDatabase().ifPresentOrElse(
-                databaseContext -> new FetchAndMergeEntry(databaseContext, taskExecutor, preferences, dialogService, undoManager, stateManager)
-                        .fetchAndMerge(entry, field),
-                () -> dialogService.notify(Localization.lang("No library selected"))
-        );
+        stateManager
+                .getActiveDatabase()
+                .ifPresentOrElse(
+                        databaseContext -> new FetchAndMergeEntry(
+                                        databaseContext,
+                                        taskExecutor,
+                                        preferences,
+                                        dialogService,
+                                        undoManager,
+                                        stateManager)
+                                .fetchAndMerge(entry, field),
+                        () -> dialogService.notify(Localization.lang("No library selected")));
     }
 
     @Override
     public void openExternalLink() {
-        identifier.get().map(DOI::asString)
-                  .ifPresent(s -> NativeDesktop.openCustomDoi(s, preferences, dialogService));
+        identifier.get().map(DOI::asString).ifPresent(s -> NativeDesktop.openCustomDoi(s, preferences, dialogService));
     }
 
     @Override

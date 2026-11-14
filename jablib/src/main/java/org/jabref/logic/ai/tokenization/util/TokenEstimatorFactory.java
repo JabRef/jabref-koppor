@@ -16,16 +16,11 @@ public final class TokenEstimatorFactory {
 
     public static TokenEstimator create(TokenEstimatorKind kind) {
         return switch (kind) {
-            case AVERAGE ->
-                    new AverageTokenEstimator();
-            case MAX ->
-                    new MaximumTokenEstimator();
-            case MIN ->
-                    new MinimumTokenEstimator();
-            case CHARS ->
-                    new ByCharacterTokenEstimator();
-            case WORDS ->
-                    new ByWordsTokenEstimator();
+            case AVERAGE -> new AverageTokenEstimator();
+            case MAX -> new MaximumTokenEstimator();
+            case MIN -> new MinimumTokenEstimator();
+            case CHARS -> new ByCharacterTokenEstimator();
+            case WORDS -> new ByWordsTokenEstimator();
         };
     }
 

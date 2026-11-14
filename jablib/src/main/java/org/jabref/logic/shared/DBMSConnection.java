@@ -5,10 +5,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.shared.exception.InvalidDBMSConnectionPropertiesException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +17,8 @@ public class DBMSConnection implements DatabaseConnection {
     private final Connection connection;
     private final DBMSConnectionProperties properties;
 
-    public DBMSConnection(DBMSConnectionProperties connectionProperties) throws SQLException, InvalidDBMSConnectionPropertiesException {
+    public DBMSConnection(DBMSConnectionProperties connectionProperties)
+            throws SQLException, InvalidDBMSConnectionPropertiesException {
         if (!connectionProperties.isValid()) {
             throw new InvalidDBMSConnectionPropertiesException();
         }
@@ -32,9 +31,11 @@ public class DBMSConnection implements DatabaseConnection {
             DBMSConnection.getAvailableDBMSTypes();
 
             if (connectionProperties.isUseExpertMode()) {
-                this.connection = DriverManager.getConnection(connectionProperties.getJdbcUrl(), connectionProperties.asProperties());
+                this.connection = DriverManager.getConnection(
+                        connectionProperties.getJdbcUrl(), connectionProperties.asProperties());
             } else {
-                this.connection = DriverManager.getConnection(connectionProperties.getUrl(), connectionProperties.asProperties());
+                this.connection =
+                        DriverManager.getConnection(connectionProperties.getUrl(), connectionProperties.asProperties());
             }
         } catch (SQLException e) {
             // Some systems like PostgreSQL retrieves 0 to every exception.

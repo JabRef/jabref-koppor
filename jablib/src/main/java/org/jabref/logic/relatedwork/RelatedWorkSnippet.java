@@ -11,6 +11,4 @@ public record RelatedWorkSnippet(
         String contextText,
 
         // Citation marker extracted from a related work text
-        String citationMarker
-) {
-}
+        String citationMarker) {}

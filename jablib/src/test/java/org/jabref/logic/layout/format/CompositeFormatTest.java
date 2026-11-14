@@ -1,12 +1,11 @@
 package org.jabref.logic.layout.format;
 
-import org.jabref.logic.layout.LayoutFormatter;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.jabref.logic.layout.LayoutFormatter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CompositeFormatTest {
 
@@ -18,17 +17,18 @@ class CompositeFormatTest {
 
     @Test
     void arrayComposite() {
-        LayoutFormatter f = new CompositeFormat(new LayoutFormatter[] {fieldText -> fieldText + fieldText,
-                fieldText -> "A" + fieldText, fieldText -> "B" + fieldText});
+        LayoutFormatter f = new CompositeFormat(new LayoutFormatter[] {
+            fieldText -> fieldText + fieldText, fieldText -> "A" + fieldText, fieldText -> "B" + fieldText
+        });
 
         assertEquals("BAff", f.format("f"));
     }
 
     @ParameterizedTest
     @CsvSource(textBlock = """
-            John Flynn and Sabine Gartska, John Flynn and Sabine Gartska
-            Sa Makridakis and Sa Ca Wheelwright and Va Ea McGee, Sa Makridakis and Sa Ca Wheelwright and Va Ea McGee
-            """)
+        John Flynn and Sabine Gartska, John Flynn and Sabine Gartska
+        Sa Makridakis and Sa Ca Wheelwright and Va Ea McGee, Sa Makridakis and Sa Ca Wheelwright and Va Ea McGee
+        """)
     void doubleComposite(String inputForFirst, String inputForComposite) {
         LayoutFormatter f = new CompositeFormat(new AuthorOrgSci(), new NoSpaceBetweenAbbreviations());
         LayoutFormatter first = new AuthorOrgSci();

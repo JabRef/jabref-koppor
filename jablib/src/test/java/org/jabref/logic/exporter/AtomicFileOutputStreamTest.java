@@ -1,5 +1,16 @@
 package org.jabref.logic.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.spy;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,10 +31,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
-
 import org.jabref.logic.util.io.FileSnapshot;
 import org.jabref.logic.util.io.FileUtil;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -33,17 +42,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Mockito;
-
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.spy;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("exporter")
@@ -140,10 +138,11 @@ class AtomicFileOutputStreamTest {
         String groups = new String(id.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
         assumeTrue(id.waitFor() == 0, "id -Gn failed");
         Optional<String> otherGroupName = Stream.of(groups.trim().split("\\s+"))
-                                                .filter(name -> !name.equals(defaultGroup.getName()))
-                                                .findFirst();
+                .filter(name -> !name.equals(defaultGroup.getName()))
+                .findFirst();
         assumeTrue(otherGroupName.isPresent(), "user is a member of one group only");
-        GroupPrincipal otherGroup = out.getFileSystem().getUserPrincipalLookupService().lookupPrincipalByGroupName(otherGroupName.get());
+        GroupPrincipal otherGroup =
+                out.getFileSystem().getUserPrincipalLookupService().lookupPrincipalByGroupName(otherGroupName.get());
         Files.setAttribute(out, "posix:group", otherGroup);
 
         try (AtomicFileOutputStream atomicFileOutputStream = new AtomicFileOutputStream(out)) {
@@ -164,10 +163,10 @@ class AtomicFileOutputStreamTest {
         // reading, writing, nor deleting the file
         UserPrincipal owner = Files.getOwner(out);
         AclEntry entry = AclEntry.newBuilder()
-                                 .setType(AclEntryType.DENY)
-                                 .setPrincipal(owner)
-                                 .setPermissions(AclEntryPermission.WRITE_OWNER)
-                                 .build();
+                .setType(AclEntryType.DENY)
+                .setPrincipal(owner)
+                .setPermissions(AclEntryPermission.WRITE_OWNER)
+                .build();
         try {
             Files.setAttribute(out, "user:jabref.test", tag);
             @SuppressWarnings("unchecked")
@@ -184,9 +183,10 @@ class AtomicFileOutputStreamTest {
 
         @SuppressWarnings("unchecked")
         List<AclEntry> savedAcl = (List<AclEntry>) Files.getAttribute(out, "acl:acl");
-        assertTrue(savedAcl.stream().anyMatch(saved -> saved.principal().equals(owner)
-                && (saved.type() == AclEntryType.DENY)
-                && saved.permissions().contains(AclEntryPermission.WRITE_OWNER)));
+        assertTrue(savedAcl.stream()
+                .anyMatch(saved -> saved.principal().equals(owner)
+                        && (saved.type() == AclEntryType.DENY)
+                        && saved.permissions().contains(AclEntryPermission.WRITE_OWNER)));
         assertArrayEquals(tag, (byte[]) Files.getAttribute(out, "user:jabref.test"));
     }
 
@@ -368,8 +368,7 @@ class AtomicFileOutputStreamTest {
             private boolean failFlush = true;
 
             @Override
-            public void write(int b) {
-            }
+            public void write(int b) {}
 
             @Override
             public void flush() throws IOException {
@@ -379,7 +378,8 @@ class AtomicFileOutputStreamTest {
                 }
             }
         };
-        AtomicFileOutputStream atomicFileOutputStream = new AtomicFileOutputStream(targetFile, temporaryFile, temporaryFileOutputStream, false);
+        AtomicFileOutputStream atomicFileOutputStream =
+                new AtomicFileOutputStream(targetFile, temporaryFile, temporaryFileOutputStream, false);
         atomicFileOutputStream.write(FIVE_THOUSAND_CHARS.getBytes());
 
         assertThrows(IOException.class, atomicFileOutputStream::flush);
@@ -389,7 +389,7 @@ class AtomicFileOutputStreamTest {
     }
 
     @Test
-        // [utest->req~jabgui.autosaveandbackup.complete-backup~1]
+    // [utest->req~jabgui.autosaveandbackup.complete-backup~1]
     void abortedWriteDoesNotCommitPartialContent(@TempDir Path tempDir) throws IOException {
         Path targetFile = tempDir.resolve("aborted-write.txt");
         Files.writeString(targetFile, FIFTY_CHARS);
@@ -414,7 +414,7 @@ class AtomicFileOutputStreamTest {
     }
 
     @Test
-        // [utest->req~jabgui.autosaveandbackup.complete-backup~1]
+    // [utest->req~jabgui.autosaveandbackup.complete-backup~1]
     void failedBackupStagingDoesNotReplaceExistingBackup(@TempDir Path tempDir) throws IOException {
         Path targetFile = tempDir.resolve("backup-staging.txt");
         Path temporaryFile = tempDir.resolve("backup-staging.txt.tmp");
@@ -425,7 +425,8 @@ class AtomicFileOutputStreamTest {
                 temporaryFile,
                 Files.newOutputStream(temporaryFile),
                 true,
-                (source, target) -> Files.move(source, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING),
+                (source, target) ->
+                        Files.move(source, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING),
                 (_, target) -> {
                     Files.writeString(target, "partial backup");
                     throw new IOException("Simulated interruption while creating backup");
@@ -447,14 +448,10 @@ class AtomicFileOutputStreamTest {
         Files.writeString(targetFile, FIFTY_CHARS);
 
         try (OutputStream temporaryFileOutputStream = Files.newOutputStream(temporaryFile);
-             AtomicFileOutputStream atomicFileOutputStream = new AtomicFileOutputStream(
-                     targetFile,
-                     temporaryFile,
-                     temporaryFileOutputStream,
-                     false,
-                     (source, target) -> {
-                         throw new AtomicMoveNotSupportedException(source.toString(), target.toString(), "test");
-                     })) {
+                AtomicFileOutputStream atomicFileOutputStream = new AtomicFileOutputStream(
+                        targetFile, temporaryFile, temporaryFileOutputStream, false, (source, target) -> {
+                            throw new AtomicMoveNotSupportedException(source.toString(), target.toString(), "test");
+                        })) {
             atomicFileOutputStream.write(FIVE_THOUSAND_CHARS.getBytes());
         }
 
@@ -469,15 +466,11 @@ class AtomicFileOutputStreamTest {
         Files.writeString(targetFile, FIFTY_CHARS);
 
         try (OutputStream temporaryFileOutputStream = Files.newOutputStream(temporaryFile);
-             AtomicFileOutputStream atomicFileOutputStream = new AtomicFileOutputStream(
-                     targetFile,
-                     temporaryFile,
-                     temporaryFileOutputStream,
-                     false,
-                     (source, target) -> {
-                         moveAttempts.incrementAndGet();
-                         throw new FileSystemException(source.toString(), target.toString(), "test");
-                     })) {
+                AtomicFileOutputStream atomicFileOutputStream = new AtomicFileOutputStream(
+                        targetFile, temporaryFile, temporaryFileOutputStream, false, (source, target) -> {
+                            moveAttempts.incrementAndGet();
+                            throw new FileSystemException(source.toString(), target.toString(), "test");
+                        })) {
             atomicFileOutputStream.write(FIVE_THOUSAND_CHARS.getBytes());
         }
 
@@ -523,17 +516,17 @@ class AtomicFileOutputStreamTest {
 
         Path temporaryFile = tempDir.resolve("symbolic-link.txt.tmp");
         try (OutputStream temporaryFileOutputStream = Files.newOutputStream(temporaryFile);
-             AtomicFileOutputStream atomicFileOutputStream = new AtomicFileOutputStream(
-                     symbolicLink,
-                     temporaryFile,
-                     temporaryFileOutputStream,
-                     true,
-                     (source, target) -> {
-                         throw new AtomicMoveNotSupportedException(source.toString(), target.toString(), "test");
-                     },
-                     (_, _) -> {
-                         throw new IOException("test");
-                     })) {
+                AtomicFileOutputStream atomicFileOutputStream = new AtomicFileOutputStream(
+                        symbolicLink,
+                        temporaryFile,
+                        temporaryFileOutputStream,
+                        true,
+                        (source, target) -> {
+                            throw new AtomicMoveNotSupportedException(source.toString(), target.toString(), "test");
+                        },
+                        (_, _) -> {
+                            throw new IOException("test");
+                        })) {
             atomicFileOutputStream.write(FIVE_THOUSAND_CHARS.getBytes());
         }
 
@@ -567,16 +560,18 @@ class AtomicFileOutputStreamTest {
         try (OutputStream outputStream = Files.newOutputStream(pathToTmpFile)) {
             OutputStream spiedOutputStream = spy(outputStream);
             doAnswer(invocation -> {
-                // by writing one byte, we ensure that the `.tmp` file is created
-                outputStream.write(((byte[]) invocation.getRawArguments()[0])[0]);
-                outputStream.flush();
-                throw new IOException();
-            }).when(spiedOutputStream)
-              .write(Mockito.any(byte[].class), anyInt(), anyInt());
+                        // by writing one byte, we ensure that the `.tmp` file is created
+                        outputStream.write(((byte[]) invocation.getRawArguments()[0])[0]);
+                        outputStream.flush();
+                        throw new IOException();
+                    })
+                    .when(spiedOutputStream)
+                    .write(Mockito.any(byte[].class), anyInt(), anyInt());
 
             assertThrows(IOException.class, () -> {
-                try (AtomicFileOutputStream atomicFileOutputStream = new AtomicFileOutputStream(pathToTestFile, pathToTmpFile, spiedOutputStream, false);
-                     InputStream inputStream = new ByteArrayInputStream(FIVE_THOUSAND_CHARS.getBytes())) {
+                try (AtomicFileOutputStream atomicFileOutputStream =
+                                new AtomicFileOutputStream(pathToTestFile, pathToTmpFile, spiedOutputStream, false);
+                        InputStream inputStream = new ByteArrayInputStream(FIVE_THOUSAND_CHARS.getBytes())) {
                     inputStream.transferTo(atomicFileOutputStream);
                 }
             });

@@ -1,7 +1,6 @@
 package org.jabref.gui.libraryproperties;
 
 import java.util.List;
-
 import org.jabref.gui.libraryproperties.constants.ConstantsPropertiesView;
 import org.jabref.gui.libraryproperties.contentselectors.ContentSelectorView;
 import org.jabref.gui.libraryproperties.general.GeneralPropertiesView;
@@ -22,18 +21,22 @@ public class LibraryPropertiesViewModel {
     private final UndoManager undoManager;
 
     public LibraryPropertiesViewModel(BibDatabaseContext databaseContext, UndoManager undoManager) {
-        this(databaseContext, undoManager, List.of(
-                new GeneralPropertiesView(databaseContext),
-                new SavingPropertiesView(databaseContext),
-                new KeyPatternPropertiesView(databaseContext),
-                new ConstantsPropertiesView(databaseContext),
-                new ContentSelectorView(databaseContext),
-                new PreamblePropertiesView(databaseContext),
-                new GitPropertiesView(databaseContext)));
+        this(
+                databaseContext,
+                undoManager,
+                List.of(
+                        new GeneralPropertiesView(databaseContext),
+                        new SavingPropertiesView(databaseContext),
+                        new KeyPatternPropertiesView(databaseContext),
+                        new ConstantsPropertiesView(databaseContext),
+                        new ContentSelectorView(databaseContext),
+                        new PreamblePropertiesView(databaseContext),
+                        new GitPropertiesView(databaseContext)));
     }
 
     /// For tests, which cannot build the tab views without a JavaFX toolkit.
-    LibraryPropertiesViewModel(BibDatabaseContext databaseContext, UndoManager undoManager, List<PropertiesTab> propertiesTabs) {
+    LibraryPropertiesViewModel(
+            BibDatabaseContext databaseContext, UndoManager undoManager, List<PropertiesTab> propertiesTabs) {
         this.databaseContext = databaseContext;
         this.undoManager = undoManager;
         this.propertiesTabs = propertiesTabs;

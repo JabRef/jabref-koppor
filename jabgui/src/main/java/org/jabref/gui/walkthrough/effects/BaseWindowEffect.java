@@ -1,22 +1,19 @@
 package org.jabref.gui.walkthrough.effects;
 
+import com.sun.javafx.scene.TreeShowingProperty;
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.Subscription;
 import java.util.ArrayList;
 import java.util.List;
-
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Window;
-
 import org.jabref.gui.walkthrough.utils.WalkthroughUtils;
-
-import com.sun.javafx.scene.TreeShowingProperty;
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.Subscription;
 import org.jspecify.annotations.NonNull;
 
 /// Base class for walkthrough effects [Spotlight], [FullScreenDarken], and [Ping].
-public sealed abstract class BaseWindowEffect permits Spotlight, FullScreenDarken, Ping {
+public abstract sealed class BaseWindowEffect permits Spotlight, FullScreenDarken, Ping {
     protected final Pane pane;
     protected final List<Subscription> subscriptions = new ArrayList<>();
     private final WalkthroughUtils.DebouncedInvalidationListener debouncedUpdater;
@@ -24,7 +21,8 @@ public sealed abstract class BaseWindowEffect permits Spotlight, FullScreenDarke
     /// Constructor for WalkthroughEffect. No scene graph modification is done here. The effect is not attached to the
     /// pane until [#attach(Node)] is called.
     ///
-    /// @param pane The pane where the effect will be applied. Usually obtained from [Window#getScene()] and [Scene#getRoot()]
+    /// @param pane The pane where the effect will be applied. Usually obtained from [Window#getScene()] and
+    /// [Scene#getRoot()]
     protected BaseWindowEffect(@NonNull Pane pane) {
         this.pane = pane;
         this.debouncedUpdater = WalkthroughUtils.debounced(_ -> this.updateLayout());

@@ -1,5 +1,14 @@
 package org.jabref.logic.ai.embedding;
 
+import ai.djl.repository.Artifact;
+import ai.djl.repository.MRL;
+import ai.djl.repository.zoo.ModelLoader;
+import ai.djl.repository.zoo.ModelZoo;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,21 +21,10 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.net.URLDownload;
 import org.jabref.logic.util.strings.StringUtil;
-
-import ai.djl.repository.Artifact;
-import ai.djl.repository.MRL;
-import ai.djl.repository.zoo.ModelLoader;
-import ai.djl.repository.zoo.ModelZoo;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +45,7 @@ public class EmbeddingModelMetadataService {
             "tokenizer_config.json",
             "vocab.txt",
             "special_tokens_map.json",
-            "sentence_bert_config.json"
-    );
+            "sentence_bert_config.json");
 
     private final AiPreferences aiPreferences;
     private final Map<String, EmbeddingModelMetadata> metadataCache = new ConcurrentHashMap<>();
@@ -73,11 +70,11 @@ public class EmbeddingModelMetadataService {
                 Collection<ModelLoader> loaders = modelZoo.getModelLoaders();
                 if (loaders != null && !loaders.isEmpty()) {
                     List<String> models = loaders.stream()
-                                                 .map(ModelLoader::getArtifactId)
-                                                 .filter(StringUtil::isNotBlank)
-                                                 .distinct()
-                                                 .sorted(String.CASE_INSENSITIVE_ORDER)
-                                                 .toList();
+                            .map(ModelLoader::getArtifactId)
+                            .filter(StringUtil::isNotBlank)
+                            .distinct()
+                            .sorted(String.CASE_INSENSITIVE_ORDER)
+                            .toList();
                     if (!models.isEmpty()) {
                         return models;
                     }
@@ -145,9 +142,9 @@ public class EmbeddingModelMetadataService {
     private OptionalLong extractSizeFromArtifact(Artifact artifact) {
         if (artifact.getFiles() != null && !artifact.getFiles().isEmpty()) {
             long total = artifact.getFiles().values().stream()
-                                 .mapToLong(Artifact.Item::getSize)
-                                 .filter(s -> s > 0)
-                                 .sum();
+                    .mapToLong(Artifact.Item::getSize)
+                    .filter(s -> s > 0)
+                    .sum();
             if (total > 0) {
                 return OptionalLong.of(total);
             }
@@ -190,16 +187,19 @@ public class EmbeddingModelMetadataService {
                 if (element.isJsonObject()) {
                     JsonObject fileObj = element.getAsJsonObject();
                     String path = fileObj.has("path") && fileObj.get("path").isJsonPrimitive()
-                                  ? fileObj.get("path").getAsString()
-                                  : "";
-                    long size = fileObj.has("size") && fileObj.get("size").isJsonPrimitive() && fileObj.get("size").getAsJsonPrimitive().isNumber()
-                                ? fileObj.get("size").getAsLong()
-                                : 0;
+                            ? fileObj.get("path").getAsString()
+                            : "";
+                    long size = fileObj.has("size")
+                                    && fileObj.get("size").isJsonPrimitive()
+                                    && fileObj.get("size").getAsJsonPrimitive().isNumber()
+                            ? fileObj.get("size").getAsLong()
+                            : 0;
 
                     String lowerPath = path.toLowerCase(Locale.ROOT);
                     if (lowerPath.endsWith(".safetensors")) {
                         safetensorsBytes += size;
-                    } else if (lowerPath.endsWith(".bin") && (lowerPath.contains("model") || lowerPath.contains("pytorch"))) {
+                    } else if (lowerPath.endsWith(".bin")
+                            && (lowerPath.contains("model") || lowerPath.contains("pytorch"))) {
                         binBytes += size;
                     } else if (isTokenizerOrConfigFile(path)) {
                         configBytes += size;
@@ -252,7 +252,9 @@ public class EmbeddingModelMetadataService {
                 return OptionalInt.empty();
             }
             JsonObject obj = parsed.getAsJsonObject();
-            if (obj.has(fieldName) && obj.get(fieldName).isJsonPrimitive() && obj.get(fieldName).getAsJsonPrimitive().isNumber()) {
+            if (obj.has(fieldName)
+                    && obj.get(fieldName).isJsonPrimitive()
+                    && obj.get(fieldName).getAsJsonPrimitive().isNumber()) {
                 return OptionalInt.of(obj.get(fieldName).getAsInt());
             }
         } catch (JsonParseException | NumberFormatException | FetcherException | IOException | URISyntaxException e) {

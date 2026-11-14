@@ -1,18 +1,16 @@
 package org.jabref.logic.openoffice.action;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @NullMarked
 class ExportCitedTest {
@@ -28,26 +26,25 @@ class ExportCitedTest {
                 .withField(StandardField.CROSSREF, "Parent2024");
         BibDatabase database = new BibDatabase(List.of(childEntry, parentEntry));
 
-        ExportCited.GenerateDatabaseResult result = ExportCited.generateDatabaseFromCitationKeys(
-                List.of("Child2024", "Child2024"),
-                List.of(database));
+        ExportCited.GenerateDatabaseResult result =
+                ExportCited.generateDatabaseFromCitationKeys(List.of("Child2024", "Child2024"), List.of(database));
 
         assertEquals(List.of(), result.unresolvedKeys);
         assertEquals(2, result.newDatabase.getEntryCount());
         assertTrue(result.newDatabase.getEntryByCitationKey("Child2024").isPresent());
         assertTrue(result.newDatabase.getEntryByCitationKey("Parent2024").isPresent());
-        assertNotSame(childEntry, result.newDatabase.getEntryByCitationKey("Child2024").orElseThrow());
+        assertNotSame(
+                childEntry,
+                result.newDatabase.getEntryByCitationKey("Child2024").orElseThrow());
     }
 
     @Test
     void generateDatabaseFromCitationKeysReportsUnresolvedKeysOnce() {
-        BibEntry knownEntry = new BibEntry(StandardEntryType.Article)
-                .withCitationKey("Known2024");
+        BibEntry knownEntry = new BibEntry(StandardEntryType.Article).withCitationKey("Known2024");
         BibDatabase database = new BibDatabase(List.of(knownEntry));
 
-        ExportCited.GenerateDatabaseResult result = ExportCited.generateDatabaseFromCitationKeys(
-                List.of("Missing2024", "Missing2024"),
-                List.of(database));
+        ExportCited.GenerateDatabaseResult result =
+                ExportCited.generateDatabaseFromCitationKeys(List.of("Missing2024", "Missing2024"), List.of(database));
 
         assertEquals(List.of("Missing2024"), result.unresolvedKeys);
         assertEquals(0, result.newDatabase.getEntryCount());
@@ -55,18 +52,21 @@ class ExportCitedTest {
 
     @Test
     void generateDatabaseFromIdentifiersFallsBackToEntryId() {
-        BibEntry entryWithoutCitationKey = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.TITLE, "Entry without citation key");
+        BibEntry entryWithoutCitationKey =
+                new BibEntry(StandardEntryType.Article).withField(StandardField.TITLE, "Entry without citation key");
         BibDatabase database = new BibDatabase(List.of(entryWithoutCitationKey));
 
         ExportCited.GenerateDatabaseResult result = ExportCited.generateDatabaseFromIdentifiers(
-                List.of(entryWithoutCitationKey.getId()),
-                List.of(database));
+                List.of(entryWithoutCitationKey.getId()), List.of(database));
 
         assertEquals(List.of(), result.unresolvedKeys);
         assertEquals(1, result.newDatabase.getEntryCount());
         assertEquals(
                 "Entry without citation key",
-                result.newDatabase.getEntries().getFirst().getField(StandardField.TITLE).orElseThrow());
+                result.newDatabase
+                        .getEntries()
+                        .getFirst()
+                        .getField(StandardField.TITLE)
+                        .orElseThrow());
     }
 }

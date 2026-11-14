@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
@@ -33,9 +32,8 @@ public class SearchQueryVisitor extends SearchBaseVisitor<BaseQueryNode> {
 
     @Override
     public BaseQueryNode visitImplicitAndExpression(SearchParser.ImplicitAndExpressionContext ctx) {
-        List<BaseQueryNode> children = ctx.expression().stream()
-                                          .map(this::visit)
-                                          .collect(Collectors.toList());
+        List<BaseQueryNode> children =
+                ctx.expression().stream().map(this::visit).collect(Collectors.toList());
         if (children.size() == 1) {
             return children.getFirst();
         }
@@ -88,14 +86,10 @@ public class SearchQueryVisitor extends SearchBaseVisitor<BaseQueryNode> {
 
         // Pseudo-fields
         field = switch (field) {
-            case SearchFieldConstants.KEY ->
-                    InternalField.KEY_FIELD.getName();
-            case SearchFieldConstants.ANY_KEYWORD ->
-                    StandardField.KEYWORDS.getName();
-            case SearchFieldConstants.ANY_FIELD_ALIAS ->
-                    SearchFieldConstants.ANY_FIELD;
-            default ->
-                    field;
+            case SearchFieldConstants.KEY -> InternalField.KEY_FIELD.getName();
+            case SearchFieldConstants.ANY_KEYWORD -> StandardField.KEYWORDS.getName();
+            case SearchFieldConstants.ANY_FIELD_ALIAS -> SearchFieldConstants.ANY_FIELD;
+            default -> field;
         };
 
         if (ctx.operator() != null) {
@@ -125,4 +119,3 @@ public class SearchQueryVisitor extends SearchBaseVisitor<BaseQueryNode> {
         return new SearchQueryNode(Optional.of(FieldFactory.parseField(field)), term);
     }
 }
-

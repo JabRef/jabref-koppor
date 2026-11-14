@@ -3,7 +3,6 @@ package org.jabref.logic.msbib;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.formatter.bibtexfields.RemoveEnclosingBracesFormatter;
 import org.jabref.model.entry.AuthorList;
 import org.jabref.model.entry.BibEntry;
@@ -20,8 +19,7 @@ public class MSBibConverter {
     private static final String BIBTEX_PREFIX = "BIBTEX_";
     private static final RemoveEnclosingBracesFormatter REMOVE_BRACES_FORMATTER = new RemoveEnclosingBracesFormatter();
 
-    private MSBibConverter() {
-    }
+    private MSBibConverter() {}
 
     public static MSBibEntry convert(BibEntry entry) {
         MSBibEntry result = new MSBibEntry();
@@ -43,7 +41,8 @@ public class MSBibConverter {
         // Duplicate: also added as BookTitle
         entry.getFieldLatexFree(StandardField.BOOKTITLE).ifPresent(booktitle -> result.conferenceName = booktitle);
         entry.getFieldLatexFree(StandardField.PAGES).ifPresent(pages -> result.pages = new PageNumbers(pages));
-        entry.getFieldLatexFree(new UnknownField(MSBIB_PREFIX + "accessed")).ifPresent(accessed -> result.dateAccessed = accessed);
+        entry.getFieldLatexFree(new UnknownField(MSBIB_PREFIX + "accessed"))
+                .ifPresent(accessed -> result.dateAccessed = accessed);
 
         entry.getFieldLatexFree(StandardField.URLDATE).ifPresent(accessed -> result.dateAccessed = accessed);
 
@@ -70,16 +69,21 @@ public class MSBibConverter {
         if (entry.getFieldLatexFree(StandardField.YEAR).isEmpty()) {
             result.year = entry.getFieldOrAliasLatexFree(StandardField.YEAR).orElse(null);
         }
-        result.journalName = entry.getFieldOrAliasLatexFree(StandardField.JOURNAL).orElse(null);
+        result.journalName =
+                entry.getFieldOrAliasLatexFree(StandardField.JOURNAL).orElse(null);
 
         // Value must be converted
         entry.getFieldLatexFree(StandardField.LANGUAGE)
-             .ifPresent(lang -> result.fields.put("LCID", String.valueOf(MSBibMapping.getLCID(lang))));
+                .ifPresent(lang -> result.fields.put("LCID", String.valueOf(MSBibMapping.getLCID(lang))));
         StringBuilder sbNumber = new StringBuilder();
-        entry.getFieldLatexFree(StandardField.ISBN).ifPresent(isbn -> sbNumber.append(" ISBN: ").append(isbn));
-        entry.getFieldLatexFree(StandardField.ISSN).ifPresent(issn -> sbNumber.append(" ISSN: ").append(issn));
-        entry.getFieldLatexFree(new UnknownField("lccn")).ifPresent(lccn -> sbNumber.append("LCCN: ").append(lccn));
-        entry.getFieldLatexFree(StandardField.MR_NUMBER).ifPresent(mrnumber -> sbNumber.append(" MRN: ").append(mrnumber));
+        entry.getFieldLatexFree(StandardField.ISBN)
+                .ifPresent(isbn -> sbNumber.append(" ISBN: ").append(isbn));
+        entry.getFieldLatexFree(StandardField.ISSN)
+                .ifPresent(issn -> sbNumber.append(" ISSN: ").append(issn));
+        entry.getFieldLatexFree(new UnknownField("lccn"))
+                .ifPresent(lccn -> sbNumber.append("LCCN: ").append(lccn));
+        entry.getFieldLatexFree(StandardField.MR_NUMBER)
+                .ifPresent(mrnumber -> sbNumber.append(" MRN: ").append(mrnumber));
 
         result.standardNumber = sbNumber.toString();
         if (result.standardNumber.isEmpty()) {
@@ -104,21 +108,27 @@ public class MSBibConverter {
 
         // TODO: currently this can never happen
         if ("InternetSite".equals(msBibType) || "DocumentFromInternetSite".equals(msBibType)) {
-            result.internetSiteTitle = entry.getFieldLatexFree(StandardField.TITLE).orElse(null);
+            result.internetSiteTitle =
+                    entry.getFieldLatexFree(StandardField.TITLE).orElse(null);
         }
 
         // TODO: currently only Misc can happen
         if ("Art".equals(msBibType) || "Misc".equals(msBibType)) {
-            result.publicationTitle = entry.getFieldLatexFree(StandardField.TITLE).orElse(null);
+            result.publicationTitle =
+                    entry.getFieldLatexFree(StandardField.TITLE).orElse(null);
         }
 
         if (entry.getType().equals(IEEETranEntryType.Patent)) {
-            entry.getField(StandardField.AUTHOR).ifPresent(authors -> result.inventors = getAuthors(entry, authors, StandardField.AUTHOR));
+            entry.getField(StandardField.AUTHOR)
+                    .ifPresent(authors -> result.inventors = getAuthors(entry, authors, StandardField.AUTHOR));
         } else {
-            entry.getField(StandardField.AUTHOR).ifPresent(authors -> result.authors = getAuthors(entry, authors, StandardField.AUTHOR));
+            entry.getField(StandardField.AUTHOR)
+                    .ifPresent(authors -> result.authors = getAuthors(entry, authors, StandardField.AUTHOR));
         }
-        entry.getField(StandardField.EDITOR).ifPresent(editors -> result.editors = getAuthors(entry, editors, StandardField.EDITOR));
-        entry.getField(StandardField.TRANSLATOR).ifPresent(translator -> result.translators = getAuthors(entry, translator, StandardField.EDITOR));
+        entry.getField(StandardField.EDITOR)
+                .ifPresent(editors -> result.editors = getAuthors(entry, editors, StandardField.EDITOR));
+        entry.getField(StandardField.TRANSLATOR)
+                .ifPresent(translator -> result.translators = getAuthors(entry, translator, StandardField.EDITOR));
 
         return result;
     }
@@ -142,9 +152,8 @@ public class MSBibConverter {
             authorLatexFree = "{" + authorLatexFree + "}";
         }
 
-        return AuthorList.parse(authorLatexFree).getAuthors()
-                         .stream()
-                         .map(author -> new MsBibAuthor(author, corporate))
-                         .toList();
+        return AuthorList.parse(authorLatexFree).getAuthors().stream()
+                .map(author -> new MsBibAuthor(author, corporate))
+                .toList();
     }
 }

@@ -1,15 +1,14 @@
 package org.jabref.logic.git.merge.planning.util;
 
+import static org.jabref.logic.git.merge.planning.util.MergeFieldUtil.isMetaField;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import static org.jabref.logic.git.merge.planning.util.MergeFieldUtil.isMetaField;
 
 public final class FieldPatchComputer {
     private static final BibEntry EMPTY_ENTRY = new BibEntry(StandardEntryType.Article);
@@ -33,24 +32,25 @@ public final class FieldPatchComputer {
 
         BibEntry baseSafe = (base == null) ? EMPTY_ENTRY : base;
         Stream.concat(baseSafe.getFields().stream(), remote.getFields().stream())
-              .distinct()
-              .filter(field -> !isMetaField(field))
-              .forEach(field -> {
-                  String baseValue = baseSafe.getField(field).orElse(null);
-                  String remoteValue = remote.getField(field).orElse(null);
-                  String localValue = local == null ? null : local.getField(field).orElse(null);
+                .distinct()
+                .filter(field -> !isMetaField(field))
+                .forEach(field -> {
+                    String baseValue = baseSafe.getField(field).orElse(null);
+                    String remoteValue = remote.getField(field).orElse(null);
+                    String localValue =
+                            local == null ? null : local.getField(field).orElse(null);
 
-                  if (Objects.equals(baseValue, remoteValue)) {
-                      return;
-                  }
-                  if (Objects.equals(localValue, baseValue)) {
-                      patch.put(field, remoteValue);
-                      return;
-                  }
-                  if (Objects.equals(localValue, remoteValue)) {
-                      return;
-                  }
-              });
+                    if (Objects.equals(baseValue, remoteValue)) {
+                        return;
+                    }
+                    if (Objects.equals(localValue, baseValue)) {
+                        patch.put(field, remoteValue);
+                        return;
+                    }
+                    if (Objects.equals(localValue, remoteValue)) {
+                        return;
+                    }
+                });
         return patch;
     }
 }

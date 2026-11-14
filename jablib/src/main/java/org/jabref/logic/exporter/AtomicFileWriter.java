@@ -8,9 +8,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
-
 import org.jabref.logic.util.io.FileSnapshot;
-
 import org.jspecify.annotations.Nullable;
 
 /// Writer that similar to the built-in [java.io.FileWriter] but uses the [AtomicFileOutputStream] as the
@@ -33,7 +31,8 @@ public class AtomicFileWriter extends OutputStreamWriter {
     }
 
     /// @param expectedState see [AtomicFileOutputStream#AtomicFileOutputStream(Path,boolean,FileSnapshot)]
-    public AtomicFileWriter(Path file, Charset encoding, boolean keepBackup, @Nullable FileSnapshot expectedState) throws IOException {
+    public AtomicFileWriter(Path file, Charset encoding, boolean keepBackup, @Nullable FileSnapshot expectedState)
+            throws IOException {
         this(new AtomicFileOutputStream(file, keepBackup, expectedState), encoding);
     }
 

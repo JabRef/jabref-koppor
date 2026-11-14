@@ -1,5 +1,9 @@
 package org.jabref.benchmarks;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.airhacks.afterburner.injection.Injector;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -9,7 +13,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-
+import org.apache.commons.io.FileUtils;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
@@ -47,9 +51,6 @@ import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResults;
-
-import com.airhacks.afterburner.injection.Injector;
-import org.apache.commons.io.FileUtils;
 import org.mockito.Answers;
 import org.openjdk.jmh.Main;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -57,9 +58,6 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @State(Scope.Thread)
 public class Benchmarks {
@@ -83,7 +81,8 @@ public class Benchmarks {
             BibEntry entry = new BibEntry();
             entry.setCitationKey("id" + i);
             entry.setField(StandardField.TITLE, "This is my title " + i);
-            entry.setField(StandardField.AUTHOR, "Firstname Lastname and FirstnameA LastnameA and FirstnameB LastnameB" + i);
+            entry.setField(
+                    StandardField.AUTHOR, "Firstname Lastname and FirstnameA LastnameA and FirstnameB LastnameB" + i);
             entry.setField(StandardField.JOURNAL, "Journal Title " + i);
             entry.setField(StandardField.KEYWORDS, "testkeyword");
             entry.setField(StandardField.YEAR, "1" + i);
@@ -93,7 +92,8 @@ public class Benchmarks {
 
         bibtexString = getOutputWriter().toString();
 
-        latexConversionString = "{A} \\textbf{bold} approach {\\it to} ${{\\Sigma}}{\\Delta}$ modulator \\textsuperscript{2} \\$";
+        latexConversionString =
+                "{A} \\textbf{bold} approach {\\it to} ${{\\Sigma}}{\\Delta}$ modulator \\textsuperscript{2} \\$";
 
         htmlConversionString = "<b>&Ouml;sterreich</b> &#8211; &amp; characters &#x2aa2; <i>italic</i>";
 
@@ -108,11 +108,10 @@ public class Benchmarks {
         when(linkedFilesContext.getFileDirectories(filePreferences)).thenReturn(List.of(pdfResourceDir));
         when(linkedFilesContext.getFulltextIndexPath()).thenReturn(luceneIndexDir);
 
-        pdfEntries = List.of(
-                new BibEntry(StandardEntryType.PhdThesis)
-                        .withCitationKey("ExampleThesis2017")
-                        .withFiles(List.of(new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.PDF.getName())))
-        );
+        pdfEntries = List.of(new BibEntry(StandardEntryType.PhdThesis)
+                .withCitationKey("ExampleThesis2017")
+                .withFiles(List.of(
+                        new LinkedFile("Example Thesis", "thesis-example.pdf", StandardFileType.PDF.getName()))));
         when(linkedFilesContext.getEntries()).thenReturn(pdfEntries);
 
         linkedFilesIndexer = new DefaultLinkedFilesIndexer(linkedFilesContext, filePreferences);
@@ -126,9 +125,11 @@ public class Benchmarks {
     private StringWriter getOutputWriter() throws IOException {
         StringWriter outputWriter = new StringWriter();
         BibWriter bibWriter = new BibWriter(outputWriter, OS.NEWLINE);
-        SelfContainedSaveConfiguration saveConfiguration = new SelfContainedSaveConfiguration(SaveOrder.getDefaultSaveOrder(), false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false);
+        SelfContainedSaveConfiguration saveConfiguration = new SelfContainedSaveConfiguration(
+                SaveOrder.getDefaultSaveOrder(), false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false);
         FieldPreferences fieldPreferences = new FieldPreferences(true, List.of(), List.of());
-        CitationKeyPatternPreferences citationKeyPatternPreferences = mock(CitationKeyPatternPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        CitationKeyPatternPreferences citationKeyPatternPreferences =
+                mock(CitationKeyPatternPreferences.class, Answers.RETURNS_DEEP_STUBS);
 
         BibDatabaseWriter databaseWriter = new BibDatabaseWriter(
                 bibWriter,
@@ -188,7 +189,8 @@ public class Benchmarks {
 
     @Benchmark
     public boolean keywordGroupContains() {
-        KeywordGroup group = new WordKeywordGroup("testGroup", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "testkeyword", false, ',', false);
+        KeywordGroup group = new WordKeywordGroup(
+                "testGroup", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "testkeyword", false, ',', false);
         return group.containsAll(database.getEntries());
     }
 

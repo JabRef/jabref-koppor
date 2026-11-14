@@ -1,17 +1,15 @@
 package org.jabref.logic.bibtex;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.nio.file.Path;
 import java.util.stream.Stream;
-
 import org.jabref.model.entry.LinkedFile;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class FileFieldWriterTest {
 
@@ -40,8 +38,7 @@ class FileFieldWriterTest {
                 Arguments.of("a:b;c:d", new String[][] {{"a", "b"}, {"c", "d"}}),
                 Arguments.of("a:;c:d", new String[][] {{"a", ""}, {"c", "d"}}),
                 Arguments.of("a:" + null + ";c:d", new String[][] {{"a", null}, {"c", "d"}}),
-                Arguments.of("a:\\:b;c\\;:d", new String[][] {{"a", ":b"}, {"c;", "d"}})
-        );
+                Arguments.of("a:\\:b;c\\;:d", new String[][] {{"a", ":b"}, {"c;", "d"}}));
     }
 
     @ParameterizedTest

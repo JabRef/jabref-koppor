@@ -1,7 +1,6 @@
 package org.jabref.logic.pdf;
 
 import java.io.IOException;
-
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.text.PDFTextStripper;
 

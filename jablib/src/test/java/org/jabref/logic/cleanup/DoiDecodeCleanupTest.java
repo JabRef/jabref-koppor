@@ -1,16 +1,14 @@
 package org.jabref.logic.cleanup;
 
-import java.util.stream.Stream;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.stream.Stream;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DoiDecodeCleanupTest {
 
@@ -29,15 +27,19 @@ class DoiDecodeCleanupTest {
 
         return Stream.of(
                 // cleanup for Doi field only
-                Arguments.of(doiResult, new BibEntry().withField(
-                        StandardField.URL, "https://doi.org/10.18726/2018%7B%5Ctextunderscore%7D3")),
+                Arguments.of(
+                        doiResult,
+                        new BibEntry()
+                                .withField(StandardField.URL, "https://doi.org/10.18726/2018%7B%5Ctextunderscore%7D3")),
 
                 // cleanup with Doi and URL to all entries
-                Arguments.of(doiResult, new BibEntry()
-                        .withField(StandardField.DOI, "10.18726/2018%7B%5Ctextunderscore%7D3")
-                        .withField(StandardField.URL, "https://doi.org/10.18726/2018%7B%5Ctextunderscore%7D3")
-                        .withField(StandardField.NOTE, "https://doi.org/10.18726/2018%7B%5Ctextunderscore%7D3")
-                        .withField(unknownField, "https://doi.org/10.18726/2018%7B%5Ctextunderscore%7D3")),
+                Arguments.of(
+                        doiResult,
+                        new BibEntry()
+                                .withField(StandardField.DOI, "10.18726/2018%7B%5Ctextunderscore%7D3")
+                                .withField(StandardField.URL, "https://doi.org/10.18726/2018%7B%5Ctextunderscore%7D3")
+                                .withField(StandardField.NOTE, "https://doi.org/10.18726/2018%7B%5Ctextunderscore%7D3")
+                                .withField(unknownField, "https://doi.org/10.18726/2018%7B%5Ctextunderscore%7D3")),
 
                 // cleanup with Doi and no URL to entries
                 Arguments.of(
@@ -51,16 +53,21 @@ class DoiDecodeCleanupTest {
                                 .withField(unknownField, "This is a random ee field for this Doi")),
 
                 // cleanup with spaced Doi
-                Arguments.of(doiResult, new BibEntry()
-                        .withField(StandardField.DOI, "10.18726/2018%7B%5Ctextunderscore%7D3")),
+                Arguments.of(
+                        doiResult,
+                        new BibEntry().withField(StandardField.DOI, "10.18726/2018%7B%5Ctextunderscore%7D3")),
 
                 // cleanup just Note field with URL
-                Arguments.of(doiResult, new BibEntry()
-                        .withField(StandardField.NOTE, "https://doi.org/10.18726/2018%7B%5Ctextunderscore%7D3")),
+                Arguments.of(
+                        doiResult,
+                        new BibEntry()
+                                .withField(
+                                        StandardField.NOTE, "https://doi.org/10.18726/2018%7B%5Ctextunderscore%7D3")),
 
                 // cleanup just ee field with URL
-                Arguments.of(doiResult, new BibEntry()
-                        .withField(unknownField, "https://doi.org/10.18726/2018%7B%5Ctextunderscore%7D3"))
-        );
+                Arguments.of(
+                        doiResult,
+                        new BibEntry()
+                                .withField(unknownField, "https://doi.org/10.18726/2018%7B%5Ctextunderscore%7D3")));
     }
 }

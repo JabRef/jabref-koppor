@@ -1,11 +1,11 @@
 package org.jabref.gui.preferences.protectedterms;
 
+import com.airhacks.afterburner.injection.Injector;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
-
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.actions.StandardActions;
@@ -18,8 +18,6 @@ import org.jabref.gui.util.ViewModelTableRowFactory;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.protectedterms.ProtectedTermsList;
 import org.jabref.logic.protectedterms.ProtectedTermsLoader;
-
-import com.airhacks.afterburner.injection.Injector;
 
 /// Tab for managing term list files.
 public class ProtectedTermsTab extends AbstractPreferenceTabView<ProtectedTermsTabViewModel> {
@@ -41,13 +39,18 @@ public class ProtectedTermsTab extends AbstractPreferenceTabView<ProtectedTermsT
     }
 
     private void buildView() {
-        setContent(form()
-                .table(buildFilesTable())
+        setContent(form().table(buildFilesTable())
                 // These captions are full sentences, so unlike the other button rows these two are
                 // left to size themselves rather than being forced to a uniform width.
                 .buttonRow(
-                        ControlHelper.labelledIconButton(IconTheme.JabRefIcons.OPEN_LIST, Localization.lang("Add protected terms file"), viewModel::addFile),
-                        ControlHelper.labelledIconButton(IconTheme.JabRefIcons.ADD_NOBOX, Localization.lang("New protected terms file"), viewModel::createNewFile))
+                        ControlHelper.labelledIconButton(
+                                IconTheme.JabRefIcons.OPEN_LIST,
+                                Localization.lang("Add protected terms file"),
+                                viewModel::addFile),
+                        ControlHelper.labelledIconButton(
+                                IconTheme.JabRefIcons.ADD_NOBOX,
+                                Localization.lang("New protected terms file"),
+                                viewModel::createNewFile))
                 .build());
     }
 
@@ -56,14 +59,17 @@ public class ProtectedTermsTab extends AbstractPreferenceTabView<ProtectedTermsT
         filesTable.setEditable(true);
         filesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        TableColumn<ProtectedTermsListItemModel, Boolean> enabledColumn = new TableColumn<>(Localization.lang("Enabled"));
+        TableColumn<ProtectedTermsListItemModel, Boolean> enabledColumn =
+                new TableColumn<>(Localization.lang("Enabled"));
         enabledColumn.setMinWidth(90.0);
         enabledColumn.setPrefWidth(70.0);
         enabledColumn.setCellFactory(CheckBoxTableCell.forTableColumn(enabledColumn));
         enabledColumn.setCellValueFactory(data -> data.getValue().enabledProperty());
 
-        TableColumn<ProtectedTermsListItemModel, String> descriptionColumn = new TableColumn<>(Localization.lang("Description"));
-        descriptionColumn.setCellValueFactory(data -> BindingsHelper.constantOf(data.getValue().getTermsList().getDescription()));
+        TableColumn<ProtectedTermsListItemModel, String> descriptionColumn =
+                new TableColumn<>(Localization.lang("Description"));
+        descriptionColumn.setCellValueFactory(
+                data -> BindingsHelper.constantOf(data.getValue().getTermsList().getDescription()));
 
         TableColumn<ProtectedTermsListItemModel, String> fileColumn = new TableColumn<>(Localization.lang("File"));
         fileColumn.setCellValueFactory(data -> {
@@ -79,7 +85,8 @@ public class ProtectedTermsTab extends AbstractPreferenceTabView<ProtectedTermsT
         editColumn.setMinWidth(35.0);
         editColumn.setMaxWidth(35.0);
         editColumn.setReorderable(false);
-        editColumn.setCellValueFactory(data -> data.getValue().internalProperty().not());
+        editColumn.setCellValueFactory(
+                data -> data.getValue().internalProperty().not());
         new ValueTableCellFactory<ProtectedTermsListItemModel, Boolean>()
                 .withGraphic(_ -> IconTheme.JabRefIcons.EDIT.getGraphicNode())
                 .withVisibleExpression(ReadOnlyBooleanWrapper::new)
@@ -90,7 +97,8 @@ public class ProtectedTermsTab extends AbstractPreferenceTabView<ProtectedTermsT
         deleteColumn.setMinWidth(35.0);
         deleteColumn.setMaxWidth(35.0);
         deleteColumn.setReorderable(false);
-        deleteColumn.setCellValueFactory(data -> data.getValue().internalProperty().not());
+        deleteColumn.setCellValueFactory(
+                data -> data.getValue().internalProperty().not());
         new ValueTableCellFactory<ProtectedTermsListItemModel, Boolean>()
                 .withGraphic(_ -> IconTheme.JabRefIcons.DELETE_ENTRY.getGraphicNode())
                 .withVisibleExpression(ReadOnlyBooleanWrapper::new)
@@ -115,12 +123,21 @@ public class ProtectedTermsTab extends AbstractPreferenceTabView<ProtectedTermsT
     private ContextMenu createContextMenu(ProtectedTermsListItemModel file) {
         ActionFactory factory = new ActionFactory();
         ContextMenu contextMenu = new ContextMenu();
-        contextMenu.getItems().addAll(
-                factory.createMenuItem(StandardActions.EDIT_LIST, new ProtectedTermsTab.ContextAction(StandardActions.EDIT_LIST, file)),
-                factory.createMenuItem(StandardActions.VIEW_LIST, new ProtectedTermsTab.ContextAction(StandardActions.VIEW_LIST, file)),
-                factory.createMenuItem(StandardActions.REMOVE_LIST, new ProtectedTermsTab.ContextAction(StandardActions.REMOVE_LIST, file)),
-                factory.createMenuItem(StandardActions.RELOAD_LIST, new ProtectedTermsTab.ContextAction(StandardActions.RELOAD_LIST, file))
-        );
+        contextMenu
+                .getItems()
+                .addAll(
+                        factory.createMenuItem(
+                                StandardActions.EDIT_LIST,
+                                new ProtectedTermsTab.ContextAction(StandardActions.EDIT_LIST, file)),
+                        factory.createMenuItem(
+                                StandardActions.VIEW_LIST,
+                                new ProtectedTermsTab.ContextAction(StandardActions.VIEW_LIST, file)),
+                        factory.createMenuItem(
+                                StandardActions.REMOVE_LIST,
+                                new ProtectedTermsTab.ContextAction(StandardActions.REMOVE_LIST, file)),
+                        factory.createMenuItem(
+                                StandardActions.RELOAD_LIST,
+                                new ProtectedTermsTab.ContextAction(StandardActions.RELOAD_LIST, file)));
         contextMenu.getItems().forEach(item -> item.setGraphic(null));
         contextMenu.getStyleClass().add("context-menu");
 
@@ -138,26 +155,19 @@ public class ProtectedTermsTab extends AbstractPreferenceTabView<ProtectedTermsT
 
             this.executable.bind(BindingsHelper.constantOf(
                     switch (command) {
-                        case EDIT_LIST,
-                             REMOVE_LIST,
-                             RELOAD_LIST ->
-                                !itemModel.getTermsList().isInternalList();
-                        default ->
-                                true;
+                        case EDIT_LIST, REMOVE_LIST, RELOAD_LIST ->
+                            !itemModel.getTermsList().isInternalList();
+                        default -> true;
                     }));
         }
 
         @Override
         public void execute() {
             switch (command) {
-                case EDIT_LIST ->
-                        viewModel.edit(itemModel);
-                case VIEW_LIST ->
-                        viewModel.displayContent(itemModel);
-                case REMOVE_LIST ->
-                        viewModel.removeList(itemModel);
-                case RELOAD_LIST ->
-                        viewModel.reloadList(itemModel);
+                case EDIT_LIST -> viewModel.edit(itemModel);
+                case VIEW_LIST -> viewModel.displayContent(itemModel);
+                case REMOVE_LIST -> viewModel.removeList(itemModel);
+                case RELOAD_LIST -> viewModel.reloadList(itemModel);
             }
         }
     }

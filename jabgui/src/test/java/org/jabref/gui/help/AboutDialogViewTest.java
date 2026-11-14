@@ -1,9 +1,17 @@
 package org.jabref.gui.help;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import com.airhacks.afterburner.injection.Injector;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
-
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -11,7 +19,6 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-
 import org.jabref.architecture.AllowedToUseClassGetResource;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
@@ -24,19 +31,9 @@ import org.jabref.gui.util.DialogButtonAssertions;
 import org.jabref.logic.l10n.Language;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.BuildInfo;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 @AllowedToUseClassGetResource("JavaFX internally handles the passed URLs properly.")
 class AboutDialogViewTest extends JavaFxTest {
@@ -74,17 +71,19 @@ class AboutDialogViewTest extends JavaFxTest {
         Injector.setModelOrService(StateManager.class, stateManager);
 
         Scene mainWindowScene = new Scene(new StackPane(), 1024, 768);
-        mainWindowScene.getStylesheets().addAll(
-                stylesheet("/org/jabref/gui/theme/themes.jabref.org/jabref-theme.css"),
-                stylesheet("/org/jabref/gui/theme/internal/jabref-base.css"));
+        mainWindowScene
+                .getStylesheets()
+                .addAll(
+                        stylesheet("/org/jabref/gui/theme/themes.jabref.org/jabref-theme.css"),
+                        stylesheet("/org/jabref/gui/theme/internal/jabref-base.css"));
         stage.setScene(mainWindowScene);
 
         raisedFontSizeListener = change -> {
             while (change.next()) {
                 change.getAddedSubList().stream()
-                      .map(Window::getScene)
-                      .filter(Objects::nonNull)
-                      .forEach(scene -> scene.getRoot().getStyleClass().add(FONT_SIZE_CLASS));
+                        .map(Window::getScene)
+                        .filter(Objects::nonNull)
+                        .forEach(scene -> scene.getRoot().getStyleClass().add(FONT_SIZE_CLASS));
             }
         };
         Window.getWindows().addListener(raisedFontSizeListener);
@@ -129,7 +128,9 @@ class AboutDialogViewTest extends JavaFxTest {
         awaitEvents();
 
         interact(() -> {
-            assertEquals(List.of("Copy Version", "Close"), buttons().stream().map(Button::getText).toList());
+            assertEquals(
+                    List.of("Copy Version", "Close"),
+                    buttons().stream().map(Button::getText).toList());
             DialogButtonAssertions.assertCaptionsAreNotTruncated(buttons());
         });
     }
@@ -147,6 +148,7 @@ class AboutDialogViewTest extends JavaFxTest {
     }
 
     private static String stylesheet(String path) {
-        return Objects.requireNonNull(AboutDialogViewTest.class.getResource(path)).toExternalForm();
+        return Objects.requireNonNull(AboutDialogViewTest.class.getResource(path))
+                .toExternalForm();
     }
 }

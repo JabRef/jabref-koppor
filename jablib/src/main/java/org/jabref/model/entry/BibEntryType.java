@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.SequencedSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.field.BibField;
 import org.jabref.model.entry.field.Field;
@@ -16,7 +15,6 @@ import org.jabref.model.entry.field.FieldPriority;
 import org.jabref.model.entry.field.OrFields;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryType;
-
 import org.jspecify.annotations.NonNull;
 
 public class BibEntryType implements Comparable<BibEntryType> {
@@ -44,13 +42,12 @@ public class BibEntryType implements Comparable<BibEntryType> {
 
     public SequencedSet<BibField> getOptionalFields() {
         return getAllBibFields().stream()
-                                .filter(field -> !isRequired(field.field()))
-                                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .filter(field -> !isRequired(field.field()))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public boolean isRequired(Field field) {
-        return getRequiredFields().stream()
-                                  .anyMatch(fields -> fields.contains(field));
+        return getRequiredFields().stream().anyMatch(fields -> fields.contains(field));
     }
 
     /// Returns all required field names.
@@ -73,16 +70,16 @@ public class BibEntryType implements Comparable<BibEntryType> {
 
     public SequencedSet<Field> getImportantOptionalFields() {
         return getOptionalFields().stream()
-                                  .filter(field -> field.priority() == FieldPriority.IMPORTANT)
-                                  .map(BibField::field)
-                                  .collect(Collectors.toCollection(LinkedHashSet::new));
+                .filter(field -> field.priority() == FieldPriority.IMPORTANT)
+                .map(BibField::field)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public SequencedSet<Field> getDetailOptionalFields() {
         return getOptionalFields().stream()
-                                  .filter(field -> field.priority() == FieldPriority.DETAIL)
-                                  .map(BibField::field)
-                                  .collect(Collectors.toCollection(LinkedHashSet::new));
+                .filter(field -> field.priority() == FieldPriority.DETAIL)
+                .map(BibField::field)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public Set<Field> getDeprecatedFields(BibDatabaseMode mode) {
@@ -110,7 +107,8 @@ public class BibEntryType implements Comparable<BibEntryType> {
 
     /// Get list of all optional fields of this entry and all fields being source for a BibTeX to BibLaTeX conversion.
     private SequencedSet<Field> getOptionalFieldsAndAliases() {
-        SequencedSet<Field> optionalFieldsAndAliases = new LinkedHashSet<>(getOptionalFields().size());
+        SequencedSet<Field> optionalFieldsAndAliases =
+                new LinkedHashSet<>(getOptionalFields().size());
         for (BibField field : getOptionalFields()) {
             optionalFieldsAndAliases.add(field.field());
             if (EntryConverter.FIELD_ALIASES_BIBTEX_TO_BIBLATEX.containsKey(field.field())) {
@@ -129,9 +127,9 @@ public class BibEntryType implements Comparable<BibEntryType> {
             return false;
         }
         BibEntryType that = (BibEntryType) o;
-        return type.equals(that.type) &&
-                Objects.equals(requiredFields, that.requiredFields) &&
-                Objects.equals(allFields, that.allFields);
+        return type.equals(that.type)
+                && Objects.equals(requiredFields, that.requiredFields)
+                && Objects.equals(allFields, that.allFields);
     }
 
     @Override
@@ -140,16 +138,14 @@ public class BibEntryType implements Comparable<BibEntryType> {
     }
 
     /// Generates a **single line** string containing the information. This is used for debugging purposes.
-    /// See "<a href="https://biratkirat.medium.com/learning-effective-java-item-10-84cc3ab553bc">Effective Java, Item 10</a>" for a discussion on contracts.
-    /// We are sure, we are using this method in a) logs (which should use single lines for output) and b) in the UI. For the UI, we use [org.jabref.gui.importer.BibEntryTypePrefsAndFileViewModel],
+    /// See "<a href="https://biratkirat.medium.com/learning-effective-java-item-10-84cc3ab553bc">Effective Java, Item
+    /// 10</a>" for a discussion on contracts.
+    /// We are sure, we are using this method in a) logs (which should use single lines for output) and b) in the UI.
+    /// For the UI, we use [org.jabref.gui.importer.BibEntryTypePrefsAndFileViewModel],
     /// which in turn uses [#serializeCustomEntryTypes(BibEntryType)]
     @Override
     public String toString() {
-        return "BibEntryType{" +
-                "type=" + type +
-                ", allFields=" + allFields +
-                ", requiredFields=" + requiredFields +
-                '}';
+        return "BibEntryType{type=" + type + ", allFields=" + allFields + ", requiredFields=" + requiredFields + '}';
     }
 
     /// WARNING! This does not follow the equals contract. Even if this here returns 0, the objects can be different.

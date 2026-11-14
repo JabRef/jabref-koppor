@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.formatter.bibtexfields.AddBracesFormatter;
 import org.jabref.logic.formatter.bibtexfields.CleanupUrlFormatter;
 import org.jabref.logic.formatter.bibtexfields.ClearFormatter;
@@ -49,7 +48,6 @@ import org.jabref.logic.formatter.minifier.MinifyNameListFormatter;
 import org.jabref.logic.formatter.minifier.TruncateFormatter;
 import org.jabref.logic.layout.format.LatexToUnicodeFormatter;
 import org.jabref.logic.layout.format.ReplaceUnicodeLigaturesFormatter;
-
 import org.jspecify.annotations.NonNull;
 
 public class Formatters {
@@ -61,8 +59,7 @@ public class Formatters {
         keyToFormatterMap = getAll().stream().collect(Collectors.toMap(Formatter::getKey, f -> f));
     }
 
-    private Formatters() {
-    }
+    private Formatters() {}
 
     public static List<Formatter> getConverters() {
         return Arrays.asList(
@@ -72,8 +69,7 @@ public class Formatters {
                 new LatexToUnicodeAwareLatexFormatter(),
                 new UnicodeToLatexFormatter(),
                 new ConvertMSCCodesFormatter(),
-                new TransliterateFormatter()
-        );
+                new TransliterateFormatter());
     }
 
     public static List<Formatter> getCaseChangers() {
@@ -82,8 +78,7 @@ public class Formatters {
                 new LowerCaseFormatter(),
                 new SentenceCaseFormatter(),
                 new TitleCaseFormatter(),
-                new UpperCaseFormatter()
-        );
+                new UpperCaseFormatter());
     }
 
     public static List<Formatter> getOthers() {
@@ -110,16 +105,11 @@ public class Formatters {
                 new EscapeDollarSignFormatter(),
                 new ShortenDOIFormatter(),
                 new ReplaceUnicodeLigaturesFormatter(),
-                new UnprotectTermsFormatter()
-        );
+                new UnprotectTermsFormatter());
     }
 
     public static List<Formatter> getTitleChangers() {
-        return Arrays.asList(
-                new VeryShortTitleFormatter(),
-                new ShortTitleFormatter(),
-                new CamelFormatter()
-        );
+        return Arrays.asList(new VeryShortTitleFormatter(), new ShortTitleFormatter(), new CamelFormatter());
     }
 
     public static List<Formatter> getAll() {

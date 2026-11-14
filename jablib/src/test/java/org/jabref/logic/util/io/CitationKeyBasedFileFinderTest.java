@@ -1,20 +1,18 @@
 package org.jabref.logic.util.io;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class CitationKeyBasedFileFinderTest {
 
@@ -108,7 +106,8 @@ class CitationKeyBasedFileFinderTest {
         Path testFile = Files.createFile(pdfsDir.resolve("_test_file.pdf"));
         FileFinder fileFinder = new CitationKeyBasedFileFinder(false);
 
-        List<Path> results = fileFinder.findAssociatedFiles(entryWithUnsafeCitationKey, List.of(pdfsDir), List.of("pdf"));
+        List<Path> results =
+                fileFinder.findAssociatedFiles(entryWithUnsafeCitationKey, List.of(pdfsDir), List.of("pdf"));
 
         assertEquals(List.of(testFile), results);
     }
@@ -121,7 +120,8 @@ class CitationKeyBasedFileFinderTest {
         Path testFile = Files.createFile(pdfsDir.resolve("test_test__test_.pdf"));
         FileFinder fileFinder = new CitationKeyBasedFileFinder(true);
 
-        List<Path> results = fileFinder.findAssociatedFiles(entryWithUnsafeCitationKey, List.of(pdfsDir), List.of("pdf"));
+        List<Path> results =
+                fileFinder.findAssociatedFiles(entryWithUnsafeCitationKey, List.of(pdfsDir), List.of("pdf"));
 
         assertNotEquals(List.of(testFile), results);
     }

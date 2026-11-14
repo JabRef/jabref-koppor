@@ -8,7 +8,6 @@ import java.util.StringJoiner;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionHelper;
@@ -27,7 +26,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.undo.UndoableFieldChange;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -51,9 +49,7 @@ public class ExtractReferencesAction extends SimpleCommand {
 
     private final RuleBasedBibliographyPdfImporter ruleBasedBibliographyPdfImporter;
 
-    public ExtractReferencesAction(DialogService dialogService,
-                                   StateManager stateManager,
-                                   CliPreferences preferences) {
+    public ExtractReferencesAction(DialogService dialogService, StateManager stateManager, CliPreferences preferences) {
         this(dialogService, stateManager, preferences, null, null);
     }
 
@@ -61,22 +57,22 @@ public class ExtractReferencesAction extends SimpleCommand {
     ///
     /// @param entry      the entry to handle (can be null)
     /// @param linkedFile the linked file (can be null)
-    private ExtractReferencesAction(@NonNull DialogService dialogService,
-                                    @NonNull StateManager stateManager,
-                                    @NonNull CliPreferences preferences,
-                                    @Nullable BibEntry entry,
-                                    @Nullable LinkedFile linkedFile) {
+    private ExtractReferencesAction(
+            @NonNull DialogService dialogService,
+            @NonNull StateManager stateManager,
+            @NonNull CliPreferences preferences,
+            @Nullable BibEntry entry,
+            @Nullable LinkedFile linkedFile) {
         this.dialogService = dialogService;
         this.stateManager = stateManager;
         this.preferences = preferences;
         this.entry = entry;
-        ruleBasedBibliographyPdfImporter = new RuleBasedBibliographyPdfImporter(preferences.getCitationKeyPatternPreferences());
+        ruleBasedBibliographyPdfImporter =
+                new RuleBasedBibliographyPdfImporter(preferences.getCitationKeyPatternPreferences());
 
         if (linkedFile == null) {
-            this.executable.bind(
-                    ActionHelper.needsEntriesSelected(stateManager)
-                                .and(ActionHelper.hasLinkedFileForSelectedEntries(stateManager))
-            );
+            this.executable.bind(ActionHelper.needsEntriesSelected(stateManager)
+                    .and(ActionHelper.hasLinkedFileForSelectedEntries(stateManager)));
         } else {
             this.setExecutable(true);
         }
@@ -99,7 +95,8 @@ public class ExtractReferencesAction extends SimpleCommand {
             boolean online = this.preferences.getGrobidPreferences().isGrobidEnabled();
             Callable<ParserResult> parserResultCallable;
             if (online) {
-                Optional<Callable<ParserResult>> parserResultCallableOnline = getParserResultCallableOnline(databaseContext, selectedEntries);
+                Optional<Callable<ParserResult>> parserResultCallableOnline =
+                        getParserResultCallableOnline(databaseContext, selectedEntries);
                 if (parserResultCallableOnline.isEmpty()) {
                     return;
                 }
@@ -108,11 +105,12 @@ public class ExtractReferencesAction extends SimpleCommand {
                 parserResultCallable = getParserResultCallableOffline(databaseContext, selectedEntries);
             }
             BackgroundTask<ParserResult> task = BackgroundTask.wrap(parserResultCallable)
-                                                              .withInitialMessage(Localization.lang("Processing PDF(s)"));
+                    .withInitialMessage(Localization.lang("Processing PDF(s)"));
 
             task.onFailure(dialogService::showErrorDialogAndWait);
 
-            ImportEntriesDialog dialog = new ImportEntriesDialog(stateManager.getActiveDatabase().get(), task);
+            ImportEntriesDialog dialog =
+                    new ImportEntriesDialog(stateManager.getActiveDatabase().get(), task);
             String title;
             if (online) {
                 title = Localization.lang("Extract References (online)");
@@ -124,12 +122,15 @@ public class ExtractReferencesAction extends SimpleCommand {
         });
     }
 
-    private @NonNull Callable<ParserResult> getParserResultCallableOffline(BibDatabaseContext databaseContext, List<BibEntry> selectedEntries) {
+    private @NonNull Callable<ParserResult> getParserResultCallableOffline(
+            BibDatabaseContext databaseContext, List<BibEntry> selectedEntries) {
         return () -> {
             BibEntry currentEntry = selectedEntries.getFirst();
-            List<Path> fileList = FileUtil.getListOfLinkedFiles(selectedEntries, databaseContext.getFileDirectories(preferences.getFilePreferences()));
+            List<Path> fileList = FileUtil.getListOfLinkedFiles(
+                    selectedEntries, databaseContext.getFileDirectories(preferences.getFilePreferences()));
 
-            // We need to have ParserResult handled at the importer, because it imports the meta data (library type, encoding, ...)
+            // We need to have ParserResult handled at the importer, because it imports the meta data (library type,
+            // encoding, ...)
             ParserResult result = ruleBasedBibliographyPdfImporter.importDatabase(fileList.getFirst());
 
             // subsequent files are just appended to result
@@ -142,7 +143,8 @@ public class ExtractReferencesAction extends SimpleCommand {
             selectedEntriesIterator.next(); // skip first entry
             while (selectedEntriesIterator.hasNext()) {
                 currentEntry = selectedEntriesIterator.next();
-                fileList = FileUtil.getListOfLinkedFiles(List.of(currentEntry), databaseContext.getFileDirectories(preferences.getFilePreferences()));
+                fileList = FileUtil.getListOfLinkedFiles(
+                        List.of(currentEntry), databaseContext.getFileDirectories(preferences.getFilePreferences()));
                 fileListIterator = fileList.iterator();
                 extractReferences(databaseContext, fileListIterator, result, currentEntry);
             }
@@ -151,17 +153,28 @@ public class ExtractReferencesAction extends SimpleCommand {
         };
     }
 
-    private void extractReferences(BibDatabaseContext databaseContext, Iterator<Path> fileListIterator, ParserResult result, BibEntry currentEntry) {
+    private void extractReferences(
+            BibDatabaseContext databaseContext,
+            Iterator<Path> fileListIterator,
+            ParserResult result,
+            BibEntry currentEntry) {
         while (fileListIterator.hasNext()) {
-            result.getDatabase().insertEntries(ruleBasedBibliographyPdfImporter.importDatabase(fileListIterator.next()).getDatabase().getEntries());
+            result.getDatabase()
+                    .insertEntries(ruleBasedBibliographyPdfImporter
+                            .importDatabase(fileListIterator.next())
+                            .getDatabase()
+                            .getEntries());
         }
 
         String cites = getCites(result.getDatabase().getEntries(), currentEntry);
         // The library the entry belongs to, not whichever is active when this finishes.
-        UiTaskExecutor.runInJavaFXThread(() ->
-                stateManager.getUndoManager(databaseContext)
-                            .applyEdit(new UndoableFieldChange(currentEntry, StandardField.CITES,
-                                    currentEntry.getField(StandardField.CITES).orElse(null), cites)));
+        UiTaskExecutor.runInJavaFXThread(() -> stateManager
+                .getUndoManager(databaseContext)
+                .applyEdit(new UndoableFieldChange(
+                        currentEntry,
+                        StandardField.CITES,
+                        currentEntry.getField(StandardField.CITES).orElse(null),
+                        cites)));
     }
 
     /// Creates the field content for the "cites" field. The field contains the citation keys of the imported entries.
@@ -181,13 +194,15 @@ public class ExtractReferencesAction extends SimpleCommand {
             } else {
                 // No key present -> generate one based on
                 //   the citation key of the entry holding the files and
-                //   the number of the current entry (extracted from the reference; fallback: current number of the entry (count variable))
+                //   the number of the current entry (extracted from the reference; fallback: current number of the
+                // entry (count variable))
 
                 String sourceCitationKey = currentEntry.getCitationKey().orElse("unknown");
                 String newCitationKey;
                 // Could happen if no author and no year is present
                 // We use the number of the comment field (because there is no other way to get the number reliable)
-                Matcher matcher = COMMENT_NUMBER_PATTERN.matcher(importedEntry.getField(StandardField.COMMENT).orElse(""));
+                Matcher matcher = COMMENT_NUMBER_PATTERN.matcher(
+                        importedEntry.getField(StandardField.COMMENT).orElse(""));
                 if (matcher.hasMatch()) {
                     newCitationKey = sourceCitationKey + "-" + matcher.group(1);
                 } else {
@@ -201,18 +216,21 @@ public class ExtractReferencesAction extends SimpleCommand {
         return cites.toString();
     }
 
-    private Optional<Callable<ParserResult>> getParserResultCallableOnline(BibDatabaseContext databaseContext, List<BibEntry> selectedEntries) {
-        List<Path> fileList = FileUtil.getListOfLinkedFiles(selectedEntries, databaseContext.getFileDirectories(preferences.getFilePreferences()));
+    private Optional<Callable<ParserResult>> getParserResultCallableOnline(
+            BibDatabaseContext databaseContext, List<BibEntry> selectedEntries) {
+        List<Path> fileList = FileUtil.getListOfLinkedFiles(
+                selectedEntries, databaseContext.getFileDirectories(preferences.getFilePreferences()));
         if (fileList.size() > FILES_LIMIT) {
-            boolean continueOpening = dialogService.showConfirmationDialogAndWait(Localization.lang("Processing a large number of files"),
+            boolean continueOpening = dialogService.showConfirmationDialogAndWait(
+                    Localization.lang("Processing a large number of files"),
                     Localization.lang("You are about to process %0 files. Continue?", fileList.size()),
-                    Localization.lang("Continue"), Localization.lang("Cancel"));
+                    Localization.lang("Continue"),
+                    Localization.lang("Cancel"));
             if (!continueOpening) {
                 return Optional.empty();
             }
         }
-        return Optional.of(() -> new ParserResult(
-                new GrobidService(this.preferences.getGrobidPreferences()).processReferences(fileList, preferences.getImportFormatPreferences())
-        ));
+        return Optional.of(() -> new ParserResult(new GrobidService(this.preferences.getGrobidPreferences())
+                .processReferences(fileList, preferences.getImportFormatPreferences())));
     }
 }

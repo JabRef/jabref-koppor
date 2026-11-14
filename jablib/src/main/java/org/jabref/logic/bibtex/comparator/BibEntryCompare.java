@@ -3,13 +3,19 @@ package org.jabref.logic.bibtex.comparator;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.SequencedSet;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 
 /// This class is a strict entry comparator. See [Result] for possible comparison outcomes.
 public class BibEntryCompare {
-    public enum Result { SUBSET, EQUAL, SUPERSET, DISJUNCT, DISJUNCT_OR_EQUAL_FIELDS, DIFFERENT }
+    public enum Result {
+        SUBSET,
+        EQUAL,
+        SUPERSET,
+        DISJUNCT,
+        DISJUNCT_OR_EQUAL_FIELDS,
+        DIFFERENT
+    }
 
     /// @return first {Result} second, e.g., if first is a subset of second, then Result.SUBSET is returned.
     public static Result compareEntries(BibEntry first, BibEntry second) {
@@ -53,9 +59,10 @@ public class BibEntryCompare {
     private static boolean isSubSet(BibEntry candidateSubSet, BibEntry candidateSuperSet, Collection<Field> fields) {
         for (Field field : fields) {
             String subValue = candidateSubSet.getField(field).get();
-            boolean isEqualValue = candidateSuperSet.getField(field)
-                                                    .filter(superValue -> superValue.equals(subValue))
-                                                    .isPresent();
+            boolean isEqualValue = candidateSuperSet
+                    .getField(field)
+                    .filter(superValue -> superValue.equals(subValue))
+                    .isPresent();
             if (!isEqualValue) {
                 return false;
             }

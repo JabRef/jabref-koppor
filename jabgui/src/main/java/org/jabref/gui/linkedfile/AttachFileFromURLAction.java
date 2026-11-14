@@ -3,7 +3,6 @@ package org.jabref.gui.linkedfile;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionHelper;
@@ -26,10 +25,11 @@ public class AttachFileFromURLAction extends SimpleCommand {
     private final GuiPreferences preferences;
     private final TaskExecutor taskExecutor;
 
-    public AttachFileFromURLAction(DialogService dialogService,
-                                   StateManager stateManager,
-                                   TaskExecutor taskExecutor,
-                                   GuiPreferences preferences) {
+    public AttachFileFromURLAction(
+            DialogService dialogService,
+            StateManager stateManager,
+            TaskExecutor taskExecutor,
+            GuiPreferences preferences) {
         this.stateManager = stateManager;
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
@@ -63,12 +63,7 @@ public class AttachFileFromURLAction extends SimpleCommand {
         try {
             URL url = URLUtil.create(urlforDownload.get());
             LinkedFileViewModel onlineFile = new LinkedFileViewModel(
-                    new LinkedFile(url, ""),
-                    entry,
-                    databaseContext,
-                    taskExecutor,
-                    dialogService,
-                    preferences);
+                    new LinkedFile(url, ""), entry, databaseContext, taskExecutor, dialogService, preferences);
             onlineFile.download(true, stateManager.getUndoManager(databaseContext));
         } catch (MalformedURLException exception) {
             dialogService.showErrorDialogAndWait(Localization.lang("Invalid URL"), exception);

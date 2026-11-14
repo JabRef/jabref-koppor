@@ -1,12 +1,13 @@
 package org.jabref.gui.util;
 
+import com.tobiasdiez.easybind.Subscription;
+import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
-
 import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 import javafx.event.Event;
@@ -20,12 +21,8 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
-
 import org.jabref.gui.icon.JabRefIcon;
 import org.jabref.logic.util.strings.StringUtil;
-
-import com.tobiasdiez.easybind.Subscription;
-import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -74,7 +71,8 @@ public class ViewModelListCellFactory<T> implements Callback<ListView<T>, ListCe
     }
 
     public ViewModelListCellFactory<T> withIcon(Callback<T, JabRefIcon> toIcon, Callback<T, Color> toColor) {
-        this.toGraphic = viewModel -> toIcon.call(viewModel).withColor(toColor.call(viewModel)).getGraphicNode();
+        this.toGraphic = viewModel ->
+                toIcon.call(viewModel).withColor(toColor.call(viewModel)).getGraphicNode();
         return this;
     }
 
@@ -103,7 +101,10 @@ public class ViewModelListCellFactory<T> implements Callback<ListView<T>, ListCe
     public ViewModelListCellFactory<T> withTooltipText(Callback<T, ObservableValue<String>> toTooltipText) {
         this.tooltipFactory = cell -> {
             Tooltip tooltip = new Tooltip();
-            tooltip.textProperty().bind(cell.itemProperty().flatMap(toTooltipText::call).when(cell.emptyProperty().not()));
+            tooltip.textProperty()
+                    .bind(cell.itemProperty()
+                            .flatMap(toTooltipText::call)
+                            .when(cell.emptyProperty().not()));
             return _ -> tooltip;
         };
         return this;
@@ -123,7 +124,8 @@ public class ViewModelListCellFactory<T> implements Callback<ListView<T>, ListCe
         return this;
     }
 
-    public ViewModelListCellFactory<T> withOnMouseClickedEvent(BiConsumer<T, ? super MouseEvent> toOnMouseClickedEvent) {
+    public ViewModelListCellFactory<T> withOnMouseClickedEvent(
+            BiConsumer<T, ? super MouseEvent> toOnMouseClickedEvent) {
         this.toOnMouseClickedEvent = toOnMouseClickedEvent;
         return this;
     }
@@ -158,7 +160,8 @@ public class ViewModelListCellFactory<T> implements Callback<ListView<T>, ListCe
         return this;
     }
 
-    public ViewModelListCellFactory<T> withPseudoClass(PseudoClass pseudoClass, Callback<T, ObservableValue<Boolean>> toCondition) {
+    public ViewModelListCellFactory<T> withPseudoClass(
+            PseudoClass pseudoClass, Callback<T, ObservableValue<Boolean>> toCondition) {
         this.pseudoClasses.putIfAbsent(pseudoClass, toCondition);
         return this;
     }
@@ -224,7 +227,8 @@ public class ViewModelListCellFactory<T> implements Callback<ListView<T>, ListCe
                             onDragDropped.accept(viewModel, event);
                             Node parent = getParent();
                             if (parent != null) {
-                                // The parent is the box for dropping from external files; that should be used as target (and not this cell)
+                                // The parent is the box for dropping from external files; that should be used as target
+                                // (and not this cell)
                                 // We need to send a copy of the event before consuming the original one
                                 DragEvent forwarded = event.copyFor(parent, parent);
                                 Event.fireEvent(parent, forwarded);
@@ -257,22 +261,26 @@ public class ViewModelListCellFactory<T> implements Callback<ListView<T>, ListCe
                     if (onDragDone != null) {
                         setOnDragDone(event -> onDragDone.accept(viewModel, event));
                     }
-                    for (Map.Entry<PseudoClass, Callback<T, ObservableValue<Boolean>>> pseudoClassWithCondition : pseudoClasses.entrySet()) {
-                        ObservableValue<Boolean> condition = pseudoClassWithCondition.getValue().call(viewModel);
+                    for (Map.Entry<PseudoClass, Callback<T, ObservableValue<Boolean>>> pseudoClassWithCondition :
+                            pseudoClasses.entrySet()) {
+                        ObservableValue<Boolean> condition =
+                                pseudoClassWithCondition.getValue().call(viewModel);
                         subscriptions.add(BindingsHelper.includePseudoClassWhen(
-                                this,
-                                pseudoClassWithCondition.getKey(),
-                                condition));
+                                this, pseudoClassWithCondition.getKey(), condition));
                     }
                     if (validationStatusProperty != null) {
-                        validationStatusProperty.call(viewModel)
-                                                .getHighestMessage()
-                                                .ifPresent(message -> setTooltip(new Tooltip(message.getMessage())));
+                        validationStatusProperty
+                                .call(viewModel)
+                                .getHighestMessage()
+                                .ifPresent(message -> setTooltip(new Tooltip(message.getMessage())));
 
                         subscriptions.add(BindingsHelper.includePseudoClassWhen(
                                 this,
                                 INVALID_PSEUDO_CLASS,
-                                validationStatusProperty.call(viewModel).validProperty().not()));
+                                validationStatusProperty
+                                        .call(viewModel)
+                                        .validProperty()
+                                        .not()));
                     }
                 }
             }

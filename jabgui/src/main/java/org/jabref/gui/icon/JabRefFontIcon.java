@@ -2,11 +2,9 @@ package org.jabref.gui.icon;
 
 import java.util.List;
 import java.util.Set;
-
 import javafx.css.CssMetaData;
 import javafx.css.Styleable;
 import javafx.scene.paint.Paint;
-
 import org.jspecify.annotations.NullMarked;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -30,8 +28,7 @@ class JabRefFontIcon extends FontIcon {
     private static final Set<String> COLOR_PROPERTIES = Set.of("-fx-fill", "-fx-icon-color");
 
     private static final List<CssMetaData<? extends Styleable, ?>> CSS_META_DATA =
-            FontIcon.getClassCssMetaData()
-                    .stream()
+            FontIcon.getClassCssMetaData().stream()
                     .filter(metaData -> !COLOR_PROPERTIES.contains(metaData.getProperty()))
                     .toList();
 

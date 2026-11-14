@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ListProperty;
@@ -21,7 +20,6 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.externalfiles.AutoSetFileLinksUtil;
@@ -48,14 +46,14 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
     private static final Logger LOGGER = LoggerFactory.getLogger(LinkedFilesEditorViewModel.class);
 
-    private final ListProperty<LinkedFileViewModel> files = new SimpleListProperty<>(FXCollections.observableArrayList(LinkedFileViewModel::getObservables));
+    private final ListProperty<LinkedFileViewModel> files =
+            new SimpleListProperty<>(FXCollections.observableArrayList(LinkedFileViewModel::getObservables));
     private final BooleanProperty fulltextLookupInProgress = new SimpleBooleanProperty(false);
     private final BooleanProperty anyDownloadOngoing = new SimpleBooleanProperty(false);
     private final DoubleProperty maxDownloadProgress = new SimpleDoubleProperty(0.0);
@@ -64,13 +62,15 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
     private final TaskExecutor taskExecutor;
     private final GuiPreferences preferences;
 
-    public LinkedFilesEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider,
-                                      DialogService dialogService,
-                                      BibDatabaseContext databaseContext,
-                                      TaskExecutor taskExecutor,
-                                      FieldCheckers fieldCheckers,
-                                      GuiPreferences preferences,
-                                      UndoManager undoManager) {
+    public LinkedFilesEditorViewModel(
+            Field field,
+            SuggestionProvider<?> suggestionProvider,
+            DialogService dialogService,
+            BibDatabaseContext databaseContext,
+            TaskExecutor taskExecutor,
+            FieldCheckers fieldCheckers,
+            GuiPreferences preferences,
+            UndoManager undoManager) {
 
         super(field, suggestionProvider, fieldCheckers, undoManager);
 
@@ -80,19 +80,16 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
         this.preferences = preferences;
 
         BindingsHelper.bindContentBidirectional(
-                files,
-                text,
-                LinkedFilesEditorViewModel::getStringRepresentation,
-                this::parseToFileViewModel);
+                files, text, LinkedFilesEditorViewModel::getStringRepresentation, this::parseToFileViewModel);
         wireAggregateDownloadBindings();
     }
 
     private static String getStringRepresentation(List<LinkedFileViewModel> files) {
         // Only serialize linked files, not the ones that are automatically found
         List<LinkedFile> filesToSerialize = files.stream()
-                                                 .filter(file -> !file.isAutomaticallyFound())
-                                                 .map(LinkedFileViewModel::getFile)
-                                                 .collect(Collectors.toList());
+                .filter(file -> !file.isAutomaticallyFound())
+                .map(LinkedFileViewModel::getFile)
+                .collect(Collectors.toList());
 
         return FileFieldWriter.getStringRepresentation(filesToSerialize);
     }
@@ -100,26 +97,28 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
     /// Creates an instance of [LinkedFile] based on the given file.
     /// We try to guess the file type and relativize the path against the given file directories.
     ///
-    /// TODO: Move this method to [LinkedFile] as soon as [org.jabref.gui.externalfiletype.CustomExternalFileType] lives in model.
-    public static LinkedFile fromFile(Path file, List<Path> fileDirectories, ExternalApplicationsPreferences externalApplicationsPreferences) {
+    /// TODO: Move this method to [LinkedFile] as soon as [org.jabref.gui.externalfiletype.CustomExternalFileType] lives
+    /// in model.
+    public static LinkedFile fromFile(
+            Path file, List<Path> fileDirectories, ExternalApplicationsPreferences externalApplicationsPreferences) {
         String fileExtension = FileUtil.getFileExtension(file).orElse("");
-        ExternalFileType suggestedFileType = ExternalFileTypes.getExternalFileTypeByExt(fileExtension, externalApplicationsPreferences)
-                                                              .orElse(new UnknownExternalFileType(fileExtension));
+        ExternalFileType suggestedFileType = ExternalFileTypes.getExternalFileTypeByExt(
+                        fileExtension, externalApplicationsPreferences)
+                .orElse(new UnknownExternalFileType(fileExtension));
         Path relativePath = FileUtil.relativize(file, fileDirectories);
         return new LinkedFile("", relativePath, suggestedFileType.getName());
     }
 
     private void wireAggregateDownloadBindings() {
         Runnable recompute = () -> {
-            anyDownloadOngoing.set(
-                    files.stream().anyMatch(fileViewModel -> fileViewModel.downloadOngoingProperty().get())
-            );
-            maxDownloadProgress.set(
-                    files.stream()
-                         .mapToDouble(fileViewModel -> fileViewModel.downloadProgressProperty().get())
-                         .max()
-                         .orElse(0.0)
-            );
+            anyDownloadOngoing.set(files.stream()
+                    .anyMatch(fileViewModel ->
+                            fileViewModel.downloadOngoingProperty().get()));
+            maxDownloadProgress.set(files.stream()
+                    .mapToDouble(fileViewModel ->
+                            fileViewModel.downloadProgressProperty().get())
+                    .max()
+                    .orElse(0.0));
         };
 
         for (LinkedFileViewModel fileViewModel : files) {
@@ -144,14 +143,9 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
 
     private List<LinkedFileViewModel> parseToFileViewModel(String stringValue) {
         return FileFieldParser.parse(stringValue).stream()
-                              .map(linkedFile -> new LinkedFileViewModel(
-                                      linkedFile,
-                                      entry,
-                                      databaseContext,
-                                      taskExecutor,
-                                      dialogService,
-                                      preferences))
-                              .collect(Collectors.toList());
+                .map(linkedFile -> new LinkedFileViewModel(
+                        linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences))
+                .collect(Collectors.toList());
     }
 
     public ObservableList<LinkedFileViewModel> getFiles() {
@@ -163,13 +157,8 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
     }
 
     public void addNewLinkedFile(LinkedFile linkedFile) {
-        files.add(new LinkedFileViewModel(
-                linkedFile,
-                entry,
-                databaseContext,
-                taskExecutor,
-                dialogService,
-                preferences));
+        files.add(
+                new LinkedFileViewModel(linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences));
     }
 
     /// For the linked-file context menu, whose actions record into this library's journal.
@@ -184,8 +173,8 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
 
         if (preferences.getEntryEditorPreferences().autoLinkFilesEnabled()) {
             LOGGER.debug("Auto-linking files for entry {}", entry);
-            BackgroundTask<List<LinkedFileViewModel>> findAssociatedNotLinkedFiles = BackgroundTask
-                    .wrap(() -> findAssociatedNotLinkedFiles(entry))
+            BackgroundTask<List<LinkedFileViewModel>> findAssociatedNotLinkedFiles = BackgroundTask.wrap(
+                            () -> findAssociatedNotLinkedFiles(entry))
                     .onSuccess(list -> {
                         if (!list.isEmpty()) {
                             LOGGER.debug("Found non-associated files: {}", list);
@@ -209,12 +198,7 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
             Collection<LinkedFile> linkedFiles = util.findAssociatedNotLinkedFiles(entry);
             for (LinkedFile linkedFile : linkedFiles) {
                 LinkedFileViewModel newLinkedFile = new LinkedFileViewModel(
-                        linkedFile,
-                        entry,
-                        databaseContext,
-                        taskExecutor,
-                        dialogService,
-                        preferences);
+                        linkedFile, entry, databaseContext, taskExecutor, dialogService, preferences);
                 newLinkedFile.markAsAutomaticallyFound();
                 result.add(newLinkedFile);
             }
@@ -232,17 +216,14 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
             addFromURLAndDownload(url);
             return true;
         } catch (MalformedURLException exception) {
-            dialogService.showErrorDialogAndWait(
-                    Localization.lang("Invalid URL"),
-                    exception);
+            dialogService.showErrorDialogAndWait(Localization.lang("Invalid URL"), exception);
             return false;
         }
     }
 
     public void fetchFulltext() {
-        FulltextFetchers fetcher = new FulltextFetchers(
-                preferences.getImportFormatPreferences(),
-                preferences.getImporterPreferences());
+        FulltextFetchers fetcher =
+                new FulltextFetchers(preferences.getImportFormatPreferences(), preferences.getImporterPreferences());
         Optional<String> urlField = entry.getField(StandardField.URL);
         boolean download_success = false;
         if (urlField.isPresent()) {
@@ -250,13 +231,13 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
         }
         if (urlField.isEmpty() || !download_success) {
             BibEntry lookedUpEntry = entry;
-            BackgroundTask
-                    .wrap(() -> fetcher.findFullTextPDF(lookedUpEntry))
+            BackgroundTask.wrap(() -> fetcher.findFullTextPDF(lookedUpEntry))
                     .onRunning(() -> EntryLookupsInProgress.FULLTEXT.started(lookedUpEntry))
                     .onFinished(() -> EntryLookupsInProgress.FULLTEXT.finished(lookedUpEntry))
                     .onSuccess(result -> {
                         if (result.isPresent()) {
-                            addFromURLAndDownload(result.get().source(), result.get().headers());
+                            addFromURLAndDownload(
+                                    result.get().source(), result.get().headers());
                         } else {
                             dialogService.notify(Localization.lang("No full text document found"));
                         }
@@ -267,7 +248,7 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
 
     public void addFromURL() {
         AttachFileFromURLAction.getUrlForDownloadFromClipBoardOrEntry(dialogService, entry)
-                               .ifPresent(this::downloadFile);
+                .ifPresent(this::downloadFile);
     }
 
     private void addFromURLAndDownload(URL url) {
@@ -276,12 +257,7 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
 
     private void addFromURLAndDownload(URL url, Map<String, String> headers) {
         LinkedFileViewModel onlineFile = new LinkedFileViewModel(
-                new LinkedFile(url, ""),
-                entry,
-                databaseContext,
-                taskExecutor,
-                dialogService,
-                preferences);
+                new LinkedFile(url, ""), entry, databaseContext, taskExecutor, dialogService, preferences);
         files.add(onlineFile);
         onlineFile.download(true, headers, undoManager);
     }

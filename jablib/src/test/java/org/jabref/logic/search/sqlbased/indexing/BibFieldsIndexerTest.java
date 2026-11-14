@@ -1,10 +1,13 @@
 package org.jabref.logic.search.sqlbased.indexing;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
-
 import org.jabref.logic.search.sqlbased.PostgresServer;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.model.database.BibDatabaseContext;
@@ -13,17 +16,12 @@ import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.search.PostgresConstants;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("embeddedPostgres")
@@ -71,7 +69,8 @@ public class BibFieldsIndexerTest {
 
         // Verify that there's exactly one row for (entryid, 'citationkey')
         String tableRef = PostgresConstants.getMainTableSchemaReference(indexer.getTable());
-        String sql = "SELECT COUNT(*) FROM " + tableRef + " WHERE \"" + PostgresConstants.ENTRY_ID + "\" = ? AND \"" + PostgresConstants.FIELD_NAME + "\" = ?";
+        String sql = "SELECT COUNT(*) FROM " + tableRef + " WHERE \"" + PostgresConstants.ENTRY_ID + "\" = ? AND \""
+                + PostgresConstants.FIELD_NAME + "\" = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, entry.getId());
             ps.setString(2, "citationkey");

@@ -1,5 +1,6 @@
 package org.jabref.gui.exporter;
 
+import com.airhacks.afterburner.injection.Injector;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -12,14 +13,12 @@ import java.util.Set;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -51,8 +50,6 @@ import org.jabref.model.database.event.ChangePropagation;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.metadata.SelfContainedSaveOrder;
-
-import com.airhacks.afterburner.injection.Injector;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +57,8 @@ import org.slf4j.LoggerFactory;
 /// Action for the "Save" and "Save as" operations called from BasePanel. This class is also used for save operations
 /// when closing a database or quitting the applications.
 ///
-/// The save operation is loaded off of the GUI thread using [org.jabref.logic.util.BackgroundTask]. Callers can query whether the
+/// The save operation is loaded off of the GUI thread using [org.jabref.logic.util.BackgroundTask]. Callers can query
+/// whether the
 /// operation was canceled, or whether it was successful.
 public class SaveDatabaseAction {
     private static final Logger LOGGER = LoggerFactory.getLogger(SaveDatabaseAction.class);
@@ -75,22 +73,27 @@ public class SaveDatabaseAction {
     private final TaskExecutor taskExecutor;
 
     public enum SaveDatabaseMode {
-        SILENT, NORMAL
+        SILENT,
+        NORMAL
     }
 
     /// `ALREADY_SAVING` reports that another thread is writing the very same library: nothing was written by this call,
     /// and the file on disk is not yet the state the user sees.
     public enum SaveResult {
-        SUCCESS, FAILURE, ALREADY_SAVING
+        SUCCESS,
+        FAILURE,
+        ALREADY_SAVING
     }
 
-    public SaveDatabaseAction(LibraryTab libraryTab,
-                              DialogService dialogService,
-                              GuiPreferences preferences,
-                              BibEntryTypesManager entryTypesManager,
-                              StateManager stateManager,
-                              JournalAbbreviationRepository journalAbbreviationRepository) {
-        this(libraryTab,
+    public SaveDatabaseAction(
+            LibraryTab libraryTab,
+            DialogService dialogService,
+            GuiPreferences preferences,
+            BibEntryTypesManager entryTypesManager,
+            StateManager stateManager,
+            JournalAbbreviationRepository journalAbbreviationRepository) {
+        this(
+                libraryTab,
                 dialogService,
                 preferences,
                 entryTypesManager,
@@ -100,14 +103,15 @@ public class SaveDatabaseAction {
                 Injector.instantiateModelOrService(TaskExecutor.class));
     }
 
-    public SaveDatabaseAction(LibraryTab libraryTab,
-                              DialogService dialogService,
-                              GuiPreferences preferences,
-                              BibEntryTypesManager entryTypesManager,
-                              StateManager stateManager,
-                              JournalAbbreviationRepository journalAbbreviationRepository,
-                              GitHandlerRegistry gitHandlerRegistry,
-                              TaskExecutor taskExecutor) {
+    public SaveDatabaseAction(
+            LibraryTab libraryTab,
+            DialogService dialogService,
+            GuiPreferences preferences,
+            BibEntryTypesManager entryTypesManager,
+            StateManager stateManager,
+            JournalAbbreviationRepository journalAbbreviationRepository,
+            GitHandlerRegistry gitHandlerRegistry,
+            TaskExecutor taskExecutor) {
         this.libraryTab = libraryTab;
         this.dialogService = dialogService;
         this.preferences = preferences;
@@ -141,35 +145,46 @@ public class SaveDatabaseAction {
     }
 
     private SelfContainedSaveOrder getSaveOrder() {
-        return libraryTab.getBibDatabaseContext()
-                         .getMetaData().getSaveOrder()
-                         .map(so -> {
-                             if (so.getOrderType() == SaveOrder.OrderType.TABLE) {
-                                 // We need to "flatten out" SaveOrder.OrderType.TABLE as BibWriter does not have access to preferences
-                                 List<TableColumn<BibEntryTableViewModel, ?>> sortOrder = libraryTab.getMainTable().getSortOrder();
-                                 return new SelfContainedSaveOrder(
-                                         SaveOrder.OrderType.SPECIFIED,
-                                         sortOrder.stream()
-                                                  .filter(col -> col instanceof MainTableColumn<?>)
-                                                  .map(column -> ((MainTableColumn<?>) column).getModel())
-                                                  .flatMap(model -> model.getSortCriteria().stream())
-                                                  .toList());
-                             } else {
-                                 return SelfContainedSaveOrder.of(so);
-                             }
-                         })
-                         .orElse(SaveOrder.getDefaultSaveOrder());
+        return libraryTab
+                .getBibDatabaseContext()
+                .getMetaData()
+                .getSaveOrder()
+                .map(so -> {
+                    if (so.getOrderType() == SaveOrder.OrderType.TABLE) {
+                        // We need to "flatten out" SaveOrder.OrderType.TABLE as BibWriter does not have access to
+                        // preferences
+                        List<TableColumn<BibEntryTableViewModel, ?>> sortOrder =
+                                libraryTab.getMainTable().getSortOrder();
+                        return new SelfContainedSaveOrder(
+                                SaveOrder.OrderType.SPECIFIED,
+                                sortOrder.stream()
+                                        .filter(col -> col instanceof MainTableColumn<?>)
+                                        .map(column -> ((MainTableColumn<?>) column).getModel())
+                                        .flatMap(model -> model.getSortCriteria().stream())
+                                        .toList());
+                    } else {
+                        return SelfContainedSaveOrder.of(so);
+                    }
+                })
+                .orElse(SaveOrder.getDefaultSaveOrder());
     }
 
     public void saveSelectedAsPlain() {
         askForSavePath().ifPresent(path -> {
             try {
-                saveDatabase(path, true, StandardCharsets.UTF_8, BibDatabaseWriter.SaveType.PLAIN_BIBTEX, getSaveOrder(), null);
+                saveDatabase(
+                        path,
+                        true,
+                        StandardCharsets.UTF_8,
+                        BibDatabaseWriter.SaveType.PLAIN_BIBTEX,
+                        getSaveOrder(),
+                        null);
                 preferences.getLastFilesOpenedPreferences().getFileHistory().newFile(path);
                 dialogService.notify(Localization.lang("Saved selected to '%0'.", path.toString()));
             } catch (SaveException ex) {
                 LOGGER.error("A problem occurred when trying to save the file", ex);
-                dialogService.showErrorDialogAndWait(Localization.lang("Save library"), Localization.lang("Could not save file."), ex);
+                dialogService.showErrorDialogAndWait(
+                        Localization.lang("Save library"), Localization.lang("Could not save file."), ex);
             }
         });
     }
@@ -178,7 +193,8 @@ public class SaveDatabaseAction {
         return saveAs(file, mode, true);
     }
 
-    /// @param file the new file name to save the database to. This is stored in the database context of the panel upon successful save.
+    /// @param file the new file name to save the database to. This is stored in the database context of the panel upon
+    /// successful save.
     /// @return true on successful save
     boolean saveAs(Path file, SaveDatabaseMode mode, boolean mayAutoCommit) {
         BibDatabaseContext context = libraryTab.getBibDatabaseContext();
@@ -187,7 +203,10 @@ public class SaveDatabaseAction {
         if (managersShutDown) {
             // Close AutosaveManager, BackupManager, and IndexManager for original library
             AutosaveManager.shutdown(context);
-            BackupManager.shutdown(context, this.preferences.getFilePreferences().getBackupDirectory(), preferences.getFilePreferences().shouldCreateBackup());
+            BackupManager.shutdown(
+                    context,
+                    this.preferences.getFilePreferences().getBackupDirectory(),
+                    preferences.getFilePreferences().shouldCreateBackup());
             GitPullScheduler.shutdown(context);
             libraryTab.closeSearchContext();
         }
@@ -197,10 +216,14 @@ public class SaveDatabaseAction {
             // Save all properties dependent on the ID. This makes it possible to restore them.
             // An ID the database already has is kept: generating a new one here would orphan the settings
             // stored under the old ID and leave them behind as a second saved connection.
-            String sharedDatabaseId = context.getDatabase().getSharedDatabaseID()
-                                             .orElseGet(() -> context.getDatabase().generateSharedDatabaseID());
-            preferences.getSharedDatabasePreferences().forConnection(sharedDatabaseId)
-                       .putAllDBMSConnectionProperties(context.getDBMSSynchronizer().getConnectionProperties());
+            String sharedDatabaseId = context.getDatabase()
+                    .getSharedDatabaseID()
+                    .orElseGet(() -> context.getDatabase().generateSharedDatabaseID());
+            preferences
+                    .getSharedDatabasePreferences()
+                    .forConnection(sharedDatabaseId)
+                    .putAllDBMSConnectionProperties(
+                            context.getDBMSSynchronizer().getConnectionProperties());
         }
 
         SaveResult saveResult = save(file, mode, mayAutoCommit);
@@ -216,7 +239,8 @@ public class SaveDatabaseAction {
             stateManager.setActiveDatabase(context);
             libraryTab.updateTabTitle(false);
 
-            // Reset (here: uninstall and install again) AutosaveManager, BackupManager and IndexManager for the new file name
+            // Reset (here: uninstall and install again) AutosaveManager, BackupManager and IndexManager for the new
+            // file name
             libraryTab.resetChangeMonitor();
             libraryTab.installAutosaveManagerAndBackupManager();
             libraryTab.createSearchContext();
@@ -247,9 +271,10 @@ public class SaveDatabaseAction {
             // Workaround for linux systems not adding file extension
             if (!savePath.getFileName().toString().toLowerCase().endsWith(".bib")) {
                 savePath = Path.of(savePath + ".bib");
-                if (!Files.notExists(savePath) && !dialogService.showConfirmationDialogAndWait(
-                        Localization.lang("Overwrite file"),
-                        Localization.lang("'%0' exists. Overwrite file?", savePath.getFileName()))) {
+                if (!Files.notExists(savePath)
+                        && !dialogService.showConfirmationDialogAndWait(
+                                Localization.lang("Overwrite file"),
+                                Localization.lang("'%0' exists. Overwrite file?", savePath.getFileName()))) {
                     return Optional.empty();
                 }
 
@@ -263,14 +288,17 @@ public class SaveDatabaseAction {
         Optional<Path> databasePath = bibDatabaseContext.getDatabasePath();
         if (databasePath.isEmpty()) {
             Optional<Path> savePath = askForSavePath();
-            return savePath.filter(path -> saveAs(path, mode, mayAutoCommit)).isPresent() ? SaveResult.SUCCESS : SaveResult.FAILURE;
+            return savePath.filter(path -> saveAs(path, mode, mayAutoCommit)).isPresent()
+                    ? SaveResult.SUCCESS
+                    : SaveResult.FAILURE;
         }
 
         return save(databasePath.get(), mode, mayAutoCommit);
     }
 
     private SaveResult save(Path targetPath, SaveDatabaseMode mode, boolean mayAutoCommit) {
-        if (mode == SaveDatabaseMode.NORMAL && libraryTab.getBibDatabaseContext().getEntries().size() > 2_000) {
+        if (mode == SaveDatabaseMode.NORMAL
+                && libraryTab.getBibDatabaseContext().getEntries().size() > 2_000) {
             dialogService.notify("%s...".formatted(Localization.lang("Saving library")));
         }
 
@@ -286,15 +314,22 @@ public class SaveDatabaseAction {
 
         boolean fileChangedDuringSave = false;
         try {
-            Charset encoding = libraryTab.getBibDatabaseContext()
-                                         .getMetaData()
-                                         .getEncoding()
-                                         .orElse(StandardCharsets.UTF_8);
+            Charset encoding = libraryTab
+                    .getBibDatabaseContext()
+                    .getMetaData()
+                    .getEncoding()
+                    .orElse(StandardCharsets.UTF_8);
 
             // Make sure to remember which encoding we used
             libraryTab.getBibDatabaseContext().getMetaData().setEncoding(encoding, ChangePropagation.DO_NOT_POST_EVENT);
 
-            FileSnapshot committedState = saveDatabase(targetPath, false, encoding, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, getSaveOrder(), null);
+            FileSnapshot committedState = saveDatabase(
+                    targetPath,
+                    false,
+                    encoding,
+                    BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA,
+                    getSaveOrder(),
+                    null);
 
             stateManager.getUndoManager(libraryTab.getBibDatabaseContext()).markUnchanged();
             libraryTab.resetChangedProperties(committedState);
@@ -309,7 +344,8 @@ public class SaveDatabaseAction {
                 fileChangedDuringSave = true;
             } else {
                 LOGGER.error("A problem occurred when trying to save the file {}", targetPath, ex);
-                dialogService.showErrorDialogAndWait(Localization.lang("Save library"), Localization.lang("Could not save file."), ex);
+                dialogService.showErrorDialogAndWait(
+                        Localization.lang("Save library"), Localization.lang("Could not save file."), ex);
             }
             return SaveResult.FAILURE;
         } finally {
@@ -318,7 +354,8 @@ public class SaveDatabaseAction {
             libraryTab.setSaving(false);
             if (fileChangedDuringSave) {
                 // resumeChangeMonitor() above already scans for the concurrent write and offers the review flow
-                dialogService.notify(Localization.lang("Library was not saved: the file was modified by another program."));
+                dialogService.notify(
+                        Localization.lang("Library was not saved: the file was modified by another program."));
             }
         }
     }
@@ -328,11 +365,8 @@ public class SaveDatabaseAction {
         if (!databaseContext.getMetaData().isGitAutoCommit()) {
             return;
         }
-        GitAutoSync gitAutoSync = new GitAutoSync(dialogService,
-                gitHandlerRegistry,
-                taskExecutor,
-                preferences,
-                stateManager);
+        GitAutoSync gitAutoSync =
+                new GitAutoSync(dialogService, gitHandlerRegistry, taskExecutor, preferences, stateManager);
         if (databaseContext.getMetaData().isGitAutoPush()) {
             gitAutoSync.commitAndPush(targetPath, databaseContext);
         } else {
@@ -342,22 +376,31 @@ public class SaveDatabaseAction {
 
     /// @return the state of the file as committed by this save (or by its encoding retry), `null` when unreadable
     @Nullable
-    private FileSnapshot saveDatabase(Path file, boolean selectedOnly, Charset encoding, BibDatabaseWriter.SaveType saveType, SelfContainedSaveOrder saveOrder, @Nullable FileSnapshot expectedState) throws SaveException {
+    private FileSnapshot saveDatabase(
+            Path file,
+            boolean selectedOnly,
+            Charset encoding,
+            BibDatabaseWriter.SaveType saveType,
+            SelfContainedSaveOrder saveOrder,
+            @Nullable FileSnapshot expectedState)
+            throws SaveException {
         // if this code is adapted, please also adapt org.jabref.logic.autosaveandbackup.BackupManager.performBackup
-        SelfContainedSaveConfiguration saveConfiguration
-                = new SelfContainedSaveConfiguration(saveOrder, false, saveType, preferences.getLibraryPreferences().shouldAlwaysReformatOnSave());
+        SelfContainedSaveConfiguration saveConfiguration = new SelfContainedSaveConfiguration(
+                saveOrder, false, saveType, preferences.getLibraryPreferences().shouldAlwaysReformatOnSave());
         BibDatabaseContext bibDatabaseContext = libraryTab.getBibDatabaseContext();
         synchronized (bibDatabaseContext) {
             Set<Character> encodingProblems = Set.of();
-            AtomicFileWriter fileWriter = createFileWriter(file, encoding, saveConfiguration.shouldMakeBackup(), expectedState);
+            AtomicFileWriter fileWriter =
+                    createFileWriter(file, encoding, saveConfiguration.shouldMakeBackup(), expectedState);
             try (fileWriter) {
-                BibWriter bibWriter = new BibWriter(fileWriter, bibDatabaseContext.getDatabase().getNewLineSeparator());
+                BibWriter bibWriter = new BibWriter(
+                        fileWriter, bibDatabaseContext.getDatabase().getNewLineSeparator());
                 BibDatabaseWriter databaseWriter = new BibDatabaseWriter(
-                        bibWriter,
-                        saveConfiguration,
-                        preferences.getFieldPreferences(),
-                        preferences.getCitationKeyPatternPreferences(),
-                        entryTypesManager)
+                                bibWriter,
+                                saveConfiguration,
+                                preferences.getFieldPreferences(),
+                                preferences.getCitationKeyPatternPreferences(),
+                                entryTypesManager)
                         .withJournalAbbreviationRepository(
                                 journalAbbreviationRepository,
                                 preferences.getAbbreviationPreferences().shouldUseFJournalField())
@@ -378,7 +421,8 @@ public class SaveDatabaseAction {
 
                 encodingProblems = fileWriter.getEncodingProblems();
             } catch (UnsupportedCharsetException ex) {
-                throw new SaveException(Localization.lang("Character encoding '%0' is not supported.", encoding.displayName()), ex);
+                throw new SaveException(
+                        Localization.lang("Character encoding '%0' is not supported.", encoding.displayName()), ex);
             } catch (CompletionException ex) {
                 throw new SaveException("Problems applying save actions", ex.getCause());
             } catch (IOException ex) {
@@ -388,7 +432,8 @@ public class SaveDatabaseAction {
             // Deliberately outside the try-with-resources: the retry must run after the writer above committed its
             // content, otherwise the writer's close() would overwrite the re-encoded file with the problematic one
             if (!encodingProblems.isEmpty()) {
-                FileSnapshot retriedState = saveWithDifferentEncoding(file, selectedOnly, encoding, encodingProblems, saveType, saveOrder, committedState);
+                FileSnapshot retriedState = saveWithDifferentEncoding(
+                        file, selectedOnly, encoding, encodingProblems, saveType, saveOrder, committedState);
                 if (retriedState != null) {
                     committedState = retriedState;
                 }
@@ -405,7 +450,9 @@ public class SaveDatabaseAction {
         }
     }
 
-    private static AtomicFileWriter createFileWriter(Path file, Charset encoding, boolean keepBackup, @Nullable FileSnapshot expectedState) throws SaveException {
+    private static AtomicFileWriter createFileWriter(
+            Path file, Charset encoding, boolean keepBackup, @Nullable FileSnapshot expectedState)
+            throws SaveException {
         try {
             return new AtomicFileWriter(file, encoding, keepBackup, expectedState);
         } catch (IOException ex) {
@@ -415,17 +462,28 @@ public class SaveDatabaseAction {
 
     /// @return the state committed by the retry, or `null` when no retry happened and the first write stands
     @Nullable
-    private FileSnapshot saveWithDifferentEncoding(Path file, boolean selectedOnly, Charset encoding, Set<Character> encodingProblems, BibDatabaseWriter.SaveType saveType, SelfContainedSaveOrder saveOrder, @Nullable FileSnapshot committedState) throws SaveException {
+    private FileSnapshot saveWithDifferentEncoding(
+            Path file,
+            boolean selectedOnly,
+            Charset encoding,
+            Set<Character> encodingProblems,
+            BibDatabaseWriter.SaveType saveType,
+            SelfContainedSaveOrder saveOrder,
+            @Nullable FileSnapshot committedState)
+            throws SaveException {
         DialogPane pane = new DialogPane();
         VBox vbox = new VBox();
-        vbox.getChildren().addAll(
-                new Text(Localization.lang("The chosen encoding '%0' could not encode the following characters:", encoding.displayName())),
-                new Text(encodingProblems.stream().map(Object::toString).collect(Collectors.joining("."))),
-                new Text(Localization.lang("What do you want to do?"))
-        );
+        vbox.getChildren()
+                .addAll(
+                        new Text(Localization.lang(
+                                "The chosen encoding '%0' could not encode the following characters:",
+                                encoding.displayName())),
+                        new Text(encodingProblems.stream().map(Object::toString).collect(Collectors.joining("."))),
+                        new Text(Localization.lang("What do you want to do?")));
         pane.setContent(vbox);
 
-        ButtonType tryDifferentEncoding = new ButtonType(Localization.lang("Try different encoding"), ButtonBar.ButtonData.OTHER);
+        ButtonType tryDifferentEncoding =
+                new ButtonType(Localization.lang("Try different encoding"), ButtonBar.ButtonData.OTHER);
         ButtonType ignore = new ButtonType(Localization.lang("Ignore"), ButtonBar.ButtonData.APPLY);
         boolean saveWithDifferentEncoding = dialogService
                 .showCustomDialogAndWait(Localization.lang("Save library"), pane, ignore, tryDifferentEncoding)
@@ -440,7 +498,10 @@ public class SaveDatabaseAction {
                     OS.ENCODINGS);
             if (newEncoding.isPresent()) {
                 // Make sure to remember which encoding we used.
-                libraryTab.getBibDatabaseContext().getMetaData().setEncoding(newEncoding.get(), ChangePropagation.DO_NOT_POST_EVENT);
+                libraryTab
+                        .getBibDatabaseContext()
+                        .getMetaData()
+                        .setEncoding(newEncoding.get(), ChangePropagation.DO_NOT_POST_EVENT);
 
                 // The committed state of the first write is the retry's expected baseline, so its writer detects a
                 // save that another program completed while the dialogs above were open

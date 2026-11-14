@@ -1,21 +1,19 @@
 package org.jabref.logic.search.sqlbased.retrieval;
 
+import static org.jabref.model.search.PostgresConstants.ENTRY_ID;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import org.jabref.logic.search.query.SearchQueryConversion;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResult;
 import org.jabref.model.search.query.SearchResults;
 import org.jabref.model.search.query.SqlQueryNode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.jabref.model.search.PostgresConstants.ENTRY_ID;
 
 public class BibFieldsSearcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(BibFieldsSearcher.class);
@@ -34,7 +32,8 @@ public class BibFieldsSearcher {
     }
 
     private static SearchQuery createBooleanQueryForEntry(BibEntry entry, SearchQuery oldSearchQuery) {
-        String newSearchExpression = "( " + ENTRY_ID + "= " + entry.getId() + ") AND (" + oldSearchQuery.getNormalizedSearchExpression() + " )";
+        String newSearchExpression = "( " + ENTRY_ID + "= " + entry.getId() + ") AND ("
+                + oldSearchQuery.getNormalizedSearchExpression() + " )";
         return new SearchQuery(newSearchExpression, oldSearchQuery.getSearchFlags());
     }
 

@@ -2,26 +2,24 @@ package org.jabref.logic.groups;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
-
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class GroupsHelper {
 
-    private GroupsHelper() {
-    }
+    private GroupsHelper() {}
 
     /// Assigns `entries` to the explicit group named `groupName` in `databaseContext`,
     /// creating the group as a top-level explicit group (and the group-tree root) if it does not exist yet.
     ///
     /// @param keywordSeparator separator used when the group is created as a keyword-backed explicit group
-    public static void assignEntriesToGroup(BibDatabaseContext databaseContext, List<BibEntry> entries, String groupName, Character keywordSeparator) {
+    public static void assignEntriesToGroup(
+            BibDatabaseContext databaseContext, List<BibEntry> entries, String groupName, Character keywordSeparator) {
         GroupTreeNode root = databaseContext.getMetaData().getGroups().orElseGet(() -> {
             GroupTreeNode newRoot = GroupTreeNode.fromGroup(GroupsFactory.createAllEntriesGroup());
             databaseContext.getMetaData().setGroups(newRoot);
@@ -44,7 +42,8 @@ public class GroupsHelper {
             // database-change listener.
             existing.get().addEntriesToGroup(entries);
         } else {
-            GroupTreeNode newGroup = GroupTreeNode.fromGroup(new ExplicitGroup(groupName, GroupHierarchyType.INDEPENDENT, keywordSeparator));
+            GroupTreeNode newGroup = GroupTreeNode.fromGroup(
+                    new ExplicitGroup(groupName, GroupHierarchyType.INDEPENDENT, keywordSeparator));
             newGroup.addEntriesToGroup(entries);
             root.addChild(newGroup);
         }

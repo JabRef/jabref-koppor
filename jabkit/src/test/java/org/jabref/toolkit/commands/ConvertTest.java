@@ -1,12 +1,16 @@
 package org.jabref.toolkit.commands;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.exporter.BibDatabaseWriter;
 import org.jabref.logic.exporter.SelfContainedSaveConfiguration;
 import org.jabref.logic.importer.fileformat.BibtexParser;
@@ -15,17 +19,11 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.metadata.SelfContainedSaveOrder;
 import org.jabref.toolkit.exception.CliExceptionHandler;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import picocli.CommandLine;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 class ConvertTest extends AbstractJabKitTest {
 
@@ -37,9 +35,13 @@ class ConvertTest extends AbstractJabKitTest {
         Files.copy(getClassResourceAsPath("strings-and-preamble.bib"), input);
         Path output = tempDir.resolve(outputFileName);
 
-        int exitCode = commandLine.executeToLog("convert", "--porcelain",
-                "--input=" + input, "--input-format=bibtex",
-                "--output-format=bibtex", "--output=" + output);
+        int exitCode = commandLine.executeToLog(
+                "convert",
+                "--porcelain",
+                "--input=" + input,
+                "--input-format=bibtex",
+                "--output-format=bibtex",
+                "--output=" + output);
 
         assertEquals(0, exitCode);
         assertStringsAndPreamblePreserved(Files.readString(output));
@@ -50,8 +52,8 @@ class ConvertTest extends AbstractJabKitTest {
     void bibtexConversionToStdoutPreservesStringsAndPreamble() throws IOException {
         Path input = getClassResourceAsPath("strings-and-preamble.bib");
 
-        int exitCode = commandLine.executeToLog("convert", "--porcelain",
-                "--input=" + input, "--input-format=bibtex", "--output-format=bibtex");
+        int exitCode = commandLine.executeToLog(
+                "convert", "--porcelain", "--input=" + input, "--input-format=bibtex", "--output-format=bibtex");
 
         assertEquals(0, exitCode);
         assertStringsAndPreamblePreserved(commandLine.getStandardOutput());
@@ -62,14 +64,20 @@ class ConvertTest extends AbstractJabKitTest {
                 .parse(Reader.of(Files.readString(getClassResourceAsPath("strings-and-preamble.bib"))))
                 .getDatabase();
         BibDatabase actual = new BibtexParser(preferences.getImportFormatPreferences())
-                .parse(Reader.of(output)).getDatabase();
+                .parse(Reader.of(output))
+                .getDatabase();
 
         assertEquals(expected.getPreamble(), actual.getPreamble());
-        assertEquals(expected.getStringByName("journalname").orElseThrow().getContent(),
+        assertEquals(
+                expected.getStringByName("journalname").orElseThrow().getContent(),
                 actual.getStringByName("journalname").orElseThrow().getContent());
         assertEquals(expected.getEntries(), actual.getEntries());
-        assertEquals("Journal of Reproducible Tests",
-                actual.resolveForStrings(actual.getEntries().getFirst().getField(StandardField.JOURNAL).orElseThrow()));
+        assertEquals(
+                "Journal of Reproducible Tests",
+                actual.resolveForStrings(actual.getEntries()
+                        .getFirst()
+                        .getField(StandardField.JOURNAL)
+                        .orElseThrow()));
     }
 
     @Test
@@ -79,9 +87,12 @@ class ConvertTest extends AbstractJabKitTest {
         Files.copy(origin, newPath);
         Path outputPath = tempDir.resolve("output");
 
-        // assertEquals(commandLine.execute("convert", "--input=" + newPath, "--input-format=bibtex", "--output-format=" + format, "--output=" + outputPath), 0);
-        commandLine.execute("convert",
-                "--input=" + newPath, "--input-format=bibtex",
+        // assertEquals(commandLine.execute("convert", "--input=" + newPath, "--input-format=bibtex", "--output-format="
+        // + format, "--output=" + outputPath), 0);
+        commandLine.execute(
+                "convert",
+                "--input=" + newPath,
+                "--input-format=bibtex",
                 "--output-format=bibtex",
                 "--output=" + outputPath);
 
@@ -95,10 +106,9 @@ class ConvertTest extends AbstractJabKitTest {
         Path newPath = tempDir.resolve("origin.bib");
         Files.copy(origin, newPath);
 
-        // assertEquals(commandLine.execute("convert", "--input=" + newPath, "--input-format=bibtex", "--output-format=" + format, "--output=" + outputPath), 0);
-        commandLine.execute("convert",
-                "--input=" + newPath, "--input-format=bibtex",
-                "--output-format=bibtex");
+        // assertEquals(commandLine.execute("convert", "--input=" + newPath, "--input-format=bibtex", "--output-format="
+        // + format, "--output=" + outputPath), 0);
+        commandLine.execute("convert", "--input=" + newPath, "--input-format=bibtex", "--output-format=bibtex");
 
         assertEquals(1, Files.list(tempDir).collect(Collectors.toSet()).size());
     }
@@ -107,14 +117,14 @@ class ConvertTest extends AbstractJabKitTest {
     void noOutputPrintsBibtexToStdout(@TempDir Path tempDir) throws IOException {
         SelfContainedSaveOrder saveOrder = new SelfContainedSaveOrder(SaveOrder.OrderType.ORIGINAL, List.of());
         when(preferences.getSelfContainedExportConfiguration())
-                .thenReturn(new SelfContainedSaveConfiguration(saveOrder, false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false));
+                .thenReturn(new SelfContainedSaveConfiguration(
+                        saveOrder, false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false));
 
         Path origin = getClassResourceAsPath("origin.bib").toAbsolutePath();
         Path newPath = tempDir.resolve("origin.bib");
         Files.copy(origin, newPath);
 
-        commandLine.executeToLog("convert",
-                "--input=" + newPath, "--input-format=bibtex");
+        commandLine.executeToLog("convert", "--input=" + newPath, "--input-format=bibtex");
 
         assertTrue(commandLine.getStandardOutput().contains("@Book{Darwin1888,"));
     }
@@ -123,16 +133,15 @@ class ConvertTest extends AbstractJabKitTest {
     void noOutputExportsRequestedOutputFormat(@TempDir Path tempDir) throws IOException {
         SelfContainedSaveOrder saveOrder = new SelfContainedSaveOrder(SaveOrder.OrderType.ORIGINAL, List.of());
         when(preferences.getSelfContainedExportConfiguration())
-                .thenReturn(new SelfContainedSaveConfiguration(saveOrder, false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false));
+                .thenReturn(new SelfContainedSaveConfiguration(
+                        saveOrder, false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false));
 
         Path origin = getClassResourceAsPath("origin.bib").toAbsolutePath();
         Path newPath = tempDir.resolve("origin.bib");
         Files.copy(origin, newPath);
 
-        int exitCode = commandLine.executeToLog("convert",
-                "--input=" + newPath,
-                "--input-format=bibtex",
-                "--output-format=html");
+        int exitCode = commandLine.executeToLog(
+                "convert", "--input=" + newPath, "--input-format=bibtex", "--output-format=html");
 
         assertEquals(0, exitCode);
         assertTrue(commandLine.getStandardOutput().contains("<html"));
@@ -142,17 +151,14 @@ class ConvertTest extends AbstractJabKitTest {
 
     @Test
     void noOutputWithUnknownOutputFormatFailsWithUsageError(@TempDir Path tempDir) throws IOException {
-        commandLine.setExecutionExceptionHandler(
-                new CliExceptionHandler(commandLine.getExecutionExceptionHandler()));
+        commandLine.setExecutionExceptionHandler(new CliExceptionHandler(commandLine.getExecutionExceptionHandler()));
 
         Path origin = getClassResourceAsPath("origin.bib").toAbsolutePath();
         Path newPath = tempDir.resolve("origin.bib");
         Files.copy(origin, newPath);
 
-        int exitCode = commandLine.executeToLog("convert",
-                "--input=" + newPath,
-                "--input-format=bibtex",
-                "--output-format=unknownformat");
+        int exitCode = commandLine.executeToLog(
+                "convert", "--input=" + newPath, "--input-format=bibtex", "--output-format=unknownformat");
 
         assertEquals(CommandLine.ExitCode.USAGE, exitCode);
         assertTrue(commandLine.getErrorOutput().contains("Unknown export format 'unknownformat'."));
@@ -163,17 +169,19 @@ class ConvertTest extends AbstractJabKitTest {
     void fieldFormattersAreAppliedDuringConversion(@TempDir Path tempDir) throws IOException {
         Path newPath = tempDir.resolve("origin.bib");
         String originBibtex = """
-                @Article{test_energy,
-                  title   = {my ﬁrst research},
-                  pages   = {1-10},
-                  month   = {January},
-                  comment = {private note}
-                }""";
+            @Article{test_energy,
+              title   = {my ﬁrst research},
+              pages   = {1-10},
+              month   = {January},
+              comment = {private note}
+            }\
+            """;
         Files.writeString(newPath, originBibtex);
 
         Path outputPath = tempDir.resolve("output");
 
-        commandLine.execute("convert",
+        commandLine.execute(
+                "convert",
                 "--input=" + newPath,
                 "--input-format=bibtex",
                 "--output=" + outputPath,

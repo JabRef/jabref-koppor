@@ -9,11 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.jabref.logic.importer.AuthorListParser;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.Parser;
@@ -28,7 +26,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.ISBN;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -39,7 +36,8 @@ import org.xml.sax.SAXException;
 
 /// A parser for the MARC21-XML standard, used by DNB and BVB
 ///
-/// See [Feldbeschreibung der Titeldaten bei der Deutschen Nationalbibliothek](https://www.dnb.de/DE/Professionell/Metadatendienste/Exportformate/MARC21/marc21_node.html)
+/// See [Feldbeschreibung der Titeldaten bei der Deutschen
+/// Nationalbibliothek](https://www.dnb.de/DE/Professionell/Metadatendienste/Exportformate/MARC21/marc21_node.html)
 ///
 /// For further information see:
 ///
@@ -47,8 +45,10 @@ import org.xml.sax.SAXException;
 /// - https://www.loc.gov/marc/bibliographic/ for detailed documentation
 /// - for modifications in B3Kat https://www.bib-bvb.de/documents/10792/9f51a033-5ca1-42e2-b2d3-a75e7f1512d4
 /// - https://www.dnb.de/DE/Professionell/Metadatendienste/Exportformate/MARC21/marc21_node.html
-/// - https://www.dnb.de/SharedDocs/Downloads/DE/Professionell/Standardisierung/AGV/marc21VereinbarungDatentauschTeil1.pdf?__blob=publicationFile&v=2
-/// - about multiple books in a series https://www.dnb.de/SharedDocs/Downloads/DE/Professionell/Standardisierung/marc21FormatumstiegAbbildungBegrenzterWerke2008.pdf?__blob=publicationFile&v=2>
+/// -
+/// https://www.dnb.de/SharedDocs/Downloads/DE/Professionell/Standardisierung/AGV/marc21VereinbarungDatentauschTeil1.pdf?__blob=publicationFile&v=2
+/// - about multiple books in a series
+/// https://www.dnb.de/SharedDocs/Downloads/DE/Professionell/Standardisierung/marc21FormatumstiegAbbildungBegrenzterWerke2008.pdf?__blob=publicationFile&v=2>
 // [impl->req~import.marc21-xml~1]
 public class MarcXmlParser implements Parser {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarcXmlParser.class);
@@ -142,8 +142,10 @@ public class MarcXmlParser implements Parser {
                 putElectronicLocation(bibEntry, datafield);
             } else if ("966".equals(tag)) {
                 putDoi(bibEntry, datafield);
-            } else if (tag.length() == 3 && tag.chars().allMatch(Character::isDigit)
-                    && tag.compareTo("546") >= 0 && tag.compareTo("599") <= 0) {
+            } else if (tag.length() == 3
+                    && tag.chars().allMatch(Character::isDigit)
+                    && tag.compareTo("546") >= 0
+                    && tag.compareTo("599") <= 0) {
                 // Notes
                 // FixMe: Some notes seem to have tags lower than 546
                 putNotes(bibEntry, datafield);
@@ -169,7 +171,8 @@ public class MarcXmlParser implements Parser {
 
         ISBN validIsbn = parsedIsbn.get();
         Optional<ISBN> existingIsbn = bibEntry.getField(StandardField.ISBN).flatMap(ISBN::parse);
-        if (existingIsbn.isEmpty() || (validIsbn.isIsbn13() && existingIsbn.get().isIsbn10())) {
+        if (existingIsbn.isEmpty()
+                || (validIsbn.isIsbn13() && existingIsbn.get().isIsbn10())) {
             bibEntry.setField(StandardField.ISBN, validIsbn.asString());
         }
     }
@@ -199,14 +202,10 @@ public class MarcXmlParser implements Parser {
             name = new AuthorListParser().parse(author);
             Optional<StandardField> field = Optional.ofNullable(
                     switch (relation) {
-                        case "aut" ->
-                                StandardField.AUTHOR;
-                        case "edt" ->
-                                StandardField.EDITOR;
-                        case "pbl" ->
-                                StandardField.PUBLISHER;
-                        default ->
-                                null;
+                        case "aut" -> StandardField.AUTHOR;
+                        case "edt" -> StandardField.EDITOR;
+                        case "pbl" -> StandardField.PUBLISHER;
+                        default -> null;
                     });
 
             if (field.isPresent()) {
@@ -220,7 +219,8 @@ public class MarcXmlParser implements Parser {
                 }
 
                 if (bibEntry.getField(field.get()).isPresent()) {
-                    bibEntry.setField(field.get(), bibEntry.getField(field.get()).get().concat(" and " + brackedName));
+                    bibEntry.setField(
+                            field.get(), bibEntry.getField(field.get()).get().concat(" and " + brackedName));
                 } else {
                     bibEntry.setField(field.get(), brackedName);
                 }
@@ -314,7 +314,11 @@ public class MarcXmlParser implements Parser {
     private void putPhysicalDescription(BibEntry bibEntry, Element datafield) {
         String pagetotal = getSubfield("a", datafield);
 
-        if (StringUtil.isNotBlank(pagetotal) && (pagetotal.contains("pages") || pagetotal.contains("p.") || pagetotal.contains("S") || pagetotal.contains("Seiten"))) {
+        if (StringUtil.isNotBlank(pagetotal)
+                && (pagetotal.contains("pages")
+                        || pagetotal.contains("p.")
+                        || pagetotal.contains("S")
+                        || pagetotal.contains("Seiten"))) {
             pagetotal = pagetotal.replaceAll(".*?(\\d+)(?:\\s*Seiten|\\s*S|\\s*pages|\\s*p).*", "$1");
             bibEntry.setField(StandardField.PAGETOTAL, pagetotal);
         }
@@ -359,9 +363,10 @@ public class MarcXmlParser implements Parser {
         String summary = getSubfield("a", datafield);
 
         if (StringUtil.isNotBlank(summary)) {
-            bibEntry.getField(StandardField.ABSTRACT).ifPresentOrElse(
-                    abstractValue -> bibEntry.setField(StandardField.ABSTRACT, abstractValue.concat(summary)),
-                    () -> bibEntry.setField(StandardField.ABSTRACT, summary));
+            bibEntry.getField(StandardField.ABSTRACT)
+                    .ifPresentOrElse(
+                            abstractValue -> bibEntry.setField(StandardField.ABSTRACT, abstractValue.concat(summary)),
+                            () -> bibEntry.setField(StandardField.ABSTRACT, summary));
         }
     }
 
@@ -382,17 +387,20 @@ public class MarcXmlParser implements Parser {
         String hostTitle = getSubfield("t", datafield);
         String hostIssn = getSubfield("x", datafield);
         // An ISSN still identifies a serial host when a source omits the bibliographic level.
-        boolean serialHost = hostItemBibliographicLevel.filter(level -> level == 's').isPresent()
-                || (hostItemBibliographicLevel.isEmpty() && StringUtil.isNotBlank(hostIssn));
+        boolean serialHost =
+                hostItemBibliographicLevel.filter(level -> level == 's').isPresent()
+                        || (hostItemBibliographicLevel.isEmpty() && StringUtil.isNotBlank(hostIssn));
         if (serialHost) {
             bibEntry.setType(StandardEntryType.Article);
             if (StringUtil.isNotBlank(hostTitle)) {
                 bibEntry.setField(StandardField.JOURNAL, hostTitle);
             }
-            if (StringUtil.isNotBlank(hostIssn) && bibEntry.getField(StandardField.ISSN).isEmpty()) {
+            if (StringUtil.isNotBlank(hostIssn)
+                    && bibEntry.getField(StandardField.ISSN).isEmpty()) {
                 bibEntry.setField(StandardField.ISSN, hostIssn);
             }
-        } else if (hostItemBibliographicLevel.filter(level -> level == 'm').isPresent() && StringUtil.isNotBlank(hostTitle)) {
+        } else if (hostItemBibliographicLevel.filter(level -> level == 'm').isPresent()
+                && StringUtil.isNotBlank(hostTitle)) {
             bibEntry.setField(StandardField.BOOKTITLE, hostTitle);
         }
 
@@ -406,18 +414,12 @@ public class MarcXmlParser implements Parser {
 
                 if (StringUtil.isNotBlank(value)) {
                     switch (key) {
-                        case "number" ->
-                                bibEntry.setField(StandardField.NUMBER, value);
-                        case "year" ->
-                                bibEntry.setField(StandardField.YEAR, value);
-                        case "pages" ->
-                                bibEntry.setField(StandardField.PAGES, value);
-                        case "volume" ->
-                                bibEntry.setField(StandardField.VOLUME, value);
-                        case "day" ->
-                                bibEntry.setField(StandardField.DAY, value);
-                        case "month" ->
-                                bibEntry.setField(StandardField.MONTH, value);
+                        case "number" -> bibEntry.setField(StandardField.NUMBER, value);
+                        case "year" -> bibEntry.setField(StandardField.YEAR, value);
+                        case "pages" -> bibEntry.setField(StandardField.PAGES, value);
+                        case "volume" -> bibEntry.setField(StandardField.VOLUME, value);
+                        case "day" -> bibEntry.setField(StandardField.DAY, value);
+                        case "month" -> bibEntry.setField(StandardField.MONTH, value);
                     }
                 }
             }
@@ -426,12 +428,12 @@ public class MarcXmlParser implements Parser {
 
     private Optional<Character> getHostItemBibliographicLevel(List<Element> datafields) {
         return datafields.stream()
-                         .filter(datafield -> "773".equals(datafield.getAttribute("tag")))
-                         .map(datafield -> getSubfield("7", datafield))
-                         .filter(StringUtil::isNotBlank)
-                         .filter(controlSubfield -> controlSubfield.length() > 3)
-                         .map(controlSubfield -> controlSubfield.charAt(3))
-                         .findFirst();
+                .filter(datafield -> "773".equals(datafield.getAttribute("tag")))
+                .map(datafield -> getSubfield("7", datafield))
+                .filter(StringUtil::isNotBlank)
+                .filter(controlSubfield -> controlSubfield.length() > 3)
+                .map(controlSubfield -> controlSubfield.charAt(3))
+                .findFirst();
     }
 
     private void putDoi(BibEntry bibEntry, Element datafield) {
@@ -468,26 +470,26 @@ public class MarcXmlParser implements Parser {
 
     private void putNotes(BibEntry bibEntry, Element datafield) {
         String[] notes = new String[] {
-                getSubfield("a", datafield),
-                getSubfield("0", datafield),
-                getSubfield("h", datafield),
-                getSubfield("S", datafield),
-                getSubfield("c", datafield),
-                getSubfield("f", datafield),
-                getSubfield("i", datafield),
-                getSubfield("k", datafield),
-                getSubfield("l", datafield),
-                getSubfield("z", datafield),
-                getSubfield("3", datafield),
-                getSubfield("5", datafield)
+            getSubfield("a", datafield),
+            getSubfield("0", datafield),
+            getSubfield("h", datafield),
+            getSubfield("S", datafield),
+            getSubfield("c", datafield),
+            getSubfield("f", datafield),
+            getSubfield("i", datafield),
+            getSubfield("k", datafield),
+            getSubfield("l", datafield),
+            getSubfield("z", datafield),
+            getSubfield("3", datafield),
+            getSubfield("5", datafield)
         };
 
-        String notesJoined = Arrays.stream(notes)
-                                   .filter(StringUtil::isNotBlank)
-                                   .collect(Collectors.joining("\n\n"));
+        String notesJoined = Arrays.stream(notes).filter(StringUtil::isNotBlank).collect(Collectors.joining("\n\n"));
 
         if (bibEntry.getField(StandardField.NOTE).isPresent()) {
-            bibEntry.setField(StandardField.NOTE, bibEntry.getField(StandardField.NOTE).get().concat(notesJoined));
+            bibEntry.setField(
+                    StandardField.NOTE,
+                    bibEntry.getField(StandardField.NOTE).get().concat(notesJoined));
         } else {
             bibEntry.setField(StandardField.NOTE, notesJoined);
         }
@@ -508,7 +510,10 @@ public class MarcXmlParser implements Parser {
     private List<String> getSubfields(String a, Element datafield) {
         List<Element> subfields = getChildren("subfield", datafield);
 
-        return subfields.stream().filter(field -> field.getAttribute("code").equals(a)).map(Node::getTextContent).toList();
+        return subfields.stream()
+                .filter(field -> field.getAttribute("code").equals(a))
+                .map(Node::getTextContent)
+                .toList();
     }
 
     private static String localName(String tagName) {

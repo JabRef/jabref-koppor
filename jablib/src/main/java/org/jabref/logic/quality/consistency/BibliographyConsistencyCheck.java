@@ -1,5 +1,6 @@
 package org.jabref.logic.quality.consistency;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.AbstractList;
@@ -22,7 +23,8 @@ import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.jabref.logic.bibtex.comparator.BibEntryByCitationKeyComparator;
 import org.jabref.logic.bibtex.comparator.BibEntryByFieldsComparator;
 import org.jabref.logic.bibtex.comparator.FieldComparatorStack;
@@ -40,10 +42,6 @@ import org.jabref.model.entry.field.SpecialField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UserSpecificCommentField;
 import org.jabref.model.entry.types.EntryType;
-
-import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 import org.jspecify.annotations.NullMarked;
 
 public class BibliographyConsistencyCheck {
@@ -71,16 +69,15 @@ public class BibliographyConsistencyCheck {
             StandardField.CITATIONCOUNT,
             StandardField.TIMESTAMP,
             StandardField.CREATIONDATE,
-            StandardField.MODIFICATIONDATE
-    );
+            StandardField.MODIFICATIONDATE);
 
     private static Set<Field> filterExcludedFields(Collection<Field> fields) {
         return fields.stream()
-                     .filter(field -> !EXPLICITLY_EXCLUDED_FIELDS.contains(field))
-                     .filter(field -> !StandardField.AUTOMATIC_FIELDS.contains(field))
-                     .filter(field -> !(field instanceof SpecialField))
-                     .filter(field -> !(field instanceof UserSpecificCommentField))
-                     .collect(Collectors.toSet());
+                .filter(field -> !EXPLICITLY_EXCLUDED_FIELDS.contains(field))
+                .filter(field -> !StandardField.AUTOMATIC_FIELDS.contains(field))
+                .filter(field -> !(field instanceof SpecialField))
+                .filter(field -> !(field instanceof UserSpecificCommentField))
+                .collect(Collectors.toSet());
     }
 
     /// Returns whether none of the given (alternative) required fields is set in the entry.
@@ -88,7 +85,7 @@ public class BibliographyConsistencyCheck {
     /// Aliases are taken into account. For instance, `year` satisfies a required `date`.
     static boolean isMissing(OrFields requiredFields, BibEntry entry) {
         return requiredFields.getFields().stream()
-                             .allMatch(field -> entry.getFieldOrAlias(field).isEmpty());
+                .allMatch(field -> entry.getFieldOrAlias(field).isEmpty());
     }
 
     /// Filters the given entries to those that violate consistency:
@@ -98,45 +95,53 @@ public class BibliographyConsistencyCheck {
     ///
     /// Additionally, the entries are sorted
     @VisibleForTesting
-    List<BibEntry> filterAndSortEntriesWithFieldDifferences(Set<BibEntry> entries, Set<Field> differingFields, Set<OrFields> requiredFields) {
+    List<BibEntry> filterAndSortEntriesWithFieldDifferences(
+            Set<BibEntry> entries, Set<Field> differingFields, Set<OrFields> requiredFields) {
         return entries.stream()
-                      .filter(entry -> {
-                          // This removes entries that have all differing fields set (could be confusing to the user)
-                          boolean hasDifferingFields = !Collections.disjoint(filterExcludedFields(entry.getFields()), differingFields);
-                          boolean hasMissingRequiredFields = requiredFields.stream()
-                                                                           .anyMatch(orFields -> isMissing(orFields, entry));
-                          return hasDifferingFields || hasMissingRequiredFields;
-                      })
-                      .sorted(new FieldComparatorStack<>(List.of(
-                              new BibEntryByCitationKeyComparator(),
-                              new BibEntryByFieldsComparator()
-                      )))
-                      .toList();
+                .filter(entry -> {
+                    // This removes entries that have all differing fields set (could be confusing to the user)
+                    boolean hasDifferingFields =
+                            !Collections.disjoint(filterExcludedFields(entry.getFields()), differingFields);
+                    boolean hasMissingRequiredFields =
+                            requiredFields.stream().anyMatch(orFields -> isMissing(orFields, entry));
+                    return hasDifferingFields || hasMissingRequiredFields;
+                })
+                .sorted(new FieldComparatorStack<>(
+                        List.of(new BibEntryByCitationKeyComparator(), new BibEntryByFieldsComparator())))
+                .toList();
     }
 
-    public record Result(Map<EntryType, EntryTypeResult> entryTypeToResultMap) {
-    }
+    public record Result(Map<EntryType, EntryTypeResult> entryTypeToResultMap) {}
 
-    public record EntryTypeResult(Collection<Field> fields, SequencedCollection<BibEntry> sortedEntries) {
-    }
+    public record EntryTypeResult(Collection<Field> fields, SequencedCollection<BibEntry> sortedEntries) {}
 
     /// Checks the consistency of the given entries by looking at the present and absent fields.
     ///
     /// Computation takes place grouped by each entryType.
     /// Computes the fields set in all entries. In case entries of the same type has more fields defined, it is output.
     ///
-    /// This class **does** check if required fields are set for an entry type but **does not** check if the fields are valid for the entry type.
+    /// This class **does** check if required fields are set for an entry type but **does not** check if the fields are
+    /// valid for the entry type.
     ///
-    /// That result can a) be retrieved by using the JabRef UI and b) by checking the CSV output of [BibliographyConsistencyCheckResultCsvWriter#writeFindings]
+    /// That result can a) be retrieved by using the JabRef UI and b) by checking the CSV output of
+    /// [BibliographyConsistencyCheckResultCsvWriter#writeFindings]
     ///
-    /// @implNote This class does not implement [org.jabref.logic.integrity.DatabaseChecker], because it returns a list of [org.jabref.logic.integrity.IntegrityMessage], which are too fine-grained.
-    public Result check(BibDatabaseContext bibContext, BibEntryTypesManager bibEntryTypesManager, BiConsumer<Integer, Integer> entriesGroupingProgress) {
-        return checkEntries(bibContext.getEntries(), bibContext.getMode(), bibEntryTypesManager, entriesGroupingProgress);
+    /// @implNote This class does not implement [org.jabref.logic.integrity.DatabaseChecker], because it returns a list
+    /// of [org.jabref.logic.integrity.IntegrityMessage], which are too fine-grained.
+    public Result check(
+            BibDatabaseContext bibContext,
+            BibEntryTypesManager bibEntryTypesManager,
+            BiConsumer<Integer, Integer> entriesGroupingProgress) {
+        return checkEntries(
+                bibContext.getEntries(), bibContext.getMode(), bibEntryTypesManager, entriesGroupingProgress);
     }
 
     /// Checks a selected set of entries without registering database listeners on them.
-    public Result checkEntries(List<BibEntry> sourceEntries, BibDatabaseMode mode, BibEntryTypesManager bibEntryTypesManager,
-                               BiConsumer<Integer, Integer> entriesGroupingProgress) {
+    public Result checkEntries(
+            List<BibEntry> sourceEntries,
+            BibDatabaseMode mode,
+            BibEntryTypesManager bibEntryTypesManager,
+            BiConsumer<Integer, Integer> entriesGroupingProgress) {
         // collects fields existing in any entry, scoped by entry type
         Map<EntryType, Set<Field>> entryTypeToFieldsInAnyEntryMap = new HashMap<>();
         // collects fields existing in all entries, scoped by entry type
@@ -144,9 +149,11 @@ public class BibliographyConsistencyCheck {
         // collects entries of the same type
         Map<EntryType, Set<BibEntry>> entryTypeToEntriesMap = new HashMap<>();
 
-        collectEntriesIntoMaps(sourceEntries, entryTypeToFieldsInAnyEntryMap, entryTypeToFieldsInAllEntriesMap, entryTypeToEntriesMap);
+        collectEntriesIntoMaps(
+                sourceEntries, entryTypeToFieldsInAnyEntryMap, entryTypeToFieldsInAllEntriesMap, entryTypeToEntriesMap);
 
-        List<BibEntryType> entryTypeDefinitions = bibEntryTypesManager.getAllTypes(mode).stream().toList();
+        List<BibEntryType> entryTypeDefinitions =
+                bibEntryTypesManager.getAllTypes(mode).stream().toList();
 
         // Use LinkedHashMap to preserve the order of Bib(tex|latex)EntryTypeDefinitions.ALL
         Map<EntryType, EntryTypeResult> resultMap = new LinkedHashMap<>();
@@ -163,17 +170,18 @@ public class BibliographyConsistencyCheck {
             differingFields.removeAll(fieldsInAllEntries);
 
             Optional<BibEntryType> typeDefOpt = entryTypeDefinitions.stream()
-                                                                    .filter(def -> def.getType().equals(entryType))
-                                                                    .findFirst();
+                    .filter(def -> def.getType().equals(entryType))
+                    .findFirst();
 
-            Set<OrFields> requiredFields = typeDefOpt.map(typeDef ->
-                    new HashSet<>(typeDef.getRequiredFields())
-            ).orElse(new HashSet<>());
+            Set<OrFields> requiredFields = typeDefOpt
+                    .map(typeDef -> new HashSet<>(typeDef.getRequiredFields()))
+                    .orElse(new HashSet<>());
 
             Set<BibEntry> entries = entryTypeToEntriesMap.get(entryType);
             assert entries != null;
 
-            List<BibEntry> sortedEntries = filterAndSortEntriesWithFieldDifferences(entries, differingFields, requiredFields);
+            List<BibEntry> sortedEntries =
+                    filterAndSortEntriesWithFieldDifferences(entries, differingFields, requiredFields);
             if (!sortedEntries.isEmpty()) {
                 resultMap.put(entryType, new EntryTypeResult(differingFields, sortedEntries));
             }
@@ -182,7 +190,11 @@ public class BibliographyConsistencyCheck {
         return new Result(resultMap);
     }
 
-    private static void collectEntriesIntoMaps(List<BibEntry> entries, Map<EntryType, Set<Field>> entryTypeToFieldsInAnyEntryMap, Map<EntryType, Set<Field>> entryTypeToFieldsInAllEntriesMap, Map<EntryType, Set<BibEntry>> entryTypeToEntriesMap) {
+    private static void collectEntriesIntoMaps(
+            List<BibEntry> entries,
+            Map<EntryType, Set<Field>> entryTypeToFieldsInAnyEntryMap,
+            Map<EntryType, Set<Field>> entryTypeToFieldsInAllEntriesMap,
+            Map<EntryType, Set<BibEntry>> entryTypeToEntriesMap) {
         for (BibEntry entry : entries) {
             EntryType entryType = entry.getType();
 
@@ -205,7 +217,8 @@ public class BibliographyConsistencyCheck {
     /// Captures field presence and ordering without copying entry models or retaining raw field values.
     // [impl->adr~compact-consistency-snapshots~1]
     // [impl->req~ux.consistency.export-snapshot~1]
-    public static Snapshot snapshot(List<BibEntry> entries, BibDatabaseMode mode, BibEntryTypesManager types, BooleanSupplier cancelled) {
+    public static Snapshot snapshot(
+            List<BibEntry> entries, BibDatabaseMode mode, BibEntryTypesManager types, BooleanSupplier cancelled) {
         checkCancelled(cancelled);
         Set<BibEntry> unique = new HashSet<>();
         Map<Field, Integer> indexes = new HashMap<>();
@@ -222,22 +235,37 @@ public class BibliographyConsistencyCheck {
             for (Field field : capturedFields) {
                 indexes.computeIfAbsent(field, _ -> indexes.size());
             }
-            TypeFields type = typeFields.computeIfAbsent(capturedType, entryType -> {
-                List<Set<Field>> checkedRequired = definitions.stream()
-                                                              .filter(definition -> definition.getType().equals(entryType))
-                                                              .findFirst().stream().flatMap(definition -> definition.getRequiredFields().stream())
-                                                              .map(group -> Set.copyOf(group.getFields())).toList();
-                Optional<BibEntryType> enriched = types.enrich(entryType, mode);
-                List<Set<Field>> reportedRequired = enriched.stream().flatMap(definition -> definition.getRequiredFields().stream())
-                                                            .map(group -> Set.copyOf(group.getFields())).toList();
-                Set<Field> optional = enriched.stream().flatMap(definition -> definition.getOptionalFields().stream())
-                                              .map(BibField::field).collect(Collectors.toSet());
-                Set<Field> required = new HashSet<>();
-                checkedRequired.forEach(required::addAll);
-                reportedRequired.forEach(required::addAll);
-                required.forEach(field -> indexes.computeIfAbsent(field, _ -> indexes.size()));
-                return new TypeFields(entryType.getName(), entryType.getDisplayName(), normalize(entryType.getDisplayName()), checkedRequired, reportedRequired, Set.copyOf(optional), Set.copyOf(required));
-            });
+            TypeFields type =
+                    typeFields.computeIfAbsent(capturedType, entryType -> {
+                        List<Set<Field>> checkedRequired = definitions.stream()
+                                .filter(definition -> definition.getType().equals(entryType))
+                                .findFirst()
+                                .stream()
+                                .flatMap(definition -> definition.getRequiredFields().stream())
+                                .map(group -> Set.copyOf(group.getFields()))
+                                .toList();
+                        Optional<BibEntryType> enriched = types.enrich(entryType, mode);
+                        List<Set<Field>> reportedRequired = enriched.stream()
+                                .flatMap(definition -> definition.getRequiredFields().stream())
+                                .map(group -> Set.copyOf(group.getFields()))
+                                .toList();
+                        Set<Field> optional = enriched.stream()
+                                .flatMap(definition -> definition.getOptionalFields().stream())
+                                .map(BibField::field)
+                                .collect(Collectors.toSet());
+                        Set<Field> required = new HashSet<>();
+                        checkedRequired.forEach(required::addAll);
+                        reportedRequired.forEach(required::addAll);
+                        required.forEach(field -> indexes.computeIfAbsent(field, _ -> indexes.size()));
+                        return new TypeFields(
+                                entryType.getName(),
+                                entryType.getDisplayName(),
+                                normalize(entryType.getDisplayName()),
+                                checkedRequired,
+                                reportedRequired,
+                                Set.copyOf(optional),
+                                Set.copyOf(required));
+                    });
             BitSet listed = new BitSet();
             BitSet direct = new BitSet();
             BitSet aliases = new BitSet();
@@ -259,7 +287,16 @@ public class BibliographyConsistencyCheck {
             }
             Optional<String> key = entry.getCitationKey();
             String capturedKey = key.orElse("");
-            captures.add(new EntryCapture(capturedType, capturedKey, normalize(capturedKey), key.isPresent(), listed, direct, aliases, entry, sortFields));
+            captures.add(new EntryCapture(
+                    capturedType,
+                    capturedKey,
+                    normalize(capturedKey),
+                    key.isPresent(),
+                    listed,
+                    direct,
+                    aliases,
+                    entry,
+                    sortFields));
         }
         captures.sort((left, right) -> {
             checkCancelled(cancelled);
@@ -268,11 +305,14 @@ public class BibliographyConsistencyCheck {
                 comparison = left.key().compareTo(right.key());
             }
             if (comparison == 0) {
-                comparison = Integer.compare(left.sortFields().size(), right.sortFields().size());
+                comparison = Integer.compare(
+                        left.sortFields().size(), right.sortFields().size());
             }
             for (int index = 0; comparison == 0 && index < left.sortFields().size(); index++) {
                 checkCancelled(cancelled);
-                comparison = left.sortFields().get(index).compareTo(right.sortFields().get(index));
+                comparison = left.sortFields()
+                        .get(index)
+                        .compareTo(right.sortFields().get(index));
             }
             return comparison;
         });
@@ -290,7 +330,15 @@ public class BibliographyConsistencyCheck {
         for (EntryCapture capture : captures) {
             checkCancelled(cancelled);
             capture.listed().and(eligible);
-            captured.add(new EntryPresence(presenceByType.get(capture.type()), capture.key(), capture.normalizedKey(), capture.hasKey(), capture.listed(), capture.direct(), capture.aliases(), capture.original()));
+            captured.add(new EntryPresence(
+                    presenceByType.get(capture.type()),
+                    capture.key(),
+                    capture.normalizedKey(),
+                    capture.hasKey(),
+                    capture.listed(),
+                    capture.direct(),
+                    capture.aliases(),
+                    capture.original()));
         }
         return new Snapshot(List.copyOf(fields), List.copyOf(captured));
     }
@@ -306,16 +354,37 @@ public class BibliographyConsistencyCheck {
     }
 
     @NullMarked
-    private record TypeFields(String name, String displayName, String normalizedDisplayName, List<Set<Field>> checkedRequired, List<Set<Field>> reportedRequired, Set<Field> optional, Set<Field> requiredFields) {
-    }
+    private record TypeFields(
+            String name,
+            String displayName,
+            String normalizedDisplayName,
+            List<Set<Field>> checkedRequired,
+            List<Set<Field>> reportedRequired,
+            Set<Field> optional,
+            Set<Field> requiredFields) {}
 
     @NullMarked
-    private record EntryCapture(EntryType type, String key, String normalizedKey, boolean hasKey, BitSet listed, BitSet direct, BitSet aliases, BibEntry original, List<String> sortFields) {
-    }
+    private record EntryCapture(
+            EntryType type,
+            String key,
+            String normalizedKey,
+            boolean hasKey,
+            BitSet listed,
+            BitSet direct,
+            BitSet aliases,
+            BibEntry original,
+            List<String> sortFields) {}
 
     @NullMarked
-    private record EntryPresence(TypePresence type, String key, String normalizedKey, boolean hasKey, BitSet listed, BitSet direct, BitSet aliases, BibEntry original) {
-    }
+    private record EntryPresence(
+            TypePresence type,
+            String key,
+            String normalizedKey,
+            boolean hasKey,
+            BitSet listed,
+            BitSet direct,
+            BitSet aliases,
+            BibEntry original) {}
 
     @NullMarked
     private static final class TypePresence {
@@ -338,11 +407,13 @@ public class BibliographyConsistencyCheck {
         }
 
         private static List<BitSet> groups(List<Set<Field>> groups, Map<Field, Integer> indexes) {
-            return groups.stream().map(group -> {
-                BitSet presence = new BitSet();
-                group.forEach(field -> presence.set(indexes.get(field)));
-                return presence;
-            }).toList();
+            return groups.stream()
+                    .map(group -> {
+                        BitSet presence = new BitSet();
+                        group.forEach(field -> presence.set(indexes.get(field)));
+                        return presence;
+                    })
+                    .toList();
         }
     }
 
@@ -364,7 +435,9 @@ public class BibliographyConsistencyCheck {
             for (EntryPresence entry : entries) {
                 checkCancelled(cancelled);
                 if (all || (entry.hasKey() && keys.contains(entry.key()))) {
-                    selectedByType.computeIfAbsent(entry.type(), _ -> new ArrayList<>()).add(entry);
+                    selectedByType
+                            .computeIfAbsent(entry.type(), _ -> new ArrayList<>())
+                            .add(entry);
                 }
             }
             List<TypePresence> types = new ArrayList<>(selectedByType.keySet());
@@ -390,7 +463,8 @@ public class BibliographyConsistencyCheck {
                 int firstRow = rows.size();
                 for (EntryPresence entry : selected) {
                     checkCancelled(cancelled);
-                    boolean missing = type.checkedRequired.stream().anyMatch(group -> !group.intersects(entry.aliases()));
+                    boolean missing =
+                            type.checkedRequired.stream().anyMatch(group -> !group.intersects(entry.aliases()));
                     if (entry.listed().intersects(union) || missing) {
                         rows.add(entry);
                         for (BitSet group : type.reportedRequired) {
@@ -402,7 +476,9 @@ public class BibliographyConsistencyCheck {
                     }
                 }
                 if (rows.size() > firstRow) {
-                    fieldsByType.computeIfAbsent(type.fields.displayName(), _ -> new BitSet()).or(reported);
+                    fieldsByType
+                            .computeIfAbsent(type.fields.displayName(), _ -> new BitSet())
+                            .or(reported);
                     allReported.or(reported);
                 }
             }
@@ -430,15 +506,24 @@ public class BibliographyConsistencyCheck {
         private final List<String> headers;
         private final List<ConsistencyMessage> messages;
 
-        private Report(List<Field> allFields, List<Integer> columns, List<EntryPresence> rows,
-                       Map<String, BitSet> reportedByType, BooleanSupplier cancelled) {
+        private Report(
+                List<Field> allFields,
+                List<Integer> columns,
+                List<EntryPresence> rows,
+                Map<String, BitSet> reportedByType,
+                BooleanSupplier cancelled) {
             this.columns = columns;
             this.rows = rows;
             fields = columns.stream().map(allFields::get).toList();
             Map<String, List<Field>> grouped = new LinkedHashMap<>();
             reportedByType.forEach((name, reported) -> {
                 checkCancelled(cancelled);
-                grouped.put(name, columns.stream().filter(reported::get).map(allFields::get).toList());
+                grouped.put(
+                        name,
+                        columns.stream()
+                                .filter(reported::get)
+                                .map(allFields::get)
+                                .toList());
             });
             fieldsByType = Collections.unmodifiableMap(grouped);
             List<String> names = new ArrayList<>();
@@ -528,7 +613,9 @@ public class BibliographyConsistencyCheck {
             @Override
             public String get(int index) {
                 if (index == 0) {
-                    return normalize ? entry.type().fields.normalizedDisplayName() : entry.type().fields.displayName();
+                    return normalize
+                            ? entry.type().fields.normalizedDisplayName()
+                            : entry.type().fields.displayName();
                 }
                 if (index == 1) {
                     return normalize ? entry.normalizedKey() : entry.key();

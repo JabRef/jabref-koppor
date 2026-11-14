@@ -1,14 +1,20 @@
 package org.jabref.gui.groups;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.collections.FXCollections;
 import javafx.scene.control.ButtonType;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -22,18 +28,9 @@ import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class GroupDialogViewModelTest {
 
@@ -62,7 +59,14 @@ class GroupDialogViewModelTest {
         when(groupsPreferences.getDefaultHierarchicalContext()).thenReturn(GroupHierarchyType.INDEPENDENT);
         when(stateManager.getSelectedEntries()).thenReturn(FXCollections.emptyObservableList());
 
-        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, group, null, new DummyFileUpdateMonitor(), stateManager);
+        viewModel = new GroupDialogViewModel(
+                dialogService,
+                bibDatabaseContext,
+                preferences,
+                group,
+                null,
+                new DummyFileUpdateMonitor(),
+                stateManager);
     }
 
     @Test
@@ -99,18 +103,29 @@ class GroupDialogViewModelTest {
     void hierarchicalContextFromGroup() {
         GroupHierarchyType groupHierarchyType = GroupHierarchyType.INCLUDING;
         when(group.getHierarchicalContext()).thenReturn(groupHierarchyType);
-        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, group, null, new DummyFileUpdateMonitor(), stateManager);
+        viewModel = new GroupDialogViewModel(
+                dialogService,
+                bibDatabaseContext,
+                preferences,
+                group,
+                null,
+                new DummyFileUpdateMonitor(),
+                stateManager);
 
-        assertEquals(groupHierarchyType, viewModel.groupHierarchySelectedProperty().getValue());
+        assertEquals(
+                groupHierarchyType, viewModel.groupHierarchySelectedProperty().getValue());
     }
 
     @Test
     void defaultHierarchicalContext() {
         GroupHierarchyType defaultHierarchicalContext = GroupHierarchyType.REFINING;
         when(preferences.getGroupsPreferences().getDefaultHierarchicalContext()).thenReturn(defaultHierarchicalContext);
-        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, null, null, new DummyFileUpdateMonitor(), stateManager);
+        viewModel = new GroupDialogViewModel(
+                dialogService, bibDatabaseContext, preferences, null, null, new DummyFileUpdateMonitor(), stateManager);
 
-        assertEquals(defaultHierarchicalContext, viewModel.groupHierarchySelectedProperty().getValue());
+        assertEquals(
+                defaultHierarchicalContext,
+                viewModel.groupHierarchySelectedProperty().getValue());
     }
 
     @Test
@@ -119,7 +134,8 @@ class GroupDialogViewModelTest {
         when(stateManager.getSelectedEntries()).thenReturn(FXCollections.observableArrayList(entry));
         when(groupsPreferences.shouldAutoIncludeSelectedEntries()).thenReturn(true);
 
-        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, null, null, new DummyFileUpdateMonitor(), stateManager);
+        viewModel = new GroupDialogViewModel(
+                dialogService, bibDatabaseContext, preferences, null, null, new DummyFileUpdateMonitor(), stateManager);
 
         assertTrue(viewModel.explicitIncludeSelectedProperty().get());
         assertTrue(viewModel.selectedEntriesAvailableProperty().get());
@@ -131,7 +147,14 @@ class GroupDialogViewModelTest {
         when(stateManager.getSelectedEntries()).thenReturn(FXCollections.observableArrayList(entry));
         when(groupsPreferences.shouldAutoIncludeSelectedEntries()).thenReturn(true);
 
-        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, group, null, new DummyFileUpdateMonitor(), stateManager);
+        viewModel = new GroupDialogViewModel(
+                dialogService,
+                bibDatabaseContext,
+                preferences,
+                group,
+                null,
+                new DummyFileUpdateMonitor(),
+                stateManager);
 
         assertTrue(viewModel.editingGroupProperty().get());
         assertFalse(viewModel.explicitIncludeSelectedProperty().get());
@@ -143,7 +166,8 @@ class GroupDialogViewModelTest {
         BibEntry secondEntry = new BibEntry();
         when(stateManager.getSelectedEntries()).thenReturn(FXCollections.observableArrayList(firstEntry, secondEntry));
 
-        viewModel = new GroupDialogViewModel(dialogService, bibDatabaseContext, preferences, null, null, new DummyFileUpdateMonitor(), stateManager);
+        viewModel = new GroupDialogViewModel(
+                dialogService, bibDatabaseContext, preferences, null, null, new DummyFileUpdateMonitor(), stateManager);
         viewModel.nameProperty().set("Selected entries group");
         viewModel.explicitIncludeSelectedProperty().set(true);
 

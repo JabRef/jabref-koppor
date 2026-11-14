@@ -3,18 +3,18 @@ package org.jabref.model.openoffice.style;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.openoffice.ootext.OOText;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Cited references are collected from the citations in citation groups.
 ///
-/// They contain backreferences to the corresponding citations in `where`. This allows the extra information generated using [CitedReferences] to be distributed back to the in-text citations.
+/// They contain backreferences to the corresponding citations in `where`. This allows the extra information generated
+/// using [CitedReferences] to be distributed back to the in-text citations.
 @NullMarked
-public class CitedReference implements ComparableCitedReference, CitationMarkerNormEntry, CitationMarkerNumericBibEntry {
+public class CitedReference
+        implements ComparableCitedReference, CitationMarkerNormEntry, CitationMarkerNumericBibEntry {
 
     public final String citationKey;
     private final List<CitationPath> where;
@@ -22,7 +22,7 @@ public class CitedReference implements ComparableCitedReference, CitationMarkerN
     private Optional<CitationLookupResult> citationLookupResult;
     private Optional<Integer> number; // For Numbered citation styles.
     private Optional<String> uniqueLetter; // For AuthorYear citation styles.
-    private Optional<OOText> normalizedCitationMarker;  // For AuthorYear citation styles.
+    private Optional<OOText> normalizedCitationMarker; // For AuthorYear citation styles.
 
     CitedReference(String citationKey, CitationPath path, Citation citation) {
         this.citationKey = citationKey;

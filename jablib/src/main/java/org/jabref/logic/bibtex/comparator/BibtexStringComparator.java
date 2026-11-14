@@ -2,14 +2,14 @@ package org.jabref.logic.bibtex.comparator;
 
 import java.util.Comparator;
 import java.util.Locale;
-
 import org.jabref.model.entry.BibtexString;
 
 public class BibtexStringComparator implements Comparator<BibtexString> {
 
     private final boolean considerRefs;
 
-    /// @param considerRefs Indicates whether the strings should be sorted according to internal references in addition to alphabetical sorting.
+    /// @param considerRefs Indicates whether the strings should be sorted according to internal references in addition
+    /// to alphabetical sorting.
     public BibtexStringComparator(boolean considerRefs) {
         this.considerRefs = considerRefs;
     }

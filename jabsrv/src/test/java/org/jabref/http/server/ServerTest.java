@@ -1,11 +1,16 @@
 package org.jabref.http.server;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.google.gson.Gson;
 import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.List;
-
 import javafx.collections.FXCollections;
-
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.test.JerseyTest;
 import org.jabref.http.JabRefSrvStateManager;
 import org.jabref.http.SrvStateManager;
 import org.jabref.http.dto.GlobalExceptionMapper;
@@ -21,24 +26,18 @@ import org.jabref.logic.preferences.LastFilesOpenedPreferences;
 import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.metadata.UserHostInfo;
-
-import com.google.gson.Gson;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /// Abstract test class to
 ///
 /// - Initialize the JCL to SLF4J bridge
 /// - Provide injection capabilities of JabRef's preferences and Gson<./li>
 ///
-/// More information on testing with Jersey is available at <a href="https://eclipse-ee4j.github.io/jersey.github.io/documentation/latest/test-framework.html">the Jersey's testing documentation</a>.
+/// More information on testing with Jersey is available at <a
+/// href="https://eclipse-ee4j.github.io/jersey.github.io/documentation/latest/test-framework.html">the Jersey's testing
+/// documentation</a>.
 public abstract class ServerTest extends JerseyTest {
 
     private static CliPreferences preferences;
@@ -69,9 +68,9 @@ public abstract class ServerTest extends JerseyTest {
             @Override
             protected void configure() {
                 bind(new JabRefSrvStateManager(
-                        preferences.getBibEntryPreferences(),
-                        preferences.getImportFormatPreferences(),
-                        filesToServe))
+                                preferences.getBibEntryPreferences(),
+                                preferences.getImportFormatPreferences(),
+                                filesToServe))
                         .to(SrvStateManager.class);
             }
         });

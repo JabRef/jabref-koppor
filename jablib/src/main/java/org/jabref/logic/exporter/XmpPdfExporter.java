@@ -4,21 +4,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.transform.TransformerException;
-
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.xmp.XmpPreferences;
 import org.jabref.logic.xmp.XmpUtilWriter;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +33,8 @@ public class XmpPdfExporter extends Exporter {
     }
 
     @Override
-    public void export(@NonNull BibDatabaseContext databaseContext,
-                       @NonNull Path pdfFile,
-                       @NonNull List<BibEntry> entries)
+    public void export(
+            @NonNull BibDatabaseContext databaseContext, @NonNull Path pdfFile, @NonNull List<BibEntry> entries)
             throws IOException, TransformerException {
         Path filePath = pdfFile.toAbsolutePath();
 
@@ -51,7 +47,11 @@ public class XmpPdfExporter extends Exporter {
                     contentStream.beginText();
                     contentStream.newLineAtOffset(25, 500);
                     contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
-                    contentStream.showText("This PDF was created by JabRef. It demonstrates the embedding of XMP data in PDF files. Please open the file metadata view of your PDF viewer to see the attached files. Note that the normal usage is to embed the BibTeX data in an existing PDF.");
+                    contentStream.showText(
+                            "This PDF was created by JabRef. It demonstrates the embedding of XMP data in PDF files."
+                                    + " Please open the file metadata view of your PDF viewer to see the attached"
+                                    + " files. Note that the normal usage is to embed the BibTeX data in an existing"
+                                    + " PDF.");
                     contentStream.endText();
                 }
                 document.save(filePath.toString());

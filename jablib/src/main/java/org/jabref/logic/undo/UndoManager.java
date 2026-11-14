@@ -1,11 +1,9 @@
 package org.jabref.logic.undo;
 
 import java.util.function.Consumer;
-
 import org.jabref.model.undo.ApplyResult;
 import org.jabref.model.undo.BibChange;
 import org.jabref.model.undo.CompoundEdit;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Puts changes on the undo journal. What almost every client of undo actually needs.

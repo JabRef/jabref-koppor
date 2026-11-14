@@ -4,7 +4,6 @@ import org.jabref.logic.formatter.Formatter;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.layout.LayoutFormatter;
 import org.jabref.model.strings.LatexToUnicodeAdapter;
-
 import org.jspecify.annotations.NonNull;
 
 /// This formatter converts LaTeX character sequences their equivalent unicode characters,

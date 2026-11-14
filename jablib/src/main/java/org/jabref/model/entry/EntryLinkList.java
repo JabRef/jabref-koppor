@@ -3,7 +3,6 @@ package org.jabref.model.entry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabase;
@@ -13,8 +12,7 @@ public class EntryLinkList {
 
     public static final String SEPARATOR = ",";
 
-    private EntryLinkList() {
-    }
+    private EntryLinkList() {}
 
     public static List<ParsedEntryLink> parse(String fieldValue, BibDatabase database) {
         List<ParsedEntryLink> result = new ArrayList<>();

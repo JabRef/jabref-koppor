@@ -1,8 +1,10 @@
 package org.jabref.logic.ai.chatting.exporters;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.Instant;
 import java.util.List;
-
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.model.ai.AiMetadata;
 import org.jabref.model.ai.chatting.ChatMessage;
@@ -11,31 +13,27 @@ import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 class AiChatExporterTest {
 
     private static final String MARKDOWN_TEMPLATE = """
-            # AI Chat Export
+        # AI Chat Export
 
-            **Provider:** $metadata.aiProvider
-            **Model:** $metadata.model
+        **Provider:** $metadata.aiProvider
+        **Model:** $metadata.model
 
-            ## Conversation
+        ## Conversation
 
-            #foreach( $msg in $messages )
-            **$msg.role.displayName:**
+        #foreach( $msg in $messages )
+        **$msg.role.displayName:**
 
-            $msg.content
+        $msg.content
 
-            #end
-            """;
+        #end
+        """;
 
     private AiMetadata metadata;
     private List<BibEntry> entries;
@@ -51,8 +49,7 @@ class AiChatExporterTest {
         FieldPreferences fieldPreferences = new FieldPreferences(true, List.of(), List.of());
         return List.of(
                 new AiChatMarkdownExporter(entryTypesManager, fieldPreferences, MARKDOWN_TEMPLATE),
-                new AiChatJsonExporter(entryTypesManager, fieldPreferences)
-        );
+                new AiChatJsonExporter(entryTypesManager, fieldPreferences));
     }
 
     @ParameterizedTest
@@ -89,9 +86,7 @@ class AiChatExporterTest {
     @MethodSource("exporters")
     void systemMessagesAreExcludedFromExport(AiChatExporter exporter) {
         List<ChatMessage> messages = List.of(
-                ChatMessage.systemMessage("top secret system prompt"),
-                ChatMessage.userMessage("visible user message")
-        );
+                ChatMessage.systemMessage("top secret system prompt"), ChatMessage.userMessage("visible user message"));
 
         String result = exporter.export(metadata, entries, BibDatabaseMode.BIBTEX, messages);
 
@@ -106,8 +101,7 @@ class AiChatExporterTest {
                 ChatMessage.userMessage("first question"),
                 ChatMessage.aiMessage("first answer", List.of()),
                 ChatMessage.userMessage("second question"),
-                ChatMessage.aiMessage("second answer", List.of())
-        );
+                ChatMessage.aiMessage("second answer", List.of()));
 
         String result = exporter.export(metadata, entries, BibDatabaseMode.BIBTEX, messages);
 

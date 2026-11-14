@@ -3,17 +3,14 @@ package org.jabref.logic.importer.fileformat;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.jabref.logic.importer.Importer;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.msbib.MSBibDatabase;
 import org.jabref.logic.util.StandardFileType;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
@@ -31,7 +28,8 @@ public class MsBibImporter extends Importer {
     private static final Logger LOGGER = LoggerFactory.getLogger(MsBibImporter.class);
     private static final String DISABLEDTD = "http://apache.org/xml/features/disallow-doctype-decl";
     private static final String DISABLEEXTERNALDTD = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
-    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = makeSafeDocBuilderFactory(DocumentBuilderFactory.newInstance());
+    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY =
+            makeSafeDocBuilderFactory(DocumentBuilderFactory.newInstance());
 
     /// The correct behavior is to return false if it is certain that the file is
     /// not of the MsBib type, and true otherwise. Returning true is the safe choice
@@ -109,7 +107,10 @@ public class MsBibImporter extends Importer {
             dBuild.setXIncludeAware(false);
             dBuild.setExpandEntityReferences(false);
         } catch (ParserConfigurationException e) {
-            LOGGER.warn("Builder not fully configured. Feature:'{}' is probably not supported by current XML processor.", feature, e);
+            LOGGER.warn(
+                    "Builder not fully configured. Feature:'{}' is probably not supported by current XML processor.",
+                    feature,
+                    e);
         }
 
         return dBuild;

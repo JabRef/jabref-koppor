@@ -1,17 +1,14 @@
 package org.jabref.logic.search;
 
+import com.tobiasdiez.easybind.EasyBind;
+import com.tobiasdiez.easybind.Subscription;
 import java.util.List;
 import java.util.function.Supplier;
-
 import javafx.beans.property.BooleanProperty;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResults;
-
-import com.tobiasdiez.easybind.EasyBind;
-import com.tobiasdiez.easybind.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +37,10 @@ public class SearchContext implements SearchBackend {
     private final Subscription preferenceSubscription;
     private SearchBackend backend;
 
-    public SearchContext(BooleanProperty usePostgresProperty,
-                         Supplier<SearchBackend> sqlFactory,
-                         Supplier<SearchBackend> inMemoryFactory) {
+    public SearchContext(
+            BooleanProperty usePostgresProperty,
+            Supplier<SearchBackend> sqlFactory,
+            Supplier<SearchBackend> inMemoryFactory) {
         this.usePostgresProperty = usePostgresProperty;
         this.sqlFactory = sqlFactory;
         this.inMemoryFactory = inMemoryFactory;

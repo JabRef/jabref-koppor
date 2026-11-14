@@ -1,5 +1,8 @@
 package org.jabref.logic.push;
 
+import static java.util.function.Predicate.not;
+
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -8,25 +11,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
-
-import com.google.common.annotations.VisibleForTesting;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.util.function.Predicate.not;
 
 /// Abstract class for pushing entries into different editors.
 public abstract class AbstractPushToApplication implements PushToApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPushToApplication.class);
-    protected boolean couldNotCall; // Set to true in case the command could not be executed, e.g., if the file is not found
+    protected boolean
+            couldNotCall; // Set to true in case the command could not be executed, e.g., if the file is not found
     protected boolean couldNotPush; // Set to true in case the tunnel to the program (if one is used) does not operate
     protected boolean notDefined; // Set to true if the corresponding path is not defined in the preferences
 
@@ -35,18 +34,19 @@ public abstract class AbstractPushToApplication implements PushToApplication {
     protected final NotificationService notificationService;
     protected final PushToApplicationPreferences preferences;
 
-    public AbstractPushToApplication(NotificationService notificationService, PushToApplicationPreferences preferences) {
+    public AbstractPushToApplication(
+            NotificationService notificationService, PushToApplicationPreferences preferences) {
         this.notificationService = notificationService;
         this.preferences = preferences;
     }
 
     protected String getKeyString(List<BibEntry> entries, @NonNull String delimiter) {
         return entries.stream()
-                      .map(BibEntry::getCitationKey)
-                      .filter(Optional::isPresent)
-                      .map(Optional::get)
-                      .filter(not(String::isEmpty))
-                      .collect(Collectors.joining(delimiter));
+                .map(BibEntry::getCitationKey)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(not(String::isEmpty))
+                .collect(Collectors.joining(delimiter));
     }
 
     public void pushEntries(List<BibEntry> entries) {
@@ -107,9 +107,10 @@ public abstract class AbstractPushToApplication implements PushToApplication {
         } else if (couldNotCall) {
             sendErrorNotification(
                     Localization.lang("Error pushing entries"),
-                    Localization.lang("Could not call executable '%0'.", commandPath) + "\n" +
-                            Localization.lang("Please check the path in the preferences.") + "\n" +
-                            (OS.OS_X ? Localization.lang("On macOS, you can use the command-line binary.") : ""));
+                    Localization.lang("Could not call executable '%0'.", commandPath) + "\n"
+                            + Localization.lang("Please check the path in the preferences.")
+                            + "\n"
+                            + (OS.OS_X ? Localization.lang("On macOS, you can use the command-line binary.") : ""));
         } else if (couldNotPush) {
             sendErrorNotification(
                     Localization.lang("Error pushing entries"),

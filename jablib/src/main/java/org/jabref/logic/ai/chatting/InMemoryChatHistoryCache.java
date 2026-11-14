@@ -1,5 +1,8 @@
 package org.jabref.logic.ai.chatting;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.google.common.eventbus.Subscribe;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -15,12 +18,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.ai.chatting.repositories.ChatHistoryRepository;
 import org.jabref.model.ai.chatting.ChatIdentifier;
 import org.jabref.model.ai.chatting.ChatMessage;
@@ -33,16 +34,13 @@ import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.groups.event.GroupUpdatedEvent;
-
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.google.common.eventbus.Subscribe;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// An in-memory storage layer for chat history with [BibEntry]. This allows to have an AI chat even if the entry does not have a citation key or it is not unique.
+/// An in-memory storage layer for chat history with [BibEntry]. This allows to have an AI chat even if the entry does
+/// not have a citation key or it is not unique.
 ///
 /// Changed chats are saved to [ChatHistoryRepository] after a short delay.
 /// [#close()] flushes any outstanding changes.
@@ -53,12 +51,10 @@ public class InMemoryChatHistoryCache {
     private static final int SAVE_DELAY_MILLIS = 1_000;
 
     @NullMarked
-    private record PendingChat(ChatIdentifier identifier, long revision) {
-    }
+    private record PendingChat(ChatIdentifier identifier, long revision) {}
 
     @NullMarked
-    private record ChatChange(int from, int removedSize, List<ChatMessage> added, int[] permutation) {
-    }
+    private record ChatChange(int from, int removedSize, List<ChatMessage> added, int[] permutation) {}
 
     @NullMarked
     private class CachedChat {
@@ -80,7 +76,11 @@ public class InMemoryChatHistoryCache {
         private volatile int weight = 1;
         private boolean removed;
 
-        private CachedChat(BibDatabaseContext context, ChatType type, Supplier<Optional<ChatIdentifier>> identifier, BooleanSupplier exists) {
+        private CachedChat(
+                BibDatabaseContext context,
+                ChatType type,
+                Supplier<Optional<ChatIdentifier>> identifier,
+                BooleanSupplier exists) {
             this.context = context;
             this.type = type;
             this.identifier = identifier;
@@ -119,9 +119,10 @@ public class InMemoryChatHistoryCache {
         public void entriesRemoved(EntriesRemovedEvent event) {
             synchronized (InMemoryChatHistoryCache.this) {
                 revision++;
-                event.getBibEntries().forEach(entry -> Optional.ofNullable(entryChats.getIfPresent(entry))
-                                                               .filter(cached -> cached.context == context)
-                                                               .ifPresent(_ -> removeEntry(entry)));
+                event.getBibEntries()
+                        .forEach(entry -> Optional.ofNullable(entryChats.getIfPresent(entry))
+                                .filter(cached -> cached.context == context)
+                                .ifPresent(_ -> removeEntry(entry)));
             }
         }
 
@@ -148,8 +149,10 @@ public class InMemoryChatHistoryCache {
     }
 
     // Weak keys use identity; weak values keep histories held by a view or AI task discoverable after eviction.
-    private final Cache<BibEntry, CachedChat> entryChats = Caffeine.newBuilder().weakKeys().weakValues().build();
-    private final Cache<GroupTreeNode, CachedChat> groupChats = Caffeine.newBuilder().weakKeys().weakValues().build();
+    private final Cache<BibEntry, CachedChat> entryChats =
+            Caffeine.newBuilder().weakKeys().weakValues().build();
+    private final Cache<GroupTreeNode, CachedChat> groupChats =
+            Caffeine.newBuilder().weakKeys().weakValues().build();
     private final Cache<CachedChat, CachedChat> retainedChats;
     private final Set<CachedChat> unsavedChats = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<BibDatabaseContext, LibraryListener> libraryListeners = new IdentityHashMap<>();
@@ -175,9 +178,9 @@ public class InMemoryChatHistoryCache {
         this.repository = repository;
         this.saveDelayMillis = saveDelayMillis;
         retainedChats = Caffeine.newBuilder()
-                                .maximumWeight(maxRetainedMessages)
-                                .weigher((CachedChat chat, CachedChat _) -> chat.weight)
-                                .build();
+                .maximumWeight(maxRetainedMessages)
+                .weigher((CachedChat chat, CachedChat _) -> chat.weight)
+                .build();
         writer.setRemoveOnCancelPolicy(true);
     }
 
@@ -196,16 +199,27 @@ public class InMemoryChatHistoryCache {
 
     /// Loads an entry history on the serial storage worker. Call on the model's owning thread;
     /// apply the result on the JavaFX thread before binding it to a view.
-    public synchronized CompletableFuture<ObservableList<ChatMessage>> getForEntryAsync(BibDatabaseContext databaseContext, BibEntry entry) {
+    public synchronized CompletableFuture<ObservableList<ChatMessage>> getForEntryAsync(
+            BibDatabaseContext databaseContext, BibEntry entry) {
         if (closed) {
             return CompletableFuture.completedFuture(FXCollections.observableArrayList());
         }
         libraryListeners.computeIfAbsent(databaseContext, LibraryListener::new);
-        CachedChat cached = entryChats.asMap().compute(entry, (_, existing) -> Optional.ofNullable(existing)
-                                                                                       .filter(chat -> !chat.removed)
-                                                                                       .orElseGet(() -> createChat(databaseContext, ChatType.WITH_ENTRY,
-                                                                                               () -> ChatIdentifier.from(databaseContext, entry),
-                                                                                               () -> databaseContext.getDatabase().getEntryById(entry.getId()).filter(inDatabase -> inDatabase == entry).isPresent())));
+        CachedChat cached = entryChats
+                .asMap()
+                .compute(
+                        entry,
+                        (_, existing) -> Optional.ofNullable(existing)
+                                .filter(chat -> !chat.removed)
+                                .orElseGet(() -> createChat(
+                                        databaseContext,
+                                        ChatType.WITH_ENTRY,
+                                        () -> ChatIdentifier.from(databaseContext, entry),
+                                        () -> databaseContext
+                                                .getDatabase()
+                                                .getEntryById(entry.getId())
+                                                .filter(inDatabase -> inDatabase == entry)
+                                                .isPresent())));
         retainChat(cached);
         return cached.loaded.copy();
     }
@@ -225,21 +239,36 @@ public class InMemoryChatHistoryCache {
 
     /// Loads a group history on the serial storage worker. Call on the model's owning thread;
     /// apply the result on the JavaFX thread before binding it to a view.
-    public synchronized CompletableFuture<ObservableList<ChatMessage>> getForGroupAsync(BibDatabaseContext databaseContext, GroupTreeNode group) {
+    public synchronized CompletableFuture<ObservableList<ChatMessage>> getForGroupAsync(
+            BibDatabaseContext databaseContext, GroupTreeNode group) {
         if (closed) {
             return CompletableFuture.completedFuture(FXCollections.observableArrayList());
         }
         libraryListeners.computeIfAbsent(databaseContext, LibraryListener::new);
-        CachedChat cached = groupChats.asMap().compute(group, (_, existing) -> Optional.ofNullable(existing)
-                                                                                       .filter(chat -> !chat.removed)
-                                                                                       .orElseGet(() -> createChat(databaseContext, ChatType.WITH_GROUP,
-                                                                                               () -> ChatIdentifier.from(databaseContext, group),
-                                                                                               () -> databaseContext.getMetaData().getGroups().map(root -> root.containsGroup(group.getGroup())).orElse(false))));
+        CachedChat cached = groupChats
+                .asMap()
+                .compute(
+                        group,
+                        (_, existing) -> Optional.ofNullable(existing)
+                                .filter(chat -> !chat.removed)
+                                .orElseGet(() -> createChat(
+                                        databaseContext,
+                                        ChatType.WITH_GROUP,
+                                        () -> ChatIdentifier.from(databaseContext, group),
+                                        () -> databaseContext
+                                                .getMetaData()
+                                                .getGroups()
+                                                .map(root -> root.containsGroup(group.getGroup()))
+                                                .orElse(false))));
         retainChat(cached);
         return cached.loaded.copy();
     }
 
-    private CachedChat createChat(BibDatabaseContext context, ChatType type, Supplier<Optional<ChatIdentifier>> identifier, BooleanSupplier exists) {
+    private CachedChat createChat(
+            BibDatabaseContext context,
+            ChatType type,
+            Supplier<Optional<ChatIdentifier>> identifier,
+            BooleanSupplier exists) {
         CachedChat cached = new CachedChat(context, type, identifier, exists);
         Optional<ChatIdentifier> initialIdentifier = resolveIdentifier(cached);
         writer.execute(() -> load(cached, initialIdentifier));
@@ -282,8 +311,12 @@ public class InMemoryChatHistoryCache {
     /// Call on the model's owning thread when the library closes.
     public synchronized void releaseLibrary(BibDatabaseContext context) {
         Optional.ofNullable(libraryListeners.remove(context)).ifPresent(LibraryListener::close);
-        entryChats.asMap().values().stream().filter(cached -> cached.context == context).forEach(this::releaseChat);
-        groupChats.asMap().values().stream().filter(cached -> cached.context == context).forEach(this::releaseChat);
+        entryChats.asMap().values().stream()
+                .filter(cached -> cached.context == context)
+                .forEach(this::releaseChat);
+        groupChats.asMap().values().stream()
+                .filter(cached -> cached.context == context)
+                .forEach(this::releaseChat);
         scheduleSave();
     }
 
@@ -399,14 +432,16 @@ public class InMemoryChatHistoryCache {
         }
         Optional<LibraryListener> library = Optional.ofNullable(libraryListeners.get(cached.context));
         Optional<String> libraryId = cached.context.getMetaData().getAiLibraryId();
-        return library.filter(listener -> listener.revision == cached.identifierRevision && libraryId.equals(cached.currentLibraryId))
-                      .map(_ -> cached.currentIdentifier)
-                      .orElseGet(() -> {
-                          cached.identifierRevision = library.map(listener -> listener.revision).orElse(-1L);
-                          cached.currentLibraryId = libraryId;
-                          cached.currentIdentifier = cached.identifier.get();
-                          return cached.currentIdentifier;
-                      });
+        return library.filter(listener ->
+                        listener.revision == cached.identifierRevision && libraryId.equals(cached.currentLibraryId))
+                .map(_ -> cached.currentIdentifier)
+                .orElseGet(() -> {
+                    cached.identifierRevision =
+                            library.map(listener -> listener.revision).orElse(-1L);
+                    cached.currentLibraryId = libraryId;
+                    cached.currentIdentifier = cached.identifier.get();
+                    return cached.currentIdentifier;
+                });
     }
 
     private void scheduleSave() {
@@ -442,8 +477,8 @@ public class InMemoryChatHistoryCache {
                 }
             }
             List<ChatMessage> added = change.wasUpdated()
-                                      ? List.copyOf(change.getList().subList(from, change.getTo()))
-                                      : change.wasAdded() ? List.copyOf(change.getAddedSubList()) : List.of();
+                    ? List.copyOf(change.getList().subList(from, change.getTo()))
+                    : change.wasAdded() ? List.copyOf(change.getAddedSubList()) : List.of();
             int removedSize = change.wasUpdated() ? change.getTo() - from : change.getRemovedSize();
             changes.add(new ChatChange(from, removedSize, added, permutation));
         }
@@ -454,7 +489,8 @@ public class InMemoryChatHistoryCache {
         for (ChatChange change : changes) {
             int from = change.from();
             if (change.permutation().length > 0) {
-                List<ChatMessage> original = new ArrayList<>(writerHistory.subList(from, from + change.permutation().length));
+                List<ChatMessage> original =
+                        new ArrayList<>(writerHistory.subList(from, from + change.permutation().length));
                 for (int index = 0; index < change.permutation().length; index++) {
                     writerHistory.set(from + change.permutation()[index], original.get(index));
                 }

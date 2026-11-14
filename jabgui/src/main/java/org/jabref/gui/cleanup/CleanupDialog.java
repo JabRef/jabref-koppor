@@ -1,15 +1,14 @@
 package org.jabref.gui.cleanup;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import java.util.List;
 import java.util.function.Supplier;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -24,46 +23,59 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 
-import com.airhacks.afterburner.views.ViewLoader;
-
 public class CleanupDialog extends BaseDialog<Void> {
 
-    @FXML private TabPane tabPane;
-    @FXML private ButtonType cleanUpButton;
+    @FXML
+    private TabPane tabPane;
+
+    @FXML
+    private ButtonType cleanUpButton;
 
     private final CleanupDialogViewModel viewModel;
 
     /// Constructor for multiple-entry cleanup
-    public CleanupDialog(BibDatabaseContext databaseContext,
-                         CliPreferences preferences,
-                         DialogService dialogService,
-                         StateManager stateManager,
-                         UndoManager undoManager,
-                         Supplier<LibraryTab> tabSupplier,
-                         TaskExecutor taskExecutor,
-                         JournalAbbreviationRepository journalAbbreviationRepository) {
+    public CleanupDialog(
+            BibDatabaseContext databaseContext,
+            CliPreferences preferences,
+            DialogService dialogService,
+            StateManager stateManager,
+            UndoManager undoManager,
+            Supplier<LibraryTab> tabSupplier,
+            TaskExecutor taskExecutor,
+            JournalAbbreviationRepository journalAbbreviationRepository) {
         super();
         this.viewModel = new CleanupDialogViewModel(
-                databaseContext, preferences, dialogService,
-                stateManager, undoManager, tabSupplier, taskExecutor, journalAbbreviationRepository
-        );
+                databaseContext,
+                preferences,
+                dialogService,
+                stateManager,
+                undoManager,
+                tabSupplier,
+                taskExecutor,
+                journalAbbreviationRepository);
 
         init(databaseContext, preferences);
     }
 
     /// Constructor for single-entry cleanup
-    public CleanupDialog(BibEntry targetEntry,
-                         BibDatabaseContext databaseContext,
-                         CliPreferences preferences,
-                         DialogService dialogService,
-                         StateManager stateManager,
-                         UndoManager undoManager,
-                         JournalAbbreviationRepository journalAbbreviationRepository) {
+    public CleanupDialog(
+            BibEntry targetEntry,
+            BibDatabaseContext databaseContext,
+            CliPreferences preferences,
+            DialogService dialogService,
+            StateManager stateManager,
+            UndoManager undoManager,
+            JournalAbbreviationRepository journalAbbreviationRepository) {
 
         this.viewModel = new CleanupDialogViewModel(
-                databaseContext, preferences, dialogService,
-                stateManager, undoManager, null, null, journalAbbreviationRepository
-        );
+                databaseContext,
+                preferences,
+                dialogService,
+                stateManager,
+                undoManager,
+                null,
+                null,
+                journalAbbreviationRepository);
 
         viewModel.setTargetEntries(List.of(targetEntry));
 
@@ -73,24 +85,23 @@ public class CleanupDialog extends BaseDialog<Void> {
     private void init(BibDatabaseContext databaseContext, CliPreferences preferences) {
         setTitle(Localization.lang("Clean up entries"));
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         CleanupPreferences initialPreset = preferences.getCleanupPreferences();
         FilePreferences filePreferences = preferences.getFilePreferences();
 
         CleanupSingleFieldPanel singleFieldPanel = new CleanupSingleFieldPanel(initialPreset, viewModel);
-        CleanupFileRelatedPanel fileRelatedPanel = new CleanupFileRelatedPanel(databaseContext, initialPreset, filePreferences, viewModel);
+        CleanupFileRelatedPanel fileRelatedPanel =
+                new CleanupFileRelatedPanel(databaseContext, initialPreset, filePreferences, viewModel);
         CleanupMultiFieldPanel multiFieldPanel = new CleanupMultiFieldPanel(initialPreset, viewModel);
         CleanupJournalRelatedPanel journalRelatedPanel = new CleanupJournalRelatedPanel(initialPreset, viewModel);
 
-        tabPane.getTabs().setAll(
-                new Tab(Localization.lang("Single field"), singleFieldPanel),
-                new Tab(Localization.lang("File-related"), fileRelatedPanel),
-                new Tab(Localization.lang("Multi-field"), multiFieldPanel),
-                new Tab(Localization.lang("Journal-related"), journalRelatedPanel)
-        );
+        tabPane.getTabs()
+                .setAll(
+                        new Tab(Localization.lang("Single field"), singleFieldPanel),
+                        new Tab(Localization.lang("File-related"), fileRelatedPanel),
+                        new Tab(Localization.lang("Multi-field"), multiFieldPanel),
+                        new Tab(Localization.lang("Journal-related"), journalRelatedPanel));
 
         Button btn = (Button) getDialogPane().lookupButton(cleanUpButton);
 

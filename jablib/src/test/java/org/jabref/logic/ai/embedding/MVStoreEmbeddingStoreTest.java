@@ -1,8 +1,10 @@
 package org.jabref.logic.ai.embedding;
 
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
+import static org.jabref.logic.ai.ingestion.logic.EmbeddingsCleaner.FILE_HASH_METADATA_KEY;
+import static org.jabref.logic.ai.ingestion.logic.ingestion.FileIngestor.PAGE_NUMBER_METADATA_KEY;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
@@ -11,15 +13,12 @@ import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
-import static org.jabref.logic.ai.ingestion.logic.EmbeddingsCleaner.FILE_HASH_METADATA_KEY;
-import static org.jabref.logic.ai.ingestion.logic.ingestion.FileIngestor.PAGE_NUMBER_METADATA_KEY;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MVStoreEmbeddingStoreTest {
 
@@ -30,8 +29,7 @@ class MVStoreEmbeddingStoreTest {
 
     @BeforeEach
     void setUp() {
-        store = new MVStoreEmbeddingStore(tempDir.resolve("embeddings-test.mv"), _ -> {
-        });
+        store = new MVStoreEmbeddingStore(tempDir.resolve("embeddings-test.mv"), _ -> {});
     }
 
     private static Embedding unitEmbedding(float... values) {
@@ -49,10 +47,10 @@ class MVStoreEmbeddingStoreTest {
         store.add(embedding, segment);
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(embedding)
-                                                               .maxResults(5)
-                                                               .minScore(0.0)
-                                                               .build();
+                .queryEmbedding(embedding)
+                .maxResults(5)
+                .minScore(0.0)
+                .build();
 
         EmbeddingSearchResult<TextSegment> result = store.search(request);
 
@@ -63,23 +61,22 @@ class MVStoreEmbeddingStoreTest {
     @Test
     void addAndSearchPreservesPageNumberMetadata() {
         Embedding embedding = unitEmbedding(1.0f, 0.0f, 0.0f);
-        TextSegment segment = new TextSegment("page text", new Metadata(Map.of(
-                FILE_HASH_METADATA_KEY, "hash-abc",
-                PAGE_NUMBER_METADATA_KEY, 5
-        )));
+        TextSegment segment = new TextSegment(
+                "page text", new Metadata(Map.of(FILE_HASH_METADATA_KEY, "hash-abc", PAGE_NUMBER_METADATA_KEY, 5)));
         store.add(embedding, segment);
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(embedding)
-                                                               .maxResults(5)
-                                                               .minScore(0.0)
-                                                               .build();
+                .queryEmbedding(embedding)
+                .maxResults(5)
+                .minScore(0.0)
+                .build();
 
         EmbeddingSearchResult<TextSegment> result = store.search(request);
 
         assertEquals(1, result.matches().size());
         assertEquals(5, result.matches().getFirst().embedded().metadata().getInteger(PAGE_NUMBER_METADATA_KEY));
-        assertEquals("hash-abc", result.matches().getFirst().embedded().metadata().getString(FILE_HASH_METADATA_KEY));
+        assertEquals(
+                "hash-abc", result.matches().getFirst().embedded().metadata().getString(FILE_HASH_METADATA_KEY));
     }
 
     @Test
@@ -89,10 +86,10 @@ class MVStoreEmbeddingStoreTest {
         store.add(embedding, segment);
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(embedding)
-                                                               .maxResults(5)
-                                                               .minScore(0.0)
-                                                               .build();
+                .queryEmbedding(embedding)
+                .maxResults(5)
+                .minScore(0.0)
+                .build();
 
         EmbeddingSearchResult<TextSegment> result = store.search(request);
 
@@ -108,10 +105,10 @@ class MVStoreEmbeddingStoreTest {
         store.removeAll();
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(unitEmbedding(1.0f, 0.0f))
-                                                               .maxResults(10)
-                                                               .minScore(0.0)
-                                                               .build();
+                .queryEmbedding(unitEmbedding(1.0f, 0.0f))
+                .maxResults(10)
+                .minScore(0.0)
+                .build();
 
         assertTrue(store.search(request).matches().isEmpty());
     }
@@ -121,13 +118,14 @@ class MVStoreEmbeddingStoreTest {
         store.add(unitEmbedding(1.0f, 0.0f), segmentWithHash("keep", "hash-keep"));
         store.add(unitEmbedding(0.0f, 1.0f), segmentWithHash("remove", "hash-remove"));
 
-        store.removeAll(MetadataFilterBuilder.metadataKey(FILE_HASH_METADATA_KEY).isEqualTo("hash-remove"));
+        store.removeAll(
+                MetadataFilterBuilder.metadataKey(FILE_HASH_METADATA_KEY).isEqualTo("hash-remove"));
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(unitEmbedding(1.0f, 0.0f))
-                                                               .maxResults(10)
-                                                               .minScore(0.0)
-                                                               .build();
+                .queryEmbedding(unitEmbedding(1.0f, 0.0f))
+                .maxResults(10)
+                .minScore(0.0)
+                .build();
 
         List<EmbeddingMatch<TextSegment>> matches = store.search(request).matches();
 
@@ -141,11 +139,12 @@ class MVStoreEmbeddingStoreTest {
         store.add(unitEmbedding(1.0f, 0.0f), segmentWithHash("doc-B", "hash-B"));
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(unitEmbedding(1.0f, 0.0f))
-                                                               .maxResults(10)
-                                                               .minScore(0.0)
-                                                               .filter(MetadataFilterBuilder.metadataKey(FILE_HASH_METADATA_KEY).isEqualTo("hash-A"))
-                                                               .build();
+                .queryEmbedding(unitEmbedding(1.0f, 0.0f))
+                .maxResults(10)
+                .minScore(0.0)
+                .filter(MetadataFilterBuilder.metadataKey(FILE_HASH_METADATA_KEY)
+                        .isEqualTo("hash-A"))
+                .build();
 
         List<EmbeddingMatch<TextSegment>> matches = store.search(request).matches();
 
@@ -160,11 +159,12 @@ class MVStoreEmbeddingStoreTest {
         store.add(unitEmbedding(1.0f, 0.0f), segmentWithHash("doc-C", "hash-C"));
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(unitEmbedding(1.0f, 0.0f))
-                                                               .maxResults(10)
-                                                               .minScore(0.0)
-                                                               .filter(MetadataFilterBuilder.metadataKey(FILE_HASH_METADATA_KEY).isIn("hash-A", "hash-B"))
-                                                               .build();
+                .queryEmbedding(unitEmbedding(1.0f, 0.0f))
+                .maxResults(10)
+                .minScore(0.0)
+                .filter(MetadataFilterBuilder.metadataKey(FILE_HASH_METADATA_KEY)
+                        .isIn("hash-A", "hash-B"))
+                .build();
 
         List<EmbeddingMatch<TextSegment>> matches = store.search(request).matches();
 
@@ -179,10 +179,10 @@ class MVStoreEmbeddingStoreTest {
         store.remove(id1);
 
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()
-                                                               .queryEmbedding(unitEmbedding(0.0f, 1.0f))
-                                                               .maxResults(10)
-                                                               .minScore(0.0)
-                                                               .build();
+                .queryEmbedding(unitEmbedding(0.0f, 1.0f))
+                .maxResults(10)
+                .minScore(0.0)
+                .build();
 
         List<EmbeddingMatch<TextSegment>> matches = store.search(request).matches();
 

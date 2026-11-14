@@ -6,6 +6,4 @@ public record KnowledgeItem(
         String text,
         String pageRangeNumber,
         String quotationType,
-        String quotationIndex
-) {
-}
+        String quotationIndex) {}

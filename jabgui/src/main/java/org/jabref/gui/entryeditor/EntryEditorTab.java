@@ -1,15 +1,13 @@
 package org.jabref.gui.entryeditor;
 
+import com.tobiasdiez.easybind.EasyBind;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Tab;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.EntryType;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +51,7 @@ public abstract class EntryEditorTab extends Tab {
             combinedVisibility = EasyBind.combine(
                     preferenceDrivenVisibility,
                     contentDrivenVisibility,
-                    (preference, content) -> preference && content
-            );
+                    (preference, content) -> preference && content);
         }
 
         return combinedVisibility;
@@ -71,12 +68,10 @@ public abstract class EntryEditorTab extends Tab {
     protected abstract void bindToEntry(BibEntry entry);
 
     /// Releases listeners owned by this tab before it is discarded.
-    protected void dispose() {
-    }
+    protected void dispose() {}
 
     /// Override to perform a special action on focus (like selecting the first field in the editor).
-    protected void handleFocus() {
-    }
+    protected void handleFocus() {}
 
     public void notifyAboutFocus(BibEntry entry) {
         // currentEntry is bound to the view model and updates on its own; rebuild content only when the

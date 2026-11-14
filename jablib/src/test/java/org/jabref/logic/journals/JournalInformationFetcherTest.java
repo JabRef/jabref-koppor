@@ -1,13 +1,12 @@
 package org.jabref.logic.journals;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.fetcher.JournalInformationFetcher;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExternalServicesTest
 class JournalInformationFetcherTest {
@@ -21,7 +20,8 @@ class JournalInformationFetcherTest {
 
     @Test
     void getsJournalInfoUsingIssn() throws FetcherException {
-        JournalInformation journalInformation = fetcher.getJournalInformation("1545-4509", "").orElseThrow();
+        JournalInformation journalInformation =
+                fetcher.getJournalInformation("1545-4509", "").orElseThrow();
 
         assertEquals("Annual Review of Biochemistry", journalInformation.title());
         assertEquals("Annual Reviews", journalInformation.publisher());
@@ -30,21 +30,24 @@ class JournalInformationFetcherTest {
 
     @Test
     void getsJournalInfoUsingName() throws FetcherException {
-        JournalInformation journalInformation = fetcher.getJournalInformation("", "Annual Review of Biochemistry").orElseThrow();
+        JournalInformation journalInformation = fetcher.getJournalInformation("", "Annual Review of Biochemistry")
+                .orElseThrow();
 
         assertEquals("Annual Review of Biochemistry", journalInformation.title());
     }
 
     @Test
     void getsJournalInfoUsingIssnWithoutHyphen() throws FetcherException {
-        JournalInformation journalInformation = fetcher.getJournalInformation("15454509", "").orElseThrow();
+        JournalInformation journalInformation =
+                fetcher.getJournalInformation("15454509", "").orElseThrow();
 
         assertEquals("Annual Review of Biochemistry", journalInformation.title());
     }
 
     @Test
     void getsJournalInfoUsingTrimmedIssn() throws FetcherException {
-        JournalInformation journalInformation = fetcher.getJournalInformation(" 1545-4509   ", "").orElseThrow();
+        JournalInformation journalInformation =
+                fetcher.getJournalInformation(" 1545-4509   ", "").orElseThrow();
 
         assertEquals("Annual Review of Biochemistry", journalInformation.title());
     }

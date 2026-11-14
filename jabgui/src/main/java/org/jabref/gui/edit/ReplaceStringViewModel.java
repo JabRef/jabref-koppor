@@ -3,12 +3,10 @@ package org.jabref.gui.edit;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.actions.StandardActions;
@@ -17,7 +15,6 @@ import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableFieldChange;
-
 import org.jspecify.annotations.NonNull;
 
 public class ReplaceStringViewModel extends AbstractViewModel {
@@ -44,11 +41,14 @@ public class ReplaceStringViewModel extends AbstractViewModel {
         allFieldReplace = allFieldReplaceProperty.getValue();
 
         List<BibEntry> entries = selectOnlyProperty.getValue()
-                                 ? libraryTab.getSelectedEntries()
-                                 : libraryTab.getDatabase().getEntries();
+                ? libraryTab.getSelectedEntries()
+                : libraryTab.getDatabase().getEntries();
         AtomicInteger replacements = new AtomicInteger();
-        libraryTab.getUndoManager().addEdit(StandardActions.REPLACE_ALL.getText(), edit ->
-                entries.forEach(entry -> replacements.addAndGet(replaceItem(entry, edit))));
+        libraryTab
+                .getUndoManager()
+                .addEdit(
+                        StandardActions.REPLACE_ALL.getText(),
+                        edit -> entries.forEach(entry -> replacements.addAndGet(replaceItem(entry, edit))));
         return replacements.get();
     }
 

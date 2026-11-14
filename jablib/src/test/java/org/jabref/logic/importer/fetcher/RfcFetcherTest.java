@@ -1,7 +1,10 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
+import java.util.Optional;
 import org.jabref.logic.importer.FetcherClientException;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -10,15 +13,10 @@ import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
 
 @ExternalServicesTest
 class RfcFetcherTest {
@@ -37,7 +35,12 @@ class RfcFetcherTest {
             .withField(StandardField.PAGETOTAL, "60")
             .withField(StandardField.YEAR, "1996")
             .withField(StandardField.MONTH, "#may#")
-            .withField(StandardField.ABSTRACT, "The Hypertext Transfer Protocol (HTTP) is an application-level protocol with the lightness and speed necessary for distributed, collaborative, hypermedia information systems. This memo provides information for the Internet community. This memo does not specify an Internet standard of any kind.");
+            .withField(
+                    StandardField.ABSTRACT,
+                    "The Hypertext Transfer Protocol (HTTP) is an application-level protocol with the lightness and"
+                            + " speed necessary for distributed, collaborative, hypermedia information systems. This"
+                            + " memo provides information for the Internet community. This memo does not specify an"
+                            + " Internet standard of any kind.");
 
     @Test
     void getNameReturnsEqualIdName() {
@@ -60,8 +63,21 @@ class RfcFetcherTest {
                 .withField(StandardField.TYPE, "Internet-Draft")
                 .withField(StandardField.URL, "https://datatracker.ietf.org/doc/draft-fielding-http-spec/01/")
                 .withField(StandardField.YEAR, "1994")
-                .withField(StandardField.ABSTRACT, "The Hypertext Transfer Protocol (HTTP) is an application-level protocol with the lightness and speed necessary for distributed, collaborative, hypermedia information systems. It is a generic, stateless, object-oriented protocol which can be used for many tasks, such as name servers and distributed object management systems, through extension of its request methods (commands). A feature of HTTP is the typing and negotiation of data representation, allowing systems to be built independently of the data being transferred. HTTP has been in use by the World-Wide Web global information initiative since 1990. This specification reflects preferred usage of the protocol referred to as 'HTTP/1.0', and is compatible with the most commonly used HTTP server and client programs implemented prior to November 1994.");
-        bibDraftEntry.setCommentsBeforeEntry("%% You should probably cite draft-ietf-http-v10-spec instead of this I-D.\n");
+                .withField(
+                        StandardField.ABSTRACT,
+                        "The Hypertext Transfer Protocol (HTTP) is an application-level protocol with the lightness"
+                                + " and speed necessary for distributed, collaborative, hypermedia information"
+                                + " systems. It is a generic, stateless, object-oriented protocol which can be used"
+                                + " for many tasks, such as name servers and distributed object management systems,"
+                                + " through extension of its request methods (commands). A feature of HTTP is the"
+                                + " typing and negotiation of data representation, allowing systems to be built"
+                                + " independently of the data being transferred. HTTP has been in use by the"
+                                + " World-Wide Web global information initiative since 1990. This specification"
+                                + " reflects preferred usage of the protocol referred to as 'HTTP/1.0', and is"
+                                + " compatible with the most commonly used HTTP server and client programs implemented"
+                                + " prior to November 1994.");
+        bibDraftEntry.setCommentsBeforeEntry(
+                "%% You should probably cite draft-ietf-http-v10-spec instead of this I-D.\n");
 
         assertEquals(Optional.of(bibDraftEntry), fetcher.performSearchById("draft-fielding-http-spec"));
     }
@@ -78,13 +94,14 @@ class RfcFetcherTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            // syntactically valid identifier
-            "draft-test-draft-spec",
-            "RFC99999",
-            // invalid identifier
-            "banana"
-    })
+    @ValueSource(
+            strings = {
+                // syntactically valid identifier
+                "draft-test-draft-spec",
+                "RFC99999",
+                // invalid identifier
+                "banana"
+            })
     void performSearchByIdFindsNothingWithValidDraftIdentifier(String identifier) {
         assertThrows(FetcherClientException.class, () -> fetcher.performSearchById(identifier));
     }

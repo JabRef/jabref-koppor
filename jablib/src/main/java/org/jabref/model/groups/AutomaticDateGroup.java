@@ -3,7 +3,6 @@ package org.jabref.model.groups;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 
@@ -54,13 +53,13 @@ public class AutomaticDateGroup extends AutomaticGroup {
                     });
                 }
                 case MONTH ->
-                        DateGroup.getDateKey(date, "YYYY-MM").ifPresent(key -> {
-                            out.add(new GroupTreeNode(new DateGroup(key, GroupHierarchyType.INDEPENDENT, field, key)));
-                        });
+                    DateGroup.getDateKey(date, "YYYY-MM").ifPresent(key -> {
+                        out.add(new GroupTreeNode(new DateGroup(key, GroupHierarchyType.INDEPENDENT, field, key)));
+                    });
                 case FULL_DATE ->
-                        DateGroup.getDateKey(date, "YYYY-MM-DD").ifPresent(key -> {
-                            out.add(new GroupTreeNode(new DateGroup(key, GroupHierarchyType.INDEPENDENT, field, key)));
-                        });
+                    DateGroup.getDateKey(date, "YYYY-MM-DD").ifPresent(key -> {
+                        out.add(new GroupTreeNode(new DateGroup(key, GroupHierarchyType.INDEPENDENT, field, key)));
+                    });
             }
         });
         return out;

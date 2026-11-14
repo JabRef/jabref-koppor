@@ -1,10 +1,10 @@
 package org.jabref.gui.welcome.components;
 
+import com.dlsc.gemsfx.infocenter.Notification.OnClickBehaviour;
+import com.dlsc.gemsfx.infocenter.NotificationAction;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-
 import javafx.util.Duration;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.Notifications;
 import org.jabref.gui.edit.OpenBrowserAction;
@@ -12,9 +12,6 @@ import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.gui.util.DelayedExecution;
 import org.jabref.gui.util.URLs;
 import org.jabref.logic.l10n.Localization;
-
-import com.dlsc.gemsfx.infocenter.Notification.OnClickBehaviour;
-import com.dlsc.gemsfx.infocenter.NotificationAction;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -43,8 +40,7 @@ public class DonationProvider {
             dismiss();
         }
         scheduleAfterDays(calculateDaysUntilNextNotification(
-                preferences.getDonationPreferences().getNextNotificationEpochDay(),
-                LocalDate.now()));
+                preferences.getDonationPreferences().getNextNotificationEpochDay(), LocalDate.now()));
     }
 
     public int calculateDaysUntilNextNotification(int nextNotificationEpochDay, LocalDate today) {
@@ -56,7 +52,9 @@ public class DonationProvider {
 
         Notifications.DonationNotification notification = new Notifications.DonationNotification(
                 Localization.lang("Support JabRef"),
-                Localization.lang("You’ve been using JabRef for %0 months. Would you like to buy the JabRef team a coffee?", DONATION_INTERVAL_MONTHS),
+                Localization.lang(
+                        "You’ve been using JabRef for %0 months. Would you like to buy the JabRef team a coffee?",
+                        DONATION_INTERVAL_MONTHS),
                 () -> preferences.getDonationPreferences().setNeverShowAgain(true));
 
         notification.getActions().add(new NotificationAction<>(Localization.lang("Dismiss"), _ -> {
@@ -65,7 +63,8 @@ public class DonationProvider {
         }));
 
         notification.getActions().add(new NotificationAction<>(Localization.lang("Donate"), _ -> {
-            new OpenBrowserAction(URLs.DONATE_URL, dialogService, preferences.getExternalApplicationsPreferences()).execute();
+            new OpenBrowserAction(URLs.DONATE_URL, dialogService, preferences.getExternalApplicationsPreferences())
+                    .execute();
             return OnClickBehaviour.HIDE_AND_REMOVE;
         }));
 
@@ -89,8 +88,7 @@ public class DonationProvider {
         if (days <= 0) {
             showNotification();
             delayDays = calculateDaysUntilNextNotification(
-                    preferences.getDonationPreferences().getNextNotificationEpochDay(),
-                    LocalDate.now());
+                    preferences.getDonationPreferences().getNextNotificationEpochDay(), LocalDate.now());
         }
         scheduledShow = new DelayedExecution(Duration.hours(delayDays * 24), this::showIfNeeded);
         scheduledShow.start();

@@ -1,16 +1,14 @@
 package org.jabref.model.entry.field;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import java.util.stream.Stream;
-
 import org.jabref.model.entry.types.BiblatexApaEntryType;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class FieldFactoryTest {
     // [utest->adr~hardcode-fieldnames~1]
@@ -22,7 +20,10 @@ class FieldFactoryTest {
     // [utest->adr~hardcode-fieldnames~1]
     @Test
     void orFieldsThreeTerms() {
-        assertEquals("aaa/bbb/ccc", FieldFactory.serializeOrFields(new UnknownField("aaa"), new UnknownField("bbb"), new UnknownField("ccc")));
+        assertEquals(
+                "aaa/bbb/ccc",
+                FieldFactory.serializeOrFields(
+                        new UnknownField("aaa"), new UnknownField("bbb"), new UnknownField("ccc")));
     }
 
     private static Stream<Arguments> fieldsWithoutFieldProperties() {
@@ -32,8 +33,7 @@ class FieldFactoryTest {
                 Arguments.of(new UserSpecificCommentField("other-user-id"), "comment-other-user-id"),
                 // unknown field
                 Arguments.of(new UnknownField("cAsEd"), "cAsEd"),
-                Arguments.of(new UnknownField("rights"), "UnknownField{name='rights'}")
-        );
+                Arguments.of(new UnknownField("rights"), "UnknownField{name='rights'}"));
     }
 
     @ParameterizedTest

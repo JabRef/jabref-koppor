@@ -2,14 +2,12 @@ package org.jabref.logic.util;
 
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.Property;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,13 +15,14 @@ import org.slf4j.LoggerFactory;
 ///
 /// GUI code should use `BindingsHelper` from `jabgui` instead.
 public final class ObservablesHelper {
-    private final static Logger LOGGER = LoggerFactory.getLogger(ObservablesHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ObservablesHelper.class);
 
     private ObservablesHelper() {
         throw new UnsupportedOperationException("cannot instantiate a utility class");
     }
 
-    public static <T> ObjectBinding<T> createObjectBinding(final Callable<T> func, final List<? extends Observable> dependencies) {
+    public static <T> ObjectBinding<T> createObjectBinding(
+            final Callable<T> func, final List<? extends Observable> dependencies) {
         return Bindings.createObjectBinding(func, dependencies.toArray(Observable[]::new));
     }
 
@@ -46,7 +45,8 @@ public final class ObservablesHelper {
     ///
     /// **Lifecycle & Memory Management:**
     ///
-    /// - **Lazy Evaluation:** Old resources are closed *only* when a new value is explicitly requested via `.get()` after invalidation.
+    /// - **Lazy Evaluation:** Old resources are closed *only* when a new value is explicitly requested via `.get()`
+    /// after invalidation.
     /// - **Disposal:** The active resource is automatically closed when [ObjectBinding#dispose()] is called.
     ///
     ///
@@ -59,7 +59,8 @@ public final class ObservablesHelper {
     /// @param func         The factory [Callable] used to compute the new resource.
     /// @param dependencies The observables that this binding should listen to for invalidation.
     /// @return An `ObjectBinding<T>` that automatically closes previous instances upon recalculation or disposal.
-    public static <T extends AutoCloseable> ObjectBinding<T> createClosableObjectBinding(final Callable<T> func, final Observable... dependencies) {
+    public static <T extends AutoCloseable> ObjectBinding<T> createClosableObjectBinding(
+            final Callable<T> func, final Observable... dependencies) {
         return new ObjectBinding<>() {
             private T currentValue;
 
@@ -107,16 +108,18 @@ public final class ObservablesHelper {
 
             @Override
             public ObservableList<?> getDependencies() {
-                return ((dependencies == null) || (dependencies.length == 0)) ?
-                       FXCollections.emptyObservableList()
-                                                                              : (dependencies.length == 1) ?
-                                                                                FXCollections.singletonObservableList(dependencies[0])
-                                                                                                           : FXCollections.unmodifiableObservableList(FXCollections.observableArrayList(dependencies));
+                return ((dependencies == null) || (dependencies.length == 0))
+                        ? FXCollections.emptyObservableList()
+                        : (dependencies.length == 1)
+                                ? FXCollections.singletonObservableList(dependencies[0])
+                                : FXCollections.unmodifiableObservableList(
+                                        FXCollections.observableArrayList(dependencies));
             }
         };
     }
 
-    public static <T extends AutoCloseable> ObjectBinding<T> createClosableObjectBinding(final Callable<T> func, final List<Property<?>> dependencies) {
+    public static <T extends AutoCloseable> ObjectBinding<T> createClosableObjectBinding(
+            final Callable<T> func, final List<Property<?>> dependencies) {
         return createClosableObjectBinding(func, dependencies.toArray(Observable[]::new));
     }
 }

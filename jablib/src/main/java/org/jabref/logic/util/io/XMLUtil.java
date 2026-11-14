@@ -5,16 +5,13 @@ import java.util.AbstractList;
 import java.util.List;
 import java.util.Optional;
 import java.util.RandomAccess;
-
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import org.jabref.architecture.AllowedToUseStandardStreams;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -28,8 +25,7 @@ import org.w3c.dom.NodeList;
 public class XMLUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLUtil.class);
 
-    private XMLUtil() {
-    }
+    private XMLUtil() {}
 
     /// Prints out the document to standard out. Used to generate files for test cases.
     public static void printDocument(Document doc) {
@@ -108,7 +104,8 @@ public class XMLUtil {
     }
 
     // Wrapper to make NodeList iterable,
-    // taken from <a href="http://stackoverflow.com/questions/19589231/can-i-iterate-through-a-nodelist-using-for-each-in-java">StackOverflow Answer</a>.
+    // taken from <a
+    // href="http://stackoverflow.com/questions/19589231/can-i-iterate-through-a-nodelist-using-for-each-in-java">StackOverflow Answer</a>.
     private static final class NodeListWrapper extends AbstractList<Node> implements RandomAccess {
 
         private final NodeList list;

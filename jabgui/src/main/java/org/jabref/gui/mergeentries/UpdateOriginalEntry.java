@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-
 import org.jabref.gui.DialogService;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.undo.UndoManager;
@@ -14,7 +13,6 @@ import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableChangeType;
-
 import org.jspecify.annotations.NullMarked;
 
 /// A class that is desired to update the original entry with the merged entry in the multi-way merge dialog.
@@ -28,12 +26,13 @@ class UpdateOriginalEntry {
     private final String editName;
     private final String successMessage;
 
-    UpdateOriginalEntry(BibEntry originalEntry,
-                        Optional<BibEntry> mergedEntry,
-                        DialogService dialogService,
-                        UndoManager undoManager,
-                        String editName,
-                        String successMessage) {
+    UpdateOriginalEntry(
+            BibEntry originalEntry,
+            Optional<BibEntry> mergedEntry,
+            DialogService dialogService,
+            UndoManager undoManager,
+            String editName,
+            String successMessage) {
         this.originalEntry = originalEntry;
         this.mergedEntry = mergedEntry;
         this.dialogService = dialogService;
@@ -44,10 +43,12 @@ class UpdateOriginalEntry {
 
     // [impl->req~ux.update-entry-web-info.apply-merge-result~1]
     public void update() {
-        mergedEntry.ifPresentOrElse(this::updateOriginalEntry, () -> dialogService.notify(Localization.lang("Canceled merging entries")));
+        mergedEntry.ifPresentOrElse(
+                this::updateOriginalEntry, () -> dialogService.notify(Localization.lang("Canceled merging entries")));
     }
 
-    /// If any differences are found between the original entry and the merged entry, the original entry will be updated with the merged entry's information.
+    /// If any differences are found between the original entry and the merged entry, the original entry will be updated
+    /// with the merged entry's information.
     private void updateOriginalEntry(BibEntry mergedEntry) {
         boolean edited = undoManager.addEdit(editName, edit -> {
             updateEntryType(mergedEntry, edit);

@@ -2,14 +2,12 @@ package org.jabref.logic.push;
 
 import java.io.IOException;
 import java.util.List;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.logic.util.StreamGobbler;
 import org.jabref.model.entry.BibEntry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,17 +39,18 @@ public class PushToTexShop extends AbstractPushToApplication {
             LOGGER.debug("TexShop string: {}", citeString);
 
             if (!OS.OS_X) {
-                sendErrorNotification(Localization.lang("Push to application"), Localization.lang("Pushing citations to TeXShop is only possible on macOS!"));
+                sendErrorNotification(
+                        Localization.lang("Push to application"),
+                        Localization.lang("Pushing citations to TeXShop is only possible on macOS!"));
                 return;
             }
 
             // We use osascript to send the citation to TeXShop.
             // Using separate arguments for ProcessBuilder avoids shell injection.
-            String script = "tell application \"TeXShop\"\n" +
-                    "activate\n" +
-                    "set TheString to item 1 of arguments\n" +
-                    "set content of selection of front document to TheString\n" +
-                    "end tell";
+            String script = "tell application \"TeXShop\"\nactivate\n"
+                    + "set TheString to item 1 of arguments\n"
+                    + "set content of selection of front document to TheString\n"
+                    + "end tell";
 
             ProcessBuilder processBuilder = new ProcessBuilder("osascript", "-e", script, "--", citeString);
             Process process = processBuilder.start();
@@ -71,10 +70,12 @@ public class PushToTexShop extends AbstractPushToApplication {
             if (process.exitValue() != 0) {
                 couldNotPush = true;
                 if (!error.isEmpty()) {
-                    sendErrorNotification(Localization.lang("Error pushing entries"),
+                    sendErrorNotification(
+                            Localization.lang("Error pushing entries"),
                             Localization.lang("Could not push to %0. Error %1", getDisplayName(), error));
                 } else {
-                    sendErrorNotification(Localization.lang("Error pushing entries"),
+                    sendErrorNotification(
+                            Localization.lang("Error pushing entries"),
                             Localization.lang("Could not push to %0.", getDisplayName()));
                 }
             }
@@ -83,8 +84,11 @@ public class PushToTexShop extends AbstractPushToApplication {
             couldNotCall = true;
 
             if (excep instanceof IOException) {
-                sendErrorNotification(Localization.lang("Error pushing entries"),
-                        Localization.lang("Could not call executable '%0' Please check the path in the preferences.", "osascript"));
+                sendErrorNotification(
+                        Localization.lang("Error pushing entries"),
+                        Localization.lang(
+                                "Could not call executable '%0' Please check the path in the preferences.",
+                                "osascript"));
             }
         }
     }

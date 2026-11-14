@@ -1,12 +1,5 @@
 package org.jabref.model.openoffice.uno;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import org.jabref.model.openoffice.DocumentAnnotation;
-
 import com.sun.star.container.NoSuchElementException;
 import com.sun.star.container.XNameAccess;
 import com.sun.star.container.XNamed;
@@ -16,21 +9,24 @@ import com.sun.star.text.XReferenceMarksSupplier;
 import com.sun.star.text.XTextContent;
 import com.sun.star.text.XTextDocument;
 import com.sun.star.text.XTextRange;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import org.jabref.model.openoffice.DocumentAnnotation;
 
 public class UnoReferenceMark {
 
-    private UnoReferenceMark() {
-    }
+    private UnoReferenceMark() {}
 
     /// Note: also used by `isDocumentConnectionMissing` to test if we have a working connection.
     ///
     /// @throws NoDocumentException If cannot get reference marks
     ///
-    public static XNameAccess getNameAccess(XTextDocument doc)
-            throws
-            NoDocumentException {
+    public static XNameAccess getNameAccess(XTextDocument doc) throws NoDocumentException {
 
-        XReferenceMarksSupplier supplier = UnoCast.cast(XReferenceMarksSupplier.class, doc).get();
+        XReferenceMarksSupplier supplier =
+                UnoCast.cast(XReferenceMarksSupplier.class, doc).get();
 
         try {
             return supplier.getReferenceMarks();
@@ -42,8 +38,7 @@ public class UnoReferenceMark {
     /// Names of all reference marks.
     ///
     /// Empty list for nothing.
-    public static List<String> getListOfNames(XTextDocument doc)
-            throws NoDocumentException {
+    public static List<String> getListOfNames(XTextDocument doc) throws NoDocumentException {
 
         XNameAccess nameAccess = UnoReferenceMark.getNameAccess(doc);
         String[] names = nameAccess.getElementNames();
@@ -57,9 +52,7 @@ public class UnoReferenceMark {
     ///
     /// Removes both the text and the mark itself.
     public static void removeIfExists(XTextDocument doc, String name)
-            throws
-            WrappedTargetException,
-            NoDocumentException {
+            throws WrappedTargetException, NoDocumentException {
 
         XNameAccess xReferenceMarks = UnoReferenceMark.getNameAccess(doc);
 
@@ -78,9 +71,7 @@ public class UnoReferenceMark {
 
     /// @return reference mark as XTextContent, Optional.empty if not found.
     public static Optional<XTextContent> getAsTextContent(XTextDocument doc, String name)
-            throws
-            NoDocumentException,
-            WrappedTargetException {
+            throws NoDocumentException, WrappedTargetException {
 
         XNameAccess nameAccess = UnoReferenceMark.getNameAccess(doc);
         return UnoNameAccess.getTextContentByName(nameAccess, name);
@@ -88,22 +79,20 @@ public class UnoReferenceMark {
 
     /// XTextRange for the named reference mark, Optional.empty if not found.
     public static Optional<XTextRange> getAnchor(XTextDocument doc, String name)
-            throws
-            NoDocumentException,
-            WrappedTargetException {
-        return UnoReferenceMark.getAsTextContent(doc, name)
-                               .map(XTextContent::getAnchor);
+            throws NoDocumentException, WrappedTargetException {
+        return UnoReferenceMark.getAsTextContent(doc, name).map(XTextContent::getAnchor);
     }
 
     /// Insert a new reference mark at the provided cursor position.
     ///
-    /// If `documentAnnotation.getAbsorb` is true, the text in the cursor range will become the text with gray background.
+    /// If `documentAnnotation.getAbsorb` is true, the text in the cursor range will become the text with gray
+    /// background.
     ///
-    /// Note: LibreOffice 6.4.6.2 will create multiple reference marks with the same name without error or renaming. Its GUI does not allow this, but we can create them programmatically. In the GUI, clicking on any of those identical names will move the cursor to the same mark.
+    /// Note: LibreOffice 6.4.6.2 will create multiple reference marks with the same name without error or renaming. Its
+    /// GUI does not allow this, but we can create them programmatically. In the GUI, clicking on any of those identical
+    /// names will move the cursor to the same mark.
     ///
-    public static XNamed create(DocumentAnnotation documentAnnotation)
-            throws
-            CreationException {
+    public static XNamed create(DocumentAnnotation documentAnnotation) throws CreationException {
         return UnoNamed.insertNamedTextContent("com.sun.star.text.ReferenceMark", documentAnnotation);
     }
 }

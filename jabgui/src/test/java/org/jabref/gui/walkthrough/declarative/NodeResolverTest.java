@@ -1,25 +1,22 @@
 package org.jabref.gui.walkthrough.declarative;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIconView;
 import org.jabref.gui.testutils.JavaFxExtension;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @NullMarked
 @ExtendWith(JavaFxExtension.class)
@@ -41,8 +38,14 @@ class NodeResolverTest {
         HBox container = new HBox(inside);
         Scene scene = show(new VBox(outside, container));
 
-        assertEquals(Optional.of(inside), NodeResolver.buttonWithGraphicIn(HBox.class, IconTheme.JabRefIcons.FETCH_FULLTEXT).resolve(scene));
-        assertEquals(Optional.of(outside), NodeResolver.buttonWithGraphic(IconTheme.JabRefIcons.FETCH_FULLTEXT).resolve(scene));
+        assertEquals(
+                Optional.of(inside),
+                NodeResolver.buttonWithGraphicIn(HBox.class, IconTheme.JabRefIcons.FETCH_FULLTEXT)
+                        .resolve(scene));
+        assertEquals(
+                Optional.of(outside),
+                NodeResolver.buttonWithGraphic(IconTheme.JabRefIcons.FETCH_FULLTEXT)
+                        .resolve(scene));
     }
 
     @Test

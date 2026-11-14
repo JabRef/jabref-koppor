@@ -1,10 +1,8 @@
 package org.jabref.http.server.cayw.gui;
 
 import java.io.InputStream;
-
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

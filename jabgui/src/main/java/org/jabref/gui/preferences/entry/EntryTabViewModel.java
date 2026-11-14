@@ -2,7 +2,6 @@ package org.jabref.gui.preferences.entry;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -13,7 +12,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.util.StringConverter;
-
 import org.jabref.gui.preferences.PreferenceTabViewModel;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.l10n.Localization;
@@ -28,15 +26,19 @@ public class EntryTabViewModel implements PreferenceTabViewModel {
 
     private final StringProperty keywordSeparatorProperty = new SimpleStringProperty("");
     private final StringProperty importKeywordDelimitersProperty = new SimpleStringProperty("");
-    private final ObjectProperty<BibEntryPreferences.ImportDelimiterParsingStrategy> importDelimiterParsingStrategyProperty =
-            new SimpleObjectProperty<>(BibEntryPreferences.ImportDelimiterParsingStrategy.SPLIT_ON_ALL_DELIMITERS);
+    private final ObjectProperty<BibEntryPreferences.ImportDelimiterParsingStrategy>
+            importDelimiterParsingStrategyProperty = new SimpleObjectProperty<>(
+                    BibEntryPreferences.ImportDelimiterParsingStrategy.SPLIT_ON_ALL_DELIMITERS);
     private final ListProperty<BibEntryPreferences.ImportDelimiterParsingStrategy> importDelimiterParsingStrategies =
-            new SimpleListProperty<>(FXCollections.observableArrayList(BibEntryPreferences.ImportDelimiterParsingStrategy.values()));
+            new SimpleListProperty<>(
+                    FXCollections.observableArrayList(BibEntryPreferences.ImportDelimiterParsingStrategy.values()));
 
     private final BooleanProperty resolveStringsProperty = new SimpleBooleanProperty();
 
-    private final ListProperty<Field> resolvableTagsFieldProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final ListProperty<Field> nonWrappableTagsFieldProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<Field> resolvableTagsFieldProperty =
+            new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<Field> nonWrappableTagsFieldProperty =
+            new SimpleListProperty<>(FXCollections.observableArrayList());
 
     private final BooleanProperty markOwnerProperty = new SimpleBooleanProperty();
     private final StringProperty markOwnerNameProperty = new SimpleStringProperty("");
@@ -49,10 +51,11 @@ public class EntryTabViewModel implements PreferenceTabViewModel {
     private final OwnerPreferences ownerPreferences;
     private final TimestampPreferences timestampPreferences;
 
-    public EntryTabViewModel(BibEntryPreferences bibEntryPreferences,
-                             FieldPreferences fieldPreferences,
-                             OwnerPreferences ownerPreferences,
-                             TimestampPreferences timestampPreferences) {
+    public EntryTabViewModel(
+            BibEntryPreferences bibEntryPreferences,
+            FieldPreferences fieldPreferences,
+            OwnerPreferences ownerPreferences,
+            TimestampPreferences timestampPreferences) {
         this.bibEntryPreferences = bibEntryPreferences;
         this.fieldPreferences = fieldPreferences;
         this.ownerPreferences = ownerPreferences;
@@ -61,13 +64,15 @@ public class EntryTabViewModel implements PreferenceTabViewModel {
 
     @Override
     public void setValues() {
-        keywordSeparatorProperty.setValue(bibEntryPreferences.getKeywordSeparator().toString());
+        keywordSeparatorProperty.setValue(
+                bibEntryPreferences.getKeywordSeparator().toString());
         importKeywordDelimitersProperty.setValue(bibEntryPreferences.getImportKeywordDelimiters());
         importDelimiterParsingStrategyProperty.setValue(bibEntryPreferences.getImportDelimiterParsingStrategy());
 
         resolveStringsProperty.setValue(fieldPreferences.shouldResolveStrings());
         resolvableTagsFieldProperty.setValue(FXCollections.observableArrayList(fieldPreferences.getResolvableFields()));
-        nonWrappableTagsFieldProperty.setValue(FXCollections.observableArrayList(fieldPreferences.getNonWrappableFields()));
+        nonWrappableTagsFieldProperty.setValue(
+                FXCollections.observableArrayList(fieldPreferences.getNonWrappableFields()));
 
         markOwnerProperty.setValue(ownerPreferences.shouldUseOwner());
         markOwnerNameProperty.setValue(ownerPreferences.getDefaultOwner());
@@ -79,9 +84,13 @@ public class EntryTabViewModel implements PreferenceTabViewModel {
 
     @Override
     public void storeSettings() {
-        bibEntryPreferences.keywordSeparatorProperty().setValue(keywordSeparatorProperty.getValue().charAt(0));
+        bibEntryPreferences
+                .keywordSeparatorProperty()
+                .setValue(keywordSeparatorProperty.getValue().charAt(0));
         bibEntryPreferences.importKeywordDelimitersProperty().setValue(importKeywordDelimitersProperty.getValue());
-        bibEntryPreferences.importDelimiterParsingStrategyProperty().setValue(importDelimiterParsingStrategyProperty.getValue());
+        bibEntryPreferences
+                .importDelimiterParsingStrategyProperty()
+                .setValue(importDelimiterParsingStrategyProperty.getValue());
 
         fieldPreferences.setResolveStrings(resolveStringsProperty.getValue());
         fieldPreferences.setResolvableFields(resolvableTagsFieldProperty.getValue());
@@ -111,12 +120,11 @@ public class EntryTabViewModel implements PreferenceTabViewModel {
         return importDelimiterParsingStrategies;
     }
 
-    public String getImportDelimiterParsingStrategyDisplayName(BibEntryPreferences.ImportDelimiterParsingStrategy parsingStrategy) {
+    public String getImportDelimiterParsingStrategyDisplayName(
+            BibEntryPreferences.ImportDelimiterParsingStrategy parsingStrategy) {
         return switch (parsingStrategy) {
-            case SPLIT_ON_ALL_DELIMITERS ->
-                    Localization.lang("Split on all accepted delimiters");
-            case INFER_DELIMITER_BY_PRIORITY ->
-                    Localization.lang("Infer one delimiter by priority order");
+            case SPLIT_ON_ALL_DELIMITERS -> Localization.lang("Split on all accepted delimiters");
+            case INFER_DELIMITER_BY_PRIORITY -> Localization.lang("Infer one delimiter by priority order");
         };
     }
 
@@ -171,8 +179,9 @@ public class EntryTabViewModel implements PreferenceTabViewModel {
 
     public List<Field> getSuggestions(String request) {
         List<Field> suggestions = FieldFactory.getAllFieldsWithOutInternal().stream()
-                                              .filter(field -> FieldTextMapper.getDisplayName(field).toLowerCase().contains(request.toLowerCase()))
-                                              .collect(Collectors.toList());
+                .filter(field ->
+                        FieldTextMapper.getDisplayName(field).toLowerCase().contains(request.toLowerCase()))
+                .collect(Collectors.toList());
 
         Field requestedField = FieldFactory.parseField(request.trim());
         if (!suggestions.contains(requestedField)) {

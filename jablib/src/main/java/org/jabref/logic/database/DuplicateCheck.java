@@ -1,5 +1,6 @@
 package org.jabref.logic.database;
 
+import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,7 +11,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.strings.StringSimilarity;
 import org.jabref.logic.util.strings.StringUtil;
@@ -27,8 +27,6 @@ import org.jabref.model.entry.field.OrFields;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.ISBN;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +54,17 @@ public class DuplicateCheck {
     private static final Map<Field, Double> FIELD_WEIGHTS = new HashMap<>();
     private static final Pattern PAGE_SEPARATOR_PATTERN = Pattern.compile("[\\p{Pd} ]+");
 
-    private static final Set<StandardEntryType> STANDARD_ENTRY_TYPES = Set.of(StandardEntryType.Article, StandardEntryType.Conference, StandardEntryType.InBook, StandardEntryType.InCollection, StandardEntryType.InProceedings);
-    private static final Set<StandardEntryType> SIMILAR_ENTRY_TYPES = Set.of(StandardEntryType.Conference, StandardEntryType.InBook, StandardEntryType.InCollection, StandardEntryType.InProceedings);
+    private static final Set<StandardEntryType> STANDARD_ENTRY_TYPES = Set.of(
+            StandardEntryType.Article,
+            StandardEntryType.Conference,
+            StandardEntryType.InBook,
+            StandardEntryType.InCollection,
+            StandardEntryType.InProceedings);
+    private static final Set<StandardEntryType> SIMILAR_ENTRY_TYPES = Set.of(
+            StandardEntryType.Conference,
+            StandardEntryType.InBook,
+            StandardEntryType.InCollection,
+            StandardEntryType.InProceedings);
 
     static {
         DuplicateCheck.FIELD_WEIGHTS.put(StandardField.AUTHOR, 2.5);
@@ -77,16 +84,16 @@ public class DuplicateCheck {
 
     private static boolean haveSameIdentifier(final BibEntry one, final BibEntry two) {
         return one.getFields().stream()
-                  .filter(field -> field.getProperties().contains(FieldProperty.IDENTIFIER))
-                  .anyMatch(field -> two.getField(field)
-                                        .map(content -> {
-                                            String oneValue = one.getField(field).orElseThrow();
-                                            if (field == StandardField.DOI) {
-                                                return oneValue.equalsIgnoreCase(content);
-                                            }
-                                            return oneValue.equals(content);
-                                        })
-                                        .orElse(false));
+                .filter(field -> field.getProperties().contains(FieldProperty.IDENTIFIER))
+                .anyMatch(field -> two.getField(field)
+                        .map(content -> {
+                            String oneValue = one.getField(field).orElseThrow();
+                            if (field == StandardField.DOI) {
+                                return oneValue.equalsIgnoreCase(content);
+                            }
+                            return oneValue.equals(content);
+                        })
+                        .orElse(false));
     }
 
     // [impl->req~duplicate-detection.compatible-entry-types~1]
@@ -100,16 +107,16 @@ public class DuplicateCheck {
     private static boolean haveDifferentEditions(final BibEntry one, final BibEntry two) {
         final Optional<String> editionOne = one.getField(StandardField.EDITION);
         final Optional<String> editionTwo = two.getField(StandardField.EDITION);
-        return editionOne.isPresent() &&
-                editionTwo.isPresent() &&
-                !editionOne.get().equals(editionTwo.get());
+        return editionOne.isPresent()
+                && editionTwo.isPresent()
+                && !editionOne.get().equals(editionTwo.get());
     }
 
     private static boolean haveDifferentChaptersOrPagesOfTheSameBook(final BibEntry one, final BibEntry two) {
-        return (compareSingleField(StandardField.AUTHOR, one, two) == EQUAL) &&
-                (compareSingleField(StandardField.TITLE, one, two) == EQUAL) &&
-                ((compareSingleField(StandardField.CHAPTER, one, two) == NOT_EQUAL) ||
-                        (compareSingleField(StandardField.PAGES, one, two) == NOT_EQUAL));
+        return (compareSingleField(StandardField.AUTHOR, one, two) == EQUAL)
+                && (compareSingleField(StandardField.TITLE, one, two) == EQUAL)
+                && ((compareSingleField(StandardField.CHAPTER, one, two) == NOT_EQUAL)
+                        || (compareSingleField(StandardField.PAGES, one, two) == NOT_EQUAL));
     }
 
     private static boolean isBibtexBookPartComparison(BibEntry inBook, BibEntry contribution) {
@@ -124,9 +131,10 @@ public class DuplicateCheck {
             return false;
         }
         boolean sameBook = inBook.getFieldLatexFree(StandardField.TITLE)
-                                 .flatMap(title -> contribution.getFieldLatexFree(StandardField.BOOKTITLE)
-                                                               .map(bookTitle -> compareField(title, bookTitle) == EQUAL))
-                                 .orElse(false);
+                .flatMap(title -> contribution
+                        .getFieldLatexFree(StandardField.BOOKTITLE)
+                        .map(bookTitle -> compareField(title, bookTitle) == EQUAL))
+                .orElse(false);
         int chapter = compareSingleField(StandardField.CHAPTER, inBook, contribution);
         int pages = compareSingleField(StandardField.PAGES, inBook, contribution);
         return sameBook && chapter != NOT_EQUAL && pages != NOT_EQUAL && (chapter == EQUAL || pages == EQUAL);
@@ -135,8 +143,9 @@ public class DuplicateCheck {
     private static double[] compareRequiredFields(final BibEntryType type, final BibEntry one, final BibEntry two) {
         final Set<OrFields> requiredFields = type.getRequiredFields();
         return requiredFields.isEmpty()
-               ? new double[] {0., 0.}
-               : DuplicateCheck.compareFieldSet(requiredFields.stream().map(OrFields::getPrimary).collect(Collectors.toSet()), one, two);
+                ? new double[] {0., 0.}
+                : DuplicateCheck.compareFieldSet(
+                        requiredFields.stream().map(OrFields::getPrimary).collect(Collectors.toSet()), one, two);
     }
 
     private static boolean isFarFromThreshold(double value) {
@@ -146,15 +155,14 @@ public class DuplicateCheck {
         return value - DuplicateCheck.DUPLICATE_THRESHOLD > DuplicateCheck.DOUBT_RANGE;
     }
 
-    private static boolean compareOptionalFields(final BibEntryType type,
-                                                 final BibEntry one,
-                                                 final BibEntry two,
-                                                 final double[] req) {
+    private static boolean compareOptionalFields(
+            final BibEntryType type, final BibEntry one, final BibEntry two, final double[] req) {
         final Set<BibField> optionalFields = type.getOptionalFields();
         if (optionalFields.isEmpty()) {
             return req[0] >= DuplicateCheck.DUPLICATE_THRESHOLD;
         }
-        final double[] opt = DuplicateCheck.compareFieldSet(optionalFields.stream().map(BibField::field).collect(Collectors.toSet()), one, two);
+        final double[] opt = DuplicateCheck.compareFieldSet(
+                optionalFields.stream().map(BibField::field).collect(Collectors.toSet()), one, two);
         final double numerator = (DuplicateCheck.REQUIRED_WEIGHT * req[0] * req[1]) + (opt[0] * opt[1]);
         final double denominator = (req[1] * DuplicateCheck.REQUIRED_WEIGHT) + opt[1];
         final double totValue = numerator / denominator;
@@ -216,8 +224,12 @@ public class DuplicateCheck {
     private static int compareAuthorField(final String stringOne, final String stringTwo) {
         // Specific for name fields.
         // Harmonise case:
-        final String authorOne = AuthorList.fixAuthorLastNameOnlyCommas(stringOne, false).replace(" and ", " ").toLowerCase(Locale.ROOT);
-        final String authorTwo = AuthorList.fixAuthorLastNameOnlyCommas(stringTwo, false).replace(" and ", " ").toLowerCase(Locale.ROOT);
+        final String authorOne = AuthorList.fixAuthorLastNameOnlyCommas(stringOne, false)
+                .replace(" and ", " ")
+                .toLowerCase(Locale.ROOT);
+        final String authorTwo = AuthorList.fixAuthorLastNameOnlyCommas(stringTwo, false)
+                .replace(" and ", " ")
+                .toLowerCase(Locale.ROOT);
         final double similarity = StringSimilarity.correlateByWords(authorOne, authorTwo);
         if (similarity > 0.8) {
             return EQUAL;
@@ -229,8 +241,10 @@ public class DuplicateCheck {
     /// We do a replace to harmonize these to a simple "-"
     /// After this, a simple test for equality should be enough
     private static int comparePagesField(final String stringOne, final String stringTwo) {
-        final String processedStringOne = PAGE_SEPARATOR_PATTERN.matcher(stringOne).replaceAll("-");
-        final String processedStringTwo = PAGE_SEPARATOR_PATTERN.matcher(stringTwo).replaceAll("-");
+        final String processedStringOne =
+                PAGE_SEPARATOR_PATTERN.matcher(stringOne).replaceAll("-");
+        final String processedStringTwo =
+                PAGE_SEPARATOR_PATTERN.matcher(stringTwo).replaceAll("-");
         if (processedStringOne.equals(processedStringTwo)) {
             return EQUAL;
         }
@@ -250,14 +264,18 @@ public class DuplicateCheck {
     }
 
     private static int compareChapterField(final String stringOne, final String stringTwo) {
-        final String processedStringOne = stringOne.replaceAll("(?i)chapter", "").trim();
-        final String processedStringTwo = stringTwo.replaceAll("(?i)chapter", "").trim();
+        final String processedStringOne =
+                stringOne.replaceAll("(?i)chapter", "").trim();
+        final String processedStringTwo =
+                stringTwo.replaceAll("(?i)chapter", "").trim();
         return compareField(processedStringOne, processedStringTwo);
     }
 
     private static int compareField(final String stringOne, final String stringTwo) {
-        final String processedStringOne = StringUtil.unifyLineBreaks(stringOne.toLowerCase(Locale.ROOT).trim(), OS.NEWLINE);
-        final String processedStringTwo = StringUtil.unifyLineBreaks(stringTwo.toLowerCase(Locale.ROOT).trim(), OS.NEWLINE);
+        final String processedStringOne =
+                StringUtil.unifyLineBreaks(stringOne.toLowerCase(Locale.ROOT).trim(), OS.NEWLINE);
+        final String processedStringTwo =
+                StringUtil.unifyLineBreaks(stringTwo.toLowerCase(Locale.ROOT).trim(), OS.NEWLINE);
         final double similarity = StringSimilarity.correlateByWords(processedStringOne, processedStringTwo);
         if (similarity > 0.8) {
             return EQUAL;
@@ -270,7 +288,8 @@ public class DuplicateCheck {
         allFields.addAll(one.getFields());
         allFields.addAll(two.getFields());
 
-        // totalCount counts the equal "properties" of an entry, i.e. the number of fields, the entry type, and the comment
+        // totalCount counts the equal "properties" of an entry, i.e. the number of fields, the entry type, and the
+        // comment
         int totalCount = allFields.size();
 
         int score = 0;
@@ -297,7 +316,8 @@ public class DuplicateCheck {
     }
 
     private static boolean isCommentEqual(BibEntry one, BibEntry two) {
-        return StringUtil.equalsUnifiedLineBreak(Optional.of(one.getUserComments()), Optional.of(two.getUserComments()));
+        return StringUtil.equalsUnifiedLineBreak(
+                Optional.of(one.getUserComments()), Optional.of(two.getUserComments()));
     }
 
     /// Compares the string content of the given field at each entry character by character.
@@ -314,9 +334,9 @@ public class DuplicateCheck {
             return true;
         }
 
-        if (!areCompatibleTypes(one, two) ||
-                haveDifferentEditions(one, two) ||
-                haveDifferentChaptersOrPagesOfTheSameBook(one, two)) {
+        if (!areCompatibleTypes(one, two)
+                || haveDifferentEditions(one, two)
+                || haveDifferentChaptersOrPagesOfTheSameBook(one, two)) {
             return false;
         }
 
@@ -333,7 +353,8 @@ public class DuplicateCheck {
         // Both types must qualify: a contribution can share its ISBN with other publications in the same volume.
         Optional<ISBN> oneISBN = one.getISBN();
         Optional<ISBN> twoISBN = two.getISBN();
-        if (oneISBN.isPresent() && twoISBN.isPresent()
+        if (oneISBN.isPresent()
+                && twoISBN.isPresent()
                 && Objects.equals(oneISBN, twoISBN)
                 && one.getType() instanceof StandardEntryType oneType
                 && two.getType() instanceof StandardEntryType twoType
@@ -348,10 +369,12 @@ public class DuplicateCheck {
         if (!one.getType().equals(two.getType())
                 && !one.getType().equals(StandardEntryType.Misc)
                 && !two.getType().equals(StandardEntryType.Misc)) {
-            comparison = firstType.flatMap(first -> entryTypesManager.enrich(two.getType(), bibDatabaseMode)
-                                                                     .map(second -> isDuplicateForType(first, one, two) && isDuplicateForType(second, one, two)));
+            comparison = firstType.flatMap(first -> entryTypesManager
+                    .enrich(two.getType(), bibDatabaseMode)
+                    .map(second -> isDuplicateForType(first, one, two) && isDuplicateForType(second, one, two)));
         } else {
-            comparison = firstType.filter(type -> isDuplicateForType(type, one, two)).map(_ -> true);
+            comparison =
+                    firstType.filter(type -> isDuplicateForType(type, one, two)).map(_ -> true);
         }
         return comparison.orElseGet(() -> compareAllFields(one, two));
     }
@@ -376,9 +399,8 @@ public class DuplicateCheck {
     /// @param database The database to search.
     /// @param entry    The entry of which we are looking for duplicates.
     /// @return The first duplicate entry found. Empty Optional if no duplicates are found.
-    public Optional<BibEntry> containsDuplicate(final BibDatabase database,
-                                                final BibEntry entry,
-                                                final BibDatabaseMode bibDatabaseMode) {
+    public Optional<BibEntry> containsDuplicate(
+            final BibDatabase database, final BibEntry entry, final BibDatabaseMode bibDatabaseMode) {
         return containsDuplicate(database.getEntries(), entry, bibDatabaseMode);
     }
 
@@ -390,9 +412,10 @@ public class DuplicateCheck {
     /// @param entries The entries to search.
     /// @param entry   The entry of which we are looking for duplicates.
     /// @return The first duplicate entry found. Empty Optional if no duplicates are found.
-    public Optional<BibEntry> containsDuplicate(final Collection<BibEntry> entries,
-                                                final BibEntry entry,
-                                                final BibDatabaseMode bibDatabaseMode) {
-        return entries.stream().filter(other -> isDuplicate(entry, other, bibDatabaseMode)).findFirst();
+    public Optional<BibEntry> containsDuplicate(
+            final Collection<BibEntry> entries, final BibEntry entry, final BibDatabaseMode bibDatabaseMode) {
+        return entries.stream()
+                .filter(other -> isDuplicate(entry, other, bibDatabaseMode))
+                .findFirst();
     }
 }

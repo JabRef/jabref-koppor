@@ -13,22 +13,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import javafx.util.Pair;
-
-import org.jabref.logic.FilePreferences;
-import org.jabref.logic.importer.util.FileFieldParser;
-import org.jabref.logic.l10n.Localization;
-import org.jabref.logic.search.sqlbased.LuceneIndexer;
-import org.jabref.logic.util.BackgroundTask;
-import org.jabref.logic.util.HeadlessExecutorService;
-import org.jabref.logic.util.StandardFileType;
-import org.jabref.logic.util.io.FileUtil;
-import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.LinkedFile;
-import org.jabref.model.search.LinkedFilesConstants;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
@@ -44,6 +29,18 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.ThreadInterruptedException;
+import org.jabref.logic.FilePreferences;
+import org.jabref.logic.importer.util.FileFieldParser;
+import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.search.sqlbased.LuceneIndexer;
+import org.jabref.logic.util.BackgroundTask;
+import org.jabref.logic.util.HeadlessExecutorService;
+import org.jabref.logic.util.StandardFileType;
+import org.jabref.logic.util.io.FileUtil;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.LinkedFile;
+import org.jabref.model.search.LinkedFilesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,10 +58,14 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
     private Path indexDirectoryPath;
     private Map<String, Long> indexedFiles;
 
-    public DefaultLinkedFilesIndexer(BibDatabaseContext databaseContext, FilePreferences filePreferences) throws IOException {
+    public DefaultLinkedFilesIndexer(BibDatabaseContext databaseContext, FilePreferences filePreferences)
+            throws IOException {
         this.databaseContext = databaseContext;
         this.filePreferences = filePreferences;
-        this.libraryName = databaseContext.getDatabasePath().map(path -> path.getFileName().toString()).orElse("untitled");
+        this.libraryName = databaseContext
+                .getDatabasePath()
+                .map(path -> path.getFileName().toString())
+                .orElse("untitled");
         this.indexedFiles = new ConcurrentHashMap<>();
 
         indexDirectoryPath = databaseContext.getFulltextIndexPath();
@@ -102,7 +103,8 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
                 LOGGER.debug("File {} has been removed from the library. Will be removed from the index", fileLink);
                 filesToRemove.add(fileLink);
             } else if (currentFiles.get(fileLink).getKey() > modification) {
-                LOGGER.debug("File {} has been modified since last indexing. Will be removed from the index.", fileLink);
+                LOGGER.debug(
+                        "File {} has been modified since last indexing. Will be removed from the index.", fileLink);
                 filesToRemove.add(fileLink);
             }
         }
@@ -159,10 +161,15 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
                 LOGGER.debug("Adding files to index canceled");
                 return;
             }
-            addToIndex(entry.getKey(), entry.getValue().getKey(), entry.getValue().getValue());
-            task.setTitle(Localization.lang("Indexing files for %1 | %2 of %0 file(s) indexed.", linkedFiles.size(), libraryName, i));
+            addToIndex(
+                    entry.getKey(), entry.getValue().getKey(), entry.getValue().getValue());
+            task.setTitle(Localization.lang(
+                    "Indexing files for %1 | %2 of %0 file(s) indexed.", linkedFiles.size(), libraryName, i));
             task.updateProgress(i, linkedFiles.size());
-            task.updateMessage(Localization.lang("Indexing %0", FileUtil.shortenFileName(entry.getValue().getValue().getFileName().toString(), 68)));
+            task.updateMessage(Localization.lang(
+                    "Indexing %0",
+                    FileUtil.shortenFileName(
+                            entry.getValue().getValue().getFileName().toString(), 68)));
             task.showToUser(true);
             i++;
         }
@@ -193,20 +200,22 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
         Map<String, Set<BibEntry>> currentFiles = new HashMap<>();
         for (BibEntry entry : databaseContext.getEntries()) {
             for (LinkedFile linkedFile : entry.getFiles()) {
-                currentFiles.computeIfAbsent(linkedFile.getLink(), _ -> new HashSet<>()).add(entry);
+                currentFiles
+                        .computeIfAbsent(linkedFile.getLink(), _ -> new HashSet<>())
+                        .add(entry);
             }
         }
 
         Set<String> filesToRemove = linkedFiles.stream()
-                                               .filter(link -> {
-                                                   Set<BibEntry> entriesLinkedToFile = currentFiles.get(link);
-                                                   if (entriesLinkedToFile != null) {
-                                                       entriesLinkedToFile.removeAll(entriesToRemove);
-                                                       return entriesLinkedToFile.isEmpty();
-                                                   }
-                                                   return true;
-                                               })
-                                               .collect(Collectors.toSet());
+                .filter(link -> {
+                    Set<BibEntry> entriesLinkedToFile = currentFiles.get(link);
+                    if (entriesLinkedToFile != null) {
+                        entriesLinkedToFile.removeAll(entriesToRemove);
+                        return entriesLinkedToFile.isEmpty();
+                    }
+                    return true;
+                })
+                .collect(Collectors.toSet());
         removeFromIndex(filesToRemove);
     }
 
@@ -229,7 +238,8 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
 
         Set<LinkedFile> toRemove = new HashSet<>(oldFiles);
         toRemove.removeAll(newFiles);
-        removeUnlinkedFiles(List.of(entry), toRemove.stream().map(LinkedFile::getLink).collect(Collectors.toSet()));
+        removeUnlinkedFiles(
+                List.of(entry), toRemove.stream().map(LinkedFile::getLink).collect(Collectors.toSet()));
 
         Set<LinkedFile> toAdd = new HashSet<>(newFiles);
         toAdd.removeAll(oldFiles);
@@ -284,7 +294,8 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
         return linkedFiles;
     }
 
-    private Map<String, Pair<Long, Path>> getLinkedFilesFromEntries(Collection<BibEntry> entries, BackgroundTask<?> task) {
+    private Map<String, Pair<Long, Path>> getLinkedFilesFromEntries(
+            Collection<BibEntry> entries, BackgroundTask<?> task) {
         Map<String, Pair<Long, Path>> linkedFiles = new HashMap<>();
         for (BibEntry entry : entries) {
             if (task.isCancelled()) {
@@ -310,7 +321,8 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
         }
         Optional<Path> resolvedPath = linkedFile.findIn(databaseContext, filePreferences);
         if (resolvedPath.isEmpty()) {
-            LOGGER.warn("Could not resolve path of linked file {}. The file will not be indexed.", linkedFile.getLink());
+            LOGGER.warn(
+                    "Could not resolve path of linked file {}. The file will not be indexed.", linkedFile.getLink());
             return null;
         }
         try {
@@ -369,7 +381,8 @@ public class DefaultLinkedFilesIndexer implements LuceneIndexer {
             indexWriter.close();
             indexDirectory.close();
             LOGGER.debug("Linked files index closed");
-            if ("unsaved".equals(databaseContext.getFulltextIndexPath().getFileName().toString())) {
+            if ("unsaved"
+                    .equals(databaseContext.getFulltextIndexPath().getFileName().toString())) {
                 LOGGER.debug("Deleting unsaved index directory");
                 FileUtils.deleteDirectory(indexDirectoryPath.toFile());
             }

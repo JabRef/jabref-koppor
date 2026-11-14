@@ -1,8 +1,5 @@
 package org.jabref.logic.ai.chatting;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
@@ -11,6 +8,8 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.FinishReason;
 import dev.langchain4j.model.output.TokenUsage;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,26 +59,27 @@ public class DebugAiProvider implements ChatModel {
         }
 
         String systemMessage = messages.stream()
-                                       .filter(SystemMessage.class::isInstance)
-                                       .map(SystemMessage.class::cast)
-                                       .map(SystemMessage::text)
-                                       .collect(Collectors.joining("\n"));
+                .filter(SystemMessage.class::isInstance)
+                .map(SystemMessage.class::cast)
+                .map(SystemMessage::text)
+                .collect(Collectors.joining("\n"));
 
         String userMessage = messages.stream()
-                                     .filter(UserMessage.class::isInstance)
-                                     .map(UserMessage.class::cast)
-                                     .map(UserMessage::singleText)
-                                     .reduce((_, second) -> second)
-                                     .orElse("");
+                .filter(UserMessage.class::isInstance)
+                .map(UserMessage.class::cast)
+                .map(UserMessage::singleText)
+                .reduce((_, second) -> second)
+                .orElse("");
 
         String response = """
-                Hi! I am a dummy AI provider, I am made to test and debug the AI features.
+            Hi! I am a dummy AI provider, I am made to test and debug the AI features.
 
-                I have this system message:
-                %s
+            I have this system message:
+            %s
 
-                And I received this user message:
-                %s""".formatted(systemMessage, userMessage);
+            And I received this user message:
+            %s\
+            """.formatted(systemMessage, userMessage);
 
         return new ChatResponse.Builder()
                 .aiMessage(new AiMessage(response))

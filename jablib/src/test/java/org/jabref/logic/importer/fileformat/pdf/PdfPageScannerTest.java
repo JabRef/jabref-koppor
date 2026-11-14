@@ -1,17 +1,16 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.util.List;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PdfPageScannerTest {
 
@@ -113,9 +112,7 @@ class PdfPageScannerTest {
 
             try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
                 contentStream.beginText();
-                contentStream.setFont(
-                        new PDType1Font(Standard14Fonts.FontName.HELVETICA),
-                        12);
+                contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
                 contentStream.newLineAtOffset(50, 700);
                 contentStream.showText("Page " + i);
                 contentStream.endText();

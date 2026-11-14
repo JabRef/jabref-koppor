@@ -1,21 +1,19 @@
 package org.jabref.logic.util.io;
 
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-
-import org.jabref.logic.util.JabRefBaseDirectoryLocator;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import org.jabref.logic.util.JabRefBaseDirectoryLocator;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 class FileHistoryTest {
     private FileHistory history;

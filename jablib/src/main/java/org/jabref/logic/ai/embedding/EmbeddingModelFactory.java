@@ -12,18 +12,12 @@ public final class EmbeddingModelFactory {
 
     /// Returns the cached [AsyncEmbeddingModel] for the given model name,
     /// creating it on first access so that only one background task is ever launched per model name.
-    public static AsyncEmbeddingModel create(
-            String embeddingModelName,
-            EmbeddingModelCache cache
-    ) {
+    public static AsyncEmbeddingModel create(String embeddingModelName, EmbeddingModelCache cache) {
         return cache.getOrCreate(embeddingModelName);
     }
 
     /// Convenience overload that reads the embedding model kind from [AiPreferences].
-    public static AsyncEmbeddingModel create(
-            AiPreferences aiPreferences,
-            EmbeddingModelCache cache
-    ) {
+    public static AsyncEmbeddingModel create(AiPreferences aiPreferences, EmbeddingModelCache cache) {
         return cache.getOrCreate(aiPreferences.getEmbeddingModel());
     }
 }

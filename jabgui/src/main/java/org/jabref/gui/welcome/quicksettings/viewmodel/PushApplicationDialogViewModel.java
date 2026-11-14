@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
-
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -18,7 +17,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -30,7 +28,6 @@ import org.jabref.logic.push.PushToApplicationDetector;
 import org.jabref.logic.push.PushToApplicationPreferences;
 import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.TaskExecutor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +48,8 @@ public class PushApplicationDialogViewModel extends AbstractViewModel {
     private final Map<PushToApplication, String> detectedApplicationPaths = new ConcurrentHashMap<>();
     private Future<?> detectionFuture;
 
-    public PushApplicationDialogViewModel(GuiPreferences preferences, DialogService dialogService, TaskExecutor taskExecutor) {
+    public PushApplicationDialogViewModel(
+            GuiPreferences preferences, DialogService dialogService, TaskExecutor taskExecutor) {
         this.preferences = preferences;
         this.dialogService = dialogService;
         this.taskExecutor = taskExecutor;
@@ -63,26 +61,27 @@ public class PushApplicationDialogViewModel extends AbstractViewModel {
     }
 
     private void initializeApplications() {
-        List<GuiPushToApplication> allApplications = GuiPushToApplications.getAllGUIApplications(dialogService, pushToApplicationPreferences);
+        List<GuiPushToApplication> allApplications =
+                GuiPushToApplications.getAllGUIApplications(dialogService, pushToApplicationPreferences);
         applicationsProperty.setAll(allApplications);
 
         if (!pushToApplicationPreferences.getActiveApplicationName().isEmpty()) {
             allApplications.stream()
-                           .filter(app -> app.getDisplayName().equals(pushToApplicationPreferences.getActiveApplicationName()))
-                           .findFirst()
-                           .ifPresent(selectedApplicationProperty::set);
+                    .filter(app -> app.getDisplayName().equals(pushToApplicationPreferences.getActiveApplicationName()))
+                    .findFirst()
+                    .ifPresent(selectedApplicationProperty::set);
         }
     }
 
     private void detectApplications() {
-        detectionFuture = BackgroundTask
-                .wrap(() -> PushToApplicationDetector.detectApplicationPaths(applicationsProperty))
+        detectionFuture = BackgroundTask.wrap(
+                        () -> PushToApplicationDetector.detectApplicationPaths(applicationsProperty))
                 .onSuccess(detectedPaths -> {
                     detectedApplicationPaths.putAll(detectedPaths);
                     List<GuiPushToApplication> sortedApplications = new ArrayList<>(detectedPaths.keySet());
                     applicationsProperty.stream()
-                                        .filter(app -> !detectedPaths.containsKey(app))
-                                        .forEach(sortedApplications::add);
+                            .filter(app -> !detectedPaths.containsKey(app))
+                            .forEach(sortedApplications::add);
                     applicationsProperty.setAll(sortedApplications);
                     detectedApplications.clear();
                     detectedApplications.addAll(detectedPaths.keySet());
@@ -99,9 +98,10 @@ public class PushApplicationDialogViewModel extends AbstractViewModel {
                 return;
             }
             String existingPath = pushToApplicationPreferences.getCommandPaths().get(selectedApp.getDisplayName());
-            pathProperty.set(PushToApplicationDetector.isValidAbsolutePath(existingPath) ?
-                             existingPath :
-                             Objects.requireNonNullElse(detectedApplicationPaths.get(selectedApp), ""));
+            pathProperty.set(
+                    PushToApplicationDetector.isValidAbsolutePath(existingPath)
+                            ? existingPath
+                            : Objects.requireNonNullElse(detectedApplicationPaths.get(selectedApp), ""));
         });
     }
 
@@ -129,8 +129,7 @@ public class PushApplicationDialogViewModel extends AbstractViewModel {
         FileDialogConfiguration fileConfig = new FileDialogConfiguration.Builder()
                 .withInitialDirectory(preferences.getFilePreferences().getWorkingDirectory())
                 .build();
-        dialogService.showFileOpenDialog(fileConfig)
-                     .ifPresent(selectedFile -> setPath(selectedFile.toString()));
+        dialogService.showFileOpenDialog(fileConfig).ifPresent(selectedFile -> setPath(selectedFile.toString()));
     }
 
     public boolean isValidConfiguration() {

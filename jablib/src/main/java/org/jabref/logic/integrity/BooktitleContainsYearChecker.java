@@ -2,10 +2,8 @@ package org.jabref.logic.integrity;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.jspecify.annotations.Nullable;
 
 public class BooktitleContainsYearChecker implements ValueChecker {

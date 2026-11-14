@@ -1,7 +1,6 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
 import java.nio.file.Path;
-
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.chatting.util.ChatModelFactory;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -17,7 +16,8 @@ import org.jabref.logic.util.NotificationService;
 public class CitationsFromPdf {
 
     public static ParserResult extractCitationsUsingRuleBasedAlgorithm(CliPreferences preferences, Path path) {
-        RuleBasedBibliographyPdfImporter importer = new RuleBasedBibliographyPdfImporter(preferences.getCitationKeyPatternPreferences());
+        RuleBasedBibliographyPdfImporter importer =
+                new RuleBasedBibliographyPdfImporter(preferences.getCitationKeyPatternPreferences());
         return importer.importDatabase(path);
     }
 
@@ -26,17 +26,19 @@ public class CitationsFromPdf {
         return importer.importDatabase(path);
     }
 
-    /// Same as [#extractCitationsUsingGrobid(CliPreferences, Path)], but overrides the configured Grobid server URL for this single call.
-    public static ParserResult extractCitationsUsingGrobid(CliPreferences preferences, Path path, String grobidUrlOverride) {
-        PdfGrobidImporter importer = new PdfGrobidImporter(withOverriddenGrobidUrl(preferences.getImportFormatPreferences(), grobidUrlOverride));
+    /// Same as [#extractCitationsUsingGrobid(CliPreferences, Path)], but overrides the configured Grobid server URL for
+    /// this single call.
+    public static ParserResult extractCitationsUsingGrobid(
+            CliPreferences preferences, Path path, String grobidUrlOverride) {
+        PdfGrobidImporter importer = new PdfGrobidImporter(
+                withOverriddenGrobidUrl(preferences.getImportFormatPreferences(), grobidUrlOverride));
         return importer.importDatabase(path);
     }
 
-    static ImportFormatPreferences withOverriddenGrobidUrl(ImportFormatPreferences importFormatPreferences, String grobidUrlOverride) {
+    static ImportFormatPreferences withOverriddenGrobidUrl(
+            ImportFormatPreferences importFormatPreferences, String grobidUrlOverride) {
         GrobidPreferences overriddenGrobidPreferences = new GrobidPreferences(
-                true,
-                importFormatPreferences.grobidPreferences().isGrobidUseAsked(),
-                grobidUrlOverride);
+                true, importFormatPreferences.grobidPreferences().isGrobidUseAsked(), grobidUrlOverride);
         return new ImportFormatPreferences(
                 importFormatPreferences.bibEntryPreferences(),
                 importFormatPreferences.citationKeyPatternPreferences(),
@@ -47,13 +49,13 @@ public class CitationsFromPdf {
                 importFormatPreferences.filePreferences());
     }
 
-    public static ParserResult extractCitationsUsingLLM(CliPreferences preferences, NotificationService notificationService, Path path) {
+    public static ParserResult extractCitationsUsingLLM(
+            CliPreferences preferences, NotificationService notificationService, Path path) {
         try (ChatModel chatModel = ChatModelFactory.create(preferences.getAiPreferences())) {
             LlmPlainCitationParser importer = new LlmPlainCitationParser(
                     preferences.getImportFormatPreferences(),
                     preferences.getAiPreferences().getCitationParsingSystemMessageTemplate(),
-                    chatModel
-            );
+                    chatModel);
 
             return importer.importDatabase(path);
         }

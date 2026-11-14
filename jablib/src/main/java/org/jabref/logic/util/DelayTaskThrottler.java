@@ -5,7 +5,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +13,8 @@ import org.slf4j.LoggerFactory;
 /// However, if a lot of events happen in a relatively short time span, then only one task should be invoked.
 ///
 /// @implNote Once [#schedule(Runnable)] is called, the task is delayed for a given time span.
-/// If during this time, [#schedule(Runnable)] is called again, then the original task is canceled and the new one scheduled.
+/// If during this time, [#schedule(Runnable)] is called again, then the original task is canceled and the new one
+/// scheduled.
 public class DelayTaskThrottler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DelayTaskThrottler.class);

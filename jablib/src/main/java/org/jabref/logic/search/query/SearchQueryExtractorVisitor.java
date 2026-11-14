@@ -5,7 +5,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
@@ -35,7 +34,8 @@ public class SearchQueryExtractorVisitor extends SearchBaseVisitor<List<SearchQu
 
     @Override
     public List<SearchQueryNode> visitImplicitAndExpression(SearchParser.ImplicitAndExpressionContext ctx) {
-        List<List<SearchQueryNode>> children = ctx.expression().stream().map(this::visit).toList();
+        List<List<SearchQueryNode>> children =
+                ctx.expression().stream().map(this::visit).toList();
         if (children.size() == 1) {
             return children.getFirst();
         } else {
@@ -105,14 +105,10 @@ public class SearchQueryExtractorVisitor extends SearchBaseVisitor<List<SearchQu
 
         // Pseudo-fields
         field = switch (field) {
-            case SearchFieldConstants.KEY ->
-                    InternalField.KEY_FIELD.getName();
-            case SearchFieldConstants.ANY_KEYWORD ->
-                    StandardField.KEYWORDS.getName();
-            case SearchFieldConstants.ANY_FIELD_ALIAS ->
-                    SearchFieldConstants.ANY_FIELD;
-            default ->
-                    field;
+            case SearchFieldConstants.KEY -> InternalField.KEY_FIELD.getName();
+            case SearchFieldConstants.ANY_KEYWORD -> StandardField.KEYWORDS.getName();
+            case SearchFieldConstants.ANY_FIELD_ALIAS -> SearchFieldConstants.ANY_FIELD;
+            default -> field;
         };
 
         if (ctx.operator() != null) {

@@ -1,10 +1,10 @@
 package org.jabref.logic.ai.rag.logic;
 
-import java.util.List;
-
-import org.jabref.logic.FilePreferences;
-import org.jabref.logic.ai.ingestion.logic.ingestion.FileIngestor;
-import org.jabref.model.ai.pipeline.RelevantInformation;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
@@ -15,15 +15,13 @@ import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.EmbeddingSearchResult;
 import dev.langchain4j.store.embedding.EmbeddingStore;
+import java.util.List;
+import org.jabref.logic.FilePreferences;
+import org.jabref.logic.ai.ingestion.logic.ingestion.FileIngestor;
+import org.jabref.model.ai.pipeline.RelevantInformation;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @NullMarked
 class EmbeddingsSearchResponseEngineTest {
@@ -39,15 +37,10 @@ class EmbeddingsSearchResponseEngineTest {
         embeddingModel = mock(EmbeddingModel.class);
         embeddingStore = (EmbeddingStore<TextSegment>) mock(EmbeddingStore.class);
 
-        when(embeddingModel.embed(any(String.class))).thenReturn(Response.from(new Embedding(new float[] {0.1f, 0.2f})));
+        when(embeddingModel.embed(any(String.class)))
+                .thenReturn(Response.from(new Embedding(new float[] {0.1f, 0.2f})));
 
-        responseEngine = new EmbeddingsSearchResponseEngine(
-                filePreferences,
-                embeddingModel,
-                embeddingStore,
-                0.7,
-                10
-        );
+        responseEngine = new EmbeddingsSearchResponseEngine(filePreferences, embeddingModel, embeddingStore, 0.7, 10);
     }
 
     @Test
@@ -56,7 +49,8 @@ class EmbeddingsSearchResponseEngineTest {
         metadata.put(FileIngestor.PAGE_NUMBER_METADATA_KEY, 7);
 
         TextSegment textSegment = new TextSegment("Sample excerpt text", metadata);
-        EmbeddingMatch<TextSegment> match = new EmbeddingMatch<>(0.85, "match-1", new Embedding(new float[] {0.1f, 0.2f}), textSegment);
+        EmbeddingMatch<TextSegment> match =
+                new EmbeddingMatch<>(0.85, "match-1", new Embedding(new float[] {0.1f, 0.2f}), textSegment);
         EmbeddingSearchResult<TextSegment> searchResult = new EmbeddingSearchResult<>(List.of(match));
 
         when(embeddingStore.search(any(EmbeddingSearchRequest.class))).thenReturn(searchResult);
@@ -74,7 +68,8 @@ class EmbeddingsSearchResponseEngineTest {
         Metadata metadata = new Metadata();
 
         TextSegment textSegment = new TextSegment("Text without page number", metadata);
-        EmbeddingMatch<TextSegment> match = new EmbeddingMatch<>(0.85, "match-2", new Embedding(new float[] {0.1f, 0.2f}), textSegment);
+        EmbeddingMatch<TextSegment> match =
+                new EmbeddingMatch<>(0.85, "match-2", new Embedding(new float[] {0.1f, 0.2f}), textSegment);
         EmbeddingSearchResult<TextSegment> searchResult = new EmbeddingSearchResult<>(List.of(match));
 
         when(embeddingStore.search(any(EmbeddingSearchRequest.class))).thenReturn(searchResult);

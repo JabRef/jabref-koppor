@@ -1,7 +1,6 @@
 package org.jabref.logic.search;
 
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.search.query.SearchQuery;
 

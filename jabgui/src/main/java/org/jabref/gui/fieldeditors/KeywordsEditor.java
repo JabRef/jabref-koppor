@@ -1,10 +1,8 @@
 package org.jabref.gui.fieldeditors;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
-
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.logic.integrity.FieldCheckers;
 import org.jabref.logic.preferences.CliPreferences;
@@ -21,12 +19,13 @@ public class KeywordsEditor extends TagsEditor {
 
     private final KeywordsEditorViewModel viewModel;
 
-    public KeywordsEditor(Field field,
-                          SuggestionProvider<?> suggestionProvider,
-                          FieldCheckers fieldCheckers,
-                          CliPreferences preferences,
-                          BibDatabaseContext databaseContext,
-                          UndoManager undoManager) {
+    public KeywordsEditor(
+            Field field,
+            SuggestionProvider<?> suggestionProvider,
+            FieldCheckers fieldCheckers,
+            CliPreferences preferences,
+            BibDatabaseContext databaseContext,
+            UndoManager undoManager) {
 
         super(field, suggestionProvider, fieldCheckers, undoManager);
         this.preferences = preferences;
@@ -35,7 +34,8 @@ public class KeywordsEditor extends TagsEditor {
                 field,
                 suggestionProvider,
                 fieldCheckers,
-                databaseContext.getKeywordSeparator(preferences.getBibEntryPreferences().getKeywordSeparator()),
+                databaseContext.getKeywordSeparator(
+                        preferences.getBibEntryPreferences().getKeywordSeparator()),
                 undoManager);
 
         setupTagsField(
@@ -64,11 +64,15 @@ public class KeywordsEditor extends TagsEditor {
         }
 
         int separatorFirstOccurrence = keywordString.lastIndexOf(keywordSeparator);
-        String substringWithSeparator = new StringBuilder(keywordString.substring(0, separatorFirstOccurrence)).reverse().toString();
+        String substringWithSeparator = new StringBuilder(keywordString.substring(0, separatorFirstOccurrence))
+                .reverse()
+                .toString();
 
         AtomicBoolean isSeparatedKeyword = new AtomicBoolean(true);
-        substringWithSeparator.chars().takeWhile(symbol -> symbol == Keyword.DEFAULT_ESCAPE_SYMBOL)
-                              .forEachOrdered(_ -> isSeparatedKeyword.set(!isSeparatedKeyword.get()));
+        substringWithSeparator
+                .chars()
+                .takeWhile(symbol -> symbol == Keyword.DEFAULT_ESCAPE_SYMBOL)
+                .forEachOrdered(_ -> isSeparatedKeyword.set(!isSeparatedKeyword.get()));
 
         return isSeparatedKeyword.get();
     }
@@ -79,8 +83,9 @@ public class KeywordsEditor extends TagsEditor {
             return;
         }
 
-        MscCodeUtils.getMscCodeRepository().flatMap(repository -> repository.getText(tagLabel.getText()))
-                    .ifPresent(mscClassification -> tagLabel.setTooltip(new Tooltip(mscClassification)));
+        MscCodeUtils.getMscCodeRepository()
+                .flatMap(repository -> repository.getText(tagLabel.getText()))
+                .ifPresent(mscClassification -> tagLabel.setTooltip(new Tooltip(mscClassification)));
     }
 
     public KeywordsEditorViewModel getViewModel() {

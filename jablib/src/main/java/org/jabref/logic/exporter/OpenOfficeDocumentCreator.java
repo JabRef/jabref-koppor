@@ -13,19 +13,16 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,12 +50,13 @@ public class OpenOfficeDocumentCreator extends Exporter {
             // resource/openoffice directory, and are copied verbatim into the zip file.
             OpenOfficeDocumentCreator.addResourceFile("meta.xml", "/resource/openoffice/meta.xml", out);
             OpenOfficeDocumentCreator.addResourceFile("mimetype", "/resource/openoffice/mimetype", out);
-            OpenOfficeDocumentCreator.addResourceFile("META-INF/manifest.xml", "/resource/openoffice/manifest.xml",
-                    out);
+            OpenOfficeDocumentCreator.addResourceFile(
+                    "META-INF/manifest.xml", "/resource/openoffice/manifest.xml", out);
         }
     }
 
-    private static void exportOpenOfficeCalc(Path file, BibDatabase database, List<BibEntry> entries) throws IOException {
+    private static void exportOpenOfficeCalc(Path file, BibDatabase database, List<BibEntry> entries)
+            throws IOException {
         // First store the xml formatted content to a temporary file.
         Path tmpFile = Files.createTempFile("oocalc", null);
         OpenOfficeDocumentCreator.exportOpenOfficeCalcXML(tmpFile, database, entries);
@@ -77,9 +75,9 @@ public class OpenOfficeDocumentCreator extends Exporter {
     }
 
     @Override
-    public void export(@NonNull final BibDatabaseContext databaseContext,
-                       final Path file,
-                       @NonNull List<BibEntry> entries) throws IOException {
+    public void export(
+            @NonNull final BibDatabaseContext databaseContext, final Path file, @NonNull List<BibEntry> entries)
+            throws IOException {
         if (!entries.isEmpty()) { // Do not export if no entries
             OpenOfficeDocumentCreator.exportOpenOfficeCalc(file, databaseContext.getDatabase(), entries);
         }

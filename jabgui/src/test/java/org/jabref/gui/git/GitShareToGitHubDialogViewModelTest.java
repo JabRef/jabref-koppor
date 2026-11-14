@@ -1,8 +1,12 @@
 package org.jabref.gui.git;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.nio.file.Path;
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.logic.git.GitHubRepositoryAccess;
@@ -12,14 +16,8 @@ import org.jabref.logic.git.util.GitHandlerRegistry;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.CurrentThreadTaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class GitShareToGitHubDialogViewModelTest {
 
@@ -54,33 +52,38 @@ class GitShareToGitHubDialogViewModelTest {
     void checkGitHubAccessReportsPushAccess() {
         GitShareToGitHubDialogViewModel viewModel = viewModel(gitPreferences("JabRef", "token"));
         viewModel.repositoryUrlProperty().set(REPOSITORY_URL);
-        when(gitHubRepositoryAccessChecker.check(anyString(), anyString(), anyString())).thenReturn(GitHubRepositoryAccess.WRITE_ACCESS);
+        when(gitHubRepositoryAccessChecker.check(anyString(), anyString(), anyString()))
+                .thenReturn(GitHubRepositoryAccess.WRITE_ACCESS);
 
         viewModel.checkGitHubAccess();
 
-        verify(dialogService).showInformationDialogAndWait(
-                Localization.lang("GitHub access"),
-                Localization.lang("Personal access token has push access to this repository."));
+        verify(dialogService)
+                .showInformationDialogAndWait(
+                        Localization.lang("GitHub access"),
+                        Localization.lang("Personal access token has push access to this repository."));
     }
 
     @Test
     void checkGitHubAccessReportsMissingPushAccess() {
         GitShareToGitHubDialogViewModel viewModel = viewModel(gitPreferences("JabRef", "token"));
         viewModel.repositoryUrlProperty().set(REPOSITORY_URL);
-        when(gitHubRepositoryAccessChecker.check(anyString(), anyString(), anyString())).thenReturn(GitHubRepositoryAccess.REPOSITORY_NOT_ACCESSIBLE);
+        when(gitHubRepositoryAccessChecker.check(anyString(), anyString(), anyString()))
+                .thenReturn(GitHubRepositoryAccess.REPOSITORY_NOT_ACCESSIBLE);
 
         viewModel.checkGitHubAccess();
 
-        verify(dialogService).showErrorDialogAndWait(
-                Localization.lang("GitHub access"),
-                Localization.lang("The personal access token cannot push to this repository."));
+        verify(dialogService)
+                .showErrorDialogAndWait(
+                        Localization.lang("GitHub access"),
+                        Localization.lang("The personal access token cannot push to this repository."));
     }
 
     @Test
     void checkGitHubAccessUsesTrimmedUrlAndConfiguredCredentials() {
         GitShareToGitHubDialogViewModel viewModel = viewModel(gitPreferences("JabRef", "token"));
         viewModel.repositoryUrlProperty().set(" " + REPOSITORY_URL + " ");
-        when(gitHubRepositoryAccessChecker.check(anyString(), anyString(), anyString())).thenReturn(GitHubRepositoryAccess.WRITE_ACCESS);
+        when(gitHubRepositoryAccessChecker.check(anyString(), anyString(), anyString()))
+                .thenReturn(GitHubRepositoryAccess.WRITE_ACCESS);
 
         viewModel.checkGitHubAccess();
 
@@ -96,12 +99,12 @@ class GitShareToGitHubDialogViewModelTest {
         GitShareToGitHubDialogViewModel viewModel = viewModel(gitPreferences("", ""));
         viewModel.repositoryUrlProperty().set(REPOSITORY_URL);
 
-        viewModel.shareToGitHub(() -> {
-        });
+        viewModel.shareToGitHub(() -> {});
 
-        verify(dialogService).showErrorDialogAndWait(
-                Localization.lang("GitHub share failed"),
-                Localization.lang("No GitHub credentials. Please configure them in Preferences > Git."));
+        verify(dialogService)
+                .showErrorDialogAndWait(
+                        Localization.lang("GitHub share failed"),
+                        Localization.lang("No GitHub credentials. Please configure them in Preferences > Git."));
     }
 
     @Test
@@ -109,11 +112,9 @@ class GitShareToGitHubDialogViewModelTest {
         when(stateManager.getActiveDatabase()).thenReturn(Optional.empty());
 
         GitShareToGitHubDialogViewModel viewModel = viewModel(gitPreferences("JabRef", "token"));
-        viewModel.shareToGitHub(() -> {
-        });
+        viewModel.shareToGitHub(() -> {});
 
-        verify(dialogService).showErrorDialogAndWait(
-                Localization.lang("GitHub share failed"),
-                Localization.lang("No library open"));
+        verify(dialogService)
+                .showErrorDialogAndWait(Localization.lang("GitHub share failed"), Localization.lang("No library open"));
     }
 }

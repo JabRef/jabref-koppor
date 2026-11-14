@@ -1,12 +1,11 @@
 package org.jabref.gui.fieldeditors.contextmenu;
 
+import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import javafx.collections.ObservableList;
 import javafx.scene.control.ContextMenu;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.fieldeditors.LinkedFileViewModel;
@@ -17,27 +16,34 @@ import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import com.tobiasdiez.easybind.optional.ObservableOptionalValue;
 import org.jspecify.annotations.NonNull;
 
 public class ContextMenuFactory {
 
     private final List<ContextMenuBuilder> menuBuilders;
 
-    public ContextMenuFactory(@NonNull DialogService dialogService,
-                              @NonNull GuiPreferences preferences,
-                              @NonNull BibDatabaseContext databaseContext,
-                              @NonNull ObservableOptionalValue<BibEntry> bibEntry,
-                              @NonNull LinkedFilesEditorViewModel viewModel,
-                              @NonNull TaskExecutor taskExecutor,
-                              @NonNull FileUpdateMonitor fileUpdateMonitor,
-                              @NonNull UndoManager undoManager,
-                              @NonNull StateManager stateManager) {
+    public ContextMenuFactory(
+            @NonNull DialogService dialogService,
+            @NonNull GuiPreferences preferences,
+            @NonNull BibDatabaseContext databaseContext,
+            @NonNull ObservableOptionalValue<BibEntry> bibEntry,
+            @NonNull LinkedFilesEditorViewModel viewModel,
+            @NonNull TaskExecutor taskExecutor,
+            @NonNull FileUpdateMonitor fileUpdateMonitor,
+            @NonNull UndoManager undoManager,
+            @NonNull StateManager stateManager) {
         this.menuBuilders = List.of(
-                new SingleSelectionMenuBuilder(dialogService, databaseContext, bibEntry, preferences, viewModel, taskExecutor, fileUpdateMonitor, undoManager, stateManager),
-                new MultiSelectionMenuBuilder(dialogService, databaseContext, bibEntry, preferences, viewModel)
-        );
+                new SingleSelectionMenuBuilder(
+                        dialogService,
+                        databaseContext,
+                        bibEntry,
+                        preferences,
+                        viewModel,
+                        taskExecutor,
+                        fileUpdateMonitor,
+                        undoManager,
+                        stateManager),
+                new MultiSelectionMenuBuilder(dialogService, databaseContext, bibEntry, preferences, viewModel));
     }
 
     public @NonNull ContextMenu createMenuForSelection(ObservableList<LinkedFileViewModel> selection) {
@@ -48,9 +54,8 @@ public class ContextMenuFactory {
             return menu;
         }
 
-        Optional<ContextMenuBuilder> builder = menuBuilders.stream()
-                                                           .filter(b -> b.supports(selection))
-                                                           .findFirst();
+        Optional<ContextMenuBuilder> builder =
+                menuBuilders.stream().filter(b -> b.supports(selection)).findFirst();
 
         if (builder.isEmpty()) {
             return menu;

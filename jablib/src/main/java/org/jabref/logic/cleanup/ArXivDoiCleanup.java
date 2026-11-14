@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-
 import org.jabref.logic.formatter.bibtexfields.ClearFormatter;
 import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
@@ -70,24 +69,24 @@ public class ArXivDoiCleanup implements CleanupJob {
     private List<FieldChange> consolidate(BibEntry entry) {
         List<FieldChange> changes = new ArrayList<>();
 
-        Optional<ArXivIdentifier> eprint = entry.getField(StandardField.EPRINT)
-                                                .flatMap(ArXivIdentifier::parse);
+        Optional<ArXivIdentifier> eprint = entry.getField(StandardField.EPRINT).flatMap(ArXivIdentifier::parse);
 
         // Rule 1: create the DOI from the arXiv eprint if there is no valid DOI yet. A present-but-invalid
         // doi value (garbage that DOI.parse rejects) is treated as missing and gets overwritten; a valid
         // non-arXiv publisher DOI parses successfully and is preserved (rule 3).
-        boolean noValidDoi = entry.getField(StandardField.DOI).flatMap(DOI::parse).isEmpty();
+        boolean noValidDoi =
+                entry.getField(StandardField.DOI).flatMap(DOI::parse).isEmpty();
         if (eprint.isPresent() && noValidDoi) {
             eprint.flatMap(ArXivIdentifier::inferDOI)
-                  .ifPresent(inferredDoi -> entry.setField(StandardField.DOI, inferredDoi.asString())
-                                                 .ifPresent(changes::add));
+                    .ifPresent(inferredDoi -> entry.setField(StandardField.DOI, inferredDoi.asString())
+                            .ifPresent(changes::add));
         }
 
         // Rule 2: if the DOI is the arXiv DOI of the eprint, the eprint fields are redundant.
         Optional<String> arXivIdInDoi = entry.getField(StandardField.DOI)
-                                             .flatMap(DOI::parse)
-                                             .filter(ArXivDoiCleanup::isArXivDoi)
-                                             .flatMap(ArXivDoiCleanup::arXivIdFromDoi);
+                .flatMap(DOI::parse)
+                .filter(ArXivDoiCleanup::isArXivDoi)
+                .flatMap(ArXivDoiCleanup::arXivIdFromDoi);
         Optional<String> arXivIdInEprint = eprint.map(ArXivIdentifier::asStringWithoutVersion);
         if (arXivIdInDoi.isPresent() && arXivIdInDoi.equals(arXivIdInEprint)) {
             removeFieldValue(entry, StandardField.EPRINT, changes);

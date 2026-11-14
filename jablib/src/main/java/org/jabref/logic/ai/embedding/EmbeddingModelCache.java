@@ -2,7 +2,6 @@ package org.jabref.logic.ai.embedding;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.jabref.logic.ai.preferences.AiPreferences;
 import org.jabref.logic.util.NotificationService;
 import org.jabref.logic.util.TaskExecutor;
@@ -41,8 +40,10 @@ public class EmbeddingModelCache implements AutoCloseable {
 
     /// Returns the cached [AsyncEmbeddingModel] for `modelName`, creating it on first access.
     ///
-    /// Consecutive calls with the same `modelName` return the *same* instance; no additional background tasks are launched.
-    /// Requesting another model name closes and evicts that instance, so a later request for `modelName` creates a new one.
+    /// Consecutive calls with the same `modelName` return the *same* instance; no additional background tasks are
+    /// launched.
+    /// Requesting another model name closes and evicts that instance, so a later request for `modelName` creates a new
+    /// one.
     ///
     /// @param modelName the requested embedding model name
     /// @return a (possibly still-loading) [AsyncEmbeddingModel] for `modelName`
@@ -55,8 +56,10 @@ public class EmbeddingModelCache implements AutoCloseable {
             entry.getValue().close();
             return true;
         });
-        return cache.computeIfAbsent(modelName,
-                name -> new AsyncEmbeddingModel(name, aiPreferences, notificationService, taskExecutor, metadataService));
+        return cache.computeIfAbsent(
+                modelName,
+                name -> new AsyncEmbeddingModel(
+                        name, aiPreferences, notificationService, taskExecutor, metadataService));
     }
 
     /// Closes all cached [AsyncEmbeddingModel] instances and clears the cache.

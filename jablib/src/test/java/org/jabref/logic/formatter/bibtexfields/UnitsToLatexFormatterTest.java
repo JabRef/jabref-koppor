@@ -1,11 +1,11 @@
 package org.jabref.logic.formatter.bibtexfields;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /// Tests in addition to the general tests from [org.jabref.logic.formatter.FormatterTest]
 class UnitsToLatexFormatterTest {
@@ -19,10 +19,9 @@ class UnitsToLatexFormatterTest {
 
     @ParameterizedTest
     @CsvSource({"""
-               1~{A}, 1 A,
-               1\\mbox{-}{mA}, 1-mA
-            """
-    })
+           1~{A}, 1 A,
+           1\\mbox{-}{mA}, 1-mA
+        """})
     void test(String expected, String text) {
         assertEquals(expected, formatter.format(text));
     }

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
 import javafx.beans.value.ObservableValue;
 import javafx.css.PseudoClass;
 import javafx.geometry.Bounds;
@@ -19,12 +18,11 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
-
 import org.jabref.logic.util.strings.StringUtil;
-
 import org.reactfx.util.TriConsumer;
 
-/// Constructs a [javafx.scene.control.TreeTableCell] based on the view model of the row and a bunch of specified converter methods.
+/// Constructs a [javafx.scene.control.TreeTableCell] based on the view model of the row and a bunch of specified
+/// converter methods.
 ///
 /// @param <S> view model
 public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, TableRow<S>> {
@@ -50,7 +48,8 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
         return this;
     }
 
-    public ViewModelTableRowFactory<S> setOnDragDetected(TriConsumer<TableRow<S>, S, ? super MouseEvent> toOnDragDetected) {
+    public ViewModelTableRowFactory<S> setOnDragDetected(
+            TriConsumer<TableRow<S>, S, ? super MouseEvent> toOnDragDetected) {
         this.toOnDragDetected = toOnDragDetected;
         return this;
     }
@@ -60,7 +59,8 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
         return this;
     }
 
-    public ViewModelTableRowFactory<S> setOnDragDropped(TriConsumer<TableRow<S>, S, ? super DragEvent> toOnDragDropped) {
+    public ViewModelTableRowFactory<S> setOnDragDropped(
+            TriConsumer<TableRow<S>, S, ? super DragEvent> toOnDragDropped) {
         this.toOnDragDropped = toOnDragDropped;
         return this;
     }
@@ -74,7 +74,8 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
         return this;
     }
 
-    public ViewModelTableRowFactory<S> setOnMouseDragEntered(TriConsumer<TableRow<S>, S, ? super MouseDragEvent> toOnDragEntered) {
+    public ViewModelTableRowFactory<S> setOnMouseDragEntered(
+            TriConsumer<TableRow<S>, S, ? super MouseDragEvent> toOnDragEntered) {
         this.toOnMouseDragEntered = toOnDragEntered;
         return this;
     }
@@ -106,7 +107,8 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
         return this;
     }
 
-    public ViewModelTableRowFactory<S> withPseudoClass(PseudoClass pseudoClass, Callback<S, ObservableValue<Boolean>> toCondition) {
+    public ViewModelTableRowFactory<S> withPseudoClass(
+            PseudoClass pseudoClass, Callback<S, ObservableValue<Boolean>> toCondition) {
         this.pseudoClasses.putIfAbsent(pseudoClass, toCondition);
         return this;
     }
@@ -121,8 +123,8 @@ public class ViewModelTableRowFactory<S> implements Callback<TableView<S>, Table
                 if (empty || getItem() == null) {
                     pseudoClasses.forEach((pseudoClass, _) -> pseudoClassStateChanged(pseudoClass, false));
                 } else {
-                    pseudoClasses.forEach((pseudoClass, toCondition) ->
-                            pseudoClassStateChanged(pseudoClass, toCondition.call(getItem()).getValue()));
+                    pseudoClasses.forEach((pseudoClass, toCondition) -> pseudoClassStateChanged(
+                            pseudoClass, toCondition.call(getItem()).getValue()));
                 }
             }
         };

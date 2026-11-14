@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
@@ -27,13 +26,14 @@ class PreferencesSearchHandler {
     private final ListProperty<PreferencesTab> filteredPreferenceTabs;
     private final Map<PreferencesTab, List<SearchableElement>> searchableElements;
 
-    /// The highlighted nodes per tab of the last search, in declaration order, so the dialog can scroll to the first one.
+    /// The highlighted nodes per tab of the last search, in declaration order, so the dialog can scroll to the first
+    /// one.
     private final Map<PreferencesTab, List<Node>> matchedNodes = new HashMap<>();
 
     PreferencesSearchHandler(List<PreferencesTab> preferenceTabs) {
         this.preferenceTabs = preferenceTabs;
         this.searchableElements = preferenceTabs.stream()
-                                                .collect(Collectors.toMap(Function.identity(), PreferencesTab::getSearchableElements));
+                .collect(Collectors.toMap(Function.identity(), PreferencesTab::getSearchableElements));
         this.filteredPreferenceTabs = new SimpleListProperty<>(FXCollections.observableArrayList(preferenceTabs));
     }
 
@@ -48,19 +48,19 @@ class PreferencesSearchHandler {
 
         String searchQuery = query.toLowerCase(Locale.ROOT);
         filteredPreferenceTabs.setAll(preferenceTabs.stream()
-                                                    .filter(tab -> tabMatchesQuery(tab, searchQuery))
-                                                    .toList());
+                .filter(tab -> tabMatchesQuery(tab, searchQuery))
+                .toList());
     }
 
     /// @return true if the query occurs in the tab's keywords or visible texts; matching visible
     ///         elements are highlighted as a side effect.
     private boolean tabMatchesQuery(PreferencesTab tab, String query) {
         boolean keywordMatches = tab.getSearchKeywords().stream()
-                                    .anyMatch(keyword -> keyword.toLowerCase(Locale.ROOT).contains(query));
+                .anyMatch(keyword -> keyword.toLowerCase(Locale.ROOT).contains(query));
 
         List<SearchableElement> matches = searchableElements.get(tab).stream()
-                                                            .filter(element -> element.text().toLowerCase(Locale.ROOT).contains(query))
-                                                            .toList();
+                .filter(element -> element.text().toLowerCase(Locale.ROOT).contains(query))
+                .toList();
         matches.forEach(element -> element.node().pseudoClassStateChanged(SEARCH_HIGHLIGHT, true));
         matchedNodes.put(tab, matches.stream().map(SearchableElement::node).toList());
 
@@ -81,16 +81,16 @@ class PreferencesSearchHandler {
 
     private void clearHighlights() {
         searchableElements.values().stream()
-                          .flatMap(List::stream)
-                          .forEach(element -> element.node().pseudoClassStateChanged(SEARCH_HIGHLIGHT, false));
+                .flatMap(List::stream)
+                .forEach(element -> element.node().pseudoClassStateChanged(SEARCH_HIGHLIGHT, false));
     }
 
     /// @return the first currently visible element the current query highlighted in the given tab, if any
     // [impl->req~ux.preferences.search-scroll~1]
     public Optional<Node> firstMatch(PreferencesTab tab) {
         return matchedNodes.getOrDefault(tab, List.of()).stream()
-                           .filter(PreferencesSearchHandler::isShown)
-                           .findFirst();
+                .filter(PreferencesSearchHandler::isShown)
+                .findFirst();
     }
 
     protected ListProperty<PreferencesTab> filteredPreferenceTabsProperty() {

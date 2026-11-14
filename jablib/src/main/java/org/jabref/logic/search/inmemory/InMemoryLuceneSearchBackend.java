@@ -2,7 +2,6 @@ package org.jabref.logic.search.inmemory;
 
 import java.util.EnumSet;
 import java.util.List;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.search.LinkedFilesIndexManager;
 import org.jabref.logic.search.SearchBackend;
@@ -14,7 +13,6 @@ import org.jabref.model.entry.event.FieldChangedEvent;
 import org.jabref.model.search.SearchFlags;
 import org.jabref.model.search.query.SearchQuery;
 import org.jabref.model.search.query.SearchResults;
-
 import org.jspecify.annotations.NullMarked;
 
 /// A search backend that evaluates metadata in memory and searches linked files with Lucene.
@@ -25,10 +23,11 @@ public class InMemoryLuceneSearchBackend implements SearchBackend {
     private final InMemorySearchBackend inMemorySearchBackend;
     private final LinkedFilesIndexManager linkedFilesIndexManager;
 
-    public InMemoryLuceneSearchBackend(BibDatabaseContext databaseContext,
-                                       BibEntryPreferences bibEntryPreferences,
-                                       FilePreferences filePreferences,
-                                       TaskExecutor taskExecutor) {
+    public InMemoryLuceneSearchBackend(
+            BibDatabaseContext databaseContext,
+            BibEntryPreferences bibEntryPreferences,
+            FilePreferences filePreferences,
+            TaskExecutor taskExecutor) {
         inMemorySearchBackend = new InMemorySearchBackend(databaseContext, bibEntryPreferences);
         linkedFilesIndexManager = new LinkedFilesIndexManager(databaseContext, taskExecutor, filePreferences);
     }

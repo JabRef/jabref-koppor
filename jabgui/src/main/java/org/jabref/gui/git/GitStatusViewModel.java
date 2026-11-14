@@ -2,14 +2,12 @@ package org.jabref.gui.git;
 
 import java.nio.file.Path;
 import java.util.Optional;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.StateManager;
 import org.jabref.logic.git.GitHandler;
@@ -38,13 +36,16 @@ public class GitStatusViewModel extends AbstractViewModel {
     private final StringProperty lastPulledCommit = new SimpleStringProperty("");
     private final BooleanProperty hasRemoteConfigured = new SimpleBooleanProperty(false);
 
-    public GitStatusViewModel(StateManager stateManager, TaskExecutor taskExecutor, GitHandlerRegistry handlerRegistry) {
+    public GitStatusViewModel(
+            StateManager stateManager, TaskExecutor taskExecutor, GitHandlerRegistry handlerRegistry) {
         this.stateManager = stateManager;
         this.taskExecutor = taskExecutor;
         this.handlerRegistry = handlerRegistry;
 
         stateManager.activeDatabaseProperty().addListener((_, _, newDb) -> {
-            if ((newDb != null) && newDb.isPresent() && newDb.get().getDatabasePath().isPresent()) {
+            if ((newDb != null)
+                    && newDb.isPresent()
+                    && newDb.get().getDatabasePath().isPresent()) {
                 Path path = newDb.get().getDatabasePath().get();
                 refresh(path);
                 updateRemoteStatus(path);
@@ -54,12 +55,13 @@ public class GitStatusViewModel extends AbstractViewModel {
             }
         });
 
-        stateManager.getActiveDatabase()
-                    .flatMap(BibDatabaseContext::getDatabasePath)
-                    .ifPresent(path -> {
-                        refresh(path);
-                        updateRemoteStatus(path);
-                    });
+        stateManager
+                .getActiveDatabase()
+                .flatMap(BibDatabaseContext::getDatabasePath)
+                .ifPresent(path -> {
+                    refresh(path);
+                    updateRemoteStatus(path);
+                });
     }
 
     protected void updateStatusFromContext(BibDatabaseContext context) {
@@ -73,13 +75,17 @@ public class GitStatusViewModel extends AbstractViewModel {
     }
 
     public void refresh(Path path) {
-        handlerRegistry.fromAnyPath(path).ifPresentOrElse(handler -> {
-            GitStatusSnapshot snapshot = GitStatusChecker.checkStatus(handler);
-            setTracking(snapshot.tracking());
-            setSyncStatus(snapshot.syncStatus());
-            setConflictDetected(snapshot.conflict());
-            snapshot.lastPulledCommit().ifPresent(this::setLastPulledCommit);
-        }, this::reset);
+        handlerRegistry
+                .fromAnyPath(path)
+                .ifPresentOrElse(
+                        handler -> {
+                            GitStatusSnapshot snapshot = GitStatusChecker.checkStatus(handler);
+                            setTracking(snapshot.tracking());
+                            setSyncStatus(snapshot.syncStatus());
+                            setConflictDetected(snapshot.conflict());
+                            snapshot.lastPulledCommit().ifPresent(this::setLastPulledCommit);
+                        },
+                        this::reset);
     }
 
     public void reset() {
@@ -94,8 +100,7 @@ public class GitStatusViewModel extends AbstractViewModel {
     }
 
     public void updateRemoteStatus(Path databasePath) {
-        BackgroundTask
-                .wrap(() -> {
+        BackgroundTask.wrap(() -> {
                     GitHandler handler = handlerRegistry.get(databasePath.getParent());
                     return handler != null && handler.hasRemote("origin");
                 })
@@ -155,7 +160,8 @@ public class GitStatusViewModel extends AbstractViewModel {
         this.lastPulledCommit.set(commitHash);
     }
 
-    public static GitStatusViewModel fromPathAndContext(StateManager stateManager, TaskExecutor taskExecutor, GitHandlerRegistry handlerRegistry, Path path) {
+    public static GitStatusViewModel fromPathAndContext(
+            StateManager stateManager, TaskExecutor taskExecutor, GitHandlerRegistry handlerRegistry, Path path) {
         GitStatusViewModel viewModel = new GitStatusViewModel(stateManager, taskExecutor, handlerRegistry);
         viewModel.refresh(path);
         return viewModel;

@@ -1,23 +1,22 @@
 package org.jabref.model.entry;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
 import org.jabref.architecture.AllowedToUseLogic;
 import org.jabref.logic.importer.AuthorListParser;
-
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /// This is an immutable class representing information of either `author` or `editor` field in bibtex record.
 ///
-/// Constructor performs parsing of raw field text and stores preformatted data. Various accessor methods return author/editor field in different formats.
+/// Constructor performs parsing of raw field text and stores preformatted data. Various accessor methods return
+/// author/editor field in different formats.
 ///
 /// Parsing algorithm is designed to satisfy two requirements:
 ///   (a) when author's name is typed correctly, the result should coincide with the one of BiBTeX;
@@ -120,13 +119,13 @@ import org.jspecify.annotations.Nullable;
 public class AuthorList implements Iterable<Author> {
     private static final int AUTHOR_CACHE_SIZE = 50_000;
 
-    private static final Cache<String, AuthorList> AUTHOR_CACHE = Caffeine.newBuilder()
-                                                                          .weakKeys()
-                                                                          .maximumSize(AUTHOR_CACHE_SIZE)
-                                                                          .build();
+    private static final Cache<String, AuthorList> AUTHOR_CACHE =
+            Caffeine.newBuilder().weakKeys().maximumSize(AUTHOR_CACHE_SIZE).build();
 
     private final List<Author> authors;
-    @Nullable private AuthorList latexFreeAuthors;
+
+    @Nullable
+    private AuthorList latexFreeAuthors;
 
     /// Creates a new list of authors.
     ///
@@ -150,7 +149,8 @@ public class AuthorList implements Iterable<Author> {
         return Collectors.collectingAndThen(Collectors.toList(), AuthorList::new);
     }
 
-    private static String andCoordinatedConjunction(List<Author> authors, Function<Author, String> style, boolean oxfordComma) {
+    private static String andCoordinatedConjunction(
+            List<Author> authors, Function<Author, String> style, boolean oxfordComma) {
         List<String> formattedAuthors = authors.stream().map(style).toList();
         return andCoordinatedConjunction(formattedAuthors, oxfordComma);
     }
@@ -159,14 +159,10 @@ public class AuthorList implements Iterable<Author> {
         String lastDelimiter = oxfordComma ? ", and " : " and ";
         int lastIndex = authors.size() - 1;
         return switch (authors.size()) {
-            case 0 ->
-                    "";
-            case 1 ->
-                    authors.getFirst();
-            case 2 ->
-                    authors.getFirst() + " and " + authors.get(1);
-            default ->
-                    String.join(", ", authors.subList(0, lastIndex)) + lastDelimiter + authors.get(lastIndex);
+            case 0 -> "";
+            case 1 -> authors.getFirst();
+            case 2 -> authors.getFirst() + " and " + authors.get(1);
+            default -> String.join(", ", authors.subList(0, lastIndex)) + lastDelimiter + authors.get(lastIndex);
         };
     }
 
@@ -276,9 +272,8 @@ public class AuthorList implements Iterable<Author> {
     /// Returns a LaTeX-free version of this `AuthorList`.
     public AuthorList latexFree() {
         if (latexFreeAuthors == null) {
-            latexFreeAuthors = new AuthorList(authors.stream()
-                                                     .map(Author::latexFree)
-                                                     .toList());
+            latexFreeAuthors =
+                    new AuthorList(authors.stream().map(Author::latexFree).toList());
             latexFreeAuthors.latexFreeAuthors = latexFreeAuthors;
         }
         return latexFreeAuthors;
@@ -296,18 +291,17 @@ public class AuthorList implements Iterable<Author> {
     public String getAsNatbib() {
         List<Author> authors = getAuthors();
         return switch (authors.size()) {
-            case 0 ->
-                    "";
-            case 1 ->
-                    authors.getFirst().getNamePrefixAndFamilyName();
+            case 0 -> "";
+            case 1 -> authors.getFirst().getNamePrefixAndFamilyName();
             case 2 ->
-                    authors.getFirst().getNamePrefixAndFamilyName() + " and " + authors.get(1).getNamePrefixAndFamilyName();
-            default ->
-                    authors.getFirst().getNamePrefixAndFamilyName() + " et al.";
+                authors.getFirst().getNamePrefixAndFamilyName() + " and "
+                        + authors.get(1).getNamePrefixAndFamilyName();
+            default -> authors.getFirst().getNamePrefixAndFamilyName() + " et al.";
         };
     }
 
-    /// Returns the list of authors separated by commas with last name only; If the list consists of two or more authors, "and" is inserted before the last author's name.
+    /// Returns the list of authors separated by commas with last name only; If the list consists of two or more
+    /// authors, "and" is inserted before the last author's name.
     ///
     ///
     /// -  "John Smith" ==> "Smith"
@@ -323,7 +317,9 @@ public class AuthorList implements Iterable<Author> {
         return andCoordinatedConjunction(getAuthors(), Author::getNamePrefixAndFamilyName, oxfordComma);
     }
 
-    /// Returns the list of authors separated by commas with first names after last name; first names are abbreviated or not depending on parameter. If the list consists of three or more authors, "and" is inserted before the last author's name.
+    /// Returns the list of authors separated by commas with first names after last name; first names are abbreviated or
+    /// not depending on parameter. If the list consists of three or more authors, "and" is inserted before the last
+    /// author's name.
     ///
     ///
     /// -  "John Smith" ==> "Smith, John" or "Smith, J."
@@ -347,7 +343,8 @@ public class AuthorList implements Iterable<Author> {
         return authors.toString();
     }
 
-    /// Returns the list of authors separated by "and"s with first names after last name; first names are not abbreviated.
+    /// Returns the list of authors separated by "and"s with first names after last name; first names are not
+    /// abbreviated.
     ///
     ///
     /// - "John Smith" ==> "Smith, John"
@@ -359,31 +356,30 @@ public class AuthorList implements Iterable<Author> {
     /// @return formatted list of authors.
     public String getAsLastFirstNamesWithAnd(boolean abbreviate) {
         return getAuthors().stream()
-                           .map(author -> author.getFamilyGiven(abbreviate))
-                           .collect(Collectors.joining(" and "));
+                .map(author -> author.getFamilyGiven(abbreviate))
+                .collect(Collectors.joining(" and "));
     }
 
-    /// Returns a list of authors separated with "and". The first author is formatted with [Author#getFamilyGiven(boolean)] and each subsequent author is formatted with [Author#getGivenFamily(boolean)].
+    /// Returns a list of authors separated with "and". The first author is formatted with
+    /// [Author#getFamilyGiven(boolean)] and each subsequent author is formatted with [Author#getGivenFamily(boolean)].
     ///
     /// @param abbreviate first names.
     public String getAsLastFirstFirstLastNamesWithAnd(boolean abbreviate) {
         return switch (authors.size()) {
-            case 0 ->
-                    "";
-            case 1 ->
-                    authors.getFirst().getFamilyGiven(abbreviate);
+            case 0 -> "";
+            case 1 -> authors.getFirst().getFamilyGiven(abbreviate);
             default ->
-                    authors.stream()
-                           .skip(1)
-                           .map(author -> author.getGivenFamily(abbreviate))
-                           .collect(Collectors.joining(
-                                   " and ",
-                                   authors.getFirst().getFamilyGiven(abbreviate) + " and ",
-                                   ""));
+                authors.stream()
+                        .skip(1)
+                        .map(author -> author.getGivenFamily(abbreviate))
+                        .collect(Collectors.joining(
+                                " and ", authors.getFirst().getFamilyGiven(abbreviate) + " and ", ""));
         };
     }
 
-    /// Returns the list of authors separated by commas with first names before last name; first names are abbreviated or not depending on parameter. If the list consists of three or more authors, "and" is inserted before the last author's name.
+    /// Returns the list of authors separated by commas with first names before last name; first names are abbreviated
+    /// or not depending on parameter. If the list consists of three or more authors, "and" is inserted before the last
+    /// author's name.
     ///
     ///
     /// - "John Smith" ==> "John Smith" or "J. Smith"
@@ -404,7 +400,8 @@ public class AuthorList implements Iterable<Author> {
 
     /// Compare this object with the given one.
     ///
-    /// @return `true` iff the other object is an AuthorList, all contained authors are in the same order (and these authors' fields are `Objects.equals`)
+    /// @return `true` iff the other object is an AuthorList, all contained authors are in the same order (and these
+    /// authors' fields are `Objects.equals`)
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -422,7 +419,8 @@ public class AuthorList implements Iterable<Author> {
         return Objects.hash(authors);
     }
 
-    /// Returns the list of authors separated by "and"s with first names before last name; first names are not abbreviated.
+    /// Returns the list of authors separated by "and"s with first names before last name; first names are not
+    /// abbreviated.
     ///
     ///
     /// - "John Smith" ==> "John Smith"
@@ -433,9 +431,7 @@ public class AuthorList implements Iterable<Author> {
     ///
     /// @return formatted list of authors.
     public String getAsFirstLastNamesWithAnd() {
-        return getAuthors().stream()
-                           .map(author -> author.getGivenFamily(false))
-                           .collect(Collectors.joining(" and "));
+        return getAuthors().stream().map(author -> author.getGivenFamily(false)).collect(Collectors.joining(" and "));
     }
 
     /// Returns the list of authors in a form suitable for alphabetization.
@@ -448,9 +444,7 @@ public class AuthorList implements Iterable<Author> {
     ///
     /// @return formatted list of authors
     public String getForAlphabetization() {
-        return getAuthors().stream()
-                           .map(Author::getNameForAlphabetization)
-                           .collect(Collectors.joining(" and "));
+        return getAuthors().stream().map(Author::getNameForAlphabetization).collect(Collectors.joining(" and "));
     }
 
     @Override

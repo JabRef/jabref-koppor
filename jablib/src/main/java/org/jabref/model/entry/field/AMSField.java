@@ -5,7 +5,6 @@ import java.util.EnumSet;
 import java.util.Optional;
 
 public enum AMSField implements Field {
-
     FJOURNAL("fjournal");
 
     private final String name;
@@ -38,8 +37,8 @@ public enum AMSField implements Field {
 
     public static <T> Optional<AMSField> fromName(T type, String name) {
         return Arrays.stream(AMSField.values())
-                     .filter(field -> field.getName().equalsIgnoreCase(name))
-                     .findAny();
+                .filter(field -> field.getName().equalsIgnoreCase(name))
+                .findAny();
     }
 
     @Override

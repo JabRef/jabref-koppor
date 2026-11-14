@@ -3,7 +3,6 @@ package org.jabref.logic.push;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-
 import javafx.beans.property.MapProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleMapProperty;
@@ -11,7 +10,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.os.OS;
 
 public class PushToApplicationPreferences {
@@ -22,11 +20,12 @@ public class PushToApplicationPreferences {
 
     private final ObjectProperty<CitationCommandString> citeCommand;
 
-    public PushToApplicationPreferences(String activeApplicationName,
-                                        Map<String, String> commandPaths,
-                                        String emacsArguments,
-                                        String vimServer,
-                                        CitationCommandString citeCommand) {
+    public PushToApplicationPreferences(
+            String activeApplicationName,
+            Map<String, String> commandPaths,
+            String emacsArguments,
+            String vimServer,
+            CitationCommandString citeCommand) {
         this.activeApplicationName = new SimpleStringProperty(activeApplicationName);
         this.commandPaths = new SimpleMapProperty<>(FXCollections.observableMap(commandPaths));
         this.emacsArguments = new SimpleStringProperty(emacsArguments);
@@ -35,20 +34,20 @@ public class PushToApplicationPreferences {
     }
 
     private PushToApplicationPreferences() {
-        this(
-                "TeXstudio",
-                new HashMap<>(),
-                "-n -e",
-                "vim",
-                new CitationCommandString("\\cite{", ",", "}"));
+        this("TeXstudio", new HashMap<>(), "-n -e", "vim", new CitationCommandString("\\cite{", ",", "}"));
 
-        commandPaths.put(PushApplications.EMACS.getDisplayName(), OS.OS_X ? "emacsclient" : OS.WINDOWS ? "emacsclient.exe" : "emacsclient");
-        commandPaths.put(PushApplications.LYX.getDisplayName(), System.getProperty("user.home") + File.separator + ".lyx/lyxpipe");
+        commandPaths.put(
+                PushApplications.EMACS.getDisplayName(),
+                OS.OS_X ? "emacsclient" : OS.WINDOWS ? "emacsclient.exe" : "emacsclient");
+        commandPaths.put(
+                PushApplications.LYX.getDisplayName(),
+                System.getProperty("user.home") + File.separator + ".lyx/lyxpipe");
         commandPaths.put(PushApplications.TEXMAKER.getDisplayName(), OS.detectProgramPath("texmaker", "Texmaker"));
         commandPaths.put(PushApplications.TEXSTUDIO.getDisplayName(), OS.detectProgramPath("texstudio", "TeXstudio"));
         commandPaths.put(PushApplications.TEXWORKS.getDisplayName(), OS.detectProgramPath("texworks", "TeXworks"));
         commandPaths.put(PushApplications.VIM.getDisplayName(), "vim");
-        commandPaths.put(PushApplications.WIN_EDT.getDisplayName(), OS.detectProgramPath("WinEdt", "WinEdt Team\\WinEdt"));
+        commandPaths.put(
+                PushApplications.WIN_EDT.getDisplayName(), OS.detectProgramPath("WinEdt", "WinEdt Team\\WinEdt"));
         commandPaths.put(PushApplications.SUBLIME_TEXT.getDisplayName(), OS.detectProgramPath("subl", "Sublime"));
         commandPaths.put(PushApplications.VSCODE.getDisplayName(), OS.detectProgramPath("Code", "Microsoft VS Code"));
     }

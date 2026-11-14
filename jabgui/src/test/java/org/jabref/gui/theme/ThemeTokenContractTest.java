@@ -1,5 +1,9 @@
 package org.jabref.gui.theme;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -15,20 +19,13 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
 import javafx.collections.ObservableList;
 import javafx.css.CssParser;
-
 import org.jabref.architecture.AllowedToUseClassGetResource;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /// Guards the color token contract between the base stylesheet and the themes.
 ///
@@ -46,7 +43,10 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 @AllowedToUseClassGetResource("JavaFX internally handles the passed URLs properly.")
 class ThemeTokenContractTest {
 
-    private enum Kind { DECLARATION, USE }
+    private enum Kind {
+        DECLARATION,
+        USE
+    }
 
     private static final String BASE_CSS = "internal/jabref-base.css";
 
@@ -56,8 +56,7 @@ class ThemeTokenContractTest {
 
     /// Hex literals, `rgb()`/`rgba()` literals, and the CSS color keywords JabRef should not hardcode.
     private static final Pattern LITERAL_COLOR = Pattern.compile(
-            "#[0-9A-Fa-f]{3,8}\\b"
-                    + "|rgba?\\(\\s*[0-9]"
+            "#[0-9A-Fa-f]{3,8}\\b|rgba?\\(\\s*[0-9]"
                     + "|:\\s*(?:white|black|red|green|blue|yellow|gray|grey|lightgrey|lightgray|crimson|firebrick|darkviolet|teal)\\s*[;!]");
 
     /// Tokens the base stylesheet derives from theme tokens rather than expecting a theme to declare
@@ -65,8 +64,8 @@ class ThemeTokenContractTest {
     private static final Pattern DERIVED_IN_BASE = Pattern.compile("-color-(?:match|ai-message)-.*");
 
     /// JavaFX's own color variables, as read on the value side of a declaration.
-    private static final Pattern JAVAFX_COLOR = Pattern.compile(
-            "-fx-(?:base|background|color|accent|body-color|control-inner-background(?:-alt)?"
+    private static final Pattern JAVAFX_COLOR =
+            Pattern.compile("-fx-(?:base|background|color|accent|body-color|control-inner-background(?:-alt)?"
                     + "|(?:dark|mid|light)-text-color|focused-text-base-color"
                     + "|(?:box|text-box|outer|inner)-border|focus-color|faint-focus-color|default-button"
                     + "|hover-base|pressed-base|shadow-highlight-color|mark-color|mark-highlight-color"
@@ -75,20 +74,22 @@ class ThemeTokenContractTest {
 
     /// Modena computes these three with `ladder()`, picking light, dark or mid-text according to the
     /// brightness of `-fx-color`, `-fx-background` and `-fx-control-inner-background` respectively.
-    private static final Pattern LADDER_COLOR = Pattern.compile("-fx-text-(?:base|inner|background)-color(?![a-z0-9-])");
+    private static final Pattern LADDER_COLOR =
+            Pattern.compile("-fx-text-(?:base|inner|background)-color(?![a-z0-9-])");
 
     /// The right-hand side of every `-property: value;` declaration.
     private static final Pattern DECLARATION = Pattern.compile("^\\s*-[a-z-]+\\s*:(.*)$", Pattern.MULTILINE);
 
     /// Primer's raw color ramps -- `-color-base-0` - `-color-base-9`.
-    private static final Pattern PALETTE_RAMP = Pattern.compile("-color-(?:base|accent|success|warning|danger)-[0-9]|-color-(?:dark|light)");
+    private static final Pattern PALETTE_RAMP =
+            Pattern.compile("-color-(?:base|accent|success|warning|danger)-[0-9]|-color-(?:dark|light)");
 
     /// All modules holding Java sources and FXML files that may build a scene graph.
     private static final List<String> MODULES = List.of("jablib", "jabkit", "jabsrv", "jabgui", "jabls");
 
     /// JavaFX's three entry points to a node's inline style.
-    private static final Pattern INLINE_STYLE_API = Pattern.compile(
-            "\\.(?:setStyle\\s*\\(|getStyle\\s*\\(\\s*\\)|styleProperty\\s*\\(\\s*\\))");
+    private static final Pattern INLINE_STYLE_API =
+            Pattern.compile("\\.(?:setStyle\\s*\\(|getStyle\\s*\\(\\s*\\)|styleProperty\\s*\\(\\s*\\))");
 
     /// FXML's inline style, the same thing spelled declaratively.
     private static final Pattern INLINE_STYLE_ATTRIBUTE = Pattern.compile("\\sstyle\\s*=\\s*\"");
@@ -110,12 +111,9 @@ class ThemeTokenContractTest {
         int depth = 0;
         for (int i = open; i < content.length(); i++) {
             switch (content.charAt(i)) {
-                case '{' ->
-                        depth++;
-                case '}' ->
-                        depth--;
-                default -> {
-                }
+                case '{' -> depth++;
+                case '}' -> depth--;
+                default -> {}
             }
             if (depth == 0) {
                 return content.substring(open, i);
@@ -132,7 +130,8 @@ class ThemeTokenContractTest {
         Set<String> result = new TreeSet<>();
         Matcher matcher = TOKEN.matcher(content);
         while (matcher.find()) {
-            boolean declaration = content.substring(matcher.end()).stripLeading().startsWith(":");
+            boolean declaration =
+                    content.substring(matcher.end()).stripLeading().startsWith(":");
             if (declaration == (kind == Kind.DECLARATION)) {
                 result.add(matcher.group(1));
             }
@@ -141,7 +140,11 @@ class ThemeTokenContractTest {
     }
 
     private static List<String> valueSides(String content) {
-        return DECLARATION.matcher(content).results().map(result -> result.group(1)).toList();
+        return DECLARATION
+                .matcher(content)
+                .results()
+                .map(result -> result.group(1))
+                .toList();
     }
 
     private static String withoutComments(String content) {
@@ -163,7 +166,9 @@ class ThemeTokenContractTest {
     /// A theme without a parent stands on its own and must declare the complete token contract; a
     /// layered one takes what it does not declare from its parent.
     static List<ThemePreset> unlayeredThemes() {
-        return Arrays.stream(ThemePreset.values()).filter(theme -> theme.getParent().isEmpty()).toList();
+        return Arrays.stream(ThemePreset.values())
+                .filter(theme -> theme.getParent().isEmpty())
+                .toList();
     }
 
     static List<ThemePreset> allThemes() {
@@ -171,7 +176,9 @@ class ThemeTokenContractTest {
     }
 
     static List<ThemePreset> layeredThemes() {
-        return Arrays.stream(ThemePreset.values()).filter(theme -> theme.getParent().isPresent()).toList();
+        return Arrays.stream(ThemePreset.values())
+                .filter(theme -> theme.getParent().isPresent())
+                .toList();
     }
 
     /// A layered theme setting a token nobody reads is a typo or a stale port; the control would
@@ -183,7 +190,8 @@ class ThemeTokenContractTest {
         String themeCss = theme.getStyleSheet().getName();
 
         Set<String> read = new TreeSet<>(tokens(BASE_CSS, Kind.USE));
-        theme.getParent().ifPresent(parent -> read.addAll(tokens(parent.getStyleSheet().getName(), Kind.USE)));
+        theme.getParent()
+                .ifPresent(parent -> read.addAll(tokens(parent.getStyleSheet().getName(), Kind.USE)));
         read.addAll(tokens(themeCss, Kind.USE));
 
         Set<String> unread = new TreeSet<>(tokens(themeCss, Kind.DECLARATION));
@@ -212,8 +220,11 @@ class ThemeTokenContractTest {
             Set<String> undeclared = new TreeSet<>(required);
             undeclared.removeAll(tokensIn(colorSchemeBlock(themeCss, colorScheme), Kind.DECLARATION));
 
-            assertEquals(Set.of(), undeclared,
-                    "%s does not declare every -color- token for 'prefers-color-scheme: %s'".formatted(themeCss, colorScheme));
+            assertEquals(
+                    Set.of(),
+                    undeclared,
+                    "%s does not declare every -color- token for 'prefers-color-scheme: %s'"
+                            .formatted(themeCss, colorScheme));
         }
     }
 
@@ -226,7 +237,9 @@ class ThemeTokenContractTest {
         String themeCss = theme.getStyleSheet().getName();
 
         Set<String> declared = new TreeSet<>(tokens(themeCss, Kind.DECLARATION));
-        theme.getParent().ifPresent(parent -> declared.addAll(tokens(parent.getStyleSheet().getName(), Kind.DECLARATION)));
+        theme.getParent()
+                .ifPresent(
+                        parent -> declared.addAll(tokens(parent.getStyleSheet().getName(), Kind.DECLARATION)));
 
         Set<String> undeclared = new TreeSet<>(tokens(themeCss, Kind.USE));
         undeclared.removeAll(declared);
@@ -251,7 +264,9 @@ class ThemeTokenContractTest {
             unread.removeAll(read);
             unread.removeIf(token -> PALETTE_RAMP.matcher(token).matches());
 
-            assertEquals(Set.of(), unread,
+            assertEquals(
+                    Set.of(),
+                    unread,
                     "%s declares -color- tokens for 'prefers-color-scheme: %s' that no stylesheet reads"
                             .formatted(themeCss, colorScheme));
         }
@@ -260,7 +275,8 @@ class ThemeTokenContractTest {
     /// Walks `src/main/<sourceSet>` of every module and reports every line matching `forbidden`.
     ///
     /// @return `<module>/<path>:<line>: <line content>` for each hit, in file order
-    private static List<String> matchesInSources(String sourceSet, String extension, Pattern forbidden) throws IOException {
+    private static List<String> matchesInSources(String sourceSet, String extension, Pattern forbidden)
+            throws IOException {
         List<String> matches = new ArrayList<>();
         for (String module : MODULES) {
             Path root = Path.of("..", module, "src", "main", sourceSet).normalize();
@@ -269,11 +285,13 @@ class ThemeTokenContractTest {
             }
             // Files.walk holds a directory handle, thus the stream needs to be closed
             try (Stream<Path> paths = Files.walk(root)) {
-                for (Path path : paths.filter(candidate -> candidate.toString().endsWith(extension)).toList()) {
+                for (Path path : paths.filter(candidate -> candidate.toString().endsWith(extension))
+                        .toList()) {
                     List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
                     for (int line = 0; line < lines.size(); line++) {
                         if (forbidden.matcher(lines.get(line)).find()) {
-                            matches.add("%s:%d: %s".formatted(path, line + 1, lines.get(line).strip()));
+                            matches.add("%s:%d: %s"
+                                    .formatted(path, line + 1, lines.get(line).strip()));
                         }
                     }
                 }
@@ -289,7 +307,9 @@ class ThemeTokenContractTest {
     /// There is no exception: even the user's main font size goes through a `font-size-<n>` class.
     @Test
     void noSourceFileUsesTheInlineStyleApi() throws IOException {
-        assertEquals(List.of(), matchesInSources("java", ".java", INLINE_STYLE_API),
+        assertEquals(
+                List.of(),
+                matchesInSources("java", ".java", INLINE_STYLE_API),
                 "an inline style cannot be themed: give the node a style class and let the stylesheets color it");
     }
 
@@ -297,7 +317,9 @@ class ThemeTokenContractTest {
     /// origin, just written in the layout instead of in code.
     @Test
     void noFxmlFileUsesTheInlineStyleAttribute() throws IOException {
-        assertEquals(List.of(), matchesInSources("resources", ".fxml", INLINE_STYLE_ATTRIBUTE),
+        assertEquals(
+                List.of(),
+                matchesInSources("resources", ".fxml", INLINE_STYLE_ATTRIBUTE),
                 "an inline style cannot be themed: use styleClass and let the stylesheets color it");
     }
 
@@ -306,8 +328,11 @@ class ThemeTokenContractTest {
         Set<String> declared = new TreeSet<>(tokens(BASE_CSS, Kind.DECLARATION));
         declared.removeIf(token -> DERIVED_IN_BASE.matcher(token).matches());
 
-        assertEquals(Set.of(), declared,
-                "jabref-base.css is installed last and would override the theme, so it must derive colors, never declare them");
+        assertEquals(
+                Set.of(),
+                declared,
+                "jabref-base.css is installed last and would override the theme, so it must derive colors, never"
+                        + " declare them");
     }
 
     /// Where a JavaFX color variable is a plain alias for a token, read the token: the alias only
@@ -315,14 +340,15 @@ class ThemeTokenContractTest {
     /// `-fx-*` at all. The `ladder()` colors in [#LADDER_COLOR] are the exception and stay.
     @Test
     void baseStylesheetReadsTokensRatherThanJavaFxAliases() {
-        List<String> found = valueSides(withoutComments(read(BASE_CSS)))
-                .stream()
+        List<String> found = valueSides(withoutComments(read(BASE_CSS))).stream()
                 .flatMap(value -> JAVAFX_COLOR.matcher(value).results().map(java.util.regex.MatchResult::group))
                 .distinct()
                 .sorted()
                 .toList();
 
-        assertEquals(List.of(), found,
+        assertEquals(
+                List.of(),
+                found,
                 "jabref-base.css should read the -color- token these JavaFX variables are aliases for");
     }
 
@@ -331,26 +357,30 @@ class ThemeTokenContractTest {
     void themeLeavesTheLadderColorsToModena(ThemePreset theme) {
         String themeCss = theme.getStyleSheet().getName();
 
-        List<String> pinned = DECLARATION.matcher(withoutComments(read(themeCss)))
-                                         .results()
-                                         .map(java.util.regex.MatchResult::group)
-                                         .filter(declaration -> LADDER_COLOR.matcher(declaration.split(":", 2)[0]).find())
-                                         .toList();
+        List<String> pinned = DECLARATION
+                .matcher(withoutComments(read(themeCss)))
+                .results()
+                .map(java.util.regex.MatchResult::group)
+                .filter(declaration ->
+                        LADDER_COLOR.matcher(declaration.split(":", 2)[0]).find())
+                .toList();
 
-        assertEquals(List.of(), pinned,
+        assertEquals(
+                List.of(),
+                pinned,
                 "%s pins a ladder() color, so jabref-base.css can no longer rely on it adapting".formatted(themeCss));
     }
 
     @Test
     void baseStylesheetContainsNoLiteralColors() {
-        List<String> literals = LITERAL_COLOR.matcher(withoutComments(read(BASE_CSS)))
-                                             .results()
-                                             .map(java.util.regex.MatchResult::group)
-                                             .distinct()
-                                             .toList();
+        List<String> literals = LITERAL_COLOR
+                .matcher(withoutComments(read(BASE_CSS)))
+                .results()
+                .map(java.util.regex.MatchResult::group)
+                .distinct()
+                .toList();
 
-        assertEquals(List.of(), literals,
-                "jabref-base.css must take every color from a -color- token");
+        assertEquals(List.of(), literals, "jabref-base.css must take every color from a -color- token");
     }
 
     @ParameterizedTest

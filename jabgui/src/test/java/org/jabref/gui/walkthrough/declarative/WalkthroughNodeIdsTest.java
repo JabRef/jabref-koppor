@@ -1,5 +1,9 @@
 package org.jabref.gui.walkthrough.declarative;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -8,16 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /// Keeps [WalkthroughNodeIds] honest: a constant whose node lost its id resolves to nothing, and
 /// the walkthrough step then spots on nothing instead of failing.
@@ -61,9 +60,10 @@ class WalkthroughNodeIdsTest {
 
         Path file = MAIN.resolve(declaringFile);
         String declaration = declaringFile.endsWith(".fxml")
-                             ? "id=\"" + id + "\""
-                             : "setId(WalkthroughNodeIds." + constantName + ")";
-        assertTrue(Files.readString(file).contains(declaration),
+                ? "id=\"" + id + "\""
+                : "setId(WalkthroughNodeIds." + constantName + ")";
+        assertTrue(
+                Files.readString(file).contains(declaration),
                 file + " does not contain " + declaration + ", so no node carries the walkthrough id \"" + id + "\"");
     }
 
@@ -71,9 +71,11 @@ class WalkthroughNodeIdsTest {
     @MethodSource("declarations")
     void noStylesheetSelectsById(String constantName, String id, @Nullable String declaringFile) throws IOException {
         try (Stream<Path> underMain = Files.walk(MAIN)) {
-            Iterable<Path> stylesheets = underMain.filter(path -> path.toString().endsWith(".css"))::iterator;
+            Iterable<Path> stylesheets =
+                    underMain.filter(path -> path.toString().endsWith(".css"))::iterator;
             for (Path stylesheet : stylesheets) {
-                assertFalse(Files.readString(stylesheet).contains("#" + id),
+                assertFalse(
+                        Files.readString(stylesheet).contains("#" + id),
                         stylesheet + " selects by the node id \"" + id + "\", which the walkthrough resolves on");
             }
         }

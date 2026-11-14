@@ -1,5 +1,10 @@
 package org.jabref.logic.exporter;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.xmlunit.matchers.CompareMatcher.isSimilarTo;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -8,13 +13,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.fileformat.BibtexImporter;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.util.DummyFileUpdateMonitor;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Execution;
@@ -25,11 +28,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
 import org.xmlunit.diff.DefaultNodeMatcher;
 import org.xmlunit.diff.ElementSelectors;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.xmlunit.matchers.CompareMatcher.isSimilarTo;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("exporter")
@@ -44,13 +42,18 @@ public class MSBibImportExportRoundTripFilesTest {
 
     static Stream<String> fileNames() throws IOException, URISyntaxException {
         // we have to point it to one existing file, otherwise it will return the default class path
-        resourceDir = Path.of(MSBibImportExportRoundTripFilesTest.class.getResource("MsBibImportExportRoundTripTest1.bib").toURI()).getParent();
+        resourceDir = Path.of(MSBibImportExportRoundTripFilesTest.class
+                        .getResource("MsBibImportExportRoundTripTest1.bib")
+                        .toURI())
+                .getParent();
         try (Stream<Path> stream = Files.list(resourceDir)) {
-            return stream.map(n -> n.getFileName().toString())
-                         .filter(n -> n.endsWith(".bib"))
-                         .filter(n -> n.startsWith("MsBibImportExportRoundTripTest"))
-                         // mapping required, because we get "source already consumed or closed" otherwise
-                         .toList().stream();
+            return stream
+                    .map(n -> n.getFileName().toString())
+                    .filter(n -> n.endsWith(".bib"))
+                    .filter(n -> n.startsWith("MsBibImportExportRoundTripTest"))
+                    // mapping required, because we get "source already consumed or closed" otherwise
+                    .toList()
+                    .stream();
         }
     }
 
@@ -74,7 +77,8 @@ public class MSBibImportExportRoundTripFilesTest {
         Path expectedFile = resourceDir.resolve(xmlFileName);
         Path importFile = resourceDir.resolve(filename);
 
-        BibDatabaseContext contextFromImport = testImporter.importDatabase(importFile).getDatabaseContext();
+        BibDatabaseContext contextFromImport =
+                testImporter.importDatabase(importFile).getDatabaseContext();
         List<BibEntry> entries = contextFromImport.getEntries();
 
         contextFromImport.getDatabase().getStringValues().forEach(this.databaseContext.getDatabase()::addString);
@@ -86,9 +90,11 @@ public class MSBibImportExportRoundTripFilesTest {
         // The order of the XML elements changes from Windows to Travis environment somehow
         // The order does not really matter, so we ignore it.
         // Source: https://stackoverflow.com/a/16540679/873282
-        assertThat(expected, isSimilarTo(actual)
-                .ignoreWhitespace()
-                .normalizeWhitespace()
-                .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText)));
+        assertThat(
+                expected,
+                isSimilarTo(actual)
+                        .ignoreWhitespace()
+                        .normalizeWhitespace()
+                        .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText)));
     }
 }

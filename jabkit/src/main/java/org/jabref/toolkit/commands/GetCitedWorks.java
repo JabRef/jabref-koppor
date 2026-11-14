@@ -3,7 +3,6 @@ package org.jabref.toolkit.commands;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.fetcher.citation.CitationFetcher;
 import org.jabref.logic.importer.fetcher.citation.CitationFetcherType;
@@ -13,7 +12,6 @@ import org.jabref.toolkit.converter.CitationFetcherTypeConverter;
 import org.jabref.toolkit.exception.ExportServiceException;
 import org.jabref.toolkit.service.CitationFetcherFactory;
 import org.jabref.toolkit.service.ExportService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -34,24 +32,16 @@ class GetCitedWorks implements Callable<Integer> {
     @CommandLine.Mixin
     private JabKit.SharedOptions sharedOptions;
 
-    @CommandLine.Option(
-            names = "--output",
-            description = "Write output to this file (e.g. --output=out.bib)"
-    )
+    @CommandLine.Option(names = "--output", description = "Write output to this file (e.g. --output=out.bib)")
     private Path outputFile;
 
-    @CommandLine.Option(
-            names = "--output-format",
-            description = "Output format (e.g. bibtex)",
-            defaultValue = "bibtex"
-    )
+    @CommandLine.Option(names = "--output-format", description = "Output format (e.g. bibtex)", defaultValue = "bibtex")
     private String outputFormat;
 
     @CommandLine.Option(
             names = "--provider",
             converter = CitationFetcherTypeConverter.class,
-            description = "Metadata provider: ${COMPLETION-CANDIDATES}"
-    )
+            description = "Metadata provider: ${COMPLETION-CANDIDATES}")
     private CitationFetcherType citationFetcherType = CitationFetcherType.OPEN_CITATIONS;
 
     @CommandLine.Parameters(description = "DOI to check")

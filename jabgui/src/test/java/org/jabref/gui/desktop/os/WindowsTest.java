@@ -1,16 +1,16 @@
 package org.jabref.gui.desktop.os;
 
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 class WindowsTest {
 
     @Test
     void shortUrlGoesToExplorer() {
-        assertEquals(List.of("explorer.exe", "\"https://example.com/\""), Windows.urlOpenCommand("https://example.com/"));
+        assertEquals(
+                List.of("explorer.exe", "\"https://example.com/\""), Windows.urlOpenCommand("https://example.com/"));
     }
 
     @Test

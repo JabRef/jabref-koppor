@@ -7,8 +7,7 @@ import org.jspecify.annotations.NullMarked;
 /// see <https://huggingface.co/intfloat/e5-small-v2#faq>. Other models get the text unchanged.
 @NullMarked
 public final class EmbeddingInputPrefixes {
-    private EmbeddingInputPrefixes() {
-    }
+    private EmbeddingInputPrefixes() {}
 
     public static String forQuery(EmbeddingModel embeddingModel, String text) {
         return isE5(embeddingModel) ? "query: " + text : text;
@@ -24,6 +23,7 @@ public final class EmbeddingInputPrefixes {
     }
 
     private static boolean isE5(EmbeddingModel embeddingModel) {
-        return embeddingModel instanceof AsyncEmbeddingModel asyncEmbeddingModel && isE5(asyncEmbeddingModel.getModelName());
+        return embeddingModel instanceof AsyncEmbeddingModel asyncEmbeddingModel
+                && isE5(asyncEmbeddingModel.getModelName());
     }
 }

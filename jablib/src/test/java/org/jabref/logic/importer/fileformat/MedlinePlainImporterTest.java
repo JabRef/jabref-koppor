@@ -1,5 +1,13 @@
 package org.jabref.logic.importer.fileformat;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,14 +18,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.BibEntryAssert;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -27,22 +33,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Answers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 class MedlinePlainImporterTest {
 
     private static final String FILE_ENDING = ".txt";
     private MedlinePlainImporter importer;
 
     private static Stream<String> fileNames() throws IOException {
-        Predicate<String> fileName = name -> name.startsWith("MedlinePlainImporterTest")
-                && name.endsWith(FILE_ENDING);
+        Predicate<String> fileName = name -> name.startsWith("MedlinePlainImporterTest") && name.endsWith(FILE_ENDING);
         return ImporterTestEngine.getTestFiles(fileName).stream();
     }
 
@@ -52,8 +49,10 @@ class MedlinePlainImporterTest {
 
     @BeforeEach
     void setUp() {
-        ImportFormatPreferences importFormatPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
-        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
+        ImportFormatPreferences importFormatPreferences =
+                mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
+        when(importFormatPreferences.bibEntryPreferences().getKeywordSeparator())
+                .thenReturn(',');
         importer = new MedlinePlainImporter(importFormatPreferences);
     }
 
@@ -70,10 +69,12 @@ class MedlinePlainImporterTest {
 
     @Test
     void importMultipleEntriesInSingleFile() throws IOException, URISyntaxException {
-        Path inputFile = Path.of(MedlinePlainImporter.class.getResource("MedlinePlainImporterTestMultipleEntries.txt").toURI());
+        Path inputFile = Path.of(MedlinePlainImporter.class
+                .getResource("MedlinePlainImporterTestMultipleEntries.txt")
+                .toURI());
 
-        List<BibEntry> entries = importer.importDatabase(inputFile).getDatabase()
-                                         .getEntries();
+        List<BibEntry> entries =
+                importer.importDatabase(inputFile).getDatabase().getEntries();
         BibEntry testEntry = entries.getFirst();
 
         assertEquals(7, entries.size());
@@ -82,7 +83,8 @@ class MedlinePlainImporterTest {
         assertEquals(Optional.of("Long, Vicky and Marland, Hilary"), testEntry.getField(StandardField.AUTHOR));
         assertEquals(
                 Optional.of(
-                        "From danger and motherhood to health and beauty: health advice for the factory girl in early twentieth-century Britain."),
+                        "From danger and motherhood to health and beauty: health advice for the factory girl in early"
+                                + " twentieth-century Britain."),
                 testEntry.getField(StandardField.TITLE));
 
         testEntry = entries.get(1);
@@ -94,8 +96,8 @@ class MedlinePlainImporterTest {
         testEntry = entries.get(2);
         assertEquals(StandardEntryType.Book, testEntry.getType());
         assertEquals(
-                Optional.of(
-                        "This is a Testtitle: This title should be appended: This title should also be appended. Another append to the Title? LastTitle"),
+                Optional.of("This is a Testtitle: This title should be appended: This title should also be appended."
+                        + " Another append to the Title? LastTitle"),
                 testEntry.getField(StandardField.TITLE));
 
         testEntry = entries.get(3);
@@ -120,15 +122,18 @@ class MedlinePlainImporterTest {
     @Test
     void meshTermsAreParsedIntoIndividualKeywords() throws IOException {
         try (BufferedReader reader = readerForString("""
-                PMID-12345678
-                MH  - *Kidney Diseases/diagnosis/epidemiology
-                MH  - Female
-                OT  - some other term""")) {
-            List<BibEntry> actualEntries = importer.importDatabase(reader).getDatabase().getEntries();
+            PMID-12345678
+            MH  - *Kidney Diseases/diagnosis/epidemiology
+            MH  - Female
+            OT  - some other term\
+            """)) {
+            List<BibEntry> actualEntries =
+                    importer.importDatabase(reader).getDatabase().getEntries();
 
             BibEntry expectedEntry = new BibEntry()
                     .withField(StandardField.PMID, "12345678")
-                    .withField(StandardField.KEYWORDS,
+                    .withField(
+                            StandardField.KEYWORDS,
                             "Kidney Diseases*/diagnosis, Kidney Diseases*/epidemiology, Female, some other term");
 
             assertEquals(List.of(expectedEntry), actualEntries);
@@ -137,16 +142,17 @@ class MedlinePlainImporterTest {
 
     @ParameterizedTest
     @CsvSource(textBlock = """
-            10.1145/2594455, 10.1145/2594455
-            https://doi.org/10.1145/2594455, 10.1145/2594455
-            """)
+        10.1145/2594455, 10.1145/2594455
+        https://doi.org/10.1145/2594455, 10.1145/2594455
+        """)
     void mapsArticleDoiToStandardDoi(String articleDoi, String expectedDoi) throws IOException {
         String medline = """
-                PMID-12345678
-                AID - %s [doi]
-                AID - S1234 [pii]
-                """.formatted(articleDoi);
-        List<BibEntry> actualEntries = importer.importDatabase(medline).getDatabase().getEntries();
+            PMID-12345678
+            AID - %s [doi]
+            AID - S1234 [pii]
+            """.formatted(articleDoi);
+        List<BibEntry> actualEntries =
+                importer.importDatabase(medline).getDatabase().getEntries();
 
         BibEntry expected = new BibEntry()
                 .withField(StandardField.PMID, "12345678")
@@ -158,17 +164,19 @@ class MedlinePlainImporterTest {
 
     @ParameterizedTest
     @CsvSource(textBlock = """
-            10.1145/2594455 [doi], Journal. 2026;5:67., 10.1145/2594455
-            e123 [pii], Journal. 2026;5:67. doi: 10.4103/2277-9175.180636., 10.4103/2277-9175.180636
-            10.1145/2594455 [doi], Journal. 2026;5:67. doi: 10.4103/2277-9175.180636., 10.1145/2594455
-            """)
-    void mapsDoiFromLocationIdOrSourceToStandardDoi(String locationId, String source, String expectedDoi) throws IOException {
+        10.1145/2594455 [doi], Journal. 2026;5:67., 10.1145/2594455
+        e123 [pii], Journal. 2026;5:67. doi: 10.4103/2277-9175.180636., 10.4103/2277-9175.180636
+        10.1145/2594455 [doi], Journal. 2026;5:67. doi: 10.4103/2277-9175.180636., 10.1145/2594455
+        """)
+    void mapsDoiFromLocationIdOrSourceToStandardDoi(String locationId, String source, String expectedDoi)
+            throws IOException {
         String medline = """
-                PMID-12345678
-                LID - %s
-                SO  - %s
-                """.formatted(locationId, source);
-        List<BibEntry> actualEntries = importer.importDatabase(medline).getDatabase().getEntries();
+            PMID-12345678
+            LID - %s
+            SO  - %s
+            """.formatted(locationId, source);
+        List<BibEntry> actualEntries =
+                importer.importDatabase(medline).getDatabase().getEntries();
 
         BibEntry expected = new BibEntry()
                 .withField(StandardField.PMID, "12345678")
@@ -181,18 +189,20 @@ class MedlinePlainImporterTest {
 
     @Test
     void emptyFileImport() throws IOException {
-        List<BibEntry> emptyEntries = importer.importDatabase(readerForString("")).getDatabase().getEntries();
+        List<BibEntry> emptyEntries =
+                importer.importDatabase(readerForString("")).getDatabase().getEntries();
         assertEquals(List.of(), emptyEntries);
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "MedlinePlainImporterTestCompleteEntry",
-            "MedlinePlainImporterTestMultiAbstract",
-            "MedlinePlainImporterTestMultiTitle",
-            "MedlinePlainImporterTestDOI",
-            "MedlinePlainImporterTestInproceeding"
-    })
+    @ValueSource(
+            strings = {
+                "MedlinePlainImporterTestCompleteEntry",
+                "MedlinePlainImporterTestMultiAbstract",
+                "MedlinePlainImporterTestMultiTitle",
+                "MedlinePlainImporterTestDOI",
+                "MedlinePlainImporterTestInproceeding"
+            })
     void importSingleEntriesInSingleFiles(String testFile) throws IOException, URISyntaxException {
         String medlineFile = testFile + ".txt";
         String bibtexFile = testFile + ".bib";
@@ -213,48 +223,50 @@ class MedlinePlainImporterTest {
     @Test
     void multiLineComments() throws IOException {
         try (BufferedReader reader = readerForString("""
-                PMID-22664220
-                CON - Comment1
-                CIN - Comment2\
+            PMID-22664220
+            CON - Comment1
+            CIN - Comment2\
 
-                EIN - Comment3
-                EFR - Comment4
-                CRI - Comment5
-                CRF - Comment6\
+            EIN - Comment3
+            EFR - Comment4
+            CRI - Comment5
+            CRF - Comment6\
 
-                PRIN- Comment7
-                PROF- Comment8
-                RPI - Comment9
-                RPF - Comment10\
+            PRIN- Comment7
+            PROF- Comment8
+            RPI - Comment9
+            RPF - Comment10\
 
-                RIN - Comment11
-                ROF - Comment12
-                UIN - Comment13
-                UOF - Comment14
-                SPIN- Comment15
-                ORI - Comment16""")) {
-            List<BibEntry> actualEntries = importer.importDatabase(reader).getDatabase().getEntries();
+            RIN - Comment11
+            ROF - Comment12
+            UIN - Comment13
+            UOF - Comment14
+            SPIN- Comment15
+            ORI - Comment16\
+            """)) {
+            List<BibEntry> actualEntries =
+                    importer.importDatabase(reader).getDatabase().getEntries();
             BibEntry expectedEntry = new BibEntry();
 
             expectedEntry.setField(StandardField.PMID, "22664220");
-            expectedEntry.setField(StandardField.COMMENT,
-                    """
-                            Comment1
-                            Comment2
-                            Comment3
-                            Comment4
-                            Comment5
-                            Comment6
-                            Comment7
-                            Comment8
-                            Comment9
-                            Comment10
-                            Comment11
-                            Comment12
-                            Comment13
-                            Comment14
-                            Comment15
-                            Comment16""");
+            expectedEntry.setField(StandardField.COMMENT, """
+                Comment1
+                Comment2
+                Comment3
+                Comment4
+                Comment5
+                Comment6
+                Comment7
+                Comment8
+                Comment9
+                Comment10
+                Comment11
+                Comment12
+                Comment13
+                Comment14
+                Comment15
+                Comment16\
+                """);
             assertEquals(List.of(expectedEntry), actualEntries);
         }
     }
@@ -262,10 +274,12 @@ class MedlinePlainImporterTest {
     @Test
     void keyWords() throws IOException {
         try (BufferedReader reader = readerForString("""
-                PMID-22664795
-                MH  - Female
-                OT  - Male""")) {
-            List<BibEntry> actualEntries = importer.importDatabase(reader).getDatabase().getEntries();
+            PMID-22664795
+            MH  - Female
+            OT  - Male\
+            """)) {
+            List<BibEntry> actualEntries =
+                    importer.importDatabase(reader).getDatabase().getEntries();
 
             BibEntry expectedEntry = new BibEntry();
             expectedEntry.setField(StandardField.PMID, "22664795");
@@ -277,7 +291,8 @@ class MedlinePlainImporterTest {
 
     @Test
     void withNbibFile() throws IOException, URISyntaxException {
-        Path file = Path.of(MedlinePlainImporter.class.getResource("NbibImporterTest.nbib").toURI());
+        Path file = Path.of(
+                MedlinePlainImporter.class.getResource("NbibImporterTest.nbib").toURI());
 
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -286,7 +301,9 @@ class MedlinePlainImporterTest {
 
     @Test
     void withMultipleEntriesInvalidFormat() throws IOException, URISyntaxException {
-        Path file = Path.of(MedlinePlainImporter.class.getResource("MedlinePlainImporterStringOutOfBounds.txt").toURI());
+        Path file = Path.of(MedlinePlainImporter.class
+                .getResource("MedlinePlainImporterStringOutOfBounds.txt")
+                .toURI());
 
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -295,7 +312,9 @@ class MedlinePlainImporterTest {
 
     @Test
     void invalidFormat() throws URISyntaxException, IOException {
-        Path file = Path.of(MedlinePlainImporter.class.getResource("MedlinePlainImporterTestInvalidFormat.xml").toURI());
+        Path file = Path.of(MedlinePlainImporter.class
+                .getResource("MedlinePlainImporterTestInvalidFormat.xml")
+                .toURI());
 
         List<BibEntry> entries = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -315,15 +334,17 @@ class MedlinePlainImporterTest {
     @Test
     void allArticleTypes() throws IOException {
         try (BufferedReader reader = readerForString("""
-                PMID-22664795
-                MH  - Female
-                PT  - journal article\
+            PMID-22664795
+            MH  - Female
+            PT  - journal article\
 
-                PT  - classical article
-                PT  - corrected and republished article
-                PT  - introductory journal article
-                PT  - newspaper article""")) {
-            List<BibEntry> actualEntries = importer.importDatabase(reader).getDatabase().getEntries();
+            PT  - classical article
+            PT  - corrected and republished article
+            PT  - introductory journal article
+            PT  - newspaper article\
+            """)) {
+            List<BibEntry> actualEntries =
+                    importer.importDatabase(reader).getDatabase().getEntries();
 
             BibEntry expectedEntry = new BibEntry(StandardEntryType.Article)
                     .withField(StandardField.KEYWORDS, "Female")

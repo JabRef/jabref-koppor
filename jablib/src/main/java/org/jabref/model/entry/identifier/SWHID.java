@@ -6,10 +6,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jabref.model.entry.field.BiblatexSoftwareField;
 import org.jabref.model.entry.field.Field;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -86,6 +84,6 @@ public class SWHID implements Identifier {
 
     @Override
     public String toString() {
-        return "SWHID{" + "swhid='" + swhid + '\'' + '}';
+        return "SWHID{swhid='" + swhid + '\'' + '}';
     }
 }

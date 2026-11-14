@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
 
 /// A parser converts an [InputStream] into a list of [BibEntry].

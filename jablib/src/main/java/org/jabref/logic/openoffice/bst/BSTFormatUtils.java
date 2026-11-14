@@ -2,7 +2,6 @@ package org.jabref.logic.openoffice.bst;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.text.StringEscapeUtils;
 import org.jspecify.annotations.NullMarked;
 
@@ -15,7 +14,8 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class BSTFormatUtils {
 
-    private static final Pattern INLINE_MATH_SPAN = Pattern.compile("(?s)<span\\s+class=\\\"math inline\\\"[^>]*>(.*?)</span>");
+    private static final Pattern INLINE_MATH_SPAN =
+            Pattern.compile("(?s)<span\\s+class=\\\"math inline\\\"[^>]*>(.*?)</span>");
     private static final Pattern BRACED_ETALCHAR_PATTERN = Pattern.compile("\\{\\\\etalchar\\{([^}]*)}}");
     private static final Pattern ETALCHAR_PATTERN = Pattern.compile("\\\\etalchar\\{([^}]*)}");
     private static final Pattern DIV_OPEN_TAG = Pattern.compile("<div[^>]*>");
@@ -25,8 +25,7 @@ public final class BSTFormatUtils {
     private static final Pattern LEADING_EMPTY_PARAGRAPH_MARKER = Pattern.compile("^\\s*<p>\\s*</p>");
     private static final Pattern TRAILING_EMPTY_PARAGRAPH_MARKERS = Pattern.compile("(?:<p>\\s*</p>\\s*){2,}$");
 
-    private BSTFormatUtils() {
-    }
+    private BSTFormatUtils() {}
 
     // ---- Pandoc HTML -> OOText full conversion (wrapper used by LO path) ----
     public static String convertPandocHtmlToOOText(String pandocHtml) {
@@ -110,7 +109,11 @@ public final class BSTFormatUtils {
                 } else if (c == '}') {
                     if (depth == 0) {
                         String content = input.substring(contentStart, pos);
-                        out.append('\\').append(modern).append('{').append(content).append('}');
+                        out.append('\\')
+                                .append(modern)
+                                .append('{')
+                                .append(content)
+                                .append('}');
                         i = pos + 1;
                         closed = true;
                         break;
@@ -139,10 +142,13 @@ public final class BSTFormatUtils {
         s = s.replaceAll("(?s)<strong>(.*?)</strong>", "<b>$1</b>");
         // style/class spans
         s = s.replaceAll("(?s)<span\\s+class=\"[^\"]*smallcaps[^\"]*\"[^>]*>(.*?)</span>", "<smallcaps>$1</smallcaps>");
-        s = s.replaceAll("(?s)<span\\s+style=\"[^\"]*font-variant\\s*:\\s*small-caps[^\"]*\"[^>]*>(.*?)</span>", "<smallcaps>$1</smallcaps>");
+        s = s.replaceAll(
+                "(?s)<span\\s+style=\"[^\"]*font-variant\\s*:\\s*small-caps[^\"]*\"[^>]*>(.*?)</span>",
+                "<smallcaps>$1</smallcaps>");
         s = s.replaceAll("(?s)<span\\s+style=\"[^\"]*font-weight\\s*:\\s*bold[^\"]*\"[^>]*>(.*?)</span>", "<b>$1</b>");
         s = s.replaceAll("(?s)<span\\s+style=\"[^\"]*font-style\\s*:\\s*italic[^\"]*\"[^>]*>(.*?)</span>", "<i>$1</i>");
-        s = s.replaceAll("(?s)<span\\s+style=\"[^\"]*text-decoration\\s*:\\s*underline[^\"]*\"[^>]*>(.*?)</span>", "<u>$1</u>");
+        s = s.replaceAll(
+                "(?s)<span\\s+style=\"[^\"]*text-decoration\\s*:\\s*underline[^\"]*\"[^>]*>(.*?)</span>", "<u>$1</u>");
         return s;
     }
 

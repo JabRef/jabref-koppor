@@ -1,12 +1,15 @@
 package org.jabref.logic.search.sqlbased;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
-
 import javafx.beans.property.BooleanProperty;
-
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.CurrentThreadTaskExecutor;
@@ -15,7 +18,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryPreferences;
 import org.jabref.model.search.query.SearchQuery;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
@@ -24,11 +26,6 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("embeddedPostgres")
@@ -65,11 +62,14 @@ public class SqlBasedLibrarySearcherTest {
 
     @ParameterizedTest
     @MethodSource("org.jabref.logic.search.LibrarySearcherTestCases#commonSearchCases")
-    void commonSearchCases(List<BibEntry> expectedMatches, SearchQuery query, List<BibEntry> entries) throws IOException {
+    void commonSearchCases(List<BibEntry> expectedMatches, SearchQuery query, List<BibEntry> entries)
+            throws IOException {
         for (BibEntry entry : entries) {
             databaseContext.getDatabase().insertEntry(entry);
         }
-        List<BibEntry> matches = new SqlBasedLibrarySearcher(databaseContext, TASK_EXECUTOR, preferences, postgresServer).getMatches(query);
+        List<BibEntry> matches = new SqlBasedLibrarySearcher(
+                        databaseContext, TASK_EXECUTOR, preferences, postgresServer)
+                .getMatches(query);
         // Order-insensitive comparison: SQL-backed searcher does not guarantee result ordering.
         assertEquals(Set.copyOf(expectedMatches), Set.copyOf(matches));
     }

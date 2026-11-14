@@ -1,8 +1,9 @@
 package org.jabref.gui.preferences.preview;
 
+import com.airhacks.afterburner.injection.Injector;
+import com.tobiasdiez.easybind.EasyBind;
 import java.util.ArrayList;
 import java.util.List;
-
 import javafx.beans.property.ListProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -26,7 +27,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-
+import org.controlsfx.control.textfield.CustomTextField;
+import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionFactory;
 import org.jabref.gui.actions.SimpleCommand;
@@ -45,13 +49,6 @@ import org.jabref.logic.preview.PreviewLayout;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.util.TestEntry;
 import org.jabref.model.database.BibDatabaseContext;
-
-import com.airhacks.afterburner.injection.Injector;
-import com.tobiasdiez.easybind.EasyBind;
-import org.controlsfx.control.textfield.CustomTextField;
-import org.fxmisc.flowless.VirtualizedScrollPane;
-import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.LineNumberFactory;
 
 public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
 
@@ -90,14 +87,17 @@ public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
         Node dualListRegion = buildDualListRegion();
         Node editorRegion = buildEditorRegion();
 
-        setContent(form()
-                .checkbox(Localization.lang("Show preview as a tab in entry editor"), viewModel.showAsExtraTabProperty())
-                .checkbox(Localization.lang("Show preview in entry table tooltip"), viewModel.showPreviewInEntryTableTooltip())
-                .stackedField(Localization.lang("Entry table tooltip duration in seconds (0 keeps it open)"), buildTooltipDurationSpinner())
+        setContent(form().checkbox(
+                        Localization.lang("Show preview as a tab in entry editor"), viewModel.showAsExtraTabProperty())
+                .checkbox(
+                        Localization.lang("Show preview in entry table tooltip"),
+                        viewModel.showPreviewInEntryTableTooltip())
+                .stackedField(
+                        Localization.lang("Entry table tooltip duration in seconds (0 keeps it open)"),
+                        buildTooltipDurationSpinner())
                 .checkbox(Localization.lang("Download cover images"), viewModel.shouldDownloadCoversProperty())
                 .button(Localization.lang("Add BST file"), this::selectBstFile)
-                .custom(dualListRegion, lists -> lists
-                        .validate(viewModel.chosenListValidationStatus(), chosenListView))
+                .custom(dualListRegion, lists -> lists.validate(viewModel.chosenListValidationStatus(), chosenListView))
                 .custom(editorRegion)
                 .build());
 
@@ -105,8 +105,11 @@ public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
     }
 
     private Spinner<Integer> buildTooltipDurationSpinner() {
-        Spinner<Integer> spinner = new Spinner<>(0, 300, viewModel.tooltipDurationProperty().get());
-        spinner.getValueFactory().valueProperty().bindBidirectional(viewModel.tooltipDurationProperty().asObject());
+        Spinner<Integer> spinner =
+                new Spinner<>(0, 300, viewModel.tooltipDurationProperty().get());
+        spinner.getValueFactory()
+                .valueProperty()
+                .bindBidirectional(viewModel.tooltipDurationProperty().asObject());
         spinner.setMaxWidth(100);
         return spinner;
     }
@@ -224,14 +227,10 @@ public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
         public void execute() {
             if (editArea != null) {
                 switch (command) {
-                    case COPY ->
-                            editArea.copy();
-                    case CUT ->
-                            editArea.cut();
-                    case PASTE ->
-                            editArea.paste();
-                    case SELECT_ALL ->
-                            editArea.selectAll();
+                    case COPY -> editArea.copy();
+                    case CUT -> editArea.cut();
+                    case PASTE -> editArea.paste();
+                    case SELECT_ALL -> editArea.selectAll();
                 }
                 editArea.requestFocus();
             }
@@ -253,12 +252,13 @@ public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
         searchBox.setLeft(IconTheme.JabRefIcons.SEARCH.getGraphicNode());
 
         ActionFactory factory = new ActionFactory();
-        contextMenu.getItems().addAll(
-                factory.createMenuItem(StandardActions.CUT, new EditAction(StandardActions.CUT)),
-                factory.createMenuItem(StandardActions.COPY, new EditAction(StandardActions.COPY)),
-                factory.createMenuItem(StandardActions.PASTE, new EditAction(StandardActions.PASTE)),
-                factory.createMenuItem(StandardActions.SELECT_ALL, new EditAction(StandardActions.SELECT_ALL))
-        );
+        contextMenu
+                .getItems()
+                .addAll(
+                        factory.createMenuItem(StandardActions.CUT, new EditAction(StandardActions.CUT)),
+                        factory.createMenuItem(StandardActions.COPY, new EditAction(StandardActions.COPY)),
+                        factory.createMenuItem(StandardActions.PASTE, new EditAction(StandardActions.PASTE)),
+                        factory.createMenuItem(StandardActions.SELECT_ALL, new EditAction(StandardActions.SELECT_ALL)));
         contextMenu.getItems().forEach(item -> item.setGraphic(null));
         contextMenu.getStyleClass().add("context-menu");
 
@@ -274,8 +274,11 @@ public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
         availableListView.setOnKeyTyped(event -> jumpToSearchKey(availableListView, event));
         availableListView.setOnMouseClicked(this::mouseClickedAvailable);
         availableListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        availableListView.selectionModelProperty().getValue().selectedItemProperty().addListener((_, _, newValue) ->
-                viewModel.setPreviewLayout(newValue));
+        availableListView
+                .selectionModelProperty()
+                .getValue()
+                .selectedItemProperty()
+                .addListener((_, _, newValue) -> viewModel.setPreviewLayout(newValue));
 
         chosenListView.itemsProperty().bindBidirectional(viewModel.chosenListProperty());
         viewModel.chosenSelectionModelProperty().setValue(chosenListView.getSelectionModel());
@@ -290,27 +293,73 @@ public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
         chosenListView.setOnKeyTyped(event -> jumpToSearchKey(chosenListView, event));
         chosenListView.setOnMouseClicked(this::mouseClickedChosen);
         chosenListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        chosenListView.selectionModelProperty().getValue().selectedItemProperty().addListener((_, _, newValue) ->
-                viewModel.setPreviewLayout(newValue));
+        chosenListView
+                .selectionModelProperty()
+                .getValue()
+                .selectedItemProperty()
+                .addListener((_, _, newValue) -> viewModel.setPreviewLayout(newValue));
 
-        toRightButton.disableProperty().bind(viewModel.availableSelectionModelProperty().getValue().selectedItemProperty().isNull());
-        toLeftButton.disableProperty().bind(viewModel.chosenSelectionModelProperty().getValue().selectedItemProperty().isNull());
-        sortUpButton.disableProperty().bind(viewModel.chosenSelectionModelProperty().getValue().selectedItemProperty().isNull());
-        sortDownButton.disableProperty().bind(viewModel.chosenSelectionModelProperty().getValue().selectedItemProperty().isNull());
+        toRightButton
+                .disableProperty()
+                .bind(viewModel
+                        .availableSelectionModelProperty()
+                        .getValue()
+                        .selectedItemProperty()
+                        .isNull());
+        toLeftButton
+                .disableProperty()
+                .bind(viewModel
+                        .chosenSelectionModelProperty()
+                        .getValue()
+                        .selectedItemProperty()
+                        .isNull());
+        sortUpButton
+                .disableProperty()
+                .bind(viewModel
+                        .chosenSelectionModelProperty()
+                        .getValue()
+                        .selectedItemProperty()
+                        .isNull());
+        sortDownButton
+                .disableProperty()
+                .bind(viewModel
+                        .chosenSelectionModelProperty()
+                        .getValue()
+                        .selectedItemProperty()
+                        .isNull());
 
         PreviewViewer previewViewer = new PreviewViewer(dialogService, preferences, taskExecutor);
         previewViewer.setDatabaseContext(new BibDatabaseContext());
         previewViewer.setEntry(TestEntry.getTestEntry());
         EasyBind.subscribe(viewModel.selectedLayoutProperty(), previewViewer::setLayout);
-        previewViewer.visibleProperty().bind(viewModel.chosenSelectionModelProperty().getValue().selectedItemProperty().isNotNull()
-                                                      .or(viewModel.availableSelectionModelProperty().getValue().selectedItemProperty().isNotNull()));
+        previewViewer
+                .visibleProperty()
+                .bind(viewModel
+                        .chosenSelectionModelProperty()
+                        .getValue()
+                        .selectedItemProperty()
+                        .isNotNull()
+                        .or(viewModel
+                                .availableSelectionModelProperty()
+                                .getValue()
+                                .selectedItemProperty()
+                                .isNotNull()));
         previewTab.setContent(previewViewer);
 
         editArea.clear();
         editArea.setParagraphGraphicFactory(LineNumberFactory.get(editArea));
         editArea.setContextMenu(contextMenu);
-        editArea.visibleProperty().bind(viewModel.chosenSelectionModelProperty().getValue().selectedItemProperty().isNotNull()
-                                                 .or(viewModel.availableSelectionModelProperty().getValue().selectedItemProperty().isNotNull()));
+        editArea.visibleProperty()
+                .bind(viewModel
+                        .chosenSelectionModelProperty()
+                        .getValue()
+                        .selectedItemProperty()
+                        .isNotNull()
+                        .or(viewModel
+                                .availableSelectionModelProperty()
+                                .getValue()
+                                .selectedItemProperty()
+                                .isNotNull()));
 
         BindingsHelper.bindBidirectional(
                 editArea.textProperty(),
@@ -321,8 +370,8 @@ public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
                     viewModel.refreshPreview();
                 });
 
-        editArea.textProperty().addListener((_, _, newValue) ->
-                editArea.setStyleSpans(0, viewModel.computeHighlighting(newValue)));
+        editArea.textProperty()
+                .addListener((_, _, newValue) -> editArea.setStyleSpans(0, viewModel.computeHighlighting(newValue)));
 
         editArea.focusedProperty().addListener((_, _, newValue) -> {
             if (!newValue) {
@@ -332,10 +381,22 @@ public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
 
         searchBox.textProperty().addListener((_, _, searchTerm) -> viewModel.setAvailableFilter(searchTerm));
 
-        readOnlyLabel.visibleProperty().bind(viewModel.selectedIsEditableProperty().not());
-        resetDefaultButton.disableProperty().bind(viewModel.selectedIsEditableProperty().not());
-        contextMenu.getItems().getFirst().disableProperty().bind(viewModel.selectedIsEditableProperty().not());
-        contextMenu.getItems().get(2).disableProperty().bind(viewModel.selectedIsEditableProperty().not());
+        readOnlyLabel
+                .visibleProperty()
+                .bind(viewModel.selectedIsEditableProperty().not());
+        resetDefaultButton
+                .disableProperty()
+                .bind(viewModel.selectedIsEditableProperty().not());
+        contextMenu
+                .getItems()
+                .getFirst()
+                .disableProperty()
+                .bind(viewModel.selectedIsEditableProperty().not());
+        contextMenu
+                .getItems()
+                .get(2)
+                .disableProperty()
+                .bind(viewModel.selectedIsEditableProperty().not());
         editArea.editableProperty().bind(viewModel.selectedIsEditableProperty());
     }
 
@@ -357,8 +418,10 @@ public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
 
         lastKeyPressTime = System.currentTimeMillis();
 
-        list.getItems().stream().filter(item -> item.getDisplayName().toLowerCase().startsWith(listSearchTerm))
-            .findFirst().ifPresent(list::scrollTo);
+        list.getItems().stream()
+                .filter(item -> item.getDisplayName().toLowerCase().startsWith(listSearchTerm))
+                .findFirst()
+                .ifPresent(list::scrollTo);
     }
 
     private void dragOver(DragEvent event) {
@@ -366,19 +429,29 @@ public class PreviewTab extends AbstractPreferenceTabView<PreviewTabViewModel> {
     }
 
     private void dragDetectedInAvailable(MouseEvent event) {
-        List<PreviewLayout> selectedLayouts = new ArrayList<>(viewModel.availableSelectionModelProperty().getValue().getSelectedItems());
+        List<PreviewLayout> selectedLayouts = new ArrayList<>(
+                viewModel.availableSelectionModelProperty().getValue().getSelectedItems());
         if (!selectedLayouts.isEmpty()) {
             Dragboard dragboard = availableListView.startDragAndDrop(TransferMode.MOVE);
-            viewModel.dragDetected(viewModel.availableListProperty(), viewModel.availableSelectionModelProperty(), selectedLayouts, dragboard);
+            viewModel.dragDetected(
+                    viewModel.availableListProperty(),
+                    viewModel.availableSelectionModelProperty(),
+                    selectedLayouts,
+                    dragboard);
         }
         event.consume();
     }
 
     private void dragDetectedInChosen(MouseEvent event) {
-        List<PreviewLayout> selectedLayouts = new ArrayList<>(viewModel.chosenSelectionModelProperty().getValue().getSelectedItems());
+        List<PreviewLayout> selectedLayouts = new ArrayList<>(
+                viewModel.chosenSelectionModelProperty().getValue().getSelectedItems());
         if (!selectedLayouts.isEmpty()) {
             Dragboard dragboard = chosenListView.startDragAndDrop(TransferMode.MOVE);
-            viewModel.dragDetected(viewModel.chosenListProperty(), viewModel.chosenSelectionModelProperty(), selectedLayouts, dragboard);
+            viewModel.dragDetected(
+                    viewModel.chosenListProperty(),
+                    viewModel.chosenSelectionModelProperty(),
+                    selectedLayouts,
+                    dragboard);
         }
         event.consume();
     }

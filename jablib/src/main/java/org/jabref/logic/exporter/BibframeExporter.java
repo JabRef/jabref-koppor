@@ -15,11 +15,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
-
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.Author;
@@ -29,7 +27,6 @@ import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.strings.LatexToUnicodeAdapter;
-
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,19 +43,43 @@ public class BibframeExporter extends Exporter {
     private static final String BFLC = "http://id.loc.gov/ontologies/bflc/";
     private static final String RESOURCE_BASE = "https://jabref.org/bibframe/sha256/";
     private static final XMLOutputFactory XML_OUTPUT_FACTORY = XMLOutputFactory.newFactory();
-    private static final List<StandardField> EXPORTED_FIELDS = List.of(StandardField.TITLE, StandardField.SUBTITLE,
-            StandardField.AUTHOR, StandardField.EDITOR, StandardField.LANGUAGE, StandardField.ABSTRACT,
-            StandardField.ADDRESS, StandardField.PUBLISHER, StandardField.ISBN, StandardField.ISSN,
-            StandardField.DOI, StandardField.URL, StandardField.EDITION, StandardField.SERIES,
+    private static final List<StandardField> EXPORTED_FIELDS = List.of(
+            StandardField.TITLE,
+            StandardField.SUBTITLE,
+            StandardField.AUTHOR,
+            StandardField.EDITOR,
+            StandardField.LANGUAGE,
+            StandardField.ABSTRACT,
+            StandardField.ADDRESS,
+            StandardField.PUBLISHER,
+            StandardField.ISBN,
+            StandardField.ISSN,
+            StandardField.DOI,
+            StandardField.URL,
+            StandardField.EDITION,
+            StandardField.SERIES,
             StandardField.PAGETOTAL);
     private static final Map<String, String> MARC_LANGUAGE_ALIASES = Map.ofEntries(
-            Map.entry("deu", "ger"), Map.entry("fra", "fre"), Map.entry("nld", "dut"),
-            Map.entry("zho", "chi"), Map.entry("ces", "cze"), Map.entry("ell", "gre"),
-            Map.entry("ron", "rum"), Map.entry("slk", "slo"), Map.entry("hye", "arm"),
-            Map.entry("eus", "baq"), Map.entry("isl", "ice"), Map.entry("mkd", "mac"),
-            Map.entry("mri", "mao"), Map.entry("msa", "may"), Map.entry("mya", "bur"),
-            Map.entry("fas", "per"), Map.entry("sqi", "alb"), Map.entry("bod", "tib"),
-            Map.entry("cym", "wel"), Map.entry("kat", "geo")); // spellchecker:disable-line
+            Map.entry("deu", "ger"),
+            Map.entry("fra", "fre"),
+            Map.entry("nld", "dut"),
+            Map.entry("zho", "chi"),
+            Map.entry("ces", "cze"),
+            Map.entry("ell", "gre"),
+            Map.entry("ron", "rum"),
+            Map.entry("slk", "slo"),
+            Map.entry("hye", "arm"),
+            Map.entry("eus", "baq"),
+            Map.entry("isl", "ice"),
+            Map.entry("mkd", "mac"),
+            Map.entry("mri", "mao"),
+            Map.entry("msa", "may"),
+            Map.entry("mya", "bur"),
+            Map.entry("fas", "per"),
+            Map.entry("sqi", "alb"),
+            Map.entry("bod", "tib"),
+            Map.entry("cym", "wel"), // spellchecker:disable-line
+            Map.entry("kat", "geo")); // spellchecker:disable-line
 
     public BibframeExporter() {
         super("bibframe", "BIBFRAME 2.0 RDF/XML", StandardFileType.RDF);
@@ -102,15 +123,16 @@ public class BibframeExporter extends Exporter {
     private static String contentHash(BibEntry entry, MessageDigest digest) {
         StringJoiner content = new StringJoiner("");
         appendCanonical(content, "type", entry.getType().getName());
-        EXPORTED_FIELDS.forEach(field -> entry.getField(field)
-                                              .ifPresent(value -> appendCanonical(content, field.getName(), value)));
+        EXPORTED_FIELDS.forEach(
+                field -> entry.getField(field).ifPresent(value -> appendCanonical(content, field.getName(), value)));
         entry.getFiles().stream().filter(file -> isOnlineUrl(file.getLink())).forEach(file -> {
             appendCanonical(content, "file", file.getLink());
             appendCanonical(content, "fileDescription", file.getDescription());
             appendCanonical(content, "fileType", file.getFileType());
         });
-        entry.getField(StandardField.YEAR).or(() -> entry.getField(StandardField.DATE))
-             .ifPresent(value -> appendCanonical(content, "publicationDate", value));
+        entry.getField(StandardField.YEAR)
+                .or(() -> entry.getField(StandardField.DATE))
+                .ifPresent(value -> appendCanonical(content, "publicationDate", value));
         if (entry.getType() == StandardEntryType.Article) {
             entry.getField(StandardField.JOURNAL).ifPresent(value -> appendCanonical(content, "journal", value));
             entry.getField(StandardField.PAGES).ifPresent(value -> appendCanonical(content, "pages", value));
@@ -122,9 +144,11 @@ public class BibframeExporter extends Exporter {
         content.add(name.length() + ":" + name + value.length() + ":" + value);
     }
 
-    private static void writeEntry(XMLStreamWriter writer, BibEntry entry, String workUri, String instanceUri) throws XMLStreamException {
+    private static void writeEntry(XMLStreamWriter writer, BibEntry entry, String workUri, String instanceUri)
+            throws XMLStreamException {
         List<LinkedFile> onlineFiles = entry.getFiles().stream()
-                                            .filter(file -> isOnlineUrl(file.getLink())).toList();
+                .filter(file -> isOnlineUrl(file.getLink()))
+                .toList();
         start(writer, "bf", "Work", BF);
         attribute(writer, "rdf", RDF, "about", workUri);
         resource(writer, "rdf", "type", RDF, "rdf", RDF, BF + "Text");
@@ -166,7 +190,8 @@ public class BibframeExporter extends Exporter {
         }
         writeIdentifier(writer, entry, StandardField.ISBN, "Isbn");
         writeIdentifier(writer, entry, StandardField.DOI, "Doi");
-        if (entry.getType() != StandardEntryType.Article || entry.getField(StandardField.JOURNAL).isEmpty()) {
+        if (entry.getType() != StandardEntryType.Article
+                || entry.getField(StandardField.JOURNAL).isEmpty()) {
             writeIdentifier(writer, entry, StandardField.ISSN, "Issn");
         }
         if (!url.isBlank()) {
@@ -185,8 +210,7 @@ public class BibframeExporter extends Exporter {
         }
         String code = languageCode(language).orElse("");
         if (!code.isBlank()) {
-            resource(writer, "bf", "language", BF, "rdf", RDF,
-                    "http://id.loc.gov/vocabulary/languages/" + code);
+            resource(writer, "bf", "language", BF, "rdf", RDF, "http://id.loc.gov/vocabulary/languages/" + code);
             return;
         }
         start(writer, "bf", "language", BF);
@@ -199,18 +223,20 @@ public class BibframeExporter extends Exporter {
     private static Optional<String> languageCode(String language) {
         String normalized = language.trim();
         Optional<String> marcCode = MARC_LANGUAGE_ALIASES.values().stream()
-                                                         .filter(code -> code.equalsIgnoreCase(normalized)).findFirst();
+                .filter(code -> code.equalsIgnoreCase(normalized))
+                .findFirst();
         if (marcCode.isPresent()) {
             return marcCode;
         }
-        return Arrays.stream(Locale.getISOLanguages()).map(Locale::of)
-                     .filter(locale -> normalized.equalsIgnoreCase(locale.getLanguage())
-                             || normalized.equalsIgnoreCase(locale.getISO3Language())
-                             || normalized.equalsIgnoreCase(locale.getDisplayLanguage(Locale.ENGLISH))
-                             || normalized.equalsIgnoreCase(locale.getDisplayLanguage(Locale.GERMAN)))
-                     .map(Locale::getISO3Language)
-                     .map(code -> MARC_LANGUAGE_ALIASES.getOrDefault(code, code))
-                     .findFirst();
+        return Arrays.stream(Locale.getISOLanguages())
+                .map(Locale::of)
+                .filter(locale -> normalized.equalsIgnoreCase(locale.getLanguage())
+                        || normalized.equalsIgnoreCase(locale.getISO3Language())
+                        || normalized.equalsIgnoreCase(locale.getDisplayLanguage(Locale.ENGLISH))
+                        || normalized.equalsIgnoreCase(locale.getDisplayLanguage(Locale.GERMAN)))
+                .map(Locale::getISO3Language)
+                .map(code -> MARC_LANGUAGE_ALIASES.getOrDefault(code, code))
+                .findFirst();
     }
 
     private static void writeTitle(XMLStreamWriter writer, BibEntry entry) throws XMLStreamException {
@@ -226,7 +252,8 @@ public class BibframeExporter extends Exporter {
         writer.writeEndElement();
     }
 
-    private static void writeContributors(XMLStreamWriter writer, BibEntry entry, StandardField field, String role) throws XMLStreamException {
+    private static void writeContributors(XMLStreamWriter writer, BibEntry entry, StandardField field, String role)
+            throws XMLStreamException {
         String nameField = entry.getField(field).orElse("");
         if (nameField.isBlank()) {
             return;
@@ -234,8 +261,8 @@ public class BibframeExporter extends Exporter {
         var authors = AuthorList.parse(nameField).getAuthors();
         // AuthorList drops the trailing hyphen from open-ended authority dates such as "1963-".
         List<String> names = authors.size() == 1 && nameField.endsWith("-")
-                             ? List.of(Author.FORMATTER.format(nameField))
-                             : authors.stream().map(author -> author.getFamilyGiven(false)).toList();
+                ? List.of(Author.FORMATTER.format(nameField))
+                : authors.stream().map(author -> author.getFamilyGiven(false)).toList();
         for (String name : names) {
             start(writer, "bf", "contribution", BF);
             start(writer, "bf", "Contribution", BF);
@@ -272,7 +299,9 @@ public class BibframeExporter extends Exporter {
     private static void writePublication(XMLStreamWriter writer, BibEntry entry) throws XMLStreamException {
         String place = entry.getField(StandardField.ADDRESS).orElse("");
         String publisher = entry.getField(StandardField.PUBLISHER).orElse("");
-        String date = entry.getField(StandardField.YEAR).or(() -> entry.getField(StandardField.DATE)).orElse("");
+        String date = entry.getField(StandardField.YEAR)
+                .or(() -> entry.getField(StandardField.DATE))
+                .orElse("");
         if (place.isBlank() && publisher.isBlank() && date.isBlank()) {
             return;
         }
@@ -294,7 +323,8 @@ public class BibframeExporter extends Exporter {
         writer.writeEndElement();
     }
 
-    private static void writeIdentifier(XMLStreamWriter writer, BibEntry entry, StandardField field, String type) throws XMLStreamException {
+    private static void writeIdentifier(XMLStreamWriter writer, BibEntry entry, StandardField field, String type)
+            throws XMLStreamException {
         String value = entry.getField(field).orElse("");
         if (value.isBlank()) {
             return;
@@ -339,7 +369,9 @@ public class BibframeExporter extends Exporter {
         writer.writeEndElement();
     }
 
-    private static void writeLinkedFiles(XMLStreamWriter writer, List<LinkedFile> onlineFiles, String workUri, String instanceUri) throws XMLStreamException {
+    private static void writeLinkedFiles(
+            XMLStreamWriter writer, List<LinkedFile> onlineFiles, String workUri, String instanceUri)
+            throws XMLStreamException {
         for (int index = 0; index < onlineFiles.size(); index++) {
             LinkedFile file = onlineFiles.get(index);
             start(writer, "bf", "Instance", BF);
@@ -364,32 +396,49 @@ public class BibframeExporter extends Exporter {
         return uri.startsWith("https://") || uri.startsWith("http://");
     }
 
-    private static void start(XMLStreamWriter writer, String prefix, String localName, String namespace) throws XMLStreamException {
+    private static void start(XMLStreamWriter writer, String prefix, String localName, String namespace)
+            throws XMLStreamException {
         writer.writeStartElement(prefix, localName, namespace);
     }
 
-    private static void literal(XMLStreamWriter writer, String prefix, String localName, String namespace, String value) throws XMLStreamException {
+    private static void literal(XMLStreamWriter writer, String prefix, String localName, String namespace, String value)
+            throws XMLStreamException {
         start(writer, prefix, localName, namespace);
         writer.writeCharacters(LatexToUnicodeAdapter.format(value));
         writer.writeEndElement();
     }
 
-    private static void optionalLiteral(XMLStreamWriter writer, String prefix, String localName, String namespace,
-                                        BibEntry entry, StandardField field) throws XMLStreamException {
+    private static void optionalLiteral(
+            XMLStreamWriter writer,
+            String prefix,
+            String localName,
+            String namespace,
+            BibEntry entry,
+            StandardField field)
+            throws XMLStreamException {
         String value = entry.getField(field).orElse("");
         if (!value.isBlank()) {
             literal(writer, prefix, localName, namespace, value);
         }
     }
 
-    private static void resource(XMLStreamWriter writer, String prefix, String localName, String namespace,
-                                 String attributePrefix, String attributeNamespace, String value) throws XMLStreamException {
+    private static void resource(
+            XMLStreamWriter writer,
+            String prefix,
+            String localName,
+            String namespace,
+            String attributePrefix,
+            String attributeNamespace,
+            String value)
+            throws XMLStreamException {
         start(writer, prefix, localName, namespace);
         attribute(writer, attributePrefix, attributeNamespace, "resource", value);
         writer.writeEndElement();
     }
 
-    private static void attribute(XMLStreamWriter writer, String prefix, String namespace, String localName, String value) throws XMLStreamException {
+    private static void attribute(
+            XMLStreamWriter writer, String prefix, String namespace, String localName, String value)
+            throws XMLStreamException {
         writer.writeAttribute(prefix, namespace, localName, value);
     }
 }

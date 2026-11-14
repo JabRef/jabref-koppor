@@ -3,7 +3,6 @@ package org.jabref.gui.walkthrough.effects;
 import javafx.event.Event;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 

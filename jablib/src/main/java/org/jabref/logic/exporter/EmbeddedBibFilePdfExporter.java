@@ -10,7 +10,16 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentNameDictionary;
+import org.apache.pdfbox.pdmodel.PDEmbeddedFilesNameTreeNode;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.filespecification.PDComplexFileSpecification;
+import org.apache.pdfbox.pdmodel.common.filespecification.PDEmbeddedFile;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.jabref.logic.bibtex.BibEntryWriter;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.bibtex.FieldWriter;
@@ -22,17 +31,6 @@ import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
-
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDDocumentNameDictionary;
-import org.apache.pdfbox.pdmodel.PDEmbeddedFilesNameTreeNode;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.common.filespecification.PDComplexFileSpecification;
-import org.apache.pdfbox.pdmodel.common.filespecification.PDEmbeddedFile;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +45,10 @@ public class EmbeddedBibFilePdfExporter extends Exporter {
     private final BibEntryTypesManager bibEntryTypesManager;
     private final FieldPreferences fieldPreferences;
 
-    public EmbeddedBibFilePdfExporter(BibDatabaseMode bibDatabaseMode, BibEntryTypesManager bibEntryTypesManager, FieldPreferences fieldPreferences) {
+    public EmbeddedBibFilePdfExporter(
+            BibDatabaseMode bibDatabaseMode,
+            BibEntryTypesManager bibEntryTypesManager,
+            FieldPreferences fieldPreferences) {
         super("bib", "Embedded BibTeX", StandardFileType.PDF);
         this.bibDatabaseMode = bibDatabaseMode;
         this.bibEntryTypesManager = bibEntryTypesManager;
@@ -55,12 +56,12 @@ public class EmbeddedBibFilePdfExporter extends Exporter {
     }
 
     /// @param databaseContext the database to export from
-    /// @param file            the file to write to. If it contains "split", then the output is split into different files
+    /// @param file            the file to write to. If it contains "split", then the output is split into different
+    /// files
     /// @param entries         a list containing all entries that should be exported
     @Override
-    public void export(@NonNull BibDatabaseContext databaseContext,
-                       @NonNull Path file,
-                       @NonNull List<BibEntry> entries) throws IOException {
+    public void export(@NonNull BibDatabaseContext databaseContext, @NonNull Path file, @NonNull List<BibEntry> entries)
+            throws IOException {
         if (!Files.exists(file)) {
             try (PDDocument document = new PDDocument()) {
                 PDPage page = new PDPage();
@@ -70,7 +71,10 @@ public class EmbeddedBibFilePdfExporter extends Exporter {
                     contentStream.beginText();
                     contentStream.newLineAtOffset(25, 500);
                     contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
-                    contentStream.showText("This PDF was created by JabRef. It demonstrates the embedding of BibTeX data in PDF files. Please open the file metadata view of your PDF viewer to see the attached files.");
+                    contentStream.showText(
+                            "This PDF was created by JabRef. It demonstrates the embedding of BibTeX data in PDF"
+                                    + " files. Please open the file metadata view of your PDF viewer to see the"
+                                    + " attached files.");
                     contentStream.endText();
                 }
                 document.save(file.toString());
@@ -83,7 +87,8 @@ public class EmbeddedBibFilePdfExporter extends Exporter {
         embedBibTex(bibString, file);
     }
 
-    /// Similar method: [org.jabref.logic.xmp.XmpUtilWriter#writeXmp(Path, BibEntry, org.jabref.model.database.BibDatabase)]
+    /// Similar method: [org.jabref.logic.xmp.XmpUtilWriter#writeXmp(Path, BibEntry,
+    /// org.jabref.model.database.BibDatabase)]
     private void embedBibTex(String bibTeX, Path path) throws IOException {
         if (!Files.exists(path) || !FileUtil.isPDFFile(path)) {
             return;
@@ -95,7 +100,8 @@ public class EmbeddedBibFilePdfExporter extends Exporter {
         boolean committed = false;
         try {
             try (PDDocument document = Loader.loadPDF(path.toFile())) {
-                PDDocumentNameDictionary nameDictionary = document.getDocumentCatalog().getNames();
+                PDDocumentNameDictionary nameDictionary =
+                        document.getDocumentCatalog().getNames();
                 PDEmbeddedFilesNameTreeNode efTree;
                 Map<String, PDComplexFileSpecification> names;
 

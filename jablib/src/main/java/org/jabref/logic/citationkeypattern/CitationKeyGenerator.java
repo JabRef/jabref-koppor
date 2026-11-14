@@ -1,12 +1,13 @@
 package org.jabref.logic.citationkeypattern;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.CharMatcher;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.PatternSyntaxException;
-
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.logic.util.strings.Transliteration;
 import org.jabref.model.FieldChange;
@@ -14,9 +15,6 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.EntryType;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.CharMatcher;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +26,8 @@ public class CitationKeyGenerator extends BracketedPattern {
 
     /// Source of disallowed characters: <https://tex.stackexchange.com/a/408548/9075>
     /// These characters are disallowed in BibTeX keys.
-    public static final List<Character> DISALLOWED_CHARACTERS = Arrays.asList('{', '}', '(', ')', ',', '=', '\\', '"', '#', '%', '~', '\'');
+    public static final List<Character> DISALLOWED_CHARACTERS =
+            Arrays.asList('{', '}', '(', ')', ',', '=', '\\', '"', '#', '%', '~', '\'');
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CitationKeyGenerator.class);
 
@@ -38,23 +37,31 @@ public class CitationKeyGenerator extends BracketedPattern {
     private final String unwantedCharacters;
     private final Character keywordSeparator;
 
-    public CitationKeyGenerator(BibDatabaseContext bibDatabaseContext, CitationKeyPatternPreferences citationKeyPatternPreferences) {
-        this(bibDatabaseContext.getMetaData().getCiteKeyPatterns(citationKeyPatternPreferences.getKeyPatterns()),
+    public CitationKeyGenerator(
+            BibDatabaseContext bibDatabaseContext, CitationKeyPatternPreferences citationKeyPatternPreferences) {
+        this(
+                bibDatabaseContext.getMetaData().getCiteKeyPatterns(citationKeyPatternPreferences.getKeyPatterns()),
                 bibDatabaseContext.getDatabase(),
                 citationKeyPatternPreferences,
                 bibDatabaseContext.getKeywordSeparator(citationKeyPatternPreferences.getKeywordSeparator()));
     }
 
-    public CitationKeyGenerator(@NonNull AbstractCitationKeyPatterns citeKeyPattern,
-                                @NonNull BibDatabase database,
-                                @NonNull CitationKeyPatternPreferences citationKeyPatternPreferences) {
-        this(citeKeyPattern, database, citationKeyPatternPreferences, citationKeyPatternPreferences.getKeywordSeparator());
+    public CitationKeyGenerator(
+            @NonNull AbstractCitationKeyPatterns citeKeyPattern,
+            @NonNull BibDatabase database,
+            @NonNull CitationKeyPatternPreferences citationKeyPatternPreferences) {
+        this(
+                citeKeyPattern,
+                database,
+                citationKeyPatternPreferences,
+                citationKeyPatternPreferences.getKeywordSeparator());
     }
 
-    private CitationKeyGenerator(AbstractCitationKeyPatterns citeKeyPattern,
-                                 BibDatabase database,
-                                 CitationKeyPatternPreferences citationKeyPatternPreferences,
-                                 Character keywordSeparator) {
+    private CitationKeyGenerator(
+            AbstractCitationKeyPatterns citeKeyPattern,
+            BibDatabase database,
+            CitationKeyPatternPreferences citationKeyPatternPreferences,
+            Character keywordSeparator) {
         this.citeKeyPattern = citeKeyPattern;
         this.database = database;
         this.citationKeyPatternPreferences = citationKeyPatternPreferences;
@@ -62,7 +69,8 @@ public class CitationKeyGenerator extends BracketedPattern {
         this.unwantedCharacters = citationKeyPatternPreferences.getUnwantedCharacters();
     }
 
-    /// Computes an appendix to a citation key that could make it unique. We use a-z for numbers 0-25, and then aa-az, ba-bz, etc.
+    /// Computes an appendix to a citation key that could make it unique. We use a-z for numbers 0-25, and then aa-az,
+    /// ba-bz, etc.
     ///
     /// @param number The appendix number.
     /// @return The String to append.
@@ -78,16 +86,12 @@ public class CitationKeyGenerator extends BracketedPattern {
     @VisibleForTesting
     static String removeUnwantedCharacters(String key, String unwantedCharacters) {
         String newKey = key.chars()
-                           .filter(c -> unwantedCharacters.indexOf(c) == -1)
-                           .filter(c -> !DISALLOWED_CHARACTERS.contains((char) c))
-                           .map(CitationKeyGenerator::normalizeSuperscriptOrSubscript)
-                           .filter(c -> c != -1)
-                           .collect(
-                                   StringBuilder::new,
-                                   StringBuilder::appendCodePoint,
-                                   StringBuilder::append
-                           )
-                           .toString();
+                .filter(c -> unwantedCharacters.indexOf(c) == -1)
+                .filter(c -> !DISALLOWED_CHARACTERS.contains((char) c))
+                .map(CitationKeyGenerator::normalizeSuperscriptOrSubscript)
+                .filter(c -> c != -1)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
 
         // Replace non-English characters like umlauts etc. with a sensible
         // letter or letter combination that bibtex can accept.
@@ -98,19 +102,16 @@ public class CitationKeyGenerator extends BracketedPattern {
     /// preserving Unicode (e.g., ²) and diacritical characters.
     ///
     /// @param key                the citation key to sanitize
-    /// @param unwantedCharacters - pass through [org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences#getUnwantedCharacters()]
+    /// @param unwantedCharacters - pass through
+    /// [org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences#getUnwantedCharacters()]
     /// @return the key with illegal and unwanted characters removed
     public static String removeUnwantedCharactersWithKeepDiacritics(String key, String unwantedCharacters) {
         return key.chars()
-                  .filter(c -> !Character.isWhitespace(c))
-                  .filter(c -> unwantedCharacters.indexOf(c) == -1)
-                  .filter(c -> !DISALLOWED_CHARACTERS.contains((char) c))
-                  .collect(
-                          StringBuilder::new,
-                          StringBuilder::appendCodePoint,
-                          StringBuilder::append
-                  )
-                  .toString();
+                .filter(c -> !Character.isWhitespace(c))
+                .filter(c -> unwantedCharacters.indexOf(c) == -1)
+                .filter(c -> !DISALLOWED_CHARACTERS.contains((char) c))
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
     }
 
     /// Maps Unicode superscript and subscript digits to their ASCII counterparts (e.g., ¹ → 1, ₂ → 2).
@@ -163,7 +164,8 @@ public class CitationKeyGenerator extends BracketedPattern {
         return transliterateIfNeeded(newKey);
     }
 
-    /// A letter will be appended to the key based on the user's preferences, either always or to prevent duplicated keys.
+    /// A letter will be appended to the key based on the user's preferences, either always or to prevent duplicated
+    /// keys.
     ///
     /// @param key    the new key
     /// @param oldKey the old key
@@ -175,8 +177,8 @@ public class CitationKeyGenerator extends BracketedPattern {
             occurrences--; // No change, so we can accept one dupe.
         }
 
-        boolean alwaysAddLetter = citationKeyPatternPreferences.getKeySuffix()
-                == CitationKeyPatternPreferences.KeySuffix.ALWAYS;
+        boolean alwaysAddLetter =
+                citationKeyPatternPreferences.getKeySuffix() == CitationKeyPatternPreferences.KeySuffix.ALWAYS;
 
         if (alwaysAddLetter || occurrences != 0) {
             // The key is already in use, so we must modify it.
@@ -225,7 +227,10 @@ public class CitationKeyGenerator extends BracketedPattern {
             try {
                 key = key.replaceAll(regex, replacement);
             } catch (PatternSyntaxException e) {
-                LOGGER.warn("There is a syntax error in the regular expression \"{}\" used to generate a citation key", regex, e);
+                LOGGER.warn(
+                        "There is a syntax error in the regular expression \"{}\" used to generate a citation key",
+                        regex,
+                        e);
             }
         }
         return key;
@@ -252,7 +257,8 @@ public class CitationKeyGenerator extends BracketedPattern {
             String expandedPattern;
             List<String> fieldParts = parseFieldAndModifiers(bracket);
 
-            expandedPattern = removeUnwantedCharacters(getFieldValue(entry, fieldParts.getFirst(), keywordDelimiter, database), unwantedCharacters);
+            expandedPattern = removeUnwantedCharacters(
+                    getFieldValue(entry, fieldParts.getFirst(), keywordDelimiter, database), unwantedCharacters);
             // check whether there is a modifier on the end such as
             // ":lower":
             if (fieldParts.size() > 1) {

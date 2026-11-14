@@ -3,9 +3,7 @@ package org.jabref.gui.maintable;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-
 import javafx.beans.binding.BooleanExpression;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.ActionHelper;
@@ -29,8 +27,7 @@ public class OpenUrlAction extends SimpleCommand {
         this.preferences = preferences;
 
         BooleanExpression fieldIsSet = ActionHelper.isAnyFieldSetForSelectedEntry(
-                List.of(StandardField.URL, StandardField.DOI, StandardField.URI, StandardField.EPRINT),
-                stateManager);
+                List.of(StandardField.URL, StandardField.DOI, StandardField.URI, StandardField.EPRINT), stateManager);
         // [impl->req~ux.disabled-vs-hidden~1]
         this.executable.bind(ActionHelper.needsEntriesSelected(1, stateManager).and(fieldIsSet));
     }
@@ -70,10 +67,12 @@ public class OpenUrlAction extends SimpleCommand {
 
             if (link.isPresent()) {
                 try {
-                    if (field.equals(StandardField.DOI) && preferences.getDOIPreferences().shouldUseCustom()) {
+                    if (field.equals(StandardField.DOI)
+                            && preferences.getDOIPreferences().shouldUseCustom()) {
                         NativeDesktop.openCustomDoi(link.get(), preferences, dialogService);
                     } else {
-                        NativeDesktop.openExternalViewer(databaseContext, preferences, link.get(), field, dialogService, entry);
+                        NativeDesktop.openExternalViewer(
+                                databaseContext, preferences, link.get(), field, dialogService, entry);
                     }
                 } catch (IOException e) {
                     dialogService.showErrorDialogAndWait(Localization.lang("Unable to open link."), e);

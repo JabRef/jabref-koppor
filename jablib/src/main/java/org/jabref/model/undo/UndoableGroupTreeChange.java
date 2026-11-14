@@ -1,11 +1,9 @@
 package org.jabref.model.undo;
 
 import java.util.Optional;
-
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.metadata.MetaData;
 import org.jabref.model.metadata.event.MetaDataChangeSource;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Replaces a library's group tree as a whole.
@@ -24,7 +22,8 @@ import org.jspecify.annotations.NullMarked;
 /// the library does — fine for comparing two changes, but do not put these in a hash-based
 /// collection.
 @NullMarked
-public record UndoableGroupTreeChange(MetaData metaData, Optional<GroupTreeNode> before, Optional<GroupTreeNode> after) implements BibChange {
+public record UndoableGroupTreeChange(MetaData metaData, Optional<GroupTreeNode> before, Optional<GroupTreeNode> after)
+        implements BibChange {
 
     public UndoableGroupTreeChange {
         before = before.map(GroupTreeNode::copySubtree);
@@ -39,8 +38,9 @@ public record UndoableGroupTreeChange(MetaData metaData, Optional<GroupTreeNode>
     @Override
     public ApplyResult apply() {
         after.map(GroupTreeNode::copySubtree)
-             .ifPresentOrElse(root -> metaData.setGroups(root, MetaDataChangeSource.JOURNAL),
-                     () -> metaData.clearGroups(MetaDataChangeSource.JOURNAL));
+                .ifPresentOrElse(
+                        root -> metaData.setGroups(root, MetaDataChangeSource.JOURNAL),
+                        () -> metaData.clearGroups(MetaDataChangeSource.JOURNAL));
         return ApplyResult.SUCCESS;
     }
 }

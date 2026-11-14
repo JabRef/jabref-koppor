@@ -2,7 +2,6 @@ package org.jabref.logic.importer.fetcher.transformers;
 
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
@@ -56,11 +55,10 @@ public class ArXivQueryTransformer extends YearRangeByFilteringQueryTransformer 
         // multi-word author searches for structured query-node transformations.
         Optional<String> authorQuery = entry.getField(StandardField.AUTHOR).map(author -> "au:" + author);
         Optional<String> titleQuery = entry.getField(StandardField.TITLE)
-                                           .map(StringUtil::ignoreCurlyBracket)
-                                           .map(this::handleTitle);
-        var queryTerms = Stream.of(authorQuery, titleQuery)
-                               .flatMap(Optional::stream)
-                               .toList();
+                .map(StringUtil::ignoreCurlyBracket)
+                .map(this::handleTitle);
+        var queryTerms =
+                Stream.of(authorQuery, titleQuery).flatMap(Optional::stream).toList();
 
         if (queryTerms.isEmpty()) {
             return Optional.empty();

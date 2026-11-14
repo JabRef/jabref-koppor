@@ -1,5 +1,8 @@
 package org.jabref.logic.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -8,12 +11,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.fileformat.BibframeImporter;
 import org.jabref.logic.importer.fileformat.MarcXmlParser;
@@ -23,7 +24,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -34,9 +34,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-
 /// Run with MARC2BIBFRAME2_DIR and BIBFRAME2MARC_DIR set to the pinned source checkouts.
 // [utest->req~export.bibframe.rdfxml~1]
 @NullMarked
@@ -44,18 +41,26 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 class BibframeConverterIntegrationTest {
     private static final String FORWARD_COMMIT = "ed9abb038214474e8fc8ba4035d01c42fe0246de";
     private static final String REVERSE_COMMIT = "36a96c813437ac714e8c9479b2f7be56dc78671d";
-    private static final Optional<Path> FORWARD_DIRECTORY = Optional.ofNullable(System.getenv("MARC2BIBFRAME2_DIR")).map(Path::of);
-    private static final Optional<Path> REVERSE_DIRECTORY = Optional.ofNullable(System.getenv("BIBFRAME2MARC_DIR")).map(Path::of);
+    private static final Optional<Path> FORWARD_DIRECTORY =
+            Optional.ofNullable(System.getenv("MARC2BIBFRAME2_DIR")).map(Path::of);
+    private static final Optional<Path> REVERSE_DIRECTORY =
+            Optional.ofNullable(System.getenv("BIBFRAME2MARC_DIR")).map(Path::of);
 
     @BeforeAll
     static void prepareConverters() throws IOException, InterruptedException {
         if (FORWARD_DIRECTORY.isPresent()) {
             Path forward = FORWARD_DIRECTORY.orElseThrow();
-            assertEquals(FORWARD_COMMIT, outputOf("git", "-C", forward.toString(), "rev-parse", "HEAD").trim());
+            assertEquals(
+                    FORWARD_COMMIT,
+                    outputOf("git", "-C", forward.toString(), "rev-parse", "HEAD")
+                            .trim());
         }
         if (REVERSE_DIRECTORY.isPresent()) {
             Path reverse = REVERSE_DIRECTORY.orElseThrow();
-            assertEquals(REVERSE_COMMIT, outputOf("git", "-C", reverse.toString(), "rev-parse", "HEAD").trim());
+            assertEquals(
+                    REVERSE_COMMIT,
+                    outputOf("git", "-C", reverse.toString(), "rev-parse", "HEAD")
+                            .trim());
             assertEquals(0, exitCodeOf("make", "-C", reverse.toString()));
         }
     }
@@ -78,9 +83,11 @@ class BibframeConverterIntegrationTest {
         BibframeImporter importer = new BibframeImporter();
         List<BibEntry> entries = new ArrayList<>();
         for (String name : List.of("book", "article")) {
-            Path fixture = Path.of(BibframeConverterIntegrationTest.class.getResource(
-                    "/org/jabref/logic/importer/bibframe/" + name + ".rdf").toURI());
-            entries.add(importer.importDatabase(fixture).getDatabase().getEntries().getFirst());
+            Path fixture = Path.of(BibframeConverterIntegrationTest.class
+                    .getResource("/org/jabref/logic/importer/bibframe/" + name + ".rdf")
+                    .toURI());
+            entries.add(
+                    importer.importDatabase(fixture).getDatabase().getEntries().getFirst());
         }
         Path combined = directory.resolve("combined.rdf");
         new BibframeExporter().export(new BibDatabaseContext(), combined, entries);
@@ -110,12 +117,22 @@ class BibframeConverterIntegrationTest {
                 root.appendChild(single.importNode(topLevels.get(elementIndex), true));
             }
             Path isolated = directory.resolve(index + "-isolated.rdf");
-            TransformerFactory.newInstance().newTransformer().transform(new DOMSource(single), new StreamResult(isolated.toFile()));
+            TransformerFactory.newInstance()
+                    .newTransformer()
+                    .transform(new DOMSource(single), new StreamResult(isolated.toFile()));
 
             Path reversed = directory.resolve(index + "-reversed.xml");
-            runToFile(reversed, "xsltproc", "--stringparam", "pRecordId", "split-" + index,
-                    "--stringparam", "pGenerationDatestamp", "20200101000000.0",
-                    reverse.resolve("bibframe2marc.xsl").toString(), isolated.toString());
+            runToFile(
+                    reversed,
+                    "xsltproc",
+                    "--stringparam",
+                    "pRecordId",
+                    "split-" + index,
+                    "--stringparam",
+                    "pGenerationDatestamp",
+                    "20200101000000.0",
+                    reverse.resolve("bibframe2marc.xsl").toString(),
+                    isolated.toString());
             assertEquals(expectedReverseEntry(name), parseStandaloneMarc(reversed));
         }
     }
@@ -127,7 +144,8 @@ class BibframeConverterIntegrationTest {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
-        Document dataset = factory.newDocumentBuilder().parse(forward.resolve("dataset/loc_general.xml").toFile());
+        Document dataset = factory.newDocumentBuilder()
+                .parse(forward.resolve("dataset/loc_general.xml").toFile());
         NodeList records = dataset.getElementsByTagNameNS("http://www.loc.gov/MARC21/slim", "record");
         Optional<Element> selected = Optional.empty();
         for (int index = 0; index < records.getLength(); index++) {
@@ -146,48 +164,88 @@ class BibframeConverterIntegrationTest {
         Document source = factory.newDocumentBuilder().newDocument();
         source.appendChild(source.importNode(selected.orElseThrow(), true));
         Path marc = directory.resolve("loc.marcxml");
-        TransformerFactory.newInstance().newTransformer().transform(new DOMSource(source), new StreamResult(marc.toFile()));
+        TransformerFactory.newInstance()
+                .newTransformer()
+                .transform(new DOMSource(source), new StreamResult(marc.toFile()));
 
         Path officialRdf = directory.resolve("loc-official.rdf");
-        runToFile(officialRdf, "xsltproc", "--stringparam", "baseuri", "https://example.org/loc/",
-                "--stringparam", "idfield", "001", forward.resolve("xsl/marc2bibframe2.xsl").toString(), marc.toString());
+        runToFile(
+                officialRdf,
+                "xsltproc",
+                "--stringparam",
+                "baseuri",
+                "https://example.org/loc/",
+                "--stringparam",
+                "idfield",
+                "001",
+                forward.resolve("xsl/marc2bibframe2.xsl").toString(),
+                marc.toString());
         BibframeImporter importer = new BibframeImporter();
-        BibEntry imported = importer.importDatabase(officialRdf).getDatabase().getEntries().getFirst();
+        BibEntry imported =
+                importer.importDatabase(officialRdf).getDatabase().getEntries().getFirst();
         assertEquals(Optional.of("267"), imported.getField(StandardField.PAGETOTAL));
-        assertEquals(Optional.of("http://www.loc.gov/catdir/enhancements/fy0603/98190991-d.html"),
+        assertEquals(
+                Optional.of("http://www.loc.gov/catdir/enhancements/fy0603/98190991-d.html"),
                 imported.getField(StandardField.URL));
 
         Path exportedRdf = directory.resolve("loc-jabref.rdf");
         new BibframeExporter().export(new BibDatabaseContext(), exportedRdf, List.of(imported));
-        assertEquals(imported, importer.importDatabase(exportedRdf).getDatabase().getEntries().getFirst());
+        assertEquals(
+                imported,
+                importer.importDatabase(exportedRdf).getDatabase().getEntries().getFirst());
     }
 
     private void checkConverterChain(String name, Path directory) throws Exception {
-        assumeTrue(FORWARD_DIRECTORY.isPresent() && REVERSE_DIRECTORY.isPresent(),
+        assumeTrue(
+                FORWARD_DIRECTORY.isPresent() && REVERSE_DIRECTORY.isPresent(),
                 "Set MARC2BIBFRAME2_DIR and BIBFRAME2MARC_DIR to run the converter check");
 
         Path forward = FORWARD_DIRECTORY.orElseThrow();
         Path reverse = REVERSE_DIRECTORY.orElseThrow();
 
-        Path source = Path.of(BibframeConverterIntegrationTest.class.getResource(
-                "/org/jabref/logic/importer/bibframe/" + name + ".marcxml").toURI());
+        Path source = Path.of(BibframeConverterIntegrationTest.class
+                .getResource("/org/jabref/logic/importer/bibframe/" + name + ".marcxml")
+                .toURI());
         Path officialRdf = directory.resolve(name + "-official.rdf");
-        runToFile(officialRdf, "xsltproc", "--stringparam", "baseuri", "https://example.org/jabref/",
-                "--stringparam", "idfield", "001", "--stringparam", "pGenerationDatestamp", "2020-01-01T00:00:00Z",
-                "--stringparam", "idsource", "http://id.loc.gov/vocabulary/organizations/dlc",
-                forward.resolve("xsl/marc2bibframe2.xsl").toString(), source.toString());
+        runToFile(
+                officialRdf,
+                "xsltproc",
+                "--stringparam",
+                "baseuri",
+                "https://example.org/jabref/",
+                "--stringparam",
+                "idfield",
+                "001",
+                "--stringparam",
+                "pGenerationDatestamp",
+                "2020-01-01T00:00:00Z",
+                "--stringparam",
+                "idsource",
+                "http://id.loc.gov/vocabulary/organizations/dlc",
+                forward.resolve("xsl/marc2bibframe2.xsl").toString(),
+                source.toString());
 
         BibframeImporter importer = new BibframeImporter();
-        BibEntry imported = importer.importDatabase(officialRdf).getDatabase().getEntries().getFirst();
+        BibEntry imported =
+                importer.importDatabase(officialRdf).getDatabase().getEntries().getFirst();
         Path exportedRdf = directory.resolve(name + "-jabref.rdf");
         new BibframeExporter().export(new BibDatabaseContext(), exportedRdf, List.of(imported));
-        BibEntry reimported = importer.importDatabase(exportedRdf).getDatabase().getEntries().getFirst();
+        BibEntry reimported =
+                importer.importDatabase(exportedRdf).getDatabase().getEntries().getFirst();
         assertEquals(imported, reimported);
 
         Path reversedMarc = directory.resolve(name + "-reversed.xml");
-        runToFile(reversedMarc, "xsltproc", "--stringparam", "pRecordId", name + "-001",
-                "--stringparam", "pGenerationDatestamp", "20200101000000.0",
-                reverse.resolve("bibframe2marc.xsl").toString(), exportedRdf.toString());
+        runToFile(
+                reversedMarc,
+                "xsltproc",
+                "--stringparam",
+                "pRecordId",
+                name + "-001",
+                "--stringparam",
+                "pGenerationDatestamp",
+                "20200101000000.0",
+                reverse.resolve("bibframe2marc.xsl").toString(),
+                exportedRdf.toString());
         BibEntry finalEntry = parseStandaloneMarc(reversedMarc);
 
         assertEquals(expectedReverseEntry(name), finalEntry);
@@ -198,15 +256,18 @@ class BibframeConverterIntegrationTest {
         if (xml.startsWith("<?xml")) {
             xml = xml.substring(xml.indexOf("?>") + 2);
         }
-        String envelope = "<searchRetrieveResponse><records><record><recordData>"
-                + xml + "</recordData></record></records></searchRetrieveResponse>";
-        return new MarcXmlParser().parseEntries(new ByteArrayInputStream(envelope.getBytes(StandardCharsets.UTF_8))).getFirst();
+        String envelope = "<searchRetrieveResponse><records><record><recordData>" + xml
+                + "</recordData></record></records></searchRetrieveResponse>";
+        return new MarcXmlParser()
+                .parseEntries(new ByteArrayInputStream(envelope.getBytes(StandardCharsets.UTF_8)))
+                .getFirst();
     }
 
     private static BibEntry expectedReverseEntry(String name) throws Exception {
         if ("article".equals(name)) {
-            Path source = Path.of(BibframeConverterIntegrationTest.class.getResource(
-                    "/org/jabref/logic/importer/bibframe/article.marcxml").toURI());
+            Path source = Path.of(BibframeConverterIntegrationTest.class
+                    .getResource("/org/jabref/logic/importer/bibframe/article.marcxml")
+                    .toURI());
             return parseStandaloneMarc(source);
         }
         return new BibEntry(StandardEntryType.Misc)
@@ -226,7 +287,8 @@ class BibframeConverterIntegrationTest {
     }
 
     private static void runToFile(Path output, String... command) throws IOException, InterruptedException {
-        Process process = new ProcessBuilder(command).redirectOutput(output.toFile()).start();
+        Process process =
+                new ProcessBuilder(command).redirectOutput(output.toFile()).start();
         String error = new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8);
         assertEquals(0, process.waitFor(), error);
     }

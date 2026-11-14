@@ -7,10 +7,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibtexString;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -23,8 +21,11 @@ public class BibStringDiff {
     // These fields are then analyzed in [DatabaseChangeList] which creates a detailed representation of changes and
     // skips empty diffs.
 
-    @Nullable private final BibtexString originalString;
-    @Nullable private final BibtexString newString;
+    @Nullable
+    private final BibtexString originalString;
+
+    @Nullable
+    private final BibtexString newString;
 
     BibStringDiff(@Nullable BibtexString originalString, @Nullable BibtexString newString) {
         this.originalString = originalString;
@@ -43,8 +44,7 @@ public class BibStringDiff {
 
         // First try to match by string names.
         for (BibtexString original : originalDatabase.getStringValues()) {
-            Optional<BibtexString> match = newDatabase
-                    .getStringValues().stream()
+            Optional<BibtexString> match = newDatabase.getStringValues().stream()
                     .filter(test -> test.getName().equals(original.getName()))
                     .findAny();
             if (match.isPresent()) {
@@ -64,8 +64,7 @@ public class BibStringDiff {
         for (Iterator<BibtexString> iterator = notMatched.iterator(); iterator.hasNext(); ) {
             BibtexString original = iterator.next();
 
-            Optional<BibtexString> match = newDatabase
-                    .getStringValues().stream()
+            Optional<BibtexString> match = newDatabase.getStringValues().stream()
                     .filter(test -> test.getContent().equals(original.getContent()))
                     .findAny();
             if (match.isPresent()) {
@@ -84,8 +83,8 @@ public class BibStringDiff {
 
         // Finally, see if there are remaining strings in the new database. They must have been added.
         newDatabase.getStringValues().stream()
-                   .filter(test -> !used.contains(test))
-                   .forEach(newString -> differences.add(new BibStringDiff(null, newString)));
+                .filter(test -> !used.contains(test))
+                .forEach(newString -> differences.add(new BibStringDiff(null, newString)));
 
         return differences;
     }

@@ -1,7 +1,6 @@
 package org.jabref.logic.ai.summarization.exporters;
 
 import java.util.List;
-
 import org.jabref.logic.ai.chatting.exporters.AiChatJsonExporter;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.model.ai.AiMetadata;

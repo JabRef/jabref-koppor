@@ -1,11 +1,11 @@
 package org.jabref.logic.util;
 
+import com.tobiasdiez.easybind.EasyBind;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -14,8 +14,6 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
-import com.tobiasdiez.easybind.EasyBind;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,15 +27,18 @@ import org.slf4j.LoggerFactory;
 ///
 /// Example (for using the fluent interface)
 ///
-///     BackgroundTask.wrap(() -> ...).showToUser(true).onRunning(() -> ...).onSuccess(() -> ...).onFailure(() -> ...).executeWith(taskExecutor);
+///     BackgroundTask.wrap(() -> ...).showToUser(true).onRunning(() -> ...).onSuccess(() -> ...).onFailure(() ->
+/// ...).executeWith(taskExecutor);
 ///
-/// Background: The task executor one takes care to show it in the UI. See `org.jabref.gui.StateManager#addBackgroundTask(BackgroundTask, Task)` for details.
+/// Background: The task executor one takes care to show it in the UI. See
+/// `org.jabref.gui.StateManager#addBackgroundTask(BackgroundTask, Task)` for details.
 ///
 /// We cannot use [javafx.concurrent.Task] directly since it runs certain update notifications on the JavaFX thread,
 /// and so makes testing harder.
 ///
 /// TODO: Think of migrating to <a href="https://github.com/ReactiveX/RxJava#simple-background-computation">RxJava</a>;
-///       <a href="https://www.baeldung.com/java-completablefuture">CompletableFuture</a> do not seem to support everything.
+///       <a href="https://www.baeldung.com/java-completablefuture">CompletableFuture</a> do not seem to support
+/// everything.
 ///       If this is not possible, add an @implNote why.
 ///
 /// @param <V> type of the return value of the task
@@ -51,9 +52,11 @@ public abstract class BackgroundTask<V> {
     private Runnable onFinished;
     private final BooleanProperty isCancelled = new SimpleBooleanProperty(false);
     private final BooleanProperty mayInterruptIfRunning = new SimpleBooleanProperty(true);
-    private final ObjectProperty<BackgroundProgress> progress = new SimpleObjectProperty<>(new BackgroundProgress(0, 0));
+    private final ObjectProperty<BackgroundProgress> progress =
+            new SimpleObjectProperty<>(new BackgroundProgress(0, 0));
     private final StringProperty message = new SimpleStringProperty("");
-    private final StringProperty title = new SimpleStringProperty(this.getClass().getSimpleName());
+    private final StringProperty title =
+            new SimpleStringProperty(this.getClass().getSimpleName());
     private final DoubleProperty workDonePercentage = new SimpleDoubleProperty(0);
     private final BooleanProperty showToUser = new SimpleBooleanProperty(false);
     private final BooleanProperty willBeRecoveredAutomatically = new SimpleBooleanProperty(false);
@@ -173,7 +176,8 @@ public abstract class BackgroundTask<V> {
     /// Tells whether the caller shows a failure of this task to the user itself.
     ///
     /// The notification center uses this for visible tasks (see [#showToUser(boolean)]):
-    /// if `true`, the notification of a failed task is removed, because the error already reaches the user through the [#onFailure(Consumer)] consumer;
+    /// if `true`, the notification of a failed task is removed, because the error already reaches the user through the
+    /// [#onFailure(Consumer)] consumer;
     /// if `false`, the notification turns into an error notification, so the failure is not lost.
     ///
     /// @return `true` if the [#onFailure(Consumer)] consumer shows the error to the user
@@ -184,7 +188,8 @@ public abstract class BackgroundTask<V> {
     /// Declares whether the [#onFailure(Consumer)] consumer shows the error to the user, for example in a dialog.
     ///
     /// Set it to `true` only if the consumer really shows the error.
-    /// Otherwise, keep the default `false`, so that a failed visible task shows an error notification instead of failing silently.
+    /// Otherwise, keep the default `false`, so that a failed visible task shows an error notification instead of
+    /// failing silently.
     ///
     /// @param failureShownByCaller `true` if the [#onFailure(Consumer)] consumer shows the error to the user
     /// @see #failureShownByCaller()
@@ -311,9 +316,7 @@ public abstract class BackgroundTask<V> {
         return this;
     }
 
-    public record BackgroundProgress(
-            double workDone,
-            double max) {
+    public record BackgroundProgress(double workDone, double max) {
 
         public double getWorkDonePercentage() {
             if (max == 0) {

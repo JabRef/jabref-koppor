@@ -1,18 +1,16 @@
 package org.jabref.logic.crawler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import org.jabref.model.study.Study;
 import org.jabref.model.study.StudyCatalog;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StudyYamlV1MigratorTest {
 
@@ -24,7 +22,9 @@ class StudyYamlV1MigratorTest {
         String input = Files.readString(Path.of(inputUrl.toURI()));
         String expected = Files.readString(Path.of(expectedUrl.toURI()));
 
-        assertEquals(expected.replace("\r\n", "\n").trim(), StudyYamlV1Migrator.migrate(input).replace("\r\n", "\n").trim());
+        assertEquals(
+                expected.replace("\r\n", "\n").trim(),
+                StudyYamlV1Migrator.migrate(input).replace("\r\n", "\n").trim());
     }
 
     @Test
@@ -35,7 +35,9 @@ class StudyYamlV1MigratorTest {
         String input = Files.readString(Path.of(inputUrl.toURI()));
         String expected = Files.readString(Path.of(expectedUrl.toURI()));
 
-        assertEquals(expected.replace("\r\n", "\n").trim(), StudyYamlV1Migrator.migrate(input).replace("\r\n", "\n").trim());
+        assertEquals(
+                expected.replace("\r\n", "\n").trim(),
+                StudyYamlV1Migrator.migrate(input).replace("\r\n", "\n").trim());
     }
 
     @Test

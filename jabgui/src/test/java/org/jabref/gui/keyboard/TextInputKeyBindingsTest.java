@@ -1,9 +1,14 @@
 package org.jabref.gui.keyboard;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -13,21 +18,13 @@ import javafx.scene.control.TextInputControl;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
-
 import org.jabref.gui.testutils.JavaFxExtension;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @NullMarked
 @ExtendWith(JavaFxExtension.class)
@@ -37,7 +34,7 @@ class TextInputKeyBindingsTest {
 
     @ParameterizedTest
     @MethodSource("verticalNavigationBoundaryData")
-        // [utest->req~ux.text-editing.visual-line-navigation~1]
+    // [utest->req~ux.text-editing.visual-line-navigation~1]
     void verticalNavigationHandlesShortAndEmptyLines(KeyBinding binding, int start, int expected) {
         JavaFxExtension.invokeAndWait(() -> {
             TextArea area = new TextArea("abcdefghij\nx\n\nlastline");
@@ -72,10 +69,12 @@ class TextInputKeyBindingsTest {
     }
 
     @Test
-        // [utest->req~ux.text-editing.visual-line-navigation~1]
+    // [utest->req~ux.text-editing.visual-line-navigation~1]
     void verticalNavigationMovesAcrossWrappedVisualLines() {
         JavaFxExtension.invokeAndWait(() -> {
-            TextArea area = new TextArea("A long paragraph that wraps over multiple visible lines without any newline characters. More words to ensure wrapping.");
+            TextArea area = new TextArea(
+                    "A long paragraph that wraps over multiple visible lines without any newline characters. More"
+                            + " words to ensure wrapping.");
             area.setWrapText(true);
             StackPane root = new StackPane(area);
             new Scene(root, 150, 200);
@@ -100,21 +99,11 @@ class TextInputKeyBindingsTest {
 
         ReadOnlyObjectWrapper<Node> focusOwner = new ReadOnlyObjectWrapper<>(control);
 
-        when(scene.focusOwnerProperty())
-                .thenReturn(focusOwner.getReadOnlyProperty());
+        when(scene.focusOwnerProperty()).thenReturn(focusOwner.getReadOnlyProperty());
 
-        when(repository.mapToKeyBinding(any(KeyEvent.class)))
-                .thenReturn(Optional.of(binding));
+        when(repository.mapToKeyBinding(any(KeyEvent.class))).thenReturn(Optional.of(binding));
 
-        KeyEvent event = new KeyEvent(
-                KeyEvent.KEY_PRESSED,
-                "",
-                "",
-                KeyCode.A,
-                false,
-                true,
-                false,
-                false);
+        KeyEvent event = new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.A, false, true, false, false);
 
         TextInputKeyBindings.call(scene, event, repository);
 
@@ -122,7 +111,7 @@ class TextInputKeyBindingsTest {
     }
 
     @Test
-        // [utest->req~ux.text-editing.line-boundaries~2]
+    // [utest->req~ux.text-editing.line-boundaries~2]
     void killLinePreservesFollowingLines() {
         TextArea area = new TextArea(MULTILINE_TEXT);
         area.positionCaret(16);
@@ -148,7 +137,7 @@ class TextInputKeyBindingsTest {
 
     @ParameterizedTest
     @MethodSource("killLineTestData")
-        // [utest->req~ux.text-editing.line-boundaries~2]
+    // [utest->req~ux.text-editing.line-boundaries~2]
     void killLinePreservesBoundariesAndCanBeUndone(String text, int caretPosition, String expectedText) {
         TextArea area = new TextArea(text);
         area.positionCaret(caretPosition);
@@ -184,17 +173,27 @@ class TextInputKeyBindingsTest {
     }
 
     private static Stream<Arguments> nullTextTestData() {
-        return Stream.of(KeyBinding.EDITOR_BEGINNING, KeyBinding.EDITOR_END,
-                             KeyBinding.EDITOR_BEGINNING_DOC, KeyBinding.EDITOR_END_DOC,
-                             KeyBinding.EDITOR_UP, KeyBinding.EDITOR_DOWN, KeyBinding.EDITOR_KILL_LINE)
-                     .flatMap(binding -> Stream.<Supplier<TextInputControl>>of(TextArea::new, TextField::new)
-                                               .map(controlFactory -> Arguments.of(controlFactory, binding)));
+        return Stream.of(
+                        KeyBinding.EDITOR_BEGINNING,
+                        KeyBinding.EDITOR_END,
+                        KeyBinding.EDITOR_BEGINNING_DOC,
+                        KeyBinding.EDITOR_END_DOC,
+                        KeyBinding.EDITOR_UP,
+                        KeyBinding.EDITOR_DOWN,
+                        KeyBinding.EDITOR_KILL_LINE)
+                .flatMap(binding -> Stream.<Supplier<TextInputControl>>of(TextArea::new, TextField::new)
+                        .map(controlFactory -> Arguments.of(controlFactory, binding)));
     }
 
     @ParameterizedTest
     @MethodSource({"textFieldNavigationTestData", "textAreaNavigationTestData"})
-        // [utest->req~ux.text-editing.line-boundaries~2]
-    void navigationRespectsLineAndDocumentBoundaries(Supplier<TextInputControl> controlFactory, String text, int caretPosition, KeyBinding binding, int expectedPosition) {
+    // [utest->req~ux.text-editing.line-boundaries~2]
+    void navigationRespectsLineAndDocumentBoundaries(
+            Supplier<TextInputControl> controlFactory,
+            String text,
+            int caretPosition,
+            KeyBinding binding,
+            int expectedPosition) {
         TextInputControl control = controlFactory.get();
         control.setText(text);
         control.positionCaret(caretPosition);

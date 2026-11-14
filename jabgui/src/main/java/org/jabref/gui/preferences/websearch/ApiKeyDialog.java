@@ -1,5 +1,6 @@
 package org.jabref.gui.preferences.websearch;
 
+import com.airhacks.afterburner.views.ViewLoader;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
@@ -12,21 +13,23 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.util.Duration;
-
 import org.jabref.gui.FXDialog;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.websearch.WebSearchTabViewModel.FetcherViewModel;
 import org.jabref.gui.util.DelayedExecution;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.views.ViewLoader;
-
 public class ApiKeyDialog extends FXDialog {
     public static final Duration STATUS_DURATION = Duration.seconds(5);
 
-    @FXML private TextField apiKeyField;
-    @FXML private CheckBox persistApiKeysCheckBox;
-    @FXML private Button testButton;
+    @FXML
+    private TextField apiKeyField;
+
+    @FXML
+    private CheckBox persistApiKeysCheckBox;
+
+    @FXML
+    private Button testButton;
 
     private final WebSearchTabViewModel viewModel;
     private final FetcherViewModel fetcherViewModel;
@@ -39,9 +42,7 @@ public class ApiKeyDialog extends FXDialog {
         this.viewModel = viewModel;
         this.fetcherViewModel = fetcherViewModel;
 
-        ViewLoader.view(this)
-                  .load()
-                  .setAsDialogPane(this);
+        ViewLoader.view(this).load().setAsDialogPane(this);
 
         Button okButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
         okButton.disableProperty().bind(apiKeyValid.not());
@@ -67,7 +68,9 @@ public class ApiKeyDialog extends FXDialog {
         });
 
         persistApiKeysCheckBox.selectedProperty().bindBidirectional(viewModel.getApikeyPersistProperty());
-        persistApiKeysCheckBox.disableProperty().bind(viewModel.apiKeyPersistAvailable().not());
+        persistApiKeysCheckBox
+                .disableProperty()
+                .bind(viewModel.apiKeyPersistAvailable().not());
 
         rotation = new RotateTransition(Duration.seconds(1), IconTheme.JabRefIcons.REFRESH.getGraphicNode());
         rotation.setByAngle(360);
@@ -96,7 +99,10 @@ public class ApiKeyDialog extends FXDialog {
                 return;
             }
 
-            testButton.setGraphic(success ? IconTheme.JabRefIcons.SUCCESS.getGraphicNode() : IconTheme.JabRefIcons.ERROR.getGraphicNode());
+            testButton.setGraphic(
+                    success
+                            ? IconTheme.JabRefIcons.SUCCESS.getGraphicNode()
+                            : IconTheme.JabRefIcons.ERROR.getGraphicNode());
             testButton.getStyleClass().removeAll("text-success", "text-danger");
             testButton.getStyleClass().add(success ? "text-success" : "text-danger");
             testButton.setText(success ? Localization.lang("API Key Valid") : Localization.lang("API Key Invalid"));

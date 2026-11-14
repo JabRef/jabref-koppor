@@ -1,11 +1,11 @@
 package org.jabref.logic.formatter.bibtexfields;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /// Tests in addition to the general tests from [org.jabref.logic.formatter.FormatterTest]
 class UnicodeConverterTest {
@@ -24,14 +24,14 @@ class UnicodeConverterTest {
 
     @ParameterizedTest
     @CsvSource(textBlock = """
-            # combining accents
-            {\\"{a}}, a\u0308
-            {\\"{a}}b, a\u0308b
+        # combining accents
+        {\\"{a}}, a\u0308
+        {\\"{a}}b, a\u0308b
 
-            # plain unicode letters
-            {\\"{a}}, ä
-            $\\Epsilon$, \u0395
-            """)
+        # plain unicode letters
+        {\\"{a}}, ä
+        $\\Epsilon$, \u0395
+        """)
     void unicode(String expected, String text) {
         assertEquals(expected, formatter.format(text));
     }

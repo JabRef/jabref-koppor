@@ -1,6 +1,8 @@
 package org.jabref.logic.importer.fetcher;
 
-/// Discussion on the trust levels is available at our <a href="https://devdocs.jabref.org/code-howtos/fetchers.html#fulltext-fetchers">documentation on fulltext fetchers</a>.
+/// Discussion on the trust levels is available at our <a
+/// href="https://devdocs.jabref.org/code-howtos/fetchers.html#fulltext-fetchers">documentation on fulltext
+/// fetchers</a>.
 public enum TrustLevel {
     SOURCE(3),
     PUBLISHER(2),

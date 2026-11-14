@@ -1,7 +1,6 @@
 package org.jabref.model.undo;
 
 import java.util.List;
-
 import org.jspecify.annotations.NullMarked;
 
 /// What applying a [BibChange] achieved.
@@ -24,8 +23,7 @@ public record ApplyResult(List<Failure> failures) {
 
     /// A change that was not applied, and why — the reason is for a log or a message, not for a
     /// caller to branch on.
-    public record Failure(BibChange change, String reason) {
-    }
+    public record Failure(BibChange change, String reason) {}
 
     /// One change that was not applied.
     public static ApplyResult of(BibChange change, String reason) {

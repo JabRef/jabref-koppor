@@ -3,7 +3,6 @@ package org.jabref.model.entry;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.StandardField;
 
@@ -28,9 +27,9 @@ public class EntryConverter {
         EntryConverter.FIELD_ALIASES_BIBTEX_TO_BIBLATEX.put(StandardField.SCHOOL, StandardField.INSTITUTION);
 
         // inverse map
-        EntryConverter.FIELD_ALIASES_BIBLATEX_TO_BIBTEX = EntryConverter.FIELD_ALIASES_BIBTEX_TO_BIBLATEX
-                .entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+        EntryConverter.FIELD_ALIASES_BIBLATEX_TO_BIBTEX =
+                EntryConverter.FIELD_ALIASES_BIBTEX_TO_BIBLATEX.entrySet().stream()
+                        .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
 
         // all aliases
         FIELD_ALIASES = new HashMap<>();
@@ -38,6 +37,5 @@ public class EntryConverter {
         FIELD_ALIASES.putAll(EntryConverter.FIELD_ALIASES_BIBLATEX_TO_BIBTEX);
     }
 
-    private EntryConverter() {
-    }
+    private EntryConverter() {}
 }

@@ -2,7 +2,6 @@ package org.jabref.gui.linkedfile;
 
 import java.nio.file.Path;
 import java.util.Optional;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
@@ -27,11 +26,12 @@ public class AttachFileAction extends SimpleCommand {
     private final FilePreferences filePreferences;
     private final ExternalApplicationsPreferences externalApplicationsPreferences;
 
-    public AttachFileAction(LibraryTab libraryTab,
-                            DialogService dialogService,
-                            StateManager stateManager,
-                            FilePreferences filePreferences,
-                            ExternalApplicationsPreferences externalApplicationsPreferences) {
+    public AttachFileAction(
+            LibraryTab libraryTab,
+            DialogService dialogService,
+            StateManager stateManager,
+            FilePreferences filePreferences,
+            ExternalApplicationsPreferences externalApplicationsPreferences) {
         this.libraryTab = libraryTab;
         this.stateManager = stateManager;
         this.dialogService = dialogService;
@@ -60,8 +60,9 @@ public class AttachFileAction extends SimpleCommand {
         Path initialDirectory;
 
         if (filePreferences.shouldOpenFileExplorerInFileDirectory()) {
-            initialDirectory = databaseContext.getFirstExistingFileDir(filePreferences)
-                                              .orElse(filePreferences.getWorkingDirectory());
+            initialDirectory = databaseContext
+                    .getFirstExistingFileDir(filePreferences)
+                    .orElse(filePreferences.getWorkingDirectory());
         } else if (filePreferences.shouldOpenFileExplorerInLastUsedDirectory()) {
             initialDirectory = filePreferences.getLastUsedDirectory();
         } else {
@@ -75,19 +76,16 @@ public class AttachFileAction extends SimpleCommand {
         dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(newFile -> {
             filePreferences.setLastUsedDirectory(newFile.getParent());
             LinkedFile linkedFile = LinkedFilesEditorViewModel.fromFile(
-                    newFile,
-                    databaseContext.getFileDirectories(filePreferences),
-                    externalApplicationsPreferences);
+                    newFile, databaseContext.getFileDirectories(filePreferences), externalApplicationsPreferences);
 
             LinkedFileEditDialog dialog = new LinkedFileEditDialog(linkedFile);
 
-            dialogService.showCustomDialogAndWait(dialog)
-                         .ifPresent(editedLinkedFile -> {
-                             Optional<FieldChange> fieldChange = entry.addFile(editedLinkedFile);
-                             fieldChange.ifPresent(change -> {
-                                 libraryTab.getUndoManager().addEdit(new UndoableFieldChange(change));
-                             });
-                         });
+            dialogService.showCustomDialogAndWait(dialog).ifPresent(editedLinkedFile -> {
+                Optional<FieldChange> fieldChange = entry.addFile(editedLinkedFile);
+                fieldChange.ifPresent(change -> {
+                    libraryTab.getUndoManager().addEdit(new UndoableFieldChange(change));
+                });
+            });
         });
     }
 }

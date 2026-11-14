@@ -1,10 +1,11 @@
 package org.jabref.logic.importer.plaincitation;
 
+import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.data.message.UserMessage;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.templates.AiTemplateRenderer;
 import org.jabref.logic.ai.util.LlmResponseCleaner;
@@ -17,9 +18,6 @@ import org.jabref.logic.importer.fileformat.BibtexParser;
 import org.jabref.logic.importer.fileformat.pdf.PdfImporterWithPlainCitationParser;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.BibEntry;
-
-import dev.langchain4j.data.message.SystemMessage;
-import dev.langchain4j.data.message.UserMessage;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -33,8 +31,7 @@ public class LlmPlainCitationParser extends PdfImporterWithPlainCitationParser i
     public LlmPlainCitationParser(
             ImportFormatPreferences importFormatPreferences,
             String citationParsingSystemMessageTemplate,
-            ChatModel chatModel
-    ) {
+            ChatModel chatModel) {
         this.importFormatPreferences = importFormatPreferences;
         this.citationParsingSystemMessageTemplate = citationParsingSystemMessageTemplate;
         this.chatModel = chatModel;
@@ -60,10 +57,10 @@ public class LlmPlainCitationParser extends PdfImporterWithPlainCitationParser i
         try {
             String bibtexString = getLlmResponse(text);
             return BibtexParser.singleFromString(bibtexString, importFormatPreferences)
-                               .map(entry -> {
-                                   eprintCleanup.cleanup(entry);
-                                   return entry;
-                               });
+                    .map(entry -> {
+                        eprintCleanup.cleanup(entry);
+                        return entry;
+                    });
         } catch (ParseException e) {
             throw new FetcherException("Could not parse BibTeX returned from LLM", e);
         }
@@ -88,14 +85,16 @@ public class LlmPlainCitationParser extends PdfImporterWithPlainCitationParser i
     }
 
     private String getLlmResponse(String text) {
-        String systemMessage = AiTemplateRenderer.renderCitationParsingSystemMessage(citationParsingSystemMessageTemplate);
+        String systemMessage =
+                AiTemplateRenderer.renderCitationParsingSystemMessage(citationParsingSystemMessageTemplate);
 
-        String response = chatModel.chat(
-                List.of(
+        String response = chatModel
+                .chat(List.of(
                         new SystemMessage(systemMessage),
                         new UserMessage(text) // Using direct text injection as per your PR
-                )
-        ).aiMessage().text();
+                        ))
+                .aiMessage()
+                .text();
 
         return LlmResponseCleaner.clean(response);
     }

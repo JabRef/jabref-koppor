@@ -5,7 +5,6 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
@@ -31,13 +30,14 @@ public class BibliographyConsistencyCheckResultErrorFormatWriter extends Bibliog
     private final ParserResult parserResult;
     private final Path inputFile;
 
-    public BibliographyConsistencyCheckResultErrorFormatWriter(BibliographyConsistencyCheck.Result result,
-                                                               Writer writer,
-                                                               boolean isPorcelain,
-                                                               BibEntryTypesManager entryTypesManager,
-                                                               BibDatabaseMode bibDatabaseMode,
-                                                               ParserResult parserResult,
-                                                               Path inputFile) {
+    public BibliographyConsistencyCheckResultErrorFormatWriter(
+            BibliographyConsistencyCheck.Result result,
+            Writer writer,
+            boolean isPorcelain,
+            BibEntryTypesManager entryTypesManager,
+            BibDatabaseMode bibDatabaseMode,
+            ParserResult parserResult,
+            Path inputFile) {
         super(result, writer, isPorcelain, entryTypesManager, bibDatabaseMode);
         this.parserResult = parserResult;
         this.inputFile = inputFile;
@@ -50,35 +50,40 @@ public class BibliographyConsistencyCheckResultErrorFormatWriter extends Bibliog
         String entryType = entryTypeReport.displayName();
         List<OrFields> missingRequiredFields = entryTypeReport.getMissingRequiredFields(bibEntry);
         for (OrFields missingRequiredField : missingRequiredFields) {
-            write(parserResult.getCompleteEntryIndicator(bibEntry), citationKey, missingRequiredField,
+            write(
+                    parserResult.getCompleteEntryIndicator(bibEntry),
+                    citationKey,
+                    missingRequiredField,
                     "required field '%s' is missing".formatted(FieldFactory.serializeOrFields(missingRequiredField)));
         }
         for (Field field : entryTypeReport.differingFields()) {
             Optional<String> value = bibEntry.getField(field);
             if (value.isPresent()) {
-                if (!entryTypeReport.requiredFields().contains(field) && !entryTypeReport.optionalFields().contains(field)) {
-                    write(parserResult.getFieldRange(bibEntry, field), citationKey, new OrFields(field),
+                if (!entryTypeReport.requiredFields().contains(field)
+                        && !entryTypeReport.optionalFields().contains(field)) {
+                    write(
+                            parserResult.getFieldRange(bibEntry, field),
+                            citationKey,
+                            new OrFields(field),
                             "unknown field for entry type %s".formatted(entryType));
                 }
             } else if (missingRequiredFields.stream().noneMatch(orFields -> orFields.contains(field))) {
-                write(parserResult.getCompleteEntryIndicator(bibEntry), citationKey, new OrFields(field),
+                write(
+                        parserResult.getCompleteEntryIndicator(bibEntry),
+                        citationKey,
+                        new OrFields(field),
                         "field is absent but used by other entries of entry type %s".formatted(entryType));
             }
         }
     }
 
-    private void write(ParserResult.Range range, String citationKey, OrFields fields, String message) throws IOException {
+    private void write(ParserResult.Range range, String citationKey, OrFields fields, String message)
+            throws IOException {
         String fieldName = FieldFactory.serializeOrFields(fields);
-        writer.append("%s:%d:%d:%s:%s: %s\n".formatted(
-                inputFile,
-                range.startLine(),
-                range.startColumn(),
-                citationKey,
-                fieldName,
-                message));
+        writer.append("%s:%d:%d:%s:%s: %s\n"
+                .formatted(inputFile, range.startLine(), range.startColumn(), citationKey, fieldName, message));
     }
 
     @Override
-    public void close() throws IOException {
-    }
+    public void close() throws IOException {}
 }

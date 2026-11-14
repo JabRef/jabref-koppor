@@ -7,10 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
-
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTabContainer;
@@ -25,7 +23,6 @@ import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,17 +36,18 @@ public class SidePaneViewModel extends AbstractViewModel {
     private final SidePaneContentFactory sidePaneContentFactory;
     private final DialogService dialogService;
 
-    public SidePaneViewModel(LibraryTabContainer tabContainer,
-                             GuiPreferences preferences,
-                             JournalAbbreviationRepository abbreviationRepository,
-                             StateManager stateManager,
-                             TaskExecutor taskExecutor,
-                             DialogService dialogService,
-                             AiService aiService,
-                             FileUpdateMonitor fileUpdateMonitor,
-                             BibEntryTypesManager entryTypesManager,
-                             ClipBoardManager clipBoardManager,
-                             GitHandlerRegistry gitHandlerRegistry) {
+    public SidePaneViewModel(
+            LibraryTabContainer tabContainer,
+            GuiPreferences preferences,
+            JournalAbbreviationRepository abbreviationRepository,
+            StateManager stateManager,
+            TaskExecutor taskExecutor,
+            DialogService dialogService,
+            AiService aiService,
+            FileUpdateMonitor fileUpdateMonitor,
+            BibEntryTypesManager entryTypesManager,
+            ClipBoardManager clipBoardManager,
+            GitHandlerRegistry gitHandlerRegistry) {
         this.preferences = preferences;
         this.stateManager = stateManager;
         this.dialogService = dialogService;
@@ -70,9 +68,15 @@ public class SidePaneViewModel extends AbstractViewModel {
         getPanes().addListener((ListChangeListener<? super SidePaneType>) change -> {
             while (change.next()) {
                 if (change.wasAdded()) {
-                    preferences.getSidePanePreferences().visiblePanes().add(change.getAddedSubList().getFirst());
+                    preferences
+                            .getSidePanePreferences()
+                            .visiblePanes()
+                            .add(change.getAddedSubList().getFirst());
                 } else if (change.wasRemoved()) {
-                    preferences.getSidePanePreferences().visiblePanes().remove(change.getRemoved().getFirst());
+                    preferences
+                            .getSidePanePreferences()
+                            .visiblePanes()
+                            .remove(change.getRemoved().getFirst());
                 }
             }
         });
@@ -83,20 +87,20 @@ public class SidePaneViewModel extends AbstractViewModel {
         if (sidePaneComponent == null) {
             sidePaneComponent = switch (pane) {
                 case GROUPS ->
-                        new GroupsSidePaneComponent(
-                                new ClosePaneAction(pane),
-                                new MoveUpAction(pane),
-                                new MoveDownAction(pane),
-                                sidePaneContentFactory,
-                                preferences.getGroupsPreferences(),
-                                dialogService);
-                case WEB_SEARCH,
-                     OPEN_OFFICE ->
-                        new SidePaneComponent(pane,
-                                new ClosePaneAction(pane),
-                                new MoveUpAction(pane),
-                                new MoveDownAction(pane),
-                                sidePaneContentFactory);
+                    new GroupsSidePaneComponent(
+                            new ClosePaneAction(pane),
+                            new MoveUpAction(pane),
+                            new MoveDownAction(pane),
+                            sidePaneContentFactory,
+                            preferences.getGroupsPreferences(),
+                            dialogService);
+                case WEB_SEARCH, OPEN_OFFICE ->
+                    new SidePaneComponent(
+                            pane,
+                            new ClosePaneAction(pane),
+                            new MoveUpAction(pane),
+                            new MoveDownAction(pane),
+                            sidePaneContentFactory);
             };
             sidePaneComponentLookup.put(pane, sidePaneComponent);
         }
@@ -106,9 +110,10 @@ public class SidePaneViewModel extends AbstractViewModel {
     /// Stores the current configuration of visible panes in the preferences, so that we show panes at the preferred
     /// position next time.
     private void updatePreferredPositions() {
-        Map<SidePaneType, Integer> preferredPositions = new HashMap<>(preferences.getSidePanePreferences()
-                                                                                 .getPreferredPositions());
-        IntStream.range(0, getPanes().size()).forEach(i -> preferredPositions.put(getPanes().get(i), i));
+        Map<SidePaneType, Integer> preferredPositions =
+                new HashMap<>(preferences.getSidePanePreferences().getPreferredPositions());
+        IntStream.range(0, getPanes().size())
+                .forEach(i -> preferredPositions.put(getPanes().get(i), i));
         preferences.getSidePanePreferences().setPreferredPositions(preferredPositions);
     }
 

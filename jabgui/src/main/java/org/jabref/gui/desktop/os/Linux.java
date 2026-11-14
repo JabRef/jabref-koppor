@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-
 import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.externalfiletype.ExternalFileType;
@@ -21,12 +20,12 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.Directories;
 import org.jabref.logic.util.HeadlessExecutorService;
 import org.jabref.logic.util.StreamGobbler;
-
 import org.slf4j.LoggerFactory;
 
 /// This class contains Linux specific implementations for file directories and file/application open handling methods.
 ///
-/// We cannot use a static logger instance here in this class as the Logger first needs to be configured in the [JabKit#initLogging].
+/// We cannot use a static logger instance here in this class as the Logger first needs to be configured in the
+/// [JabKit#initLogging].
 /// The configuration of tinylog will become immutable as soon as the first log entry is issued.
 /// https://tinylog.org/v2/configuration
 @AllowedToUseAwt("Requires AWT to open a file with the native method")
@@ -54,16 +53,21 @@ public class Linux extends NativeDesktop {
     }
 
     @Override
-    public void openFile(String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences) throws IOException {
-        Optional<ExternalFileType> type = ExternalFileTypes.getExternalFileTypeByExt(fileType, externalApplicationsPreferences);
+    public void openFile(
+            String filePath, String fileType, ExternalApplicationsPreferences externalApplicationsPreferences)
+            throws IOException {
+        Optional<ExternalFileType> type =
+                ExternalFileTypes.getExternalFileTypeByExt(fileType, externalApplicationsPreferences);
         String viewer;
 
         if (type.isPresent() && !type.get().getOpenWithApplication().isEmpty()) {
             viewer = type.get().getOpenWithApplication();
             ProcessBuilder processBuilder = new ProcessBuilder(viewer, filePath);
             Process process = processBuilder.start();
-            StreamGobbler streamGobblerInput = new StreamGobbler(process.getInputStream(), LoggerFactory.getLogger(Linux.class)::debug);
-            StreamGobbler streamGobblerError = new StreamGobbler(process.getErrorStream(), LoggerFactory.getLogger(Linux.class)::debug);
+            StreamGobbler streamGobblerInput =
+                    new StreamGobbler(process.getInputStream(), LoggerFactory.getLogger(Linux.class)::debug);
+            StreamGobbler streamGobblerError =
+                    new StreamGobbler(process.getErrorStream(), LoggerFactory.getLogger(Linux.class)::debug);
 
             HeadlessExecutorService.INSTANCE.execute(streamGobblerInput);
             HeadlessExecutorService.INSTANCE.execute(streamGobblerError);
@@ -90,8 +94,10 @@ public class Linux extends NativeDesktop {
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArray);
             Process process = processBuilder.start();
 
-            StreamGobbler streamGobblerInput = new StreamGobbler(process.getInputStream(), LoggerFactory.getLogger(Linux.class)::debug);
-            StreamGobbler streamGobblerError = new StreamGobbler(process.getErrorStream(), LoggerFactory.getLogger(Linux.class)::debug);
+            StreamGobbler streamGobblerInput =
+                    new StreamGobbler(process.getInputStream(), LoggerFactory.getLogger(Linux.class)::debug);
+            StreamGobbler streamGobblerError =
+                    new StreamGobbler(process.getErrorStream(), LoggerFactory.getLogger(Linux.class)::debug);
 
             HeadlessExecutorService.INSTANCE.execute(streamGobblerInput);
             HeadlessExecutorService.INSTANCE.execute(streamGobblerError);
@@ -116,7 +122,8 @@ public class Linux extends NativeDesktop {
             } else if (desktopSession.contains("mate")) {
                 cmd = new String[] {"caja", "--select", absoluteFilePath};
             } else if (desktopSession.contains("cinnamon")) {
-                cmd = new String[] {"nemo", absoluteFilePath}; // Although nemo is based on nautilus it does not support --select, it directly highlights the file
+                cmd = new String[] {"nemo", absoluteFilePath
+                }; // Although nemo is based on nautilus it does not support --select, it directly highlights the file
             } else if (desktopSession.contains("xfce")) {
                 cmd = new String[] {"thunar", absoluteFilePath};
             }
@@ -125,8 +132,10 @@ public class Linux extends NativeDesktop {
         ProcessBuilder processBuilder = new ProcessBuilder(cmd);
         Process process = processBuilder.start();
 
-        StreamGobbler streamGobblerInput = new StreamGobbler(process.getInputStream(), LoggerFactory.getLogger(Linux.class)::debug);
-        StreamGobbler streamGobblerError = new StreamGobbler(process.getErrorStream(), LoggerFactory.getLogger(Linux.class)::debug);
+        StreamGobbler streamGobblerInput =
+                new StreamGobbler(process.getInputStream(), LoggerFactory.getLogger(Linux.class)::debug);
+        StreamGobbler streamGobblerError =
+                new StreamGobbler(process.getErrorStream(), LoggerFactory.getLogger(Linux.class)::debug);
 
         HeadlessExecutorService.INSTANCE.execute(streamGobblerInput);
         HeadlessExecutorService.INSTANCE.execute(streamGobblerError);
@@ -136,7 +145,10 @@ public class Linux extends NativeDesktop {
     public void openConsole(String absolutePath, DialogService dialogService) throws IOException {
 
         if (!Files.exists(Path.of(ETC_ALTERNATIVES_X_TERMINAL_EMULATOR))) {
-            dialogService.showErrorDialogAndWait(Localization.lang("Could not detect terminal automatically using '%0'. Please define a custom terminal in the preferences.", ETC_ALTERNATIVES_X_TERMINAL_EMULATOR));
+            dialogService.showErrorDialogAndWait(Localization.lang(
+                    "Could not detect terminal automatically using '%0'. Please define a custom terminal in the"
+                            + " preferences.",
+                    ETC_ALTERNATIVES_X_TERMINAL_EMULATOR));
             return;
         }
 
@@ -166,8 +178,10 @@ public class Linux extends NativeDesktop {
                 builder.directory(Path.of(absolutePath).toFile());
                 Process processTerminal = builder.start();
 
-                StreamGobbler streamGobblerInput = new StreamGobbler(processTerminal.getInputStream(), LoggerFactory.getLogger(Linux.class)::debug);
-                StreamGobbler streamGobblerError = new StreamGobbler(processTerminal.getErrorStream(), LoggerFactory.getLogger(Linux.class)::debug);
+                StreamGobbler streamGobblerInput = new StreamGobbler(
+                        processTerminal.getInputStream(), LoggerFactory.getLogger(Linux.class)::debug);
+                StreamGobbler streamGobblerError = new StreamGobbler(
+                        processTerminal.getErrorStream(), LoggerFactory.getLogger(Linux.class)::debug);
 
                 HeadlessExecutorService.INSTANCE.execute(streamGobblerInput);
                 HeadlessExecutorService.INSTANCE.execute(streamGobblerError);
@@ -190,9 +204,12 @@ public class Linux extends NativeDesktop {
         // Make use of xdg-user-dirs
         // See https://www.freedesktop.org/wiki/Software/xdg-user-dirs/ for details
         try {
-            Process process = new ProcessBuilder("xdg-user-dir", "DOCUMENTS").start(); // Package name with 's', command without
-            List<String> strings = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))
-                    .lines().toList();
+            Process process =
+                    new ProcessBuilder("xdg-user-dir", "DOCUMENTS").start(); // Package name with 's', command without
+            List<String> strings = new BufferedReader(
+                            new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))
+                    .lines()
+                    .toList();
             if (strings.isEmpty()) {
                 LoggerFactory.getLogger(Linux.class).error("xdg-user-dir returned nothing");
                 return Directories.getUserDirectory();
@@ -200,7 +217,8 @@ public class Linux extends NativeDesktop {
             String documentsDirectory = strings.getFirst();
             Path documentsPath = Path.of(documentsDirectory);
             if (!Files.exists(documentsPath)) {
-                LoggerFactory.getLogger(Linux.class).error("xdg-user-dir returned non-existent directory {}", documentsDirectory);
+                LoggerFactory.getLogger(Linux.class)
+                        .error("xdg-user-dir returned non-existent directory {}", documentsDirectory);
                 return Directories.getUserDirectory();
             }
             LoggerFactory.getLogger(Linux.class).debug("Got documents path {}", documentsPath);

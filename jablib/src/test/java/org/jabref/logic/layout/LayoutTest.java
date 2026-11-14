@@ -1,10 +1,13 @@
 package org.jabref.logic.layout;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Path;
 import java.util.List;
-
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.layout.format.NameFormatterPreferences;
 import org.jabref.model.entry.BibEntry;
@@ -13,16 +16,11 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.entry.types.UnknownEntryType;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class LayoutTest {
 
@@ -88,7 +86,8 @@ class LayoutTest {
 
     @Test
     void nameFormatter() throws IOException {
-        BibEntry entry = new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "Joe Doe and Jane, Moon");
+        BibEntry entry =
+                new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "Joe Doe and Jane, Moon");
 
         String layoutText = layout("\\begin{author}\\format[NameFormatter]{\\author}\\end{author}", entry);
 
@@ -97,11 +96,12 @@ class LayoutTest {
 
     @Test
     void HTMLCharsWithDotlessIAndTiled() throws IOException {
-        BibEntry entry = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.ABSTRACT, "\\~{n} \\~n \\'i \\i \\i");
+        BibEntry entry =
+                new BibEntry(StandardEntryType.Article).withField(StandardField.ABSTRACT, "\\~{n} \\~n \\'i \\i \\i");
 
         String layoutText = layout(
-                "<font face=\"arial\">\\begin{abstract}<BR><BR><b>Abstract: </b> \\format[HTMLChars]{\\abstract}\\end{abstract}</font>",
+                "<font face=\"arial\">\\begin{abstract}<BR><BR><b>Abstract: </b>"
+                        + " \\format[HTMLChars]{\\abstract}\\end{abstract}</font>",
                 entry);
 
         assertEquals(
@@ -112,34 +112,37 @@ class LayoutTest {
     @Test
     void previewAbstractCanRenderLatexMathAsUnicodeBeforeHtmlEscaping() throws IOException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.ABSTRACT, "Much progress has been made in classifying when the weak Lefschetz property holds for $A=\\mathbb{F}[x,y,z]/I$ where $\\text{char}(\\mathbb{F})=0$ and $I=(x^{d_{1}},y^{d_{2}},z^{d_{3}},x^{a_{1}}y^{a_{2}}z^{a_{3}})$.");
+                .withField(
+                        StandardField.ABSTRACT,
+                        "Much progress has been made in classifying when the weak Lefschetz property holds for"
+                                + " $A=\\mathbb{F}[x,y,z]/I$ where $\\text{char}(\\mathbb{F})=0$ and"
+                                + " $I=(x^{d_{1}},y^{d_{2}},z^{d_{3}},x^{a_{1}}y^{a_{2}}z^{a_{3}})$.");
 
         String layoutText = layout(
-                "<font face=\"arial\">\\begin{abstract}<BR><BR><b>Abstract: </b>\\format[LatexToUnicode,HTMLChars]{\\abstract}\\end{abstract}</font>",
+                "<font face=\"arial\">\\begin{abstract}<BR><BR><b>Abstract:"
+                        + " </b>\\format[LatexToUnicode,HTMLChars]{\\abstract}\\end{abstract}</font>",
                 entry);
 
         assertEquals(
-                "<font face=\"arial\"><BR><BR><b>Abstract: </b>Much progress has been made in classifying when the weak Lefschetz property holds for A=𝔽[x,y,z]/I where char(𝔽)=0 and I=(xᵈ₁,yᵈ₂,zᵈ₃,xᵃ₁yᵃ₂zᵃ₃).</font>",
+                "<font face=\"arial\"><BR><BR><b>Abstract: </b>Much progress has been made in classifying when the"
+                        + " weak Lefschetz property holds for A=𝔽[x,y,z]/I where char(𝔽)=0 and"
+                        + " I=(xᵈ₁,yᵈ₂,zᵈ₃,xᵃ₁yᵃ₂zᵃ₃).</font>",
                 layoutText);
     }
 
     @ParameterizedTest
-    @CsvSource(
-            delimiterString = "->",
-            textBlock = """
-                    # || (OR)
-                    \\begin{editor||author}\\format[HTMLChars]{\\author}\\end{editor||author} -> Author
-                    # && (AND)
-                    \\begin{editor&&author}\\format[HTMLChars]{\\author}\\end{editor&&author} -> ''
-                    # ! (NOT)
-                    \\begin{!year}\\format[HTMLChars]{(no year)}\\end{!year} -> (no year)
-                    # combined (!a&&b)
-                    \\begin{!editor&&author}\\format[HTMLChars]{\\author}\\end{{!editor&&author}\\begin{editor&&!author}\\format[HTMLChars]{\\editor} (eds.)\\end{editor&&!author} -> Author
-                    """
-    )
+    @CsvSource(delimiterString = "->", textBlock = """
+        # || (OR)
+        \\begin{editor||author}\\format[HTMLChars]{\\author}\\end{editor||author} -> Author
+        # && (AND)
+        \\begin{editor&&author}\\format[HTMLChars]{\\author}\\end{editor&&author} -> ''
+        # ! (NOT)
+        \\begin{!year}\\format[HTMLChars]{(no year)}\\end{!year} -> (no year)
+        # combined (!a&&b)
+        \\begin{!editor&&author}\\format[HTMLChars]{\\author}\\end{{!editor&&author}\\begin{editor&&!author}\\format[HTMLChars]{\\editor} (eds.)\\end{editor&&!author} -> Author
+        """)
     void beginConditionals(String layoutString, String expected) throws IOException {
-        BibEntry entry = new BibEntry(StandardEntryType.Misc)
-                .withField(StandardField.AUTHOR, "Author");
+        BibEntry entry = new BibEntry(StandardEntryType.Misc).withField(StandardField.AUTHOR, "Author");
 
         String layoutText = layout(layoutString, entry);
         assertEquals(expected, layoutText);
@@ -157,7 +160,8 @@ class LayoutTest {
                 entry);
 
         assertEquals(
-                "1. Test file (" + Path.of("src/test/resources/pdfs/encrypted.pdf").toRealPath() + ")",
+                "1. Test file ("
+                        + Path.of("src/test/resources/pdfs/encrypted.pdf").toRealPath() + ")",
                 layoutText);
     }
 
@@ -172,9 +176,11 @@ class LayoutTest {
 
     @Test
     void customNameFormatter() throws IOException {
-        when(layoutFormatterPreferences.getNameFormatterPreferences()).thenReturn(
-                new NameFormatterPreferences(List.of("DCA"), List.of("1@*@{ll}@@2@1..1@{ff}{ll}@2..2@ and {ff}{l}@@*@*@more")));
-        BibEntry entry = new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "Joe Doe and Mary Jane");
+        when(layoutFormatterPreferences.getNameFormatterPreferences())
+                .thenReturn(new NameFormatterPreferences(
+                        List.of("DCA"), List.of("1@*@{ll}@@2@1..1@{ff}{ll}@2..2@ and {ff}{l}@@*@*@more")));
+        BibEntry entry =
+                new BibEntry(StandardEntryType.Article).withField(StandardField.AUTHOR, "Joe Doe and Mary Jane");
 
         String layoutText = layout("\\begin{author}\\format[DCA]{\\author}\\end{author}", entry);
 

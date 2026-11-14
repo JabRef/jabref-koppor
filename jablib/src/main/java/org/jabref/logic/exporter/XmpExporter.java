@@ -4,14 +4,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.logic.xmp.XmpPreferences;
 import org.jabref.logic.xmp.XmpUtilWriter;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
-
 import org.jspecify.annotations.NonNull;
 
 /// A custom exporter to write bib entries to a .xmp file for further processing
@@ -29,12 +27,12 @@ public class XmpExporter extends Exporter {
     }
 
     /// @param databaseContext the database to export from
-    /// @param file            the file to write to. If it contains "split", then the output is split into different files
+    /// @param file            the file to write to. If it contains "split", then the output is split into different
+    /// files
     /// @param entries         a list containing all entries that should be exported
     @Override
-    public void export(@NonNull BibDatabaseContext databaseContext,
-                       @NonNull Path file,
-                       @NonNull List<BibEntry> entries) throws IOException {
+    public void export(@NonNull BibDatabaseContext databaseContext, @NonNull Path file, @NonNull List<BibEntry> entries)
+            throws IOException {
         if (entries.isEmpty()) {
             return;
         }
@@ -45,7 +43,8 @@ public class XmpExporter extends Exporter {
             for (BibEntry entry : entries) {
                 // Avoid situations, where two citation keys are null
                 Path entryFile;
-                String suffix = entry.getId() + "_" + entry.getField(InternalField.KEY_FIELD).orElse("null") + ".xmp";
+                String suffix = entry.getId() + "_"
+                        + entry.getField(InternalField.KEY_FIELD).orElse("null") + ".xmp";
                 if (file.getParent() == null) {
                     entryFile = Path.of(suffix);
                 } else {

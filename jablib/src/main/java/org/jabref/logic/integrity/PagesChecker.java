@@ -4,11 +4,9 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.jspecify.annotations.Nullable;
 
 public class PagesChecker implements ValueChecker {
@@ -23,37 +21,27 @@ public class PagesChecker implements ValueChecker {
     private static final String PAGE_CONTINUATION_MODIFIER = "\\+";
 
     private static final String BIBTEX_SEPARATOR = "(-{2}|\u2013)";
-    private static final String PAGE_RANGE_BIBTEX = "("
-            + PAGE + BIBTEX_SEPARATOR + PAGE
-            + "|"
-            + PAGE + PAGE_CONTINUATION_MODIFIER
-            + ")";
+    private static final String PAGE_RANGE_BIBTEX =
+            "(" + PAGE + BIBTEX_SEPARATOR + PAGE + "|" + PAGE + PAGE_CONTINUATION_MODIFIER + ")";
 
-    private static final String PAGES_EXP_BIBTEX =
-            "\\A("
-                    + PAGE
-                    + "|"
-                    + PAGE_RANGE_BIBTEX
-                    + ")\\z";
+    private static final String PAGES_EXP_BIBTEX = "\\A(" + PAGE + "|" + PAGE_RANGE_BIBTEX + ")\\z";
 
     private static final String SEQUENS_AND_SEQUENTES = "(f{1,2}|sq{1,2})\\.?";
-    private static final String BIBLATEX_SEPARATOR = "(-{1,2}|\u2013|/)";  // separator
+    private static final String BIBLATEX_SEPARATOR = "(-{1,2}|\u2013|/)"; // separator
     private static final String PAGE_RANGE_BIBLATEX = "("
             + PAGE + BIBLATEX_SEPARATOR + PAGE
             + "|"
             + PAGE + "(" + PAGE_CONTINUATION_MODIFIER + "|\\s*" + SEQUENS_AND_SEQUENTES + ")"
             + ")";
 
-    // See https://packages.oth-regensburg.de/ctan/macros/latex/contrib/biblatex/doc/biblatex.pdf#subsubsection.3.15.3 for valid content
-    private static final String PAGES_EXP_BIBLATEX =
-            "\\A("
-                    + PAGE
-                    + "|"
-                    + PAGE_RANGE_BIBLATEX
-                    + ")\\z";
+    // See https://packages.oth-regensburg.de/ctan/macros/latex/contrib/biblatex/doc/biblatex.pdf#subsubsection.3.15.3
+    // for valid content
+    private static final String PAGES_EXP_BIBLATEX = "\\A(" + PAGE + "|" + PAGE_RANGE_BIBLATEX + ")\\z";
 
-    private static final Predicate<String> IS_VALID_PAGE_NUMBER_BIBTEX = Pattern.compile(PAGES_EXP_BIBTEX).asPredicate();
-    private static final Predicate<String> IS_VALID_PAGE_NUMBER_BIBLATEX = Pattern.compile(PAGES_EXP_BIBLATEX).asPredicate();
+    private static final Predicate<String> IS_VALID_PAGE_NUMBER_BIBTEX =
+            Pattern.compile(PAGES_EXP_BIBTEX).asPredicate();
+    private static final Predicate<String> IS_VALID_PAGE_NUMBER_BIBLATEX =
+            Pattern.compile(PAGES_EXP_BIBLATEX).asPredicate();
 
     private final Predicate<String> isValidPageNumber;
 
@@ -80,8 +68,8 @@ public class PagesChecker implements ValueChecker {
         }
 
         if (Arrays.stream(value.split(","))
-                  .map(String::trim)
-                  .anyMatch(pageRange -> !isValidPageNumber.test(pageRange))) {
+                .map(String::trim)
+                .anyMatch(pageRange -> !isValidPageNumber.test(pageRange))) {
             return Optional.of(Localization.lang("should contain a valid page number range"));
         }
         return Optional.empty();

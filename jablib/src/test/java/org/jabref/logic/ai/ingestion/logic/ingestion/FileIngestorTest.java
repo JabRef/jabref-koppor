@@ -1,16 +1,5 @@
 package org.jabref.logic.ai.ingestion.logic.ingestion;
 
-import java.nio.file.Path;
-import java.util.List;
-
-import org.jabref.logic.ai.ingestion.logic.parsing.UniversalContentParser;
-
-import dev.langchain4j.data.document.Metadata;
-import org.jspecify.annotations.NullMarked;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
@@ -18,6 +7,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import dev.langchain4j.data.document.Metadata;
+import java.nio.file.Path;
+import java.util.List;
+import org.jabref.logic.ai.ingestion.logic.parsing.UniversalContentParser;
+import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 @NullMarked
 class FileIngestorTest {

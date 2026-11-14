@@ -1,13 +1,14 @@
 package org.jabref.logic.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
@@ -16,7 +17,6 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.SaveOrder;
 import org.jabref.model.metadata.SelfContainedSaveOrder;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -25,16 +25,14 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Answers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("exporter")
 class MarkdownTitleExporterTest {
 
     private static Exporter htmlWebsiteExporter;
     private static BibDatabaseContext databaseContext;
-    private static final SelfContainedSaveOrder SAVE_MOST_RECENT_FIRST_SAVE_ORDER = new SelfContainedSaveOrder(SaveOrder.OrderType.SPECIFIED, List.of(new SaveOrder.SortCriterion(StandardField.YEAR, true)));
+    private static final SelfContainedSaveOrder SAVE_MOST_RECENT_FIRST_SAVE_ORDER = new SelfContainedSaveOrder(
+            SaveOrder.OrderType.SPECIFIED, List.of(new SaveOrder.SortCriterion(StandardField.YEAR, true)));
 
     @BeforeAll
     static void setUp() {
@@ -52,7 +50,8 @@ class MarkdownTitleExporterTest {
     }
 
     @Test
-    final void exportForNoEntriesWritesNothing(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportForNoEntriesWritesNothing(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path file = tempDir.resolve("ThisIsARandomlyNamedFile");
         Files.createFile(file);
         htmlWebsiteExporter.export(databaseContext, tempDir, List.of());
@@ -60,7 +59,8 @@ class MarkdownTitleExporterTest {
     }
 
     @Test
-    final void exportsCorrectContentArticle(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorrectContentArticle(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -73,14 +73,14 @@ class MarkdownTitleExporterTest {
         Files.createFile(file);
         htmlWebsiteExporter.export(databaseContext, file, List.of(entry));
 
-        List<String> expected = List.of(
-                "* Test Title. Journal of this &amp; that 2020");
+        List<String> expected = List.of("* Test Title. Journal of this &amp; that 2020");
 
         assertEquals(expected, Files.readAllLines(file));
     }
 
     @Test
-    final void exportsCorrectContentInCollection(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorrectContentInCollection(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.InCollection)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -93,14 +93,14 @@ class MarkdownTitleExporterTest {
         Files.createFile(file);
         htmlWebsiteExporter.export(databaseContext, file, List.of(entry));
 
-        List<String> expected = List.of(
-                "* Test Title. Test book, PRESS 2020");
+        List<String> expected = List.of("* Test Title. Test book, PRESS 2020");
 
         assertEquals(expected, Files.readAllLines(file));
     }
 
     @Test
-    final void exportsCorrectContentBook(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorrectContentBook(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Book)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -113,14 +113,14 @@ class MarkdownTitleExporterTest {
         Files.createFile(file);
         htmlWebsiteExporter.export(databaseContext, file, List.of(entry));
 
-        List<String> expected = List.of(
-                "* Test Title. PRESS 2020");
+        List<String> expected = List.of("* Test Title. PRESS 2020");
 
         assertEquals(expected, Files.readAllLines(file));
     }
 
     @Test
-    final void exportsCorrectContentInProceeedingsPublisher(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorrectContentInProceeedingsPublisher(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.InProceedings)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -134,14 +134,14 @@ class MarkdownTitleExporterTest {
         Files.createFile(file);
         htmlWebsiteExporter.export(databaseContext, file, List.of(entry));
 
-        List<String> expected = List.of(
-                "* Test Title. ACM CONF'20");
+        List<String> expected = List.of("* Test Title. ACM CONF'20");
 
         assertEquals(expected, Files.readAllLines(file));
     }
 
     @Test
-    final void exportsCorrectContentInProceeedingsNoPublisher(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorrectContentInProceeedingsNoPublisher(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.InProceedings)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -154,14 +154,14 @@ class MarkdownTitleExporterTest {
         Files.createFile(file);
         htmlWebsiteExporter.export(databaseContext, file, List.of(entry));
 
-        List<String> expected = List.of(
-                "* Test Title. CONF'20");
+        List<String> expected = List.of("* Test Title. CONF'20");
 
         assertEquals(expected, Files.readAllLines(file));
     }
 
     @Test
-    final void exportsCorrectContentInProceeedingsNoSeries(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorrectContentInProceeedingsNoSeries(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.InProceedings)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -173,14 +173,14 @@ class MarkdownTitleExporterTest {
         Files.createFile(file);
         htmlWebsiteExporter.export(databaseContext, file, List.of(entry));
 
-        List<String> expected = List.of(
-                "* Test Title. Test Conference 2020");
+        List<String> expected = List.of("* Test Title. Test Conference 2020");
 
         assertEquals(expected, Files.readAllLines(file));
     }
 
     @Test
-    final void exportsCorrectContentBracketsInTitle(@TempDir Path tempDir) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorrectContentBracketsInTitle(@TempDir Path tempDir)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -192,8 +192,7 @@ class MarkdownTitleExporterTest {
         Files.createFile(file);
         htmlWebsiteExporter.export(databaseContext, file, List.of(entry));
 
-        List<String> expected = List.of(
-                "* This is JabRef. Journal of this &amp; that 2020");
+        List<String> expected = List.of("* This is JabRef. Journal of this &amp; that 2020");
 
         assertEquals(expected, Files.readAllLines(file));
     }

@@ -1,16 +1,14 @@
 package org.jabref.model.groups;
 
-import java.util.Optional;
-
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.field.StandardField;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Optional;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.StandardField;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class WordKeywordGroupTest {
 
@@ -21,9 +19,12 @@ class WordKeywordGroupTest {
 
     @BeforeEach
     void setUp() {
-        testGroup = new WordKeywordGroup("name", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "test", false, ',', false);
-        testCaseSensitiveGroup = new WordKeywordGroup("name", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "test", true, ',', false);
-        waterGroup = new WordKeywordGroup("name", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "\\H2O", false, ',', false);
+        testGroup = new WordKeywordGroup(
+                "name", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "test", false, ',', false);
+        testCaseSensitiveGroup = new WordKeywordGroup(
+                "name", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "test", true, ',', false);
+        waterGroup = new WordKeywordGroup(
+                "name", GroupHierarchyType.INDEPENDENT, StandardField.KEYWORDS, "\\H2O", false, ',', false);
         entry = new BibEntry();
     }
 

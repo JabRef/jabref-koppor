@@ -1,10 +1,14 @@
 package org.jabref.logic.importer.fetcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 import java.util.Optional;
-
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.importer.FetcherClientException;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImporterPreferences;
@@ -15,20 +19,14 @@ import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.field.UnknownField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.support.ExternalServicesTest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExternalServicesTest
 class MedlineFetcherTest {
     // default value is empty string in BuildInfo
-    private static final Optional<String> API_KEY = Optional.of(new BuildInfo().medlineApiKey).filter(StringUtil::isNotBlank);
+    private static final Optional<String> API_KEY =
+            Optional.of(new BuildInfo().medlineApiKey).filter(StringUtil::isNotBlank);
 
     private MedlineFetcher fetcher;
 
@@ -49,7 +47,44 @@ class MedlineFetcherTest {
         fetcher = new MedlineFetcher(importerPreferences);
 
         entryWijedasa = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.AUTHOR, "Wijedasa, Lahiru S. and Jauhiainen, Jyrki and Könönen, Mari and Lampela, Maija and Vasander, Harri and Leblanc, Marie-Claire and Evers, Stephanie and Smith, Thomas E. L. and Yule, Catherine M. and Varkkey, Helena and Lupascu, Massimo and Parish, Faizal and Singleton, Ian and Clements, Gopalasamy R. and Aziz, Sheema Abdul and Harrison, Mark E. and Cheyne, Susan and Anshari, Gusti Z. and Meijaard, Erik and Goldstein, Jenny E. and Waldron, Susan and Hergoualc'h, Kristell and Dommain, Rene and Frolking, Steve and Evans, Christopher D. and Posa, Mary Rose C. and Glaser, Paul H. and Suryadiputra, Nyoman and Lubis, Reza and Santika, Truly and Padfield, Rory and Kurnianto, Sofyan and Hadisiswoyo, Panut and Lim, Teck Wyn and Page, Susan E. and Gauci, Vincent and Van Der Meer, Peter J. and Buckland, Helen and Garnier, Fabien and Samuel, Marshall K. and Choo, Liza Nuriati Lim Kim and O'Reilly, Patrick and Warren, Matthew and Suksuwan, Surin and Sumarga, Elham and Jain, Anuj and Laurance, William F. and Couwenberg, John and Joosten, Hans and Vernimmen, Ronald and Hooijer, Aljosja and Malins, Chris and Cochrane, Mark A. and Perumal, Balu and Siegert, Florian and Peh, Kelvin S.-H. and Comeau, Louis-Pierre and Verchot, Louis and Harvey, Charles F. and Cobb, Alex and Jaafar, Zeehan and Wösten, Henk and Manuri, Solichin and Müller, Moritz and Giesen, Wim and Phelps, Jacob and Yong, Ding Li and Silvius, Marcel and Wedeux, Béatrice M. M. and Hoyt, Alison and Osaki, Mitsuru and Hirano, Takashi and Takahashi, Hidenori and Kohyama, Takashi S. and Haraguchi, Akira and Nugroho, Nunung P. and Coomes, David A. and Quoi, Le Phat and Dohong, Alue and Gunawan, Haris and Gaveau, David L. A. and Langner, Andreas and Lim, Felix K. S. and Edwards, David P. and Giam, Xingli and Van Der Werf, Guido and Carmenta, Rachel and Verwer, Caspar C. and Gibson, Luke and Gandois, Laure and Graham, Laura Linda Bozena and Regalino, Jhanson and Wich, Serge A. and Rieley, Jack and Kettridge, Nicholas and Brown, Chloe and Pirard, Romain and Moore, Sam and Capilla, B. Ripoll and Ballhorn, Uwe and Ho, Hua Chew and Hoscilo, Agata and Lohberger, Sandra and Evans, Theodore A. and Yulianti, Nina and Blackham, Grace and Onrizal and Husson, Simon and Murdiyarso, Daniel and Pangala, Sunita and Cole, Lydia E. S. and Tacconi, Luca and Segah, Hendrik and Tonoto, Prayoto and Lee, Janice S. H. and Schmilewski, Gerald and Wulffraat, Stephan and Putra, Erianto Indra and Cattau, Megan E. and Clymo, R. S. and Morrison, Ross and Mujahid, Aazani and Miettinen, Jukka and Liew, Soo Chin and Valpola, Samu and Wilson, David and D'Arcy, Laura and Gerding, Michiel and Sundari, Siti and Thornton, Sara A. and Kalisz, Barbara and Chapman, Stephen J. and Su, Ahmad Suhaizi Mat and Basuki, Imam and Itoh, Masayuki and Traeholt, Carl and Sloan, Sean and Sayok, Alexander K. and Andersen, Roxane")
+                .withField(
+                        StandardField.AUTHOR,
+                        "Wijedasa, Lahiru S. and Jauhiainen, Jyrki and Könönen, Mari and Lampela, Maija and Vasander,"
+                                + " Harri and Leblanc, Marie-Claire and Evers, Stephanie and Smith, Thomas E. L. and"
+                                + " Yule, Catherine M. and Varkkey, Helena and Lupascu, Massimo and Parish, Faizal and"
+                                + " Singleton, Ian and Clements, Gopalasamy R. and Aziz, Sheema Abdul and Harrison,"
+                                + " Mark E. and Cheyne, Susan and Anshari, Gusti Z. and Meijaard, Erik and Goldstein,"
+                                + " Jenny E. and Waldron, Susan and Hergoualc'h, Kristell and Dommain, Rene and"
+                                + " Frolking, Steve and Evans, Christopher D. and Posa, Mary Rose C. and Glaser, Paul"
+                                + " H. and Suryadiputra, Nyoman and Lubis, Reza and Santika, Truly and Padfield, Rory"
+                                + " and Kurnianto, Sofyan and Hadisiswoyo, Panut and Lim, Teck Wyn and Page, Susan E."
+                                + " and Gauci, Vincent and Van Der Meer, Peter J. and Buckland, Helen and Garnier,"
+                                + " Fabien and Samuel, Marshall K. and Choo, Liza Nuriati Lim Kim and O'Reilly,"
+                                + " Patrick and Warren, Matthew and Suksuwan, Surin and Sumarga, Elham and Jain, Anuj"
+                                + " and Laurance, William F. and Couwenberg, John and Joosten, Hans and Vernimmen,"
+                                + " Ronald and Hooijer, Aljosja and Malins, Chris and Cochrane, Mark A. and Perumal,"
+                                + " Balu and Siegert, Florian and Peh, Kelvin S.-H. and Comeau, Louis-Pierre and"
+                                + " Verchot, Louis and Harvey, Charles F. and Cobb, Alex and Jaafar, Zeehan and"
+                                + " Wösten, Henk and Manuri, Solichin and Müller, Moritz and Giesen, Wim and Phelps,"
+                                + " Jacob and Yong, Ding Li and Silvius, Marcel and Wedeux, Béatrice M. M. and Hoyt,"
+                                + " Alison and Osaki, Mitsuru and Hirano, Takashi and Takahashi, Hidenori and Kohyama,"
+                                + " Takashi S. and Haraguchi, Akira and Nugroho, Nunung P. and Coomes, David A. and"
+                                + " Quoi, Le Phat and Dohong, Alue and Gunawan, Haris and Gaveau, David L. A. and"
+                                + " Langner, Andreas and Lim, Felix K. S. and Edwards, David P. and Giam, Xingli and"
+                                + " Van Der Werf, Guido and Carmenta, Rachel and Verwer, Caspar C. and Gibson, Luke"
+                                + " and Gandois, Laure and Graham, Laura Linda Bozena and Regalino, Jhanson and Wich,"
+                                + " Serge A. and Rieley, Jack and Kettridge, Nicholas and Brown, Chloe and Pirard,"
+                                + " Romain and Moore, Sam and Capilla, B. Ripoll and Ballhorn, Uwe and Ho, Hua Chew"
+                                + " and Hoscilo, Agata and Lohberger, Sandra and Evans, Theodore A. and Yulianti, Nina"
+                                + " and Blackham, Grace and Onrizal and Husson, Simon and Murdiyarso, Daniel and"
+                                + " Pangala, Sunita and Cole, Lydia E. S. and Tacconi, Luca and Segah, Hendrik and"
+                                + " Tonoto, Prayoto and Lee, Janice S. H. and Schmilewski, Gerald and Wulffraat,"
+                                + " Stephan and Putra, Erianto Indra and Cattau, Megan E. and Clymo, R. S. and"
+                                + " Morrison, Ross and Mujahid, Aazani and Miettinen, Jukka and Liew, Soo Chin and"
+                                + " Valpola, Samu and Wilson, David and D'Arcy, Laura and Gerding, Michiel and"
+                                + " Sundari, Siti and Thornton, Sara A. and Kalisz, Barbara and Chapman, Stephen J."
+                                + " and Su, Ahmad Suhaizi Mat and Basuki, Imam and Itoh, Masayuki and Traeholt, Carl"
+                                + " and Sloan, Sean and Sayok, Alexander K. and Andersen, Roxane")
                 .withField(new UnknownField("country"), "England")
                 .withField(StandardField.DOI, "10.1111/gcb.13516")
                 .withField(StandardField.ISSN, "1365-2486")
@@ -64,14 +99,23 @@ class MedlineFetcherTest {
                 .withField(new UnknownField("pubmodel"), "Print-Electronic")
                 .withField(StandardField.PUBSTATE, "ppublish")
                 .withField(new UnknownField("revised"), "2019-11-20")
-                .withField(StandardField.TITLE, "Denial of long-term issues with agriculture on tropical peatlands will have devastating consequences.")
+                .withField(
+                        StandardField.TITLE,
+                        "Denial of long-term issues with agriculture on tropical peatlands will have devastating"
+                                + " consequences.")
                 .withField(StandardField.VOLUME, "23")
                 .withField(StandardField.URL, "https://pubmed.ncbi.nlm.nih.gov/27670948/")
                 .withField(StandardField.YEAR, "2017");
 
         entryEndharti = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.TITLE, "Dendrophthoe pentandra (L.) Miq extract effectively inhibits inflammation, proliferation and induces p53 expression on colitis-associated colon cancer.")
-                .withField(StandardField.AUTHOR, "Endharti, Agustina Tri and Wulandari, Adisti and Listyana, Anik and Norahmawati, Eviana and Permana, Sofy")
+                .withField(
+                        StandardField.TITLE,
+                        "Dendrophthoe pentandra (L.) Miq extract effectively inhibits inflammation, proliferation and"
+                                + " induces p53 expression on colitis-associated colon cancer.")
+                .withField(
+                        StandardField.AUTHOR,
+                        "Endharti, Agustina Tri and Wulandari, Adisti and Listyana, Anik and Norahmawati, Eviana and"
+                                + " Permana, Sofy")
                 .withField(new UnknownField("country"), "England")
                 .withField(StandardField.DOI, "10.1186/s12906-016-1345-0")
                 .withField(new UnknownField("pii"), "374")
@@ -94,8 +138,14 @@ class MedlineFetcherTest {
                 .withField(StandardField.YEAR, "2016");
 
         bibEntryIchikawa = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.AUTHOR, "Ichikawa-Seki, Madoka and Guswanto, Azirwan and Allamanda, Puttik and Mariamah, Euis Siti and Wibowo, Putut Eko and Igarashi, Ikuo and Nishikawa, Yoshifumi")
-                .withField(new UnknownField("chemicals"), "Antibodies, Protozoan, Antigens, Protozoan, GRA7 protein, Toxoplasma gondii, Protozoan Proteins")
+                .withField(
+                        StandardField.AUTHOR,
+                        "Ichikawa-Seki, Madoka and Guswanto, Azirwan and Allamanda, Puttik and Mariamah, Euis Siti and"
+                                + " Wibowo, Putut Eko and Igarashi, Ikuo and Nishikawa, Yoshifumi")
+                .withField(
+                        new UnknownField("chemicals"),
+                        "Antibodies, Protozoan, Antigens, Protozoan, GRA7 protein, Toxoplasma gondii, Protozoan"
+                                + " Proteins")
                 .withField(new UnknownField("citation-subset"), "IM")
                 .withField(new UnknownField("completed"), "2016-07-26")
                 .withField(new UnknownField("country"), "Netherlands")
@@ -106,7 +156,17 @@ class MedlineFetcherTest {
                 .withField(new UnknownField("issn-linking"), "1383-5769")
                 .withField(StandardField.ISSUE, "6")
                 .withField(StandardField.JOURNAL, "Parasitology international")
-                .withField(StandardField.KEYWORDS, "Animals; Antibodies, Protozoan/blood*; Antigens, Protozoan/immunology*; Cattle/parasitology*; Cattle Diseases/epidemiology*; Cattle Diseases/parasitology; Enzyme-Linked Immunosorbent Assay/veterinary; Geography; Humans; Indonesia/epidemiology; Livestock/immunology; Livestock/parasitology; Meat/parasitology; Protozoan Proteins/immunology*; Seroepidemiologic Studies; Swine/parasitology*; Swine Diseases/epidemiology*; Swine Diseases/parasitology; Toxoplasma/immunology; Toxoplasmosis, Animal/epidemiology*; Toxoplasmosis, Animal/immunology; Toxoplasmosis, Animal/parasitology; Cattle; ELISA; Indonesia; Pig; TgGRA7; Toxoplasma gondii")
+                .withField(
+                        StandardField.KEYWORDS,
+                        "Animals; Antibodies, Protozoan/blood*; Antigens, Protozoan/immunology*; Cattle/parasitology*;"
+                                + " Cattle Diseases/epidemiology*; Cattle Diseases/parasitology; Enzyme-Linked"
+                                + " Immunosorbent Assay/veterinary; Geography; Humans; Indonesia/epidemiology;"
+                                + " Livestock/immunology; Livestock/parasitology; Meat/parasitology; Protozoan"
+                                + " Proteins/immunology*; Seroepidemiologic Studies; Swine/parasitology*; Swine"
+                                + " Diseases/epidemiology*; Swine Diseases/parasitology; Toxoplasma/immunology;"
+                                + " Toxoplasmosis, Animal/epidemiology*; Toxoplasmosis, Animal/immunology;"
+                                + " Toxoplasmosis, Animal/parasitology; Cattle; ELISA; Indonesia; Pig; TgGRA7;"
+                                + " Toxoplasma gondii")
                 .withField(StandardField.MONTH, "#dec#")
                 .withField(new UnknownField("nlm-id"), "9708549")
                 .withField(StandardField.OWNER, "NLM")
@@ -114,14 +174,23 @@ class MedlineFetcherTest {
                 .withField(new UnknownField("pii"), "S1383-5769(15)00124-5")
                 .withField(StandardField.PMID, "26197440")
                 .withField(new UnknownField("pubmodel"), "Print-Electronic")
-                .withField(StandardField.TITLE, "Seroprevalence of antibody to TgGRA7 antigen of Toxoplasma gondii in livestock animals from Western Java, Indonesia.")
+                .withField(
+                        StandardField.TITLE,
+                        "Seroprevalence of antibody to TgGRA7 antigen of Toxoplasma gondii in livestock animals from"
+                                + " Western Java, Indonesia.")
                 .withField(StandardField.VOLUME, "64")
                 .withField(StandardField.URL, "https://pubmed.ncbi.nlm.nih.gov/26197440/")
                 .withField(StandardField.YEAR, "2015");
 
         bibEntrySari = new BibEntry(StandardEntryType.Article)
-                .withField(StandardField.AUTHOR, "Sari, Yulia and Haryati, Sri and Raharjo, Irvan and Prasetyo, Afiono Agung")
-                .withField(new UnknownField("chemicals"), "Antibodies, Protozoan, Antibodies, Viral, HTLV-I Antibodies, HTLV-II Antibodies, Hepatitis Antibodies, Hepatitis B Antibodies, Hepatitis C Antibodies, Immunoglobulin G, Immunoglobulin M")
+                .withField(
+                        StandardField.AUTHOR,
+                        "Sari, Yulia and Haryati, Sri and Raharjo, Irvan and Prasetyo, Afiono Agung")
+                .withField(
+                        new UnknownField("chemicals"),
+                        "Antibodies, Protozoan, Antibodies, Viral, HTLV-I Antibodies, HTLV-II Antibodies, Hepatitis"
+                                + " Antibodies, Hepatitis B Antibodies, Hepatitis C Antibodies, Immunoglobulin G,"
+                                + " Immunoglobulin M")
                 .withField(new UnknownField("citation-subset"), "IM")
                 .withField(new UnknownField("completed"), "2016-04-21")
                 .withField(new UnknownField("country"), "Thailand")
@@ -129,7 +198,19 @@ class MedlineFetcherTest {
                 .withField(new UnknownField("issn-linking"), "0125-1562")
                 .withField(StandardField.ISSUE, "6")
                 .withField(StandardField.JOURNAL, "The Southeast Asian journal of tropical medicine and public health")
-                .withField(StandardField.KEYWORDS, "Antibodies, Protozoan; Antibodies, Viral/immunology*; Coinfection/epidemiology; Coinfection/immunology; Female; HIV Infections/epidemiology*; HTLV-I Antibodies/immunology; HTLV-I Infections/epidemiology*; HTLV-I Infections/immunology; HTLV-II Antibodies/immunology; HTLV-II Infections/epidemiology*; HTLV-II Infections/immunology; Hepatitis Antibodies/immunology; Hepatitis B Antibodies/immunology; Hepatitis C Antibodies/immunology; Hepatitis Delta Virus/immunology; Hepatitis, Viral, Human/epidemiology*; Hepatitis, Viral, Human/immunology; Humans; Immunoglobulin G/immunology; Immunoglobulin M/immunology; Indonesia/epidemiology; Male; Prisoners; Seroepidemiologic Studies; Toxoplasma/immunology; Toxoplasmosis/epidemiology*; Toxoplasmosis/immunology")
+                .withField(
+                        StandardField.KEYWORDS,
+                        "Antibodies, Protozoan; Antibodies, Viral/immunology*; Coinfection/epidemiology;"
+                                + " Coinfection/immunology; Female; HIV Infections/epidemiology*; HTLV-I"
+                                + " Antibodies/immunology; HTLV-I Infections/epidemiology*; HTLV-I"
+                                + " Infections/immunology; HTLV-II Antibodies/immunology; HTLV-II"
+                                + " Infections/epidemiology*; HTLV-II Infections/immunology; Hepatitis"
+                                + " Antibodies/immunology; Hepatitis B Antibodies/immunology; Hepatitis C"
+                                + " Antibodies/immunology; Hepatitis Delta Virus/immunology; Hepatitis, Viral,"
+                                + " Human/epidemiology*; Hepatitis, Viral, Human/immunology; Humans; Immunoglobulin"
+                                + " G/immunology; Immunoglobulin M/immunology; Indonesia/epidemiology; Male;"
+                                + " Prisoners; Seroepidemiologic Studies; Toxoplasma/immunology;"
+                                + " Toxoplasmosis/epidemiology*; Toxoplasmosis/immunology")
                 .withField(StandardField.MONTH, "#nov#")
                 .withField(StandardField.PUBSTATE, "ppublish")
                 .withField(new UnknownField("revised"), "2026-01-27")
@@ -138,7 +219,9 @@ class MedlineFetcherTest {
                 .withField(StandardField.PAGES, "977--985")
                 .withField(StandardField.PMID, "26867355")
                 .withField(new UnknownField("pubmodel"), "Print")
-                .withField(StandardField.TITLE, "TOXOPLASMA AND VIRAL ANTIBODIES AMONG HIV PATIENTS AND INMATES IN CENTRAL JAVA, INDONESIA.")
+                .withField(
+                        StandardField.TITLE,
+                        "TOXOPLASMA AND VIRAL ANTIBODIES AMONG HIV PATIENTS AND INMATES IN CENTRAL JAVA, INDONESIA.")
                 .withField(StandardField.VOLUME, "46")
                 .withField(StandardField.URL, "https://pubmed.ncbi.nlm.nih.gov/26867355/")
                 .withField(StandardField.YEAR, "2015");
@@ -219,7 +302,9 @@ class MedlineFetcherTest {
 
     @Test
     void invalidSearchTerm() {
-        assertThrows(FetcherClientException.class, () -> fetcher.performSearchById("this.is.a.invalid.search.term.for.the.medline.fetcher"));
+        assertThrows(
+                FetcherClientException.class,
+                () -> fetcher.performSearchById("this.is.a.invalid.search.term.for.the.medline.fetcher"));
     }
 
     @Test

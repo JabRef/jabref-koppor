@@ -1,17 +1,15 @@
 package org.jabref.gui.keyboard;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class KeyBindingDispatcherTest {
 

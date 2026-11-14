@@ -1,5 +1,12 @@
 package org.jabref.migrations;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
@@ -9,10 +16,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
-
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.exporter.BibDatabaseWriter;
@@ -31,20 +36,12 @@ import org.jabref.model.groups.ExplicitGroup;
 import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @NullMarked
 @ResourceLock("Localization.lang")
@@ -54,10 +51,11 @@ class PerformLoadDatabaseMigrationsTest {
     @ValueSource(ints = {1, 10, 11, 1000})
     void migrationBatchesChangesAndRestoresEntryObservation(int entryCount) {
         List<BibEntry> entries = IntStream.range(0, entryCount)
-                                          .mapToObj(index -> new BibEntry().withCitationKey("Entry" + index)
-                                                                           .withField(InternalField.MARKED_INTERNAL, "[Owner:6]")
-                                                                           .withField(StandardField.KEYWORDS, "topic, printed"))
-                                          .toList();
+                .mapToObj(index -> new BibEntry()
+                        .withCitationKey("Entry" + index)
+                        .withField(InternalField.MARKED_INTERNAL, "[Owner:6]")
+                        .withField(StandardField.KEYWORDS, "topic, printed"))
+                .toList();
         ParserResult result = new ParserResult(entries);
         ObservableList<BibEntry> observedEntries = result.getDatabase().getEntries();
         List<Integer> updateSizes = new ArrayList<>();
@@ -88,9 +86,10 @@ class PerformLoadDatabaseMigrationsTest {
     @Test
     void migrationPreservesCitationLinksAndRebuildsReferenceIndex() {
         BibEntry parent = new BibEntry().withCitationKey("Parent");
-        BibEntry child = new BibEntry().withCitationKey("Child")
-                                       .withField(StandardField.CROSSREF, "Parent")
-                                       .withField(InternalField.MARKED_INTERNAL, "[Owner:6]");
+        BibEntry child = new BibEntry()
+                .withCitationKey("Child")
+                .withField(StandardField.CROSSREF, "Parent")
+                .withField(InternalField.MARKED_INTERNAL, "[Owner:6]");
         ParserResult result = new ParserResult(List.of(parent, child));
 
         PerformLoadDatabaseMigrations.performLoadDatabaseMigrations(result, ',');
@@ -107,10 +106,13 @@ class PerformLoadDatabaseMigrationsTest {
 
     @Test
     void modernLibraryDoesNotTriggerMigrationOrListChanges() {
-        BibEntry entry = new BibEntry().withField(StandardField.KEYWORDS, "research, topic")
-                                       .withField(StandardField.GROUPS, "Current group");
+        BibEntry entry = new BibEntry()
+                .withField(StandardField.KEYWORDS, "research, topic")
+                .withField(StandardField.GROUPS, "Current group");
         ParserResult result = new ParserResult(List.of(entry));
-        result.getMetaData().setGroups(GroupTreeNode.fromGroup(new ExplicitGroup("Current group", GroupHierarchyType.INDEPENDENT, ',')));
+        result.getMetaData()
+                .setGroups(GroupTreeNode.fromGroup(
+                        new ExplicitGroup("Current group", GroupHierarchyType.INDEPENDENT, ',')));
         ObservableList<BibEntry> observedEntries = result.getDatabase().getEntries();
         List<Integer> changes = new ArrayList<>();
         observedEntries.addListener((ListChangeListener<BibEntry>) change -> {
@@ -132,10 +134,11 @@ class PerformLoadDatabaseMigrationsTest {
     // [utest->req~import.bibtex.legacy-migrations.only-when-needed~1]
     @Test
     void savedAndReopenedLibraryDoesNotNeedAnotherMigration() throws IOException {
-        BibEntry entry = new BibEntry().withCitationKey("Entry")
-                                       .withField(StandardField.GROUPS, "Existing")
-                                       .withField(StandardField.KEYWORDS, "topic; printed; prio1")
-                                       .withField(InternalField.MARKED_INTERNAL, "[Owner:6]");
+        BibEntry entry = new BibEntry()
+                .withCitationKey("Entry")
+                .withField(StandardField.GROUPS, "Existing")
+                .withField(StandardField.KEYWORDS, "topic; printed; prio1")
+                .withField(InternalField.MARKED_INTERNAL, "[Owner:6]");
         ParserResult result = new ParserResult(List.of(entry));
         result.getMetaData().setKeywordSeparator(';');
         GroupTreeNode root = GroupTreeNode.fromGroup(new AllEntriesGroup("All entries"));
@@ -147,21 +150,32 @@ class PerformLoadDatabaseMigrationsTest {
         PerformLoadDatabaseMigrations.performLoadDatabaseMigrations(result, ';');
 
         StringWriter saved = new StringWriter();
-        new BibDatabaseWriter(new BibWriter(saved, "\n"),
-                new SelfContainedSaveConfiguration(SaveOrder.getDefaultSaveOrder(), false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false),
-                new FieldPreferences(true, List.of(), List.of()),
-                mock(CitationKeyPatternPreferences.class, Answers.RETURNS_DEEP_STUBS),
-                new BibEntryTypesManager()).writeDatabase(result.getDatabaseContext());
+        new BibDatabaseWriter(
+                        new BibWriter(saved, "\n"),
+                        new SelfContainedSaveConfiguration(
+                                SaveOrder.getDefaultSaveOrder(),
+                                false,
+                                BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA,
+                                false),
+                        new FieldPreferences(true, List.of(), List.of()),
+                        mock(CitationKeyPatternPreferences.class, Answers.RETURNS_DEEP_STUBS),
+                        new BibEntryTypesManager())
+                .writeDatabase(result.getDatabaseContext());
         ImportFormatPreferences preferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(preferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
         ParserResult reopened = new BibtexParser(preferences).parse(Reader.of(saved.toString()));
 
-        PerformLoadDatabaseMigrations.performLoadDatabaseMigrations(reopened, reopened.getDatabaseContext().getKeywordSeparator(','));
+        PerformLoadDatabaseMigrations.performLoadDatabaseMigrations(
+                reopened, reopened.getDatabaseContext().getKeywordSeparator(','));
 
         assertFalse(reopened.getChangedOnMigration());
         assertEquals(Optional.of(';'), reopened.getMetaData().getKeywordSeparator());
-        assertEquals(Optional.of("Existing; Legacy; Owner:6"), reopened.getDatabase().getEntries().getFirst().getField(StandardField.GROUPS));
-        assertEquals(Optional.of("topic"), reopened.getDatabase().getEntries().getFirst().getField(StandardField.KEYWORDS));
+        assertEquals(
+                Optional.of("Existing; Legacy; Owner:6"),
+                reopened.getDatabase().getEntries().getFirst().getField(StandardField.GROUPS));
+        assertEquals(
+                Optional.of("topic"),
+                reopened.getDatabase().getEntries().getFirst().getField(StandardField.KEYWORDS));
         assertFalse(new ConvertLegacyExplicitGroups().isMigrationNecessary(reopened));
         assertFalse(new ConvertMarkingToGroups(';').isMigrationNecessary(reopened));
         assertFalse(new SpecialFieldsToSeparateFields(';').isMigrationNecessary(reopened));

@@ -1,7 +1,15 @@
 package org.jabref.logic.ai.summarization;
 
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.ai.chatting.ChatModel;
 import org.jabref.logic.ai.summarization.logic.BibEntrySummarizator;
@@ -15,20 +23,10 @@ import org.jabref.model.ai.identifiers.FullBibEntry;
 import org.jabref.model.ai.summarization.AiSummary;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockConstruction;
-import static org.mockito.Mockito.when;
 
 @NullMarked
 class SummarizationTaskAggregatorTest {
@@ -45,7 +43,8 @@ class SummarizationTaskAggregatorTest {
     }
 
     private GenerateSummaryTaskRequest request(boolean regenerate) {
-        return new GenerateSummaryTaskRequest(mock(FilePreferences.class), mock(ChatModel.class), mock(Summarizator.class), fullEntry, regenerate);
+        return new GenerateSummaryTaskRequest(
+                mock(FilePreferences.class), mock(ChatModel.class), mock(Summarizator.class), fullEntry, regenerate);
     }
 
     @Test
@@ -82,7 +81,8 @@ class SummarizationTaskAggregatorTest {
         AiSummary oldSummary = mock(AiSummary.class);
         AiSummary newSummary = mock(AiSummary.class);
 
-        try (MockedConstruction<BibEntrySummarizator> ignored = mockConstruction(BibEntrySummarizator.class,
+        try (MockedConstruction<BibEntrySummarizator> ignored = mockConstruction(
+                BibEntrySummarizator.class,
                 (summarizator, context) -> when(summarizator.summarize(any(), any(), any()))
                         .thenReturn(context.getCount() == 1 ? oldSummary : newSummary))) {
             GenerateSummaryTask oldTask = aggregator.start(request(true));

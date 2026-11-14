@@ -4,9 +4,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
-
 import org.jabref.logic.openoffice.style.OOStyle;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -15,7 +13,8 @@ import org.jspecify.annotations.Nullable;
 public class CitationStyle implements OOStyle {
 
     // Currently, we have support for only one alphanumeric style, so we hardcode it
-    private static final String ALPHANUMERIC_STYLE = "DIN 1505-2 (alphanumeric, Deutsch) - standard superseded by ISO-690";
+    private static final String ALPHANUMERIC_STYLE =
+            "DIN 1505-2 (alphanumeric, Deutsch) - standard superseded by ISO-690";
 
     private final String filePath;
     private final String styleId;
@@ -27,21 +26,26 @@ public class CitationStyle implements OOStyle {
     private final boolean hasBibliographySortOrder;
     private final boolean usesHangingIndent;
     private final Supplier<String> sourceLoader;
-    @Nullable private volatile String source;
+
+    @Nullable
+    private volatile String source;
+
     private final boolean isInternalStyle;
 
-    public CitationStyle(@NonNull String filePath,
-                         @NonNull String styleId,
-                         @NonNull String styleClass,
-                         @NonNull String title,
-                         @NonNull String shortTitle,
-                         boolean isNumericStyle,
-                         boolean hasBibliography,
-                         boolean hasBibliographySortOrder,
-                         boolean usesHangingIndent,
-                         @NonNull String source,
-                         boolean isInternalStyle) {
-        this(filePath,
+    public CitationStyle(
+            @NonNull String filePath,
+            @NonNull String styleId,
+            @NonNull String styleClass,
+            @NonNull String title,
+            @NonNull String shortTitle,
+            boolean isNumericStyle,
+            boolean hasBibliography,
+            boolean hasBibliographySortOrder,
+            boolean usesHangingIndent,
+            @NonNull String source,
+            boolean isInternalStyle) {
+        this(
+                filePath,
                 styleId,
                 styleClass,
                 title,
@@ -55,18 +59,20 @@ public class CitationStyle implements OOStyle {
                 isInternalStyle);
     }
 
-    CitationStyle(@NonNull String filePath,
-                  @NonNull String styleId,
-                  @NonNull String styleClass,
-                  @NonNull String title,
-                  @NonNull String shortTitle,
-                  boolean isNumericStyle,
-                  boolean hasBibliography,
-                  boolean hasBibliographySortOrder,
-                  boolean usesHangingIndent,
-                  @NonNull Supplier<String> sourceLoader,
-                  boolean isInternalStyle) {
-        this(filePath,
+    CitationStyle(
+            @NonNull String filePath,
+            @NonNull String styleId,
+            @NonNull String styleClass,
+            @NonNull String title,
+            @NonNull String shortTitle,
+            boolean isNumericStyle,
+            boolean hasBibliography,
+            boolean hasBibliographySortOrder,
+            boolean usesHangingIndent,
+            @NonNull Supplier<String> sourceLoader,
+            boolean isInternalStyle) {
+        this(
+                filePath,
                 styleId,
                 styleClass,
                 title,
@@ -80,19 +86,21 @@ public class CitationStyle implements OOStyle {
                 isInternalStyle);
     }
 
-    private CitationStyle(@NonNull String filePath,
-                          @NonNull String styleId,
-                          @NonNull String styleClass,
-                          @NonNull String title,
-                          @NonNull String shortTitle,
-                          boolean isNumericStyle,
-                          boolean hasBibliography,
-                          boolean hasBibliographySortOrder,
-                          boolean usesHangingIndent,
-                          @NonNull Supplier<String> sourceLoader,
-                          @Nullable String source,
-                          boolean isInternalStyle) {
-        this.filePath = Path.of(filePath).toString(); // wrapping with Path.of takes care of extra slashes in path due to subsequent storage and retrieval (observed on Windows)
+    private CitationStyle(
+            @NonNull String filePath,
+            @NonNull String styleId,
+            @NonNull String styleClass,
+            @NonNull String title,
+            @NonNull String shortTitle,
+            boolean isNumericStyle,
+            boolean hasBibliography,
+            boolean hasBibliographySortOrder,
+            boolean usesHangingIndent,
+            @NonNull Supplier<String> sourceLoader,
+            @Nullable String source,
+            boolean isInternalStyle) {
+        this.filePath = Path.of(filePath).toString(); // wrapping with Path.of takes care of extra slashes in path due
+                                                      // to subsequent storage and retrieval (observed on Windows)
         this.styleId = styleId;
         this.styleClass = styleClass;
         this.title = title;
@@ -176,8 +184,7 @@ public class CitationStyle implements OOStyle {
         }
 
         CitationStyle other = (CitationStyle) o;
-        return isInternalStyle == other.isInternalStyle
-                && Objects.equals(filePath, other.filePath);
+        return isInternalStyle == other.isInternalStyle && Objects.equals(filePath, other.filePath);
     }
 
     @Override

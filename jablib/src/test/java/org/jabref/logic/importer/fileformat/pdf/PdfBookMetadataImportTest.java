@@ -1,11 +1,16 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.PdfUtils;
@@ -13,16 +18,9 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.ISBN;
 import org.jabref.model.entry.types.StandardEntryType;
-
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PdfBookMetadataImportTest {
 
@@ -53,8 +51,7 @@ public class PdfBookMetadataImportTest {
 
     @Test
     void extractsMultipleIsbnsFromBibliographicPage() throws IOException, URISyntaxException {
-        assertExtraction("imprint-multiple-isbns.pdf", 2,
-                List.of("9780596520687", "9780134685991", "0596520689"));
+        assertExtraction("imprint-multiple-isbns.pdf", 2, List.of("9780596520687", "9780134685991", "0596520689"));
     }
 
     @Test
@@ -82,10 +79,7 @@ public class PdfBookMetadataImportTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "imprint-without-isbn.pdf",
-            "imprint-invalid-isbn.pdf"
-    })
+    @ValueSource(strings = {"imprint-without-isbn.pdf", "imprint-invalid-isbn.pdf"})
     void fallsBackToPaperImportWhenBibliographicPageHasNoValidIsbn(String fileName) throws URISyntaxException {
         assertImportedPaper(fileName);
     }
@@ -95,8 +89,10 @@ public class PdfBookMetadataImportTest {
         ParserResult result = importFixture("imprint-multiple-isbns.pdf");
 
         assertEquals(List.of(), result.getDatabase().getEntries());
-        assertEquals(List.of(Localization.lang("More than one ISBN found: Found %0. Not adding.",
-                "9780596520687, 9780134685991, 0596520689")), result.warnings());
+        assertEquals(
+                List.of(Localization.lang(
+                        "More than one ISBN found: Found %0. Not adding.", "9780596520687, 9780134685991, 0596520689")),
+                result.warnings());
     }
 
     @Test
@@ -110,12 +106,14 @@ public class PdfBookMetadataImportTest {
             List<String> candidatePages = PdfPageScanner.scanPages(document);
             Optional<String> bibliographicPage = BibliographicPageDetector.findBibliographicPage(candidatePages);
 
-            assertEquals(Optional.of(PdfUtils.getPageContents(document, expectedPage)), bibliographicPage,
+            assertEquals(
+                    Optional.of(PdfUtils.getPageContents(document, expectedPage)),
+                    bibliographicPage,
                     "The selected text must belong to the fixture's known physical imprint page");
 
             List<String> actualIsbns = ISBN.findAllInText(bibliographicPage.orElseThrow()).stream()
-                                           .map(ISBN::asString)
-                                           .toList();
+                    .map(ISBN::asString)
+                    .toList();
             assertEquals(expectedIsbns, actualIsbns);
         }
     }
@@ -129,10 +127,8 @@ public class PdfBookMetadataImportTest {
     private void assertImportedBook(String fileName, String expectedIsbn) throws URISyntaxException {
         BibEntry entry = importSingleEntry(fileName);
 
-        assertEquals(StandardEntryType.Book, entry.getType(),
-                "Expected a book entry for " + fileName);
-        assertEquals(Optional.of(expectedIsbn), entry.getField(StandardField.ISBN),
-                "Unexpected ISBN for " + fileName);
+        assertEquals(StandardEntryType.Book, entry.getType(), "Expected a book entry for " + fileName);
+        assertEquals(Optional.of(expectedIsbn), entry.getField(StandardField.ISBN), "Unexpected ISBN for " + fileName);
     }
 
     private void assertImportedPaper(String fileName) throws URISyntaxException {
@@ -158,8 +154,7 @@ public class PdfBookMetadataImportTest {
         Path file = Path.of(resource.toURI());
         ParserResult result = new PdfContentImporter().importDatabase(file);
 
-        assertFalse(result.isInvalid(),
-                () -> "Import failed for " + fileName + ": " + result.getErrorMessage());
+        assertFalse(result.isInvalid(), () -> "Import failed for " + fileName + ": " + result.getErrorMessage());
 
         return result;
     }

@@ -2,9 +2,7 @@ package org.jabref.gui.maintable;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javafx.scene.Node;
-
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.icon.JabRefIcon;
@@ -48,7 +46,8 @@ public class CellFactory {
         // icon.setToolTipText(Localization.lang("Open file"));
         TABLE_ICONS.put(StandardField.FILE, icon);
 
-        for (ExternalFileType fileType : preferences.getExternalApplicationsPreferences().getExternalFileTypes()) {
+        for (ExternalFileType fileType :
+                preferences.getExternalApplicationsPreferences().getExternalFileTypes()) {
             icon = fileType.getIcon();
             // icon.setToolTipText(Localization.lang("Open %0 file", fileType.getName()));
             TABLE_ICONS.put(fileType.getField(), icon);
@@ -69,7 +68,9 @@ public class CellFactory {
         TABLE_ICONS.put(SpecialField.PRIORITY, icon);
 
         // Read icon used for menu
-        icon = SpecialFieldViewModel.getAction(SpecialField.READ_STATUS).getIcon().orElseThrow();
+        icon = SpecialFieldViewModel.getAction(SpecialField.READ_STATUS)
+                .getIcon()
+                .orElseThrow();
         TABLE_ICONS.put(SpecialField.READ_STATUS, icon);
 
         // Print icon used for menu

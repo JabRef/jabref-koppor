@@ -1,8 +1,8 @@
 package org.jabref.gui.shared;
 
+import com.google.common.base.Throwables;
 import java.util.Optional;
 import java.util.function.Consumer;
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -10,14 +10,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.theme.StyleClasses;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.shared.DBMSConnectionProperties;
 import org.jabref.logic.shared.DBMSConnectionUrl;
-
-import com.google.common.base.Throwables;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -38,8 +35,7 @@ public class SharedDatabaseErrorTab extends Tab {
     private DBMSConnectionProperties connectionProperties;
     private final Label message = new Label();
 
-    private Consumer<SharedDatabaseErrorTab> retryAction = _ -> {
-    };
+    private Consumer<SharedDatabaseErrorTab> retryAction = _ -> {};
     private @Nullable Throwable error;
 
     public SharedDatabaseErrorTab(@Nullable String sharedDatabaseId, DBMSConnectionProperties connectionProperties) {
@@ -58,9 +54,10 @@ public class SharedDatabaseErrorTab extends Tab {
         retryButton.setDefaultButton(true);
         retryButton.setOnAction(_ -> retryAction.accept(this));
 
-        Label header = new Label(sharedDatabaseId == null
-                                 ? Localization.lang("Could not connect to %0.", databaseName)
-                                 : Localization.lang("Could not reconnect to shared database %0.", databaseName));
+        Label header = new Label(
+                sharedDatabaseId == null
+                        ? Localization.lang("Could not connect to %0.", databaseName)
+                        : Localization.lang("Could not reconnect to shared database %0.", databaseName));
         header.setWrapText(true);
         header.getStyleClass().addAll(StyleClasses.WELCOME_HEADER);
 
@@ -75,12 +72,12 @@ public class SharedDatabaseErrorTab extends Tab {
     /// only its database or host is.
     private static String displayName(DBMSConnectionProperties connectionProperties) {
         Optional<String> fromUrl = connectionProperties.isUseExpertMode()
-                                   ? DBMSConnectionUrl.parse(connectionProperties.getJdbcUrl())
-                                                      .map(url -> url.database().isBlank() ? url.host() : url.database())
-                                   : Optional.empty();
+                ? DBMSConnectionUrl.parse(connectionProperties.getJdbcUrl())
+                        .map(url -> url.database().isBlank() ? url.host() : url.database())
+                : Optional.empty();
         return fromUrl.or(() -> Optional.ofNullable(connectionProperties.getDatabase()))
-                      .filter(name -> !name.isBlank())
-                      .orElseGet(() -> Localization.lang("Shared database connection"));
+                .filter(name -> !name.isBlank())
+                .orElseGet(() -> Localization.lang("Shared database connection"));
     }
 
     public void setRetryAction(Consumer<SharedDatabaseErrorTab> retryAction) {
@@ -107,7 +104,8 @@ public class SharedDatabaseErrorTab extends Tab {
         return connectionProperties;
     }
 
-    /// The driver's own message is generic ("The connection attempt failed."); the reason is at the end of the cause chain
+    /// The driver's own message is generic ("The connection attempt failed."); the reason is at the end of the cause
+    /// chain
     public void showError(Throwable exception) {
         this.error = exception;
         Throwable rootCause = Throwables.getRootCause(exception);

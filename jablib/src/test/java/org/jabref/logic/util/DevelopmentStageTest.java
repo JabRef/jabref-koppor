@@ -1,9 +1,9 @@
 package org.jabref.logic.util;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 class DevelopmentStageTest {
 
@@ -13,7 +13,10 @@ class DevelopmentStageTest {
         assertTrue(Version.DevelopmentStage.BETA.isMoreStableThan(Version.DevelopmentStage.ALPHA));
         assertTrue(Version.DevelopmentStage.STABLE.isMoreStableThan(Version.DevelopmentStage.BETA));
 
-        assertEquals(4, Version.DevelopmentStage.values().length, "It seems that the development stages have been changed, please adjust the test");
+        assertEquals(
+                4,
+                Version.DevelopmentStage.values().length,
+                "It seems that the development stages have been changed, please adjust the test");
     }
 
     @Test

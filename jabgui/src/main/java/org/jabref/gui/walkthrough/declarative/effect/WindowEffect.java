@@ -1,17 +1,14 @@
 package org.jabref.gui.walkthrough.declarative.effect;
 
 import java.util.Optional;
-
 import org.jabref.gui.walkthrough.declarative.NodeResolver;
 import org.jabref.gui.walkthrough.declarative.WindowResolver;
-
 import org.jspecify.annotations.NonNull;
 
 public record WindowEffect(
         @NonNull Optional<WindowResolver> windowResolver,
         @NonNull HighlightEffect effect,
-        @NonNull Optional<NodeResolver> targetNodeResolver
-) {
+        @NonNull Optional<NodeResolver> targetNodeResolver) {
     public WindowEffect(HighlightEffect effect) {
         this(Optional.empty(), effect, Optional.empty());
     }

@@ -2,9 +2,7 @@ package org.jabref.gui.entryeditor.citationrelationtab;
 
 import java.util.BitSet;
 import java.util.List;
-
 import org.jabref.model.entry.BibEntry;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Keeps track of the review of the checked citation entries: which entry is shown, the edits made so far,
@@ -25,9 +23,8 @@ public class CitationEntryReview {
         this.items = List.copyOf(itemsToReview);
         // The dialog edits copies, so a skipped entry stays in the citation list as it was fetched.
         // One copy per entry keeps the edits when the user goes back to an entry.
-        this.editedEntries = items.stream()
-                                  .map(item -> new BibEntry(item.entry()))
-                                  .toList();
+        this.editedEntries =
+                items.stream().map(item -> new BibEntry(item.entry())).toList();
         this.chosenForAdding = new BitSet(items.size());
     }
 
@@ -55,8 +52,7 @@ public class CitationEntryReview {
     /// Applies the user's choice for the current entry, as described at [CitationEntryReviewDialog.Decision].
     public void applyDecision(CitationEntryReviewDialog.Decision decision) {
         switch (decision) {
-            case PREVIOUS ->
-                    position = Math.max(0, position - 1);
+            case PREVIOUS -> position = Math.max(0, position - 1);
             case SKIP -> {
                 chosenForAdding.clear(position);
                 position++;
@@ -65,8 +61,7 @@ public class CitationEntryReview {
                 chosenForAdding.set(position);
                 position++;
             }
-            case CANCEL ->
-                    cancelled = true;
+            case CANCEL -> cancelled = true;
         }
     }
 
@@ -76,10 +71,10 @@ public class CitationEntryReview {
             return List.of();
         }
         return chosenForAdding.stream()
-                              .mapToObj(index -> new CitationRelationItem(
-                                      editedEntries.get(index),
-                                      items.get(index).localEntry(),
-                                      items.get(index).isLocal()))
-                              .toList();
+                .mapToObj(index -> new CitationRelationItem(
+                        editedEntries.get(index),
+                        items.get(index).localEntry(),
+                        items.get(index).isLocal()))
+                .toList();
     }
 }

@@ -1,15 +1,14 @@
 package org.jabref.logic.journals;
 
-import java.util.stream.Stream;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Execution(ExecutionMode.SAME_THREAD)
 public class LtwaRepositoryTest {
@@ -23,13 +22,15 @@ public class LtwaRepositoryTest {
     @ParameterizedTest
     @MethodSource("provideJournalTitlesAndAbbreviations")
     void ltwaAbbreviations(String fullTitle, String expectedAbbreviation) {
-        assertEquals(expectedAbbreviation, repository.getLtwaAbbreviation(fullTitle).get());
+        assertEquals(
+                expectedAbbreviation, repository.getLtwaAbbreviation(fullTitle).get());
     }
 
     private static Stream<Arguments> provideJournalTitlesAndAbbreviations() {
         return Stream.of(
                 Arguments.of("Journal of Polymer Science Part A", "J. Polym. Sci. A"),
-                Arguments.of("Proceedings of the Institution of Mechanical Engineers, Part A", "Proc. Inst. Mech. Eng. A"),
+                Arguments.of(
+                        "Proceedings of the Institution of Mechanical Engineers, Part A", "Proc. Inst. Mech. Eng. A"),
                 Arguments.of("Bulletin of the Section of Logic", "Bull. Sect. Log."),
                 Arguments.of("The Lancet", "Lancet"),
                 Arguments.of("Baha'i Studies Review", "Baha'i Stud. Rev."),
@@ -54,10 +55,13 @@ public class LtwaRepositoryTest {
                 Arguments.of("Romanian Journal of Physics", "Rom. J. Phys."),
                 Arguments.of("Archiv Orientální", "Arch. Orient."),
                 Arguments.of("Ślaski Kwartalnik Historyczny Sobótka", "Śl. Kwart. Hist. Sobótka"),
-                Arguments.of("Mitteilungen der Österreichischen Geographischen Gesellschaft", "Mitt. Österr. Geogr. Ges."),
+                Arguments.of(
+                        "Mitteilungen der Österreichischen Geographischen Gesellschaft", "Mitt. Österr. Geogr. Ges."),
                 Arguments.of("Inorganica Chimica Acta", "Inorg. Chim. Acta"),
                 Arguments.of("Comptes rendus de l'Académie des Sciences", "C. r. Acad. Sci."),
-                Arguments.of("Proceedings of the National Academy of    Sciences of the United States of America", "Proc. Natl. Acad. Sci. U. S. A."),
+                Arguments.of(
+                        "Proceedings of the National Academy of    Sciences of the United States of America",
+                        "Proc. Natl. Acad. Sci. U. S. A."),
                 Arguments.of("Scando-Slavica", "Scando-Slav."),
                 Arguments.of("International Journal of e-Collaboration", "Int. J. e-Collab."),
                 Arguments.of("Proceedings of A. Razmadze Mathematical Institute", "Proc. A. Razmadze Math. Inst."),
@@ -69,7 +73,6 @@ public class LtwaRepositoryTest {
                 Arguments.of("Physical Review. A", "Phys. Rev., A"),
                 Arguments.of("Physical Review. D", "Phys. Rev., D"),
                 Arguments.of("Physical Review. E", "Phys. Rev., E"),
-                Arguments.of("Physical Review. I", "Phys. Rev., I")
-        );
+                Arguments.of("Physical Review. I", "Phys. Rev., I"));
     }
 }

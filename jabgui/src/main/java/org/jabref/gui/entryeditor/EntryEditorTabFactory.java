@@ -1,8 +1,8 @@
 package org.jabref.gui.entryeditor;
 
+import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.entryeditor.citationrelationtab.CitationRelationsTab;
@@ -20,8 +20,6 @@ import org.jabref.logic.util.BuildInfo;
 import org.jabref.logic.util.TaskExecutor;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.util.FileUpdateMonitor;
-
-import io.github.kusoroadeolu.veneer.BibTeXSyntaxHighlighter;
 
 /// Builds the [EntryEditorTab] controls shown in the [EntryEditor].
 ///
@@ -46,21 +44,22 @@ public class EntryEditorTabFactory {
     private final SearchCitationsRelationsService searchCitationsRelationsService;
     private final BibTeXSyntaxHighlighter bibTeXSyntaxHighlighter;
 
-    public EntryEditorTabFactory(PreviewPanel previewPanel,
-                                 UndoAction undoAction,
-                                 RedoAction redoAction,
-                                 BuildInfo buildInfo,
-                                 DialogService dialogService,
-                                 TaskExecutor taskExecutor,
-                                 GuiPreferences preferences,
-                                 StateManager stateManager,
-                                 FileUpdateMonitor fileMonitor,
-                                 DirectoryMonitor directoryMonitor,
-                                 BibEntryTypesManager bibEntryTypesManager,
-                                 JournalAbbreviationRepository journalAbbreviationRepository,
-                                 KeyBindingRepository keyBindingRepository,
-                                 SearchCitationsRelationsService searchCitationsRelationsService,
-                                 BibTeXSyntaxHighlighter bibTeXSyntaxHighlighter) {
+    public EntryEditorTabFactory(
+            PreviewPanel previewPanel,
+            UndoAction undoAction,
+            RedoAction redoAction,
+            BuildInfo buildInfo,
+            DialogService dialogService,
+            TaskExecutor taskExecutor,
+            GuiPreferences preferences,
+            StateManager stateManager,
+            FileUpdateMonitor fileMonitor,
+            DirectoryMonitor directoryMonitor,
+            BibEntryTypesManager bibEntryTypesManager,
+            JournalAbbreviationRepository journalAbbreviationRepository,
+            KeyBindingRepository keyBindingRepository,
+            SearchCitationsRelationsService searchCitationsRelationsService,
+            BibTeXSyntaxHighlighter bibTeXSyntaxHighlighter) {
         this.previewPanel = previewPanel;
         this.undoAction = undoAction;
         this.redoAction = redoAction;
@@ -95,69 +94,68 @@ public class EntryEditorTabFactory {
     public EntryEditorTab createTab(EntryEditorTabModel model) {
         EntryEditorPreferences entryEditorPreferences = preferences.getEntryEditorPreferences();
         return switch (model) {
-            case EntryEditorTabModel.BuiltInTab(
-                    EntryEditorTabModel.BuiltIn type,
-                    boolean _
-            ) -> {
+            case EntryEditorTabModel.BuiltInTab(EntryEditorTabModel.BuiltIn type, boolean _) -> {
                 EntryEditorTab tab = createBuiltInTab(type);
-                tab.setPreferenceDrivenVisibility(type == EntryEditorTabModel.BuiltIn.PREVIEW
-                                                  ? preferences.getPreviewPreferences().showPreviewAsExtraTabProperty()
-                                                  : entryEditorPreferences.tabVisibleProperty(type));
+                tab.setPreferenceDrivenVisibility(
+                        type == EntryEditorTabModel.BuiltIn.PREVIEW
+                                ? preferences.getPreviewPreferences().showPreviewAsExtraTabProperty()
+                                : entryEditorPreferences.tabVisibleProperty(type));
                 yield tab;
             }
             // Custom tabs have no preference-driven visibility gate: they exist exactly while configured,
             // and hide themselves via content-driven visibility when their patterns resolve to no fields.
             case EntryEditorTabModel.CustomizedFieldsTab customTab ->
-                    new UserDefinedFieldsTab(
-                            customTab,
-                            undoAction,
-                            redoAction,
-                            preferences,
-                            journalAbbreviationRepository,
-                            stateManager,
-                            previewPanel);
+                new UserDefinedFieldsTab(
+                        customTab,
+                        undoAction,
+                        redoAction,
+                        preferences,
+                        journalAbbreviationRepository,
+                        stateManager,
+                        previewPanel);
         };
     }
 
     private EntryEditorTab createBuiltInTab(EntryEditorTabModel.BuiltIn type) {
         return switch (type) {
-            case PREVIEW ->
-                    new PreviewTab(preferences, stateManager, previewPanel);
+            case PREVIEW -> new PreviewTab(preferences, stateManager, previewPanel);
             case ALL_FIELDS ->
-                    new AllFieldsTab(undoAction, redoAction, preferences, bibEntryTypesManager, journalAbbreviationRepository, stateManager, previewPanel);
+                new AllFieldsTab(
+                        undoAction,
+                        redoAction,
+                        preferences,
+                        bibEntryTypesManager,
+                        journalAbbreviationRepository,
+                        stateManager,
+                        previewPanel);
             case RELATED_ARTICLES ->
-                    new RelatedArticlesTab(buildInfo, preferences, dialogService, stateManager, taskExecutor);
-            case AI_SUMMARY ->
-                    new AiSummaryTab(preferences, stateManager);
-            case AI_CHAT ->
-                    new AiChatTab(preferences, stateManager);
-            case FILE_ANNOTATIONS ->
-                    new FileAnnotationTab(stateManager, preferences);
-            case LATEX_CITATIONS ->
-                    new LatexCitationsTab(preferences, dialogService, stateManager, directoryMonitor);
+                new RelatedArticlesTab(buildInfo, preferences, dialogService, stateManager, taskExecutor);
+            case AI_SUMMARY -> new AiSummaryTab(preferences, stateManager);
+            case AI_CHAT -> new AiChatTab(preferences, stateManager);
+            case FILE_ANNOTATIONS -> new FileAnnotationTab(stateManager, preferences);
+            case LATEX_CITATIONS -> new LatexCitationsTab(preferences, dialogService, stateManager, directoryMonitor);
             case CITATION_INFORMATION ->
-                    new CitationRelationsTab(
-                            dialogService,
-                            stateManager,
-                            fileMonitor,
-                            preferences,
-                            taskExecutor,
-                            bibEntryTypesManager,
-                            searchCitationsRelationsService,
-                            bibTeXSyntaxHighlighter);
+                new CitationRelationsTab(
+                        dialogService,
+                        stateManager,
+                        fileMonitor,
+                        preferences,
+                        taskExecutor,
+                        bibEntryTypesManager,
+                        searchCitationsRelationsService,
+                        bibTeXSyntaxHighlighter);
             case SOURCE ->
-                    new SourceTab(
-                            preferences.getFieldPreferences(),
-                            preferences.getImportFormatPreferences(),
-                            fileMonitor,
-                            dialogService,
-                            bibEntryTypesManager,
-                            keyBindingRepository,
-                            stateManager,
-                            bibTeXSyntaxHighlighter
-                    );
+                new SourceTab(
+                        preferences.getFieldPreferences(),
+                        preferences.getImportFormatPreferences(),
+                        fileMonitor,
+                        dialogService,
+                        bibEntryTypesManager,
+                        keyBindingRepository,
+                        stateManager,
+                        bibTeXSyntaxHighlighter);
             case FULLTEXT_SEARCH_RESULTS ->
-                    new FulltextSearchResultsTab(stateManager, preferences, dialogService, taskExecutor);
+                new FulltextSearchResultsTab(stateManager, preferences, dialogService, taskExecutor);
         };
     }
 }

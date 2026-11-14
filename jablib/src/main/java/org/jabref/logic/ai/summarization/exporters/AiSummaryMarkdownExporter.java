@@ -1,7 +1,6 @@
 package org.jabref.logic.ai.summarization.exporters;
 
 import java.util.List;
-
 import org.jabref.logic.ai.chatting.exporters.AiChatMarkdownExporter;
 import org.jabref.logic.bibtex.FieldPreferences;
 import org.jabref.model.ai.AiMetadata;
@@ -18,7 +17,8 @@ import org.jabref.model.entry.BibEntryTypesManager;
 public class AiSummaryMarkdownExporter implements AiSummaryExporter {
     private final AiChatMarkdownExporter chatExporter;
 
-    public AiSummaryMarkdownExporter(BibEntryTypesManager entryTypesManager, FieldPreferences fieldPreferences, String markdownExportTemplate) {
+    public AiSummaryMarkdownExporter(
+            BibEntryTypesManager entryTypesManager, FieldPreferences fieldPreferences, String markdownExportTemplate) {
         this.chatExporter = new AiChatMarkdownExporter(entryTypesManager, fieldPreferences, markdownExportTemplate);
     }
 

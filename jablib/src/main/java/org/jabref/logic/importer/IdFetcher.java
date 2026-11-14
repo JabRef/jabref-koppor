@@ -1,7 +1,6 @@
 package org.jabref.logic.importer;
 
 import java.util.Optional;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.identifier.Identifier;
 

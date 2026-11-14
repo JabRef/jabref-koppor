@@ -2,14 +2,14 @@ package org.jabref.logic.cleanup;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.jabref.logic.bibtex.FileFieldWriter;
 import org.jabref.model.FieldChange;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
 
-/// Fixes the format of the file field. For example, if the file link is empty but the description wrongly contains the path.
+/// Fixes the format of the file field. For example, if the file link is empty but the description wrongly contains the
+/// path.
 public class FileLinksCleanup implements CleanupJob {
 
     @Override

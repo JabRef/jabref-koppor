@@ -11,11 +11,9 @@ import java.util.SequencedSet;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.kordamp.ikonli.Ikon;
@@ -60,13 +58,13 @@ public final class IkonliIcon implements JabRefIcon {
     /// Finds the Ikonli icon whose name matches `code` (case-insensitive).
     public static Optional<JabRefIcon> findIcon(String code) {
         return Optional.ofNullable(IkonliIcons.BY_NAME.get(code.toUpperCase(Locale.ENGLISH)))
-                       .map(IkonliIcon::new);
+                .map(IkonliIcon::new);
     }
 
     /// Finds the Ikonli icon whose pack-qualified description matches `description` (case-insensitive).
     public static Optional<JabRefIcon> findIconByDescription(String description) {
         return Optional.ofNullable(IkonliIcons.BY_DESCRIPTION.get(description.toUpperCase(Locale.ENGLISH)))
-                       .map(IkonliIcon::new);
+                .map(IkonliIcon::new);
     }
 
     public static SequencedSet<Ikon> allIcons() {
@@ -90,11 +88,10 @@ public final class IkonliIcon implements JabRefIcon {
 
         private static Map<String, Ikon> loadMap(Function<Ikon, String> keyMapper) {
             return ALL.stream()
-                      .collect(Collectors.toUnmodifiableMap(
-                              ikon -> keyMapper.apply(ikon).toUpperCase(Locale.ENGLISH),
-                              ikon -> ikon,
-                              (existing, _) -> existing
-                      ));
+                    .collect(Collectors.toUnmodifiableMap(
+                            ikon -> keyMapper.apply(ikon).toUpperCase(Locale.ENGLISH),
+                            ikon -> ikon,
+                            (existing, _) -> existing));
         }
     }
 

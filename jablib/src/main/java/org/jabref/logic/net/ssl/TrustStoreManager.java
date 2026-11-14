@@ -16,13 +16,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,11 +111,11 @@ public class TrustStoreManager {
 
     public List<SSLCertificate> getCustomCertificates() {
         return aliases().stream()
-                        .filter(this::isCustomCertificate)
-                        .map(this::getCertificate)
-                        .map(SSLCertificate::fromX509)
-                        .flatMap(Optional::stream)
-                        .collect(Collectors.toList());
+                .filter(this::isCustomCertificate)
+                .map(this::getCertificate)
+                .map(SSLCertificate::fromX509)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
     }
 
     public X509Certificate getCertificate(String alias) {
@@ -192,8 +190,9 @@ public class TrustStoreManager {
     }
 
     /// @implNote based on https://stackoverflow.com/a/62586564/3450689
-    private static void configureTrustStore(Path myStorePath) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException,
-            CertificateException, IOException {
+    private static void configureTrustStore(Path myStorePath)
+            throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, CertificateException,
+                    IOException {
         X509TrustManager jreTrustManager = getJreTrustManager();
         X509TrustManager myTrustManager = getJabRefTrustManager(myStorePath);
 
@@ -205,8 +204,8 @@ public class TrustStoreManager {
         return findDefaultTrustManager(null);
     }
 
-    private static X509TrustManager getJabRefTrustManager(Path myStorePath) throws KeyStoreException, IOException,
-            NoSuchAlgorithmException, CertificateException {
+    private static X509TrustManager getJabRefTrustManager(Path myStorePath)
+            throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
         // Adapt to load your keystore
         try (InputStream myKeys = Files.newInputStream(myStorePath)) {
             KeyStore myTrustStore = KeyStore.getInstance("jks");
@@ -229,8 +228,8 @@ public class TrustStoreManager {
         return null;
     }
 
-    private static X509TrustManager createMergedTrustManager(X509TrustManager jreTrustManager,
-                                                             X509TrustManager customTrustManager) {
+    private static X509TrustManager createMergedTrustManager(
+            X509TrustManager jreTrustManager, X509TrustManager customTrustManager) {
         return new X509TrustManager() {
             @Override
             public X509Certificate[] getAcceptedIssuers() {

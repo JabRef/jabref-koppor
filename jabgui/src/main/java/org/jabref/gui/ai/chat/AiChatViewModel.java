@@ -1,5 +1,9 @@
 package org.jabref.gui.ai.chat;
 
+import com.google.common.collect.Comparators;
+import com.tobiasdiez.easybind.EasyBind;
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.store.embedding.EmbeddingStore;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -7,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ListProperty;
@@ -18,7 +21,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.util.BindingsHelper;
@@ -49,11 +51,6 @@ import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.ai.chatting.ChatMessage;
 import org.jabref.model.ai.identifiers.FullBibEntry;
 import org.jabref.model.entry.LinkedFile;
-
-import com.google.common.collect.Comparators;
-import com.tobiasdiez.easybind.EasyBind;
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.store.embedding.EmbeddingStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,25 +74,23 @@ public class AiChatViewModel extends AbstractViewModel {
     private final ObjectProperty<ResponseEngine> responseEngine = new SimpleObjectProperty<>();
     private final ListProperty<FullBibEntry> entries = new SimpleListProperty<>(FXCollections.observableArrayList());
 
-    private final ListProperty<GenerateEmbeddingsTask> generateEmbeddingsTasks = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ListProperty<GenerateEmbeddingsTask> generateEmbeddingsTasks =
+            new SimpleListProperty<>(FXCollections.observableArrayList());
     private final ObjectProperty<GenerateRagResponseTask> generateRagResponseTask = new SimpleObjectProperty<>();
     private BackgroundTask<List<String>> generateFollowUpQuestionsTask;
 
-    private final ListProperty<String> followUpQuestions = new SimpleListProperty<>(FXCollections.observableArrayList(
-            EXAMPLE_QUESTION_1,
-            EXAMPLE_QUESTION_2,
-            EXAMPLE_QUESTION_3
-    ));
+    private final ListProperty<String> followUpQuestions = new SimpleListProperty<>(
+            FXCollections.observableArrayList(EXAMPLE_QUESTION_1, EXAMPLE_QUESTION_2, EXAMPLE_QUESTION_3));
 
     private final ObjectProperty<ChatModel> chatModel = new SimpleObjectProperty<>();
     private final ObjectProperty<AsyncEmbeddingModel> embeddingModel = new SimpleObjectProperty<>();
     private final ObjectProperty<DocumentSplitter> documentSplitter = new SimpleObjectProperty<>();
 
-    private final TreeMap<List<FullBibEntry>, GenerateRagResponseTask> tasksMap =
-            new TreeMap<>(Comparators.lexicographical(Comparator.comparing(id -> id.entry().getId())));
+    private final TreeMap<List<FullBibEntry>, GenerateRagResponseTask> tasksMap = new TreeMap<>(
+            Comparators.lexicographical(Comparator.comparing(id -> id.entry().getId())));
 
-    private final TreeMap<List<FullBibEntry>, List<String>> followUpQuestionsCache =
-            new TreeMap<>(Comparators.lexicographical(Comparator.comparing(id -> id.entry().getId())));
+    private final TreeMap<List<FullBibEntry>, List<String>> followUpQuestionsCache = new TreeMap<>(
+            Comparators.lexicographical(Comparator.comparing(id -> id.entry().getId())));
 
     private final AiPreferences aiPreferences;
     private final FilePreferences filePreferences;
@@ -120,8 +115,7 @@ public class AiChatViewModel extends AbstractViewModel {
             IngestedDocumentsRepository ingestedDocumentsRepository,
             EmbeddingStore<TextSegment> embeddingStore,
             EmbeddingModelCache embeddingModelCache,
-            TaskExecutor taskExecutor
-    ) {
+            TaskExecutor taskExecutor) {
         this.aiPreferences = aiPreferences;
         this.filePreferences = filePreferences;
         this.dialogService = dialogService;
@@ -142,45 +136,44 @@ public class AiChatViewModel extends AbstractViewModel {
 
         this.embeddingModel.bind(ObservablesHelper.createObjectBinding(
                 () -> EmbeddingModelFactory.create(aiPreferences, embeddingModelCache),
-                aiPreferences.getEmbeddingsProperties()
-        ));
+                aiPreferences.getEmbeddingsProperties()));
 
         this.documentSplitter.bind(ObservablesHelper.createObjectBinding(
-                () -> DocumentSplitterFactory.create(aiPreferences),
-                aiPreferences.getDocumentSplitterProperties()
-        ));
+                () -> DocumentSplitterFactory.create(aiPreferences), aiPreferences.getDocumentSplitterProperties()));
 
         this.chatModel.bind(ObservablesHelper.createClosableObjectBinding(
-                () -> ChatModelFactory.create(aiPreferences),
-                aiPreferences.getChatProperties()
-        ));
+                () -> ChatModelFactory.create(aiPreferences), aiPreferences.getChatProperties()));
 
-        BooleanBinding isAiTurnedOff = aiPreferences.aiFeaturesEnabledCurrentlyProperty().not();
+        BooleanBinding isAiTurnedOff =
+                aiPreferences.aiFeaturesEnabledCurrentlyProperty().not();
         BooleanBinding isWaiting = generateRagResponseTask.isNotNull();
-        BooleanBinding hasNoFiles = Bindings.createBooleanBinding(() ->
-                        entries.get() == null ||
-                                entries.isEmpty() ||
-                                entries.stream().flatMap(identifier -> identifier.entry().getFiles().stream()).findAny().isEmpty(),
-                entries, aiPreferences.aiFeaturesEnabledProperty()
-        );
+        BooleanBinding hasNoFiles = Bindings.createBooleanBinding(
+                () -> entries.get() == null
+                        || entries.isEmpty()
+                        || entries.stream()
+                                .flatMap(identifier -> identifier.entry().getFiles().stream())
+                                .findAny()
+                                .isEmpty(),
+                entries,
+                aiPreferences.aiFeaturesEnabledProperty());
 
-        BooleanBinding isError = Bindings.createBooleanBinding(() -> {
-            if (chatHistory.isEmpty()) {
-                return false;
-            }
-            return chatHistory.getLast().role() == ChatMessage.Role.ERROR;
-        }, chatHistory);
+        BooleanBinding isError = Bindings.createBooleanBinding(
+                () -> {
+                    if (chatHistory.isEmpty()) {
+                        return false;
+                    }
+                    return chatHistory.getLast().role() == ChatMessage.Role.ERROR;
+                },
+                chatHistory);
 
         BindingsHelper.bindEnum(
                 state,
                 State.IDLE,
-
                 Map.entry(State.AI_TURNED_OFF, isAiTurnedOff),
                 Map.entry(State.RESTART_NEEDED, aiPreferences.restartNeededBinding()),
                 Map.entry(State.WAITING_FOR_MESSAGE, isWaiting),
                 Map.entry(State.NO_FILES, hasNoFiles),
-                Map.entry(State.ERROR, isError)
-        );
+                Map.entry(State.ERROR, isError));
     }
 
     private void setupValues() {
@@ -190,20 +183,15 @@ public class AiChatViewModel extends AbstractViewModel {
                 embeddingModel.get(),
                 embeddingStore,
                 aiPreferences.getRagMinScore(),
-                aiPreferences.getRagMaxResultsCount()
-        ));
+                aiPreferences.getRagMaxResultsCount()));
     }
 
     private void setupListeners() {
-        BindingsHelper.listenToListChange(
-                entries,
-                this::changeEmbeddingTasks
-        );
+        BindingsHelper.listenToListChange(entries, this::changeEmbeddingTasks);
 
         EasyBind.subscribe(
                 systemMessageTemplate,
-                _ -> ChatHistoryUtils.updateSystemMessage(chatHistory, systemMessageTemplate.get())
-        );
+                _ -> ChatHistoryUtils.updateSystemMessage(chatHistory, systemMessageTemplate.get()));
     }
 
     private void changeEmbeddingTasks() {
@@ -226,39 +214,29 @@ public class AiChatViewModel extends AbstractViewModel {
             followUpQuestions.setAll(cached);
         } else {
             followUpQuestions.clear();
-            followUpQuestions.addAll(
-                    EXAMPLE_QUESTION_1,
-                    EXAMPLE_QUESTION_2,
-                    EXAMPLE_QUESTION_3
-            );
+            followUpQuestions.addAll(EXAMPLE_QUESTION_1, EXAMPLE_QUESTION_2, EXAMPLE_QUESTION_3);
         }
 
         generateEmbeddingsTasks.clear();
         generateRagResponseTask.set(tasksMap.get(entries));
 
-        entries.forEach(identifier ->
-                identifier.entry().getFiles().forEach(file -> {
-                            if (checkIngested(identifier, file)) {
-                                return;
-                            }
+        entries.forEach(identifier -> identifier.entry().getFiles().forEach(file -> {
+            if (checkIngested(identifier, file)) {
+                return;
+            }
 
-                            // [impl->feat~ai.ingestion.trigger-on-demand~1]
-                            GenerateEmbeddingsTask task = ingestionTaskAggregator.start(
-                                    new GenerateEmbeddingsTaskRequest(
-                                            filePreferences,
-                                            ingestedDocumentsRepository,
-                                            embeddingStore,
-                                            embeddingModel.get(),
-                                            documentSplitter.get(),
-                                            identifier.databaseContext(),
-                                            file
-                                    )
-                            );
+            // [impl->feat~ai.ingestion.trigger-on-demand~1]
+            GenerateEmbeddingsTask task = ingestionTaskAggregator.start(new GenerateEmbeddingsTaskRequest(
+                    filePreferences,
+                    ingestedDocumentsRepository,
+                    embeddingStore,
+                    embeddingModel.get(),
+                    documentSplitter.get(),
+                    identifier.databaseContext(),
+                    file));
 
-                            generateEmbeddingsTasks.add(task);
-                        }
-                )
-        );
+            generateEmbeddingsTasks.add(task);
+        }));
     }
 
     private boolean checkIngested(FullBibEntry fullBibEntry, LinkedFile linkedFile) {
@@ -307,8 +285,7 @@ public class AiChatViewModel extends AbstractViewModel {
                 chatHistory,
                 entries.get(),
                 systemMessageTemplate.get(),
-                userMessageTemplate.get()
-        );
+                userMessageTemplate.get());
 
         List<FullBibEntry> taskEntries = entries.get();
 
@@ -352,12 +329,8 @@ public class AiChatViewModel extends AbstractViewModel {
 
         final ObservableList<String> originalFollowUpQuestions = followUpQuestions.get();
 
-        generateFollowUpQuestionsTask = new GenerateFollowUpQuestions(
-                currentChatModel,
-                aiPreferences,
-                userMessage,
-                aiResponse
-        );
+        generateFollowUpQuestionsTask =
+                new GenerateFollowUpQuestions(currentChatModel, aiPreferences, userMessage, aiResponse);
 
         generateFollowUpQuestionsTask
                 .onSuccess(questions -> {

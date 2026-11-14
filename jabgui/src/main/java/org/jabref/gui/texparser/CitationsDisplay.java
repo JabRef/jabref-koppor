@@ -3,7 +3,6 @@ package org.jabref.gui.texparser;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
@@ -15,7 +14,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.util.ViewModelListCellFactory;
 import org.jabref.model.strings.LatexToUnicodeAdapter;
@@ -27,9 +25,10 @@ public class CitationsDisplay extends ListView<Citation> {
 
     public CitationsDisplay() {
         this.basePath = new SimpleObjectProperty<>(null);
-        new ViewModelListCellFactory<Citation>().withGraphic(this::getDisplayGraphic)
-                                                .withTooltip(this::getDisplayTooltip)
-                                                .install(this);
+        new ViewModelListCellFactory<Citation>()
+                .withGraphic(this::getDisplayGraphic)
+                .withTooltip(this::getDisplayTooltip)
+                .install(this);
 
         this.getStyleClass().add("citationsList");
     }

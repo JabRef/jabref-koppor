@@ -1,7 +1,6 @@
 package org.jabref.logic.groups;
 
 import java.util.EnumSet;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.groups.AllEntriesGroup;
 import org.jabref.model.groups.GroupHierarchyType;
@@ -12,8 +11,7 @@ public class GroupsFactory {
 
     public static final String ALL_ENTRIES_GROUP_DEFAULT_ICON = "ALL_ENTRIES_GROUP_ICON";
 
-    private GroupsFactory() {
-    }
+    private GroupsFactory() {}
 
     public static AllEntriesGroup createAllEntriesGroup() {
         AllEntriesGroup group = new AllEntriesGroup(Localization.lang("All entries"));

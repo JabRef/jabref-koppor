@@ -1,18 +1,17 @@
 // TODO: Integrate in JBang and tests.yml
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CitationStyleCatalogGeneratorTest {
 
@@ -32,10 +31,7 @@ class CitationStyleCatalogGeneratorTest {
         // Read and parse the catalog
         String catalogContent = Files.readString(catalogPath);
         ObjectMapper mapper = new ObjectMapper();
-        List<Map<String, Object>> styles = mapper.readValue(
-                catalogContent,
-                new TypeReference<>() {
-                });
+        List<Map<String, Object>> styles = mapper.readValue(catalogContent, new TypeReference<>() {});
 
         assertFalse(styles.isEmpty(), "Catalog should contain at least one citation style");
 
@@ -45,7 +41,9 @@ class CitationStyleCatalogGeneratorTest {
         assertTrue(firstStyle.containsKey("shortTitle"), "Style entry should have a short title");
         assertTrue(firstStyle.containsKey("isNumeric"), "Style entry should have isNumeric flag");
         assertTrue(firstStyle.containsKey("hasBibliography"), "Style entry should have hasBibliography flag");
-        assertTrue(firstStyle.containsKey("hasBibliographySortOrder"), "Style entry should have hasBibliographySortOrder flag");
+        assertTrue(
+                firstStyle.containsKey("hasBibliographySortOrder"),
+                "Style entry should have hasBibliographySortOrder flag");
         assertTrue(firstStyle.containsKey("usesHangingIndent"), "Style entry should have usesHangingIndent flag");
     }
 }

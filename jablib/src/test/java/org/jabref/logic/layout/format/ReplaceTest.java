@@ -1,11 +1,10 @@
 package org.jabref.logic.layout.format;
 
-import org.jabref.logic.layout.ParamLayoutFormatter;
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.jabref.logic.layout.ParamLayoutFormatter;
+import org.junit.jupiter.api.Test;
 
 class ReplaceTest {
 

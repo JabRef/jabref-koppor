@@ -4,7 +4,8 @@ package org.jabref.logic.importer.fetcher.transformers;
 ///
 /// For simplicity this is currently limited to fielded data and the boolean AND operator.
 ///
-/// See <https://dev.springernature.com/docs/supported-query-params/?source=data-solutions> for a complete list of supported fields.
+/// See <https://dev.springernature.com/docs/supported-query-params/?source=data-solutions> for a complete list of
+/// supported fields.
 /// `handleUnFieldedTerm` is not overridden, because the API handles unfielded terms.
 public class SpringerQueryTransformer extends AbstractQueryTransformer {
 

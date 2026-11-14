@@ -1,5 +1,7 @@
 package org.jabref.logic.integrity;
 
+import static uk.ac.ed.ph.snuggletex.definitions.Globals.TEXT_MODE_ONLY;
+
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashSet;
@@ -8,15 +10,12 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Stream;
-
 import javafx.util.Pair;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.InternalField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ed.ph.snuggletex.ErrorCode;
@@ -28,10 +27,9 @@ import uk.ac.ed.ph.snuggletex.SnuggleSession;
 import uk.ac.ed.ph.snuggletex.definitions.CoreErrorCode;
 import uk.ac.ed.ph.snuggletex.definitions.CoreErrorGroup;
 
-import static uk.ac.ed.ph.snuggletex.definitions.Globals.TEXT_MODE_ONLY;
-
 /// Similar check to [HTMLCharacterChecker].
-/// Here, we use <a href="https://github.com/davemckain/snuggletex">SnuggleTeX</a>, in the [HTMLCharacterChecker], it is searched for HTML characters.
+/// Here, we use <a href="https://github.com/davemckain/snuggletex">SnuggleTeX</a>, in the [HTMLCharacterChecker], it is
+/// searched for HTML characters.
 ///
 /// Unescaped ampersands cannot be checked by SnuggleTeX, therefore the [AmpersandChecker] is available additionally.
 public class LatexIntegrityChecker implements EntryChecker {
@@ -39,7 +37,8 @@ public class LatexIntegrityChecker implements EntryChecker {
     private static final Logger LOGGER = LoggerFactory.getLogger(LatexIntegrityChecker.class);
     private static final SnuggleEngine ENGINE = new SnuggleEngine();
     private static final SnuggleSession SESSION;
-    private static final ResourceBundle ERROR_MESSAGES = ENGINE.getPackages().getFirst().getErrorMessageBundle();
+    private static final ResourceBundle ERROR_MESSAGES =
+            ENGINE.getPackages().getFirst().getErrorMessageBundle();
     private static final Set<ErrorCode> EXCLUDED_ERRORS = new HashSet<>();
 
     static {
@@ -59,16 +58,20 @@ public class LatexIntegrityChecker implements EntryChecker {
     @Override
     public List<IntegrityMessage> check(BibEntry entry) {
         return entry.getFieldMap().entrySet().stream()
-                    .filter(field -> FieldFactory.isLatexField(field.getKey()))
-                    .flatMap(LatexIntegrityChecker::getUnescapedAmpersandsWithCount)
-                    // Exclude all DOM building errors as this functionality is not used.
-                    .filter(pair -> !pair.getValue().getErrorCode().getErrorGroup().equals(CoreErrorGroup.TDE))
-                    // Exclude TTEM03 error for citation key field
-                    .filter(pair -> !(pair.getValue().getErrorCode().equals(CoreErrorCode.TTEM03) && pair.getKey().equals(InternalField.KEY_FIELD)))
-                    .filter(pair -> !EXCLUDED_ERRORS.contains(pair.getValue().getErrorCode()))
-                    .map(pair ->
-                            new IntegrityMessage(errorMessageFormatHelper(pair.getValue().getErrorCode(), pair.getValue().getArguments()), entry, pair.getKey()))
-                    .toList();
+                .filter(field -> FieldFactory.isLatexField(field.getKey()))
+                .flatMap(LatexIntegrityChecker::getUnescapedAmpersandsWithCount)
+                // Exclude all DOM building errors as this functionality is not used.
+                .filter(pair -> !pair.getValue().getErrorCode().getErrorGroup().equals(CoreErrorGroup.TDE))
+                // Exclude TTEM03 error for citation key field
+                .filter(pair -> !(pair.getValue().getErrorCode().equals(CoreErrorCode.TTEM03)
+                        && pair.getKey().equals(InternalField.KEY_FIELD)))
+                .filter(pair -> !EXCLUDED_ERRORS.contains(pair.getValue().getErrorCode()))
+                .map(pair -> new IntegrityMessage(
+                        errorMessageFormatHelper(
+                                pair.getValue().getErrorCode(), pair.getValue().getArguments()),
+                        entry,
+                        pair.getKey()))
+                .toList();
     }
 
     private static Stream<Pair<Field, InputError>> getUnescapedAmpersandsWithCount(Map.Entry<Field, String> entry) {

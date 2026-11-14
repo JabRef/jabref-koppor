@@ -7,10 +7,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -48,7 +46,8 @@ public abstract class TreeNode<T extends TreeNode<T>> {
 
     /// Constructs a tree node without parent and no children.
     ///
-    /// @param derivingClass class deriving from TreeNode<T>. It should always be "T.class". We need this parameter since it is hard to get this information by other means.
+    /// @param derivingClass class deriving from TreeNode<T>. It should always be "T.class". We need this parameter
+    /// since it is hard to get this information by other means.
     public TreeNode(Class<T> derivingClass) {
         parent = null;
         children = FXCollections.observableArrayList();
@@ -80,7 +79,8 @@ public abstract class TreeNode<T extends TreeNode<T>> {
     /// If the path could not be traversed completely (i.e. one of the child indices did not exist),
     /// an empty Optional will be returned.
     ///
-    /// @param indexedPath sequence of child indices that describe a path from this node to one of its descendants. Be aware that if indexedPath was obtained by getIndexedPathFromRoot(), this node should usually be the root node.
+    /// @param indexedPath sequence of child indices that describe a path from this node to one of its descendants. Be
+    /// aware that if indexedPath was obtained by getIndexedPathFromRoot(), this node should usually be the root node.
     /// @return descendant found by evaluating indexedPath
     public Optional<T> getDescendant(List<Integer> indexedPath) {
         T cursor = (T) this;
@@ -102,8 +102,10 @@ public abstract class TreeNode<T extends TreeNode<T>> {
     ///
     /// @return the child index of this node in its parent
     public int getPositionInParent() {
-        return getParent().orElseThrow(() -> new UnsupportedOperationException("Roots have no position in parent"))
-                          .getIndexOfChild((T) this).get();
+        return getParent()
+                .orElseThrow(() -> new UnsupportedOperationException("Roots have no position in parent"))
+                .getIndexOfChild((T) this)
+                .get();
     }
 
     /// Gets the index of the specified child in this node's child list.
@@ -389,7 +391,8 @@ public abstract class TreeNode<T extends TreeNode<T>> {
         return addChild(child, children.size());
     }
 
-    /// Adds the node at the given position in the children collection. Also sets the parent of the given node to this node.
+    /// Adds the node at the given position in the children collection. Also sets the parent of the given node to this
+    /// node.
     /// The given node is not allowed to already be in a tree (i.e. it has to have no parent).
     ///
     /// @param child the node to add

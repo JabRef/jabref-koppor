@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
-
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.pseudonymization.Pseudonymization;
@@ -16,7 +15,6 @@ import org.jabref.toolkit.exception.ExportServiceException;
 import org.jabref.toolkit.exception.ImportServiceException;
 import org.jabref.toolkit.service.ExportService;
 import org.jabref.toolkit.service.ImportService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine.Command;
@@ -40,13 +38,21 @@ class Pseudonymize implements Callable<Integer> {
     @Mixin
     private InputOption inputOption = new InputOption();
 
-    @Option(names = {"--output"}, converter = CygWinPathConverter.class, description = "Output pseudo-bib file")
+    @Option(
+            names = {"--output"},
+            converter = CygWinPathConverter.class,
+            description = "Output pseudo-bib file")
     private Path outputFile;
 
-    @Option(names = {"--key"}, converter = CygWinPathConverter.class, description = "Output pseudo-keys file")
+    @Option(
+            names = {"--key"},
+            converter = CygWinPathConverter.class,
+            description = "Output pseudo-keys file")
     private Path keyFile;
 
-    @Option(names = {"-f", "--force"}, description = "Overwrite output file(s) if any exist(s)")
+    @Option(
+            names = {"-f", "--force"},
+            description = "Overwrite output file(s) if any exist(s)")
     private boolean force;
 
     @Override
@@ -56,10 +62,12 @@ class Pseudonymize implements Callable<Integer> {
         Path pseudoBibPath = resolveOutputPath(outputFile, inputPath, fileName + PSEUDO_SUFFIX + BIB_EXTENSION);
         Path pseudoKeyPath = resolveOutputPath(keyFile, inputPath, fileName + PSEUDO_SUFFIX + CSV_EXTENSION);
 
-        ParserResult parserResult = ImportService.importBibTexFile(inputPath, argumentProcessor.cliPreferences, sharedOptions.porcelain);
+        ParserResult parserResult =
+                ImportService.importBibTexFile(inputPath, argumentProcessor.cliPreferences, sharedOptions.porcelain);
 
         System.out.println(Localization.lang("Pseudonymizing library '%0'...", fileName));
-        Character keywordSeparator = argumentProcessor.cliPreferences.getBibEntryPreferences().getKeywordSeparator();
+        Character keywordSeparator =
+                argumentProcessor.cliPreferences.getBibEntryPreferences().getKeywordSeparator();
         Pseudonymization pseudonymization = new Pseudonymization(keywordSeparator);
         BibDatabaseContext databaseContext = parserResult.getDatabaseContext();
         Pseudonymization.Result result = pseudonymization.pseudonymizeLibrary(databaseContext);
@@ -68,9 +76,8 @@ class Pseudonymize implements Callable<Integer> {
             return 2;
         }
 
-        ExportService.create(argumentProcessor.cliPreferences, sharedOptions.porcelain).saveDatabaseContext(
-                result.bibDatabaseContext(),
-                pseudoBibPath);
+        ExportService.create(argumentProcessor.cliPreferences, sharedOptions.porcelain)
+                .saveDatabaseContext(result.bibDatabaseContext(), pseudoBibPath);
 
         if (!fileOverwriteCheck(pseudoKeyPath)) {
             return 2;
@@ -107,7 +114,8 @@ class Pseudonymize implements Callable<Integer> {
         String fileName = filePath.getFileName().toString();
 
         if (!force) {
-            System.err.println(Localization.lang("File '%0' already exists. Use -f or --force to overwrite.", fileName));
+            System.err.println(
+                    Localization.lang("File '%0' already exists. Use -f or --force to overwrite.", fileName));
             return false;
         }
 

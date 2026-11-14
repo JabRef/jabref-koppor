@@ -1,8 +1,7 @@
 package org.jabref.logic.util.strings;
 
-import java.util.Locale;
-
 import info.debatty.java.stringsimilarity.Levenshtein;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

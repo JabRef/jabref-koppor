@@ -1,11 +1,9 @@
 package org.jabref.gui.search;
 
 import java.util.List;
-
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-
 import org.jabref.architecture.AllowedToUseClassGetResource;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
@@ -22,12 +20,13 @@ import org.jabref.model.database.BibDatabaseContext;
 @AllowedToUseClassGetResource("JavaFX internally handles the passed URLs properly.")
 public class SearchResultsTable extends TableView<BibEntryTableViewModel> {
 
-    public SearchResultsTable(SearchResultsTableDataModel model,
-                              BibDatabaseContext database,
-                              GuiPreferences preferences,
-                              DialogService dialogService,
-                              StateManager stateManager,
-                              TaskExecutor taskExecutor) {
+    public SearchResultsTable(
+            SearchResultsTableDataModel model,
+            BibDatabaseContext database,
+            GuiPreferences preferences,
+            DialogService dialogService,
+            StateManager stateManager,
+            TaskExecutor taskExecutor) {
         super();
 
         this.getStyleClass().add("main-table");
@@ -35,12 +34,13 @@ public class SearchResultsTable extends TableView<BibEntryTableViewModel> {
         MainTablePreferences mainTablePreferences = preferences.getMainTablePreferences();
 
         List<TableColumn<BibEntryTableViewModel, ?>> allCols = new MainTableColumnFactory(
-                database,
-                preferences,
-                preferences.getSearchDialogColumnPreferences(),
-                dialogService,
-                stateManager,
-                taskExecutor).createColumns();
+                        database,
+                        preferences,
+                        preferences.getSearchDialogColumnPreferences(),
+                        dialogService,
+                        stateManager,
+                        taskExecutor)
+                .createColumns();
 
         if (allCols.stream().noneMatch(LibraryColumn.class::isInstance)) {
             allCols.addFirst(new LibraryColumn());
@@ -48,12 +48,14 @@ public class SearchResultsTable extends TableView<BibEntryTableViewModel> {
         this.getColumns().addAll(allCols);
 
         this.getSortOrder().clear();
-        preferences.getSearchDialogColumnPreferences().getColumnSortOrder().forEach(columnModel ->
-                this.getColumns().stream()
-                    .map(column -> (MainTableColumn<?>) column)
-                    .filter(column -> column.getModel().equals(columnModel))
-                    .findFirst()
-                    .ifPresent(column -> this.getSortOrder().add(column)));
+        preferences
+                .getSearchDialogColumnPreferences()
+                .getColumnSortOrder()
+                .forEach(columnModel -> this.getColumns().stream()
+                        .map(column -> (MainTableColumn<?>) column)
+                        .filter(column -> column.getModel().equals(columnModel))
+                        .findFirst()
+                        .ifPresent(column -> this.getSortOrder().add(column)));
 
         if (mainTablePreferences.getResizeColumnsToFit()) {
             this.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_SUBSEQUENT_COLUMNS);
@@ -70,4 +72,3 @@ public class SearchResultsTable extends TableView<BibEntryTableViewModel> {
         database.getDatabase().registerListener(this);
     }
 }
-

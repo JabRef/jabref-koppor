@@ -1,20 +1,19 @@
 package org.jabref.http.server;
 
-import org.jabref.http.server.resources.CitationsResource;
-import org.jabref.http.server.services.CitationCacheService;
-import org.jabref.logic.UiMessageHandler;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Response;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.jabref.http.server.resources.CitationsResource;
+import org.jabref.http.server.services.CitationCacheService;
+import org.jabref.logic.UiMessageHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CitationsResourceTest extends ServerTest {
 
@@ -49,9 +48,7 @@ class CitationsResourceTest extends ServerTest {
     }
 
     private Response postAddFromCache(String id, String cacheKey) {
-        return target("/libraries/" + id + "/citations/" + cacheKey)
-                .request()
-                .post(Entity.text(""));
+        return target("/libraries/" + id + "/citations/" + cacheKey).request().post(Entity.text(""));
     }
 
     @Test

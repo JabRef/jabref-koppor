@@ -1,26 +1,6 @@
 package org.jabref.logic.openoffice.oocsltext;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import org.jabref.logic.openoffice.JabRefReferenceMark;
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.openoffice.DocumentAnnotation;
-import org.jabref.model.openoffice.ootext.OOText;
-import org.jabref.model.openoffice.ootext.OOTextIntoOO;
-import org.jabref.model.openoffice.rangesort.RangeSort;
-import org.jabref.model.openoffice.rangesort.RangeSortEntry;
-import org.jabref.model.openoffice.uno.CreationException;
-import org.jabref.model.openoffice.uno.UnoDispatch;
-import org.jabref.model.openoffice.uno.UnoReferenceMark;
-import org.jabref.model.openoffice.uno.UnoTextRange;
+import static org.jabref.logic.openoffice.backend.NamedRangeReferenceMark.safeInsertSpacesBetweenReferenceMarks;
 
 import com.sun.star.container.NoSuchElementException;
 import com.sun.star.container.XNameAccess;
@@ -38,10 +18,28 @@ import com.sun.star.text.XTextRangeCompare;
 import com.sun.star.uno.Exception;
 import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import org.jabref.logic.openoffice.JabRefReferenceMark;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.openoffice.DocumentAnnotation;
+import org.jabref.model.openoffice.ootext.OOText;
+import org.jabref.model.openoffice.ootext.OOTextIntoOO;
+import org.jabref.model.openoffice.rangesort.RangeSort;
+import org.jabref.model.openoffice.rangesort.RangeSortEntry;
+import org.jabref.model.openoffice.uno.CreationException;
+import org.jabref.model.openoffice.uno.UnoDispatch;
+import org.jabref.model.openoffice.uno.UnoReferenceMark;
+import org.jabref.model.openoffice.uno.UnoTextRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.jabref.logic.openoffice.backend.NamedRangeReferenceMark.safeInsertSpacesBetweenReferenceMarks;
 
 /// Reference mark manager for BST-based citations.
 ///
@@ -73,12 +71,11 @@ public class BSTReferenceMarkManager {
 
     public BSTReferenceMark createReferenceMark(List<BibEntry> entries, CSLCitationType citationType) throws Exception {
         List<String> identifiers = entries.stream()
-                                          .map(entry -> entry.getCitationKey().orElse(entry.getId()))
-                                          .collect(Collectors.toList());
+                .map(entry -> entry.getCitationKey().orElse(entry.getId()))
+                .collect(Collectors.toList());
 
-        List<Integer> citationNumbers = identifiers.stream()
-                                                   .map(this::getCitationNumber)
-                                                   .collect(Collectors.toList());
+        List<Integer> citationNumbers =
+                identifiers.stream().map(this::getCitationNumber).collect(Collectors.toList());
 
         BSTReferenceMark referenceMark = BSTReferenceMark.of(identifiers, citationNumbers, citationType, factory);
         marksByName.put(referenceMark.getName(), referenceMark);
@@ -87,7 +84,14 @@ public class BSTReferenceMarkManager {
         return referenceMark;
     }
 
-    public void insertReferenceIntoOO(List<BibEntry> entries, XTextDocument doc, XTextCursor position, OOText ooText, boolean insertSpaceBefore, boolean insertSpaceAfter, CSLCitationType citationType)
+    public void insertReferenceIntoOO(
+            List<BibEntry> entries,
+            XTextDocument doc,
+            XTextCursor position,
+            OOText ooText,
+            boolean insertSpaceBefore,
+            boolean insertSpaceAfter,
+            CSLCitationType citationType)
             throws CreationException, Exception {
         BSTReferenceMark mark = createReferenceMark(entries, citationType);
         // Ensure the cursor is at the end of its range
@@ -201,12 +205,12 @@ public class BSTReferenceMarkManager {
 
     private String getUpdatedReferenceMarkNameWithNewNumbers(String oldName, List<Integer> newNumbers) {
         return JabRefReferenceMark.parse(oldName)
-                                  .map(referenceMark -> JabRefReferenceMark.buildReferenceMarkName(
-                                          referenceMark.getCitationKeys(),
-                                          newNumbers,
-                                          referenceMark.getUniqueId(),
-                                          referenceMark.getCitationType()))
-                                  .orElse(oldName);
+                .map(referenceMark -> JabRefReferenceMark.buildReferenceMarkName(
+                        referenceMark.getCitationKeys(),
+                        newNumbers,
+                        referenceMark.getUniqueId(),
+                        referenceMark.getCitationType()))
+                .orElse(oldName);
     }
 
     private void updateAllCitationNumbers() throws Exception, CreationException {
@@ -235,7 +239,10 @@ public class BSTReferenceMarkManager {
         }
 
         identifierToNumber = newIdentifierToNumber;
-        highestCitationNumber = newIdentifierToNumber.values().stream().mapToInt(Integer::intValue).max().orElse(0);
+        highestCitationNumber = newIdentifierToNumber.values().stream()
+                .mapToInt(Integer::intValue)
+                .max()
+                .orElse(0);
     }
 
     private String getUpdatedCitationTextWithNewNumbers(String currentText, List<Integer> newNumbers) {
@@ -260,7 +267,8 @@ public class BSTReferenceMarkManager {
         return result.toString();
     }
 
-    private void updateMarkAndTextWithNewNumbers(BSTReferenceMark mark, List<Integer> newNumbers) throws Exception, CreationException {
+    private void updateMarkAndTextWithNewNumbers(BSTReferenceMark mark, List<Integer> newNumbers)
+            throws Exception, CreationException {
         String updatedName = getUpdatedReferenceMarkNameWithNewNumbers(mark.getName(), newNumbers);
         String currentText = mark.getTextContent().getAnchor().getString();
         String updatedText = getUpdatedCitationTextWithNewNumbers(currentText, newNumbers);
@@ -282,7 +290,8 @@ public class BSTReferenceMarkManager {
             throws Exception, CreationException, MissingStyleDefinedCitationLabelException {
         sortMarksInOrder();
         for (BSTReferenceMark mark : marksInOrder) {
-            String updatedText = BSTCitationOOAdapter.buildStyleDefinedCitationText(mark.getCitationKeys(), identifierToLabelMap);
+            String updatedText =
+                    BSTCitationOOAdapter.buildStyleDefinedCitationText(mark.getCitationKeys(), identifierToLabelMap);
             updateMarkText(mark, updatedText);
         }
     }
@@ -292,7 +301,11 @@ public class BSTReferenceMarkManager {
         sortMarksInOrder();
 
         Map<String, Integer> completeIdentifierToNumber = new LinkedHashMap<>(preferredIdentifierToNumber);
-        int nextNumber = completeIdentifierToNumber.values().stream().mapToInt(Integer::intValue).max().orElse(0) + 1;
+        int nextNumber = completeIdentifierToNumber.values().stream()
+                        .mapToInt(Integer::intValue)
+                        .max()
+                        .orElse(0)
+                + 1;
 
         for (BSTReferenceMark mark : marksInOrder) {
             List<Integer> assignedNumbers = new ArrayList<>();
@@ -310,7 +323,10 @@ public class BSTReferenceMarkManager {
         }
 
         identifierToNumber = completeIdentifierToNumber;
-        highestCitationNumber = completeIdentifierToNumber.values().stream().mapToInt(Integer::intValue).max().orElse(0);
+        highestCitationNumber = completeIdentifierToNumber.values().stream()
+                .mapToInt(Integer::intValue)
+                .max()
+                .orElse(0);
     }
 
     private void updateMarkText(BSTReferenceMark mark, String newText) throws Exception, CreationException {
@@ -329,7 +345,8 @@ public class BSTReferenceMarkManager {
                 .ifPresent(anchor -> UnoDispatch.resetAttributesAtRangeEnd(document, componentContext, anchor));
     }
 
-    private void updateMarkAndText(BSTReferenceMark mark, String newText, String markName) throws Exception, CreationException {
+    private void updateMarkAndText(BSTReferenceMark mark, String newText, String markName)
+            throws Exception, CreationException {
         XTextContent oldContent = mark.getTextContent();
         XTextRange range = oldContent.getAnchor();
 
@@ -414,8 +431,7 @@ public class BSTReferenceMarkManager {
             for (RangeSortEntry<BSTReferenceMark> sortEntry : partition) {
                 sortEntry.setIndexInPosition(indexInPartition++);
 
-                Optional<XTextRange> footnoteMarkRange =
-                        UnoTextRange.getFootnoteMarkRange(sortEntry.getRange());
+                Optional<XTextRange> footnoteMarkRange = UnoTextRange.getFootnoteMarkRange(sortEntry.getRange());
                 footnoteMarkRange.ifPresent(sortEntry::setRange);
             }
         }
@@ -423,9 +439,7 @@ public class BSTReferenceMarkManager {
         sortEntries.sort(this::compareTextRanges);
 
         marksInOrder.clear();
-        sortEntries.stream()
-                   .map(RangeSortEntry::getContent)
-                   .forEach(marksInOrder::add);
+        sortEntries.stream().map(RangeSortEntry::getContent).forEach(marksInOrder::add);
     }
 
     private int compareTextRanges(RangeSortEntry<BSTReferenceMark> first, RangeSortEntry<BSTReferenceMark> second) {

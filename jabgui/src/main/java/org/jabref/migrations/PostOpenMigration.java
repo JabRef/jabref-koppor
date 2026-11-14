@@ -1,7 +1,6 @@
 package org.jabref.migrations;
 
 import java.util.List;
-
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.model.entry.BibEntry;
 

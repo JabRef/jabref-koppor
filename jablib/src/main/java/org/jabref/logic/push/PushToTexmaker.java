@@ -1,7 +1,6 @@
 package org.jabref.logic.push;
 
 import java.nio.file.Path;
-
 import org.jabref.logic.util.NotificationService;
 
 /// Class for pushing entries into TexMaker.

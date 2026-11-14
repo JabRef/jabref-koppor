@@ -6,7 +6,6 @@ import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-
 import org.jabref.logic.openoffice.OpenOfficePreferences;
 import org.jabref.logic.openoffice.oocsltext.CSLFormatUtils;
 

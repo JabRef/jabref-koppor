@@ -1,20 +1,18 @@
 package org.jabref.logic.bst;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.jabref.model.entry.BibEntry;
-import org.jabref.model.entry.types.StandardEntryType;
-
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.types.StandardEntryType;
+import org.junit.jupiter.api.Test;
 
 class BstVMVisitorTest {
 
@@ -51,9 +49,9 @@ class BstVMVisitorTest {
     @Test
     void visitFunctionCommand() {
         BstVM vm = new BstVM("""
-                FUNCTION { test.func } { #1 'test.var := }
-                EXECUTE { test.func }
-                """);
+            FUNCTION { test.func } { #1 'test.var := }
+            EXECUTE { test.func }
+            """);
 
         vm.render(List.of());
 
@@ -65,9 +63,9 @@ class BstVMVisitorTest {
     @Test
     void visitMacroCommand() {
         BstVM vm = new BstVM("""
-                MACRO { jan } { "January" }
-                EXECUTE { jan }
-                """);
+            MACRO { jan } { "January" }
+            EXECUTE { jan }
+            """);
 
         vm.render(List.of());
 
@@ -98,9 +96,9 @@ class BstVMVisitorTest {
     @Test
     void visitReadCommand() {
         BstVM vm = new BstVM("""
-                ENTRY { author title booktitle year owner timestamp url } { } { }
-                READ
-                """);
+            ENTRY { author title booktitle year owner timestamp url } { } { }
+            READ
+            """);
         List<BibEntry> testEntries = List.of(BstVMTest.defaultTestEntry());
 
         vm.render(testEntries);
@@ -118,10 +116,10 @@ class BstVMVisitorTest {
     @Test
     void visitExecuteCommand() throws RecognitionException {
         BstVM vm = new BstVM("""
-                INTEGERS { variable.a }
-                FUNCTION { init.state.consts } { #5 'variable.a := }
-                EXECUTE { init.state.consts }
-                """);
+            INTEGERS { variable.a }
+            FUNCTION { init.state.consts } { #5 'variable.a := }
+            EXECUTE { init.state.consts }
+            """);
 
         vm.render(List.of());
 
@@ -131,15 +129,13 @@ class BstVMVisitorTest {
     @Test
     void visitIterateCommand() throws RecognitionException {
         BstVM vm = new BstVM("""
-                ENTRY { } { } { }
-                FUNCTION { test } { cite$ }
-                READ
-                ITERATE { test }
-                """);
-        List<BibEntry> testEntries = List.of(
-                BstVMTest.defaultTestEntry(),
-                new BibEntry(StandardEntryType.Article)
-                        .withCitationKey("test"));
+            ENTRY { } { } { }
+            FUNCTION { test } { cite$ }
+            READ
+            ITERATE { test }
+            """);
+        List<BibEntry> testEntries =
+                List.of(BstVMTest.defaultTestEntry(), new BibEntry(StandardEntryType.Article).withCitationKey("test"));
 
         vm.render(testEntries);
 
@@ -151,15 +147,13 @@ class BstVMVisitorTest {
     @Test
     void visitReverseCommand() throws RecognitionException {
         BstVM vm = new BstVM("""
-                ENTRY { } { } { }
-                FUNCTION { test } { cite$ }
-                READ
-                REVERSE { test }
-                """);
-        List<BibEntry> testEntries = List.of(
-                BstVMTest.defaultTestEntry(),
-                new BibEntry(StandardEntryType.Article)
-                        .withCitationKey("test"));
+            ENTRY { } { } { }
+            FUNCTION { test } { cite$ }
+            READ
+            REVERSE { test }
+            """);
+        List<BibEntry> testEntries =
+                List.of(BstVMTest.defaultTestEntry(), new BibEntry(StandardEntryType.Article).withCitationKey("test"));
 
         vm.render(testEntries);
 
@@ -171,11 +165,11 @@ class BstVMVisitorTest {
     @Test
     void visitSortCommand() throws RecognitionException {
         BstVM vm = new BstVM("""
-                ENTRY { } { } { }
-                FUNCTION { presort } { cite$ 'sort.key$ := }
-                ITERATE { presort }
-                SORT
-                """);
+            ENTRY { } { } { }
+            FUNCTION { presort } { cite$ 'sort.key$ := }
+            ITERATE { presort }
+            SORT
+            """);
         List<BibEntry> testEntries = List.of(
                 new BibEntry(StandardEntryType.Article).withCitationKey("c"),
                 new BibEntry(StandardEntryType.Article).withCitationKey("b"),
@@ -194,20 +188,20 @@ class BstVMVisitorTest {
     @Test
     void visitIdentifier() {
         BstVM vm = new BstVM("""
-                ENTRY { } { local.variable } { local.label }
-                READ
-                STRINGS { label }
-                INTEGERS { variable }
-                FUNCTION { test } {
-                    #1 'local.variable :=
-                    #2 'variable :=
-                    "TEST" 'local.label :=
-                    "TEST-GLOBAL" 'label :=
-                    local.label local.variable
-                    label variable
-                }
-                ITERATE { test }
-                """);
+            ENTRY { } { local.variable } { local.label }
+            READ
+            STRINGS { label }
+            INTEGERS { variable }
+            FUNCTION { test } {
+                #1 'local.variable :=
+                #2 'variable :=
+                "TEST" 'local.label :=
+                "TEST-GLOBAL" 'label :=
+                local.label local.variable
+                label variable
+            }
+            ITERATE { test }
+            """);
         List<BibEntry> testEntries = List.of(BstVMTest.defaultTestEntry());
 
         vm.render(testEntries);
@@ -222,17 +216,17 @@ class BstVMVisitorTest {
     @Test
     void visitStackitem() {
         BstVM vm = new BstVM("""
-                STRINGS { t }
-                FUNCTION { test2 } { #3 }
-                FUNCTION { test } {
-                    "HELLO"
-                    #1
-                    't
-                    { #2 }
-                    test2
-                }
-                EXECUTE { test }
-                """);
+            STRINGS { t }
+            FUNCTION { test2 } { #3 }
+            FUNCTION { test } {
+                "HELLO"
+                #1
+                't
+                { #2 }
+                test2
+            }
+            EXECUTE { test }
+            """);
 
         vm.render(List.of());
 

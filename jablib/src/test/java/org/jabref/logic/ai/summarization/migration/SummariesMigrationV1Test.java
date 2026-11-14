@@ -1,5 +1,11 @@
 package org.jabref.logic.ai.summarization.migration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -11,23 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
+import org.h2.mvstore.MVMap;
+import org.h2.mvstore.MVStore;
 import org.jabref.logic.ai.summarization.repositories.MVStoreSummariesRepository;
 import org.jabref.model.ai.llm.AiProvider;
 import org.jabref.model.ai.summarization.AiSummary;
 import org.jabref.model.ai.summarization.AiSummaryIdentifier;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.h2.mvstore.MVMap;
-import org.h2.mvstore.MVStore;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /// Tests that [SummariesMigrationV1] correctly migrates every v1 summaries MVStore
 /// found under `src/test/resources/…/summarization/migration/` into the v2 repository.
@@ -66,8 +64,10 @@ class SummariesMigrationV1Test {
         List<DiscoveredEntry> entries = discoverEntries(oldFilePath);
         assertFalse(entries.isEmpty(), "Test resource " + fileName + " contains no summaries");
 
-        boolean onWindows = System.getProperty("os.name").toLowerCase(java.util.Locale.ROOT).contains("windows");
-        assumeTrue(onWindows || !hasWindowsAbsolutePaths(entries),
+        boolean onWindows =
+                System.getProperty("os.name").toLowerCase(java.util.Locale.ROOT).contains("windows");
+        assumeTrue(
+                onWindows || !hasWindowsAbsolutePaths(entries),
                 "Skipping " + fileName + ": contains Windows-style paths, not runnable on this OS");
 
         String jsonName = fileName.replace(".mv", ".json");
@@ -75,36 +75,41 @@ class SummariesMigrationV1Test {
 
         JsonSummariesFile jsonFile = JsonSummariesFile.parse(jsonUrl);
 
-        for (Path dbPath : entries.stream().map(DiscoveredEntry::dbPath).distinct().toList()) {
+        for (Path dbPath :
+                entries.stream().map(DiscoveredEntry::dbPath).distinct().toList()) {
             MVStoreSummariesRepository repo = new MVStoreSummariesRepository(
-                    _ -> {
-                    },
-                    tempDir.resolve("v2-" + dbPath.getFileName() + "-" + fileName)
-            );
+                    _ -> {}, tempDir.resolve("v2-" + dbPath.getFileName() + "-" + fileName));
 
-            SummariesMigrationV1.migrate(oldFilePath, LIBRARY_ID, dbPath, repo, _ -> {
-            });
+            SummariesMigrationV1.migrate(oldFilePath, LIBRARY_ID, dbPath, repo, _ -> {});
 
-            for (DiscoveredEntry entry : entries.stream().filter(e -> e.dbPath().equals(dbPath)).toList()) {
+            for (DiscoveredEntry entry :
+                    entries.stream().filter(e -> e.dbPath().equals(dbPath)).toList()) {
                 AiSummaryIdentifier id = new AiSummaryIdentifier(LIBRARY_ID, entry.citationKey());
                 Optional<AiSummary> migrated = repo.get(id);
 
-                assertFalse(migrated.isEmpty(),
-                        "Summary not found for " + dbPath + " / " + entry.citationKey());
+                assertFalse(migrated.isEmpty(), "Summary not found for " + dbPath + " / " + entry.citationKey());
 
                 JsonSummariesFile.JsonSummary expected = jsonFile.summaryFor(dbPath, entry.citationKey());
                 Objects.requireNonNull(expected, "JSON entry not found for " + entry.citationKey());
 
-                assertEquals(expected.aiProvider(), migrated.get().metadata().aiProvider(),
+                assertEquals(
+                        expected.aiProvider(),
+                        migrated.get().metadata().aiProvider(),
                         "Provider mismatch for " + entry.citationKey());
-                assertEquals(expected.model(), migrated.get().metadata().model(),
+                assertEquals(
+                        expected.model(),
+                        migrated.get().metadata().model(),
                         "Model mismatch for " + entry.citationKey());
-                assertEquals(expected.content(), migrated.get().content(),
-                        "Content mismatch for " + entry.citationKey());
+                assertEquals(
+                        expected.content(), migrated.get().content(), "Content mismatch for " + entry.citationKey());
 
-                Instant expectedTimestamp = entry.oldSummary().timestamp()
-                                                 .atZone(ZoneId.systemDefault()).toInstant();
-                assertEquals(expectedTimestamp, migrated.get().metadata().timestamp(),
+                Instant expectedTimestamp = entry.oldSummary()
+                        .timestamp()
+                        .atZone(ZoneId.systemDefault())
+                        .toInstant();
+                assertEquals(
+                        expectedTimestamp,
+                        migrated.get().metadata().timestamp(),
                         "Timestamp mismatch for " + entry.citationKey());
             }
         }
@@ -139,9 +144,7 @@ class SummariesMigrationV1Test {
 
                     MVMap<String, byte[]> map = store.openMap(
                             mapName,
-                            new MVMap.Builder<String, byte[]>()
-                                    .valueType(new SummariesMigrationV1.RawBytesDataType())
-                    );
+                            new MVMap.Builder<String, byte[]>().valueType(new SummariesMigrationV1.RawBytesDataType()));
 
                     for (var entry : map.entrySet()) {
                         String citationKey = entry.getKey();
@@ -149,8 +152,7 @@ class SummariesMigrationV1Test {
                         Optional<SummariesMigrationV1.OldSummary> oldSummary =
                                 SummariesMigrationV1.deserializeOldSummary(entry.getValue());
 
-                        oldSummary.ifPresent(summary ->
-                                result.add(new DiscoveredEntry(dbPath, citationKey, summary)));
+                        oldSummary.ifPresent(summary -> result.add(new DiscoveredEntry(dbPath, citationKey, summary)));
                     }
                 }
             }
@@ -158,12 +160,7 @@ class SummariesMigrationV1Test {
         return result;
     }
 
-    private record DiscoveredEntry(
-            Path dbPath,
-            String citationKey,
-            SummariesMigrationV1.OldSummary oldSummary
-    ) {
-    }
+    private record DiscoveredEntry(Path dbPath, String citationKey, SummariesMigrationV1.OldSummary oldSummary) {}
 
     private static class JsonSummariesFile {
 
@@ -206,7 +203,6 @@ class SummariesMigrationV1Test {
             return byKey.get(citationKey);
         }
 
-        record JsonSummary(AiProvider aiProvider, String model, String content) {
-        }
+        record JsonSummary(AiProvider aiProvider, String model, String content) {}
     }
 }

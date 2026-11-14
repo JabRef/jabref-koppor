@@ -1,13 +1,14 @@
 package org.jabref.logic.exporter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.util.StandardFileType;
 import org.jabref.model.database.BibDatabaseContext;
@@ -15,7 +16,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.metadata.SaveOrder;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -23,9 +23,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 @Execution(ExecutionMode.SAME_THREAD)
 @ResourceLock("exporter")
@@ -50,7 +47,8 @@ class YamlExporterTest {
     }
 
     @Test
-    final void exportForNoEntriesWritesNothing(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportForNoEntriesWritesNothing(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         Path file = tempFile.resolve("ThisIsARandomlyNamedFile");
         Files.createFile(file);
         yamlExporter.export(databaseContext, tempFile, List.of());
@@ -58,7 +56,8 @@ class YamlExporterTest {
     }
 
     @Test
-    final void exportsCorrectContent(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsCorrectContent(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -86,7 +85,8 @@ class YamlExporterTest {
     }
 
     @Test
-    final void formatsContentCorrect(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void formatsContentCorrect(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Misc)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -114,7 +114,8 @@ class YamlExporterTest {
     }
 
     @Test
-    void passesModifiedCharset(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void passesModifiedCharset(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "谷崎 潤一郎")
@@ -142,7 +143,8 @@ class YamlExporterTest {
     }
 
     @Test
-    void passesModifiedCharsetNull(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void passesModifiedCharsetNull(@TempDir Path tempFile)
+            throws IOException, SaveException, ParserConfigurationException, TransformerException {
         BibEntry entry = new BibEntry(StandardEntryType.Article)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "谷崎 潤一郎")

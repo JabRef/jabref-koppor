@@ -1,7 +1,6 @@
 package org.jabref.gui.fieldeditors;
 
 import javafx.scene.control.Button;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.autocompleter.SuggestionProvider;
@@ -40,14 +39,22 @@ public class ISSNEditorViewModel extends AbstractEditorViewModel {
     }
 
     public void showJournalInfo(Button journalInfoButton) {
-        PopOverUtil.showJournalInfo(journalInfoButton, entry, dialogService, taskExecutor, preferences.getImporterPreferences());
+        PopOverUtil.showJournalInfo(
+                journalInfoButton, entry, dialogService, taskExecutor, preferences.getImporterPreferences());
     }
 
     public void fetchBibliographyInformation(BibEntry bibEntry) {
-        stateManager.getActiveDatabase().ifPresentOrElse(
-                databaseContext -> new FetchAndMergeEntry(databaseContext, taskExecutor, preferences, dialogService, undoManager, stateManager)
-                        .fetchAndMerge(bibEntry, StandardField.ISSN),
-                () -> dialogService.notify(Localization.lang("No library selected"))
-        );
+        stateManager
+                .getActiveDatabase()
+                .ifPresentOrElse(
+                        databaseContext -> new FetchAndMergeEntry(
+                                        databaseContext,
+                                        taskExecutor,
+                                        preferences,
+                                        dialogService,
+                                        undoManager,
+                                        stateManager)
+                                .fetchAndMerge(bibEntry, StandardField.ISSN),
+                        () -> dialogService.notify(Localization.lang("No library selected")));
     }
 }

@@ -1,7 +1,10 @@
 package org.jabref.gui.preferences.general;
 
-import java.nio.file.Path;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.nio.file.Path;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -12,14 +15,9 @@ import org.jabref.languageserver.controller.LanguageServerController;
 import org.jabref.logic.UiMessageHandler;
 import org.jabref.logic.citedrive.OAuthSessionRegistry;
 import org.jabref.logic.remote.server.RemoteListenerServerManager;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Answers;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class GeneralTabViewModelTest {
 

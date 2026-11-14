@@ -2,7 +2,6 @@ package org.jabref.gui.icon;
 
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
-
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -38,7 +37,8 @@ public final class SvgIcon implements JabRefIcon {
 
     @Override
     public boolean matches(Node graphicNode) {
-        return (graphicNode instanceof JabRefSvgIcon svgIcon) && svgIcon.getPath().equals(svgPath);
+        return (graphicNode instanceof JabRefSvgIcon svgIcon)
+                && svgIcon.getPath().equals(svgPath);
     }
 
     @Override

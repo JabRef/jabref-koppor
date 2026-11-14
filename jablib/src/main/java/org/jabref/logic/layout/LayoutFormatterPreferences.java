@@ -5,10 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-
 import org.jabref.logic.layout.format.NameFormatterPreferences;
 import org.jabref.logic.preferences.DOIPreferences;
 
@@ -20,9 +18,10 @@ public class LayoutFormatterPreferences {
     private final ReadOnlyObjectProperty<Path> mainFileDirectoryProperty;
     private final Map<String, String> customExportNameFormatters = new HashMap<>();
 
-    public LayoutFormatterPreferences(NameFormatterPreferences nameFormatterPreferences,
-                                      DOIPreferences doiPreferences,
-                                      ReadOnlyObjectProperty<Path> mainFileDirectoryProperty) {
+    public LayoutFormatterPreferences(
+            NameFormatterPreferences nameFormatterPreferences,
+            DOIPreferences doiPreferences,
+            ReadOnlyObjectProperty<Path> mainFileDirectoryProperty) {
         this.nameFormatterPreferences = nameFormatterPreferences;
         this.mainFileDirectoryProperty = mainFileDirectoryProperty;
         this.doiPreferences = doiPreferences;

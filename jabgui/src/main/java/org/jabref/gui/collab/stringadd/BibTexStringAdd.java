@@ -8,7 +8,6 @@ import org.jabref.model.database.KeyCollisionException;
 import org.jabref.model.entry.BibtexString;
 import org.jabref.model.undo.CompoundEdit;
 import org.jabref.model.undo.UndoableInsertString;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +16,10 @@ public final class BibTexStringAdd extends DatabaseChange {
 
     private final BibtexString addedString;
 
-    public BibTexStringAdd(BibtexString addedString, BibDatabaseContext databaseContext, DatabaseChangeResolverFactory databaseChangeResolverFactory) {
+    public BibTexStringAdd(
+            BibtexString addedString,
+            BibDatabaseContext databaseContext,
+            DatabaseChangeResolverFactory databaseChangeResolverFactory) {
         super(databaseContext, databaseChangeResolverFactory);
         this.addedString = addedString;
         setChangeName(Localization.lang("Added string: '%0'", addedString.getName()));

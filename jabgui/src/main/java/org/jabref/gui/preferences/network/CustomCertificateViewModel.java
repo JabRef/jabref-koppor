@@ -2,14 +2,12 @@ package org.jabref.gui.preferences.network;
 
 import java.time.LocalDate;
 import java.util.Optional;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-
 import org.jabref.gui.AbstractViewModel;
 import org.jabref.logic.net.ssl.SSLCertificate;
 
@@ -23,7 +21,14 @@ public class CustomCertificateViewModel extends AbstractViewModel {
     private final StringProperty thumbprintProperty = new SimpleStringProperty("");
     private final StringProperty pathProperty = new SimpleStringProperty("");
 
-    public CustomCertificateViewModel(String thumbprint, String serialNumber, String issuer, LocalDate validFrom, LocalDate validTo, String sigAlgorithm, String version) {
+    public CustomCertificateViewModel(
+            String thumbprint,
+            String serialNumber,
+            String issuer,
+            LocalDate validFrom,
+            LocalDate validTo,
+            String sigAlgorithm,
+            String version) {
         serialNumberProperty.setValue(serialNumber);
         issuerProperty.setValue(issuer);
         validFromProperty.setValue(validFrom);

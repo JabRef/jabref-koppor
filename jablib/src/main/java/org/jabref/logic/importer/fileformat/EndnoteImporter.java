@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.citationkeypattern.CitationKeyGenerator;
 import org.jabref.logic.citationkeypattern.CitationKeyPatternPreferences;
 import org.jabref.logic.importer.Importer;
@@ -22,7 +21,6 @@ import org.jabref.model.entry.field.InternalField;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
-
 import org.jspecify.annotations.NonNull;
 
 /// Importer for the Refer/Endnote format.
@@ -61,7 +59,9 @@ public class EndnoteImporter extends Importer {
 
     @Override
     public String getDescription() {
-        return Localization.lang("Importer for the Refer/Endnote format. Modified to use article number for pages if pages are missing.");
+        return Localization.lang(
+                "Importer for the Refer/Endnote format. Modified to use article number for pages if pages are"
+                        + " missing.");
     }
 
     @Override
@@ -150,8 +150,7 @@ public class EndnoteImporter extends Importer {
                             editor.append(" and ").append(val);
                         }
                     }
-                    case "T" ->
-                            hm.put(StandardField.TITLE, val);
+                    case "T" -> hm.put(StandardField.TITLE, val);
                     case "0" -> {
                         if (val.indexOf("Journal") == 0) {
                             type = StandardEntryType.Article;
@@ -174,18 +173,14 @@ public class EndnoteImporter extends Importer {
                             type = BibEntry.DEFAULT_TYPE; //
                         }
                     }
-                    case "7" ->
-                            hm.put(StandardField.EDITION, val);
-                    case "C" ->
-                            hm.put(StandardField.ADDRESS, val);
-                    case "D" ->
-                            hm.put(StandardField.YEAR, val);
-                    case "8" ->
-                            hm.put(StandardField.DATE, val);
+                    case "7" -> hm.put(StandardField.EDITION, val);
+                    case "C" -> hm.put(StandardField.ADDRESS, val);
+                    case "D" -> hm.put(StandardField.YEAR, val);
+                    case "8" -> hm.put(StandardField.DATE, val);
                     case "J" ->
                         // "Alternate journal. Let's set it only if no journal
                         // has been set with %B.
-                            hm.putIfAbsent(StandardField.JOURNAL, val);
+                        hm.putIfAbsent(StandardField.JOURNAL, val);
                     case "B" -> {
                         // This prefix stands for "journal" in a journal entry, and
                         // "series" in a book entry.
@@ -207,13 +202,10 @@ public class EndnoteImporter extends Importer {
                     }
                     case "P" ->
                         // replace single dash page ranges (23-45) with double dashes (23--45):
-                            hm.put(StandardField.PAGES, val.replaceAll("([0-9]) *- *([0-9])", "$1--$2"));
-                    case "V" ->
-                            hm.put(StandardField.VOLUME, val);
-                    case "N" ->
-                            hm.put(StandardField.NUMBER, val);
-                    case "U" ->
-                            hm.put(StandardField.URL, val);
+                        hm.put(StandardField.PAGES, val.replaceAll("([0-9]) *- *([0-9])", "$1--$2"));
+                    case "V" -> hm.put(StandardField.VOLUME, val);
+                    case "N" -> hm.put(StandardField.NUMBER, val);
+                    case "U" -> hm.put(StandardField.URL, val);
                     case "R" -> {
                         String doi = val;
                         if (doi.startsWith("doi:")) {
@@ -230,10 +222,8 @@ public class EndnoteImporter extends Importer {
                             hm.put(StandardField.NOTE, val);
                         }
                     }
-                    case "K" ->
-                            hm.put(StandardField.KEYWORDS, val);
-                    case "X" ->
-                            hm.put(StandardField.ABSTRACT, val);
+                    case "K" -> hm.put(StandardField.KEYWORDS, val);
+                    case "X" -> hm.put(StandardField.ABSTRACT, val);
                     case "9" -> {
                         if (val.indexOf("Ph.D.") == 0) {
                             type = StandardEntryType.PhdThesis;
@@ -243,7 +233,10 @@ public class EndnoteImporter extends Importer {
                         }
                     }
                     case "F" ->
-                            hm.put(InternalField.KEY_FIELD, CitationKeyGenerator.removeUnwantedCharactersWithKeepDiacritics(val, citationKeyPatternPreferences.getUnwantedCharacters()));
+                        hm.put(
+                                InternalField.KEY_FIELD,
+                                CitationKeyGenerator.removeUnwantedCharactersWithKeepDiacritics(
+                                        val, citationKeyPatternPreferences.getUnwantedCharacters()));
                 }
             }
 
@@ -262,7 +255,8 @@ public class EndnoteImporter extends Importer {
                 hm.put(StandardField.EDITOR, fixAuthor(editor.toString()));
             }
             // if pages missing and article number given, use the article number
-            if (((hm.get(StandardField.PAGES) == null) || "-".equals(hm.get(StandardField.PAGES))) && !"".equals(artnum)) {
+            if (((hm.get(StandardField.PAGES) == null) || "-".equals(hm.get(StandardField.PAGES)))
+                    && !"".equals(artnum)) {
                 hm.put(StandardField.PAGES, artnum);
             }
 

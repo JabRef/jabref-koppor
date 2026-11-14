@@ -1,7 +1,6 @@
 package org.jabref.gui.fieldeditors;
 
 import javafx.scene.control.Button;
-
 import org.jabref.gui.DialogService;
 import org.jabref.gui.autocompleter.SuggestionProvider;
 import org.jabref.gui.preferences.GuiPreferences;
@@ -49,6 +48,7 @@ public class JournalEditorViewModel extends AbstractEditorViewModel {
     }
 
     public void showJournalInfo(Button journalInfoButton) {
-        PopOverUtil.showJournalInfo(journalInfoButton, entry, dialogService, taskExecutor, preferences.getImporterPreferences());
+        PopOverUtil.showJournalInfo(
+                journalInfoButton, entry, dialogService, taskExecutor, preferences.getImporterPreferences());
     }
 }

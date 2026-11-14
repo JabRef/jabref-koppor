@@ -1,17 +1,16 @@
 package org.jabref.model.groups;
 
 import java.util.Objects;
-
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
-
 import org.jspecify.annotations.NullMarked;
 
 /// Matches entries that have no keyword in a given field.
 ///
 /// [AutomaticKeywordGroup] creates it as a subgroup next to the keyword subgroups,
 /// so that entries without a value (e.g., without a ranking) can still be found.
-/// The field is split the same way as in [AutomaticKeywordGroup], so a field consisting only of delimiters counts as empty.
+/// The field is split the same way as in [AutomaticKeywordGroup], so a field consisting only of delimiters counts as
+/// empty.
 @NullMarked
 public class MissingKeywordGroup extends KeywordGroup {
 
@@ -31,9 +30,8 @@ public class MissingKeywordGroup extends KeywordGroup {
 
     @Override
     public boolean contains(BibEntry entry) {
-        return entry.getFieldAsKeywords(searchField, keywordDelimiter)
-                    .stream()
-                    .allMatch(keyword -> keyword.get().isBlank());
+        return entry.getFieldAsKeywords(searchField, keywordDelimiter).stream()
+                .allMatch(keyword -> keyword.get().isBlank());
     }
 
     @Override

@@ -1,5 +1,8 @@
 package org.jabref.logic.os;
 
+import com.github.javakeyring.BackendNotSupportedException;
+import com.github.javakeyring.Keyring;
+import com.github.javakeyring.PasswordAccessException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -9,15 +12,10 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-
-import org.jabref.logic.util.strings.StringUtil;
-import org.jabref.model.metadata.UserHostInfo;
-
-import com.github.javakeyring.BackendNotSupportedException;
-import com.github.javakeyring.Keyring;
-import com.github.javakeyring.PasswordAccessException;
 import mslinks.ShellLink;
 import mslinks.ShellLinkException;
+import org.jabref.logic.util.strings.StringUtil;
+import org.jabref.model.metadata.UserHostInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +28,12 @@ public class OS {
     public static final String APP_DIR_APP_AUTHOR = "org.jabref";
 
     public static final String NEWLINE = System.lineSeparator();
-    public static final List<Charset> ENCODINGS = Charset.availableCharsets().values().stream().distinct().toList();
+    public static final List<Charset> ENCODINGS =
+            Charset.availableCharsets().values().stream().distinct().toList();
 
     // https://commons.apache.org/proper/commons-lang/javadocs/api-2.6/org/apache/commons/lang/SystemUtils.html
-    private static final String OS_NAME = System.getProperty("os.name", "unknown").toLowerCase(Locale.ROOT);
+    private static final String OS_NAME =
+            System.getProperty("os.name", "unknown").toLowerCase(Locale.ROOT);
     public static final boolean LINUX = OS_NAME.startsWith("linux");
     public static final boolean WINDOWS = OS_NAME.startsWith("win");
     public static final boolean OS_X = OS_NAME.startsWith("mac");
@@ -50,7 +50,8 @@ public class OS {
 
     private static String getHostName() {
         String hostName;
-        // Following code inspired by https://commons.apache.org/proper/commons-lang/apidocs/org/apache/commons/lang3/SystemUtils.html#getHostName--
+        // Following code inspired by
+        // https://commons.apache.org/proper/commons-lang/apidocs/org/apache/commons/lang3/SystemUtils.html#getHostName--
         // See also https://stackoverflow.com/a/20793241/873282
         hostName = System.getenv("HOSTNAME");
         if (StringUtil.isBlank(hostName)) {
@@ -92,13 +93,13 @@ public class OS {
             return programName;
         }
         if (Objects.equals(programName, "texworks")) {
-            Path texworksLinkPath = Path.of(System.getenv("APPDATA") + "\\Microsoft\\Windows\\Start Menu\\Programs\\MiKTeX\\TeXworks.lnk");
+            Path texworksLinkPath = Path.of(
+                    System.getenv("APPDATA") + "\\Microsoft\\Windows\\Start Menu\\Programs\\MiKTeX\\TeXworks.lnk");
             if (Files.exists(texworksLinkPath)) {
                 try {
                     ShellLink link = new ShellLink(texworksLinkPath);
                     return link.resolveTarget();
-                } catch (IOException |
-                         ShellLinkException e) {
+                } catch (IOException | ShellLinkException e) {
                     // Static logger instance cannot be used. See the class comment.
                     Logger logger = LoggerFactory.getLogger(OS.class);
                     logger.warn("Error while reading .lnk file for TeXworks", e);

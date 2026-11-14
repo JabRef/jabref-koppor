@@ -3,17 +3,16 @@ package org.jabref.logic.integrity;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.util.strings.StringUtil;
 import org.jabref.model.database.BibDatabaseContext;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class NoteChecker implements ValueChecker {
 
-    private static final Predicate<String> FIRST_LETTER_CAPITALIZED = Pattern.compile("^[^a-z]").asPredicate();
+    private static final Predicate<String> FIRST_LETTER_CAPITALIZED =
+            Pattern.compile("^[^a-z]").asPredicate();
 
     private final BibDatabaseContext bibDatabaseContextEdition;
 
