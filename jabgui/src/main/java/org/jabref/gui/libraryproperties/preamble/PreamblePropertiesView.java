@@ -5,10 +5,10 @@ import javafx.scene.control.TextArea;
 
 import org.jabref.gui.StateManager;
 import org.jabref.gui.libraryproperties.AbstractPropertiesTabView;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import jakarta.inject.Inject;
 
 public class PreamblePropertiesView extends AbstractPropertiesTabView<PreamblePropertiesViewModel> {

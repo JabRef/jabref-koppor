@@ -14,13 +14,13 @@ import org.jabref.gui.StateManager;
 import org.jabref.gui.edit.automaticfieldeditor.AbstractAutomaticFieldEditorTabView;
 import org.jabref.gui.edit.automaticfieldeditor.AutomaticFieldEditorTab;
 import org.jabref.gui.edit.automaticfieldeditor.FieldHelper;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.Field;
 import org.jabref.model.undo.CompoundEdit;
 
-import com.airhacks.afterburner.views.ViewLoader;
 import org.jspecify.annotations.NonNull;
 
 import static org.jabref.gui.util.FieldsUtil.FIELD_STRING_CONVERTER;
