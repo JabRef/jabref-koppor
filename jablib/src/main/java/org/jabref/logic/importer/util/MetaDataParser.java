@@ -161,6 +161,15 @@ public class MetaDataParser {
                 metaData.setGitAutoCommit(Boolean.parseBoolean(getSingleItem(values)));
             } else if (MetaData.GIT_AUTO_PUSH.equals(entry.getKey())) {
                 metaData.setGitAutoPush(Boolean.parseBoolean(getSingleItem(values)));
+            } else if (MetaData.AUTO_RENAME_FILES_ON_CHANGE.equals(entry.getKey())) {
+                // Only explicit values override the global preference; anything else leaves it in effect
+                String value = getSingleItem(values);
+                if ("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value)) {
+                    metaData.setAutoRenameFilesOnChange(Boolean.parseBoolean(value));
+                } else {
+                    LOGGER.warn("Ignoring invalid value '{}' for {}", value, MetaData.AUTO_RENAME_FILES_ON_CHANGE);
+                    metaData.clearAutoRenameFilesOnChange();
+                }
             } else if (MetaData.SAVE_ORDER_CONFIG.equals(entry.getKey())) {
                 metaData.setSaveOrder(SaveOrder.parse(values));
             } else if (MetaData.GROUPSTREE.equals(entry.getKey()) || MetaData.GROUPSTREE_LEGACY.equals(entry.getKey())) {
