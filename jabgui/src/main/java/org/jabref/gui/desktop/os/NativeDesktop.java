@@ -26,7 +26,6 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.os.CommandLineParser;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.util.HeadlessExecutorService;
-import org.jabref.logic.util.StreamGobbler;
 import org.jabref.logic.util.URLUtil;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
@@ -249,19 +248,21 @@ public abstract class NativeDesktop {
         dialogService.notify(Localization.lang("Executing command \"%0\"...", String.join(" ", subcommands)));
 
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder(subcommands);
-            processBuilder.directory(Path.of(absolutePath).toFile());
-            Process process = processBuilder.start();
-
-            StreamGobbler streamGobblerInput = new StreamGobbler(process.getInputStream(), LoggerFactory.getLogger(NativeDesktop.class)::debug);
-            StreamGobbler streamGobblerError = new StreamGobbler(process.getErrorStream(), LoggerFactory.getLogger(NativeDesktop.class)::debug);
-
-            HeadlessExecutorService.INSTANCE.execute(streamGobblerInput);
-            HeadlessExecutorService.INSTANCE.execute(streamGobblerError);
+            startProcess(new ProcessBuilder(subcommands).directory(Path.of(absolutePath).toFile()));
         } catch (IOException exception) {
             LoggerFactory.getLogger(NativeDesktop.class).error("Error during command execution", exception);
             dialogService.notify(Localization.lang("Error occurred while executing the command \"%0\".", String.join(" ", subcommands)));
         }
+    }
+
+    /// Starts a program that runs independently of JabRef.
+    /// Its output is discarded and its stdin is closed, as it never gets input: no pipe stays open until garbage collection,
+    /// and no thread reads from a long-running program, which would delay JabRef's shutdown.
+    protected static void startProcess(ProcessBuilder processBuilder) throws IOException {
+        Process process = processBuilder.redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                                        .redirectError(ProcessBuilder.Redirect.DISCARD)
+                                        .start();
+        process.getOutputStream().close();
     }
 
     /// Opens the given URL using the system browser
@@ -285,11 +286,12 @@ public abstract class NativeDesktop {
             openUrlWithSystemHandler(url);
             return;
         }
-        // createUri also produces relative URIs, which only the platform opener can resolve
-        if (uri.isAbsolute()) {
+        // On Windows, HostServices hands every URI to the web browser, also mailto: and links to other programs.
+        // The OS handler dispatches by scheme. createUri also produces relative URIs, which only the OS handler can resolve.
+        if ("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme())) {
             showDocument(uri.toASCIIString());
         } else {
-            openUrlWithSystemHandler(url);
+            openUrlWithSystemHandler(uri.isAbsolute() ? uri.toASCIIString() : url);
         }
     }
 
@@ -410,9 +412,10 @@ public abstract class NativeDesktop {
         openFileWithApplication(filePath, application);
     }
 
-    /// Neither blocks nor reports failures, so callers cannot detect that no browser could be started.
+    /// Does not report failures, so callers cannot detect that no browser could be started.
     protected final void showDocument(String uri) {
-        hostServices.showDocument(uri);
+        // On Linux, JavaFX probes the browser candidates with blocking `which` calls; keep them off the calling (often FX) thread
+        HeadlessExecutorService.INSTANCE.execute(() -> hostServices.showDocument(uri));
     }
 
     /// The OS handler dispatches by scheme, e.g., `mailto:` to the mail client.
@@ -457,6 +460,7 @@ public abstract class NativeDesktop {
     }
 
     public boolean moveToTrashSupported() {
-        return Desktop.getDesktop().isSupported(Desktop.Action.MOVE_TO_TRASH);
+        // getDesktop throws if AWT has no desktop integration (e.g., headless or missing GTK); then there is no trash
+        return Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.MOVE_TO_TRASH);
     }
 }

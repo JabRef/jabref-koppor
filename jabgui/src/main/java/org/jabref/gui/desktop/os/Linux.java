@@ -1,15 +1,13 @@
 package org.jabref.gui.desktop.os;
 
 import java.awt.Desktop;
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import javafx.application.HostServices;
 
@@ -17,9 +15,10 @@ import org.jabref.architecture.AllowedToUseAwt;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.os.CommandLineParser;
 import org.jabref.logic.util.HeadlessExecutorService;
-import org.jabref.logic.util.StreamGobbler;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.jspecify.annotations.NullMarked;
 import org.slf4j.LoggerFactory;
 
@@ -38,13 +37,6 @@ public class Linux extends NativeDesktop {
         super(hostServices, preferences);
     }
 
-    /// Starts the process and drains its output into the debug log, so it cannot block on a full pipe
-    private static void startLoggingOutput(ProcessBuilder processBuilder) throws IOException {
-        Process process = processBuilder.start();
-        HeadlessExecutorService.INSTANCE.execute(new StreamGobbler(process.getInputStream(), LoggerFactory.getLogger(Linux.class)::debug));
-        HeadlessExecutorService.INSTANCE.execute(new StreamGobbler(process.getErrorStream(), LoggerFactory.getLogger(Linux.class)::debug));
-    }
-
     @Override
     protected void openFileWithDefaultApplication(String filePath) {
         HeadlessExecutorService.INSTANCE.execute(() -> {
@@ -54,9 +46,8 @@ public class Linux extends NativeDesktop {
             } catch (IllegalArgumentException _) {
                 LoggerFactory.getLogger(Linux.class).debug("Fail back to xdg-open");
                 try {
-                    String[] cmd = {"xdg-open", filePath};
-                    Runtime.getRuntime().exec(cmd);
-                } catch (Exception e2) {
+                    startProcess(new ProcessBuilder("xdg-open", filePath));
+                } catch (IOException e2) {
                     LoggerFactory.getLogger(Linux.class).warn("Open operation not successful: ", e2);
                 }
             } catch (IOException e) {
@@ -67,15 +58,26 @@ public class Linux extends NativeDesktop {
 
     @Override
     public void openUrlWithSystemHandler(String url) throws IOException {
-        new ProcessBuilder("xdg-open", url).start();
+        startProcess(new ProcessBuilder("xdg-open", url));
     }
 
     @Override
     protected void openFileWithCustomApplication(String filePath, String application) throws IOException {
-        // The application may carry arguments, e.g. "evince --fullscreen"
-        List<String> command = new ArrayList<>(List.of(application.split(" ")));
+        List<String> command = new ArrayList<>(applicationCommand(application));
         command.add(filePath);
-        startLoggingOutput(new ProcessBuilder(command));
+        startProcess(new ProcessBuilder(command));
+    }
+
+    /// The configured application is either the path of an executable, which may contain spaces,
+    /// or a command line with arguments, such as `evince --fullscreen` or `"/opt/My Viewer/viewer" --flag`.
+    @VisibleForTesting
+    static List<String> applicationCommand(String application) {
+        if (Files.isExecutable(Path.of(application))) {
+            return List.of(application);
+        }
+        List<String> command = CommandLineParser.splitLegacyCommandLine(application);
+        // Unbalanced quotes yield no tokens
+        return command.isEmpty() ? List.of(application) : command;
     }
 
     @Override
@@ -100,41 +102,48 @@ public class Linux extends NativeDesktop {
             }
         }
         LoggerFactory.getLogger(Linux.class).debug("Opening folder and selecting file using {}", String.join(" ", cmd));
-        startLoggingOutput(new ProcessBuilder(cmd));
+        startProcess(new ProcessBuilder(cmd));
     }
 
     @Override
     protected void openConsoleWithDefaultTerminal(String absolutePath, DialogService dialogService) throws IOException {
-
-        if (!Files.exists(Path.of(ETC_ALTERNATIVES_X_TERMINAL_EMULATOR))) {
+        Optional<String> emulatorName = terminalEmulatorName(Path.of(ETC_ALTERNATIVES_X_TERMINAL_EMULATOR));
+        if (emulatorName.isEmpty()) {
             dialogService.showErrorDialogAndWait(Localization.lang("Could not detect terminal automatically using '%0'. Please define a custom terminal in the preferences.", ETC_ALTERNATIVES_X_TERMINAL_EMULATOR));
             return;
         }
 
-        ProcessBuilder processBuilder = new ProcessBuilder("readlink", ETC_ALTERNATIVES_X_TERMINAL_EMULATOR);
-        Process process = processBuilder.start();
+        String[] cmd = switch (emulatorName.orElseThrow()) {
+            case String name when name.contains("gnome") ->
+                    new String[] {"gnome-terminal", "--working-directory", absolutePath};
+            // xfce4-terminal requires "--working-directory=<directory>" format (one arg)
+            case String name when name.contains("xfce4") ->
+                    new String[] {"xfce4-terminal", "--working-directory=" + absolutePath};
+            case String name when name.contains("konsole") ->
+                    new String[] {"konsole", "--workdir", absolutePath};
+            case String name ->
+                    new String[] {name, absolutePath};
+        };
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            String emulatorName = reader.readLine();
-            if (emulatorName != null) {
-                emulatorName = emulatorName.substring(emulatorName.lastIndexOf(File.separator) + 1);
+        LoggerFactory.getLogger(Linux.class).debug("Opening terminal using {}", String.join(" ", cmd));
 
-                String[] cmd;
-                if (emulatorName.contains("gnome")) {
-                    cmd = new String[] {"gnome-terminal", "--working-directory", absolutePath};
-                } else if (emulatorName.contains("xfce4")) {
-                    // xfce4-terminal requires "--working-directory=<directory>" format (one arg)
-                    cmd = new String[] {"xfce4-terminal", "--working-directory=" + absolutePath};
-                } else if (emulatorName.contains("konsole")) {
-                    cmd = new String[] {"konsole", "--workdir", absolutePath};
-                } else {
-                    cmd = new String[] {emulatorName, absolutePath};
-                }
+        startProcess(new ProcessBuilder(cmd).directory(Path.of(absolutePath).toFile()));
+    }
 
-                LoggerFactory.getLogger(Linux.class).debug("Opening terminal using {}", String.join(" ", cmd));
-
-                startLoggingOutput(new ProcessBuilder(cmd).directory(Path.of(absolutePath).toFile()));
-            }
+    /// Returns the file name of the program the Debian alternatives link points to, e.g. `gnome-terminal.wrapper`.
+    /// Empty if the link is missing, dangling, or not a link.
+    @VisibleForTesting
+    static Optional<String> terminalEmulatorName(Path alternativesLink) {
+        // Files.exists follows the link, so a dangling link counts as missing
+        if (!Files.exists(alternativesLink)) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.ofNullable(Files.readSymbolicLink(alternativesLink).getFileName())
+                           .map(Path::toString);
+        } catch (IOException e) {
+            LoggerFactory.getLogger(Linux.class).debug("Could not read the link {}", alternativesLink, e);
+            return Optional.empty();
         }
     }
 

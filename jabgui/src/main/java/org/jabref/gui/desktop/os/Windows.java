@@ -31,12 +31,12 @@ public class Windows extends NativeDesktop {
 
     @Override
     protected void openFileWithDefaultApplication(String filePath) throws IOException {
-        new ProcessBuilder(shellOpenCommand(filePath)).start();
+        startProcess(new ProcessBuilder(shellOpenCommand(filePath)));
     }
 
     @Override
     public void openUrlWithSystemHandler(String url) throws IOException {
-        new ProcessBuilder(shellOpenCommand(url)).start();
+        startProcess(new ProcessBuilder(shellOpenCommand(url)));
     }
 
     /// Hands a file path or URL to the registered handler of the shell. Paths of [#MAX_PATH] characters
@@ -64,12 +64,12 @@ public class Windows extends NativeDesktop {
     @Override
     protected void openFileWithCustomApplication(String filePath, String application) throws IOException {
         // filePath may be a URL; Path.of would throw on query characters and mangle the scheme
-        new ProcessBuilder(Path.of(application).toString(), filePath).start();
+        startProcess(new ProcessBuilder(Path.of(application).toString(), filePath));
     }
 
     @Override
     protected void openFolderAndSelectFileWithDefaultFileBrowser(Path filePath) throws IOException {
-        new ProcessBuilder(revealCommand(filePath)).start();
+        startProcess(new ProcessBuilder(revealCommand(filePath)));
     }
 
     /// Explorer cannot select a file it cannot address: at [#MAX_PATH] characters or more it ignores the
@@ -86,8 +86,6 @@ public class Windows extends NativeDesktop {
 
     @Override
     protected void openConsoleWithDefaultTerminal(String absolutePath, DialogService dialogService) throws IOException {
-        ProcessBuilder process = new ProcessBuilder("cmd.exe", "/c", "start");
-        process.directory(Path.of(absolutePath).toFile());
-        process.start();
+        startProcess(new ProcessBuilder("cmd.exe", "/c", "start").directory(Path.of(absolutePath).toFile()));
     }
 }
