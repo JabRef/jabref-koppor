@@ -84,10 +84,12 @@ class DownloadFullTextActionTest {
     private BibDatabaseContext databaseContext;
     private BibEntry entry;
     private FetcherResult fetcherResult;
+    private List<Runnable> pendingUiActions;
     private @Nullable HttpServer httpServer;
 
     @BeforeEach
     void setUp() throws MalformedURLException {
+        pendingUiActions = new ArrayList<>();
         dialogService = mock(DialogService.class);
         stateManager = new JabRefGuiStateManager();
         preferences = mock(GuiPreferences.class);
@@ -130,9 +132,9 @@ class DownloadFullTextActionTest {
         RecordingDownloadFullTextAction action = new RecordingDownloadFullTextAction(_ -> Optional.of(fetcherResult));
 
         BackgroundTask<?> task = captureTask(action);
-        Object downloads = task.call();
+        task.call();
         entry.withField(StandardField.TITLE, "Updated title");
-        runSuccessHandler(task, downloads);
+        runPendingUiActions();
 
         assertEquals(List.of(), action.downloadedEntries);
     }
@@ -142,9 +144,9 @@ class DownloadFullTextActionTest {
         RecordingDownloadFullTextAction action = new RecordingDownloadFullTextAction(_ -> Optional.of(fetcherResult));
 
         BackgroundTask<?> task = captureTask(action);
-        Object downloads = task.call();
+        task.call();
         databaseContext.getDatabase().removeEntry(entry);
-        runSuccessHandler(task, downloads);
+        runPendingUiActions();
 
         assertEquals(List.of(), action.downloadedEntries);
     }
@@ -161,6 +163,31 @@ class DownloadFullTextActionTest {
         completeTask(task);
 
         assertEquals(List.of(entry), action.downloadedEntries);
+    }
+
+    @Test
+    void attachesEachEntryBeforeLookingUpTheNext() throws Exception {
+        BibEntry secondEntry = new BibEntry().withField(StandardField.DOI, "10.1000/second");
+        databaseContext.getDatabase().insertEntry(secondEntry);
+        stateManager.setSelectedEntries(List.of(entry, secondEntry));
+        List<BibEntry> attachedEntries = new ArrayList<>();
+        List<Integer> attachedBeforeLookup = new ArrayList<>();
+        DownloadFullTextAction action = new DownloadFullTextAction(dialogService, stateManager, preferences, taskExecutor, _ -> {
+            runPendingUiActions();
+            attachedBeforeLookup.add(attachedEntries.size());
+            return Optional.of(fetcherResult);
+        }, pendingUiActions::add) {
+            @Override
+            void addLinkedFileFromURL(BibDatabaseContext databaseContext, FetcherResult result, BibEntry entry, Optional<String> brokenPdfLink) {
+                attachedEntries.add(entry);
+            }
+        };
+
+        BackgroundTask<?> task = captureTask(action);
+        completeTask(task);
+
+        assertEquals(List.of(0, 1), attachedBeforeLookup);
+        assertEquals(List.of(entry, secondEntry), attachedEntries);
     }
 
     @Test
@@ -880,17 +907,25 @@ class DownloadFullTextActionTest {
         return taskCaptor.getValue();
     }
 
-    private static void completeTask(BackgroundTask<?> task) throws Exception {
-        Object downloads = task.call();
-        runSuccessHandler(task, downloads);
+    private void completeTask(BackgroundTask<?> task) throws Exception {
+        task.call();
+        runPendingUiActions();
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private static void runSuccessHandler(BackgroundTask<?> task, Object downloads) {
+    /// Runs what follows a lookup on the JavaFX thread: the task's success handler, then the per-entry attach actions.
+    private void runSuccessHandler(BackgroundTask<?> task, Object result) throws InterruptedException {
         Consumer onSuccess = task.getOnSuccess();
         if (onSuccess != null) {
-            onSuccess.accept(downloads);
+            onSuccess.accept(result);
         }
+        runPendingUiActions();
+        drainJavaFxEvents();
+    }
+
+    private void runPendingUiActions() {
+        List<Runnable> actions = List.copyOf(pendingUiActions);
+        pendingUiActions.clear();
+        actions.forEach(Runnable::run);
     }
 
     private class RecordingDownloadFullTextAction extends DownloadFullTextAction {
@@ -899,7 +934,7 @@ class DownloadFullTextActionTest {
         private Optional<String> brokenPdfLink = Optional.empty();
 
         RecordingDownloadFullTextAction(Function<BibEntry, Optional<FetcherResult>> fullTextFinder) {
-            super(dialogService, stateManager, preferences, taskExecutor, fullTextFinder);
+            super(dialogService, stateManager, preferences, taskExecutor, fullTextFinder, pendingUiActions::add);
         }
 
         @Override
