@@ -55,6 +55,7 @@ public class JournalAbbreviationsTabViewModel implements PreferenceTabViewModel 
     private final AbbreviationPreferences abbreviationsPreferences;
     private final JournalAbbreviationRepository journalAbbreviationRepository;
     private boolean shouldWriteLists;
+    private long editRevision;
 
     public JournalAbbreviationsTabViewModel(AbbreviationPreferences abbreviationsPreferences,
                                             @NonNull DialogService dialogService,
@@ -216,6 +217,7 @@ public class JournalAbbreviationsTabViewModel implements PreferenceTabViewModel 
             abbreviations.add(abbreviationViewModel);
             currentAbbreviation.set(abbreviationViewModel);
             shouldWriteLists = true;
+            editRevision++;
         }
     }
 
@@ -261,6 +263,7 @@ public class JournalAbbreviationsTabViewModel implements PreferenceTabViewModel 
             abbreviationViewModel.setShortestUniqueAbbreviation(abbreviationObject.getShortestUniqueAbbreviation());
         }
         shouldWriteLists = true;
+        editRevision++;
     }
 
     /// Method to delete the abbreviation set in the currentAbbreviation property. The currentAbbreviationProperty will
@@ -278,6 +281,7 @@ public class JournalAbbreviationsTabViewModel implements PreferenceTabViewModel 
             }
             abbreviations.remove(index);
             shouldWriteLists = true;
+            editRevision++;
         }
     }
 
@@ -288,6 +292,7 @@ public class JournalAbbreviationsTabViewModel implements PreferenceTabViewModel 
 
         abbreviations.remove(abbreviation);
         shouldWriteLists = true;
+        editRevision++;
     }
 
     /// Calls the [AbbreviationsFileViewModel#writeOrCreate()] method for each file in the journalFiles property
@@ -317,8 +322,13 @@ public class JournalAbbreviationsTabViewModel implements PreferenceTabViewModel 
         abbreviationsPreferences.setUseFJournalField(useFJournal.get());
         abbreviationsPreferences.setUseBuiltInJournalList(useBuiltInJournalList.get());
         Map<Path, List<Abbreviation>> filesToWrite = snapshotFilesToWrite();
+        long savedRevision = editRevision;
         journalAbbreviationRepository.saveJournalLists(filesToWrite, abbreviationsPreferences, taskExecutor,
-                () -> shouldWriteLists = false);
+                () -> {
+                    if (savedRevision == editRevision) {
+                        shouldWriteLists = false;
+                    }
+                });
     }
 
     /// Captures external list contents before background saving so later UI edits cannot change the pending write.

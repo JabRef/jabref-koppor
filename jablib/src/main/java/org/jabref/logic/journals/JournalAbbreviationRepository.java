@@ -1,5 +1,6 @@
 package org.jabref.logic.journals;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Comparator;
@@ -36,6 +37,7 @@ public class JournalAbbreviationRepository {
     private final AtomicLong saveGeneration = new AtomicLong();
     private final Object saveLock = new Object();
     private final Map<Path, List<Abbreviation>> pendingJournalWrites = new HashMap<>();
+    private final Set<Abbreviation> addedCustomAbbreviations = new TreeSet<>();
 
     @NullMarked
     private static class RepositoryData {
@@ -102,7 +104,10 @@ public class JournalAbbreviationRepository {
         snapshot.setUseBuiltInJournalList(preferences.shouldUseBuiltInJournalList());
         BackgroundTask.wrap(() -> JournalAbbreviationLoader.loadRepository(snapshot))
                       .onSuccess(repository -> finishReload(generation, repository))
-                      .onFailure(exception -> LOGGER.error("Failed to reload journal abbreviations", exception))
+                      .onFailure(exception -> {
+                          LOGGER.error("Failed to reload journal abbreviations", exception);
+                          handleLoadFailure(generation, snapshot);
+                      })
                       .executeWith(executor);
     }
 
@@ -112,26 +117,38 @@ public class JournalAbbreviationRepository {
         Map<Path, List<Abbreviation>> pendingSnapshot;
         synchronized (pendingJournalWrites) {
             generation = saveGeneration.incrementAndGet();
+            Set<Path> selectedPaths = preferences.getExternalJournalLists().stream().map(Path::of).collect(java.util.stream.Collectors.toSet());
+            pendingJournalWrites.keySet().retainAll(selectedPaths);
             pendingJournalWrites.putAll(files);
             pendingSnapshot = Map.copyOf(pendingJournalWrites);
         }
         BackgroundTask.wrap(() -> {
                           synchronized (saveLock) {
                               if (generation == saveGeneration.get()) {
+                                  Map<Path, List<Abbreviation>> failed = new HashMap<>();
                                   for (Map.Entry<Path, List<Abbreviation>> file : pendingSnapshot.entrySet()) {
-                                      AbbreviationWriter.writeOrCreate(file.getKey(), file.getValue());
+                                      try {
+                                          AbbreviationWriter.writeOrCreate(file.getKey(), file.getValue());
+                                      } catch (IOException e) {
+                                          LOGGER.error("Failed to write journal list {}", file.getKey(), e);
+                                          failed.put(file.getKey(), file.getValue());
+                                      }
                                   }
+                                  return failed;
                               }
                           }
-                          return true;
-                      }).onSuccess(_ -> {
+                          return Map.<Path, List<Abbreviation>>of();
+                      }).onSuccess(failed -> {
                           if (generation == saveGeneration.get()) {
                               synchronized (pendingJournalWrites) {
                                   if (generation == saveGeneration.get()) {
                                       pendingJournalWrites.clear();
+                                      pendingJournalWrites.putAll(failed);
                                   }
                               }
-                              onSuccess.run();
+                              if (failed.isEmpty()) {
+                                  onSuccess.run();
+                              }
                               reload(preferences, executor);
                           }
                       }).onFailure(exception -> LOGGER.error("Failed to store journal preferences", exception))
@@ -144,13 +161,17 @@ public class JournalAbbreviationRepository {
         }
     }
 
-    private synchronized void finishReload(long generation, JournalAbbreviationRepository repository) {
+    protected void handleLoadFailure(long generation, AbbreviationPreferences preferences) {
+    }
+
+    protected synchronized void finishReload(long generation, JournalAbbreviationRepository repository) {
         if (generation == loadGeneration) {
             installRepository(repository);
         }
     }
 
     protected void installRepository(JournalAbbreviationRepository repository) {
+        repository.data.customAbbreviations.addAll(addedCustomAbbreviations);
         data = repository.data;
     }
 
@@ -278,11 +299,16 @@ public class JournalAbbreviationRepository {
         return Optional.of(candidates.getFirst());
     }
 
-    public void addCustomAbbreviation(@NonNull Abbreviation abbreviation) {
+    public synchronized void addCustomAbbreviation(@NonNull Abbreviation abbreviation) {
         // We do NOT want to keep duplicates
         // The set automatically "removes" duplicates
         // What is a duplicate? An abbreviation is NOT the same if any field is NOT equal (e.g., if the shortest unique differs, the abbreviation is NOT the same)
+        addedCustomAbbreviations.add(abbreviation);
         data.customAbbreviations.add(abbreviation);
+    }
+
+    void addLoadedAbbreviations(Collection<Abbreviation> abbreviations) {
+        data.customAbbreviations.addAll(abbreviations);
     }
 
     public Collection<Abbreviation> getCustomAbbreviations() {

@@ -67,11 +67,13 @@ public class JournalAbbreviationLoader {
                 } else {
                     Path tempDir = Files.createTempDirectory("jabref-journal");
                     Path tempJournalList = tempDir.resolve("journal-list.mv");
-                    Files.copy(resourceAsStream, tempJournalList);
-                    repository = new JournalAbbreviationRepository(tempJournalList, loadLtwaRepository());
-                    tempDir.toFile().deleteOnExit();
-                    tempJournalList.toFile().deleteOnExit();
-                    LOGGER.debug("Loaded journal abbreviations from {}", tempJournalList.toAbsolutePath());
+                    try {
+                        Files.copy(resourceAsStream, tempJournalList);
+                        repository = new JournalAbbreviationRepository(tempJournalList, loadLtwaRepository());
+                    } finally {
+                        Files.deleteIfExists(tempJournalList);
+                        Files.deleteIfExists(tempDir);
+                    }
                 }
             } catch (IOException e) {
                 LOGGER.error("Error while loading journal abbreviation repository", e);
@@ -86,7 +88,7 @@ public class JournalAbbreviationLoader {
             Collections.reverse(lists);
             for (String filename : lists) {
                 try {
-                    repository.addCustomAbbreviations(readAbbreviationsFromCsvFile(Path.of(filename)));
+                    repository.addLoadedAbbreviations(readAbbreviationsFromCsvFile(Path.of(filename)));
                 } catch (IOException | InvalidPathException e) {
                     // invalid path might come from unix/windows mixup of prefs
                     LOGGER.error("Cannot read external journal list file {}", filename, e);
@@ -109,11 +111,13 @@ public class JournalAbbreviationLoader {
             } else {
                 Path tempDir = Files.createTempDirectory("jabref-ltwa");
                 Path tempLtwaList = tempDir.resolve("ltwa-list.mv");
-                Files.copy(resourceAsStream, tempLtwaList);
-                LtwaRepository ltwaRepository = new LtwaRepository(tempLtwaList);
-                tempDir.toFile().deleteOnExit();
-                tempLtwaList.toFile().deleteOnExit();
-                return ltwaRepository;
+                try {
+                    Files.copy(resourceAsStream, tempLtwaList);
+                    return new LtwaRepository(tempLtwaList);
+                } finally {
+                    Files.deleteIfExists(tempLtwaList);
+                    Files.deleteIfExists(tempDir);
+                }
             }
         }
     }
@@ -245,6 +249,16 @@ public class JournalAbbreviationLoader {
         public synchronized void reload(AbbreviationPreferences preferences, TaskExecutor executor) {
             loadingStarted.set(true);
             super.reload(preferences, executor);
+        }
+
+        @Override
+        protected void handleLoadFailure(long generation, AbbreviationPreferences preferences) {
+            if (!loaded.get()) {
+                JournalAbbreviationRepository fallback = preferences.shouldUseBuiltInJournalList()
+                                                         ? new JournalAbbreviationRepository()
+                                                         : new JournalAbbreviationRepository(new LtwaRepository());
+                finishReload(generation, fallback);
+            }
         }
 
         @Override

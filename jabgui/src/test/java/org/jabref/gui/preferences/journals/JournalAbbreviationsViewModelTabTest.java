@@ -282,6 +282,31 @@ class JournalAbbreviationsViewModelTabTest {
     }
 
     @Test
+    void editAfterSaveSnapshotIsWrittenByNextSave() throws IOException {
+        AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
+        List<Runnable> queued = new ArrayList<>();
+        TaskExecutor executor = mock(TaskExecutor.class);
+        when(executor.execute(any())).thenAnswer(invocation -> {
+            BackgroundTask<?> task = invocation.getArgument(0);
+            queued.add(() -> new CurrentThreadTaskExecutor().execute(task));
+            return CompletableFuture.completedFuture(null);
+        });
+        JournalAbbreviationsTabViewModel model = new JournalAbbreviationsTabViewModel(preferences, dialogService, executor, repository);
+        model.setValues();
+        queued.removeFirst().run();
+        model.currentFileProperty().set(model.journalFilesProperty().getFirst());
+        model.addAbbreviation(ABBREVIATION_0);
+        model.storeSettings();
+        model.addAbbreviation(ABBREVIATION_1);
+        queued.removeFirst().run();
+        model.storeSettings();
+        queued.removeLast().run();
+        assertEquals(List.of("Full0", "Full1"), JournalAbbreviationLoader.readAbbreviationsFromCsvFile(emptyTestFile).stream()
+                                                                         .map(Abbreviation::getName)
+                                                                         .toList());
+    }
+
+    @Test
     void initialHasNoFilesAndNoAbbreviations() {
         assertEquals(0, viewModel.journalFilesProperty().size());
         assertEquals(0, viewModel.abbreviationsProperty().size());

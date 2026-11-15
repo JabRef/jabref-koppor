@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -36,6 +37,66 @@ class AbbreviationsTest {
     @BeforeEach
     void setUp() {
         repository = JournalAbbreviationLoader.loadBuiltInRepository();
+    }
+
+    @Test
+    void failedInitialLoadInstallsFallbackWithoutBuiltInEntries() {
+        AbbreviationPreferences preferences = AbbreviationPreferences.getDefault();
+        preferences.setUseBuiltInJournalList(false);
+        try (var loader = mockStatic(JournalAbbreviationLoader.class, CALLS_REAL_METHODS)) {
+            loader.when(() -> JournalAbbreviationLoader.loadRepository(any())).thenThrow(new IllegalArgumentException("Load failed"));
+            JournalAbbreviationRepository retained = JournalAbbreviationLoader.loadRepositoryInBackground(preferences, new CurrentThreadTaskExecutor());
+            assertEquals(Optional.empty(), retained.get("Demonstration"));
+            assertEquals(Optional.empty(), retained.get("2D Materials"));
+            retained.addCustomAbbreviation(new Abbreviation("Custom Journal", "Custom J."));
+            assertEquals(Optional.of("Custom J."), retained.getDefaultAbbreviation("Custom Journal"));
+        }
+    }
+
+    @Test
+    void reloadPreservesAddedCustomAbbreviations() {
+        Abbreviation custom = new Abbreviation("Custom Journal", "Custom J.");
+        repository.addCustomAbbreviation(custom);
+        repository.reload(AbbreviationPreferences.getDefault(), new CurrentThreadTaskExecutor());
+        assertEquals(Optional.of("Custom J."), repository.getDefaultAbbreviation("Custom Journal"));
+    }
+
+    @Test
+    void failedWriteDoesNotPreventOtherFilesOrReload(@TempDir Path directory) throws IOException {
+        Path failed = directory.resolve("missing").resolve("failed.csv");
+        Path valid = directory.resolve("valid.csv");
+        AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(failed.toString(), valid.toString()), true, false);
+        preferences.setUseBuiltInJournalList(false);
+        Abbreviation abbreviation = new Abbreviation("External Journal", "Ext. J.");
+        repository.saveJournalLists(Map.of(failed, List.of(abbreviation), valid, List.of(abbreviation)),
+                preferences, new CurrentThreadTaskExecutor(), () -> {
+                });
+        assertEquals(List.of(abbreviation), List.copyOf(JournalAbbreviationLoader.readAbbreviationsFromCsvFile(valid)));
+        assertEquals(Optional.of(List.of(abbreviation)), repository.getPendingJournalList(failed));
+        assertEquals(Optional.empty(), repository.getPendingJournalList(valid));
+        assertEquals(Optional.empty(), repository.getDefaultAbbreviation("2D Materials"));
+    }
+
+    @Test
+    void removedListIsNotWrittenByLaterSave(@TempDir Path directory) {
+        Path removed = directory.resolve("removed.csv");
+        AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(removed.toString()), true, false);
+        List<Runnable> queued = new ArrayList<>();
+        TaskExecutor executor = mock(TaskExecutor.class);
+        when(executor.execute(any())).thenAnswer(invocation -> {
+            BackgroundTask<?> task = invocation.getArgument(0);
+            queued.add(() -> new CurrentThreadTaskExecutor().execute(task));
+            return CompletableFuture.completedFuture(null);
+        });
+        repository.saveJournalLists(Map.of(removed, List.of(new Abbreviation("Journal", "J."))), preferences, executor, () -> {
+        });
+        preferences.setExternalJournalLists(List.of());
+        repository.saveJournalLists(Map.of(), preferences, executor, () -> {
+        });
+        queued.get(1).run();
+        queued.getFirst().run();
+        assertFalse(Files.exists(removed));
+        assertEquals(Optional.empty(), repository.getPendingJournalList(removed));
     }
 
     @Test
