@@ -21,7 +21,7 @@ frontmatter are skipped; the library's own sidecars and PDFs are never hidden by
 scratch PDF folder ignored by a catch-all `*` still opens). Unparseable Hayagriva files are
 reported as warnings without aborting the scan.
 Scanning must not write or modify any file in the directory.
-See [ADR 75](../decisions/0075-directory-as-library-with-hayagriva-sidecars.md) for more details.
+See [ADR 82](../decisions/0082-directory-as-library-with-hayagriva-sidecars.md) for more details.
 
 Needs: impl
 
@@ -78,6 +78,18 @@ entries appears as a subgroup, an entry is contained in the group of its source 
 directory (and transitively in the parent directories' groups), and the tree follows
 inbound synchronization and write-back live. The directory groups are read-only: no
 entries or subgroups can be added to them, they cannot be dragged or edited.
+
+Needs: impl
+
+## The sidecar and its PDF follow the configured filename pattern
+`req~directory-library.pattern-rename~1`
+
+When write-back touches a single-entry sidecar, the sidecar and its equally named PDF are
+renamed together to the base name the configured filename pattern (Linked files preferences)
+generates for the entry, keeping the pair in sync. Multi-entry files have no single generating
+entry and keep their name; occupied target names and pattern failures leave the current name
+untouched. Entry file links and the catalog follow the rename; the watcher does not re-import
+the renamed files.
 
 Needs: impl
 

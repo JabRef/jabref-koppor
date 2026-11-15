@@ -23,11 +23,13 @@ As a consequence, the file is copied.
 Needs: impl
 
 ## Automatic file linking must resolve broken file links
-`req~logic.externalfiles.file-transfer.auto-link~1`
+`req~logic.externalfiles.file-transfer.auto-link~2`
 
 The function `Quality -> Automatically set file links` relinks moved files based on the broken file name or the entry citation key.
 
 Rationale: Users frequently move or organize files on disk outside of JabRef, leaving behind broken file links that need automated recovery.
+
+A Markdown sidecar of a directory library (a Markdown file opening with a Hayagriva frontmatter block) is an entry's source, not an attachment, and is never auto-linked. Any other Markdown file is still linked.
 
 Needs: impl, utest
 
