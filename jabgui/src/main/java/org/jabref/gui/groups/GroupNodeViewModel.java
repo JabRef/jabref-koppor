@@ -670,9 +670,9 @@ public class GroupNodeViewModel {
                  AutomaticEntryTypeGroup _,
                  EntryTypeGroup _,
                  TexGroup _,
+                 MissingKeywordGroup _,
                  DirectoryStructureGroup _,
-                 DirectoryPathGroup _,
-                 MissingKeywordGroup _ ->
+                 DirectoryPathGroup _ ->
                     false;
             case ExplicitGroup _ ->
                     true;

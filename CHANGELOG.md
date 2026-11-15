@@ -11,6 +11,11 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Added
 
+- In directory libraries, a sidecar and its PDF are now renamed together to the configured filename pattern (Preferences > Linked files) whenever the entry is edited — e.g. changing the citation key renames both files. [#741](https://github.com/JabRef/jabref-koppor/pull/741)
+- The groups panel of a directory library now mirrors the folder structure: each subdirectory appears as a group containing the entries whose files live there (updated live as files change). [#740](https://github.com/JabRef/jabref-koppor/pull/740)
+- Directory libraries now save into their sidecar files: edits are written back automatically (debounced until typing pauses; Ctrl+S forces the write and no longer creates a `.bib`), the first edit of a PDF-only entry creates a Markdown sidecar (`X.md` with the Hayagriva data as frontmatter and the comment fields as notes body), renaming a citation key renames the YAML key, and deleting an entry removes it from its file (the file is trashed once empty, the PDF stays). Hand-written content that JabRef does not understand survives rewrites. [#739](https://github.com/JabRef/jabref-koppor/pull/739)
+- Directory libraries now stay in sync with external file changes: creating, editing, deleting, or renaming `.yml`/`.md`/`.pdf` files in the opened folder updates the open library live, and renames keep the affected entries (selection and undo history survive). [#738](https://github.com/JabRef/jabref-koppor/pull/738)
+- We added "Open folder as library" (File menu): a folder of PDFs and Hayagriva sidecar files (`.yml`, or `.md` notes with a Hayagriva frontmatter) opens as a library, and it is reopened on the next start. PDFs without a sidecar appear right away and get their metadata extracted in the background. Edits are not yet written back to the files. [#737](https://github.com/JabRef/jabref-koppor/pull/737)
 - We added an option to enable AI provider debugging in expert settings for testing AI features without external API calls. [#17607](https://github.com/JabRef/jabref/pull/17607)
 - We added ISBN extraction from bibliographic pages in PDF books. [#12874](https://github.com/JabRef/jabref/issues/12874)
 - We added a dark appearance variant of the macOS application icon. [#17290](https://github.com/JabRef/jabref/issues/17290)
@@ -65,8 +70,13 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - The JabRef language server now shows entry details on hover and reads `bibliography:` from Markdown front matter. [#17302](https://github.com/JabRef/jabref/pull/17302)
 - We added entry details on hover to the JabRef language server, which now also reads `bibliography:` from Markdown front matter. [#17302](https://github.com/JabRef/jabref/pull/17302)
 - We added restoring of the library tab and entry that were selected when JabRef was closed. [#16911](https://github.com/JabRef/jabref/pull/16911)
+- We added a hint showing the effective file directory to empty directory fields in the library properties. [#17572](https://github.com/JabRef/jabref/issues/17572)
+- We added Markdown publication exports with recent papers, grouped sections, and DOI, URL, and PDF links. [#12729](https://github.com/JabRef/jabref/issues/12729)
 
 ### Changed
+
+- Automatic file linking no longer links the Markdown sidecars of a directory library (Markdown files with a Hayagriva frontmatter); other Markdown files are still linked. [#741](https://github.com/JabRef/jabref-koppor/pull/741)
+- We changed the Hayagriva YAML export to keep data JabRef cannot edit (short titles, person aliases, additional identifiers) when re-exporting an imported file, to write comments, and to derive `date` from the BibTeX year/month fields. [#736](https://github.com/JabRef/jabref-koppor/pull/736)
 
 - We improved OCR failure messages to show the executed command and diagnostic output. [#16679](https://github.com/JabRef/jabref/issues/16679)
 - We moved the JabRef version display in the Welcome tab onto the "Download development version" line to save space. [#17160](https://github.com/JabRef/jabref/issues/17160)
@@ -81,6 +91,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We changed failed shared database connections to show a tab with "Retry" instead of an error dialog. [#16968](https://github.com/JabRef/jabref/pull/16968)
 - We show the donation prompt six months after the first launch and every six months, unless dismissed forever. [#17008](https://github.com/JabRef/jabref/pull/17008)
 - We changed the main table tooltip to stay visible while hovered, with a configurable duration. [#17502](https://github.com/JabRef/jabref/issues/17502)
+- We changed "OK" to "Remove" button in Remove subgroups, Remove field name and Remove keyword. [#12706](https://github.com/JabRef/jabref/issues/12706)
 - We changed the document viewer to stay open when <kbd>Escape</kbd> is pressed. [#17175](https://github.com/JabRef/jabref/pull/17175)
 - We changed the opening of libraries from older JabRef versions to ask which conversions to perform and to remember the choice. [#16941](https://github.com/JabRef/jabref/pull/16941)
 - We changed Writer integration: older JStyle, CSL, and BST citations are no longer managed; no migration is provided. [#14962](https://github.com/JabRef/jabref/issues/14962)
@@ -89,14 +100,17 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added synchronizing a library with its file, per library or as a global default (off by default). [#8431](https://github.com/JabRef/jabref/issues/8431)
 - Automatic file linking no longer links the Markdown sidecars of a directory library (Markdown files with a Hayagriva frontmatter); other Markdown files are still linked. [#741](https://github.com/JabRef/jabref-koppor/pull/741)
 - We changed the Hayagriva YAML export to keep data JabRef cannot edit (short titles, person aliases, additional identifiers) when re-exporting an imported file, to write comments, and to derive `date` from the BibTeX year/month fields. [#736](https://github.com/JabRef/jabref-koppor/pull/736)
+- We shortened read-status and priority menu labels and made read and low-priority icons easier to distinguish. [#17691](https://github.com/JabRef/jabref/pull/17691)
 
 ### Fixed
 
+- We fixed the `IfPlural` export formatter treating organizations containing “and” as multiple editors. [#17780](https://github.com/JabRef/jabref/issues/17780)
 - We fixed an issue where the DocBook export wrote invalid XML for emoji and some math symbols. [#17747](https://github.com/JabRef/jabref/issues/17747)
 - We fixed an issue where clicking "Generate" in the AUX file import dialog before parsing caused an exception.
 - We fixed an issue where it was hard to distinguish between enabled/disabled status of search buttons in dark mode and added tooltips. [#11569](https://github.com/JabRef/jabref/issues/11569)
 - We fixed an issue where entries containing dollar signs, backslashes, or unset fields passed to `substring$` caused citation style preview and export to fail. [#12799](https://github.com/JabRef/jabref/issues/12799)
 - We fixed an issue where citationcount, day, and dayfiled columns were sorted alphabetically instead of numerically. [#17459](https://github.com/JabRef/jabref/issues/17459)
+- We fixed an issue where searching or sorting the main table of a large library froze JabRef for seconds. [#17762](https://github.com/JabRef/jabref/pull/17762)
 - We fixed exports to RIS, CSV, HTML, and other template-based formats in native JabKit. [#17408](https://github.com/JabRef/jabref/issues/17408)
 - We fixed RTF export failing when a field ends with a LaTeX formatting command without closing braces. [#17766](https://github.com/JabRef/jabref/pull/17766)
 - We fixed JabKit to preserve existing citation keys when generating keys with the avoid-overwrite setting. [#17458](https://github.com/JabRef/jabref/issues/17458)
@@ -110,6 +124,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed arXiv fallback title matching on systems using Turkish or Azerbaijani language settings. [#17652](https://github.com/JabRef/jabref/pull/17652)
 - We fixed search and metadata matching in other fetchers on systems using Turkish or Azerbaijani language settings. [#17732](https://github.com/JabRef/jabref/pull/17732)
 - We fixed an issue where the AI chat lost its scroll position when switching back to an entry. [#17172](https://github.com/JabRef/jabref/pull/17172)
+- We fixed an issue where full text documents for several selected entries were attached only after all searches finished. [koppor#772](https://github.com/JabRef/jabref-koppor/pull/772)
 - We fixed the import dialog to remember its download choice independently of the web search preference. [#16332](https://github.com/JabRef/jabref/issues/16332)
 - We fixed an issue where the same shared database could be opened in a second tab. [#16967](https://github.com/JabRef/jabref/pull/16967)
 - We fixed shared databases failing to open when an entry has no type. [#15658](https://github.com/JabRef/jabref/issues/15658)
@@ -228,8 +243,11 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed duplicate detection across compatible book-section and conference-paper entry types. [#17293](https://github.com/JabRef/jabref/issues/17293)
 - We fixed an issue where entries of type Misc were penalized too strictly during duplicate detection. [#16578](https://github.com/JabRef/jabref/issues/16578)
 - We fixed failed template exports overwriting existing files with empty or incomplete output. [#17423](https://github.com/JabRef/jabref/issues/17423)
+- We fixed HTML export displaying uppercase named entities as text. [#17776](https://github.com/JabRef/jabref/issues/17776)
 - We fixed an issue where the "Simple HTML" export separated author initials with spaces. [#17306](https://github.com/JabRef/jabref/pull/17306)
 - We fixed an issue where the Hayagriva YAML export wrote braced author names, such as company names, as invalid YAML. [#17316](https://github.com/JabRef/jabref/issues/17316)
+- We fixed an issue where the Hayagriva YAML export wrote braced author names, such as company names, as invalid YAML. [#17316](https://github.com/JabRef/jabref/issues/17316)
+- We fixed an issue where the Hayagriva YAML export failed for libraries containing performance or custom entry types. [#17620](https://github.com/JabRef/jabref/issues/17620)
 - We fixed an issue where "Community forum" in the Help menu opened the donation page instead of the forum. [#17162](https://github.com/JabRef/jabref/pull/17162)
 - We fixed an issue where "Regenerate (custom)" in the AI summary ignored the chosen summarization algorithm. [#17216](https://github.com/JabRef/jabref/issues/17216)
 - We fixed AI summary regeneration restoring an outdated summary after a new generation started. [#17236](https://github.com/JabRef/jabref/pull/17236)
@@ -279,6 +297,9 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed a `.gitignore` outside a git repository hiding all results in "Search for unlinked local files". [#17141](https://github.com/JabRef/jabref/pull/17141)
 - We fixed an issue where accepting an external change to an entry lost its table position, selection, and open entry editor. [#16813](https://github.com/JabRef/jabref/pull/16813)
 - We fixed an issue where libraries opened or saved shortly before JabRef was killed were missing from recent libraries. [#16911](https://github.com/JabRef/jabref/pull/16911)
+- We fixed missing PDF links and DOI persistence during full-text downloads. [#12947](https://github.com/JabRef/jabref/issues/12947)
+- We fixed dollar signs and backslashes being mishandled in HTML paragraph formatting. [#17778](https://github.com/JabRef/jabref/issues/17778)
+- We fixed an issue where searching for unlinked files failed when `.gitignore` contained a literal opening brace. [#17546](https://github.com/JabRef/jabref/issues/17546)
 
 ### Removed
 

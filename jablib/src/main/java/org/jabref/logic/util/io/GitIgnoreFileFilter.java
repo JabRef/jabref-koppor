@@ -1,97 +1,120 @@
 package org.jabref.logic.util.io;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-import org.jabref.logic.git.GitHandler;
+import org.jabref.logic.os.OS;
 
-import org.jspecify.annotations.NullMarked;
+import org.eclipse.jgit.ignore.IgnoreNode;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.util.function.Predicate.not;
-
-@NullMarked
+// [impl->req~jabgui.externalfiles.unlinked-files.search.gitignore-precedence~1]
+// [impl->req~jabgui.externalfiles.unlinked-files.search.gitignore-windows-case~1]
+// [impl->req~jabgui.externalfiles.unlinked-files.search.gitignore-symlink~1]
 public class GitIgnoreFileFilter implements DirectoryStream.Filter<Path> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitIgnoreFileFilter.class);
 
-    private final Set<PathMatcher> gitIgnorePatterns;
-    private final Path baseDir;
+    private static final String DEFAULT_IGNORES = """
+            .gitignore
+            .git
+            .DS_Store
+            desktop.ini
+            Thumbs.db
+            """;
+
+    private final List<Map.Entry<Path, IgnoreNode>> ignoreNodes = new ArrayList<>();
 
     public GitIgnoreFileFilter(Path path) {
-        this(path, path);
+        IgnoreNode ignoreNode = new IgnoreNode();
+
+        // Always ignore ".gitignore" itself and common defaults.
+        // Parsed first, because the last matching rule wins: negations in the user's .gitignore can override these.
+        String defaults = OS.WINDOWS ? DEFAULT_IGNORES.toLowerCase(Locale.ROOT) : DEFAULT_IGNORES;
+        try (InputStream input = new ByteArrayInputStream(defaults.getBytes(StandardCharsets.UTF_8))) {
+            ignoreNode.parse(input);
+        } catch (IOException e) {
+            LOGGER.info("Could not add default ignores", e);
+        }
+
+        Path directory = path.toAbsolutePath().normalize();
+        ignoreNodes.add(Map.entry(directory, ignoreNode));
+        List<Path> ancestors = new ArrayList<>();
+        for (Path current = directory; current != null; current = current.getParent()) {
+            ancestors.add(current);
+        }
+        for (Path ancestor : ancestors.reversed()) {
+            addIgnoreFile(ancestor);
+        }
     }
 
-    /// @param searchRoot the directory selected by the user; its `.gitignore` applies even outside a git repository
-    public GitIgnoreFileFilter(Path path, Path searchRoot) {
-        Path absolutePath = path.toAbsolutePath().normalize();
-        Path absoluteSearchRoot = searchRoot.toAbsolutePath().normalize();
-        Optional<Path> repositoryRoot = GitHandler.findRepositoryRoot(absolutePath);
-        // A .gitignore above the selected directory only applies inside the same git repository
-        @Nullable Path currentPath = Stream.iterate(absolutePath, Objects::nonNull, Path::getParent)
-                                           .takeWhile(directory -> directory.startsWith(absoluteSearchRoot) || repositoryRoot.filter(directory::startsWith).isPresent())
-                                           .filter(directory -> Files.exists(directory.resolve(".gitignore")))
-                                           .findFirst()
-                                           .orElse(null);
-        if (currentPath == null) {
-            // we did not find any gitignore, set baseDir to provided path and use default ignores
-            this.baseDir = absolutePath;
-            gitIgnorePatterns = Set.of(".git", ".gitignore", ".DS_Store", "desktop.ini", "Thumbs.db").stream()
-                                   // duplicate code as below
-                                   .map(line -> "glob:" + line)
-                                   .map(matcherString -> FileSystems.getDefault().getPathMatcher(matcherString))
-                                   .collect(Collectors.toSet());
-        } else {
-            this.baseDir = currentPath;
-            Path gitIgnore = currentPath.resolve(".gitignore");
-            Set<PathMatcher> patterns;
+    private GitIgnoreFileFilter(Path path, GitIgnoreFileFilter parent) {
+        Path directory = path.toAbsolutePath().normalize();
+        ignoreNodes.add(Map.entry(directory, parent.ignoreNodes.getFirst().getValue()));
+        ignoreNodes.addAll(parent.ignoreNodes.subList(1, parent.ignoreNodes.size()));
+        addIgnoreFile(directory);
+    }
+
+    public GitIgnoreFileFilter forSubdirectory(Path path) {
+        return new GitIgnoreFileFilter(path, this);
+    }
+
+    private void addIgnoreFile(Path ancestor) {
+        Path gitIgnore = ancestor.resolve(".gitignore");
+        if (Files.isRegularFile(gitIgnore)) {
+            IgnoreNode node = new IgnoreNode();
             try {
-                patterns = Files.readAllLines(gitIgnore).stream()
-                                .map(String::trim)
-                                .filter(not(String::isEmpty))
-                                .filter(line -> !line.startsWith("#"))
-                                // expand patterns so that leading "**/" also matches files in the base directory
-                                .flatMap(line -> {
-                                    if (line.startsWith("**/")) {
-                                        return Stream.of(line, line.substring(3));
-                                    }
-                                    return Stream.of(line);
-                                })
-                                // convert to Java syntax for Glob patterns
-                                .map(line -> "glob:" + line)
-                                .map(matcherString -> FileSystems.getDefault().getPathMatcher(matcherString))
-                                .collect(Collectors.toSet());
-                // we want to ignore ".gitignore" itself
-                patterns.add(FileSystems.getDefault().getPathMatcher("glob:.gitignore"));
+                String rules = Files.readString(gitIgnore);
+                if (OS.WINDOWS) {
+                    rules = rules.toLowerCase(Locale.ROOT);
+                }
+                try (InputStream input = new ByteArrayInputStream(rules.getBytes(StandardCharsets.UTF_8))) {
+                    node.parse(input);
+                }
+                ignoreNodes.add(Map.entry(ancestor, node));
             } catch (IOException e) {
                 LOGGER.info("Could not read .gitignore from {}", gitIgnore, e);
-                patterns = Set.of();
             }
-            gitIgnorePatterns = patterns;
         }
     }
 
     @Override
     public boolean accept(Path path) throws IOException {
-        // Match patterns relative to baseDir because .gitignore patterns are applied relative to their location
-        Path relative = safeRelativize(baseDir, path.toAbsolutePath().normalize());
-        // We assume that git does not stop at a pattern, but tries all. We implement that behavior
-        return gitIgnorePatterns.stream().noneMatch(filter ->
-                // for patterns like "*.png" or ".gitignore"
-                filter.matches(relative.getFileName()) ||
-                        // for patterns like "ignore/*" or "**/*.png"
-                        filter.matches(relative));
+        return accept(path, Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS));
+    }
+
+    public boolean accept(Path path, boolean isDirectory) {
+        boolean ignored = false;
+        Path absolutePath = path.toAbsolutePath().normalize();
+        for (Map.Entry<Path, IgnoreNode> entry : ignoreNodes) {
+            Path relative = safeRelativize(entry.getKey(), absolutePath);
+            String relativeStr = StreamSupport.stream(relative.spliterator(), false).map(Path::toString).collect(Collectors.joining("/"));
+            if (relativeStr.isEmpty()) {
+                continue;
+            }
+            if (OS.WINDOWS) {
+                relativeStr = relativeStr.toLowerCase(Locale.ROOT);
+            }
+            @Nullable Boolean match = entry.getValue().checkIgnored(relativeStr, isDirectory);
+            if (match != null) {
+                ignored = match;
+            }
+        }
+        return !ignored;
     }
 
     private static Path safeRelativize(Path base, Path child) {
