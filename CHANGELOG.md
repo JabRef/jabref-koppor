@@ -11,6 +11,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Added
 
+- We added "Open folder as library" (File menu): a folder of PDFs and Hayagriva sidecar files (`.yml`, or `.md` notes with a Hayagriva frontmatter) opens as a library, and it is reopened on the next start. PDFs without a sidecar appear right away and get their metadata extracted in the background. Edits are not yet written back to the files. [#737](https://github.com/JabRef/jabref-koppor/pull/737)
 - We added an option to enable AI provider debugging in expert settings for testing AI features without external API calls. [#17607](https://github.com/JabRef/jabref/pull/17607)
 - We added ISBN extraction from bibliographic pages in PDF books. [#12874](https://github.com/JabRef/jabref/issues/12874)
 - We added a dark appearance variant of the macOS application icon. [#17290](https://github.com/JabRef/jabref/issues/17290)
@@ -102,7 +103,6 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed failed template exports overwriting existing files with empty or incomplete output. [#17423](https://github.com/JabRef/jabref/issues/17423)
 - We fixed HTML export displaying uppercase named entities as text. [#17776](https://github.com/JabRef/jabref/issues/17776)
 - We fixed an issue where the "Simple HTML" export separated author initials with spaces. [#17306](https://github.com/JabRef/jabref/pull/17306)
-- We fixed an issue where the Hayagriva YAML export wrote braced author names, such as company names, as invalid YAML. [#17316](https://github.com/JabRef/jabref/issues/17316)
 - We fixed an issue where the Hayagriva YAML export wrote braced author names, such as company names, as invalid YAML. [#17316](https://github.com/JabRef/jabref/issues/17316)
 - We fixed an issue where the Hayagriva YAML export failed for libraries containing performance or custom entry types. [#17620](https://github.com/JabRef/jabref/issues/17620)
 - We fixed an issue where "Community forum" in the Help menu opened the donation page instead of the forum. [#17162](https://github.com/JabRef/jabref/pull/17162)
