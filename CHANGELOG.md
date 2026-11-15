@@ -68,6 +68,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added entry details on hover to the JabRef language server, which now also reads `bibliography:` from Markdown front matter. [#17302](https://github.com/JabRef/jabref/pull/17302)
 - We added restoring of the library tab and entry that were selected when JabRef was closed. [#16911](https://github.com/JabRef/jabref/pull/16911)
 - We added an option to disable the built-in journal abbreviation list while keeping custom lists available. [#12468](https://github.com/JabRef/jabref/issues/12468)
+- We added checkboxes to enable or disable individual journal abbreviation lists without removing them. [#12468](https://github.com/JabRef/jabref/issues/12468)
 
 ### Changed
 

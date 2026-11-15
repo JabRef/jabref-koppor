@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,6 +25,7 @@ import org.jabref.logic.util.BackgroundTask;
 import org.jabref.logic.util.CurrentThreadTaskExecutor;
 import org.jabref.logic.util.TaskExecutor;
 
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -67,6 +69,22 @@ class JournalAbbreviationsViewModelTabTest {
     private Path tempFolder;
     private final JournalAbbreviationRepository repository = JournalAbbreviationLoader.loadBuiltInRepository();
     private DialogService dialogService;
+
+    /// Keeps queued repository tasks outside Mockito's invocation history so completed fixtures can be collected.
+    @NullMarked
+    private static class QueuedTaskExecutor extends CurrentThreadTaskExecutor {
+        private final List<Runnable> queued;
+
+        private QueuedTaskExecutor(List<Runnable> queued) {
+            this.queued = queued;
+        }
+
+        @Override
+        public <V> Future<V> execute(BackgroundTask<V> task) {
+            queued.add(() -> super.execute(task));
+            return CompletableFuture.completedFuture(null);
+        }
+    }
 
     static class TestAbbreviation extends Abbreviation {
 
@@ -196,13 +214,13 @@ class JournalAbbreviationsViewModelTabTest {
         JournalAbbreviationsTabViewModel model = new JournalAbbreviationsTabViewModel(
                 preferences, dialogService, new CurrentThreadTaskExecutor(), retained);
         model.setValues();
-        model.useBuiltInJournalListProperty().set(false);
+        model.journalFilesProperty().getLast().enabledProperty().set(false);
         assertTrue(preferences.shouldUseBuiltInJournalList());
         assertEquals(Optional.of("2D Mater."), retained.getDefaultAbbreviation("2D Materials"));
 
         model.setValues();
         assertTrue(model.useBuiltInJournalListProperty().get());
-        model.useBuiltInJournalListProperty().set(false);
+        model.journalFilesProperty().getLast().enabledProperty().set(false);
         model.storeSettings();
         assertFalse(preferences.shouldUseBuiltInJournalList());
         assertEquals(Optional.empty(), retained.getDefaultAbbreviation("2D Materials"));
@@ -215,15 +233,70 @@ class JournalAbbreviationsViewModelTabTest {
     }
 
     @Test
+    void externalListChoiceIsLocalUntilSavedAndRemainsEditableWhenDisabled() throws IOException {
+        // [utest->req~journals.disable-external~1]
+        Files.writeString(emptyTestFile, "External Journal;Ext. J.;Ext. J.");
+        AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
+        JournalAbbreviationRepository retained = JournalAbbreviationLoader.loadRepository(preferences);
+        JournalAbbreviationsTabViewModel model = new JournalAbbreviationsTabViewModel(
+                preferences, dialogService, new CurrentThreadTaskExecutor(), retained);
+        model.setValues();
+        model.journalFilesProperty().getFirst().enabledProperty().set(false);
+        assertEquals(List.of(), preferences.getDisabledExternalJournalLists());
+        assertEquals(Optional.of("Ext. J."), retained.getDefaultAbbreviation("External Journal"));
+
+        model.setValues();
+        assertTrue(model.journalFilesProperty().getFirst().enabledProperty().get());
+        model.journalFilesProperty().getFirst().enabledProperty().set(false);
+        model.storeSettings();
+        assertEquals(List.of(emptyTestFile.toString()), preferences.getDisabledExternalJournalLists());
+        assertEquals(List.of(emptyTestFile.toString()), preferences.getExternalJournalLists());
+        assertEquals(List.of(), retained.getFullNames().stream().filter("External Journal"::equals).toList());
+
+        model.setValues();
+        AbbreviationsFileViewModel disabled = model.journalFilesProperty().getFirst();
+        assertFalse(disabled.enabledProperty().get());
+        model.currentFileProperty().set(disabled);
+        assertTrue(model.isEditableAndRemovableProperty().get());
+        model.addAbbreviation(ABBREVIATION_0);
+        model.storeSettings();
+        assertEquals(List.of("External Journal", "Full0"), JournalAbbreviationLoader.readAbbreviationsFromCsvFile(emptyTestFile).stream()
+                                                                                    .map(Abbreviation::getName).toList());
+        assertEquals(List.of(), retained.getFullNames().stream().filter("Full0"::equals).toList());
+
+        disabled.enabledProperty().set(true);
+        model.storeSettings();
+        assertEquals(Optional.of("Ext. J."), retained.getDefaultAbbreviation("External Journal"));
+        assertEquals(Optional.of("Abb0"), retained.getDefaultAbbreviation("Full0"));
+    }
+
+    @Test
+    void removingDisabledListClearsItsSavedStateWithoutDeletingFile() {
+        AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
+        preferences.setDisabledExternalJournalLists(List.of(emptyTestFile.toString()));
+        JournalAbbreviationsTabViewModel model = new JournalAbbreviationsTabViewModel(
+                preferences, dialogService, new CurrentThreadTaskExecutor(), repository);
+        model.setValues();
+        model.currentFileProperty().set(model.journalFilesProperty().getFirst());
+        model.removeCurrentFile();
+        model.storeSettings();
+
+        assertEquals(List.of(), preferences.getExternalJournalLists());
+        assertEquals(List.of(), preferences.getDisabledExternalJournalLists());
+        assertTrue(Files.exists(emptyTestFile));
+        assertTrue(model.currentFileProperty().get().isBuiltInListProperty().get());
+        assertFalse(model.isFileRemovableProperty().get());
+
+        when(dialogService.showFileOpenDialog(any())).thenReturn(Optional.of(emptyTestFile));
+        model.openFile();
+        assertTrue(model.currentFileProperty().get().enabledProperty().get());
+    }
+
+    @Test
     void overlappingSavesKeepLatestExternalEditsAndToggle() throws IOException {
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
         List<Runnable> queued = new ArrayList<>();
-        TaskExecutor executor = mock(TaskExecutor.class);
-        when(executor.execute(any())).thenAnswer(invocation -> {
-            BackgroundTask<?> task = invocation.getArgument(0);
-            queued.add(() -> new CurrentThreadTaskExecutor().execute(task));
-            return CompletableFuture.completedFuture(null);
-        });
+        TaskExecutor executor = new QueuedTaskExecutor(queued);
         JournalAbbreviationRepository retained = JournalAbbreviationLoader.loadRepository(preferences);
         JournalAbbreviationsTabViewModel model = new JournalAbbreviationsTabViewModel(preferences, dialogService, executor, retained);
         model.setValues();
@@ -251,12 +324,7 @@ class JournalAbbreviationsViewModelTabTest {
     void newerSaveFromReopenedPreferencesIsNotOverwrittenByOlderSave(boolean editReopenedList) throws IOException {
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
         List<Runnable> queued = new ArrayList<>();
-        TaskExecutor executor = mock(TaskExecutor.class);
-        when(executor.execute(any())).thenAnswer(invocation -> {
-            BackgroundTask<?> task = invocation.getArgument(0);
-            queued.add(() -> new CurrentThreadTaskExecutor().execute(task));
-            return CompletableFuture.completedFuture(null);
-        });
+        TaskExecutor executor = new QueuedTaskExecutor(queued);
         JournalAbbreviationsTabViewModel first = new JournalAbbreviationsTabViewModel(preferences, dialogService, executor, repository);
         first.setValues();
         queued.removeFirst().run();
@@ -285,12 +353,7 @@ class JournalAbbreviationsViewModelTabTest {
     void editAfterSaveSnapshotIsWrittenByNextSave() throws IOException {
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
         List<Runnable> queued = new ArrayList<>();
-        TaskExecutor executor = mock(TaskExecutor.class);
-        when(executor.execute(any())).thenAnswer(invocation -> {
-            BackgroundTask<?> task = invocation.getArgument(0);
-            queued.add(() -> new CurrentThreadTaskExecutor().execute(task));
-            return CompletableFuture.completedFuture(null);
-        });
+        TaskExecutor executor = new QueuedTaskExecutor(queued);
         JournalAbbreviationsTabViewModel model = new JournalAbbreviationsTabViewModel(preferences, dialogService, executor, repository);
         model.setValues();
         queued.removeFirst().run();
