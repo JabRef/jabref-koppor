@@ -21,7 +21,7 @@ frontmatter are skipped; the library's own sidecars and PDFs are never hidden by
 scratch PDF folder ignored by a catch-all `*` still opens). Unparseable Hayagriva files are
 reported as warnings without aborting the scan.
 Scanning must not write or modify any file in the directory.
-See [ADR 75](../decisions/0075-directory-as-library-with-hayagriva-sidecars.md) for more details.
+See [ADR 82](../decisions/0082-directory-as-library-with-hayagriva-sidecars.md) for more details.
 
 Needs: impl
 
@@ -31,6 +31,28 @@ Needs: impl
 When "Open last edited libraries" is enabled, a directory library that was open on shutdown is
 reopened on the next start, exactly like `.bib` libraries: its root directory is remembered in
 the last-opened list and routed back through the directory-library opener.
+
+Needs: impl
+
+## User changes are written back into the sidecar files
+`req~directory-library.write-back~2`
+
+A directory library persists into its sidecar files: user edits rewrite the entry's
+file read-modify-write (content JabRef does not understand survives, including body sections of
+Markdown sidecars under foreign headings), the first user edit of an
+entry without a sidecar creates a Markdown sidecar `X.md` (next to its PDF, sharing the base
+name, or named after the citation key) whose frontmatter carries the Hayagriva data and whose
+markdownlint-clean body carries the comment fields (`# Notes` intro for the comment, one
+`## comment-<name>` section per per-user comment); in plain `.yml` sidecars the comment fields
+are written as extension keys. A citation-key edit renames the YAML map key, and deleting an
+entry removes it
+from its file — the file itself is trashed/deleted once its last entry is gone, the paired PDF
+is never touched. Writes are debounced per file with a trailing-edge debounce that is re-armed
+by every change event — including the keystroke events the CoarseChangeFilter marks as
+filtered, so the tail of a typing burst is never lost; Save (Ctrl+S) flushes them and must never
+write a `.bib` file ("Save as" remains the explicit `.bib` snapshot). Closing needs no save
+prompt. System-initiated changes (background enrichment, generated citation keys, inbound
+synchronization) do not create or rewrite sidecars.
 
 Needs: impl
 

@@ -7,14 +7,20 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 
+import org.jabref.logic.exporter.HayagrivaEntryWriter;
 import org.jabref.logic.importer.ParserResult;
 import org.jabref.logic.importer.fileformat.HayagrivaImporter;
+import org.jabref.logic.importer.fileformat.HayagrivaMapping;
 import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.field.Field;
 import org.jabref.model.entry.field.FieldFactory;
 import org.jabref.model.entry.field.StandardField;
 
@@ -24,10 +30,10 @@ import org.jspecify.annotations.NullMarked;
 /// (between two `---` lines) is a regular Hayagriva document carrying the bibliographic data;
 /// the Markdown body below carries JabRef's long-form notes. The text under the `# Notes`
 /// heading is the entry's comment field, and every `## comment-<name>` section is the
-/// corresponding per-user comment field. Body content under other headings is not imported and
-/// stays file-only, so the file remains a normal, markdownlint-clean Markdown note (usable in
-/// Obsidian and plain editors); Typst users extract the frontmatter to obtain a plain Hayagriva
-/// file.
+/// corresponding per-user comment field. Body content under other headings is not imported but
+/// survives rewrites verbatim, so the file remains a normal, markdownlint-clean Markdown note
+/// (usable in Obsidian and plain editors); Typst users extract the frontmatter to obtain a
+/// plain Hayagriva file.
 ///
 /// The body always describes the frontmatter's first entry; JabRef-authored Markdown sidecars
 /// contain exactly one entry.
@@ -36,16 +42,23 @@ public class MarkdownSidecar {
 
     public static final String MARKDOWN_EXTENSION = "md";
     static final String FRONTMATTER_DELIMITER = "---";
-
-    /// Field name (and name prefix) of JabRef's comment fields, see
-    /// [org.jabref.model.entry.field.UserSpecificCommentField].
-    private static final String COMMENT_FIELD_PREFIX = "comment-";
+    static final String NOTES_HEADING = "# Notes";
     private static final String SECTION_HEADING_PREFIX = "## ";
 
     private final HayagrivaImporter importer = new HayagrivaImporter();
+    private final HayagrivaEntryWriter entryWriter = new HayagrivaEntryWriter();
 
     /// The split of a sidecar's raw text into its Hayagriva frontmatter and its notes body.
     record Document(String frontmatter, String body) {
+    }
+
+    /// A `##` section of the notes body, with its content stripped of surrounding blank lines.
+    private record Section(String heading, String content) {
+    }
+
+    /// The parsed notes body: the intro under the (dropped) `# Notes` document heading, and the
+    /// `##` sections in file order.
+    private record Body(String intro, List<Section> sections) {
     }
 
     public static boolean hasMarkdownExtension(Path file) {
@@ -95,6 +108,29 @@ public class MarkdownSidecar {
         return result;
     }
 
+    /// Merges the given entries into a Markdown sidecar document (read-modify-write): the
+    /// frontmatter through [HayagrivaEntryWriter#mergeIntoDocument] — with the comment fields
+    /// stripped, they live in the body — and the body by regenerating the intro and the
+    /// `## comment-<name>` sections from the first entry while keeping foreign sections
+    /// verbatim. The document heading is normalized to `# Notes`.
+    ///
+    /// @param existingDocument the sidecar's current text, empty for a new file
+    public String merge(String existingDocument, List<HayagrivaEntryWriter.KeyedEntry> entries) throws IOException {
+        Optional<Document> existing = split(existingDocument);
+        // Only the first entry's comments live in the body; further entries keep theirs as keys
+        List<HayagrivaEntryWriter.KeyedEntry> frontmatterEntries = new ArrayList<>(entries);
+        if (!entries.isEmpty()) {
+            HayagrivaEntryWriter.KeyedEntry first = entries.getFirst();
+            frontmatterEntries.set(0, new HayagrivaEntryWriter.KeyedEntry(first.previousKey(), first.targetKey(), withoutCommentFields(first.entry())));
+        }
+        String frontmatter = entryWriter.mergeIntoDocument(existing.map(Document::frontmatter).orElse(""), frontmatterEntries);
+        String body = entries.isEmpty() ? "" : renderBody(existing.map(Document::body).orElse(""), entries.getFirst().entry());
+
+        String frontmatterBlock = frontmatter.isBlank() ? "" : frontmatter.stripTrailing() + "\n";
+        return FRONTMATTER_DELIMITER + "\n" + frontmatterBlock + FRONTMATTER_DELIMITER + "\n"
+                + (body.isEmpty() ? "" : "\n" + body);
+    }
+
     /// Splits the raw text at the frontmatter delimiters: the first line must be `---`, the
     /// frontmatter runs until the next `---` line, the body is everything below.
     static Optional<Document> split(String content) {
@@ -115,32 +151,96 @@ public class MarkdownSidecar {
     /// The intro under the (optional) `# Notes` document heading becomes the comment field;
     /// every `## comment-<name>` section becomes the equally named per-user comment field.
     static void applyBody(BibEntry entry, String body) {
-        String currentSection = "";
+        Body parsed = parseBody(body);
+        if (!parsed.intro().isEmpty()) {
+            entry.setField(StandardField.COMMENT, parsed.intro());
+        }
+        for (Section section : parsed.sections()) {
+            if (isCommentSection(section.heading()) && !section.content().isEmpty()) {
+                entry.setField(FieldFactory.parseField(section.heading()), section.content());
+            }
+        }
+    }
+
+    private static Body parseBody(String body) {
+        String currentHeading = "";
         boolean titleSkipped = false;
         StringBuilder currentText = new StringBuilder();
+        String intro = "";
+        List<Section> sections = new ArrayList<>();
         for (String line : body.lines().toList()) {
             if (line.startsWith(SECTION_HEADING_PREFIX)) {
-                applySection(entry, currentSection, currentText.toString());
-                currentSection = line.substring(SECTION_HEADING_PREFIX.length()).strip();
+                if (currentHeading.isEmpty()) {
+                    intro = currentText.toString().strip();
+                } else {
+                    sections.add(new Section(currentHeading, currentText.toString().strip()));
+                }
+                currentHeading = line.substring(SECTION_HEADING_PREFIX.length()).strip();
                 currentText.setLength(0);
-            } else if (!titleSkipped && currentSection.isEmpty() && currentText.toString().isBlank() && line.startsWith("# ")) {
+            } else if (!titleSkipped && currentHeading.isEmpty() && currentText.toString().isBlank() && line.startsWith("# ")) {
                 titleSkipped = true;
             } else {
                 currentText.append(line).append('\n');
             }
         }
-        applySection(entry, currentSection, currentText.toString());
+        if (currentHeading.isEmpty()) {
+            intro = currentText.toString().strip();
+        } else {
+            sections.add(new Section(currentHeading, currentText.toString().strip()));
+        }
+        return new Body(intro, sections);
     }
 
-    private static void applySection(BibEntry entry, String section, String text) {
-        String value = text.strip();
-        if (value.isEmpty()) {
-            return;
+    /// Regenerates the notes body: the entry's comment as the intro, existing comment sections
+    /// updated in place (dropped when cleared), foreign sections kept verbatim in their
+    /// position, and comment fields without an existing section appended in name order.
+    private static String renderBody(String existingBody, BibEntry entry) {
+        Body existing = parseBody(existingBody);
+        List<String> blocks = new ArrayList<>();
+        commentValue(entry, StandardField.COMMENT).ifPresent(blocks::add);
+
+        Set<String> existingHeadings = new HashSet<>();
+        for (Section section : existing.sections()) {
+            if (isCommentSection(section.heading())) {
+                existingHeadings.add(section.heading());
+                commentValue(entry, FieldFactory.parseField(section.heading()))
+                        .ifPresent(value -> blocks.add(SECTION_HEADING_PREFIX + section.heading() + "\n\n" + value));
+            } else if (!section.content().isEmpty()) {
+                blocks.add(SECTION_HEADING_PREFIX + section.heading() + "\n\n" + section.content());
+            } else {
+                blocks.add(SECTION_HEADING_PREFIX + section.heading());
+            }
         }
-        if (section.isEmpty()) {
-            entry.setField(StandardField.COMMENT, value);
-        } else if (section.startsWith(COMMENT_FIELD_PREFIX)) {
-            entry.setField(FieldFactory.parseField(section), value);
+
+        entry.getFields().stream()
+             .map(Field::getName)
+             .filter(MarkdownSidecar::isCommentSection)
+             .filter(name -> !existingHeadings.contains(name))
+             .sorted()
+             .forEach(name -> commentValue(entry, FieldFactory.parseField(name))
+                     .ifPresent(value -> blocks.add(SECTION_HEADING_PREFIX + name + "\n\n" + value)));
+
+        if (blocks.isEmpty()) {
+            return "";
         }
+        return NOTES_HEADING + "\n\n" + String.join("\n\n", blocks) + "\n";
+    }
+
+    private static Optional<String> commentValue(BibEntry entry, Field field) {
+        return entry.getField(field).map(String::strip).filter(value -> !value.isEmpty());
+    }
+
+    private static boolean isCommentSection(String heading) {
+        return heading.startsWith(HayagrivaMapping.USER_COMMENT_PREFIX);
+    }
+
+    private static BibEntry withoutCommentFields(BibEntry entry) {
+        BibEntry copy = new BibEntry(entry);
+        copy.clearField(StandardField.COMMENT);
+        copy.getFields().stream()
+            .filter(field -> field.getName().startsWith(HayagrivaMapping.USER_COMMENT_PREFIX))
+            .toList()
+            .forEach(copy::clearField);
+        return copy;
     }
 }
