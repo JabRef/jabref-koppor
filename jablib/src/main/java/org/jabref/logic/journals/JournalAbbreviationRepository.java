@@ -33,9 +33,11 @@ public class JournalAbbreviationRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(JournalAbbreviationRepository.class);
     private final StringSimilarity similarity = new StringSimilarity();
     private volatile RepositoryData data;
-    private long loadGeneration;
+    private final AtomicLong loadGeneration = new AtomicLong();
+    // CSV readers must not observe files partway through a rewrite.
+    private final Object journalFileLock = new Object();
+    private Optional<BackgroundTask<Optional<JournalAbbreviationRepository>>> pendingReload = Optional.empty();
     private final AtomicLong saveGeneration = new AtomicLong();
-    private final Object saveLock = new Object();
     private final Map<Path, List<Abbreviation>> pendingJournalWrites = new HashMap<>();
     private final Set<Abbreviation> addedCustomAbbreviations = new TreeSet<>();
 
@@ -98,18 +100,36 @@ public class JournalAbbreviationRepository {
 
     /// Loads a snapshot of saved preferences and publishes only the latest requested load.
     public synchronized void reload(AbbreviationPreferences preferences, TaskExecutor executor) {
-        long generation = ++loadGeneration;
+        // [impl->req~journals.cancel-obsolete-reloads~1]
+        long generation = loadGeneration.incrementAndGet();
+        pendingReload.ifPresent(BackgroundTask::cancel);
         AbbreviationPreferences snapshot = new AbbreviationPreferences(
                 List.copyOf(preferences.getExternalJournalLists()), preferences.shouldUseFJournalField(), preferences.shouldEnableMscKeywordDescriptions());
         snapshot.setUseBuiltInJournalList(preferences.shouldUseBuiltInJournalList());
         snapshot.setDisabledExternalJournalLists(List.copyOf(preferences.getDisabledExternalJournalLists()));
-        BackgroundTask.wrap(() -> JournalAbbreviationLoader.loadRepository(snapshot))
-                      .onSuccess(repository -> finishReload(generation, repository))
-                      .onFailure(exception -> {
-                          LOGGER.error("Failed to reload journal abbreviations", exception);
-                          handleLoadFailure(generation, snapshot);
-                      })
-                      .executeWith(executor);
+        // [impl->req~journals.coordinate-csv-access~1]
+        var task = BackgroundTask
+                .wrap(() -> {
+                    // A canceled library read may need to finish before another full repository can be loaded.
+                    synchronized (journalFileLock) {
+                        if (generation != loadGeneration.get()) {
+                            return Optional.<JournalAbbreviationRepository>empty();
+                        }
+                        return Optional.of(JournalAbbreviationLoader.loadRepository(snapshot));
+                    }
+                })
+                .onSuccess(repository -> repository.ifPresent(result -> finishReload(generation, result)))
+                .onFailure(exception -> {
+                    synchronized (this) {
+                        if (generation == loadGeneration.get()) {
+                            pendingReload = Optional.empty();
+                            LOGGER.error("Failed to reload journal abbreviations", exception);
+                            handleLoadFailure(generation, snapshot);
+                        }
+                    }
+                });
+        pendingReload = Optional.of(task);
+        task.executeWith(executor);
     }
 
     public void saveJournalLists(Map<Path, List<Abbreviation>> files, AbbreviationPreferences preferences,
@@ -124,7 +144,7 @@ public class JournalAbbreviationRepository {
             pendingSnapshot = Map.copyOf(pendingJournalWrites);
         }
         BackgroundTask.wrap(() -> {
-                          synchronized (saveLock) {
+                          synchronized (journalFileLock) {
                               if (generation == saveGeneration.get()) {
                                   Map<Path, List<Abbreviation>> failed = new HashMap<>();
                                   for (Map.Entry<Path, List<Abbreviation>> file : pendingSnapshot.entrySet()) {
@@ -166,7 +186,8 @@ public class JournalAbbreviationRepository {
     }
 
     protected synchronized void finishReload(long generation, JournalAbbreviationRepository repository) {
-        if (generation == loadGeneration) {
+        if (generation == loadGeneration.get()) {
+            pendingReload = Optional.empty();
             installRepository(repository);
         }
     }
