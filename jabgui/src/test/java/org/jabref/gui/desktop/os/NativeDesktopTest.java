@@ -9,11 +9,15 @@ import java.util.EnumSet;
 import javafx.application.HostServices;
 import javafx.collections.FXCollections;
 
+import org.jabref.gui.DialogService;
+import org.jabref.gui.Notifications;
+import org.jabref.gui.clipboard.ClipBoardManager;
 import org.jabref.gui.externalfiletype.CustomExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.frame.ExternalApplicationsPreferences;
 import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.GuiPreferences;
+import org.jabref.gui.testutils.JavaFxTest;
 
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,8 +28,10 @@ import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -37,7 +43,7 @@ import static org.mockito.Mockito.when;
 /// online links through `Path.of`, which collapses `https://` and truncates query strings).
 @NullMarked
 @DisabledOnOs(OS.WINDOWS)
-class NativeDesktopTest {
+class NativeDesktopTest extends JavaFxTest {
 
     private static final String URL_WITH_QUERY = "https://journals.plos.org/plosmedicine/article/file?id=10.1371/journal.pmed.1004085&type=printable";
 
@@ -68,7 +74,7 @@ class NativeDesktopTest {
     void openBrowserPassesFullUrlToCustomBrowser() throws IOException, InterruptedException {
         ExternalFileType htmlType = new CustomExternalFileType("URL", "html", "text/html", recorder.toString(), "www", IconTheme.JabRefIcons.WWW);
 
-        new Windows(mock(HostServices.class), preferencesWith(htmlType)).openBrowser(URL_WITH_QUERY);
+        new Windows(mock(HostServices.class), preferencesWith(htmlType), mock(ClipBoardManager.class)).openBrowser(URL_WITH_QUERY);
 
         assertEquals(URL_WITH_QUERY, recordedArgument());
     }
@@ -77,7 +83,7 @@ class NativeDesktopTest {
     void windowsOpenFileWithApplicationKeepsUrlIntact() throws IOException, InterruptedException {
         // The Windows implementation is executable on POSIX, which is enough to pin down that the
         // URL is passed through verbatim instead of being run through Path.of
-        new Windows(mock(HostServices.class), preferencesWith()).openFileWithApplication(URL_WITH_QUERY, recorder.toString());
+        new Windows(mock(HostServices.class), preferencesWith(), mock(ClipBoardManager.class)).openFileWithApplication(URL_WITH_QUERY, recorder.toString());
 
         assertEquals(URL_WITH_QUERY, recordedArgument());
     }
@@ -86,14 +92,14 @@ class NativeDesktopTest {
     void openBrowserPassesFullUrlToShowDocument() throws IOException {
         HostServices hostServices = mock(HostServices.class);
 
-        NativeDesktop.create(hostServices, preferencesWith()).openBrowser(URL_WITH_QUERY);
+        NativeDesktop.create(hostServices, preferencesWith(), mock(ClipBoardManager.class)).openBrowser(URL_WITH_QUERY);
 
         verify(hostServices, timeout(5000)).showDocument(URL_WITH_QUERY);
     }
 
     @Test
     void openBrowserUsesSystemHandlerForUnparseableUrl() throws IOException {
-        NativeDesktop desktop = spy(NativeDesktop.create(mock(HostServices.class), preferencesWith()));
+        NativeDesktop desktop = spy(NativeDesktop.create(mock(HostServices.class), preferencesWith(), mock(ClipBoardManager.class)));
         doNothing().when(desktop).openUrlWithSystemHandler(anyString());
         String urlWithSpace = "https://example.org/some path?x=1&y=2";
 
@@ -105,13 +111,35 @@ class NativeDesktopTest {
     @Test
     void openBrowserUsesSystemHandlerForMailto() throws IOException {
         HostServices hostServices = mock(HostServices.class);
-        NativeDesktop desktop = spy(NativeDesktop.create(hostServices, preferencesWith()));
+        NativeDesktop desktop = spy(NativeDesktop.create(hostServices, preferencesWith(), mock(ClipBoardManager.class)));
         doNothing().when(desktop).openUrlWithSystemHandler(anyString());
 
         desktop.openBrowser("mailto:someone@example.org");
 
         verify(desktop).openUrlWithSystemHandler("mailto:someone@example.org");
         verifyNoInteractions(hostServices);
+    }
+
+    @Test
+    void openBrowserShowPopupNotifiesWhenTheLaunchCannotBeConfirmed() {
+        DialogService dialogService = mock(DialogService.class);
+        NativeDesktop desktop = NativeDesktop.create(mock(HostServices.class), preferencesWith(), mock(ClipBoardManager.class));
+
+        // The notification closes itself through a JavaFX animation
+        interact(() -> desktop.openBrowserShowPopup(URL_WITH_QUERY, dialogService));
+
+        verify(dialogService).notify(isA(Notifications.UiNotification.class));
+    }
+
+    @Test
+    void openBrowserShowPopupDoesNotNotifyForTheSystemHandler() throws IOException {
+        DialogService dialogService = mock(DialogService.class);
+        NativeDesktop desktop = spy(NativeDesktop.create(mock(HostServices.class), preferencesWith(), mock(ClipBoardManager.class)));
+        doNothing().when(desktop).openUrlWithSystemHandler(anyString());
+
+        desktop.openBrowserShowPopup("mailto:someone@example.org", dialogService);
+
+        verify(dialogService, never()).notify(isA(Notifications.UiNotification.class));
     }
 
     private static GuiPreferences preferencesWith(ExternalFileType... externalFileTypes) {
