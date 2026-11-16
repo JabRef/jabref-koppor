@@ -68,7 +68,6 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - The JabRef language server now shows entry details on hover and reads `bibliography:` from Markdown front matter. [#17302](https://github.com/JabRef/jabref/pull/17302)
 - We added entry details on hover to the JabRef language server, which now also reads `bibliography:` from Markdown front matter. [#17302](https://github.com/JabRef/jabref/pull/17302)
 - We added restoring of the library tab and entry that were selected when JabRef was closed. [#16911](https://github.com/JabRef/jabref/pull/16911)
-- We added an option to disable the built-in journal abbreviation list while keeping custom lists available. [#12468](https://github.com/JabRef/jabref/issues/12468)
 - We added checkboxes to enable or disable individual journal abbreviation lists without removing them. [#12468](https://github.com/JabRef/jabref/issues/12468)
 
 ### Changed
@@ -178,6 +177,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed line navigation and deletion shortcuts in multiline entry fields and the source editor. [#17256](https://github.com/JabRef/jabref/issues/17256)
 - We fixed an issue where the "Get fulltext" button showed no progress during "Search full text documents online". [#17224](https://github.com/JabRef/jabref/pull/17224)
 - We fixed an issue where searching with a full DOI link returned no results. [#17348](https://github.com/JabRef/jabref/issues/17348)
+- We fixed an issue where the side panels were not reachable in small windows. [#17470](https://github.com/JabRef/jabref/issues/17470)
 - We fixed an issue where the consistency check reported missing linked files as an inconsistency. [#17309](https://github.com/JabRef/jabref/issues/17309)
 - We fixed an issue where disabling linked-file full-text indexing did not stop ongoing indexing. [#17577](https://github.com/JabRef/jabref/issues/17577)
 - We reduced the flickering of the entry editor when switching between entries with groups or keywords. [#17229](https://github.com/JabRef/jabref/issues/17229)
@@ -266,6 +266,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where back navigation selected a deleted entry instead of skipping it. [#17353](https://github.com/JabRef/jabref/issues/17353)
 - We fixed an issue where JabRef asked to store a library's custom entry types at every start. [#9930](https://github.com/JabRef/jabref/issues/9930)
 - We fixed an issue where group selections were lost when changing library tabs. [#1104](https://github.com/JabRef/jabref/issues/1104)
+- We fixed obsolete group assignments remaining after changing an explicit group's grouping method. [#8824](https://github.com/JabRef/jabref/issues/8824)
 - We fixed an issue where the AI chat tab still said "Unable to chat" after attaching a file. [#17157](https://github.com/JabRef/jabref/pull/17157)
 - We fixed an issue where importing a PDF could set the exporter's account name as author. [#16247](https://github.com/JabRef/jabref/pull/16247)
 - We fixed an issue where importing a PDF could set an implausible year, such as a postal code. [#16247](https://github.com/JabRef/jabref/pull/16247)
@@ -286,6 +287,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed line navigation and deletion shortcuts in multiline entry fields and the source editor. [#17256](https://github.com/JabRef/jabref/issues/17256)
 - We fixed an issue where the "Get fulltext" button showed no progress during "Search full text documents online". [#17224](https://github.com/JabRef/jabref/pull/17224)
 - We fixed an issue where searching with a full DOI link returned no results. [#17348](https://github.com/JabRef/jabref/issues/17348)
+- We fixed an issue where the side panels were not reachable in small windows. [#17470](https://github.com/JabRef/jabref/issues/17470)
 - We fixed an issue where the consistency check reported missing linked files as an inconsistency. [#17309](https://github.com/JabRef/jabref/issues/17309)
 - We fixed an issue where disabling linked-file full-text indexing did not stop ongoing indexing. [#17577](https://github.com/JabRef/jabref/issues/17577)
 - We reduced the flickering of the entry editor when switching between entries with groups or keywords. [#17229](https://github.com/JabRef/jabref/issues/17229)
