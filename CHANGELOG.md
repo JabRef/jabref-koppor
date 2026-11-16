@@ -11,6 +11,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Added
 
+- We added a new export format "Simple HTML (Velocity)" (`simplehtml-velocity`), the first export based on the [Apache Velocity](https://velocity.apache.org/) template engine, which will gradually replace the `.layout`-based export format. [#12418](https://github.com/JabRef/jabref/issues/12418)
 - We added an option to enable AI provider debugging in expert settings for testing AI features without external API calls. [#17607](https://github.com/JabRef/jabref/pull/17607)
 - We added ISBN extraction from bibliographic pages in PDF books. [#12874](https://github.com/JabRef/jabref/issues/12874)
 - We added a dark appearance variant of the macOS application icon. [#17290](https://github.com/JabRef/jabref/issues/17290)
