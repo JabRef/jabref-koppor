@@ -156,7 +156,7 @@ Needs: impl
 Pressing the "Close dialog" key binding in a dialog closes it ([#8888](https://github.com/JabRef/jabref/issues/8888), [#15133](https://github.com/JabRef/jabref/issues/15133)).
 Its default is <kbd>Esc</kbd>; users can change it in the key binding preferences.
 Heavy-weight dialogs whose content the user builds up over time are exempt, so that a stray key press does not throw that state away.
-Currently, this is only the PDF viewer ("Document viewer").
+Currently, this is only the PDF viewer ("Document viewer") and the Citation Entry Review.
 
 Needs: impl, utest
 
@@ -338,5 +338,16 @@ Needs: impl, utest
 The Help menu offers a dialog listing the currently running background tasks, so they can be inspected and cancelled without quitting JabRef.
 
 Needs: impl
+
+## macOS text inputs must provide native Control-key editing shortcuts by default
+`req~macos.text-editing-shortcuts~1`
+
+On macOS, text fields, text areas, and the BibTeX source editor must offer the standard macOS text-editing shortcuts as default key bindings: Control+A and Control+E (start and end of line), Control+F and Control+B (forward and backward one character), Control+P and Control+N (up and down one line), Control+O (insert a line break after the caret without moving the caret), Control+L (center the caret line in multi-line entry fields), and Control+T (transpose the characters around the caret).
+The default key bindings on other platforms remain unchanged.
+On macOS, the "macOS" key binding preset restores these shortcuts.
+Existing macOS settings receive these defaults for editor key bindings that are still unassigned, unless another action already uses the key combination.
+See <https://github.com/JabRef/jabref/issues/16529>.
+
+Needs: impl, utest
 
 <!-- markdownlint-disable-file MD022 -->
