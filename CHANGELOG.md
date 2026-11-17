@@ -88,6 +88,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We changed "OK" to "Remove" button in Remove subgroups, Remove field name and Remove keyword. [#12706](https://github.com/JabRef/jabref/issues/12706)
 - We changed the document viewer to stay open when <kbd>Escape</kbd> is pressed. [#17175](https://github.com/JabRef/jabref/pull/17175)
 - We shortened read-status and priority menu labels and made read and low-priority icons easier to distinguish. [#17691](https://github.com/JabRef/jabref/pull/17691)
+- We hide the "Move deleted files to trash" preference on platforms without a trash. [JabRef/jabref-koppor#764](https://github.com/JabRef/jabref-koppor/issues/764)
 - Automatic file linking no longer links the Markdown sidecars of a directory library (Markdown files with a Hayagriva frontmatter); other Markdown files are still linked. [#741](https://github.com/JabRef/jabref-koppor/pull/741)
 - We changed the Hayagriva YAML export to keep data JabRef cannot edit (short titles, person aliases, additional identifiers) when re-exporting an imported file, to write comments, and to derive `date` from the BibTeX year/month fields. [#736](https://github.com/JabRef/jabref-koppor/pull/736)
 - We changed the opening of libraries from older JabRef versions to ask which conversions to perform and to remember the choice. [#16941](https://github.com/JabRef/jabref/pull/16941)
@@ -95,13 +96,10 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We renamed the preference "Create backup" to "Create backups", because JabRef keeps multiple backup versions. [#780](https://github.com/JabRef/jabref-koppor/pull/780)
 - We changed the main table to keep the entry shown in the entry editor visible when enlarging the entry editor. [#17167](https://github.com/JabRef/jabref/pull/17167)
 - We added synchronizing a library with its file, per library or as a global default (off by default). [#8431](https://github.com/JabRef/jabref/issues/8431)
-- We hide the "Move deleted files to trash" preference on platforms without a trash. [JabRef/jabref-koppor#764](https://github.com/JabRef/jabref-koppor/issues/764)
-- We changed the opening of libraries from older JabRef versions to ask which conversions to perform and to remember the choice. [#16941](https://github.com/JabRef/jabref/pull/16941)
-- We hide the "Move deleted files to trash" preference on platforms without a trash. [JabRef/jabref-koppor#764](https://github.com/JabRef/jabref-koppor/issues/764)
-- We changed the main table to keep the entry shown in the entry editor visible when enlarging the entry editor. [#17167](https://github.com/JabRef/jabref/pull/17167)
 
 ### Fixed
 
+- We fixed an issue where filled and empty rating stars were hard to distinguish in dark and colored themes. [#17819](https://github.com/JabRef/jabref/issues/17819)
 - We fixed the `IfPlural` export formatter treating organizations containing “and” as multiple editors. [#17780](https://github.com/JabRef/jabref/issues/17780)
 - We fixed an issue where the DocBook export wrote invalid XML for emoji and some math symbols. [#17747](https://github.com/JabRef/jabref/issues/17747)
 - We fixed an issue where clicking "Generate" in the AUX file import dialog before parsing caused an exception.
@@ -194,6 +192,10 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed missing PDF links and DOI persistence during full-text downloads. [#12947](https://github.com/JabRef/jabref/issues/12947)
 - We fixed dollar signs and backslashes being mishandled in HTML paragraph formatting. [#17778](https://github.com/JabRef/jabref/issues/17778)
 - We fixed an issue where searching for unlinked files failed when `.gitignore` contained a literal opening brace. [#17546](https://github.com/JabRef/jabref/issues/17546)
+- We fixed an issue on Windows where linked files with very long paths opened the file explorer, not the file. [#17752](https://github.com/JabRef/jabref/pull/17752)
+- We fixed an issue where opening the backup folder from the backup dialog failed when a custom file browser was set. [JabRef/jabref-koppor#764](https://github.com/JabRef/jabref-koppor/issues/764)
+- We fixed an issue where confirming the main file directory quick setting without a path saved an invalid directory. [#17752](https://github.com/JabRef/jabref/pull/17752)
+- We fixed an issue where exporting linked files with a custom layout failed when no file directory was set. [#17752](https://github.com/JabRef/jabref/pull/17752)
 - We fixed an issue where full text documents for several selected entries were attached only after all searches finished. [koppor#772](https://github.com/JabRef/jabref-koppor/pull/772)
 - We fixed an issue on Windows where linked files with very long paths opened the file explorer, not the file. [TODO](TODO)
 - We fixed an issue where accepting an external change to an entry lost its table position, selection, and open entry editor. [#16813](https://github.com/JabRef/jabref/pull/16813)
@@ -213,6 +215,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- We fixed an issue where filled and empty rating stars were hard to distinguish in dark and colored themes. [#17819](https://github.com/JabRef/jabref/issues/17819)
 - We fixed the `IfPlural` export formatter treating organizations containing “and” as multiple editors. [#17780](https://github.com/JabRef/jabref/issues/17780)
 - We fixed an issue where the DocBook export wrote invalid XML for emoji and some math symbols. [#17747](https://github.com/JabRef/jabref/issues/17747)
 - We fixed an issue where clicking "Generate" in the AUX file import dialog before parsing caused an exception.
@@ -225,6 +228,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed JabKit to preserve existing citation keys when generating keys with the avoid-overwrite setting. [#17458](https://github.com/JabRef/jabref/issues/17458)
 - We fixed an issue where JabRef showed an "Executor has been shut down" error on Windows after resuming from suspend. [#17144](https://github.com/JabRef/jabref/pull/17144)
 - We fixed the BibTeX source dialog background in the Citation Relations tab for dark themes. [#13599](https://github.com/JabRef/jabref/issues/13599)
+- We fixed incorrect BibTeX syntax highlighting after emoji in the source. [#17839](https://github.com/JabRef/jabref/pull/17839)
 - We fixed BibTeX source pasted into rich-text applications losing its indentation, line breaks, and monospace font. [#17392](https://github.com/JabRef/jabref/issues/17392)
 - We fixed unreadable linked-file paths and indistinguishable selection backgrounds in the entry editor when using dark mode. [#17364](https://github.com/JabRef/jabref/issues/17364)
 - We fixed the linked file tooltip showing the old file name after renaming or moving the file. [#9277](https://github.com/JabRef/jabref/issues/9277)
@@ -304,14 +308,13 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed missing PDF links and DOI persistence during full-text downloads. [#12947](https://github.com/JabRef/jabref/issues/12947)
 - We fixed dollar signs and backslashes being mishandled in HTML paragraph formatting. [#17778](https://github.com/JabRef/jabref/issues/17778)
 - We fixed an issue where searching for unlinked files failed when `.gitignore` contained a literal opening brace. [#17546](https://github.com/JabRef/jabref/issues/17546)
-- We fixed an issue where backups skipped typed edits and changes merged from a backup were lost on closing. [#16890](https://github.com/JabRef/jabref/pull/16890)
-- We fixed a `.gitignore` outside a git repository hiding all results in "Search for unlinked local files". [#17141](https://github.com/JabRef/jabref/pull/17141)
-- We fixed an issue where accepting an external change to an entry lost its table position, selection, and open entry editor. [#16813](https://github.com/JabRef/jabref/pull/16813)
-- We fixed an issue where libraries opened or saved shortly before JabRef was killed were missing from recent libraries. [#16911](https://github.com/JabRef/jabref/pull/16911)
 - We fixed an issue on Windows where linked files with very long paths opened the file explorer, not the file. [#17752](https://github.com/JabRef/jabref/pull/17752)
 - We fixed an issue where opening the backup folder from the backup dialog failed when a custom file browser was set. [JabRef/jabref-koppor#764](https://github.com/JabRef/jabref-koppor/issues/764)
 - We fixed an issue where confirming the main file directory quick setting without a path saved an invalid directory. [#17752](https://github.com/JabRef/jabref/pull/17752)
 - We fixed an issue where exporting linked files with a custom layout failed when no file directory was set. [#17752](https://github.com/JabRef/jabref/pull/17752)
+- We fixed an issue where backups skipped typed edits and changes merged from a backup were lost on closing. [#16890](https://github.com/JabRef/jabref/pull/16890)
+- We fixed a `.gitignore` outside a git repository hiding all results in "Search for unlinked local files". [#17141](https://github.com/JabRef/jabref/pull/17141)
+- We fixed an issue where accepting an external change to an entry lost its table position, selection, and open entry editor. [#16813](https://github.com/JabRef/jabref/pull/16813)
 - We fixed an issue where libraries opened or saved shortly before JabRef was killed were missing from recent libraries. [#16911](https://github.com/JabRef/jabref/pull/16911)
 
 ### Removed
