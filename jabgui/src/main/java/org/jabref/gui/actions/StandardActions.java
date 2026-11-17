@@ -250,6 +250,7 @@ public enum StandardActions implements Action {
     AI_ASK_QUESTIONS(Localization.lang("Ask AI questions...")),
 
     CITE_DRIVE(Localization.lang("CiteDrive")),
+    CITE_DRIVE_IMPORT(Localization.lang("Import from CiteDrive")),
     CITE_DRIVE_LOGIN(Localization.lang("Login...")), // "Authorize" would be the more technical term here.
     CITE_DRIVE_PUSH(Localization.lang("Push to CiteDrive"));
 
