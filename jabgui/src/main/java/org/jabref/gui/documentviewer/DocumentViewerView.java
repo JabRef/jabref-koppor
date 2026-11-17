@@ -20,6 +20,7 @@ import org.jabref.injection.Injector;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.entry.LinkedFile;
+import org.jabref.model.pdf.AnnotationArea;
 
 import jakarta.inject.Inject;
 
@@ -150,6 +151,11 @@ public class DocumentViewerView extends BaseDialog<Void> {
 
     public void gotoPage(int pageNumber) {
         viewModel.showPage(pageNumber);
+    }
+
+    /// Shows `pageNumber` (1-based) with `area` in the middle of the viewport.
+    public void gotoArea(int pageNumber, AnnotationArea area) {
+        viewer.centerOn(Math.max(0, pageNumber - 1), area);
     }
 
     public void highlightText(String text) {

@@ -28,7 +28,7 @@ extra["jbangVersion"] = jbang
 
 dependencies {
     api(platform("ai.djl:bom:0.40.0"))
-    api(platform("com.konghq:unirest-java-bom:4.11.4"))
+    api(platform("com.konghq:unirest-java-bom:4.11.8"))
     api(platform("com.squareup.okhttp3:okhttp-bom:5.5.1"))
     api(platform("dev.langchain4j:langchain4j-bom:1.23.0"))
     api(enforcedPlatform("io.zonky.test.postgres:embedded-postgres-binaries-bom:18.6.0"))
@@ -55,7 +55,7 @@ dependencies.constraints {
     api("cc.jilt:jilt:1.9.2")
 
     api("com.dlsc.fxmlkit:fxmlkit:1.5.1")
-    api("com.dlsc.gemsfx:gemsfx:4.9.0")
+    api("com.dlsc.gemsfx:gemsfx:4.13.0")
     api("com.dlsc.unitfx:unitfx:1.0.10")
     api("com.dlsc.pdfviewfx:pdfviewfx:3.6.1")
     api("com.ibm.icu:icu4j:72.0.1!!")
@@ -116,7 +116,7 @@ dependencies.constraints {
     api("org.antlr:antlr4-runtime:4.13.2")
     api("org.antlr:antlr4:4.13.2")
     api("org.apache.commons:commons-csv:1.14.1")
-    api("org.apache.commons:commons-lang3:3.21.0")
+    api("org.apache.commons:commons-lang3:3.22.0")
     api("org.apache.commons:commons-text:1.15.0")
     api("org.apache.httpcomponents.core5:httpcore5:5.4.4")
     api("org.apache.httpcomponents.client5:httpclient5:5.6.5")
@@ -141,7 +141,7 @@ dependencies.constraints {
     api("org.graalvm.sdk:nativeimage:25.5.5.0.3")
     api("org.hamcrest:hamcrest:3.0")
     api("org.hibernate.validator:hibernate-validator:9.1.6.Final")
-    api("org.hisp.dhis:json-tree:1.13.0")
+    api("org.hisp.dhis:json-tree:1.14.0")
     api("org.jabref:easybind:2.3.0")
     api("org.jabref:html-to-node:0.3.0")
     api("org.jabref:latex-conv:0.1.0")
