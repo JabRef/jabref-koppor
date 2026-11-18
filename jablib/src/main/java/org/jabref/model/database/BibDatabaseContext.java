@@ -229,6 +229,10 @@ public class BibDatabaseContext {
     /// Depending on the file preferences, this is either the directory containing the `.bib`
     /// file or the global main file directory. Library metadata is not read.
     public Optional<Path> getFallbackFileDirectory(FilePreferences preferences) {
+        if (location == DatabaseLocation.DIRECTORY) {
+            // Sidecar links are relative to the root, whatever the global preference says
+            return getDirectoryLibraryRoot().map(Path::toAbsolutePath);
+        }
         if (preferences.shouldStoreFilesRelativeToBibFile()) {
             return getDatabaseDirectory();
         }
