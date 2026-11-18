@@ -136,6 +136,7 @@ jobs:
     outputs:
       upload-to-builds-jabref-org: ${{ steps.binary.outputs.upload-to-builds-jabref-org }}
       secretspresent: ${{ steps.binary.outputs.secretspresent }}
+      osxsigningcertpresent: ${{ steps.binary.outputs.osxsigningcertpresent }}
       tagbuild: ${{ steps.binary.outputs.tagbuild }}
       # required to avoid obsolete builds in case of labels != "dev: binaries"
       should-build: ${{ steps.binary.outputs.should-build }}
@@ -175,6 +176,7 @@ jobs:
         shell: bash
         env:
           BUILDJABREFPRIVATEKEY: ${{ secrets.buildJabRefPrivateKey }}
+          OSX_SIGNING_CERT: ${{ secrets.OSX_SIGNING_CERT }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EVENT_ACTION: ${{ github.event.action }}
           LABEL_NAME: ${{ github.event.label.name }}
@@ -262,6 +264,15 @@ jobs:
           echo "jdkVersion=${{ github.event.inputs.jdkVersion || '26' }}" >> "$GITHUB_OUTPUT"
           echo "jdkVersionFlavour=${{ github.event.inputs.jdkVersionFlavour || 'stable' }}" >> "$GITHUB_OUTPUT"
           echo "javafxVersion=${{ github.event.inputs.javafxVersion || '26-ea+22' }}" >> "$GITHUB_OUTPUT"
+
+          # Forks may have the upload key, but not the macOS signing certificate
+          if [ -z "$OSX_SIGNING_CERT" ]; then
+            echo "⊘ Secret OSX_SIGNING_CERT not present – skipping macOS signing"
+            echo "⊘ Secret OSX_SIGNING_CERT not present – skipping macOS signing" >> $GITHUB_STEP_SUMMARY
+            echo "osxsigningcertpresent=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "osxsigningcertpresent=true" >> "$GITHUB_OUTPUT"
+          fi
 
           if [ -z "$BUILDJABREFPRIVATEKEY" ]; then
             echo "⊘ Secret BUILDJABREFPRIVATEKEY not present – skipping upload"
@@ -697,14 +708,14 @@ jobs:
           jlink --version
 
       - name: Setup macOS key chain
-        if: needs.conditions.outputs.should-build == 'true' && (startsWith(matrix.os, 'macos')) && (needs.conditions.outputs.secretspresent == 'true')
+        if: needs.conditions.outputs.should-build == 'true' && (startsWith(matrix.os, 'macos')) && (needs.conditions.outputs.osxsigningcertpresent == 'true')
         uses: slidoapp/import-codesign-certs@1923310662e8682dd05b76b612b53301f431cd5d
         with:
           p12-file-base64: ${{ secrets.OSX_SIGNING_CERT }}
           p12-password: ${{ secrets.OSX_CERT_PWD }}
           keychain-password: tEmPoRaRY-PaeSWD
       - name: Setup macOS key chain for app id cert
-        if: needs.conditions.outputs.should-build == 'true' && (startsWith(matrix.os, 'macos')) && (needs.conditions.outputs.secretspresent == 'true')
+        if: needs.conditions.outputs.should-build == 'true' && (startsWith(matrix.os, 'macos')) && (needs.conditions.outputs.osxsigningcertpresent == 'true')
         uses: slidoapp/import-codesign-certs@1923310662e8682dd05b76b612b53301f431cd5d
         with:
           p12-file-base64: ${{ secrets.OSX_SIGNING_CERT_APPLICATION }}
@@ -738,7 +749,7 @@ jobs:
         env:
           VERSION: ${{ needs.pre-build.outputs.AssemblySemVer }}
           VERSION_INFO: ${{ needs.pre-build.outputs.InformationalVersion }}
-          OSXCERT: ${{ needs.conditions.outputs.secretspresent }}
+          OSXCERT: ${{ needs.conditions.outputs.osxsigningcertpresent }}
 
       - name: Verify Linux Postgres binary packaging
         if: needs.conditions.outputs.should-build == 'true' && startsWith(matrix.os, 'ubuntu')
@@ -839,7 +850,7 @@ jobs:
           suffix: ${{ matrix.suffix }}
           uploadAsArtifact: "${{ github.event.inputs.upload-as-artifact }}"
           subdir: "/tools"
-          secretsPresent: "${{ needs.conditions.outputs.secretspresent }}"
+          secretsPresent: "${{ needs.conditions.outputs.osxsigningcertpresent }}"
       - uses: ./.github/actions/package
         if: needs.conditions.outputs.should-build == 'true'
         name: Package JabRef Language Server
@@ -860,7 +871,7 @@ jobs:
           suffix: ${{ matrix.suffix }}
           uploadAsArtifact: "${{ github.event.inputs.upload-as-artifact }}"
           subdir: "/tools"
-          secretsPresent: "${{ needs.conditions.outputs.secretspresent }}"
+          secretsPresent: "${{ needs.conditions.outputs.osxsigningcertpresent }}"
       - uses: ./.github/actions/package
         if: needs.conditions.outputs.should-build == 'true'
         name: Package JabRef HTTP Server
@@ -880,7 +891,7 @@ jobs:
           suffix: ${{ matrix.suffix }}
           uploadAsArtifact: "${{ github.event.inputs.upload-as-artifact }}"
           subdir: "/tools"
-          secretsPresent: "${{ needs.conditions.outputs.secretspresent }}"
+          secretsPresent: "${{ needs.conditions.outputs.osxsigningcertpresent }}"
       - uses: ./.github/actions/package
         if: needs.conditions.outputs.should-build == 'true'
         name: Package JabGUI
@@ -901,7 +912,7 @@ jobs:
           suffix: ${{ matrix.suffix }}
           uploadAsArtifact: "${{ github.event.inputs.upload-as-artifact }}"
           subdir: ""
-          secretsPresent: "${{ needs.conditions.outputs.secretspresent }}"
+          secretsPresent: "${{ needs.conditions.outputs.osxsigningcertpresent }}"
 
       - name: Upload portable JabRef for Flatpak packaging
         if: >
@@ -1040,7 +1051,7 @@ jobs:
         if: needs.conditions.outputs.should-build == 'true'
 
       - name: Setup macOS key chain for app id cert
-        if: ${{ needs.conditions.outputs.should-build == 'true' && (startsWith(matrix.os, 'macos')) && (needs.conditions.outputs.secretspresent == 'true') }}
+        if: ${{ needs.conditions.outputs.should-build == 'true' && (startsWith(matrix.os, 'macos')) && (needs.conditions.outputs.osxsigningcertpresent == 'true') }}
         uses: slidoapp/import-codesign-certs@1923310662e8682dd05b76b612b53301f431cd5d
         with:
           p12-file-base64: ${{ secrets.OSX_SIGNING_CERT_APPLICATION }}
@@ -1096,7 +1107,7 @@ jobs:
           set -eo pipefail
           mv jabkit/build/native/nativeCompile jabkit/build/native/jabkit
 
-          if [[ "${{ matrix.os }}" == macos-* && "${{ needs.conditions.outputs.secretspresent }}" == "true" ]]; then
+          if [[ "${{ matrix.os }}" == macos-* && "${{ needs.conditions.outputs.osxsigningcertpresent }}" == "true" ]]; then
             codesign --force --options runtime --timestamp --sign "Developer ID Application: JabRef e.V. (6792V39SK3)" jabkit/build/native/jabkit
             codesign --verify --strict --verbose=2 jabkit/build/native/jabkit
             codesign --display --verbose=2 jabkit/build/native/jabkit 2>&1 | grep "Authority=Developer ID Application"
