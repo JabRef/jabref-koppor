@@ -20,7 +20,7 @@ class DelayTaskThrottlerTest {
     }
 
     @Test
-    void cancelPreventsScheduledTaskExecution() throws InterruptedException {
+    void cancelPreventsScheduledTaskExecution() throws Exception {
         DelayTaskThrottler throttler = new DelayTaskThrottler(200);
         AtomicInteger executionCount = new AtomicInteger();
         try {

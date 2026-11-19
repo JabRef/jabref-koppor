@@ -23,7 +23,7 @@ class JsonReaderTest {
     }
 
     @Test
-    void emptyStringResultsInEmptyObject() throws ParseException {
+    void emptyStringResultsInEmptyObject() throws Exception {
         JSONObject result = JsonReader.toJsonObject(new ByteArrayInputStream("".getBytes()));
         assertEquals("{}", result.toString());
     }
@@ -35,7 +35,7 @@ class JsonReaderTest {
     }
 
     @Test
-    void exampleJsonResultsInSameJson() throws ParseException {
+    void exampleJsonResultsInSameJson() throws Exception {
         String input = "{\"name\":\"test\"}";
         JSONObject result = JsonReader.toJsonObject(new ByteArrayInputStream(input.getBytes()));
         assertEquals(input, result.toString());

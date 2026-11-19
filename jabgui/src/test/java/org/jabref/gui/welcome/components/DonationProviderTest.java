@@ -37,19 +37,19 @@ class DonationProviderTest extends JavaFxTest {
     }
 
     @Test
-    public void notificationIsDueWhenItWasScheduledForAPastDay() {
+    void notificationIsDueWhenItWasScheduledForAPastDay() {
         LocalDate today = LocalDate.of(2026, 9, 9);
         assertEquals(0, donationProvider.calculateDaysUntilNextNotification((int) today.minusDays(30).toEpochDay(), today));
     }
 
     @Test
-    public void notificationIsDueOnTheScheduledDay() {
+    void notificationIsDueOnTheScheduledDay() {
         LocalDate today = LocalDate.of(2026, 9, 9);
         assertEquals(0, donationProvider.calculateDaysUntilNextNotification((int) today.toEpochDay(), today));
     }
 
     @Test
-    public void daysUntilNextNotificationSpanTheWholeInterval() {
+    void daysUntilNextNotificationSpanTheWholeInterval() {
         LocalDate today = LocalDate.of(2026, 9, 9);
         LocalDate inSixMonths = today.plusMonths(6);
         assertEquals(ChronoUnit.DAYS.between(today, inSixMonths),
@@ -57,7 +57,7 @@ class DonationProviderTest extends JavaFxTest {
     }
 
     @Test
-    public void firstLaunchSchedulesTheNotificationSixMonthsLater() {
+    void firstLaunchSchedulesTheNotificationSixMonthsLater() {
         interact(donationProvider::showIfNeeded);
 
         assertEquals((int) LocalDate.now().plusMonths(6).toEpochDay(), donationPreferences.getNextNotificationEpochDay());
@@ -65,7 +65,7 @@ class DonationProviderTest extends JavaFxTest {
     }
 
     @Test
-    public void dueNotificationIsShownAndScheduledSixMonthsLater() {
+    void dueNotificationIsShownAndScheduledSixMonthsLater() {
         donationPreferences.setNextNotificationEpochDay((int) LocalDate.now().minusDays(1).toEpochDay());
 
         interact(donationProvider::showIfNeeded);
@@ -75,7 +75,7 @@ class DonationProviderTest extends JavaFxTest {
     }
 
     @Test
-    public void dismissActionKeepsTheNotificationSixMonthsAway() {
+    void dismissActionKeepsTheNotificationSixMonthsAway() {
         donationPreferences.setNextNotificationEpochDay((int) LocalDate.now().minusDays(1).toEpochDay());
         interact(donationProvider::showIfNeeded);
 
@@ -84,7 +84,7 @@ class DonationProviderTest extends JavaFxTest {
     }
 
     @Test
-    public void dismissForeverActionStopsFutureNotifications() {
+    void dismissForeverActionStopsFutureNotifications() {
         donationPreferences.setNextNotificationEpochDay((int) LocalDate.now().minusDays(1).toEpochDay());
         interact(donationProvider::showIfNeeded);
 
@@ -93,7 +93,7 @@ class DonationProviderTest extends JavaFxTest {
     }
 
     @Test
-    public void noNotificationIsShownAfterDismissingForever() {
+    void noNotificationIsShownAfterDismissingForever() {
         donationPreferences.setNeverShowAgain(true);
         donationPreferences.setNextNotificationEpochDay((int) LocalDate.now().minusDays(1).toEpochDay());
 

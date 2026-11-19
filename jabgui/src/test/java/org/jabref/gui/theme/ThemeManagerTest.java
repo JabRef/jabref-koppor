@@ -1,6 +1,5 @@
 package org.jabref.gui.theme;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -68,7 +67,7 @@ class ThemeManagerTest {
     }
 
     @Test
-    void themeManagerUsesProvidedTheme() throws IOException {
+    void themeManagerUsesProvidedTheme() throws Exception {
         Path testCss = tempFolder.resolve("test.css");
         Files.writeString(testCss, TEST_CSS_CONTENT, StandardOpenOption.CREATE);
         WorkspacePreferences workspacePreferences = mock(WorkspacePreferences.class, Answers.RETURNS_DEEP_STUBS);
@@ -120,7 +119,7 @@ class ThemeManagerTest {
 
     /// An edit in the parent changes a community theme's look, so both files have to be watched.
     @Test
-    void communityThemeWatchesItsParentForLiveUpdates() throws IOException {
+    void communityThemeWatchesItsParentForLiveUpdates() throws Exception {
         WorkspacePreferences workspacePreferences = WorkspacePreferences.getDefault();
         workspacePreferences.setTheme(ThemePreset.NORD);
         FileUpdateMonitor fileUpdateMonitor = mock(FileUpdateMonitor.class);
@@ -141,7 +140,7 @@ class ThemeManagerTest {
     }
 
     @Test
-    void customThemeChangesFromBackgroundThreadAreAppliedOnJavaFxThread() throws IOException {
+    void customThemeChangesFromBackgroundThreadAreAppliedOnJavaFxThread() throws Exception {
         WorkspacePreferences workspacePreferences = WorkspacePreferences.getDefault();
         FileUpdateMonitor fileUpdateMonitor = mock(FileUpdateMonitor.class);
         AtomicBoolean listenerAddedOnJavaFxThread = new AtomicBoolean();
@@ -160,7 +159,7 @@ class ThemeManagerTest {
     }
 
     @Test
-    void customThemeAvailableEvenWhenDeleted() throws IOException {
+    void customThemeAvailableEvenWhenDeleted() throws Exception {
         Path testCss = tempFolder.resolve("test.css");
         Files.writeString(testCss, TEST_CSS_CONTENT, StandardOpenOption.CREATE);
         WorkspacePreferences workspacePreferences = mock(WorkspacePreferences.class, Answers.RETURNS_DEEP_STUBS);
@@ -179,7 +178,7 @@ class ThemeManagerTest {
     }
 
     @Test
-    void customThemeBecomesAvailableAfterFileIsCreated() throws IOException {
+    void customThemeBecomesAvailableAfterFileIsCreated() throws Exception {
         Path testCss = tempFolder.resolve("test.css");
         WorkspacePreferences workspacePreferences = mock(WorkspacePreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(workspacePreferences.getTheme()).thenReturn(ThemePreset.JABREF);
@@ -200,7 +199,7 @@ class ThemeManagerTest {
     }
 
     @Test
-    void largeCustomThemeNotHeldInMemory() throws IOException {
+    void largeCustomThemeNotHeldInMemory() throws Exception {
         // Create a temporary custom theme that is just a large comment over 48 kilobytes in size.
         Path largeCssTestFile = tempFolder.resolve("test.css");
         Files.createFile(largeCssTestFile);
@@ -237,7 +236,7 @@ class ThemeManagerTest {
     }
 
     @Test
-    void installThemeOnScene() throws IOException {
+    void installThemeOnScene() throws Exception {
         Scene scene = mock(Scene.class);
         when(scene.getStylesheets()).thenReturn(FXCollections.observableArrayList());
         when(scene.getRoot()).thenReturn(mock(Parent.class));
@@ -260,7 +259,7 @@ class ThemeManagerTest {
     }
 
     @Test
-    void liveReloadCssDataUrl() throws IOException {
+    void liveReloadCssDataUrl() throws Exception {
         Path testCss = tempFolder.resolve("reload.css");
         Files.writeString(testCss, TEST_CSS_CONTENT, StandardOpenOption.CREATE);
         WorkspacePreferences workspacePreferences = mock(WorkspacePreferences.class, Answers.RETURNS_DEEP_STUBS);

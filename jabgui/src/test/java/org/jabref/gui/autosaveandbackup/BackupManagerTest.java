@@ -1,7 +1,5 @@
 package org.jabref.gui.autosaveandbackup;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -58,13 +56,13 @@ class BackupManagerTest {
     }
 
     @Test
-    void backupFileIsEqualForNonExistingBackup() throws URISyntaxException {
+    void backupFileIsEqualForNonExistingBackup() throws Exception {
         Path originalFile = Path.of(BackupManagerTest.class.getResource("no-autosave.bib").toURI());
         assertFalse(BackupManager.backupFileDiffers(originalFile, backupDir));
     }
 
     @Test
-    void backupFileIsEqual() throws URISyntaxException, IOException {
+    void backupFileIsEqual() throws Exception {
         // Prepare test: Create backup file on "right" path
         Path source = Path.of(BackupManagerTest.class.getResource("no-changes-backup.bib").toURI());
         Path target = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(Path.of(BackupManagerTest.class.getResource("no-changes.bib").toURI()), BackupFileType.BACKUP, backupDir);
@@ -75,7 +73,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void backupFileDiffers() throws URISyntaxException, IOException {
+    void backupFileDiffers() throws Exception {
         // Prepare test: Create backup file on "right" path
         Path source = Path.of(BackupManagerTest.class.getResource("changes-backup.bib").toURI());
         Path target = BackupFileUtil.getPathForNewBackupFileAndCreateDirectory(Path.of(BackupManagerTest.class.getResource("changes.bib").toURI()), BackupFileType.BACKUP, backupDir);
@@ -86,7 +84,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void correctBackupFileDeterminedForMultipleBackupFiles() throws URISyntaxException, IOException {
+    void correctBackupFileDeterminedForMultipleBackupFiles() throws Exception {
         Path noChangesBib = Path.of(BackupManagerTest.class.getResource("no-changes.bib").toURI());
         Path noChangesBibBackup = Path.of(BackupManagerTest.class.getResource("no-changes-backup.bib").toURI());
 
@@ -109,7 +107,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void backupFileWithNewerTimeStampLeadsToDiff() throws URISyntaxException, IOException {
+    void backupFileWithNewerTimeStampLeadsToDiff() throws Exception {
         Path changesBib = Path.of(BackupManagerTest.class.getResource("changes.bib").toURI());
         Path changesBibBackup = Path.of(BackupManagerTest.class.getResource("changes-backup.bib").toURI());
 
@@ -120,7 +118,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void backupFileWithOlderTimeStampDoesNotLeadToDiff() throws URISyntaxException, IOException {
+    void backupFileWithOlderTimeStampDoesNotLeadToDiff() throws Exception {
         Path changesBib = Path.of(BackupManagerTest.class.getResource("changes.bib").toURI());
         Path changesBibBackup = Path.of(BackupManagerTest.class.getResource("changes-backup.bib").toURI());
 
@@ -134,7 +132,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void latestBackupCanBeEmpty(@TempDir Path tempDir) throws IOException {
+    void latestBackupCanBeEmpty(@TempDir Path tempDir) throws Exception {
         Path originalFile = tempDir.resolve("library.bib");
         Files.writeString(originalFile, "@article{existing}");
         Path emptyBackup = BackupManager.getBackupPathForNewBackup(originalFile, backupDir);
@@ -145,7 +143,7 @@ class BackupManagerTest {
 
     @Test
         // [utest->req~jabgui.autosaveandbackup.complete-backup~1]
-    void restoringAnEmptyBackupLeavesTheOriginalFileUnchanged(@TempDir Path tempDir) throws IOException {
+    void restoringAnEmptyBackupLeavesTheOriginalFileUnchanged(@TempDir Path tempDir) throws Exception {
         Path originalFile = tempDir.resolve("library.bib");
         Files.writeString(originalFile, "@article{existing}");
         Path emptyBackup = BackupManager.getBackupPathForNewBackup(originalFile, backupDir);
@@ -164,7 +162,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void failedRestoreIncludesTheCause(@TempDir Path tempDir) throws IOException {
+    void failedRestoreIncludesTheCause(@TempDir Path tempDir) throws Exception {
         Path originalFile = tempDir.resolve("library.bib");
         Files.createDirectory(originalFile);
         Files.writeString(originalFile.resolve("existing-file"), "existing content");
@@ -179,7 +177,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void shouldNotCreateABackup(@TempDir Path customDir) throws IOException {
+    void shouldNotCreateABackup(@TempDir Path customDir) throws Exception {
         Path backupDir = customDir.resolve("subBackupDir");
         Files.createDirectories(backupDir);
 
@@ -207,7 +205,7 @@ class BackupManagerTest {
     }
 
     @Test
-    void shouldCreateABackup(@TempDir Path customDir) throws IOException {
+    void shouldCreateABackup(@TempDir Path customDir) throws Exception {
         Path backupDir = customDir.resolve("subBackupDir");
         Files.createDirectories(backupDir);
 

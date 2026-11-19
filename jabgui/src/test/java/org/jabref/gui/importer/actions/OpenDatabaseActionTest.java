@@ -49,7 +49,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(JavaFxExtension.class)
-public class OpenDatabaseActionTest {
+class OpenDatabaseActionTest {
     DialogService dialogService;
     GuiPreferences guiPreferences;
     OpenDatabaseAction openDatabaseAction;

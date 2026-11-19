@@ -1,6 +1,5 @@
 package org.jabref.logic.importer.fetcher;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.PagedSearchBasedFetcher;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.paging.Page;
@@ -19,7 +18,7 @@ public interface PagedSearchFetcherTest {
 
     /// Ensure that different page return different entries
     @Test
-    default void pageSearchReturnsUniqueResultsPerPage() throws FetcherException {
+    default void pageSearchReturnsUniqueResultsPerPage() throws Exception {
         String query = queryForUniqueResultsPerPage();
         Page<BibEntry> firstPage = getPagedFetcher().performSearchPaged(query, 0);
         Page<BibEntry> secondPage = getPagedFetcher().performSearchPaged(query, 1);

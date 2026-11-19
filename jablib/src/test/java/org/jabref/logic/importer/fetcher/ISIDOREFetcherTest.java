@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.net.ssl.TrustStoreManager;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
@@ -48,7 +47,7 @@ class ISIDOREFetcherTest {
 
     @Test
     @Disabled("Different result returned")
-    void checkArticle1() throws FetcherException {
+    void checkArticle1() throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.TITLE, "Investigating day-to-day variability of transit usage on a multimonth scale with smart card data. A case study in Lyon")
                 .withField(StandardField.AUTHOR, "Oscar Egu and Patrick Bonnel")
@@ -65,7 +64,7 @@ class ISIDOREFetcherTest {
 
     @Test
     @Disabled("Returns too much results")
-    void checkArticle2() throws FetcherException {
+    void checkArticle2() throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.TITLE, "Inequality – What Can Be Done ? Cambridge (Mass.) Harvard University Press, 2015, XI-384 p. ")
                 .withField(StandardField.AUTHOR, "Benoît Rapoport")
@@ -81,7 +80,7 @@ class ISIDOREFetcherTest {
     }
 
     @Test
-    void checkThesis() throws FetcherException {
+    void checkThesis() throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.Thesis)
                 .withField(StandardField.TITLE, "Phosphate homeostasis and transport in relation with the liver microsomal glucose-6-phosphatase system")
                 .withField(StandardField.AUTHOR, "Wensheng Xie")
@@ -99,7 +98,7 @@ class ISIDOREFetcherTest {
 
     @Test
     @Disabled("No result returned. Searched for `Salvage Lymph Node`, results are returned")
-    void checkArticle3() throws FetcherException {
+    void checkArticle3() throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.TITLE, "Salvage Lymph Node Dissection for Nodal Recurrent Prostate Cancer: A Systematic Review.")
                 .withField(StandardField.AUTHOR, "G. Ploussard and G. Gandaglia and H. Borgmann and P. de Visschere and I. Heidegger and A. Kretschmer and R. Mathieu and C. Surcel and D. Tilki and I. Tsaur and M. Valerio and R. van den Bergh and P. Ost and A. Briganti")
@@ -114,13 +113,13 @@ class ISIDOREFetcherTest {
     }
 
     @Test
-    void noResults() throws FetcherException {
+    void noResults() throws Exception {
         List<BibEntry> actual = fetcher.performSearch("nothing notthingham jojoyolo");
         assertEquals(List.of(), actual);
     }
 
     @Test
-    void author() throws FetcherException {
+    void author() throws Exception {
         List<BibEntry> actual = fetcher.performSearch("author=\"Adam Strange\"");
         assertEquals(List.of(new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Howard Green and Karen Boyland and Adam Strange")
@@ -131,13 +130,13 @@ class ISIDOREFetcherTest {
     }
 
     @Test
-    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws FetcherException {
+    void performRawSearchQueryPagedWithBlankQueryReturnsEmptyPage() throws Exception {
         Page<BibEntry> result = fetcher.performRawSearchQueryPaged("", 0);
         assertTrue(result.getContent().isEmpty());
     }
 
     @Test
-    void performRawSearchQueryPagedFindsEntry() throws FetcherException {
+    void performRawSearchQueryPagedFindsEntry() throws Exception {
         Page<BibEntry> page = fetcher.performRawSearchQueryPaged("Corporate Social Responsibility", 0);
         assertFalse(page.getContent().isEmpty());
     }

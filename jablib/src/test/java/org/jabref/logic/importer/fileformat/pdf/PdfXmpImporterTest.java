@@ -1,7 +1,5 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -29,14 +27,14 @@ class PdfXmpImporterTest {
 
     @Disabled("XMP reader prints warnings to the logger when parsing does not work")
     @Test
-    void importEncryptedFileReturnsError() throws URISyntaxException {
+    void importEncryptedFileReturnsError() throws Exception {
         Path file = Path.of(PdfXmpImporterTest.class.getResource("/pdfs/encrypted.pdf").toURI());
         ParserResult result = importer.importDatabase(file);
         assertTrue(result.hasWarnings());
     }
 
     @Test
-    void importEntries() throws URISyntaxException {
+    void importEntries() throws Exception {
         Path file = Path.of(PdfXmpImporterTest.class.getResource("annotated.pdf").toURI());
         List<BibEntry> bibEntries = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -51,7 +49,7 @@ class PdfXmpImporterTest {
     }
 
     @Test
-    void pdf2024SPLCBecker() throws URISyntaxException {
+    void pdf2024SPLCBecker() throws Exception {
         Path file = Path.of(PdfXmpImporterTest.class.getResource("2024_SPLC_Becker.pdf").toURI());
         List<BibEntry> bibEntries = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -65,7 +63,7 @@ class PdfXmpImporterTest {
     }
 
     @Test
-    void isRecognizedFormat() throws IOException, URISyntaxException {
+    void isRecognizedFormat() throws Exception {
         Path file = Path.of(PdfXmpImporterTest.class.getResource("annotated.pdf").toURI());
         assertTrue(importer.isRecognizedFormat(file));
     }

@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.jabref.logic.importer.ImportException;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -26,19 +24,19 @@ class CitaviXmlImporterFilesTest {
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void isRecognizedFormat(String fileName) throws IOException {
+    void isRecognizedFormat(String fileName) throws Exception {
         ImporterTestEngine.testIsRecognizedFormat(citaviXmlImporter, fileName);
     }
 
     @ParameterizedTest
     @MethodSource("invalidFileNames")
-    void isNotRecognizedFormat(String fileName) throws IOException {
+    void isNotRecognizedFormat(String fileName) throws Exception {
         ImporterTestEngine.testIsNotRecognizedFormat(citaviXmlImporter, fileName);
     }
 
     @ParameterizedTest
     @MethodSource("fileNames")
-    void importEntries(String fileName) throws ImportException, IOException {
+    void importEntries(String fileName) throws Exception {
         ImporterTestEngine.testImportEntries(citaviXmlImporter, fileName, FILE_ENDING);
     }
 }

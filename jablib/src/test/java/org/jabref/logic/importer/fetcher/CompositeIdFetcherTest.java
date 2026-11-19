@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.jabref.logic.importer.CompositeIdFetcher;
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.InternalField;
@@ -124,13 +123,13 @@ class CompositeIdFetcherTest {
 
     @ParameterizedTest
     @ValueSource(strings = "arZiv:2110.02957")
-    void performSearchByIdReturnsEmptyForInvalidId(String groundInvalidArXivId) throws FetcherException {
+    void performSearchByIdReturnsEmptyForInvalidId(String groundInvalidArXivId) throws Exception {
         assertEquals(Optional.empty(), compositeIdFetcher.performSearchById(groundInvalidArXivId));
     }
 
     @ParameterizedTest(name = "{index} {0}")
     @MethodSource
-    void performSearchByIdReturnsCorrectEntryForIdentifier(String name, BibEntry bibEntry, String identifier) throws FetcherException {
+    void performSearchByIdReturnsCorrectEntryForIdentifier(String name, BibEntry bibEntry, String identifier) throws Exception {
         assertEquals(Optional.of(bibEntry), compositeIdFetcher.performSearchById(identifier));
     }
 

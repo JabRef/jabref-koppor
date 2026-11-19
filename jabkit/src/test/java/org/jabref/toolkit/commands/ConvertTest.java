@@ -73,7 +73,7 @@ class ConvertTest extends AbstractJabKitTest {
     }
 
     @Test
-    void simpleOutputTest(@TempDir Path tempDir) throws IOException {
+    void simpleOutputTest(@TempDir Path tempDir) throws Exception {
         Path origin = getClassResourceAsPath("origin.bib").toAbsolutePath();
         Path newPath = tempDir.resolve("origin.bib");
         Files.copy(origin, newPath);
@@ -90,7 +90,7 @@ class ConvertTest extends AbstractJabKitTest {
     }
 
     @Test
-    void noOutputGeneratesNothing(@TempDir Path tempDir) throws IOException {
+    void noOutputGeneratesNothing(@TempDir Path tempDir) throws Exception {
         Path origin = getClassResourceAsPath("origin.bib").toAbsolutePath();
         Path newPath = tempDir.resolve("origin.bib");
         Files.copy(origin, newPath);
@@ -104,7 +104,7 @@ class ConvertTest extends AbstractJabKitTest {
     }
 
     @Test
-    void noOutputPrintsBibtexToStdout(@TempDir Path tempDir) throws IOException {
+    void noOutputPrintsBibtexToStdout(@TempDir Path tempDir) throws Exception {
         SelfContainedSaveOrder saveOrder = new SelfContainedSaveOrder(SaveOrder.OrderType.ORIGINAL, List.of());
         when(preferences.getSelfContainedExportConfiguration())
                 .thenReturn(new SelfContainedSaveConfiguration(saveOrder, false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false));
@@ -120,7 +120,7 @@ class ConvertTest extends AbstractJabKitTest {
     }
 
     @Test
-    void noOutputExportsRequestedOutputFormat(@TempDir Path tempDir) throws IOException {
+    void noOutputExportsRequestedOutputFormat(@TempDir Path tempDir) throws Exception {
         SelfContainedSaveOrder saveOrder = new SelfContainedSaveOrder(SaveOrder.OrderType.ORIGINAL, List.of());
         when(preferences.getSelfContainedExportConfiguration())
                 .thenReturn(new SelfContainedSaveConfiguration(saveOrder, false, BibDatabaseWriter.SaveType.WITH_JABREF_META_DATA, false));
@@ -141,7 +141,7 @@ class ConvertTest extends AbstractJabKitTest {
     }
 
     @Test
-    void noOutputWithUnknownOutputFormatFailsWithUsageError(@TempDir Path tempDir) throws IOException {
+    void noOutputWithUnknownOutputFormatFailsWithUsageError(@TempDir Path tempDir) throws Exception {
         commandLine.setExecutionExceptionHandler(
                 new CliExceptionHandler(commandLine.getExecutionExceptionHandler()));
 
@@ -160,7 +160,7 @@ class ConvertTest extends AbstractJabKitTest {
     }
 
     @Test
-    void fieldFormattersAreAppliedDuringConversion(@TempDir Path tempDir) throws IOException {
+    void fieldFormattersAreAppliedDuringConversion(@TempDir Path tempDir) throws Exception {
         Path newPath = tempDir.resolve("origin.bib");
         String originBibtex = """
                 @Article{test_energy,

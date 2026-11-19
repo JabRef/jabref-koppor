@@ -1,6 +1,5 @@
 package org.jabref.logic.importer;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -49,31 +48,31 @@ class OpenDatabaseTest {
     }
 
     @Test
-    void useFallbackEncodingIfNoHeader() throws IOException {
+    void useFallbackEncodingIfNoHeader() throws Exception {
         ParserResult result = OpenDatabase.loadDatabase(bibNoHeader, importFormatPreferences, fileMonitor);
         assertEquals(defaultEncoding, result.getMetaData().getEncoding().get());
     }
 
     @Test
-    void useFallbackEncodingIfUnknownHeader() throws IOException {
+    void useFallbackEncodingIfUnknownHeader() throws Exception {
         ParserResult result = OpenDatabase.loadDatabase(bibWrongHeader, importFormatPreferences, fileMonitor);
         assertEquals(defaultEncoding, result.getMetaData().getEncoding().get());
     }
 
     @Test
-    void useSpecifiedEncoding() throws IOException {
+    void useSpecifiedEncoding() throws Exception {
         ParserResult result = OpenDatabase.loadDatabase(bibHeader, importFormatPreferences, fileMonitor);
         assertEquals(defaultEncoding, result.getMetaData().getEncoding().get());
     }
 
     @Test
-    void useSpecifiedEncodingWithSignature() throws IOException {
+    void useSpecifiedEncodingWithSignature() throws Exception {
         ParserResult result = OpenDatabase.loadDatabase(bibHeaderAndSignature, importFormatPreferences, fileMonitor);
         assertEquals(defaultEncoding, result.getMetaData().getEncoding().get());
     }
 
     @Test
-    void entriesAreParsedNoHeader() throws IOException {
+    void entriesAreParsedNoHeader() throws Exception {
         ParserResult result = OpenDatabase.loadDatabase(bibNoHeader, importFormatPreferences, fileMonitor);
         BibDatabase db = result.getDatabase();
 
@@ -83,7 +82,7 @@ class OpenDatabaseTest {
     }
 
     @Test
-    void entriesAreParsedHeader() throws IOException {
+    void entriesAreParsedHeader() throws Exception {
         ParserResult result = OpenDatabase.loadDatabase(bibHeader, importFormatPreferences, fileMonitor);
         BibDatabase db = result.getDatabase();
 
@@ -93,7 +92,7 @@ class OpenDatabaseTest {
     }
 
     @Test
-    void entriesAreParsedHeaderAndSignature() throws IOException {
+    void entriesAreParsedHeaderAndSignature() throws Exception {
         ParserResult result = OpenDatabase.loadDatabase(bibHeaderAndSignature, importFormatPreferences, fileMonitor);
         BibDatabase db = result.getDatabase();
 
@@ -104,7 +103,7 @@ class OpenDatabaseTest {
 
     /// Test for #669
     @Test
-    void correctlyParseEncodingWithoutNewline() throws IOException {
+    void correctlyParseEncodingWithoutNewline() throws Exception {
         ParserResult result = OpenDatabase.loadDatabase(bibEncodingWithoutNewline, importFormatPreferences, fileMonitor);
         assertEquals(StandardCharsets.US_ASCII, result.getMetaData().getEncoding().get());
 

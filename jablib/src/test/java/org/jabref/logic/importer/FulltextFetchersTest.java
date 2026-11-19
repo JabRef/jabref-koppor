@@ -1,7 +1,5 @@
 package org.jabref.logic.importer;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
@@ -31,7 +29,7 @@ class FulltextFetchersTest {
     }
 
     @Test
-    void acceptPdfUrls() throws MalformedURLException {
+    void acceptPdfUrls() throws Exception {
         URL pdfUrl = URLUtil.create("http://docs.oasis-open.org/wsbpel/2.0/OS/wsbpel-v2.0-OS.pdf");
         FulltextFetcherWithTrustLevel finder = _ -> Optional.of(pdfUrl);
         FulltextFetchers fetcher = new FulltextFetchers(Set.of(finder));
@@ -39,7 +37,7 @@ class FulltextFetchersTest {
     }
 
     @Test
-    void rejectNonPdfUrls() throws MalformedURLException {
+    void rejectNonPdfUrls() throws Exception {
         URL pdfUrl = URLUtil.create("https://github.com/JabRef/jabref/blob/master/README.md");
         FulltextFetcherWithTrustLevel finder = _ -> Optional.of(pdfUrl);
         FulltextFetchers fetcher = new FulltextFetchers(Set.of(finder));
@@ -48,7 +46,7 @@ class FulltextFetchersTest {
     }
 
     @Test
-    void noTrustLevel() throws MalformedURLException {
+    void noTrustLevel() throws Exception {
         URL pdfUrl = URLUtil.create("http://docs.oasis-open.org/wsbpel/2.0/OS/wsbpel-v2.0-OS.pdf");
         FulltextFetcherWithTrustLevel finder = _ -> Optional.of(pdfUrl);
         FulltextFetchers fetcher = new FulltextFetchers(Set.of(finder));
@@ -57,7 +55,7 @@ class FulltextFetchersTest {
     }
 
     @Test
-    void higherTrustLevelWins() throws IOException, FetcherException {
+    void higherTrustLevelWins() throws Exception {
         // set an (arbitrary) DOI to the test entry to skip side effects inside the "findFullTextPDF" method
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.5220/0007903201120130");
 
@@ -77,7 +75,7 @@ class FulltextFetchersTest {
     }
 
     @Test
-    void downloadHeadersPropagateToResult() throws IOException, FetcherException {
+    void downloadHeadersPropagateToResult() throws Exception {
         BibEntry entry = new BibEntry().withField(StandardField.DOI, "10.1002/we.2952");
         Map<String, String> expectedHeaders = Map.of("Wiley-TDM-Client-Token", "test-token");
 

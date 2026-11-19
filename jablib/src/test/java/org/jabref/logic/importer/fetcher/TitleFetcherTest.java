@@ -2,7 +2,6 @@ package org.jabref.logic.importer.fetcher;
 
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
@@ -44,19 +43,19 @@ class TitleFetcherTest {
     }
 
     @Test
-    void performSearchKopp2007() throws FetcherException {
+    void performSearchKopp2007() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("BPELscript: A simplified script syntax for WS-BPEL 2.0");
         assertEquals(Optional.of(bibEntryBischof2009), fetchedEntry);
     }
 
     @Test
-    void performSearchEmptyTitle() throws FetcherException {
+    void performSearchEmptyTitle() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("");
         assertEquals(Optional.empty(), fetchedEntry);
     }
 
     @Test
-    void performSearchInvalidTitle() throws FetcherException {
+    void performSearchInvalidTitle() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("An unknown title where noi DOI can be determined");
         assertEquals(Optional.empty(), fetchedEntry);
     }

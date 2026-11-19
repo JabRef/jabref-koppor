@@ -1,6 +1,5 @@
 package org.jabref.logic.exporter;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -158,7 +157,7 @@ class GroupSerializerTest {
     }
 
     @Test
-    void serializeSingleTexGroup() throws IOException {
+    void serializeSingleTexGroup() throws Exception {
         TexGroup group = TexGroup.create("myTexGroup", GroupHierarchyType.INDEPENDENT, Path.of("path", "To", "File"), new DefaultAuxParser(new BibDatabase()), new MetaData(), "");
         List<String> serialization = groupSerializer.serializeTree(GroupTreeNode.fromGroup(group));
         assertEquals(List.of("0 TexGroup:myTexGroup;0;path/To/File;1;;;;"), serialization);

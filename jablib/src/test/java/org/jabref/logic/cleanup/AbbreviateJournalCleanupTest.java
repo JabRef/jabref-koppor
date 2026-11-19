@@ -19,7 +19,7 @@ import org.mockito.Mockito;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 
-public class AbbreviateJournalCleanupTest {
+class AbbreviateJournalCleanupTest {
     private AbbreviateJournalCleanup cleanupWithoutFJournal;
     private AbbreviateJournalCleanup cleanupWithFJournal;
 

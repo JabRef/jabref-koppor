@@ -69,7 +69,7 @@ public class MSBibImportExportRoundTripFilesTest {
 
     @ParameterizedTest(name = "{index} file={0}")
     @MethodSource("fileNames")
-    void importThenExportProducesExpectedMsBibXml(String filename) throws IOException, SaveException {
+    void importThenExportProducesExpectedMsBibXml(String filename) throws Exception {
         String xmlFileName = filename.replace(".bib", ".xml");
         Path expectedFile = resourceDir.resolve(xmlFileName);
         Path importFile = resourceDir.resolve(filename);

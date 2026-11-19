@@ -6,9 +6,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
 import javafx.collections.FXCollections;
 
 import org.jabref.logic.FilePreferences;
@@ -142,13 +139,13 @@ class EmbeddedBibFilePdfExporterTest {
 
     @ParameterizedTest
     @MethodSource("provideBibEntriesWithValidPdfFileLinks")
-    void successfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void successfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink) throws Exception {
         assertTrue(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink, List.of(olly2018), abbreviationRepository));
     }
 
     @ParameterizedTest
     @MethodSource("provideBibEntriesWithInvalidPdfFileLinks")
-    void unsuccessfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void unsuccessfulExportToAllFilesOfEntry(BibEntry bibEntryWithValidPdfFileLink) throws Exception {
         assertFalse(exporter.exportToAllFilesOfEntry(databaseContext, filePreferences, bibEntryWithValidPdfFileLink, List.of(olly2018), abbreviationRepository));
     }
 
@@ -162,13 +159,13 @@ class EmbeddedBibFilePdfExporterTest {
 
     @ParameterizedTest
     @MethodSource("providePathsToValidPDFs")
-    void successfulExportToFileByPath(Path path) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void successfulExportToFileByPath(Path path) throws Exception {
         assertTrue(exporter.exportToFileByPath(databaseContext, filePreferences, path, abbreviationRepository));
     }
 
     @ParameterizedTest
     @MethodSource("providePathsToInvalidPDFs")
-    void unsuccessfulExportToFileByPath(Path path) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    void unsuccessfulExportToFileByPath(Path path) throws Exception {
         assertFalse(exporter.exportToFileByPath(databaseContext, filePreferences, path, abbreviationRepository));
     }
 
@@ -200,7 +197,7 @@ class EmbeddedBibFilePdfExporterTest {
 
     @ParameterizedTest
     @MethodSource("providePathToNewPDFs")
-    void roundtripExportImport(Path path) throws IOException {
+    void roundtripExportImport(Path path) throws Exception {
         BibEntry expected = new BibEntry(StandardEntryType.Misc)
                 .withCitationKey("test")
                 .withField(StandardField.AUTHOR, "Test Author")
@@ -219,7 +216,7 @@ class EmbeddedBibFilePdfExporterTest {
     }
 
     @Test
-    void exportLeavesLoadablePdfAndNoTempFiles() throws IOException {
+    void exportLeavesLoadablePdfAndNoTempFiles() throws Exception {
         Path pdfFile = tempDir.resolve("existing.pdf").toAbsolutePath();
 
         exporter.export(databaseContext, pdfFile, List.of(olly2018));
@@ -233,7 +230,7 @@ class EmbeddedBibFilePdfExporterTest {
     }
 
     @Test
-    void failedExportLeavesOriginalUntouchedAndNoTempFiles() throws IOException {
+    void failedExportLeavesOriginalUntouchedAndNoTempFiles() throws Exception {
         Path corruptPdf = tempDir.resolve("corrupt.pdf");
         Files.writeString(corruptPdf, "not a pdf");
         byte[] originalBytes = Files.readAllBytes(corruptPdf);

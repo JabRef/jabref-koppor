@@ -1,7 +1,5 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -49,7 +47,7 @@ class PdfGrobidImporterTest {
 
     @Test
     @Disabled("Currently does not return anything")
-    void importEntries() throws URISyntaxException {
+    void importEntries() throws Exception {
         Path file = Path.of(PdfGrobidImporterTest.class.getResource("LNCS-minimal.pdf").toURI());
         List<BibEntry> bibEntries = importer.importDatabase(file).getDatabase().getEntries();
 
@@ -62,13 +60,13 @@ class PdfGrobidImporterTest {
     }
 
     @Test
-    void isRecognizedFormat() throws IOException, URISyntaxException {
+    void isRecognizedFormat() throws Exception {
         Path file = Path.of(PdfGrobidImporterTest.class.getResource("annotated.pdf").toURI());
         assertTrue(importer.isRecognizedFormat(file));
     }
 
     @Test
-    void isRecognizedFormatReject() throws IOException, URISyntaxException {
+    void isRecognizedFormatReject() throws Exception {
         Path file = Path.of(PdfGrobidImporterTest.class.getResource("../BibtexImporter.examples.bib").toURI());
         assertFalse(importer.isRecognizedFormat(file));
     }

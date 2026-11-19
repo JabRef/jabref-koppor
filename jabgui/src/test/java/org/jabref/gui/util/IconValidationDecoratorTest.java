@@ -15,7 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(JavaFxExtension.class)
-public class IconValidationDecoratorTest {
+class IconValidationDecoratorTest {
     static Object[][] decorationTestData() {
         return new Object[][] {
                 {Severity.ERROR, IconTheme.JabRefIcons.ERROR.getGraphicNode().toString()},
@@ -25,7 +25,7 @@ public class IconValidationDecoratorTest {
 
     @ParameterizedTest
     @MethodSource("decorationTestData")
-    public void createDecorationNodeTest(Severity severity, String expectedGraphic) {
+    void createDecorationNodeTest(Severity severity, String expectedGraphic) {
         IconValidationDecorator iconValidationDecorator = new IconValidationDecorator();
         Label node = (Label) iconValidationDecorator.createDecorationNode(new ValidationMessage() {
             @Override

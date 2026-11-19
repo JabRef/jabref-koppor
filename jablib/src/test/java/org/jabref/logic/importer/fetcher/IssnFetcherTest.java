@@ -3,7 +3,6 @@ package org.jabref.logic.importer.fetcher;
 import java.util.List;
 import java.util.Optional;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.support.ExternalServicesTest;
@@ -30,13 +29,13 @@ class IssnFetcherTest {
     }
 
     @Test
-    void performSearchByEntry() throws FetcherException {
+    void performSearchByEntry() throws Exception {
         List<BibEntry> fetchedEntry = fetcher.performSearch(bibEntry);
         assertEquals(List.of(bibEntry), fetchedEntry);
     }
 
     @Test
-    void performSearchById() throws FetcherException {
+    void performSearchById() throws Exception {
         Optional<BibEntry> fetchedEntry = fetcher.performSearchById("15454509");
         assertEquals(Optional.of(bibEntry), fetchedEntry);
     }
