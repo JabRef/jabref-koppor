@@ -24,6 +24,7 @@ import org.jabref.gui.icon.IconTheme;
 import org.jabref.gui.preferences.AbstractPreferenceTabView;
 import org.jabref.gui.preferences.forms.PasswordFieldEditor;
 import org.jabref.gui.util.ValueTableCellFactory;
+import org.jabref.gui.util.ViewLoader;
 import org.jabref.logic.l10n.Localization;
 
 import com.dlsc.gemsfx.EnhancedPasswordField;

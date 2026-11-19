@@ -11,11 +11,11 @@ import org.jabref.gui.keyboard.KeyBindingCategory;
 import org.jabref.gui.keyboard.KeyBindingRepository;
 import org.jabref.gui.preferences.JabRefGuiPreferences;
 import org.jabref.gui.theme.ThemeColorScheme;
+import org.jabref.injection.Injector;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.preferences.JabRefCliPreferences;
 
-import com.airhacks.afterburner.injection.Injector;
 import com.github.javakeyring.Keyring;
 import com.github.javakeyring.PasswordAccessException;
 import org.junit.jupiter.api.BeforeEach;
