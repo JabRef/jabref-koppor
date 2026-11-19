@@ -144,7 +144,7 @@ public record ZoteroReferenceMark(
                     uniqueId,
                     citationType));
         } catch (RuntimeException e) {
-            LOGGER.debug("Could not parse Zotero reference mark", e);
+            LOGGER.error("Could not parse Zotero reference mark", e);
             return Optional.empty();
         }
     }
@@ -193,7 +193,7 @@ public record ZoteroReferenceMark(
             }
             return PREFIX + GSON.toJson(citation) + " " + suffix;
         } catch (JsonParseException | IllegalStateException e) {
-            LOGGER.debug("Could not add JabRef URI to Zotero reference mark at citation item index {}", citationItemIndex, e);
+            LOGGER.error("Could not add JabRef URI to Zotero reference mark at citation item index {}", citationItemIndex, e);
             return referenceMarkName;
         }
     }

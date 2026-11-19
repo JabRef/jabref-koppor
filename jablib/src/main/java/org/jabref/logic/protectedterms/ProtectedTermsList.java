@@ -94,7 +94,7 @@ public class ProtectedTermsList implements Comparable<ProtectedTermsList> {
             writer.write(s);
             termsList.add(term);
         } catch (IOException ioe) {
-            LOGGER.warn("Problem adding protected term to list", ioe);
+            LOGGER.error("Problem adding protected term to list", ioe);
             return false;
         }
         return true;

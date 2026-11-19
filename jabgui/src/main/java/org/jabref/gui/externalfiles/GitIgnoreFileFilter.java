@@ -87,7 +87,7 @@ public class GitIgnoreFileFilter implements DirectoryStream.Filter<Path> {
                 }
                 ignoreNodes.add(Map.entry(ancestor, node));
             } catch (IOException e) {
-                LOGGER.info("Could not read .gitignore from {}", gitIgnore, e);
+                LOGGER.error("Could not read .gitignore from {}", gitIgnore, e);
             }
         }
     }

@@ -79,7 +79,7 @@ public class FileUtil {
         try {
             return Optional.of(FileUtils.byteCountToDisplaySize(Files.size(path)));
         } catch (IOException e) {
-            LOGGER.debug("Could not determine size of file {}", path, e);
+            LOGGER.error("Could not determine size of file {}", path, e);
             return Optional.empty();
         }
     }
@@ -157,7 +157,7 @@ public class FileUtil {
         try {
             uri = new URI(link);
         } catch (URISyntaxException e) {
-            LOGGER.warn("Was not a valid URL {}", link, e);
+            LOGGER.error("Was not a valid URL {}", link, e);
             return Optional.empty();
         }
         String pathFragment = uri.getPath();
@@ -200,7 +200,7 @@ public class FileUtil {
                 return fullCleanedName.substring(0, MAXIMUM_FILE_NAME_LENGTH);
             }
             String shortName = nameWithoutExtension.substring(0, maxBaseLen);
-            LOGGER.info("Truncated the too long filename '{}' ({} characters) to '{}'.", fileName, fileName.length(), shortName);
+            LOGGER.atInfo().addArgument(fileName).addArgument(() -> fileName.length()).addArgument(shortName).log("Truncated the too long filename '{}' ({} characters) to '{}'.");
             return extension.map(s -> shortName + "." + s).orElse(shortName);
         }
 
@@ -347,7 +347,7 @@ public class FileUtil {
             try {
                 return Optional.of(path.toRealPath());
             } catch (IOException e) {
-                LOGGER.warn("Could not resolve real path for {}", path, e);
+                LOGGER.error("Could not resolve real path for {}", path, e);
                 return Optional.empty();
             }
         } else {
@@ -577,7 +577,7 @@ public class FileUtil {
                 }
             }
         } catch (IOException | ShellLinkException e) {
-            LOGGER.warn("Could not resolve shortcut file", e);
+            LOGGER.error("Could not resolve shortcut file", e);
         }
 
         return path;

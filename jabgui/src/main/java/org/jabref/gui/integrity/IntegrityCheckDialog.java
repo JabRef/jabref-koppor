@@ -180,7 +180,7 @@ public class IntegrityCheckDialog extends BaseDialog<Void> {
             bibLogSettingsPane.refreshWarnings(libraryTab.getBibDatabaseContext());
         } catch (JabRefException e) {
             dialogService.notify(e.getLocalizedMessage());
-            LOGGER.warn("Failed to load .blg warnings", e);
+            LOGGER.error("Failed to load .blg warnings", e);
         }
         List<IntegrityMessage> newWarnings = new ArrayList<>(bibLogSettingsPane.getBlgWarnings());
 

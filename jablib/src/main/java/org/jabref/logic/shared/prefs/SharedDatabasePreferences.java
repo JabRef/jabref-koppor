@@ -93,7 +93,7 @@ public class SharedDatabasePreferences {
         } catch (PasswordAccessException _) {
             return migrateLegacyPassword();
         } catch (Exception e) {
-            LOGGER.warn("Could not access keyring for retrieving the shared database password", e);
+            LOGGER.error("Could not access keyring for retrieving the shared database password", e);
             return Optional.empty();
         }
     }
@@ -176,7 +176,7 @@ public class SharedDatabasePreferences {
             }
             return false;
         } catch (Exception e) {
-            LOGGER.warn("Could not access keyring for storing the shared database password", e);
+            LOGGER.error("Could not access keyring for storing the shared database password", e);
             return false;
         }
     }

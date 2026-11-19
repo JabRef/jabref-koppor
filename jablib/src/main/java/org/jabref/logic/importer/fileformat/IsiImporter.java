@@ -351,7 +351,7 @@ public class IsiImporter extends Importer {
                     return month.get().getJabRefFormat();
                 }
             } catch (NumberFormatException e) {
-                LOGGER.info("The import file in ISI format cannot parse part of the content in PD into integers " +
+                LOGGER.error("The import file in ISI format cannot parse part of the content in PD into integers " +
                         "(If there is no month or PD displayed in the imported entity, this may be the reason)", e);
             }
         }

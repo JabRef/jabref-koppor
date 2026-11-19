@@ -61,7 +61,7 @@ public class PushToVim extends AbstractPushToApplication {
                             sb.append((char) c);
                         }
                     } catch (IOException e) {
-                        LOGGER.warn("Could not read from stderr.", e);
+                        LOGGER.error("Could not read from stderr.", e);
                     }
                     // Error stream has been closed. See if there were any errors:
                     String error = sb.toString().trim();
@@ -72,11 +72,11 @@ public class PushToVim extends AbstractPushToApplication {
                                 Localization.lang("Could not push to a running Vim server.") + " " + error);
                     }
                 } catch (IOException e) {
-                    LOGGER.warn("Error handling std streams", e);
+                    LOGGER.error("Error handling std streams", e);
                 }
             });
         } catch (IOException excep) {
-            LOGGER.warn("Problem pushing to Vim.", excep);
+            LOGGER.error("Problem pushing to Vim.", excep);
             couldNotCall = true;
             sendErrorNotification(Localization.lang("Error pushing entries"),
                     Localization.lang("Could not call executable '%0'.", commandPath) + "\n" +
@@ -138,7 +138,7 @@ public class PushToVim extends AbstractPushToApplication {
             }
             processBuilder.start();
         } catch (IOException e) {
-            LOGGER.warn("Problem pushing to Vim.", e);
+            LOGGER.error("Problem pushing to Vim.", e);
             couldNotCall = true;
         }
     }

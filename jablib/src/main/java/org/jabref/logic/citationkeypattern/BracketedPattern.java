@@ -484,7 +484,7 @@ public class BracketedPattern {
                 return entry.getResolvedFieldOrAlias(FieldFactory.parseField(pattern), database).orElse("");
             }
         } catch (NullPointerException ex) {
-            LOGGER.debug("Problem making expanding bracketed expression", ex);
+            LOGGER.error("Problem making expanding bracketed expression", ex);
             return "";
         }
     }

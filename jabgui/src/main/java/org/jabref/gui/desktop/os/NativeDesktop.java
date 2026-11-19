@@ -297,7 +297,7 @@ public abstract class NativeDesktop {
             uri = URLUtil.createUri(url);
         } catch (IllegalArgumentException e) {
             // Not URI-parseable (e.g. unencoded spaces); the OS URL handlers accept the raw string
-            LoggerFactory.getLogger(NativeDesktop.class).debug("Could not parse {} as URI, falling back to the OS URL handler", url, e);
+            LoggerFactory.getLogger(NativeDesktop.class).error("Could not parse {} as URI, falling back to the OS URL handler", url, e);
             openUrlWithSystemHandler(url);
             return true;
         }

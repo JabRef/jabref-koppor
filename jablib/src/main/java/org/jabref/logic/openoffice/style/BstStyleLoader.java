@@ -67,7 +67,7 @@ public class BstStyleLoader {
             try {
                 internalStyles.add(BstStyle.createInternal(resourcePath));
             } catch (IOException e) {
-                LOGGER.warn("Could not load internal BST style: {}", resourcePath, e);
+                LOGGER.error("Could not load internal BST style: {}", resourcePath, e);
             }
         }
     }
@@ -80,7 +80,7 @@ public class BstStyleLoader {
                 try {
                     externalStyles.add(BstStyle.loadExternal(bstFilePath));
                 } catch (IOException e) {
-                    LOGGER.warn("Could not load BST style file, skipping: {}", pathStr, e);
+                    LOGGER.error("Could not load BST style file, skipping: {}", pathStr, e);
                 }
             } else {
                 LOGGER.warn("BST style file not found, skipping: {}", pathStr);

@@ -97,7 +97,7 @@ public class PushToEmacs extends AbstractPushToApplication {
                             sb.append((char) c);
                         }
                     } catch (IOException e) {
-                        LOGGER.warn("Could not read from stderr.", e);
+                        LOGGER.error("Could not read from stderr.", e);
                     }
                     // Error stream has been closed. See if there were any errors:
                     String error = sb.toString().trim();
@@ -113,11 +113,11 @@ public class PushToEmacs extends AbstractPushToApplication {
                         }
                     }
                 } catch (IOException e) {
-                    LOGGER.warn("Error handling std streams", e);
+                    LOGGER.error("Error handling std streams", e);
                 }
             });
         } catch (IOException excep) {
-            LOGGER.warn("Problem pushing to Emacs.", excep);
+            LOGGER.error("Problem pushing to Emacs.", excep);
             couldNotCall = true;
             sendErrorNotification(Localization.lang("Error pushing entries"),
                     Localization.lang("Could not call executable '%0'.", commandPath) + "\n" +

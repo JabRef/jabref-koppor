@@ -38,7 +38,7 @@ public class GetContext {
                     break;
                 }
             } catch (IndexOutOfBoundsException ex) {
-                LOGGER.warn("Problem going left", ex);
+                LOGGER.error("Problem going left", ex);
             }
         }
 
@@ -56,7 +56,7 @@ public class GetContext {
                     }
                 }
             } catch (IndexOutOfBoundsException ex) {
-                LOGGER.warn("Problem going right", ex);
+                LOGGER.error("Problem going right", ex);
             }
         }
 

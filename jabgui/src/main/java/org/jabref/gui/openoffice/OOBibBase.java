@@ -181,7 +181,7 @@ public class OOBibBase {
             citationStyle.ifPresent(openOfficePreferences::setCurrentStyle);
             return OOResult.ok(citationStyle);
         } catch (WrappedTargetException e) {
-            LOGGER.warn("Could not read Zotero document preferences", e);
+            LOGGER.error("Could not read Zotero document preferences", e);
             return OOResult.error(OOError.fromMisc(e));
         }
     }
@@ -209,7 +209,7 @@ public class OOBibBase {
             }
             return OOVoidResult.ok();
         } catch (IllegalTypeException | NotRemoveableException | PropertyVetoException | WrappedTargetException e) {
-            LOGGER.warn("Could not update document CSL preferences", e);
+            LOGGER.error("Could not update document CSL preferences", e);
             return OOVoidResult.error(OOError.fromMisc(e));
         }
     }
@@ -359,14 +359,14 @@ public class OOBibBase {
         try {
             UnoRedlines.withRecordChangesSuspended(doc, () -> holder.add(action.get()));
         } catch (UnoRedlines.TrackChangesRestoreException ex) {
-            LOGGER.warn("Could not restore change recording", ex);
+            LOGGER.error("Could not restore change recording", ex);
             dialogService.showWarningDialogAndWait(
                     Localization.lang("Track changes"),
                     Localization.lang("JabRef updated the document, but could not restore Track Changes."
                             + " Please verify [Edit]/[Track Changes]/[Record]."));
             return holder.getFirst();
         } catch (WrappedTargetException ex) {
-            LOGGER.warn("Could not suspend change recording", ex);
+            LOGGER.error("Could not suspend change recording", ex);
             if (!holder.isEmpty()) {
                 return holder.getFirst();
             }

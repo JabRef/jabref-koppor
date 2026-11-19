@@ -96,7 +96,7 @@ public class GitCommitAction extends SimpleCommand {
                 return;
             }
         } catch (JabRefException e) {
-            LOGGER.warn("Could not determine whether the repository has changes", e);
+            LOGGER.error("Could not determine whether the repository has changes", e);
             dialogService.showErrorDialogAndWait(
                     Localization.lang("Git commit failed"),
                     e.getLocalizedMessage());

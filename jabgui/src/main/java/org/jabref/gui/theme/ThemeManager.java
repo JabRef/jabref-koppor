@@ -255,7 +255,7 @@ public class ThemeManager {
             fileUpdateMonitor.addListenerForFile(watchPath, updateMethod);
             LOGGER.info("Watching css {} for live updates", watchPath);
         } catch (IOException e) {
-            LOGGER.warn("Cannot watch css path {} for live updates", watchPath, e);
+            LOGGER.error("Cannot watch css path {} for live updates", watchPath, e);
         }
     }
 

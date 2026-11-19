@@ -84,7 +84,7 @@ public class BookCoverFetcher {
                 Duration timeSinceLastModification = Duration.between(lastModifiedTimeStamp.toInstant(), Instant.now());
                 return Optional.of(timeSinceLastModification);
             } catch (IOException e) {
-                LOGGER.warn("Could not read last modified time", e);
+                LOGGER.error("Could not read last modified time", e);
             }
         }
         return Optional.empty();
@@ -126,8 +126,8 @@ public class BookCoverFetcher {
             download.toFile(destination);
             deleteNotAvailableFileIfExists(name, directory);
         } catch (FetcherClientException | FetcherServerException _) {
-            LOGGER.info("Remote book cover does not exist or server returned an error for URL: {}", url);
-            LOGGER.info("Flagging book cover as not available");
+            LOGGER.warn("Remote book cover does not exist or server returned an error for URL: {}", url);
+            LOGGER.warn("Flagging book cover as not available");
             flagAsNotAvailable(name, directory);
         } catch (FetcherException e) {
             LOGGER.error("Error while downloading or saving cover image file", e);

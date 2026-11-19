@@ -40,7 +40,7 @@ public record FileSnapshot(boolean exists, long size, @Nullable FileTime lastMod
         } catch (NoSuchFileException _) {
             return ABSENT;
         } catch (IOException exception) {
-            LOGGER.warn("Could not read attributes of {}", file, exception);
+            LOGGER.error("Could not read attributes of {}", file, exception);
             return null;
         }
     }

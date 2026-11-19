@@ -52,7 +52,7 @@ public class SearchShortScienceAction extends SimpleCommand {
                 try {
                     NativeDesktop.openExternalViewer(databaseContext, preferences, url, StandardField.URL, dialogService, bibEntries.getFirst());
                 } catch (IOException ex) {
-                    LOGGER.warn("Could not open ShortScience", ex);
+                    LOGGER.error("Could not open ShortScience", ex);
                     dialogService.notify(Localization.lang("Unable to open ShortScience.") + " " + ex.getMessage());
                 }
             });

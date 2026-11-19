@@ -103,7 +103,7 @@ public class GitHandler {
         try {
             return path.toRealPath();
         } catch (IOException e) {
-            LOGGER.warn("Could not resolve the library path {} — using it as given", path, e);
+            LOGGER.error("Could not resolve the library path {} — using it as given", path, e);
             return path.toAbsolutePath().normalize();
         }
     }
@@ -156,14 +156,14 @@ public class GitHandler {
                .setMessage("Initial commit")
                .call();
         } catch (IOException | GitAPIException | JGitInternalException | JabRefException e) {
-            LOGGER.debug("Rolling back failed Git repository initialization at {}", repositoryPath, e);
+            LOGGER.error("Rolling back failed Git repository initialization at {}", repositoryPath, e);
             try {
                 FileUtils.delete(repositoryRoot.resolve(Constants.DOT_GIT).toFile(), FileUtils.RECURSIVE | FileUtils.SKIP_MISSING);
                 if (!gitignoreExisted) {
                     Files.deleteIfExists(gitignore);
                 }
             } catch (IOException cleanupException) {
-                LOGGER.warn("Could not clean up after failed Git repository initialization at {}", repositoryPath, cleanupException);
+                LOGGER.error("Could not clean up after failed Git repository initialization at {}", repositoryPath, cleanupException);
                 e.addSuppressed(cleanupException);
             }
             throw e;
@@ -393,7 +393,7 @@ public class GitHandler {
             credsOpt.ifPresent(pullCommand::setCredentialsProvider);
             pullCommand.call();
         } catch (GitAPIException _) {
-            LOGGER.info("Failed to pull.");
+            LOGGER.warn("Failed to pull.");
         }
     }
 
