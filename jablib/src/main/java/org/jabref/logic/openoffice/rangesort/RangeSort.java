@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jabref.logic.openoffice.uno.UnoCast;
+import org.jabref.logic.openoffice.uno.UnoInterfaces;
 import org.jabref.logic.openoffice.uno.UnoTextRange;
 
 import com.sun.star.text.XText;
@@ -26,8 +26,8 @@ public class RangeSort {
         private final XTextRangeCompare cmp;
 
         HolderComparatorWithinPartition(XText text) {
-            cmp = UnoCast.cast(XTextRangeCompare.class, text)
-                         .orElseThrow(IllegalArgumentException::new);
+            cmp = UnoInterfaces.query(XTextRangeCompare.class, text)
+                               .orElseThrow(IllegalArgumentException::new);
         }
 
         /// Assumes a and b belong to the same XText as cmp.

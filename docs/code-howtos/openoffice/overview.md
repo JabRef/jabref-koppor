@@ -6,17 +6,17 @@ grand_parent: Code Howtos
 # Overview
 
 The OpenOffice/LibreOffice panel connects JabRef libraries to a Writer document.
-It inserts citations, refreshes their presentation, generates a bibliography, and exports cited entries to a library.
+It inserts citations, refreshes their presentation, generates a bibliography, exports cited entries, and imports entries embedded in Zotero-compatible documents.
 JStyle, CSL, and BST styles share canonical JabRef citations when Zotero compatibility mode is disabled.
 Zotero compatibility mode uses a separate CSL-only strategy and native Zotero storage.
 
 Open the panel from **View → OpenOffice/LibreOffice**.
 The [user documentation](https://docs.jabref.org/cite/openofficeintegration) describes panel operations.
-The [requirements](../../requirements/openoffice.md) and [ADR-0080](../../decisions/0080-canonical-writer-citations.md) define the citation compatibility contract.
+The [requirements](../../requirements/openoffice.md) and [ADR-0084](../../decisions/0084-canonical-writer-citations.md) define the citation compatibility contract.
 
 ## Architecture and entry points
 
-![Writer citation integration architecture](layers-v1.svg)
+![Writer citation integration architecture](writer-citation-layers.svg)
 
 | Area | Entry points | Responsibility |
 | --- | --- | --- |
@@ -25,9 +25,10 @@ The [requirements](../../requirements/openoffice.md) and [ADR-0080](../../decisi
 | Group structure | `CitationGroupEditor` | Prepare replacements without mutation, then apply them in the engine's write session. |
 | Rendering | `RendererFactory`, `CitationRenderer`, `RenderRequest`, `RenderResult` | Compute final markers, bibliography paragraphs when requested, and unresolved keys. |
 | Cited-entry export | `CitedEntryExporter` | Resolve ordered citation keys into a library without accessing Writer. |
-| Canonical storage | `MarkCodec`, `MarkStore`, `UndoableDocumentProperties`, `DocumentStateStore` | Encode identities, read citation/page-info state, register custom-property undo deltas, and store applied-style identity. |
+| Cited-entry import | `CitationEngine.importCited`, `CitedEntryCollector` | Collect embedded Zotero entries read-only for the existing library import flow. |
+| Canonical storage | `JabRefMarkCodec`, `MarkStore`, `UndoableDocumentProperties`, `DocumentStyleStore` | Encode identities, read citation/page-info state, register custom-property undo deltas, and store applied-style identity. |
 | Ordering | `DocumentOrder` | Order within text containers, map footnotes for numbering, and use visual positions when available. |
-| Document writes | `MarkWriter`, `BibliographySection`, `DocumentSession` | Apply prepared output and manage write-phase undo, locking, and change recording. |
+| Document writes | `CitationMarkerWriter`, `BibliographySection`, `DocumentWriteSession` | Apply prepared output and manage write-phase undo, locking, and change recording. |
 | Zotero mode | `ZoteroCitationStrategy` | Read and write native Zotero citations with CSL rendering and source linking. |
 | Citation conversion | `CitationFormatConverter`, `ConversionMetadata` | Prepare next-CSL-insertion conversion of citation marks only, preserving citation state in a document sidecar. |
 
@@ -35,7 +36,7 @@ The engine and renderers live in `jablib/src/main/java/org/jabref/logic/openoffi
 `DocumentCitations` and `DocumentOrder` are in `logic/openoffice/frontend/`.
 `DocumentCitations` is an action-local facade combining a mutable `CitationGroups` model with live `MarkStore` and Writer range access, not a document subtype or immutable snapshot.
 Core facade instances are named `documentCitations`; GUI controller instances are named `citationController`.
-`OpenOfficeCitationController` exposes concise action methods such as `insertCitation`, `refresh`, `mergeCitations`, `separateCitations`, and `exportCited`.
+`OpenOfficeCitationController` exposes concise action methods such as `insertCitation`, `refresh`, `mergeCitations`, `separateCitations`, `exportCited`, and `importCited`.
 `OpenOfficeDocumentConnection.disposeAllBridges()` is a global static shutdown operation: it disposes client-side UNO bridges without closing Writer documents or the office application.
 
 Low-level UNO helpers and `OOTextWriter` are in `logic/openoffice/uno/`.
@@ -56,7 +57,7 @@ flowchart TD
     Read --> Order[Order existing and pending groups]
     Order --> Render[Render markers and requested bibliography]
     Render -->|Failure| Error[Return without document mutation]
-    Render -->|Success| Session[DocumentSession write phase]
+    Render -->|Success| Session[DocumentWriteSession write phase]
     Session --> Apply[Apply prepared markers and optional bibliography]
     Apply --> State[Store applied style and clean orphan page info]
 ```
@@ -69,7 +70,7 @@ Ordering occurs before controller locking because Writer's view cursor cannot mo
 
 Renderers do not write to Writer.
 BST rendering can require Pandoc and fail; rendering finishes before the canonical write phase begins.
-After preparation, `DocumentSession` groups writes in an undo context, suspends change recording, and locks controllers while applying the output.
+After preparation, `DocumentWriteSession` groups writes in an undo context, suspends change recording, and locks controllers while applying the output.
 `UndoableDocumentProperties` registers custom `XUndoAction` deltas for page-info changes and removals alongside Writer's mark/text edits.
 Undo/redo uses raw property APIs during replay so it does not register further undo actions.
 Ordinary applied-style and Zotero preference setters remain raw and are not made undoable by these page-info deltas.
@@ -87,6 +88,30 @@ If existing citations cannot be resolved in the selected libraries, a successful
 The warning applies with synchronization enabled or disabled; the insertion succeeds, but existing markers may show unresolved keys, and synchronization may omit their bibliography entries.
 Stored keys remain available for resolution after reopening the libraries and refreshing.
 
+## Importing cited entries
+
+**Import cited** reads bibliographic data embedded in native Zotero-compatible reference marks, including JabRef-linked marks in that format.
+It ignores canonical JabRef and legacy marks, which do not embed the required entry data.
+Unlike **Export cited**, it does not resolve citation keys against open libraries to collect the entries.
+
+`OpenOfficePanel` captures the active `LibraryTab` before collection and delegates through `OpenOfficeCitationController.importCited()` to `CitationEngine.importCited()`.
+The engine uses `CitedEntryCollector` to collect embedded entries without a write session, document mutation, or citation-format conversion, independently of the selected compatibility mode.
+The panel passes the result to the captured tab's normal `ImportHandler`, so changing the active tab does not retarget the import.
+Missing library or document prerequisites are reported before collection.
+
+Collection prefers native item URIs, then explicit document keys, then fallback numeric item IDs.
+Only citations with the same selected identity are deduplicated, preserving the first collected position and bibliographic data; a later explicit key is retained when the first citation with that identity was keyless.
+Key-only and URI-bearing representations remain separate even when their keys match, and both reach the serialized ordinary bibliographic duplicate handler.
+An extra duplicate prompt is safer than dropping a potentially unrelated publication based solely on a shared key.
+
+For cited-entry imports, the handler serializes each complete duplicate search, user decision, key adjustment, and insertion before starting the next entry's search.
+This lets later entries find earlier accepted bibliographic duplicates without changing general imports' concurrent processing or preference behavior.
+All explicit batch keys are reserved before generating keys for keyless entries, including during suffix selection.
+When batch reservations are supplied, generated-key collision checks use each candidate's final normalized form against both reserved keys and existing library keys.
+If an unrelated library entry owns an explicit document key, the handler warns and declines that entry's insertion rather than renaming it or creating duplicate keys.
+Replacing or merging a duplicate is also declined with a warning if the outcome would silently drop another explicit key from the cited batch.
+The [import requirements](../../requirements/import.md#user-can-import-cited-entries-from-zotero-compatible-libreoffice-documents) define identity collection, key preservation, and batch duplicate handling.
+
 ## What is stored in a document
 
 A canonical group occupies one Writer reference mark:
@@ -103,7 +128,7 @@ JABREF_Smith2000, JABREF_Jones2001 NORMAL group-18
 ```
 
 The type precedes the uid.
-`MarkCodec` has no uid-before-type fallback.
+`JabRefMarkCodec` has no uid-before-type fallback.
 Keys are nonempty and contain neither whitespace nor commas.
 Key order, including repeated keys, is storage order, not renderer sorting order.
 The uid identifies the group independently of citation numbers, labels, and marker text.
@@ -144,11 +169,12 @@ Document custom properties do not travel with citation text copied to another do
 
 `JabRef_document_style` stores the applied family and identifier: a path for JStyle/BST or a CSL style identifier.
 Selecting a style does not change the last-applied document property; a successful write does.
+This metadata remains available for manual CSL inference and citation-format conversion, not automatic style selection.
 CSL operations also maintain Zotero preferences such as `ZOTERO_PREF`.
-Ordinary `DocumentStateStore` and Zotero preference writes use raw property setters, so Undo can restore presentation without restoring their recorded style identity.
+Ordinary `DocumentStyleStore` and Zotero preference writes use raw property setters, so Undo can restore presentation without restoring their recorded style identity.
 Conversion separately prepares those style-property deltas and makes its own writes undoable alongside citation edits.
 
-`MarkWriter` keeps a bounded, connection-local baseline of formatted `OOText` per uid rather than comparing only plain Writer text.
+`CitationMarkerWriter` keeps a bounded, connection-local baseline of formatted `OOText` per uid rather than comparing only plain Writer text.
 Reconnecting clears that baseline, so unchanged text may be rewritten on the first refresh.
 The baseline is not persisted as document properties.
 The canonical managed bibliography uses the `JR_bib` section; JStyle retains its `JR_bib_end` hook.
@@ -161,6 +187,13 @@ JStyle supports page information and group editing; CSL and BST retain stored pa
 Zotero mode disables page-info and group editing.
 Insertion coerces unsupported new types according to capabilities, while rendering an existing canonical citation with another family does not replace its stored type.
 Returning to a supporting family can restore a stored partial citation's presentation.
+With Zotero compatibility mode disabled, CSL also supports the existing author-only and year-only choices in Cite special using fixed JabRef formatting.
+Author-only uses short author names, then editor names, then the citation key; year-only uses the resolved year, then a parsed date year, then the citation key.
+Multiple entries retain storage order and repetitions and are joined with semicolons.
+These are style-independent approximations: explicit year suffixes survive, but CSL-specific name formatting and processor-generated disambiguation suffixes are not reproduced, and year-only is not general native author suppression.
+Page information and the unsupported no-parentheses choice remain disabled for CSL, while native Zotero insertion supports only normal (`AUTHORYEAR_PAR`) and narrative (`AUTHORYEAR_INTEXT`) citations and does not expose invisible or partial-citation choices.
+Native JSON determines the normal or narrative type; empty or zero-width mark text does not imply invisibility.
+Canonical JabRef invisible citations remain unchanged.
 
 A render pass considers the entire cited set rather than storing a number beside each key.
 Numeric CSL styles use citeproc's cluster updates and bibliography order rather than patching digits in existing text.
@@ -172,10 +205,31 @@ Shared ordering is not a guarantee of correct reading order for every layout.
 
 ## Style selection and external styles
 
+The panel's Settings menu provides More settings, which opens JabRef preferences with the OpenOffice/LibreOffice tab selected, even without a connected Writer document.
+
 Style registries have explicit family-specific sources.
 The CSL registry uses `CSLStyleLoader::getStyles`, including configured external CSL styles; it does not accidentally restrict the catalog to bundled styles.
 JStyle and BST retain their bundled defaults alongside their configured external styles.
-Manual style inference is CSL-only; restoration of explicitly stored applied-style metadata across families is a separate operation.
+Each loader's `getStyles()` returns a detached, unmodifiable list snapshot with internal styles first.
+CSL retains its static shared style lists and generated metadata catalog, with lazy loading of built-in style sources.
+
+Each loader owns its guarded boolean `addExternalStyle(...)` and `removeStyle(...)` operations and persists its family's external paths only after an accepted addition or actual removal.
+Internal styles cannot be added as external styles or removed; rejected and no-op mutations do not write preferences.
+Duplicate checks preserve each family's policy:
+
+- CSL compares full titles or matching nonblank short titles against external styles and built-in metadata, without loading built-in sources.
+- BST compares case-sensitive, extension-stripped names against external and built-in styles.
+- JStyle checks parsed-style equality against its external list.
+
+`StyleSelectDialogViewModel.storeStylePreferences()` saves only the selected style and BST citation notation, never reconstructing external-path lists from dialog rows.
+Keeping one writer per family's external-path list prevents a stale dialog snapshot from overwriting registry changes.
+Adding CSL or BST styles still applies the added style immediately; adding a JStyle selects its row but defers applying it until the dialog is confirmed.
+
+For style preparation, `OpenOfficePanel` calls `JStyle.ensureUpToDate()` directly on the actual selected JStyle; CSL and BST instances are left untouched.
+The panel retains the last selected style from global preferences at startup and when connecting to or selecting a Writer document.
+No style family is inferred or restored automatically from document metadata.
+Manual **Infer style** is available only with a CSL style selected and a connected Writer document.
+It uses the package-private `CslStyleResolver.resolve(XTextDocument)` to resolve document metadata against the current styles from a live `Supplier<List<CitationStyle>>`.
 Choosing another family does not turn manual CSL inference into a JStyle/BST heuristic.
 
 The style dialogs share the external-file picker and narrow private removal helpers, not a new generic style-management framework.
@@ -202,15 +256,16 @@ Only current canonical and native Zotero citation marks participate; `JR_cite*` 
 `CitationFormatConverter` prepares existing and pending citations, source linking, replacement identities, optional normally synchronized target bibliography output, and style-property deltas.
 Required custom-property types, writability, and removability are preflighted before mutation.
 One render supplies final markers and any requested bibliography output; application does not render again.
-Invalid metadata, unsupported citation modifiers, unresolved sources, unsuitable properties, protected ranges, and rendering failures stop preparation before document writes or undo-history changes.
+Invalid metadata, unresolved sources, unsuitable properties, protected ranges, and rendering failures stop preparation before document writes or undo-history changes.
 
 `ConversionMetadata` stores a document-local citation sidecar under `JabRef_citation_conversion:<uid>`.
 It preserves the canonical uid, storage-order keys, all six stored types, every page-info slot, and supported native Zotero JSON, including URI links, opaque identifiers, and harmless unknown metadata, while the association remains valid through conversion and save/reopen.
-Previously stored canonical partial types and page information survive but are not rendered in Zotero mode.
-Native nonempty locators, labels, prefixes, suffixes, author-only items, and mixed per-item `suppress-author` flags are rejected before conversion or ordinary native insertion/refresh with an actionable error; uniform suppression is supported.
-`ZoteroCitationModifiers` validates these modifiers before linking, rendering, or writing native updates, independently of conversion-sidecar freshness checks.
-A rejected update leaves citations, bibliography, document properties, and undo history unchanged and directs the user to update the citations in Zotero; this is not locator conversion or rendering support.
-Export-cited still reads these citations because it does not rewrite them.
+Canonical `EMPTY` and canonical-only partial types use the normal visible citation fallback in Zotero mode; page information remains stored but is not rendered.
+Converting back restores the canonical uid, storage-order keys, stored type, and page information from the sidecar, including invisible rendering for `EMPTY`.
+Native modifiers do not introduce a rejection in format conversion, insertion, or refresh.
+These operations retain the existing rendering behavior: visible locators and affixes can disappear when citations are regenerated, author-only is ignored, and any item with `suppress-author: true` selects group-level in-text/narrative rendering, including mixed groups.
+Native JSON remains in native marks or the conversion sidecar, which restores the original modifiers when converting back; retaining metadata is not full modifier rendering support.
+Export-cited remains read-only.
 The sidecar is not a rendered-output cache: opaque native JSON may include Zotero display properties that are preserved rather than used for rendering.
 
 A native citation's `citationID` or mark suffix associates it with its sidecar.
@@ -225,7 +280,7 @@ There is no bibliography conversion, renaming, consolidation, cleanup, metadata 
 Pre-existing canonical and Zotero sections may therefore coexist.
 
 Conversion requires an available, unlocked undo manager and cannot join another undo context.
-`DocumentSession.writeWithRollback` owns a root context and sentinel, making successful insertion/conversion one Undo/Redo step for citation edits, page-info and conversion metadata, prepared conversion-style properties, and any normally synchronized target bibliography.
+`DocumentWriteSession.writeWithRollback` owns a root context and sentinel, making successful insertion/conversion one Undo/Redo step for citation edits, page-info and conversion metadata, prepared conversion-style properties, and any normally synchronized target bibliography.
 On ordinary application failure it closes and verifies ownership of the context before undoing only its own transaction, never an earlier user action.
 Starting the write transaction may clear pre-existing redo history even if rollback restores document state.
 Disconnects, lost ownership, or failed rollback produce a distinct recovery error; complete recovery is not universally guaranteed and a saved copy may be needed.
@@ -242,7 +297,8 @@ Owned conversion-failure rollback is new recovery behavior intended to prevent o
 
 The [Writer integration testing instructions](../testing.md#libreoffice-writer-integration-tests) describe the required LibreOffice/Pandoc setup, dedicated task, standard test reports, and saved documents/logs.
 Golden documents, cross-family save/reopen, citation-mode conversion, all types/page slots, native JSON, protected ranges, superscripts, tracked changes, and rollback are covered by the relevant Writer and unit-test definitions.
-The native locator fixture establishes unchanged content on rejection, not successful locator conversion.
+Native modifier fixtures cover successful conversion with the existing citation-type mapping and JSON restoration through save/reopen; they do not establish full modifier rendering support.
 These descriptions do not establish that a particular run passed or remove the documented ordering limitations.
-The [code reorganization](code-reorganization.md) and [problems](problems.md) pages preserve historical design evidence rather than define the current contract.
+The [package layout and ownership guide](code-reorganization.md) maps these responsibilities to current source packages and entry points.
+The [problems page](problems.md) remains a record of historical design evidence, not the current contract.
 For repository exploration, see [JabRef on DeepWiki](https://deepwiki.com/JabRef/jabref).

@@ -81,6 +81,11 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added checkboxes to enable or disable individual journal abbreviation lists without removing them. [#12468](https://github.com/JabRef/jabref/issues/12468)
 - We added support for resolving BibLaTeX `xdata` field references in entry previews. [#10865](https://github.com/JabRef/jabref/issues/10865)
 - We added entry details on hover to the JabRef language server, which now also reads `bibliography:` from Markdown front matter. [#17302](https://github.com/JabRef/jabref/pull/17302)
+- We added importing cited entries from Zotero-compatible LibreOffice documents into the current library. [#16516](https://github.com/JabRef/jabref/issues/16516)
+- We added switching JStyle/CSL/BST citation styles without reinserting LibreOffice/OpenOffice citations, preserving citation types and page information outside Zotero compatibility mode. [#14962](https://github.com/JabRef/jabref/issues/14962)
+- We added approximate author-only and year-only citations through "Cite special" for CSL styles in LibreOffice/OpenOffice, outside Zotero compatibility mode. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We added "Settings → More settings" in the LibreOffice/OpenOffice panel to open JabRef's integration preferences without connecting a document. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We added citation refresh in LibreOffice/OpenOffice for CSL styles that do not generate bibliographies. [#17673](https://github.com/JabRef/jabref/pull/17673)
 
 ### Changed
 
@@ -108,6 +113,16 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We renamed the preference "Create backup" to "Create backups", because JabRef keeps multiple backup versions. [#780](https://github.com/JabRef/jabref-koppor/pull/780)
 - We changed the main table to keep the entry shown in the entry editor visible when enlarging the entry editor. [#17167](https://github.com/JabRef/jabref/pull/17167)
 - We added synchronizing a library with its file, per library or as a global default (off by default). [#8431](https://github.com/JabRef/jabref/issues/8431)
+- We changed inserting LibreOffice/OpenOffice citations to refresh existing citations, follow bibliography synchronization settings, and avoid duplicate spaces around citations. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We changed LibreOffice/OpenOffice warnings after inserting or refreshing citations to list all missing citation keys and suggest opening corresponding libraries. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We changed LibreOffice/OpenOffice JabRef/Zotero citation conversion to preserve citation types and page information after reopening documents and Undo/Redo. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We changed error messages when updating LibreOffice/OpenOffice citations to explain protected areas, missing entries or styles, and Pandoc failures. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We changed LibreOffice/OpenOffice integration to preserve citations and bibliographies when formatting generation fails, and attempt recovery after failed citation conversions. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We changed LibreOffice/OpenOffice citation style selection to leave Zotero compatibility mode unchanged; disable it before citing with JStyle or BST. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We changed removing LibreOffice/OpenOffice citation styles to request confirmation, retain unrelated style selections, and leave style files untouched. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We changed LibreOffice/OpenOffice bibliography refresh to remove outdated references and extra blank paragraphs only for the selected JabRef/Zotero citation mode. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We changed "Separate citations" for JStyle styles in LibreOffice/OpenOffice to preserve in-text, invisible, no-parentheses, author-only, and year-only citation groups. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We changed LibreOffice/OpenOffice citation refresh to order citations by document text when citation positions on screen are unavailable. [#17673](https://github.com/JabRef/jabref/pull/17673)
 
 ### Fixed
 
@@ -330,11 +345,20 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed a `.gitignore` outside a git repository hiding all results in "Search for unlinked local files". [#17141](https://github.com/JabRef/jabref/pull/17141)
 - We fixed an issue where accepting an external change to an entry lost its table position, selection, and open entry editor. [#16813](https://github.com/JabRef/jabref/pull/16813)
 - We fixed an issue where libraries opened or saved shortly before JabRef was killed were missing from recent libraries. [#16911](https://github.com/JabRef/jabref/pull/16911)
+- We fixed LibreOffice/OpenOffice citations losing their normal, in-text, or invisible form when refreshed using CSL styles outside Zotero compatibility mode. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We fixed citation page information being lost, misplaced, or not cleared when editing LibreOffice/OpenOffice citations or undoing citation edits. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We fixed unrelated document numbers and citation formatting changing unexpectedly when refreshing LibreOffice/OpenOffice citations using numeric CSL styles. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We fixed numbering and reference labels becoming inconsistent between citations and bibliographies when using BST styles in LibreOffice/OpenOffice. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We fixed literal text being interpreted as formatting in LibreOffice/OpenOffice bibliography headings and in citation keys for JStyle styles. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We fixed incorrect numeric bibliography formatting in LibreOffice/OpenOffice when JStyle styles display citation keys instead of citation numbers. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We fixed LibreOffice/OpenOffice citation updates modifying citations marked for deletion through Track Changes after change recording was disabled. [#17673](https://github.com/JabRef/jabref/pull/17673)
+- We fixed edits to selected JStyle files not taking effect when inserting or refreshing citations in LibreOffice/OpenOffice. [#17673](https://github.com/JabRef/jabref/pull/17673)
 
 ### Removed
 
 - We removed the "Waiting for AI reply..." notification; the AI chat already shows a progress indicator. [#17145](https://github.com/JabRef/jabref/pull/17145)
 - We temporarily removed the language handling for Docling due to a bug in RapidOCR. [#17674](https://github.com/JabRef/jabref/pull/17674)
+- We removed legacy JabRef citation support from LibreOffice/OpenOffice citation refresh, bibliographies, and cited-entry export; citation text remains without automatic migration. [#14962](https://github.com/JabRef/jabref/issues/14962)
 
 ## [6.0-beta.1] - 2026-09-21
 

@@ -13,17 +13,17 @@ import org.jabref.logic.JabRefException;
 import org.jabref.logic.citationstyle.CitationStyle;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.openoffice.CitationIds;
+import org.jabref.logic.openoffice.CitedEntryCollector;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
 import org.jabref.logic.openoffice.backend.WriterReferenceMarks;
-import org.jabref.logic.openoffice.engine.ZoteroCitationStrategy.StrategyException;
-import org.jabref.logic.openoffice.engine.storage.MarkWriter;
+import org.jabref.logic.openoffice.engine.storage.CitationMarkerWriter;
 import org.jabref.logic.openoffice.frontend.DocumentCitations;
 import org.jabref.logic.openoffice.frontend.DocumentOrder;
 import org.jabref.logic.openoffice.frontend.RangeForOverlapCheck;
-import org.jabref.logic.openoffice.rangesort.FunctionalTextViewCursor;
+import org.jabref.logic.openoffice.rangesort.RestorableTextViewCursor;
 import org.jabref.logic.openoffice.style.OOStyle;
-import org.jabref.logic.openoffice.uno.CreationException;
-import org.jabref.logic.openoffice.uno.NoDocumentException;
+import org.jabref.logic.openoffice.uno.WriterDocumentAccessException;
+import org.jabref.logic.openoffice.uno.WriterOperationException;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
@@ -57,8 +57,8 @@ public final class CitationEngine implements AutoCloseable {
     private final XComponentContext context;
     private final OpenOfficePreferences preferences;
     private final BibEntryTypesManager entryTypes;
-    private final MarkWriter writer;
-    private final DocumentSession session;
+    private final CitationMarkerWriter writer;
+    private final DocumentWriteSession session;
     private final ZoteroCitationStrategy zotero;
     private boolean closed;
 
@@ -67,8 +67,8 @@ public final class CitationEngine implements AutoCloseable {
         this.context = context;
         this.preferences = preferences;
         this.entryTypes = entryTypes;
-        this.writer = new MarkWriter(document, context);
-        this.session = new DocumentSession(document);
+        this.writer = new CitationMarkerWriter(document, context);
+        this.session = new DocumentWriteSession(document);
         this.zotero = new ZoteroCitationStrategy(document, context, preferences, entryTypes);
     }
 
@@ -87,7 +87,7 @@ public final class CitationEngine implements AutoCloseable {
         try {
             StyleCapabilities capabilities = renderers().create(style).capabilities();
             return preferences.getZoteroCompatibilityMode()
-                   ? new StyleCapabilities(capabilities.supportedTypes(), capabilities.hasBibliography(), false, false)
+                   ? new StyleCapabilities(Set.of(CitationType.AUTHORYEAR_PAR, CitationType.AUTHORYEAR_INTEXT), capabilities.hasBibliography(), false, false)
                    : capabilities;
         } catch (RenderException exception) {
             LOGGER.debug("Cannot determine citation style capabilities", exception);
@@ -107,7 +107,7 @@ public final class CitationEngine implements AutoCloseable {
         }
         try {
             return OOResult.ok(CitationFormatConverter.required(WriterReferenceMarks.getListOfNames(document), preferences.getZoteroCompatibilityMode()));
-        } catch (NoDocumentException | com.sun.star.uno.RuntimeException exception) {
+        } catch (WriterDocumentAccessException | com.sun.star.uno.RuntimeException exception) {
             return OOResult.error(failure(Localization.lang("Problem collecting citations"), exception));
         }
     }
@@ -127,7 +127,7 @@ public final class CitationEngine implements AutoCloseable {
             return insertWithConversion(entries, databases, cslStyle, requestedType, pageInfo, cursor, rebuildBibliography);
         }
         if (preferences.getZoteroCompatibilityMode()) {
-            return writeNativeSession(Localization.lang("Insert citation"),
+            return writeSession(Localization.lang("Insert citation"),
                     () -> zotero.insert(entries, databases, style, requestedType, pageInfo, cursor, rebuildBibliography));
         }
         try {
@@ -155,8 +155,8 @@ public final class CitationEngine implements AutoCloseable {
                 citations.getLast().setPageInfo(Optional.of(OOText.fromString(pageInfo)));
             }
             CitationGroup pending = new CitationGroup(new CitationGroupId(data.uniqueId()), type,
-                    citations, Optional.of(MarkCodec.encode(data)));
-            OOResult<FunctionalTextViewCursor, String> view = FunctionalTextViewCursor.get(document);
+                    citations, Optional.of(JabRefMarkCodec.encode(data)));
+            OOResult<RestorableTextViewCursor, String> view = RestorableTextViewCursor.get(document);
             List<CitationGroup> ordered = new DocumentOrder().withInsertion(document, documentCitations.citationGroups, documentCitations.markStore,
                     pending, cursor.getEnd(), view.isError() ? Optional.empty() : Optional.of(view.get()));
             UpdatePipeline pipeline = pipeline();
@@ -172,12 +172,12 @@ public final class CitationEngine implements AutoCloseable {
                     pipeline.apply(style, documentCitations.markStore, stored,
                             new RenderResult(markers, rendered.bibliography(), rendered.unresolvedKeys(), rendered.refreshCitedOnPages()), rebuildBibliography);
                     return OOResult.ok(rendered.unresolvedKeys());
-                } catch (com.sun.star.uno.Exception | CreationException | NoDocumentException | RenderException exception) {
+                } catch (com.sun.star.uno.Exception | WriterOperationException | WriterDocumentAccessException | RenderException exception) {
                     writer.clear();
                     return OOResult.error(failure(Localization.lang("Could not insert citation"), exception));
                 }
             });
-        } catch (NoDocumentException | WrappedTargetException | RenderException | MarkCodecException exception) {
+        } catch (WriterDocumentAccessException | WrappedTargetException | RenderException | JabRefMarkCodecException exception) {
             return OOResult.error(failure(Localization.lang("Could not insert citation"), exception));
         }
     }
@@ -193,14 +193,14 @@ public final class CitationEngine implements AutoCloseable {
                 try {
                     prepared.apply(writer, cursor);
                     return OOResult.ok(prepared.unresolvedKeys());
-                } catch (com.sun.star.uno.Exception | CreationException | NoDocumentException | MarkCodecException exception) {
+                } catch (com.sun.star.uno.Exception | WriterOperationException | WriterDocumentAccessException | JabRefMarkCodecException exception) {
                     writer.clear();
                     return OOResult.error(failure(Localization.lang("Could not insert citation"), exception));
                 }
             }, true);
         } catch (JabRefException exception) {
             return OOResult.error(exception);
-        } catch (com.sun.star.uno.Exception | NoDocumentException | RenderException | MarkCodecException | IOException
+        } catch (com.sun.star.uno.Exception | WriterDocumentAccessException | RenderException | JabRefMarkCodecException | IOException
                  | IllegalArgumentException | IllegalStateException | com.sun.star.uno.RuntimeException exception) {
             return OOResult.error(failure(Localization.lang("Could not insert citation"), exception));
         }
@@ -212,7 +212,7 @@ public final class CitationEngine implements AutoCloseable {
             return OOResult.error(unavailable());
         }
         if (preferences.getZoteroCompatibilityMode()) {
-            return writeNativeSession(Localization.lang("Refresh bibliography"), () -> zotero.refresh(databases, style));
+            return writeSession(Localization.lang("Refresh bibliography"), () -> zotero.refresh(databases, style));
         }
         try {
             DocumentCitations documentCitations = new DocumentCitations(document);
@@ -228,12 +228,12 @@ public final class CitationEngine implements AutoCloseable {
                 try {
                     pipeline.apply(style, documentCitations.markStore, groups, result, true);
                     return OOResult.ok(result.unresolvedKeys());
-                } catch (com.sun.star.uno.Exception | CreationException | NoDocumentException | RenderException exception) {
+                } catch (com.sun.star.uno.Exception | WriterOperationException | WriterDocumentAccessException | RenderException exception) {
                     writer.clear();
                     return OOResult.error(failure(Localization.lang("Could not update bibliography"), exception));
                 }
             });
-        } catch (NoDocumentException | WrappedTargetException | RenderException exception) {
+        } catch (WriterDocumentAccessException | WrappedTargetException | RenderException exception) {
             return OOResult.error(failure(Localization.lang("Could not update bibliography"), exception));
         }
     }
@@ -249,7 +249,7 @@ public final class CitationEngine implements AutoCloseable {
     // [impl->req~openoffice.single-step-group-undo~1]
     private OOResult<List<String>, JabRefException> editGroups(List<BibDatabase> databases, OOStyle style, GroupEdit edit) {
         if (!capabilities(style).supportsGroupEditing()) {
-            return OOResult.error(new UnsupportedOperation("The selected style does not support citation group editing"));
+            return OOResult.error(new UnsupportedCitationOperationException("The selected style does not support citation group editing"));
         }
         try {
             DocumentCitations documentCitations = new DocumentCitations(document);
@@ -283,12 +283,12 @@ public final class CitationEngine implements AutoCloseable {
                     pipeline.apply(style, documentCitations.markStore, stored,
                             new RenderResult(markers, rendered.bibliography(), rendered.unresolvedKeys(), rendered.refreshCitedOnPages()), true);
                     return OOResult.ok(rendered.unresolvedKeys());
-                } catch (com.sun.star.uno.Exception | CreationException | NoDocumentException | RenderException exception) {
+                } catch (com.sun.star.uno.Exception | WriterOperationException | WriterDocumentAccessException | RenderException exception) {
                     writer.clear();
                     return OOResult.error(failure(Localization.lang("Problem modifying citation"), exception));
                 }
             });
-        } catch (NoDocumentException | WrappedTargetException | CreationException | RenderException exception) {
+        } catch (WriterDocumentAccessException | WrappedTargetException | WriterOperationException | RenderException exception) {
             return OOResult.error(failure(Localization.lang("Problem modifying citation"), exception));
         }
     }
@@ -310,46 +310,45 @@ public final class CitationEngine implements AutoCloseable {
                                                                         .map(CitedReference::getCitationKey)
                                                                         .toList();
             return OOResult.ok(CitedEntryExporter.export(citationKeys, databases));
-        } catch (NoDocumentException | WrappedTargetException e) {
+        } catch (WriterDocumentAccessException | WrappedTargetException e) {
             LOGGER.debug("Could not collect cited entries for export", e);
             return OOResult.error(new JabRefException(e.getMessage(), e));
         }
     }
 
+    public OOResult<List<BibEntry>, JabRefException> importCited() {
+        if (closed) {
+            return OOResult.error(unavailable());
+        }
+        try {
+            return OOResult.ok(CitedEntryCollector.collectCitedEntries(WriterReferenceMarks.getListOfNames(document)));
+        } catch (WriterDocumentAccessException | com.sun.star.uno.RuntimeException exception) {
+            return OOResult.error(failure(Localization.lang("Unable to import cited entries"), exception));
+        }
+    }
+
     public OOResult<List<CitationEntry>, JabRefException> getCitationEntries(OOStyle style) {
         if (!capabilities(style).supportsPageInfo()) {
-            return OOResult.error(new UnsupportedOperation("The selected style does not support editing page information"));
+            return OOResult.error(new UnsupportedCitationOperationException("The selected style does not support editing page information"));
         }
         try {
             return OOResult.ok(new DocumentCitations(document).getCitationEntries(document));
-        } catch (NoDocumentException | WrappedTargetException exception) {
+        } catch (WriterDocumentAccessException | WrappedTargetException exception) {
             return OOResult.error(failure(Localization.lang("Problem collecting citations"), exception));
         }
     }
 
     public OOVoidResult<JabRefException> applyCitationEntries(List<CitationEntry> entries, OOStyle style) {
         if (!capabilities(style).supportsPageInfo()) {
-            return OOVoidResult.error(new UnsupportedOperation("The selected style does not support editing page information"));
+            return OOVoidResult.error(new UnsupportedCitationOperationException("The selected style does not support editing page information"));
         }
         try {
             new DocumentCitations(document).applyCitationEntries(document, entries);
             writer.clear();
             return OOVoidResult.ok();
-        } catch (com.sun.star.uno.Exception | NoDocumentException exception) {
+        } catch (com.sun.star.uno.Exception | WriterDocumentAccessException exception) {
             return OOVoidResult.error(failure(Localization.lang("Problem modifying citation"), exception));
         }
-    }
-
-    private OOResult<List<String>, JabRefException> writeNativeSession(String title, Supplier<OOResult<List<String>, JabRefException>> action) {
-        // Even an empty Writer undo context can evict older undo actions when the history is full.
-        try {
-            zotero.requireSupportedModifiers();
-        } catch (StrategyException exception) {
-            return OOResult.error(exception);
-        } catch (NoDocumentException | com.sun.star.uno.RuntimeException exception) {
-            return OOResult.error(failure(Localization.lang("Problem collecting citations"), exception));
-        }
-        return writeSession(title, action);
     }
 
     private <T> OOResult<T, JabRefException> writeSession(String title, Supplier<OOResult<T, JabRefException>> action) {
@@ -384,8 +383,8 @@ public final class CitationEngine implements AutoCloseable {
     }
 
     @NullMarked
-    public static final class UnsupportedOperation extends JabRefException {
-        private UnsupportedOperation(String message) {
+    public static final class UnsupportedCitationOperationException extends JabRefException {
+        private UnsupportedCitationOperationException(String message) {
             super(message, Localization.lang("Problem modifying citation"));
         }
     }

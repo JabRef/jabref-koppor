@@ -17,8 +17,8 @@ import org.jabref.logic.openoffice.engine.StyleCapabilities;
 import org.jabref.logic.openoffice.style.BstStyle;
 import org.jabref.logic.openoffice.style.JStyle;
 import org.jabref.logic.openoffice.style.OOStyle;
-import org.jabref.logic.openoffice.uno.NoDocumentException;
 import org.jabref.logic.openoffice.uno.UnoCursor;
+import org.jabref.logic.openoffice.uno.WriterDocumentAccessException;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
@@ -44,6 +44,7 @@ import org.mockito.MockedStatic;
 
 import static org.jabref.logic.l10n.Localization.lang;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -55,6 +56,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @NullMarked
@@ -401,6 +403,85 @@ class OpenOfficeCitationControllerTest {
         }
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void importCitedDelegatesWithoutModeOrStyleChecksAndPreservesEntries(boolean zoteroMode) {
+        when(preferences.getZoteroCompatibilityMode()).thenReturn(zoteroMode);
+        BibEntry entry = new BibEntry();
+        List<BibEntry> entries = List.of(entry, new BibEntry(entry));
+        try (MockedConstruction<CitationEngine> engines = mockConstruction(CitationEngine.class,
+                (engine, _) -> when(engine.importCited()).thenReturn(OOResult.ok(entries)))) {
+            Optional<List<BibEntry>> result = controller().importCited();
+
+            assertSame(entries, result.orElseThrow());
+            assertEquals(Optional.empty(), entry.getCitationKey());
+            CitationEngine engine = engines.constructed().getFirst();
+            verify(engine).importCited();
+            verifyNoMoreInteractions(engine);
+            verifyNoInteractions(dialogs, document, context, preferences, entryTypes, style);
+        }
+    }
+
+    @Test
+    void importCitedPreservesSuccessfulEmptyList() {
+        try (MockedConstruction<CitationEngine> engines = mockEngines()) {
+            assertEquals(Optional.of(List.of()), controller().importCited());
+
+            CitationEngine engine = engines.constructed().getFirst();
+            verify(engine).importCited();
+            verifyNoMoreInteractions(engine);
+            verifyNoInteractions(dialogs, document, context, preferences, entryTypes, style);
+        }
+    }
+
+    @Test
+    void importCitedPresentsEngineFailureAndReturnsEmptyOptional() {
+        JabRefException error = new JabRefException("Import read failed", "Document reference marks are unavailable");
+        try (MockedConstruction<CitationEngine> engines = mockConstruction(CitationEngine.class,
+                (engine, _) -> when(engine.importCited()).thenReturn(OOResult.error(error)))) {
+            assertEquals(Optional.empty(), controller().importCited());
+
+            verify(dialogs).showErrorDialogAndWait(lang("Unable to import cited entries"), error.getLocalizedMessage());
+            CitationEngine engine = engines.constructed().getFirst();
+            verify(engine).importCited();
+            verifyNoMoreInteractions(engine);
+            verifyNoInteractions(document, context, preferences, entryTypes, style);
+        }
+    }
+
+    @Test
+    void importCitedWithoutDocumentPresentsConnectionErrorWithoutConstructingEngine() {
+        OOError error = OOError.from(new WriterDocumentAccessException());
+        when(connection.getXTextDocument()).thenReturn(OOResult.error(error));
+        try (MockedConstruction<CitationEngine> engines = mockEngines()) {
+            assertEquals(Optional.empty(), controller().importCited());
+
+            assertEquals(List.of(), engines.constructed());
+            verify(dialogs).showErrorDialogAndWait(lang("Unable to import cited entries"), error.getLocalizedMessage());
+            verifyNoInteractions(document, context, preferences, entryTypes, style);
+        }
+    }
+
+    @Test
+    void importCitedAfterConnectionLossClosesCachedEngineWithoutCollectingAgain() {
+        try (MockedConstruction<CitationEngine> engines = mockEngines()) {
+            OpenOfficeCitationController citationController = controller();
+            assertEquals(Optional.of(List.of()), citationController.importCited());
+            OOError error = OOError.from(new WriterDocumentAccessException());
+            when(connection.getXTextDocument()).thenReturn(OOResult.error(error));
+
+            assertEquals(Optional.empty(), citationController.importCited());
+
+            assertEquals(1, engines.constructed().size());
+            CitationEngine engine = engines.constructed().getFirst();
+            verify(engine).importCited();
+            verify(engine).close();
+            verifyNoMoreInteractions(engine);
+            verify(dialogs).showErrorDialogAndWait(lang("Unable to import cited entries"), error.getLocalizedMessage());
+            verifyNoInteractions(document, context, preferences, entryTypes, style);
+        }
+    }
+
     @Test
     void manageCitationsUsesEngineForBothReadAndApply() {
         CitationEntry entry = new CitationEntry("canonical", "context", Optional.of("p. 5"));
@@ -421,58 +502,65 @@ class OpenOfficeCitationControllerTest {
 
     @ParameterizedTest
     @ValueSource(classes = {CitationStyle.class, JStyle.class, BstStyle.class})
-    void documentSelectionRestoresTheStoredStyleInsteadOfTheGlobalPreference(Class<? extends OOStyle> styleClass) throws WrappedTargetException {
-        OOStyle storedStyle = mock(styleClass);
-        OpenOfficeStyleCatalog catalog = mock(OpenOfficeStyleCatalog.class);
-        when(catalog.restore(document, false)).thenReturn(Optional.of(storedStyle));
+    void documentSelectionRetainsThePreferredStyleWithoutSettingAStyle(Class<? extends OOStyle> styleClass) throws Exception {
+        OOStyle preferredStyle = mock(styleClass);
+        when(preferences.getCurrentStyle()).thenReturn(preferredStyle);
 
-        assertEquals(Optional.of(storedStyle), controller().restoreStyleFromDocument(catalog).get());
-        verify(preferences).setCurrentStyle(storedStyle);
-        verify(preferences, never()).setCurrentStyle(style);
+        controller().selectDocument(true);
+
+        assertEquals(preferredStyle, preferences.getCurrentStyle());
+        verify(preferences, never()).setCurrentStyle(any());
+        verifyNoInteractions(document);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void switchingDocumentsRetainsThePreferredStyleWithoutSettingAStyle(boolean zoteroMode) throws Exception {
+        when(preferences.getZoteroCompatibilityMode()).thenReturn(zoteroMode);
+        XTextDocument nextDocument = mock(XTextDocument.class);
+        OpenOfficeCitationController citationController = controller();
+        citationController.selectDocument(true);
+        when(connection.getXTextDocument()).thenReturn(OOResult.ok(nextDocument));
+
+        citationController.selectDocument(true);
+
+        assertEquals(style, preferences.getCurrentStyle());
+        verify(preferences, never()).setCurrentStyle(any());
+        verifyNoInteractions(document, nextDocument);
     }
 
     @Test
-    void zoteroDocumentSelectionRestoresTheNativeStyle() throws WrappedTargetException {
-        when(preferences.getZoteroCompatibilityMode()).thenReturn(true);
-        CitationStyle storedStyle = mock(CitationStyle.class);
-        OpenOfficeStyleCatalog catalog = mock(OpenOfficeStyleCatalog.class);
-        when(catalog.restore(document, true)).thenReturn(Optional.of(storedStyle));
-
-        assertEquals(Optional.of(storedStyle), controller().restoreStyleFromDocument(catalog).get());
-        verify(preferences).setCurrentStyle(storedStyle);
-    }
-
-    @Test
-    void cslInferenceSelectsOnlyTheCatalogCslResult() throws WrappedTargetException {
+    void cslInferenceSelectsOnlyTheResolverCslResult() throws WrappedTargetException {
         CitationStyle inferred = mock(CitationStyle.class);
-        OpenOfficeStyleCatalog catalog = mock(OpenOfficeStyleCatalog.class);
-        when(catalog.inferCslStyle(document)).thenReturn(Optional.of(inferred));
+        CslStyleResolver resolver = mock(CslStyleResolver.class);
+        when(resolver.resolve(document)).thenReturn(Optional.of(inferred));
 
-        assertEquals(Optional.of(inferred), controller().inferCslStyleFromDocument(catalog).get());
+        assertEquals(Optional.of(inferred), controller().inferCslStyleFromDocument(resolver).get());
         verify(preferences).setCurrentStyle(inferred);
-        verify(catalog, never()).restore(any(), anyBoolean());
+        verify(resolver).resolve(document);
+        verifyNoMoreInteractions(resolver);
     }
 
     @Test
     void missingCslInferenceLeavesTheCurrentStyleUnchanged() throws WrappedTargetException {
-        OpenOfficeStyleCatalog catalog = mock(OpenOfficeStyleCatalog.class);
-        when(catalog.inferCslStyle(document)).thenReturn(Optional.empty());
+        CslStyleResolver resolver = mock(CslStyleResolver.class);
+        when(resolver.resolve(document)).thenReturn(Optional.empty());
 
-        assertEquals(Optional.empty(), controller().inferCslStyleFromDocument(catalog).get());
+        assertEquals(Optional.empty(), controller().inferCslStyleFromDocument(resolver).get());
         verify(preferences, never()).setCurrentStyle(any());
     }
 
     @Test
     void cslInferenceFailureLeavesTheCurrentStyleUnchanged() throws WrappedTargetException {
-        OpenOfficeStyleCatalog catalog = mock(OpenOfficeStyleCatalog.class);
-        when(catalog.inferCslStyle(document)).thenThrow(new WrappedTargetException("document metadata unavailable"));
+        CslStyleResolver resolver = mock(CslStyleResolver.class);
+        when(resolver.resolve(document)).thenThrow(new WrappedTargetException("document metadata unavailable"));
 
-        assertEquals("document metadata unavailable", controller().inferCslStyleFromDocument(catalog).getError().getLocalizedMessage());
+        assertEquals("document metadata unavailable", controller().inferCslStyleFromDocument(resolver).getError().getLocalizedMessage());
         verify(preferences, never()).setCurrentStyle(any());
     }
 
     @Test
-    void documentSelectionDoesNotConstructEngineBeforeDocumentStyleRestoration() throws Exception {
+    void documentSelectionDoesNotConstructEngine() throws Exception {
         try (MockedConstruction<CitationEngine> engines = mockEngines()) {
             controller().selectDocument(true);
 
@@ -503,7 +591,7 @@ class OpenOfficeCitationControllerTest {
             OpenOfficeCitationController citationController = controller();
             citationController.capabilities(style);
             CitationEngine engine = engines.constructed().getFirst();
-            when(connection.getXTextDocument()).thenReturn(OOResult.error(OOError.from(new NoDocumentException())));
+            when(connection.getXTextDocument()).thenReturn(OOResult.error(OOError.from(new WriterDocumentAccessException())));
 
             citationController.refresh(List.of(new BibDatabase()), style);
 
@@ -521,6 +609,7 @@ class OpenOfficeCitationControllerTest {
         return mockConstruction(CitationEngine.class, (engine, _) -> {
             when(engine.capabilities(any())).thenReturn(new StyleCapabilities(Set.of(CitationType.AUTHORYEAR_PAR), true, false, false));
             when(engine.requiresFormatConversion(any())).thenReturn(OOResult.ok(false));
+            when(engine.importCited()).thenReturn(OOResult.ok(List.of()));
             when(engine.refresh(anyList(), any())).thenReturn(OOResult.ok(List.of()));
             when(engine.merge(anyList(), any())).thenReturn(OOResult.ok(List.of()));
             when(engine.separate(anyList(), any())).thenReturn(OOResult.ok(List.of()));

@@ -18,7 +18,6 @@ import org.jabref.logic.JabRefException;
 import org.jabref.logic.citationstyle.CSLStyleUtils;
 import org.jabref.logic.citationstyle.CitationStyle;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
-import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
 import org.jabref.logic.openoffice.ZoteroCitationLinker;
@@ -30,14 +29,13 @@ import org.jabref.logic.openoffice.backend.WriterReferenceMark.BoundaryPolicy;
 import org.jabref.logic.openoffice.backend.WriterReferenceMarks;
 import org.jabref.logic.openoffice.engine.CitationEngine;
 import org.jabref.logic.openoffice.engine.CitedEntryExporter;
-import org.jabref.logic.openoffice.engine.RenderException;
 import org.jabref.logic.openoffice.engine.ZoteroCitationStrategy.Reason;
 import org.jabref.logic.openoffice.engine.ZoteroCitationStrategy.StrategyException;
 import org.jabref.logic.openoffice.style.BstStyle;
 import org.jabref.logic.openoffice.style.JStyle;
 import org.jabref.logic.openoffice.style.JStyleLoader;
 import org.jabref.logic.openoffice.style.OOStyle;
-import org.jabref.logic.openoffice.uno.DocumentAnnotation;
+import org.jabref.logic.openoffice.uno.NamedTextContentPlacement;
 import org.jabref.logic.openoffice.uno.UnoRedlines;
 import org.jabref.logic.openoffice.uno.UnoTextSection;
 import org.jabref.logic.openoffice.uno.UnoUserDefinedProperty;
@@ -50,6 +48,7 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.openoffice.style.CitationType;
 import org.jabref.model.openoffice.util.OOResult;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sun.star.awt.FontSlant;
@@ -139,7 +138,7 @@ class ZoteroWriterTest {
         XTextCursor position = document.getText().createTextCursor();
         position.goRight((short) 7, false);
         position.goRight((short) initial.length(), true);
-        WriterReferenceMarks.create(new DocumentAnnotation(document, name, position, true));
+        WriterReferenceMarks.create(new NamedTextContentPlacement(document, name, position, true));
         WriterReferenceMarks marks = new WriterReferenceMarks();
         for (String rendered : List.of("", "X", "updated", "")) {
             WriterReferenceMark mark = marks.find(document, name, policy).orElseThrow();
@@ -205,12 +204,11 @@ class ZoteroWriterTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"refresh", "insert"})
-    void nativeLocatorsAreNeverSilentlyDroppedByRefreshOrInsertion(String action) throws Exception {
+    void nativeLocatorsRemainInMetadataButUseOrdinaryRenderingOnRefreshAndInsertion(String action) throws Exception {
         XTextDocument document = office.newDocument();
         document.getText().setString("New citation: .\n");
         String name = ZoteroReferenceMark.PREFIX + Files.readString(resource("zotero-native-locator.json")).strip() + " RNDlocator001";
         appendMark(document, name, "[1, p. 17]");
-        DocumentSnapshot before = snapshot(document);
         Path styleFile = temporaryDirectory.resolve("locator-aware.csl");
         Files.writeString(styleFile, Files.readString(resource("zotero-numeric.csl"))
                                           .replace("<text variable=\"citation-number\"/>", "<text variable=\"citation-number\"/><text variable=\"locator\" prefix=\", p. \"/>"));
@@ -222,30 +220,35 @@ class ZoteroWriterTest {
                                                              ? engine.refresh(databases, selectedStyle)
                                                              : engine.insert(List.of(entry), databases, selectedStyle, CitationType.AUTHORYEAR_PAR,
                     "", document.getText().createTextCursor(), false);
-            if (result.isError()) {
-                assertEquals(before, snapshot(document));
-                return;
-            }
-            assertEquals(List.of(), result.get());
+            assertEquals(List.of(), success(result));
+            assertLinkedNativeCitation(document, name, "[1]");
             Map<String, String> citations = zoteroMarks(document);
-            String updatedName = citations.keySet().stream()
-                                          .filter(mark -> "native-locator-citation".equals(json(mark).get("citationID").getAsString()))
-                                          .findFirst().orElseThrow();
-            assertEquals("17", json(updatedName).getAsJsonArray("citationItems").get(0).getAsJsonObject().get("locator").getAsString());
-            assertEquals("[1, p. 17]", citations.get(updatedName));
+            assertEquals("insert".equals(action) ? 2 : 1, citations.size());
+            assertEquals(Set.of("[1]"), Set.copyOf(citations.values()));
+        }
+        Map<String, String> expected = zoteroMarks(document);
+        XTextDocument reopened = office.saveAndReload(document, temporaryDirectory.resolve("native-locator-" + action + ".odt"));
+        assertEquals(expected, zoteroMarks(reopened));
+        try (CitationEngine engine = engine(reopened)) {
+            assertEquals(List.of(), success(engine.refresh(databases, selectedStyle)));
+            assertEquals(expected, zoteroMarks(reopened));
+            assertLinkedNativeCitation(reopened, name, "[1]");
         }
     }
 
     @ParameterizedTest
-    @MethodSource("unsupportedNativeUpdates")
-        // [utest->req~openoffice.zotero-modifier-safe-update~1]
-    void unsupportedNativeModifiersRejectUpdatesWithFullSnapshotUnchanged(String operation, String location, String field) throws Exception {
+    @MethodSource("nativeModifierUpdates")
+        // [utest->req~openoffice.zotero-modifier-compatibility~1]
+    void ordinaryNativeModifiersAllowUpdatesAndPreserveMetadata(String operation, String location, String field, String expectedText) throws Exception {
         XTextDocument document = office.newDocument();
         document.getText().setString("New citation: .\n");
-        appendMark(document, nativeMarkName().replace("native-citation", "supported-citation"), "[supported]");
+        String ordinaryName = nativeMarkName().replace("native-citation", "supported-citation");
+        appendMark(document, ordinaryName, "[supported]");
         JsonObject citation = json(nativeMarkName());
         JsonObject item = citation.getAsJsonArray("citationItems").get(0).getAsJsonObject();
-        if ("author-only".equals(field)) {
+        citation.addProperty("foreign", "keep citation metadata");
+        item.addProperty("foreign", "keep item metadata");
+        if ("author-only".equals(field) || "suppress-author".equals(field)) {
             item.addProperty(field, true);
         } else if ("mixed-suppression".equals(field)) {
             citation.getAsJsonArray("citationItems").add(item.deepCopy());
@@ -274,11 +277,10 @@ class ZoteroWriterTest {
         bibliography.setString("\n");
         bibliography.collapseToEnd();
         bibliography.setString("Existing native bibliography");
-        UnoTextSection.create(new DocumentAnnotation(document, "ZOTERO_BIBL unchanged", bibliography, true));
+        UnoTextSection.create(new NamedTextContentPlacement(document, "ZOTERO_BIBL unchanged", bibliography, true));
         UnoUserDefinedProperty.setStringProperty(document, "JabRef_citation_conversion:unrelated", "not JSON");
         UnoUserDefinedProperty.setStringProperty(document, "JabRef_document_style", "CSL\nuntouched");
         UnoRedlines.setRecordChanges(document, true);
-        DocumentSnapshot before = snapshot(document);
         BibEntry entry = nativeEntry("native");
         List<BibDatabase> databases = List.of(new BibDatabase(List.of(entry)));
         try (CitationEngine engine = engine(document)) {
@@ -286,30 +288,49 @@ class ZoteroWriterTest {
                                                              ? engine.refresh(databases, style())
                                                              : engine.insert(List.of(entry), databases, style(), CitationType.AUTHORYEAR_PAR,
                     "", document.getText().createTextCursor(), true);
-            StrategyException error = assertInstanceOf(StrategyException.class, result.getError());
-            assertEquals(Reason.UNSUPPORTED_MODIFIERS, error.reason());
-            assertEquals(Localization.lang("Cannot update Zotero citations with unsupported modifiers. No citations were changed. Update them in Zotero instead."), error.getLocalizedMessage());
-            assertEquals("Unsupported native Zotero citation modifiers", assertInstanceOf(RenderException.class, error.getCause()).getMessage());
-            assertEquals(before, snapshot(document));
+            assertEquals(List.of(), success(result));
+            String linkedOrdinaryName = assertLinkedNativeCitation(document, ordinaryName, "[1]");
+            String linkedModifierName = assertLinkedNativeCitation(document, name, expectedText);
+            Map<String, String> citations = zoteroMarks(document);
+            assertEquals("insert".equals(operation) ? 3 : 2, citations.size());
+            Map<String, String> inserted = new LinkedHashMap<>(citations);
+            inserted.remove(linkedOrdinaryName);
+            inserted.remove(linkedModifierName);
+            assertEquals("insert".equals(operation) ? List.of("[1]") : List.of(), List.copyOf(inserted.values()));
+            assertEquals(List.of("ZOTERO_BIBL unchanged"), zoteroBibliographies(document));
+            String bibliographyText = UnoTextSection.getAnchor(document, "ZOTERO_BIBL unchanged").orElseThrow().getString();
+            assertEquals(List.of("1. Native linked title"), bibliographyText.lines().map(String::strip).filter(line -> !line.isEmpty()).toList());
+            assertEquals(Optional.of("not JSON"), UnoUserDefinedProperty.getStringValue(document, "JabRef_citation_conversion:unrelated"));
+            assertEquals(Optional.of("CSL\nuntouched"), UnoUserDefinedProperty.getStringValue(document, "JabRef_document_style"));
             assertTrue(UnoRedlines.getRecordChanges(document));
+            DocumentSnapshot beforeExport = snapshot(document);
             CitedEntryExporter.ExportResult exported = success(engine.exportCited(databases));
-            assertEquals(List.of(), exported.database().getEntries());
-            assertEquals(List.of("Zotero-600"), exported.unresolvedKeys());
-            assertEquals(before, snapshot(document));
+            assertEquals(List.of("native"), exportedKeys(exported));
+            assertEquals(List.of(), exported.unresolvedKeys());
+            assertEquals(beforeExport, snapshot(document));
         }
-        assertEquals(before, snapshot(document));
+        Map<String, String> expected = zoteroMarks(document);
+        XTextDocument reopened = office.saveAndReload(document, temporaryDirectory.resolve("native-modifier-" + operation + "-" + location + "-" + field + ".odt"));
+        assertEquals(expected, zoteroMarks(reopened));
+        try (CitationEngine engine = engine(reopened)) {
+            assertEquals(List.of(), success(engine.refresh(databases, style())));
+            assertEquals(expected, zoteroMarks(reopened));
+            assertLinkedNativeCitation(reopened, ordinaryName, "[1]");
+            assertLinkedNativeCitation(reopened, name, expectedText);
+        }
     }
 
-    private static Stream<Arguments> unsupportedNativeUpdates() {
+    private static Stream<Arguments> nativeModifierUpdates() {
         Stream.Builder<Arguments> cases = Stream.builder();
         for (String operation : List.of("refresh", "insert")) {
             for (String field : List.of("locator", "label", "prefix", "suffix")) {
                 for (String location : List.of("citation", "properties", "item")) {
-                    cases.add(Arguments.of(operation, location, field));
+                    cases.add(Arguments.of(operation, location, field, "[1]"));
                 }
             }
-            cases.add(Arguments.of(operation, "item", "author-only"));
-            cases.add(Arguments.of(operation, "item", "mixed-suppression"));
+            cases.add(Arguments.of(operation, "item", "author-only", "[1]"));
+            cases.add(Arguments.of(operation, "item", "suppress-author", "Native [1]"));
+            cases.add(Arguments.of(operation, "item", "mixed-suppression", "Native [1], Native [1]"));
         }
         return cases.build();
     }
@@ -335,14 +356,14 @@ class ZoteroWriterTest {
     }
 
     @Test
-    void normalInTextAndEmptyCitationsRemainIndependentAcrossRefreshExportAndSaveReopen() throws Exception {
+    void normalAndInTextCitationsRemainIndependentAcrossRefreshExportAndSaveReopen() throws Exception {
         XTextDocument document = office.newDocument();
         document.getText().setString("Citations: .\nBibliography below.");
         XTextCursor cursor = document.getText().createTextCursor();
         cursor.goRight((short) 11, false);
         BibDatabase database = database();
         List<String> keys = List.of("alpha", "beta", "gamma");
-        List<CitationType> types = List.of(CitationType.AUTHORYEAR_PAR, CitationType.AUTHORYEAR_INTEXT, CitationType.INVISIBLE_CIT);
+        List<CitationType> types = List.of(CitationType.AUTHORYEAR_PAR, CitationType.AUTHORYEAR_INTEXT, CitationType.AUTHORYEAR_PAR);
         try (CitationEngine engine = engine(document)) {
             for (int index = 0; index < keys.size(); index++) {
                 assertEquals(List.of(), success(engine.insert(List.of(database.getEntryByCitationKey(keys.get(index)).orElseThrow()),
@@ -350,10 +371,15 @@ class ZoteroWriterTest {
                 cursor.setString(" | ");
                 cursor.collapseToEnd();
             }
+            assertEquals(Set.of(CitationType.AUTHORYEAR_PAR, CitationType.AUTHORYEAR_INTEXT), engine.capabilities(style()).supportedTypes());
             assertEquals(List.of(), success(engine.refresh(List.of(database), style())));
             assertMixedCitations(document);
             assertBibliography(document);
             assertEquals(keys, exportedKeys(success(engine.exportCited(List.of(database)))));
+            DocumentSnapshot before = snapshot(document);
+            assertReason(Reason.UNSUPPORTED_TYPE, engine.insert(List.of(database.getEntryByCitationKey("ignored").orElseThrow()),
+                    List.of(database), style(), CitationType.INVISIBLE_CIT, "", cursor, true));
+            assertEquals(before, snapshot(document));
         }
         Map<String, String> expected = zoteroMarks(document);
         XTextDocument reopened = office.saveAndReload(document, temporaryDirectory.resolve("mixed-zotero.odt"));
@@ -372,6 +398,41 @@ class ZoteroWriterTest {
         }
     }
 
+    @ParameterizedTest
+    @CsvSource({"refresh, ''", "refresh, \u200b", "refresh, \u200b\u200b", "insert, ''", "insert, \u200b", "insert, \u200b\u200b"})
+    void blankOrdinaryNativeCitationsRenderAsNormalAcrossRefreshInsertionAndSaveReopen(String action, String initialText) throws Exception {
+        XTextDocument document = office.newDocument();
+        JsonObject citation = json(nativeMarkName());
+        citation.getAsJsonObject("properties").addProperty("plainCitation", initialText);
+        String name = ZoteroReferenceMark.PREFIX + citation + " RNDnative1234";
+        appendMark(document, name, initialText);
+        assertEquals(CitationType.AUTHORYEAR_PAR, ZoteroReferenceMark.parse(name).orElseThrow().citationType());
+        BibEntry entry = nativeEntry("native");
+        List<BibDatabase> databases = List.of(new BibDatabase(List.of(entry)));
+        try (CitationEngine engine = engine(document)) {
+            OOResult<List<String>, JabRefException> result = "refresh".equals(action)
+                                                             ? engine.refresh(databases, style())
+                                                             : engine.insert(List.of(entry), databases, style(), CitationType.AUTHORYEAR_PAR,
+                    "", document.getText().createTextCursor(), false);
+            assertEquals(List.of(), success(result));
+            assertLinkedNativeCitation(document, name, "[1]");
+            assertEquals("insert".equals(action) ? 2 : 1, zoteroMarks(document).size());
+            for (Map.Entry<String, String> mark : zoteroMarks(document).entrySet()) {
+                assertEquals(CitationType.AUTHORYEAR_PAR, ZoteroReferenceMark.parse(mark.getKey()).orElseThrow().citationType());
+                assertEquals("[1]", mark.getValue());
+            }
+            assertEquals(List.of("native"), exportedKeys(success(engine.exportCited(databases))));
+        }
+        Map<String, String> expected = zoteroMarks(document);
+        XTextDocument reopened = office.saveAndReload(document, temporaryDirectory.resolve("blank-native-" + action + ".odt"));
+        assertEquals(expected, zoteroMarks(reopened));
+        try (CitationEngine engine = engine(reopened)) {
+            assertEquals(List.of(), success(engine.refresh(databases, style())));
+            assertEquals(expected, zoteroMarks(reopened));
+            assertEquals(List.of("native"), exportedKeys(success(engine.exportCited(databases))));
+        }
+    }
+
     @Test
     void nextZoteroInsertionConvertsCanonicalButStillIgnoresLegacyMarks() throws Exception {
         XTextDocument document = office.newDocument();
@@ -383,7 +444,7 @@ class ZoteroWriterTest {
         cursor.setString("\n");
         cursor.collapseToEnd();
         cursor.setString("Existing JabRef bibliography");
-        UnoTextSection.create(new DocumentAnnotation(document, "JR_bib", cursor, true));
+        UnoTextSection.create(new NamedTextContentPlacement(document, "JR_bib", cursor, true));
         Map<String, String> ignored = marks(document);
         UnoUserDefinedProperty.setStringProperty(document, "JabRef_document_style", "JSTYLE\nuntouched");
         UnoUserDefinedProperty.setStringProperty(document, "JabRef_page_info:stableIgnored:0", "p. 99");
@@ -460,7 +521,7 @@ class ZoteroWriterTest {
         cursor.setString("\n");
         cursor.collapseToEnd();
         cursor.setString("Existing JabRef bibliography");
-        UnoTextSection.create(new DocumentAnnotation(document, "JR_bib", cursor, true));
+        UnoTextSection.create(new NamedTextContentPlacement(document, "JR_bib", cursor, true));
         UnoUserDefinedProperty.setStringProperty(document, "JabRef_document_style", "JSTYLE\nuntouched");
         UnoUserDefinedProperty.setStringProperty(document, "JabRef_page_info:stableIgnored:0", "p. 99");
         Map<String, String> ignored = marks(document);
@@ -479,7 +540,7 @@ class ZoteroWriterTest {
         XTextDocument document = office.newDocument();
         appendMark(document, nativeMarkName(), "[native]");
         DocumentSnapshot before = snapshot(document);
-        OOStyle unsupported = "bst".equals(family) ? BstStyle.loadExternal(resource("golden.bst"))
+        OOStyle unsupported = "bst".equals(family) ? BstStyle.loadExternal(resource("title-only.bst"))
                                                    : new JStyle(JStyleLoader.DEFAULT_AUTHORYEAR_STYLE_PATH, LayoutFormatterPreferences.getDefault(), new JournalAbbreviationRepository());
         try (CitationEngine engine = engine(document)) {
             assertFalse(success(engine.requiresFormatConversion(unsupported)));
@@ -496,7 +557,7 @@ class ZoteroWriterTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = CitationType.class, names = {"AUTHOR_ONLY", "YEAR_ONLY", "AUTHORYEAR_NOPAR"})
+    @EnumSource(value = CitationType.class, names = {"AUTHOR_ONLY", "YEAR_ONLY", "AUTHORYEAR_NOPAR", "INVISIBLE_CIT"})
     void unsupportedCitationTypesAreRejectedWithoutChangingExistingMarks(CitationType type) throws Exception {
         XTextDocument document = office.newDocument();
         appendMark(document, nativeMarkName(), "[native]");
@@ -653,7 +714,7 @@ class ZoteroWriterTest {
         XTextDocument document = office.newDocument();
         XTextContent footnote = footnoteWithNativeCitation(document);
         String bodyName = nativeMarkName().replace("native-citation", "body-citation");
-        WriterReferenceMarks.create(new DocumentAnnotation(document, bodyName, footnote.getAnchor(), true));
+        WriterReferenceMarks.create(new NamedTextContentPlacement(document, bodyName, footnote.getAnchor(), true));
         DocumentSnapshot before = snapshot(document);
         try (CitationEngine engine = engine(document)) {
             assertReason(Reason.OVERLAPPING_RANGES, engine.refresh(List.of(new BibDatabase(List.of(nativeEntry("native")))), style()));
@@ -699,7 +760,7 @@ class ZoteroWriterTest {
         document.getText().setString("Protected bibliography");
         XTextCursor cursor = document.getText().createTextCursor();
         cursor.gotoEnd(true);
-        UnoTextSection.create(new DocumentAnnotation(document, name, cursor, true));
+        UnoTextSection.create(new NamedTextContentPlacement(document, name, cursor, true));
         return UnoTextSection.getAnchor(document, name).orElseThrow();
     }
 
@@ -712,7 +773,7 @@ class ZoteroWriterTest {
         XText text = query(XText.class, footnote);
         XTextCursor cursor = text.createTextCursor();
         cursor.setString("[native]");
-        WriterReferenceMarks.create(new DocumentAnnotation(document, nativeMarkName(), cursor, true));
+        WriterReferenceMarks.create(new NamedTextContentPlacement(document, nativeMarkName(), cursor, true));
         return footnote;
     }
 
@@ -755,7 +816,7 @@ class ZoteroWriterTest {
         cursor.setString("\n");
         cursor.collapseToEnd();
         cursor.setString(content);
-        WriterReferenceMarks.create(new DocumentAnnotation(document, name, cursor, true));
+        WriterReferenceMarks.create(new NamedTextContentPlacement(document, name, cursor, true));
     }
 
     private static Map<String, String> marks(XTextDocument document) throws Exception {
@@ -785,6 +846,21 @@ class ZoteroWriterTest {
         return item.getAsJsonArray("uris").asList().stream().map(uri -> uri.getAsString()).toList();
     }
 
+    private static String assertLinkedNativeCitation(XTextDocument document, String originalName, String expectedText) throws Exception {
+        JsonObject expected = json(originalName);
+        for (JsonElement element : expected.getAsJsonArray("citationItems")) {
+            element.getAsJsonObject().getAsJsonArray("uris").add("http://www.jabref.org/native");
+        }
+        Map<String, String> citations = zoteroMarks(document);
+        String citationId = expected.get("citationID").getAsString();
+        String linkedName = citations.keySet().stream()
+                                     .filter(name -> citationId.equals(json(name).get("citationID").getAsString())).findFirst().orElseThrow();
+        assertEquals(expected, json(linkedName));
+        assertEquals(ZoteroReferenceMark.parse(originalName).orElseThrow().uniqueId(), ZoteroReferenceMark.parse(linkedName).orElseThrow().uniqueId());
+        assertEquals(expectedText, citations.get(linkedName));
+        return linkedName;
+    }
+
     private static void assertNativeMetadata(String name, List<String> expectedUris) {
         JsonObject citation = json(name);
         assertEquals("native-citation", citation.get("citationID").getAsString());
@@ -812,7 +888,7 @@ class ZoteroWriterTest {
                 assertEquals(CitationType.AUTHORYEAR_PAR, parsed.citationType());
             }
         }
-        assertEquals(Map.of("alpha", "[1]", "beta", "Beta [2]", "gamma", "\u200b\u200b"), texts);
+        assertEquals(Map.of("alpha", "[1]", "beta", "Beta [2]", "gamma", "[3]"), texts);
     }
 
     private static void assertBibliography(XTextDocument document) throws Exception {

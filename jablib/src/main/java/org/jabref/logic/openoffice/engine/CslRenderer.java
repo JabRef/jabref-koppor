@@ -18,6 +18,8 @@ import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
+import org.jabref.model.entry.Date;
+import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.openoffice.ootext.OOFormat;
 import org.jabref.model.openoffice.ootext.OOText;
 import org.jabref.model.openoffice.style.Citation;
@@ -53,24 +55,38 @@ public final class CslRenderer implements CitationRenderer {
 
     @Override
     public StyleCapabilities capabilities() {
-        return new StyleCapabilities(Set.of(CitationType.AUTHORYEAR_PAR, CitationType.AUTHORYEAR_INTEXT, CitationType.INVISIBLE_CIT),
-                style.hasBibliography(), false, false);
+        return new StyleCapabilities(Set.of(CitationType.AUTHORYEAR_PAR, CitationType.AUTHORYEAR_INTEXT, CitationType.INVISIBLE_CIT,
+                CitationType.AUTHOR_ONLY, CitationType.YEAR_ONLY), style.hasBibliography(), false, false);
     }
 
     @Override
     public RenderResult render(RenderRequest request) throws RenderException {
-        RenderData data = new RenderData(request);
+        return render(request, capabilities());
+    }
+
+    /// Native Zotero rendering uses normal or in-text citations; other canonical types remain recoverable through conversion metadata.
+    RenderResult renderNative(RenderRequest request) throws RenderException {
+        return render(request, new StyleCapabilities(Set.of(CitationType.AUTHORYEAR_PAR, CitationType.AUTHORYEAR_INTEXT),
+                style.hasBibliography(), false, false));
+    }
+
+    private RenderResult render(RenderRequest request, StyleCapabilities capabilities) throws RenderException {
+        CitationKeyResolution data = new CitationKeyResolution(request);
         try {
             Optional<CSL> processor = data.resolvedKeys().isEmpty() ? Optional.empty() : Optional.of(createProcessor(data));
             BibDatabaseContext alphaContext = new BibDatabaseContext(new BibDatabase(style.isAlphanumericStyle() ? data.flattenedEntries() : List.of()));
             Map<Integer, String> renderedClusters = new HashMap<>();
             Map<CitationGroupId, List<Fragment>> fragments = new LinkedHashMap<>();
             for (CitationGroup group : request.groupsInDocumentOrder()) {
-                CitationType type = capabilities().coerceForInsert(group.citationType);
+                CitationType type = capabilities.coerceForInsert(group.citationType);
                 List<Fragment> groupFragments = new ArrayList<>();
                 if (type == CitationType.AUTHORYEAR_INTEXT) {
                     for (Citation citation : group.citationsInStorageOrder) {
                         groupFragments.add(inText(citation.citationKey, data, processor, alphaContext, renderedClusters));
+                    }
+                } else if (type == CitationType.AUTHOR_ONLY || type == CitationType.YEAR_ONLY) {
+                    for (Citation citation : group.citationsInStorageOrder) {
+                        groupFragments.add(partial(citation.citationKey, type, data));
                     }
                 } else if (type != CitationType.INVISIBLE_CIT) {
                     List<String> run = new ArrayList<>();
@@ -79,7 +95,7 @@ public final class CslRenderer implements CitationRenderer {
                             run.add(citation.citationKey);
                         } else {
                             appendRun(run, groupFragments, processor, alphaContext, renderedClusters);
-                            groupFragments.add(Fragment.literal(RenderData.unresolved(citation.citationKey)));
+                            groupFragments.add(Fragment.literal(CitationKeyResolution.unresolved(citation.citationKey)));
                         }
                     }
                     appendRun(run, groupFragments, processor, alphaContext, renderedClusters);
@@ -88,7 +104,7 @@ public final class CslRenderer implements CitationRenderer {
             }
             Map<CitationGroupId, OOText> markers = new LinkedHashMap<>();
             for (CitationGroup group : request.groupsInDocumentOrder()) {
-                String delimiter = capabilities().coerceForInsert(group.citationType) == CitationType.AUTHORYEAR_INTEXT ? ", " : "; ";
+                String delimiter = capabilities.coerceForInsert(group.citationType) == CitationType.AUTHORYEAR_INTEXT ? ", " : "; ";
                 StringJoiner text = new StringJoiner(delimiter);
                 List<Fragment> groupFragments = Optional.ofNullable(fragments.get(group.groupId))
                                                         .orElseThrow(() -> new RenderException("CSL did not prepare a citation group"));
@@ -113,7 +129,7 @@ public final class CslRenderer implements CitationRenderer {
         }
     }
 
-    private CSL createProcessor(RenderData data) throws IOException, RenderException {
+    private CSL createProcessor(CitationKeyResolution data) throws IOException, RenderException {
         List<CSLItemData> items = new ArrayList<>();
         JabRefItemDataProvider provider = new JabRefItemDataProvider();
         for (String key : data.resolvedKeys()) {
@@ -145,10 +161,10 @@ public final class CslRenderer implements CitationRenderer {
         keys.clear();
     }
 
-    private Fragment inText(String key, RenderData data, Optional<CSL> processor,
+    private Fragment inText(String key, CitationKeyResolution data, Optional<CSL> processor,
                             BibDatabaseContext alphaContext, Map<Integer, String> renderedClusters) throws RenderException {
         if (data.lookup(key).isEmpty()) {
-            return Fragment.literal(RenderData.unresolved(key));
+            return Fragment.literal(CitationKeyResolution.unresolved(key));
         }
         if (style.isAlphanumericStyle()) {
             BibEntry entry = alphaContext.getDatabase().getEntryByCitationKey(key).orElseThrow(() -> new RenderException("Alphanumeric citation is unresolved: " + key));
@@ -159,6 +175,36 @@ public final class CslRenderer implements CitationRenderer {
                         ? StringEscapeUtils.escapeHtml4(CSLFormatUtils.generateAuthorPrefix(source.entry, new BibDatabaseContext(source.database)))
                         : "";
         return cluster(processor, List.of(key), prefix, !style.isNumericStyle(), renderedClusters);
+    }
+
+    /// Fixed JabRef formatting, not CSL author-only/suppress-author semantics. Explicit year suffixes
+    /// survive resolution, but citeproc's generated disambiguation suffixes are not reproduced.
+    // [impl->req~openoffice.csl-partial-citations~1]
+    private static Fragment partial(String key, CitationType type, CitationKeyResolution data) throws RenderException {
+        if (data.lookup(key).isEmpty()) {
+            return Fragment.literal(CitationKeyResolution.unresolved(key));
+        }
+        CitationLookupResult source = data.resolved(key);
+        String text = (type == CitationType.AUTHOR_ONLY ? shortAuthor(source) : year(source)).orElse(key);
+        return Fragment.literal(StringEscapeUtils.escapeHtml4(text));
+    }
+
+    private static Optional<String> shortAuthor(CitationLookupResult source) {
+        BibDatabaseContext context = new BibDatabaseContext(source.database);
+        return Optional.of(CSLFormatUtils.generateAuthorPrefix(source.entry, context).strip())
+                       .filter(author -> !author.isBlank())
+                       .or(() -> source.entry.getResolvedFieldOrAlias(StandardField.EDITOR, source.database)
+                                             .map(editor -> CSLFormatUtils.generateAuthorPrefix(new BibEntry().withField(StandardField.AUTHOR, editor), context).strip())
+                                             .filter(editor -> !editor.isBlank()));
+    }
+
+    private static Optional<String> year(CitationLookupResult source) {
+        return source.entry.getResolvedFieldOrAlias(StandardField.YEAR, source.database)
+                           .filter(year -> !year.isBlank())
+                           .or(() -> source.entry.getResolvedFieldOrAlias(StandardField.DATE, source.database)
+                                                 .flatMap(Date::parse)
+                                                 .flatMap(Date::getYear)
+                                                 .map(String::valueOf));
     }
 
     private static Fragment cluster(Optional<CSL> processor, List<String> keys, String prefix,

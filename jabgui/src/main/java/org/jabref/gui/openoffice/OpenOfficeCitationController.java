@@ -15,8 +15,8 @@ import org.jabref.logic.openoffice.engine.CitationEngine;
 import org.jabref.logic.openoffice.engine.CitedEntryExporter;
 import org.jabref.logic.openoffice.engine.StyleCapabilities;
 import org.jabref.logic.openoffice.style.OOStyle;
-import org.jabref.logic.openoffice.uno.CreationException;
 import org.jabref.logic.openoffice.uno.UnoCursor;
+import org.jabref.logic.openoffice.uno.WriterOperationException;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
@@ -54,7 +54,7 @@ public class OpenOfficeCitationController {
     private Optional<XTextDocument> engineDocument = Optional.empty();
 
     public OpenOfficeCitationController(Path loPath, DialogService dialogService, OpenOfficePreferences openOfficePreferences, BibEntryTypesManager bibEntryTypesManager)
-            throws BootstrapException, CreationException, IOException, InterruptedException {
+            throws BootstrapException, WriterOperationException, IOException, InterruptedException {
         this(new OpenOfficeDocumentConnection(loPath, dialogService), dialogService, openOfficePreferences, bibEntryTypesManager);
     }
 
@@ -129,28 +129,13 @@ public class OpenOfficeCitationController {
         return getEngine().map(current -> current.capabilities(style)).getOptional().orElse(NO_CAPABILITIES);
     }
 
-    OOResult<Optional<OOStyle>, OOError> restoreStyleFromDocument(OpenOfficeStyleCatalog styles) {
+    OOResult<Optional<CitationStyle>, OOError> inferCslStyleFromDocument(CslStyleResolver resolver) {
         OOResult<XTextDocument, OOError> document = getXTextDocument();
         if (document.isError()) {
             return OOResult.error(document.getError());
         }
         try {
-            Optional<OOStyle> restored = styles.restore(document.get(), openOfficePreferences.getZoteroCompatibilityMode());
-            restored.ifPresent(openOfficePreferences::setCurrentStyle);
-            return OOResult.ok(restored);
-        } catch (WrappedTargetException exception) {
-            LOGGER.warn("Could not read the citation style stored in the Writer document", exception);
-            return OOResult.error(OOError.fromMisc(exception));
-        }
-    }
-
-    OOResult<Optional<CitationStyle>, OOError> inferCslStyleFromDocument(OpenOfficeStyleCatalog styles) {
-        OOResult<XTextDocument, OOError> document = getXTextDocument();
-        if (document.isError()) {
-            return OOResult.error(document.getError());
-        }
-        try {
-            Optional<CitationStyle> inferred = styles.inferCslStyle(document.get());
+            Optional<CitationStyle> inferred = resolver.resolve(document.get());
             inferred.ifPresent(openOfficePreferences::setCurrentStyle);
             return OOResult.ok(inferred);
         } catch (WrappedTargetException exception) {
@@ -304,6 +289,19 @@ public class OpenOfficeCitationController {
             }
         }
         return Optional.of(result.database());
+    }
+
+    public Optional<List<BibEntry>> importCited() {
+        String title = Localization.lang("Unable to import cited entries");
+        OOResult<CitationEngine, OOError> current = getEngine();
+        if (showErrorIfPresent(title, current.asVoidResult())) {
+            return Optional.empty();
+        }
+        OOResult<List<BibEntry>, JabRefException> result = current.get().importCited();
+        if (showErrorIfPresent(title, result.asVoidResult().mapError(OOError::from))) {
+            return Optional.empty();
+        }
+        return result.getOptional();
     }
 
     private void showUnresolvedKeys(String title, List<String> keys) {
