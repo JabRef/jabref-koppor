@@ -15,6 +15,7 @@ import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.actions.SimpleCommand;
 import org.jabref.gui.clipboard.ClipBoardManager;
+import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.frame.SidePanePreferences;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.ai.AiService;
@@ -47,7 +48,8 @@ public class SidePaneViewModel extends AbstractViewModel {
                              FileUpdateMonitor fileUpdateMonitor,
                              BibEntryTypesManager entryTypesManager,
                              ClipBoardManager clipBoardManager,
-                             GitHandlerRegistry gitHandlerRegistry) {
+                             GitHandlerRegistry gitHandlerRegistry,
+                             NativeDesktop nativeDesktop) {
         this.preferences = preferences;
         this.stateManager = stateManager;
         this.dialogService = dialogService;
@@ -62,7 +64,8 @@ public class SidePaneViewModel extends AbstractViewModel {
                 fileUpdateMonitor,
                 entryTypesManager,
                 clipBoardManager,
-                gitHandlerRegistry);
+                gitHandlerRegistry,
+                nativeDesktop);
 
         preferences.getSidePanePreferences().visiblePanes().forEach(this::show);
         getPanes().addListener((ListChangeListener<? super SidePaneType>) change -> {
