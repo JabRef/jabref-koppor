@@ -15,6 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
 import org.jabref.gui.DialogService;
+import org.jabref.gui.LibraryTabContainer;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.testutils.JavaFxExtension;
 import org.jabref.logic.citationstyle.CSLStyleLoader;
@@ -26,6 +27,7 @@ import org.jabref.logic.openoffice.style.BstStyleLoader;
 import org.jabref.logic.openoffice.style.JStyle;
 import org.jabref.logic.openoffice.style.JStyleLoader;
 import org.jabref.logic.openoffice.style.OOStyle;
+import org.jabref.logic.util.OptionalObjectProperty;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
@@ -133,6 +135,7 @@ class OpenOfficePanelTest {
             when(styles.reload(any())).thenAnswer(invocation -> invocation.getArgument(0, OOStyle.class));
             when(stateManager.getActiveDatabase()).thenReturn(Optional.of(new BibDatabaseContext(database)));
             when(stateManager.getSelectedEntries()).thenReturn(FXCollections.observableArrayList(entry));
+            when(stateManager.activeTabProperty()).thenReturn(OptionalObjectProperty.empty());
             when(citationController.capabilities(any())).thenReturn(new StyleCapabilities(EnumSet.allOf(CitationType.class), true, true, true));
             when(citationController.restoreStyleFromDocument(styles)).thenReturn(OOResult.ok(Optional.empty()));
 
@@ -147,6 +150,7 @@ class OpenOfficePanelTest {
             setField("styleCatalog", styles);
             setField("citationController", citationController);
             setField("stateManager", stateManager);
+            setField("tabContainer", mock(LibraryTabContainer.class));
             setField("currentStyle", previousStyle);
             setField("vbox", new VBox());
             setField("pageInfoSupported", new SimpleBooleanProperty());

@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javafx.scene.control.TableColumn;
 
@@ -82,7 +82,8 @@ public class BackupManager {
     // Contains a list of all backup paths
     // During writing, the less recent backup file is deleted
     private final Queue<Path> backupFilesQueue = new LinkedBlockingQueue<>();
-    private final AtomicBoolean needsBackup = new AtomicBoolean(false);
+    private final AtomicLong backedUpGeneration = new AtomicLong();
+    private final AtomicLong changeGeneration = new AtomicLong();
 
     BackupManager(LibraryTab libraryTab, BibDatabaseContext bibDatabaseContext, CoarseChangeFilter coarseChangeFilter, BibEntryTypesManager entryTypesManager, CliPreferences preferences) {
         this.bibDatabaseContext = bibDatabaseContext;
@@ -221,10 +222,14 @@ public class BackupManager {
     ///
     /// *SIDE EFFECT: Deletes oldest backup file*
     ///
+    /// Scheduled and shutdown backups must not commit snapshots out of order.
+    /// [impl->req~jabgui.autosaveandbackup.serialized-writes~1]
+    ///
     /// @param backupPath the full path to the file where the library should be backed up to
-    void performBackup(Path backupPath) {
-        // Clear before cloning, so a change arriving while the backup is written is not lost
-        if (!needsBackup.getAndSet(false)) {
+    // [impl->req~jabgui.autosaveandbackup.preserve-pending-edits~1]
+    synchronized void performBackup(Path backupPath) {
+        long generation = changeGeneration.get();
+        if (generation == backedUpGeneration.get()) {
             return;
         }
 
@@ -289,7 +294,6 @@ public class BackupManager {
                         entryTypesManager)
                         // we save the clone to prevent the original database (and thus the UI) from being changed
                         .writeDatabase(bibDatabaseContextClone);
-                backupFilesQueue.add(backupPath);
                 // [impl->req~jabgui.autosaveandbackup.complete-backup~1]
             } catch (IOException e) {
                 writer.abort();
@@ -297,8 +301,11 @@ public class BackupManager {
             }
         } catch (IOException e) {
             LOGGER.error("Error while saving to file {}", backupPath, e);
-            needsBackup.set(true);
+            return;
         }
+        backupFilesQueue.add(backupPath);
+        // Only acknowledge the captured generation after the atomic writer has committed it.
+        backedUpGeneration.set(generation);
     }
 
     private static Path determineDiscardedFile(Path file, Path backupDir) {
@@ -318,13 +325,11 @@ public class BackupManager {
         }
     }
 
-    /// Every change counts, including the keystrokes the filter marks as minor: the filter exists to spare listeners
-    /// expensive work per keystroke, but a flag is cheap and the timer throttles the backups anyway. Ignoring minor
-    /// changes would leave a field the user only types in without backup until the user moves to another field.
-    /// [impl->req~jabgui.autosaveandbackup.backup-listens~1]
+    /// Minor typing events must also arm the backup; the scheduled task throttles writes.
+    /// [impl->req~jabgui.autosaveandbackup.backup-every-edit~1]
     @Subscribe
     public void listen(@SuppressWarnings("unused") BibDatabaseContextChangedEvent event) {
-        needsBackup.set(true);
+        changeGeneration.incrementAndGet();
     }
 
     private void startBackupTask(Path backupDir) {

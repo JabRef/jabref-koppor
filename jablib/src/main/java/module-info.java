@@ -102,6 +102,7 @@ open module org.jabref.jablib {
     exports org.jabref.model.openoffice;
     exports org.jabref.logic.openoffice;
     exports org.jabref.logic.openoffice.bst;
+    exports org.jabref.logic.openoffice.action;
 
     exports org.jabref.logic.openoffice.frontend;
     exports org.jabref.logic.openoffice.engine;
