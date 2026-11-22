@@ -237,6 +237,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - The context window size for AI models unknown to JabRef (e.g., local models) now defaults to 64k tokens instead of 8k. [#17326](https://github.com/JabRef/jabref/pull/17326)
 - We changed saving custom entry types to ask for a restart, so the entry editor shows the changes. [#17121](https://github.com/JabRef/jabref/pull/17121)
 - We changed the opening of libraries from older JabRef versions to ask which conversions to perform and to remember the choice. [#16941](https://github.com/JabRef/jabref/pull/16941)
+- We changed how JabRef opens older libraries by asking which conversions to perform and remembering your choices. [#16941](https://github.com/JabRef/jabref/pull/16941)
 
 ### Fixed
 
