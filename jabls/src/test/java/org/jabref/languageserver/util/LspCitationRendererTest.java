@@ -49,7 +49,7 @@ class LspCitationRendererTest {
 
         String citation = new LspCitationRenderer(mock(CliPreferences.class), new BibEntryTypesManager()).render(entry);
 
-        assertEquals("\\[1\\] K\\. A\\. Cooper\\, “Cocoa and health\\: a decade of research\\,” *British Journal of Nutrition*\\, 2007\\.", citation);
+        assertEquals("[1] K. A. Cooper, “Cocoa and health: a decade of research,” *British Journal of Nutrition*, 2007.", citation);
     }
 
     // [utest->feat~fetchers.language-server-replace-citation~1]
@@ -63,7 +63,7 @@ class LspCitationRendererTest {
 
         String citation = new LspCitationRenderer(mock(CliPreferences.class), new BibEntryTypesManager()).renderInline(entry);
 
-        assertEquals("K\\. A\\. Cooper\\, “Cocoa and health\\: a decade of research\\,” *British Journal of Nutrition*\\, 2007\\.", citation);
+        assertEquals("K. A. Cooper, “Cocoa and health: a decade of research,” *British Journal of Nutrition*, 2007.", citation);
     }
 
     @Test

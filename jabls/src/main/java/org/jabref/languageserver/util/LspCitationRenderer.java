@@ -10,6 +10,7 @@ import org.jabref.logic.citationstyle.CSLStyleLoader;
 import org.jabref.logic.citationstyle.CSLStyleUtils;
 import org.jabref.logic.citationstyle.CitationStyleGenerator;
 import org.jabref.logic.citationstyle.CitationStyleOutputFormat;
+import org.jabref.logic.formatter.bibtexfields.HtmlToUnicodeFormatter;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.preferences.JabRefCliPreferences;
 import org.jabref.logic.preview.BstPreviewLayout;
@@ -32,13 +33,15 @@ public class LspCitationRenderer {
     private static final String PREVIEW_CYCLE = "cyclePreview";
     private static final String PREVIEW_CYCLE_POS = "cyclePreviewPos";
 
-    // BstPreviewLayout emits these tags; everything else is plain text
+    // BstPreviewLayout and citeproc emit these tags; everything else becomes plain text
     private static final Pattern BOLD_TAG = Pattern.compile("</?b>");
     private static final Pattern ITALIC_TAG = Pattern.compile("</?(i|em)>");
-    private static final Pattern OTHER_TAG = Pattern.compile("<[^>]+>");
-    // citeproc's Markdown output glues a numeric label to the text (`\[1\]K\. A\. Cooper`) and ends with `<br />`
-    private static final Pattern LEADING_LABEL = Pattern.compile("^\\\\\\[[^\\]]*\\\\\\]\\s*");
-    private static final Pattern CSL_LABEL = Pattern.compile("^(\\\\\\[[^\\]]*\\\\\\])(?=\\S)");
+    private static final Pattern ITALIC_SPAN = Pattern.compile("<span style=\"font-style:\\s*italic;?\">(.*?)</span>");
+    private static final Pattern BOLD_SPAN = Pattern.compile("<span style=\"font-weight:\\s*bold;?\">(.*?)</span>");
+    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
+    private static final Pattern LEADING_LABEL = Pattern.compile("^\\[[^\\]]*\\]\\s*");
+    // citeproc puts a numeric label into its own HTML block, so without the tags it is glued to the text (`[1]K. A. Cooper`)
+    private static final Pattern CSL_LABEL = Pattern.compile("^(\\[[^\\]]*\\])(?=\\S)");
 
     private final CliPreferences preferences;
     private final BibEntryTypesManager entryTypesManager;
@@ -78,9 +81,10 @@ public class LspCitationRenderer {
     private Optional<String> render(BibEntry entry, String style, BibDatabaseContext context) {
         if (CSLStyleUtils.isCitationStyleFile(style)) {
             return CSLStyleUtils.createCitationStyleFromFile(style)
-                                .map(citationStyle -> String.join("\n\n", CitationStyleGenerator.generateBibliography(
-                                        List.of(entry), citationStyle.getSource(), CitationStyleOutputFormat.MARKDOWN, context, entryTypesManager)))
-                                .map(markdown -> CSL_LABEL.matcher(OTHER_TAG.matcher(markdown).replaceAll("").trim()).replaceFirst("$1 "));
+                                // HTML instead of citeproc's Markdown, which escapes every punctuation mark (`K\\. A\\. Cooper\\,`)
+                                .map(citationStyle -> String.join(" ", CitationStyleGenerator.generateBibliography(
+                                        List.of(entry), citationStyle.getSource(), CitationStyleOutputFormat.HTML, context, entryTypesManager)))
+                                .map(html -> CSL_LABEL.matcher(htmlToMarkdown(html)).replaceFirst("$1 "));
         }
         if (BstPreviewLayout.isBstStyleFile(style) && preferences instanceof JabRefCliPreferences store) {
             return store.getStringList(PREVIEW_BST_LAYOUT_PATHS).stream()
@@ -93,8 +97,11 @@ public class LspCitationRenderer {
     }
 
     static String htmlToMarkdown(String html) {
-        String markdown = BOLD_TAG.matcher(html).replaceAll("**");
+        String markdown = ITALIC_SPAN.matcher(html).replaceAll("*$1*");
+        markdown = BOLD_SPAN.matcher(markdown).replaceAll("**$1**");
+        markdown = BOLD_TAG.matcher(markdown).replaceAll("**");
         markdown = ITALIC_TAG.matcher(markdown).replaceAll("*");
-        return OTHER_TAG.matcher(markdown).replaceAll("");
+        markdown = new HtmlToUnicodeFormatter().format(markdown);
+        return WHITESPACE.matcher(markdown).replaceAll(" ").trim();
     }
 }
