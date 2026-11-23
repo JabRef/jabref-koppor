@@ -269,7 +269,7 @@ public class LspFetchHandler {
             }
             String rendered = citationRenderer.renderInline(fetch(identifier));
             if (rendered.isBlank()) {
-                throw error(Localization.lang("Nothing found for %0.", identifier));
+                throw error(Localization.lang("Could not find any bibliographic information."));
             }
             // The sentence's full stop stays
             String citation = rendered.endsWith(".") && content.startsWith(".", end) ? rendered.substring(0, rendered.length() - 1) : rendered;
@@ -307,7 +307,7 @@ public class LspFetchHandler {
     private BibEntry fetchUncached(String identifier) {
         try {
             return new CompositeIdFetcher(preferences.getImportFormatPreferences()).performSearchById(identifier)
-                                                                                   .orElseThrow(() -> error(Localization.lang("Nothing found for %0.", identifier)));
+                                                                                   .orElseThrow(() -> error(Localization.lang("Could not find any bibliographic information.")));
         } catch (FetcherException e) {
             // The message ends with the raw HTTP response body (often a whole HTML page), which is useless in an editor notification
             String reason = Optional.ofNullable(e.getLocalizedMessage()).map(message -> message.lines().limit(2).collect(Collectors.joining(" "))).orElse("");
