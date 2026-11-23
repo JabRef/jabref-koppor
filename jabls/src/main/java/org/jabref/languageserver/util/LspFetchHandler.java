@@ -120,6 +120,10 @@ public class LspFetchHandler {
         return identifier.map(id -> CompletableFuture.supplyAsync(() -> {
             try {
                 String citation = citationRenderer.render(fetch(id.asString()));
+                if (citation.isBlank()) {
+                    LOGGER.debug("No preview style could render {}", id.asString());
+                    return null;
+                }
                 return (@Nullable Hover) new Hover(new MarkupContent(MarkupKind.MARKDOWN, citation));
             } catch (CompletionException e) {
                 LOGGER.debug("No hover for {}", id.asString(), e);
