@@ -2,6 +2,7 @@ package org.jabref.languageserver;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -132,11 +133,9 @@ public class BibtexTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
-        String content = contentCache.get(params.getTextDocument().getUri());
-        if (content == null) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return CompletableFuture.completedFuture(fetchHandler.provideCodeActions(content, params.getRange().getStart(), openBibContents()));
+        return CompletableFuture.completedFuture(Optional.ofNullable(contentCache.get(params.getTextDocument().getUri()))
+                                                         .map(content -> fetchHandler.provideCodeActions(content, params.getRange().getStart(), openBibContents()))
+                                                         .orElse(List.of()));
     }
 
     @Override

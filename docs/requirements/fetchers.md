@@ -24,6 +24,13 @@ Identifier fetchers retry a request rejected with HTTP 429 using bounded exponen
 
 Needs: impl
 
+## User can add an entry for an identifier from within an editor
+`feat~fetchers.language-server-code-action~1`
+
+The language server offers a code action on a DOI, arXiv ID, ISBN, or other supported identifier under the cursor in any document it serves. The action fetches the entry, generates a citation key that does not clash with the target library, and appends the entry to an open `.bib` file.
+
+Needs: impl, utest
+
 ## User can view journal information from public metadata sources
 `feat~fetchers.journal-information~1`
 

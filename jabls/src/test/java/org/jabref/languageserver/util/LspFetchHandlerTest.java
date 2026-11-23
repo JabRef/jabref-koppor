@@ -18,6 +18,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
+// [utest->feat~fetchers.language-server-code-action~1]
 class LspFetchHandlerTest {
 
     private final LspFetchHandler handler = new LspFetchHandler(mock(CliPreferences.class), new BibEntryTypesManager(), new LspParserHandler());

@@ -14,6 +14,7 @@ import org.jabref.logic.citationkeypattern.CitationKeyGenerator;
 import org.jabref.logic.importer.CompositeIdFetcher;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ParserResult;
+import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
@@ -33,9 +34,12 @@ import org.eclipse.lsp4j.jsonrpc.ResponseErrorException;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode;
+import org.jspecify.annotations.NullMarked;
 
 /// Offers "Add entry for <identifier> to <file>.bib" for a DOI, arXiv ID, ISBN, ... under the cursor.
 /// The fetch itself happens in [#resolveCodeAction(CodeAction,Map)], because clients request code actions on every cursor move.
+// [impl->feat~fetchers.language-server-code-action~1]
+@NullMarked
 public class LspFetchHandler {
 
     // Markup around a pasted identifier, e.g. `<https://doi.org/...>` in Markdown or a trailing full stop
@@ -54,19 +58,18 @@ public class LspFetchHandler {
 
     /// @param bibContents content of the open `.bib` documents, keyed by URI; these are the files an entry can be added to
     public List<Either<Command, CodeAction>> provideCodeActions(String content, Position position, Map<String, String> bibContents) {
-        Optional<Identifier> identifier = tokenAt(content, LspRangeUtil.toOffset(content, position)).flatMap(Identifier::from);
-        if (identifier.isEmpty()) {
-            return List.of();
-        }
-        return bibContents.keySet().stream().sorted().map(bibUri -> {
-            CodeAction action = new CodeAction("Add entry for %s to %s".formatted(identifier.get().asString(), fileName(bibUri)));
-            action.setKind(CodeActionKind.Refactor);
-            JsonObject data = new JsonObject();
-            data.addProperty("identifier", identifier.get().asString());
-            data.addProperty("bibUri", bibUri);
-            action.setData(data);
-            return Either.<Command, CodeAction>forRight(action);
-        }).toList();
+        return tokenAt(content, LspRangeUtil.toOffset(content, position))
+                .flatMap(Identifier::from)
+                .map(identifier -> bibContents.keySet().stream().sorted().map(bibUri -> {
+                    CodeAction action = new CodeAction(Localization.lang("Add entry for %0 to %1", identifier.asString(), fileName(bibUri)));
+                    action.setKind(CodeActionKind.Refactor);
+                    JsonObject data = new JsonObject();
+                    data.addProperty("identifier", identifier.asString());
+                    data.addProperty("bibUri", bibUri);
+                    action.setData(data);
+                    return Either.<Command, CodeAction>forRight(action);
+                }).toList())
+                .orElse(List.of());
     }
 
     public CompletableFuture<CodeAction> resolveCodeAction(CodeAction action, Map<String, String> bibContents) {
@@ -76,18 +79,16 @@ public class LspFetchHandler {
         String identifier = data.get("identifier").getAsString();
         String bibUri = data.get("bibUri").getAsString();
         return CompletableFuture.supplyAsync(() -> {
-            String bibContent = bibContents.get(bibUri);
-            if (bibContent == null) {
-                throw error("%s is not open anymore".formatted(fileName(bibUri)));
-            }
+            String bibContent = Optional.ofNullable(bibContents.get(bibUri))
+                                        .orElseThrow(() -> error(Localization.lang("%0 is not open anymore.", fileName(bibUri))));
             BibEntry entry;
             try {
                 entry = new CompositeIdFetcher(preferences.getImportFormatPreferences()).performSearchById(identifier)
-                                                                                        .orElseThrow(() -> error("Nothing found for " + identifier));
+                                                                                        .orElseThrow(() -> error(Localization.lang("Nothing found for %0.", identifier)));
             } catch (FetcherException e) {
                 // The message ends with the raw HTTP response body (often a whole HTML page), which is useless in an editor notification
-                String reason = e.getLocalizedMessage().lines().limit(2).collect(Collectors.joining(" "));
-                throw error("Could not fetch %s: %s".formatted(identifier, reason));
+                String reason = Optional.ofNullable(e.getLocalizedMessage()).map(message -> message.lines().limit(2).collect(Collectors.joining(" "))).orElse("");
+                throw error(Localization.lang("Could not fetch %0: %1", identifier, reason));
             }
             // Generate the key against the target library, so that it does not clash with an existing key
             BibDatabaseContext targetContext = parserHandler.getParserResultForUri(bibUri)
@@ -100,7 +101,7 @@ public class LspFetchHandler {
                 serialized = new BibEntryWriter(new FieldWriter(preferences.getFieldPreferences()), entryTypesManager)
                         .write(List.of(entry), BibDatabaseMode.BIBTEX);
             } catch (IOException e) {
-                throw error("Could not write entry: " + e.getLocalizedMessage());
+                throw error(Localization.lang("Could not write entry: %0", e.getLocalizedMessage()));
             }
             Position end = LspRangeUtil.convertToLspPosition(bibContent, bibContent.length());
             String separator = bibContent.isEmpty() || bibContent.endsWith("\n") ? "" : "\n";
