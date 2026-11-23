@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.jabref.logic.bibtex.BibEntryWriter;
@@ -26,6 +27,9 @@ import com.google.gson.JsonObject;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
+import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -35,12 +39,17 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/// Offers "Add entry for <identifier> to <file>.bib" for a DOI, arXiv ID, ISBN, ... under the cursor.
-/// The fetch itself happens in [#resolveCodeAction(CodeAction,Map)], because clients request code actions on every cursor move.
+/// Shows a DOI, arXiv ID, ISBN, ... under the cursor as citation on hover, and offers "Add entry for <identifier> to <file>.bib" for it.
+/// The fetch for the action happens in [#resolveCodeAction(CodeAction,Map)], because clients request code actions on every cursor move.
 // [impl->feat~fetchers.language-server-code-action~1]
 @NullMarked
 public class LspFetchHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LspFetchHandler.class);
 
     // Markup around a pasted identifier, e.g. `<https://doi.org/...>` in Markdown or a trailing full stop
     private static final String LEADING_MARKUP = "<([{\"'";
@@ -49,11 +58,14 @@ public class LspFetchHandler {
     private final CliPreferences preferences;
     private final BibEntryTypesManager entryTypesManager;
     private final LspParserHandler parserHandler;
+    private final LspCitationRenderer citationRenderer;
+    private final Map<String, BibEntry> fetchedEntries = new ConcurrentHashMap<>();
 
     public LspFetchHandler(CliPreferences preferences, BibEntryTypesManager entryTypesManager, LspParserHandler parserHandler) {
         this.preferences = preferences;
         this.entryTypesManager = entryTypesManager;
         this.parserHandler = parserHandler;
+        this.citationRenderer = new LspCitationRenderer(preferences, entryTypesManager);
     }
 
     /// @param bibContents content of the open `.bib` documents, keyed by URI; these are the files an entry can be added to
@@ -81,15 +93,7 @@ public class LspFetchHandler {
         return CompletableFuture.supplyAsync(() -> {
             String bibContent = Optional.ofNullable(bibContents.get(bibUri))
                                         .orElseThrow(() -> error(Localization.lang("%0 is not open anymore.", fileName(bibUri))));
-            BibEntry entry;
-            try {
-                entry = new CompositeIdFetcher(preferences.getImportFormatPreferences()).performSearchById(identifier)
-                                                                                        .orElseThrow(() -> error(Localization.lang("Nothing found for %0.", identifier)));
-            } catch (FetcherException e) {
-                // The message ends with the raw HTTP response body (often a whole HTML page), which is useless in an editor notification
-                String reason = Optional.ofNullable(e.getLocalizedMessage()).map(message -> message.lines().limit(2).collect(Collectors.joining(" "))).orElse("");
-                throw error(Localization.lang("Could not fetch %0: %1", identifier, reason));
-            }
+            BibEntry entry = new BibEntry(fetch(identifier));
             // Generate the key against the target library, so that it does not clash with an existing key
             BibDatabaseContext targetContext = parserHandler.getParserResultForUri(bibUri)
                                                             .map(ParserResult::getDatabaseContext)
@@ -108,6 +112,38 @@ public class LspFetchHandler {
             action.setEdit(new WorkspaceEdit(Map.of(bibUri, List.of(new TextEdit(new Range(end, end), separator + serialized)))));
             return action;
         });
+    }
+
+    /// Shows the identifier under the cursor as a full citation. Failures stay silent: a hover is no place for error messages.
+    public CompletableFuture<@Nullable Hover> provideHover(String content, Position position) {
+        Optional<Identifier> identifier = tokenAt(content, LspRangeUtil.toOffset(content, position)).flatMap(Identifier::from);
+        return identifier.map(id -> CompletableFuture.supplyAsync(() -> {
+            try {
+                String citation = citationRenderer.render(fetch(id.asString()));
+                return (@Nullable Hover) new Hover(new MarkupContent(MarkupKind.MARKDOWN, citation));
+            } catch (CompletionException e) {
+                LOGGER.debug("No hover for {}", id.asString(), e);
+                return null;
+            }
+        })).orElseGet(() -> CompletableFuture.completedFuture(null));
+    }
+
+    /// Hovering and then adding the entry, or hovering repeatedly, must not hit the fetcher again. The returned entry is shared; copy it before modifying.
+    /// Failures are not cached, so a later hover retries.
+    private BibEntry fetch(String identifier) {
+        // ponytail: the network call runs inside computeIfAbsent, so concurrent requests for the same identifier wait for one fetch; unbounded, entries are small
+        return fetchedEntries.computeIfAbsent(identifier, this::fetchUncached);
+    }
+
+    private BibEntry fetchUncached(String identifier) {
+        try {
+            return new CompositeIdFetcher(preferences.getImportFormatPreferences()).performSearchById(identifier)
+                                                                                   .orElseThrow(() -> error(Localization.lang("Nothing found for %0.", identifier)));
+        } catch (FetcherException e) {
+            // The message ends with the raw HTTP response body (often a whole HTML page), which is useless in an editor notification
+            String reason = Optional.ofNullable(e.getLocalizedMessage()).map(message -> message.lines().limit(2).collect(Collectors.joining(" "))).orElse("");
+            throw error(Localization.lang("Could not fetch %0: %1", identifier, reason));
+        }
     }
 
     /// Returns the whitespace-delimited word at `offset`, without surrounding markup.

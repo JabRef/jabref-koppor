@@ -26,6 +26,8 @@ import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
 import org.eclipse.lsp4j.DocumentLink;
 import org.eclipse.lsp4j.DocumentLinkParams;
+import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
@@ -35,6 +37,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,6 +139,13 @@ public class BibtexTextDocumentService implements TextDocumentService {
         return CompletableFuture.completedFuture(Optional.ofNullable(contentCache.get(params.getTextDocument().getUri()))
                                                          .map(content -> fetchHandler.provideCodeActions(content, params.getRange().getStart(), openBibContents()))
                                                          .orElse(List.of()));
+    }
+
+    @Override
+    public CompletableFuture<@Nullable Hover> hover(HoverParams params) {
+        return Optional.ofNullable(contentCache.get(params.getTextDocument().getUri()))
+                       .map(content -> fetchHandler.provideHover(content, params.getPosition()))
+                       .orElseGet(() -> CompletableFuture.completedFuture(null));
     }
 
     @Override

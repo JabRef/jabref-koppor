@@ -73,6 +73,7 @@ public class LspClientHandler implements LanguageServer, LanguageClientAware {
         capabilities.setTextDocumentSync(syncOptions);
         capabilities.setWorkspace(new WorkspaceServerCapabilities());
         capabilities.setDefinitionProvider(true);
+        capabilities.setHoverProvider(true);
 
         DocumentLinkOptions linkOptions = new DocumentLinkOptions();
         linkOptions.setResolveProvider(true);
