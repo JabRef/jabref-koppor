@@ -291,4 +291,17 @@ see: [JabRef issue #17549](https://github.com/JabRef/jabref/issues/17549)
 
 Needs: impl, utest
 
+## The AUX file import must prefill the AUX file of the library's LaTeX document
+`req~import.aux.prefill~1`
+
+When the "New sublibrary based on AUX file" dialog opens, it fills in the AUX file that belongs to a `.tex` file in the library's LaTeX file directory (the library's directory if none is set).
+If several such AUX files exist, the most recently modified one is taken.
+## Plain citations with a DOI must be imported from the DOI's metadata
+`req~import.plain-citation.doi-first~1`
+
+When a plain-text citation contains a DOI, JabRef imports the metadata registered for that DOI instead of the fields guessed by the citation parser.
+If the DOI lookup fails, the parsed entry is imported.
+
+Needs: impl, utest
+
 <!-- markdownlint-disable-file MD022 -->
