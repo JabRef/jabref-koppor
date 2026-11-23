@@ -38,6 +38,13 @@ Hovering over a DOI, arXiv ID, ISBN, or other supported identifier in a document
 
 Needs: impl, utest
 
+## User can replace an identifier by its citation from within an editor
+`feat~fetchers.language-server-replace-citation~1`
+
+In a Markdown document served by the language server, a code action on a DOI, arXiv ID, ISBN, or other supported identifier replaces it by the fetched entry as citation, in the style used for the hover, without a leading bibliography label.
+
+Needs: impl, utest
+
 ## User can view journal information from public metadata sources
 `feat~fetchers.journal-information~1`
 

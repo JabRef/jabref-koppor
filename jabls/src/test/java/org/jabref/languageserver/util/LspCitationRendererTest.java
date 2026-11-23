@@ -52,6 +52,20 @@ class LspCitationRendererTest {
         assertEquals("\\[1\\] K\\. A\\. Cooper\\, “Cocoa and health\\: a decade of research\\,” *British Journal of Nutrition*\\, 2007\\.", citation);
     }
 
+    // [utest->feat~fetchers.language-server-replace-citation~1]
+    @Test
+    void inlineCitationHasNoLabel() {
+        BibEntry entry = new BibEntry(StandardEntryType.Article)
+                .withField(StandardField.AUTHOR, "Cooper, Karen A.")
+                .withField(StandardField.TITLE, "Cocoa and health: a decade of research")
+                .withField(StandardField.JOURNAL, "British Journal of Nutrition")
+                .withField(StandardField.YEAR, "2007");
+
+        String citation = new LspCitationRenderer(mock(CliPreferences.class), new BibEntryTypesManager()).renderInline(entry);
+
+        assertEquals("K\\. A\\. Cooper\\, “Cocoa and health\\: a decade of research\\,” *British Journal of Nutrition*\\, 2007\\.", citation);
+    }
+
     @Test
     void htmlToMarkdownKeepsEmphasis() {
         assertEquals("A. Author, *Title*, *Journal*, **2007**.", LspCitationRenderer.htmlToMarkdown("A. Author, <i>Title</i>, <em>Journal</em>, <b>2007</b>."));

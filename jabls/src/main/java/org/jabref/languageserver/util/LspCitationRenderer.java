@@ -37,6 +37,7 @@ public class LspCitationRenderer {
     private static final Pattern ITALIC_TAG = Pattern.compile("</?(i|em)>");
     private static final Pattern OTHER_TAG = Pattern.compile("<[^>]+>");
     // citeproc's Markdown output glues a numeric label to the text (`\[1\]K\. A\. Cooper`) and ends with `<br />`
+    private static final Pattern LEADING_LABEL = Pattern.compile("^\\\\\\[[^\\]]*\\\\\\]\\s*");
     private static final Pattern CSL_LABEL = Pattern.compile("^(\\\\\\[[^\\]]*\\\\\\])(?=\\S)");
 
     private final CliPreferences preferences;
@@ -54,6 +55,11 @@ public class LspCitationRenderer {
                                 .flatMap(Optional::stream)
                                 .findFirst()
                                 .orElse("");
+    }
+
+    /// The citation for running text: without a leading label such as `\[1\]`, which numbers a bibliography list
+    public String renderInline(BibEntry entry) {
+        return LEADING_LABEL.matcher(render(entry)).replaceFirst("");
     }
 
     /// The selected style first, then the whole cycle, then the default style.

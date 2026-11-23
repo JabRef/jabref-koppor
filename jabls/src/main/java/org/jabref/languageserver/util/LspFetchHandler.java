@@ -1,6 +1,7 @@
 package org.jabref.languageserver.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -69,29 +70,53 @@ public class LspFetchHandler {
     }
 
     /// @param bibContents content of the open `.bib` documents, keyed by URI; these are the files an entry can be added to
-    public List<Either<Command, CodeAction>> provideCodeActions(String content, Position position, Map<String, String> bibContents) {
-        return tokenAt(content, LspRangeUtil.toOffset(content, position))
-                .flatMap(Identifier::from)
-                .map(identifier -> bibContents.keySet().stream().sorted().map(bibUri -> {
-                    CodeAction action = new CodeAction(Localization.lang("Add entry for %0 to %1", identifier.asString(), fileName(bibUri)));
-                    action.setKind(CodeActionKind.Refactor);
-                    JsonObject data = new JsonObject();
-                    data.addProperty("identifier", identifier.asString());
-                    data.addProperty("bibUri", bibUri);
-                    action.setData(data);
-                    return Either.<Command, CodeAction>forRight(action);
-                }).toList())
-                .orElse(List.of());
+    public List<Either<Command, CodeAction>> provideCodeActions(String uri, String languageId, String content, Position position, Map<String, String> bibContents) {
+        int[] range = tokenRange(content, LspRangeUtil.toOffset(content, position));
+        String token = content.substring(range[0], range[1]);
+        Optional<Identifier> identifier = Identifier.from(token);
+        if (token.isEmpty() || identifier.isEmpty()) {
+            return List.of();
+        }
+        String id = identifier.get().asString();
+        List<Either<Command, CodeAction>> actions = new ArrayList<>();
+        // The citation is Markdown; in LaTeX, `\[1\]` would start display math
+        if ("markdown".equals(languageId)) {
+            JsonObject data = new JsonObject();
+            data.addProperty("identifier", id);
+            data.addProperty("replaceUri", uri);
+            data.addProperty("token", token);
+            data.addProperty("start", range[0]);
+            data.addProperty("end", range[1]);
+            actions.add(action(Localization.lang("Replace %0 with citation", id), CodeActionKind.RefactorRewrite, data));
+        }
+        bibContents.keySet().stream().sorted().forEach(bibUri -> {
+            JsonObject data = new JsonObject();
+            data.addProperty("identifier", id);
+            data.addProperty("bibUri", bibUri);
+            actions.add(action(Localization.lang("Add entry for %0 to %1", id, fileName(bibUri)), CodeActionKind.Refactor, data));
+        });
+        return actions;
     }
 
-    public CompletableFuture<CodeAction> resolveCodeAction(CodeAction action, Map<String, String> bibContents) {
+    private static Either<Command, CodeAction> action(String title, String kind, JsonObject data) {
+        CodeAction action = new CodeAction(title);
+        action.setKind(kind);
+        action.setData(data);
+        return Either.forRight(action);
+    }
+
+    /// @param contents content of the open documents, keyed by URI
+    public CompletableFuture<CodeAction> resolveCodeAction(CodeAction action, Map<String, String> contents) {
+        if (action.getData() instanceof JsonObject data && data.has("identifier") && data.has("replaceUri")) {
+            return resolveReplace(action, data, contents);
+        }
         if (!(action.getData() instanceof JsonObject data) || !data.has("identifier") || !data.has("bibUri")) {
             return CompletableFuture.completedFuture(action);
         }
         String identifier = data.get("identifier").getAsString();
         String bibUri = data.get("bibUri").getAsString();
         return CompletableFuture.supplyAsync(() -> {
-            String bibContent = Optional.ofNullable(bibContents.get(bibUri))
+            String bibContent = Optional.ofNullable(contents.get(bibUri))
                                         .orElseThrow(() -> error(Localization.lang("%0 is not open anymore.", fileName(bibUri))));
             BibEntry entry = new BibEntry(fetch(identifier));
             // Generate the key against the target library, so that it does not clash with an existing key
@@ -110,6 +135,31 @@ public class LspFetchHandler {
             Position end = LspRangeUtil.convertToLspPosition(bibContent, bibContent.length());
             String separator = bibContent.isEmpty() || bibContent.endsWith("\n") ? "" : "\n";
             action.setEdit(new WorkspaceEdit(Map.of(bibUri, List.of(new TextEdit(new Range(end, end), separator + serialized)))));
+            return action;
+        });
+    }
+
+    // [impl->feat~fetchers.language-server-replace-citation~1]
+    private CompletableFuture<CodeAction> resolveReplace(CodeAction action, JsonObject data, Map<String, String> contents) {
+        String identifier = data.get("identifier").getAsString();
+        String uri = data.get("replaceUri").getAsString();
+        String token = data.get("token").getAsString();
+        int start = data.get("start").getAsInt();
+        int end = data.get("end").getAsInt();
+        return CompletableFuture.supplyAsync(() -> {
+            String content = Optional.ofNullable(contents.get(uri))
+                                     .orElseThrow(() -> error(Localization.lang("%0 is not open anymore.", fileName(uri))));
+            if (end > content.length() || !content.substring(start, end).equals(token)) {
+                throw error(Localization.lang("%0 was changed in the meantime.", fileName(uri)));
+            }
+            String rendered = citationRenderer.renderInline(fetch(identifier));
+            if (rendered.isBlank()) {
+                throw error(Localization.lang("Nothing found for %0.", identifier));
+            }
+            // The sentence's full stop stays
+            String citation = rendered.endsWith(".") && content.startsWith(".", end) ? rendered.substring(0, rendered.length() - 1) : rendered;
+            Range range = new Range(LspRangeUtil.convertToLspPosition(content, start), LspRangeUtil.convertToLspPosition(content, end));
+            action.setEdit(new WorkspaceEdit(Map.of(uri, List.of(new TextEdit(range, citation)))));
             return action;
         });
     }
@@ -152,6 +202,12 @@ public class LspFetchHandler {
 
     /// Returns the whitespace-delimited word at `offset`, without surrounding markup.
     static Optional<String> tokenAt(String content, int offset) {
+        int[] range = tokenRange(content, offset);
+        return range[0] < range[1] ? Optional.of(content.substring(range[0], range[1])) : Optional.empty();
+    }
+
+    /// Start (inclusive) and end (exclusive) offset of [#tokenAt(String,int)]
+    static int[] tokenRange(String content, int offset) {
         int start = offset;
         while (start > 0 && !Character.isWhitespace(content.charAt(start - 1))) {
             start--;
@@ -166,7 +222,7 @@ public class LspFetchHandler {
         while (end > start && TRAILING_MARKUP.indexOf(content.charAt(end - 1)) >= 0) {
             end--;
         }
-        return start < end ? Optional.of(content.substring(start, end)) : Optional.empty();
+        return new int[] {start, end};
     }
 
     private static String fileName(String uri) {
