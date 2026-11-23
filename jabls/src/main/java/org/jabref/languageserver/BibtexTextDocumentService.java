@@ -116,7 +116,12 @@ public class BibtexTextDocumentService implements TextDocumentService {
         if (!fileUriToLanguageId.containsKey(fileUri)) {
             return CompletableFuture.completedFuture(null);
         }
-        return linkHandler.provideHover(fileUriToLanguageId.get(fileUri), contentCache.get(fileUri), params.getPosition());
+        String content = contentCache.get(fileUri);
+        // A citation key shows its entry; otherwise, an identifier (DOI, arXiv ID, ...) is shown as fetched citation
+        return linkHandler.provideHover(fileUriToLanguageId.get(fileUri), content, params.getPosition())
+                          .thenCompose(hover -> hover != null
+                                                ? CompletableFuture.completedFuture(hover)
+                                                : fetchHandler.provideHover(content, params.getPosition()));
     }
 
     @Override
@@ -155,13 +160,6 @@ public class BibtexTextDocumentService implements TextDocumentService {
         return CompletableFuture.completedFuture(Optional.ofNullable(contentCache.get(params.getTextDocument().getUri()))
                                                          .map(content -> fetchHandler.provideCodeActions(content, params.getRange().getStart(), openBibContents()))
                                                          .orElse(List.of()));
-    }
-
-    @Override
-    public CompletableFuture<@Nullable Hover> hover(HoverParams params) {
-        return Optional.ofNullable(contentCache.get(params.getTextDocument().getUri()))
-                       .map(content -> fetchHandler.provideHover(content, params.getPosition()))
-                       .orElseGet(() -> CompletableFuture.completedFuture(null));
     }
 
     @Override
