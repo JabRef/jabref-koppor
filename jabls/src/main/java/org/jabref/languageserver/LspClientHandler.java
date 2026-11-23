@@ -1,8 +1,10 @@
 package org.jabref.languageserver;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.jabref.languageserver.util.LspDiagnosticHandler;
+import org.jabref.languageserver.util.LspFetchHandler;
 import org.jabref.languageserver.util.LspLinkHandler;
 import org.jabref.languageserver.util.LspParserHandler;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
@@ -10,6 +12,8 @@ import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.remote.server.RemoteMessageHandler;
 import org.jabref.model.entry.BibEntryTypesManager;
 
+import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.CodeActionOptions;
 import org.eclipse.lsp4j.DocumentLinkOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
@@ -48,7 +52,7 @@ public class LspClientHandler implements LanguageServer, LanguageClientAware {
         this.diagnosticHandler = new LspDiagnosticHandler(this, parserHandler, cliPreferences, abbreviationRepository, bibEntryTypesManager);
         this.linkHandler = new LspLinkHandler(this, parserHandler, cliPreferences.getFilePreferences());
         this.workspaceService = new BibtexWorkspaceService(this, diagnosticHandler);
-        this.textDocumentService = new BibtexTextDocumentService(messageHandler, this, diagnosticHandler, linkHandler);
+        this.textDocumentService = new BibtexTextDocumentService(messageHandler, this, diagnosticHandler, linkHandler, new LspFetchHandler(cliPreferences, bibEntryTypesManager, parserHandler));
         this.messageHandler = messageHandler;
     }
 
@@ -73,6 +77,10 @@ public class LspClientHandler implements LanguageServer, LanguageClientAware {
         DocumentLinkOptions linkOptions = new DocumentLinkOptions();
         linkOptions.setResolveProvider(true);
         capabilities.setDocumentLinkProvider(linkOptions);
+
+        CodeActionOptions codeActionOptions = new CodeActionOptions(List.of(CodeActionKind.Refactor));
+        codeActionOptions.setResolveProvider(true);
+        capabilities.setCodeActionProvider(codeActionOptions);
 
         return CompletableFuture.completedFuture(new InitializeResult(capabilities));
     }
