@@ -2,14 +2,20 @@ package org.jabref.languageserver;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.jabref.languageserver.util.LspDiagnosticHandler;
+import org.jabref.languageserver.util.LspFetchHandler;
 import org.jabref.languageserver.util.LspLinkHandler;
 import org.jabref.logic.remote.server.RemoteMessageHandler;
 
 import com.google.gson.JsonArray;
+import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionParams;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
@@ -41,15 +47,17 @@ public class BibtexTextDocumentService implements TextDocumentService {
     private final LspClientHandler clientHandler;
     private final LspDiagnosticHandler diagnosticHandler;
     private final LspLinkHandler linkHandler;
+    private final LspFetchHandler fetchHandler;
     private final RemoteMessageHandler messageHandler;
     private final Map<String, String> fileUriToLanguageId;
     private final Map<String, String> contentCache;
     private LanguageClient client;
 
-    public BibtexTextDocumentService(@NonNull RemoteMessageHandler messageHandler, @NonNull LspClientHandler clientHandler, @NonNull LspDiagnosticHandler diagnosticHandler, @NonNull LspLinkHandler linkHandler) {
+    public BibtexTextDocumentService(@NonNull RemoteMessageHandler messageHandler, @NonNull LspClientHandler clientHandler, @NonNull LspDiagnosticHandler diagnosticHandler, @NonNull LspLinkHandler linkHandler, @NonNull LspFetchHandler fetchHandler) {
         this.clientHandler = clientHandler;
         this.diagnosticHandler = diagnosticHandler;
         this.linkHandler = linkHandler;
+        this.fetchHandler = fetchHandler;
         this.fileUriToLanguageId = new ConcurrentHashMap<>();
         this.contentCache = new ConcurrentHashMap<>();
         this.messageHandler = messageHandler;
@@ -139,5 +147,23 @@ public class BibtexTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams position) {
         return TextDocumentService.super.completion(position);
+    }
+
+    @Override
+    public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
+        return CompletableFuture.completedFuture(Optional.ofNullable(contentCache.get(params.getTextDocument().getUri()))
+                                                         .map(content -> fetchHandler.provideCodeActions(content, params.getRange().getStart(), openBibContents()))
+                                                         .orElse(List.of()));
+    }
+
+    @Override
+    public CompletableFuture<CodeAction> resolveCodeAction(CodeAction unresolved) {
+        return fetchHandler.resolveCodeAction(unresolved, openBibContents());
+    }
+
+    private Map<String, String> openBibContents() {
+        return contentCache.entrySet().stream()
+                           .filter(entry -> "bibtex".equalsIgnoreCase(fileUriToLanguageId.get(entry.getKey())))
+                           .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }
