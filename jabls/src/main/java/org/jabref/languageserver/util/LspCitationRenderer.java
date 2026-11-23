@@ -34,7 +34,7 @@ public class LspCitationRenderer {
 
     // BstPreviewLayout emits these tags; everything else is plain text
     private static final Pattern BOLD_TAG = Pattern.compile("</?b>");
-    private static final Pattern ITALIC_TAG = Pattern.compile("</?i>");
+    private static final Pattern ITALIC_TAG = Pattern.compile("</?(i|em)>");
     private static final Pattern OTHER_TAG = Pattern.compile("<[^>]+>");
     // citeproc's Markdown output glues a numeric label to the text (`\[1\]K\. A\. Cooper`) and ends with `<br />`
     private static final Pattern CSL_LABEL = Pattern.compile("^(\\\\\\[[^\\]]*\\\\\\])(?=\\S)");

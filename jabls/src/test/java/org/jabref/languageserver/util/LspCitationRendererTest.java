@@ -54,6 +54,6 @@ class LspCitationRendererTest {
 
     @Test
     void htmlToMarkdownKeepsEmphasis() {
-        assertEquals("A. Author, *Title*, **2007**.", LspCitationRenderer.htmlToMarkdown("A. Author, <i>Title</i>, <b>2007</b>."));
+        assertEquals("A. Author, *Title*, *Journal*, **2007**.", LspCitationRenderer.htmlToMarkdown("A. Author, <i>Title</i>, <em>Journal</em>, <b>2007</b>."));
     }
 }
