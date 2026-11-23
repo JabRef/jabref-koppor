@@ -1,5 +1,6 @@
 package org.jabref.languageserver.util;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,7 +60,20 @@ class LspFetchHandlerTest {
                 new Position(0, 10),
                 Map.of());
 
-        assertEquals(List.of("Replace 10.1017/s0007114507795296 with citation"),
+        assertEquals(List.of("Replace 10.1017/s0007114507795296 with citation", "Cite 10.1017/s0007114507795296 from a.bib"),
                 actions.stream().map(action -> action.getRight().getTitle()).toList());
+    }
+
+    // [utest->feat~fetchers.language-server-cite~1]
+    @Test
+    void citesFromSiblingBibFileWithoutFrontMatter() {
+        assertEquals(Optional.of(Path.of("/tmp/notes/paper.bib")), LspFetchHandler.citationTarget("file:///tmp/notes/paper.md", "# Paper"));
+    }
+
+    // [utest->feat~fetchers.language-server-cite~1]
+    @Test
+    void citesFromFirstFrontMatterBibliography() {
+        assertEquals(Optional.of(Path.of("/tmp/refs/main.bib")),
+                LspFetchHandler.citationTarget("file:///tmp/notes/paper.md", "---\nbibliography: [../refs/main.bib, other.bib]\n---\n# Paper"));
     }
 }

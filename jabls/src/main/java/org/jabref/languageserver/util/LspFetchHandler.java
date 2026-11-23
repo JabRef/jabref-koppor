@@ -1,6 +1,12 @@
 package org.jabref.languageserver.util;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jabref.logic.bibtex.BibEntryWriter;
 import org.jabref.logic.bibtex.FieldWriter;
@@ -16,24 +23,31 @@ import org.jabref.logic.citationkeypattern.CitationKeyGenerator;
 import org.jabref.logic.importer.CompositeIdFetcher;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ParserResult;
+import org.jabref.logic.importer.fileformat.BibtexParser;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.preferences.CliPreferences;
+import org.jabref.logic.util.io.FileUtil;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
+import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.identifier.Identifier;
 
 import com.google.gson.JsonObject;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
+import org.eclipse.lsp4j.CreateFile;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.ResourceOperation;
+import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -88,6 +102,15 @@ public class LspFetchHandler {
             data.addProperty("start", range[0]);
             data.addProperty("end", range[1]);
             actions.add(action(Localization.lang("Replace %0 with citation", id), CodeActionKind.RefactorRewrite, data));
+            Optional<Path> bibPath = citationTarget(uri, content);
+            if (bibPath.isPresent()) {
+                JsonObject citeData = data.deepCopy();
+                citeData.remove("replaceUri");
+                citeData.addProperty("citeUri", uri);
+                actions.add(action(Localization.lang("Cite %0 from %1", id, bibPath.get().getFileName().toString()), CodeActionKind.RefactorRewrite, citeData));
+            }
+            // Citing covers adding the entry
+            return actions;
         }
         bibContents.keySet().stream().sorted().forEach(bibUri -> {
             JsonObject data = new JsonObject();
@@ -110,6 +133,9 @@ public class LspFetchHandler {
         if (action.getData() instanceof JsonObject data && data.has("identifier") && data.has("replaceUri")) {
             return resolveReplace(action, data, contents);
         }
+        if (action.getData() instanceof JsonObject data && data.has("identifier") && data.has("citeUri")) {
+            return resolveCite(action, data, contents);
+        }
         if (!(action.getData() instanceof JsonObject data) || !data.has("identifier") || !data.has("bibUri")) {
             return CompletableFuture.completedFuture(action);
         }
@@ -119,24 +145,113 @@ public class LspFetchHandler {
             String bibContent = Optional.ofNullable(contents.get(bibUri))
                                         .orElseThrow(() -> error(Localization.lang("%0 is not open anymore.", fileName(bibUri))));
             BibEntry entry = new BibEntry(fetch(identifier));
-            // Generate the key against the target library, so that it does not clash with an existing key
             BibDatabaseContext targetContext = parserHandler.getParserResultForUri(bibUri)
                                                             .map(ParserResult::getDatabaseContext)
                                                             .orElseGet(BibDatabaseContext::new);
-            new CitationKeyGenerator(targetContext, preferences.getCitationKeyPatternPreferences()).generateAndSetKey(entry);
-
-            String serialized;
-            try {
-                serialized = new BibEntryWriter(new FieldWriter(preferences.getFieldPreferences()), entryTypesManager)
-                        .write(List.of(entry), BibDatabaseMode.BIBTEX);
-            } catch (IOException e) {
-                throw error(Localization.lang("Could not write entry: %0", e.getLocalizedMessage()));
-            }
-            Position end = LspRangeUtil.convertToLspPosition(bibContent, bibContent.length());
-            String separator = bibContent.isEmpty() || bibContent.endsWith("\n") ? "" : "\n";
-            action.setEdit(new WorkspaceEdit(Map.of(bibUri, List.of(new TextEdit(new Range(end, end), separator + serialized)))));
+            action.setEdit(new WorkspaceEdit(Map.of(bibUri, List.of(append(bibContent, keyedSerialization(entry, targetContext))))));
             return action;
         });
+    }
+
+    // [impl->feat~fetchers.language-server-cite~1]
+    private CompletableFuture<CodeAction> resolveCite(CodeAction action, JsonObject data, Map<String, String> contents) {
+        String identifier = data.get("identifier").getAsString();
+        String uri = data.get("citeUri").getAsString();
+        String token = data.get("token").getAsString();
+        int start = data.get("start").getAsInt();
+        int end = data.get("end").getAsInt();
+        return CompletableFuture.supplyAsync(() -> {
+            String content = Optional.ofNullable(contents.get(uri))
+                                     .orElseThrow(() -> error(Localization.lang("%0 is not open anymore.", fileName(uri))));
+            if (end > content.length() || !content.substring(start, end).equals(token)) {
+                throw error(Localization.lang("%0 was changed in the meantime.", fileName(uri)));
+            }
+            Path bibPath = citationTarget(uri, content).orElseThrow(() -> error(Localization.lang("%0 is not open anymore.", fileName(uri))));
+            // An open library may have unsaved changes; take the editor's content then
+            Optional<String> openBibUri = contents.keySet().stream().filter(key -> toPath(key).filter(bibPath::equals).isPresent()).findFirst();
+            String bibUri = openBibUri.orElseGet(() -> bibPath.toUri().toString());
+            @Nullable String bibContent = openBibUri.map(contents::get).orElseGet(() -> readIfExists(bibPath));
+
+            BibEntry fetched = fetch(identifier);
+            BibDatabaseContext targetContext = parse(bibContent == null ? "" : bibContent);
+            List<Either<TextDocumentEdit, ResourceOperation>> changes = new ArrayList<>();
+            String key = existingKey(fetched, targetContext).orElseGet(() -> {
+                BibEntry entry = new BibEntry(fetched);
+                String serialized = keyedSerialization(entry, targetContext);
+                if (bibContent == null) {
+                    changes.add(Either.forRight(new CreateFile(bibUri)));
+                }
+                changes.add(documentEdit(bibUri, append(bibContent == null ? "" : bibContent, serialized)));
+                return entry.getCitationKey().orElseThrow();
+            });
+            Range range = new Range(LspRangeUtil.convertToLspPosition(content, start), LspRangeUtil.convertToLspPosition(content, end));
+            changes.add(documentEdit(uri, new TextEdit(range, "[@" + key + "]")));
+            action.setEdit(new WorkspaceEdit(changes));
+            return action;
+        });
+    }
+
+    /// The library a Markdown document cites from: the first `bibliography` of its front matter, otherwise the sibling `.bib` file
+    static Optional<Path> citationTarget(String markdownUri, String content) {
+        return toPath(markdownUri).map(markdownPath -> LspParserHandler.getBibliographiesFromFrontMatter(content).stream()
+                                                                       .findFirst()
+                                                                       .map(markdownPath::resolveSibling)
+                                                                       .orElseGet(() -> markdownPath.resolveSibling(FileUtil.getBaseName(markdownPath.getFileName().toString()) + ".bib"))
+                                                                       .normalize());
+    }
+
+    /// The key of an entry of the library describing the same work, so that citing it again does not add a duplicate
+    private static Optional<String> existingKey(BibEntry fetched, BibDatabaseContext library) {
+        return Stream.of(StandardField.DOI, StandardField.EPRINT, StandardField.ISBN)
+                     .flatMap(field -> fetched.getField(field).stream().flatMap(value -> library.getEntries().stream()
+                                                                                       .filter(entry -> entry.getField(field).filter(value::equalsIgnoreCase).isPresent())))
+                     .flatMap(entry -> entry.getCitationKey().stream())
+                     .findFirst();
+    }
+
+    /// Generates the key against the target library, so that it does not clash with an existing key, and serializes the entry
+    private String keyedSerialization(BibEntry entry, BibDatabaseContext targetContext) {
+        new CitationKeyGenerator(targetContext, preferences.getCitationKeyPatternPreferences()).generateAndSetKey(entry);
+        try {
+            return new BibEntryWriter(new FieldWriter(preferences.getFieldPreferences()), entryTypesManager)
+                    .write(List.of(entry), BibDatabaseMode.BIBTEX);
+        } catch (IOException e) {
+            throw error(Localization.lang("Could not write entry: %0", e.getLocalizedMessage()));
+        }
+    }
+
+    private static Either<TextDocumentEdit, ResourceOperation> documentEdit(String uri, TextEdit edit) {
+        return Either.forLeft(new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), List.of(Either.forLeft(edit))));
+    }
+
+    private static TextEdit append(String content, String text) {
+        Position end = LspRangeUtil.convertToLspPosition(content, content.length());
+        String separator = content.isEmpty() || content.endsWith("\n") ? "" : "\n";
+        return new TextEdit(new Range(end, end), separator + text);
+    }
+
+    private BibDatabaseContext parse(String bibContent) {
+        try {
+            return new BibtexParser(preferences.getImportFormatPreferences()).parse(Reader.of(bibContent)).getDatabaseContext();
+        } catch (IOException e) {
+            throw error(Localization.lang("Could not write entry: %0", e.getLocalizedMessage()));
+        }
+    }
+
+    private static @Nullable String readIfExists(Path path) {
+        try {
+            return Files.exists(path) ? Files.readString(path) : null;
+        } catch (IOException e) {
+            throw error(e.getLocalizedMessage());
+        }
+    }
+
+    private static Optional<Path> toPath(String uri) {
+        try {
+            return Optional.of(Path.of(new URI(uri)).normalize());
+        } catch (URISyntaxException | IllegalArgumentException | FileSystemNotFoundException e) {
+            return Optional.empty();
+        }
     }
 
     // [impl->feat~fetchers.language-server-replace-citation~1]

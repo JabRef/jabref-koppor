@@ -45,6 +45,13 @@ In a Markdown document served by the language server, a code action on a DOI, ar
 
 Needs: impl, utest
 
+## User can cite an identifier in Markdown from within an editor
+`feat~fetchers.language-server-cite~1`
+
+In a Markdown document served by the language server, a code action on a DOI, arXiv ID, ISBN, or other supported identifier replaces it by a Pandoc citation `[@key]`. The entry is fetched and appended to the first `bibliography` of the YAML front matter, or else to the sibling `.bib` file with the document's base name, which is created if missing. If that library already has an entry with the same DOI, eprint, or ISBN, its key is cited and nothing is added.
+
+Needs: impl, utest
+
 ## User can view journal information from public metadata sources
 `feat~fetchers.journal-information~1`
 

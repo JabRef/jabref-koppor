@@ -39,7 +39,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added a warning for shortcuts already in use, allowing users to replace the existing shortcut or keep both. [#17240](https://github.com/JabRef/jabref/issues/17240)
 - We added "Delete" and "Retry" to the context menu of AI chat messages and made user messages retryable. [#17151](https://github.com/JabRef/jabref/pull/17151)
 - We added a list of saved connections to the "Connect to shared database" dialog. [#12948](https://github.com/JabRef/jabref/issues/12948)
-- We added language server support for identifiers (DOI, arXiv, ISBN): hover shows the citation, code actions replace the identifier by the citation (Markdown) or add the entry to a library. [palukku#67](https://github.com/palukku/jabref/pull/67)
+- We added language server support for identifiers (DOI, arXiv, ISBN): hover shows the citation, code actions replace the identifier by the citation or by a Pandoc citation `[@key]` with the entry added to the document's `.bib` (Markdown), or add the entry to a library. [palukku#67](https://github.com/palukku/jabref/pull/67)
 - We added <kbd>Ctrl</kbd> + <kbd>C</kbd> copy support for selected entries in the global search results window. [#17310](https://github.com/JabRef/jabref/issues/17310)
 - We added support for displaying and sorting BibLaTeX extended names. [#4558](https://github.com/JabRef/jabref/issues/4558)
 - We added a hint showing the effective file directory to empty directory fields in the library properties. [#17572](https://github.com/JabRef/jabref/issues/17572)
