@@ -28,7 +28,7 @@ extra["jbangVersion"] = jbang
 
 dependencies {
     api(platform("ai.djl:bom:0.40.0"))
-    api(platform("com.konghq:unirest-java-bom:4.11.10"))
+    api(platform("com.konghq:unirest-java-bom:4.11.11"))
     api(platform("com.squareup.okhttp3:okhttp-bom:5.5.1"))
     api(platform("dev.langchain4j:langchain4j-bom:1.24.0"))
     api(enforcedPlatform("io.zonky.test.postgres:embedded-postgres-binaries-bom:18.7.0"))
@@ -95,7 +95,7 @@ dependencies.constraints {
     api("io.github.darvil82:terminal-text-formatter:2.3.0c")
     api("io.github.classgraph:classgraph:6.0.2")
     api("io.github.java-diff-utils:java-diff-utils:4.18")
-    api("io.github.kusoroadeolu:veneer:1.3.2")
+    api("io.github.kusoroadeolu:veneer:1.3.3")
     api("io.github.stefanbratanov:jvm-openai:0.11.0")
     api("io.github.thibaultmeyer:cuid:2.0.5")
     api("io.zonky.test.postgres:embedded-postgres-binaries-darwin-arm64v8")
@@ -139,7 +139,7 @@ dependencies.constraints {
     api("org.glassfish.jaxb:jaxb-runtime:4.0.9")
     api("org.graalvm.sdk:nativeimage:25.5.5.0.3")
     api("org.hamcrest:hamcrest:3.0")
-    api("org.hibernate.validator:hibernate-validator:9.1.6.Final")
+    api("org.hibernate.validator:hibernate-validator:9.2.0.Final")
     api("org.hisp.dhis:json-tree:1.14.0")
     api("org.jabref:afterburner.fx:2.0.0")
     api("org.jabref:easybind:2.3.0")
