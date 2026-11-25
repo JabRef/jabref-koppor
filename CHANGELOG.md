@@ -14,6 +14,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We now focus the citation key field when a newly added entry opens in the entry editor. [#16929](https://github.com/JabRef/jabref/pull/16929)
 - We added creating a new entry by double-clicking the empty space below the last row of the entry table. [#16929](https://github.com/JabRef/jabref/pull/16929)
 
+- We added restoring of the library tab and entry that were selected when JabRef was closed. [#16911](https://github.com/JabRef/jabref/pull/16911)
+
 ### Changed
 
 - We changed citation parsing to import the DOI's metadata when a pasted or pushed citation contains a DOI. [#17900](https://github.com/JabRef/jabref/pull/17900)
@@ -23,6 +25,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We changed how JabRef opens older libraries by asking which conversions to perform and remembering your choices. [#16941](https://github.com/JabRef/jabref/pull/16941)
 
 ### Fixed
+
+- We fixed an issue where libraries opened or saved shortly before JabRef was killed were missing from recent libraries. [#16911](https://github.com/JabRef/jabref/pull/16911)
 
 ### Removed
 
