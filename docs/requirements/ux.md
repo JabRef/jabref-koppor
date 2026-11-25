@@ -59,6 +59,15 @@ This makes the empty area of the table act like the "Add entry" menu item, at th
 
 Needs: impl
 
+## Main table sorts by several columns
+`req~maintable.sort.multi-column~1`
+
+The main table sorts by a primary column and, for entries equal in it, by a secondary, tertiary, … column.
+<kbd>Shift</kbd> + click on a column header adds it as the next sort level.
+The sort levels are kept across restarts.
+
+Needs: impl
+
 ## GUI must display error dialog upon critical startup failure
 `req~ux.startup.critical-error-dialog~1`
 
