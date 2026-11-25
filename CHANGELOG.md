@@ -44,6 +44,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 - We fixed an issue where the consistency check listed the entry types in random order. [#779](https://github.com/JabRef/jabref-koppor/pull/779)
 
+- We fixed an issue where failed full text downloads opened an error dialog for each entry. [#774](https://github.com/JabRef/jabref-koppor/pull/774)
+
 ### Removed
 
 ## [6.0-beta.2] - 2026-11-24
