@@ -34,8 +34,8 @@
                     <ToggleGroup fx:id="shownEntriesToggleGroup"/>
                 </fx:define>
                 <RadioButton text="%Show all fields" selected="true" toggleGroup="$shownFieldsToggleGroup" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <RadioButton fx:id="restrictToBstFieldsRadio" text="%Restrict to fields of .bst style" toggleGroup="$shownFieldsToggleGroup" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                <Button onAction="#browseBstFile" text="%Browse .bst file..." maxWidth="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                <RadioButton fx:id="restrictToBstFieldsRadio" text="%Restrict to fields of bibliography style" toggleGroup="$shownFieldsToggleGroup" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Button onAction="#browseBstFile" text="%Browse style file..." maxWidth="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
                 <Label fx:id="bstStyleLabel" styleClass="text-muted" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
                 <RadioButton text="%Show all entries" selected="true" toggleGroup="$shownEntriesToggleGroup" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                 <RadioButton fx:id="restrictToAuxEntriesRadio" text="%Restrict to entries cited in .aux file" toggleGroup="$shownEntriesToggleGroup" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
