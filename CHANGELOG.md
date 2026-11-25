@@ -39,6 +39,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 - We fixed an issue where accepting an external change to an entry lost its table position, selection, and open entry editor. [#16813](https://github.com/JabRef/jabref/pull/16813)
 
+- We fixed an issue where the consistency check listed the entry types in random order. [#779](https://github.com/JabRef/jabref-koppor/pull/779)
+
 ### Removed
 
 ## [6.0-beta.2] - 2026-11-24
