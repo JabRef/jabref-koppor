@@ -1,0 +1,227 @@
+package org.jabref.logic.directorylibrary;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+
+import org.jabref.logic.groups.GroupsFactory;
+import org.jabref.logic.importer.ParserResult;
+import org.jabref.logic.importer.fileformat.HayagrivaImporter;
+import org.jabref.logic.l10n.Localization;
+import org.jabref.logic.util.StandardFileType;
+import org.jabref.logic.util.io.FileUtil;
+import org.jabref.logic.util.io.GitIgnoreFileFilter;
+import org.jabref.model.database.BibDatabaseContext;
+import org.jabref.model.entry.BibEntry;
+import org.jabref.model.entry.LinkedFile;
+import org.jabref.model.groups.DirectoryStructureGroup;
+import org.jabref.model.groups.GroupHierarchyType;
+import org.jabref.model.groups.GroupTreeNode;
+
+import org.jspecify.annotations.NullMarked;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/// Builds an in-memory library from a directory tree: each Hayagriva `.yml`/`.yaml` file and
+/// each Markdown sidecar (`.md` with Hayagriva frontmatter, see [MarkdownSidecar]) contributes
+/// its entries, a PDF next to a sidecar of the same base name is linked to the sidecar's
+/// (first) entry, and PDFs without a sidecar become entries with metadata extracted from the
+/// PDF itself (see [PdfEntryFactory]). The directory itself is the library — the resulting
+/// [BibDatabaseContext] has [org.jabref.logic.shared.DatabaseLocation#DIRECTORY] and no
+/// database path; linked files are stored relative to the root, against which the context
+/// resolves them.
+// [impl->req~directory-library.scan~6]
+@NullMarked
+public class DirectoryLibraryScanner {
+
+    /// Everything a directory scan produces: the ready-to-open context, the entry-to-file
+    /// catalog (consumed by the file synchronization in later steps), user-facing warnings
+    /// about files that looked like Hayagriva but could not be parsed, and the sidecar-less
+    /// PDFs whose stub entries still await metadata extraction (see [PdfEnrichmentTask]).
+    public record ScanResult(BibDatabaseContext databaseContext, DirectoryLibraryCatalog catalog, List<String> warnings,
+                             List<PendingPdfImport> pendingPdfImports) {
+    }
+
+    /// A stub entry created for a sidecar-less PDF, awaiting asynchronous metadata extraction.
+    public record PendingPdfImport(BibEntry entry, Path pdfFile) {
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DirectoryLibraryScanner.class);
+
+    private static final Set<String> YAML_EXTENSIONS = Set.of("yml", "yaml");
+    private static final String PDF_EXTENSION = "pdf";
+
+    private final HayagrivaImporter importer = new HayagrivaImporter();
+    private final MarkdownSidecar markdownSidecar = new MarkdownSidecar();
+    private final PdfEntryFactory pdfEntryFactory;
+
+    public DirectoryLibraryScanner(PdfEntryFactory pdfEntryFactory) {
+        this.pdfEntryFactory = pdfEntryFactory;
+    }
+
+    public ScanResult scan(Path root) throws IOException {
+        BibDatabaseContext databaseContext = new BibDatabaseContext();
+        databaseContext.convertToDirectoryLibrary(root);
+
+        DirectoryLibraryCatalog catalog = new DirectoryLibraryCatalog();
+        List<String> warnings = new ArrayList<>();
+
+        List<Path> sidecarFiles = new ArrayList<>();
+        List<Path> pdfFiles = new ArrayList<>();
+        collectFiles(root, sidecarFiles, pdfFiles);
+        // The sidecar convention: `X.yml` (or `X.md`) next to `X.pdf` (same directory, same
+        // base name); only PDFs that passed the skip rules above can be paired
+        Map<Path, Path> pdfByStem = new HashMap<>();
+        pdfFiles.forEach(pdf -> pdfByStem.put(pdf.resolveSibling(FileUtil.getBaseName(pdf)), pdf));
+
+        List<BibEntry> entries = new ArrayList<>();
+        Set<Path> pairedPdfs = new HashSet<>();
+        for (Path sidecarFile : sidecarFiles) {
+            // A directory may contain arbitrary YAML (CI configs, ...) and arbitrary Markdown
+            // (READMEs, plain notes) — only files recognized as Hayagriva(-frontmatter) become
+            // entries; others are silently ignored
+            boolean isMarkdown = MarkdownSidecar.hasMarkdownExtension(sidecarFile);
+            if (isMarkdown ? !markdownSidecar.looksLikeSidecar(sidecarFile) : !looksLikeHayagriva(sidecarFile)) {
+                continue;
+            }
+            ParserResult parserResult = isMarkdown
+                                        ? markdownSidecar.read(sidecarFile)
+                                        : importer.importDatabase(sidecarFile);
+            List<BibEntry> fileEntries = parserResult.getDatabase().getEntries();
+            if (parserResult.isInvalid() || fileEntries.isEmpty()) {
+                warnings.add(Localization.lang("Could not parse the Hayagriva file '%0'.", sidecarFile.toString()));
+                continue;
+            }
+            fileEntries.forEach(entry -> catalog.register(entry, sidecarFile, entry.getCitationKey().orElseThrow()));
+            Optional.ofNullable(pdfByStem.get(sidecarFile.resolveSibling(FileUtil.getBaseName(sidecarFile)))).ifPresent(pdf -> {
+                pairedPdfs.add(pdf);
+                linkPdf(fileEntries.getFirst(), root, pdf);
+            });
+            entries.addAll(fileEntries);
+        }
+
+        List<PendingPdfImport> pendingPdfImports = new ArrayList<>();
+        for (Path pdf : pdfFiles) {
+            if (pairedPdfs.contains(pdf)) {
+                continue;
+            }
+            // Only a quick stub here: metadata extraction happens asynchronously after the
+            // library is shown, and a sidecar is still only written once the user edits
+            BibEntry stub = pdfEntryFactory.createStub(pdf, root);
+            pendingPdfImports.add(new PendingPdfImport(stub, pdf));
+            entries.add(stub);
+        }
+
+        databaseContext.getDatabase().insertEntries(entries);
+        installDirectoryGroups(databaseContext, catalog, root);
+        return new ScanResult(databaseContext, catalog, warnings, List.copyOf(pendingPdfImports));
+    }
+
+    /// The groups panel mirrors the folder structure (#10930): a [DirectoryStructureGroup]
+    /// materializes one subgroup per subdirectory from the entries' source files. The lookup
+    /// reads the live catalog, so groups follow inbound synchronization and write-back.
+    // [impl->req~directory-library.groups~1]
+    private void installDirectoryGroups(BibDatabaseContext databaseContext, DirectoryLibraryCatalog catalog, Path root) {
+        Function<BibEntry, Optional<Path>> sourceFileLookup = sourceFileLookup(catalog, root);
+        GroupTreeNode groupsRoot = new GroupTreeNode(GroupsFactory.createAllEntriesGroup());
+        // A filesystem root (`/`, `C:\\`) has no file name
+        String rootName = Optional.ofNullable(root.getFileName()).map(Path::toString).orElseGet(root::toString);
+        groupsRoot.addSubgroup(new DirectoryStructureGroup(rootName, GroupHierarchyType.INDEPENDENT, sourceFileLookup));
+        databaseContext.getMetaData().setGroups(groupsRoot);
+    }
+
+    /// Resolves an entry to its source file relative to the root: the sidecar from the catalog,
+    /// or the linked PDF for entries without a sidecar yet.
+    private static Function<BibEntry, Optional<Path>> sourceFileLookup(DirectoryLibraryCatalog catalog, Path root) {
+        Path absoluteRoot = root.toAbsolutePath();
+        return entry -> catalog.sourceOf(entry)
+                               .map(source -> absoluteRoot.relativize(source.yamlFile().toAbsolutePath()))
+                               .or(() -> entry.getFiles().stream()
+                                              .filter(linkedFile -> !linkedFile.isOnlineLink())
+                                              .findFirst()
+                                              .map(linkedFile -> Path.of(linkedFile.getLink()))
+                                              .filter(path -> !path.isAbsolute()));
+    }
+
+    private void collectFiles(Path root, List<Path> sidecarFiles, List<Path> pdfFiles) throws IOException {
+        GitIgnoreFileFilter gitIgnoreFilter = new GitIgnoreFileFilter(root);
+        Files.walkFileTree(root, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path directory, BasicFileAttributes attributes) throws IOException {
+                if (!directory.equals(root) && (isHidden(directory) || !gitIgnoreFilter.accept(directory))) {
+                    return FileVisitResult.SKIP_SUBTREE;
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
+                if (isHidden(file)) {
+                    return FileVisitResult.CONTINUE;
+                }
+                String extension = FileUtil.getFileExtension(file).map(ext -> ext.toLowerCase(Locale.ROOT)).orElse("");
+                boolean isLibraryContent = YAML_EXTENSIONS.contains(extension)
+                        || MarkdownSidecar.MARKDOWN_EXTENSION.equals(extension)
+                        || PDF_EXTENSION.equals(extension);
+                // The library's own content (sidecars and PDFs) is never hidden by .gitignore: a
+                // scratch PDF folder is commonly a `.gitignore` of `*` next to a `.gitkeep`, which
+                // would otherwise leave the whole library empty. .gitignore still governs every
+                // other file and, through preVisitDirectory, whole ignored subtrees.
+                if (!isLibraryContent && !gitIgnoreFilter.accept(file)) {
+                    return FileVisitResult.CONTINUE;
+                }
+                if (YAML_EXTENSIONS.contains(extension) || MarkdownSidecar.MARKDOWN_EXTENSION.equals(extension)) {
+                    sidecarFiles.add(file);
+                } else if (PDF_EXTENSION.equals(extension)) {
+                    pdfFiles.add(file);
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exception) {
+                LOGGER.debug("Skipping unreadable path {}", file, exception);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        sidecarFiles.sort(Path::compareTo);
+        pdfFiles.sort(Path::compareTo);
+    }
+
+    private static boolean isHidden(Path path) {
+        return Optional.ofNullable(path.getFileName())
+                       .map(Path::toString)
+                       .filter(name -> name.startsWith("."))
+                       .isPresent();
+    }
+
+    /// Uses the lookahead-based recognition (a `type:` line naming a Hayagriva entry type)
+    /// instead of [org.jabref.logic.importer.Importer#isRecognizedFormat(Path)], which fully
+    /// parses the YAML: a syntactically broken sidecar must surface as a warning, not be
+    /// silently skipped as "not Hayagriva".
+    private boolean looksLikeHayagriva(Path yamlFile) throws IOException {
+        try (BufferedReader reader = Files.newBufferedReader(yamlFile, StandardCharsets.UTF_8)) {
+            return importer.isRecognizedFormat(reader);
+        }
+    }
+
+    private void linkPdf(BibEntry entry, Path root, Path pdf) {
+        if (entry.getFiles().isEmpty()) {
+            entry.addFile(new LinkedFile("", root.relativize(pdf), StandardFileType.PDF.getName()));
+        }
+    }
+}

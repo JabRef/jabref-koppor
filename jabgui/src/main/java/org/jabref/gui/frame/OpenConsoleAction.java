@@ -37,7 +37,7 @@ public class OpenConsoleAction extends SimpleCommand {
         this.preferences = preferences;
         this.dialogService = dialogService;
 
-        this.executable.bind(ActionHelper.needsSavedLocalDatabase(stateManager));
+        this.executable.bind(ActionHelper.needsDatabaseOnDisk(stateManager));
     }
 
     /// Using this constructor will result in executing the command on the active database.
@@ -47,13 +47,16 @@ public class OpenConsoleAction extends SimpleCommand {
 
     @Override
     public void execute() {
-        Optional.ofNullable(databaseContext.get()).or(stateManager::getActiveDatabase).flatMap(BibDatabaseContext::getDatabasePath).ifPresent(path -> {
-            try {
-                NativeDesktop.openConsole(path, preferences, dialogService);
-            } catch (IOException e) {
-                LOGGER.info("Could not open console", e);
-                dialogService.showErrorDialogAndWait(Localization.lang("Open terminal here"), Optional.ofNullable(e.getMessage()).orElse(""), e);
-            }
-        });
+        Optional.ofNullable(databaseContext.get())
+                .or(stateManager::getActiveDatabase)
+                .flatMap(BibDatabaseContext::getPathOnDisk)
+                .ifPresent(path -> {
+                    try {
+                        NativeDesktop.openConsole(path, preferences, dialogService);
+                    } catch (IOException e) {
+                        LOGGER.info("Could not open console", e);
+                        dialogService.showErrorDialogAndWait(Localization.lang("Open terminal here"), Optional.ofNullable(e.getMessage()).orElse(""), e);
+                    }
+                });
     }
 }
