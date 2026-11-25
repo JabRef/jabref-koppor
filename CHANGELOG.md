@@ -12,6 +12,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 ### Added
 
 - Extracting references from a PDF now recognizes bibliographies typeset with biblatex, including alphabetic labels such as `[AL26]`. [#775](https://github.com/JabRef/jabref-koppor/pull/775)
+- We added `jabkit pdf check-references`, which reports faults of a PDF's printed reference list, such as DOIs given as URL. [#778](https://github.com/JabRef/jabref-koppor/pull/778)
 
 ### Changed
 
