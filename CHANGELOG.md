@@ -25,6 +25,9 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 - We added prefilling of the AUX file belonging to the library's LaTeX document in "New sublibrary based on AUX file". [#790](https://github.com/JabRef/jabref-koppor/pull/790)
 
+- Extracting references from a PDF now recognizes bibliographies typeset with biblatex, including alphabetic labels such as `[AL26]`. [#775](https://github.com/JabRef/jabref-koppor/pull/775)
+- We added `jabkit pdf check-references`, which reports faults of a PDF's printed reference list, such as DOIs given as URL. [#778](https://github.com/JabRef/jabref-koppor/pull/778)
+
 ### Changed
 
 - We changed citation parsing to import the DOI's metadata when a pasted or pushed citation contains a DOI. [#17900](https://github.com/JabRef/jabref/pull/17900)
