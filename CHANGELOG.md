@@ -46,6 +46,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 - We fixed an issue where failed full text downloads opened an error dialog for each entry. [#774](https://github.com/JabRef/jabref-koppor/pull/774)
 
+- We fixed an issue where full text documents for several selected entries were attached only after all searches finished. [koppor#772](https://github.com/JabRef/jabref-koppor/pull/772)
+
 ### Removed
 
 ## [6.0-beta.2] - 2026-11-24
