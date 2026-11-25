@@ -13,20 +13,23 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.openoffice.CitedEntryCollector;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
 import org.jabref.logic.openoffice.ZoteroCitationLinker;
+import org.jabref.logic.openoffice.ZoteroCitationLinker.LinkPlan;
 import org.jabref.logic.openoffice.ZoteroDocumentPreferences;
 import org.jabref.logic.openoffice.ZoteroReferenceMark;
 import org.jabref.logic.openoffice.backend.WriterReferenceMark;
 import org.jabref.logic.openoffice.backend.WriterReferenceMark.BoundaryPolicy;
 import org.jabref.logic.openoffice.backend.WriterReferenceMarks;
+import org.jabref.logic.openoffice.bst.BstStyle;
 import org.jabref.logic.openoffice.engine.ZoteroCitationStrategy.Reason;
 import org.jabref.logic.openoffice.engine.ZoteroCitationStrategy.StoredCitation;
 import org.jabref.logic.openoffice.engine.ZoteroCitationStrategy.StrategyException;
-import org.jabref.logic.openoffice.style.BstStyle;
-import org.jabref.logic.openoffice.style.JStyle;
+import org.jabref.logic.openoffice.engine.storage.UndoableDocumentProperties;
+import org.jabref.logic.openoffice.jstyle.JStyle;
 import org.jabref.logic.openoffice.style.OOStyle;
 import org.jabref.logic.openoffice.uno.OOTextWriter;
 import org.jabref.logic.openoffice.uno.UnoDispatch;
 import org.jabref.logic.openoffice.uno.UnoRedlines;
+import org.jabref.logic.openoffice.uno.UnoUserDefinedProperty;
 import org.jabref.logic.openoffice.uno.WriterDocumentAccessException;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
@@ -44,8 +47,8 @@ import com.sun.star.container.XEnumeration;
 import com.sun.star.container.XEnumerationAccess;
 import com.sun.star.container.XNameAccess;
 import com.sun.star.document.XRedlinesSupplier;
-import com.sun.star.lang.WrappedTargetException;
 import com.sun.star.text.XText;
+import com.sun.star.text.XTextContent;
 import com.sun.star.text.XTextCursor;
 import com.sun.star.text.XTextDocument;
 import com.sun.star.text.XTextRange;
@@ -440,25 +443,53 @@ class ZoteroCitationStrategyTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"insert", "refresh"})
-    void nativeLinkMetadataReadFailureIsReportedBeforeAnyWrites(String operation) throws Exception {
+    void nativeRelinkingPreservesJsonWithoutAccessingConversionProperties(String operation) throws Exception {
         String nativeName = ZOTERO.replace(",\"http://www.jabref.org/a\"", "")
                                   .replace("\"title\":\"A\"", "\"title\":\"A\",\"DOI\":\"10.123/native\"");
         when(ranges.names(document)).thenReturn(List.of(nativeName));
         when(ranges.find(document, nativeName, BoundaryPolicy.TEMPORARY)).thenReturn(Optional.of(range));
+        XTextContent content = mock(XTextContent.class);
+        XTextRange anchor = span(1, 4);
+        when(content.getAnchor()).thenReturn(anchor);
         BibEntry entry = entry("a", "A").withField(StandardField.DOI, "10.123/native");
         BibDatabase database = new BibDatabase(List.of(entry));
-        try (MockedStatic<ConversionMetadata> metadata = mockStatic(ConversionMetadata.class);
+        CitationStyle style = style();
+        try (MockedStatic<UnoUserDefinedProperty> properties = mockStatic(UnoUserDefinedProperty.class);
+             MockedStatic<UndoableDocumentProperties> undoable = mockStatic(UndoableDocumentProperties.class);
+             MockedStatic<WriterReferenceMarks> marks = mockStatic(WriterReferenceMarks.class);
              MockedStatic<OOTextWriter> writer = mockStatic(OOTextWriter.class);
+             MockedStatic<UnoDispatch> dispatch = mockStatic(UnoDispatch.class);
              MockedStatic<ZoteroDocumentPreferences> documentPreferences = mockStatic(ZoteroDocumentPreferences.class)) {
-            metadata.when(() -> ConversionMetadata.prepareRelink(eq(document), eq(nativeName), anyString()))
-                    .thenThrow(new WrappedTargetException("Cannot read citation conversion properties"));
-            OOResult<List<String>, JabRefException> result = "refresh".equals(operation) ? strategy().refresh(List.of(database), style())
-                                                                                         : strategy().insert(List.of(entry), List.of(database), style(), CitationType.AUTHORYEAR_PAR, "", cursor, false);
-            assertEquals(Reason.DOCUMENT_FAILURE, assertInstanceOf(StrategyException.class, result.getError()).reason());
-            writer.verifyNoInteractions();
-            documentPreferences.verifyNoInteractions();
-            verify(ranges, never()).create(any(), any(), anyString(), any(), anyBoolean(), anyBoolean(), any(BoundaryPolicy.class));
-            verify(text, never()).removeTextContent(any());
+            marks.when(() -> WriterReferenceMarks.getAsTextContent(document, nativeName)).thenReturn(Optional.of(content));
+            documentPreferences.when(() -> ZoteroDocumentPreferences.writeCitationStyle(document, style)).thenReturn(true);
+            OOResult<List<String>, JabRefException> result = "refresh".equals(operation) ? strategy().refresh(List.of(database), style)
+                                                                                         : strategy().insert(List.of(entry), List.of(database), style, CitationType.AUTHORYEAR_PAR, "", cursor, false);
+
+            assertEquals(List.of(), result.get());
+            ArgumentCaptor<String> names = ArgumentCaptor.forClass(String.class);
+            verify(ranges, times("refresh".equals(operation) ? 1 : 2)).create(eq(document), eq(context), names.capture(), eq(cursor), eq(false), eq(false), eq(BoundaryPolicy.TEMPORARY));
+            String linkedName = names.getAllValues().stream()
+                                     .filter(name -> "RNDabcdefghij".equals(ZoteroReferenceMark.parse(name).orElseThrow().uniqueId()))
+                                     .findFirst().orElseThrow();
+            JsonObject expected = JsonParser.parseString(ZoteroReferenceMark.getCSLJson(nativeName)).getAsJsonObject();
+            expected.getAsJsonArray("citationItems").get(0).getAsJsonObject().getAsJsonArray("uris").add("http://www.jabref.org/a");
+            assertEquals(expected, JsonParser.parseString(ZoteroReferenceMark.getCSLJson(linkedName)));
+            assertEquals(List.of("a"), ZoteroReferenceMark.parse(linkedName).orElseThrow().citationKeys());
+            verify(text).removeTextContent(content);
+            writer.verify(() -> OOTextWriter.write(document, cursor, OOText.fromString("<span lang=\"zxx\">[1]</span>")), times("refresh".equals(operation) ? 1 : 2));
+            documentPreferences.verify(() -> ZoteroDocumentPreferences.writeCitationStyle(document, style));
+            properties.verifyNoInteractions();
+            undoable.verifyNoInteractions();
+        }
+    }
+
+    @Test
+    void emptyLinkPlanDoesNotReadOrResolveLibraryEntries() {
+        BibDatabase database = mock(BibDatabase.class);
+        try (MockedStatic<ZoteroCitationLinker> linker = mockStatic(ZoteroCitationLinker.class)) {
+            assertEquals(new LinkPlan(List.of(), Map.of()), strategy().planLinks(List.of(), List.of(database)));
+            verifyNoInteractions(database);
+            linker.verifyNoInteractions();
         }
     }
 

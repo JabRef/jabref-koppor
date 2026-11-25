@@ -21,10 +21,10 @@ import org.jabref.logic.openoffice.backend.ReferenceMarkTextWriter;
 import org.jabref.logic.openoffice.backend.WriterReferenceMark;
 import org.jabref.logic.openoffice.backend.WriterReferenceMark.BoundaryPolicy;
 import org.jabref.logic.openoffice.backend.WriterReferenceMarks;
+import org.jabref.logic.openoffice.bst.BstCitationFormat;
 import org.jabref.logic.openoffice.frontend.RangeForOverlapCheck;
 import org.jabref.logic.openoffice.rangesort.RangeSort;
 import org.jabref.logic.openoffice.rangesort.RangeSortEntry;
-import org.jabref.logic.openoffice.style.BstCitationFormat;
 import org.jabref.logic.openoffice.style.OOStyle;
 import org.jabref.logic.openoffice.uno.NamedTextContentPlacement;
 import org.jabref.logic.openoffice.uno.OOTextWriter;
@@ -117,7 +117,6 @@ public final class ZoteroCitationStrategy implements AutoCloseable {
 
             LinkPlan links = planLinks(citations, selected);
             citations = prepareLinks(citations, links);
-            Map<String, ConversionMetadata> metadataUpdates = prepareMetadataLinks(citations);
             Map<String, String> uris = links.zoteroUriByCitationKey();
             int nextItemId = 1;
             for (StoredCitation citation : citations) {
@@ -148,12 +147,12 @@ public final class ZoteroCitationStrategy implements AutoCloseable {
             List<StoredCitation> stored = ordered.stream().map(citation -> citation == inserted
                                                                            ? new StoredCitation(mark, inserted.group(), inserted.anchor(), Optional.of(range), mark.name())
                                                                            : citation).toList();
-            apply(stored, rendered, cslStyle, rebuildBib, metadataUpdates);
+            apply(stored, rendered, cslStyle, rebuildBib);
             return OOResult.ok(rendered.unresolvedKeys());
         } catch (StrategyException exception) {
             return OOResult.error(exception);
         } catch (com.sun.star.uno.Exception | WriterOperationException | WriterDocumentAccessException | RenderException
-                 | JabRefMarkCodecException | IllegalArgumentException | IllegalStateException | com.sun.star.uno.RuntimeException exception) {
+                 | IllegalArgumentException | IllegalStateException | com.sun.star.uno.RuntimeException exception) {
             return OOResult.error(failure(Localization.lang("Could not insert citation"), exception));
         }
     }
@@ -166,20 +165,19 @@ public final class ZoteroCitationStrategy implements AutoCloseable {
             validate(original, Optional.empty());
 
             List<StoredCitation> citations = order(prepareLinks(original, planLinks(original, databases)));
-            Map<String, ConversionMetadata> metadataUpdates = prepareMetadataLinks(citations);
             RenderResult rendered = render(citations, databases, cslStyle, true);
-            apply(citations, rendered, cslStyle, true, metadataUpdates);
+            apply(citations, rendered, cslStyle, true);
             return OOResult.ok(rendered.unresolvedKeys());
         } catch (StrategyException exception) {
             return OOResult.error(exception);
         } catch (com.sun.star.uno.Exception | WriterOperationException | WriterDocumentAccessException | RenderException
-                 | JabRefMarkCodecException | IllegalArgumentException | IllegalStateException | com.sun.star.uno.RuntimeException exception) {
+                 | IllegalArgumentException | IllegalStateException | com.sun.star.uno.RuntimeException exception) {
             return OOResult.error(failure(Localization.lang("Could not update bibliography"), exception));
         }
     }
 
-    /// Export is read-only. Native Zotero items not yet linked to a selected library remain unresolved,
-    /// as in the previous export path; insert and refresh perform the URI/duplicate linking step.
+    /// Export is read-only. Native Zotero items not yet linked to a selected library remain unresolved;
+    /// insert and refresh perform URI/duplicate linking.
     public OOResult<CitedEntryExporter.ExportResult, JabRefException> exportCited(List<BibDatabase> databases) {
         try {
             requireOpen();
@@ -329,6 +327,9 @@ public final class ZoteroCitationStrategy implements AutoCloseable {
     }
 
     LinkPlan planLinks(List<StoredCitation> citations, List<BibDatabase> databases) {
+        if (citations.isEmpty()) {
+            return new LinkPlan(List.of(), Map.of());
+        }
         List<BibEntry> entries = databases.stream()
                                           .flatMap(database -> database.getEntries().stream().map(entry -> database.resolveForStrings(entry, false)))
                                           .distinct().toList();
@@ -399,19 +400,8 @@ public final class ZoteroCitationStrategy implements AutoCloseable {
         return new RenderOptions(BstCitationFormat.NUMERIC, bibliography, "", "", preferences.getCslBibliographyBodyFormat(), false);
     }
 
-    private Map<String, ConversionMetadata> prepareMetadataLinks(List<StoredCitation> citations) throws com.sun.star.uno.Exception {
-        Map<String, ConversionMetadata> updates = new LinkedHashMap<>();
-        for (StoredCitation citation : citations) {
-            if (!citation.originalName().equals(citation.mark().name())) {
-                ConversionMetadata.prepareRelink(document, citation.originalName(), citation.mark().name())
-                                  .ifPresent(metadata -> updates.put(citation.originalName(), metadata));
-            }
-        }
-        return updates;
-    }
-
-    private void apply(List<StoredCitation> citations, RenderResult rendered, CitationStyle style, boolean bibliography, Map<String, ConversionMetadata> metadataUpdates)
-            throws WriterDocumentAccessException, WriterOperationException, com.sun.star.uno.Exception, StrategyException, JabRefMarkCodecException {
+    private void apply(List<StoredCitation> citations, RenderResult rendered, CitationStyle style, boolean bibliography)
+            throws WriterDocumentAccessException, WriterOperationException, com.sun.star.uno.Exception, StrategyException {
         for (StoredCitation citation : citations) {
             if (citation.range().isEmpty() || !rendered.markers().containsKey(citation.group().groupId)) {
                 throw new WriterOperationException("Missing Zotero citation range or rendered text");
@@ -428,9 +418,6 @@ public final class ZoteroCitationStrategy implements AutoCloseable {
         }
         if (bibliography && style.hasBibliography()) {
             rebuildBibliography(rendered.bibliography());
-        }
-        for (ConversionMetadata metadata : metadataUpdates.values()) {
-            metadata.store(document);
         }
         if (!ZoteroDocumentPreferences.writeCitationStyle(document, style)) {
             throw new StrategyException(Reason.DOCUMENT_FAILURE, "Cannot persist Zotero document preferences", Localization.lang("Could not update bibliography"));
@@ -463,7 +450,7 @@ public final class ZoteroCitationStrategy implements AutoCloseable {
             XTextCursor end = document.getText().createTextCursor();
             end.gotoEnd(false);
             String name = BIBLIOGRAPHY_PREFIX + "{\"uncited\":[],\"omitted\":[],\"custom\":[]} CSL_BIBLIOGRAPHY RND"
-                    + CitationIds.newId(10);
+                    + CitationIds.newId();
             names.add(UnoTextSection.create(new NamedTextContentPlacement(document, name, end, false)).getName());
         }
         OOText text = OOText.fromString(String.join("", bibliography.stream().map(entry -> entry.toString()).toList()));

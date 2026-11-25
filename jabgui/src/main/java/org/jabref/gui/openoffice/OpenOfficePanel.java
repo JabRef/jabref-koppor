@@ -51,10 +51,10 @@ import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.openoffice.OpenOfficeFileSearch;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
+import org.jabref.logic.openoffice.bst.BstStyleLoader;
 import org.jabref.logic.openoffice.engine.StyleCapabilities;
-import org.jabref.logic.openoffice.style.BstStyleLoader;
-import org.jabref.logic.openoffice.style.JStyle;
-import org.jabref.logic.openoffice.style.JStyleLoader;
+import org.jabref.logic.openoffice.jstyle.JStyle;
+import org.jabref.logic.openoffice.jstyle.JStyleLoader;
 import org.jabref.logic.openoffice.style.OOStyle;
 import org.jabref.logic.openoffice.uno.WriterOperationException;
 import org.jabref.logic.util.BackgroundTask;
@@ -459,7 +459,7 @@ public class OpenOfficePanel {
         unmerge.setDisable(!available.groupEditing());
         manageCitations.setDisable(!available.manageCitations());
         exportCitations.setDisable(!(connected && hasDatabase));
-        importCitations.setDisable(!(connected && hasDatabase && openOfficePreferences.getZoteroCompatibilityMode()));
+        importCitations.setDisable(!(connected && hasDatabase && currentStyle instanceof CitationStyle && openOfficePreferences.getZoteroCompatibilityMode()));
         modifyBibliographyProperties.setDisable(!available.bibliography());
         pageInfoSupported.set(connected && capabilities.supportsPageInfo());
     }

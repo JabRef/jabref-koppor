@@ -207,6 +207,14 @@ Only citations sharing that collection identity are deduplicated, retaining the 
 Key-only and URI-bearing representations stay separate even when they share a citation key; both reach ordinary bibliographic duplicate handling.
 Bibliographic duplicates pass through the ordinary import handler and its duplicate-resolution preferences, subject to the cited-entry key-preservation and batch-ordering requirements below.
 Explicit document keys are retained, while entries without one receive generated keys.
+When a LibreOffice document contains native Zotero-compatible reference marks, the user can import their embedded bibliographic entries into the library active when the action starts.
+The panel offers this action with a CSL style selected and Zotero compatibility enabled; the collection API is independent of that setting.
+Canonical JabRef and legacy marks are ignored; collection is read-only and does not modify the document or trigger citation-format conversion.
+Each citation's collection identity is its native item URI, otherwise its explicit citation key, otherwise its numeric Zotero item ID.
+Only citations sharing that collection identity are deduplicated, retaining the first collected position and bibliographic data; a later explicit document key is retained when the first citation under that identity was keyless.
+Key-only and URI-bearing representations stay separate even when they share a citation key; both reach ordinary bibliographic duplicate handling.
+Bibliographic duplicates pass through the ordinary import handler and its duplicate-resolution preferences, subject to the cited-entry key-preservation and batch-ordering requirements below.
+Explicit document keys are retained, while entries without one receive generated keys.
 Importing without an open library or a connected document reports the missing prerequisite without reading citations.
 
 Origin: <https://github.com/JabRef/jabref/issues/16516>
@@ -301,6 +309,14 @@ If several such AUX files exist, the most recently modified one is taken.
 
 When a plain-text citation contains a DOI, JabRef imports the metadata registered for that DOI instead of the fields guessed by the citation parser.
 If the DOI lookup fails, the parsed entry is imported.
+
+Needs: impl, utest
+
+## The AUX file import must prefill the AUX file of the library's LaTeX document
+`req~import.aux.prefill~1`
+
+When the "New sublibrary based on AUX file" dialog opens, it fills in the AUX file that belongs to a `.tex` file in the library's LaTeX file directory (the library's directory if none is set).
+If several such AUX files exist, the most recently modified one is taken.
 
 Needs: impl, utest
 

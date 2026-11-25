@@ -19,6 +19,8 @@ import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
+import org.jabref.logic.openoffice.bst.BstCitationFormat;
+import org.jabref.logic.openoffice.bst.BstStyle;
 import org.jabref.logic.openoffice.engine.CitationEngine;
 import org.jabref.logic.openoffice.engine.CitedEntryExporter;
 import org.jabref.logic.openoffice.engine.JabRefMarkCodec;
@@ -32,10 +34,8 @@ import org.jabref.logic.openoffice.engine.UpdatePipeline;
 import org.jabref.logic.openoffice.engine.storage.DocumentStyleStore;
 import org.jabref.logic.openoffice.engine.storage.MarkStore;
 import org.jabref.logic.openoffice.frontend.DocumentCitations;
-import org.jabref.logic.openoffice.style.BstCitationFormat;
-import org.jabref.logic.openoffice.style.BstStyle;
-import org.jabref.logic.openoffice.style.JStyle;
-import org.jabref.logic.openoffice.style.JStyleLoader;
+import org.jabref.logic.openoffice.jstyle.JStyle;
+import org.jabref.logic.openoffice.jstyle.JStyleLoader;
 import org.jabref.logic.openoffice.style.OOStyle;
 import org.jabref.logic.openoffice.uno.UnoRedlines;
 import org.jabref.logic.openoffice.uno.UnoTextSection;
@@ -263,6 +263,40 @@ class WriterIntegrationTest {
     }
 
     @ParameterizedTest
+    @ValueSource(strings = {"jstyle", "bst"})
+        // [utest->req~openoffice.narrative-citations~1]
+    void numericNarrativeCitationsRetainTheirTypesAcrossStyleChangesAndReopen(String family) throws Exception {
+        XTextDocument document = office.newDocument();
+        BibDatabase database = database();
+        XTextCursor cursor = document.getText().createTextCursor();
+        try (CitationEngine engine = engine(document)) {
+            assertEquals(List.of(), success(engine.insert(List.of(entry(database, "alpha")), List.of(database), style(family),
+                    CitationType.AUTHORYEAR_PAR, "", cursor, false)));
+            cursor.setString(" | ");
+            cursor.collapseToEnd();
+            assertEquals(List.of(), success(engine.insert(List.of(entry(database, "beta")), List.of(database), style(family),
+                    CitationType.AUTHORYEAR_INTEXT, "", cursor, false)));
+        }
+        Map<String, JabRefMarkData> original = identities(document);
+        assertEquals(CitationType.AUTHORYEAR_PAR, identityForKey(original, "alpha").citationType());
+        assertEquals(CitationType.AUTHORYEAR_INTEXT, identityForKey(original, "beta").citationType());
+        assertEquals(Map.of("alpha", "[1]", "beta", "Beta [2]"), textsByKey(document));
+        for (String targetFamily : List.of("csl", "jstyle", "bst")) {
+            Map<String, String> expected = "csl".equals(targetFamily)
+                                           ? Map.of("alpha", "1", "beta", "Beta 2")
+                                           : Map.of("alpha", "[1]", "beta", "Beta [2]");
+            try (CitationEngine engine = engine(document)) {
+                assertEquals(List.of(), success(engine.refresh(List.of(database), style(targetFamily))));
+            }
+            assertEquals(original, identities(document));
+            assertEquals(expected, textsByKey(document));
+            document = office.saveAndReload(document, temporaryDirectory.resolve("narrative-" + family + "-" + targetFamily + ".odt"));
+            assertEquals(original, identities(document));
+            assertEquals(expected, textsByKey(document));
+        }
+    }
+
+    @ParameterizedTest
     @ValueSource(strings = {"jstyle", "csl", "bst"})
     void insertionRenumbersExistingMarkersAndBibliographyInDocumentOrder(String family) throws Exception {
         XTextDocument document = office.newDocument();
@@ -424,10 +458,10 @@ class WriterIntegrationTest {
         assertEquals(before, snapshot(document));
     }
 
-    // [utest->req~openoffice.legacy-marks-unmanaged~1]
+    // [utest->req~openoffice.legacy-marks-unmanaged~1,req~openoffice.legacy-jstyle-migration~1]
     @ParameterizedTest
     @ValueSource(strings = {"jstyle", "csl", "bst", "csl-empty"})
-    void engineDoesNotReadExportRewriteOrMigrateLegacyMarks(String family) throws Exception {
+    void connectionExportAndRefreshLeaveLegacyMarksAndMetadataUntouched(String family) throws Exception {
         String fixture = "csl-empty".equals(family) ? "legacy-csl-empty-citation.fodt" : "legacy-" + family + ".fodt";
         XTextDocument document = office.load(resource(fixture));
         Map<String, String> legacy = marks(document);

@@ -15,7 +15,7 @@ import org.jspecify.annotations.NullMarked;
 /// Selects the fields a bibliography style can read, given the field names the style file mentions.
 ///
 /// Mirrors [org.jabref.model.entry.BibEntry#getFieldOrAlias]: a style reading `journal` sees `journaltitle`,
-/// a style reading `date` sees `year`, `month` and `day`, and the other way round.
+/// a style reading `date` sees `year`, `month` and `day`, and the other way round. `crossref` is always read.
 @NullMarked
 public class StyleFieldSelection {
 
@@ -31,6 +31,9 @@ public class StyleFieldSelection {
             return Optional.empty();
         }
         return Optional.of(field -> {
+            if (field == StandardField.CROSSREF) {
+                return true;
+            }
             Stream<Field> candidates = DATE_FIELDS.contains(field)
                                        ? DATE_FIELDS.stream()
                                        : Stream.concat(Stream.of(field), Optional.ofNullable(EntryConverter.FIELD_ALIASES.get(field)).stream());

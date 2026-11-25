@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.jabref.logic.bst.BstVM;
-import org.jabref.logic.openoffice.style.BstStyle;
+import org.jabref.logic.openoffice.bst.BstStyle;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
@@ -127,6 +127,47 @@ class BstCitationFormatterTest {
         BibDatabaseContext ctx = new BibDatabaseContext(new BibDatabase(List.of(entry)));
         String result = BstCitationFormatter.buildAuthorYearCitation(List.of(entry), ctx);
         assertEquals("(Doe, 2007)", result);
+    }
+
+    @Test
+    void authorYearInTextEntryUsesNatbibAuthorList() {
+        BibEntry entry = new BibEntry()
+                .withField(StandardField.AUTHOR, AUTHOR_DOE_JOHN + " and Roe, Richard and Poe, Peter")
+                .withField(StandardField.YEAR, "2007");
+
+        assertEquals("Doe et al. (2007)", BstCitationFormatter.authorYearInTextEntry(entry, new BibDatabase(List.of(entry))));
+    }
+
+    @Test
+    void authorYearInTextEntryUsesYearFromDateField() {
+        BibEntry entry = new BibEntry()
+                .withField(StandardField.AUTHOR, AUTHOR_DOE_JOHN)
+                .withField(StandardField.DATE, "2007-05-01");
+
+        assertEquals("Doe (2007)", BstCitationFormatter.authorYearInTextEntry(entry, new BibDatabase(List.of(entry))));
+    }
+
+    @Test
+    void authorYearInTextEntryMissingYearFallsBackToNd() {
+        BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, AUTHOR_DOE_JOHN);
+
+        assertEquals("Doe (n.d.)", BstCitationFormatter.authorYearInTextEntry(entry, new BibDatabase(List.of(entry))));
+    }
+
+    @Test
+    void authorYearInTextEntryBlankYearFallsBackToNd() {
+        BibEntry entry = new BibEntry()
+                .withField(StandardField.AUTHOR, AUTHOR_DOE_JOHN)
+                .withField(StandardField.YEAR, "   ");
+
+        assertEquals("Doe (n.d.)", BstCitationFormatter.authorYearInTextEntry(entry, new BibDatabase(List.of(entry))));
+    }
+
+    @Test
+    void authorYearInTextEntryMissingAuthorYieldsQuestionMark() {
+        BibEntry entry = new BibEntry().withField(StandardField.YEAR, "2007");
+
+        assertEquals("? (2007)", BstCitationFormatter.authorYearInTextEntry(entry, new BibDatabase(List.of(entry))));
     }
 
     @Test

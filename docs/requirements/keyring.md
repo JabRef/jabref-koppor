@@ -50,4 +50,25 @@ If the imported settings disable persistence, the local keys are cleared after r
 
 Needs: impl, utest
 
+## Custom API keys must be loaded from one keyring item
+`req~keyring.api-key-bundle~1`
+
+Saved custom API keys share one keyring item, so loading them requires one password read after migration.
+Normal preferences record only which keys are stored; startup must skip the keyring when no keys are stored or persistence is disabled.
+Blank keys and built-in defaults must not be stored as custom secrets.
+Existing separate entries must be preserved until their values have been written successfully to the shared item.
+If a keyring lookup cannot confirm whether an entry is missing, the migration must leave the separate entries intact and retry on a later load.
+Migration can still require one approval per existing protected item.
+
+Needs: impl, utest
+
+## Preference imports must load custom API keys before applying persistence changes
+`req~keyring.api-key-import~1`
+
+An import with persistence enabled loads keys from the local bundle using the imported fetcher metadata.
+Replaying the metadata leaves an existing bundle intact.
+If the imported settings disable persistence, the local keys are cleared after replay.
+
+Needs: impl, utest
+
 <!-- markdownlint-disable-file MD022 -->

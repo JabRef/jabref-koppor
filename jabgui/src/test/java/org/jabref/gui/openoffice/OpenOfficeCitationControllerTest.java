@@ -8,14 +8,14 @@ import org.jabref.gui.DialogService;
 import org.jabref.logic.JabRefException;
 import org.jabref.logic.citationstyle.CitationStyle;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
+import org.jabref.logic.openoffice.bst.BstStyle;
 import org.jabref.logic.openoffice.engine.CitationEngine;
 import org.jabref.logic.openoffice.engine.CitedEntryExporter;
 import org.jabref.logic.openoffice.engine.MissingCitationLabelException;
 import org.jabref.logic.openoffice.engine.MissingWriterStyleException;
 import org.jabref.logic.openoffice.engine.RenderException;
 import org.jabref.logic.openoffice.engine.StyleCapabilities;
-import org.jabref.logic.openoffice.style.BstStyle;
-import org.jabref.logic.openoffice.style.JStyle;
+import org.jabref.logic.openoffice.jstyle.JStyle;
 import org.jabref.logic.openoffice.style.OOStyle;
 import org.jabref.logic.openoffice.uno.UnoCursor;
 import org.jabref.logic.openoffice.uno.WriterDocumentAccessException;
@@ -182,8 +182,17 @@ class OpenOfficeCitationControllerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(booleans = {false, true})
-    void insertionWarnsBeforeMutationWhenFormatConversionIsRequired(boolean zoteroMode) {
+    @CsvSource({"csl, false", "csl, true", "jstyle, false", "jstyle, true", "bst, false", "bst, true"})
+    void insertionWarnsBeforeMutationWhenFormatConversionIsRequired(String family, boolean zoteroMode) {
+        OOStyle style = switch (family) {
+            case "jstyle" ->
+                    mock(JStyle.class);
+            case "bst" ->
+                    mock(BstStyle.class);
+            default ->
+                    mock(CitationStyle.class);
+        };
+        when(preferences.getCurrentStyle()).thenReturn(style);
         when(preferences.getZoteroCompatibilityMode()).thenReturn(zoteroMode);
         BibEntry entry = new BibEntry().withCitationKey("alpha");
         List<BibDatabase> databases = List.of(new BibDatabase(List.of(entry)));

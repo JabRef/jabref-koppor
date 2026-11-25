@@ -18,6 +18,7 @@ import org.jabref.logic.openoffice.backend.ReferenceMarkTextWriter;
 import org.jabref.logic.openoffice.backend.WriterReferenceMark;
 import org.jabref.logic.openoffice.backend.WriterReferenceMark.BoundaryPolicy;
 import org.jabref.logic.openoffice.backend.WriterReferenceMarks;
+import org.jabref.logic.openoffice.bst.BstCitationFormat;
 import org.jabref.logic.openoffice.engine.CitationEngine;
 import org.jabref.logic.openoffice.engine.CitationGroupEditor;
 import org.jabref.logic.openoffice.engine.CitationRenderer;
@@ -33,10 +34,9 @@ import org.jabref.logic.openoffice.engine.StyleCapabilities;
 import org.jabref.logic.openoffice.frontend.DocumentCitations;
 import org.jabref.logic.openoffice.frontend.DocumentOrder;
 import org.jabref.logic.openoffice.frontend.RangeForOverlapCheck;
+import org.jabref.logic.openoffice.jstyle.JStyle;
+import org.jabref.logic.openoffice.jstyle.JStyleLoader;
 import org.jabref.logic.openoffice.rangesort.RestorableTextViewCursor;
-import org.jabref.logic.openoffice.style.BstCitationFormat;
-import org.jabref.logic.openoffice.style.JStyle;
-import org.jabref.logic.openoffice.style.JStyleLoader;
 import org.jabref.logic.openoffice.uno.NamedTextContentPlacement;
 import org.jabref.logic.openoffice.uno.UnoRedlines;
 import org.jabref.logic.openoffice.uno.UnoUserDefinedProperty;
@@ -341,6 +341,29 @@ class CanonicalStorageWriterTest {
         assertEquals(Optional.empty(), UnoUserDefinedProperty.getStringValue(document, MarkStore.pageInfoProperty("orphan", 0)));
         assertEquals(Optional.of("p. 5"), UnoUserDefinedProperty.getStringValue(document,
                 MarkStore.pageInfoProperty(documentCitations.markStore.getMarkData(group).orElseThrow().uniqueId(), 0)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void orphanPageInfosSurviveInsertionUntilExplicitRefresh(boolean rebuildBibliography) throws Exception {
+        XTextDocument document = office.newDocument();
+        BibDatabase database = database();
+        String orphanProperty = MarkStore.pageInfoProperty("orphan", 0);
+        UnoUserDefinedProperty.setStringProperty(document, orphanProperty, "p. 99");
+        XTextCursor cursor = document.getText().createTextCursor();
+        try (CitationEngine engine = engine(document)) {
+            assertEquals(List.of(), engine.insert(database.getEntries(), List.of(database), numericStyle(), CitationType.AUTHORYEAR_PAR,
+                    "p. 5", cursor, rebuildBibliography).get());
+            assertEquals(Optional.of("p. 99"), UnoUserDefinedProperty.getStringValue(document, orphanProperty));
+            CitationGroup inserted = new DocumentCitations(document).citationGroups.getCitationGroupsUnordered().getFirst();
+            assertEquals(List.of(Optional.empty(), info("p. 5")), pageInfos(inserted));
+
+            assertEquals(List.of(), engine.refresh(List.of(database), numericStyle()).get());
+
+            assertEquals(Optional.empty(), UnoUserDefinedProperty.getStringValue(document, orphanProperty));
+            assertEquals(List.of(Optional.empty(), info("p. 5")), pageInfos(
+                    new DocumentCitations(document).citationGroups.getCitationGroupsUnordered().getFirst()));
+        }
     }
 
     @Test

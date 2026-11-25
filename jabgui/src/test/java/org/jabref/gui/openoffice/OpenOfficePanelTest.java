@@ -28,11 +28,11 @@ import org.jabref.logic.citationstyle.CSLStyleLoader;
 import org.jabref.logic.citationstyle.CitationStyle;
 import org.jabref.logic.journals.JournalAbbreviationRepository;
 import org.jabref.logic.openoffice.OpenOfficePreferences;
+import org.jabref.logic.openoffice.bst.BstStyle;
+import org.jabref.logic.openoffice.bst.BstStyleLoader;
 import org.jabref.logic.openoffice.engine.StyleCapabilities;
-import org.jabref.logic.openoffice.style.BstStyle;
-import org.jabref.logic.openoffice.style.BstStyleLoader;
-import org.jabref.logic.openoffice.style.JStyle;
-import org.jabref.logic.openoffice.style.JStyleLoader;
+import org.jabref.logic.openoffice.jstyle.JStyle;
+import org.jabref.logic.openoffice.jstyle.JStyleLoader;
 import org.jabref.logic.openoffice.style.OOStyle;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
@@ -61,6 +61,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
@@ -220,6 +221,7 @@ class OpenOfficePanelTest {
 
         @Test
         void importActionForwardsCitationsToTheCapturedLibraryWithoutFilteringByKey() throws ReflectiveOperationException {
+            setField("currentStyle", mock(CitationStyle.class));
             when(preferences.getZoteroCompatibilityMode()).thenReturn(true);
             when(tabContainer.getCurrentLibraryTab()).thenReturn(targetTab);
             when(citationController.importCited()).thenReturn(Optional.of(List.of(entry)));
@@ -238,6 +240,7 @@ class OpenOfficePanelTest {
         @ParameterizedTest
         @ValueSource(booleans = {false, true})
         void importActionRequiresZoteroCompatibilityMode(boolean zoteroMode) throws ReflectiveOperationException {
+            setField("currentStyle", mock(CitationStyle.class));
             when(preferences.getZoteroCompatibilityMode()).thenReturn(zoteroMode);
             Button importCitations = button("importCitations");
 
@@ -245,6 +248,21 @@ class OpenOfficePanelTest {
                 assertDoesNotThrow(this::refreshActionAvailability);
                 assertEquals(!zoteroMode, importCitations.isDisabled());
             });
+        }
+
+        @ParameterizedTest
+        @ValueSource(classes = {JStyle.class, BstStyle.class})
+        void importActionIsDisabledForNonCslStylesWithoutClearingTheSavedMode(Class<? extends OOStyle> styleClass) throws ReflectiveOperationException {
+            setField("currentStyle", mock(styleClass));
+            when(preferences.getZoteroCompatibilityMode()).thenReturn(true);
+            Button importCitations = button("importCitations");
+
+            JavaFxExtension.invokeAndWait(() -> {
+                assertDoesNotThrow(this::refreshActionAvailability);
+                assertTrue(importCitations.isDisabled());
+            });
+
+            verify(preferences, never()).setZoteroCompatibilityMode(anyBoolean());
         }
 
         @Test

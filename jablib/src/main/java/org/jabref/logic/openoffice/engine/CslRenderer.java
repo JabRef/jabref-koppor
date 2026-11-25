@@ -13,7 +13,7 @@ import java.util.StringJoiner;
 import org.jabref.logic.citationstyle.CitationStyle;
 import org.jabref.logic.citationstyle.JabRefItemDataProvider;
 import org.jabref.logic.citationstyle.JabRefLocaleProvider;
-import org.jabref.logic.openoffice.oocsltext.CSLFormatUtils;
+import org.jabref.logic.openoffice.csl.CSLFormatUtils;
 import org.jabref.model.database.BibDatabase;
 import org.jabref.model.database.BibDatabaseContext;
 import org.jabref.model.entry.BibEntry;
@@ -64,7 +64,7 @@ public final class CslRenderer implements CitationRenderer {
         return render(request, capabilities());
     }
 
-    /// Native Zotero rendering uses normal or in-text citations; other canonical types remain recoverable through conversion metadata.
+    /// Native Zotero rendering uses normal or in-text citations; unsupported canonical types use the normal fallback.
     RenderResult renderNative(RenderRequest request) throws RenderException {
         return render(request, new StyleCapabilities(Set.of(CitationType.AUTHORYEAR_PAR, CitationType.AUTHORYEAR_INTEXT),
                 style.hasBibliography(), false, false));
@@ -161,6 +161,7 @@ public final class CslRenderer implements CitationRenderer {
         keys.clear();
     }
 
+    // [impl->req~openoffice.csl-in-text-citations~1]
     private Fragment inText(String key, CitationKeyResolution data, Optional<CSL> processor,
                             BibDatabaseContext alphaContext, Map<Integer, String> renderedClusters) throws RenderException {
         if (data.lookup(key).isEmpty()) {
@@ -172,7 +173,7 @@ public final class CslRenderer implements CitationRenderer {
         }
         CitationLookupResult source = data.resolved(key);
         String prefix = style.isNumericStyle()
-                        ? StringEscapeUtils.escapeHtml4(CSLFormatUtils.generateAuthorPrefix(source.entry, new BibDatabaseContext(source.database)))
+                        ? StringEscapeUtils.escapeHtml4(shortAuthor(source).orElse(key)) + " "
                         : "";
         return cluster(processor, List.of(key), prefix, !style.isNumericStyle(), renderedClusters);
     }

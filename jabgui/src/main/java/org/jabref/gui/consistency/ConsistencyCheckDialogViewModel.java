@@ -301,6 +301,14 @@ public class ConsistencyCheckDialogViewModel extends AbstractViewModel {
         return bstStyleName;
     }
 
+    private static Optional<Predicate<Field>> readStyleFields(Path styleFile) throws IOException {
+        String name = styleFile.getFileName().toString().toLowerCase(Locale.ROOT);
+        Set<String> fieldNames = name.endsWith(".bst")
+                                 ? new BstVM(styleFile).getEntryFields()
+                                 : BiblatexStyleScanner.scanFields(styleFile);
+        return StyleFieldSelection.forFieldNames(fieldNames);
+    }
+
     // [impl->req~ux.consistency.bst-field-columns~2]
     public void browseBstFile() {
         FileDialogConfiguration fileDialogConfiguration = new FileDialogConfiguration.Builder()
@@ -310,15 +318,6 @@ public class ConsistencyCheckDialogViewModel extends AbstractViewModel {
                 .withDefaultExtension(Localization.lang("Bibliography style"))
                 .build();
         dialogService.showFileOpenDialog(fileDialogConfiguration).ifPresent(this::loadStyleFile);
-    }
-
-    /// Reads the fields a style can supply values for: `.bst` styles through their `ENTRY` command,
-    /// biblatex styles (`.bbx`, `.cbx`) through the fields the style and the styles it requires read.
-    private static Optional<Predicate<Field>> readStyleFields(Path styleFile) throws IOException {
-        if (styleFile.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".bst")) {
-            return new BstVM(styleFile).getFieldSelection();
-        }
-        return StyleFieldSelection.forFieldNames(BiblatexStyleScanner.scanFields(styleFile));
     }
 
     /// Reads the fields of the given `.bst`, `.bbx` or `.cbx` style and restricts the columns to them

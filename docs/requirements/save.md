@@ -63,6 +63,16 @@ The library must open as modified, so that closing it asks the user to save and 
 
 Needs: impl, utest
 
+## Changes accepted from a backup must be recorded in the undo history of the restored library
+`req~jabgui.autosaveandbackup.accepted-backup-changes-undoable~1`
+
+Issue: [#15846](https://github.com/JabRef/jabref/issues/15846)
+
+When a library is opened and the user accepts changes while reviewing its backup, the merge must be recorded in the undo history of the tab that shows the library.
+Then the library is marked as modified and the merge can be undone; otherwise, the restored library looks saved and the restored content is lost when it is closed.
+
+Needs: impl, utest
+
 ## Backup must batch field edits into scheduled writes
 `req~jabgui.autosaveandbackup.backup-every-edit~1`
 

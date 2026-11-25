@@ -2,8 +2,10 @@
 
 Run `./gradlew :jablib:libreOfficeTest` from the repository root with real LibreOffice Writer and Pandoc installed.
 Set `LIBREOFFICE_EXECUTABLE` and `PANDOC_EXECUTABLE` to executable paths when necessary.
-Neither dependency is mocked, and an unavailable executable fails the task rather than skipping tests.
-When running the whole OpenOffice unit-test group, also put the Pandoc directory on the process-local `PATH`: the older `BstPipelineTest` invokes `pandoc` by name rather than reading `PANDOC_EXECUTABLE`.
+The integration harness runs real Writer, and rendering paths that need Pandoc run the real executable; an unavailable dependency fails the tagged gate rather than skipping tests.
+`HeadlessLibreOffice` defaults to `soffice`; Pandoc-dependent tests default their preference to `pandoc`.
+When running the whole OpenOffice unit-test group, also put the Pandoc directory on the process-local `PATH`: `BstPipelineTest` invokes `pandoc` by name rather than reading `PANDOC_EXECUTABLE`.
+For task details and a Windows environment example, see [Writer integration testing](../../../../../../../../../docs/code-howtos/testing.md#libreoffice-writer-integration-tests).
 For architecture orientation, see [JabRef on DeepWiki](https://deepwiki.com/JabRef/jabref).
 
 ## Golden documents
@@ -21,7 +23,8 @@ Assertions compare semantic document contents rather than ZIP bytes or Writer-ge
 | `legacy-csl-empty-citation.fodt` | Legacy `JABREF_* CID_n ... EMPTY` | Zero-length citation between surrounding words |
 | `legacy-bst.fodt` | Legacy `JABREF_* CID_n` | Numeric body, footnote, and table citations |
 
-The legacy fixtures are retained deliberately: Writer must preserve them on save/reopen, but the canonical engine must ignore them rather than silently read or migrate them.
+The legacy fixtures check that Writer preserves their contents on save/reopen and that canonical reads, refresh, and export do not manage them.
+Homogeneous supported legacy JStyle input migrates on the next canonical insertion when the first recognized reference-mark name returned by Writer identifies that format, not during those read, refresh, or export operations.
 Canonical assertions check both boundary characters explicitly before inspecting the inner text; they do not remove arbitrary invisible characters to hide a mismatch.
 `superscript.csl` is a small local numeric CSL style with superscript citations and a title-only bibliography.
 It exercises the same superscript rendering behavior used by Nature and AMA without coupling expected text to upstream style changes.
@@ -31,11 +34,13 @@ It exercises the same superscript rendering behavior used by Nature and AMA with
 
 ## Engine acceptance coverage
 
-`WriterIntegrationTest` calls the public `CitationEngine` API and requires at least 28 test invocations:
+`WriterIntegrationTest` calls the public `CitationEngine` API. CI requires its report with at least 28 test invocations:
 
 - Refresh each family against the canonical golden document; assert body, footnote, table, empty marker, numbering, bibliography order, and exported keys after save/reopen.
 - Insert all six citation types with page infos using JStyle, then switch JStyle → CSL → BST → JStyle, saving and reconnecting at each step.
   Names, types, key storage order, and every page-info property must survive; the final JStyle marker text must match the original exactly.
+- Insert numeric normal and in-text citations with JStyle or BST, then refresh through CSL → JStyle → BST and save/reopen after each switch.
+  Assert per-source author/number output, unchanged canonical identities, and preserved `NORMAL`/`IN_TEXT` types.
 - Insert citations before existing citations for each numeric renderer and assert that both markers and bibliography follow the resulting document order.
 - Reconnect and refresh superscript citations five times to defeat the writer's unchanged-text cache.
   Capture each citation's initial `CharHeight` before any rendering and require that same height after every refresh and save/reopen.
@@ -51,66 +56,118 @@ It exercises the same superscript rendering behavior used by Nature and AMA with
 - Close and reopen the library scope: unresolved keys must become visible placeholders, stay exportable as unresolved keys, and recover without changing canonical identity.
 
 A test being present is not evidence of a passing implementation: require a green run of the completed engine.
-These tests do not replace the pure renderer/parity tests or the separate 300-citation performance gate.
+These tests do not replace pure renderer/parity tests or `CanonicalStorageWriterTest.benchmarkThreeHundredCanonicalInsertionsAndVisualOrdering`.
+That 300-citation storage benchmark checks ordering and unchanged writes and prints timings; it imposes no renderer-pipeline latency budget.
 
 ## Zotero acceptance coverage
 
-`ZoteroWriterTest` requires at least 25 real-Writer invocations through the public linker and `CitationEngine` in Zotero-compatible mode:
+CI requires `ZoteroWriterTest`'s report with at least 25 real-Writer invocations covering the public linker, native citation operations, and style-family selection:
 
 - A unique native duplicate gains a JabRef URI without losing the native URI, JSON metadata, mark text, or citation identity; later insertion reuses that native URI.
 - Ambiguous duplicate candidates remain unlinked and export as unresolved rather than selecting an arbitrary library entry.
 - Normal and in-text marks remain independent through refresh, fresh engine connections, export, and save/reopen; native JSON determines the type, not empty or zero-width mark text.
 - Zotero-mode refresh leaves canonical and legacy CID/JStyle marks, `JR_bib`, and JabRef-specific document properties untouched.
-- Non-CSL styles, invisible and partial citation types, page info, and group edits are rejected for native insertion or editing without changing document contents.
+- JStyle and BST use canonical storage even when the saved Zotero preference is enabled; native citations and the saved preference are preserved.
+- Invisible and partial citation types, page info, and group edits are rejected for native insertion or editing without changing document contents.
 
 The tests parse the stored Zotero JSON to assert URI arrays, suppress-author flags, metadata, and stable names instead of treating successful rendering alone as sufficient.
 
 ## Entity contract coverage
 
-`OOTextWriterTest` requires at least six real-Writer invocations and preserves the same assertions after save/reopen:
+CI requires `OOTextWriterTest`'s report with at least six real-Writer invocations; the tests repeat their assertions after save/reopen:
 
 - Decoding `<b>M&uuml;ller &amp; &lt;i&gt;literal&lt;/i&gt;</b>` produces `Müller & <i>literal</i>`, with bold formatting but no italic formatting.
 - Trailing text after the last formatting tag is decoded exactly once; escaped literal tags are never tokenized again.
 - CSL and BST bibliography headings preserve literal ampersands, HTML-looking text, and entity-looking text without introducing character formatting.
 - BST author-year citations and CSL numeric in-text prefixes display accented authors and ampersands rather than their HTML encodings.
 
+## Conversion detection policy
+
+Supported source documents use one homogeneous citation format: canonical `JABREF_<keys> <TYPE> <uid>`, supported legacy JStyle `JR_cite` names, or native Zotero citation names.
+Mixed managed formats are unsupported, not actively rejected by a mixed-format detector; no mixed-format repair is promised.
+On each insertion, detection uses fresh reference-mark names returned by Writer, including after reconnecting, and decides solely from the first recognized name.
+It skips unrelated reference marks and unsupported `CID_n` marks without scanning for later mismatching formats; no recognized name means no conversion.
+UNO name enumeration is not guaranteed sorted or in physical document order; enumeration order is immaterial for homogeneous documents.
+Native Zotero mode does not migrate legacy JStyle input, and JStyle/BST insertion does not convert native Zotero input.
+
+Once detection triggers conversion, preparation still reads and validates the applicable canonical, legacy, and native groups; the name-only decision is not a replacement for those reads.
+The proposed citation set is rendered once before writes.
+Target-format identity, documented data losses, rendering, immediate Undo/Redo, and owned rollback remain part of conversion acceptance.
+`LegacyJStyleMigrationWriterTest` constructs its own legacy marks and checks all six type mappings, storage-order keys, stable prepared uids, page-property transfer to the last storage-order slot, invisible boundaries, and save/reopen.
+Its real-Writer migration cases use JStyle and non-native CSL; `CitationFormatConverterTest` covers BST migration detection.
+It runs in `libreOfficeTest`, but the workflow does not currently require its report by name or assign it a minimum invocation count.
+Legacy-only canonical migration accepts unresolved entries with placeholders and returns unresolved keys for the successful-insertion warning; opening the missing libraries and refreshing restores output without changing identity.
+Native-to-canonical conversion and native generation still require resolved sources.
+Undo restores legacy marks and page properties; redo restores the same prepared canonical identities and page slots.
+Preparation failures leave document state and undo history unchanged; ordinary application failures use the owned root-context rollback without undoing earlier user actions.
+Starting the transaction may clear pre-existing redo history; disconnects, lost ownership, or failed rollback produce a distinct recovery error rather than a universal recovery guarantee.
+
 ## Storage regression gate
 
-The same `libreOfficeTest` task requires at least 20 invocations from `CanonicalStorageWriterTest`, including undo/redo, page-info restoration, and transactional group-rendering failures.
+CI requires at least 20 invocations from `CanonicalStorageWriterTest` in the same `libreOfficeTest` task, including undo/redo, page-info restoration, and group-rendering preparation failures.
+At the engine action boundary, only successful explicit canonical refresh sweeps orphan page-info properties globally; insertion with or without bibliography synchronization must preserve unrelated orphans.
+Actions replacing or removing citations still clean up those citations' own properties.
 The workflow separately runs every OpenOffice unit test using `:jablib:test --tests 'org.jabref.logic.openoffice.*'`.
-It requires each of the following unit-suite reports and minimum invocation counts:
+Selected unit-suite report minimums are listed below; names are relative to `org.jabref.logic.openoffice` under `jablib/src/test/java/`.
 
 | Unit suite | Minimum invocations |
 | --- | --- |
-| `MarkStoreTest` | 7 |
-| `CitationMarkerWriterTest` | 5 |
-| `UndoableDocumentPropertiesTest` | 8 |
-| `ReferenceMarkTextWriterTest` | 19 |
-| `ConversionMetadataTest` | 19 |
-| `DocumentWriteSessionTest` | 8 |
-| `JabRefMarkCodecCompatibilityTest` | 5 |
-| `BstPipelineTest` | 7 |
+| `engine.storage.MarkStoreTest` | 7 |
+| `engine.storage.CitationMarkerWriterTest` | 5 |
+| `engine.storage.UndoableDocumentPropertiesTest` | 8 |
+| `backend.ReferenceMarkTextWriterTest` | 19 |
+| `engine.CitationFormatConverterTest` | 48 |
+| `engine.DocumentWriteSessionTest` | 8 |
+| `backend.JabRefMarkCodecCompatibilityTest` | 5 |
+| `bst.BstPipelineTest` | 7 |
 
-The real-Pandoc `BstPipelineTest` needs Pandoc on `PATH`.
-Every OpenOffice unit report is checked for skips, errors, and failures, not only these eight named suites.
-The tagged Writer task additionally requires at least 48 invocations from `CitationFormatConversionWriterTest` for current canonical/native citation conversion.
-Conversion preserves canonical identities, storage-order keys, all six types, and every page-info slot in the document sidecar through save/reopen.
-In Zotero mode, converted `EMPTY` and canonical-only partial types use the normal visible citation fallback; converting back restores the canonical state, including invisible rendering for `EMPTY`.
-Canonical JabRef invisible citations remain unchanged.
-These are separate required reports, so discovering unrelated tagged tests cannot mask a missing engine, Zotero, entity-contract, storage, or conversion suite.
+The real-Pandoc `BstPipelineTest` needs Pandoc on `PATH`; otherwise its Pandoc-dependent tests skip locally, which CI's report guard rejects.
+Every OpenOffice unit report is checked for skips, errors, and failures, not only the suites listed above.
+CI additionally requires at least 48 invocations from `CitationFormatConversionWriterTest` for canonical/native citation conversion.
+Canonical/native conversion is lossy and intended for the final format, not a lossless round trip; see [Limitations](../../../../../../../../../docs/code-howtos/openoffice/overview.md#limitations).
+Acceptance must check that canonical → native drops original UIDs and per-citation page information and maps `EMPTY`, `NOPAR`, `AUTHOR_ONLY`, and `YEAR_ONLY` to normal visible citations.
+Native → canonical must create fresh UIDs and only normal or narrative types, without retaining native JSON locators, labels, prefixes, suffixes, author-only flags, unknown fields, item IDs, or native Zotero URI links.
+Reverse conversion does not restore discarded state; native output rebuilds JSON from the JabRef library.
+Modifier acceptance and group-level author suppression are separate from full modifier rendering support.
+Immediate Writer Undo/Redo and owned rollback restore the transaction while undo history is available, subject to recovery limits; no restoration is guaranteed after reopening.
+Same-format canonical JStyle/CSL/BST style changes still preserve UIDs, all six types, and pages, even when rendering hides them.
+Legacy JStyle → canonical migration preserves keys, all six types, and pages with fresh UIDs.
+Ordinary native insertion and refresh preserve existing native JSON while updating links; their acceptance checks remain separate from conversion losses.
+Canonical CSL rendering identifies invisible citations by their stored citation type.
+Conversion safety checks reject pending deleted ranges touching edited citations, cited footnote anchors, the insertion range, or bibliography ranges selected for synchronization, even if change recording is off.
+Unrelated pending bibliography deletions are preserved when synchronization is off; recording suspension does not accept deletions.
+Canonical CSL output, including conversion targeting canonical format, must leave `ZOTERO_PREF` XML untouched while recording JabRef's applied style.
+Conversion stores only target-format state, with no persistent source-format record.
+
+The five CI-guarded tagged reports are in `integration`, except `engine.storage.CanonicalStorageWriterTest`.
+Discovering unrelated tagged tests cannot mask a missing engine, Zotero, entity-contract, storage, or canonical/native conversion suite.
 
 ## Isolation and CI enforcement
 
-The harness starts Writer with a unique temporary profile and a dynamically selected loopback-only UNO port, disables document macros, and closes documents and its owned process after execution.
-The dedicated task runs serially and cannot reuse cached results.
-Startup, JUnit execution, and the Gradle task have bounded timeouts.
+Two package-local `HeadlessLibreOffice` helpers, in the `integration` and `engine.storage` test packages, each own an isolated Writer process and its documents.
+They use a unique temporary profile and dynamically selected loopback-only UNO port, disable document macros, and close documents and the owned process after execution.
+The dedicated task runs serially and cannot reuse cached or up-to-date results.
+Writer startup has a one-minute timeout, each tagged test invocation has a 180-second timeout, and the Gradle task has a 10-minute timeout; the CI job is bounded to 30 minutes.
 JUnit uses `@TempDir` for the profile and intermediate save/reopen files.
-Documents and the process log for engine acceptance tests are saved under `jablib/build/writer-integration/engine-acceptance`; storage tests use a separate directory.
-CI uploads those artifacts together with JUnit reports even on failure.
+Documents and process logs are saved under `jablib/build/writer-integration/`:
+
+| Suite | Artifact subdirectory |
+| --- | --- |
+| `WriterIntegrationTest` | `engine-acceptance` |
+| `ZoteroWriterTest` | `zotero-acceptance` |
+| `CanonicalStorageWriterTest` | `canonical-storage` |
+| `OOTextWriterTest` | `entity-contract` |
+| `CitationFormatConversionWriterTest` | `format-conversion` |
+| `LegacyJStyleMigrationWriterTest` | `legacy-jstyle-migration` |
+
+JUnit XML reports are in `jablib/build/test-results/libreOfficeTest/` and HTML reports in `jablib/build/reports/tests/libreOfficeTest/`.
+The separate unit step uses the corresponding `test/` directories.
+CI uploads all these directories even on failure.
 
 The workflow runs on every pull request and merge-group event, with no path filters, opt-in labels, or allowed failures.
-It requires at least 28 engine, 25 Zotero, 20 canonical storage, six entity-contract, and 48 citation-conversion invocations across five tagged suites, plus the eight named unit suites above, with no skips, errors, or failures.
-The counts are minimums, not upper limits, so adding tests does not require weakening the report guard.
+It requires at least 28 engine, 25 Zotero, 20 canonical storage, six entity-contract, and 48 citation-conversion invocations across five tagged suites, plus named unit-suite reports, with no skips, errors, or failures.
+These are workflow discovery minimums, not current test counts or upper limits; adding tests does not require changing the guard.
+All discovered tagged and unit reports, including the migration suite when present, are checked for skips, errors, and failures.
 Repository administrators must make **Required Writer integration** a required branch-protection check; YAML alone cannot enforce that setting.
 
 ## Reviewing or changing a fixture
@@ -119,6 +176,6 @@ Repository administrators must make **Required Writer integration** a required b
 2. Make a minimal semantic edit to the hand-authored XML; do not replace it with a full Writer-generated export.
 3. Update explicit expected contents only when the intended behavior actually changes.
 4. Run the dedicated task and inspect both the JUnit report and saved `.odt` artifacts.
-5. Keep legacy fixtures as rejection/persistence oracles, not as migration inputs.
+5. Keep legacy fixtures as read/refresh/export non-management and persistence oracles; `LegacyJStyleMigrationWriterTest` constructs its own migration inputs.
 
 <!-- markdownlint-disable-file MD041 -->
