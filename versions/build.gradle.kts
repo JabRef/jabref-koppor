@@ -80,7 +80,7 @@ dependencies.constraints {
 
     api("com.google.errorprone:error_prone_core:2.53.0")
     api("com.google.guava:guava:33.8.0-jre")
-    api("com.googlecode.plist:dd-plist:1.30")
+    api("com.googlecode.plist:dd-plist:1.31")
     api("com.h2database:h2-mvstore:2.5.252")
     api("com.ibm.icu:icu4j:72.0.1!!")
     api("com.knuddels:jtokkit:1.1.0")
