@@ -31,6 +31,27 @@ The language server offers a code action on a DOI, arXiv ID, ISBN, or other supp
 
 Needs: impl, utest
 
+## User can see an identifier as citation from within an editor
+`feat~fetchers.language-server-hover-citation~1`
+
+Hovering over a DOI, arXiv ID, ISBN, or other supported identifier in a document served by the language server shows the fetched entry as citation. The citation uses the preview style selected in JabRef; when that is the customized preview style, the first CSL or BST style of the preview cycle is used instead, and JabRef's default CSL style if the cycle has none.
+
+Needs: impl, utest
+
+## User can replace an identifier by its citation from within an editor
+`feat~fetchers.language-server-replace-citation~1`
+
+In a Markdown document served by the language server, a code action on a DOI, arXiv ID, ISBN, or other supported identifier replaces it by the fetched entry as citation, in the style used for the hover, without a leading bibliography label.
+
+Needs: impl, utest
+
+## User can cite an identifier in Markdown from within an editor
+`feat~fetchers.language-server-cite~1`
+
+In a Markdown document served by the language server, a code action on a DOI, arXiv ID, ISBN, or other supported identifier replaces it by a Pandoc citation `[@key]`. The entry is fetched and appended to the first `bibliography` of the YAML front matter, or else to the sibling `.bib` file with the document's base name, which is created if missing. If that library already has an entry with the same DOI, eprint, or ISBN, its key is cited and nothing is added.
+
+Needs: impl, utest
+
 ## User can view journal information from public metadata sources
 `feat~fetchers.journal-information~1`
 

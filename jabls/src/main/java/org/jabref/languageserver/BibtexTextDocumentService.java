@@ -116,7 +116,12 @@ public class BibtexTextDocumentService implements TextDocumentService {
         if (!fileUriToLanguageId.containsKey(fileUri)) {
             return CompletableFuture.completedFuture(null);
         }
-        return linkHandler.provideHover(fileUriToLanguageId.get(fileUri), contentCache.get(fileUri), params.getPosition());
+        String content = contentCache.get(fileUri);
+        // A citation key shows its entry; otherwise, an identifier (DOI, arXiv ID, ...) is shown as fetched citation
+        return linkHandler.provideHover(fileUriToLanguageId.get(fileUri), content, params.getPosition())
+                          .thenCompose(hover -> hover != null
+                                                ? CompletableFuture.completedFuture(hover)
+                                                : fetchHandler.provideHover(content, params.getPosition()));
     }
 
     @Override
@@ -152,14 +157,15 @@ public class BibtexTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
-        return CompletableFuture.completedFuture(Optional.ofNullable(contentCache.get(params.getTextDocument().getUri()))
-                                                         .map(content -> fetchHandler.provideCodeActions(content, params.getRange().getStart(), openBibContents()))
+        String uri = params.getTextDocument().getUri();
+        return CompletableFuture.completedFuture(Optional.ofNullable(contentCache.get(uri))
+                                                         .map(content -> fetchHandler.provideCodeActions(uri, fileUriToLanguageId.getOrDefault(uri, ""), content, params.getRange().getStart(), openBibContents()))
                                                          .orElse(List.of()));
     }
 
     @Override
     public CompletableFuture<CodeAction> resolveCodeAction(CodeAction unresolved) {
-        return fetchHandler.resolveCodeAction(unresolved, openBibContents());
+        return fetchHandler.resolveCodeAction(unresolved, contentCache);
     }
 
     private Map<String, String> openBibContents() {

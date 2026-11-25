@@ -97,6 +97,7 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We added a warning for shortcuts already in use, allowing users to replace the existing shortcut or keep both. [#17240](https://github.com/JabRef/jabref/issues/17240)
 - We added "Delete" and "Retry" to the context menu of AI chat messages and made user messages retryable. [#17151](https://github.com/JabRef/jabref/pull/17151)
 - We added a list of saved connections to the "Connect to shared database" dialog. [#12948](https://github.com/JabRef/jabref/issues/12948)
+- We added language server support for identifiers (DOI, arXiv, ISBN): hover shows the citation, code actions replace the identifier by the citation or by a Pandoc citation `[@key]` with the entry added to the document's `.bib` (Markdown), or add the entry to a library. [palukku#67](https://github.com/palukku/jabref/pull/67)
 - We added <kbd>Ctrl</kbd> + <kbd>C</kbd> copy support for selected entries in the global search results window. [#17310](https://github.com/JabRef/jabref/issues/17310)
 - We added support for displaying and sorting BibLaTeX extended names. [#4558](https://github.com/JabRef/jabref/issues/4558)
 - We added a hint showing the effective file directory to empty directory fields in the library properties. [#17572](https://github.com/JabRef/jabref/issues/17572)
@@ -205,6 +206,9 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - We fixed an issue where clicking "Generate" in the AUX file import dialog before parsing caused an exception.
 - We fixed an issue where it was hard to distinguish between enabled/disabled status of search buttons in dark mode and added tooltips. [#11569](https://github.com/JabRef/jabref/issues/11569)
 - We fixed an issue where entries containing dollar signs, backslashes, or unset fields passed to `substring$` caused citation style preview and export to fail. [#12799](https://github.com/JabRef/jabref/issues/12799)
+- We fixed nested LaTeX formatting, spacing, and ampersand escaping in HTML output and JStyle bibliographies. [#17921](https://github.com/JabRef/jabref/pull/17921)
+- We fixed an issue where BST entry previews showed italic and bold text as Unicode mathematical letters. [#17902](https://github.com/JabRef/jabref/pull/17902)
+- We fixed an issue where the customized entry preview ignored small caps and showed LaTeX commands inside emphasized text. [#17902](https://github.com/JabRef/jabref/pull/17902)
 - We fixed an issue where citationcount, day, and dayfiled columns were sorted alphabetically instead of numerically. [#17459](https://github.com/JabRef/jabref/issues/17459)
 - We fixed an issue where searching or sorting the main table of a large library froze JabRef for seconds. [#17762](https://github.com/JabRef/jabref/pull/17762)
 - We fixed exports to RIS, CSV, HTML, and other template-based formats in native JabKit. [#17408](https://github.com/JabRef/jabref/issues/17408)
