@@ -30,6 +30,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 - We added "Help > View background tasks" and clearer "Quit anyway"/"Keep JabRef open" buttons when quitting during background tasks. [#12706](https://github.com/JabRef/jabref/issues/12706)
 
+- We added `jabkit get-fulltexts` to download and link full text PDFs, reporting the result per entry. [#770](https://github.com/JabRef/jabref-koppor/pull/770)
+
 ### Changed
 
 - We changed citation parsing to import the DOI's metadata when a pasted or pushed citation contains a DOI. [#17900](https://github.com/JabRef/jabref/pull/17900)
