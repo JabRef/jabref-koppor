@@ -17,6 +17,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 - We changed the main table to keep the entry shown in the entry editor visible when enlarging the entry editor. [#17167](https://github.com/JabRef/jabref/pull/17167)
 
+- We changed how JabRef opens older libraries by asking which conversions to perform and remembering your choices. [#16941](https://github.com/JabRef/jabref/pull/16941)
+
 ### Fixed
 
 ### Removed
