@@ -18,6 +18,8 @@ import org.jabref.http.dto.GsonMessageBodyReader;
 import org.jabref.http.dto.GsonMessageBodyWriter;
 import org.jabref.http.server.cayw.CAYWResource;
 import org.jabref.http.server.cayw.format.FormatterService;
+import org.jabref.http.server.mcp.McpResource;
+import org.jabref.http.server.resources.AiSearchResource;
 import org.jabref.http.server.resources.CitationsResource;
 import org.jabref.http.server.resources.EntriesResource;
 import org.jabref.http.server.resources.EntryResource;
@@ -31,6 +33,7 @@ import org.jabref.http.server.resources.callback.CallbackResource;
 import org.jabref.http.server.resources.command.CommandResource;
 import org.jabref.http.server.services.CitationCacheService;
 import org.jabref.logic.UiMessageHandler;
+import org.jabref.logic.ai.rag.logic.SemanticSearch;
 import org.jabref.logic.citedrive.OAuthSessionRegistry;
 import org.jabref.logic.os.OS;
 import org.jabref.logic.preferences.CliPreferences;
@@ -93,6 +96,8 @@ public class Server {
         // No GUI in standalone mode: bind the null object so the resources' mandatory
         // UiMessageHandler injection resolves and GUI-only endpoints can reject with a clean 400.
         ServiceLocatorUtilities.addOneConstant(serviceLocator, UiMessageHandler.NONE, "uimessagehandler", UiMessageHandler.class);
+        // The embeddings store is owned by the running GUI
+        ServiceLocatorUtilities.addOneConstant(serviceLocator, SemanticSearch.NONE, "semanticsearch", SemanticSearch.class);
         HttpServer httpServer = startServer(serviceLocator, uri);
 
         // Required for CLI only
@@ -111,10 +116,11 @@ public class Server {
     }
 
     /// Entry point for the GUI with UiMessageHandler
-    public HttpServer run(SrvStateManager srvStateManager, UiMessageHandler uiMessageHandler, URI uri) {
+    public HttpServer run(SrvStateManager srvStateManager, UiMessageHandler uiMessageHandler, SemanticSearch semanticSearch, URI uri) {
         ServiceLocator serviceLocator = ServiceLocatorUtilities.createAndPopulateServiceLocator();
         ServiceLocatorUtilities.addOneConstant(serviceLocator, srvStateManager, "statemanager", SrvStateManager.class);
         ServiceLocatorUtilities.addOneConstant(serviceLocator, uiMessageHandler, "uimessagehandler", UiMessageHandler.class);
+        ServiceLocatorUtilities.addOneConstant(serviceLocator, semanticSearch, "semanticsearch", SemanticSearch.class);
         return startServer(serviceLocator, uri);
     }
 
@@ -134,6 +140,7 @@ public class Server {
 
         // RESTish resources
         resourceConfig.register(RootResource.class);
+        resourceConfig.register(AiSearchResource.class);
         resourceConfig.register(CitationsResource.class);
         resourceConfig.register(EntriesResource.class);
         resourceConfig.register(EntryResource.class);
@@ -147,6 +154,7 @@ public class Server {
         resourceConfig.register(CommandResource.class);
         resourceConfig.register(CallbackResource.class);
         resourceConfig.register(CAYWResource.class);
+        resourceConfig.register(McpResource.class);
 
         // Supporting classes
         resourceConfig.register(CORSFilter.class);

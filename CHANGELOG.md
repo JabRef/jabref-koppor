@@ -38,6 +38,9 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 - The groups panel of a directory library now mirrors the folder structure: each subdirectory appears as a group containing the entries whose files live there (updated live as files change). [#740](https://github.com/JabRef/jabref-koppor/pull/740)
 - In directory libraries, a sidecar and its PDF are now renamed together to the configured filename pattern (Preferences > Linked files) whenever the entry is edited — e.g. changing the citation key renames both files. [#741](https://github.com/JabRef/jabref-koppor/pull/741)
 
+- We added semantic search in the PDFs of a library for AI agents, offered by the HTTP server and an agent skill. [#798](https://github.com/JabRef/jabref-koppor/pull/798)
+- We added an MCP server, with which AI agents can search the opened libraries and the PDFs linked to their entries. [#931](https://github.com/JabRef/jabref-issue-melting-pot/issues/931)
+
 ### Changed
 
 - We changed citation parsing to import the DOI's metadata when a pasted or pushed citation contains a DOI. [#17900](https://github.com/JabRef/jabref/pull/17900)

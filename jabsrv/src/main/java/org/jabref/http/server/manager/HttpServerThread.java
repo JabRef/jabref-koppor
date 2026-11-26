@@ -5,6 +5,7 @@ import java.net.URI;
 import org.jabref.http.SrvStateManager;
 import org.jabref.http.server.Server;
 import org.jabref.logic.UiMessageHandler;
+import org.jabref.logic.ai.rag.logic.SemanticSearch;
 import org.jabref.logic.citedrive.OAuthSessionRegistry;
 import org.jabref.logic.preferences.CliPreferences;
 
@@ -27,13 +28,15 @@ public class HttpServerThread extends Thread {
     private final URI uri;
 
     private final UiMessageHandler uiMessageHandler;
+    private final SemanticSearch semanticSearch;
 
     @Nullable
     private HttpServer httpServer;
 
-    public HttpServerThread(CliPreferences cliPreferences, SrvStateManager srvStateManager, UiMessageHandler uiMessageHandler, OAuthSessionRegistry oAuthSessionRegistry, URI uri) {
+    public HttpServerThread(CliPreferences cliPreferences, SrvStateManager srvStateManager, UiMessageHandler uiMessageHandler, SemanticSearch semanticSearch, OAuthSessionRegistry oAuthSessionRegistry, URI uri) {
         this.srvStateManager = srvStateManager;
         this.uiMessageHandler = uiMessageHandler;
+        this.semanticSearch = semanticSearch;
         this.uri = uri;
         this.server = new Server(cliPreferences, oAuthSessionRegistry);
         this.setName("JabSrv - JabRef HTTP Server on " + uri.getHost() + ":" + uri.getPort());
@@ -42,7 +45,7 @@ public class HttpServerThread extends Thread {
     @Override
     public void run() {
         try {
-            httpServer = this.server.run(srvStateManager, uiMessageHandler, uri);
+            httpServer = this.server.run(srvStateManager, uiMessageHandler, semanticSearch, uri);
         } catch (ProcessingException e) {
             LOGGER.error("Failed to start HTTP server thread", e);
         }

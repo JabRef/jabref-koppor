@@ -49,4 +49,43 @@ The files are served per entry (and not for the whole library at once), because 
 
 Needs: impl, utest
 
+## HTTP server must offer semantic search over the linked files of a library
+`req~jabsrv.ai.search~1`
+
+The HTTP server exposes `POST /libraries/{id}/ai/search` accepting `{ "query": "…", "maxResults": 10, "minScore": 0.3 }`.
+`maxResults` and `minScore` are optional and default to the values of the AI preferences.
+The response lists the most relevant chunks of the files linked to the entries of the library, best first, each with `citationKey`, `file`, `page`, `score`, and `text`.
+
+Only ingested files are searched.
+Linked files which are not ingested are listed in `pendingFiles` and their ingestion is started; the request does not wait for it.
+Linked files which cannot be read are listed in `notFoundFiles`.
+
+The endpoint answers `503` with the reason if the AI features are disabled, the embedding model is not loaded, or the server runs without the GUI.
+Requests carrying an `Origin` header are answered with `403`: the response contains full text of the user's files, which no web page should be able to request.
+
+This is step 1 of [ADR-0086](../decisions/0086-offer-jabref-to-external-ai-agents-via-http-skill-and-mcp.md).
+
+Needs: impl, utest
+
+## HTTP server must offer its libraries to AI agents via MCP tools
+`req~jabsrv.mcp.tools~1`
+
+The HTTP server exposes the [Model Context Protocol](https://modelcontextprotocol.io/specification/2026-07-28) endpoint `POST /mcp` (Streamable HTTP transport, revision `2026-07-28` only).
+It answers `server/discover`, `tools/list`, and `tools/call` with a single JSON object; it opens no stream and keeps no session.
+
+The tool set is small and fixed, because each tool definition consumes context window of the calling model:
+
+- `list_libraries`: the opened libraries with id, path, and number of entries.
+- `search_linked_files`: semantic search over the linked files of a library, with the same answer as `POST /libraries/{id}/ai/search`.
+- `search_entries`: search in the fields of the entries of a library with JabRef's search syntax.
+- `get_entry`: an entry as BibTeX.
+
+A request of another protocol revision is answered with the error `UnsupportedProtocolVersion` listing the supported revision, so that clients can tell the endpoint apart from a server of an older revision.
+A problem a model can correct (unknown library, missing argument, AI features disabled) is reported as tool result with `isError`, not as protocol error.
+Requests carrying an `Origin` header of another machine are answered with `403`.
+
+This is step 2 of [ADR-0086](../decisions/0086-offer-jabref-to-external-ai-agents-via-http-skill-and-mcp.md).
+
+Needs: impl, utest
+
 <!-- markdownlint-disable-file MD022 -->

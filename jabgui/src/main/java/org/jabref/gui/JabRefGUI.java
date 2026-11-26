@@ -43,6 +43,7 @@ import org.jabref.http.server.manager.HttpServerManager;
 import org.jabref.languageserver.controller.LanguageServerController;
 import org.jabref.logic.UiCommand;
 import org.jabref.logic.ai.AiService;
+import org.jabref.logic.ai.rag.logic.EmbeddingsSemanticSearch;
 import org.jabref.logic.citation.SearchCitationsRelationsService;
 import org.jabref.logic.citedrive.OAuthSessionRegistry;
 import org.jabref.logic.git.GitSsh;
@@ -280,6 +281,7 @@ public class JabRefGUI extends Application {
                 dialogService,
                 taskExecutor);
         Injector.setModelOrService(AiService.class, aiService);
+        httpServerManager.setSemanticSearch(new EmbeddingsSemanticSearch(preferences.getAiPreferences(), preferences.getFilePreferences(), aiService));
 
         JabRefGUI.citationsAndRelationsSearchService = new SearchCitationsRelationsService(
                 preferences.getImporterPreferences(),
