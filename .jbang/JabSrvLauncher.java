@@ -97,6 +97,14 @@
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/server/cayw/gui/SearchField.java
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/server/cayw/gui/SearchResultContainer.java
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/server/cayw/gui/SelectedItemsContainer.java
+//SOURCES ../jabsrv/src/main/java/org/jabref/http/server/mcp/GetEntryTool.java
+//SOURCES ../jabsrv/src/main/java/org/jabref/http/server/mcp/ListLibrariesTool.java
+//SOURCES ../jabsrv/src/main/java/org/jabref/http/server/mcp/McpResource.java
+//SOURCES ../jabsrv/src/main/java/org/jabref/http/server/mcp/McpTool.java
+//SOURCES ../jabsrv/src/main/java/org/jabref/http/server/mcp/McpToolArguments.java
+//SOURCES ../jabsrv/src/main/java/org/jabref/http/server/mcp/McpToolException.java
+//SOURCES ../jabsrv/src/main/java/org/jabref/http/server/mcp/SearchEntriesTool.java
+//SOURCES ../jabsrv/src/main/java/org/jabref/http/server/mcp/SearchLinkedFilesTool.java
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/server/resources/callback/CallbackResource.java
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/server/resources/command/Command.java
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/server/resources/command/FocusCommand.java
