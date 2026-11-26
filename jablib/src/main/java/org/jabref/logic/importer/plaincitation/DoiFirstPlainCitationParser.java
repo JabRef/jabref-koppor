@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 /// For multiple citations, the parser runs first and every resulting entry carrying a DOI (in the DOI or URL field) is replaced by the fetched entry.
 /// If the lookup fails or finds nothing, the parsed entry is kept.
 ///
-/// [impl->req~import.plain-citation.doi-first~1]
+/// [impl->req~import.plain-citation.doi-first~2]
 @NullMarked
 public class DoiFirstPlainCitationParser implements PlainCitationParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DoiFirstPlainCitationParser.class);
@@ -44,6 +44,13 @@ public class DoiFirstPlainCitationParser implements PlainCitationParser {
 
     @Override
     public List<BibEntry> parseMultiplePlainCitations(String text) throws FetcherException {
+        String trimmed = text.trim();
+        if (!trimmed.isEmpty() && trimmed.chars().noneMatch(Character::isWhitespace)) {
+            Optional<BibEntry> fetched = DOI.parse(trimmed).flatMap(this::fetch);
+            if (fetched.isPresent()) {
+                return List.of(fetched.orElseThrow());
+            }
+        }
         List<BibEntry> result = new ArrayList<>();
         for (BibEntry parsed : delegate.parseMultiplePlainCitations(text)) {
             result.add(parsed.getField(StandardField.DOI)
@@ -51,6 +58,7 @@ public class DoiFirstPlainCitationParser implements PlainCitationParser {
                              // Some parsers keep a doi.org link in the URL field only
                              .or(() -> parsed.getField(StandardField.URL).flatMap(DOI::findInText))
                              .flatMap(this::fetch)
+                             .map(fetched -> retainParsedInformation(fetched, parsed))
                              .orElse(parsed));
         }
         return result;
@@ -58,10 +66,26 @@ public class DoiFirstPlainCitationParser implements PlainCitationParser {
 
     private Optional<BibEntry> fetch(DOI doi) {
         try {
-            return doiFetcher.performSearchById(doi.asString());
+            return doiFetcher.performSearchById(doi.asString())
+                             .map(entry -> {
+                                 if (!entry.hasField(StandardField.DOI)) {
+                                     entry.setField(StandardField.DOI, doi.asString());
+                                 }
+                                 return entry;
+                             });
         } catch (FetcherException e) {
             LOGGER.info("Could not fetch entry for DOI {}, falling back to plain-citation parsing", doi.asString(), e);
             return Optional.empty();
         }
+    }
+
+    private BibEntry retainParsedInformation(BibEntry fetched, BibEntry parsed) {
+        if (fetched.getCitationKey().isEmpty()) {
+            parsed.getCitationKey().ifPresent(fetched::setCitationKey);
+        }
+        parsed.getFields().stream()
+              .filter(field -> !fetched.hasField(field))
+              .forEach(field -> parsed.getField(field).ifPresent(value -> fetched.setField(field, value)));
+        return fetched;
     }
 }

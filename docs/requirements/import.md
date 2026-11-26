@@ -305,10 +305,11 @@ Needs: impl, utest
 When the "New sublibrary based on AUX file" dialog opens, it fills in the AUX file that belongs to a `.tex` file in the library's LaTeX file directory (the library's directory if none is set).
 If several such AUX files exist, the most recently modified one is taken.
 ## Plain citations with a DOI must be imported from the DOI's metadata
-`req~import.plain-citation.doi-first~1`
+`req~import.plain-citation.doi-first~2`
 
-When a plain-text citation contains a DOI, JabRef imports the metadata registered for that DOI instead of the fields guessed by the citation parser.
-If the DOI lookup fails, the parsed entry is imported.
+For a single plain-text citation or a standalone DOI submitted for batch import, JabRef looks up the DOI before invoking the citation parser.
+For other batch input, JabRef looks up DOIs present in the entries produced by the parser.
+When a lookup succeeds, JabRef imports the registered metadata; when it fails, JabRef retains the parsed entry.
 
 Needs: impl, utest
 
