@@ -140,7 +140,7 @@ class MedlinePlainImporterTest {
             10.1145/2594455, 10.1145/2594455
             https://doi.org/10.1145/2594455, 10.1145/2594455
             """)
-    void mapsArticleDoiToStandardDoi(String articleDoi, String expectedDoi) throws IOException {
+    void mapsArticleDoiToStandardDoi(String articleDoi, String expectedDoi) throws Exception {
         String medline = """
                 PMID-12345678
                 AID - %s [doi]
@@ -162,7 +162,7 @@ class MedlinePlainImporterTest {
             e123 [pii], Journal. 2026;5:67. doi: 10.4103/2277-9175.180636., 10.4103/2277-9175.180636
             10.1145/2594455 [doi], Journal. 2026;5:67. doi: 10.4103/2277-9175.180636., 10.1145/2594455
             """)
-    void mapsDoiFromLocationIdOrSourceToStandardDoi(String locationId, String source, String expectedDoi) throws IOException {
+    void mapsDoiFromLocationIdOrSourceToStandardDoi(String locationId, String source, String expectedDoi) throws Exception {
         String medline = """
                 PMID-12345678
                 LID - %s

@@ -1,6 +1,5 @@
 package org.jabref.gui.autosaveandbackup;
 
-import java.io.IOException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jabref.gui.LibraryTab;
 import org.jabref.logic.FilePreferences;
 import org.jabref.logic.importer.ImportFormatPreferences;
-import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.fileformat.BibtexParser;
 import org.jabref.logic.preferences.CliPreferences;
 import org.jabref.logic.util.BackupFileType;
@@ -197,7 +195,7 @@ class BackupManagerTest {
     /// [utest->req~jabgui.autosaveandbackup.backup-every-edit~1]
     @ParameterizedTest
     @ValueSource(strings = {"", "A"})
-    void typingIntoNewOrExistingFieldIsBackedUp(String initialValue, @TempDir Path tempDir) throws IOException, ParseException {
+    void typingIntoNewOrExistingFieldIsBackedUp(String initialValue, @TempDir Path tempDir) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article).withCitationKey("entry").withField(StandardField.EDITOR, initialValue);
         BibDatabaseContext context = new BibDatabaseContext(new BibDatabase(List.of(entry)));
         Path originalFile = tempDir.resolve("library.bib");
@@ -235,7 +233,7 @@ class BackupManagerTest {
 
     /// [utest->req~jabgui.autosaveandbackup.preserve-pending-edits~1]
     @Test
-    void editAfterSnapshotIsIncludedInNextBackup(@TempDir Path tempDir) throws IOException, ParseException {
+    void editAfterSnapshotIsIncludedInNextBackup(@TempDir Path tempDir) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article).withCitationKey("entry");
         BibDatabaseContext context = new BibDatabaseContext(new BibDatabase(List.of(entry)));
         context.setDatabasePath(tempDir.resolve("library.bib"));
@@ -273,7 +271,7 @@ class BackupManagerTest {
 
     /// [utest->req~jabgui.autosaveandbackup.preserve-pending-edits~1]
     @Test
-    void failedBackupCommitLeavesEditsPending(@TempDir Path tempDir) throws IOException, ParseException {
+    void failedBackupCommitLeavesEditsPending(@TempDir Path tempDir) throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article).withCitationKey("entry");
         BibDatabaseContext context = new BibDatabaseContext(new BibDatabase(List.of(entry)));
         context.setDatabasePath(tempDir.resolve("library.bib"));

@@ -14,12 +14,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class CanonicalMarkDataTest {
 
     @Test
-    void buildSingleReferenceMarkWithoutDerivedNumber() throws JabRefMarkCodecException {
+    void buildSingleReferenceMarkWithoutDerivedNumber() throws Exception {
         assertEquals("JABREF_key1 NORMAL uniqueId1", JabRefMarkCodec.encode(new JabRefMarkData(List.of("key1"), "uniqueId1", CitationType.AUTHORYEAR_PAR)));
     }
 
     @Test
-    void buildGroupedReferenceMarkWithoutDerivedNumbers() throws JabRefMarkCodecException {
+    void buildGroupedReferenceMarkWithoutDerivedNumbers() throws Exception {
         assertEquals("JABREF_key3, JABREF_key4 IN_TEXT uniqueId3", JabRefMarkCodec.encode(new JabRefMarkData(List.of("key3", "key4"), "uniqueId3", CitationType.AUTHORYEAR_INTEXT)));
     }
 
@@ -29,7 +29,7 @@ class CanonicalMarkDataTest {
     }
 
     @Test
-    void parseGroupedReferenceMarkWithExplicitType() throws JabRefMarkCodecException {
+    void parseGroupedReferenceMarkWithExplicitType() throws Exception {
         assertEquals(new JabRefMarkData(List.of("key3", "key4"), "uniqueId3", CitationType.AUTHORYEAR_INTEXT),
                 JabRefMarkCodec.decode("JABREF_key3, JABREF_key4 IN_TEXT uniqueId3"));
     }

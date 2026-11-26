@@ -169,7 +169,7 @@ class AuxParserTest {
     }
 
     @Test
-    void strictParsingFailsWhenIncludedFileIsMissing(@TempDir Path directory) throws IOException {
+    void strictParsingFailsWhenIncludedFileIsMissing(@TempDir Path directory) throws Exception {
         Path main = Files.writeString(directory.resolve("main.aux"), """
                 \\citation{first}
                 \\@input{missing.aux}
@@ -181,7 +181,7 @@ class AuxParserTest {
     }
 
     @Test
-    void strictParsingReadsNestedCitationsAndStopsAtCycles(@TempDir Path directory) throws IOException {
+    void strictParsingReadsNestedCitationsAndStopsAtCycles(@TempDir Path directory) throws Exception {
         Path main = Files.writeString(directory.resolve("main.aux"), """
                 \\citation{first,*}
                 \\@input{nested.aux}
@@ -199,7 +199,7 @@ class AuxParserTest {
     }
 
     @Test
-    void strictParsingStopsWhenCancelledDuringReading(@TempDir Path directory) throws IOException {
+    void strictParsingStopsWhenCancelledDuringReading(@TempDir Path directory) throws Exception {
         Path aux = Files.writeString(directory.resolve("main.aux"), "\\citation{first}\n".repeat(100));
         AtomicInteger checkpoints = new AtomicInteger();
         DefaultAuxParser parser = new DefaultAuxParser(new BibDatabase());

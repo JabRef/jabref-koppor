@@ -15,7 +15,6 @@ import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.BibEntryTypesManager;
 import org.jabref.model.openoffice.style.CitationType;
 
-import com.sun.star.lang.WrappedTargetException;
 import com.sun.star.text.XTextCursor;
 import com.sun.star.text.XTextDocument;
 import com.sun.star.uno.XComponentContext;
@@ -51,7 +50,7 @@ class CitationEngineTest {
 
     @ParameterizedTest
     @MethodSource("nonCslModes")
-    void switchingFamiliesRestoresCslCapabilitiesWithoutChangingTheSavedMode(OOStyle nonCslStyle, boolean zoteroMode) throws RenderException {
+    void switchingFamiliesRestoresCslCapabilitiesWithoutChangingTheSavedMode(OOStyle nonCslStyle, boolean zoteroMode) throws Exception {
         preferences.setZoteroCompatibilityMode(zoteroMode);
         try (MockedStatic<WriterReferenceMarks> marks = mockStatic(WriterReferenceMarks.class);
              CitationEngine engine = new CitationEngine(document, context, preferences, entryTypes)) {
@@ -72,7 +71,7 @@ class CitationEngineTest {
 
     @ParameterizedTest
     @MethodSource("nonCslStyles")
-    void nonCslActionsUseCanonicalStorageWhenTheSavedZoteroModeIsOn(OOStyle style) throws WriterDocumentAccessException, WrappedTargetException {
+    void nonCslActionsUseCanonicalStorageWhenTheSavedZoteroModeIsOn(OOStyle style) throws Exception {
         preferences.setCurrentStyle(style);
         preferences.setZoteroCompatibilityMode(true);
         WriterDocumentAccessException failure = new WriterDocumentAccessException("Canonical storage unavailable");

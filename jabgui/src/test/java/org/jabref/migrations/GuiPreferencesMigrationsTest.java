@@ -418,7 +418,7 @@ class GuiPreferencesMigrationsTest {
     }
 
     @Test
-    void moveApiKeysToKeyRingKeepsExistingKey() throws PasswordAccessException {
+    void moveApiKeysToKeyRingKeepsExistingKey() throws Exception {
         final String fetcherCustomKeyNames = "fetcherCustomKeyNames";
         final String fetcherCustomKeys = "fetcherCustomKeys";
         final Keyring keyring = mock(Keyring.class);
@@ -441,7 +441,7 @@ class GuiPreferencesMigrationsTest {
     }
 
     @Test
-    void moveApiKeysToKeyRingKeepsLegacyEntryWithoutNewValue() throws PasswordAccessException {
+    void moveApiKeysToKeyRingKeepsLegacyEntryWithoutNewValue() throws Exception {
         final String fetcherCustomKeyNames = "fetcherCustomKeyNames";
         final String fetcherCustomKeys = "fetcherCustomKeys";
         final Keyring keyring = mock(Keyring.class);

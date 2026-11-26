@@ -1,6 +1,5 @@
 package org.jabref.logic.layout.format;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -36,7 +35,7 @@ class FileLinkTest {
     }
 
     @Test
-    void absoluteLinkWithoutAnyFileDirectory(@TempDir Path tempDir) throws IOException {
+    void absoluteLinkWithoutAnyFileDirectory(@TempDir Path tempDir) throws Exception {
         Path file = Files.createFile(tempDir.resolve("test.pdf"));
 
         assertEquals(file.toString(), new FileLink(List.of(), null).format(file.toString()));

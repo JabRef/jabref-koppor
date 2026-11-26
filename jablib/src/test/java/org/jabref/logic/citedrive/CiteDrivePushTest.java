@@ -74,7 +74,7 @@ class CiteDrivePushTest {
     @ParameterizedTest
     @MethodSource("batches")
     @SuppressWarnings("unchecked")
-    void batchUploadSendsEveryEntryInOneRequest(int count, Optional<Path> fixture, TestReporter reporter) throws IOException {
+    void batchUploadSendsEveryEntryInOneRequest(int count, Optional<Path> fixture, TestReporter reporter) throws Exception {
         ImportFormatPreferences importPreferences = mock(ImportFormatPreferences.class, Answers.RETURNS_DEEP_STUBS);
         when(importPreferences.bibEntryPreferences().getKeywordSeparator()).thenReturn(',');
         long started = System.nanoTime();
@@ -140,7 +140,7 @@ class CiteDrivePushTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void pushSendsSerializedBibtexBody() throws IOException {
+    void pushSendsSerializedBibtexBody() throws Exception {
         HttpRequestWithBody postRequest = mock(HttpRequestWithBody.class);
         RequestBodyEntity bodyEntity = mock(RequestBodyEntity.class);
         HttpResponse<String> response = mock(HttpResponse.class);

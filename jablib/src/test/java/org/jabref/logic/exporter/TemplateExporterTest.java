@@ -65,7 +65,7 @@ class TemplateExporterTest {
             false, false
             false, true
             """)
-    void missingLayoutDoesNotCommitOutput(boolean existingOutput, boolean writeHeader) throws IOException {
+    void missingLayoutDoesNotCommitOutput(boolean existingOutput, boolean writeHeader) throws Exception {
         if (existingOutput) {
             Files.write(output, ORIGINAL_CONTENT);
         }
@@ -87,7 +87,7 @@ class TemplateExporterTest {
     // [utest->req~logic.exporter.preserve-output-on-template-failure~1]
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    void invalidNameFormatterDoesNotCommitOutput(boolean existingOutput) throws IOException {
+    void invalidNameFormatterDoesNotCommitOutput(boolean existingOutput) throws Exception {
         if (existingOutput) {
             Files.write(output, ORIGINAL_CONTENT);
         }
@@ -112,7 +112,7 @@ class TemplateExporterTest {
             false, false
             false, true
             """)
-    void successfulExportCommitsCompleteOutput(boolean existingOutput, boolean optionalLayouts) throws IOException {
+    void successfulExportCommitsCompleteOutput(boolean existingOutput, boolean optionalLayouts) throws Exception {
         if (existingOutput) {
             Files.write(output, ORIGINAL_CONTENT);
         }
@@ -131,7 +131,7 @@ class TemplateExporterTest {
     }
 
     @Test
-    void emptySelectionPreservesExistingOutput() throws IOException {
+    void emptySelectionPreservesExistingOutput() throws Exception {
         Files.write(output, ORIGINAL_CONTENT);
 
         exporter.export(databaseContext, output, List.of());

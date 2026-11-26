@@ -186,7 +186,7 @@ class LinkedFileViewModelTest {
     }
 
     @Test
-    void deleteWhenTrashRefusesTheFileReturnsFalseAndKeepsFile() throws IOException {
+    void deleteWhenTrashRefusesTheFileReturnsFalseAndKeepsFile() throws Exception {
         linkedFile = new LinkedFile("", tempFile, "");
         when(filePreferences.moveToTrash()).thenReturn(true);
         when(nativeDesktop.moveToTrashSupported()).thenReturn(true);

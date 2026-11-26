@@ -1,7 +1,5 @@
 package org.jabref.logic.bst;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +31,7 @@ public class BstVMTest {
     }
 
     @Test
-    void entryFieldsAreReadFromEntryCommand() throws URISyntaxException, IOException {
+    void entryFieldsAreReadFromEntryCommand() throws Exception {
         BstVM vm = new BstVM(Path.of(BstVMTest.class.getResource("abbrv.bst").toURI()));
         assertEquals(Set.of("address", "author", "booktitle", "chapter", "edition", "editor", "howpublished", "institution", "journal", "key", "month", "note", "number", "organization", "pages", "publisher", "school", "series", "title", "type", "volume", "year"), vm.getEntryFields());
     }
@@ -48,7 +46,7 @@ public class BstVMTest {
     }
 
     @Test
-    void fieldSelectionIncludesImplicitCrossref() throws URISyntaxException, IOException {
+    void fieldSelectionIncludesImplicitCrossref() throws Exception {
         BstVM vm = new BstVM(Path.of(BstVMTest.class.getResource("abbrv.bst").toURI()));
         var selection = vm.getFieldSelection().orElseThrow();
 

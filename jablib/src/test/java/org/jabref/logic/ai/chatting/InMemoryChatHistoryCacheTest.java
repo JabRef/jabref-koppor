@@ -8,10 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.jabref.logic.ai.chatting.repositories.ChatHistoryRepository;
 import org.jabref.logic.ai.chatting.util.ChatHistoryUtils;
@@ -114,7 +112,7 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
-    void addedMessageIsPersistedBeforeClose() throws InterruptedException {
+    void addedMessageIsPersistedBeforeClose() throws Exception {
         BibEntry entry = new BibEntry().withCitationKey("Write2024");
         databaseContext.getDatabase().insertEntry(entry);
 
@@ -127,7 +125,7 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
-    void deleteAndRegenerateArePersisted() throws InterruptedException {
+    void deleteAndRegenerateArePersisted() throws Exception {
         BibEntry entry = new BibEntry().withCitationKey("Edit2024");
         databaseContext.getDatabase().insertEntry(entry);
         ChatIdentifier id = new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Edit2024");
@@ -167,7 +165,7 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
-    void addedMessageIsCommitted() throws InterruptedException {
+    void addedMessageIsCommitted() throws Exception {
         BibEntry entry = new BibEntry().withCitationKey("Commit2024");
         databaseContext.getDatabase().insertEntry(entry);
 
@@ -178,7 +176,7 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
-    void rapidChangesAreCommittedTogether() throws InterruptedException {
+    void rapidChangesAreCommittedTogether() throws Exception {
         cache.close();
         cache = new InMemoryChatHistoryCache(fakeRepository, 250);
 
@@ -213,7 +211,7 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
-    void changingChatDoesNotWaitForStorage() throws InterruptedException, ExecutionException, TimeoutException {
+    void changingChatDoesNotWaitForStorage() throws Exception {
         BibEntry entry = new BibEntry().withCitationKey("Background2024");
         databaseContext.getDatabase().insertEntry(entry);
         var history = cache.getForEntry(databaseContext, entry);
@@ -233,7 +231,7 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
-    void persistedHistoryIsLoadedAgainAfterRemovalFromCache() throws InterruptedException {
+    void persistedHistoryIsLoadedAgainAfterRemovalFromCache() throws Exception {
         BibEntry entry = new BibEntry().withCitationKey("Reload2024");
         databaseContext.getDatabase().insertEntry(entry);
 
@@ -281,7 +279,7 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
-    void editsDuringCommitAreQueuedWithoutChangingTheRunningWrite() throws InterruptedException, ExecutionException, TimeoutException {
+    void editsDuringCommitAreQueuedWithoutChangingTheRunningWrite() throws Exception {
         BibEntry entry = new BibEntry().withCitationKey("Concurrent2024");
         databaseContext.getDatabase().insertEntry(entry);
         ChatIdentifier id = new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Concurrent2024");
@@ -324,7 +322,7 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
-    void clearingChatThatBecameValidAfterLoadIsPersisted() throws InterruptedException {
+    void clearingChatThatBecameValidAfterLoadIsPersisted() throws Exception {
         ChatIdentifier id = new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Late2024");
         BibEntry entry = new BibEntry().withCitationKey("Late2024");
         BibEntry duplicate = new BibEntry().withCitationKey("Late2024");
@@ -379,7 +377,7 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
-    void storageFailureKeepsHistoryAndRetriesOnNextChange() throws InterruptedException {
+    void storageFailureKeepsHistoryAndRetriesOnNextChange() throws Exception {
         BibEntry entry = new BibEntry().withCitationKey("Failing2024");
         databaseContext.getDatabase().insertEntry(entry);
         ChatIdentifier id = new ChatIdentifier(LIBRARY_ID, ChatType.WITH_ENTRY, "Failing2024");
@@ -402,7 +400,7 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
-    void failedWriteIsRolledBackSoAnotherChatCannotCommitIt() throws InterruptedException {
+    void failedWriteIsRolledBackSoAnotherChatCannotCommitIt() throws Exception {
         BibEntry first = new BibEntry().withCitationKey("First2024");
         BibEntry second = new BibEntry().withCitationKey("Second2024");
         databaseContext.getDatabase().insertEntries(first, second);
@@ -443,7 +441,7 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
-    void messagesAfterEntryRemovalAreNotPersisted() throws InterruptedException {
+    void messagesAfterEntryRemovalAreNotPersisted() throws Exception {
         BibEntry entry = new BibEntry().withCitationKey("Deleted2024");
         databaseContext.getDatabase().insertEntry(entry);
 
@@ -505,7 +503,7 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
-    void entryDeletedWhileAnotherChatCommitsIsNotWritten() throws InterruptedException {
+    void entryDeletedWhileAnotherChatCommitsIsNotWritten() throws Exception {
         BibEntry first = new BibEntry().withCitationKey("Blocking2024");
         BibEntry deleted = new BibEntry().withCitationKey("Queued2024");
         databaseContext.getDatabase().insertEntries(first, deleted);
@@ -530,7 +528,7 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
-    void loadingAnotherChatDoesNotWaitForStorageOrBlockEdits() throws InterruptedException, ExecutionException, TimeoutException {
+    void loadingAnotherChatDoesNotWaitForStorageOrBlockEdits() throws Exception {
         BibEntry first = new BibEntry().withCitationKey("First2024");
         BibEntry second = new BibEntry().withCitationKey("Second2024");
         databaseContext.getDatabase().insertEntries(first, second);
@@ -554,7 +552,7 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
-    void cancellingOneLoadDoesNotCancelAnotherConsumer() throws InterruptedException, ExecutionException, TimeoutException {
+    void cancellingOneLoadDoesNotCancelAnotherConsumer() throws Exception {
         BibEntry entry = new BibEntry().withCitationKey("Shared2024");
         databaseContext.getDatabase().insertEntry(entry);
         fakeRepository.blockReads = true;
@@ -621,7 +619,7 @@ class InMemoryChatHistoryCacheTest {
     }
 
     @Test
-    void failedWriteSurvivesCachePressureAndRetriesAtShutdown() throws InterruptedException {
+    void failedWriteSurvivesCachePressureAndRetriesAtShutdown() throws Exception {
         cache.close();
         cache = new InMemoryChatHistoryCache(fakeRepository, 30, 0);
         BibEntry entry = new BibEntry().withCitationKey("Retry2024");

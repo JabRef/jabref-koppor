@@ -1,6 +1,5 @@
 package org.jabref.logic.openoffice.engine;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -70,7 +69,7 @@ class BstCitationFormatterTest {
     }
 
     @Test
-    void stableCitationKeyIsRequiredAndRetained() throws RenderException {
+    void stableCitationKeyIsRequiredAndRetained() throws Exception {
         BibEntry entry = new BibEntry().withCitationKey("MyKey").withField(StandardField.TITLE, "Title");
         BstCitationFormatter.StyleOrderAndLabels result = BstCitationFormatter.computeStyleOrderAndLabels(new BstVM(RendererTestData.SIMPLE_BST), List.of(entry), new BibDatabase(List.of(entry)));
         assertEquals(Map.of("MyKey", 1), result.identifierToNumberMap());
@@ -192,7 +191,7 @@ class BstCitationFormatterTest {
 
     @ParameterizedTest
     @MethodSource
-    void buildStyleDefinedCitationTextPreservesCitationOrderAndSuffixes(List<String> identifiers, String expected) throws MissingCitationLabelException {
+    void buildStyleDefinedCitationTextPreservesCitationOrderAndSuffixes(List<String> identifiers, String expected) throws Exception {
         assertEquals(expected, BstCitationFormatter.buildStyleDefinedCitationText(identifiers, Map.of("first", "ABC20a", "second", "ABC20b")));
     }
 
@@ -245,7 +244,7 @@ class BstCitationFormatterTest {
 
     @ParameterizedTest
     @MethodSource
-    void computeStyleOrderAndLabelsNumbersAccordingToTheBstProgram(String resourcePath, Map<String, Integer> expectedNumbers) throws IOException, RenderException {
+    void computeStyleOrderAndLabelsNumbersAccordingToTheBstProgram(String resourcePath, Map<String, Integer> expectedNumbers) throws Exception {
         BibEntry zebra = new BibEntry()
                 .withCitationKey("zebra")
                 .withField(StandardField.AUTHOR, "Zebra, Zoe")

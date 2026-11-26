@@ -199,7 +199,7 @@ class LayoutTest {
     }
 
     @Test
-    void xdataFieldsAreResolved() throws IOException {
+    void xdataFieldsAreResolved() throws Exception {
         BibEntry xdata = new BibEntry(new UnknownEntryType("xdata"))
                 .withCitationKey("CAT")
                 .withField(StandardField.PUBLISHER, "Addison-Wesley")

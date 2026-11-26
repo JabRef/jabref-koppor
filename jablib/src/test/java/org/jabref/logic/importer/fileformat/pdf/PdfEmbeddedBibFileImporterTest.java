@@ -1,7 +1,6 @@
 package org.jabref.logic.importer.fileformat.pdf;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.Map;
 import javafx.collections.FXCollections;
 
 import org.jabref.logic.importer.ImportFormatPreferences;
-import org.jabref.logic.importer.ParseException;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.entry.types.StandardEntryType;
@@ -70,7 +68,7 @@ class PdfEmbeddedBibFileImporterTest {
     }
 
     @Test
-    void skipsAttachmentsWithoutEmbeddedFiles() throws IOException, ParseException {
+    void skipsAttachmentsWithoutEmbeddedFiles() throws Exception {
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();
             document.addPage(page);
@@ -84,7 +82,7 @@ class PdfEmbeddedBibFileImporterTest {
     }
 
     @Test
-    void prefersUnicodeEmbeddedFile() throws IOException, ParseException {
+    void prefersUnicodeEmbeddedFile() throws Exception {
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();
             document.addPage(page);
@@ -101,7 +99,7 @@ class PdfEmbeddedBibFileImporterTest {
     }
 
     @Test
-    void importsFilesInNestedNameTree() throws IOException, ParseException {
+    void importsFilesInNestedNameTree() throws Exception {
         try (PDDocument document = new PDDocument()) {
             PDComplexFileSpecification fileSpec = new PDComplexFileSpecification();
             fileSpec.setEmbeddedFile(new PDEmbeddedFile(document, new ByteArrayInputStream("@misc{nested}".getBytes(StandardCharsets.UTF_8))));
@@ -121,7 +119,7 @@ class PdfEmbeddedBibFileImporterTest {
     }
 
     @Test
-    void skipsSimpleFileSpecifications() throws IOException, ParseException {
+    void skipsSimpleFileSpecifications() throws Exception {
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();
             document.addPage(page);
@@ -136,7 +134,7 @@ class PdfEmbeddedBibFileImporterTest {
     }
 
     @Test
-    void closesEmbeddedFileStream() throws IOException, ParseException {
+    void closesEmbeddedFileStream() throws Exception {
         try (PDDocument owner = new PDDocument()) {
             PDEmbeddedFile realFile = new PDEmbeddedFile(owner, new ByteArrayInputStream("@misc{stream}".getBytes(StandardCharsets.UTF_8)));
             COSInputStream stream = spy(realFile.createInputStream());

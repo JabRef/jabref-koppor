@@ -39,28 +39,28 @@ class GenerateCitationKeysTest extends AbstractJabKitTest {
             """;
 
     @Test
-    void avoidOverwriteOptionPreservesExistingCitationKey(@TempDir Path tempDir) throws IOException, ParseException {
+    void avoidOverwriteOptionPreservesExistingCitationKey(@TempDir Path tempDir) throws Exception {
         setStoredAvoidOverwritePreference(false);
 
         assertEquals("MyStableKey", generateCitationKey(tempDir, KEYED_ENTRY, "--avoid-overwrite"));
     }
 
     @Test
-    void avoidOverwriteOptionGeneratesKeyWhenCitationKeyIsMissing(@TempDir Path tempDir) throws IOException, ParseException {
+    void avoidOverwriteOptionGeneratesKeyWhenCitationKeyIsMissing(@TempDir Path tempDir) throws Exception {
         setStoredAvoidOverwritePreference(false);
 
         assertEquals("Smith2024", generateCitationKey(tempDir, KEYLESS_ENTRY, "--avoid-overwrite"));
     }
 
     @Test
-    void existingCitationKeyIsRegeneratedWhenAvoidOverwriteIsDisabled(@TempDir Path tempDir) throws IOException, ParseException {
+    void existingCitationKeyIsRegeneratedWhenAvoidOverwriteIsDisabled(@TempDir Path tempDir) throws Exception {
         setStoredAvoidOverwritePreference(false);
 
         assertEquals("Smith2024", generateCitationKey(tempDir, KEYED_ENTRY));
     }
 
     @Test
-    void storedAvoidOverwritePreferenceIsUsedWhenOptionIsOmitted(@TempDir Path tempDir) throws IOException, ParseException {
+    void storedAvoidOverwritePreferenceIsUsedWhenOptionIsOmitted(@TempDir Path tempDir) throws Exception {
         setStoredAvoidOverwritePreference(true);
 
         assertEquals("MyStableKey", generateCitationKey(tempDir, KEYED_ENTRY));

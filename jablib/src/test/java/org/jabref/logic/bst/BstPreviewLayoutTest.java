@@ -1,6 +1,5 @@
 package org.jabref.logic.bst;
 
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -132,7 +131,7 @@ class BstPreviewLayoutTest {
     }
 
     @Test
-    void generatePreviewResolvesXDataFields() throws URISyntaxException {
+    void generatePreviewResolvesXDataFields() throws Exception {
         BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
         BibEntry xdata = new BibEntry(new UnknownEntryType("xdata"))
                 .withCitationKey("CAT")
@@ -154,7 +153,7 @@ class BstPreviewLayoutTest {
     }
 
     @Test
-    void generatePreviewIgnoresLibraryPreambleWhenResolvingXDataFields() throws URISyntaxException {
+    void generatePreviewIgnoresLibraryPreambleWhenResolvingXDataFields() throws Exception {
         BstPreviewLayout bstPreviewLayout = new BstPreviewLayout(Path.of(BstPreviewLayoutTest.class.getResource("abbrv.bst").toURI()));
         BibEntry xdata = new BibEntry(new UnknownEntryType("xdata"))
                 .withCitationKey("CAT")

@@ -32,7 +32,7 @@ class ConvertTest extends AbstractJabKitTest {
     // [utest->req~jabkit.cli.convert-bibtex-context~1]
     @ParameterizedTest
     @ValueSource(strings = {"converted.bib", "input.bib"})
-    void bibtexConversionPreservesStringsAndPreamble(String outputFileName, @TempDir Path tempDir) throws IOException {
+    void bibtexConversionPreservesStringsAndPreamble(String outputFileName, @TempDir Path tempDir) throws Exception {
         Path input = tempDir.resolve("input.bib");
         Files.copy(getClassResourceAsPath("strings-and-preamble.bib"), input);
         Path output = tempDir.resolve(outputFileName);
@@ -47,7 +47,7 @@ class ConvertTest extends AbstractJabKitTest {
 
     // [utest->req~jabkit.cli.convert-bibtex-context~1]
     @Test
-    void bibtexConversionToStdoutPreservesStringsAndPreamble() throws IOException {
+    void bibtexConversionToStdoutPreservesStringsAndPreamble() throws Exception {
         Path input = getClassResourceAsPath("strings-and-preamble.bib");
 
         int exitCode = commandLine.executeToLog("convert", "--porcelain",

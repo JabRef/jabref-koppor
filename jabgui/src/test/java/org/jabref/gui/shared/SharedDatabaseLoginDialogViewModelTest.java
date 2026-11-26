@@ -197,7 +197,7 @@ class SharedDatabaseLoginDialogViewModelTest {
 
     // [utest->req~shared-database.saved-connections-deletable~1]
     @Test
-    void removingDeletesTheConnectionTogetherWithItsDuplicates() throws BackingStoreException {
+    void removingDeletesTheConnectionTogetherWithItsDuplicates() throws Exception {
         viewModel.removeSavedConnection();
 
         verify(storedConnection).remove();
@@ -241,7 +241,7 @@ class SharedDatabaseLoginDialogViewModelTest {
 
     /// The settings of a removed node can no longer be read
     @Test
-    void lastUsedConnectionIsComparedBeforeTheConnectionIsRemoved() throws BackingStoreException {
+    void lastUsedConnectionIsComparedBeforeTheConnectionIsRemoved() throws Exception {
         viewModel.removeSavedConnection();
 
         InOrder inOrder = inOrder(lastUsedConnection, storedConnection);
@@ -251,7 +251,7 @@ class SharedDatabaseLoginDialogViewModelTest {
 
     // [utest->req~shared-database.saved-connections-deletable~1]
     @Test
-    void removingIsRefusedWhileTheReconnectOfTheConnectionFailed() throws BackingStoreException {
+    void removingIsRefusedWhileTheReconnectOfTheConnectionFailed() throws Exception {
         when(tabContainer.getUnconnectedSharedDatabaseIds()).thenReturn(List.of("stored"));
 
         viewModel.removeSavedConnection();
@@ -263,7 +263,7 @@ class SharedDatabaseLoginDialogViewModelTest {
 
     // [utest->req~shared-database.saved-connections-deletable~1]
     @Test
-    void removingIsRefusedWhileTheLibraryOfADuplicateIsOpen() throws BackingStoreException {
+    void removingIsRefusedWhileTheLibraryOfADuplicateIsOpen() throws Exception {
         openLibraryOf("duplicate");
 
         viewModel.removeSavedConnection();
@@ -277,7 +277,7 @@ class SharedDatabaseLoginDialogViewModelTest {
 
     /// The listed identifier may be gone while a duplicate is still stored
     @Test
-    void failedRemovalOfADuplicateListsWhatIsStillStored() throws BackingStoreException {
+    void failedRemovalOfADuplicateListsWhatIsStillStored() throws Exception {
         when(duplicateConnection.remove()).thenThrow(new BackingStoreException("Disk full"));
         when(duplicateConnection.getDisplayLabel()).thenReturn("alice@localhost:5432/jabref");
         when(lastUsedConnection.listSavedIds()).thenReturn(List.of("duplicate"));
@@ -288,7 +288,7 @@ class SharedDatabaseLoginDialogViewModelTest {
     }
 
     @Test
-    void removingTheLastUsedConnectionClearsItsPrefill() throws BackingStoreException {
+    void removingTheLastUsedConnectionClearsItsPrefill() throws Exception {
         when(lastUsedConnection.addressesSameDatabaseAs(storedConnection)).thenReturn(true);
 
         viewModel.removeSavedConnection();
@@ -297,7 +297,7 @@ class SharedDatabaseLoginDialogViewModelTest {
     }
 
     @Test
-    void removingAnotherConnectionKeepsTheLastUsedPrefill() throws BackingStoreException {
+    void removingAnotherConnectionKeepsTheLastUsedPrefill() throws Exception {
         viewModel.removeSavedConnection();
 
         verify(lastUsedConnection, never()).clear();

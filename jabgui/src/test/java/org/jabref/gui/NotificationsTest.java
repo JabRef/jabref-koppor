@@ -100,7 +100,7 @@ class NotificationsTest {
     }
 
     @Test
-    void autoCloseRemovesTheNotification() throws InterruptedException {
+    void autoCloseRemovesTheNotification() throws Exception {
         NotificationGroup<Object, Notifications.UiNotification> uiGroup = new NotificationGroup<>("UI");
         UiTaskExecutor.runAndWaitInJavaFXThread(() ->
                 uiGroup.getNotifications().add(new Notifications.UiNotification("Title", "Description").withAutoClose(Duration.millis(10))));
@@ -112,7 +112,7 @@ class NotificationsTest {
 
     /// The user may remove a notification before it closes itself, or it may never have been shown
     @Test
-    void autoCloseOfANotificationOutsideAnyGroupDoesNotFail() throws InterruptedException {
+    void autoCloseOfANotificationOutsideAnyGroupDoesNotFail() throws Exception {
         UiTaskExecutor.runAndWaitInJavaFXThread(() -> new Notifications.UiNotification("Title", "Description").withAutoClose(Duration.millis(10)));
 
         waitForAutoClose();

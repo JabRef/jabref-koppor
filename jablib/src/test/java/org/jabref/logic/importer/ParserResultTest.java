@@ -1,6 +1,5 @@
 package org.jabref.logic.importer;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -154,7 +153,7 @@ class ParserResultTest {
     }
 
     @Test
-    void warningAddedForSpaceInsideCitationKeyImport(@TempDir Path tmpDir) throws IOException {
+    void warningAddedForSpaceInsideCitationKeyImport(@TempDir Path tmpDir) throws Exception {
         // Citation key "my Article" contains a space and the comma is missing, so this goes through fixKey() and not isFieldsAssignmentNext()
         String bibtexEntry = """
                 @article{my Article\s

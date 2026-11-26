@@ -1,11 +1,9 @@
 package org.jabref.logic.layout.format;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.jabref.logic.layout.LayoutFormatter;
 
@@ -15,7 +13,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -42,7 +39,7 @@ class XMLCharsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"normal", "é", "𝛼", "😀"})
-    void formattedTextIsParsableXml(String input) throws ParserConfigurationException, SAXException, IOException {
+    void formattedTextIsParsableXml(String input) throws Exception {
         String xml = "<title>" + formatter.format(input) + "</title>";
 
         Document document = DocumentBuilderFactory.newInstance()

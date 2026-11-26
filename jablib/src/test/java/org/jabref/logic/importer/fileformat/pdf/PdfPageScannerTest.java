@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class PdfPageScannerTest {
 
     @Test
-    void scansFivePercentFromEachEnd() throws IOException {
+    void scansFivePercentFromEachEnd() throws Exception {
         try (PDDocument document = createDocument(100)) {
             List<String> pages = PdfPageScanner.scanPages(document);
 
@@ -34,7 +34,7 @@ class PdfPageScannerTest {
     }
 
     @Test
-    void roundsFivePercentUp() throws IOException {
+    void roundsFivePercentUp() throws Exception {
         try (PDDocument document = createDocument(150)) {
             List<String> pages = PdfPageScanner.scanPages(document);
 
@@ -52,7 +52,7 @@ class PdfPageScannerTest {
     }
 
     @Test
-    void usesMinimumThreePagesPerEnd() throws IOException {
+    void usesMinimumThreePagesPerEnd() throws Exception {
         try (PDDocument document = createDocument(10)) {
             List<String> pages = PdfPageScanner.scanPages(document);
 
@@ -71,7 +71,7 @@ class PdfPageScannerTest {
     }
 
     @Test
-    void usesMaximumTenPagesPerEnd() throws IOException {
+    void usesMaximumTenPagesPerEnd() throws Exception {
         try (PDDocument document = createDocument(500)) {
             List<String> pages = PdfPageScanner.scanPages(document);
 
@@ -90,7 +90,7 @@ class PdfPageScannerTest {
     }
 
     @Test
-    void doesNotDuplicatePagesInVeryShortDocument() throws IOException {
+    void doesNotDuplicatePagesInVeryShortDocument() throws Exception {
         try (PDDocument document = createDocument(4)) {
             List<String> pages = PdfPageScanner.scanPages(document);
 

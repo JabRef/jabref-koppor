@@ -236,7 +236,7 @@ class JournalAbbreviationsViewModelTabTest {
     }
 
     @Test
-    void externalListChoiceIsLocalUntilSavedAndRemainsEditableWhenDisabled() throws IOException {
+    void externalListChoiceIsLocalUntilSavedAndRemainsEditableWhenDisabled() throws Exception {
         // [utest->req~journals.disable-external~1]
         Files.writeString(emptyTestFile, "External Journal;Ext. J.;Ext. J.");
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
@@ -296,7 +296,7 @@ class JournalAbbreviationsViewModelTabTest {
     }
 
     @Test
-    void overlappingSavesKeepLatestExternalEditsAndToggle() throws IOException {
+    void overlappingSavesKeepLatestExternalEditsAndToggle() throws Exception {
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
         List<Runnable> queued = new ArrayList<>();
         TaskExecutor executor = new QueuedTaskExecutor(queued);
@@ -324,7 +324,7 @@ class JournalAbbreviationsViewModelTabTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    void newerSaveFromReopenedPreferencesIsNotOverwrittenByOlderSave(boolean editReopenedList) throws IOException {
+    void newerSaveFromReopenedPreferencesIsNotOverwrittenByOlderSave(boolean editReopenedList) throws Exception {
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
         List<Runnable> queued = new ArrayList<>();
         TaskExecutor executor = new QueuedTaskExecutor(queued);
@@ -353,7 +353,7 @@ class JournalAbbreviationsViewModelTabTest {
     }
 
     @Test
-    void editAfterSaveSnapshotIsWrittenByNextSave() throws IOException {
+    void editAfterSaveSnapshotIsWrittenByNextSave() throws Exception {
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
         List<Runnable> queued = new ArrayList<>();
         TaskExecutor executor = new QueuedTaskExecutor(queued);
@@ -373,7 +373,7 @@ class JournalAbbreviationsViewModelTabTest {
     }
 
     @Test
-    void failedWritesShowPathsAndRemainRetryable() throws IOException {
+    void failedWritesShowPathsAndRemainRetryable() throws Exception {
         // [utest->req~journals.report-write-failures~1]
         Path failedLast = tempFolder.resolve("missing/z.csv");
         Path failedFirst = tempFolder.resolve("missing/a.csv");
@@ -483,7 +483,7 @@ class JournalAbbreviationsViewModelTabTest {
     }
 
     @Test
-    void savingDuplicateRowsUsesFirstListContentsAndEnabledState() throws IOException {
+    void savingDuplicateRowsUsesFirstListContentsAndEnabledState() throws Exception {
         AbbreviationPreferences preferences = new AbbreviationPreferences(List.of(emptyTestFile.toString()), true, false);
         preferences.setUseBuiltInJournalList(false);
         JournalAbbreviationsTabViewModel model = new JournalAbbreviationsTabViewModel(

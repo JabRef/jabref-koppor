@@ -220,7 +220,7 @@ class OpenOfficePanelTest {
         }
 
         @Test
-        void importActionForwardsCitationsToTheCapturedLibraryWithoutFilteringByKey() throws ReflectiveOperationException {
+        void importActionForwardsCitationsToTheCapturedLibraryWithoutFilteringByKey() throws Exception {
             setField("currentStyle", mock(CitationStyle.class));
             when(preferences.getZoteroCompatibilityMode()).thenReturn(true);
             when(tabContainer.getCurrentLibraryTab()).thenReturn(targetTab);
@@ -239,7 +239,7 @@ class OpenOfficePanelTest {
 
         @ParameterizedTest
         @ValueSource(booleans = {false, true})
-        void importActionRequiresZoteroCompatibilityMode(boolean zoteroMode) throws ReflectiveOperationException {
+        void importActionRequiresZoteroCompatibilityMode(boolean zoteroMode) throws Exception {
             setField("currentStyle", mock(CitationStyle.class));
             when(preferences.getZoteroCompatibilityMode()).thenReturn(zoteroMode);
             Button importCitations = button("importCitations");
@@ -252,7 +252,7 @@ class OpenOfficePanelTest {
 
         @ParameterizedTest
         @ValueSource(classes = {JStyle.class, BstStyle.class})
-        void importActionIsDisabledForNonCslStylesWithoutClearingTheSavedMode(Class<? extends OOStyle> styleClass) throws ReflectiveOperationException {
+        void importActionIsDisabledForNonCslStylesWithoutClearingTheSavedMode(Class<? extends OOStyle> styleClass) throws Exception {
             setField("currentStyle", mock(styleClass));
             when(preferences.getZoteroCompatibilityMode()).thenReturn(true);
             Button importCitations = button("importCitations");
@@ -266,7 +266,7 @@ class OpenOfficePanelTest {
         }
 
         @Test
-        void importActionIsDisabledWithoutDocumentConnection() throws ReflectiveOperationException {
+        void importActionIsDisabledWithoutDocumentConnection() throws Exception {
             when(preferences.getZoteroCompatibilityMode()).thenReturn(true);
             when(citationController.isDocumentConnectionMissing()).thenReturn(true);
             Button importCitations = button("importCitations");
@@ -282,7 +282,7 @@ class OpenOfficePanelTest {
 
         @Test
             // [utest->req~openoffice.preferences-shortcut~1]
-        void settingsMenuOpensLibreOfficePreferencesWithoutAWriterConnection() throws ReflectiveOperationException {
+        void settingsMenuOpensLibreOfficePreferencesWithoutAWriterConnection() throws Exception {
             when(citationController.isDocumentConnectionMissing()).thenReturn(true);
             Button settings = button("settingsB");
             Method updateAvailability = OpenOfficePanel.class.getDeclaredMethod("updateButtonAvailability");
@@ -307,7 +307,7 @@ class OpenOfficePanelTest {
         }
 
         @Test
-        void stylePreparationRefreshesTheSelectedJstyleWithoutReplacingIt() throws ReflectiveOperationException, IOException {
+        void stylePreparationRefreshesTheSelectedJstyleWithoutReplacingIt() throws Exception {
             when(preferences.getCurrentStyle()).thenReturn(selectedStyle);
 
             JavaFxExtension.invokeAndWait(() -> assertEquals(Boolean.TRUE,
@@ -322,7 +322,7 @@ class OpenOfficePanelTest {
 
         @ParameterizedTest
         @ValueSource(classes = {CitationStyle.class, BstStyle.class})
-        void stylePreparationKeepsCslAndBstStylesWithoutJstyleReloading(Class<? extends OOStyle> styleClass) throws ReflectiveOperationException, IOException {
+        void stylePreparationKeepsCslAndBstStylesWithoutJstyleReloading(Class<? extends OOStyle> styleClass) throws Exception {
             OOStyle selected = mock(styleClass);
             when(preferences.getCurrentStyle()).thenReturn(selected);
 
@@ -338,7 +338,7 @@ class OpenOfficePanelTest {
 
         @ParameterizedTest
         @ValueSource(strings = {"missing", "reload-failed"})
-        void stylePreparationReturnsFalseAndKeepsTheCurrentStyleOnFailure(String failure) throws ReflectiveOperationException, IOException {
+        void stylePreparationReturnsFalseAndKeepsTheCurrentStyleOnFailure(String failure) throws Exception {
             prepareScenario(failure);
 
             JavaFxExtension.invokeAndWait(() -> assertEquals(Boolean.FALSE,
@@ -350,7 +350,7 @@ class OpenOfficePanelTest {
 
         @ParameterizedTest
         @ValueSource(booleans = {false, true})
-        void styleSelectionNotifiesOnlyAfterSuccessfulPreparation(boolean succeeds) throws ReflectiveOperationException, IOException {
+        void styleSelectionNotifiesOnlyAfterSuccessfulPreparation(boolean succeeds) throws Exception {
             prepareScenario(succeeds ? "ready" : "reload-failed");
             when(dialogs.<OOStyle>showCustomDialogAndWait(any())).thenReturn(Optional.of(selectedStyle));
             Button selectStyle = button("setStyleFile");
@@ -376,7 +376,7 @@ class OpenOfficePanelTest {
 
         @ParameterizedTest
         @ValueSource(strings = {"ready", "missing", "reload-failed"})
-        void refreshRunsOnlyAfterSuccessfulStylePreparation(String scenario) throws ReflectiveOperationException, IOException {
+        void refreshRunsOnlyAfterSuccessfulStylePreparation(String scenario) throws Exception {
             prepareScenario(scenario);
             Button refresh = button("updateBibliography");
 
@@ -394,7 +394,7 @@ class OpenOfficePanelTest {
 
         @ParameterizedTest
         @ValueSource(strings = {"ready", "missing", "reload-failed"})
-        void citationRunsOnlyAfterSuccessfulStylePreparation(String scenario) throws ReflectiveOperationException, IOException {
+        void citationRunsOnlyAfterSuccessfulStylePreparation(String scenario) throws Exception {
             prepareScenario(scenario);
             Button cite = button("cite");
 
@@ -412,7 +412,7 @@ class OpenOfficePanelTest {
 
         @ParameterizedTest
         @EnumSource(value = CitationType.class, names = {"AUTHOR_ONLY", "YEAR_ONLY"})
-        void citeSpecialUsesCurrentCapabilitiesAndInsertsSelectedPartialType(CitationType citationType) throws ReflectiveOperationException, IOException {
+        void citeSpecialUsesCurrentCapabilitiesAndInsertsSelectedPartialType(CitationType citationType) throws Exception {
             prepareScenario("ready");
             StyleCapabilities capabilities = new StyleCapabilities(
                     Set.of(CitationType.AUTHORYEAR_PAR, CitationType.AUTHORYEAR_INTEXT, CitationType.INVISIBLE_CIT,
@@ -444,7 +444,7 @@ class OpenOfficePanelTest {
         }
 
         @Test
-        void citeSpecialAndEmptyButtonsRemainDisabledForNativeCapabilities() throws ReflectiveOperationException {
+        void citeSpecialAndEmptyButtonsRemainDisabledForNativeCapabilities() throws Exception {
             when(preferences.getCurrentStyle()).thenReturn(selectedStyle);
             when(citationController.capabilities(selectedStyle)).thenReturn(new StyleCapabilities(
                     Set.of(CitationType.AUTHORYEAR_PAR, CitationType.AUTHORYEAR_INTEXT), true, false, false));
@@ -466,7 +466,7 @@ class OpenOfficePanelTest {
 
         @ParameterizedTest
         @ValueSource(classes = {JStyle.class, BstStyle.class})
-        void inferenceButtonIsDisabledForNonCslStyles(Class<? extends OOStyle> styleClass) throws ReflectiveOperationException {
+        void inferenceButtonIsDisabledForNonCslStyles(Class<? extends OOStyle> styleClass) throws Exception {
             setField("currentStyle", mock(styleClass));
             Button infer = button("inferCslStyle");
 
@@ -480,7 +480,7 @@ class OpenOfficePanelTest {
         }
 
         @Test
-        void inferenceButtonIsDisabledWithoutAWriterConnection() throws ReflectiveOperationException {
+        void inferenceButtonIsDisabledWithoutAWriterConnection() throws Exception {
             setField("currentStyle", mock(CitationStyle.class));
             when(citationController.isDocumentConnectionMissing()).thenReturn(true);
             Button infer = button("inferCslStyle");
@@ -495,7 +495,7 @@ class OpenOfficePanelTest {
         }
 
         @Test
-        void inferenceButtonSelectsOnlyTheCslResult() throws ReflectiveOperationException {
+        void inferenceButtonSelectsOnlyTheCslResult() throws Exception {
             setField("currentStyle", mock(CitationStyle.class));
             CitationStyle inferred = mock(CitationStyle.class);
             when(inferred.getName()).thenReturn("External CSL style");
@@ -515,7 +515,7 @@ class OpenOfficePanelTest {
         }
 
         @Test
-        void missingCslInferenceKeepsTheSelectedStyle() throws ReflectiveOperationException {
+        void missingCslInferenceKeepsTheSelectedStyle() throws Exception {
             CitationStyle selectedCslStyle = mock(CitationStyle.class);
             setField("currentStyle", selectedCslStyle);
             when(citationController.inferCslStyleFromDocument(resolver)).thenReturn(OOResult.ok(Optional.empty()));
@@ -533,7 +533,7 @@ class OpenOfficePanelTest {
 
         @ParameterizedTest
         @ValueSource(classes = {CitationStyle.class, JStyle.class, BstStyle.class})
-        void documentSelectionKeepsTheLastSelectedStyleWithoutReadingDocumentStyle(Class<? extends OOStyle> styleClass) throws ReflectiveOperationException {
+        void documentSelectionKeepsTheLastSelectedStyleWithoutReadingDocumentStyle(Class<? extends OOStyle> styleClass) throws Exception {
             OOStyle selected = mock(styleClass);
             when(preferences.getCurrentStyle()).thenReturn(selected);
             Button selectDocument = button("selectDocument");
@@ -550,7 +550,7 @@ class OpenOfficePanelTest {
         }
 
         @Test
-        void documentSelectionWithoutAStyleRemainsSafeAndAllowsSelectingOne() throws ReflectiveOperationException {
+        void documentSelectionWithoutAStyleRemainsSafeAndAllowsSelectingOne() throws Exception {
             Button selectDocument = button("selectDocument");
             Button selectStyle = button("setStyleFile");
             List<Button> styleActions = List.of(button("cite"), button("citeInText"), button("citeEmpty"), button("citeSpecial"),

@@ -1,6 +1,5 @@
 package org.jabref.logic.exporter;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -72,7 +71,7 @@ public class HtmlExportFormatTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"tablerefs", "tablerefsabsbib"})
-    void htmlTableShowsPageRangesWithJournalOrProceedings(String format, @TempDir Path testFolder) throws IOException {
+    void htmlTableShowsPageRangesWithJournalOrProceedings(String format, @TempDir Path testFolder) throws Exception {
         TemplateExporter tableExporter = new TemplateExporter(format,
                 format,
                 format,

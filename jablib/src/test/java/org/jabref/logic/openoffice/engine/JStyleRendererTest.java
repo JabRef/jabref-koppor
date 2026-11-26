@@ -45,7 +45,7 @@ class JStyleRendererTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    void citationKeyModeEscapesResolvedAndMixedKeysWithStyleMarkup(boolean numberEntries) throws IOException, RenderException {
+    void citationKeyModeEscapesResolvedAndMixedKeysWithStyleMarkup(boolean numberEntries) throws Exception {
         RenderRequest request = request(List.of(
                         group("resolved", CitationType.AUTHORYEAR_PAR, "<b>", "&amp;", "研究🔬"),
                         group("mixed", CitationType.AUTHORYEAR_PAR, "<b>", "&amp;", "研究🔬", "<b>missing&amp;"),
@@ -63,7 +63,7 @@ class JStyleRendererTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    void citationKeyModeFallsBackForUnsupportedTypesAndKeepsInvisibleSourcesInBibliography(boolean numberEntries) throws IOException, RenderException {
+    void citationKeyModeFallsBackForUnsupportedTypesAndKeepsInvisibleSourcesInBibliography(boolean numberEntries) throws Exception {
         List<CitationGroup> groups = Arrays.stream(CitationType.values()).map(type -> {
             CitationGroup group = group(type.name(), type, type.name());
             group.citationsInStorageOrder.getFirst().setPageInfo(Optional.of(OOText.fromString("p. 5")));
@@ -90,7 +90,7 @@ class JStyleRendererTest {
     }
 
     @Test
-    void rendersAllSixTypesIndependently() throws IOException, RenderException {
+    void rendersAllSixTypesIndependently() throws Exception {
         List<CitationGroup> groups = Arrays.stream(CitationType.values()).map(type -> {
             CitationGroup group = group(type.name(), type, "a");
             group.citationsInStorageOrder.getFirst().setPageInfo(Optional.of(OOText.fromString("p. 5")));
@@ -103,7 +103,7 @@ class JStyleRendererTest {
     }
 
     @Test
-    void doesNotMutateGroupsOrTemporaryBibliographyFieldsInLibraries() throws IOException, RenderException {
+    void doesNotMutateGroupsOrTemporaryBibliographyFieldsInLibraries() throws Exception {
         BibEntry entry = entry("a", "A").withField(new UnknownField("uniq"), "existing");
         CitationGroup group = group("g", CitationType.AUTHORYEAR_PAR, "a");
         RenderRequest request = request(List.of(group), List.of(entry));
@@ -115,7 +115,7 @@ class JStyleRendererTest {
     }
 
     @Test
-    void uniqueLettersAreRenderedInBothMarkersAndBibliographyBeforeWriting() throws IOException, RenderException {
+    void uniqueLettersAreRenderedInBothMarkersAndBibliographyBeforeWriting() throws Exception {
         RenderRequest request = request(List.of(group("a", CitationType.AUTHORYEAR_PAR, "a"), group("b", CitationType.AUTHORYEAR_PAR, "b")),
                 List.of(entry("a", "Zebra"), entry("b", "Alpha")));
         RenderResult result = new JStyleRenderer(style(JStyleLoader.DEFAULT_AUTHORYEAR_STYLE_PATH)).render(request);
@@ -126,7 +126,7 @@ class JStyleRendererTest {
     }
 
     @Test
-    void numericUnresolvedCitationsUseSharedPlaceholderAndConsumeNoNumber() throws IOException, RenderException {
+    void numericUnresolvedCitationsUseSharedPlaceholderAndConsumeNoNumber() throws Exception {
         RenderRequest request = request(List.of(group("mixed", CitationType.AUTHORYEAR_PAR, "a", "missing"), group("b", CitationType.AUTHORYEAR_PAR, "b")),
                 List.of(entry("a", "A"), entry("b", "B")));
         RenderResult result = new JStyleRenderer(style(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH)).render(request);
@@ -135,7 +135,7 @@ class JStyleRendererTest {
     }
 
     @Test
-    void numericCapabilitiesSupportNarrativeWithoutChangingOtherFallbacksOrStoredTypes() throws IOException, RenderException {
+    void numericCapabilitiesSupportNarrativeWithoutChangingOtherFallbacksOrStoredTypes() throws Exception {
         List<CitationGroup> groups = Arrays.stream(CitationType.values())
                                            .map(type -> group(type.name(), type, "a"))
                                            .toList();
@@ -154,7 +154,7 @@ class JStyleRendererTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    void numericNarrativeUsesFirstAndRepeatedAuthorLimitsIncludingPriorNormalCitations(boolean priorNormal) throws IOException, RenderException {
+    void numericNarrativeUsesFirstAndRepeatedAuthorLimitsIncludingPriorNormalCitations(boolean priorNormal) throws Exception {
         Path path = tempDir.resolve("numeric-author-limits.jstyle");
         Files.writeString(path, """
                 NAME
@@ -194,7 +194,7 @@ class JStyleRendererTest {
     }
 
     @Test
-    void numericNarrativeMixedGroupsKeepAuthorsPageSlotsMarkupAndEscapedPlaceholders() throws IOException, RenderException {
+    void numericNarrativeMixedGroupsKeepAuthorsPageSlotsMarkupAndEscapedPlaceholders() throws Exception {
         CitationGroup narrative = group("mixed", CitationType.AUTHORYEAR_INTEXT, "a", "missing<b>&", "b");
         narrative.citationsInStorageOrder.getFirst().setPageInfo(Optional.of(OOText.fromString("<i>p. 5</i>")));
         narrative.citationsInStorageOrder.get(1).setPageInfo(Optional.of(OOText.fromString("p. 99")));
@@ -246,7 +246,7 @@ class JStyleRendererTest {
     }
 
     @Test
-    void keepsPageInfoOnEachCitationWhenLocalOrderChanges() throws IOException, RenderException {
+    void keepsPageInfoOnEachCitationWhenLocalOrderChanges() throws Exception {
         CitationGroup group = group("g", CitationType.AUTHORYEAR_PAR, "z", "a");
         group.citationsInStorageOrder.getFirst().setPageInfo(Optional.of(OOText.fromString("p. 5")));
         group.citationsInStorageOrder.getLast().setPageInfo(Optional.of(OOText.fromString("p. 7")));
@@ -260,7 +260,7 @@ class JStyleRendererTest {
     }
 
     @Test
-    void preparesPageReferenceMarkupAndSignalsPostWriteRefresh() throws IOException, RenderException {
+    void preparesPageReferenceMarkupAndSignalsPostWriteRefresh() throws Exception {
         RenderRequest original = request(List.of(group("g", CitationType.AUTHORYEAR_PAR, "a")), List.of(entry("a", "A")));
         RenderRequest request = new RenderRequest(original.groupsInDocumentOrder(), original.databases(),
                 new RenderOptions(BstCitationFormat.NUMERIC, true, "", "", "", true));
@@ -271,7 +271,7 @@ class JStyleRendererTest {
     }
 
     @Test
-    void doesNotRenderBibliographyOrRequestCrossrefRefreshWhenExcluded() throws IOException, RenderException {
+    void doesNotRenderBibliographyOrRequestCrossrefRefreshWhenExcluded() throws Exception {
         RenderRequest original = request(List.of(group("g", CitationType.AUTHORYEAR_PAR, "a")), List.of(entry("a", "A")));
         RenderRequest request = new RenderRequest(original.groupsInDocumentOrder(), original.databases(),
                 new RenderOptions(BstCitationFormat.NUMERIC, false, "", "", "", true));

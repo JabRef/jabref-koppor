@@ -21,7 +21,7 @@ class LegacyJStyleMarkTest {
 
     @ParameterizedTest
     @MethodSource("citationTypes")
-    void decodesEveryLegacyCitationTypeIgnoringRepetitionIndex(int code, CitationType citationType) throws JabRefMarkCodecException {
+    void decodesEveryLegacyCitationTypeIgnoringRepetitionIndex(int code, CitationType citationType) throws Exception {
         for (String repetitionIndex : List.of("", "0", "1", "42", "0007", "999999999999999999999999999999")) {
             String name = "JR_cite" + repetitionIndex + "_" + code + "_Smith2020,Doe2021";
 
@@ -44,7 +44,7 @@ class LegacyJStyleMarkTest {
 
     @ParameterizedTest
     @MethodSource("validKeys")
-    void preservesKeyTextOrderAndRepetitions(String name, List<String> expectedKeys) throws JabRefMarkCodecException {
+    void preservesKeyTextOrderAndRepetitions(String name, List<String> expectedKeys) throws Exception {
         assertTrue(LegacyJStyleMark.isLegacyMarkName(name));
         assertEquals(expectedKeys, LegacyJStyleMark.decode(name).citationKeys());
     }

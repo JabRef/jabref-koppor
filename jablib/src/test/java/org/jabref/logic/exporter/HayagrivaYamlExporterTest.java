@@ -1,11 +1,8 @@
 package org.jabref.logic.exporter;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.util.StandardFileType;
@@ -356,7 +353,7 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsPerformanceEntryWithPerformanceType(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsPerformanceEntryWithPerformanceType(@TempDir Path tempFile) throws Exception {
         BibEntry entry = new BibEntry(BiblatexNonStandardEntryType.Performance)
                 .withCitationKey("Example2024Performance")
                 .withField(StandardField.TITLE, "Example Performance Title")
@@ -383,7 +380,7 @@ class HayagrivaYamlExporterTest {
     }
 
     @Test
-    final void exportsUnknownEntryTypeAsMisc(@TempDir Path tempFile) throws IOException, SaveException, ParserConfigurationException, TransformerException {
+    final void exportsUnknownEntryTypeAsMisc(@TempDir Path tempFile) throws Exception {
         BibEntry entry = new BibEntry(new UnknownEntryType("mycustomtype"))
                 .withCitationKey("test")
                 .withField(StandardField.TITLE, "Test Title");

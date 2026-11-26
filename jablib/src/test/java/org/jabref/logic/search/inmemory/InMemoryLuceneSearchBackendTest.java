@@ -78,7 +78,7 @@ class InMemoryLuceneSearchBackendTest {
     // [utest->req~jabgui.search.fulltext.case-sensitive~1]
     @ParameterizedTest
     @MethodSource
-    void searchesCaseSensitively(Set<String> expectedCitationKeys, String searchExpression) throws IOException, URISyntaxException {
+    void searchesCaseSensitively(Set<String> expectedCitationKeys, String searchExpression) throws Exception {
         assertEquals(expectedCitationKeys, search(searchExpression, EnumSet.of(SearchFlags.FULLTEXT)));
     }
 

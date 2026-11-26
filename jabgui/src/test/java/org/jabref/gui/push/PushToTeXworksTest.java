@@ -1,6 +1,5 @@
 package org.jabref.gui.push;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -75,7 +74,7 @@ class PushToTeXworksTest {
 
     /// Check for the actual command and path with path is run.
     @Test
-    void pushEntries() throws IOException {
+    void pushEntries() throws Exception {
         ProcessBuilder processBuilder = mock(ProcessBuilder.class);
 
         String testKey = "TestKey";

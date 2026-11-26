@@ -68,7 +68,7 @@ class CiteDriveOAuthServiceTest {
     }
 
     @Test
-    void networkErrorOnRefreshKeepsStoredLogin() throws IOException {
+    void networkErrorOnRefreshKeepsStoredLogin() throws Exception {
         RefreshToken refreshToken = new RefreshToken("stored");
         preferences.setRefreshToken(refreshToken);
         when(sender.send(any())).thenThrow(new SocketTimeoutException("Token endpoint timed out"));
@@ -107,7 +107,7 @@ class CiteDriveOAuthServiceTest {
 
     @ParameterizedTest
     @CsvSource({"400,invalid_client", "429,slow_down", "503,temporarily_unavailable", "503,invalid_grant"})
-    void retryableOrConfigurationErrorKeepsStoredLogin(int status, String error) throws IOException, ParseException {
+    void retryableOrConfigurationErrorKeepsStoredLogin(int status, String error) throws Exception {
         // [utest->req~citedrive.refresh.failure~1]
         RefreshToken refreshToken = new RefreshToken("stored");
         preferences.setRefreshToken(refreshToken);

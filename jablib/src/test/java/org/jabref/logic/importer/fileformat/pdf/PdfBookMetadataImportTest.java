@@ -24,41 +24,41 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class PdfBookMetadataImportTest {
+class PdfBookMetadataImportTest {
 
     @Test
-    void extractsIsbnFromFrontBibliographicPage() throws IOException, URISyntaxException {
+    void extractsIsbnFromFrontBibliographicPage() throws Exception {
         assertExtraction("front-imprint.pdf", 2, List.of("9789660800007"));
     }
 
     @Test
-    void extractsIsbnFromBackBibliographicPage() throws IOException, URISyntaxException {
+    void extractsIsbnFromBackBibliographicPage() throws Exception {
         assertExtraction("back-imprint.pdf", 9, List.of("9789660800007"));
     }
 
     @Test
-    void returnsNoIsbnWhenBookHasNoIsbn() throws IOException, URISyntaxException {
+    void returnsNoIsbnWhenBookHasNoIsbn() throws Exception {
         assertExtraction("imprint-without-isbn.pdf", 2, List.of());
     }
 
     @Test
-    void rejectsInvalidIsbn() throws IOException, URISyntaxException {
+    void rejectsInvalidIsbn() throws Exception {
         assertExtraction("imprint-invalid-isbn.pdf", 2, List.of());
     }
 
     @Test
-    void ignoresIsbnOutsideBibliographicPage() throws IOException, URISyntaxException {
+    void ignoresIsbnOutsideBibliographicPage() throws Exception {
         assertExtraction("imprint-with-distractor.pdf", 2, List.of("9789660800007"));
     }
 
     @Test
-    void extractsMultipleIsbnsFromBibliographicPage() throws IOException, URISyntaxException {
+    void extractsMultipleIsbnsFromBibliographicPage() throws Exception {
         assertExtraction("imprint-multiple-isbns.pdf", 2,
                 List.of("9780596520687", "9780134685991", "0596520689"));
     }
 
     @Test
-    void findsNoBibliographicPageWhenOnlyOrdinaryTextContainsIsbn() throws IOException, URISyntaxException {
+    void findsNoBibliographicPageWhenOnlyOrdinaryTextContainsIsbn() throws Exception {
         try (PDDocument document = loadFixture("ordinary-text-isbn.pdf")) {
             List<String> candidatePages = PdfPageScanner.scanPages(document);
 
@@ -67,17 +67,17 @@ public class PdfBookMetadataImportTest {
     }
 
     @Test
-    void importsBookFromFrontBibliographicPage() throws URISyntaxException {
+    void importsBookFromFrontBibliographicPage() throws Exception {
         assertImportedBook("front-imprint.pdf", "9789660800007");
     }
 
     @Test
-    void importsBookFromBackBibliographicPage() throws URISyntaxException {
+    void importsBookFromBackBibliographicPage() throws Exception {
         assertImportedBook("back-imprint.pdf", "9789660800007");
     }
 
     @Test
-    void importsBookUsingBibliographicIsbnInsteadOfDistractor() throws URISyntaxException {
+    void importsBookUsingBibliographicIsbnInsteadOfDistractor() throws Exception {
         assertImportedBook("imprint-with-distractor.pdf", "9789660800007");
     }
 
@@ -86,12 +86,12 @@ public class PdfBookMetadataImportTest {
             "imprint-without-isbn.pdf",
             "imprint-invalid-isbn.pdf"
     })
-    void fallsBackToPaperImportWhenBibliographicPageHasNoValidIsbn(String fileName) throws URISyntaxException {
+    void fallsBackToPaperImportWhenBibliographicPageHasNoValidIsbn(String fileName) throws Exception {
         assertImportedPaper(fileName);
     }
 
     @Test
-    void returnsNoEntriesWhenBibliographicPageHasMultipleValidIsbns() throws URISyntaxException {
+    void returnsNoEntriesWhenBibliographicPageHasMultipleValidIsbns() throws Exception {
         ParserResult result = importFixture("imprint-multiple-isbns.pdf");
 
         assertEquals(List.of(), result.getDatabase().getEntries());
@@ -100,7 +100,7 @@ public class PdfBookMetadataImportTest {
     }
 
     @Test
-    void fallsBackToPaperImportWhenNoBibliographicPageIsDetected() throws URISyntaxException {
+    void fallsBackToPaperImportWhenNoBibliographicPageIsDetected() throws Exception {
         assertImportedPaper("ordinary-text-isbn.pdf");
     }
 

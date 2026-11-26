@@ -86,7 +86,7 @@ class CustomApiKeyBundleTest {
     }
 
     @Test
-    void fourteenKeysAreLoadedWithOnePasswordRead() throws PasswordAccessException {
+    void fourteenKeysAreLoadedWithOnePasswordRead() throws Exception {
         // [utest->req~keyring.api-key-bundle~1]
         List<String> names = IntStream.range(0, 14).mapToObj(index -> "Fetcher" + index).toList();
         configure(names);
@@ -127,7 +127,7 @@ class CustomApiKeyBundleTest {
     }
 
     @Test
-    void migratesSeparateKeysAndUsesBundleOnNextLoad() throws PasswordAccessException {
+    void migratesSeparateKeysAndUsesBundleOnNextLoad() throws Exception {
         configure(List.of("FetcherA", "FetcherB"));
         secrets.put(List.of("org.jabref.apikeys", "FetcherA"), "KeyA");
         secrets.put(List.of("org.jabref.apikeys", "FetcherB"), "KeyB");
@@ -144,7 +144,7 @@ class CustomApiKeyBundleTest {
     }
 
     @Test
-    void failedBundleWriteKeepsIndividualKeysForRetry() throws PasswordAccessException {
+    void failedBundleWriteKeepsIndividualKeysForRetry() throws Exception {
         configure(List.of("Fetcher"));
         secrets.put(List.of("org.jabref.apikeys", "Fetcher"), "Key");
         doThrow(new PasswordAccessException("Denied")).when(keyring)
@@ -157,7 +157,7 @@ class CustomApiKeyBundleTest {
 
     @ParameterizedTest
     @EnumSource(names = {"OSX_KEYCHAIN", "GNOME_KEYRING", "WINDOWS_CREDENTIAL_STORE"})
-    void deniedIndividualReadDefersMigrationUntilTheNextLoad(KeyringStorageType backend) throws PasswordAccessException {
+    void deniedIndividualReadDefersMigrationUntilTheNextLoad(KeyringStorageType backend) throws Exception {
         configure(List.of("Readable", "Denied", "Missing"));
         when(keyring.getKeyringStorageType()).thenReturn(backend);
         List<String> readableSlot = List.of("org.jabref.apikeys", "Readable");
@@ -183,7 +183,7 @@ class CustomApiKeyBundleTest {
     }
 
     @Test
-    void ambiguousKWalletReadPreservesIndividualKeysAndLeavesMigrationPending() throws PasswordAccessException {
+    void ambiguousKWalletReadPreservesIndividualKeysAndLeavesMigrationPending() throws Exception {
         configure(List.of("Fetcher"));
         List<String> individualSlot = List.of("org.jabref.apikeys", "Fetcher");
         secrets.put(individualSlot, "Key");
@@ -196,7 +196,7 @@ class CustomApiKeyBundleTest {
     }
 
     @Test
-    void deniedBundleReadDoesNotFallBackToIndividualEntries() throws PasswordAccessException {
+    void deniedBundleReadDoesNotFallBackToIndividualEntries() throws Exception {
         configure(List.of("Fetcher"));
         preferences.putStringList("fetcherCustomKeyBundleNames", List.of("Fetcher"));
         doThrow(new PasswordAccessException("Denied")).when(keyring).getPassword("org.jabref.apikeys.bundle", "keys");
@@ -207,7 +207,7 @@ class CustomApiKeyBundleTest {
     }
 
     @Test
-    void malformedEstablishedBundleDoesNotOverwriteSecretsOrFallBack() throws PasswordAccessException {
+    void malformedEstablishedBundleDoesNotOverwriteSecretsOrFallBack() throws Exception {
         configure(List.of("Fetcher"));
         preferences.putStringList("fetcherCustomKeyBundleNames", List.of("Fetcher"));
         secrets.put(List.of("org.jabref.apikeys.bundle", "keys"), "{broken");
@@ -231,7 +231,7 @@ class CustomApiKeyBundleTest {
     }
 
     @Test
-    void switchingToSessionOnlyClearsBundleAndIndividualKeysWithoutBundleMetadata() throws JabRefException {
+    void switchingToSessionOnlyClearsBundleAndIndividualKeysWithoutBundleMetadata() throws Exception {
         configure(List.of("Fetcher"));
         secrets.put(List.of("org.jabref.apikeys.bundle", "keys"), "{\"Fetcher\":\"Key\"}");
         secrets.put(List.of("org.jabref.apikeys", "Fetcher"), "Key");
@@ -257,7 +257,7 @@ class CustomApiKeyBundleTest {
     }
 
     @Test
-    void preparedSavePublishesSettingsOnlyAfterTheKeyringWrite() throws JabRefException, PasswordAccessException {
+    void preparedSavePublishesSettingsOnlyAfterTheKeyringWrite() throws Exception {
         Set<FetcherApiKey> savedKeys = Set.of(new FetcherApiKey("Previous", true, "saved-key"));
         preferences.prepareSavedFetcherApiKeys(savedKeys).writeKeyring().apply();
         clearInvocations(keyring);
@@ -277,7 +277,7 @@ class CustomApiKeyBundleTest {
     }
 
     @Test
-    void failedSaveKeepsPreviousKeysAndPreferences() throws JabRefException, PasswordAccessException {
+    void failedSaveKeepsPreviousKeysAndPreferences() throws Exception {
         Set<FetcherApiKey> savedKeys = Set.of(new FetcherApiKey("Previous", true, "saved-key"));
         preferences.prepareSavedFetcherApiKeys(savedKeys).writeKeyring().apply();
         clearInvocations(keyring);
@@ -296,7 +296,7 @@ class CustomApiKeyBundleTest {
     }
 
     @Test
-    void stalePreferencesCannotOverwriteKeysAddedByAnotherInstance() throws JabRefException {
+    void stalePreferencesCannotOverwriteKeysAddedByAnotherInstance() throws Exception {
         FetcherApiKey firstKey = new FetcherApiKey("First", true, "first-key");
         preferences.prepareSavedFetcherApiKeys(Set.of(firstKey)).writeKeyring().apply();
         JabRefCliPreferences otherPreferences = new JabRefCliPreferences(node);
@@ -312,7 +312,7 @@ class CustomApiKeyBundleTest {
     }
 
     @Test
-    void importEnablingPersistenceLoadsSavedKeysWithImportedMetadata(@TempDir Path tempDir) throws JabRefException, PasswordAccessException {
+    void importEnablingPersistenceLoadsSavedKeysWithImportedMetadata(@TempDir Path tempDir) throws Exception {
         // [utest->req~keyring.api-key-import~1]
         Path exported = tempDir.resolve("preferences.xml");
         configure(List.of("Imported"));
@@ -339,7 +339,7 @@ class CustomApiKeyBundleTest {
     }
 
     @Test
-    void importDisablingPersistenceClearsSavedKeysAndKeepsImportedMetadata(@TempDir Path tempDir) throws JabRefException, PasswordAccessException {
+    void importDisablingPersistenceClearsSavedKeysAndKeepsImportedMetadata(@TempDir Path tempDir) throws Exception {
         // [utest->req~keyring.api-key-import~1]
         Path exported = tempDir.resolve("preferences.xml");
         configure(List.of("Imported"));

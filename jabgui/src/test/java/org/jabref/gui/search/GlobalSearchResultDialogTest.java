@@ -1,6 +1,5 @@
 package org.jabref.gui.search;
 
-import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -134,7 +133,7 @@ class GlobalSearchResultDialogTest {
     }
 
     @Test
-    void copySelectedEntriesToClipboard() throws IOException {
+    void copySelectedEntriesToClipboard() throws Exception {
         BibDatabaseContext context = new BibDatabaseContext();
         registerSearchContext(context);
         BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "Alice");
@@ -164,7 +163,7 @@ class GlobalSearchResultDialogTest {
     }
 
     @Test
-    void copiesMultipleEntriesFromSameLibraryWithoutWarning() throws IOException {
+    void copiesMultipleEntriesFromSameLibraryWithoutWarning() throws Exception {
         BibDatabaseContext context = new BibDatabaseContext();
         registerSearchContext(context);
         BibEntry first = new BibEntry().withField(StandardField.AUTHOR, "Alice");
@@ -188,7 +187,7 @@ class GlobalSearchResultDialogTest {
     }
 
     @Test
-    void copyDoesNothingWhenNoSelection() throws IOException {
+    void copyDoesNothingWhenNoSelection() throws Exception {
         BibDatabaseContext context = new BibDatabaseContext();
         registerSearchContext(context);
         BibEntry entry = new BibEntry().withField(StandardField.AUTHOR, "Alice");
@@ -218,7 +217,7 @@ class GlobalSearchResultDialogTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    void copyingAcrossLibrariesRequiresConfirmation(boolean confirm) throws IOException {
+    void copyingAcrossLibrariesRequiresConfirmation(boolean confirm) throws Exception {
         BibDatabaseContext context1 = new BibDatabaseContext();
         registerSearchContext(context1);
         BibEntry entry1 = new BibEntry().withField(StandardField.AUTHOR, "Alice");

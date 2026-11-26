@@ -2,7 +2,6 @@ package org.jabref.logic.preferences;
 
 import java.util.Optional;
 import java.util.UUID;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import org.jabref.logic.JabRefException;
@@ -34,7 +33,7 @@ import static org.mockito.Mockito.when;
 class CiteDriveTokenStorageTest {
 
     @Test
-    void preparedSavePublishesCiteDrivePersistenceAfterTheWrite() throws BackingStoreException, JabRefException, PasswordAccessException {
+    void preparedSavePublishesCiteDrivePersistenceAfterTheWrite() throws Exception {
         Preferences node = Preferences.userRoot().node("/org/jabref-citedrive-test-" + UUID.randomUUID());
         try (MockedStatic<Keyring> factory = mockStatic(Keyring.class)) {
             Keyring keyring = mock(Keyring.class);
@@ -59,7 +58,7 @@ class CiteDriveTokenStorageTest {
     }
 
     @Test
-    void refreshingCiteDriveTokenBeforeCommitRetriesTheKeyringWrite() throws BackingStoreException, JabRefException, PasswordAccessException {
+    void refreshingCiteDriveTokenBeforeCommitRetriesTheKeyringWrite() throws Exception {
         Preferences node = Preferences.userRoot().node("/org/jabref-citedrive-test-" + UUID.randomUUID());
         try (MockedStatic<Keyring> factory = mockStatic(Keyring.class)) {
             Keyring keyring = mock(Keyring.class);
@@ -86,7 +85,7 @@ class CiteDriveTokenStorageTest {
     }
 
     @Test
-    void deniedDeletionOfUnreadableCiteDriveTokenLeavesPersistenceEnabled() throws BackingStoreException, PasswordAccessException {
+    void deniedDeletionOfUnreadableCiteDriveTokenLeavesPersistenceEnabled() throws Exception {
         Preferences node = Preferences.userRoot().node("/org/jabref-citedrive-test-" + UUID.randomUUID());
         try (MockedStatic<Keyring> factory = mockStatic(Keyring.class)) {
             Keyring keyring = mock(Keyring.class);
@@ -107,7 +106,7 @@ class CiteDriveTokenStorageTest {
     }
 
     @Test
-    void changingCiteDriveServerClearsTheOldTokenBeforePublishingTheNewServer() throws BackingStoreException, JabRefException, PasswordAccessException {
+    void changingCiteDriveServerClearsTheOldTokenBeforePublishingTheNewServer() throws Exception {
         Preferences node = Preferences.userRoot().node("/org/jabref-citedrive-test-" + UUID.randomUUID());
         try (MockedStatic<Keyring> factory = mockStatic(Keyring.class)) {
             Keyring keyring = mock(Keyring.class);

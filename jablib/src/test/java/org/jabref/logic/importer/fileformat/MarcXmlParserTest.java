@@ -51,7 +51,7 @@ class MarcXmlParserTest {
     }
 
     @Test
-    void importsDoiFromDnbMarcXml() throws IOException, ParseException {
+    void importsDoiFromDnbMarcXml() throws Exception {
         try (InputStream inputStream = MarcXmlParserTest.class.getResourceAsStream("DnbMarcXmlDoiRecord.xml")) {
             List<BibEntry> entries = new MarcXmlParser().parseEntries(inputStream);
 
@@ -62,7 +62,7 @@ class MarcXmlParserTest {
     }
 
     @Test
-    void prefersIsbn13RegardlessOfHyphenatedIsbnOrder() throws IOException, ParseException {
+    void prefersIsbn13RegardlessOfHyphenatedIsbnOrder() throws Exception {
         try (InputStream inputStream = MarcXmlParserTest.class.getResourceAsStream("DnbMarcXmlIsbnOrderingRecord.xml")) {
             List<BibEntry> entries = new MarcXmlParser().parseEntries(inputStream);
 
@@ -73,7 +73,7 @@ class MarcXmlParserTest {
     }
 
     @Test
-    void importsParentJournalFromDnbMarcXml() throws IOException, ParseException {
+    void importsParentJournalFromDnbMarcXml() throws Exception {
         try (InputStream inputStream = MarcXmlParserTest.class.getResourceAsStream("DnbMarcXmlParentJournalRecord.xml")) {
             List<BibEntry> entries = new MarcXmlParser().parseEntries(inputStream);
 
@@ -84,7 +84,7 @@ class MarcXmlParserTest {
     }
 
     @Test
-    void doesNotChangeMonographicPartToArticle() throws IOException, ParseException {
+    void doesNotChangeMonographicPartToArticle() throws Exception {
         try (InputStream inputStream = MarcXmlParserTest.class.getResourceAsStream("DnbMarcXmlMonographicPartRecord.xml")) {
             List<BibEntry> entries = new MarcXmlParser().parseEntries(inputStream);
 
@@ -95,7 +95,7 @@ class MarcXmlParserTest {
     }
 
     @Test
-    void ignoresDnbContentDescriptionUrl() throws IOException, ParseException {
+    void ignoresDnbContentDescriptionUrl() throws Exception {
         try (InputStream inputStream = MarcXmlParserTest.class.getResourceAsStream("DnbMarcXmlContentDescriptionRecord.xml")) {
             List<BibEntry> entries = new MarcXmlParser().parseEntries(inputStream);
 
@@ -106,7 +106,7 @@ class MarcXmlParserTest {
     }
 
     @Test
-    void importsDnbFulltextUrl() throws IOException, ParseException {
+    void importsDnbFulltextUrl() throws Exception {
         try (InputStream inputStream = MarcXmlParserTest.class.getResourceAsStream("DnbMarcXmlFulltextRecord.xml")) {
             List<BibEntry> entries = new MarcXmlParser().parseEntries(inputStream);
 

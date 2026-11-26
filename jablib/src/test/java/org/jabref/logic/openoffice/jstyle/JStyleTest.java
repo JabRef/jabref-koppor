@@ -1,6 +1,5 @@
 package org.jabref.logic.openoffice.jstyle;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,7 +71,7 @@ class JStyleTest {
     }
 
     @Test
-    void citationKeyModeOverridesEffectiveNumberingWithoutChangingRawPreference() throws IOException {
+    void citationKeyModeOverridesEffectiveNumberingWithoutChangingRawPreference() throws Exception {
         JStyle style = new JStyle(JStyleLoader.DEFAULT_NUMERICAL_STYLE_PATH, layoutFormatterPreferences, abbreviationRepository);
         style.getCitProperties().put("BibTeXKeyCitations", true);
 

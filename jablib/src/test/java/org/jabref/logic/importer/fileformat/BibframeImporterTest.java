@@ -1,6 +1,5 @@
 package org.jabref.logic.importer.fileformat;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -67,7 +66,7 @@ class BibframeImporterTest {
     }
 
     @Test
-    void importsTwoLinkedDescriptionsWithAlternatePrefixes() throws IOException {
+    void importsTwoLinkedDescriptionsWithAlternatePrefixes() throws Exception {
         String xml = """
                 <r:RDF xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
                        xmlns:b="http://id.loc.gov/ontologies/bibframe/">
@@ -100,7 +99,7 @@ class BibframeImporterTest {
     }
 
     @Test
-    void importsLocStyleExtentSupplementaryUrlAndSecondaryFile() throws IOException {
+    void importsLocStyleExtentSupplementaryUrlAndSecondaryFile() throws Exception {
         String xml = """
                 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
                          xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -137,7 +136,7 @@ class BibframeImporterTest {
     }
 
     @Test
-    void rejectsMalformedXmlAndExternalEntities() throws IOException {
+    void rejectsMalformedXmlAndExternalEntities() throws Exception {
         assertTrue(importer.importDatabase("<rdf:RDF>").isInvalid());
         String xml = """
                 <!DOCTYPE rdf:RDF [<!ENTITY external SYSTEM "file:///not-accessed">]>
@@ -155,7 +154,7 @@ class BibframeImporterTest {
     }
 
     @Test
-    void doesNotRecognizeOtherRdf() throws IOException {
+    void doesNotRecognizeOtherRdf() throws Exception {
         String bibo = """
                 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
                          xmlns:bibo="http://purl.org/ontology/bibo/">

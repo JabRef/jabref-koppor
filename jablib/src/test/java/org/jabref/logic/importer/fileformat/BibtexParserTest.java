@@ -1,6 +1,5 @@
 package org.jabref.logic.importer.fileformat;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.file.Path;
@@ -233,7 +232,7 @@ class BibtexParserTest {
     // [utest->req~import.bibtex.key-leading-whitespace~1]
     @ParameterizedTest
     @ValueSource(strings = {"", " \t", "\n", "\r", "\r\n", "\n\n", "\r\n\r\n"})
-    void parseRecognizesCitationKeyAfterLeadingWhitespace(String whitespace) throws IOException {
+    void parseRecognizesCitationKeyAfterLeadingWhitespace(String whitespace) throws Exception {
         ParserResult result = parser.parse(Reader.of("@inproceedings{" + whitespace + "somebody2023,\ntitle={...}\n}"));
         BibEntry expected = new BibEntry(StandardEntryType.InProceedings)
                 .withCitationKey("somebody2023")
@@ -246,7 +245,7 @@ class BibtexParserTest {
     // [utest->req~import.bibtex.missing-key-recovery~1]
     @ParameterizedTest
     @MethodSource
-    void parsePreservesFirstFieldWhenCitationKeyAndCommaAreMissing(String entry, String warning) throws IOException {
+    void parsePreservesFirstFieldWhenCitationKeyAndCommaAreMissing(String entry, String warning) throws Exception {
         ParserResult result = parser.parse(Reader.of(entry));
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Ed von Test")
@@ -268,7 +267,7 @@ class BibtexParserTest {
     // [utest->req~import.bibtex.missing-key-recovery~1]
     @ParameterizedTest
     @ValueSource(strings = {"\n", "\r\n"})
-    void parseReportsLineForEachMissingCitationKey(String newline) throws IOException {
+    void parseReportsLineForEachMissingCitationKey(String newline) throws Exception {
         String firstEntry = "@article{" + newline + "author" + newline + "={Ed von Test}}";
         String secondEntry = "@article{" + newline + "title={Test}}";
         ParserResult result = parser.parse(Reader.of(firstEntry + newline + secondEntry));
@@ -281,7 +280,7 @@ class BibtexParserTest {
 
     // [utest->req~import.bibtex.missing-key-recovery~1]
     @Test
-    void parsePreservesFirstFieldWithWhitespaceAtLookaheadLimit() throws IOException {
+    void parsePreservesFirstFieldWithWhitespaceAtLookaheadLimit() throws Exception {
         ParserResult result = parser.parse(Reader.of("@article{\nauthor" + " ".repeat(1024) + "={Ed von Test},title={Test}}"));
         BibEntry expected = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.AUTHOR, "Ed von Test")
@@ -294,7 +293,7 @@ class BibtexParserTest {
     // [utest->req~import.bibtex.missing-key-recovery~1]
     @ParameterizedTest
     @ValueSource(strings = {" ", "\t", "\r\n", "\n \t"})
-    void parsePreservesFirstFieldWithWhitespaceBeyondLookaheadLimit(String whitespace) throws IOException {
+    void parsePreservesFirstFieldWithWhitespaceBeyondLookaheadLimit(String whitespace) throws Exception {
         String entry = "@article{\nauthor" + whitespace.repeat(1025) + "={Ed von Test},title={Test}}";
         String followingEntry = "@article{next,title={Next entry}}";
         ParserResult result = parser.parse(Reader.of(entry + followingEntry));
@@ -314,7 +313,7 @@ class BibtexParserTest {
     // [utest->req~import.bibtex.missing-key-recovery~1]
     @ParameterizedTest
     @CsvSource({"2047, 0", "2048, 0", "8192, 0", "2048, 4096"})
-    void parsePreservesLongFirstFieldWhenCitationKeyAndCommaAreMissing(int fieldNameLength, int whitespaceLength) throws IOException {
+    void parsePreservesLongFirstFieldWhenCitationKeyAndCommaAreMissing(int fieldNameLength, int whitespaceLength) throws Exception {
         String fieldName = "x".repeat(fieldNameLength);
         String entry = "@article{\n" + fieldName + " ".repeat(whitespaceLength) + "={Value},title={Test}}";
         ParserResult result = parser.parse(Reader.of(entry));
@@ -335,7 +334,7 @@ class BibtexParserTest {
             "@article{\nauthor={Ed von Test},title={Test}}",
             "@article{,\nauthor={Ed von Test},title={Test}}"
     })
-    void parseUsesWholeEntryRangeWhenCitationKeyIsMissing(String entry) throws IOException {
+    void parseUsesWholeEntryRangeWhenCitationKeyIsMissing(String entry) throws Exception {
         ParserResult result = parser.parse(Reader.of(entry));
         BibEntry parsedEntry = result.getDatabase().getEntries().getFirst();
 
@@ -348,7 +347,7 @@ class BibtexParserTest {
     // [utest->req~import.bibtex.missing-key-recovery~1]
     @ParameterizedTest
     @ValueSource(strings = {"@article{\n}", "@article{,\n}", "@article(\n)", "@article(\r\n)", "@article(\n\n)", "@article()"})
-    void parseUsesWholeEntryRangeWhenCitationKeyAndFieldsAreMissing(String entry) throws IOException {
+    void parseUsesWholeEntryRangeWhenCitationKeyAndFieldsAreMissing(String entry) throws Exception {
         ParserResult result = parser.parse(Reader.of(entry));
 
         assertEquals(List.of(new BibEntry(StandardEntryType.Article)), result.getDatabase().getEntries());
@@ -361,7 +360,7 @@ class BibtexParserTest {
 
     // [utest->req~import.bibtex.key-leading-whitespace~1]
     @Test
-    void parseStoresCitationKeyRangeAfterLeadingWhitespace() throws IOException {
+    void parseStoresCitationKeyRangeAfterLeadingWhitespace() throws Exception {
         ParserResult result = parser.parse(Reader.of("@article{\nkey,title={Test}}"));
         BibEntry parsedEntry = result.getDatabase().getEntries().getFirst();
 
@@ -403,7 +402,7 @@ class BibtexParserTest {
     // [utest->req~import.bibtex.missing-key-recovery~1]
     @ParameterizedTest
     @ValueSource(strings = {"", "key", "Smith(2000)", "Smith((2000))"})
-    void parseRecognizesParenthesizedEntryBeforeFollowingEntry(String key) throws IOException {
+    void parseRecognizesParenthesizedEntryBeforeFollowingEntry(String key) throws Exception {
         ParserResult result = parser.parse(Reader.of("@article(\n" + key + ")\n@article{following,title={Control}}"));
 
         assertEquals(List.of(
@@ -416,7 +415,7 @@ class BibtexParserTest {
     // [utest->req~import.bibtex.citation-key-parentheses~1]
     @ParameterizedTest
     @ValueSource(strings = {"key)", "key(with)parentheses"})
-    void parsePreservesParenthesesInBracedCitationKeys(String key) throws IOException {
+    void parsePreservesParenthesesInBracedCitationKeys(String key) throws Exception {
         ParserResult result = parser.parse(Reader.of("@article{" + key + ",title={Test}}"));
 
         assertEquals(List.of(new BibEntry(StandardEntryType.Article).withCitationKey(key).withField(StandardField.TITLE, "Test")),
@@ -427,7 +426,7 @@ class BibtexParserTest {
     // [utest->req~import.bibtex.citation-key-parentheses~1]
     @ParameterizedTest
     @ValueSource(strings = {"Smith(2000)", "Smith((2000))"})
-    void parsePreservesParenthesesInParenthesizedCitationKeys(String key) throws IOException {
+    void parsePreservesParenthesesInParenthesizedCitationKeys(String key) throws Exception {
         String entry = "@article(" + key + ", title={x})";
         ParserResult result = parser.parse(Reader.of(entry));
 
@@ -439,7 +438,7 @@ class BibtexParserTest {
 
     // [utest->req~import.bibtex.citation-key-parentheses~1]
     @Test
-    void parsePreservesFollowingEntryAfterParenthesizedCitationKey() throws IOException {
+    void parsePreservesFollowingEntryAfterParenthesizedCitationKey() throws Exception {
         String entry = "@article(Smith(2000), title={x})\n";
         String followingEntry = "@article{following,title={Control}}";
         ParserResult result = parser.parse(Reader.of(entry + followingEntry));
@@ -457,7 +456,7 @@ class BibtexParserTest {
     // [utest->req~import.bibtex.key-missing-comma~1]
     @ParameterizedTest
     @MethodSource
-    void parseRecognizesCitationKeyWhenCommaIsMissing(String entry, int keyLine) throws IOException {
+    void parseRecognizesCitationKeyWhenCommaIsMissing(String entry, int keyLine) throws Exception {
         ParserResult result = parser.parse(Reader.of(entry));
 
         BibEntry expected = new BibEntry(StandardEntryType.Article)
@@ -482,7 +481,7 @@ class BibtexParserTest {
 
     // [utest->req~import.bibtex.key-missing-comma~1]
     @Test
-    void parseKeepsFollowingEntryIntactAfterMissingComma() throws IOException {
+    void parseKeepsFollowingEntryIntactAfterMissingComma() throws Exception {
         String entry = "@article{key title = {x}}\n";
         String followingEntry = "@article{next, title = {y}}";
 
@@ -496,7 +495,7 @@ class BibtexParserTest {
     // [utest->req~import.bibtex.key-missing-comma~1]
     @ParameterizedTest
     @MethodSource
-    void parseEndsCitationKeyRangeBeforeSeparatorWhenCommaIsMissing(String entry) throws IOException {
+    void parseEndsCitationKeyRangeBeforeSeparatorWhenCommaIsMissing(String entry) throws Exception {
         ParserResult result = parser.parse(Reader.of(entry));
 
         BibEntry parsedEntry = result.getDatabase().getEntries().getFirst();
@@ -813,7 +812,7 @@ class BibtexParserTest {
     }
 
     @Test
-    void parseIgnoresAndWarnsAboutEntryWithUnclosedFieldBraceFollowedByFurtherFields() throws IOException {
+    void parseIgnoresAndWarnsAboutEntryWithUnclosedFieldBraceFollowedByFurtherFields() throws Exception {
         ParserResult result = parser.parse(Reader.of("""
                 @Article{Centeno2022,
                 author={Centeno, Eduarda Gervini Zampieri and Moreni, Giulia and Vriend, Chris and Douw, Linda and Santos,
@@ -1627,7 +1626,7 @@ class BibtexParserTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"", "\n", "\r\n"})
-    void parsePreservesInputReadForNewlineDetection(String newline) throws IOException {
+    void parsePreservesInputReadForNewlineDetection(String newline) throws Exception {
         String entry = "@article{key," + newline + "title={Test}}";
         ParserResult result = parser.parse(Reader.of(entry));
 
@@ -1722,7 +1721,7 @@ class BibtexParserTest {
     /// A file must not yield two definitions of one entry type: only one of them can be stored, so the other one
     /// would be offered at every start - see <https://github.com/JabRef/jabref/issues/9930>.
     @Test
-    void lastOfTwoLegacyDefinitionsOfOneEntryTypeWins() throws IOException {
+    void lastOfTwoLegacyDefinitionsOfOneEntryTypeWins() throws Exception {
         ParserResult result = parser.parse(
                 Reader.of("@comment{jabref-entrytype: Customtype: req[author] opt[url]}" + OS.NEWLINE
                         + "@comment{jabref-entrytype: Customtype: req[title] opt[doi]}"));

@@ -47,7 +47,7 @@ class CitationFormatConverterTest {
     }
 
     @Test
-    void preparedItemIdsAvoidNativeIdsWithoutInterpretingForeignOpaqueIdentifiers() throws RenderException {
+    void preparedItemIdsAvoidNativeIdsWithoutInterpretingForeignOpaqueIdentifiers() throws Exception {
         Set<String> used = new HashSet<>(Set.of("1", "3", "opaque-id", "123456789012345678901234567890"));
         assertEquals(4, CitationFormatConverter.reserveItemIds(used, 1, 2));
         assertEquals(Set.of("1", "3", "4", "5", "opaque-id", "123456789012345678901234567890"), used);
@@ -104,14 +104,14 @@ class CitationFormatConverterTest {
     }
 
     @Test
-    void leadingZeroNativeIdsReserveTheirBoundedNumericValuesWithoutChangingTheOriginals() throws RenderException {
+    void leadingZeroNativeIdsReserveTheirBoundedNumericValuesWithoutChangingTheOriginals() throws Exception {
         Set<String> used = new HashSet<>(Set.of("0001", "0000000002", "2147483648", "opaque-id"));
         assertEquals(3, CitationFormatConverter.reserveItemIds(used, 1, 2));
         assertEquals(Set.of("0001", "0000000002", "2147483648", "opaque-id", "3", "4"), used);
     }
 
     @Test
-    void allocationCanUseTheLastBoundedIdButNeverWraps() throws RenderException {
+    void allocationCanUseTheLastBoundedIdButNeverWraps() throws Exception {
         Set<String> used = new HashSet<>();
         assertEquals(Integer.MAX_VALUE - 1, CitationFormatConverter.reserveItemIds(used, Integer.MAX_VALUE - 1, 2));
         assertEquals(Set.of("2147483646", "2147483647"), used);

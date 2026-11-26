@@ -1,6 +1,5 @@
 package org.jabref.logic.openoffice.engine;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -34,7 +33,7 @@ import static org.mockito.Mockito.mock;
 class RendererFactoryTest {
 
     @Test
-    void selectsConcreteRenderersWithExplicitDependencies(@TempDir Path temporaryDirectory) throws IOException, RenderException {
+    void selectsConcreteRenderersWithExplicitDependencies(@TempDir Path temporaryDirectory) throws Exception {
         RendererFactory factory = new RendererFactory(new BibEntryTypesManager(), "pandoc");
         Path bst = temporaryDirectory.resolve("test.bst");
         Files.writeString(bst, SIMPLE_BST);
@@ -47,7 +46,7 @@ class RendererFactoryTest {
 
     @ParameterizedTest
     @EnumSource(CitationType.class)
-    void insertionCoercesUnsupportedBstTypesToNormal(CitationType type) throws RenderException {
+    void insertionCoercesUnsupportedBstTypesToNormal(CitationType type) throws Exception {
         StyleCapabilities capabilities = new StyleCapabilities(Set.of(CitationType.AUTHORYEAR_PAR), true, false, false);
 
         assertEquals(CitationType.AUTHORYEAR_PAR, capabilities.coerceForInsert(type));
@@ -55,7 +54,7 @@ class RendererFactoryTest {
 
     @ParameterizedTest
     @EnumSource(CitationType.class)
-    void insertionPreservesSupportedTypes(CitationType type) throws RenderException {
+    void insertionPreservesSupportedTypes(CitationType type) throws Exception {
         StyleCapabilities capabilities = new StyleCapabilities(Set.of(CitationType.values()), true, true, true);
 
         assertEquals(type, capabilities.coerceForInsert(type));
@@ -74,7 +73,7 @@ class RendererFactoryTest {
     }
 
     @Test
-    void cslConstructionNeedsNeitherWriterNorGlobalPreferences() throws RenderException {
+    void cslConstructionNeedsNeitherWriterNorGlobalPreferences() throws Exception {
         assertInstanceOf(CslRenderer.class, new RendererFactory(new BibEntryTypesManager(), "unused-pandoc-path").create(numericStyle(false, false)));
     }
 }

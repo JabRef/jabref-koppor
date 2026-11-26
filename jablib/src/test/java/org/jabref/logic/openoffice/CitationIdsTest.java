@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import org.jabref.logic.openoffice.engine.JabRefMarkCodec;
-import org.jabref.logic.openoffice.engine.JabRefMarkCodecException;
 import org.jabref.logic.openoffice.engine.JabRefMarkData;
 import org.jabref.model.openoffice.style.CitationType;
 
@@ -35,7 +34,7 @@ class CitationIdsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"abcdefgh", "abcdefghij", "abcdefghijklmnopqrstuvwx", "foreign_UID-7"})
-    void storedIdentityRoundTripsWithoutChangingItsLength(String identity) throws JabRefMarkCodecException {
+    void storedIdentityRoundTripsWithoutChangingItsLength(String identity) throws Exception {
         JabRefMarkData data = new JabRefMarkData(List.of("key"), identity, CitationType.AUTHORYEAR_PAR);
 
         assertEquals(data, JabRefMarkCodec.decode(JabRefMarkCodec.encode(data)));
@@ -52,7 +51,7 @@ class CitationIdsTest {
     }
 
     @Test
-    void defaultIdentityRoundTripsThroughCanonicalStorage() throws JabRefMarkCodecException {
+    void defaultIdentityRoundTripsThroughCanonicalStorage() throws Exception {
         JabRefMarkData data = new JabRefMarkData(List.of("key"), CitationIds.newId(), CitationType.AUTHORYEAR_PAR);
 
         assertEquals(data, JabRefMarkCodec.decode(JabRefMarkCodec.encode(data)));

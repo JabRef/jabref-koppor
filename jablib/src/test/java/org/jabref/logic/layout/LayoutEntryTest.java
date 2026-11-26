@@ -84,7 +84,7 @@ class LayoutEntryTest {
     }
 
     @Test
-    void persistedOOPreFormatterNameConvertsLatexToHtml() throws IOException {
+    void persistedOOPreFormatterNameConvertsLatexToHtml() throws Exception {
         BibEntry entry = new BibEntry().withField(StandardField.TITLE, "\\textit{Formatted title}");
         Layout layout = new LayoutHelper(Reader.of("\\format[OOPreFormatter]{\\title}"),
                 LayoutFormatterPreferences.getDefault(), new JournalAbbreviationRepository()).getLayoutFromText();

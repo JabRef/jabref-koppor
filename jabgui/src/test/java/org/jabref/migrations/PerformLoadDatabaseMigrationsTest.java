@@ -1,6 +1,5 @@
 package org.jabref.migrations;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.lang.ref.Reference;
@@ -131,7 +130,7 @@ class PerformLoadDatabaseMigrationsTest {
 
     // [utest->req~import.bibtex.legacy-migrations.only-when-needed~1]
     @Test
-    void savedAndReopenedLibraryDoesNotNeedAnotherMigration() throws IOException {
+    void savedAndReopenedLibraryDoesNotNeedAnotherMigration() throws Exception {
         BibEntry entry = new BibEntry().withCitationKey("Entry")
                                        .withField(StandardField.GROUPS, "Existing")
                                        .withField(StandardField.KEYWORDS, "topic; printed; prio1")

@@ -28,7 +28,7 @@ class DBMSSynchronizerOpeningTest {
     Path offlineChangesDirectory;
 
     @Test
-    void failedOpeningReleasesTheConnection() throws SQLException {
+    void failedOpeningReleasesTheConnection() throws Exception {
         AtomicBoolean closed = new AtomicBoolean();
         // Mockito cannot mock java.sql types on the module path
         Connection connection = (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(), new Class<?>[] {Connection.class}, (_, method, _) -> switch (method.getName()) {

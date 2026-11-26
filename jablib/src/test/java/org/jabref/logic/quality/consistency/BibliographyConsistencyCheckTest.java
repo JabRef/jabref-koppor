@@ -86,7 +86,7 @@ class BibliographyConsistencyCheckTest {
 
     @ParameterizedTest
     @EnumSource(BibDatabaseMode.class)
-    void compactReportsMatchExistingCheckerAndExports(BibDatabaseMode mode) throws IOException {
+    void compactReportsMatchExistingCheckerAndExports(BibDatabaseMode mode) throws Exception {
         List<BibEntry> entries = List.of(
                 new BibEntry(StandardEntryType.Article, "first").withField(StandardField.AUTHOR, "Author").withField(StandardField.DATE, "2026-11").withField(StandardField.JOURNALTITLE, "Journal"),
                 new BibEntry(StandardEntryType.Article, "second").withField(StandardField.TITLE, "Title").withField(bibUrl, "url"),
@@ -143,7 +143,7 @@ class BibliographyConsistencyCheckTest {
     }
 
     @Test
-    void compactSnapshotRetainsOriginalNavigationAndCapturedData() throws IOException {
+    void compactSnapshotRetainsOriginalNavigationAndCapturedData() throws Exception {
         BibEntry entry = new BibEntry(StandardEntryType.Article, "first").withField(StandardField.AUTHOR, "Author");
         var snapshot = BibliographyConsistencyCheck.snapshot(List.of(entry), BibDatabaseMode.BIBTEX, entryTypesManager, () -> false);
         var report = snapshot.check(Set.of("*"), () -> false);

@@ -1,6 +1,5 @@
 package org.jabref.gui.dialogs;
 
-import java.io.IOException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -162,7 +161,7 @@ class BackupUIManagerTest extends JavaFxTest {
     /// merge is recorded on a journal the tab never sees, the restored library looks saved and closes without asking.
     /// [utest->req~jabgui.autosaveandbackup.accepted-backup-changes-undoable~1]
     @Test
-    void loadedLibraryCanUndoAcceptedBackupChanges(@TempDir Path tempDir) throws IOException {
+    void loadedLibraryCanUndoAcceptedBackupChanges(@TempDir Path tempDir) throws Exception {
         Path backupDir = tempDir.resolve("backups");
         acceptAllChangesWhenReviewingBackup(backupDir);
 
@@ -384,7 +383,7 @@ class BackupUIManagerTest extends JavaFxTest {
     /// Accepting the backup file changes should prompt the user to save the file when closing JabRef.
     /// The [ParserResult#getChangedOnMigration] flag is what makes the opened library count as modified.
     @Test
-    void acceptingBackupPromptsSavingWhenClosing(@TempDir Path tempDir) throws IOException {
+    void acceptingBackupPromptsSavingWhenClosing(@TempDir Path tempDir) throws Exception {
         Path backupDir = tempDir.resolve("backups");
         LibraryTabContainer tabContainer = mock(LibraryTabContainer.class);
         when(tabContainer.getLibraryTabs()).thenReturn(FXCollections.emptyObservableList());
@@ -434,7 +433,7 @@ class BackupUIManagerTest extends JavaFxTest {
     /// Rejecting backup file changes should have no effect on the state of the file, so no save
     /// prompt should appear when closing because the file should still match the existing one on the disk.
     @Test
-    void rejectingBackupChangesDoesNotPromptSaveOnClosing(@TempDir Path tempDir) throws IOException {
+    void rejectingBackupChangesDoesNotPromptSaveOnClosing(@TempDir Path tempDir) throws Exception {
         Path backupDir = tempDir.resolve("backups");
         LibraryTabContainer tabContainer = mock(LibraryTabContainer.class);
         when(tabContainer.getLibraryTabs()).thenReturn(FXCollections.emptyObservableList());

@@ -101,7 +101,7 @@ class PdfAnnotationImporterTest {
     }
 
     @Test
-    void areaIsRelativeToCropBoxInsteadOfMediaBox(@TempDir Path tempDir) throws IOException {
+    void areaIsRelativeToCropBoxInsteadOfMediaBox(@TempDir Path tempDir) throws Exception {
         Path file = writeSinglePageWithStickyNote(tempDir, CROP_BOX, 0);
 
         assertEquals(Optional.of(new AnnotationArea(80f, 92f, 20f, 20f)),
@@ -109,7 +109,7 @@ class PdfAnnotationImporterTest {
     }
 
     @Test
-    void rotatedPageReportsNoArea(@TempDir Path tempDir) throws IOException {
+    void rotatedPageReportsNoArea(@TempDir Path tempDir) throws Exception {
         Path file = writeSinglePageWithStickyNote(tempDir, MEDIA_BOX, 90);
 
         assertEquals(Optional.empty(), importer.importAnnotations(file).getFirst().getArea());

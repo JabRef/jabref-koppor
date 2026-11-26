@@ -75,7 +75,7 @@ class DownloadLinkedFileActionTest {
 
     // [utest->req~fetchers.fulltext-duplicate-replacement~1]
     @Test
-    void duplicateDownloadReplacesMissingLinkWithSurvivingFile() throws IOException {
+    void duplicateDownloadReplacesMissingLinkWithSurvivingFile() throws Exception {
         Path original = tempFolder.resolve("article.pdf");
         Path duplicate = tempFolder.resolve("article (1).pdf");
         Files.writeString(original, "%PDF-1.4\narticle");
@@ -94,7 +94,7 @@ class DownloadLinkedFileActionTest {
     }
 
     @Test
-    void duplicateHtmlReplacementPreservesExistingFileAndLinks() throws IOException {
+    void duplicateHtmlReplacementPreservesExistingFileAndLinks() throws Exception {
         Path original = tempFolder.resolve("paywall.html");
         Path duplicate = tempFolder.resolve("paywall (1).html");
         String html = "<html><body>Sign in to read this article</body></html>";

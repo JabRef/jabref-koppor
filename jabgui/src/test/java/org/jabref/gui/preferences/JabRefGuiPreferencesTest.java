@@ -3,7 +3,6 @@ package org.jabref.gui.preferences;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import org.jabref.gui.entryeditor.EntryEditorTabModel;
@@ -122,7 +121,7 @@ class JabRefGuiPreferencesTest {
     }
 
     @Test
-    void suppliedPreferencesNodePersistsWorkspaceSettings() throws BackingStoreException {
+    void suppliedPreferencesNodePersistsWorkspaceSettings() throws Exception {
         Preferences node = Preferences.userRoot().node("/org/jabref-gui-preferences-test-" + UUID.randomUUID());
         try {
             JabRefGuiPreferences preferences = new JabRefGuiPreferences(node);

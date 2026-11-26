@@ -1,6 +1,5 @@
 package org.jabref.logic.util;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -16,7 +15,7 @@ class DirectoriesTest {
     Path userDirectory;
 
     @Test
-    void existingXdgDocumentsDirectoryIsPreferred() throws IOException {
+    void existingXdgDocumentsDirectoryIsPreferred() throws Exception {
         Files.createDirectory(userDirectory.resolve("Documents"));
         Path xdgDocuments = Files.createDirectory(userDirectory.resolve("Dokumente"));
 
@@ -24,7 +23,7 @@ class DirectoriesTest {
     }
 
     @Test
-    void xdgLookupFindsLocalizedDocumentsDirectory() throws IOException {
+    void xdgLookupFindsLocalizedDocumentsDirectory() throws Exception {
         Files.createDirectory(userDirectory.resolve("Documents"));
         Path localizedDocuments = Files.createDirectory(userDirectory.resolve("Dokumente"));
 
@@ -32,21 +31,21 @@ class DirectoriesTest {
     }
 
     @Test
-    void invalidXdgLookupFallsBackToDocuments() throws IOException {
+    void invalidXdgLookupFallsBackToDocuments() throws Exception {
         Path documents = Files.createDirectory(userDirectory.resolve("Documents"));
 
         assertEquals(documents, Directories.getDocumentsDirectory(null, userDirectory, () -> Optional.of(userDirectory.resolve("missing"))));
     }
 
     @Test
-    void documentsInUserDirectoryIsUsedWithoutXdgDocumentsDirectory() throws IOException {
+    void documentsInUserDirectoryIsUsedWithoutXdgDocumentsDirectory() throws Exception {
         Path documents = Files.createDirectory(userDirectory.resolve("Documents"));
 
         assertEquals(documents, Directories.getDocumentsDirectory(null, userDirectory, Optional::empty));
     }
 
     @Test
-    void documentsInUserDirectoryIsUsedIfXdgDocumentsDirectoryIsMissing() throws IOException {
+    void documentsInUserDirectoryIsUsedIfXdgDocumentsDirectoryIsMissing() throws Exception {
         Path documents = Files.createDirectory(userDirectory.resolve("Documents"));
 
         assertEquals(documents, Directories.getDocumentsDirectory(userDirectory.resolve("Dokumente").toString(), userDirectory, Optional::empty));

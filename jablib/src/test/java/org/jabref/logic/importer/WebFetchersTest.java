@@ -80,7 +80,7 @@ class WebFetchersTest {
     }
 
     @Test
-    void getIdBasedFetchersReturnsAllFetcherDerivingFromIdBasedFetcher() throws ClassNotFoundException {
+    void getIdBasedFetchersReturnsAllFetcherDerivingFromIdBasedFetcher() throws Exception {
         Set<IdBasedFetcher> idFetchers = WebFetchers.getIdBasedFetchers(importFormatPreferences, importerPreferences);
 
         try (ScanResult scanResult = classGraph.scan()) {
@@ -111,7 +111,7 @@ class WebFetchersTest {
     }
 
     @Test
-    void getEntryBasedFetchersReturnsAllFetcherDerivingFromEntryBasedFetcher() throws ClassNotFoundException {
+    void getEntryBasedFetchersReturnsAllFetcherDerivingFromEntryBasedFetcher() throws Exception {
         Set<EntryBasedFetcher> idFetchers = WebFetchers.getEntryBasedFetchers(
                 mock(ImporterPreferences.class),
                 importFormatPreferences,
@@ -129,7 +129,7 @@ class WebFetchersTest {
     }
 
     @Test
-    void getSearchBasedFetchersReturnsAllFetcherDerivingFromSearchBasedFetcher() throws ClassNotFoundException {
+    void getSearchBasedFetchersReturnsAllFetcherDerivingFromSearchBasedFetcher() throws Exception {
         Set<SearchBasedFetcher> searchBasedFetchers = WebFetchers.getSearchBasedFetchers(importFormatPreferences, importerPreferences);
         try (ScanResult scanResult = classGraph.scan()) {
             ClassInfoList controlClasses = scanResult.getAllClassesImplementing(SearchBasedFetcher.class.getCanonicalName());
@@ -160,7 +160,7 @@ class WebFetchersTest {
     }
 
     @Test
-    void getFullTextFetchersReturnsAllFetcherDerivingFromFullTextFetcher() throws ClassNotFoundException {
+    void getFullTextFetchersReturnsAllFetcherDerivingFromFullTextFetcher() throws Exception {
         Set<FulltextFetcher> fullTextFetchers = WebFetchers.getFullTextFetchers(importFormatPreferences, importerPreferences);
 
         try (ScanResult scanResult = classGraph.scan()) {
@@ -179,7 +179,7 @@ class WebFetchersTest {
     }
 
     @Test
-    void getIdFetchersReturnsAllFetcherDerivingFromIdFetcher() throws ClassNotFoundException {
+    void getIdFetchersReturnsAllFetcherDerivingFromIdFetcher() throws Exception {
         Set<IdFetcher<?>> idFetchers = WebFetchers.getIdFetchers(importFormatPreferences);
 
         try (ScanResult scanResult = classGraph.scan()) {

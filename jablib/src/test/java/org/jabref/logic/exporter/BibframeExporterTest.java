@@ -1,12 +1,10 @@
 package org.jabref.logic.exporter;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.jabref.logic.importer.fileformat.BibframeImporter;
 import org.jabref.logic.util.StandardFileType;
@@ -21,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 import org.xmlunit.builder.DiffBuilder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -59,7 +56,7 @@ class BibframeExporterTest {
     }
 
     @Test
-    void identifiersAreStableAndIndependentOfCitationKeys(@TempDir Path directory) throws SaveException, IOException {
+    void identifiersAreStableAndIndependentOfCitationKeys(@TempDir Path directory) throws Exception {
         BibEntry first = new BibEntry(StandardEntryType.Book)
                 .withField(StandardField.TITLE, "A book").withCitationKey("first-key");
         BibEntry second = new BibEntry(StandardEntryType.Book)
@@ -74,7 +71,7 @@ class BibframeExporterTest {
     }
 
     @Test
-    void identifiersIgnoreFieldsOutsideTheExportedMapping(@TempDir Path directory) throws SaveException, IOException {
+    void identifiersIgnoreFieldsOutsideTheExportedMapping(@TempDir Path directory) throws Exception {
         BibEntry first = new BibEntry(StandardEntryType.Book).withField(StandardField.TITLE, "A book");
         BibEntry second = new BibEntry(StandardEntryType.Book).withField(StandardField.TITLE, "A book")
                                                               .withField(StandardField.NOTE, "Local note").withField(StandardField.FILE, "local.pdf");
@@ -88,7 +85,7 @@ class BibframeExporterTest {
     }
 
     @Test
-    void articleWithoutIssnRetainsJournalAndType(@TempDir Path directory) throws SaveException, IOException {
+    void articleWithoutIssnRetainsJournalAndType(@TempDir Path directory) throws Exception {
         BibEntry article = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.TITLE, "An article")
                 .withField(StandardField.JOURNAL, "A journal")
@@ -102,7 +99,7 @@ class BibframeExporterTest {
     }
 
     @Test
-    void articleWithoutJournalRetainsIssn(@TempDir Path directory) throws SaveException, IOException {
+    void articleWithoutJournalRetainsIssn(@TempDir Path directory) throws Exception {
         BibEntry article = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.TITLE, "An article")
                 .withField(StandardField.ISSN, "1234-5678");
@@ -115,7 +112,7 @@ class BibframeExporterTest {
     }
 
     @Test
-    void articleWithoutHostFieldsRetainsType(@TempDir Path directory) throws SaveException, IOException {
+    void articleWithoutHostFieldsRetainsType(@TempDir Path directory) throws Exception {
         BibEntry article = new BibEntry(StandardEntryType.Article)
                 .withField(StandardField.TITLE, "An article");
         Path output = directory.resolve("article.rdf");
@@ -127,7 +124,7 @@ class BibframeExporterTest {
     }
 
     @Test
-    void linkedPdfAndSupplementaryUrlSurviveExportAndImport(@TempDir Path directory) throws SaveException, IOException {
+    void linkedPdfAndSupplementaryUrlSurviveExportAndImport(@TempDir Path directory) throws Exception {
         BibEntry book = new BibEntry(StandardEntryType.Book)
                 .withField(StandardField.TITLE, "Library book")
                 .withField(StandardField.URL, "https://example.org/description")
@@ -140,7 +137,7 @@ class BibframeExporterTest {
     }
 
     @Test
-    void unnamedPdfDoesNotAcquireLibrarySpecificTitle(@TempDir Path directory) throws SaveException, IOException {
+    void unnamedPdfDoesNotAcquireLibrarySpecificTitle(@TempDir Path directory) throws Exception {
         BibEntry book = new BibEntry(StandardEntryType.Book)
                 .withField(StandardField.TITLE, "A book")
                 .withFiles(List.of(new LinkedFile("", "https://example.org/book.pdf", StandardFileType.PDF)));
@@ -153,7 +150,7 @@ class BibframeExporterTest {
     }
 
     @Test
-    void convertsLatexTextAndFormatsSingleContributor(@TempDir Path directory) throws SaveException, IOException {
+    void convertsLatexTextAndFormatsSingleContributor(@TempDir Path directory) throws Exception {
         BibEntry book = new BibEntry(StandardEntryType.Book)
                 .withField(StandardField.TITLE, "{IEEE} f{\\\"u}r alle") // spellchecker:disable-line
                 .withField(StandardField.AUTHOR, "{Muster}, Anna");
@@ -169,7 +166,7 @@ class BibframeExporterTest {
     }
 
     @Test
-    void publicationYearIsAlsoExportedAsStructuredEdtfDate(@TempDir Path directory) throws SaveException, IOException {
+    void publicationYearIsAlsoExportedAsStructuredEdtfDate(@TempDir Path directory) throws Exception {
         BibEntry book = new BibEntry(StandardEntryType.Book)
                 .withField(StandardField.TITLE, "A book")
                 .withField(StandardField.YEAR, "2023");
@@ -182,7 +179,7 @@ class BibframeExporterTest {
     }
 
     @Test
-    void languagesUseCodesOnlyForRecognizedSingleLanguages(@TempDir Path directory) throws SaveException, IOException {
+    void languagesUseCodesOnlyForRecognizedSingleLanguages(@TempDir Path directory) throws Exception {
         for (String language : List.of("English", "Deutsch", "English, Japanese")) {
             BibEntry book = new BibEntry(StandardEntryType.Book)
                     .withField(StandardField.TITLE, "A book")
@@ -209,7 +206,7 @@ class BibframeExporterTest {
 
     @Test
     void escapesXmlAndKeepsTwoEntriesSeparate(@TempDir Path directory)
-            throws SaveException, IOException, ParserConfigurationException, SAXException {
+            throws Exception {
         BibEntry first = new BibEntry(StandardEntryType.Book)
                 .withField(StandardField.TITLE, "A < B & \"C\"");
         BibEntry second = new BibEntry(StandardEntryType.Book)
@@ -236,7 +233,7 @@ class BibframeExporterTest {
     }
 
     @Test
-    void emptyInputWritesValidRdf(@TempDir Path directory) throws SaveException, IOException, ParserConfigurationException, SAXException {
+    void emptyInputWritesValidRdf(@TempDir Path directory) throws Exception {
         Path output = directory.resolve("empty.rdf");
 
         exporter.export(new BibDatabaseContext(), output, List.of());

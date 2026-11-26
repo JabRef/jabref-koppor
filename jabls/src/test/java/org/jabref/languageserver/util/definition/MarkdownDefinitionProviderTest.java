@@ -179,7 +179,7 @@ class MarkdownDefinitionProviderTest {
     }
 
     @Test
-    void deletedBibliographyIsDropped() throws IOException {
+    void deletedBibliographyIsDropped() throws Exception {
         Files.delete(tempDir.resolve("Chocolate.bib"));
         parserHandler.loadBibliographiesFromFrontMatter(tempDir.resolve("topics.md").toUri().toString(), MARKDOWN, importFormatPreferences);
         assertTrue(parserHandler.searchForEntryByCitationKey("Corti_2009").isEmpty());

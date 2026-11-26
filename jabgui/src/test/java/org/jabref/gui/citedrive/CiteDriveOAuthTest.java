@@ -1,11 +1,9 @@
 package org.jabref.gui.citedrive;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.TreeSet;
-import java.util.concurrent.ExecutionException;
 
 import javafx.collections.FXCollections;
 
@@ -58,7 +56,7 @@ class CiteDriveOAuthTest {
     @Test
     @Timeout(60)
     @Disabled
-    void getToken() throws ExecutionException, InterruptedException {
+    void getToken() throws Exception {
         ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
         when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
 
@@ -78,7 +76,7 @@ class CiteDriveOAuthTest {
     @Test
     @Timeout(60)
     @Disabled
-    void putLibraryOAuthFromScratch() throws ExecutionException, InterruptedException, IOException {
+    void putLibraryOAuthFromScratch() throws Exception {
         ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
         when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
 
@@ -121,7 +119,7 @@ class CiteDriveOAuthTest {
     @Test
     @Timeout(60)
     @Disabled
-    void putLibrary() throws ExecutionException, InterruptedException, IOException {
+    void putLibrary() throws Exception {
         ExternalApplicationsPreferences externalApplicationsPreferences = mock(ExternalApplicationsPreferences.class);
         when(externalApplicationsPreferences.getExternalFileTypes()).thenReturn(FXCollections.observableSet(new TreeSet<>(ExternalFileTypes.getDefaultExternalFileTypes())));
 

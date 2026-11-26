@@ -1,6 +1,5 @@
 package org.jabref.logic.quality.consistency;
 
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Files;
@@ -72,7 +71,7 @@ class BibliographyConsistencyCheckResultTxtWriterTest {
     }
 
     @Test
-    void entriesMissingOnlyRequiredFieldsShowTheseFields(@TempDir Path tempDir) throws IOException {
+    void entriesMissingOnlyRequiredFieldsShowTheseFields(@TempDir Path tempDir) throws Exception {
         BibEntry first = new BibEntry(StandardEntryType.Article, "first")
                 .withField(StandardField.AUTHOR, "Author One");
         BibEntry second = new BibEntry(StandardEntryType.Article, "second")
@@ -97,7 +96,7 @@ class BibliographyConsistencyCheckResultTxtWriterTest {
     }
 
     @Test
-    void requiredFieldSatisfiedByAliasIsShownAsPresent(@TempDir Path tempDir) throws IOException {
+    void requiredFieldSatisfiedByAliasIsShownAsPresent(@TempDir Path tempDir) throws Exception {
         // In BibLaTeX, `date` is required for articles and `year` is its alias
         BibEntry withYear = new BibEntry(StandardEntryType.Article, "withYear")
                 .withField(StandardField.AUTHOR, "Author One")

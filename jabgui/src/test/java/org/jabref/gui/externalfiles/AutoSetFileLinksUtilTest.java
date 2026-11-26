@@ -187,7 +187,7 @@ class AutoSetFileLinksUtilTest {
     class linkAssociatedFiles {
 
         @Test
-        void doesNotChangeValidExistingFileLink(@TempDir Path tempDir) throws IOException {
+        void doesNotChangeValidExistingFileLink(@TempDir Path tempDir) throws Exception {
             Path filePath = tempDir.resolve("CiteKey.pdf");
             Files.createFile(filePath);
 

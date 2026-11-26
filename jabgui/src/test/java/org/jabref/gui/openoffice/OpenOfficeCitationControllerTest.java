@@ -539,7 +539,7 @@ class OpenOfficeCitationControllerTest {
     }
 
     @Test
-    void cslInferenceSelectsOnlyTheResolverCslResult() throws WrappedTargetException {
+    void cslInferenceSelectsOnlyTheResolverCslResult() throws Exception {
         CitationStyle inferred = mock(CitationStyle.class);
         CslStyleResolver resolver = mock(CslStyleResolver.class);
         when(resolver.resolve(document)).thenReturn(Optional.of(inferred));
@@ -551,7 +551,7 @@ class OpenOfficeCitationControllerTest {
     }
 
     @Test
-    void missingCslInferenceLeavesTheCurrentStyleUnchanged() throws WrappedTargetException {
+    void missingCslInferenceLeavesTheCurrentStyleUnchanged() throws Exception {
         CslStyleResolver resolver = mock(CslStyleResolver.class);
         when(resolver.resolve(document)).thenReturn(Optional.empty());
 
@@ -560,7 +560,7 @@ class OpenOfficeCitationControllerTest {
     }
 
     @Test
-    void cslInferenceFailureLeavesTheCurrentStyleUnchanged() throws WrappedTargetException {
+    void cslInferenceFailureLeavesTheCurrentStyleUnchanged() throws Exception {
         CslStyleResolver resolver = mock(CslStyleResolver.class);
         when(resolver.resolve(document)).thenThrow(new WrappedTargetException("document metadata unavailable"));
 

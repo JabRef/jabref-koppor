@@ -1,6 +1,5 @@
 package org.jabref.logic.exporter;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -10,8 +9,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.jabref.logic.layout.LayoutFormatterPreferences;
 import org.jabref.logic.util.StandardFileType;
@@ -30,7 +27,6 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.api.parallel.ResourceLock;
 import org.mockito.Answers;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 import org.xmlunit.builder.Input;
 import org.xmlunit.builder.Input.Builder;
 import org.xmlunit.diff.DefaultNodeMatcher;
@@ -92,7 +88,7 @@ public class DocBook5ExporterTest {
     }
 
     @Test
-    void titleWithEmojiIsValidXml(@TempDir Path testFolder) throws IOException, SaveException, ParserConfigurationException, TransformerException, SAXException {
+    void titleWithEmojiIsValidXml(@TempDir Path testFolder) throws Exception {
         Path path = testFolder.resolve("supplementaryCharacters.xml");
         BibEntry entry = new BibEntry(StandardEntryType.Book)
                 .withField(StandardField.TITLE, "Smile 😀 and 𝛼");
