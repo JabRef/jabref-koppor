@@ -49,4 +49,22 @@ The files are served per entry (and not for the whole library at once), because 
 
 Needs: impl, utest
 
+## HTTP server must offer semantic search over the linked files of a library
+`req~jabsrv.ai.search~1`
+
+The HTTP server exposes `POST /libraries/{id}/ai/search` accepting `{ "query": "…", "maxResults": 10, "minScore": 0.3 }`.
+`maxResults` and `minScore` are optional and default to the values of the AI preferences.
+The response lists the most relevant chunks of the files linked to the entries of the library, best first, each with `citationKey`, `file`, `page`, `score`, and `text`.
+
+Only ingested files are searched.
+Linked files which are not ingested are listed in `pendingFiles` and their ingestion is started; the request does not wait for it.
+Linked files which cannot be read are listed in `notFoundFiles`.
+
+The endpoint answers `503` with the reason if the AI features are disabled, the embedding model is not loaded, or the server runs without the GUI.
+Requests carrying an `Origin` header are answered with `403`: the response contains full text of the user's files, which no web page should be able to request.
+
+This is step 1 of [ADR-0086](../decisions/0086-offer-jabref-to-external-ai-agents-via-http-skill-and-mcp.md).
+
+Needs: impl, utest
+
 <!-- markdownlint-disable-file MD022 -->

@@ -6,6 +6,8 @@ parent: Decision Records
 # Offer JabRef to external AI agents via an HTTP endpoint with a skill and via MCP
 `adr~external-ai-agent-access~1`
 
+Needs: impl
+
 ## Context and Problem Statement
 
 JabRef generates embeddings for the PDFs linked to the entries of a library ([ADR-0035](0035-generate-embeddings-online.md), [ADR-0037](0037-rag-architecture-implementation.md), [ADR-0058](0058-use-djl-for-embeddings.md)).

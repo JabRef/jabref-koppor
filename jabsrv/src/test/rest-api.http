@@ -25,6 +25,19 @@ Content-Type: application/json
   "queries": ["doi = \"10.1161/circulationaha.108.827022\""]
 }
 
+### Semantic search in the files linked to the entries of the focused library (GUI only, AI features enabled)
+
+// Files not ingested yet are listed in "pendingFiles"; the request starts their ingestion.
+
+POST http://localhost:23119/libraries/current/ai/search
+Content-Type: application/json
+
+{
+  "query": "What are the health effects of chocolate?",
+  "maxResults": 5,
+  "minScore": 0.5
+}
+
 ### Query entries across all open libraries (multiple queries, results returned in input order)
 
 POST http://localhost:23119/libraries:query
