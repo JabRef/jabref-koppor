@@ -18,6 +18,7 @@ import org.jabref.http.dto.GsonMessageBodyReader;
 import org.jabref.http.dto.GsonMessageBodyWriter;
 import org.jabref.http.server.cayw.CAYWResource;
 import org.jabref.http.server.cayw.format.FormatterService;
+import org.jabref.http.server.mcp.McpResource;
 import org.jabref.http.server.resources.AiSearchResource;
 import org.jabref.http.server.resources.CitationsResource;
 import org.jabref.http.server.resources.EntriesResource;
@@ -153,6 +154,7 @@ public class Server {
         resourceConfig.register(CommandResource.class);
         resourceConfig.register(CallbackResource.class);
         resourceConfig.register(CAYWResource.class);
+        resourceConfig.register(McpResource.class);
 
         // Supporting classes
         resourceConfig.register(CORSFilter.class);

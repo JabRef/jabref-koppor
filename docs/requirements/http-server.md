@@ -67,4 +67,25 @@ This is step 1 of [ADR-0086](../decisions/0086-offer-jabref-to-external-ai-agent
 
 Needs: impl, utest
 
+## HTTP server must offer its libraries to AI agents via MCP tools
+`req~jabsrv.mcp.tools~1`
+
+The HTTP server exposes the [Model Context Protocol](https://modelcontextprotocol.io/specification/2026-07-28) endpoint `POST /mcp` (Streamable HTTP transport, revision `2026-07-28` only).
+It answers `server/discover`, `tools/list`, and `tools/call` with a single JSON object; it opens no stream and keeps no session.
+
+The tool set is small and fixed, because each tool definition consumes context window of the calling model:
+
+- `list_libraries`: the opened libraries with id, path, and number of entries.
+- `search_linked_files`: semantic search over the linked files of a library, with the same answer as `POST /libraries/{id}/ai/search`.
+- `search_entries`: search in the fields of the entries of a library with JabRef's search syntax.
+- `get_entry`: an entry as BibTeX.
+
+A request of another protocol revision is answered with the error `UnsupportedProtocolVersion` listing the supported revision, so that clients can tell the endpoint apart from a server of an older revision.
+A problem a model can correct (unknown library, missing argument, AI features disabled) is reported as tool result with `isError`, not as protocol error.
+Requests carrying an `Origin` header of another machine are answered with `403`.
+
+This is step 2 of [ADR-0086](../decisions/0086-offer-jabref-to-external-ai-agents-via-http-skill-and-mcp.md).
+
+Needs: impl, utest
+
 <!-- markdownlint-disable-file MD022 -->

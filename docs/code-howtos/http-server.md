@@ -83,6 +83,19 @@ The resource delegates to `org.jabref.logic.ai.rag.logic.SemanticSearch`.
 The GUI hands its `EmbeddingsSemanticSearch` to the `HttpServerManager`, because the embeddings store and the embedding model are owned by `AiService` and the store is locked for other processes.
 The stand-alone server (`jabsrv-cli`) binds `SemanticSearch.NONE` and answers `503`.
 
+## MCP endpoint for external AI agents
+
+`POST /mcp` offers tools to MCP clients ([ADR-0086](../decisions/0086-offer-jabref-to-external-ai-agents-via-http-skill-and-mcp.md), [requirement](../requirements/http-server.md)).
+An MCP client is configured with the URL `http://localhost:23119/mcp` and the transport "Streamable HTTP".
+The client has to speak revision `2026-07-28` of the protocol; older clients, which start with `initialize`, get the error `UnsupportedProtocolVersion`.
+
+The endpoint is written by hand in the package `org.jabref.http.server.mcp`; the MCP Java SDK is not used (reasons in the ADR).
+`McpResource` checks the request (headers have to match the body) and dispatches the three methods `server/discover`, `tools/list`, and `tools/call`.
+Each tool implements `McpTool`.
+To add a tool, implement the interface and add it to the list in `McpResource` - but keep the set small, since each tool definition consumes context window of the calling model.
+
+Examples for trying out the endpoint without an MCP client are in `jabsrv/src/test/rest-api.http`.
+
 ## Logging in to CiteDrive without the GUI
 
 `jabsrv --citedrive-login` prints the CiteDrive login address, waits for the browser to come back to `/callback`, stores the refresh token in the system keyring, and exits.
