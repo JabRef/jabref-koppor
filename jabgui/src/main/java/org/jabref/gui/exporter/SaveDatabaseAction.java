@@ -25,6 +25,7 @@ import org.jabref.gui.LibraryTab;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.autosaveandbackup.AutosaveManager;
 import org.jabref.gui.autosaveandbackup.BackupManager;
+import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.git.GitAutoSync;
 import org.jabref.gui.git.GitPullScheduler;
 import org.jabref.gui.maintable.BibEntryTableViewModel;
@@ -69,6 +70,7 @@ public class SaveDatabaseAction {
     private final LibraryTab libraryTab;
     private final DialogService dialogService;
     private final GuiPreferences preferences;
+    private final NativeDesktop nativeDesktop;
     private final BibEntryTypesManager entryTypesManager;
     private final StateManager stateManager;
     private final JournalAbbreviationRepository journalAbbreviationRepository;
@@ -98,7 +100,8 @@ public class SaveDatabaseAction {
                 stateManager,
                 journalAbbreviationRepository,
                 Injector.instantiateModelOrService(GitHandlerRegistry.class),
-                Injector.instantiateModelOrService(TaskExecutor.class));
+                Injector.instantiateModelOrService(TaskExecutor.class),
+                Injector.instantiateModelOrService(NativeDesktop.class));
     }
 
     public SaveDatabaseAction(LibraryTab libraryTab,
@@ -108,7 +111,8 @@ public class SaveDatabaseAction {
                               StateManager stateManager,
                               JournalAbbreviationRepository journalAbbreviationRepository,
                               GitHandlerRegistry gitHandlerRegistry,
-                              TaskExecutor taskExecutor) {
+                              TaskExecutor taskExecutor,
+                              NativeDesktop nativeDesktop) {
         this.libraryTab = libraryTab;
         this.dialogService = dialogService;
         this.preferences = preferences;
@@ -117,6 +121,7 @@ public class SaveDatabaseAction {
         this.journalAbbreviationRepository = journalAbbreviationRepository;
         this.gitHandlerRegistry = gitHandlerRegistry;
         this.taskExecutor = taskExecutor;
+        this.nativeDesktop = nativeDesktop;
     }
 
     public SaveResult save() {
@@ -362,7 +367,8 @@ public class SaveDatabaseAction {
                 gitHandlerRegistry,
                 taskExecutor,
                 preferences,
-                stateManager);
+                stateManager,
+                nativeDesktop);
         if (databaseContext.getMetaData().isGitAutoPush()) {
             gitAutoSync.commitAndPush(targetPath, databaseContext);
         } else {

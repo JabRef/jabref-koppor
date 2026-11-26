@@ -186,7 +186,8 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
                 entryTypesManager,
                 fileUpdateMonitor,
                 clipBoardManager,
-                taskExecutor);
+                taskExecutor,
+                nativeDesktop);
         Injector.setModelOrService(UiMessageHandler.class, this);
 
         FrameDndHandler frameDndHandler = new FrameDndHandler(
@@ -264,6 +265,7 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
                 clipBoardManager,
                 journalAbbreviationRepository,
                 gitHandlerRegistry,
+                nativeDesktop,
                 this::closeIfAllowed);
 
         MainMenu mainMenu = new MainMenu(
@@ -635,7 +637,8 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
                 gitHandlerRegistry,
                 fileHistory,
                 Injector.instantiateModelOrService(BuildInfo.class),
-                preferences.getWorkspacePreferences());
+                preferences.getWorkspacePreferences(),
+                nativeDesktop);
         tabbedPane.getTabs().add(welcomeTab);
         tabbedPane.getSelectionModel().select(welcomeTab);
     }
@@ -693,12 +696,12 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
                 factory.createMenuItem(StandardActions.LIBRARY_PROPERTIES,
                         new LibraryPropertiesAction(tab::getBibDatabaseContext, stateManager)),
                 factory.createMenuItem(StandardActions.OPEN_DATABASE_FOLDER,
-                        new OpenDatabaseFolder(dialogService, stateManager, preferences, tab::getBibDatabaseContext)),
+                        new OpenDatabaseFolder(dialogService, stateManager, nativeDesktop, tab::getBibDatabaseContext)),
                 factory.createMenuItem(StandardActions.OPEN_CONSOLE,
                         new OpenConsoleAction(() -> {
                             LibraryTab currentTab = getCurrentLibraryTab();
                             return (currentTab == null) ? null : currentTab.getBibDatabaseContext();
-                        }, stateManager, preferences, dialogService)),
+                        }, stateManager, preferences, dialogService, nativeDesktop)),
                 factory.createMenuItem(StandardActions.SORT_TABS_ALPHABETICALLY, new SimpleCommand() {
                     @Override
                     public void execute() {
@@ -774,7 +777,8 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
                 entryTypesManager,
                 clipBoardManager,
                 taskExecutor,
-                gitHandlerRegistry);
+                gitHandlerRegistry,
+                nativeDesktop);
     }
 
     /// Refreshes the ui after preferences changes
@@ -819,7 +823,7 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
             showLibraryTab(existingTab.orElseThrow());
             return;
         }
-        SharedDatabaseUIManager manager = new SharedDatabaseUIManager(this, dialogService, preferences, aiService, stateManager, entryTypesManager, fileUpdateMonitor, clipBoardManager, taskExecutor, gitHandlerRegistry);
+        SharedDatabaseUIManager manager = new SharedDatabaseUIManager(this, dialogService, preferences, aiService, stateManager, entryTypesManager, fileUpdateMonitor, clipBoardManager, taskExecutor, gitHandlerRegistry, nativeDesktop);
         // Connecting blocks on the network; on the JavaFX thread an unreachable server would stall the whole startup.
         // The callbacks check the stage so a connection that completes during shutdown is closed with its loading tab.
         BibDatabaseContext dummyContext = manager.createDummyContext(reconnection.connectionProperties());
@@ -1014,11 +1018,11 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
 
         private final Supplier<BibDatabaseContext> databaseContext;
         private final DialogService dialogService;
-        private final GuiPreferences preferences;
+        private final NativeDesktop nativeDesktop;
 
-        public OpenDatabaseFolder(DialogService dialogService, StateManager stateManager, GuiPreferences preferences, Supplier<BibDatabaseContext> databaseContext) {
+        public OpenDatabaseFolder(DialogService dialogService, StateManager stateManager, NativeDesktop nativeDesktop, Supplier<BibDatabaseContext> databaseContext) {
             this.dialogService = dialogService;
-            this.preferences = preferences;
+            this.nativeDesktop = nativeDesktop;
             this.databaseContext = databaseContext;
             this.executable.bind(needsDatabaseOnDisk(stateManager));
         }
@@ -1028,7 +1032,7 @@ public class JabRefFrame extends BorderPane implements LibraryTabContainer, UiMe
             // For a directory library, reveal the library's root directory itself
             Optional.of(databaseContext.get()).flatMap(BibDatabaseContext::getPathOnDisk).ifPresent(path -> {
                 try {
-                    NativeDesktop.openFolderAndSelectFile(path, preferences.getExternalApplicationsPreferences(), dialogService);
+                    nativeDesktop.openFolderAndSelectFile(path, dialogService);
                 } catch (IOException e) {
                     LOGGER.info("Could not open folder", e);
                 }

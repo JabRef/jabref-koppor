@@ -13,6 +13,7 @@ import org.jabref.gui.StateManager;
 import org.jabref.gui.autosaveandbackup.BackupManager;
 import org.jabref.gui.collab.entryadd.EntryAdd;
 import org.jabref.gui.collab.entrychange.EntryChange;
+import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.citationkeypattern.GlobalCitationKeyPatterns;
 import org.jabref.logic.sync.LibraryBaseline;
@@ -67,7 +68,8 @@ class DatabaseChangeMonitorTest {
                 mock(GuiPreferences.class, Answers.RETURNS_DEEP_STUBS),
                 mock(UndoManager.class),
                 mock(StateManager.class),
-                mock(LibraryTab.class));
+                mock(LibraryTab.class),
+                mock(NativeDesktop.class));
         monitor.notifyExternalChanges(List.of());
         assertNotNull(monitor.getActiveNotification());
 
@@ -95,7 +97,8 @@ class DatabaseChangeMonitorTest {
                 mock(GuiPreferences.class, Answers.RETURNS_DEEP_STUBS),
                 mock(UndoManager.class),
                 mock(StateManager.class),
-                mock(LibraryTab.class));
+                mock(LibraryTab.class),
+                mock(NativeDesktop.class));
 
         ArgumentCaptor<FileUpdateListener> listenerCaptor = ArgumentCaptor.forClass(FileUpdateListener.class);
         verify(fileUpdateMonitor).addListenerForFile(eq(originalPath), listenerCaptor.capture());
@@ -116,7 +119,8 @@ class DatabaseChangeMonitorTest {
                 mock(GuiPreferences.class),
                 mock(UndoManager.class),
                 mock(StateManager.class),
-                mock(LibraryTab.class));
+                mock(LibraryTab.class),
+                mock(NativeDesktop.class));
     }
 
     @Test
@@ -239,7 +243,8 @@ class DatabaseChangeMonitorTest {
                 mock(GuiPreferences.class),
                 undoManager,
                 mock(StateManager.class),
-                libraryTab);
+                libraryTab,
+                mock(NativeDesktop.class));
 
         monitor.applyResolvedChanges(List.of(mergedChange), false);
 
@@ -271,7 +276,8 @@ class DatabaseChangeMonitorTest {
                 mock(GuiPreferences.class),
                 undoManager,
                 mock(StateManager.class),
-                libraryTab);
+                libraryTab,
+                mock(NativeDesktop.class));
 
         monitor.applyResolvedChanges(List.of(deniedChange), false);
 
@@ -302,7 +308,8 @@ class DatabaseChangeMonitorTest {
                 mock(GuiPreferences.class),
                 undoManager,
                 mock(StateManager.class),
-                libraryTab);
+                libraryTab,
+                mock(NativeDesktop.class));
 
         monitor.applyResolvedChanges(List.of(diskChange), true);
 
@@ -331,7 +338,8 @@ class DatabaseChangeMonitorTest {
                 mock(GuiPreferences.class),
                 undoManager,
                 mock(StateManager.class),
-                libraryTab);
+                libraryTab,
+                mock(NativeDesktop.class));
 
         monitor.applyResolvedChanges(List.of(diskChange), true);
 
@@ -364,7 +372,8 @@ class DatabaseChangeMonitorTest {
                 mock(GuiPreferences.class),
                 mock(UndoManager.class),
                 mock(StateManager.class),
-                mock(LibraryTab.class));
+                mock(LibraryTab.class),
+                mock(NativeDesktop.class));
 
         DatabaseChange firstChange = new EntryAdd(new BibEntry().withCitationKey("first"), new BibDatabaseContext(), null);
         DatabaseChange secondChange = new EntryAdd(new BibEntry().withCitationKey("second"), new BibDatabaseContext(), null);
@@ -390,7 +399,8 @@ class DatabaseChangeMonitorTest {
                 preferences,
                 new JabRefUndoManager(),
                 mock(StateManager.class),
-                mock(LibraryTab.class));
+                mock(LibraryTab.class),
+                mock(NativeDesktop.class));
     }
 
     @Test

@@ -19,8 +19,6 @@ import org.jabref.gui.walkthrough.declarative.WalkthroughNodeIds;
 import org.jabref.logic.help.HelpFile;
 import org.jabref.logic.l10n.Localization;
 
-import com.airhacks.afterburner.injection.Injector;
-
 public class LinkedFilesTab extends AbstractPreferenceTabView<LinkedFilesTabViewModel> {
 
     // Multiplier for row height based on font size
@@ -100,7 +98,7 @@ public class LinkedFilesTab extends AbstractPreferenceTabView<LinkedFilesTabView
                         .checkbox(Localization.lang("Show confirmation dialog when deleting attached files"), viewModel.confirmLinkedFileDeleteProperty())
                         .checkbox(Localization.lang("Move deleted files to trash (instead of deleting them)"), viewModel.moveToTrashProperty(),
                                 // Hidden instead of disabled: a disabled checkbox would still show the preference's default "checked"
-                                trash -> trash.visibleWhen(new SimpleBooleanProperty(Injector.instantiateModelOrService(NativeDesktop.class).moveToTrashSupported())))
+                                trash -> trash.visibleWhen(new SimpleBooleanProperty(nativeDesktop.moveToTrashSupported())))
                         .checkbox(Localization.lang("Update linked file paths during entry transfer if the files are accessible"), viewModel.adjustLinkedFilesOnTransferProperty())
                         .checkbox(Localization.lang("Copy linked files on entry transfer when they would otherwise be inaccessible"), viewModel.copyLinkedFilesOnTransferProperty(),
                                 copy -> copy.disableWhen(viewModel.adjustLinkedFilesOnTransferProperty().not()))

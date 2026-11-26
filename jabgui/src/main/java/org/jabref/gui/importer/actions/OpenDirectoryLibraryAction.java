@@ -164,7 +164,7 @@ public class OpenDirectoryLibraryAction extends SimpleCommand {
         Function<BibEntry, Optional<String>> fileNameGenerator = entry -> FileUtil.createFileNameFromPattern(
                 databaseContext.getDatabase(), entry, preferences.getFilePreferences().getFileNamePattern());
         GuiGitConflictResolverStrategy conflictResolver = new GuiGitConflictResolverStrategy(
-                new GitConflictResolverDialog(dialogService, preferences, stateManager));
+                new GitConflictResolverDialog(dialogService, preferences, stateManager, Injector.instantiateModelOrService(NativeDesktop.class)));
         DirectoryLibrarySynchronizer synchronizer = new DirectoryLibrarySynchronizer(
                 databaseContext, scanResult.catalog(), pdfEntryFactory, this::disposeFile, fileNameGenerator,
                 () -> serializeToBib(libraryTab), this::parseBib, conflictResolver,

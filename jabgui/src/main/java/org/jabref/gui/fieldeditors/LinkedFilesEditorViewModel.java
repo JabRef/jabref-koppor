@@ -24,6 +24,7 @@ import javafx.collections.ObservableList;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.autocompleter.SuggestionProvider;
+import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.externalfiles.AutoSetFileLinksUtil;
 import org.jabref.gui.externalfiletype.ExternalFileType;
 import org.jabref.gui.externalfiletype.ExternalFileTypes;
@@ -64,6 +65,7 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
     private final BibDatabaseContext databaseContext;
     private final TaskExecutor taskExecutor;
     private final GuiPreferences preferences;
+    private final NativeDesktop nativeDesktop;
 
     public LinkedFilesEditorViewModel(Field field, SuggestionProvider<?> suggestionProvider,
                                       DialogService dialogService,
@@ -71,7 +73,8 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
                                       TaskExecutor taskExecutor,
                                       FieldCheckers fieldCheckers,
                                       GuiPreferences preferences,
-                                      UndoManager undoManager) {
+                                      UndoManager undoManager,
+                                      NativeDesktop nativeDesktop) {
 
         super(field, suggestionProvider, fieldCheckers, undoManager);
 
@@ -79,6 +82,7 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
         this.databaseContext = databaseContext;
         this.taskExecutor = taskExecutor;
         this.preferences = preferences;
+        this.nativeDesktop = nativeDesktop;
 
         BindingsHelper.bindContentBidirectional(
                 files,
@@ -151,7 +155,8 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
                                       databaseContext,
                                       taskExecutor,
                                       dialogService,
-                                      preferences))
+                                      preferences,
+                                      nativeDesktop))
                               .collect(Collectors.toList());
     }
 
@@ -170,7 +175,8 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
                 databaseContext,
                 taskExecutor,
                 dialogService,
-                preferences));
+                preferences,
+                nativeDesktop));
     }
 
     /// For the linked-file context menu, whose actions record into this library's journal.
@@ -215,7 +221,8 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
                         databaseContext,
                         taskExecutor,
                         dialogService,
-                        preferences);
+                        preferences,
+                        nativeDesktop);
                 newLinkedFile.markAsAutomaticallyFound();
                 result.add(newLinkedFile);
             }
@@ -288,7 +295,8 @@ public class LinkedFilesEditorViewModel extends AbstractEditorViewModel {
                 databaseContext,
                 taskExecutor,
                 dialogService,
-                preferences);
+                preferences,
+                nativeDesktop);
         files.add(onlineFile);
         onlineFile.download(true, headers, undoManager);
     }

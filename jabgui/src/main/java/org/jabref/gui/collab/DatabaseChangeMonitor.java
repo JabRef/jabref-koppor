@@ -17,6 +17,7 @@ import org.jabref.gui.DialogService;
 import org.jabref.gui.LibraryTab;
 import org.jabref.gui.Notifications;
 import org.jabref.gui.StateManager;
+import org.jabref.gui.desktop.os.NativeDesktop;
 import org.jabref.gui.preferences.GuiPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.shared.DatabaseLocation;
@@ -52,6 +53,7 @@ public class DatabaseChangeMonitor implements FileUpdateListener {
     private final TaskExecutor taskExecutor;
     private final DialogService dialogService;
     private final GuiPreferences preferences;
+    private final NativeDesktop nativeDesktop;
     private final UndoManager undoManager;
     private final StateManager stateManager;
     private final LibraryTab libraryTab;
@@ -88,12 +90,14 @@ public class DatabaseChangeMonitor implements FileUpdateListener {
                                  GuiPreferences preferences,
                                  UndoManager undoManager,
                                  StateManager stateManager,
-                                 LibraryTab libraryTab) {
+                                 LibraryTab libraryTab,
+                                 NativeDesktop nativeDesktop) {
         this.database = database;
         this.fileMonitor = fileMonitor;
         this.taskExecutor = taskExecutor;
         this.dialogService = dialogService;
         this.preferences = preferences;
+        this.nativeDesktop = nativeDesktop;
         this.undoManager = undoManager;
         this.stateManager = stateManager;
         this.libraryTab = libraryTab;
@@ -278,7 +282,7 @@ public class DatabaseChangeMonitor implements FileUpdateListener {
     /// Compares the modified library with its file: the same apart from the synchronization setting, the library
     /// becomes the baseline; otherwise the differences are offered for review, as without synchronization.
     private void scanToVerifyMatch() {
-        ChangeScanner scanner = new ChangeScanner(database, dialogService, preferences, stateManager);
+        ChangeScanner scanner = new ChangeScanner(database, dialogService, preferences, stateManager, nativeDesktop);
         int generation = ++scanGeneration;
         BackgroundTask.wrap(() -> scanner.scanForChanges(() -> awaitStableLibraryFile(generation)))
                       .onSuccess(changes -> changes.ifPresent(scanned -> {
@@ -322,7 +326,7 @@ public class DatabaseChangeMonitor implements FileUpdateListener {
     /// Looks for notable changes of the file on disk compared to the in-memory library and notifies listeners in case
     /// there are such changes.
     private void scanForChanges() {
-        ChangeScanner scanner = new ChangeScanner(database, dialogService, preferences, stateManager);
+        ChangeScanner scanner = new ChangeScanner(database, dialogService, preferences, stateManager, nativeDesktop);
         LibraryBaseline scannedBaseline = baseline;
         int generation = ++scanGeneration;
         if (scannedBaseline != null && isSynchronizing()) {
@@ -504,7 +508,7 @@ public class DatabaseChangeMonitor implements FileUpdateListener {
         // released again if the merge does not go through, so that a later attempt can retry
         FileSnapshot claimed = FileSnapshot.read(copy);
         mergedConflictedCopies.put(copy, claimed);
-        ChangeScanner scanner = new ChangeScanner(database, dialogService, preferences, stateManager);
+        ChangeScanner scanner = new ChangeScanner(database, dialogService, preferences, stateManager, nativeDesktop);
         // No new generation: merging a copy must not cancel the library scan it may run alongside
         int generation = scanGeneration;
         BackgroundTask.wrap(() -> scanCopy(scanner, copy))
