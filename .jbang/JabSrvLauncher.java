@@ -70,6 +70,9 @@
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/dto/LibraryQueryResponse.java
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/dto/LibraryQueryResult.java
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/dto/LinkedPdfFileDTO.java
+//SOURCES ../jabsrv/src/main/java/org/jabref/http/dto/SemanticSearchMatchDTO.java
+//SOURCES ../jabsrv/src/main/java/org/jabref/http/dto/SemanticSearchRequest.java
+//SOURCES ../jabsrv/src/main/java/org/jabref/http/dto/SemanticSearchResponse.java
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/dto/UncheckedFetcherException.java
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/JabrefMediaType.java
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/AbstractSrvStateManager.java
@@ -100,6 +103,7 @@
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/server/resources/command/OpenLibrariesCommand.java
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/server/resources/command/CommandResource.java
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/server/resources/command/SelectEntriesCommand.java
+//SOURCES ../jabsrv/src/main/java/org/jabref/http/server/resources/AiSearchResource.java
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/server/resources/CitationsResource.java
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/server/resources/LibrariesQueryResource.java
 //SOURCES ../jabsrv/src/main/java/org/jabref/http/server/resources/LibrariesResource.java
