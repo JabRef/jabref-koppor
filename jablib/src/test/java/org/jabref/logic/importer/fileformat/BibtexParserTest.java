@@ -1,5 +1,6 @@
 package org.jabref.logic.importer.fileformat;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.file.Path;

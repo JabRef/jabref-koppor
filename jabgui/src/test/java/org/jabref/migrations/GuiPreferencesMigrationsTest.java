@@ -17,6 +17,7 @@ import org.jabref.logic.preferences.JabRefCliPreferences;
 
 import com.airhacks.afterburner.injection.Injector;
 import com.github.javakeyring.Keyring;
+import com.github.javakeyring.PasswordAccessException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

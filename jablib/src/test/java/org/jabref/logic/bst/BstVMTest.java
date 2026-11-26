@@ -1,5 +1,7 @@
 package org.jabref.logic.bst;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
