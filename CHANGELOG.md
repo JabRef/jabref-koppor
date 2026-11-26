@@ -11,6 +11,8 @@ Note that this project **does not** adhere to [Semantic Versioning](https://semv
 
 ### Added
 
+- We added restricting the columns of the consistency check to the fields a biblatex `.bbx` or `.cbx` style uses. [#17710](https://github.com/JabRef/jabref/pull/17710)
+
 ### Changed
 
 ### Fixed

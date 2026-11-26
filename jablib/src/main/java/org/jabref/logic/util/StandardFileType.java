@@ -12,9 +12,11 @@ public enum StandardFileType implements FileType {
 
     AUX("Aux file", "aux"),
     BIBTEX_DB("Bibtex library", "bib"),
+    BBX("BibLaTeX bibliography style", "bbx"),
     BST("BibTeX-Style file", "bst"),
     BLG("BibTeX log file", "blg"),
 
+    CBX("BibLaTeX citation style", "cbx"),
     CER("SSL Certificate", "cer"),
     CFF("CFF", "cff"),
     CITATION_STYLE("Citation Style", "csl"),

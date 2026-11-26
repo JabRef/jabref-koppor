@@ -161,7 +161,7 @@ class ConsistencyCheckDialogViewModelTest {
 
         loadBstFile(viewModel, bstFile);
 
-        verify(dialogService).showErrorDialogAndWait(Localization.lang("You must select a valid .bst style file."));
+        verify(dialogService).showErrorDialogAndWait(Localization.lang("You must select a valid style file."));
         assertEquals("", viewModel.bstStyleNameProperty().get());
         assertFalse(viewModel.restrictToBstFieldsProperty().get());
     }
@@ -229,7 +229,7 @@ class ConsistencyCheckDialogViewModelTest {
         Path yearStyle = Files.writeString(tempDir.resolve("year.bst"), "ENTRY { year } {} {}");
         loadBstFile(viewModel, titleStyle);
         clearInvocations(taskExecutor);
-        viewModel.loadBstFile(yearStyle);
+        viewModel.loadStyleFile(yearStyle);
         ArgumentCaptor<BackgroundTask<Optional<Predicate<Field>>>> captor = ArgumentCaptor.captor();
         verify(taskExecutor).execute(captor.capture());
         var pending = captor.getValue();
@@ -245,9 +245,22 @@ class ConsistencyCheckDialogViewModelTest {
         assertEquals(List.of(StandardField.YEAR), shownFields(viewModel));
     }
 
+    @Test
+    void biblatexStyleRestrictsShownFields(@TempDir Path tempDir) throws Exception {
+        Path bbx = Files.writeString(tempDir.resolve("my.bbx"), "\\printfield{journaltitle}\n\\printfield{volume}\n");
+        ConsistencyCheckDialogViewModel viewModel = createViewModelForEntriesHavingOnlyAuthor();
+
+        loadBstFile(viewModel, bbx);
+
+        assertEquals("my.bbx", viewModel.bstStyleNameProperty().get());
+        assertTrue(viewModel.restrictToBstFieldsProperty().get());
+        // An installed TeX distribution adds the fields of biblatex.def, so only the style's own field is asserted
+        assertTrue(shownFields(viewModel).contains(StandardField.JOURNAL));
+    }
+
     private void loadBstFile(ConsistencyCheckDialogViewModel viewModel, Path path) throws Exception {
         clearInvocations(taskExecutor);
-        viewModel.loadBstFile(path);
+        viewModel.loadStyleFile(path);
         ArgumentCaptor<BackgroundTask<Optional<Predicate<Field>>>> captor = ArgumentCaptor.captor();
         verify(taskExecutor).execute(captor.capture());
         BackgroundTask<Optional<Predicate<Field>>> task = captor.getValue();
@@ -260,8 +273,8 @@ class ConsistencyCheckDialogViewModelTest {
         Path second = Files.writeString(tempDir.resolve("second.bst"), "ENTRY { year } {} {}");
         ConsistencyCheckDialogViewModel viewModel = createViewModelForEntriesHavingOnlyAuthor();
 
-        viewModel.loadBstFile(first);
-        viewModel.loadBstFile(second);
+        viewModel.loadStyleFile(first);
+        viewModel.loadStyleFile(second);
         ArgumentCaptor<BackgroundTask<Optional<Predicate<Field>>>> captor = ArgumentCaptor.captor();
         verify(taskExecutor, org.mockito.Mockito.times(2)).execute(captor.capture());
         BackgroundTask<Optional<Predicate<Field>>> older = captor.getAllValues().getFirst();
@@ -279,7 +292,7 @@ class ConsistencyCheckDialogViewModelTest {
     void failedBstLoadShowsErrorWithoutChangingSelection(@TempDir Path tempDir) throws Exception {
         ConsistencyCheckDialogViewModel viewModel = createViewModelForEntriesHavingOnlyAuthor();
         Path missing = tempDir.resolve("missing.bst");
-        viewModel.loadBstFile(missing);
+        viewModel.loadStyleFile(missing);
         ArgumentCaptor<BackgroundTask<Optional<Predicate<Field>>>> captor = ArgumentCaptor.captor();
         verify(taskExecutor).execute(captor.capture());
         BackgroundTask<Optional<Predicate<Field>>> task = captor.getValue();
@@ -287,7 +300,7 @@ class ConsistencyCheckDialogViewModelTest {
 
         task.getOnException().accept(exception);
 
-        verify(dialogService).showErrorDialogAndWait(Localization.lang("You must select a valid .bst style file."), exception);
+        verify(dialogService).showErrorDialogAndWait(Localization.lang("You must select a valid style file."), exception);
         assertEquals("", viewModel.bstStyleNameProperty().get());
     }
 
