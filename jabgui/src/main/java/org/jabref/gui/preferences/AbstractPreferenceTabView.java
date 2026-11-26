@@ -1,12 +1,14 @@
 package org.jabref.gui.preferences;
 
 import java.util.List;
+import java.util.Optional;
 
 import javafx.scene.Node;
 
 import org.jabref.gui.DialogService;
 import org.jabref.gui.preferences.forms.PreferencesFormBuilder;
 import org.jabref.injection.Injector;
+import org.jabref.logic.preferences.CliPreferences.CredentialSave;
 import org.jabref.logic.util.TaskExecutor;
 
 import org.jspecify.annotations.NonNull;
@@ -75,6 +77,11 @@ public abstract class AbstractPreferenceTabView<T extends PreferenceTabViewModel
     @Override
     public void storeSettings() {
         viewModel.storeSettings();
+    }
+
+    @Override
+    public Optional<CredentialSave> prepareCredentialSave() {
+        return viewModel.prepareCredentialSave();
     }
 
     @Override
